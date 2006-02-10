@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,29 +48,29 @@ PEGASUS_NAMESPACE_BEGIN
     These operators include the following:
 
     <ul>
-        <li>OR</li>
-        <li>AND</li>
-        <li>NOT</li>
-        <li>=</li>
-        <li>&lt;&gt;</li>
-        <li>&lt;</li>
-        <li>&le;</li>
-        <li>&gt;</li>
-        <li>&ge;</li>
-        <li>IS NULL</li>
-        <li>IS NOT NULL</li>
-        <li>IS TRUE</li>
-        <li>IS NOT TRUE</li>
-        <li>IS FALSE</li>
-        <li>IS NOT FALSE</li>
+	<li>OR</li>
+	<li>AND</li>
+	<li>NOT</li>
+	<li>=</li>
+	<li>&lt;&gt;</li>
+	<li>&lt;</li>
+	<li>&le;</li>
+	<li>&gt;</li>
+	<li>&ge;</li>
+	<li>IS NULL</li>
+	<li>IS NOT NULL</li>
+	<li>IS TRUE</li>
+	<li>IS NOT TRUE</li>
+	<li>IS FALSE</li>
+	<li>IS NOT FALSE</li>
     </ul>
 
     Here's an example of a SQL query that uses some of these operations.
 
     <pre>
-        SELECT *
-        FROM MyClass
-        WHERE (x &gt; 10 OR y &le; 1.5) OR z = 19 AND name IS NOT NULL
+	SELECT *
+	FROM MyClass
+	WHERE (x &gt; 10 OR y &le; 1.5) OR z = 19 AND name IS NOT NULL
     </pre>
 
     As the parser recognizes these operations, it adds the corresponding
@@ -76,30 +82,30 @@ PEGASUS_NAMESPACE_BEGIN
     Note that in expressions like this one:
 
     <pre>
-        count IS TRUE
+	count IS TRUE
     </pre>
 
     The IS operator is NOT treated as a binary operator (which would take
     count and TRUE as its operands). Instead, the IS operator and TRUE operand
-    are combined to form a single unary operation called "IS_TRUE". In this
+    are combined to form a single unary operation called "IS_TRUE". In this 
     way, evaluation may be implemented by more efficiently (the TRUE operand
     is eliminated and therefore need not be handled). Conceptually, the above
     expression is equivalent to the following psuedo expression:
 
     <pre>
-        IS_TRUE(count)
+    	IS_TRUE(count)
     </pre>
 
-    Note that this technique is applied the following operations (also
+    Note that this technique is applied the following operations (also 
     combined to be unary operations).
 
     <ul>
-        <li>WQL_IS_NULL</li>
-        <li>WQL_IS_NOT_NULL</li>
-        <li>WQL_IS_TRUE</li>
-        <li>WQL_IS_NOT_TRUE</li>
-        <li>WQL_IS_FALSE</li>
-        <li>WQL_IS_NOT_FALSE</li>
+	<li>WQL_IS_NULL</li>
+	<li>WQL_IS_NOT_NULL</li>
+	<li>WQL_IS_TRUE</li>
+	<li>WQL_IS_NOT_TRUE</li>
+	<li>WQL_IS_FALSE</li>
+	<li>WQL_IS_NOT_FALSE</li>
     </ul>
 */
 enum WQLOperation

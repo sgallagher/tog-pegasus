@@ -1,31 +1,46 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Christopher Neufeld <neufeld@linuxcare.com>
+//         David Kennedy       <dkennedy@linuxcare.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -62,8 +77,7 @@ static const int NUMKEYS_PROCESSOR=4;
 
 // Key properties (defined in CIM_LogicalDevice)
 
-static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME(
-    "SystemCreationClassName");
+static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME("SystemCreationClassName");
 static const String PROPERTY_SYSTEM_NAME("SystemName");
 static const String PROPERTY_CREATION_CLASS_NAME("CreationClassName");
 static const String PROPERTY_DEVICE_ID("DeviceID");
@@ -84,10 +98,8 @@ static const String PROPERTY_STATUS("Status");
 
 // Properties in CIM_LogicalDevice
 
-static const String PROPERTY_POWER_MANAGEMENT_SUPPORTED(
-    "PowerManagementSupported");
-static const String PROPERTY_POWER_MANAGEMENT_CAPABILITIES(
-    "PowerManagementCapabilities");
+static const String PROPERTY_POWER_MANAGEMENT_SUPPORTED("PowerManagementSupported");
+static const String PROPERTY_POWER_MANAGEMENT_CAPABILITIES("PowerManagementCapabilities");
 static const String PROPERTY_AVAILABILITY("Availability");
 static const String PROPERTY_STATUS_INFO("StatusInfo");
 static const String PROPERTY_LAST_ERROR_CODE("LastErrorCode");
@@ -96,8 +108,7 @@ static const String PROPERTY_ERROR_CLEARED("ErrorCleared");
 static const String PROPERTY_OTHER_IDENTIFYING_INFO("OtherIdentifyingInfo");
 static const String PROPERTY_POWER_ON_HOURS("PowerOnHours");
 static const String PROPERTY_TOTAL_POWER_ON_HOURS("TotalPowerHours");
-static const String PROPERTY_IDENTIFYING_DESCRIPTIONS(
-    "IdentifyingDescriptions");
+static const String PROPERTY_IDENTIFYING_DESCRIPTIONS("IdentifyingDescriptions");
 static const String PROPERTY_ADDITIONAL_AVAILABILITY("AdditionalAvailability");
 static const String PROPERTY_MAX_QUIESCE_TIME("MaxQuiesceTime");
 static const String METHOD_SET_POWER_STATE("SetPowerState");
@@ -143,7 +154,7 @@ ProcessorProvider::~ProcessorProvider()
 }
 
 
-// =============================================================================
+// ================================================================================
 // NAME              : createInstance
 // DESCRIPTION       : Create a CIM_Processor instance.
 // ASSUMPTIONS       : None
@@ -151,20 +162,21 @@ ProcessorProvider::~ProcessorProvider()
 // POST-CONDITIONS   :
 // NOTES             : Currently not supported.
 // PARAMETERS        :
-// =============================================================================
+// ================================================================================
 
-void ProcessorProvider::createInstance(
-    const OperationContext &context,
-    const CIMObjectPath &instanceName,
-    const CIMInstance &instanceObject,
-    ObjectPathResponseHandler &handler)
+void ProcessorProvider::createInstance(const OperationContext &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+                    ObjectPathResponseHandler &handler)
+
 {
-    // Current not implemented, but could be done by spawning a process
-    throw CIMNotSupportedException(String::EMPTY);
+  // Current not implemented, but could be done by
+  // spawning a process
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 
-// =============================================================================
+// ================================================================================
 // NAME              : deleteInstance
 // DESCRIPTION       : Delete a CIM_Processor instance.
 // ASSUMPTIONS       : None
@@ -172,7 +184,7 @@ void ProcessorProvider::createInstance(
 // POST-CONDITIONS   :
 // NOTES             : Currently not supported.
 // PARAMETERS        :
-// =============================================================================
+// ================================================================================
 
 void ProcessorProvider::deleteInstance(const OperationContext &context,
                     const CIMObjectPath           &instanceReference,
@@ -184,7 +196,7 @@ void ProcessorProvider::deleteInstance(const OperationContext &context,
 }
 
 
-// =============================================================================
+// ================================================================================
 // NAME              : enumerateInstances
 // DESCRIPTION       : Enumerates all of the CIM_Processor instances.
 //                   : An array of instance references is returned.
@@ -194,15 +206,15 @@ void ProcessorProvider::deleteInstance(const OperationContext &context,
 // NOTES             : LocalOnly, DeepInheritance and propertyList are not
 //                   : respected by this provider. Localization is not supported
 // PARAMETERS        :
-// =============================================================================
+// ================================================================================
 
 void ProcessorProvider::enumerateInstances(
-    const OperationContext & context,
-    const CIMObjectPath & classReference,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList,
-    InstanceResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	InstanceResponseHandler & handler)
 {
     // cout << "ProcessorProvider::enumerateInstances()" << endl;
 
@@ -237,7 +249,7 @@ void ProcessorProvider::enumerateInstances(
 
 
 
-// =============================================================================
+// ================================================================================
 // NAME              : enumerateInstanceNames
 // DESCRIPTION       : Enumerates all of the CIM_Processor instance names.
 //                     An array of instance references is returned.
@@ -246,7 +258,7 @@ void ProcessorProvider::enumerateInstances(
 // POST-CONDITIONS   :
 // NOTES             : Localization is not supported by this provider.
 // PARAMETERS        :
-// =============================================================================
+// ================================================================================
 
 void ProcessorProvider::enumerateInstanceNames(const OperationContext &ctx,
                             const CIMObjectPath &ref,
@@ -292,7 +304,7 @@ void ProcessorProvider::enumerateInstanceNames(const OperationContext &ctx,
 }  // enumerateInstanceNames
 
 
-// =============================================================================
+// ================================================================================
 // NAME              : getInstance
 // DESCRIPTION       : Returns a single instance.
 // ASSUMPTIONS       : None
@@ -305,7 +317,7 @@ void ProcessorProvider::enumerateInstanceNames(const OperationContext &ctx,
 //                   : on which class it was called for (handled by
 //                   : constructInstance)
 // PARAMETERS        :
-// =============================================================================
+// ================================================================================
 
 void ProcessorProvider::getInstance(const OperationContext &ctx,
                  const CIMObjectPath           &instanceName,
@@ -313,7 +325,7 @@ void ProcessorProvider::getInstance(const OperationContext &ctx,
                  const Boolean includeClassOrigin,
                  const CIMPropertyList        &propertyList,
                  InstanceResponseHandler &handler)
-{
+{	
   // cout << "ProcessorProvider::getInstance(" << instanceName << ")" << endl;
 
   CIMKeyBinding kb;
@@ -355,7 +367,7 @@ void ProcessorProvider::getInstance(const OperationContext &ctx,
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
             keyName.getString());
     }
-
+	
     // SystemName can be empty or must match
     else if (keyName.equal (PROPERTY_SYSTEM_NAME))
     {
@@ -371,7 +383,7 @@ void ProcessorProvider::getInstance(const OperationContext &ctx,
     else if (keyName.equal (PROPERTY_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
-          String::equalNoCase(keyValue, CLASS_PROCESSOR))
+	  String::equalNoCase(keyValue, CLASS_PROCESSOR))
         keysFound |= 4;
       else
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -387,9 +399,9 @@ void ProcessorProvider::getInstance(const OperationContext &ctx,
     }
 
     // Key name was not recognized by any of the above tests
-    else throw CIMInvalidParameterException(keyName.getString() +
+    else throw CIMInvalidParameterException(keyName.getString() + 
         ": Unrecognized key");
-
+		
   } // for
 
   // We could get here if we didn't get all the keys, which
@@ -398,7 +410,7 @@ void ProcessorProvider::getInstance(const OperationContext &ctx,
   // any duplicates (e.g., two DeviceIDs, no SystemName)
   if(keysFound != (1<<NUMKEYS_PROCESSOR)-1)
     throw CIMInvalidParameterException("Bad object name");
-
+	
   // Find the instance
 
   /* Get the process information. */
@@ -433,16 +445,15 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void ProcessorProvider::modifyInstance(
-    const OperationContext &context,
-    const CIMObjectPath &instanceName,
-    const CIMInstance &instanceObject,
-    const Boolean includeQualifiers,
-    const CIMPropertyList &propertyList,
-    ResponseHandler &handler)
+void ProcessorProvider::modifyInstance(const OperationContext &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+	            const Boolean includeQualifiers,
+		    const CIMPropertyList        &propertyList,
+                    ResponseHandler &handler)
 {
-    // Could be supported in the future for certain properties
-    throw CIMNotSupportedException(String::EMPTY);
+  // Could be supported in the future for certain properties
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 /*
@@ -484,7 +495,7 @@ void ProcessorProvider::terminate()
   delete this;
 }
 
-// =============================================================================
+// ================================================================================
 // NAME              : _constructKeyBindings
 // DESCRIPTION       : Constructs an array of keybindings for process
 // ASSUMPTIONS       : None
@@ -492,38 +503,33 @@ void ProcessorProvider::terminate()
 // POST-CONDITIONS   :
 // NOTES             :
 // PARAMETERS        : className
-// =============================================================================
+// ================================================================================
 
-Array<CIMKeyBinding> ProcessorProvider::_constructKeyBindings(
-    const Processor& _p)
+Array<CIMKeyBinding> ProcessorProvider::_constructKeyBindings(const Processor& _p)
 {
   Array<CIMKeyBinding> keyBindings;
 
   // Construct the key bindings
-  keyBindings.append(CIMKeyBinding(
-      PROPERTY_SYSTEM_CREATION_CLASS_NAME,
-      CLASS_CIM_COMPUTER_SYSTEM,
-      CIMKeyBinding::STRING));
+  keyBindings.append(CIMKeyBinding(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
+		                CLASS_CIM_COMPUTER_SYSTEM,
+                                CIMKeyBinding::STRING));
+		
+  keyBindings.append(CIMKeyBinding(PROPERTY_SYSTEM_NAME,
+                                _getSysName(),
+                                CIMKeyBinding::STRING));
 
-  keyBindings.append(CIMKeyBinding(
-      PROPERTY_SYSTEM_NAME,
-      _getSysName(),
-      CIMKeyBinding::STRING));
+  keyBindings.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
+		                CLASS_PROCESSOR,
+                                CIMKeyBinding::STRING));
 
-  keyBindings.append(CIMKeyBinding(
-      PROPERTY_CREATION_CLASS_NAME,
-      CLASS_PROCESSOR,
-      CIMKeyBinding::STRING));
-
-  keyBindings.append(CIMKeyBinding(
-      PROPERTY_DEVICE_ID,
-      _p.getDeviceID(),
-      CIMKeyBinding::STRING));
+  keyBindings.append(CIMKeyBinding(PROPERTY_DEVICE_ID,
+                                _p.getDeviceID(),
+                                CIMKeyBinding::STRING));
 
   return keyBindings;
 }
 
-// =============================================================================
+// ================================================================================
 // NAME              : _constructInstance
 // DESCRIPTION       : Constructs instance by adding its properties. The
 //                   : Processor instance argument has already been filled in
@@ -533,7 +539,7 @@ Array<CIMKeyBinding> ProcessorProvider::_constructKeyBindings(
 // POST-CONDITIONS   :
 // NOTES             :
 // PARAMETERS        : className, nameSpace, Processor
-// =============================================================================
+// ================================================================================
 
 CIMInstance ProcessorProvider::_constructInstance(
     const CIMName &className,
@@ -577,7 +583,7 @@ CIMInstance ProcessorProvider::_constructInstance(
   //   datetime InstallDate
   if (_p.getInstallDate(d))
     inst.addProperty(CIMProperty(PROPERTY_INSTALL_DATE,d));
-
+    
   // string Name
   if (_p.getName(s))
     inst.addProperty(CIMProperty(PROPERTY_NAME,s));
@@ -619,55 +625,55 @@ CIMInstance ProcessorProvider::_constructInstance(
   // boolean PowerManagementSupported;
   if (_p.getPowerManagementSupported(b))
     inst.addProperty(CIMProperty(PROPERTY_POWER_MANAGEMENT_SUPPORTED,b));
-
+    
   // uint16 PowerManagementCapabilities[];
   if (_p.getPowerManagementCapabilities(ai16))
     inst.addProperty(CIMProperty(PROPERTY_POWER_MANAGEMENT_CAPABILITIES,ai16));
-
+    
   // uint16 Availability;
   if (_p.getAvailability(i16))
     inst.addProperty(CIMProperty(PROPERTY_AVAILABILITY,i16));
-
+    
   // uint16 StatusInfo;
   if (_p.getStatusInfo(i16))
     inst.addProperty(CIMProperty(PROPERTY_STATUS_INFO,i16));
-
+    
   // uint32 LastErrorCode;
   if (_p.getLastErrorCode(i32))
     inst.addProperty(CIMProperty(PROPERTY_LAST_ERROR_CODE,i32));
-
+    
   // string ErrorDescription;
   if (_p.getErrorDescription(s))
     inst.addProperty(CIMProperty(PROPERTY_ERROR_DESCRIPTION,s));
-
+    
   // boolean ErrorCleared;
   if (_p.getErrorCleared(b))
     inst.addProperty(CIMProperty(PROPERTY_ERROR_CLEARED,b));
-
+    
   // string OtherIdentifyingInfo[];
   if (_p.getOtherIdentifyingInfo(as))
     inst.addProperty(CIMProperty(PROPERTY_OTHER_IDENTIFYING_INFO,as));
-
+    
   // uint64 PowerOnHours;
   if (_p.getPowerOnHours(i64))
     inst.addProperty(CIMProperty(PROPERTY_POWER_ON_HOURS,i64));
-
+    
   // uint64 TotalPowerOnHours;
   if (_p.getTotalPowerOnHours(i64))
     inst.addProperty(CIMProperty(PROPERTY_TOTAL_POWER_ON_HOURS,i64));
-
+    
   // string IdentifyingDescriptions[];
   if (_p.getIdentifyingDescriptions(as))
     inst.addProperty(CIMProperty(PROPERTY_IDENTIFYING_DESCRIPTIONS,as));
-
+    
   // uint16 AdditionalAvailability[];
   if (_p.getAdditionalAvailability(ai16))
     inst.addProperty(CIMProperty(PROPERTY_ADDITIONAL_AVAILABILITY,ai16));
-
+    
   // uint64 MaxQuiesceTime;
   if (_p.getMaxQuiesceTime(i64))
     inst.addProperty(CIMProperty(PROPERTY_MAX_QUIESCE_TIME,i64));
-
+    
 
   // =================================================
   // CIM_Processor
@@ -676,51 +682,51 @@ CIMInstance ProcessorProvider::_constructInstance(
   // string Role;
   if (_p.getRole(s))
     inst.addProperty(CIMProperty(PROPERTY_ROLE,s));
-
+    
   // uint16 Family;
   if (_p.getFamily(i16))
     inst.addProperty(CIMProperty(PROPERTY_FAMILY,i16));
-
+    
   // string OtherFamilyDescription;
   if (_p.getOtherFamilyDescription(s))
     inst.addProperty(CIMProperty(PROPERTY_OTHER_FAMILY_DESCRIPTION,s));
-
+    
   // uint16 UpgradeMethod;
   if (_p.getUpgradeMethod(i16))
     inst.addProperty(CIMProperty(PROPERTY_UPGRADE_METHOD,i16));
-
+    
   // uint32 MaxClockSpeed;
   if (_p.getMaxClockSpeed(i32))
     inst.addProperty(CIMProperty(PROPERTY_MAX_CLOCK_SPEED,i32));
-
+    
   // uint32 CurrentClockSpeed;
   if (_p.getCurrentClockSpeed(i32))
     inst.addProperty(CIMProperty(PROPERTY_CURRENT_CLOCK_SPEED,i32));
-
+    
   // uint16 DataWidth;
   if (_p.getDataWidth(i16))
     inst.addProperty(CIMProperty(PROPERTY_DATA_WIDTH,i16));
-
+    
   // uint16 AddressWidth;
   if (_p.getAddressWidth(i16))
     inst.addProperty(CIMProperty(PROPERTY_ADDRESS_WIDTH,i16));
-
+    
   // uint16 LoadPercentage;
   if (_p.getLoadPercentage(i16))
     inst.addProperty(CIMProperty(PROPERTY_LOAD_PERCENTAGE,i16));
-
+    
   // string Stepping;
   if (_p.getStepping(s))
     inst.addProperty(CIMProperty(PROPERTY_STEPPING,s));
-
+    
   // string UniqueID;
   if (_p.getUniqueID(s))
     inst.addProperty(CIMProperty(PROPERTY_UNIQUE_ID,s));
-
+    
   // uint16 CPUStatus;
   if (_p.getCPUStatus(i16))
     inst.addProperty(CIMProperty(PROPERTY_CPU_STATUS,i16));
-
+    
   if (className.equal (CLASS_CIM_PROCESSOR)) return inst;
 
   // =================================================
@@ -730,7 +736,7 @@ CIMInstance ProcessorProvider::_constructInstance(
   // string BiosID;
   if (_p.getBiosID(s))
     inst.addProperty(CIMProperty(PROPERTY_BIOS_ID,s));
-
+    
   // string FirmwareID;
   if (_p.getFirmwareID(s))
     inst.addProperty(CIMProperty(PROPERTY_FIRMWARE_ID,s));

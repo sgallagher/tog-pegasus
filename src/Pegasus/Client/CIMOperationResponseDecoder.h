@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Willis White, IBM (whiwill@us.ibm.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +62,7 @@ class XmlParser;
     This message is sent from the response decoder to the CIMClient, indicating
     an error in issuing a CIM request.
 */
-class PEGASUS_CLIENT_LINKAGE ClientExceptionMessage : public Message
+class ClientExceptionMessage : public Message
 {
 public:
     ClientExceptionMessage(Exception* clientException_)
@@ -66,7 +76,7 @@ public:
 };
 
 
-/** This class receives HTTP messages and decodes them into CIM Operation
+/** This class receives HTTP messages and decodes them into CIM Operation 
     Responses messages which it places on its output queue.
 */
 class PEGASUS_CLIENT_LINKAGE CIMOperationResponseDecoder : public MessageQueue
@@ -74,13 +84,13 @@ class PEGASUS_CLIENT_LINKAGE CIMOperationResponseDecoder : public MessageQueue
 public:
 
     /** Constuctor.
-        @param outputQueue queue to receive decoded HTTP messages.
+	@param outputQueue queue to receive decoded HTTP messages.
     */
-    CIMOperationResponseDecoder(
+   CIMOperationResponseDecoder(
         MessageQueue* outputQueue,
         MessageQueue* encoderQueue,
-        ClientAuthenticator* authenticator
-        );
+        ClientAuthenticator* authenticator,
+        Uint32 showInput);
 
     /** Destructor. */
     ~CIMOperationResponseDecoder();
@@ -92,22 +102,20 @@ public:
     virtual void handleEnqueue();
 
     /**
-        This methods gives the Decoder access to the ClientPerfDataStore that
-        is in CIMClientRep. A pointer to  the CIMClientRep::ClientPerfDataStore
-        is passed in
-    */
+     * This methods gives the Decoder access to the ClientPerfDataStore that
+     * is in CIMClientRep. A pointer to  the CIMClientRep::ClientPerfDataStore
+     * is passed in*/
     void setDataStorePointer(ClientPerfDataStore* perfDataStore_ptr);
 
 private:
 
-    void _handleHTTPMessage(HTTPMessage* message);
+    void _handleHTTPMessage(
+	HTTPMessage* message);
 
     void _handleMethodResponse(
-        const char* content,
-        Uint32 contentLength,
+        char* content,
         const ContentLanguageList& contentLanguages,
-        Boolean reconnect,
-        bool binaryResponse);
+        Boolean reconnect);
 
     CIMCreateClassResponseMessage* _decodeCreateClassResponse(
         XmlParser& parser,
@@ -154,11 +162,10 @@ private:
         const String& messageId,
         Boolean isEmptyImethodresponseTag);
 
-    CIMEnumerateInstanceNamesResponseMessage*
-        _decodeEnumerateInstanceNamesResponse(
-            XmlParser& parser,
-            const String& messageId,
-            Boolean isEmptyImethodresponseTag);
+    CIMEnumerateInstanceNamesResponseMessage* _decodeEnumerateInstanceNamesResponse(
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
         XmlParser& parser,
@@ -236,6 +243,9 @@ private:
     MessageQueue*        _encoderQueue;
 
     ClientAuthenticator* _authenticator;
+
+    // Controls decoder client displays 1 = con, 2 = log display
+    Uint32               _showInput;
 
     ClientPerfDataStore* dataStore;
 };

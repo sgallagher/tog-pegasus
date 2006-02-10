@@ -1,31 +1,35 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,20 +42,20 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-TestInstanceProvider::TestInstanceProvider()
+TestInstanceProvider::TestInstanceProvider(void)
 {
 }
 
-TestInstanceProvider::~TestInstanceProvider()
+TestInstanceProvider::~TestInstanceProvider(void)
 {
 }
 
-void TestInstanceProvider::initialize(CIMOMHandle& cimom)
+void TestInstanceProvider::initialize(CIMOMHandle & cimom)
 {
-    // save cimom handle
-    //_cimom = cimom;
+	// save cimom handle
+	//_cimom = cimom;
 
-    // create default instances
+	// create default instances
     {
         CIMInstance instance("tst_instance1");
 
@@ -60,8 +64,7 @@ void TestInstanceProvider::initialize(CIMOMHandle& cimom)
         instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(001)));
         instance.addProperty(CIMProperty("f", Real64(1.001)));
-        instance.addProperty(
-            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.setPath(CIMObjectPath("TST_Instance1.Name=\"001\""));
 
@@ -76,8 +79,7 @@ void TestInstanceProvider::initialize(CIMOMHandle& cimom)
         instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(002)));
         instance.addProperty(CIMProperty("f", Real64(1.002)));
-        instance.addProperty(
-            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.addProperty(CIMProperty("e", String("extra property")));
 
@@ -94,8 +96,7 @@ void TestInstanceProvider::initialize(CIMOMHandle& cimom)
         //instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(003)));
         instance.addProperty(CIMProperty("f", Real64(1.003)));
-        instance.addProperty(
-            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.setPath(CIMObjectPath("TST_Instance1.Name=\"003\""));
 
@@ -111,8 +112,7 @@ void TestInstanceProvider::initialize(CIMOMHandle& cimom)
         instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(004)));
         instance.addProperty(CIMProperty("f", Real64(1.004)));
-        instance.addProperty(
-            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         //instance.setPath(CIMObjectPath("TST_Instance1.Name=\"004\""));
 
@@ -128,8 +128,7 @@ void TestInstanceProvider::initialize(CIMOMHandle& cimom)
         instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(005)));
         instance.addProperty(CIMProperty("f", Real64(1.005)));
-        instance.addProperty(
-            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.setPath(CIMObjectPath("TST_InstanceBAD.Name=\"005\""));
 
@@ -145,8 +144,7 @@ void TestInstanceProvider::initialize(CIMOMHandle& cimom)
         instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(006)));
         instance.addProperty(CIMProperty("f", Real64(1.006)));
-        instance.addProperty(
-            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.setPath(CIMObjectPath("TST_Instance1.Name=\"006\""));
 
@@ -154,18 +152,18 @@ void TestInstanceProvider::initialize(CIMOMHandle& cimom)
     }
 }
 
-void TestInstanceProvider::terminate()
+void TestInstanceProvider::terminate(void)
 {
     delete this;
 }
 
 void TestInstanceProvider::getInstance(
-    const OperationContext& context,
-    const CIMObjectPath& instanceReference,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    InstanceResponseHandler& handler)
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	InstanceResponseHandler & handler)
 {
     handler.processing();
 
@@ -175,15 +173,15 @@ void TestInstanceProvider::getInstance(
     cimObjectPath.setHost(String());
     cimObjectPath.setNameSpace(CIMNamespaceName());
 
-    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
-        if (cimObjectPath == _instances[i].getPath())
+        if(cimObjectPath == _instances[i].getPath())
         {
             try
             {
                 handler.deliver(_instances[i]);
             }
-            catch (CIMException&)
+            catch(CIMException &)
             {
                 // suppress error
             }
@@ -196,22 +194,22 @@ void TestInstanceProvider::getInstance(
 }
 
 void TestInstanceProvider::enumerateInstances(
-    const OperationContext& context,
-    const CIMObjectPath& ref,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    InstanceResponseHandler& handler)
+	const OperationContext & context,
+	const CIMObjectPath & ref,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	InstanceResponseHandler & handler)
 {
     handler.processing();
 
-    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         try
         {
             handler.deliver(_instances[i]);
         }
-        catch (CIMException&)
+        catch(CIMException &)
         {
             // suppress error
         }
@@ -221,19 +219,19 @@ void TestInstanceProvider::enumerateInstances(
 }
 
 void TestInstanceProvider::enumerateInstanceNames(
-    const OperationContext& context,
-    const CIMObjectPath& classReference,
-    ObjectPathResponseHandler& handler)
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+	ObjectPathResponseHandler & handler)
 {
     handler.processing();
 
-    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         try
         {
             handler.deliver(_instances[i].getPath());
         }
-        catch (CIMException&)
+        catch(CIMException &)
         {
             // suppress error
         }
@@ -243,29 +241,29 @@ void TestInstanceProvider::enumerateInstanceNames(
 }
 
 void TestInstanceProvider::modifyInstance(
-    const OperationContext& context,
-    const CIMObjectPath& instanceReference,
-    const CIMInstance& instanceObject,
-    const Boolean includeQualifiers,
-    const CIMPropertyList& propertyList,
-    ResponseHandler& handler)
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
+	const CIMInstance & instanceObject,
+	const Boolean includeQualifiers,
+	const CIMPropertyList & propertyList,
+	ResponseHandler & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void TestInstanceProvider::createInstance(
-    const OperationContext& context,
-    const CIMObjectPath& instanceReference,
-    const CIMInstance& instanceObject,
-    ObjectPathResponseHandler& handler)
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
+	const CIMInstance & instanceObject,
+	ObjectPathResponseHandler & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void TestInstanceProvider::deleteInstance(
-    const OperationContext& context,
-    const CIMObjectPath& instanceReference,
-    ResponseHandler& handler)
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
+	ResponseHandler & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }

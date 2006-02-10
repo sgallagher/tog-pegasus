@@ -1,37 +1,46 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cctype>
 #include "CIMName.h"
-#include "CIMNameCast.h"
 #include "CommonUTF.h"
 #include "CharSet.h"
 
@@ -47,43 +56,16 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-Uint32 CIMNameLegalASCII(const char* str)
-{
-    const Uint8* p = (const Uint8*)str;
-
-    if (!CharSet::isAlphaUnder(*p++))
-        return 0;
-
-    while (*p)
-    {
-        if (!CharSet::isAlNumUnder(*p++))
-            return 0;
-    }
-
-    return Uint32((char*)p - str);
-}
-
 CIMName::CIMName(const String& name) : cimName(name)
 {
     if (!legal(name))
         throw InvalidNameException(name);
 }
 
-CIMName::CIMName(const char* name)
+CIMName::CIMName(const char* name) : cimName(name)
 {
-    Uint32 size = CIMNameLegalASCII(name);
-
-    if (size == 0)
-    {
-        cimName.assign(name);
-
-        if (!legal(cimName))
-            throw InvalidNameException(name);
-    }
-    else
-    {
-        AssignASCII(cimName, name, size);
-    }
+    if (!legal(name))
+        throw InvalidNameException(name);
 }
 
 CIMName& CIMName::operator=(const String& name)
@@ -97,21 +79,10 @@ CIMName& CIMName::operator=(const String& name)
 
 CIMName& CIMName::operator=(const char* name)
 {
-    Uint32 size = CIMNameLegalASCII(name);
+    if (!legal(name))
+        throw InvalidNameException(name);
 
-    if (size == 0)
-    {
-        String tmp(name);
-
-        if (!legal(tmp))
-            throw InvalidNameException(name);
-
-        cimName.assign(tmp);
-    }
-    else
-    {
-        AssignASCII(cimName, name, size);
-    }
+    cimName = name;
     return *this;
 }
 
@@ -120,11 +91,11 @@ Boolean CIMName::legal(const String& name)
     // Check first character.
 
     const Uint16* p = (const Uint16*)name.getChar16Data();
-    Uint32 n = name.size();
+    size_t n = name.size();
 
     if (!(*p < 128 && CharSet::isAlphaUnder(*p)))
     {
-        if (!(*p >= 0x0080 && *p <= 0xFFEF))
+	if (!(*p >= 0x0080 && *p <= 0xFFEF))
             return false;
     }
 
@@ -135,30 +106,30 @@ Boolean CIMName::legal(const String& name)
 
     while (n >= 4)
     {
-        if (p[0] < 128 && CharSet::isAlNumUnder(p[0]) &&
-            p[1] < 128 && CharSet::isAlNumUnder(p[1]) &&
-            p[2] < 128 && CharSet::isAlNumUnder(p[2]) &&
-            p[3] < 128 && CharSet::isAlNumUnder(p[3]))
-        {
-            p += 4;
-            n -= 4;
-            continue;
-        }
+	if (p[0] < 128 && CharSet::isAlNumUnder(p[0]) &&
+	    p[1] < 128 && CharSet::isAlNumUnder(p[1]) &&
+	    p[2] < 128 && CharSet::isAlNumUnder(p[2]) &&
+	    p[3] < 128 && CharSet::isAlNumUnder(p[3]))
+	{
+	    p += 4;
+	    n -= 4;
+	    continue;
+	}
 
-        break;
+	break;
     }
 
     // Process remaining charcters.
 
     while (n)
     {
-        if (!(*p < 128 && CharSet::isAlNumUnder(*p)))
-        {
-            if (!(*p >= 0x0080 && *p <= 0xFFEF))
-                return false;
-        }
-        p++;
-        n--;
+	if (!(*p < 128 && CharSet::isAlNumUnder(*p)))
+	{
+	    if (!(*p >= 0x0080 && *p <= 0xFFEF))
+		return false;
+	}
+	p++;
+	n--;
     }
 
     return true;
@@ -183,13 +154,13 @@ inline void _check_namespace_name(String& name)
         name.remove(0, 1);
 }
 
-CIMNamespaceName::CIMNamespaceName(const String& name)
+CIMNamespaceName::CIMNamespaceName(const String& name) 
     : cimNamespaceName(name)
 {
     _check_namespace_name(cimNamespaceName);
 }
 
-CIMNamespaceName::CIMNamespaceName(const char* name)
+CIMNamespaceName::CIMNamespaceName(const char* name) 
     : cimNamespaceName(name)
 {
     _check_namespace_name(cimNamespaceName);
@@ -242,11 +213,8 @@ Boolean CIMNamespaceName::legal(const String& name)
 
         // First character must be alphabetic or '_' if ASCII
 
-        if (!(ch < 128 && CharSet::isAlphaUnder(ch)))
-        {
-            if (!(ch >= 0x0080 && ch <= 0xFFEF))
-                return false;
-        }
+        if (!((ch >= 0x0080 && ch <= 0xFFEF) || CharSet::isAlphaUnder(ch)))
+            return false;
 
         // Remaining characters must be alphanumeric or '_' if ASCII
         while (index < length)
@@ -260,11 +228,8 @@ Boolean CIMNamespaceName::legal(const String& name)
                 break;
             }
 
-            if (!(ch < 128 && CharSet::isAlNumUnder(ch)))
-            {
-                if (!(ch >= 0x0080 && ch <= 0xFFEF))
-                    return false;
-            }
+	    if(!((ch >= 0x0080 && ch <= 0xFFEF) || CharSet::isAlNumUnder(ch)))
+                return false;
         }
     }
 

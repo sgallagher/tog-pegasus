@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +42,7 @@
 #ifndef Pegasus_IndicationHandlerService_h
 #define Pegasus_IndicationHandlerService_h
 
+#include <Pegasus/Common/Config.h>
 #include <sys/types.h>
 #include <iostream>
 #include <stdio.h>
@@ -45,179 +55,57 @@
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
-#include <Pegasus/HandlerService/HandlerTable.h>
+#include "HandlerTable.h"
+
 #include <Pegasus/HandlerService/Linkage.h>
 
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-#include <Pegasus/HandlerService/DestinationQueue.h>
+#ifdef PEGASUS_OS_OS400
+# define LIBRARY_NAME_CIMXML_INDICATION_HNDLR "QSYS/QYCMCIMI00" 
+# define LIBRARY_NAME_SNMP_INDICATION_HNDLR   "QSYS/QYCMSIHA00"
 #endif
-
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService :
-    public MessageQueueService
+class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService 
+   : public MessageQueueService
 {
-public:
-
-    typedef MessageQueueService Base;
-
-    IndicationHandlerService(CIMRepository* repository);
-
-    ~IndicationHandlerService();
-
-    virtual void _handle_async_request(AsyncRequest* req);
-
-    virtual void handleEnqueue(Message*);
-
-    virtual void handleEnqueue();
-
-    AtomicInt dienow;
-
-private:
-    IndicationHandlerService();  //  unimplemented
-
-    CIMRepository* _repository;
+   public:
     
-    void filterInstance(bool includeQualifiers,bool includeClassOrigin,
-        const CIMPropertyList& propertyList,CIMInstance & newInstance);
+      typedef MessageQueueService Base;
+    
+      IndicationHandlerService(CIMRepository* repository);
 
-    CIMHandleIndicationResponseMessage* _handleIndication(
-        CIMHandleIndicationRequestMessage* request);
+      IndicationHandlerService(void);
 
-    HandlerTable _handlerTable;
+      ~IndicationHandlerService(void) { } ;
+      
+      virtual void _handle_async_request(AsyncRequest *req);
 
-    CIMHandler* _lookupHandlerForClass(const CIMName& className);
+      virtual void handleEnqueue(Message *);
 
-    Boolean _loadHandler(
-        CIMHandleIndicationRequestMessage* request,
-        CIMException& cimException);
+      virtual void handleEnqueue(void);
 
-    Boolean _loadHandler(
-        const OperationContext& context,
-        const String nameSpace,
-        CIMInstance& indicationInstance,
-        CIMInstance& indicationHandlerInstance,
-        CIMInstance& indicationSubscriptionInstance,
-        CIMException& cimException,
-        IndicationExportConnection **connection);
+      static void _handleIndicationCallBack(AsyncOpNode *, 
+					    MessageQueue *, 
+					    void *);
+      
+      AtomicInt dienow;
 
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+   private:
+      CIMRepository* _repository;
 
-    /**
-        This method is called when HandlerService receives the
-        CIMNotifySubscriptionNotActiveRequestMessage. Indications matching the
-        subscription will be discarded from the queue and traced.
-    */
-    CIMNotifySubscriptionNotActiveResponseMessage*
-        _handleSubscriptionNotActiveRequest(
-            CIMNotifySubscriptionNotActiveRequestMessage *message);
+      CIMHandleIndicationResponseMessage* _handleIndication(
+          CIMHandleIndicationRequestMessage* request);
 
-    /**
-        This method is called when HandlerService receives the
-        CIMNotifySubscriptionNotActiveRequestMessage. Queue will be deleted.
-    */
-    CIMNotifyListenerNotActiveResponseMessage* _handleListenerNotActiveRequest(
-        CIMNotifyListenerNotActiveRequestMessage *message);
+      HandlerTable _handlerTable;
 
-    /**
-        This method is called when HandlerService receives the
-        CIMNotifyConfigChangeRequestMessage. Property DeliveryRetryAttempts
-        & DeliveryRetryInterval get updated  
-    */
-    CIMNotifyConfigChangeResponseMessage*
-        _handlePropertyUpdateRequest(
-            CIMNotifyConfigChangeRequestMessage *message);
+      CIMHandler* _lookupHandlerForClass(const CIMName& className);
 
+      String _parseDestination(String dest);
 
-    /**
-        This method is called to stop dispatcher thread when HandlerService
-        receives the CimServiceStop request.
-    */
-    void _stopDispatcher();
+      void _loadHandler(
+          CIMHandleIndicationRequestMessage* request,
+          CIMException & cimException);
 
-    /**
-        Tries to deliver the indication, returns true if delivery is successful
-        else false.
-    */
-    void _deliverIndication(IndicationInfo *info);
-
-    /**
-        This method is called when indication in the form of
-        CIMHandleIndicationRequestMessage arrives to HandlerService  from
-        IndicationService. This method sets the sequence-identfier to the
-        indication and enqueues the indication into the destination queue.
-   */
-    void _setSequenceIdentifierAndEnqueue(
-        CIMHandleIndicationRequestMessage *message);
-
-    /**
-        Starts the dispatcher thread.
-    */
-    void  _startDispatcher();
-
-    /**
-        This method is called when indication delivery has failed.
-        This method enqueues the indication on to the DestinationQueue.
-   */
-    void _destinationQueueEnqueue(
-        CIMHandleIndicationRequestMessage *message);
-
-    CIMResponseMessage*
-        _handleEnumerateInstancesRequest(
-            CIMEnumerateInstancesRequestMessage *message);
-
-    CIMResponseMessage*
-        _handleEnumerateInstanceNamesRequest(
-            CIMEnumerateInstanceNamesRequestMessage *message);
-
-     CIMResponseMessage*
-         _handleGetInstanceRequest(
-             CIMGetInstanceRequestMessage *message);
-
-    Array<CIMInstance> _getDestinationQueues(
-        const CIMObjectPath &getInstanceName,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList &propList);
-
-    /**
-        This method Cleanup all DestinationQueues
-        Depending on flag _needDestinationQueueCleanup, this method is called
-        either from IndicationHandlerService dtor or from _handleIndication 
-   */
-    void _destinationQueuesCleanup(); 
- 
-   /**
-        Gets the Queue name from either subscriptionName or handlerName,
-        constructed as follows.
-        namespace:ClassName.Name=\"HandlerName\".
-    */
-    String _getQueueName(
-        const CIMObjectPath &instancePath);
-
-    typedef HashTable<
-                String,
-                DestinationQueue*,
-                EqualFunc<String>,
-                HashFunc<String> > DestinationQueueTable;
-
-    DestinationQueueTable _destinationQueueTable;
-    ReadWriteSem _destinationQueueTableLock;
-
-    AtomicInt _deliveryThreadsRunningCount;
-    AtomicInt _dispatcherThreadRunning;
-    List<IndicationInfo, Mutex> _deliveryQueue;
-    ThreadPool _deliveryThreadPool;
-    Thread _dispatcherThread;
-    AtomicInt _stopDispatcherThread;
-    const Uint32 _maxDeliveryThreads;
-    Uint16 _maxDeliveryRetry;
-    Boolean _needDestinationQueueCleanup; 
-    Semaphore _dispatcherWaitSemaphore;
-    static ThreadReturnType PEGASUS_THREAD_CDECL
-        _dispatcherRoutine(void *param);
-    static ThreadReturnType PEGASUS_THREAD_CDECL _deliveryRoutine(void *param);
-#endif
 };
 
 PEGASUS_NAMESPACE_END

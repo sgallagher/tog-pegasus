@@ -1,31 +1,33 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 ROOT = ../../../..
 
 DIR = Clients/wbemexec/tests
@@ -34,11 +36,7 @@ include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/test.mak
 
 RESULTFILE =  $(TMP_DIR)/result
-ifdef PEGASUS_HAS_SSL
 MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
-else
-MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nossl
-endif
 
 
 ##
@@ -67,7 +65,7 @@ poststarttests: poststarttests1
 
 poststarttests1: FORCE
 	@$(RM) $(RESULTFILE)
-ifeq ($(OS),zos)
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 	@$(RM) ./emptyfile
 	@touch $(RESULTFILE)
 	@touch ./emptyfile
@@ -78,18 +76,18 @@ endif
 	@$(ECHO) "  " >> $(RESULTFILE)
 	@$(ECHO) "Valid cases:" >> $(RESULTFILE)
 	@$(ECHO) "All options specified except hostname" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) ./cimrequest.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) ./cimrequest.xml >>  $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml >>  $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@wbemexec --help >>  $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@wbemexec --version >>  $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "  " >> $(RESULTFILE)
 	@$(ECHO) "All options specified except hostname" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -p5988 -v1.1 -mM-POST -t10000 -u(PEGASUS_TEST_USER_ID) -w(PEGASUS_TEST_USER_PASS) ./cimrequest.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -p5988 -v1.1 -mM-POST -t10000 -uguest -wguest ./cimrequest.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -p5988 -v1.1 -mM-POST -t10000 -u$(PEGASUS_TEST_USER_ID) -w$(PEGASUS_TEST_USER_PASS) ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -p5988 -v1.1 -mM-POST -t10000 -uguest -wguest ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "  " >> $(RESULTFILE)
 	@$(ECHO) "No options specified" >> $(RESULTFILE)
 	@$(ECHO) "wbemexec < ./cimrequest.xml" >> $(RESULTFILE)
@@ -192,12 +190,14 @@ poststarttests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Non-option argument -" >> $(RESULTFILE)
+	@$(ECHO) "Works -- getoopt behavior differs from other implementations of getopt" >> $(RESULTFILE)
 	@$(ECHO) "wbemexec - < ./cimrequest.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@wbemexec - < ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Non-option argument -" >> $(RESULTFILE)
+	@$(ECHO) "Works -- getoopt behavior differs from other implementations of getopt" >> $(RESULTFILE)
 	@$(ECHO) "wbemexec - ./cimrequest.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@wbemexec - ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
@@ -222,15 +222,15 @@ poststarttests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid option -x" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) -x < ./cimrequest.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest -x < ./cimrequest.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) -x < ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest -x < ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid option -x" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -x -w (PEGASUS_TEST_USER_PASS) < ./cimrequest.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -x -w guest < ./cimrequest.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -x -w $(PEGASUS_TEST_USER_PASS) < ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -x -w guest < ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid option -x" >> $(RESULTFILE)
@@ -276,15 +276,15 @@ poststarttests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Duplicate -u option" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -u (PEGASUS_TEST_USER_ID)2 ./cimrequest.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -u guest2 ./cimrequest.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -u $(PEGASUS_TEST_USER_ID)2 ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -u guest2 ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Duplicate -w option" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -w (PEGASUS_TEST_USER_PASS) -w (PEGASUS_TEST_USER_PASS)2 ./cimrequest.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -w guest -w guest2 ./cimrequest.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -w $(PEGASUS_TEST_USER_PASS) -w $(PEGASUS_TEST_USER_PASS)2 ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -w guest -w guest2 ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Multiple inputfilepath arguments" >> $(RESULTFILE)
@@ -488,78 +488,78 @@ poststarttests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing <MESSAGE> element (no element)" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr02.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr02.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr02.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr02.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing <MESSAGE> element (different element)" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr02a.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr02a.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr02a.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr02a.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing PROTOCOLVERSION attribute" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr02b.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr02b.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr02b.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr02b.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing <SIMPLEREQ> element (no element)" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr03.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr03.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr03.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr03.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing <SIMPLEREQ> element (different element)" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr03a.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr03a.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr03a.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr03a.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element " >> $(RESULTFILE)
 	@$(ECHO) "    (no element)" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr04.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr04.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr04.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr04.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element " >> $(RESULTFILE)
 	@$(ECHO) "    (different element)" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr04a.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr04a.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr04a.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr04a.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing NAME attribute " >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr04b.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr04b.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr04b.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr04b.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing <LOCALNAMESPACEPATH> element (no element)" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr05.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr05.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr05.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr05.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing <LOCALNAMESPACEPATH> element (different " >> $(RESULTFILE)
 	@$(ECHO) "    element)" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr05a.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr05a.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr05a.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr05a.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing <NAMESPACE> element (no element)" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr06.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr06.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr06.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr06.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing <NAMESPACE> element (different element)" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr06a.xml" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -u guest -w guest < ./cimreqerr06a.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS) < ./cimreqerr06a.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@wbemexec -u guest -w guest < ./cimreqerr06a.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid XML input: missing NAME attribute for NAMESPACE element" >> $(RESULTFILE)
@@ -670,13 +670,7 @@ poststarttests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid input: input starts with neither xml declaration, nor valid HTTP" >> $(RESULTFILE)
 	@$(ECHO) "M-POST or POST method request (missing HTTP URI and version) -- times out" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec ./cimreqerr11.xml" >> $(RESULTFILE)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec ./cimreqerr11.xml >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "Invalid input: input starts with neither xml declaration, nor valid HTTP" >> $(RESULTFILE)
-	@$(ECHO) "M-POST or POST method request. Returns: HTTP/1.1 501 Not Implemented" >> $(RESULTFILE)
+
 
 defect:
 	@$(ECHO) "wbemexec -t 1 ./cimreqerr03.http" >> $(RESULTFILE)

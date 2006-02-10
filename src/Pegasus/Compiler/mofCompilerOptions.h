@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Bob Blair (bblair@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -61,6 +68,7 @@
 #include <Pegasus/Compiler/Linkage.h>
 #include <iostream>
 
+PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
@@ -78,21 +86,19 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Boolean         _emit_xml;
   compilerCommonDefs::operationType _ot;
   Boolean         _trace;
-  Boolean     _update_class;
-  Boolean     _allow_experimental;
-  Boolean     _allow_version;
-#ifdef PEGASUS_OS_PASE
+  Boolean	  _update_class;
+  Boolean	  _allow_experimental;
+  Boolean	  _allow_version;
+#ifdef PEGASUS_OS_OS400
   Boolean         _quiet;
 #endif
   Boolean         _no_usage_warning;
-  Boolean         _mrr;
-  Boolean         _discard;
 
   PEGASUS_STD(ostream)      *_traceos;
   PEGASUS_STD(ostream)      *_erroros;
   PEGASUS_STD(ostream)      *_warningos;
  public:
-  mofCompilerOptions() : _repository(String::EMPTY),
+  mofCompilerOptions() : _repository(String::EMPTY), 
     _repository_name(String::EMPTY),
     _repository_mode(String::EMPTY),
     _namespacePath(""),
@@ -104,8 +110,6 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
     _ot(compilerCommonDefs::USE_REPOSITORY),
     _trace(false),
     _no_usage_warning(false),
-    _mrr(false),
-    _discard(false),
     _traceos(0),
     _erroros(0),
     _warningos(0)
@@ -151,7 +155,7 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void set_allow_version() { _allow_version = true; }
   void reset_allow_version() { _allow_version = false; }
   Boolean allow_version() const { return _allow_version; }
-#ifdef PEGASUS_OS_PASE
+#ifdef PEGASUS_OS_OS400
   void set_quiet() { _quiet = true; }
   void reset_quiet() { _quiet = false; }
   Boolean quiet() const { return _quiet; }
@@ -164,35 +168,20 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Boolean xml_output() const { return _emit_xml; }
   void set_traceos(PEGASUS_STD(ostream) &os) { _traceos = &os; }
   void reset_traceos() { _traceos = 0; }
-  PEGASUS_STD(ostream) &traceos() const
-  {
-      return _traceos ? (PEGASUS_STD(ostream)&)*_traceos :
-          (PEGASUS_STD(ostream)&)PEGASUS_STD(cout);
-  }
-  void set_erroros(PEGASUS_STD(ostream) &os) { _erroros = &os; }
+  ostream &traceos() const 
+      { return _traceos ? (ostream&)*_traceos : (ostream&)cout; }
+  void set_erroros(ostream &os) { _erroros = &os; }
   void reset_erroros() { _erroros = 0; }
-  PEGASUS_STD(ostream) &erroros() const
-  {
-      return _erroros ? (PEGASUS_STD(ostream)&)*_erroros :
-          (PEGASUS_STD(ostream)&)PEGASUS_STD(cerr);
-  }
-  void set_warningos(PEGASUS_STD(ostream &os)) { _warningos = &os; }
+  ostream &erroros() const 
+      { return _erroros ? (ostream&)*_erroros : (ostream&)cerr; }
+  void set_warningos(ostream &os) { _warningos = &os; }
   void reset_warningos() { _warningos = 0; }
-  PEGASUS_STD(ostream) &warningos() const
-  {
-      return _warningos ? (PEGASUS_STD(ostream)&)*_warningos :
-          (PEGASUS_STD(ostream)&)PEGASUS_STD(cerr);
-  }
+  ostream &warningos() const 
+      {return _warningos ? (ostream&)*_warningos : (ostream&)cerr;}
   void set_namespacePath(const String &path) { _namespacePath = path; }
   const String &get_namespacePath() const  { return _namespacePath; }
   void set_no_usage_warning() { _no_usage_warning = true; }
   Boolean get_no_usage_warning() const { return _no_usage_warning; }
-  void set_mrr() { _mrr = true; }
-  void reset_mrr() { _mrr = false; }
-  Boolean mrr() const { return _mrr; }
-  void set_discard() { _discard = true; }
-  void reset_discard() { _discard = false; }
-  Boolean discard() const { return _discard; }
 };
 
 #endif

@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +60,7 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
-static Boolean verbose;
+Boolean verbose = false;
 
 String authType = "Basic";
 
@@ -104,7 +113,7 @@ void testAuthHeader()
 
     String respHeader = basicAuthHandler.getAuthResponseHeader();
 
-    if (verbose) cout << "Challenge Header = " << respHeader << endl;
+    if (verbose) cout << "realm = " << respHeader << endl;
 
     PEGASUS_TEST_ASSERT(respHeader.size() != 0);
 }
@@ -114,10 +123,8 @@ void testAuthHeader()
 //
 void testAuthenticationFailure_1()
 {
-    String authHeader;
+    String authHeader = String::EMPTY;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -131,14 +138,12 @@ void testAuthenticationFailure_1()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose)
-    {
-        cout << "Authentication of user " + testUser + " returned with: ";
-        cout << authenticated << endl;
-    }
+    if (authenticated)
+        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+    else
+        if (verbose) cout << "User " + testUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -150,10 +155,8 @@ void testAuthenticationFailure_1()
 //
 void testAuthenticationFailure_2()
 {
-    String authHeader;
+    String authHeader = String::EMPTY;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -168,14 +171,12 @@ void testAuthenticationFailure_2()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose)
-    {
-        cout << "Authentication of invalidUser "+invalidUser+" returned with: ";
-        cout << authenticated << endl;
-    }
+    if (authenticated)
+        if (verbose) cout << "User " + invalidUser + " authenticated successfully." << endl;
+    else
+        if (verbose) cout << "User " + invalidUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -183,14 +184,12 @@ void testAuthenticationFailure_2()
 }
 
 //
-// Test with invalid password
+// Test with invalid password 
 //
 void testAuthenticationFailure_3()
 {
-    String authHeader;
+    String authHeader = String::EMPTY;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -202,14 +201,12 @@ void testAuthenticationFailure_3()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose)
-    {
-        cout << "Authentication of user " + testUser + " returned with: ";
-        cout << authenticated << endl;
-    }
+    if (authenticated)
+        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+    else
+        if (verbose) cout << "User " + testUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -221,10 +218,8 @@ void testAuthenticationFailure_3()
 //
 void testAuthenticationFailure_4()
 {
-    String authHeader;
+    String authHeader = String::EMPTY;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -236,14 +231,12 @@ void testAuthenticationFailure_4()
 
     authHeader.append(encodeUserPass(userPass));
 
-    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose)
-    {
-        cout << "Authentication of user " + testUser + " returned with: ";
-        cout << authenticated << endl;
-    }
+    if (authenticated)
+        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+    else
+        if (verbose) cout << "User " + testUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -251,14 +244,12 @@ void testAuthenticationFailure_4()
 }
 
 //
-// Test with valid user name and password
+// Test with valid user name and password 
 // (Assuming there is a valid CIM user 'guest' with password 'guest')
 //
 void testAuthenticationSuccess()
 {
-    String authHeader;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
+    String authHeader = String::EMPTY;
 
     BasicAuthenticationHandler  basicAuthHandler;
 
@@ -272,14 +263,12 @@ void testAuthenticationSuccess()
 
     Boolean authenticated;
 
-    authStatus = basicAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose)
-    {
-        cout << "Authentication of guestUser " + guestUser + " returned with: ";
-        cout << authenticated << endl;
-    }
+    if (authenticated)
+        if (verbose) cout << "User " + guestUser + " authenticated successfully." << endl;
+    else
+        if (verbose) cout << "User " + guestUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -288,7 +277,7 @@ void testAuthenticationSuccess()
 
 ////////////////////////////////////////////////////////////////////
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;
@@ -301,11 +290,10 @@ int main(int, char** argv)
         Tracer::setTraceFile("./Authentication.trc");
         Tracer::setTraceComponents("all");
         Tracer::setTraceLevel(Tracer::LEVEL4);
-        verbose = true;
+	verbose = true;
 #endif
 
         ConfigManager* configManager = ConfigManager::getInstance();
-        PEGASUS_TEST_ASSERT(0 != configManager);
 
         const char* path = getenv("PEGASUS_HOME");
         String pegHome = path;
@@ -313,11 +301,9 @@ int main(int, char** argv)
         if(pegHome.size())
             ConfigManager::setPegasusHome(pegHome);
 
-        if (verbose)
-            cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
+        if (verbose) cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
 
-        if (verbose)
-            cout << "Doing testAuthHeader()...." << endl;
+        if (verbose) cout << "Doing testAuthHeader()...." << endl;
 
         // -- Create a test repository:
 
@@ -333,16 +319,13 @@ int main(int, char** argv)
         }
         repositoryPath.append("/repository");
 
-        FileSystem::removeDirectoryHier(repositoryPath);
+        PEGASUS_TEST_ASSERT(FileSystem::isDirectory(repositoryPath));
 
         CIMRepository* repository = new CIMRepository(repositoryPath);
 
         // -- Create a UserManager object:
 
-#ifndef PEGASUS_PAM_AUTHENTICATION
         UserManager* userManager = UserManager::getInstance(repository);
-        PEGASUS_TEST_ASSERT(0 != userManager);
-#endif
 
         testAuthHeader();
 
@@ -360,16 +343,10 @@ int main(int, char** argv)
 
         if (verbose) cout << "Doing testAuthenticationSuccess()...." << endl;
         testAuthenticationSuccess();
-
-#ifndef PEGASUS_PAM_AUTHENTICATION
-        UserManager::destroy();
-#endif
-        delete repository;
-        FileSystem::removeDirectoryHier(repositoryPath);
     }
     catch(Exception& e)
     {
-        cout << argv[0] << " Exception: " << e.getMessage() << endl;
+      cout << argv[0] << " Exception: " << e.getMessage() << endl;
         PEGASUS_TEST_ASSERT(0);
     }
 

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,54 +47,83 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    This class defines a set of functions that support the invocation of
-    extrinsic methods on a CIM class or instance.
+Functions that support the invocation of methods defined
+for a CIM class.
 
-    <p>A method provider is not required to implement all the methods defined
-    for a CIM class.  Multiple method providers may be registered for methods
-    of the same class, but not for the same method.  (See the
-    SupportedMethods property of the PG_ProviderCapabilities class.)</p>
+<p>The <i>Method Provider</i> supports the client InvokeMethod
+operation that invokes any method(s)
+defined on a CIM class of object. In addition to the
+methods from the {@link CIMProvider CIMProvider}
+interface that the functions inherit, the Method Provider interface
+defines one function:</p>
+
+<ul>
+<li>{@link invokeMethod invokeMethod}</li>
+</ul>
+
+<p>The arguments to <tt>invokeMethod</tt> specify the instance
+that the method invokes, the method name, and its
+parameters.</p>
+
+<p>Providers that derive from this class <i>must</i> implement
+all of these functions. A minimal implementation of <tt>invokeMethod</tt>
+may throw a {@link CIMNotSupportedException CIMNotSupportedException} exception.</p>
+
+<p>A method provider is not required to implement all of the
+CIM methods defined for a class; there can be more than one
+method provider for a class. Each provider
+may implement a subset of the defined methods, leaving other
+methods providers to implemente methods. No method
+can be implemented by more than one provider. The
+methods that are implemented by a provider must be specified to
+the CIM Server through provider registration in the
+<tt>SupportedMethods</tt> property of an instance of the
+<tt>PG_ProviderCapabilities</tt> class.</p>
 */
 class PEGASUS_PROVIDER_LINKAGE CIMMethodProvider : public virtual CIMProvider
 {
 public:
-    /**
-        Constructs a default CIMMethodProvider object.
-    */
-    CIMMethodProvider();
+    /** Constructs a CIMMethodProvider object with null values (default constructor).
+	*/
+    CIMMethodProvider(void);
+    /** CIMMethodProvider destructor.
+	*/
+    virtual ~CIMMethodProvider(void);
 
     /**
-        Destructs a CIMMethodProvider object.
-    */
-    virtual ~CIMMethodProvider();
+    Invoke the specified method on the specified instance.
 
-    /**
-        Invokes an extrinsic specified method on a specified CIM class or
-        instance.
+    <p>Instructs the provider to invoke the method specified in the
+    <tt>methodName</tt> parameter on the object
+    specified in the <tt>objectReference</tt> parameter.
 
-        @param context An OperationContext object containing the context for
-            the processing of the operation.  The context includes the name of
-            the requesting user, language information, and other data.
-        @param objectReference A fully qualified CIMObjectPath specifying
-            the class or instance on which to invoke the method.
-        @param methodName The name of the method to invoke.
-        @param inParameters An Array of CIMParamValue objects specifying the
-            method input parameters.
-        @param handler ResponseHandler object for delivery of results.
+    @param context Specifies the client user's context for this operation,
+    including the user ID.
 
-        @exception CIMNotSupportedException If the method is not supported.
-        @exception CIMInvalidParameterException If a parameter is invalid.
-        @exception CIMObjectNotFoundException If the object is not found.
-        @exception CIMAccessDeniedException If the user requesting the action
-            is not authorized to perform the action.
-        @exception CIMOperationFailedException If the operation fails.
+    @param objectReference Specifies the fully qualified object path
+    of the class or instance of interest.
+
+    @param methodName Specifies the name of the method of interest.
+
+    @param inParameters Specifies the input parameters of the method.
+
+    @param handler A {@link ResponseHandler ResponseHandler} object used
+    to deliver results to the CIM Server.
+
+    @exception CIMNotSupportedException If the method is not supported.
+    @exception CIMInvalidParameterException If the parameter is invalid.
+    @exception CIMObjectNotFoundException If the object is not found.
+    @exception CIMAccessDeniedException If the user requesting the action 
+    is not authorized to perform the action.
+    @exception CIMOperationFailedException If the operation fails.
     */
     virtual void invokeMethod(
-        const OperationContext& context,
-        const CIMObjectPath& objectReference,
-        const CIMName& methodName,
-        const Array<CIMParamValue>& inParameters,
-        MethodResultResponseHandler& handler) = 0;
+	const OperationContext & context,
+	const CIMObjectPath & objectReference,
+	const CIMName & methodName,
+	const Array<CIMParamValue> & inParameters,
+	MethodResultResponseHandler & handler) = 0;
+
 };
 
 PEGASUS_NAMESPACE_END

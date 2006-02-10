@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -15,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -245,63 +247,64 @@ CIMClass CachedClassDefinitionContainer::getClass(void) const
 // Only needed if normalization is enabled
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
 //
-// RepositoryContainer
+// NormalizerContextContainer
 //
 
-const String RepositoryContainer::NAME = "RepositoryContainer";
+const String NormalizerContextContainer::NAME = "NormalizerContextContainer";
 
-RepositoryContainer::RepositoryContainer(const OperationContext::Container & container)
+NormalizerContextContainer::NormalizerContextContainer(const OperationContext::Container & container)
 {
-    const RepositoryContainer * p = dynamic_cast<const RepositoryContainer *>(&container);
+    const NormalizerContextContainer * p =
+      dynamic_cast<const NormalizerContextContainer *>(&container);
 
     if(p == 0)
     {
         throw DynamicCastFailedException();
     }
 
-    *this = *p;
+    *this = *const_cast<NormalizerContextContainer *>(p);
 }
 
 
-RepositoryContainer::RepositoryContainer(CIMRepository * repository)
-    : _repository(repository)
+NormalizerContextContainer::NormalizerContextContainer(AutoPtr<NormalizerContext> & context)
+    : _context(context)
 {
 }
 
-RepositoryContainer::~RepositoryContainer(void)
+NormalizerContextContainer::~NormalizerContextContainer(void)
 {
 }
 
-RepositoryContainer & RepositoryContainer::operator=(const RepositoryContainer & container)
+NormalizerContextContainer & NormalizerContextContainer::operator=(NormalizerContextContainer & container)
 {
     if(this == &container)
     {
         return(*this);
     }
 
-    _repository = container._repository;
+    _context = container._context;
 
     return(*this);
 }
 
-String RepositoryContainer::getName(void) const
+String NormalizerContextContainer::getName(void) const
 {
     return(NAME);
 }
 
-OperationContext::Container * RepositoryContainer::clone(void) const
+OperationContext::Container * NormalizerContextContainer::clone(void) const
 {
-    return(new RepositoryContainer(*this));
+    return(new NormalizerContextContainer(*this));
 }
 
-void RepositoryContainer::destroy(void)
+void NormalizerContextContainer::destroy(void)
 {
     delete this;
 }
 
-CIMRepository * RepositoryContainer::getRepository(void) const
+NormalizerContext * NormalizerContextContainer::getContext(void) const
 {
-    return(_repository);
+    return(_context.get());
 }
 #endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT

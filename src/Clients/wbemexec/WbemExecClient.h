@@ -1,31 +1,43 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              Dan Gorey, IBM (djgorey@us.ibm.com)
+//              Amit K Arora (amita@in.ibm.com) for PEP-101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +49,6 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
-#include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
@@ -54,14 +65,15 @@ class WbemExecClient : public MessageQueue
 {
 public:
 
+    enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
+
     /** Constructor for a CIM Client object.
         @param timeoutMilliseconds Defines the number of milliseconds the
         WbemExecClient will wait for a response to an outstanding request.
         If a request times out, the connection gets reset (disconnected and
         reconnected).  Default is 20 seconds (20000 milliseconds).
     */
-    WbemExecClient(Uint32 timeoutMilliseconds =
-                        PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
+    WbemExecClient(Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
     ///
     virtual ~WbemExecClient();
@@ -75,16 +87,14 @@ public:
     */
     Uint32 getTimeout() const
     {
-      return _timeoutMilliseconds;
+	return _timeoutMilliseconds;
     }
 
     /** Sets the timeout in milliseconds for the WbemExecClient.
     */
     void setTimeout(Uint32 timeoutMilliseconds)
     {
-      _timeoutMilliseconds = timeoutMilliseconds;
-      if ((_connected) && (_httpConnection != 0))
-        _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+	_timeoutMilliseconds = timeoutMilliseconds;
     }
 
     /** connect - Creates an HTTP connection with the server
@@ -112,11 +122,14 @@ public:
     */
     inline void connect(
         const String& host,
-        Uint32 portNumber,
+        const Uint32 portNumber,
         const String& userName,
-        const String& password)
+        const String& password
+    ) throw(AlreadyConnectedException, InvalidLocatorException,
+            CannotCreateSocketException, CannotConnectException)
     {
-        connect(host, portNumber, 0, userName, password);
+        AutoPtr<SSLContext> sslContext;
+        connect(host, portNumber, sslContext, userName, password);
     }
 
     /** connect - Creates an HTTP connection with the server
@@ -145,33 +158,32 @@ public:
     */
     void connect(
         const String& host,
-        Uint32 portNumber,
-        const SSLContext* sslContext,
+        const Uint32 portNumber,
+        AutoPtr<SSLContext>& sslContext,
         const String& userName,
-        const String& password);
+        const String& password
+    ) throw(AlreadyConnectedException, InvalidLocatorException,
+            CannotCreateSocketException, CannotConnectException);
 
     /** connectLocal - Creates connection to the server for
         Local clients. The connectLocal connects to the CIM server
         running on the local system in the default location.  The
         connection is automatically authenticated for the current
         user.
-        The connectLocal call is virtual because WMIMapper wbemexec 
-        functionality defines a subclass to WbemExecClient and
-        overrides this method.
         @return - No return defined. Failure to connect throws an exception.
         @see connect - The exceptions are defined in connect.
     */
-    virtual void connectLocal();
+    void connectLocal()
+        throw(AlreadyConnectedException, InvalidLocatorException,
+              CannotCreateSocketException, CannotConnectException);
 
     /** disconnect - Closes the connection with the server if the connection
         was open, simply returns if the connection was not open. Clients are
         expected to use this method to close the open connection before
         opening a new connection.
-        The disconnect call is virtual because WMIMapper wbemexec 
-        defines a subclass to WbemExecClient and overrides this method.
         @return - No return defined.
     */
-    virtual void disconnect();
+    void disconnect();
 
 
     /** ATTN TBD
@@ -179,31 +191,24 @@ public:
         @exception ConnectionTimeoutException
         @exception UnauthorizedAccess
     */
-    /* The WMIMapper wbemexec functionality defines a subclass to 
-       WbemExecClient and overrides this method.
-    */
-    virtual Buffer issueRequest(const Buffer& request);
+    Buffer issueRequest(const Buffer& request);
 
 private:
 
-    void _connect();
+    void _connect(
+        const String& host,
+        const Uint32 portNumber,
+        AutoPtr<SSLContext>& sslContext)
+      throw(CannotCreateSocketException, CannotConnectException,
+            InvalidLocatorException);
 
-    /**
-        The authentication challenge status is not changed by this method.
-        It is designed to allow a reconnect after a challenge that contains
-        a "Connection: Close" header, not for reconnecting after a connection
-        timeout or after an operation response containing a "Connection: Close"
-        header.  This design is sufficient because wbemexec only allows a
-        single operation per invocation.
-    */
-    void _reconnect();
-
-    Message* _doRequest(HTTPMessage* request);
+    Message* _doRequest(HTTPMessage * request);
 
     void _addAuthHeader(HTTPMessage*& httpMessage);
 
-    Boolean _checkNeedToResend(const Array<HTTPHeader>& httpHeaders);
+    Boolean _checkNeedToResend(HTTPMessage* httpMessage);
 
+    String _getLocalHostName();
     String _promptForPassword();
 
     Monitor* _monitor;
@@ -211,22 +216,14 @@ private:
     HTTPConnection* _httpConnection;
 
     Uint32 _timeoutMilliseconds;
+    Boolean _connected;
     ClientAuthenticator _authenticator;
-
-    // Connection parameters
-    String _connectHost;
-    Uint32 _connectPortNumber;
-    AutoPtr<SSLContext> _connectSSLContext;
+    Boolean _isRemote;
 
     /**
         The password to be used for authorization of the operation.
      */
     String _password;
-
-protected:
-    /* The subclass can access these fields*/
-    Boolean _connected;
-    Boolean _isRemote;
 };
 
 PEGASUS_NAMESPACE_END

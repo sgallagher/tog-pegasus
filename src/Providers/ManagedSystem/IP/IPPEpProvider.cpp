@@ -1,31 +1,47 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Christopher Neufeld <neufeld@linuxcare.com>
+//         David Kennedy       <dkennedy@linuxcare.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -44,10 +60,10 @@
 // are important for clients of this provider.
 // ==========================================================================
 
-static const CIMName CLASS_CIM_UNITARY_COMPUTER_SYSTEM = CIMName(
-    "CIM_UnitaryComputerSystem");
-static const CIMName CLASS_CIM_IP_PROTOCOL_ENDPOINT    = CIMName(
-    "CIM_IPProtocolEndpoint");
+static const CIMName CLASS_CIM_UNITARY_COMPUTER_SYSTEM = CIMName 
+    ("CIM_UnitaryComputerSystem");
+static const CIMName CLASS_CIM_IP_PROTOCOL_ENDPOINT    = CIMName 
+    ("CIM_IPProtocolEndpoint");
 
 // ==========================================================================
 // The number of keys for the classes.
@@ -62,48 +78,44 @@ static const CIMName CLASS_CIM_IP_PROTOCOL_ENDPOINT    = CIMName(
 
 // Properties in CIM_ManagedElement
 
-static const CIMName PROPERTY_CAPTION                    = CIMName("Caption");
-static const CIMName PROPERTY_DESCRIPTION                = CIMName(
-    "Description");
+static const CIMName PROPERTY_CAPTION                    = CIMName ("Caption");
+static const CIMName PROPERTY_DESCRIPTION                = CIMName 
+    ("Description");
 
 // Properties in CIM_ManagedSystemElement
 
-static const CIMName PROPERTY_INSTALL_DATE               = CIMName(
-    "InstallDate");
-static const CIMName PROPERTY_NAME                       = CIMName("Name");
-static const CIMName PROPERTY_STATUS                     = CIMName("Status");
+static const CIMName PROPERTY_INSTALL_DATE               = CIMName 
+    ("InstallDate");
+static const CIMName PROPERTY_NAME                       = CIMName ("Name");
+static const CIMName PROPERTY_STATUS                     = CIMName ("Status");
 
 // Properties in CIM_ServiceAccessPoint
 
-static const CIMName PROPERTY_CREATION_CLASS_NAME        = CIMName(
-    "CreationClassName");
-static const CIMName PROPERTY_SYSTEM_CREATION_CLASS_NAME = CIMName(
-    "SystemCreationClassName");
-static const CIMName PROPERTY_SYSTEM_NAME                = CIMName(
-    "SystemName");
+static const CIMName PROPERTY_CREATION_CLASS_NAME        = CIMName 
+    ("CreationClassName");
+static const CIMName PROPERTY_SYSTEM_CREATION_CLASS_NAME = CIMName 
+    ("SystemCreationClassName");
+static const CIMName PROPERTY_SYSTEM_NAME                = CIMName 
+    ("SystemName");
 
 // Properties in CIM_ProtocolEndpoint
 
-static const CIMName PROPERTY_NAME_FORMAT                = CIMName(
-    "NameFormat");
-static const CIMName PROPERTY_PROTOCOL_TYPE              = CIMName(
-    "ProtocolType");
-static const CIMName PROPERTY_OTHER_TYPE_DESCRIPTION     = CIMName(
-    "OtherTypeDescription");
+static const CIMName PROPERTY_NAME_FORMAT                = CIMName 
+    ("NameFormat");
+static const CIMName PROPERTY_PROTOCOL_TYPE              = CIMName 
+    ("ProtocolType");
+static const CIMName PROPERTY_OTHER_TYPE_DESCRIPTION     = CIMName 
+    ("OtherTypeDescription");
 
 // Properties in CIM_IProtocolEndpoint
 
-static const CIMName PROPERTY_ADDRESS                    = CIMName("Address");
-static const CIMName PROPERTY_IPV4_ADDRESS = CIMName("IPv4Address");
-static const CIMName PROPERTY_IPV6_ADDRESS = CIMName("IPv6Address");
-static const CIMName PROPERTY_PREFIX_LENGTH = CIMName("PrefixLength");
-static const CIMName PROPERTY_SUBNET_MASK                = CIMName(
-    "SubnetMask");
-static const CIMName PROPERTY_ADDRESS_TYPE               = CIMName(
-    "AddressType");
-static const CIMName PROPERTY_IP_VERSION_SUPPORT         = CIMName(
-    "IPVersionSupport");
-static const CIMName PROPERTY_PROTOCOL_IF_TYPE = CIMName("ProtocolIFType");
+static const CIMName PROPERTY_ADDRESS                    = CIMName ("Address");
+static const CIMName PROPERTY_SUBNET_MASK                = CIMName 
+    ("SubnetMask");
+static const CIMName PROPERTY_ADDRESS_TYPE               = CIMName 
+    ("AddressType");
+static const CIMName PROPERTY_IP_VERSION_SUPPORT         = CIMName 
+    ("IPVersionSupport");
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -111,13 +123,14 @@ PEGASUS_USING_PEGASUS;
 
 IPPEpProvider::IPPEpProvider()
 {
-#ifdef IPPROVIDER_DEBUG
-    cout << "IPPEpProvider::IPPEpProvider()" << endl;
+#ifdef DEBUG
+  cout << "IPPEpProvider::IPPEpProvider()" << endl;
 #endif
 }
 
 IPPEpProvider::~IPPEpProvider()
 {
+  
 }
 
 
@@ -132,14 +145,13 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void IPPEpProvider::createInstance(
-    const OperationContext &context,
-    const CIMObjectPath &instanceName,
-    const CIMInstance &instanceObject,
-    ObjectPathResponseHandler &handler)
+void IPPEpProvider::createInstance(const OperationContext &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+                    ObjectPathResponseHandler &handler)
 
 {
-    throw CIMNotSupportedException(String::EMPTY);
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 /*
@@ -153,13 +165,12 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void IPPEpProvider::deleteInstance(
-    const OperationContext &context,
-    const CIMObjectPath &instanceReference,
-    ResponseHandler &handler)
+void IPPEpProvider::deleteInstance(const OperationContext &context,
+                    const CIMObjectPath           &instanceReference,
+                    ResponseHandler &handler)
 
 {
-    throw CIMNotSupportedException(String::EMPTY);
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 /*
@@ -176,14 +187,14 @@ PARAMETERS        :
 ================================================================================
 */
 void IPPEpProvider::enumerateInstances(
-    const OperationContext & context,
-    const CIMObjectPath & classReference,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList,
-    InstanceResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	InstanceResponseHandler & handler)
 {
-#ifdef IPPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "IPPEpProvider::enumerateInstances()" << endl;
 #endif
 
@@ -201,9 +212,9 @@ void IPPEpProvider::enumerateInstances(
 
     for (i = 0; i < _ifList.size(); i++)
     {
-        handler.deliver(
-            _constructInstance(CLASS_CIM_IP_PROTOCOL_ENDPOINT,
-                nameSpace, _ifList.getInterface(i) ) );
+	handler.deliver(
+		_constructInstance(CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+		     nameSpace, _ifList.getInterface(i) ) );
     }
 
     // Notify processing is complete
@@ -224,12 +235,11 @@ NOTES             : Localization is not supported by this provider.
 PARAMETERS        :
 ================================================================================
 */
-void IPPEpProvider::enumerateInstanceNames(
-    const OperationContext &ctx,
-    const CIMObjectPath &ref,
-    ObjectPathResponseHandler &handler)
+void IPPEpProvider::enumerateInstanceNames(const OperationContext &ctx,
+                            const CIMObjectPath &ref,
+                            ObjectPathResponseHandler &handler)
 {
-#ifdef IPPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "IPPEpProvider::enumerateInstanceNames()" << endl;
 #endif
 
@@ -245,18 +255,18 @@ void IPPEpProvider::enumerateInstanceNames(
     int i;
     InterfaceList _ifList;
 
-#ifdef IPPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "IPPEpProvider::enumerateInstanceNames() _ifList Initialized"
-         << endl;
+    	 << endl;
 #endif
 
     for (i = 0; i < _ifList.size(); i++)
     {
         // Deliver the names
         handler.deliver(
-            CIMObjectPath(String::EMPTY, // hostname
-                nameSpace, CLASS_CIM_IP_PROTOCOL_ENDPOINT,
-                _constructKeyBindings(_ifList.getInterface(i) ) ) );
+		CIMObjectPath(String::EMPTY, // hostname
+			nameSpace, CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+			_constructKeyBindings(_ifList.getInterface(i) ) ) );
     }
 
     // Notify processing is complete
@@ -278,145 +288,132 @@ NOTES             : LocalOnly, DeepInheritance and propertyList are not
 PARAMETERS        :
 ================================================================================
 */
-void IPPEpProvider::getInstance(
-    const OperationContext &ctx,
-    const CIMObjectPath &instanceName,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList &propertyList,
-    InstanceResponseHandler &handler)
-{
-#ifdef IPPROVIDER_DEBUG
-    cout << "IPPEpProvider::getInstance(" << instanceName.toString() << ")"
-         << endl;
+void IPPEpProvider::getInstance(const OperationContext &ctx,
+                 const CIMObjectPath           &instanceName,
+                 const Boolean includeQualifiers,
+                 const Boolean includeClassOrigin,
+                 const CIMPropertyList        &propertyList,
+                 InstanceResponseHandler &handler)
+{	
+#ifdef DEBUG
+  cout << "IPPEpProvider::getInstance(" << instanceName.toString() << ")" 
+       << endl;
 #endif
 
-    CIMKeyBinding kb;
-    CIMName className = instanceName.getClassName();
-    CIMNamespaceName nameSpace = instanceName.getNameSpace();
-    int i;
-    int keysFound; // this will be used as a bit array
-    String sn;     // system name
-    String ifName;
+  CIMKeyBinding kb;
+  CIMName className = instanceName.getClassName();
+  CIMNamespaceName nameSpace = instanceName.getNameSpace();
+  int i;
+  int keysFound; // this will be used as a bit array
+  String sn;     // system name
+  String ifName;
 
-    // Grab the system name
-    if (IPInterface::getSystemName(sn) == false)
-        sn = String::EMPTY;
+  // Grab the system name
+  if (IPInterface::getSystemName(sn) == false)
+     sn = String::EMPTY;
 
-    // Validate the classname
-    _checkClass(className);
+  // Validate the classname
+  _checkClass(className);
 
-    // Extract the key values
-    Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
+  // Extract the key values
+  Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
 
-    // Leave immediately if wrong number of keys
-    if ( kbArray.size() != NUMKEYS_IP_PROTOCOL_ENDPOINT )
-        throw CIMInvalidParameterException("Wrong number of keys");
+  // Leave immediately if wrong number of keys
+  if ( kbArray.size() != NUMKEYS_IP_PROTOCOL_ENDPOINT )
+    throw CIMInvalidParameterException("Wrong number of keys");
 
-    // Validate the keys.
-    // Each loop iteration will set a bit in keysFound when a valid
-    // key is found. If the expected bits aren't all set when
-    // the loop finishes, it's a problem
-    for (i=0, keysFound=0; i < NUMKEYS_IP_PROTOCOL_ENDPOINT; i++)
+  // Validate the keys.
+  // Each loop iteration will set a bit in keysFound when a valid
+  // key is found. If the expected bits aren't all set when
+  // the loop finishes, it's a problem
+  for (i=0, keysFound=0; i < NUMKEYS_IP_PROTOCOL_ENDPOINT; i++)
+  {
+    kb = kbArray[i];
+
+    CIMName keyName = kb.getName();
+    String keyValue = kb.getValue();
+
+    // SystemCreationClassName can be empty or must match
+    if (keyName.equal (PROPERTY_SYSTEM_CREATION_CLASS_NAME))
     {
-        kb = kbArray[i];
-
-        CIMName keyName = kb.getName();
-        String keyValue = kb.getValue();
-
-        // SystemCreationClassName can be empty or must match
-        if (keyName.equal (PROPERTY_SYSTEM_CREATION_CLASS_NAME))
-        {
-            if (String::equal(keyValue, String::EMPTY) ||
-                String::equalNoCase(keyValue,
-                    CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString()))
-            {
-                keysFound |= 1;
-            }
-            else
-            {
-                throw CIMInvalidParameterException(
-                    keyValue + ": bad value for key " + keyName.getString());
-            }
-        }
-
-        // SystemName can be empty or must match
-        else if (keyName.equal (PROPERTY_SYSTEM_NAME))
-        {
-            if (String::equal(keyValue, String::EMPTY) ||
-                String::equalNoCase(keyValue, sn))
-            {
-                keysFound |= 2;
-            }
-            else
-            {
-                throw CIMInvalidParameterException(
-                    keyValue + ": bad value for key " + keyName.getString());
-            }
-        }
-
-        // CreationClassName can be empty or must match
-        else if (keyName.equal (PROPERTY_CREATION_CLASS_NAME))
-        {
-            if (String::equal(keyValue, String::EMPTY) ||
-                String::equalNoCase(keyValue,
-                    CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString()))
-            {
-                keysFound |= 4;
-            }
-            else
-            {
-                throw CIMInvalidParameterException(
-                    keyValue + ": bad value for key " + keyName.getString());
-            }
-        }
-
-        // Name must be a valid IP interface, but we will know that later
-        // For now, just verify that it's present
-        else if (keyName.equal (PROPERTY_NAME))
-        {
-            ifName = keyValue;
-            keysFound |= 8;
-        }
-
-        // Key name was not recognized by any of the above tests
-        else
-            throw CIMInvalidParameterException(
-                keyName.getString() + ": Unrecognized key");
-    } // for
-
-    // We could get here if we didn't get all the keys, which
-    // could happen if the right number of keys were supplied,
-    // and they all had valid names and values, but there were
-    // any duplicates (e.g., two Names, no SystemName)
-    if (keysFound != (1<<NUMKEYS_IP_PROTOCOL_ENDPOINT)-1)
-        throw CIMInvalidParameterException("Bad object name");
-
-    /* Find the instance.  First convert the instance id which is the */
-    /* process handle to an integer.  This is necessary because the   */
-    /* handle is the process id on HP-UX which must be passed to      */
-    /* pstat_getproc() as an integer.                                 */
-
-    /* Get the Interface List. */
-    InterfaceList _ifList;
-    IPInterface _ipif;
-
-    if (_ifList.findInterface(ifName, _ipif))
+      if (String::equal(keyValue, String::EMPTY) ||
+          String::equalNoCase(keyValue, 
+              CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString()))
+        keysFound |= 1;
+      else
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+
+            keyName.getString());
+    }
+	
+    // SystemName can be empty or must match
+    else if (keyName.equal (PROPERTY_SYSTEM_NAME))
     {
-        /* Notify processing is starting. */
-        handler.processing();
-
-        /* Return the instance. */
-        handler.deliver(_constructInstance(className, nameSpace, _ipif));
-
-        /* Notify processing is complete. */
-        handler.complete();
-        return;
+      if (String::equal(keyValue, String::EMPTY) ||
+	  String::equalNoCase(keyValue, sn) )
+        keysFound |= 2;
+      else
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+
+            keyName.getString());
     }
 
-    throw CIMObjectNotFoundException(ifName+": No such IP Interface");
+    // CreationClassName can be empty or must match
+    else if (keyName.equal (PROPERTY_CREATION_CLASS_NAME))
+    {
+      if (String::equal(keyValue, String::EMPTY) ||
+	  String::equalNoCase(keyValue, 
+              CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString()))
+        keysFound |= 4;
+      else
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+
+            keyName.getString());
+    }
 
-    return; // can never execute, but required to keep compiler happy
+    // Name must be a valid IP interface, but we will know that later
+    // For now, just verify that it's present
+    else if (keyName.equal (PROPERTY_NAME))
+    {
+      ifName = keyValue;
+      keysFound |= 8;
+    }
+
+    // Key name was not recognized by any of the above tests
+    else throw CIMInvalidParameterException(keyName.getString() +
+        ": Unrecognized key");
+		
+  } // for
+
+  // We could get here if we didn't get all the keys, which
+  // could happen if the right number of keys were supplied,
+  // and they all had valid names and values, but there were
+  // any duplicates (e.g., two Names, no SystemName)
+  if (keysFound != (1<<NUMKEYS_IP_PROTOCOL_ENDPOINT)-1)
+    throw CIMInvalidParameterException("Bad object name");
+	
+  /* Find the instance.  First convert the instance id which is the */
+  /* process handle to an integer.  This is necessary because the   */
+  /* handle is the process id on HP-UX which must be passed to      */
+  /* pstat_getproc() as an integer.                                 */
+
+  /* Get the Interface List. */
+  InterfaceList _ifList;
+  IPInterface _ipif;
+
+  if (_ifList.findInterface(ifName, _ipif))
+  {
+    /* Notify processing is starting. */
+    handler.processing();
+
+    /* Return the instance. */
+    handler.deliver(_constructInstance(className, nameSpace, _ipif));
+
+    /* Notify processing is complete. */
+    handler.complete();
+    return;
+  }
+
+  throw CIMObjectNotFoundException(ifName+": No such IP Interface");
+
+  return; // can never execute, but required to keep compiler happy
 }
 
 /*
@@ -430,16 +427,15 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void IPPEpProvider::modifyInstance(
-    const OperationContext &context,
-    const CIMObjectPath &instanceName,
-    const CIMInstance &instanceObject,
-    const Boolean includeQualifiers,
-    const CIMPropertyList &propertyList,
-    ResponseHandler &handler)
+void IPPEpProvider::modifyInstance(const OperationContext &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+                    const Boolean includeQualifiers,
+		    const CIMPropertyList        &propertyList,
+                    ResponseHandler &handler)
 {
-    // Could be supported in the future for certain properties
-    throw CIMNotSupportedException(String::EMPTY);
+  // Could be supported in the future for certain properties
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 /*
@@ -455,19 +451,19 @@ PARAMETERS        :
 */
 void IPPEpProvider::initialize(CIMOMHandle &ch)
 {
-#ifdef IPPROVIDER_DEBUG
-    cout << "IPPEpProvider::initialize()" << endl;
+#ifdef DEBUG
+  cout << "IPPEpProvider::initialize()" << endl;
 #endif
 
-    _cimomHandle = ch;
+  _cimomHandle = ch;
 
-    // call platform-specific routine to initialize System Name
-    // This hides whether or not the platform-specific code wants
-    // to set up a static System Name or dynamically obtain it
-    // each time.
-    IPInterface::initSystemName();
+  // call platform-specific routine to initialize System Name
+  // This hides whether or not the platform-specific code wants
+  // to set up a static System Name or dynamically obtain it
+  // each time.
+  IPInterface::initSystemName();
 
-    return;
+  return;
 
 }  /* initialize */
 
@@ -484,11 +480,11 @@ PARAMETERS        :
 */
 void IPPEpProvider::terminate()
 {
-#ifdef IPPROVIDER_DEBUG
-    cout << "IPPEpProvider::terminate()" << endl;
+#ifdef DEBUG
+  cout << "IPPEpProvider::terminate()" << endl;
 #endif
 
-    delete this;
+  delete this;
 }
 
 /*
@@ -503,52 +499,46 @@ PARAMETERS        : IP Interface
 ================================================================================
 */
 Array<CIMKeyBinding> IPPEpProvider::_constructKeyBindings(
-    const IPInterface& _ipif)
+					const IPInterface& _ipif)
 {
-#ifdef IPPROVIDER_DEBUG
-    cout << "IPPEpProvider::_constructKeyBindings()" << endl;
+#ifdef DEBUG
+  cout << "IPPEpProvider::_constructKeyBindings()" << endl;
 #endif
 
-    Array<CIMKeyBinding> keyBindings;
-    String s;
+  Array<CIMKeyBinding> keyBindings;
+  String s;
 
 
-    // Construct the key bindings
-    keyBindings.append(CIMKeyBinding(
-        PROPERTY_SYSTEM_CREATION_CLASS_NAME,
-        CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString(),
-        CIMKeyBinding::STRING));
+  // Construct the key bindings
+  keyBindings.append(CIMKeyBinding(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
+	    	                CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString(),
+                                CIMKeyBinding::STRING));
 
-    keyBindings.append(CIMKeyBinding(
-        PROPERTY_CREATION_CLASS_NAME,
-        CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString(),
-        CIMKeyBinding::STRING));
+  keyBindings.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
+		                CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString(),
+                                CIMKeyBinding::STRING));
 
-    if (_ipif.getSystemName(s))
-    {
-        keyBindings.append(CIMKeyBinding(
-            PROPERTY_SYSTEM_NAME, s, CIMKeyBinding::STRING));
-    }
-    else
-    {
-        throw CIMNotSupportedException(
-            String("Host-specific module doesn't support Key `") +
-                PROPERTY_SYSTEM_NAME.getString() + String("'"));
-    }
+  if (_ipif.getSystemName(s))
+	keyBindings.append(CIMKeyBinding(PROPERTY_SYSTEM_NAME,
+                                s, CIMKeyBinding::STRING));
+  else
+	throw CIMNotSupportedException(
+		String("Host-specific module doesn't support Key `") +
+		PROPERTY_SYSTEM_NAME.getString() + String("'"));
 
-    if (_ipif.getName(s))
-        keyBindings.append(CIMKeyBinding(
-            PROPERTY_NAME, s, CIMKeyBinding::STRING));
-    else
-        throw CIMNotSupportedException(
-            String("Host-specific module doesn't support Key `") +
-                PROPERTY_NAME.getString() + String("'"));
+  if (_ipif.getName(s))
+	keyBindings.append(CIMKeyBinding(PROPERTY_NAME,
+                                s, CIMKeyBinding::STRING));
+  else
+	throw CIMNotSupportedException(
+		String("Host-specific module doesn't support Key `") +
+		PROPERTY_NAME.getString() + String("'"));
 
-#ifdef IPPROVIDER_DEBUG
-    cout << "IPPEpProvider::_constructKeyBindings() -- done" << endl;
+#ifdef DEBUG
+  cout << "IPPEpProvider::_constructKeyBindings() -- done" << endl;
 #endif
 
-    return keyBindings;
+  return keyBindings;
 }
 
 /*
@@ -569,13 +559,12 @@ CIMInstance IPPEpProvider::_constructInstance(
     const CIMNamespaceName &nameSpace,
     const IPInterface &_ipif)
 {
-#ifdef IPPROVIDER_DEBUG
+#ifdef DEBUG
   cout << "IPPEpProvider::_constructInstance()" << endl;
 #endif
 
   String s;
   Uint16 i16;
-  Uint8 i8;
   CIMDateTime d;
 
   CIMInstance inst(className);
@@ -669,27 +658,9 @@ CIMInstance IPPEpProvider::_constructInstance(
   if (_ipif.getAddress(s))
     inst.addProperty(CIMProperty(PROPERTY_ADDRESS,s));
 
-//   string IPv4Address
-    if (_ipif.getIPv4Address(s))
-    {
-        inst.addProperty(CIMProperty(PROPERTY_IPV4_ADDRESS,s));
-    }
-
-//   string IPv6Address
-    if (_ipif.getIPv6Address(s))
-    {
-        inst.addProperty(CIMProperty(PROPERTY_IPV6_ADDRESS,s));
-    }
-
 //   string SubnetMask
   if (_ipif.getSubnetMask(s))
     inst.addProperty(CIMProperty(PROPERTY_SUBNET_MASK,s));
-
-//   uint8 PrefixLength
-    if (_ipif.getPrefixLength(i8))
-    {
-        inst.addProperty(CIMProperty(PROPERTY_PREFIX_LENGTH,i8));
-    }
 
 //   uint16 AddressType
   if (_ipif.getAddressType(i16))
@@ -699,13 +670,7 @@ CIMInstance IPPEpProvider::_constructInstance(
   if (_ipif.getIPVersionSupport(i16))
     inst.addProperty(CIMProperty(PROPERTY_IP_VERSION_SUPPORT,i16));
 
-//   uint16 ProtocolIFType
-    if (_ipif.getProtocolIFType(i16))
-    {
-        inst.addProperty(CIMProperty(PROPERTY_PROTOCOL_IF_TYPE,i16));
-    }
-
-#ifdef IPPROVIDER_DEBUG
+#ifdef DEBUG
   cout << "IPPEpProvider::_constructInstance() -- done" << endl;
 #endif
 
@@ -726,7 +691,7 @@ PARAMETERS        : className
 */
 void IPPEpProvider::_checkClass(CIMName& className)
 {
-    if (!className.equal (CLASS_CIM_IP_PROTOCOL_ENDPOINT))
-        throw CIMNotSupportedException(className.getString() +
-            ": Class not supported");
+  if (!className.equal (CLASS_CIM_IP_PROTOCOL_ENDPOINT))
+    throw CIMNotSupportedException(className.getString() +
+        ": Class not supported");
 }

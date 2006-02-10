@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: <Subodh Soni> (<ssubodh@in.ibm.com>)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +44,7 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
-ParserTestProvider::ParserTestProvider(void)
+ParserTestProvider::ParserTestProvider(void) 
 {
 }
 
@@ -54,34 +60,34 @@ Boolean ParserTestProvider::tryTerminate(void) {
 
 void ParserTestProvider::initialize(CIMOMHandle & cimom)
 {
-    cout << "ParserTestProvider::initialize" << endl;
+	cout << "ParserTestProvider::initialize" << endl;
 
     CIMInstance instance1("Sample_PClassOne");
-    CIMObjectPath reference1("Sample_PClassOne.CName=ClassOne");
-    // keys
+	CIMObjectPath reference1("Sample_PClassOne.CName=ClassOne");
+	// keys
     instance1.addProperty(CIMProperty("CName", String("Sample_PClassOne")));
     instance1.addProperty(CIMProperty("CNum", Uint16(1)));
     instance1.addProperty(CIMProperty("BadStringName", String(BADSTR_1)));
 
-    //other
+	//other 
     instance1.addProperty(CIMProperty("BadStringNum", Uint16(1)));
 
     _instances.append(instance1);
-    _instanceNames.append(reference1);
+	_instanceNames.append(reference1);
 
     CIMInstance instance2("Sample_PClassOne");
-    CIMObjectPath reference2("Sample_PClassOne.CName=ClassTwo");
+	CIMObjectPath reference2("Sample_PClassOne.CName=ClassTwo");
 
-    // keys
+	// keys
     instance2.addProperty(CIMProperty("CName", String("Sample_PClassOne")));
     instance2.addProperty(CIMProperty("CNum", Uint16(2)));
     instance2.addProperty(CIMProperty("BadStringName", String(BADSTR_2)));
 
-    // other
+	// other
     instance2.addProperty(CIMProperty("BadStringNum", Uint16(2)));
 
     _instances.append(instance2);
-    _instanceNames.append(reference2);
+	_instanceNames.append(reference2);
 }
 
 void ParserTestProvider::terminate(void)
@@ -97,27 +103,27 @@ void ParserTestProvider::getInstance(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-    String Value;
+	String Value;
     char csname[256];
     int cnum;
     char badstrname[256];
 
     cout << "ParserTestProvider::getInstance" << endl;
 
-    CIMName className = instanceReference.getClassName();
+	CIMName className = instanceReference.getClassName();
     CIMNamespaceName nameSpace = instanceReference.getNameSpace();
 
     Array<CIMKeyBinding> keys = instanceReference.getKeyBindings();
 
-    for (int i = 0; i < (int)keys.size(); i++)
-    {
-        CIMName cimName = keys[i].getName();
-        Value = keys[i].getValue();
+	for (int i = 0; i < (int)keys.size(); i++)
+	{
+		CIMName cimName = keys[i].getName();
+		Value = keys[i].getValue();
 
-        if (cimName.equal("BadStringName")) {
-                strncpy(badstrname, Value.getCString(), 256);
-        }
-    }
+		if (cimName.equal("BadStringName")) {
+				strncpy(badstrname, Value.getCString(), 256);
+		}
+	}
     CIMInstance instance(CLASS_NAME);
     instance.setPath(CIMObjectPath(String::EMPTY, // hostname
                                       nameSpace,
@@ -127,7 +133,7 @@ void ParserTestProvider::getInstance(
                          String(CLASS_NAME)));
     instance.addProperty(CIMProperty("BadStringName",
                          String(badstrname)));
-
+	
     //begin processing the request
     handler.processing();
 
@@ -144,38 +150,38 @@ void ParserTestProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-    // begin processing the request
-
-    CIMName className = classReference.getClassName();
+	// begin processing the request
+	
+	CIMName className = classReference.getClassName();
     CIMNamespaceName nameSpace = classReference.getNameSpace();
-    //cout "[className: "<<className<<"], [in namespace: " << nameSpace << "]";
+	//cout "[className: "<<className<<"], [in namespace: " << nameSpace << "]";
 
     handler.processing();
-    Array<CIMKeyBinding> keys;
+	Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("CName",
-                              String(CLASS_NAME),
-                              CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("BadStringName",
-                              String(BADSTR_1),
-                              CIMKeyBinding::STRING));
-    CIMInstance instance(CLASS_NAME);
+	keys.append(CIMKeyBinding("CName", 
+							  String(CLASS_NAME),
+							  CIMKeyBinding::STRING));
+	keys.append(CIMKeyBinding("BadStringName",
+							  String(BADSTR_1),
+							  CIMKeyBinding::STRING));
+	CIMInstance instance(CLASS_NAME);
 
-    instance.setPath(CIMObjectPath(String::EMPTY,
-                                   nameSpace,
-                                   CLASS_NAME,
-                                   keys));
-    // keys
-    instance.addProperty(CIMProperty("CName",
-                                      String(CLASS_NAME)));
+	instance.setPath(CIMObjectPath(String::EMPTY,
+								   nameSpace,
+								   CLASS_NAME,
+								   keys));
+	// keys
+	instance.addProperty(CIMProperty("CName",
+									  String(CLASS_NAME)));
     instance.addProperty(CIMProperty("BadStringName",
-                                      String(BADSTR_1)));
+							          String(BADSTR_1)));
 
-    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
         handler.deliver(_instances[i]);
-                        //
-    handler.deliver(instance);
-    handler.complete();
+						//
+	handler.deliver(instance);
+	handler.complete();
 }
 
 void ParserTestProvider::enumerateInstanceNames(
@@ -188,23 +194,23 @@ void ParserTestProvider::enumerateInstanceNames(
     // begin processing the request
     CIMName className = classReference.getClassName();
     CIMNamespaceName nameSpace = classReference.getNameSpace();
-    //DEBUG("[className: "<<className<<"], [in namespace: "<<nameSpace<<"]");
+    //DEBUG("[className: "<<className<<"], [in namespace: " << nameSpace << "]");
 
     handler.processing();
 
-    Array<CIMKeyBinding> keys;
+     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("CName",
-                    String(CLASS_NAME),
-                    CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("BadStr",
+     keys.append(CIMKeyBinding("CName", 
+				    String(CLASS_NAME),
+				    CIMKeyBinding::STRING));
+     keys.append(CIMKeyBinding("BadStr", 
                     String(BADSTR_1),
-                    CIMKeyBinding::STRING));
-
-    CIMObjectPath obj_path = CIMObjectPath(String(),
-                                nameSpace,
-                                className,
-                                keys);
+					CIMKeyBinding::STRING));
+    
+     CIMObjectPath obj_path = CIMObjectPath(String(), 
+								nameSpace, 
+								className,
+								keys);
     handler.deliver(obj_path);
     // complete processing the request
     handler.complete();
@@ -256,7 +262,7 @@ void ParserTestProvider::deleteInstance(
 //   if (strftime(strTime,256,"%Y%m%d%H%M%S.",&tmTime)) {
 //      strcat(strTime,"000000");
 //      snprintf(utcOffset,20,"%+4.3ld",tmTime.tm_gmtoff/60);
-//      strcat(strTime,utcOffset);
+//      strcat(strTime,utcOffset); 
 //      //DEBUG("Time is "<<strTime);
 //      *dt=String(strTime);
 //   }

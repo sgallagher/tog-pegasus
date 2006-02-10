@@ -1,48 +1,55 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              Karl Schopmeyer(k.schopmeyer@opengroup.org)
+//              David Dilard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMPropertyList.h>
-#include <Pegasus/Common/CIMPropertyInternal.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/CIMObjectPath.h>
-
-#include <Pegasus/General/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static Boolean verbose;         // controls test IO
-
-#define VCOUT if (verbose) cout
+static char * verbose;			// controls test IO
 
 void test01()
 {
@@ -60,21 +67,21 @@ void test01()
     // Test clone
     CIMProperty p1clone = p1.clone();
     CIMProperty p2clone = p2.clone();
-
+   
     // Test print
 
     if(verbose)
     {
-       XmlWriter::printPropertyElement(p1, cout);
-       XmlWriter::printPropertyElement(p2, cout);
-       XmlWriter::printPropertyElement(p1clone, cout);
-       XmlWriter::printPropertyElement(p2clone, cout);
+	   XmlWriter::printPropertyElement(p1, cout);
+	   XmlWriter::printPropertyElement(p2, cout);
+	   XmlWriter::printPropertyElement(p1clone, cout);
+	   XmlWriter::printPropertyElement(p2clone, cout);
     }
 
     // Test toMof
        Buffer mofOut;
-       MofWriter::appendPropertyElement(true, mofOut, p1);
-       MofWriter::appendPropertyElement(true, mofOut, p2);
+       MofWriter::appendPropertyElement(mofOut, p1);
+       MofWriter::appendPropertyElement(mofOut, p2);
 
     // Test toXml
        Buffer xmlOut;
@@ -116,9 +123,6 @@ void test01()
             }
         }
         PEGASUS_TEST_ASSERT (isKey);
-    // Test for key property using CIMPropertyInternal
-        PEGASUS_TEST_ASSERT (CIMPropertyInternal::isKeyProperty(p1));
-        PEGASUS_TEST_ASSERT (CIMPropertyInternal::isKeyProperty(p2));
 
     // Test getArraySize
         PEGASUS_TEST_ASSERT(p1.getArraySize() == 0);
@@ -129,51 +133,51 @@ void test01()
         PEGASUS_TEST_ASSERT(p2.getPropagated() == false);
 
     // Tests for Qualifiers
-    PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(p1.getQualifierCount() == 4);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.getQualifierCount() == 4);
 
-    PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(p2.getQualifierCount() == 4);
+	PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p2.getQualifierCount() == 4);
 
-    PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
-    PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 
-    Uint32 posQualifier;
-    posQualifier = p1.findQualifier(CIMName ("stuff"));
-    PEGASUS_TEST_ASSERT(posQualifier != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(posQualifier < p1.getQualifierCount());
+	Uint32 posQualifier;
+	posQualifier = p1.findQualifier(CIMName ("stuff"));
+	PEGASUS_TEST_ASSERT(posQualifier != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(posQualifier < p1.getQualifierCount());
 
-    p1.removeQualifier(posQualifier);
-    PEGASUS_TEST_ASSERT(p1.getQualifierCount() == 3);
-    PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	p1.removeQualifier(posQualifier);
+	PEGASUS_TEST_ASSERT(p1.getQualifierCount() == 3);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
     // Tests for value insertion.
     {
-        CIMProperty px(CIMName ("p1"), String("Hi There"));
-        // test for CIMValue and type
-        CIMProperty py(CIMName ("p2"), Uint32(999));
-        // test for CIMValue and type
+           CIMProperty p1(CIMName ("p1"), String("Hi There"));
+           // test for CIMValue and type
+           CIMProperty p2(CIMName ("p2"), Uint32(999));
+           // test for CIMValue and type
 
-        //Test getName and setName
-        PEGASUS_TEST_ASSERT(px.getName() == CIMName ("p1"));
-        px.setName(CIMName ("px"));
-        PEGASUS_TEST_ASSERT(px.getName() == CIMName ("px"));
+	   //Test getName and setName
+	   PEGASUS_TEST_ASSERT(p1.getName() == CIMName ("p1"));
+	   p1.setName(CIMName ("px"));
+	   PEGASUS_TEST_ASSERT(p1.getName() == CIMName ("px"));
 
-        PEGASUS_TEST_ASSERT(py.getName() == CIMName ("p2"));
-        py.setName(CIMName ("py"));
-        PEGASUS_TEST_ASSERT(py.getName() == CIMName ("py"));
+	   PEGASUS_TEST_ASSERT(p2.getName() == CIMName ("p2"));
+	   p2.setName(CIMName ("py"));
+	   PEGASUS_TEST_ASSERT(p2.getName() == CIMName ("py"));
 
-        // ATTN: Test setValue and getValue
+	   // Test setValue and getValue
     }
 }
 
@@ -184,8 +188,7 @@ void test02()
         p1.addQualifier(CIMQualifier(CIMName ("Key"), true));
         p1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
         p1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
-        p1.addQualifier(CIMQualifier(CIMName ("Description"),
-                                     String("Blah Blah")));
+        p1.addQualifier(CIMQualifier(CIMName ("Description"), String("Blah Blah")));
         CIMConstProperty p2 = p1;
 
         CIMConstProperty cp1 = p1;
@@ -194,10 +197,10 @@ void test02()
         CIMConstProperty cp1clone = cp1.clone();
 
         if(verbose)
-        XmlWriter::printPropertyElement(cp1, cout);
+	    XmlWriter::printPropertyElement(cp1, cout);
 
         Buffer mofOut;
-        MofWriter::appendPropertyElement(true,mofOut, cp1);
+        MofWriter::appendPropertyElement(mofOut, cp1);
         Buffer xmlOut;
         XmlWriter::appendPropertyElement(xmlOut, cp1);
 
@@ -218,24 +221,20 @@ void test02()
         PEGASUS_TEST_ASSERT(cp1.getArraySize() == 0);
         PEGASUS_TEST_ASSERT(cp1.getPropagated() == false);
 
-    PEGASUS_TEST_ASSERT(cp1.findQualifier(
-        CIMName ("stuff")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(cp1.findQualifier(
-        CIMName ("stuff2")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(cp1.findQualifier(
-        CIMName ("stuff21")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(cp1.findQualifier(
-        CIMName ("stuf")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(cp1.getQualifierCount() == 4);
-
-        try
+	PEGASUS_TEST_ASSERT(cp1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cp1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cp1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cp1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cp1.getQualifierCount() == 4);
+ 
+        try 
         {
             p1.getQualifier(0);
         }
         catch(IndexOutOfBoundsException& e)
         {
-            if(verbose)
-                cout << "Exception: " << e.getMessage() << endl;
+			if(verbose)
+				cout << "Exception: " << e.getMessage() << endl;	
         }
 }
 //
@@ -252,39 +251,26 @@ void test03()
     names.append(CIMName ("property3"));
     list1.set(names);
     list2 = list1;
-
-    VCOUT << list1.toString() << endl;
-    VCOUT << list2.toString() << endl;
-    PEGASUS_TEST_ASSERT(list1.toString() == "property1, property2, property3");
-    PEGASUS_TEST_ASSERT(list2.toString() == "property1, property2, property3");
-
-    Array<CIMName> names1a = list1.getPropertyNameArray();
-    PEGASUS_TEST_ASSERT(names == names1a);
-    PEGASUS_TEST_ASSERT(list2[0] == CIMName("property1"));
-    PEGASUS_TEST_ASSERT(list2[1] == CIMName("property2"));
-    PEGASUS_TEST_ASSERT(list2[2] == CIMName("property3"));
+	Array<CIMName> names1a = list1.getPropertyNameArray();
+	PEGASUS_TEST_ASSERT(names == names1a);
+	PEGASUS_TEST_ASSERT(list2[0] == CIMName("property1"));
+	PEGASUS_TEST_ASSERT(list2[1] == CIMName("property2"));
+	PEGASUS_TEST_ASSERT(list2[2] == CIMName("property3"));
 
     list1.clear();
-    list2.clear();
+	list2.clear();
 
-    VCOUT << list1.toString() << endl;
-    VCOUT << list2.toString() << endl;
-    PEGASUS_TEST_ASSERT(list1.toString() == "NULL");
-    PEGASUS_TEST_ASSERT(list2.toString() == "NULL");
-
-    // Test use of empty list.  Note that the requirement for
-    // property lists assumes that we must be able to distinguish
-    // a NULL property list from an empty property list.  The usages
-    // are very different.  NULL means ignore.  Empty means use list
-    // but no properties in list.
-    Array<CIMName> names2;
-    list1.set(names2);
-    PEGASUS_TEST_ASSERT(!list1.isNull());
-    PEGASUS_TEST_ASSERT(list1.size() == 0);
-    Array<CIMName> names3 = list1.getPropertyNameArray();
-    PEGASUS_TEST_ASSERT(names3.size() == 0);
-    VCOUT << list1.toString() << endl;
-    PEGASUS_TEST_ASSERT(list1.toString() == "EMPTY");
+	// Test use of empty list.  Note that the requirement for
+	// property lists assumes that we must be able to distinguish
+	// a NULL property list from an empty property list.  The usages
+	// are very different.  NULL means ignore.  Empty means use list
+	// but no properties in list.
+	Array<CIMName> names2;
+	list1.set(names2);
+	PEGASUS_TEST_ASSERT(!list1.isNull());
+	PEGASUS_TEST_ASSERT(list1.size() == 0);
+	Array<CIMName> names3 = list1.getPropertyNameArray();
+	PEGASUS_TEST_ASSERT(names3.size() == 0);
 
 }
 
@@ -292,18 +278,15 @@ void test03()
 void test04()
 {
     // Create reference type property from string input and reference class name
-    String p =  "//localhost/root/SampleProvider:"
-                "TST_PersonDynamic.Name=\"Father\"";
+    String p =  "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Father\"";
     CIMObjectPath path = p;
-
+        
     String referenceClassName = "TST_Person";
-    CIMProperty p1(CIMName ("message"), path, 0,
-                   CIMName(referenceClassName));
+    CIMProperty p1(CIMName ("message"), path, 0, CIMName(referenceClassName));
     PEGASUS_TEST_ASSERT(!p1.isArray());
-    PEGASUS_TEST_ASSERT(p1.getReferenceClassName()==
-                        CIMName(referenceClassName));
+    PEGASUS_TEST_ASSERT(p1.getReferenceClassName() == CIMName(referenceClassName));
     PEGASUS_TEST_ASSERT(p1.getType() == CIMTYPE_REFERENCE);
-
+    
     CIMValue v1;
     v1 = p1.getValue();
     PEGASUS_TEST_ASSERT(v1.getType() ==  CIMTYPE_REFERENCE);
@@ -315,29 +298,25 @@ void test04()
     if(verbose)
         XmlWriter::printPropertyElement(p1, cout);
 
-    // Now create an empty property, one used in class declaration
-    // for a reference
-    CIMProperty p2(CIMName ("parent"), CIMObjectPath(),
-                   0, CIMName(referenceClassName));
+    // Now create an empty property, one used in class declaration for a reference
+    CIMProperty p2(CIMName ("parent"), CIMObjectPath(), 0, CIMName(referenceClassName));
     PEGASUS_TEST_ASSERT(!p2.isArray());
-    PEGASUS_TEST_ASSERT(p2.getReferenceClassName() ==
-                         CIMName(referenceClassName));
+    PEGASUS_TEST_ASSERT(p2.getReferenceClassName() == CIMName(referenceClassName));
     PEGASUS_TEST_ASSERT(p2.getType() == CIMTYPE_REFERENCE);
 
     CIMValue v2;
     v2 = p2.getValue();
     PEGASUS_TEST_ASSERT(v2.getType() ==  CIMTYPE_REFERENCE);
 
-    // ATTN: P3 KS 27 Feb 2003. Why does the following test not work.
-    // I assume that the value should
-    // be null in this case.
+    // ATTN: P3 KS 27 Feb 2003. Why does the following test not work. I assume that the value should
+    // b e null in this case.
     //PEGASUS_TEST_ASSERT(v2.isNull());
 
     CIMObjectPath pathout2;
     v1.get(pathout2);
     // Now compare the paths
 
-
+    
     if(verbose)
         XmlWriter::printPropertyElement(p2, cout);
 }
@@ -355,7 +334,7 @@ void test05()
     {
         p1 = CIMProperty(CIMName("property1"), oa, 0, CIMName("refclass"));
     }
-    catch (TypeMismatchException&)
+    catch (TypeMismatchException& e)
     {
         gotException = true;
     }
@@ -367,16 +346,16 @@ void test05()
     {
         p1.setValue(oa);
     }
-    catch (TypeMismatchException&)
+    catch (TypeMismatchException& e)
     {
         gotException = true;
     }
     PEGASUS_TEST_ASSERT(gotException);
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
         test01();

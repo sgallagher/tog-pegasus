@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -1227,7 +1229,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLValueRep::_setValue()");
   CIMValue tmp;
-  Uint32 index;
+  Uint32 index = 0;
 
   if(cv.isNull())
     {
@@ -1780,7 +1782,7 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
    CIMValue valueMap;               // CIMValue for Value Map Qualifiers
    CIMValue values;                 // CIMValue for Values Qualifiers
    Boolean matchFound = false;      // Indicator for match Qualifier
-   Uint32 matchIndex;               // Placeholder for matched Qualifier
+   Uint32 matchIndex = 0;           // Placeholder for matched Qualifier
 
    if(lid.isScoped())
    {

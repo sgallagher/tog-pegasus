@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Christopher Neufeld <neufeld@linuxcare.com>
 //         David Kennedy       <dkennedy@linuxcare.com>
@@ -66,10 +68,10 @@ Process::~Process()
 NAME              : getCaption
 DESCRIPTION       : returns pst_ucomm, the "executable basename the
                   : process is running" (so no path info)
-ASSUMPTIONS       :
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getCaption(String& s) const
@@ -83,10 +85,10 @@ Boolean Process::getCaption(String& s) const
 NAME              : getDescription
 DESCRIPTION       : returns pst_cmd (command line) as a string (contrast
                   : this with ModulePath and Parameters below)
-ASSUMPTIONS       :
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getDescription(String& s) const
@@ -98,11 +100,11 @@ Boolean Process::getDescription(String& s) const
 /*
 ================================================================================
 NAME              : getInstallDate
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getInstallDate(CIMDateTime& d) const
@@ -117,11 +119,11 @@ Boolean Process::getInstallDate(CIMDateTime& d) const
 /*
 ================================================================================
 NAME              : getStatus
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getStatus(String& s) const
@@ -135,11 +137,11 @@ Boolean Process::getStatus(String& s) const
 /*
 ================================================================================
 NAME              : getName
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getName(String& s) const
@@ -156,11 +158,11 @@ Boolean Process::getName(String& s) const
 /*
 ================================================================================
 NAME              : getPriority
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getPriority(Uint32& i32) const
@@ -172,23 +174,23 @@ Boolean Process::getPriority(Uint32& i32) const
 /*
 ================================================================================
 NAME              : getExecutionState
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getExecutionState(Uint16& i16) const
 {
-  /*
+  /* 
      From the MOF for this class:
       [Description (
         "Indicates the current operating condition of the Process. "
         "Values include ready (2), running (3), and blocked (4), "
         "among others."),
-       Values {"Unknown", "Other", "Ready", "Running",
-               "Blocked", "Suspended Blocked", "Suspended Ready",
+       Values {"Unknown", "Other", "Ready", "Running", 
+               "Blocked", "Suspended Blocked", "Suspended Ready", 
                "Terminated", "Stopped", "Growing" },
    */
 
@@ -240,11 +242,11 @@ Boolean Process::getExecutionState(Uint16& i16) const
 /*
 ================================================================================
 NAME              : getOtherExecutionDescription
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getOtherExecutionDescription(String& s) const
@@ -254,11 +256,11 @@ Boolean Process::getOtherExecutionDescription(String& s) const
   case PS_ZOMBIE:
     s = "Zombie";
     break;
-
+  
   case PS_OTHER:
     s = "Other";
     break;
-
+  
   default:
     s = String::EMPTY; // ExecutionState is not Other
     // In this case, the caller must know to set the
@@ -271,11 +273,11 @@ Boolean Process::getOtherExecutionDescription(String& s) const
 /*
 ================================================================================
 NAME              : getCreationDate
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getCreationDate(CIMDateTime& d) const
@@ -295,7 +297,7 @@ Boolean Process::getCreationDate(CIMDateTime& d) const
 
   // convert to CIMDateTime format
   char timstr[26];
-  sprintf(timstr,"%04d%02d%02d%02d%02d%02d.000000%c%03ld",t->tm_year+1900,
+  sprintf(timstr,"%04d%02d%02d%02d%02d%02d.000000%c%03d",t->tm_year+1900,
                        t->tm_mon+1,
                        t->tm_mday,
                        t->tm_hour,
@@ -310,11 +312,11 @@ Boolean Process::getCreationDate(CIMDateTime& d) const
 /*
 ================================================================================
 NAME              : getTerminationDate
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getTerminationDate(CIMDateTime& d) const
@@ -329,11 +331,11 @@ Boolean Process::getTerminationDate(CIMDateTime& d) const
 /*
 ================================================================================
 NAME              : getKernelModeTime
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getKernelModeTime(Uint64& i64) const
@@ -347,11 +349,11 @@ Boolean Process::getKernelModeTime(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getUserModeTime
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getUserModeTime(Uint64& i64) const
@@ -365,11 +367,11 @@ Boolean Process::getUserModeTime(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getWorkingSetSize
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getWorkingSetSize(Uint64& i64) const
@@ -396,11 +398,11 @@ Boolean Process::getWorkingSetSize(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getRealUserID
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getRealUserID(Uint64& i64) const
@@ -412,11 +414,11 @@ Boolean Process::getRealUserID(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getProcessGroupID
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getProcessGroupID(Uint64& i64) const
@@ -428,11 +430,11 @@ Boolean Process::getProcessGroupID(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getProcessSessionID
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getProcessSessionID(Uint64& i64) const
@@ -444,11 +446,11 @@ Boolean Process::getProcessSessionID(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getProcessTTY
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getProcessTTY(String& s) const
@@ -460,7 +462,7 @@ Boolean Process::getProcessTTY(String& s) const
   // to various operating systems might add other important info which
   // is not represented in major/minor, and this code may have to be
   // modified to obtain additional information
-
+  
   if (pInfo.pst_major == -1 && pInfo.pst_minor == -1)
   {
     s = "?";
@@ -477,11 +479,11 @@ Boolean Process::getProcessTTY(String& s) const
 /*
 ================================================================================
 NAME              : getModulePath
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getModulePath(String& s) const
@@ -498,11 +500,11 @@ Boolean Process::getModulePath(String& s) const
 /*
 ================================================================================
 NAME              : getParameters
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getParameters(Array<String>& as) const
@@ -518,12 +520,9 @@ Boolean Process::getParameters(Array<String>& as) const
   // going for q-p characters
   // p then set to point past blank for next iteration
 
-  const char *p = pInfo.pst_cmd;
+  const char *p=pInfo.pst_cmd;
   const char *q;
-  for ( ; (q = strchr(p, ' ')) != 0; p = q + 1)
-  {
-      as.append(String(p, q-p));
-  }
+  for ( ; q=strchr(p, ' '); p=q+1) as.append(String(p, q-p));
 
   // when no more blanks found, stick what's left into last
   // element of array
@@ -534,11 +533,11 @@ Boolean Process::getParameters(Array<String>& as) const
 /*
 ================================================================================
 NAME              : getProcessNiceValue
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getProcessNiceValue(Uint32& i32) const
@@ -550,11 +549,11 @@ Boolean Process::getProcessNiceValue(Uint32& i32) const
 /*
 ================================================================================
 NAME              : getProcessWaitingForEvent
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getProcessWaitingForEvent(String& s) const
@@ -567,11 +566,11 @@ Boolean Process::getProcessWaitingForEvent(String& s) const
 /*
 ================================================================================
 NAME              : getCPUTime
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getCPUTime(Uint32& i32) const
@@ -585,11 +584,11 @@ Boolean Process::getCPUTime(Uint32& i32) const
 /*
 ================================================================================
 NAME              : getRealText
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getRealText(Uint64& i64) const
@@ -609,11 +608,11 @@ Boolean Process::getRealText(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getRealData
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getRealData(Uint64& i64) const
@@ -625,11 +624,11 @@ Boolean Process::getRealData(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getRealStack
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getRealStack(Uint64& i64) const
@@ -641,11 +640,11 @@ Boolean Process::getRealStack(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getVirtualText
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getVirtualText(Uint64& i64) const
@@ -657,11 +656,11 @@ Boolean Process::getVirtualText(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getVirtualData
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getVirtualData(Uint64& i64) const
@@ -673,11 +672,11 @@ Boolean Process::getVirtualData(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getVirtualStack
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getVirtualStack(Uint64& i64) const
@@ -689,11 +688,11 @@ Boolean Process::getVirtualStack(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getVirtualMemoryMappedFileSize
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getVirtualMemoryMappedFileSize(Uint64& i64) const
@@ -705,11 +704,11 @@ Boolean Process::getVirtualMemoryMappedFileSize(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getVirtualSharedMemory
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getVirtualSharedMemory(Uint64& i64) const
@@ -721,11 +720,11 @@ Boolean Process::getVirtualSharedMemory(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getCpuTimeDeadChildren
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getCpuTimeDeadChildren(Uint64& i64) const
@@ -753,11 +752,11 @@ Boolean Process::getCpuTimeDeadChildren(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getSystemTimeDeadChildren
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getSystemTimeDeadChildren(Uint64& i64) const
@@ -782,17 +781,17 @@ Boolean Process::getSystemTimeDeadChildren(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getParentProcessID
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getParentProcessID(String& s) const
 {
-  char buf[22];
-  sprintf(buf, "%lld", Sint64(pInfo.pst_ppid));
+  char buf[100];
+  sprintf(buf,"%d",pInfo.pst_ppid);
   s = buf;
   return true;
 }
@@ -800,10 +799,10 @@ Boolean Process::getParentProcessID(String& s) const
 /*
 ================================================================================
 NAME              : getRealSpace
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
+POST-CONDITIONS   : 
 NOTES             : returns a modified pIndex that can be used in a
                     subsequent call to get next process structure
 ================================================================================
@@ -821,17 +820,17 @@ Boolean Process::getRealSpace(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getHandle
-DESCRIPTION       :
+DESCRIPTION       : 
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 String Process::getHandle(void) const
 {
-  char buf[22];
-  sprintf(buf, "%lld", Sint64(pInfo.pst_pid));
+  char buf[100];
+  sprintf(buf,"%d",pInfo.pst_pid);
   return String(buf);
 }
 
@@ -841,8 +840,8 @@ NAME              : getCSName
 DESCRIPTION       : Platform-specific routine to get CSName
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 String Process::getCSName(void) const
@@ -855,15 +854,10 @@ String Process::getCSName(void) const
   hn[sizeof(hn)-1] = 0;
 
   // find out what the nameservices think is its full name
-  if ((he = gethostbyname(hn)) != 0)
-  {
-      return String(he->h_name);
-  }
+  if (he=gethostbyname(hn)) return String(he->h_name);
+
   // but if that failed, return what gethostname said
-  else
-  {
-      return String(hn);
-  }
+  else return String(hn);
 }
 
 /*
@@ -872,16 +866,16 @@ NAME              : getOSName
 DESCRIPTION       : Platform-specific routine to get OSName
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 String Process::getOSName(void) const
 {
   struct utsname unameInfo;
 
-  /* Call uname, handle errors */
-  if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
+  /* Call uname, handle errors */ 
+  if (uname(&unameInfo) < 0)
   {
     throw CIMOperationFailedException(strerror(errno));
   }
@@ -895,8 +889,8 @@ NAME              : getCurrentTime
 DESCRIPTION       : Platform-specific routine to get a timestamp stat Name key
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 String Process::getCurrentTime(void) const
@@ -913,8 +907,8 @@ NAME              : loadProcessInfo
 DESCRIPTION       : Use pstat_getproc() to fill in a struct pst_status
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::loadProcessInfo(int &pIndex)
@@ -952,8 +946,8 @@ NAME              : findProcess
 DESCRIPTION       : find the requested process and load its data
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::findProcess(const String& handle)

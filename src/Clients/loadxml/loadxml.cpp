@@ -1,46 +1,54 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Config.h>
+#include <fstream>
+#include <iostream>
+#include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-String namespaceName;
-static Boolean verbose = false;
+static const String CIMV2_NAMESPACE = "root/cimv2";
+static const String ROOT_NAMESPACE = "root";
 
 //------------------------------------------------------------------------------
 // ProcessValueObjectElement()
@@ -56,55 +64,28 @@ Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
     XmlEntry entry;
 
     if (!XmlReader::testStartTag(parser, entry, "VALUE.OBJECT"))
-    {
-        return false;
-    }
+	return false;
 
-    CIMClass cimClass, tmpClass;
+    CIMClass cimClass;
     CIMQualifierDecl qualifierDecl;
 
     if (XmlReader::getClassElement(parser, cimClass))
     {
-        if (verbose)
-        {
-            cout << "Creating: class ";
-            cout << cimClass.getClassName().getString() << endl;
-        }
+	cout << "Creating: class ";
+	cout << cimClass.getClassName() << endl;
 
-        try
-        {
-            repository.createClass(namespaceName, cimClass);
-        }
-        catch (Exception &e)
-        {
-            // Ignore if cimClass already exists
-            if (e.getMessage() != cimClass.getClassName())
-            {
-                throw;
-            }
-        }
+	repository.createClass(CIMV2_NAMESPACE, cimClass);
+	repository.createClass(ROOT_NAMESPACE, cimClass);
     }
     else if (XmlReader::getQualifierDeclElement(parser, qualifierDecl))
     {
-        if (verbose)
-        {
-            cout << "Creating: qualifier ";
-            cout << qualifierDecl.getName().getString() << endl;
-        }
+	cout << "Creating: qualifier ";
+	cout << qualifierDecl.getName() << endl;
 
-        try
-        {
-            repository.setQualifier(namespaceName, qualifierDecl);
-        }
-        catch (Exception &e)
-        {
-            // Ignore if qualifierDecl already exists
-            if (e.getMessage() != qualifierDecl.getName())
-            {
-                throw;
-            }
-        }
+	repository.setQualifier(CIMV2_NAMESPACE, qualifierDecl);
+	repository.setQualifier(ROOT_NAMESPACE, qualifierDecl);
     }
+
     XmlReader::expectEndTag(parser, "VALUE.OBJECT");
 
     return true;
@@ -125,12 +106,10 @@ Boolean ProcessDeclGroupElement(CIMRepository& repository, XmlParser& parser)
     XmlEntry entry;
 
     if (!XmlReader::testStartTag(parser, entry, "DECLGROUP"))
-    {
-        return false;
-    }
+	return false;
 
     while (ProcessValueObjectElement(repository, parser))
-        ;
+	;
 
     XmlReader::expectEndTag(parser, "DECLGROUP");
 
@@ -151,12 +130,10 @@ Boolean ProcessDeclarationElement(CIMRepository& repository, XmlParser& parser)
     XmlEntry entry;
 
     if (!XmlReader::testStartTag(parser, entry, "DECLARATION"))
-    {
-        return false;
-    }
+	return false;
 
     while(ProcessDeclGroupElement(repository, parser))
-        ;
+	;
 
     XmlReader::expectEndTag(parser, "DECLARATION");
 
@@ -181,33 +158,32 @@ Boolean ProcessCimElement(CIMRepository& repository, XmlParser& parser)
 
     if (!parser.next(entry) || entry.type != XmlEntry::XML_DECLARATION)
     {
-        throw(parser.getLine(), "expected XML declaration");
+	throw(parser.getLine(), "expected XML declaration");
     }
 
     if (!XmlReader::testStartTag(parser, entry, "CIM"))
-    {
-        return false;
-    }
+	return false;
+
     String cimVersion;
 
     if (!entry.getAttributeValue("CIMVERSION", cimVersion))
     {
-        throw XmlValidationError(parser.getLine(),
-            "missing CIM.CIMVERSION attribute");
+	throw XmlValidationError(parser.getLine(), 
+	    "missing CIM.CIMVERSION attribute");
     }
 
     String dtdVersion;
 
     if (!entry.getAttributeValue("DTDVERSION", dtdVersion))
     {
-        throw XmlValidationError(parser.getLine(),
-            "missing CIM.DTDVERSION attribute");
+	throw XmlValidationError(parser.getLine(), 
+	    "missing CIM.DTDVERSION attribute");
     }
 
     if (!ProcessDeclarationElement(repository, parser))
     {
-        throw XmlValidationError(parser.getLine(),
-            "Expected DECLARATION element");
+	throw XmlValidationError(parser.getLine(), 
+	    "Expected DECLARATION element");
     }
 
     XmlReader::expectEndTag(parser, "CIM");
@@ -221,34 +197,38 @@ Boolean ProcessCimElement(CIMRepository& repository, XmlParser& parser)
 //
 //------------------------------------------------------------------------------
 
-static void _processFile(const char* repositoryRoot, const char* xmlFileName)
+static void _processFile(const char* xmlFileName, 
+                         const char* nameSpace,
+                         const char* repositoryRoot)
 {
     // Create the parser:
 
-    Buffer text;
-    text.reserveCapacity(1024 * 1024);
+    Array<Sint8> text;
+    text.reserve(1024 * 1024);
     FileSystem::loadFileToMemory(text, xmlFileName);
+    text.append('\0');
     XmlParser parser((char*)text.getData());
 
     CIMRepository repository(repositoryRoot);
-    try
-    {
-        repository.createNameSpace(namespaceName);
-    }
-    catch (Exception &e)
-    {
-        // Ignore if Namespace already exists
-        if (e.getMessage () != namespaceName)
-        {
-            throw;
-        }
-    }
+    // Need to test if namespace exists before adding it
+    repository.createNameSpace(nameSpace);
+
+    // Put the file in the repository:
 
     if (!ProcessCimElement(repository, parser))
     {
-        cerr << "CIM root element missing" << endl;
-        exit(1);
+	cerr << "CIM root element missing" << endl;
+	exit(1);
     }
+}
+
+static void Usage(const char* name, const char* message)
+{
+	cerr << "Usage: " << name << "  xmlfile namespace repository-root" << endl;
+        cerr << name << "Installs an XML file containing CIM classes and instances ";
+        cerr << "into the repository." << endl;
+        cerr << "ex. " << name << " x.xml /root/cimv2/ " << endl;
+        cerr << message;
 }
 
 //------------------------------------------------------------------------------
@@ -259,29 +239,61 @@ static void _processFile(const char* repositoryRoot, const char* xmlFileName)
 
 int main(int argc, char** argv)
 {
-    if (argc != 4)
+    String name = argv[0];
+    String message = "";
+    if ((argc > 4) || (argc < 2))
     {
-        cerr << "Usage: " << argv[0]
-            << " repository-root xmlfile namespace" << endl;
-        exit(1);
+        Usage(argv[0], "");
+	exit(1);
     }
 
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     try
     {
-        namespaceName = argv[3];
-        cout << argv[0] << " loading " << argv[2] << " to namespace "
-            << namespaceName << " into repository " << argv[1] << endl;
-        _processFile(argv[1], argv[2]);
-        cout << argv[0] << " loaded." << endl;
+        char* repositoryRoot;
+        char* nameSpace = "CIMv2";
+        if (argc == 4)
+        {
+        repositoryRoot = argv[3];
+        cout << "repository Root " << repositoryRoot << endl;
+        }
+        else
+        {
+            static char* tmp;
+            
+            tmp = getenv("PEGASUS_HOME");
+            
+            if (tmp)
+            {
+                repositoryRoot = tmp;    
+            }
+            else
+            {
+                Usage(argv[0], "The Environment variable PEGASUS_HOME could not be found");
+                exit(1);
+            }
+            
+        }
+        cout << "test argc" << argc << endl;
+        if (argc == 2)
+        {
+        nameSpace = argv[2];  
+        }
+        cout << "test xmlfile" << endl;
+
+        char* xmlFile = argv[1];
+        
+	cout << argv[0] << " loading " << xmlFile << " to namespace "
+             << nameSpace << " in repository " << repositoryRoot << endl;
+        _processFile(argv[1], nameSpace, repositoryRoot);
+    }
+    catch (Exception& e)
+    {
+	cerr << e.getMessage() << endl;	
+	exit(1);
     }
 
-    catch (const Exception& e)
-    {
-        cerr << e.getMessage() << endl;
-        exit(1);
-    }
+    cout << argv[0] << "loaded" << endl;
 
     return 0;
 }

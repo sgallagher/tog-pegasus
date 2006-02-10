@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +40,7 @@
 
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
-#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Logger.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -41,78 +48,88 @@ PEGASUS_NAMESPACE_BEGIN
 // SimpleResponseHandler
 //
 
-SimpleResponseHandler::SimpleResponseHandler()
+SimpleResponseHandler::SimpleResponseHandler(void)
 {
 }
 
-SimpleResponseHandler::~SimpleResponseHandler()
+SimpleResponseHandler::~SimpleResponseHandler(void)
 {
 }
 
-void SimpleResponseHandler::processing()
+void SimpleResponseHandler::processing(void)
 {
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
+    Logger::put(
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
         "SimpleResponseHandler::processing()");
+
     // do nothing
 }
 
-void SimpleResponseHandler::complete()
+void SimpleResponseHandler::complete(void)
 {
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
+    Logger::put(
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
         "SimpleResponseHandler::complete()");
 
     send(true);
 }
 
 // return the number of objects in this handler
-Uint32 SimpleResponseHandler::size() const
+Uint32 SimpleResponseHandler::size(void) const
 {
-    return 0;
+    return(0);
 }
 
 // clear any objects in this handler
-void SimpleResponseHandler::clear()
+void SimpleResponseHandler::clear(void)
 {
 }
 
-ContentLanguageList SimpleResponseHandler::getLanguages()
+ContentLanguageList SimpleResponseHandler::getLanguages(void)
 {
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
+	Logger::put(
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
         "SimpleResponseHandler: getLanguages()");
 
-    ContentLanguageList langs;
+	ContentLanguageList langs;
 
-    // Try to get the ContentLanguageList out of the
-    // OperationContext in the base ResponseHandler.
-    OperationContext context = getContext();
+    try
+	{
+		// Try to get the ContentLanguageList out of the
+                // OperationContext in the base ResponseHandler.
+		OperationContext context = getContext();
 
-    if (context.contains(ContentLanguageListContainer::NAME))
-    {
-        ContentLanguageListContainer cntr =
-            context.get(ContentLanguageListContainer::NAME);
+        ContentLanguageListContainer cntr = context.get(
+            ContentLanguageListContainer::NAME);
+
         langs = cntr.getLanguages();
-    }
+	}
+	catch (const Exception &)
+	{
+		// The content language container must not exist.
+		// Return the empty ContentLanguageList.
+	}
 
-    return langs;
+	return(langs);
 }
 
 void SimpleResponseHandler::send(Boolean isComplete)
 {
-    // If this was NOT instantiated as a derived OperationResponseHandle class,
-    // then this will be null but is NOT an error. In this case, there is no
-    // response attached, hence no data,so there is nothing to send. else we
-    // have a valid "cross-cast" to the operation side
+	// If this was NOT instantiated as a derived OperationResponseHandle class,
+	// then this will be null but is NOT an error. In this case, there is no
+	// response attached, hence no data,so there is nothing to send. else we have
+	// a valid "cross-cast" to the operation side
 
-    OperationResponseHandler* operation =
-        dynamic_cast<OperationResponseHandler*>(this);
+	OperationResponseHandler *operation =
+		dynamic_cast<OperationResponseHandler*>(this);
 
-    if (operation)
+	if (operation)
     {
         operation->send(isComplete);
     }
@@ -122,117 +139,91 @@ void SimpleResponseHandler::send(Boolean isComplete)
 // SimpleInstanceResponseHandler
 //
 
-SimpleInstanceResponseHandler::SimpleInstanceResponseHandler()
+SimpleInstanceResponseHandler::SimpleInstanceResponseHandler(void)
 {
 }
 
-SimpleInstanceResponseHandler::~SimpleInstanceResponseHandler()
-{
-}
-
-void SimpleInstanceResponseHandler::processing()
+void SimpleInstanceResponseHandler::processing(void)
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleInstanceResponseHandler::complete()
+void SimpleInstanceResponseHandler::complete(void)
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleInstanceResponseHandler::size() const
+Uint32 SimpleInstanceResponseHandler::size(void) const
 {
-    return _objects.size()+_scmoObjects.size();
+    return(_objects.size());
 }
 
-void SimpleInstanceResponseHandler::clear()
+void SimpleInstanceResponseHandler::clear(void)
 {
     _objects.clear();
-    _scmoObjects.clear();
 }
 
-void SimpleInstanceResponseHandler::deliver(const CIMInstance& instance)
+void SimpleInstanceResponseHandler::deliver(const CIMInstance & instance)
 {
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleInstanceResponseHandler::deliver()");
+    PEG_LOGGER_TRACE((
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
+        "SimpleInstanceResponseHandler::deliver()"));
 
     _objects.append(instance);
 
     send(false);
 }
 
-void SimpleInstanceResponseHandler::deliver(const SCMOInstance& instance)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleInstanceResponseHandler::deliver(SCMOInstance)");
-
-    //fprintf(stderr, "SimpleInstanceResponseHandler::deliver\n");
-    _scmoObjects.append(instance);
-
-    send(false);
-}
-
-void SimpleInstanceResponseHandler::deliver(const Array<CIMInstance>& instances)
+void SimpleInstanceResponseHandler::deliver(const Array<CIMInstance> & instances)
 {
     // call deliver for each object in the array
-    for (Uint32 i = 0, n = instances.size(); i < n; i++)
+    for(Uint32 i = 0, n = instances.size(); i < n; i++)
     {
         deliver(instances[i]);
     }
 }
 
-const Array<CIMInstance> SimpleInstanceResponseHandler::getObjects() const
+const Array<CIMInstance> SimpleInstanceResponseHandler::getObjects(void) const
 {
-    return _objects;
-}
-
-const Array<SCMOInstance> SimpleInstanceResponseHandler::getSCMOObjects() const
-{
-    return _scmoObjects;
+    return(_objects);
 }
 
 //
 // SimpleObjectPathResponseHandler
 //
 
-SimpleObjectPathResponseHandler::SimpleObjectPathResponseHandler()
+SimpleObjectPathResponseHandler::SimpleObjectPathResponseHandler(void)
 {
 }
 
-SimpleObjectPathResponseHandler::~SimpleObjectPathResponseHandler()
-{
-}
-
-void SimpleObjectPathResponseHandler::processing()
+void SimpleObjectPathResponseHandler::processing(void)
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleObjectPathResponseHandler::complete()
+void SimpleObjectPathResponseHandler::complete(void)
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleObjectPathResponseHandler::size() const
+Uint32 SimpleObjectPathResponseHandler::size(void) const
 {
-    return _objects.size() + _scmoObjects.size();
+    return(_objects.size());
 }
 
-void SimpleObjectPathResponseHandler::clear()
+void SimpleObjectPathResponseHandler::clear(void)
 {
     _objects.clear();
-    _scmoObjects.clear();
 }
 
-void SimpleObjectPathResponseHandler::deliver(const CIMObjectPath& objectPath)
+void SimpleObjectPathResponseHandler::deliver(const CIMObjectPath & objectPath)
 {
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
+    Logger::put(
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
         "SimpleObjectPathResponseHandler::deliver()");
 
     _objects.append(objectPath);
@@ -240,71 +231,51 @@ void SimpleObjectPathResponseHandler::deliver(const CIMObjectPath& objectPath)
     send(false);
 }
 
-void SimpleObjectPathResponseHandler::deliver(const SCMOInstance& objectPath)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleObjectPathResponseHandler::deliver()");
-
-    _scmoObjects.append(objectPath);
-
-    send(false);
-}
-
-void SimpleObjectPathResponseHandler::deliver(
-    const Array<CIMObjectPath>& objectPaths)
+void SimpleObjectPathResponseHandler::deliver(const Array<CIMObjectPath> & objectPaths)
 {
     // call deliver for each object in the array
-    for (Uint32 i = 0, n = objectPaths.size(); i < n; i++)
+    for(Uint32 i = 0, n = objectPaths.size(); i < n; i++)
     {
         deliver(objectPaths[i]);
     }
 }
 
-const Array<CIMObjectPath> SimpleObjectPathResponseHandler::getObjects() const
+const Array<CIMObjectPath> SimpleObjectPathResponseHandler::getObjects(void) const
 {
-    return _objects;
-}
-
-const Array<SCMOInstance>
-SimpleObjectPathResponseHandler::getSCMOObjects() const
-{
-    return _scmoObjects;
+    return(_objects);
 }
 
 //
 // SimpleMethodResultResponseHandler
 //
 
-SimpleMethodResultResponseHandler::SimpleMethodResultResponseHandler()
+SimpleMethodResultResponseHandler::SimpleMethodResultResponseHandler(void)
 {
 }
 
-void SimpleMethodResultResponseHandler::processing()
+void SimpleMethodResultResponseHandler::processing(void)
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleMethodResultResponseHandler::complete()
+void SimpleMethodResultResponseHandler::complete(void)
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleMethodResultResponseHandler::size() const
+Uint32 SimpleMethodResultResponseHandler::size(void) const
 {
-    return _objects.size();
+    return(_objects.size());
 }
 
-void SimpleMethodResultResponseHandler::clear()
+void SimpleMethodResultResponseHandler::clear(void)
 {
     _objects.clear();
 
     _returnValue.clear();
 }
 
-void SimpleMethodResultResponseHandler::deliverParamValue(
-    const CIMParamValue& outParamValue)
+void SimpleMethodResultResponseHandler::deliverParamValue(const CIMParamValue & outParamValue)
 {
     _objects.append(outParamValue);
 
@@ -312,72 +283,72 @@ void SimpleMethodResultResponseHandler::deliverParamValue(
     //send(false);
 }
 
-void SimpleMethodResultResponseHandler::deliverParamValue(
-    const Array<CIMParamValue>& outParamValues)
+void SimpleMethodResultResponseHandler::deliverParamValue(const Array<CIMParamValue> & outParamValues)
 {
     // call deliver for each object in the array
-    for (Uint32 i = 0, n = outParamValues.size(); i < n; i++)
+    for(Uint32 i = 0, n = outParamValues.size(); i < n; i++)
     {
         deliverParamValue(outParamValues[i]);
     }
 }
 
-void SimpleMethodResultResponseHandler::deliver(const CIMValue& returnValue)
+void SimpleMethodResultResponseHandler::deliver(const CIMValue & returnValue)
 {
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
+    Logger::put(
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
         "SimpleMethodResultResponseHandler::deliver()");
 
     _returnValue = returnValue;
-    // async delivers are not supported for returnValues and parameters
-    //send(false);
+
+    send(false);
 }
 
-const Array<CIMParamValue>
-    SimpleMethodResultResponseHandler::getParamValues() const
+const Array<CIMParamValue> SimpleMethodResultResponseHandler::getParamValues(void) const
 {
-    return _objects;
+    return(_objects);
 }
 
-const CIMValue SimpleMethodResultResponseHandler::getReturnValue() const
+const CIMValue SimpleMethodResultResponseHandler::getReturnValue(void) const
 {
-    return _returnValue;
+    return(_returnValue);
 }
 
 //
 // SimpleIndicationResponseHandler
 //
 
-SimpleIndicationResponseHandler::SimpleIndicationResponseHandler()
+SimpleIndicationResponseHandler::SimpleIndicationResponseHandler(void)
 {
 }
 
-void SimpleIndicationResponseHandler::processing()
+void SimpleIndicationResponseHandler::processing(void)
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleIndicationResponseHandler::complete()
+void SimpleIndicationResponseHandler::complete(void)
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleIndicationResponseHandler::size() const
+Uint32 SimpleIndicationResponseHandler::size(void) const
 {
-    return _objects.size();
+    return(_objects.size());
 }
 
-void SimpleIndicationResponseHandler::clear()
+void SimpleIndicationResponseHandler::clear(void)
 {
     _objects.clear();
 }
 
-void SimpleIndicationResponseHandler::deliver(const CIMIndication& indication)
+void SimpleIndicationResponseHandler::deliver(const CIMIndication & indication)
 {
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
+    Logger::put(
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
         "SimpleIndicationResponseHandler::deliver()");
 
     _objects.append(indication);
@@ -385,42 +356,42 @@ void SimpleIndicationResponseHandler::deliver(const CIMIndication& indication)
     send(false);
 }
 
-void SimpleIndicationResponseHandler::deliver(
-    const Array<CIMIndication>& indications)
+void SimpleIndicationResponseHandler::deliver(const Array<CIMIndication> & indications)
 {
     // call deliver for each object in the array
-    for (Uint32 i = 0, n = indications.size(); i < n; i++)
+    for(Uint32 i = 0, n = indications.size(); i < n; i++)
     {
         deliver(indications[i]);
     }
 }
 
 void SimpleIndicationResponseHandler::deliver(
-    const OperationContext& context,
-    const CIMIndication& indication)
+    const OperationContext & context,
+    const CIMIndication & indication)
 {
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
+    Logger::put(
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
         "SimpleIndicationResponseHandler::deliver()");
 
     _objects.append(indication);
 }
 
 void SimpleIndicationResponseHandler::deliver(
-    const OperationContext& context,
-    const Array<CIMIndication>& indications)
+    const OperationContext & context,
+    const Array<CIMIndication> & indications)
 {
     // call deliver for each object in the array
-    for (Uint32 i = 0, n = indications.size(); i < n; i++)
+    for(Uint32 i = 0, n = indications.size(); i < n; i++)
     {
         deliver(indications[i]);
     }
 }
 
-const Array<CIMIndication> SimpleIndicationResponseHandler::getObjects() const
+const Array<CIMIndication> SimpleIndicationResponseHandler::getObjects(void) const
 {
-    return _objects;
+    return(_objects);
 }
 
 
@@ -428,36 +399,36 @@ const Array<CIMIndication> SimpleIndicationResponseHandler::getObjects() const
 // SimpleObjectResponseHandler
 //
 
-SimpleObjectResponseHandler::SimpleObjectResponseHandler()
+SimpleObjectResponseHandler::SimpleObjectResponseHandler(void)
 {
 }
 
-void SimpleObjectResponseHandler::processing()
+void SimpleObjectResponseHandler::processing(void)
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleObjectResponseHandler::complete()
+void SimpleObjectResponseHandler::complete(void)
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleObjectResponseHandler::size() const
+Uint32 SimpleObjectResponseHandler::size(void) const
 {
-    return _objects.size()+_scmoObjects.size();
+    return(_objects.size());
 }
 
-void SimpleObjectResponseHandler::clear()
+void SimpleObjectResponseHandler::clear(void)
 {
     _objects.clear();
-    _scmoObjects.clear();
 }
 
-void SimpleObjectResponseHandler::deliver(const CIMObject& object)
+void SimpleObjectResponseHandler::deliver(const CIMObject & object)
 {
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
+    Logger::put(
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
         "SimpleObjectResponseHandler::deliver()");
 
     _objects.append(object);
@@ -465,82 +436,54 @@ void SimpleObjectResponseHandler::deliver(const CIMObject& object)
     send(false);
 }
 
-void SimpleObjectResponseHandler::deliver(const CIMInstance& instance)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleObjectResponseHandler::deliver()");
-
-    _objects.append(instance);
-
-    send(false);
-}
-
-void SimpleObjectResponseHandler::deliver(const SCMOInstance& object)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleObjectResponseHandler::deliver()");
-
-    _scmoObjects.append(object);
-    send(false);
-}
-
-void SimpleObjectResponseHandler::deliver(const Array<CIMObject>& objects)
+void SimpleObjectResponseHandler::deliver(const Array<CIMObject> & objects)
 {
     // call deliver for each object in the array
-    for (Uint32 i = 0, n = objects.size(); i < n; i++)
+    for(Uint32 i = 0, n = objects.size(); i < n; i++)
     {
         deliver(objects[i]);
     }
 }
 
-const Array<CIMObject> SimpleObjectResponseHandler::getObjects() const
+const Array<CIMObject> SimpleObjectResponseHandler::getObjects(void) const
 {
-    return _objects;
-}
-
-const Array<SCMOInstance> SimpleObjectResponseHandler::getSCMOObjects() const
-{
-    return _scmoObjects;
+    return(_objects);
 }
 
 //
 // SimpleInstance2ObjectResponseHandler
 //
 
-SimpleInstance2ObjectResponseHandler::SimpleInstance2ObjectResponseHandler()
+SimpleInstance2ObjectResponseHandler::SimpleInstance2ObjectResponseHandler(void)
 {
 }
 
-void SimpleInstance2ObjectResponseHandler::processing()
+void SimpleInstance2ObjectResponseHandler::processing(void)
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleInstance2ObjectResponseHandler::complete()
+void SimpleInstance2ObjectResponseHandler::complete(void)
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleInstance2ObjectResponseHandler::size() const
+Uint32 SimpleInstance2ObjectResponseHandler::size(void) const
 {
-    return _objects.size() + _scmoObjects.size();
+    return(_objects.size());
 }
 
-void SimpleInstance2ObjectResponseHandler::clear()
+void SimpleInstance2ObjectResponseHandler::clear(void)
 {
     _objects.clear();
-    _scmoObjects.clear();
 }
 
-void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance& object)
+void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance & object)
 {
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
+    Logger::put(
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
         "SimpleInstance2ObjectResponseHandler::deliver()");
 
     _objects.append(CIMObject(object));
@@ -549,73 +492,54 @@ void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance& object)
     //send(false);
 }
 
-void SimpleInstance2ObjectResponseHandler::deliver(const SCMOInstance& object)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleInstance2ObjectResponseHandler::deliver(SCMO)");
-
-    _scmoObjects.append(object);
-
-    // async delivers not yet supported
-    //send(false);
-}
-
-void SimpleInstance2ObjectResponseHandler::deliver(
-    const Array<CIMInstance>& objects)
+void SimpleInstance2ObjectResponseHandler::deliver(const Array<CIMInstance> & objects)
 {
     // call deliver for each object in the array
-    for (Uint32 i = 0, n = objects.size(); i < n; i++)
+    for(Uint32 i = 0, n = objects.size(); i < n; i++)
     {
         deliver(objects[i]);
     }
 }
 
-const Array<CIMObject> SimpleInstance2ObjectResponseHandler::getObjects() const
+const Array<CIMObject> SimpleInstance2ObjectResponseHandler::getObjects(void) const
 {
-    return _objects;
-}
-
-const Array<SCMOInstance>
-SimpleInstance2ObjectResponseHandler::getSCMOObjects() const
-{
-    return _scmoObjects;
+    return(_objects);
 }
 
 //
 // SimpleValueResponseHandler
 //
 
-SimpleValueResponseHandler::SimpleValueResponseHandler()
+SimpleValueResponseHandler::SimpleValueResponseHandler(void)
 {
 }
 
-void SimpleValueResponseHandler::processing()
+void SimpleValueResponseHandler::processing(void)
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleValueResponseHandler::complete()
+void SimpleValueResponseHandler::complete(void)
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleValueResponseHandler::size() const
+Uint32 SimpleValueResponseHandler::size(void) const
 {
-    return _objects.size();
+    return(_objects.size());
 }
 
-void SimpleValueResponseHandler::clear()
+void SimpleValueResponseHandler::clear(void)
 {
     _objects.clear();
 }
 
-void SimpleValueResponseHandler::deliver(const CIMValue& value)
+void SimpleValueResponseHandler::deliver(const CIMValue & value)
 {
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
+    Logger::put(
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
         "SimpleValueResponseHandler::deliver()");
 
     _objects.append(value);
@@ -623,18 +547,18 @@ void SimpleValueResponseHandler::deliver(const CIMValue& value)
     send(false);
 }
 
-void SimpleValueResponseHandler::deliver(const Array<CIMValue>& values)
+void SimpleValueResponseHandler::deliver(const Array<CIMValue> & values)
 {
     // call deliver for each object in the array
-    for (Uint32 i = 0, n = values.size(); i < n; i++)
+    for(Uint32 i = 0, n = values.size(); i < n; i++)
     {
         deliver(values[i]);
     }
 }
 
-const Array<CIMValue> SimpleValueResponseHandler::getObjects() const
+const Array<CIMValue> SimpleValueResponseHandler::getObjects(void) const
 {
-    return _objects;
+    return(_objects);
 }
 
 PEGASUS_NAMESPACE_END

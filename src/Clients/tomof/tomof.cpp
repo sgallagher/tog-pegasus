@@ -1,47 +1,55 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
+
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//                   (carolann_graves@hp.com)
+//               Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
+//               David Dillard, VERITAS Software Corp.
+//                   (david.dillard@veritas.com)
+//               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4551
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/XmlWriter.h>
-
-#include <Pegasus/General/OptionManager.h>
-#include <Pegasus/General/MofWriter.h>
-
 #include <Pegasus/Repository/CIMRepository.h>
-
+#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Client/CIMClient.h>
-
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 #include "clientRepositoryInterface.h"
 
 PEGASUS_USING_PEGASUS;
@@ -67,12 +75,12 @@ public:
     // constructor - Creates empty list
     classNameList()
     {
+    _nameSpace = String::EMPTY;
     //_cli = 0;
     _index = 0;
     }
     // constructor - with nameSpace and Interface
-    classNameList(const CIMNamespaceName& nameSpace,
-                  const clientRepositoryInterface& cli)
+    classNameList(const CIMNamespaceName& nameSpace, const clientRepositoryInterface& cli)
 
     {
     _nameSpace = nameSpace,
@@ -98,8 +106,7 @@ public:
         }
         catch(Exception &e)
         {
-            cout << "Exception " << e.getMessage()
-                 << " on enumerateClassNames open. Terminating." << endl;
+            cout << "Exception " << e.getMessage() << " on enumerateClassNames open. Terminating." << endl;
             return false;
         }
     return true;
@@ -218,8 +225,8 @@ void mofFormat(
     {
     count++;
     // This is too simplistic and must move to a token based mini parser
-    // but will do for now. One problem is tokens longer than 12 characters
-    // that overrun the max line length.
+    // but will do for now. One problem is tokens longer than 12 characters that
+    // overrun the max line length.
     switch (c)
     {
         case '\n':
@@ -344,8 +351,7 @@ void GetOptions(
                       "Print only a summary count at end"},
 
          {"location", tmpDir, false, Option::STRING, 0, 0, "l",
-                      "Repository directory (/run if repository directory"
-                          " is /run/repository"},
+        "Repository directory (/run if repository directory is /run/repository"},
 
          {"client", "false", false, Option::BOOLEAN, 0, 0, "c",
                       "Runs as Pegasus client using client interface"},
@@ -381,8 +387,7 @@ void printHelp(char* name, OptionManager om)
     header.append(" -parameters [class]");
     header.append("  - Generate MOF output from the repository or client\n");
 
-    String trailer =
-        "\nAssumes  using repository interface and repository at\n";
+    String trailer = "\nAssumes  using repository interface and repository at\n";
     trailer.append("PEGASUS_HOME for repository unless -r specified");
     trailer.append("\nIf [class] exists only that class mof is output.");
 
@@ -390,19 +395,14 @@ void printHelp(char* name, OptionManager om)
     trailer.append("\nExamples:");
     trailer.append("\n  tomof - Returns only help/usage information");
     trailer.append("\n  tomof * - Returns information on all classes, etc.");
-    trailer.append("\n  tomof CIM_DOOR - Shows mof for CIM_Door from default"
-            " namespace");
-    //trailer.append("\n  tomof *door* - Shows mof for classes with 'door'"
-    //" in name.");
-    //trailer.append("\n  tomof -o *software* - Lists Class names with"
-    //" 'door' in name.");
+    trailer.append("\n  tomof CIM_DOOR - Shows mof for CIM_Door from default namespace");
+    //trailer.append("\n  tomof *door* - Shows mof for classes with 'door' in name.");
+    //trailer.append("\n  tomof -o *software* - Lists Class names with 'door' in name.");
     trailer.append("\n  tomof -a - outputs mof for all classes");
-    trailer.append("\n  tomof -c - outputs mof for all classes using client"
-            " interface.");
+    trailer.append("\n  tomof -c - outputs mof for all classes using client interface.");
     trailer.append("\n  tomof -q - Outputs mof for qualifiers and classes");
 
-    trailer.append("\n  tomof -s - Outputs summary count of classes and"
-            " optionally instances. Does not deliver lists");
+    trailer.append("\n  tomof -s - Outputs summary count of classes and optionally instances. Does not deliver lists");
     om.printOptionsHelpTxt(header, trailer);
 }
 
@@ -493,6 +493,7 @@ int main(int argc, char** argv)
     Boolean verbose = om.isTrue("verbose");
 
     Boolean singleClass = true;
+    CIMName className;
 
     // Set the flags to determine whether we show all or simply some classes
     if(showAll)
@@ -568,16 +569,13 @@ int main(int argc, char** argv)
         const char* tmp = getenv("PEGASUS_HOME");
 
         if (strlen(tmp) == 0 && location == "." )
-            ErrorExit("Error, PEGASUS_HOME not set and repository option not"
-                    " used");
+            ErrorExit("Error, PEGASUS_HOME not set and repository option not used");
 
         location.append("/repository");
 
-        if (!FileSystem::exists(location)
-                || FileSystem::isDirectoryEmpty(location))
+        if (!FileSystem::exists(location) || FileSystem::isDirectoryEmpty(location))
         {
-            cout << "Error. " << location << " does not exist or is empty."
-                 << endl;
+            cout << "Error. " << location << " does not exist or is empty." << endl;
             exit(1);
         }
     }
@@ -602,9 +600,7 @@ int main(int argc, char** argv)
     }
     catch(Exception &e)
     {
-        cout << "Exception " << e.getMessage()
-             << " on repository open. Terminating."
-             << endl;
+        cout << "Exception " << e.getMessage() << " on repository open. Terminating." << endl;
         return false;
     }
     // Get the complete class name list before we start anything else
@@ -622,8 +618,7 @@ int main(int argc, char** argv)
             if(showOnlyNames)
             {
                 for(Uint32 i = 0; i < qualifierDecls.size(); i++)
-                    cout << "Qualifier "
-                         << qualifierDecls[i].getName().getString() << endl;
+                    cout << "Qualifier " << qualifierDecls[i].getName() << endl;
             }
             if(showQualifiers || showAll)
             {
@@ -639,6 +634,9 @@ int main(int argc, char** argv)
                     {
                         Buffer x;
                         MofWriter::appendQualifierDeclElement(x, tmp);
+
+                        x.append('\0');
+
                         mofFormat(cout, x.getData(), 4);
                     }
                 }
@@ -665,6 +663,10 @@ int main(int argc, char** argv)
     // get size for summary
     classCount = list.size();
 
+    Boolean localOnly = true;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = true;
+
     if (!summary || !doNotShowClasses)
     {
         if(showOnlyNames)
@@ -681,30 +683,24 @@ int main(int argc, char** argv)
                 CIMClass cimClass;
                 try
                 {
-                    Boolean localOnly = true;
-                    Boolean includeQualifiers = true;
-                    Boolean includeClassOrigin = true;
-
-                    cimClass = clRepository.getClass(nameSpace,
-                                                     nextClass,
-                                                     localOnly,
-                                                     includeQualifiers,
-                                                     includeClassOrigin);
+                    cimClass = clRepository.getClass(nameSpace, nextClass,
+                                                          localOnly, includeQualifiers, includeClassOrigin);
                 }
                 catch(Exception& e)
                 {
                     // ErrorExit(e.getMessage());
-                    cout << "Class get error " << e.getMessage()
-                         << " Class " << nextClass.getString() << endl;
+                    cout << "Class get error " << e.getMessage() << " Class " << nextClass << endl;
                 }
-                // Note we get and print ourselves rather than use the generic
-                // printMof
+                // Note we get and print ourselves rather than use the generic printMof
                 if(isXMLOutput)
                     XmlWriter::printClassElement(cimClass, cout);
                 else
                 {
                     Buffer x;
                     MofWriter::appendClassElement(x, cimClass);
+
+                    x.append('\0');
+
                     mofFormat(cout, x.getData(), 4);
                 }
             }
@@ -712,40 +708,38 @@ int main(int argc, char** argv)
     // Note that we can do this so we get all instances or just the given class
     }
     list.start();
-    if (showInstances || showAll)
+    if(showInstances | showAll)
     {
         // try Block around basic instance processing
         for(Uint32 j = 0; j < list.size(); j++)
         {
             CIMName className = list.next();
-            //cout << "Instances for " << className.getString() << endl;
+            //cout << "Instances for " << className << endl;
             try
             {
                 Boolean deepInheritance = true;
+                Boolean localOnly = false;
                 Boolean includeClassOrigin = false;
                 Boolean includeQualifiers = false;
 
                 if(showOnlyNames)
                 {
                     Array<CIMObjectPath> instanceNames;
-                    instanceNames =
-                        clRepository.enumerateInstanceNames(nameSpace,
-                                                            className);
-                    for (Uint32 k = 0; k < instanceNames.size(); k++)
-                    {
-                        cout << "Instance " << instanceNames[k].toString();
-                    }
+                    instanceNames = clRepository.enumerateInstanceNames(nameSpace,
+                                                                        className);
+                    for(Uint32 j = 0; j < instanceNames.size(); j++)
+                        cout << "Instance " << instanceNames[j].toString();
                 }
                 else    // Process complete instances
                 {
                 // Process inputClasslist to enumerate and print instances
                     Array<CIMInstance> namedInstances;
-                    namedInstances =
-                        clRepository.enumerateInstances(nameSpace,
-                                                        className,
-                                                        deepInheritance,
-                                                        includeQualifiers,
-                                                        includeClassOrigin);
+                    namedInstances = clRepository.enumerateInstances(nameSpace,
+                                                                     className,
+                                                                     deepInheritance,
+                                                                     localOnly,
+                                                                     includeQualifiers,
+                                                                     includeClassOrigin);
 
                     // Process and output each instance
                     for(Uint32 k = 0; k < namedInstances.size(); k++)
@@ -757,6 +751,9 @@ int main(int argc, char** argv)
                         {
                             Buffer x;
                             MofWriter::appendInstanceElement(x, instance);
+
+                            x.append('\0');
+
                             mofFormat(cout, x.getData(), 4);
                         }
                     }
@@ -764,8 +761,7 @@ int main(int argc, char** argv)
             }
             catch(Exception& e)
             {
-                cout << "Error Instance Enumeration:" << e.getMessage()
-                     << endl;
+                cout << "Error Instance Enumeration:" << e.getMessage() << endl;
             }
         }
     }
@@ -775,9 +771,8 @@ int main(int argc, char** argv)
         if(qualifierCount != 0)
             cout << "Qualifiers - " << qualifierCount << endl;
         if(classCount != 0)
-            cout << "Classes - " << classCount << " found and "
-                 << classCountDisplayed
-                 << " output" << endl;
+            cout << "Classes - " << classCount << " found and " << classCountDisplayed
+                    << " output" << endl;
         if(instanceCount != 0)
             cout << "Instances - " << instanceCount << endl;
     }

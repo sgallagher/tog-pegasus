@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Al Stone <ahs3@fc.hp.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Kennedy       <dkennedy@linuxcare.com>
+//              Christopher Neufeld <neufeld@linuxcare.com>
+//              Al Stone            <ahs3@fc.hp.com>
+//              Susan Campbell      <scampbell@hp.com>
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -52,19 +62,20 @@
 
 PEGASUS_USING_STD;
 
-OperatingSystem::OperatingSystem()
+#define OSP_DEBUG(X) // Logger::put(Logger::DEBUG_LOG, "Linux OSProvider",Logger::INFORMATION, "$0", X)
+
+OperatingSystem::OperatingSystem(void)
 {
 }
 
-OperatingSystem::~OperatingSystem()
+OperatingSystem::~OperatingSystem(void)
 {
 }
 
 //-- this table is used by getName to load the distribution Name
 //   into osName. The table documents distro specific
 //   configuration files that getName will parse in /etc
-//   if the optional_string is NULL, otherwise the optional string will be
-//   used in osName.
+//   if the optional_string is NULL, otherwise the optional string will be used in osName.
 //
 
 static const struct
@@ -85,71 +96,59 @@ static const struct
 
 
 /**
-   getVendorInfo method for Linux implementation of OS Provider
-
-   Gets the system text from vendor's release file
-  */
-static void getVendorInfo(
-    String& releaseText,
-    String& nameText)
-{
-    static const Uint32 MAX_RELEASE_STRING_LEN = 128;
-    char infoFile[MAXPATHLEN];
-    char buffer[MAX_RELEASE_STRING_LEN];
-
-    for (int ii = 0; LINUX_VENDOR_INFO[ii].vendor_name != NULL; ii++)
-    {
-        sprintf(infoFile, "/etc/%s",
-            LINUX_VENDOR_INFO[ii].determining_filename);
-
-        // If the file exists in /etc, we know what distro we're in
-        FILE* vf = fopen(infoFile, "r");
-        if (vf)
-        {
-            // Set the default OS name
-            nameText.assign(LINUX_VENDOR_INFO[ii].vendor_name);
-            nameText.append(" Distribution");
-
-            if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
-            {
-                // try to get a more descriptive value from the etc file
-                if (fgets(buffer, MAX_RELEASE_STRING_LEN, vf) != NULL)
-                {
-                    String bufferString = buffer;
-
-                    // parse the text to extract the first line
-                    Uint32 bufferIndex = bufferString.find('\n');
-                    if (bufferIndex != PEG_NOT_FOUND)
-                    {
-                        // We have found a valid index into the
-                        // release string. Now get just the OS name.
-                        releaseText = bufferString.subString(0, bufferIndex);
-                        bufferIndex = releaseText.find(" release");
-                        if (bufferIndex != PEG_NOT_FOUND)
-                        {
-                            nameText = releaseText.subString(0, bufferIndex);
-                        }
-                    }
-                }
-            }
-            fclose(vf);
-            break;
-        }
-    }
-}
-
-/**
    getName method of the Linux implementation for the OS Provider
 
-   Calls getVendorInfo() to get the operating system name.
+   Calls uname() to get the operating system name.
 
   */
 Boolean OperatingSystem::getName(String& osName)
 {
-    String releaseText;
-    getVendorInfo( releaseText, osName );
+   String s, buffer_s;
+   Uint32 buffer_index;	// rexex match index
+   char info_file[MAXPATHLEN];
+   char buffer[MAXPATHLEN];
+   struct stat statBuf;
+   FILE *vf;
 
-    return true;
+   s.clear();
+   for (int ii = 0; LINUX_VENDOR_INFO[ii].vendor_name != NULL ; ii++)
+   {
+      memset(info_file, 0, MAXPATHLEN);
+      strcat(info_file, "/etc/");
+      strcat(info_file, LINUX_VENDOR_INFO[ii].determining_filename);
+
+
+      // If the file exists in /etc, we know what distro we're in
+      if (!stat(info_file, &statBuf))
+      {
+         s.assign(LINUX_VENDOR_INFO[ii].vendor_name);
+         s.append(" Distribution");
+         if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
+         {
+	    // try to set s to a more descript value from the etc file
+            vf = fopen(info_file, "r");
+            if (vf)
+            {
+               if (fgets(buffer, MAXPATHLEN, vf) != NULL)
+	       {
+                  buffer_s.assign(buffer);
+
+		  // parse the text to extract Distribution Name
+		  buffer_index = buffer_s.find(" release");
+		  if ( buffer_index != PEG_NOT_FOUND )
+		  {
+		     // then we have found a valid index into the config file
+		     s.assign(buffer_s.subString(0,buffer_index));
+		  }
+	       }
+	       fclose(vf);
+	    }
+         }
+      }
+   }
+   osName.assign(s);
+   return true;
+
 }
 
 /**
@@ -205,24 +204,23 @@ Boolean OperatingSystem::getCSName(String& csName)
 /**
    getCaption method for Linux implementation of OS Provider
 
-   Gets the text from the system's release file.
+   Uses a string constant for the Caption.
   */
 Boolean OperatingSystem::getCaption(String& caption)
 {
-   String osName;
-   getVendorInfo( caption, osName );
+
+   caption.assign("The current Operating System");
+
    return true;
 }
 
-/**
-   getDescription method for Linux implementation of OS Provider
-
-   Gets the text from the system's release file.
-  */
 Boolean OperatingSystem::getDescription(String& description)
 {
-   String osName;
-   getVendorInfo( description, osName );
+
+   description.assign("This instance reflects the Operating System"
+        " on which the CIMOM is executing (as distinguished from instances"
+        " of other installed operating systems that could be run).");
+
    return true;
 }
 
@@ -319,7 +317,7 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
    const CIMDateTime NULLTIME;
 
    CIMDateTime dt;
-   char date_ascii_rep[CIM_DATE_TIME_ASCII_LEN+1];
+   char date_ascii_rep[CIM_DATE_TIME_ASCII_LEN];
    char utc_offset[20];
    struct tm broken_time;
 
@@ -344,38 +342,39 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
 /**
    getLastBootUpTime method for Linux implementation of OS Provider
 
-   gets information from /proc/stat file's btime entry.
+   gets information from /proc/uptime file
   */
 
 Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 {
-   FILE* statFile;
-   char buffer[MAXPATHLEN];
-   unsigned long btimeValue = 0;
-   time_t bootTime;
+   const CIMDateTime NULLTIME;
+   const char *UPTIME_FILE = "/proc/uptime";
 
-   if ((statFile = fopen("/proc/stat", "r")) == 0)
+   CIMDateTime dt;
+   FILE *procfile;
+   unsigned long seconds_since_boot;
+   char read_buffer[MAXPATHLEN];
+   time_t t_now, t_then;
+   struct tm tm_now;
+
+   dt = NULLTIME;
+   procfile = fopen(UPTIME_FILE, "r");
+   if (procfile)
    {
-       return false;
+      if (fgets(read_buffer, MAXPATHLEN, procfile))
+         if (sscanf(read_buffer, " %lu.", &seconds_since_boot))
+         {
+            //-- convert displacement in seconds to a date and time
+            t_now = time(NULL);
+            localtime_r(&t_now, &tm_now);
+            tm_now.tm_sec -= seconds_since_boot;
+            t_then = mktime(&tm_now);
+            dt = time_t_to_CIMDateTime(&t_then);
+         }
+      fclose(procfile);
    }
-
-   while (fgets(buffer, MAXPATHLEN, statFile))
-   {
-       // Look for the btime entry
-       if (strncmp(buffer, "btime ", 6) == 0)
-       {
-           if (sscanf(&buffer[6], "%lu", &btimeValue))
-           {
-               fclose(statFile);
-               bootTime = (time_t) btimeValue;
-               lastBootUpTime = time_t_to_CIMDateTime(&bootTime);
-               return true;
-           }
-       }
-   }
-
-   fclose(statFile);
-   return false;
+   lastBootUpTime = dt;
+   return true;
 }
 
 /**
@@ -476,7 +475,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
       {
          while (readdir_r(procdir, &entry, &result) == 0 && result != NULL)
          {
-#if defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU) && !defined(PEGASUS_OS_LSB)
             if (entry.d_type != DT_DIR)
                continue;
 #endif
@@ -506,19 +505,26 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
    //   linux has no notion of kernel-level threads, this is the
    //   same as the total number of processes allowed.  should
    //   this change, the algorithm will need to change.
+   Uint32 count;
    const char proc_file[] = "/proc/sys/kernel/threads-max";
    char buffer[MAXPATHLEN];
+   struct stat statBuf;
+   FILE *vf;
 
-   mMaxProcesses = 0;
-   FILE* vf = fopen(proc_file, "r");
-   if (vf)
+   count = 0;
+   if (!stat(proc_file, &statBuf))
    {
-      if (fgets(buffer, MAXPATHLEN, vf) != NULL)
-         sscanf(buffer, "%u", &mMaxProcesses);
-      fclose(vf);
+      vf = fopen(proc_file, "r");
+      if (vf)
+      {
+         if (fgets(buffer, MAXPATHLEN, vf) != NULL)
+            sscanf(buffer, "%u", &count);
+         fclose(vf);
+      }
+    mMaxProcesses = count;
+    return true;
    }
-
-   return mMaxProcesses != 0;
+   return false;
 }
 
 /**
@@ -530,27 +536,33 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
 {
    const char proc_file[] = "/proc/meminfo";
    char buffer[MAXPATHLEN];
+   struct stat statBuf;
    regex_t pattern;
+   FILE *vf;
 
    mTotalSwapSpaceSize = 0;
-   FILE* vf = fopen(proc_file, "r");
-   if (vf)
+   if (!stat(proc_file, &statBuf))
    {
-      if (regcomp(&pattern, "^SwapTotal:", 0) == 0)
+      vf = fopen(proc_file, "r");
+      if (vf)
       {
-         while (fgets(buffer, MAXPATHLEN, vf) != NULL)
+         if (regcomp(&pattern, "^SwapTotal:", 0) == 0)
          {
-            if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
+            while (fgets(buffer, MAXPATHLEN, vf) != NULL)
             {
-               sscanf(buffer, "SwapTotal: %llu kB", &mTotalSwapSpaceSize);
+               if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
+               {
+                  sscanf(buffer, "SwapTotal: %llu kB", &mTotalSwapSpaceSize);
+               }
             }
+            regfree(&pattern);
          }
-         regfree(&pattern);
+	 fclose(vf);
       }
-      fclose(vf);
    }
 
-   return mTotalSwapSpaceSize != 0;
+   if(mTotalSwapSpaceSize) return true;
+   else return false;
 }
 
 /** _totalVM method for Linux implementation of OS Provider
@@ -596,27 +608,33 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
 {
    const char proc_file[] = "/proc/meminfo";
    char buffer[MAXPATHLEN];
+   struct stat statBuf;
    regex_t pattern;
+   FILE *vf;
 
    freeVirtualMemory = 0;
-   FILE* vf = fopen(proc_file, "r");
-   if (vf)
+   if (!stat(proc_file, &statBuf))
    {
-      if (regcomp(&pattern, "^SwapFree:", 0) == 0)
+      vf = fopen(proc_file, "r");
+      if (vf)
       {
-         while (fgets(buffer, MAXPATHLEN, vf) != NULL)
+         if (regcomp(&pattern, "^SwapFree:", 0) == 0)
          {
-            if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
+            while (fgets(buffer, MAXPATHLEN, vf) != NULL)
             {
-               sscanf(buffer, "SwapFree: %llu kB", &freeVirtualMemory);
+               if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
+               {
+                  sscanf(buffer, "SwapFree: %llu kB", &freeVirtualMemory);
+               }
             }
+            regfree(&pattern);
          }
-         regfree(&pattern);
+	 fclose(vf);
       }
-      fclose(vf);
+      if (freeVirtualMemory) return true;  // did get info
+      else return false;       // didn't get info
    }
-
-   return freeVirtualMemory != 0;
+   return false;
 }
 
 /**
@@ -628,27 +646,33 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 {
    const char proc_file[] = "/proc/meminfo";
    char buffer[MAXPATHLEN];
+   struct stat statBuf;
    regex_t pattern;
+   FILE *vf;
 
    total = 0;
-   FILE* vf = fopen(proc_file, "r");
-   if (vf)
+   if (!stat(proc_file, &statBuf))
    {
-      if (regcomp(&pattern, "^MemFree:", 0) == 0)
+      vf = fopen(proc_file, "r");
+      if (vf)
       {
-         while (fgets(buffer, MAXPATHLEN, vf) != NULL)
+         if (regcomp(&pattern, "^MemFree:", 0) == 0)
          {
-            if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
+            while (fgets(buffer, MAXPATHLEN, vf) != NULL)
             {
-               sscanf(buffer, "MemFree: %llu kB", &total);
+               if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
+               {
+                  sscanf(buffer, "MemFree: %llu kB", &total);
+               }
             }
+            regfree(&pattern);
          }
-         regfree(&pattern);
+	 fclose(vf);
       }
-      fclose(vf);
+      if (total) return true;  // did get info
+      else return false;       // didn't get info
    }
-
-   return total != 0;
+   return false;
 }
 
 /**
@@ -658,30 +682,36 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
   */
 Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
 {
+  Uint64 total;
    const char proc_file[] = "/proc/meminfo";
    char buffer[MAXPATHLEN];
+   struct stat statBuf;
    regex_t pattern;
+   FILE *vf;
 
    memory = 0;
 
-   FILE* vf = fopen(proc_file, "r");
-   if (vf)
+   if (!stat(proc_file, &statBuf))
    {
-      if (regcomp(&pattern, "^MemTotal:", 0) == 0)
+      vf = fopen(proc_file, "r");
+      if (vf)
       {
-         while (fgets(buffer, MAXPATHLEN, vf) != NULL)
+         if (regcomp(&pattern, "^MemTotal:", 0) == 0)
          {
-            if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
+            while (fgets(buffer, MAXPATHLEN, vf) != NULL)
             {
-               sscanf(buffer, "MemTotal: %llu kB", &memory);
+               if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
+               {
+                  sscanf(buffer, "MemTotal: %llu kB", &memory);
+               }
             }
+            regfree(&pattern);
          }
-         regfree(&pattern);
+	 fclose(vf);
       }
-      fclose(vf);
    }
 
-   return memory != 0;
+   return true;
 }
 
 /**
@@ -712,30 +742,32 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(
    */
 Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
 {
-    Uint32 count;
-    const char proc_file[] = "/proc/sys/vm/overcommit_memoryt";
-    char buffer[MAXPATHLEN];
+   Uint32 count;
+   const char proc_file[] = "/proc/sys/vm/overcommit_memoryt";
+   char buffer[MAXPATHLEN];
+   struct stat statBuf;
+   FILE *vf;
 
-    count = 0;
-    FILE* vf = fopen(proc_file, "r");
-    if (vf)
-    {
-        if (fgets(buffer, MAXPATHLEN, vf) != NULL)
+   count = 0;
+   if (!stat(proc_file, &statBuf))
+   {
+      vf = fopen(proc_file, "r");
+      if (vf)
+      {
+         if (fgets(buffer, MAXPATHLEN, vf) != NULL)
             sscanf(buffer, "%d", &count);
-        fclose(vf);
-    }
-
-    if (count)
-    {
-        maxProcessMemorySize = count;
-    }
-    else
-    {
-        //ATTN-SLC-P3-18-Apr-02: Optimization?  get this once & share
-        if (!getTotalSwapSpaceSize(maxProcessMemorySize))
-            return false;
-    }
-    return true;
+         fclose(vf);
+      }
+   }
+   if (count) {
+      maxProcessMemorySize = count;
+   }
+   else {
+//ATTN-SLC-P3-18-Apr-02: Optimization?  get this once & share
+      if( ! getTotalSwapSpaceSize(maxProcessMemorySize) )
+	      return false;
+   }
+   return true;
 }
 
  /**
@@ -779,7 +811,7 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
          if (sscanf(read_buffer, " %lu.", &uptime))
          {
          mUpTime = uptime;
-         fclose(procfile);
+	 fclose(procfile);
          return true;
          }
       fclose(procfile);

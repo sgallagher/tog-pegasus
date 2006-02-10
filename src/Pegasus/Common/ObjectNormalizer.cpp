@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -15,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -85,7 +87,7 @@ static CIMProperty _processProperty(
     CIMConstProperty & cimProperty,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    CIMRepository * repository,
+    NormalizerContext * context,
     const CIMNamespaceName & nameSpace)
 {
     // check name
@@ -166,47 +168,50 @@ static CIMProperty _processProperty(
 #ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
     else if(referenceProperty.getType() == CIMTYPE_INSTANCE)
     {
-        Uin32 pos = cimProperty.findQualifier("EmbeddedInstance");
-        if(pos != PEG_NOT_FOUND)
+        Uin32 refPos = referenceProperty.findQualifier("EmbeddedInstance");
+        Uin32 cimPos = cimProperty.findQualifier("EmbeddedInstance");
+        if(refPos != PEG_NOT_FOUND && cimPos == PEG_NOT_FOUND)
         {
-            referenceProperty.addQualifier(cimProperty.getQualifier(pos));
+            cimProperty.addQualifier(refProperty.getQualifier(pos));
         }
     }
 #endif
 
     // Check the type of the embedded instance against the class specified by
-    // the EmbeddedInstance qualifier. We can only do this if the repository
+    // the EmbeddedInstance qualifier. We can only do this if the context
     // is non-zero.
-    if(repository != 0)
+    if(context != 0)
     {
       if(referenceProperty.getType() == CIMTYPE_INSTANCE)
       {
-          Uint32 pos = cimProperty.findQualifier("EmbeddedInstance");
+          Uint32 pos = referenceProperty.findQualifier("EmbeddedInstance");
           if(pos != PEG_NOT_FOUND)
           {
               String qualClassStr;
-              cimProperty.getQualifier(pos).getValue().get(
+              referenceProperty.getQualifier(pos).getValue().get(
                   qualClassStr);
               CIMName embedInstClassName(qualClassStr);
               Array<CIMName> embeddedInstSubclasses =
-                  repository->enumerateClassNames(nameSpace, embedInstClassName,
+                  context->enumerateClassNames(nameSpace, embedInstClassName,
                       true);
 
               Array<CIMInstance> embeddedInstances;
               if(referenceProperty.isArray())
               {
-                referenceProperty.getValue().get(embeddedInstances);
+                cimProperty.getValue().get(embeddedInstances);
               }
               else
               {
                 CIMInstance embeddedInst;
-                referenceProperty.getValue().get(embeddedInst);
+                cimProperty.getValue().get(embeddedInst);
                 embeddedInstances.append(embeddedInst);
               }
 
+              Array<CIMClass> embeddedClassDefs;
               for(Uint32 i = 0, n = embeddedInstances.size(); i < n; ++i)
               {
-                  CIMName currentClassName = embeddedInstances[i].getClassName();
+                  CIMInstance & currentInstance = embeddedInstances[i];
+                  CIMName currentClassName = currentInstance.getClassName();
                   Boolean found = false;
                   for(Uint32 j = 0, m = embeddedInstSubclasses.size(); j < m; ++j)
                   {
@@ -228,6 +233,42 @@ static CIMProperty _processProperty(
 
                       throw CIMException(CIM_ERR_FAILED, message);
                   }
+                  else
+                  {
+                      CIMClass embeddedClassDef;
+                      bool found = false;
+                      for(Uint32 j = 0, m = embeddedClassDefs.size(); j < m;
+                          ++j)
+                      {
+                          CIMClass & tmpClassDef = embeddedClassDefs[j];
+                          if(tmpClassDef.getClassName() == currentClassName)
+                          {
+                              embeddedClassDef = tmpClassDef;
+                              found = true;
+                          }
+                      }
+
+                      if(!found)
+                      {
+                          embeddedClassDef = context->getClass(nameSpace,
+                              currentClassName);
+                          embeddedClassDefs.append(embeddedClassDef);
+                      }
+
+                      ObjectNormalizer tmpNormalizer(embeddedClassDef,
+                          includeQualifiers, includeClassOrigin, nameSpace,
+                          context);
+                      embeddedInstances[i] = tmpNormalizer.processInstance(currentInstance);
+                  }
+              }
+
+              if(referenceProperty.isArray())
+              {
+                normalizedProperty.setValue(CIMValue(embeddedInstances));
+              }
+              else
+              {
+                normalizedProperty.setValue(CIMValue(embeddedInstances[0]));
               }
           }
       }
@@ -240,7 +281,7 @@ static CIMProperty _processProperty(
 ObjectNormalizer::ObjectNormalizer(void)
     : _includeQualifiers(false),
     _includeClassOrigin(false),
-    _repository(0)/*,
+    _context(0)/*,
     _nameSpace(String::EMPTY)*/
 {
 }
@@ -250,11 +291,11 @@ ObjectNormalizer::ObjectNormalizer(
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMNamespaceName & nameSpace,
-    CIMRepository * repository)
+    NormalizerContext * context)
     : _cimClass(cimClass),
     _includeQualifiers(includeQualifiers),
     _includeClassOrigin(includeClassOrigin),
-    _repository(repository),
+    _context(context),
     _nameSpace(nameSpace)
 {
     if(!_cimClass.isUninitialized())
@@ -521,7 +562,7 @@ CIMInstance ObjectNormalizer::processInstance(const CIMInstance & cimInstance) c
                     cimProperty,
                     _includeQualifiers,
                     _includeClassOrigin,
-                    _repository,
+                    _context,
                     _nameSpace);
 
             normalizedInstance.addProperty(normalizedProperty);

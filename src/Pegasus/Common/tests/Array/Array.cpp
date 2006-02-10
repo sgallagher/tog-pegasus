@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 #define NEED_STRING_EQUAL
 
@@ -38,6 +47,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+const char * verbose;
 
 template<class T>
 void Print(const Array<T>& arr)
@@ -55,7 +65,7 @@ void test01(STR*)
     PEGASUS_TEST_ASSERT(arr[0] == STR("Hello"));
     PEGASUS_TEST_ASSERT(arr[1] == STR("Hello"));
     PEGASUS_TEST_ASSERT(arr[2] == STR("Hello"));
-    if(getenv("PEGASUS_TEST_VERBOSE"))
+    if(verbose)
         Print(arr);
 }
 
@@ -84,24 +94,14 @@ void test02(STR*)
     PEGASUS_TEST_ASSERT(arr[1] == "one");
     PEGASUS_TEST_ASSERT(arr[2] == "three");
     PEGASUS_TEST_ASSERT(arr[3] == "four");
-
-    // test removing multiple items.
-    arr.remove(1, 2);
-    PEGASUS_TEST_ASSERT(arr[0] == "zero");
-    PEGASUS_TEST_ASSERT(arr[1] == "four");
-    PEGASUS_TEST_ASSERT(arr.size() == 2);
-
-    // test removing zero items
-    arr.remove(1, 0);
-    PEGASUS_TEST_ASSERT(arr.size() == 2);
-    arr.remove(0, 0);
-    PEGASUS_TEST_ASSERT(arr.size() == 2);
 }
 
 template<class T>
 void test03(const T*)
 {
     Array<T> arr;
+
+    Uint32 tmp1[] = { 1, 2, 3 };
 
     arr.insert(0, 2);
     arr.insert(0, 1);
@@ -151,10 +151,6 @@ void test04()
     PEGASUS_TEST_ASSERT(arr[0] == "Hello");
     PEGASUS_TEST_ASSERT(arr[1] == "Hello");
     PEGASUS_TEST_ASSERT(arr[2] == "Hello");
-
-    arr.remove(1, 2);
-    PEGASUS_TEST_ASSERT(arr.size() == 1);
-
 }
 
 void test05()
@@ -181,69 +177,6 @@ void test05()
     PEGASUS_TEST_ASSERT(arr[1] == "one");
     PEGASUS_TEST_ASSERT(arr[2] == "three");
     PEGASUS_TEST_ASSERT(arr[3] == "four");
-
-    arr.remove(0,3);
-    PEGASUS_TEST_ASSERT(arr.size() == 1);
-    PEGASUS_TEST_ASSERT(arr[0] == "four");
-
-
-}
-
-void test15()
-{
-    {
-        Array<Uint32> arr;
-        PEGASUS_TEST_ASSERT(arr.size() == 0);
-        Array<Uint32> arr2;
-        PEGASUS_TEST_ASSERT(arr.size() == 0);
-        arr.append(1);
-        arr.append(2);
-        arr.append(3);
-        arr.append(4);
-        PEGASUS_TEST_ASSERT(arr.size() == 4);
-        arr2.append(5);
-        arr2.append(6);
-        arr2.append(7);
-        arr2.append(8);
-        PEGASUS_TEST_ASSERT(arr2.size() == 4);
-        arr.appendArray(arr2);
-        PEGASUS_TEST_ASSERT(arr.size() == 8);
-        PEGASUS_TEST_ASSERT(arr2.size() == 4);
-        for (Uint32 i = 0 ; i < 8 ; i++)
-        {
-            PEGASUS_TEST_ASSERT(arr[i] == i+1);
-        }
-    }
-    {
-        Array<String> arr;
-        PEGASUS_TEST_ASSERT(arr.size() == 0);
-        Array<String> arr2;
-        PEGASUS_TEST_ASSERT(arr.size() == 0);
-        arr.append("zero");
-        arr.append("one");
-        arr.append("two");
-        arr.append("three");
-        arr.append("four");
-        PEGASUS_TEST_ASSERT(arr.size() == 5);
-        arr2.append("five");
-        arr2.append("six");
-        arr2.append("seven");
-        arr2.append("eight");
-        PEGASUS_TEST_ASSERT(arr2.size() == 4);
-        arr.appendArray(arr2);
-        PEGASUS_TEST_ASSERT(arr.size() == 9);
-        PEGASUS_TEST_ASSERT(arr2.size() == 4);
-        PEGASUS_TEST_ASSERT(arr[0] == "zero");
-        PEGASUS_TEST_ASSERT(arr[1] == "one");
-        PEGASUS_TEST_ASSERT(arr[2] == "two");
-        PEGASUS_TEST_ASSERT(arr[3] == "three");
-        PEGASUS_TEST_ASSERT(arr[4] == "four");
-        PEGASUS_TEST_ASSERT(arr[5] == "five");
-        PEGASUS_TEST_ASSERT(arr[6] == "six");
-        PEGASUS_TEST_ASSERT(arr[7] == "seven");
-        PEGASUS_TEST_ASSERT(arr[8] == "eight");
-    }
-
 }
 
 void test06()
@@ -256,7 +189,7 @@ void test06()
     {
         Array<Uint32> arr(0xffff0000);
     }
-    catch (const PEGASUS_STD(bad_alloc)&)
+    catch (const NullPointer&)
     {
         exceptionCaught = true;
     }
@@ -268,7 +201,7 @@ void test06()
     {
         Array<Uint32> arr(0xffff0000, 100);
     }
-    catch (const PEGASUS_STD(bad_alloc)&)
+    catch (const NullPointer&)
     {
         exceptionCaught = true;
     }
@@ -281,7 +214,7 @@ void test06()
         Uint32 myInt = 50;
         Array<Uint32> arr(&myInt, 0xffff0000);
     }
-    catch (const PEGASUS_STD(bad_alloc)&)
+    catch (const NullPointer&)
     {
         exceptionCaught = true;
     }
@@ -291,22 +224,14 @@ void test06()
     {
         Array<Uint32> arr(128);
         PEGASUS_TEST_ASSERT(arr.getCapacity() == 128);
-        exceptionCaught = false;
-        try
-        {
-            arr.reserveCapacity(0xffff0000);
-        }
-        catch (const PEGASUS_STD(bad_alloc)&)
-        {
-            exceptionCaught = true;
-        }
-        PEGASUS_TEST_ASSERT(exceptionCaught);
+        arr.reserveCapacity(0xffff0000);
         PEGASUS_TEST_ASSERT(arr.getCapacity() == 128);
     }
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
         test01((Str*)0);
@@ -317,7 +242,6 @@ int main(int, char** argv)
         test03((int*)0);
         test04();
         test05();
-        test15();
         test06();
         PEGASUS_TEST_ASSERT(Int::_count == 0);
         PEGASUS_TEST_ASSERT(Str::_constructions == Str::_destructions);

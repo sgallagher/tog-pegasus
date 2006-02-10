@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,26 +54,26 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
-static Boolean verbose;
+Boolean verbose = false;
 
 static const CIMNamespaceName GOOD_NAMESPACE = CIMNamespaceName ("root/cimv2");
 
 static const CIMNamespaceName BAD_NAMESPACE = CIMNamespaceName ("root/cimvx99");
 
-static const CIMNamespaceName GOOD_CIMV2_NAMESPACE = 
-    CIMNamespaceName ("root/CIMV2");
-
 
 //
 // main
 //
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;
 
-    CIMNamespaceName nameSpace;
-    String testUser = System::getEffectiveUserName();
+    CIMNamespaceName nameSpace = CIMNamespaceName ();
+
+    String testUser = String::EMPTY;
+
+    testUser.assign(System::getEffectiveUserName());
 
     // Create a test repository
     const char* tmpDir = getenv ("PEGASUS_TMP");
@@ -81,7 +88,7 @@ int main(int, char** argv)
     }
     repositoryPath.append("/repository");
 
-    FileSystem::removeDirectoryHier(repositoryPath);
+    PEGASUS_TEST_ASSERT(FileSystem::isDirectory(repositoryPath));
 
     CIMRepository* repository = new CIMRepository(repositoryPath);
 
@@ -106,13 +113,8 @@ int main(int, char** argv)
         String temp = userManager->getAuthorization(testUser, nameSpace);
 
         if (testUser != "root")
-            PEGASUS_TEST_ASSERT(
-                String::equal(temp, "rw") || String::equal(temp, "wr"));
+           PEGASUS_TEST_ASSERT(String::equal(temp, "rw") || String::equal(temp, "wr"));
 
-        temp = userManager->getAuthorization("root", nameSpace);
-        PEGASUS_TEST_ASSERT(String::equal(temp, "w"));
-
-        nameSpace = GOOD_CIMV2_NAMESPACE; // upper case namespace name
         temp = userManager->getAuthorization("root", nameSpace);
         PEGASUS_TEST_ASSERT(String::equal(temp, "w"));
 
@@ -126,16 +128,16 @@ int main(int, char** argv)
 
         userManager->setAuthorization("root", nameSpace, "w");
 
-        if (testUser != "root")
-            PEGASUS_TEST_ASSERT(userManager->verifyAuthorization(
-                testUser, nameSpace, CIMName("GetInstance")));
-        PEGASUS_TEST_ASSERT(!userManager->verifyAuthorization(
-            "root", nameSpace, CIMName("GetInstance")));
+        if (testUser != "root") 
+           PEGASUS_TEST_ASSERT(userManager->verifyAuthorization(testUser, nameSpace, 
+                   CIMName ("GetInstance")));
+        PEGASUS_TEST_ASSERT(!userManager->verifyAuthorization("root", nameSpace, 
+            CIMName ("GetInstance")));
 
         userManager->setAuthorization("root", nameSpace, "r");
 
-        PEGASUS_TEST_ASSERT(!userManager->verifyAuthorization(
-            "root", nameSpace, CIMName("SetProperty")));
+        PEGASUS_TEST_ASSERT(!userManager->verifyAuthorization("root", nameSpace, 
+            CIMName ("SetProperty")));
 
         userManager->removeAuthorization("root", nameSpace);
         if (testUser != "root")
@@ -143,15 +145,11 @@ int main(int, char** argv)
     }
     catch(Exception& e)
     {
-        cout << argv[0] << " Exception: " << e.getMessage() << endl;
+      cout << argv[0] << " Exception: " << e.getMessage() << endl;
         PEGASUS_TEST_ASSERT(0);
     }
 
-    UserManager::destroy();
-    delete repository;
-    FileSystem::removeDirectoryHier(repositoryPath);
-
     cout << argv[0] << " +++++ passed all tests" << endl;
 
-      return 0;
+    return 0;
 }

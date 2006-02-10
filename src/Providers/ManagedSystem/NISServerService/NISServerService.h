@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Paulo F. Borges (pfborges@wowmail.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////
 
@@ -44,8 +50,8 @@
 
 //used by gethostname function
 #include <unistd.h>
-
-//------------------------------------------------------------------------------
+   
+//------------------------------------------------------------------------------ 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -71,8 +77,7 @@ static const String NIS_CAPTION("NIS Service");
 static const String NIS_DESCRIPTION("This is the PG_NISServerService object");
 
 // Insert MOF property definitions
-static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME(
-    "SystemCreationClassName");
+static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME("SystemCreationClassName");
 static const String PROPERTY_SYSTEM_NAME("SystemName");
 static const String PROPERTY_CREATION_CLASS_NAME("CreationClassName");
 static const String PROPERTY_NAME("Name");
@@ -86,72 +91,72 @@ static const String PROPERTY_SERVER_TYPE("ServerType");
 //------------------------------------------------------------------------------
 class NISServerService
 {
-public:
-    NISServerService();
-    ~NISServerService();
+    public:
+        NISServerService(void);
+        ~NISServerService(void);
+        
+    public:    
+        //
+        // Public Functions - Interface
+        //
 
-public:
-    //
-    // Public Functions - Interface
-    //
+	/** Returns TRUE, if user have permissions, otherwise FALSE
+	*/
+        Boolean AccessOk(const OperationContext & context);
 
-    /** Returns TRUE, if user have permissions, otherwise FALSE
-    */
-    Boolean AccessOk(const OperationContext & context);
+        /** Returns the local host name
+        */
+        Boolean getLocalHostName(String & hostName);
 
-    /** Returns the local host name
-    */
-    Boolean getLocalHostName(String & hostName);
+        /** Returns the system name
+        */     
+        Boolean getSystemName(String & hostName);
 
-    /** Returns the system name
-    */
-    Boolean getSystemName(String & hostName);
+        /** Returns the class name
+        */
+        Boolean getCreationClassName(String & strValue);
 
-    /** Returns the class name
-    */
-    Boolean getCreationClassName(String & strValue);
+        /** Returns the NIS domain name
+        */
+        Boolean getName(String & strValue);
 
-    /** Returns the NIS domain name
-    */
-    Boolean getName(String & strValue);
+        /** Returns the caption
+        */
+        Boolean getCaption(String & strValue);
 
-    /** Returns the caption
-    */
-    Boolean getCaption(String & strValue);
+        /** Returns the description
+        */
+        Boolean getDescription(String & strValue);
 
-    /** Returns the description
-    */
-    Boolean getDescription(String & strValue);
+        /** Returns one of the following values: 0-Unknown, 1-Other, 2-None, 
+            3-NIS Master, and 4-NIS Slave. 
+        */
+        Boolean getServerType(Uint16 & paramValue);
 
-    /** Returns one of the following values: 0-Unknown, 1-Other, 2-None,
-        3-NIS Master, and 4-NIS Slave.
-    */
-    Boolean getServerType(Uint16 & paramValue);
+        /** Returns one of the following wait flag values: 0-Unknown, 1-Other, 
+            2-Wait, amd 3-No Wait. 
+        */
+        Boolean getServerWaitFlag(Uint16 & paramValue);
 
-    /** Returns one of the following wait flag values: 0-Unknown, 1-Other,
-        2-Wait, amd 3-No Wait.
-    */
-    Boolean getServerWaitFlag(Uint16 & paramValue);
+    private:
+        //
+        // Private Functions
+        //
 
-private:
-    //
-    // Private Functions
-    //
+        /** Returns the host name based on the server address
+        */
+        Boolean getHostName(String serverAddress, String & hostName);
 
-    /** Returns the host name based on the server address
-    */
-    Boolean getHostName(String serverAddress, String & hostName);
+        /** Returns NIS information
+        */
+        Boolean getNISInfo();
 
-    /** Returns NIS information
-    */
-    Boolean getNISInfo();
-
-    //
-    // Class Attributes
-    //
-
-    String nisName;
-    Uint16 nisServerType;
-    Uint16 nisServerWaitFlag;
+        //
+        // Class Attributes
+        //
+                
+        String        nisName;
+        Uint16 	      nisServerType;
+        Uint16 	      nisServerWaitFlag;
 };
 #endif

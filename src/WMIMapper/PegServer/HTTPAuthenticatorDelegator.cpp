@@ -1,33 +1,43 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//              Jair F. T. dos Santos, Hewlett-Packard Company
+//                  (jair.santos@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
+//              Mateus Baur, Hewlett-Packard Company (mateus.baur@hp.com)
 //
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
@@ -35,10 +45,10 @@
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include "HTTPAuthenticatorDelegator.h"
-
+ 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
-#endif
+#endif 
 
 PEGASUS_USING_STD;
 
@@ -52,14 +62,13 @@ static const String KERBEROS_CHALLENGE_HEADER = "WWW-Authenticate: Negotiate ";
 #endif
 
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
-    Uint32 cimOperationMessageQueueId,
-    Uint32 cimExportMessageQueueId,
-    CIMRepository* repository)
-    : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR, MessageQueue::getNextQueueId()),
-      _cimOperationMessageQueueId(cimOperationMessageQueueId),
-      _cimExportMessageQueueId(cimExportMessageQueueId),
-      _wsmanOperationMessageQueueId(PEG_NOT_FOUND),
-      _repository(repository)
+    Uint32 operationMessageQueueId,
+    Uint32 exportMessageQueueId,
+	CIMRepository* repository)
+   : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR,
+          MessageQueue::getNextQueueId()),
+    _operationMessageQueueId(operationMessageQueueId),
+    _exportMessageQueueId(exportMessageQueueId)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator");
@@ -74,7 +83,7 @@ HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator()
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator");
 
-
+   
     PEG_METHOD_EXIT();
 }
 
@@ -85,8 +94,7 @@ void HTTPAuthenticatorDelegator::enqueue(Message* message)
 
 void HTTPAuthenticatorDelegator::_sendResponse(
     Uint32 queueId,
-    Buffer& message,
-    Boolean closeConnect)
+    Buffer& message)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendResponse");
@@ -97,7 +105,7 @@ void HTTPAuthenticatorDelegator::_sendResponse(
     {
         AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message));
         httpMessage->dest = queue->getQueueId();
-
+        
         queue->enqueue(httpMessage.release());
     }
 
@@ -107,8 +115,7 @@ void HTTPAuthenticatorDelegator::_sendResponse(
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 void HTTPAuthenticatorDelegator::_sendSuccess(
     Uint32 queueId,
-    const String& authResponse,
-    Boolean closeConnect)
+    const String& authResponse)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendSuccess");
@@ -128,8 +135,7 @@ void HTTPAuthenticatorDelegator::_sendSuccess(
 
 void HTTPAuthenticatorDelegator::_sendChallenge(
     Uint32 queueId,
-    const String& authResponse,
-    Boolean closeConnect)
+    const String& authResponse)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendChallenge");
@@ -141,7 +147,7 @@ void HTTPAuthenticatorDelegator::_sendChallenge(
     Buffer message;
     XmlWriter::appendUnauthorizedResponseHeader(message, authResponse);
 
-    _sendResponse(queueId, message, false);
+    _sendResponse(queueId, message);
 
     PEG_METHOD_EXIT();
 }
@@ -150,8 +156,7 @@ void HTTPAuthenticatorDelegator::_sendHttpError(
     Uint32 queueId,
     const String& status,
     const String& cimError,
-    const String& pegasusError,
-    Boolean closeConnect)
+    const String& pegasusError)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendHttpError");
@@ -166,7 +171,7 @@ void HTTPAuthenticatorDelegator::_sendHttpError(
         cimError,
         pegasusError);
 
-    _sendResponse(queueId, message, false);
+    _sendResponse(queueId, message);
 
     PEG_METHOD_EXIT();
 }
@@ -187,7 +192,7 @@ void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
     // This should be set to false by handleHTTPMessage when the message is
     // passed as is to another queue.
     Boolean deleteMessage = true;
-
+   
     if (message->getType() == HTTP_MESSAGE)
     {
         handleHTTPMessage((HTTPMessage*)message, deleteMessage);
@@ -216,7 +221,7 @@ void HTTPAuthenticatorDelegator::handleEnqueue()
 void HTTPAuthenticatorDelegator::handleHTTPMessage(
     HTTPMessage* httpMessage,
     Boolean & deleteMessage)
-{
+{  
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::handleHTTPMessage");
 
@@ -238,8 +243,15 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     // WMI MAPPER SPECIFIC: AUTHENTICATION ALWAYS ENABLED:
     Boolean enableAuthentication = true;
     /* NORMAL METHOD OF LOOKING UP AUTHENTICATION CONFIGURATION:
-    Boolean enableAuthentication = ConfigManager::parseBooleanValue(
-        ConfigManager::getInstance()->getCurrentValue("enableAuthentication"));
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    Boolean enableAuthentication = false;
+
+    if (String::equal(
+        configManager->getCurrentValue("enableAuthentication"), "true"))
+    {
+        enableAuthentication = true;
+    }
     */
 
     //
@@ -255,7 +267,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     Uint32 contentLength;
 
     httpMessage->parse(startLine, headers, contentLength);
-
+    
     //
     // Parse the request line:
     //
@@ -295,23 +307,23 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         // Process M-POST and POST messages:
         //
-        PEG_TRACE_CSTRING(
-            TRC_HTTP,
-            Tracer::LEVEL3,
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "HTTPAuthenticatorDelegator - M-POST/POST processing start");
+
+        httpMessage->message.append('\0');
 
         //
         // Search for Authorization header:
         //
-        String authorization;
+        String authorization = String::EMPTY;
 
         //
-        // Do not require authentication for indication delivery
+        // Do not require authentication for indication delivery 
         //
-        const char* cimExport;
+        String cimExport;
         if (enableAuthentication &&
             HTTPMessage::lookupHeader(
-                headers, "CIMExport", cimExport, true))
+                headers, "CIMExport", cimExport, true)) 
         {
             enableAuthentication = false;
         }
@@ -321,20 +333,20 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
              enableAuthentication
            )
         {
-            try
+            try 
             {
                 //
                 // Do pegasus/local authentication
                 //
-                authenticated =
+                authenticated = 
                     _authenticationManager->performPegasusAuthentication(
                         authorization,
                         httpMessage->authInfo);
 
                 if (!authenticated)
                 {
-                    String authChallenge;
-                    String authResp;
+                    String authChallenge = String::EMPTY;
+                    String authResp = String::EMPTY;
 
                     authResp =
                         _authenticationManager->getPegasusAuthResponseHeader(
@@ -343,7 +355,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                     if (!String::equal(authResp, String::EMPTY))
                     {
-                        _sendChallenge(queueId, authResp, false);
+                        _sendChallenge(queueId, authResp);
                     }
                     else
                     {
@@ -363,7 +375,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                HTTP_STATUS_INTERNALSERVERERROR);
                 PEG_METHOD_EXIT();
                 return;
-
+                
             }
         }
 
@@ -381,7 +393,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             {
                 sa->setClientSentAuthorization(true);
             }
-#endif
+#endif        
             //
             // Do http authentication if not authenticated already
             //
@@ -394,7 +406,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                 if (!authenticated)
                 {
-                    //ATTN: the number of challenges get sent for a
+                    //ATTN: the number of challenges get sent for a 
                     //      request on a connection can be pre-set.
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
                     // Kerberos authentication needs access to the
@@ -402,7 +414,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     // to set up the reference to the
                     // CIMKerberosSecurityAssociation object for this session.
 
-                    String authResp =
+                    String authResp =   
                         _authenticationManager->getHttpAuthResponseHeader(
                             httpMessage->authInfo);
 #else
@@ -411,7 +423,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 #endif
                     if (!String::equal(authResp, String::EMPTY))
                     {
-                        _sendChallenge(queueId, authResp, false);
+                        _sendChallenge(queueId, authResp);
                     }
                     else
                     {
@@ -447,7 +459,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 // client then no server token will be available.
                 if (contentLength == 0)
                 {
-                    String authResp =
+                    String authResp =   
                         _authenticationManager->getHttpAuthResponseHeader(
                             httpMessage->authInfo);
                     if (!String::equal(authResp, String::EMPTY))
@@ -483,7 +495,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // authenticated in the previous request but choose not to
             // send an authorization record.
             if (sa->getClientAuthenticated())
-            {
+            {        
                 authenticated = true;
             }
         }
@@ -517,35 +529,46 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // terminates the headers so the headers and content can be
             // easily separated.
 
+            // IMPORTANT - NOTE NOTE NOTE - IMPORTANT
+            // Need to increase the content size by one because earlier a
+            // NULL terminator was added causing the unwrap to think that the
+            // wrapped message has a bad signature.  Anything that was added
+            // to the content portion must be handled otherwise unwrap will
+            // return an error.  So if additional characters are added in the
+            // future the content size needs to be adjusted.
+            int charsAdded = 1; // increase by the number of chars added to content
+            contentLength = contentLength + charsAdded;
+
             // Extract the unwrapped headers
-            for (Uint32 i = 0; i < httpMessage->message.size() - contentLength;
-                 i++)
+            for (Uint32 i = 0; i < (httpMessage->message.size()-contentLength); i++)
             {
                 header_buffer.append(httpMessage->message[i]);
             }
 
             // Extract the wrapped content
-            for (Uint32 i = httpMessage->message.size() - contentLength;
-                 i < httpMessage->message.size(); i++)
+            // Note: Need to decrease the message size by the number of
+            // characters added to content.  See important note above
+            // regarding content size.
+            for (Uint32 i = (httpMessage->message.size()-contentLength);
+                 i < (httpMessage->message.size()-charsAdded); i++)
             {
                 inWrappedMessage.append(httpMessage->message[i]);
             }
 
-            rc = sa->unwrap_message(inWrappedMessage,
+            rc = sa->unwrap_message(inWrappedMessage,          
                                     outUnwrappedMessage);  // ASCII
 
-            if (rc)
+            if (rc) 
             {
                 // clear out the outUnwrappedMessage; if unwrapping is required
                 // and it fails we need to send back a bad request.  A message
-                // left in an wrapped state will be a severe failue later.
-                // Reason for unwrap failing may be due to a problem with the
-                // credentials or context or some other failure may have
-                // occurred.
+                // left in an wrapped state will be a severe failue later.  Reason
+                // for unwrap failing may be due to a problem with the credentials
+                // or context or some other failure may have occurred.
                 outUnwrappedMessage.clear();
                 // build a bad request.  We do not want to risk sending back
                 // data that can't be authenticated.
-                final_buffer =
+                final_buffer = 
                   XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
                 //remove the last separater; the authentication record still
                 // needs to be added.
@@ -553,9 +576,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 final_buffer.remove(final_buffer.size());  // "\r"
 
                 // Build the WWW_Authenticate record with token.
-                String authResp =
-                  _authenticationManager->getHttpAuthResponseHeader(
-                                httpMessage->authInfo);
+                String authResp =   
+                  _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
                 // error occurred on wrap so the final_buffer needs to be built
                 // differently
                 final_buffer << authResp;
@@ -579,25 +601,22 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // a bad return code
             if (final_buffer.size() == 0)
             {
-                // if outUnwrappedMessage is empty that indicates client did
-                // not wrap the message.  The original message will be used.
+                // if outUnwrappedMessage is empty that indicates client did not
+                // wrap the message.  The original message will be used.
                 if (outUnwrappedMessage.size())
                 {
                     final_buffer.appendArray(header_buffer);
                     final_buffer.appendArray(outUnwrappedMessage);
-                    // add back char that was appended earlier
-                    final_buffer.append('\0');
-                    // Note: if additional characters added
-                    // in future add back here
+                    final_buffer.append('\0'); // add back char that was appended earlier
+                    // Note: if additional characters added in future add back here
                 }
             }
             else
             {
                 // The final buffer should not have any data at this point.
                 // If it does end the server because something bad happened.
-                PEG_TRACE_CSTRING(
-                    TRC_HTTP,
-                    Tracer::LEVEL2,
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+                    Logger::TRACE,
                     "HTTPAuthenticatorDelegator - the final buffer should "
                         "not have data");
                 PEGASUS_ASSERT(0);
@@ -620,24 +639,23 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             //
             // Search for "CIMOperation" header:
             //
-            const char* cimOperation;
+            String cimOperation;
 
             if (HTTPMessage::lookupHeader(
-                    headers, "CIMOperation", cimOperation, true))
+                headers, "CIMOperation", cimOperation, true))
             {
-                PEG_TRACE((
-                    TRC_HTTP,
-                    Tracer::LEVEL3,
-                    "HTTPAuthenticatorDelegator - CIMOperation: %s",
-                    cimOperation));
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+                    Logger::TRACE,
+                    "HTTPAuthenticatorDelegator - CIMOperation: $0 ",
+                    cimOperation);
 
                 MessageQueue* queue =
-                    MessageQueue::lookup(_cimOperationMessageQueueId);
+                    MessageQueue::lookup(_operationMessageQueueId);
 
                 if (queue)
                 {
                    httpMessage->dest = queue->getQueueId();
-
+                   
                    try
                      {
                        queue->enqueue(httpMessage);
@@ -655,16 +673,15 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 }
             }
             else if (HTTPMessage::lookupHeader(
-                         headers, "CIMExport", cimOperation, true))
+                headers, "CIMExport", cimOperation, true))
             {
-                PEG_TRACE((
-                    TRC_HTTP,
-                    Tracer::LEVEL3,
-                    "HTTPAuthenticatorDelegator - CIMExport: $0",
-                    cimOperation));
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+                    Logger::TRACE,
+                    "HTTPAuthenticatorDelegator - CIMExport: $0 ",
+                    cimOperation);
 
                 MessageQueue* queue =
-                    MessageQueue::lookup(_cimExportMessageQueueId);
+                    MessageQueue::lookup(_exportMessageQueueId);
 
                 if (queue)
                 {
@@ -709,7 +726,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         else
         {  // client not authenticated; send challenge
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-            String authResp =
+            String authResp =    
                 _authenticationManager->getHttpAuthResponseHeader(
                     httpMessage->authInfo);
 #else
@@ -719,7 +736,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
             if (!String::equal(authResp, String::EMPTY))
             {
-                _sendChallenge(queueId, authResp, false);
+                _sendChallenge(queueId, authResp);
             }
             else
             {

@@ -1,41 +1,47 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Day (mdday@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/Tracer.h>
 
 #include <sys/types.h>
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
+#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include <unistd.h>
 #endif
 #include <Pegasus/Common/PegasusAssert.h>
@@ -48,51 +54,50 @@ PEGASUS_USING_PEGASUS;
 
 Boolean verbose = false;
 
-ThreadReturnType PEGASUS_THREAD_CDECL funcSleepUntilCancelled(
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcSleepUntilCancelled(
     void* parm)
 {
     AtomicInt* cancelled = static_cast<AtomicInt*>(parm);
 
     while (cancelled->get() == 0)
     {
-        Threads::sleep(1);
+        pegasus_sleep(1);
     }
 
     return 0;
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL funcSleepSpecifiedMilliseconds(
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcSleepSpecifiedMilliseconds(
     void* parm)
 {
 #ifdef PEGASUS_POINTER_64BIT
     Uint32 sleepMilliseconds = (Uint64)parm;
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
-    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
+#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
     unsigned long sleepMilliseconds = (unsigned long)parm;
 #else
     Uint32 sleepMilliseconds = (Uint32)parm;
 #endif
 
-    Threads::sleep(sleepMilliseconds);
+    pegasus_sleep(sleepMilliseconds);
 
     return 0;
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL funcIncrementCounter(
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcIncrementCounter(
     void* parm)
 {
     AtomicInt* counter = static_cast<AtomicInt*>(parm);
 
     (*counter)++;
-    Threads::sleep(50);
+    pegasus_sleep(50);
 
     return 0;
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL funcThrow(void* parm)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcThrow(void* parm)
 {
     throw Uint32(10);
-    PEGASUS_UNREACHABLE(return 0;)
+    PEGASUS_UNREACHABLE(return 0);
 }
 
 void testDestructAsThreadCompletes()
@@ -120,10 +125,9 @@ void testloopDestructAsThreadCompletes()
     {
         int done = 0;
         const int limit = 10000;
-        const int display = limit / 10;
         while (done < limit)
         {
-            if (verbose && (done % display == 0))
+            if (verbose || (done % 1000 == 0))
             {
                 printf("testDestructAsThreadCompletes: iteration %d of %d\n",
                     done+1, limit);
@@ -154,7 +158,7 @@ void testCleanupIdleThread()
 
         threadPool.allocate_and_awaken(
             (void*)1, funcSleepSpecifiedMilliseconds);
-        Threads::sleep(1000);
+        pegasus_sleep(1000);
 
         PEGASUS_TEST_ASSERT(threadPool.idleCount() == 1);
         threadPool.cleanupIdleThreads();
@@ -240,17 +244,16 @@ void testOverloadPool()
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)300, funcSleepSpecifiedMilliseconds);
-        PEGASUS_TEST_ASSERT(threadStarted ==
-                PEGASUS_THREAD_INSUFFICIENT_RESOURCES);
-
+        PEGASUS_TEST_ASSERT(threadStarted == PEGASUS_THREAD_INSUFFICIENT_RESOURCES);
+        
         ThreadStatus rc = PEGASUS_THREAD_OK;
         while ( (rc =threadPool.allocate_and_awaken(
             (void*)100, funcSleepSpecifiedMilliseconds)) != PEGASUS_THREAD_OK)
         {
           if (rc ==PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-            Threads::yield();
+            pegasus_yield();
           else
-           throw Exception("Could not allocate and awaken a thread.");
+           throw Exception("Could not allocate and awaken a thread."); 
         }
     }
     catch (const Exception& e)
@@ -277,18 +280,14 @@ void testHighWorkload()
 
         for (Uint32 i = 0; i < 50; i++)
         {
-            ThreadStatus rc = PEGASUS_THREAD_OK;
+	    ThreadStatus rc = PEGASUS_THREAD_OK;
             while ( (rc =threadPool->allocate_and_awaken(
                 &counter, funcIncrementCounter)) != PEGASUS_THREAD_OK)
             {
-                if (rc == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-                {
-                    Threads::yield();
-                }
-                else
-                {
-                    throw Exception("Could not allocate a thread for counter");
-                }
+		if (rc == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+                	pegasus_yield();
+	 	else
+			throw Exception("Coudl not allocate a thread for counter.");	
             }
         }
 
@@ -316,7 +315,7 @@ void testWorkException()
         ThreadPool threadPool(0, "test exception", 0, 6, deallocateWait);
 
         threadPool.allocate_and_awaken((void*)1, funcThrow);
-        Threads::sleep(100);
+        pegasus_sleep(100);
     }
     catch (const Exception& e)
     {
@@ -337,20 +336,14 @@ void testBlockingThread()
         struct timeval deallocateWait = { 5, 0 };
         ThreadPool threadPool(0, "test blocking", 0, 6, deallocateWait);
         Semaphore blocking(0);
-        ThreadStatus rt = PEGASUS_THREAD_OK;
+	ThreadStatus rt = PEGASUS_THREAD_OK;
         while ( (rt =threadPool.allocate_and_awaken(
-            (void*)16, funcSleepSpecifiedMilliseconds, &blocking)) !=
-                PEGASUS_THREAD_OK)
+            (void*)16, funcSleepSpecifiedMilliseconds, &blocking)) != PEGASUS_THREAD_OK)
         {
-            if (rt == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-            {
-                    Threads::yield();
-            }
-            else
-            {
-                    throw Exception("Could not allocate thread for"
-                        " funcSleepSpecifiedMilliseconds function.");
-            }
+	  if (rt == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+            pegasus_yield();
+	  else
+	   throw Exception("Could not allocate thread for funcSleepSpecifiedMilliseconds function.");
         }
 
         blocking.wait();
@@ -363,7 +356,7 @@ void testBlockingThread()
     }
 }
 
-int main(int, char **argv)
+int main(int argc, char **argv)
 {
     verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 

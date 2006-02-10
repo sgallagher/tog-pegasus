@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,8 +43,10 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOMHandleRep::CIMOMHandleRep()
-    : _providerUnloadProtect(0)
+    : _pendingOperations(0),
+      _providerUnloadProtect(0)
 {
+    gettimeofday(&_idleTime, NULL);
 }
 
 CIMOMHandleRep::~CIMOMHandleRep()
@@ -59,7 +67,7 @@ void CIMOMHandleRep::disallowProviderUnload()
     {
         // There's not much a provider could do with this exception.  Since
         // this is just a hint, our best bet is to just ignore it.
-        PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3,
             "Caught unexpected exception");
     }
 
@@ -83,15 +91,59 @@ void CIMOMHandleRep::allowProviderUnload()
     {
         // There's not much a provider could do with this exception.  Since
         // this is just a hint, our best bet is to just ignore it.
-        PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3,
             "Caught unexpected exception");
     }
 
     PEG_METHOD_EXIT();
 }
 
+void CIMOMHandleRep::get_idle_timer(struct timeval *tv)
+{
+    if (tv == 0)
+    {
+        return;
+    }
+   
+    try 
+    {
+        AutoMutex lock(_idleTimeMutex);
+        memcpy(tv, &_idleTime, sizeof(struct timeval));
+    }
+    catch (...)
+    {
+        gettimeofday(tv, NULL);
+    }
+}
+
+void CIMOMHandleRep::update_idle_timer()
+{
+    try
+    {
+        AutoMutex lock(_idleTimeMutex);
+        gettimeofday(&_idleTime, NULL);
+    }
+    catch (...)
+    {
+    }
+}
+
+Boolean CIMOMHandleRep::pending_operation()
+{
+    if (_pendingOperations.get())
+    {
+        return true;
+    }
+    return false;
+}
+
 Boolean CIMOMHandleRep::unload_ok()
 {
+    if (_pendingOperations.get())
+    {
+        return false;
+    }
+
     Boolean unloadable = true;
 
     AutoMutex lock(_providerUnloadProtectMutex);
@@ -100,7 +152,7 @@ Boolean CIMOMHandleRep::unload_ok()
         unloadable = false;
     }
 
-    return unloadable;
+    return (unloadable);
 }
 
 PEGASUS_NAMESPACE_END

@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Authors: David Rosckes (rosckes@us.ibm.com)
+//          Bert Rivero (hurivero@us.ibm.com)
+//          Chuck Carmack (carmack@us.ibm.com)
+//          Brian Lucier (lucier@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,14 +52,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class SelectStatementRep;
+class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep;
 
 /** This class is an abstract base class for the query language (e,g. WQL or
-    CQL) select statement.
+CQL) select statement.
 
-    An example of a simple query language SELECT statement may take the
-    following form (although CQL architecture includes much more extensive
-    forms of the SELECT statement):
+      A example of a simple query language SELECT statement may take the
+following form although
+     CQL architecture includes much more extensive forms of the SELECT
+statement:
 
     <pre>
         SELECT <select-list>
@@ -58,10 +69,11 @@ class SelectStatementRep;
     </pre>
 
     There are methods for obtaining the various elements of the select
-    statement.
+statement.
 
     See the concrete subclasses for specific information on each type of query
-    language select statement.
+language
+    select statement.
 */
 class PEGASUS_QUERYCOMMON_LINKAGE SelectStatement
 {
@@ -78,32 +90,41 @@ public:
      */
     String getQuery() const;
 
-    virtual void setQueryContext(const QueryContext& inCtx);
+    virtual void setQueryContext(QueryContext& inCtx);
 
     /** This method operates on a single CIMInstance.
 
-        @param inCI The CIMInstance that will be evaluated.
-        @return A boolean value indicating the evaluation result:
+         Returns a boolean value indicating the evaluation result:
             TRUE means the CIMInstance passed conforms to the
-                       criteria on the WHERE clause,
+                       criteria on the WHERE clause
             FALSE means the CIMInstance passed does not
                        conform to the criteria on the WHERE clause
      */
-    virtual Boolean evaluate(const CIMInstance& inCI) = 0;
+    virtual Boolean evaluate(
+
+        /**  The CIM instance that will be evaluated.
+               The CIMInstance object is not modified by this method.
+           */
+        const CIMInstance& inCI) = 0;
 
     /** applyProjection() method operates on a single CIMInstance to
         determine what properties to include.
         On that CIMInstance it will remove all properties that are not
         included in the projection.
 
-        @param  inCI          The CIMInstance object in which to apply the
-                              projection.
         @param  allowMissing  Boolean specifying whether missing project
                               properties are allowed
 
         TODO:  document the exceptions!
      */
     virtual void applyProjection(
+
+    /**  Input the CIMInstance object in which to apply the
+         projection.
+
+        @param  allowMissing  Boolean specifying whether missing project
+                              properties are allowed
+     */
         CIMInstance& inCI,
         Boolean allowMissing) = 0;
 
@@ -120,7 +141,7 @@ public:
     /** Returns an array of CIMObjectPath objects that are the
         class paths from the select statement in the FROM list.
      */
-    virtual Array<CIMObjectPath> getClassPathList() const = 0;
+    virtual Array<CIMObjectPath> getClassPathList() = 0;
 
     /** Returns the required properties from the combined SELECT and WHERE
         clauses for the classname passed in.
@@ -129,12 +150,12 @@ public:
 
         If all the properties for the input classname are required, a null
         CIMPropertyList is returned.
-
-        @param inClassName One of the classes from the FROM list, for which the
-            list of properties required for evaluation will be returned.
     */
     virtual CIMPropertyList getPropertyList(
-        const CIMObjectPath& inClassName) = 0;
+
+    /**  The input parameter className is one of the classes from the FROM list.
+    */
+    const CIMObjectPath& inClassName) = 0;
 
     /**
         Returns the required properties from the SELECT clause for the specified
@@ -151,8 +172,8 @@ public:
                  or a null CIMPropertyList if all properties of the specified
                  class are required
     */
-    virtual CIMPropertyList getSelectPropertyList(
-        const CIMObjectPath& inClassName) = 0;
+    virtual CIMPropertyList getSelectPropertyList
+        (const CIMObjectPath& inClassName) = 0;
 
     /**
         Returns the required properties from the WHERE clause for the specified
@@ -169,8 +190,8 @@ public:
                  or a null CIMPropertyList if all properties of the specified
                  class are required
      */
-    virtual CIMPropertyList getWherePropertyList(
-        const CIMObjectPath& inClassName) = 0;
+    virtual CIMPropertyList getWherePropertyList
+        (const CIMObjectPath& inClassName) = 0;
 
 protected:
     SelectStatement();
@@ -184,6 +205,5 @@ private:
 };
 
 PEGASUS_NAMESPACE_END
-
 #endif
 #endif

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,97 +49,116 @@ PEGASUS_NAMESPACE_BEGIN
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-    The CIMName class represents the DMTF standard CIM name definition.
-    The names of CIM classes, properties, qualifiers, and methods are all
-    CIM names.
-
-    <p>A CIM name must contain characters only from this set:
+    The CIMName class defines methods for handling CIM names.
+    <p>
+    The names of classes, properties, qualifiers, and methods are all
+    CIM names. A CIM name must match the following regular
+    expression:
+    <PRE>
+        [A-Za-z_][A-Za-z_0-9]*
+    </PRE>
+    <B>Examples:</B>
     <ul>
-      <li>alphabetic (a-z and A-Z)
-      <li>numeric (0-9)
-      <li>underscore (_)
-      <li>UCS-2 characters in the range 0x0080 to 0xFFEF
+    <li>name - legal name
+    <li>Type - legal name
+    <li>3types - Illegal CIM name
     </ul>
-    The first character of a CIM name may not be numeric.
-    A CIMName may be null, meaning that it has no value.
+    The CIMName class includes the attribute Null which is required
+    by the DMTF operations definitions.  Note that this and the regular
+    expression limits on CIMName are what separate this from the String
+    class. This allows the names in CIM operations, such as getClass, to 
+    provide pattern matching tests for the classname parameter as well as
+    separate the concept of empty from Null.
+    
 */
 class PEGASUS_COMMON_LINKAGE CIMName
 {
 public:
 
     /**
-        Constructs a null CIMName.
+        Constructs an object with no name.  A call to isNull() immediately
+        after constructing the object will return true.
+
+        @exception bad_alloc Thrown if there is insufficient memory.
     */
     CIMName();
 
     /**
-        Constructs a non-null CIMName with the specified name.
-        @param name A String containing the CIM name.
-        @exception InvalidNameException If the String does not contain a
-            valid CIM name.
+        Constructor creates a new CIMName object from <TT>name</TT>.
+        <TT>name</TT> must be a legal CIM name.
+
+        @param name The name to use for the object.
+        @exception InvalidNameException if <TT>name</TT> is not
+                   a legal CIMName
+        @exception bad_alloc Thrown if there is insufficient memory.
     */
     CIMName(const String& name);
 
     /**
-        Constructs a non-null CIMName with the specified name.
-        @param name A character string containing the CIM name.
-        @exception InvalidNameException If the character string does not
-            contain a valid CIM name.
-        @exception All exceptions thrown by String(const char* str) can be
-            thrown here
+        Constructor creates a new CIMName object from string
+        provided as input. The string must be a legal name.
+
+        @param name The name to use for the object.
+        @exception InvalidNameException if <TT>name</TT> is not
+                   a legal CIMName
+        @exception bad_alloc Thrown if there is insufficient memory.
     */
     CIMName(const char* name);
 
     /**
-        Assigns the value of the specified CIMName object to this object.
-        @param name The CIMName object from which to assign this
-            CIMName object.
+        Assigns one CIMName to another.
+
+        @param name CIMName object to copy.
+        @exception bad_alloc Thrown if there is insufficient memory.
     */
     CIMName& operator=(const CIMName& name);
 
     /**
-        Sets the CIMName with a String name.  The resulting CIMName object
-        is non-null.
-        <p><b>Example:</b>
+        Sets the name of the associated object to <TT>name</TT>.
+
+        @param name The new name to use for the object.
+        @exception InvalidNameException if <TT>name</TT> is not
+                   a legal CIMName
+        @exception bad_alloc Thrown if there is insufficient memory.
+
         <pre>
         CIMName n;
         String type = "type";
         n = type;
         </pre>
-        @param name A String containing the CIM name to set.
-        @return A reference to this CIMName object.
-        @exception InvalidNameException If the String does not contain a
-            valid CIM name.
     */
     CIMName& operator=(const String& name);
 
     /**
-        Gets a String form of the CIM name.
-        <p><b>Example:</b>
+        Gets a reference a String containing the name from the
+        associated object.
+
+        @return Reference to a String containing the name.
+
         <pre>
         CIMName n("name");
         String s = n.getString();
         </pre>
-        @return A reference to a String containing the CIM name.
     */
     const String& getString() const;
 
     /**
-        Determines whether the CIM name is null.
-        <p><b>Example:</b>
+        Tests if name is Null, i.e. not set.
+
+        @return true if name is Null, false if not.
+
         <pre>
         CIMName n;
         assert(n.isNull());
         n = "name";
         assert(!n.isNull());
         </pre>
-        @return True if the CIM name is null, false otherwise.
     */
     Boolean isNull() const;
 
     /**
-        Sets the CIM name to a null value.
-        <p><b>Example:</b>
+        Clears the CIMName.
+
         <pre>
         CIMName n("name");
         n.clear();
@@ -147,84 +168,103 @@ public:
     void clear();
 
     /**
-        Compares the CIMName with a specified CIMName.  Comparisons of
-        CIM names are case-insensitive.
-        <p><b>Example:</b>
+        Compares the CIMName object against another CIMName object
+        for equality.
+
+        @param name CIMName to compare with the associated object.
+        @return true if the name passed is equal to the name in this
+        class. CIM names are case insensitive and so is this method.
         <pre>
-        CIMName n1("name");
-        CIMName n2("Name");
-        assert(n1.equal(n2));
+        CIMName n1 = "name";
+        CIMName n2 = "InstanceID";
+        if( n1.equal(n2) )
+                ...                     // Should never get here
+        else
+                ...
         </pre>
-        @param name The CIMName to be compared.
-        @return True if this name is equivalent to the specified name,
-            false otherwise.
     */
     Boolean equal(const CIMName& name) const;
 
     /**
-        Determines whether a name is a valid CIM name.
-        <p><b>Example:</b>
+        Determines if the name string input is legal as
+        defined in the CIMName class definition. This is a static
+        method used to test String values to determine if they are
+        legal names.
+
+        @param name String to test for legality.
+        @return Returns true if the name is legal, otherwise false.
+
         <pre>
         assert(CIMName::legal("name"));
         assert(!CIMName::legal("3types"));
         </pre>
-        @param name A String containing the name to test.
-        @return True if the specified name is a valid CIM name,
-            false otherwise.
     */
     static Boolean legal(const String& name);
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
-    /**
-        Compares the CIMName with a specified character string.  Comparisons of
-        CIM names are case-insensitive.
-        @param name The name to be compared.
-        @return True if this name is equivalent to the specified name,
-            false otherwise.
-    */
     Boolean equal(const char* name) const;
 
-    /**
-        Sets the CIMName with a character string name.  The resulting CIMName
-        object is non-null.
-        @param name A character string containing the CIM name to set.
-        @return A reference to this CIMName object.
-        @exception InvalidNameException If the character string does not
-            contain a valid CIM name.
-        @exception All exceptions thrown by String(const char* str) can be
-            thrown here
-    */
     CIMName& operator=(const char* name);
 
 #endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
 private:
     String cimName;
+    friend class CIMNameUnchecked;
 };
 
 /**
-    Compares two CIM names for equality.
-    <p><b>Example:</b>
-    <pre>
-    CIMName lowerCaseName("this_is_a_name");
-    CIMName upperCaseName("THIS_IS_A_NAME");
-    assert(lowerCaseName == upperCaseName);
-    </pre>
-    @param x The first CIMName to be compared.
-    @param y The second CIMName to be compared.
-    @return True if the CIM names are equivalent, false otherwise.
-*/
+    Compares two CIMNames to determine if they are equal.
+
+    @param name1 One name to compare.
+    @param name2 Another name to compare
+    @return Returns true if the names are equal, false if they are not.
+
+    CIMNames are not case sensitive, therefore the output of the
+    following example is "Equal".
+
+        <pre>
+        CIMName lowerCaseName("this_is_a_name");
+        CIMName upperCaseName("THIS_IS_A_NAME");
+
+        if (lowerCaseName == upperCaseName)
+        {
+            puts("Equal");
+        }
+        else
+        {
+            puts("Not equal");
+        }
+        </pre>
+ */
 PEGASUS_COMMON_LINKAGE Boolean operator==(
     const CIMName& name1,
     const CIMName& name2);
 
 /**
-    Compares two CIM names for inequality.
-    @param x The first CIMName to be compared.
-    @param y The second CIMName to be compared.
-    @return False if the CIM names are equivalent, true otherwise.
-*/
+    Compares two CIMNames to determine if they are not equal.
+
+    @param name1 One name to compare.
+    @param name2 Another name to compare
+    @return Returns true if the names are not equal, false if they are.
+
+    The output of the following example is "Not equal".
+
+        <pre>
+        CIMName name1("this_is_a_name");
+        CIMName name2("this is another_name");
+
+        if (name1 != name2)
+        {
+            puts("Not equal");
+        }
+        else
+        {
+            puts("Equal");
+        }
+        </pre>
+ */
 PEGASUS_COMMON_LINKAGE Boolean operator!=(
     const CIMName& name1,
     const CIMName& name2);
@@ -241,153 +281,129 @@ PEGASUS_COMMON_LINKAGE Boolean operator!=(
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-    The CIMNamespaceName class represents the DMTF standard CIM namespace
-    name definition.
-
-    <p>A CIM namespace name must match the following expression:
-    <pre>
+    The CIMNamespaceName class defines methods for handling CIM namespace names.
+    <p>
+    A CIM namespace name must match the following expression:
+    <PRE>
         &lt;CIMName&gt;[ / &lt;CIMName&gt; ]*
-    </pre>
-    A namespace name with a leading '/' character is accepted, but the
-    leading character is removed.
-    A CIMNamespaceName may be null, meaning that it has no value.
+    </PRE>
+    </p>
+    <B>Examples</B>
+    <UL>
+    <LI>root
+    <LI>root/test
+    </UL>
+    NOTE: Pegasus uses namespaces starting with the top level name (ex. root).  It does
+    not use the form /root/test with a leading slash.  The legal() test method in this class
+    allows that form as a legal entity however.
 */
 class PEGASUS_COMMON_LINKAGE CIMNamespaceName
 {
 public:
 
-    /**
-        Constructs a null CIMName.
-    */
+    /** Default constructor sets object Null. The Null state
+            indicates that there is no name assigned to this object.
+            The Null state can be tested with the isNull() method and
+            set with the clear() method.
+        */
     CIMNamespaceName();
 
-    /**
-        Constructs a non-null CIMNamespaceName with the specified name.
-        @param name A String containing the CIM namespace name.
-        @exception InvalidNameException If the String does not contain a
-            valid CIM namespace name.
-    */
+    /** Constructor builds namespace from input String.
+            The String input must be a legal namespace name.
+            @param String from which the namespace object is built.
+            This must be a legal namespace name.
+            @exeception InvalidNamespaceName exception thrown if
+            the namespace name input is illegal.
+        */
     CIMNamespaceName(const String& name);
 
-    /**
-        Constructs a non-null CIMNamespaceName with the specified name.
-        @param name A character string containing the CIM namespace name.
-        @exception InvalidNameException If the character string does not
-            contain a valid CIM namespace name.
-        @exception All exceptions thrown by String(const char* str) can be
-            thrown here
-    */
+    /** Constructor builds namespace from input char*.
+            The String input must be a legal namespace name.
+            @param char* from which the namespace object is built.
+            This must be a legal namespace name.
+            @exeception InvalidNamespaceName exception thrown if
+            the namespace name input parameter is illegal.
+        */    
     CIMNamespaceName(const char* name);
 
-    /**
-        Assigns the value of the specified CIMNamespaceName object to this
-        object.
-        @param name The CIMNamespaceName object from which to assign this
-            CIMNamespaceName object.
-    */
+    /** Assign one namespace object to another.
+                @param CIMNamespaceName to assign to the object.
+        */
     CIMNamespaceName& operator=(const CIMNamespaceName& name);
 
-    /**
-        Sets the CIMNamespaceName with a String name.  The resulting
-        CIMNamespaceName object is non-null.
-        <p><b>Example:</b>
-        <pre>
-        CIMNamespaceName n;
-        String name = "root/cimv2";
-        n = name;
-        </pre>
-        @param name A String containing the CIM namespace name to set.
-        @return A reference to this CIMNamespaceName object.
-        @exception InvalidNameException If the String does not contain a
-            valid CIM namespace name.
-    */
+    /** Assign a String object to a CIMNamespaceName object.
+                @param CIMNamespaceName to assign
+                @exeception InvalidNamespaceName exception thrown if
+                the namespace name input parameter is illegal.
+            <pre>
+                        String s = "root/test";
+                        CIMNamespacename ns;
+                        ns = s;
+            </pre>
+        */
     CIMNamespaceName& operator=(const String& name);
 
-    /**
-        Gets a String form of the CIM namespace name.
-        <p><b>Example:</b>
-        <pre>
-        CIMNamespaceName n("test/ns1");
-        String s = n.getString();
-        </pre>
-        @return A reference to a String containing the CIM namespace name.
-    */
+    /** Extracts the String value of the CIMNamespaceName
+            from the object.
+            @return String containing the name.
+            <pre>
+                        CIMNamespaceName ns("root/test");
+                        String s = ns.getString();
+            </pre>
+        */
     const String& getString() const;
 
-    /**
-        Determines whether the CIM namespace name is null.
-        <p><b>Example:</b>
-        <pre>
-        CIMNamespaceName n;
-        assert(n.isNull());
-        n = "root/test";
-        assert(!n.isNull());
-        </pre>
-        @return True if the CIM namespace name is null, false otherwise.
-    */
+    /**	Tests the CIMNamespaceName for NULL attribute. Returns
+            true if Null.  New objects without parameter and objects
+            set with clear() are Null.  When a name is set into the
+            object is is set to nonnull.  When the object is Null, it
+            returns empty string.
+            @return true if Null or false if not Null.
+            <pre>
+                        CIMName n;
+                        assert(n.isNull());
+                        n = "name";
+                        assert(!n.isNull());
+            </pre>
+        */
     Boolean isNull() const;
 
-    /**
-        Sets the CIM namespace name to a null value.
-        <p><b>Example:</b>
-        <pre>
-        CIMNamespaceName n("root/test");
-        n.clear();
-        assert(n.isNull());
-        </pre>
-    */
+    /**	Clears the CIMNamespaceName and sets it to Null. A Null
+            object contains no name so that accessing it with getString
+            should return an empty String
+            <pre>
+                        CIMNamespaceName ns("root/test");
+                        ns.clear();
+                        assert(ns.isNull());
+            </pre>
+        */
     void clear();
 
-    /**
-        Compares the CIMNamespaceName with a specified CIMNamespaceName.
-        Comparisons of CIM namespace names are case-insensitive.
-        <p><b>Example:</b>
-        <pre>
-        CIMNamespaceName n1("root/cimv2");
-        CIMNamespaceName n2("Root/CimV2");
-        assert(n1.equal(n2));
-        </pre>
-        @param name The CIMNamespaceName to be compared.
-        @return True if this name is equivalent to the specified name,
-            false otherwise.
+    /** Compares two CIMNamespace objects for equality.
+                @return true if the name passed is equal to the name in this
+        class. CIM names are case insensitive and so is this method.
+                <pre>
+                CIMNamespaceName ns("root/test");
+                CIMNamespaceName ns1("root/test");
+                assert( ns.equal(ns1);
+            </pre>
     */
     Boolean equal(const CIMNamespaceName& name) const;
 
-    /**
-        Determines whether a name is a valid CIM namespace name.
-        <p><b>Example:</b>
+    /** Determines if the name string input is legal as
+        defined in the CIMNamespaceName class definition.
+        @param name String to test for legality.
+        @return true if the given name is legal, false otherwise.
         <pre>
-        assert(CIMNamespaceName::legal("root/test"));
-        assert(!CIMNamespaceName::legal("Wrong!"));
+                assert(CIMNamespaceName::legal("root/test"));
         </pre>
-        @param name A String containing the name to test.
-        @return True if the specified name is a valid CIM namespace name,
-            false otherwise.
     */
     static Boolean legal(const String& name);
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
-    /**
-        Compares the CIMNamespaceName with a specified character string.
-        Comparisons of CIM namespace names are case-insensitive.
-        @param name The name to be compared.
-        @return True if this name is equivalent to the specified name,
-            false otherwise.
-    */
     Boolean equal(const char* name) const;
 
-    /**
-        Sets the CIMNamespaceName with a character string name.  The
-        resulting CIMNamespaceName object is non-null.
-        @param name A character string containing the CIM namespace name
-            to set.
-        @return A reference to this CIMNamespaceName object.
-        @exception InvalidNameException If the character string does not
-            contain a valid CIM namespace name.
-        @exception All exceptions thrown by String(const char* str) can be
-            thrown here
-    */
     CIMNamespaceName& operator=(const char* name);
 
 #endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
@@ -396,28 +412,10 @@ private:
     String cimNamespaceName;
 };
 
-/**
-    Compares two CIM namespace names for equality.
-    <p><b>Example:</b>
-    <pre>
-    CIMNamespaceName n1("root/test");
-    CIMNamespaceName n2("Root/TEST");
-    assert(n1 == n2);
-    </pre>
-    @param x The first CIMNamespaceName to be compared.
-    @param y The second CIMNamespaceName to be compared.
-    @return True if the CIM namespace names are equivalent, false otherwise.
-*/
 PEGASUS_COMMON_LINKAGE Boolean operator==(
     const CIMNamespaceName& name1,
     const CIMNamespaceName& name2);
 
-/**
-    Compares two CIM namespace names for inequality.
-    @param x The first CIMNamespaceName to be compared.
-    @param y The second CIMNamespaceName to be compared.
-    @return False if the CIM namespace names are equivalent, true otherwise.
-*/
 PEGASUS_COMMON_LINKAGE Boolean operator!=(
     const CIMNamespaceName& name1,
     const CIMNamespaceName& name2);

@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Karl Schopmeyer
+//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4006
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,12 +72,10 @@ int main(int argc, char** argv)
 
     if (argc < 2)
     {
-    cerr << "Usage: " << argv[0] << " <returnOptions> wql-text..." << endl;
-    cerr << "return Options are keywords parseError,"
-        " noEvaluate or evalulateError" << endl;
-    cerr << "They tell the call to reverse the error"
-        " on the parse or evalutate tests" << endl;
-    return(1);
+	cerr << "Usage: " << argv[0] << " <returnOptions> wql-text..." << endl;
+    cerr << "return Options are keywords parseError, noEvaluate or evalulateError" << endl;
+    cerr << "They tell the call to reverse the error on the parse or evalutate tests" << endl;
+	return(1);
     }
     Boolean evaluateErrorTest = false;
     Boolean parseErrorTest = false;
@@ -94,7 +102,7 @@ int main(int argc, char** argv)
             {cout << "Negative  parse test" << endl;}
         ignoreEvaluation = true;
     }
-    //
+    // 
     // Append all arguments together to from a single string:
     //
 
@@ -107,14 +115,16 @@ int main(int argc, char** argv)
     {
         text.append(argv[i], strlen(argv[i]));
 
-        if (i + 1 !=  argc)
-            text.append("\n", 1);
+    	if (i + 1 !=  argc)
+    	    text.append("\n", 1);
     }
+
+    text.append('\0');
 
     if (verbose)
         cout << text.getData() << endl;
 
-    //
+    // 
     // Parse the text:
     //
 
@@ -149,38 +159,28 @@ int main(int argc, char** argv)
 
     WQLSimplePropertySource source;
     PEGASUS_TEST_ASSERT(source.addValue("v", WQLOperand()));
-    PEGASUS_TEST_ASSERT(source.addValue("w",
-        WQLOperand(true, WQL_BOOLEAN_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("x", WQLOperand(10,
-        WQL_INTEGER_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("y",
-        WQLOperand(10.10, WQL_DOUBLE_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("z",
-        WQLOperand("Ten", WQL_STRING_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("w", WQLOperand(true, WQL_BOOLEAN_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("x", WQLOperand(10, WQL_INTEGER_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("y", WQLOperand(10.10, WQL_DOUBLE_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("z", WQLOperand("Ten", WQL_STRING_VALUE_TAG)));
 
-    PEGASUS_TEST_ASSERT(source.addValue("SourceInstance",
-        WQLOperand("SourceInstance", WQL_STRING_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("PreviousInstance",
-        WQLOperand("PreviousInstance", WQL_STRING_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("OperationalStatus",
-        WQLOperand("OperationalStatus", WQL_STRING_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("SourceInstance", WQLOperand("SourceInstance", WQL_STRING_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("PreviousInstance", WQLOperand("PreviousInstance", WQL_STRING_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("OperationalStatus", WQLOperand("OperationalStatus", WQL_STRING_VALUE_TAG)));
 
     //
     // Create an instance
     //
 
     CIMInstance inst("ClassName");
-    inst.addProperty(CIMProperty(CIMName("v"), CIMValue()));
+    inst.addProperty(CIMProperty(CIMName("v"), CIMValue())); 
     inst.addProperty(CIMProperty(CIMName("w"), CIMValue(true)));
     inst.addProperty(CIMProperty(CIMName("x"), CIMValue(10)));
     inst.addProperty(CIMProperty(CIMName("y"), CIMValue(10.10)));
     inst.addProperty(CIMProperty(CIMName("z"), CIMValue(String("Ten"))));
-    inst.addProperty(CIMProperty(CIMName("SourceInstance"),
-        CIMValue(String("SourceInstance"))));
-    inst.addProperty(CIMProperty(CIMName("PreviousInstance"),
-        CIMValue(String("PreviousInstance"))));
-    inst.addProperty(CIMProperty(CIMName("OperationalStatus"),
-        CIMValue(String("OperationalStatus"))));
+    inst.addProperty(CIMProperty(CIMName("SourceInstance"), CIMValue(String("SourceInstance"))));
+    inst.addProperty(CIMProperty(CIMName("PreviousInstance"), CIMValue(String("PreviousInstance"))));
+    inst.addProperty(CIMProperty(CIMName("OperationalStatus"), CIMValue(String("OperationalStatus"))));
 
     //
     // Create an empty instance
@@ -199,44 +199,35 @@ int main(int argc, char** argv)
 
     try
     {
-        Array<CIMName> selectList =
-            statement.getSelectPropertyList().getPropertyNameArray();
+        Array<CIMName> selectList = statement.getSelectPropertyList().getPropertyNameArray();
 
         CIMInstance projInst = inst.clone();
-        statement.applyProjection(projInst, false); // don't allow missing props
+        statement.applyProjection(projInst, false);  // do not allow missing props
         if (statement.getAllProperties())
         {
-            PEGASUS_TEST_ASSERT(projInst.getPropertyCount()
-                    == inst.getPropertyCount());
+            PEGASUS_TEST_ASSERT(projInst.getPropertyCount() == inst.getPropertyCount());
         }
         else
         {
-            PEGASUS_TEST_ASSERT(projInst.getPropertyCount()
-                    == statement.getSelectPropertyNameCount());
+            PEGASUS_TEST_ASSERT(projInst.getPropertyCount() == statement.getSelectPropertyNameCount());
             for (Uint32 i = 0; i < projInst.getPropertyCount(); i++)
             {
-                PEGASUS_TEST_ASSERT(
-                    containsProperty(projInst.getProperty(i).getName(),
-                        selectList));
+                PEGASUS_TEST_ASSERT(containsProperty(projInst.getProperty(i).getName(), selectList));
             }
         }
-
+        
         CIMObject projObj = inst.clone();
-        statement.applyProjection(projObj, false);  // don't allow missing props
+        statement.applyProjection(projObj, false);  // do not allow missing props
         if (statement.getAllProperties())
         {
-            PEGASUS_TEST_ASSERT(projObj.getPropertyCount()
-                    == inst.getPropertyCount());
+            PEGASUS_TEST_ASSERT(projObj.getPropertyCount() == inst.getPropertyCount());
         }
         else
         {
-            PEGASUS_TEST_ASSERT(projObj.getPropertyCount()
-                    == statement.getSelectPropertyNameCount());
+            PEGASUS_TEST_ASSERT(projObj.getPropertyCount() == statement.getSelectPropertyNameCount());
             for (Uint32 i = 0; i < projObj.getPropertyCount(); i++)
             {
-                PEGASUS_TEST_ASSERT(
-                        containsProperty(projObj.getProperty(i).getName(),
-                            selectList));
+                PEGASUS_TEST_ASSERT(containsProperty(projObj.getProperty(i).getName(), selectList));
             }
         }
     }
@@ -255,7 +246,7 @@ int main(int argc, char** argv)
         Boolean gotExc = false;
         try
         {
-            statement.applyProjection(emptyInst, false);//disallow missing props
+            statement.applyProjection(emptyInst, false);  // do not allow missing props
             PEGASUS_TEST_ASSERT(false);
         }
         catch (QueryRuntimePropertyException&)
@@ -264,8 +255,7 @@ int main(int argc, char** argv)
         }
         catch (Exception& e)
         {
-            cerr << "ApplyProjection Exception with empty instance,"
-                " do not allow missing props: "
+            cerr << "ApplyProjection Exception with empty instance, do not allow missing props: " 
                  << e.getMessage() << endl;
             return(1);
         }
@@ -274,11 +264,10 @@ int main(int argc, char** argv)
         try
         {
             statement.applyProjection(emptyInst, true);  // allow missing props
-        }
+        }    
         catch (Exception& e)
         {
-            cerr << "ApplyProjection Exception with empty instance,"
-                    " allow missing props: "
+            cerr << "ApplyProjection Exception with empty instance, allow missing props: " 
                  << e.getMessage() << endl;
             return(1);
         }
@@ -286,7 +275,7 @@ int main(int argc, char** argv)
         gotExc = false;
         try
         {
-            statement.applyProjection(emptyObj, false);// disallow missing props
+            statement.applyProjection(emptyObj, false);  // do not allow missing props
             PEGASUS_TEST_ASSERT(false);
         }
         catch (QueryRuntimePropertyException&)
@@ -295,8 +284,7 @@ int main(int argc, char** argv)
         }
         catch (Exception& e)
         {
-            cerr << "ApplyProjection Exception with empty object,"
-                " do not allow missing props: "
+            cerr << "ApplyProjection Exception with empty object, do not allow missing props: " 
                  << e.getMessage() << endl;
             return(1);
         }
@@ -308,13 +296,12 @@ int main(int argc, char** argv)
         }
         catch (Exception& e)
         {
-            cerr << "ApplyProjection Exception with empty object,"
-                    " allow missing props: "
+            cerr << "ApplyProjection Exception with empty object, allow missing props: " 
                  << e.getMessage() << endl;
             return(1);
         }
     }
-
+    
     //
     // Evaluate the where clause:
     //
@@ -337,8 +324,7 @@ int main(int argc, char** argv)
         {
             if (evaluateErrorTest)
             {
-                cerr << "EvaluateWhereClause Exception: "
-                     << e.getMessage() << endl;
+                cerr << "EvaluateWhereClause Exception: " << e.getMessage() << endl;
                 exit(1);
             }
             else

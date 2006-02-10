@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Authors: David Rosckes (rosckes@us.ibm.com)
+//          Bert Rivero (hurivero@us.ibm.com)
+//          Chuck Carmack (carmack@us.ibm.com)
+//          Brian Lucier (lucier@us.ibm.com) 
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,8 +42,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <Pegasus/Common/PegasusAssert.h>
-
-#include <Pegasus/Common/CIMObjectPath.h>
+ 
+#include <Pegasus/Common/CIMObjectPath.h>  
 #include <Pegasus/Common/CIMDateTime.h>
 
 #include <Pegasus/Common/String.h>
@@ -55,7 +64,7 @@ void drive_operation()
 {
 
    // Uint64 tests
-
+   
    CQLValue a1(Uint64(10));
    CQLValue a2(Uint64(15));
    CQLValue a3(Uint64(25));
@@ -68,9 +77,9 @@ void drive_operation()
    PEGASUS_TEST_ASSERT(a2 >= a1);
    PEGASUS_TEST_ASSERT(a1 <= a2);
    PEGASUS_TEST_ASSERT(a2 > a1);
-
+ 
    // Sint64 tests
-
+   
    CQLValue b1(Sint64(10));
    CQLValue b2(Sint64(15));
    CQLValue b3(Sint64(25));
@@ -83,7 +92,7 @@ void drive_operation()
    PEGASUS_TEST_ASSERT(b2 >= b1);
    PEGASUS_TEST_ASSERT(b1 <= b2);
    PEGASUS_TEST_ASSERT(b2 > b1);
-
+  
    // Real64 tests
 
    CQLValue c1(Real64(10.00));
@@ -163,7 +172,7 @@ void drive_operation()
    PEGASUS_TEST_ASSERT(real2 > uint3);
    PEGASUS_TEST_ASSERT(real3 < sint2);
    PEGASUS_TEST_ASSERT(real3 < uint3);
-
+ 
    // String tests
 
    CQLValue d1(String("HELLO"));
@@ -171,6 +180,13 @@ void drive_operation()
    CQLValue d3(String("LO"));
    CQLValue d4(String("AHELLO"));
    CQLValue d5(String("ZHELLO"));
+
+   String tmp1 =  d1.getString();
+   CQLValue tmp3 = d2+d3;
+   String tmp2 = tmp3.getString();
+
+   // cout  << tmp1 << endl;
+   //cout << tmp2 << endl;
 
    PEGASUS_TEST_ASSERT(d1 == d2 + d3);
    PEGASUS_TEST_ASSERT(d1 != d2 + d4);
@@ -186,7 +202,7 @@ void drive_operation()
    String str3("10B");
    String str4("10.10");
 
-
+   
    CQLValue e1( str1, CQLValue::Hex);
    CQLValue e2( str2, CQLValue::Decimal);
    CQLValue e3( str3, CQLValue::Binary);
@@ -290,7 +306,7 @@ void drive_operation()
    CIMValue cv4(array4);
    CIMValue cv5(array5);
    CIMValue cv6(array6);
-
+ 
    CQLValue vr1(cv1);
    CQLValue vr2(cv1);
    CQLValue vr3(cv2);
@@ -298,7 +314,7 @@ void drive_operation()
    CQLValue vr5(cv4);
    CQLValue vr6(cv5);
    CQLValue vr7(cv6);
-
+ 
    PEGASUS_TEST_ASSERT(vr1 == vr2);
    PEGASUS_TEST_ASSERT(vr1 == vr3);
    PEGASUS_TEST_ASSERT(vr1 == vr4);
@@ -316,20 +332,19 @@ void drive_operation()
    CIMProperty _p3(CIMName("CurrentTimeZone"),CIMValue(Sint16(-600)));
    CIMProperty _p4(CIMName("TimeOfLastStateChange"),
                   CIMValue(CIMDateTime(String("20040811105625.000000-360"))));
-
+                                    
    _i1.addProperty(_p1);
    _i1.addProperty(_p2);
    _i1.addProperty(_p3);
    _i1.addProperty(_p4);
 
    CIMInstance _i2(_cimName);
-   CIMProperty _p5(CIMName("Description"),
-                   CIMValue(String("Dave Rules Everything")));
+   CIMProperty _p5(CIMName("Description"),CIMValue(String("Dave Rules Everything")));
    CIMProperty _p6(CIMName("EnabledState"),CIMValue(Uint16(2)));
    CIMProperty _p7(CIMName("CurrentTimeZone"),CIMValue(Sint16(-600)));
    CIMProperty _p8(CIMName("TimeOfLastStateChange"),
                   CIMValue(CIMDateTime(String("20040811105625.000000-360"))));
-
+                                    
    _i2.addProperty(_p5);
    _i2.addProperty(_p6);
    _i2.addProperty(_p7);
@@ -380,7 +395,7 @@ try{
       PEGASUS_TEST_ASSERT(a6.getDateTime() == CIMDateTime(_date));
       PEGASUS_TEST_ASSERT(a6 != a61);
       PEGASUS_TEST_ASSERT(a6 < a61);
-      PEGASUS_TEST_ASSERT(a7.getReference() ==
+      PEGASUS_TEST_ASSERT(a7.getReference() == 
             CIMObjectPath(opStr));
 
       try
@@ -405,15 +420,15 @@ try{
 
 void drive_resolve_primitive()
 {
-
-
+   
+   
    const char* env = getenv("PEGASUS_HOME");
-    String repositoryDir(env);
-    repositoryDir.append("/repository");
-    //String repositoryDir("c:/pegasus-cvs/pegasus/repository");
-    CIMNamespaceName _ns("root/cimv2");
-    CIMRepository *_rep = new CIMRepository(repositoryDir);
-    RepositoryQueryContext _query(_ns, _rep);
+	String repositoryDir(env);
+	repositoryDir.append("/repository");
+	//String repositoryDir("c:/pegasus-cvs/pegasus/repository");	
+	CIMNamespaceName _ns("root/cimv2");
+	CIMRepository *_rep = new CIMRepository(repositoryDir);
+	RepositoryQueryContext _query(_ns, _rep);
    RepositoryQueryContext _query1(_ns, _rep);
 try{
    const CQLIdentifier _Id1(String("CIM_OperatingSystem"));
@@ -428,36 +443,36 @@ try{
    CIMProperty _p3(CIMName("CurrentTimeZone"),CIMValue(Sint16(-600)));
    CIMProperty _p4(CIMName("TimeOfLastStateChange"),
                   CIMValue(CIMDateTime(String("20040811105625.000000-360"))));
-
+                                    
    _i1.addProperty(_p1);
    _i1.addProperty(_p2);
    _i1.addProperty(_p3);
    _i1.addProperty(_p4);
 
-   CQLChainedIdentifier ci1(
-      String("CIM_OperatingSystem.CIM_OperatingSystem::Description"));
-   CQLChainedIdentifier
-     ci2(String("CIM_OperatingSystem.CIM_OperatingSystem::EnabledState"));
-   CQLChainedIdentifier ci3(
-     String("CIM_OperatingSystem.CIM_OperatingSystem::CurrentTimeZone"));
-   CQLChainedIdentifier ci4(
-     String("CIM_OperatingSystem.CIM_OperatingSystem::TimeOfLastStateChange"));
+   CQLChainedIdentifier ci1(String("CIM_OperatingSystem.CIM_OperatingSystem::Description"));
+   CQLChainedIdentifier 
+         ci2(String("CIM_OperatingSystem.CIM_OperatingSystem::EnabledState"));
+   CQLChainedIdentifier ci3(String("CIM_OperatingSystem.CIM_OperatingSystem::CurrentTimeZone"));
+   CQLChainedIdentifier ci4(String("CIM_OperatingSystem.CIM_OperatingSystem::TimeOfLastStateChange"));
 
-   CQLChainedIdentifier
-     ci5(String(
-     "CIM_OperatingSystem.CIM_EnabledLogicalElement::TimeOfLastStateChange"));
+   CQLChainedIdentifier 
+         ci5(String(
+         "CIM_OperatingSystem.CIM_EnabledLogicalElement::TimeOfLastStateChange"));
 
-   CQLChainedIdentifier
-     ci7(String("CIM_OperatingSystem"));
 
-   CQLChainedIdentifier
-     ci9(String(
-     "CIM_EnabledLogicalElement.CIM_OperatingSystem::CSCreationClassName"));
+   
+   CQLChainedIdentifier 
+         ci7(String("CIM_OperatingSystem"));
 
-   CQLChainedIdentifier
-     ci10(String("CIM_OperatingSystem.CIM_OperatingSystem::Bubba"));
 
-   CQLValue a1(ci1);
+   CQLChainedIdentifier 
+         ci9(String(
+         "CIM_EnabledLogicalElement.CIM_OperatingSystem::CSCreationClassName"));
+
+   CQLChainedIdentifier 
+         ci10(String("CIM_OperatingSystem.CIM_OperatingSystem::Bubba"));
+
+   CQLValue a1(ci1); 
    CQLValue a2(ci2);
    CQLValue a3(ci3);
    CQLValue a4(ci4);
@@ -483,13 +498,11 @@ try{
    PEGASUS_TEST_ASSERT(a1 == CQLValue(String("Dave Rules")));
    PEGASUS_TEST_ASSERT(a2 == CQLValue(Uint64(2)));
    PEGASUS_TEST_ASSERT(a3 == CQLValue(Sint64(-600)));
-   PEGASUS_TEST_ASSERT(a4 == CQLValue(
-               CIMDateTime(String("20040811105625.000000-360"))));
-   PEGASUS_TEST_ASSERT(a5 == CQLValue(
-               CIMDateTime(String("20040811105625.000000-360"))));
+   PEGASUS_TEST_ASSERT(a4 == CQLValue(CIMDateTime(String("20040811105625.000000-360"))));
+   PEGASUS_TEST_ASSERT(a5 == CQLValue(CIMDateTime(String("20040811105625.000000-360"))));
    //PEGASUS_TEST_ASSERT(a7 == CQLValue(_i1));
-   PEGASUS_TEST_ASSERT(a9.isNull());
-   PEGASUS_TEST_ASSERT(a10.isNull());
+   PEGASUS_TEST_ASSERT(a9.getValueType() == CQLValue::Null_type);
+   PEGASUS_TEST_ASSERT(a10.getValueType() == CQLValue::Null_type);
 
    }
    catch(Exception & e)
@@ -503,23 +516,23 @@ try{
 
 void drive_resolve_specialChars()
 {
-
-
+   
+   
       const char* env = getenv("PEGASUS_HOME");
-        String repositoryDir(env);
+		String repositoryDir(env);
       repositoryDir.append("/repository");
-    //String repositoryDir("c:/pegasus-cvs/pegasus/repository");
-    CIMNamespaceName _ns("root/cimv2");
-    CIMRepository *_rep = new CIMRepository(repositoryDir);
-    RepositoryQueryContext _query(_ns, _rep);
+   	//String repositoryDir("c:/pegasus-cvs/pegasus/repository");	
+   	CIMNamespaceName _ns("root/cimv2");
+   	CIMRepository *_rep = new CIMRepository(repositoryDir);
+   	RepositoryQueryContext _query(_ns, _rep);
       RepositoryQueryContext _query1(_ns, _rep);
    try{
       const CQLIdentifier _Id1(String("CIM_OperatingSystem"));
-
+   
       _query.insertClassPath(_Id1);
-
+   
       const CIMName _cimName(String("CIM_OperatingSystem"));
-
+   
       CIMInstance _i1(_cimName);
       CIMProperty _p1(CIMName("OSType"),CIMValue(Uint16(11)));
       CIMProperty _p2(CIMName("Status"),CIMValue(String("Degraded")));
@@ -529,20 +542,18 @@ void drive_resolve_specialChars()
       array16.append(Uint16(2));
       array16.append(Uint16(3));
       CIMProperty _p3(CIMName("OperationalStatus"),CIMValue(array16));
-
+                                       
       _i1.addProperty(_p1);
       _i1.addProperty(_p2);
       _i1.addProperty(_p3);
-
+   
       CQLChainedIdentifier ci1(String("CIM_OperatingSystem.OSType#OS400"));
       CQLChainedIdentifier ci2(String("CIM_OperatingSystem.OSType#LINUX"));
       CQLChainedIdentifier ci3(String("CIM_OperatingSystem.Status#Degraded"));
 
       CQLChainedIdentifier ci5(String("CIM_OperatingSystem.Status#BOGUS"));
 
-      CQLChainedIdentifier ci6(
-        String("CIM_OperatingSystem.CIM_OperatingSystem::"
-            "OperationalStatus[2]"));
+      CQLChainedIdentifier ci6(String("CIM_OperatingSystem.CIM_OperatingSystem::OperationalStatus[2]"));
       CQLValue a1(ci1);
       CQLValue a2(ci2);
       CQLValue a3(ci3);
@@ -550,21 +561,21 @@ void drive_resolve_specialChars()
       CQLValue a5(ci5);
       CQLValue a6(ci6);
 
-
+      
       a1.resolve(_i1, _query);
       a2.resolve(_i1, _query);
 
       a6.resolve(_i1, _query);
 
       try
-    {
-      a3.resolve(_i1, _query);
-      PEGASUS_TEST_ASSERT(0);
-    }
+	{
+	  a3.resolve(_i1, _query);
+	  PEGASUS_TEST_ASSERT(0);
+	}
       catch(...)
-    {
-      PEGASUS_TEST_ASSERT(1);
-    }
+	{
+	  PEGASUS_TEST_ASSERT(1);
+	}
 
       try
       {
@@ -582,7 +593,7 @@ void drive_resolve_specialChars()
 
       PEGASUS_TEST_ASSERT(a6 == CQLValue(Uint64(2)));
 
-
+      
    }
    catch(Exception & e)
    {
@@ -599,63 +610,61 @@ void drive_resolve_specialChars()
 
 int main( int argc, char *argv[] ){
 
-    Boolean verbose = false;
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+  Boolean verbose = false;
+  verbose = getenv("PEGASUS_TEST_VERBOSE");
 
-    Boolean unittests = false;
+  Boolean unittests = false;
+  
+  if (argc == 2 && !strcmp (argv[1],"unittests")) 
+    {
+      unittests = true;
 
-    if (argc == 2 && !strcmp (argv[1],"unittests"))
-    {
-        unittests = true;
     }
-    else if (argc == 2 && !strcmp (argv[1],"poststarttests"))
+  else if (argc == 2 && !strcmp (argv[1],"poststarttests")) 
     {
-        unittests = false;
+      unittests = false;
     }
+  else
+    {
+      cout << argv[0] << ": ERROR - paramater invalid must be either unittests or poststarttests" << endl;
+      exit(0);
+    }
+	
+try
+  {
+   //BEGIN TESTS....
+    if (unittests)
+      {
+	if (verbose)
+	  cout << argv[0] << " " << argv[1] << " +++++ operation " << endl;
+	drive_operation();
+
+	if (verbose)       
+	  cout << argv[0] << " " << argv[1] << " +++++ misc " << endl;  
+	drive_get_misc_functions();
+
+      }
     else
-    {
-        cout << argv[0]
-             << ": ERROR - paramater invalid must be either unittests or"
-               " poststarttests"
-             << endl;
-        exit(0);
-    }
+      {  
+	if (verbose)
+	  cout << argv[0] << " " << argv[1] << " +++++ primitive " << endl;
+	drive_resolve_primitive();
+   
+	if (verbose)
+	  cout << argv[0] << " " << argv[1] << " +++++ special " << endl;
+	drive_resolve_specialChars();
 
-    try
-    {
-        //BEGIN TESTS....
-        if (unittests)
-        {
-            if (verbose)
-               cout << argv[0] << " " << argv[1] << " +++++ operation " << endl;
-            drive_operation();
-
-            if (verbose)
-                cout << argv[0] << " " << argv[1] << " +++++ misc " << endl;
-            drive_get_misc_functions();
-
-        }
-        else
-        {
-            if (verbose)
-               cout << argv[0] << " " << argv[1] << " +++++ primitive " << endl;
-            drive_resolve_primitive();
-
-            if (verbose)
-                cout << argv[0] << " " << argv[1] << " +++++ special " << endl;
-            drive_resolve_specialChars();
-
-        }
-    //END TESTS....
-
+      }
+	//END TESTS....
+	     
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
 
-    }
-    catch(Exception e)
-    {
-        cout << e.getMessage() << endl;
-        PEGASUS_TEST_ASSERT(0);
-    }
-    return 0;
+  }
+catch(Exception e)
+  {
+    cout << e.getMessage() << endl;
+    PEGASUS_TEST_ASSERT(0);
+  } 
+ return 0;
 }
 

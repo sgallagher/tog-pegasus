@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +49,7 @@
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Repository/CIMRepository.h>
-#include "NormalizedSubscriptionTable.h"
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -202,18 +209,16 @@ public:
 
         @param   subscription      Input subscription instance
         @param   query             Output query for the filter
-        @param   sourceNameSpaces   Output source namespaces for the filter
+        @param   sourceNameSpace   Output source namespace for the filter
                                        subscription
         @param   queryLanguage     Output query language in which the filter
                                        query is expressed
-        @param   filterName        Output name of the filter
      */
     void getFilterProperties (
         const CIMInstance & subscription,
         String & query,
-        Array<CIMNamespaceName> &sourceNameSpaces,
-        String & queryLanguage,
-        String & filterName);
+        CIMNamespaceName & sourceNameSpace,
+        String & queryLanguage);
 
     /**
         Retrieves the values of the filter query and source namespace
@@ -221,13 +226,13 @@ public:
 
         @param   subscription      Input subscription instance
         @param   query             Output query for the filter
-        @param   sourceNameSpaces  Output source namespaces for the filter
+        @param   sourceNameSpace   Output source namespace for the filter
                                        subscription
      */
     void getFilterProperties (
         const CIMInstance & subscription,
         String & query,
-        Array<CIMNamespaceName> &sourceNameSpaces);
+        CIMNamespaceName & sourceNameSpace);
 
     /**
         Retrieves the value of the filter query property
@@ -281,7 +286,7 @@ public:
                  False otherwise
      */
     Boolean reconcileFatalError (
-        const CIMInstance &subscription);
+        const CIMInstance subscription);
 
     /**
         Retrieves the specified class object from the repository.
@@ -308,6 +313,7 @@ public:
 
         @param   nameSpace             the namespace
         @param   instanceName          the instance object path
+        @param   localOnly             return only local elements
         @param   includeQualifiers     return qualifier elements
         @param   includeClassOrigin    return ClassOrigin attribute
         @param   propertyList          return specified properties
@@ -317,6 +323,7 @@ public:
     CIMInstance getInstance (
         const CIMNamespaceName & nameSpace,
         const CIMObjectPath & instanceName,
+        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList & propertyList = CIMPropertyList ());
@@ -351,8 +358,10 @@ public:
         @param   nameSpace             the namespace
         @param   className             the class name
         @param   deepInheritance       return inherited properties
+        @param   localOnly             return only local elements
         @param   includeQualifiers     return qualifier elements
         @param   includeClassOrigin    return ClassOrigin attribute
+        @param   includeInheritance    return instances of subclasses
         @param   propertyList          return specified properties
 
         @return  Array of CIMInstance objects for the specified enumeration
@@ -360,8 +369,11 @@ public:
     Array <CIMInstance> enumerateInstancesForClass (
         const CIMNamespaceName & nameSpace,
         const CIMName & className,
+        Boolean deepInheritance = true,
+        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
+        Boolean includeInheritance = false,
         const CIMPropertyList & propertyList = CIMPropertyList ());
 
     /**
@@ -369,22 +381,15 @@ public:
 
         @param   nameSpace             the namespace
         @param   className             the class name
+        @param   includeInheritance    return names of instances of subclasses
 
         @return  Array of CIMObjectPath objects for the specified enumeration
      */
     Array <CIMObjectPath> enumerateInstanceNamesForClass (
         const CIMNamespaceName & nameSpace,
-        const CIMName & className);
+        const CIMName & className,
+        Boolean includeInheritance = true);
 
-    void getSourceNamespaces(
-        const CIMInstance &instance,
-        const CIMNamespaceName &defaultNameSpace,
-        Array<CIMNamespaceName> &sourceNamespaces);
-
-    void beginCreateSubscription(const CIMObjectPath &subPath);
-    void cancelCreateSubscription(const CIMObjectPath &subPath);
-    void commitCreateSubscription(const CIMObjectPath &subPath);
-    Uint32 getUncommittedCreateSubscriptionRequests();
 private:
 
     /**
@@ -409,13 +414,9 @@ private:
         @param   subscription          the subscription instance
      */
     void _deleteSubscription (
-        const CIMInstance &subscription);
+        const CIMInstance subscription);
 
     CIMRepository * _repository;
-
-    AutoPtr<NormalizedSubscriptionTable> _normalizedSubscriptionTable;
-    Mutex _normalizedSubscriptionTableMutex;
-    Uint32 _uncommittedCreateSubscriptionRequests;
 };
 
 PEGASUS_NAMESPACE_END

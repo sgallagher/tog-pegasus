@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Paulo F. Borges (pfborges@wowmail.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +63,7 @@ IPTestClient::IPTestClient(CIMClient &client)
 //
 //  Destructor for IP Test Client
 //
-IPTestClient::~IPTestClient()
+IPTestClient::~IPTestClient(void)
 {
 }
 
@@ -64,7 +71,8 @@ IPTestClient::~IPTestClient()
 //    @param - Text for error message
 //    @return - None, Terminates the program
 //    @exception - This function terminates the program
-void IPTestClient::_errorExit(const String& message)
+void
+IPTestClient::_errorExit(const String& message)
 {
     cerr << "Error: " << message << endl;
     cerr << "Re-run with verbose for details (IPTestClient -v)" << endl;
@@ -73,7 +81,8 @@ void IPTestClient::_errorExit(const String& message)
 
 // _testLog method used for messages to really stand out
 // for example, Test Start and Test Passed messages
-void IPTestClient::_testLog(const String& message)
+void
+IPTestClient::_testLog(const String& message)
 {
     cout << "+++ " << message << " +++" << endl;
 }
@@ -81,10 +90,9 @@ void IPTestClient::_testLog(const String& message)
 //
 //   _validateKeys method of the IP provider Test Client
 //
-void IPTestClient::_validateKeys(
-    CIMObjectPath &cimRef,
-    CIMName className,
-    Boolean verbose)
+void
+IPTestClient::_validateKeys(CIMObjectPath &cimRef, CIMName className,
+                                 Boolean verbose)
 {
    // don't have a try here - want it to be caught by caller
    CIMName keyName;
@@ -236,27 +244,15 @@ void IPTestClient::_validateKeys(
 
       } // end of keys for LANEndpoint
 
-      else if (className.equal(CLASS_PG_NEXT_HOP_IP_ROUTE))
-      {
-
-          if (keyName.equal(PROPERTY_INSTANCE_ID))
-          {
-              String keyVal = keyBindings[j].getValue();
-              _check_NHIPRoute_InstanceID(keyVal, verbose);
-          }
-
-      } // end of properties for PG_NexHopIPRoute
-
    } // end for loop of keys
 }
 
 //
 //   _validateProperties method of the IP provider Test Client
 //
-void IPTestClient::_validateProperties(
-    CIMInstance &inst,
-    CIMName className,
-    Boolean verbose)
+void
+IPTestClient::_validateProperties(CIMInstance &inst, CIMName className,
+                                   Boolean verbose)
 {
     if (verbose)
     {
@@ -406,34 +402,6 @@ void IPTestClient::_validateProperties(
                 _check_IPPEp_IPVersionSupport(propertyValue, verbose);
             }
 
-            else if (propertyName.equal(PROPERTY_PREFIX_LENGTH))
-            {
-                Uint8 propertyValue;
-                inst.getProperty(j).getValue().get(propertyValue);
-                _check_IPPEp_PrefixLength(propertyValue, verbose);
-            }
-
-            else if (propertyName.equal(PROPERTY_IPV6_ADDRESS))
-            {
-                String propertyValue;
-                inst.getProperty(j).getValue().get(propertyValue);
-                _check_IPPEp_IPv6Address(propertyValue, verbose);
-            }
-
-            else if (propertyName.equal(PROPERTY_IPV4_ADDRESS))
-            {
-                String propertyValue;
-                inst.getProperty(j).getValue().get(propertyValue);
-                _check_IPPEp_IPv4Address(propertyValue, verbose);
-            }
-
-            else if (propertyName.equal(PROPERTY_PROTOCOL_IF_TYPE))
-            {
-                Uint16 propertyValue;
-                inst.getProperty(j).getValue().get(propertyValue);
-                _check_IPPEp_ProtocolIFType(propertyValue, verbose);
-            }
-
         } // end of properties for IPProtocolEndpoint
 
         else if (className.equal(CLASS_PG_IP_ROUTE))
@@ -558,62 +526,7 @@ void IPTestClient::_validateProperties(
                 _check_IPRoute_DestinationMask(propertyValue, verbose);
             }
 
-        } // end of properties for IPRoute
-
-        else if (className.equal(CLASS_PG_NEXT_HOP_IP_ROUTE))
-        {
-
-            if (propertyName.equal(PROPERTY_NAME))
-            {
-                String propertyValue;
-                inst.getProperty(j).getValue().get(propertyValue);
-                _check_NHIPRoute_Name(propertyValue, verbose);
-            }
-
-            else if (propertyName.equal(PROPERTY_CAPTION))
-            {
-                String propertyValue;
-                inst.getProperty(j).getValue().get(propertyValue);
-                _check_NHIPRoute_Caption(propertyValue, verbose);
-            }
-
-            else if (propertyName.equal(PROPERTY_DESCRIPTION))
-            {
-                String propertyValue;
-                inst.getProperty(j).getValue().get(propertyValue);
-                _check_NHIPRoute_Description(propertyValue, verbose);
-            }
-
-            else if (propertyName.equal(PROPERTY_DESTINATION_ADDRESS))
-            {
-                String propertyValue;
-                inst.getProperty(j).getValue().get(propertyValue);
-                _check_NHIPRoute_DestinationAddress(propertyValue, verbose);
-            }
-
-            else if (propertyName.equal(PROPERTY_DESTINATION_MASK))
-            {
-                String propertyValue;
-                inst.getProperty(j).getValue().get(propertyValue);
-                _check_NHIPRoute_DestinationMask(propertyValue, verbose);
-            }
-
-            else if (propertyName.equal(PROPERTY_PREFIX_LENGTH))
-            {
-                Uint8 propertyValue;
-                inst.getProperty(j).getValue().get(propertyValue);
-                _check_NHIPRoute_PrefixLength(propertyValue, verbose);
-            }
-
-            else if (propertyName.equal(PROPERTY_ADDRESS_TYPE))
-            {
-                Uint16 propertyValue;
-                inst.getProperty(j).getValue().get(propertyValue);
-                _check_NHIPRoute_AddressType(propertyValue, verbose);
-            }
-
-        } // end of properties for PG_NextHopIPRoute.
-
+      } // end of properties for IPRoute
 
    }  // end for loop of all properties
 
@@ -623,15 +536,13 @@ void IPTestClient::_validateProperties(
 //
 //   testEnumerateInstanceNames of the IP provider.
 //
-void IPTestClient::testEI(
-    CIMClient &client,
-    CIMName className,
-    Boolean verbose)
+void
+IPTestClient::testEI(CIMClient &client, CIMName className,
+                                          Boolean verbose)
 {
     try
     {
-        _testLog("IPTestClient: Starting EIN for class " +
-            className.getString());
+        _testLog("IPTestClient: Starting EIN for class " + className.getString());
 
         Array<CIMObjectPath> cimReferences =
             client.enumerateInstanceNames(NAMESPACE, className);
@@ -647,7 +558,7 @@ void IPTestClient::testEI(
         for (Uint32 i = 0; i < numberInstances; i++)
         {
             CIMName className = cimReferences[i].getClassName();
-            if (cimReferences[i].getClassName() != className)
+            if (!(className.equal(className.getString())))
             {
                 _errorExit("EnumInstanceNames failed - wrong class");
             }
@@ -670,10 +581,9 @@ void IPTestClient::testEI(
 //
 //   testEnumerateInstances of the IP provider.
 //
-void IPTestClient::testEIN(
-    CIMClient &client,
-    CIMName className,
-    Boolean verbose)
+void
+IPTestClient::testEIN(CIMClient &client, CIMName className,
+                                          Boolean verbose)
 {
     try
     {
@@ -682,8 +592,7 @@ void IPTestClient::testEIN(
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
 
-        _testLog("IPTestClient: Starting EI for class " +
-            className.getString());
+        _testLog("IPTestClient: Starting EI for class " + className.getString());
 
         Array<CIMInstance> cimNInstances =
             client.enumerateInstances(NAMESPACE, className,
@@ -730,19 +639,18 @@ void IPTestClient::testEIN(
 //
 //   testGetInstance of the IP provider.
 //
-void IPTestClient::testGI(
-    CIMClient &client,
-    CIMName className,
-    Boolean verbose)
+void
+IPTestClient::testGI(CIMClient &client, CIMName className,
+                                    Boolean verbose)
 {
     try
     {
-        _testLog("IPTestClient: Starting GI for class " +
-            className.getString());
+        _testLog("IPTestClient: Starting GI for class " + className.getString());
 
         // first do an EnumerateInstanceNames - select one to play with
         // doesn't hurt to keep testing enumerate :-)
 
+        Boolean deepInheritance = true;
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
@@ -872,10 +780,6 @@ int main(int argc, char** argv)
         testClient.testEIN(client, CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT, verbose);
         testClient.testEI(client, CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT, verbose);
         testClient.testGI(client, CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT, verbose);
-
-        testClient.testEIN(client, CLASS_PG_NEXT_HOP_IP_ROUTE, verbose);
-        testClient.testEI(client, CLASS_PG_NEXT_HOP_IP_ROUTE, verbose);
-        testClient.testGI(client, CLASS_PG_NEXT_HOP_IP_ROUTE, verbose);
 
         cout << "IPTestClient disconnecting from CIMOM " << endl;
         client.disconnect();

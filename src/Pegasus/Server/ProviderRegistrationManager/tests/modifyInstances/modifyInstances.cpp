@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,15 +42,12 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
-#include \
-    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static Boolean verbose;
-#define VCOUT if (verbose) cout
-
+Boolean verbose = false;
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 const CIMName CLASSNAME = CIMName ("PG_ProviderModule");
@@ -59,16 +65,12 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
 
     CIMInstance cimInstance(CLASSNAME);
 
-    cimInstance.addProperty(CIMProperty(CIMName ("Name"),
-        String("providersModule1")));
+    cimInstance.addProperty(CIMProperty(CIMName ("Name"), String("providersModule1")));
     cimInstance.addProperty(CIMProperty(CIMName ("Vendor"), String("HP")));
     cimInstance.addProperty(CIMProperty(CIMName ("Version"), String("2.0")));
-    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"),
-        String("PG_DefaultC++")));
-    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"),
-        String("2.0")));
-    cimInstance.addProperty(CIMProperty(CIMName ("Location"),
-        String("/tmp/module1")));
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"), String("PG_DefaultC++")));
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"), String("2.0")));
+    cimInstance.addProperty(CIMProperty(CIMName ("Location"), String("/tmp/module1")));
 
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
 
@@ -81,7 +83,7 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
     }
     catch(CIMException& e)
     {
-        throw (e);
+	throw (e);
     }
 
     // create PG_Provider instances
@@ -92,10 +94,8 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
 
     CIMInstance cimInstance2(CLASSNAME2);
 
-    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
-        String("providersModule1")));
-    cimInstance2.addProperty(CIMProperty(CIMName ("Name"),
-        String("PG_ProviderInstance1")));
+    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"), String("providersModule1")));
+    cimInstance2.addProperty(CIMProperty(CIMName ("Name"), String("PG_ProviderInstance1")));
 
     CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
 
@@ -104,7 +104,7 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
 
     try
     {
-        returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
+	returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
     }
     catch(CIMException& e)
     {
@@ -138,28 +138,28 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
-        String("providersModule1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"),
-        String("PG_ProviderInstance1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"),
-        String("capability1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"),
-        String("TestSoftwarePkg")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"), String("providersModule1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"), String("PG_ProviderInstance1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"), String("capability1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"), String("TestSoftwarePkg")));
     cimInstance3.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"),
-        providerType));
-    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"),
-        supportedMethods));
-    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedProperties"),
-        supportedProperties));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"), providerType));
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"), supportedMethods));
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedProperties"), supportedProperties));
 
     CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
 
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
 
-    returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
+    try
+    {
+        returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
+    }
+    catch(const CIMException&)
+    {
+        throw;
+    }
 
     // create CIMObjectPath
     Array<CIMKeyBinding> keys;
@@ -189,63 +189,22 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
     supportedMethods2.append("test_method3");
 
     cimInstance4.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces2));
-    cimInstance4.addProperty(CIMProperty(CIMName ("SupportedMethods"),
-        supportedMethods2));
+    cimInstance4.addProperty(CIMProperty(CIMName ("SupportedMethods"), supportedMethods2));
 
     propertyList.append(CIMName ("Namespaces"));
     propertyList.append(CIMName ("SupportedMethods"));
 
-    prmanager.modifyInstance(instanceName3, cimInstance4, false, propertyList);
-
-    // create Instance which will Error when trying to modify instance because
-    // key bad ProviderModuleName does not exist
-    CIMObjectPath returnRef5;
-
-    CIMClass cimClass5(CLASSNAME3);
-
-    CIMInstance cimInstance5(CLASSNAME3);
-
-    cimInstance5.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
-        String("providersModuleNoExist")));
-    cimInstance5.addProperty(CIMProperty(CIMName ("ProviderName"),
-        String("PG_ProviderInstance1")));
-    cimInstance5.addProperty(CIMProperty(CIMName ("CapabilityID"),
-        String("capability1")));
-    cimInstance5.addProperty(CIMProperty(CIMName ("ClassName"),
-        String("TestSoftwarePkg")));
-    cimInstance5.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces));
-    cimInstance5.addProperty(CIMProperty(CIMName ("ProviderType"),
-        providerType));
-    cimInstance5.addProperty(CIMProperty(CIMName ("SupportedMethods"),
-        supportedMethods));
-    cimInstance5.addProperty(CIMProperty(CIMName ("SupportedProperties"),
-        supportedProperties));
-
-    CIMObjectPath instanceName5 = cimInstance5.buildPath(CLASSNAME3);
-
-    instanceName5.setNameSpace(NAMESPACE);
-    instanceName5.setClassName(CLASSNAME3);
-
-    // Test failure to modify because key does not exist
-    Boolean callFailed = false;
     try
     {
-        prmanager.modifyInstance(
-            instanceName5, cimInstance4, false, propertyList);
+        prmanager.modifyInstance(instanceName3, cimInstance4, false, propertyList);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        callFailed = true;
-        VCOUT << "CIMException code " << e.getCode()
-            << "(" << cimStatusCodeToString(e.getCode()) << ")"
-            <<  "\nDescription \"" << e.getMessage() << "\"" << endl;
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+        throw;
     }
-    PEGASUS_TEST_ASSERT(callFailed);
-
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;
@@ -267,19 +226,18 @@ int main(int, char** argv)
 
     try
     {
-        TestModifyInstances(prmanager);
+	TestModifyInstances(prmanager);
     }
 
     catch(Exception& e)
     {
-    PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-    PEGASUS_STD (cout) << argv[0] << " +++++ modify instances failed"
-                       << PEGASUS_STD (endl);
-    exit(-1);
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	PEGASUS_STD (cout) << argv[0] << " +++++ modify instances failed"
+                           << PEGASUS_STD (endl);
+	exit(-1);
     }
 
-    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests"
-                      << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD(endl);
 
-    return 0;
+    exit (0);
 }

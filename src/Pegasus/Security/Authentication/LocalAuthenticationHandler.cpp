@@ -1,46 +1,47 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:  Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
+//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 
 #include "SecureLocalAuthenticator.h"
 #include "LocalAuthenticationHandler.h"
 
-#ifdef PEGASUS_ZOS_SECURITY
-// This include file will not be provided in the OpenGroup CVS for now.
-// Do NOT try to include it in your compile
-# include <Pegasus/Common/safCheckzOS_inline.h>
-#endif
 
 PEGASUS_USING_STD;
 
@@ -49,37 +50,38 @@ PEGASUS_NAMESPACE_BEGIN
 
 LocalAuthenticationHandler::LocalAuthenticationHandler()
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
        "LocalAuthenticationHandler::LocalAuthenticationHandler()");
 
-    _localAuthenticator.reset(
-        (LocalAuthenticator*) new SecureLocalAuthenticator());
+    _localAuthenticator.reset((LocalAuthenticator*) new SecureLocalAuthenticator());
 
     PEG_METHOD_EXIT();
 }
 
 LocalAuthenticationHandler::~LocalAuthenticationHandler()
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
         "LocalAuthenticationHandler::~LocalAuthenticationHandler()");
 
     PEG_METHOD_EXIT();
 }
 
-AuthenticationStatus LocalAuthenticationHandler::authenticate(
+Boolean LocalAuthenticationHandler::authenticate(    
     const String& authHeader,
     AuthenticationInfo* authInfo)
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
         "LocalAuthenticationHandler::authenticate()");
+
+    Boolean authenticated   = false; 
 
     // Look for ':' seperator
     Uint32 colon1 = authHeader.find(':');
 
-    if (colon1 == PEG_NOT_FOUND)
+    if ( colon1 == PEG_NOT_FOUND )
     {
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return ( authenticated );
     }
 
     String userName = authHeader.subString(0, colon1);
@@ -91,113 +93,44 @@ AuthenticationStatus LocalAuthenticationHandler::authenticate(
 
     String secretReceived;
 
-    if (colon2 == PEG_NOT_FOUND)
+    if ( colon2 == PEG_NOT_FOUND )
     {
         filePath = String::EMPTY;
 
-        secretReceived = authHeader.subString(colon1 + 1);
+        secretReceived = authHeader.subString( colon1 + 1 );    
     }
     else
     {
-        filePath = authHeader.subString(colon1 + 1, (colon2 - colon1 - 1));
+        filePath = authHeader.subString( colon1 + 1, (colon2 - colon1 - 1) );
 
-        secretReceived = authHeader.subString(colon2 + 1);
-    }
-
-    //
-    // Check for the expected file path in the authentication header
-    //
-    if (filePath != authInfo->getLocalAuthFilePath())
-    {
-        PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
-    }
-
-    //
-    // Check if the authentication information is present
-    //
-    if (secretReceived.size() == 0 || userName.size() == 0)
-    {
-        PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
-    }
-
-    String authenticatedUsername = authInfo->getAuthenticatedUser();
-
-    //
-    // If this connection has been previously authenticated then ensure
-    // the username passed with the current request matches the
-    // username previously authenticated.
-    //
-    if (authenticatedUsername.size() != 0 &&
-        userName != authenticatedUsername)
-    {
-        PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        secretReceived = authHeader.subString( colon2 + 1 );    
     }
 
     //
     // Check if the user is a valid system user
     //
-    if (!System::isSystemUser(userName.getCString()))
+    if ( !System::isSystemUser( userName.getCString() ) )
     {
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return (authenticated);
     }
 
-    // Check if the user is authorized to CIMSERV
-#ifdef PEGASUS_ZOS_SECURITY
-    if (!CheckProfileCIMSERVclassWBEM(userName, __READ_RESOURCE))
-    {
-        Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
-            MessageLoaderParms(
-                "Security.Authentication.LocalAuthenticationHandler."
-                    "NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
-                "Request UserID $0 doesn't have READ permission "
-                    "to profile CIMSERV CL(WBEM).",
-                userName));
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
-    }
-#endif
+    authenticated = _localAuthenticator->authenticate(filePath, 
+        secretReceived, authInfo->getAuthChallenge());
 
-    // It is not necessary to check remote privileged user access for local
-    // connections; set the flag to "check done"
-    authInfo->setRemotePrivilegedUserAccessChecked();
-
-    // Authenticate
-    AuthenticationStatus authStatus = _localAuthenticator->authenticate(
-        filePath, secretReceived, authInfo->getLocalAuthSecret());
-
-    if (authStatus.isSuccess())
+    if (authenticated)
     {
         authInfo->setAuthenticatedUser(userName);
-        // For Privilege Separation, remember the secret on subsequent requests
-        authInfo->setLocalAuthSecret(secretReceived);
     }
-    else
-    {
-        // log a failed authentication
-        Logger::put_l(
-            Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            MessageLoaderParms(
-                "Security.Authentication.LocalAuthenticationHandler."
-                    "LOCAL_AUTHENTICATION_FAILURE",
-                "Local Authentication failed for user $0 from client "
-                "IP address $1.",userName,authInfo->getIpAddress()));
-    }
-
-    PEG_AUDIT_LOG(logLocalAuthentication(userName, authStatus.isSuccess()));
 
     PEG_METHOD_EXIT();
 
-    return authStatus;
+    return ( authenticated );
 }
 
-AuthenticationStatus LocalAuthenticationHandler::validateUser(
-    const String& userName,
-    AuthenticationInfo* authInfo)
+Boolean LocalAuthenticationHandler::validateUser(const String& userName)
 {
-    return _localAuthenticator->validateUser(userName,authInfo);
+    return _localAuthenticator->validateUser(userName);
 }
 
 String LocalAuthenticationHandler::getAuthResponseHeader(
@@ -205,31 +138,28 @@ String LocalAuthenticationHandler::getAuthResponseHeader(
     const String& userName,
     AuthenticationInfo* authInfo)
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
         "LocalAuthenticationHandler::getAuthResponseHeader()");
 
-    String secret;
-    String filePath;
-    String authResp;
+    String challenge = String::EMPTY;
+    String authResp = String::EMPTY;
 
     //
     // Check if the user is a valid system user
     //
-    if (!System::isSystemUser(userName.getCString()))
+    if ( !System::isSystemUser( userName.getCString() ) )
     {
         PEG_METHOD_EXIT();
-        return authResp;
+        return ( authResp );
     }
 
-    authResp = _localAuthenticator->getAuthResponseHeader(
-        authType, userName, filePath, secret);
+    authResp = _localAuthenticator->getAuthResponseHeader(authType, userName, challenge);
 
-    authInfo->setLocalAuthFilePath(filePath);
-    authInfo->setLocalAuthSecret(secret);
+    authInfo->setAuthChallenge(challenge);
 
     PEG_METHOD_EXIT();
 
-    return authResp;
+    return ( authResp );
 }
 
 PEGASUS_NAMESPACE_END

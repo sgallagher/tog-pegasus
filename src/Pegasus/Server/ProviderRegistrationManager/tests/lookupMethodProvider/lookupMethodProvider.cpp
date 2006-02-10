@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,14 +42,12 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
-#include \
-    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static Boolean verbose;
-#define VCOUT if (verbose) cout
+Boolean verbose = false;
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/test");
 const CIMName CLASSNAME = CIMName ("PG_ProviderModule");
@@ -77,7 +84,7 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
 
     try
     {
-        returnRef = prmanager.createInstance(instanceName, cimInstance);
+    	returnRef = prmanager.createInstance(instanceName, cimInstance);
     }
     catch(const CIMException&)
     {
@@ -104,7 +111,7 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
 
     try
     {
-        returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
+    	returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
     }
     catch(const CIMException&)
     {
@@ -155,7 +162,7 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
 
     try
     {
-        returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
+    	returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
     }
     catch(const CIMException&)
     {
@@ -175,57 +182,32 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
         CIMName ("test_class1"), CIMName ("test_method2"),
         providerIns, providerModuleIns))
     {
-        providerIns.getProperty(providerIns.findProperty
-            (CIMName ("ProviderModuleName"))).getValue().get
-                (_providerModuleName);
+	providerIns.getProperty(providerIns.findProperty
+	    (CIMName ("ProviderModuleName"))).getValue().get
+            (_providerModuleName);
 
-        providerModuleIns.getProperty(providerModuleIns.findProperty
-                (CIMName ("Name"))).getValue().get(_providerModuleName2);
+	providerModuleIns.getProperty(providerModuleIns.findProperty
+            (CIMName ("Name"))).getValue().get(_providerModuleName2);
 
-        if (String::equal(_providerModuleName, _providerModuleName2))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+	if (String::equal(_providerModuleName, _providerModuleName2))
+	{
+	    return (true);
+	}
+	else
+	{
+	    return (false);
+	}
     }
     else
     {
-        return false;
+	return (false);
     }
 }
 
-void TestLookupMethodProviderFailures(ProviderRegistrationManager & prmanager)
-{
-    VCOUT << "TestLookupMethodProviderFailures" << endl;
-    CIMInstance providerIns;
-    CIMInstance providerModuleIns;
-
-    // Test by modifying each of the input parameters to value that 
-    // does not exist. Each case should return false
-
-    PEGASUS_TEST_ASSERT(!prmanager.lookupMethodProvider(
-        CIMNamespaceName ("test_namespaceNotExist"),
-        CIMName ("test_class1"), CIMName ("test_method2"),
-        providerIns, providerModuleIns));
-
-    PEGASUS_TEST_ASSERT(!prmanager.lookupMethodProvider(
-        CIMNamespaceName ("test_namespace1"),
-        CIMName ("test_classNotExist"), CIMName ("test_method2"),
-        providerIns, providerModuleIns));
-
-    PEGASUS_TEST_ASSERT(!prmanager.lookupMethodProvider(
-        CIMNamespaceName ("test_namespace1"),
-        CIMName ("test_class1"), CIMName ("test_methodNotExist"),
-        providerIns, providerModuleIns));
-}
-
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-    VCOUT << argv[0] << ": started" << endl;
+    if (verbose) cout << argv[0] << ": started" << endl;
 
     const char* tmpDir = getenv ("PEGASUS_TMP");
     String repositoryRoot;
@@ -243,25 +225,22 @@ int main(int, char** argv)
 
     try
     {
-        if (!TestLookupMethodProvider(prmanager))
-        {
-            PEGASUS_STD(cerr) << "Error: lookupMethodProvider Failed"
-                << PEGASUS_STD(endl);
-            exit (-1);
-        }
-        TestLookupMethodProviderFailures(prmanager);
+	if (!TestLookupMethodProvider(prmanager))
+	{
+	    PEGASUS_STD(cerr) << "Error: lookupMethodProvider Failed" << PEGASUS_STD(endl);
+	    exit (-1);
+	}
     }
+
     catch(Exception& e)
     {
-    PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-    PEGASUS_STD (cout) << argv[0] << " +++++ lookup method provider failed"
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	PEGASUS_STD (cout) << argv[0] << " +++++ lookup method provider failed"
                            << PEGASUS_STD (endl);
-    exit(-1);
+	exit(-1);
     }
 
+    PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests" << PEGASUS_STD(endl);
 
-    PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests"
-        << PEGASUS_STD(endl);
-
-    return 0;
+    exit (0);
 }

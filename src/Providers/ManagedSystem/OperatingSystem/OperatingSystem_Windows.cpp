@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Alagaraja Ramasubramanian (alags_raj@in.ibm.com)
+//              Alex Dunfey (dunfey_alexander@emc.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -35,18 +44,17 @@
 #include <psapi.h>
 #include <pdh.h>
 #endif
-#include <Pegasus/Provider/ProviderException.h>
 
 #include "OperatingSystem.h"
 
 #include <sstream>
 #include <iomanip>
 
-OperatingSystem::OperatingSystem()
+OperatingSystem::OperatingSystem(void)
 {
 }
 
-OperatingSystem::~OperatingSystem()
+OperatingSystem::~OperatingSystem(void)
 {
 }
 
@@ -188,12 +196,11 @@ Boolean OperatingSystem::getVersion(String& osVersion)
 
    std::stringstream ss;
 
-   ss << ver.dwMajorVersion << '.' << ver.dwMinorVersion << '.' <<
-      ver.dwBuildNumber;
+   ss << ver.dwMajorVersion << '.' << ver.dwMinorVersion << '.' << ver.dwBuildNumber;
 
    osVersion = ss.str().c_str();
 
-   return true;
+   return(true);
 }
 
 Boolean OperatingSystem::getOSType(Uint16& osType)
@@ -253,7 +260,7 @@ Boolean OperatingSystem::getOSType(Uint16& osType)
            break;
    }
 
-   return true;
+   return(true);
 }
 
 Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
@@ -271,8 +278,7 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
         sysUpTime *= (1000 * 1000);
 
         CIMDateTime currentTime = CIMDateTime::getCurrentDateTime();
-        CIMDateTime bootTime =
-            CIMDateTime(currentTime.toMicroSeconds() - sysUpTime, false);
+        CIMDateTime bootTime = CIMDateTime(currentTime.toMicroSeconds() - sysUpTime, false);
 
         // adjust UTC offset
         String s1 = currentTime.toString();
@@ -285,10 +291,10 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 
         lastBootUpTime = CIMDateTime(s2);
 
-        return true;
+        return(true);
     }
 
-    return false;
+    return(false);
 }
 
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
@@ -319,7 +325,7 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 
    localDateTime = CIMDateTime (String (ss.str().c_str()));
 
-   return true;
+   return(true);
 }
 
 Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
@@ -340,28 +346,17 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
    case TIME_ZONE_ID_DAYLIGHT:
       currentTimeZone = (Sint16)timezone.Bias + (Sint16)timezone.DaylightBias;
       break;
-   case TIME_ZONE_ID_INVALID:
-   {
-       char exceptionMsg[100] = "";
-       sprintf (
-           exceptionMsg,
-           "Invalid time zone information : %d",
-           GetLastError());
-       throw CIMOperationFailedException(exceptionMsg);
-   }
    default:
       break;
    }
 
-   // the bias used to calculate the time zone is a factor that is used to
-   // determine the UTC time from the local time. to get the UTC offset from
-   // the local time, use the inverse.
-   if(currentTimeZone != 0)
-   {
+   // the bias used to calculate the time zone is a factor that is used to determine the
+   // UTC time from the local time. to get the UTC offset from the local time, use the inverse.
+   if(currentTimeZone != 0) {
       currentTimeZone *= -1;
    }
 
-   return true;
+   return(true);
 }
 
 Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32& numberOfLicensedUsers)
@@ -378,7 +373,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
 {
     numberOfProcesses = 0;
 
-#if (_MSC_VER >= 1300) || defined(PEGASUS_WINDOWS_SDK_HOME)
+    #if (_MSC_VER >= 1300) || defined(PEGASUS_WINDOWS_SDK_HOME)
     DWORD processHandles[1024];
     DWORD size = 0;
 
@@ -388,13 +383,13 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
             sizeof(processHandles),
             &size);
 
-    if ((rc == TRUE) && (sizeof(processHandles) != size))
+    if((rc == TRUE) && (sizeof(processHandles) != size))
     {
         numberOfProcesses = size / sizeof(processHandles[0]);
     }
-#endif
+    #endif
 
-    return (numberOfProcesses == 0 ? false : true);
+    return(numberOfProcesses == 0 ? false : true);
 }
 
 Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
@@ -441,7 +436,7 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
 
    freeVirtualMemory = mem.dwAvailVirtual / 1024;
 
-   return true;
+   return(true);
 }
 
 Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
@@ -458,7 +453,7 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 
    total = mem.dwAvailPhys / 1024;
 
-   return true;
+   return(true);
 }
 
 Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
@@ -495,11 +490,11 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
 
    total = mem.dwTotalPageFile / 1024;
 
-   return true;
+   return(true);
 }
 
 Boolean OperatingSystem::getFreeSpaceInPagingFiles(
-    Uint64& freeSpaceInPagingFiles)
+                                              Uint64& freeSpaceInPagingFiles)
 {
    freeSpaceInPagingFiles = 0;
 
@@ -513,7 +508,7 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(
 
    freeSpaceInPagingFiles = mem.dwAvailPageFile / 1024;
 
-   return true;
+   return(true);
 }
 
 Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
@@ -531,7 +526,7 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
                  reinterpret_cast<char *>(sys.lpMinimumApplicationAddress))
                                 / 1024;
 
-   return true;
+   return(true);
 }
 
 Boolean OperatingSystem::getDistributed(Boolean& distributed)
@@ -592,7 +587,7 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
     }
     #endif
 
-    return (mUpTime == 0 ? false : true);
+    return(mUpTime == 0 ? false : true);
 }
 
 Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)

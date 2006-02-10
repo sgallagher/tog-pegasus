@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,9 +41,7 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/Constants.h>
-// NOCHKSRC
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
-// DOCHKSRC
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -56,15 +61,15 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance(CLASSNAME);
 
-    cimInstance.addProperty(CIMProperty(CIMName ("Name"),
+    cimInstance.addProperty(CIMProperty(CIMName ("Name"), 
         String("providersModule1")));
     cimInstance.addProperty(CIMProperty(CIMName ("Vendor"), String("HP")));
     cimInstance.addProperty(CIMProperty(CIMName ("Version"), String("2.0")));
-    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"),
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"), 
         String("C++Default")));
-    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"),
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"), 
         String("2.1.0")));
-    cimInstance.addProperty(CIMProperty(CIMName ("Location"),
+    cimInstance.addProperty(CIMProperty(CIMName ("Location"), 
         String("/tmp/module1")));
 
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
@@ -72,8 +77,14 @@ void TestCreateInstances(CIMClient& client)
     instanceName.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName.setClassName(CLASSNAME);
 
-    returnRef =
-        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
+    try
+    {
+        returnRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
+    }
+    catch(const CIMException&)
+    {
+        throw;
+    }
 
     // Test create PG_Provider instances
 
@@ -83,9 +94,9 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance2(CLASSNAME2);
 
-    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
+    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
         String("providersModule1")));
-    cimInstance2.addProperty(CIMProperty(CIMName ("Name"),
+    cimInstance2.addProperty(CIMProperty(CIMName ("Name"), 
         String("PG_ProviderInstance1")));
 
     CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
@@ -93,8 +104,14 @@ void TestCreateInstances(CIMClient& client)
     instanceName2.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName2.setClassName(CLASSNAME2);
 
-    returnRef2 =
-        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
+    try
+    {
+        returnRef2 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
+    }
+    catch(const CIMException&)
+    {
+        throw;
+    }
 
     //
     // test create provider capability instances
@@ -107,7 +124,7 @@ void TestCreateInstances(CIMClient& client)
 
     namespaces.append("root/cimv2");
     namespaces.append("root/cimv3");
-
+    
     providerType.append(4);
     providerType.append(5);
 
@@ -123,20 +140,20 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
         String("providersModule1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"),
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"), 
         String("PG_ProviderInstance1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"),
+    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"), 
         String("capability1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"),
+    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"), 
         String("TestSoftwarePkg")));
     cimInstance3.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"),
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"), 
         providerType));
-    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"),
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"), 
         supportedMethods));
-    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedProperties"),
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedProperties"), 
         supportedProperties));
 
     CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
@@ -144,10 +161,16 @@ void TestCreateInstances(CIMClient& client)
     instanceName3.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName3.setClassName(CLASSNAME3);
 
-    returnRef3 =
-        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
+    try
+    {
+        returnRef3 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
+    }
+    catch(const CIMException&)
+    {
+        throw;
+    }
 
-    CIMKeyBinding kb1(CIMName ("Name"), "providersModule1",
+    CIMKeyBinding kb1(CIMName ("Name"), "providersModule1", 
         CIMKeyBinding::STRING);
     Array<CIMKeyBinding> keys;
     keys.append(kb1);
@@ -155,40 +178,60 @@ void TestCreateInstances(CIMClient& client)
     instanceName.setKeyBindings(keys);
 
     // test getInstance
-    client.getInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
+    try
+    {
+    	client.getInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
+    }
+    catch(const CIMException&)
+    {
+        throw;
+    }
 
     // test enumerateInstances
-    client.enumerateInstances(
-        PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+    try
+    {
+    	client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+    }
+    catch(const CIMException&)
+    {
+        throw;
+    }
 
     // test enumerateInstanceNames
-    client.enumerateInstanceNames(
-        PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+    try
+    {
+    	client.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+    }
+    catch(const CIMException&)
+    {
+        throw;
+    }
+
 
     client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
 }
 
-int main()
+int main(int argc, char** argv)
 {
 
 
     try
     {
-        CIMClient client;
-
-        client.connectLocal();
-        TestCreateInstances(client);
+	CIMClient client;
+	
+	client.connectLocal();
+	TestCreateInstances(client);
     }
 
     catch(Exception& e)
     {
-        PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-        PEGASUS_STD (cout) << "+++++ create instances failed"
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	PEGASUS_STD (cout) << "+++++ create instances failed"
                            << PEGASUS_STD (endl);
-        exit(-1);
+	exit(-1);
     }
 
     PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
-
-    return 0;
+    
+    exit (0);
 }

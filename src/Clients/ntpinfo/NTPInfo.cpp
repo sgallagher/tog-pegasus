@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,9 +42,9 @@
 // ntpinfo client that does an enumerateInstances of the
 // PG_NTPService class and displays properties of interest.
 
-// At this time, there is only one instance of PG_NTPService.
+// At this time, there is only one instance of PG_NTPService. 
 
-#include "NTPInfo.h"
+#include "NTPInfo.h" 
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -51,18 +57,18 @@ PEGASUS_USING_STD;
 
 NTPInfo::NTPInfo(void)
 {
-    ntpSystemName = String::EMPTY;
-    ntpSystemCreationClassName = String::EMPTY;
-    ntpName = String::EMPTY;
-    ntpCreationClassName = String::EMPTY;
-    ntpCaption = String::EMPTY;
-    ntpDescription = String::EMPTY;
-    ntpServerAddress = NULL;
+   ntpSystemName = String::EMPTY;
+   ntpSystemCreationClassName = String::EMPTY;
+   ntpName = String::EMPTY;
+   ntpCreationClassName = String::EMPTY;
+   ntpCaption = String::EMPTY;
+   ntpDescription = String::EMPTY;
+   ntpServerAddress = NULL;
 }
 
 NTPInfo::~NTPInfo(void)
 {
-}
+}         
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -81,10 +87,10 @@ void NTPInfo::errorExit(const String& message)
 */
 void NTPInfo::_usage()
 {
-    cerr << "Usage: osinfo [-c]" << endl;
-    cerr << "Example:" << endl;
-    cerr << "  ntpinfo " << endl;
-    cerr << "  ntpinfo -c " << endl;
+  cerr << "Usage: osinfo [-c]" << endl;
+  cerr << "Example:" << endl;
+  cerr << "  ntpinfo " << endl;
+  cerr << "  ntpinfo -c " << endl;
 }
 
 /**
@@ -99,8 +105,7 @@ void NTPInfo::displayProperties()
 
    // expect to have values for the keys (even if Unknown)
    cout << "  System Name                : " << ntpSystemName << endl;
-   cout << "  System Creation Class Name : "
-        << ntpSystemCreationClassName << endl;
+   cout << "  System Creation Class Name : " << ntpSystemCreationClassName << endl;
    cout << "  Name                       : " << ntpName << endl;
    cout << "  Creation Class Name        : " << ntpCreationClassName << endl;
    cout << "  Caption                    : " << ntpCaption << endl;
@@ -123,7 +128,7 @@ void NTPInfo::displayProperties()
 /**
    gatherProperties method of the osinfo Test Client
   */
-void NTPInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
+void NTPInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat) 
 {
    // don't have a try here - want it to be caught by caller
 
@@ -142,10 +147,10 @@ void NTPInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
       {
          inst.getProperty(j).getValue().get(ntpSystemCreationClassName);
       }  // end if SystemCreationClassName
-
+      
       if (propertyName.equal (CIMName ("Name")))
       {
-         inst.getProperty(j).getValue().get(ntpName);
+         inst.getProperty(j).getValue().get(ntpName); 
       }  // end if Name
 
       if (propertyName.equal (CIMName ("CreationClassName")))
@@ -155,29 +160,29 @@ void NTPInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
 
       if (propertyName.equal (CIMName ("Caption")))
       {
-         inst.getProperty(j).getValue().get(ntpCaption);
+         inst.getProperty(j).getValue().get(ntpCaption); 
       }  // end if Caption
 
       if (propertyName.equal (CIMName ("Description")))
       {
-         inst.getProperty(j).getValue().get(ntpDescription);
-      }  // end if Description
+         inst.getProperty(j).getValue().get(ntpDescription); 
+      }  // end if Description 
 
       if (propertyName.equal (CIMName ("ServerAddress")))
       {
-         inst.getProperty(j).getValue().get(ntpServerAddress);
-      }  // end if ServerAddress
+         inst.getProperty(j).getValue().get(ntpServerAddress); 
+      }  // end if ServerAddress 
    }  // end of for looping through properties
 }
 
-/*
-   getNTPInfo of the NTP provider.
+/* 
+   getNTPInfo of the NTP provider. 
 */
 void NTPInfo::getNTPInfo(const int argc, const char** argv)
 {
 
 // ATTN-SLC-16-May-02-P1  enhance to take host & user info
-//  Decided to keep local only for first release
+//  Decided to keep local only for first release 
 
     Boolean cimFormat = false;
 
@@ -214,20 +219,20 @@ void NTPInfo::getNTPInfo(const int argc, const char** argv)
         // in milliseconds, thus setting to one minute
         CIMClient client;
         client.setTimeout(60 * 1000);
-        client.connectLocal();
-
+	client.connectLocal();
+        
         Boolean deepInheritance = true;
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
         Uint32 numberInstances;
 
-        Array<CIMInstance> cimNInstances =
-           client.enumerateInstances(NAMESPACE, CLASSNAME,
-                                     deepInheritance,
-                                     localOnly,  includeQualifiers,
-                                     includeClassOrigin );
-
+        Array<CIMInstance> cimNInstances = 
+	       client.enumerateInstances(NAMESPACE, CLASSNAME, 
+                                         deepInheritance,
+				         localOnly,  includeQualifiers,
+				         includeClassOrigin );
+	  
         numberInstances = cimNInstances.size();
 
         // while we only have one instance (the running OS), we can take the
@@ -244,14 +249,14 @@ void NTPInfo::getNTPInfo(const int argc, const char** argv)
 
            // first gather the interesting properties
            gatherProperties(cimNInstances[i], cimFormat);
-
+         
            // then display them
            displayProperties();
 
       }   // end for looping through instances
-
-    }  // end try
-
+    
+    }  // end try 
+   
     catch(Exception& e)
     {
       errorExit(e.getMessage());

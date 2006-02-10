@@ -1,32 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Amit K Arora, IBM (amitarora@in.ibm.com) - PEP 193
 //
-//////////////////////////////////////////////////////////////////////////
-//
+// Modified By: Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2468,#2491
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,10 +39,9 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMName.h>
-//NOCHKSRC
 #include <Pegasus/ControlProviders/QueryCapabilitiesProvider/CIMQueryCapabilitiesProvider.h>
-// DOCHKSRC
 #include <iostream>
+
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -66,23 +70,23 @@ void _checkIfReturnedValueIsCorrect(Array<Uint16>& providerReturnedVal)
 
    Array<Uint16> actualVal(NUM_QUERY_CAPABILITIES);
 
-   if (providerReturnedVal.size() != (unsigned)NUM_QUERY_CAPABILITIES)
+   if(providerReturnedVal.size() != (unsigned)NUM_QUERY_CAPABILITIES)
    {
-      throw Exception(
-          "Number of capabilities returned by the Provider "
-              "does not match the actual value.");
+      Exception e("Number of capabilities returned by the Provider does not match the actual value.");
+      throw e;
    }
 
    getFeatureSet(actualVal);
 
-   for (unsigned int j=0; j<(unsigned)NUM_QUERY_CAPABILITIES; j++)
+   for(unsigned int j=0; j<(unsigned)NUM_QUERY_CAPABILITIES; j++)
    {
-     if (providerReturnedVal[j] != actualVal[j])
+     if(providerReturnedVal[j] != actualVal[j])
      {
         char msg[1024];
-        sprintf(msg, "Expected capability value=%hu, returned=%hu.",
+        sprintf(msg, "Expected capability value=%u, returned=%d.",
                 actualVal[j], providerReturnedVal[j]);
-        throw Exception(msg);
+        Exception e(msg);
+        throw e;
      }
    }
 }
@@ -112,8 +116,8 @@ void testEnumInstanceNames(CIMClient& client,const char *ns)
     if(keyValue != String(INSTANCEID_VALUE))
         throw Exception(keyValue);
 
-}
-
+} 
+   
 void testEnumInstances(CIMClient& client, const char* ns)
 {
     Array<CIMInstance> instances;
@@ -147,10 +151,10 @@ void testEnumInstances(CIMClient& client, const char* ns)
 
      prop = instances[0].findProperty(CIMName(PROPERTY_NAME_CQLFEATURES));
      instances[0].getProperty(prop).getValue().get(providerReturnedVal);
-
+  
      _checkIfReturnedValueIsCorrect(providerReturnedVal);
 
-}
+} 
 
 
 void testGetInstance(CIMClient& client, const char* ns)
@@ -162,7 +166,7 @@ void testGetInstance(CIMClient& client, const char* ns)
                                 INSTANCEID_VALUE,
                                 CIMKeyBinding::STRING));
 
-   CIMObjectPath objectPath(String::EMPTY, ns,
+   CIMObjectPath objectPath(String::EMPTY, ns, 
                   CIM_QUERYCAPCLASS_NAME, keyBindings);
 
    instance = client.getInstance(ns, objectPath, false);
@@ -225,7 +229,7 @@ void testDeleteInstance(CIMClient& client, const char* ns)
 
   throw Exception("deleteInstance is supported");
 }
-
+    
 
 void testModifyInstance(CIMClient& client, const char* ns)
 {
@@ -257,9 +261,9 @@ void testModifyInstance(CIMClient& client, const char* ns)
 }
 
 PEGASUS_NAMESPACE_END
+   
 
-
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
 
    CIMClient client;
@@ -271,7 +275,7 @@ int main(int, char** argv)
    catch (Exception& e)
    {
       cerr << "Error: " << e.getMessage() <<  endl;
-      cerr << "Exception occured while trying to connect to the server."
+      cerr << "Exception occured while trying to connect to the server." 
            << endl;
       return(1);
    }

@@ -1,54 +1,62 @@
  
-cimmofl -ntest -R REPOSITORYDIR -xml ValidMof1.mof
+cimmofl -ntest -R. -xml ValidMof1.mof
  
-cimmofl -ntest -R REPOSITORYDIR -E ValidMof1.mof
+cimmofl -ntest -R. -E ValidMof1.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
 
+
  
-cimmofl -ntest -R REPOSITORYDIR ValidMof1.mof
+cimmofl -ntest -R. ValidMof1.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
 
+
  
-cimmofl -ntest -R REPOSITORYDIR -xml ValidMof2.mof
+cimmofl -ntest -R. -xml ValidMof2.mof
  
-cimmofl -ntest -R REPOSITORYDIR ValidMof2.mof
+cimmofl -ntest -R. ValidMof2.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
 
+
  
-cimmofl -ntest -R REPOSITORYDIR ValidMof3.mof
+cimmofl -ntest -R. ValidMof3.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
 
+
  
-cimmofl -ntest -R REPOSITORYDIR ValidMof4.mof
+cimmofl -ntest -R. ValidMof4.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
 
+
  
-cimmofl -ntest -R REPOSITORYDIR ValidMof4a.mof
+cimmofl -ntest -R. ValidMof4a.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
 
+
  
-cimmofl -ntest -R REPOSITORYDIR ValidMof4b.mof
+cimmofl -ntest -R. ValidMof4b.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
 
+
  
-cimmofl -ntest -R REPOSITORYDIR ValidMof5.mof
+cimmofl -ntest -R. ValidMof5.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
+
 
  
 cimmofl -h
@@ -68,7 +76,7 @@ Options :
     -n, --namespace     - Override default CIM Repository namespace (root/cimv2)
     -uc                 - Allow update of an existing class definition
     -aE                 - Allow Experimental Schema changes
-    -aV                 - Allow any Version Schema change
+    -aV                 - Allow both Major and Down Revision Schema changes
     -aEV                - Allow both Experimental and Version Schema changes
     --xml               - Output XML only, to stdout. Do not update repository
     --trace             - Trace to file (default to stdout)
@@ -104,7 +112,7 @@ Options :
     -n, --namespace     - Override default CIM Repository namespace (root/cimv2)
     -uc                 - Allow update of an existing class definition
     -aE                 - Allow Experimental Schema changes
-    -aV                 - Allow any Version Schema change
+    -aV                 - Allow both Major and Down Revision Schema changes
     -aEV                - Allow both Experimental and Version Schema changes
     --xml               - Output XML only, to stdout. Do not update repository
     --trace             - Trace to file (default to stdout)

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Michael E. Brasher
 //
@@ -79,14 +81,14 @@ bool GetDirEntries(const string& path, vector<string>& filenames)
     DIR* dir = opendir(path.c_str());
 
     if (!dir)
-        return false;
+	return false;
 
     for (dirent* entry = readdir(dir); entry; entry = readdir(dir))
     {
-        string name = entry->d_name;
+	string name = entry->d_name;
 
-        if (name != "." && name != "..")
-            filenames.push_back(name);
+	if (name != "." && name != "..")
+	    filenames.push_back(name);
     }
 
     closedir(dir);
@@ -97,7 +99,7 @@ bool GetDirEntries(const string& path, vector<string>& filenames)
 bool TouchFile(const string& path)
 {
     if (IsDir(path))
-        return false;
+	return false;
 
     // Get file-size:
 
@@ -107,13 +109,13 @@ bool TouchFile(const string& path)
 
     if (stat(path.c_str(), &sbuf) != 0)
     {
-        int fd = open(path.c_str(), O_WRONLY | O_CREAT, 0666);
+	int fd = open(path.c_str(), O_WRONLY | O_CREAT, 0666);
 
-        if (fd < 0)
-            return false;
+	if (fd < 0)
+	    return false;
 
-        close(fd);
-        return true;
+	close(fd);
+	return true;
     }
 
     // File does exist:
@@ -122,59 +124,59 @@ bool TouchFile(const string& path)
 
     if (size == 0)
     {
-        // Open file:
+	// Open file:
 
-        int fd = open(path.c_str(), O_RDWR, 0666);
+	int fd = open(path.c_str(), O_RDWR, 0666);
 
-        if (fd < 0)
-            return false;
+	if (fd < 0)
+	    return false;
 
-        char c = '\0';
+	char c = '\0';
 
-        // Write one byte:
+	// Write one byte:
 
-        if (write(fd, &c, sizeof(char)) != 1)
-            return false;
+	if (write(fd, &c, sizeof(char)) != 1)
+	    return false;
 
-        // Truncate back to zero size:
+	// Truncate back to zero size:
 
-        if (ftruncate(fd, size) < 0)
-            return false;
+	if (ftruncate(fd, size) < 0)
+	    return false;
 
-        // Close the file:
+	// Close the file:
 
-        close(fd);
+	close(fd);
 
-        return true;
+	return true;
     }
     else
     {
-        // Open the file:
+	// Open the file:
 
-        int fd = open(path.c_str(), O_RDWR, 0666);
+	int fd = open(path.c_str(), O_RDWR, 0666);
 
-        if (fd < 0)
-            return false;
+	if (fd < 0)
+	    return false;
 
-        // Read first character, rewind, then rewrite it:
+	// Read first character, rewind, then rewrite it:
 
-        char c;
+	char c;
 
-        if (read(fd, &c, sizeof(char)) != 1)
-            return false;
+	if (read(fd, &c, sizeof(char)) != 1)
+	    return false;
 
-        if (lseek(fd, 0, SEEK_SET) < 0)
-            return false;
+	if (lseek(fd, 0, SEEK_SET) < 0)
+	    return false;
 
-        if (write(fd, &c, sizeof(char)) != 1)
-            return false;
+	if (write(fd, &c, sizeof(char)) != 1)
+	    return false;
 
-        // Truncate file to force mod of times:
+	// Truncate file to force mod of times:
 
-        if (ftruncate(fd, size) < 0)
-            return false;
+	if (ftruncate(fd, size) < 0)
+	    return false;
 
-        close(fd);
+	close(fd);
     }
 
     return true;
@@ -185,7 +187,7 @@ bool GetFileSize(const string& path, size_t& size)
     struct stat st;
 
     if (stat(path.c_str(), &st) != 0)
-        return false;
+	return false;
 
     size = (size_t)(st.st_size);
     return true;

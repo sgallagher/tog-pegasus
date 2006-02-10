@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
@@ -128,7 +130,7 @@ Boolean NISServerService::getNISInfo()
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getCreationClassName(String & strValue)
+Boolean NISServerService::getCreationClassName(String & strValue) 
 {
      return false;
 }
@@ -142,7 +144,7 @@ Boolean NISServerService::getCreationClassName(String & strValue)
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getName(String & strValue)
+Boolean NISServerService::getName(String & strValue) 
 {
      return false;
 }
@@ -156,7 +158,7 @@ Boolean NISServerService::getName(String & strValue)
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getCaption(String & strValue)
+Boolean NISServerService::getCaption(String & strValue) 
 {
      return false;
 }
@@ -170,7 +172,7 @@ Boolean NISServerService::getCaption(String & strValue)
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getDescription(String & strValue)
+Boolean NISServerService::getDescription(String & strValue) 
 {
      return false;
 }
@@ -187,7 +189,7 @@ Boolean NISServerService::getDescription(String & strValue)
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getServerWaitFlag(Uint16 & uintValue)
+Boolean NISServerService::getServerWaitFlag(Uint16 & uintValue) 
 {
      return false;
 }
@@ -195,14 +197,14 @@ Boolean NISServerService::getServerWaitFlag(Uint16 & uintValue)
 //------------------------------------------------------------------------------
 // FUNCTION: getServerType
 //
-// REMARKS: This property retrieve the follow values: 0-Unknown, 1-Other,
+// REMARKS: This property retrieve the follow values: 0-Unknown, 1-Other, 
 //          2-None, 3-NIS Master and 4-NIS Slave.
 //
 // PARAMETERS: [OUT] paramValue    -> return server type value
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getServerType(Uint16 & paramValue)
+Boolean NISServerService::getServerType(Uint16 & paramValue) 
 {
      return false;
 }

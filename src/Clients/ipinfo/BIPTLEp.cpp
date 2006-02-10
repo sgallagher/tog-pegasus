@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,50 +57,47 @@ BIPTLEpInfo::BIPTLEpInfo(CIMClient &client, Boolean enableDebug,
     try
     {
         Boolean deepInheritance = true;
-        Boolean localOnly = true;
-        Boolean includeQualifiers = false;
-        Boolean includeClassOrigin = false;
+	Boolean localOnly = true;
+	Boolean includeQualifiers = false;
+	Boolean includeClassOrigin = false;
+      
+      	Array<CIMInstance> cimInstances = 
+	    		client.enumerateInstances(NAMESPACE, CLASS_NAME,
+			deepInheritance, localOnly, includeQualifiers,
+			includeClassOrigin);
+ 
+      	Uint32 numberInstances = cimInstances.size();
 
-        Array<CIMInstance> cimInstances =
-            client.enumerateInstances(NAMESPACE, CLASS_NAME,
-                                      deepInheritance,
-                                      localOnly,
-                                      includeQualifiers,
-                                      includeClassOrigin);
+      	if (_enableDebug)
+	{
+		outPrintWriter << numberInstances << " instances of " <<
+	             CLASS_NAME.getString() << endl;
+	}
 
-        Uint32 numberInstances = cimInstances.size();
-
-        if (_enableDebug)
-        {
-            outPrintWriter << numberInstances << " instances of "
-                << CLASS_NAME.getString() << endl;
-        }
-
-        if (numberInstances > 0)
-        {
+	if (numberInstances > 0)
+	{
             _gatherProperties(cimInstances[0], outPrintWriter);
-            _outputHeader(outPrintWriter);
+	    _outputHeader(outPrintWriter);
 
-            for (Uint32 i = 0; i < numberInstances; i++)
-            {
-                _gatherProperties(cimInstances[i], outPrintWriter);
-                _outputInstance(outPrintWriter);
+	    for (Uint32 i = 0; i < numberInstances; i++)
+	    {
+	        _gatherProperties(cimInstances[i], outPrintWriter);
+	        _outputInstance(outPrintWriter);
 
-             }   // end for looping through instances
-        }
+	     }   // end for looping through instances
+	}
         else
-        {
-             outPrintWriter << "No instances of class "
-                             << CLASS_NAME.getString() << endl;
-        }
+	{
+	     outPrintWriter << "No instances of class " << CLASS_NAME.getString() << endl;
+	}
 
-    }  // end try
-
-    catch(Exception&)
+    }  // end try 
+   
+    catch(Exception& e)
     {
-        errPrintWriter << "Error getting instances of class "
-            << CLASS_NAME.getString() << endl;
-    }
+        errPrintWriter << "Error getting instances of class " <<
+             CLASS_NAME.getString() << endl;
+    }   
 
 }
 
@@ -121,10 +124,10 @@ void BIPTLEpInfo::_gatherProperties(CIMInstance &inst, ostream& outPrintWriter)
     // Extract the properties
     for (Uint32 j=0; j < inst.getPropertyCount(); j++)
     {
-        CIMName propertyName = inst.getProperty(j).getName();
+	CIMName propertyName = inst.getProperty(j).getName();
 
-        if (propertyName.equal("FrameType"))
-        inst.getProperty(j).getValue().get(_ipFrameType);
+      	if (propertyName.equal("FrameType"))
+	    inst.getProperty(j).getValue().get(_ipFrameType); 
 
     } // end for loop through properties
 
@@ -139,24 +142,23 @@ void BIPTLEpInfo::_gatherProperties(CIMInstance &inst, ostream& outPrintWriter)
     Uint32 numKeys = kb.size();
 
     if (_enableDebug)
-        outPrintWriter << "Retrieved " << numKeys
-                       << " keys in association." << endl;
+	outPrintWriter << "Retrieved " << numKeys << " keys in association." << endl;
 
     for (Uint32 j=0; j < numKeys; j++)
     {
         keyName = kb[j].getName();
+         
+      	if (keyName.equal("Antecedent"))
+	{
+	    CIMObjectPath _Ant = kb[j].getValue();
+	    _extractFromKey(_Ant, _ipLEPCCN, _ipLEPName, outPrintWriter);
+	}
 
-        if (keyName.equal("Antecedent"))
-        {
-            CIMObjectPath _Ant = kb[j].getValue();
-            _extractFromKey(_Ant, _ipLEPCCN, _ipLEPName, outPrintWriter);
-        }
-
-        else if (keyName.equal("Dependent"))
-        {
-            CIMObjectPath _Dep = kb[j].getValue();
-            _extractFromKey(_Dep, _ipIPPEpCCN, _ipIPPEpName, outPrintWriter);
-        }
+      	else if (keyName.equal("Dependent"))
+	{
+	    CIMObjectPath _Dep = kb[j].getValue();
+	    _extractFromKey(_Dep, _ipIPPEpCCN, _ipIPPEpName, outPrintWriter);
+	}
 
     } // end for loop through keys
 
@@ -166,7 +168,7 @@ void BIPTLEpInfo::_gatherProperties(CIMInstance &inst, ostream& outPrintWriter)
 ////////////////////////////////////////////////////////////////////////////////
 //  Extract Information from a Key
 ////////////////////////////////////////////////////////////////////////////////
-void BIPTLEpInfo::_extractFromKey(CIMObjectPath &ref, String &ccn,
+void BIPTLEpInfo::_extractFromKey(CIMObjectPath &ref, String &ccn, 
                                 String &name, ostream &outPrintWriter)
 {
     CIMName keyName;
@@ -175,18 +177,18 @@ void BIPTLEpInfo::_extractFromKey(CIMObjectPath &ref, String &ccn,
     Uint32 numKeys = kb.size();
 
     if (_enableDebug)
-        outPrintWriter << "Retrieved " << numKeys << " keys in reference `"
-        << ref.getClassName().getString() << "'." << endl;
+	outPrintWriter << "Retrieved " << numKeys << " keys in reference `" << 
+	     ref.getClassName().getString() << "'." << endl;
 
     for (Uint32 j=0; j < numKeys; j++)
     {
         keyName = kb[j].getName();
+         
+      	if (keyName.equal("Name"))
+	    name = kb[j].getValue();
 
-        if (keyName.equal("Name"))
-            name = kb[j].getValue();
-
-        else if (keyName.equal("CreationClassName"))
-            ccn = kb[j].getValue();
+      	else if (keyName.equal("CreationClassName"))
+	    ccn = kb[j].getValue();
 
     } // end for loop through keys
 
@@ -198,8 +200,8 @@ void BIPTLEpInfo::_extractFromKey(CIMObjectPath &ref, String &ccn,
 void BIPTLEpInfo::_outputHeader(ostream &outPrintWriter)
 {
 
-    outPrintWriter << endl << ">>>> IP Associations to LAN Endpoint <<<<"
-        << endl << endl;
+    outPrintWriter << endl << ">>>> IP Associations to LAN Endpoint <<<<" <<
+         endl << endl;
 
     if (_ipLEPCCN.size() > 0)
         outPrintWriter << "LAN Endpoint CCN : " << _ipLEPCCN << endl;
@@ -210,9 +212,9 @@ void BIPTLEpInfo::_outputHeader(ostream &outPrintWriter)
     char header[81];
 
     sprintf(header, HeaderFormat, "LAN Endpoint", "IP Protocol Endpoint",
-            "Frame Type");
+                                  "Frame Type");
     outPrintWriter << endl << header << endl;
-
+    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -223,18 +225,18 @@ void BIPTLEpInfo::_outputInstance(ostream &outPrintWriter)
     String _ipFT;
 
     if (_ipFrameType == 1)
-        _ipFT = "Ethernet";
+	_ipFT = "Ethernet";
     else if (_ipFrameType == 0)
-        _ipFT = "Unknown";
+	_ipFT = "Unknown";
     else
-        _ipFT = "Other";
+	_ipFT = "Other";
 
     char row[81];
 
     sprintf(row, HeaderFormat, (const char *)_ipLEPName.getCString(),
-        (const char *)_ipIPPEpName.getCString(),
-        (const char *)_ipFT.getCString()
-        );
+			       (const char *)_ipIPPEpName.getCString(),
+			       (const char *)_ipFT.getCString()
+			       );
     outPrintWriter << row << endl;
-
+    
 }

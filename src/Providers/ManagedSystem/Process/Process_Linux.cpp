@@ -1,31 +1,45 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Christopher Neufeld <neufeld@linuxcare.com>
+//         David Kennedy       <dkennedy@linuxcare.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//         Chad Smith, Hewlett-Packard Company <chad_smith@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -34,19 +48,19 @@
    ========================================================================== */
 
 #include "ProcessPlatform.h"
-#include <time.h>               // for time(0)
-#include <sys/param.h>          // for MAXPATHLEN
+#include <time.h>			// for time(0)
+#include <sys/param.h>			// for MAXPATHLEN
 #include <netinet/in.h>
 #include <netdb.h>
-#include <sys/stat.h>           // for struct stat
+#include <sys/stat.h>                   // for struct stat
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
 #endif
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-  // mutex for reading and writing proc
-  static pthread_mutex_t proc_mutex;
+  // mutex for reading and writing proc 
+  static pthread_mutex_t proc_mutex;   
 
 
 Process::Process()
@@ -60,11 +74,11 @@ Process::~Process()
 /*
 ================================================================================
 NAME              : getCaption
-DESCRIPTION       : currently returning the basename of the process
-ASSUMPTIONS       :
+DESCRIPTION       : currently returning the basename of the process 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getCaption(String& s) const
@@ -77,10 +91,10 @@ Boolean Process::getCaption(String& s) const
 ================================================================================
 NAME              : getDescription
 DESCRIPTION       : currently only returns the same thing as getCaption
-ASSUMPTIONS       :
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getDescription(String& s) const
@@ -92,11 +106,11 @@ Boolean Process::getDescription(String& s) const
 /*
 ================================================================================
 NAME              : getInstallDate
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getInstallDate(CIMDateTime& d) const
@@ -108,11 +122,11 @@ Boolean Process::getInstallDate(CIMDateTime& d) const
 /*
 ================================================================================
 NAME              : getStatus
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getStatus(String& s) const
@@ -124,11 +138,11 @@ Boolean Process::getStatus(String& s) const
 /*
 ================================================================================
 NAME              : getName
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getName(String& s) const
@@ -145,11 +159,11 @@ Boolean Process::getName(String& s) const
 /*
 ================================================================================
 NAME              : getPriority
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getPriority(Uint32& i32) const
@@ -161,23 +175,23 @@ Boolean Process::getPriority(Uint32& i32) const
 /*
 ================================================================================
 NAME              : getExecutionState
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getExecutionState(Uint16& i16) const
 {
-  /*
+  /* 
      From the MOF for this class:
       [Description (
         "Indicates the current operating condition of the Process. "
         "Values include ready (2), running (3), and blocked (4), "
         "among others."),
-       Values {"Unknown", "Other", "Ready", "Running",
-               "Blocked", "Suspended Blocked", "Suspended Ready",
+       Values {"Unknown", "Other", "Ready", "Running", 
+               "Blocked", "Suspended Blocked", "Suspended Ready", 
                "Terminated", "Stopped", "Growing" },
    */
 
@@ -230,11 +244,11 @@ Boolean Process::getExecutionState(Uint16& i16) const
 /*
 ================================================================================
 NAME              : getOtherExecutionDescription
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getOtherExecutionDescription(String& s) const
@@ -244,11 +258,11 @@ Boolean Process::getOtherExecutionDescription(String& s) const
   case 'Z':
     s = "Zombie";
     break;
-
+  
   case 'O':
     s = "Other";
     break;
-
+  
   default:
     s = String::EMPTY; // ExecutionState is not Other
     // In this case, the caller must know to set the
@@ -261,11 +275,11 @@ Boolean Process::getOtherExecutionDescription(String& s) const
 /*
 ================================================================================
 NAME              : getCreationDate
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getCreationDate(CIMDateTime& d) const
@@ -276,11 +290,11 @@ Boolean Process::getCreationDate(CIMDateTime& d) const
 /*
 ================================================================================
 NAME              : getTerminationDate
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getTerminationDate(CIMDateTime& d) const
@@ -292,11 +306,11 @@ Boolean Process::getTerminationDate(CIMDateTime& d) const
 /*
 ================================================================================
 NAME              : getKernelModeTime
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getKernelModeTime(Uint64& i64) const
@@ -310,11 +324,11 @@ Boolean Process::getKernelModeTime(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getUserModeTime
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getUserModeTime(Uint64& i64) const
@@ -328,11 +342,11 @@ Boolean Process::getUserModeTime(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getWorkingSetSize
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getWorkingSetSize(Uint64& i64) const
@@ -359,11 +373,11 @@ Boolean Process::getWorkingSetSize(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getRealUserID
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getRealUserID(Uint64& i64) const
@@ -375,11 +389,11 @@ Boolean Process::getRealUserID(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getProcessGroupID
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getProcessGroupID(Uint64& i64) const
@@ -391,11 +405,11 @@ Boolean Process::getProcessGroupID(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getProcessSessionID
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getProcessSessionID(Uint64& i64) const
@@ -407,11 +421,11 @@ Boolean Process::getProcessSessionID(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getProcessTTY
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getProcessTTY(String& s) const
@@ -421,7 +435,7 @@ Boolean Process::getProcessTTY(String& s) const
   if( pInfo.pst_tty == -1 )
     s = "?";
   else
-  {
+  { 
     sprintf(buf,"%d",pInfo.pst_tty);
     s.assign(buf);
   }
@@ -431,11 +445,11 @@ Boolean Process::getProcessTTY(String& s) const
 /*
 ================================================================================
 NAME              : getModulePath
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getModulePath(String& s) const
@@ -447,11 +461,11 @@ Boolean Process::getModulePath(String& s) const
 /*
 ================================================================================
 NAME              : getParameters
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getParameters(Array<String>& as) const
@@ -465,15 +479,15 @@ Boolean Process::getParameters(Array<String>& as) const
     idx_new = pInfo.pst_cmd.find(idx_old, ' ');
     if( idx_new != PEG_NOT_FOUND )
     {
-        p = pInfo.pst_cmd.subString(idx_old,idx_new-idx_old);
-        as.append(String(p));
-        idx_old = idx_new+1;
+	   p = pInfo.pst_cmd.subString(idx_old,idx_new-idx_old);
+	   as.append(String(p));
+	   idx_old = idx_new+1;
     }
     else
     {
-        p = pInfo.pst_cmd.subString(idx_old);
-        as.append(String(p));
-        return true;
+	p = pInfo.pst_cmd.subString(idx_old);
+	as.append(String(p));
+	return true;
     }
   }
   return true;
@@ -482,11 +496,11 @@ Boolean Process::getParameters(Array<String>& as) const
 /*
 ================================================================================
 NAME              : getProcessNiceValue
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getProcessNiceValue(Uint32& i32) const
@@ -498,11 +512,11 @@ Boolean Process::getProcessNiceValue(Uint32& i32) const
 /*
 ================================================================================
 NAME              : getProcessWaitingForEvent
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getProcessWaitingForEvent(String& s) const
@@ -514,11 +528,11 @@ Boolean Process::getProcessWaitingForEvent(String& s) const
 /*
 ================================================================================
 NAME              : getCPUTime
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getCPUTime(Uint32& i32) const
@@ -530,11 +544,11 @@ Boolean Process::getCPUTime(Uint32& i32) const
 /*
 ================================================================================
 NAME              : getRealText
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getRealText(Uint64& i64) const
@@ -546,11 +560,11 @@ Boolean Process::getRealText(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getRealData
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getRealData(Uint64& i64) const
@@ -562,11 +576,11 @@ Boolean Process::getRealData(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getRealStack
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getRealStack(Uint64& i64) const
@@ -578,11 +592,11 @@ Boolean Process::getRealStack(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getVirtualText
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getVirtualText(Uint64& i64) const
@@ -594,11 +608,11 @@ Boolean Process::getVirtualText(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getVirtualData
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getVirtualData(Uint64& i64) const
@@ -610,11 +624,11 @@ Boolean Process::getVirtualData(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getVirtualStack
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getVirtualStack(Uint64& i64) const
@@ -626,11 +640,11 @@ Boolean Process::getVirtualStack(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getVirtualMemoryMappedFileSize
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getVirtualMemoryMappedFileSize(Uint64& i64) const
@@ -642,11 +656,11 @@ Boolean Process::getVirtualMemoryMappedFileSize(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getVirtualSharedMemory
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getVirtualSharedMemory(Uint64& i64) const
@@ -658,11 +672,11 @@ Boolean Process::getVirtualSharedMemory(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getCpuTimeDeadChildren
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getCpuTimeDeadChildren(Uint64& i64) const
@@ -674,11 +688,11 @@ Boolean Process::getCpuTimeDeadChildren(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getSystemTimeDeadChildren
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getSystemTimeDeadChildren(Uint64& i64) const
@@ -690,11 +704,11 @@ Boolean Process::getSystemTimeDeadChildren(Uint64& i64) const
 /*
 ================================================================================
 NAME              : getParentProcessID
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::getParentProcessID(String& s) const
@@ -708,10 +722,10 @@ Boolean Process::getParentProcessID(String& s) const
 /*
 ================================================================================
 NAME              : getRealSpace
-DESCRIPTION       :
-ASSUMPTIONS       :
+DESCRIPTION       : 
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
+POST-CONDITIONS   : 
 NOTES             : returns a modified pIndex that can be used in a
                     subsequent call to get next process structure
 ================================================================================
@@ -720,7 +734,7 @@ Boolean Process::getRealSpace(Uint64& i64) const
 {
   i64 = (pInfo.pst_dsize +  // real data
          pInfo.pst_tsize)   // real text  may need to figure out how to get
-                            // realStackSize
+	  		    // realStackSize
         * getpagesize() / 1024;
   return true;
 }
@@ -731,11 +745,11 @@ NAME              : getHandle
 DESCRIPTION       : Call uname() and get the operating system name.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
-String Process::getHandle() const
+String Process::getHandle(void) const
 {
   char buf[100];
   sprintf(buf,"%d",pInfo.pst_pid);
@@ -749,11 +763,11 @@ NAME              : getCSName
 DESCRIPTION       : Platform-specific method to get CSName
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
-String Process::getCSName() const
+String Process::getCSName(void) const
 {
     char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
     struct hostent *hostEntry;
@@ -816,52 +830,58 @@ NAME              : getOSName
 DESCRIPTION       : Platform-specific method to get OSname.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
-String Process::getOSName() const
+String Process::getOSName(void) const
 {
-    String nameText;
-    static const Uint32 MAX_RELEASE_STRING_LEN = 128;
-    char infoFile[MAXPATHLEN];
-    char buffer[MAX_RELEASE_STRING_LEN];
+   String osName, s, buffer_s;
+   Uint32 buffer_index;	// rexex match index
+   char info_file[MAXPATHLEN];
+   char buffer[MAXPATHLEN];
+   struct stat statBuf;
+   FILE *vf;
 
-    for (int ii = 0; LINUX_VENDOR_INFO[ii].vendor_name != NULL; ii++)
-    {
-        sprintf(infoFile, "/etc/%s",
-            LINUX_VENDOR_INFO[ii].determining_filename);
+   s.clear();
+   for (int ii = 0; LINUX_VENDOR_INFO[ii].vendor_name != NULL ; ii++)
+   {
+      memset(info_file, 0, MAXPATHLEN);
+      strcat(info_file, "/etc/");
+      strcat(info_file, LINUX_VENDOR_INFO[ii].determining_filename);
 
-        // If the file exists in /etc, we know what distro we're in
-        FILE *vf = fopen(infoFile, "r");
-        if (vf)
-        {
-            // Set the default OS name
-            nameText.assign(LINUX_VENDOR_INFO[ii].vendor_name);
-            nameText.append(" Distribution");
 
-            if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
+      // If the file exists in /etc, we know what distro we're in
+      if (!stat(info_file, &statBuf))
+      {
+         s.assign(LINUX_VENDOR_INFO[ii].vendor_name);
+         s.append(" Distribution");
+         if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
+         {
+	    // try to set s to a more descript value from the etc file
+            vf = fopen(info_file, "r");
+            if (vf)
             {
-                // try to get a more descriptive value from the etc file
-                if (fgets(buffer, MAX_RELEASE_STRING_LEN, vf) != NULL)
-                {
-                    String bufferString = buffer;
+               if (fgets(buffer, MAXPATHLEN, vf) != NULL)
+	       {
+		  fclose(vf);
+                  buffer_s.assign(buffer);
+	    
+		  // parse the text to extract Distribution Name
+		  buffer_index = buffer_s.find(" release");
+		  if ( buffer_index != PEG_NOT_FOUND )
+		  {
+		     // then we have found a valid index into the config file
+		     s.assign(buffer_s.subString(0,buffer_index));
+		  }
+	       }
+	    }
+         }
+      }
+   }
+   osName.assign(s);
+   return osName;
 
-                    // parse the text to extract the distribution name
-                    Uint32 bufferIndex = bufferString.find(" release");
-                    if (bufferIndex != PEG_NOT_FOUND)
-                    {
-                        nameText = bufferString.subString(0, bufferIndex);
-                    }
-                }
-            }
-
-            fclose(vf);
-            break;
-        }
-    }
-
-    return nameText;
 }
 
 
@@ -871,11 +891,11 @@ NAME              : getCurrentTime
 DESCRIPTION       : Platform-specific routine to get a timestamp stat Name key
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
-String Process::getCurrentTime() const
+String Process::getCurrentTime(void) const
 {
   time_t t = time(0);
   char buffer[40];
@@ -889,8 +909,8 @@ NAME              : loadProcessInfo
 DESCRIPTION       : get process info from system into internal data struct
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::loadProcessInfo(int &pIndex)
@@ -899,7 +919,7 @@ Boolean Process::loadProcessInfo(int &pIndex)
   // get_proc. Because Linux process entries are not contiguous
   // this routine modifies pIndex so that the caller, after
   // incrementing pIndex, will be able to fetch the next process in
-  // a subsequent call.
+  // a subsequent call. 
   // It returns true if it succeeded in fetching a process, otherwise
   // false, incidating that there are no more processes to be fetched.
 
@@ -911,16 +931,16 @@ Boolean Process::loadProcessInfo(int &pIndex)
 
   // How this works: get_proc walks through the /proc directory and
   // counts as it steps through process dirs within proc. When it
-  // encounters the pIndex'th process dir within /proc it instantiates
+  // encounters the pIndex'th process dir within /proc it instantiates 
   // pInfo with that reference and update pIndex
 
   // If GET_PROC_BY_PID is set, get_proc will find the process by the pid
   // get_proc(&pInfo, pid, GET_PROC_BY_PID);
-
+  
   return get_proc(&pInfo, pIndex, GET_PROC_BY_INDEX);
 
   // get_proc returns true if it successfully located a process dir at the
-  // pIndex search if we return a false, we either can't open /proc, which
+  // pIndex search if we return a false, we either can't open /proc, which 
   // will be logger, or we are out of processes
 }
 
@@ -930,12 +950,15 @@ NAME              : findProcess
 DESCRIPTION       : find the requested process and load its data
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 Boolean Process::findProcess(const String& handle)
 {
+  int pIndex;
+
+
   // Convert handle to an integer
   int pid = atoi(handle.getCString());
 
@@ -951,15 +974,15 @@ Boolean Process::findProcess(const String& handle)
 ================================================================================
 NAME              : file2str
 DESCRIPTION       : opens a file and turns it into a string ad sends the result
-                  : back as char *ret
-ASSUMPTIONS       :
+		  : back as char *ret
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 
-int file2str(char *directory, const char *myFile, char *ret, int cap) {
+int file2str(char *directory, char *myFile, char *ret, int cap) {
     char filename[80];
     int fd, num_read;
 
@@ -975,27 +998,26 @@ int file2str(char *directory, const char *myFile, char *ret, int cap) {
 ================================================================================
 NAME              : parseProcStatm
 DESCRIPTION       : parses data from within /proc/X/statm extracting for proc X
-ASSUMPTIONS       :
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 void parseProcStatm(char* inputFileString, peg_proc_t* P) {
     int num;
-    num = sscanf(
-        inputFileString, "%ld %ld %ld %ld",
-        &P->size, &P->pst_dsize, &P->pst_vshmsize,
-        &P->pst_tsize);
+    num = sscanf(inputFileString, "%ld %ld %ld %ld",
+	   &P->size, &P->pst_dsize, &P->pst_vshmsize,
+	   &P->pst_tsize);
 }
 
 /*
 ================================================================================
 NAME              : parseProcStat
 DESCRIPTION       : parses data from within /proc/X/stat extracting for proc X
-ASSUMPTIONS       :
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
+POST-CONDITIONS   : 
 NOTES             : returns true upon successful stat read
 ================================================================================
 */
@@ -1004,19 +1026,17 @@ Boolean  parseProcStat(char* inputFileString, peg_proc_t* P) {
     int  int_not_used;
     long long_not_used;
     char* tmp = strrchr(inputFileString, ')');
-    if (!tmp)
+    if( ! tmp )
     {
-       // Process must have died on us, rendering the reading of
-       // /proc/X/stat impossible. So let's get outta here.
-       return false;
+	    // Process must have died on us, rendering the reading of 
+	    // /proc/X/stat impossible. So let's get outta here.
+	    return false;
     }
 
-    *tmp = '\0';
-    memset(P->pst_ucomm, 0, sizeof P->pst_ucomm);
-    /* ucomm[16] in kernel */
-    sscanf(inputFileString, "%d (%15c", &P->pst_pid, P->pst_ucomm);
-    num = sscanf(
-       tmp + 2,  /* skip space after ')' too */
+    *tmp = '\0';			
+    memset(P->pst_ucomm, 0, sizeof P->pst_ucomm);	
+    sscanf(inputFileString, "%d (%15c", &P->pst_pid, P->pst_ucomm); /* ucomm[16] in kernel */
+    num = sscanf(tmp + 2,			/* skip space after ')' too */
        "%c "
        "%d %d %d %d %d "
        "%lu %lu %lu %lu %lu %lu %lu "
@@ -1024,16 +1044,14 @@ Boolean  parseProcStat(char* inputFileString, peg_proc_t* P) {
        "%lu %lu ",
        &P->pst_stat,
        &P->pst_ppid, &P->pst_pgrp, &P->pst_sid, &P->pst_tty, &int_not_used,
-       &long_not_used, &long_not_used, &long_not_used, &long_not_used,
-       &long_not_used,
-       &P->pst_utime, &P->pst_stime,
-       &P->pst_cutime, &P->pst_cstime, &P->pst_pri, &P->pst_nice,
-       &long_not_used,
-       &long_not_used,
+       &long_not_used, &long_not_used, &long_not_used, &long_not_used, &long_not_used,
+                       &P->pst_utime, &P->pst_stime,
+       &P->pst_cutime, &P->pst_cstime, &P->pst_pri, &P->pst_nice, &long_not_used,
+                       &long_not_used,
        &P->pst_start, &P->pst_vmmsize);
-
+    
     if (P->pst_tty == 0)
-        P->pst_tty = -1;
+	P->pst_tty = -1; 
     return true;
 }
 
@@ -1042,10 +1060,10 @@ Boolean  parseProcStat(char* inputFileString, peg_proc_t* P) {
 ================================================================================
 NAME              : parseProcStatus
 DESCRIPTION       : parses data from within /proc/X/status extracting for proc X
-ASSUMPTIONS       :
+ASSUMPTIONS       : 
 PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             :
+POST-CONDITIONS   : 
+NOTES             : 
 ================================================================================
 */
 void parseProcStatus (char* inputFileString, peg_proc_t* P) {
@@ -1088,23 +1106,24 @@ void parseProcStatus (char* inputFileString, peg_proc_t* P) {
     );
 
     tmp = strstr (inputFileString,"VmSize:");
-    if (tmp)
-        sscanf(tmp, "VmSize: %lu kB\n", &P->pst_vmmsize);
+    if(tmp) sscanf (tmp,
+        "VmSize: %lu kB\n",
+        &P->pst_vmmsize
+    	);
     else
         P->pst_vmmsize = 0;
 
     tmp = strstr (inputFileString,"VmData:");
-    if (tmp)
-        sscanf(
-            tmp,
-            "VmData: %lu kB\n"
-            "VmStk: %lu kB\n",
-            &P->pst_vdsize,
-            &P->pst_vssize);
+    if(tmp) sscanf (tmp,
+        "VmData: %lu kB\n"
+        "VmStk: %lu kB\n",
+	&P->pst_vdsize,
+	&P->pst_vssize
+	);
     else /* probably a kernel kernel thread */
     {
         P->pst_vdsize = 0;
-        P->pst_vssize = 0;
+	P->pst_vssize = 0;
     }
 
 }
@@ -1112,10 +1131,11 @@ void parseProcStatus (char* inputFileString, peg_proc_t* P) {
 
 Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
 {
-  static struct dirent *dir;
-  static struct stat stat_buff;
+  static struct dirent *dir;    
+  static struct stat stat_buff;	
   static char path[32];
   static char buffer[512];
+  int allocated = 0;
   DIR* procDir;
   int count;
 
@@ -1128,35 +1148,37 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
   }
 
    // get rid of any .ZZZ files
-   while ((dir = readdir(procDir)) &&
-          (*dir->d_name < '0' || *dir->d_name > '9'))
-       ;
+   while( ( dir = readdir(procDir)) 
+		   && (*dir->d_name < '0' || *dir->d_name > '9'))
+	   ;
 
-   do
-   {
-      if (dir == 0 )
-          break;
-
+   do 
+   { 
+      if(dir == 0 )
+	 break;
+      
     // make sure we get only dirs that start with [0-9]
     if (*dir->d_name < '0' || *dir->d_name > '9')
     {
-        continue;
+	if (procDir) closedir(procDir);
+        pthread_mutex_unlock( &proc_mutex );
+	return false;
     }
 
     if ( find_by_pid )
-    {
+    { 
        if ( atoi( dir->d_name ) == pIndex )
          break;
     }
     else
     {
       if ( count == pIndex )
-        break;
+	break;
     }
     count++;
   } while ( (dir = readdir(procDir)) );
-
-  if (!dir || !dir->d_name)  // then we've finished lookin at all the procs
+  
+  if (!dir || !dir->d_name)	// then we've finished lookin at all the procs
   {
     if (procDir) closedir(procDir);
     pthread_mutex_unlock( &proc_mutex );
@@ -1164,9 +1186,9 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
   }
 
   // we now have the right processId and proc table entry
-
-  sprintf(path, "/proc/%s", dir->d_name);
-  if (stat(path, &stat_buff) == -1)  // our process stopped running
+   
+  sprintf(path, "/proc/%s", dir->d_name); 
+  if (stat(path, &stat_buff) == -1) 		// our process stopped running
   {
     if (procDir) closedir(procDir);
     pthread_mutex_unlock( &proc_mutex );
@@ -1188,30 +1210,30 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
 
   if ((file2str(path, "statm", buffer, sizeof buffer)) != -1 )
     parseProcStatm(buffer, P);
-
+     
   if ((file2str(path, "status", buffer, sizeof buffer)) != -1 )
     parseProcStatus(buffer, P);
 
   if ((file2str(path, "cmdline", buffer, sizeof buffer)) != -1)
   {
-    P->pst_cmd.assign(buffer);
+	  P->pst_cmd.assign(buffer);
   }
   else
   {
-    P->pst_cmd.assign(P->pst_ucomm);
+	  P->pst_cmd.assign(P->pst_ucomm);
   }
 
-  sprintf(path, "/proc/");
+  sprintf(path, "/proc/"); 
   if ((file2str(path, "uptime", buffer, sizeof buffer)) != -1)
   {
-    doPercentCPU(buffer,P);
+	doPercentCPU(buffer,P);
   }
   else P->pst_pctcpu = 0;
 
   if (procDir) closedir(procDir);
 
 
-  pIndex = count;  // set pIndex to the next "reference"
+  pIndex = count;   		// set pIndex to the next "reference"
   pthread_mutex_unlock( &proc_mutex );
   return true;
 }
@@ -1219,8 +1241,10 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
 void doPercentCPU(char *inputFileString, peg_proc_t *P)
 {
   // Need to get current time/ process uptime, and calc the rest.
-
+   
    unsigned long seconds_since_boot, seconds;
+   time_t t_now, t_then;
+   struct tm tm_now;
    unsigned long pcpu  = 0;
    unsigned long total_time;
 

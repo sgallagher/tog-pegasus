@@ -1,31 +1,46 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Christopher Neufeld <neufeld@linuxcare.com>
+//         David Kennedy       <dkennedy@linuxcare.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -120,11 +135,11 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void ProcessStatProvider::createInstance(
-    const OperationContext &context,
-    const CIMObjectPath &instanceName,
-    const CIMInstance &instanceObject,
-    ObjectPathResponseHandler &handler)
+void ProcessStatProvider::createInstance(const OperationContext       &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+                    ObjectPathResponseHandler &handler)
+
 {
   // There is no useful meaning to creating an instance
   // of this class
@@ -142,10 +157,9 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void ProcessStatProvider::deleteInstance(
-    const OperationContext &context,
-    const CIMObjectPath &instanceReference,
-    ResponseHandler &handler)
+void ProcessStatProvider::deleteInstance(const OperationContext       &context,
+                    const CIMObjectPath           &instanceReference,
+                    ResponseHandler &handler)
 
 {
   // There is no useful meaning to deleting an instance
@@ -167,12 +181,12 @@ PARAMETERS        :
 ================================================================================
 */
 void ProcessStatProvider::enumerateInstances(
-    const OperationContext & context,
-    const CIMObjectPath & classReference,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList,
-    InstanceResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	InstanceResponseHandler & handler)
 {
   // cout << "ProcessStatProvider::enumerateInstances()" << endl;
 
@@ -207,8 +221,8 @@ void ProcessStatProvider::enumerateInstances(
 /*
 ================================================================================
 NAME              : enumerateInstanceNames
-DESCRIPTION       : Enumerates all UnixProcessStatisticalInformation instance
-                    names.  An array of instance references is returned.
+DESCRIPTION       : Enumerates all UnixProcessStatisticalInformation instance names.
+                    An array of instance references is returned.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
@@ -216,10 +230,9 @@ NOTES             : Localization is not supported
 PARAMETERS        :
 ================================================================================
 */
-void ProcessStatProvider::enumerateInstanceNames(
-    const OperationContext &ctx,
-    const CIMObjectPath &ref,
-    ObjectPathResponseHandler &handler)
+void ProcessStatProvider::enumerateInstanceNames(const OperationContext &ctx,
+                            const CIMObjectPath &ref,
+                            ObjectPathResponseHandler &handler)
 {
   // cout << "ProcessStatProvider::enumerateInstanceNames()" << endl;
 
@@ -264,14 +277,13 @@ NOTES             : LocalOnly, DeepInheritance and propertyList are not
 PARAMETERS        :
 ================================================================================
 */
-void ProcessStatProvider::getInstance(
-    const OperationContext &ctx,
-    const CIMObjectPath &instanceName,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList &propertyList,
-    InstanceResponseHandler &handler)
-{
+void ProcessStatProvider::getInstance(const OperationContext &ctx,
+                 const CIMObjectPath           &instanceName,
+                 const Boolean                 includeQualifiers,
+                 const Boolean                 includeClassOrigin,
+                 const CIMPropertyList        &propertyList,
+                 InstanceResponseHandler &handler)
+{	
   // cout << "ProcessStatProvider::getInstance()" << endl;
 
   CIMKeyBinding kb;
@@ -313,7 +325,7 @@ void ProcessStatProvider::getInstance(
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
             keyName.getString());
     }
-
+	
     // CSName can be empty or must match
     else if (keyName.equal (PROPERTY_CS_NAME))
     {
@@ -329,7 +341,7 @@ void ProcessStatProvider::getInstance(
     else if (keyName.equal (PROPERTY_OS_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
-          String::equalNoCase(keyValue, CLASS_CIM_OPERATING_SYSTEM))
+	  String::equalNoCase(keyValue, CLASS_CIM_OPERATING_SYSTEM))
         keysFound |= 4;
       else
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -340,7 +352,7 @@ void ProcessStatProvider::getInstance(
     else if (keyName.equal (PROPERTY_OS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
-          String::equalNoCase(keyValue, _getOSName()))
+	  String::equalNoCase(keyValue, _getOSName()))
         keysFound |= 8;
       else
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -351,7 +363,7 @@ void ProcessStatProvider::getInstance(
     else if (keyName.equal (PROPERTY_PROCESS_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
-          String::equalNoCase(keyValue, CLASS_UNIX_PROCESS))
+	  String::equalNoCase(keyValue, CLASS_UNIX_PROCESS))
         keysFound |= 16;
       else
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -371,9 +383,9 @@ void ProcessStatProvider::getInstance(
       keysFound |= 64;
 
     // Key name was not recognized by any of the above tests
-    else throw CIMInvalidParameterException(keyName.getString() +
+    else throw CIMInvalidParameterException(keyName.getString() + 
         ": Unrecognized key");
-
+		
   } /* for */
 
   // We could get here if we didn't get all the keys, which
@@ -382,7 +394,7 @@ void ProcessStatProvider::getInstance(
   // any duplicates (e.g., two Handles, no OSName)
   if(keysFound != (1<<NUMKEYS_UNIX_PROCESS_STAT)-1)
     throw CIMInvalidParameterException("Bad object name");
-
+	
   /* Find the instance.  First convert the instance id which is the */
   /* process handle to an integer.  This is necessary because the   */
   /* handle is the process id on HP-UX which must be passed to      */
@@ -420,13 +432,12 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void ProcessStatProvider::modifyInstance(
-    const OperationContext &context,
-    const CIMObjectPath &instanceName,
-    const CIMInstance &instanceObject,
-    const Boolean includeQualifiers,
-    const CIMPropertyList &propertyList,
-    ResponseHandler &handler)
+void ProcessStatProvider::modifyInstance(const OperationContext       &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+                    const Boolean                includeQualifiers,
+		    const CIMPropertyList        &propertyList,
+                    ResponseHandler &handler)
 {
   // There is no useful meaning for this operation
   // on this class
@@ -475,7 +486,7 @@ void ProcessStatProvider::terminate()
 }
 
 
-// =============================================================================
+// ================================================================================
 // NAME              : _constructKeyBindings
 // DESCRIPTION       : Constructs an array of keybindings for process
 // ASSUMPTIONS       : None
@@ -483,10 +494,9 @@ void ProcessStatProvider::terminate()
 // POST-CONDITIONS   :
 // NOTES             :
 // PARAMETERS        : className, Process
-// =============================================================================
+// ================================================================================
 
-Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(
-    const Process& _p)
+Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(const Process& _p)
 {
     Array<CIMKeyBinding> keyBindings;
 
@@ -494,7 +504,7 @@ Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(
     keyBindings.append(CIMKeyBinding(PROPERTY_CS_CREATION_CLASS_NAME,
                                   CLASS_CIM_UNITARY_COMPUTER_SYSTEM,
                                   CIMKeyBinding::STRING));
-
+		
     keyBindings.append(CIMKeyBinding(PROPERTY_CS_NAME,
                                   _getCSName(),
                                   CIMKeyBinding::STRING));
@@ -502,7 +512,7 @@ Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(
     keyBindings.append(CIMKeyBinding(PROPERTY_OS_CREATION_CLASS_NAME,
                                   CLASS_CIM_OPERATING_SYSTEM,
                                   CIMKeyBinding::STRING));
-
+		
     keyBindings.append(CIMKeyBinding(PROPERTY_OS_NAME,
                                   _getOSName(),
                                   CIMKeyBinding::STRING));
@@ -525,7 +535,7 @@ Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(
 }
 
 
-// =============================================================================
+// ================================================================================
 // NAME              : _constructInstance
 // DESCRIPTION       : Constructs instance by adding its properties. The
 //                   : Process instance argument has already been filled in
@@ -535,7 +545,7 @@ Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(
 // POST-CONDITIONS   :
 // NOTES             :
 // PARAMETERS        : className, Process
-// =============================================================================
+// ================================================================================
 
 CIMInstance ProcessStatProvider::_constructInstance(
     const CIMName &className,
@@ -556,7 +566,7 @@ CIMInstance ProcessStatProvider::_constructInstance(
                              CLASS_UNIX_PROCESS_STAT,
                              _constructKeyBindings(_p)));
 
-  // Add properties
+  // Add properties                             
 
 // CIM_ManagedElement
 

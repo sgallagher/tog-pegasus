@@ -1,35 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "cwsutil.h"
+#include "cwsutil.h"  
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,26 +47,24 @@ typedef struct {
 
 #include "cwssimdata.c"
 
-#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
 char * dirname(char *path) {
-    char drive[_MAX_DRIVE];
-    char *dir = (char *)malloc(_MAX_DIR*sizeof(char));
-    char fname[_MAX_FNAME];
-    char ext[_MAX_EXT];
+	char drive[_MAX_DRIVE];
+	char *dir = (char *)malloc(_MAX_DIR*sizeof(char));
+	char fname[_MAX_FNAME];
+	char ext[_MAX_EXT];
 
-    _splitpath( path, drive, dir, fname, ext);
-    return dir;
+	_splitpath( path, drive, dir, fname, ext);
+	return dir;
 }
 #endif
 
-int locateFile(const char *fn)
+int locateFile(const char *fn) 
 {
    int i;
-   for (i=0; files[i].name; i++)
+   for (i=0; files[i].name; i++) 
       if (strcmp(files[i].name,fn)==0) return i;
-   return -1;
+   return -1;   
 }
 
 void* CWS_Begin_Enum(const char *topdir, int filetype)
@@ -81,7 +81,7 @@ int CWS_Next_Enum(void *handle, CWS_FILE* cwsf)
 {
   CWS_Control *cc = (CWS_Control *)handle;
   int n;
-
+  
   if (cc->done) return 0;
   n=++cc->next;
   while (files[n].name && files[n].ftype!=cc->type) n=++cc->next;
@@ -109,7 +109,7 @@ void CWS_End_Enum(void *handle)
 
 int CWS_Get_File(const char *file, CWS_FILE* cwsf)
 {
-  int n;
+  int n;  
   if (file && cwsf && (n=locateFile(file))>=0) {
     strcpy(cwsf->cws_name,files[n].name);
     cwsf->cws_size=files[n].size;
@@ -125,7 +125,7 @@ int CWS_Get_File(const char *file, CWS_FILE* cwsf)
 int CWS_Update_File(CWS_FILE* cwsf)
 {
   int mode;
-  int n;
+  int n;  
 
   /* only change mode */
   if (cwsf && (n=locateFile(cwsf->cws_name))>=0) {
@@ -136,19 +136,6 @@ int CWS_Update_File(CWS_FILE* cwsf)
   return 0;
 }
 
-int CWS_Update_FileSize(CWS_FILE* cwsf, const char *fn)
-{
-    int n;
-
-    /* only change filesize */
-    if (cwsf && (n=locateFile(fn))>=0)
-    {
-        files[n].size=(long)cwsf->cws_size;
-        return 1;
-    }
-    return 0;
-}
-
 int CWS_Create_Directory(CWS_FILE* cwsf)
 {
   return 0;
@@ -156,7 +143,7 @@ int CWS_Create_Directory(CWS_FILE* cwsf)
   int         mode;
 
   if (cwsf) {
-    mode=cwsf->cws_mode | 0077; // plus umask
+    mode=cwsf->cws_mode | 0077; // plus umask 
     state=mkdir(cwsf->cws_name,mode)==0;
   }
   return state; */
@@ -188,9 +175,9 @@ void* CWS_Begin_Enum(const char *topdir, int filetype)
   CWS_Control *cc = malloc(sizeof(CWS_Control));
   if (cc && tmpnam(cc->name)) {
     sprintf(cmdbuffer,
-        "find %s -xdev -type %c -printf \"%%p %%s "
-        "%%C@ %%A@ %%T@ %%m\n\" > %s",
-        topdir, filetype, cc->name);
+	    "find %s -xdev -type %c -printf \"%%p %%s " 
+	    "%%C@ %%A@ %%T@ %%m\n\" > %s",
+	    topdir, filetype, cc->name);
     if (system(cmdbuffer)==0)
       cc->fp = fopen(cc->name,"r");
     else {
@@ -213,12 +200,12 @@ int CWS_Next_Enum(void *handle, CWS_FILE* cwsf)
 #else
     state=0<sscanf(result,"%s %lld %ld %ld %ld %o",
 #endif
-           cwsf->cws_name,
-           &cwsf->cws_size,
-           &cwsf->cws_ctime,
-           &cwsf->cws_mtime,
-           &cwsf->cws_atime,
-           &cwsf->cws_mode);
+		   cwsf->cws_name,
+		   &cwsf->cws_size,
+		   &cwsf->cws_ctime,
+		   &cwsf->cws_mtime,
+		   &cwsf->cws_atime,
+		   &cwsf->cws_mode);
   return state;
 }
 
@@ -253,7 +240,7 @@ int CWS_Update_File(CWS_FILE* cwsf)
 {
 
   int         state=0;
-  struct stat statbuf;
+  struct stat statbuf; 
   int         mode;
 
   /* only change mode */
@@ -262,12 +249,6 @@ int CWS_Update_File(CWS_FILE* cwsf)
     state=chmod(cwsf->cws_name,mode)==0;
   }
   return state;
-}
-
-int CWS_Update_FileSize(CWS_FILE* cwsf, const char *fn)
-{
-    /* can't change filesize for non-simulated case */
-    return 0;
 }
 
 int CWS_Create_Directory(CWS_FILE* cwsf)
@@ -285,33 +266,18 @@ int CWS_Create_Directory(CWS_FILE* cwsf)
 
 int CWS_Get_FileType(const char *file, char* typestring, size_t tslen)
 {
-    char  cmdbuffer[300];
-    char  cmdout[300];
-    FILE *fcmdout;
-
-    if (file && tmpnam(cmdout))
-    {
-        sprintf(cmdbuffer,"file %s > %s",file,cmdout);
-        if (system(cmdbuffer)!=0)
-        {
-            remove(cmdout); 
-            return 1;
-        }  
-        if (!(fcmdout = fopen(cmdout,"r")))
-        { 
-            remove(cmdout);
-            return 1;
-        }
-        if (fgets(typestring,tslen,fcmdout))
-        {
-            fclose(fcmdout);
-            remove(cmdout);
-            return 0 ; 
-        }
-        fclose(fcmdout);
-        remove(cmdout);
-    }
-    return 1;
+  char  cmdbuffer[300];
+  char  cmdout[300];
+  FILE *fcmdout;
+  
+  if (file && tmpnam(cmdout)) {
+    sprintf(cmdbuffer,"file %s > %s",file,cmdout);
+    if (system(cmdbuffer)==0 && 
+	(fcmdout = fopen(cmdout,"r")) &&
+	fgets(typestring,tslen,fcmdout))
+      return 0;
+  }
+  return 1;
 }
 
 #endif

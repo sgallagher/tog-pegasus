@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:	Karl Schopmeyer (k.schopemyer@opengroup.org)
+//				Mar 2002 - Add more tests for flavors
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//		Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,118 +55,118 @@ static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
 
 /* This program tests the CIMQualifier class and the CIMConstQualifier class
  including the functions in the classes:
-
+ 
  It creates qualifiers, tests the scope, value and flavor characteristics.
  ATTN: P3 - KS March 2002 Add more tests for scope, etc.
 */
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
-#if defined(PEGASUS_OS_DARWIN) || defined (PEGASUS_OS_VMS)
-    static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
+    #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) || defined (PEGASUS_OS_VMS)
+	static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
     CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE + CIMFlavor::TRANSLATABLE +
     CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED;
-#endif
+    #endif 
     // get the output display flag.
     Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 
     try
     {
-    CIMQualifier q1(CIMName ("Description"), String("Hello"),
+	CIMQualifier q1(CIMName ("Description"), String("Hello"), 
             CIMFlavor::TOINSTANCE);
-    // This one sets the defaults overridable and tosubclass
-    CIMQualifier q2(CIMName ("Abstract"), true);
-    CIMConstQualifier q3 = q1;
-    CIMConstQualifier q4;
-    q4 = q3;
+	// This one sets the defaults overridable and tosubclass
+	CIMQualifier q2(CIMName ("Abstract"), true);
+	CIMConstQualifier q3 = q1;
+	CIMConstQualifier q4;
+	q4 = q3;
 
-    if (verbose)
-    {
-        XmlWriter::printQualifierElement(q1);
-        XmlWriter::printQualifierElement(q2);
-        XmlWriter::printQualifierElement(q3);
-        XmlWriter::printQualifierElement(q4);
-    }
+	if (verbose)
+	{
+		XmlWriter::printQualifierElement(q1);
+		XmlWriter::printQualifierElement(q2);
+		XmlWriter::printQualifierElement(q3);
+		XmlWriter::printQualifierElement(q4);
+	}
 
-    // Note effective march 27 2002, Qualifier no longer get the default flavor
-    // from the definition.  Now the defaults come from the declaraction as part
-    // of the resolve.  As created, qualifiers have exactly the flavor with
-    // which they are defined. They have no default flavors when there is no
-    // explicit definition.
-    PEGASUS_TEST_ASSERT(q4.identical(q1));
-    PEGASUS_TEST_ASSERT(q1.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
-    //PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-    //PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	// Note effective march 27 2002, Qualifier no longer get the default flavor from
+	// The definition.  Now the defaults come from the declaraction as part of the
+	// resolve.  As created, qualifiers have exactly the flavor with which they are
+	// defined.	They have no default flavors when there is no explicit definition.
+	PEGASUS_TEST_ASSERT(q4.identical(q1));
+	PEGASUS_TEST_ASSERT(q1.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	//PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	//PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-    PEGASUS_TEST_ASSERT(q1.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
-    PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-    PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(q1.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
 
-    // Test to be sure the defaults are set correctly
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
-
-
-    q2.unsetFlavor(CIMFLAVOR_ALL);
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::RESTRICTED));
-
-    q2.setFlavor(CIMFlavor::TOSUBCLASS);
-    PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
-
-    q2.unsetFlavor(CIMFlavor::TOSUBCLASS);
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
-
-    Resolver::resolveQualifierFlavor(q2, CIMFlavor (CIMFlavor::OVERRIDABLE));
-    PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
-
-    q2.setFlavor(CIMFLAVOR_ALL);
-    PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-    PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
-    PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
-    PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
-    PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
-    PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
-    PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::RESTRICTED));
+	// Test to be sure the defaults are set correctly
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
 
 
-    // ATTN: KS P1 24 March 2002Add test for resolveFlavor here
-    q2.unsetFlavor(CIMFLAVOR_ALL);
+	q2.unsetFlavor(CIMFLAVOR_ALL);
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::RESTRICTED));
 
-    q2.setFlavor (CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE);
+	q2.setFlavor(CIMFlavor::TOSUBCLASS);
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-    Resolver::resolveQualifierFlavor (q2, CIMFlavor
-            (CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED));
-    PEGASUS_TEST_ASSERT( q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-    PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	q2.unsetFlavor(CIMFlavor::TOSUBCLASS);
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-    CIMQualifier qual1(CIMName ("qual1"), String("This is a test"));
+	Resolver::resolveQualifierFlavor(q2, CIMFlavor (CIMFlavor::OVERRIDABLE),
+            false);
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-    CIMQualifier qual3(CIMName ("qual3"), String("This is a test"));
-    PEGASUS_TEST_ASSERT(!qual1.identical(qual3));
+	q2.setFlavor(CIMFLAVOR_ALL);
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::RESTRICTED));
 
-    if (verbose)
-    {
-        XmlWriter::printQualifierElement(q4);
-    }
+
+	// ATTN: KS P1 24 March 2002Add test for resolveFlavor here
+	q2.unsetFlavor(CIMFLAVOR_ALL);
+
+	q2.setFlavor (CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE);
+
+	Resolver::resolveQualifierFlavor (q2, CIMFlavor 
+            (CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED), false);
+	PEGASUS_TEST_ASSERT( q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+
+	CIMQualifier qual1(CIMName ("qual1"), String("This is a test"));
+
+	CIMQualifier qual3(CIMName ("qual3"), String("This is a test"));
+	PEGASUS_TEST_ASSERT(!qual1.identical(qual3));
+
+	if (verbose)
+	{
+		XmlWriter::printQualifierElement(q4);
+	}
 
     }
     catch (Exception& e)
     {
-    cerr << "Exception: " << e.getMessage() << endl;
+	cerr << "Exception: " << e.getMessage() << endl;
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

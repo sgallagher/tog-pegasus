@@ -1,31 +1,43 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3601
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,30 +51,43 @@ PEGASUS_NAMESPACE_BEGIN
 
 IndicationOperationAggregate::IndicationOperationAggregate(
     CIMRequestMessage* origRequest,
-    const String &controlProviderName,
-    const Array<NamespaceClassList>& indicationSubclasses)
+    const Array<CIMName>& indicationSubclasses)
 :   _origRequest(origRequest),
-    _controlProviderName(controlProviderName),
     _indicationSubclasses(indicationSubclasses),
-    _numberIssued(0)
-{
-}
+    _numberIssued(0),
+    _magicNumber(_theMagicNumber)
+{}
 
 IndicationOperationAggregate::~IndicationOperationAggregate()
 {
-    delete _origRequest;
-
-    Uint32 numberRequests = _requestList.size();
+    _magicNumber = 0;
+    if (_origRequest)
+    {
+        delete _origRequest;
+    }
+    Uint32 numberRequests = getNumberRequests();
     for (Uint32 i = 0; i < numberRequests; i++)
     {
-        delete _requestList[i];
+        //
+        //  Since deleteRequest also removes the element from the array,
+        //  delete first element of the array each time
+        //
+        _deleteRequest (0);
     }
-
-    Uint32 numberResponses = _responseList.size();
+    Uint32 numberResponses = getNumberResponses();
     for (Uint32 j = 0; j < numberResponses; j++)
     {
-        delete _responseList[j];
+        //
+        //  Since deleteResponse also removes the element from the array,
+        //  delete first element of the array each time
+        //
+        _deleteResponse (0);
     }
+}
+
+Boolean IndicationOperationAggregate::isValid() const
+{
+    return (_magicNumber == _theMagicNumber);
 }
 
 CIMRequestMessage* IndicationOperationAggregate::getOrigRequest() const
@@ -70,15 +95,39 @@ CIMRequestMessage* IndicationOperationAggregate::getOrigRequest() const
     return _origRequest;
 }
 
-MessageType IndicationOperationAggregate::getOrigType() const
+Uint32 IndicationOperationAggregate::getOrigType() const
 {
     if (_origRequest == 0)
     {
-        return DUMMY_MESSAGE;
+        return 0;
     }
     else
     {
         return _origRequest->getType();
+    }
+}
+
+String IndicationOperationAggregate::getOrigMessageId() const
+{
+    if (_origRequest == 0)
+    {
+        return String::EMPTY;
+    }
+    else
+    {
+        return _origRequest->messageId;
+    }
+}
+
+Uint32 IndicationOperationAggregate::getOrigDest() const
+{
+    if (_origRequest == 0)
+    {
+        return 0;
+    }
+    else
+    {
+        return _origRequest->queueIds.top();
     }
 }
 
@@ -96,10 +145,19 @@ Boolean IndicationOperationAggregate::requiresResponse() const
     }
 }
 
-Array<NamespaceClassList>&
-    IndicationOperationAggregate::getIndicationSubclasses()
+Array<CIMName>& IndicationOperationAggregate::getIndicationSubclasses()
 {
     return _indicationSubclasses;
+}
+
+void IndicationOperationAggregate::setPath(const CIMObjectPath& path)
+{
+    _path = path;
+}
+
+const CIMObjectPath& IndicationOperationAggregate::getPath()
+{
+    return _path;
 }
 
 Uint32 IndicationOperationAggregate::getNumberIssued() const
@@ -175,15 +233,7 @@ ProviderClassList IndicationOperationAggregate::findProvider(
                         (ProviderIdContainer::NAME);
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
-                    NamespaceClassList nscl;
-                    nscl.nameSpace = request->nameSpace;
-                    nscl.classList = request->classNames;
-                    provider.classList.append(nscl);
-                    provider.controlProviderName = _controlProviderName;
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-                    provider.isRemoteNameSpace = pidc.isRemoteNameSpace();
-                    provider.remoteInfo = pidc.getRemoteInfo();
-#endif
+                    provider.classList = request->classNames;
                     break;
                 }
 
@@ -195,21 +245,18 @@ ProviderClassList IndicationOperationAggregate::findProvider(
                         (ProviderIdContainer::NAME);
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
-                    NamespaceClassList nscl;
-                    nscl.nameSpace = request->nameSpace;
-                    nscl.classList = request->classNames;
-                    provider.classList.append(nscl);
-                    provider.controlProviderName = _controlProviderName;
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-                    provider.isRemoteNameSpace = pidc.isRemoteNameSpace();
-                    provider.remoteInfo = pidc.getRemoteInfo();
-#endif
+                    provider.classList = request->classNames;
                     break;
                 }
+
                 default:
                 {
-                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
-                    break;
+                    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL2,
+                        "Unexpected request type " + String
+                        (MessageTypeToString(getRequest(i)->getType())) +
+                        " in findProvider");
+                    PEGASUS_ASSERT(false);
+                break;
                 }
             }
 
@@ -220,8 +267,22 @@ ProviderClassList IndicationOperationAggregate::findProvider(
     //
     //  No request found with message ID matching message ID from response
     //
-    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+    PEGASUS_ASSERT(false);
     return provider;
 }
+
+void IndicationOperationAggregate::_deleteRequest (Uint32 pos)
+{
+    delete _requestList[pos];
+    _requestList.remove(pos);
+}
+
+void IndicationOperationAggregate::_deleteResponse (Uint32 pos)
+{
+    delete _responseList[pos];
+    _responseList.remove(pos);
+}
+
+const Uint32 IndicationOperationAggregate::_theMagicNumber = 98765;
 
 PEGASUS_NAMESPACE_END

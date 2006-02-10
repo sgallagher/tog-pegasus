@@ -1,31 +1,43 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
+//              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,12 +46,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/Network.h>
-#include <Pegasus/Common/Mutex.h>
-#include <Pegasus/Common/Pegasus_inl.h>
 #include <sys/stat.h>
 
 
@@ -47,48 +55,8 @@
 #ifndef mode_t
 typedef unsigned long mode_t;
 #endif
-#include <windows.h>
 #endif
 
-#if defined (PEGASUS_OS_TYPE_UNIX) || \
-    defined (PEGASUS_OS_VMS)
-# include <unistd.h>
-# include <fcntl.h>  // File locking
-# define PEGASUS_UID_T uid_t
-# define PEGASUS_GID_T gid_t
-#else
-# define PEGASUS_UID_T Uint32
-# define PEGASUS_GID_T Uint32
-#endif
-
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-#  define PEGASUS_SYSTEM_ERRORMSG_NLS \
-      System::getErrorMSG_NLS(GetLastError(),0)
-#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS \
-      System::getErrorMSG_NLS(WSAGetLastError(),0)
-#  define PEGASUS_SYSTEM_ERRORMSG \
-      System::getErrorMSG(GetLastError(),0)
-#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG \
-      System::getErrorMSG(WSAGetLastError(),0)
-#elif defined(PEGASUS_OS_ZOS)
-#  define PEGASUS_SYSTEM_ERRORMSG_NLS \
-      System::getErrorMSG_NLS(errno,__errno2())
-#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS \
-      System::getErrorMSG_NLS(errno,__errno2())
-#  define PEGASUS_SYSTEM_ERRORMSG \
-      System::getErrorMSG(errno,__errno2())
-#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG \
-      System::getErrorMSG(errno,__errno2())
-#else
-#  define PEGASUS_SYSTEM_ERRORMSG_NLS \
-      System::getErrorMSG_NLS(errno,0)
-#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS \
-      System::getErrorMSG_NLS(errno,0)
-#  define PEGASUS_SYSTEM_ERRORMSG \
-      System::getErrorMSG(errno,0)
-#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG \
-      System::getErrorMSG(errno,0)
-#endif
 
 //
 // Protocal Type
@@ -96,6 +64,24 @@ typedef unsigned long mode_t;
 #define TCP                        "tcp"
 
 PEGASUS_NAMESPACE_BEGIN
+
+
+/** This is an opaque type which is used to represent dynamic library
+    handles returned by the System::loadDynamicLibrary() method and
+    accepted by the System::loadDynamicProcedure() method.
+*/
+typedef struct DynamicLibraryHandle_* DynamicLibraryHandle;
+
+/** This is an opaque type which is returned by System::loadDynamicSymbol().
+    Values of this type may be casted to the appropriate target type.
+*/
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+typedef struct DynamicSymbolHandle_* DynamicSymbolHandle;
+#else
+extern "C" {typedef int (* DynamicSymbolHandle)(void);}
+#endif
+
+
 
 /** The System class defines wrappers for operating system related calls.
     These are only placed here if they are extremely light. These are
@@ -105,17 +91,6 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE System
 {
 public:
-
-    /* Creates a String object containing the system message
-       from  the errno and if supported from a second level error
-       number. The _NLS Method is looking up an internationalized version of
-       the message.
-        @param errorCode  The system errno.
-        @param errorCode2 The secondary error number like errno2 on z/OS
-    */
-    static String getErrorMSG_NLS(int errorCode,int errorCode2);
-    static String getErrorMSG(int errorCode,int errorCode2);
-
     /** getCurrentTime - Gets the current time as seconds and milliseconds
     into the provided variables using system functions.
     @param seconds Return for the seconds component of the time.
@@ -128,17 +103,13 @@ public:
     static void getCurrentTime(Uint32& seconds, Uint32& milliseconds);
 
     /** Similar to getCurrentTime() above but get microseconds (rather than
-        milliseconds).
+	milliseconds).
     */
     static void getCurrentTimeUsec(Uint32& seconds, Uint32& microseconds);
 
-    /** Similar to getCurrentTime() above but get the full time in microseconds
-    */
-    static Uint64  getCurrentTimeUsec();
-
     /** getCurrentASCIITime Gets time/date in a fixed format. The format is
         YY MM DD-HH:MM:SS
-        @return Returns String with the ASCII time date.
+	@return Returns String with the ASCII time date.
     */
     static String getCurrentASCIITime();
 
@@ -164,253 +135,141 @@ public:
 
     static Boolean removeFile(const char* path);
 
-    /**
-        Renames a file.  If the new name refers to an existing file, it is
-        removed and replaced with the renamed file.  The rename operation is
-        performed atomically.
-        @param oldPath A character string containing the name of the file to
-            rename.
-        @param newPath A character string containing the name to which to
-            rename the file.
-        @return A Boolean indicating whether the rename operation was
-            successful.
-    */
     static Boolean renameFile(const char* oldPath, const char* newPath);
 
     static Boolean copyFile(const char* fromPath, const char* toPath);
 
+    /** Unix issue:<br><br><b>RTLD_<blah></b> issue. Currently Pegasus uses RTLD_GLOBAL during
+	loading of the library if supported by OS.  Previous to 2.2, Pegasus used RTLD_GLOBAL on Linux. In between 2.3 and 2.4, it used RTDL_NOW. In 2.5 it is using RTLD_GLOBAL. Please consult doc/ProviderLoading.txt for more information.
+    */
+    static DynamicLibraryHandle loadDynamicLibrary(const char* fileName);
+
+    static void unloadDynamicLibrary(DynamicLibraryHandle libraryHandle);
+
+    static String dynamicLoadError(void);
+
+    static DynamicSymbolHandle loadDynamicSymbol(
+	DynamicLibraryHandle libraryHandle,
+	const char* symbolName);
+
     static String getHostName();
     static String getFullyQualifiedHostName ();
     static String getSystemCreationClassName ();
+    static String getHostIP(const String &hostName);
 
-    // The following 2 methods are wrappers around system functions
-    // gethostbyname/gethostbyaddr or gethostbyname_r/gethostbyaddr_r.
-    // In addition to calling corresponding system functions, these
-    // methods introduce re-tries when errno is set to TRY_AGAIN.
-    // Optional parameters are required to cover systems which use '_r'
-    // versions of the system functions.
-    static struct hostent* getHostByName(
-        const char* name,
-        struct hostent* he = 0,
-        char* buf = 0,
-        size_t len = 0);
-    static struct hostent* getHostByAddr(
-        const char *addr,
-        int len,
-        int type,
-        struct hostent* he = 0,
-        char* buf = 0,
-        size_t buflen = 0);
-
-
-    // The following 2 methods are wrappers around system functions
-    // getaddrinfo/getnameinfo.
-    // In addition to calling corresponding system functions, these
-    // methods introduce re-tries on EAI_AGAIN error returns.
-    //
-    // Callers are expected to call freeaddrinfo when using System::getAddrInfo
-    static int getAddrInfo(
-        const char *hostname,
-        const char *servname,
-        const struct addrinfo *hints,
-        struct addrinfo **res);
-    static int getNameInfo(
-        const struct sockaddr *sa,
-        size_t salen,
-        char *host,
-        size_t hostlen,
-        char *serv,
-        size_t servlen,
-        int flags);
-
-    // Gets IP address assosiated with hostName. af indicates the
-    // type of address (ipv4 or ipv6) returned.
-    static Boolean getHostIP(const String &hostName, int *af, String &hostIP);
-
-    // Gets IP address in binary form. af indicates the type of
-    // address (ipv4 or ipv6) returned. Address will be copied to dst.
-    static Boolean acquireIP(const char* hostname, int *af, void *dst);
-
-    /**
-        Returns true if IPv6 stack is active by checking return code from
-        Socket::createSocket() and getSocketError() calls.
-
-        ATTN: We return true if some error other than
-        PEGASUS_INVALID_ADDRESS_FAMILY is returned while creating the socket
-        because we will not be sure whether the IPv6 stack is active or not
-        from the returned error code. Return value of "true" from this method
-        should not be trusted absolutely.
-    */
-#ifdef PEGASUS_ENABLE_IPV6
-    static Boolean isIPv6StackActive();
-#endif
-
-    /**
-        Returns all interface addresses. Both ip4 and ip6 interface addresses
-        will be returned.
-    */
-    static Array<String> getInterfaceAddrs();
+    static Uint32 _acquireIP(const char* hostname);
 
     static Uint32 lookupPort(
         const char * serviceName,
         Uint32 defaultPort);
 
     /**
-        Attempts to find the given IP address(32bit) on any of the local defined
-        network interfaces
+        Attempts to validate that the input hostName represents the same host as
+        the host represented by the value returned by the 
+        getFullyQualifiedHostName() method.
+
+        Note: this method is modeled on the 
+        CIMClientRep::compareObjectPathtoCurrentConnection() method
+        (Revision 1.44 of pegasus/src/Pegasus/Client/CIMClientRep.cpp)
+
+        @param  hostName  the host name to validate
+
+        @return  True if the input hostName can be validated to represent the
+                 same host;
+                 False otherwise
      */
-    static Boolean isIpOnNetworkInterface(Uint32 inIP);
-
-    /**
-        Attempts to resolve a given hostname
-        this function possibly can take some as it can request information
-        from the DNS
-
-        @param resolvedNameIP On successful hostname resolution, this output
-        parameter contains the IP address that was determined.
-        @return true if successful, false if not successful.
-     */
-    static Boolean resolveHostNameAtDNS(
-        const char* hostname,
-        Uint32* resolvedNameIP);
-
-    /**
-        Attempts to resolve a given IP address
-        this function possibly can take some as it can request information
-        from the DNS
-        @param resolvedIP On successful hostname resolution, this output
-        parameter contains the IP address that was determined.
-        @return true if successful, false if not successful.
-     */
-    static Boolean resolveIPAtDNS(Uint32 ip_addr, Uint32 * resolvedIP);
-
-    /**
-        Bundling function used to determine if a given hostname or IP address
-        belongs to the local host
-        this function has the potential to take some time as it will possibly
-        use the DNS
-     */
-    static Boolean isLocalHost(const String& hostName);
-
-    /**
-        Checks binIPAddress represented by address family and returns true
-        if binary representation matches with loopback ip address. binIPAddress
-        must be in host-byte order.
-    */
-    static Boolean isLoopBack(int af, void *binIPAddress);
+    static Boolean sameHost (const String & hostName);
 
     static String getEffectiveUserName();
 
     /**
-        This function is used to input a password with echo disabled.
-        The function reads up to a newline and returns a password of at most
-        8 characters.
+    This function is used to input a password with echo disabled.
+    The function reads up to a newline and returns a password of at most
+    8 characters.
 
-        @param prompt String containing the message prompt to be displayed
-        @return password obtained from the user
+    @param  prompt      String containing the message prompt to be displayed
+    @return             password obtained from the user
     */
     static String getPassword(const char* prompt);
 
     /**
-        This function is used to encrypt the user's password.
-        The encryption is compatible with Apache's password file (generated
-        using the htpasswd command)
+    This function is used to encrypt the user's password.
+    The encryption is compatible with Apache's  password file (generated using
+    the htpasswd command )
 
-        @param password Password to be encrypted.
-        @param salt Two character string chosen from the set [a-zA-Z0-9./].
+    @param password     Password to be encrypted.
+    @param salt         Two character string chosen from the set [a-zA-Z0-9./].
 
-        @return Encrypted password.
+    @return             Encrypted password.
     */
     static String encryptPassword(const char* password, const char* salt);
 
     /**
-        This function is used to verify whether specified user is a user
-        on the local system.
+    This function is used to verify whether specified user is a user
+    on the local system.
 
-        @param userName User name to be verified.
+    @param userName     User name to be verified.
 
-        @return true if the username is valid, else false
+    @return             true if the username is valid, else false
     */
     static Boolean isSystemUser(const char* userName);
 
     /**
-        Checks whether the given user is a privileged user.
+    Checks whether the given user is a privileged user.
 
-        @param userName User name to be checked.
-        @return true if the user is a privileged user, else false
+    @param userName     User name to be checked.
+    @return             true if the user is a privileged user, else false
     */
     static Boolean isPrivilegedUser(const String& userName);
 
     /**
-        This function returns the privileged user name on the system.
-        @return the privileged user name
+    This function returns the privileged user name on the system.
+
+    @return             the privileged user name
     */
     static String getPrivilegedUserName();
 
     /**
-        This function is used to verify whether the specified user is a member
-        of the specified user group.
+    This function is used to verify whether the specified user is a member
+    of the specified user group.
 
-        @param userName User name to be verified.
-        @param groupName User group name.
+    @param userName     User name to be verified.
 
-        @return true if the user is a member of the user group, false otherwise.
-        @throw InternalSystemError - If there is an error accessing the
-        specified user or group information.
+    @param groupName    User group name.
+
+    @return             true if the user is a member of the user group,
+                        false otherwise.
+
+    @throw              InternalSystemError - If there is an error
+                        accessing the specified user or group information.
     */
     static Boolean isGroupMember(const char* userName, const char* groupName);
 
     /**
-        Gets the user and group IDs associated with the specified user.
-        @param userName  User name for which to look up user and group IDs.
-        @param uid       User ID for the specified user name.
-        @param gid       Group ID for the specified user name.
-        @return          True if the user and group IDs were retrieved
-                         successfully, false otherwise.
-    */
-    static Boolean lookupUserId(
-        const char* userName,
-        PEGASUS_UID_T& uid,
-        PEGASUS_GID_T& gid);
+    Changes the process user context to the specified user.
 
-    /**
-        Changes the process user context to the specified user and group.
-        IMPORTANT:  This method is not reentrant and not async signal safe.
-        It should only be called in a single-threaded program.
-        @param userName  User name to set as the process user context.
-        @param uid       User ID to set as the process user context.
-        @param gid       Group ID to set as the process group context.
-        @return          True if the user context is successfully changed,
-                         false otherwise.
-    */
-    static Boolean changeUserContext_SingleThreaded(
-        const char* userName,
-        const PEGASUS_UID_T& uid,
-        const PEGASUS_GID_T& gid);
+    @param userName     User name to set as the process user context.
 
+    @return             True if the user context is successfully changed,
+                        false otherwise.
+    */
+#ifndef PEGASUS_OS_OS400
+    static Boolean changeUserContext(const char* userName);
+#endif
     /**
-        This function is used to get the process ID of the calling process.
-        @return Process ID
+    This function is used to get the process ID of the calling process.
+
+    @return             Process ID
     */
     static Uint32 getPID();
 
     static Boolean truncateFile(const char* path, size_t newSize);
 
     /** Compare two strings but ignore any case differences.
-        This method is provided only because some platforms lack a fast enough
-        strcasecmp function in the standard library.
+        This method is provided only because some platforms lack a strcasecmp
+        function in the standard library.
     */
     static Sint32 strcasecmp(const char* s1, const char* s2);
-
-    /** Compare two strings for equality but ignore any case differences.
-        This method should only be used if length of both strings is
-        known already. If not, please use System::strcasecmp()
-    */
-    static bool strncasecmp(
-        const char* s1,
-        size_t s1_l,
-        const char* s2,
-        size_t s2_l);
 
     /** Return just the file or directory name from the path into basename.
         This method returns a file or directory name at the end of a path.
@@ -472,63 +331,12 @@ public:
         Uint32 severity,
         const char* message);
 
-    static void openlog(
-        const char *ident,
-        int logopt,
-        int facility);
-
-    static void closelog();
-
-    /** Function to set hostname and thus override system supplied value */
-    static void setHostName(const String & hostName);
-
-    /** Function to set fully qualified hostname and thus override system
-        supplied value */
-    static void setFullyQualifiedHostName(const String & fullHostName);
-
     // System ID constants for Logger::put and Logger::trace
     static const String CIMSERVER;
 
     // System ID constants for Logger::put and Logger::trace
     static const String CIMLISTENER;
 
-    // mutex used for synchronising threads calling getHostName.
-    static Mutex _mutexForGetHostName;
-
-    // mutex used for synchronising threads calling getFullyQualifiedHostName
-    static Mutex _mutexForGetFQHN;
-
-private:
-    // Strings caching hostnames to avoid repeated resolver lookups and to
-    // enable setting by configuration
-    static String _hostname;
-    static String _fullyQualifiedHostname;
-};
-
-/**
-    The AutoFileLock class uses an advisory file lock to allow access to a
-    resource to be controlled.
-*/
-class PEGASUS_COMMON_LINKAGE AutoFileLock
-{
-public:
-
-    AutoFileLock(const char* fileName);
-    ~AutoFileLock();
-
-private:
-
-    AutoFileLock();
-    AutoFileLock(const AutoFileLock&);
-    AutoFileLock& operator=(const AutoFileLock&);
-
-#ifdef PEGASUS_OS_TYPE_UNIX
-    struct flock _fl;
-    int _fd;
-#endif
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    HANDLE _hFile;
-#endif
 };
 
 PEGASUS_NAMESPACE_END

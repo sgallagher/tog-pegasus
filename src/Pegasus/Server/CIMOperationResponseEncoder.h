@@ -1,31 +1,45 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company
+//                  (sushma_fernandes@hp.com)
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,109 +47,108 @@
 #define Pegasus_CIMOperationResponseEncoder_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 /** This class encodes CIM operation requests and passes them up-stream.
  */
-class CIMOperationResponseEncoder : public MessageQueue
+class CIMOperationResponseEncoder : public MessageQueueService
 {
-private:
-     static const String OUT_OF_MEMORY_MESSAGE;
+   private:
+       static const String OUT_OF_MEMORY_MESSAGE;
 
-public:
+   public:
+  
+      typedef MessageQueueService Base;
+  
 
-    typedef MessageQueue Base;
+      CIMOperationResponseEncoder();
 
-    CIMOperationResponseEncoder();
+      ~CIMOperationResponseEncoder();
 
-    ~CIMOperationResponseEncoder();
+			void sendResponse(CIMResponseMessage* response,
+												const String &name,
+												Boolean isImplicit,
+												Buffer *bodygiven = 0);
 
-    void sendResponse(
-        CIMResponseMessage* response,
-        const String& name,
-        Boolean isImplicit,
-        Buffer* bodygiven = 0);
+      virtual void handleEnqueue(Message *);
+      
+      virtual void handleEnqueue();
 
-    virtual void enqueue(Message*);
 
-    virtual void handleEnqueue(Message*);
+      void encodeCreateClassResponse(
+	 CIMCreateClassResponseMessage* response);
 
-    virtual void handleEnqueue();
+      void encodeGetClassResponse(
+	 CIMGetClassResponseMessage* response);
 
-    void encodeCreateClassResponse(
-        CIMCreateClassResponseMessage* response);
+      void encodeModifyClassResponse(
+	 CIMModifyClassResponseMessage* response);
 
-    void encodeGetClassResponse(
-        CIMGetClassResponseMessage* response);
+      void encodeEnumerateClassNamesResponse(
+	 CIMEnumerateClassNamesResponseMessage* response);
 
-    void encodeModifyClassResponse(
-        CIMModifyClassResponseMessage* response);
+      void encodeEnumerateClassesResponse(
+	 CIMEnumerateClassesResponseMessage* response);
 
-    void encodeEnumerateClassNamesResponse(
-        CIMEnumerateClassNamesResponseMessage* response);
+      void encodeDeleteClassResponse(
+	 CIMDeleteClassResponseMessage* response);
 
-    void encodeEnumerateClassesResponse(
-        CIMEnumerateClassesResponseMessage* response);
+      void encodeCreateInstanceResponse(
+	 CIMCreateInstanceResponseMessage* response);
 
-    void encodeDeleteClassResponse(
-        CIMDeleteClassResponseMessage* response);
+      void encodeGetInstanceResponse(
+	 CIMGetInstanceResponseMessage* response);
 
-    void encodeCreateInstanceResponse(
-        CIMCreateInstanceResponseMessage* response);
+      void encodeModifyInstanceResponse(
+	 CIMModifyInstanceResponseMessage* response);
 
-    void encodeGetInstanceResponse(
-        CIMGetInstanceResponseMessage* response);
+      void encodeEnumerateInstanceNamesResponse(
+	 CIMEnumerateInstanceNamesResponseMessage* response);
 
-    void encodeModifyInstanceResponse(
-        CIMModifyInstanceResponseMessage* response);
+      void encodeEnumerateInstancesResponse(
+	 CIMEnumerateInstancesResponseMessage* response);
 
-    void encodeEnumerateInstanceNamesResponse(
-        CIMEnumerateInstanceNamesResponseMessage* response);
+      void encodeDeleteInstanceResponse(
+	 CIMDeleteInstanceResponseMessage* response);
 
-    void encodeEnumerateInstancesResponse(
-        CIMEnumerateInstancesResponseMessage* response);
+      void encodeGetPropertyResponse(
+	 CIMGetPropertyResponseMessage* response);
 
-    void encodeDeleteInstanceResponse(
-        CIMDeleteInstanceResponseMessage* response);
+      void encodeSetPropertyResponse(
+	 CIMSetPropertyResponseMessage* response);
 
-    void encodeGetPropertyResponse(
-        CIMGetPropertyResponseMessage* response);
+      void encodeSetQualifierResponse(
+	 CIMSetQualifierResponseMessage* response);
 
-    void encodeSetPropertyResponse(
-        CIMSetPropertyResponseMessage* response);
+      void encodeGetQualifierResponse(
+	 CIMGetQualifierResponseMessage* response);
 
-    void encodeSetQualifierResponse(
-        CIMSetQualifierResponseMessage* response);
+      void encodeEnumerateQualifiersResponse(
+	 CIMEnumerateQualifiersResponseMessage* response);
 
-    void encodeGetQualifierResponse(
-        CIMGetQualifierResponseMessage* response);
+      void encodeDeleteQualifierResponse(
+	 CIMDeleteQualifierResponseMessage* response);
 
-    void encodeEnumerateQualifiersResponse(
-        CIMEnumerateQualifiersResponseMessage* response);
+      void encodeReferenceNamesResponse(
+	 CIMReferenceNamesResponseMessage* response);
 
-    void encodeDeleteQualifierResponse(
-        CIMDeleteQualifierResponseMessage* response);
+      void encodeReferencesResponse(
+	 CIMReferencesResponseMessage* response);
 
-    void encodeReferenceNamesResponse(
-        CIMReferenceNamesResponseMessage* response);
+      void encodeAssociatorNamesResponse(
+	 CIMAssociatorNamesResponseMessage* response);
 
-    void encodeReferencesResponse(
-        CIMReferencesResponseMessage* response);
+      void encodeAssociatorsResponse(
+	 CIMAssociatorsResponseMessage* response);
 
-    void encodeAssociatorNamesResponse(
-        CIMAssociatorNamesResponseMessage* response);
+      void encodeExecQueryResponse(
+	 CIMExecQueryResponseMessage* response);
 
-    void encodeAssociatorsResponse(
-        CIMAssociatorsResponseMessage* response);
-
-    void encodeExecQueryResponse(
-        CIMExecQueryResponseMessage* response);
-
-    void encodeInvokeMethodResponse(
-        CIMInvokeMethodResponseMessage* response);
+      void encodeInvokeMethodResponse(
+	 CIMInvokeMethodResponseMessage* response);
 };
 
 PEGASUS_NAMESPACE_END

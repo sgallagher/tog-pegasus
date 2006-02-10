@@ -1,0 +1,61 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Sample JMPI Round Trip Indication Provider";
+    Caption = "Sample JMPI Round Trip Indication Provider";
+    Name = "JMPI_RT_SampleProviderModule1";
+    Vendor = "OpenPegasus";
+    Version = "2.0.0";
+    InterfaceType = "JMPI";
+    InterfaceVersion = "2.2.0";
+    Location = "JMPI_RT_SampleProvider1.jar:org/pegasus/jmpi/tests/ProcessIndication/JMPI_RT_SampleProvider1";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "JMPI_RT_SampleProviderModule1";
+    Name = "JMPI_RT_SampleProvider1";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "JMPI_RT_SampleProviderModule1";
+    ProviderName = "JMPI_RT_SampleProvider1";
+    CapabilityID = "1";
+    ClassName = "JMPI_RT_SampleIndication1";
+    Namespaces = { "test/static" };
+    ProviderType = { 4, 5 };  // Indication & Method
+    SupportedProperties = NULL;
+    SupportedMethods = {"SendTestIndication"};
+};
+
+instance of PG_ProviderModule
+{
+    Description = "Sample JMPI Round Trip Indication Provider";
+    Caption = "Sample JMPI Round Trip Indication Provider";
+    Name = "JMPI_RT_SampleProviderModule2";
+    Vendor = "OpenPegasus";
+    Version = "2.0.0";
+    InterfaceType = "JMPI";
+    InterfaceVersion = "2.2.0";
+    Location = "JMPI_RT_SampleProvider2.jar:org/pegasus/jmpi/tests/ProcessIndication/JMPI_RT_SampleProvider2";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "JMPI_RT_SampleProviderModule2";
+    Name = "JMPI_RT_SampleProvider2";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "JMPI_RT_SampleProviderModule2";
+    ProviderName = "JMPI_RT_SampleProvider2";
+    CapabilityID = "1";
+    ClassName = "JMPI_RT_SampleIndication2";
+    Namespaces = { "test/static" };
+    ProviderType = { 4, 5 };  // Indication & Method
+    SupportedProperties = NULL;
+    SupportedMethods = {"SendTestIndication"};
+};

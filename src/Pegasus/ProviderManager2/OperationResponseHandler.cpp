@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -15,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -112,7 +114,7 @@ void OperationResponseHandler::setStatus(
 
 void OperationResponseHandler::setStatus(
     const Uint32 code,
-    const ContentLanguages & langs,
+    const ContentLanguageList & langs,
     const String & message)
 {
     _response->cimException =
@@ -276,7 +278,7 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
     // operation.
     CIMClass cimClass;
     
-    CIMRepository * repository = 0;
+    NormalizerContext * context = 0;
 
     try
     {
@@ -285,9 +287,9 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
 
         cimClass = container.getClass();
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        RepositoryContainer repContainer =
-            request->operationContext.get(RepositoryContainer::NAME);
-        repository = repContainer.getRepository();
+        NormalizerContextContainer contextContainer =
+            request->operationContext.get(NormalizerContextContainer::NAME);
+        context = contextContainer.getContext();
 #endif //PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     }
     catch(Exception &)
@@ -302,7 +304,7 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
             request->includeQualifiers,
             request->includeClassOrigin,
             request->nameSpace,
-            repository);
+            context);
     #endif
 }
 
@@ -398,7 +400,7 @@ EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
     // operation. If it does not exist, then this feature is disabled for this
     // operation.
     CIMClass cimClass;
-    CIMRepository * repository = 0;
+    NormalizerContext * context = 0;
 
     try
     {
@@ -407,9 +409,9 @@ EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
 
         cimClass = container.getClass();
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        RepositoryContainer repContainer =
-            request->operationContext.get(RepositoryContainer::NAME);
-        repository = repContainer.getRepository();
+        NormalizerContextContainer contextContainer =
+            request->operationContext.get(NormalizerContextContainer::NAME);
+        context = contextContainer.getContext();
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     }
     catch(Exception &)
@@ -424,7 +426,7 @@ EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
             request->includeQualifiers,
             request->includeClassOrigin,
             request->nameSpace,
-            repository);
+            context);
     #endif
 }
 
@@ -473,7 +475,7 @@ EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
     // operation. If it does not exist, then this feature is disabled for this
     // operation.
     CIMClass cimClass;
-    CIMRepository * repository = 0;
+    NormalizerContext * context = 0;
 
     try
     {
@@ -482,9 +484,9 @@ EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
 
         cimClass = container.getClass();
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        RepositoryContainer repContainer =
-            request->operationContext.get(RepositoryContainer::NAME);
-        repository = repContainer.getRepository();
+        NormalizerContextContainer contextContainer =
+            request->operationContext.get(NormalizerContextContainer::NAME);
+        context = contextContainer.getContext();
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     }
     catch(Exception &)
@@ -499,7 +501,7 @@ EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
             false,
             false,
             request->nameSpace,
-            repository);
+            context);
     #endif
 }
 
@@ -1018,7 +1020,7 @@ void EnableIndicationsResponseHandler::deliver(const OperationContext & context,
     }
 
     // l10n
-    ContentLanguages contentLangs;
+    ContentLanguageList contentLangs;
 
     try
     {

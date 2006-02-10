@@ -1,90 +1,74 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 ROOT = ../../../..
 
 DIR = Pegasus/Handler/snmpIndicationHandler
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(OS_TYPE),vms)
- VMS_VECTOR = PegasusCreateHandler
-endif
-
 LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-    peggetoopt \
-    pegrepository \
-    pegclient \
+    pegcommon \
     pegconfig \
-    pegcommon
+    peggetoopt \
+    pegclient
 
 SOURCES = snmpIndicationHandler.cpp
 
-ifeq ($(PEGASUS_USE_EMANATE), true)
-    ifdef PEGASUS_EMANATE_LIB_DIR
-        EXTRA_LIBRARIES += -L$(PEGASUS_EMANATE_LIB_DIR)
-    endif 
-    EXTRA_LIBRARIES += -lsubagent -lpack -lagent -lemanate \
-            -lmibtable -lsnmp
+ifdef PEGASUS_USE_EMANATE
+ EXTRA_LIBRARIES += -L$(PEGASUS_EMANATE_LIB_DIR) -lsubagent -lpack -lagent -lemanate -lmibtable -lsnmp
 
-    ifdef PEGASUS_EMANATE_INCLUDE_DIR
-        EXTRA_INCLUDES += -I$(PEGASUS_EMANATE_INCLUDE_DIR) \
-                -I$(PEGASUS_EMANATE_INCLUDE_DIR)/snmpd 
-    endif
-    EXTRA_INCLUDES += $(SYS_INCLUDES) $(ACE_INCLUDES)
+ EXTRA_INCLUDES = -I$(PEGASUS_EMANATE_INCLUDE_DIR) \
+        -I$(PEGASUS_EMANATE_INCLUDE_DIR)/snmpd \
+        $(SYS_INCLUDES) $(ACE_INCLUDES)
 
-    LOCAL_DEFINES += -DSETS -DSR_SNMPv1 -DSR_SNMPv2c -DSR_SNMPv2 \
-            -DEMANATE -DSR_ANSI_PROTOTYPES -DSUBAGENT -DSR_USER_AP_SERVICE \
-            -DSR_UDS_IPC -DSR_MIB_TABLE_HASHING -DSR_IP
+LOCAL_DEFINES += -DSETS -DSR_SNMPv1 -DSR_SNMPv2c -DSR_SNMPv2  -DEMANATE -DSR_ANSI_PROTOTYPES -DSUBAGENT -DSR_USER_AP_SERVICE -DSR_UDS_IPC -DSR_MIB_TABLE_HASHING -DSR_IP
 
-    SOURCES += snmpDeliverTrap_emanate.cpp
+ SOURCES += snmpDeliverTrap_emanate.cpp
 else
-    # Controls snmp indication handler to use NET-SNMP to deliver trap
-    ifeq ($(PEGASUS_USE_NET_SNMP), true)
-        ifdef PEGASUS_NET_SNMP_LIB_DIR
-            EXTRA_LIBRARIES += -L$(PEGASUS_NET_SNMP_LIB_DIR)
-        endif
-        EXTRA_LIBRARIES += -lnetsnmp
+# Controls snmp indication handler to use NET-SNMP to deliver trap
+  ifdef PEGASUS_USE_NET_SNMP
+    EXTRA_LIBRARIES += -L$(PEGASUS_NET_SNMP_LIB_DIR) -lnetsnmp
 
-        ifdef PEGASUS_NET_SNMP_INCLUDE_DIR
-            EXTRA_INCLUDES = -I$(PEGASUS_NET_SNMP_INCLUDE_DIR)
-        endif
+    EXTRA_INCLUDES = -I$(PEGASUS_NET_SNMP_INCLUDE_DIR)
 
-        SOURCES += snmpDeliverTrap_netsnmp.cpp
-    else
-        $(error no PEGASUS SNMP option is set)
-    endif
+    SOURCES += snmpDeliverTrap_netsnmp.cpp
+  else
+    SOURCES += snmpDeliverTrap_stub.cpp
+  endif
 endif
 
 LIBRARY = snmpIndicationHandler
  
-include $(ROOT)/mak/dynamic-library.mak
+include $(ROOT)/mak/library.mak
 
 tests:

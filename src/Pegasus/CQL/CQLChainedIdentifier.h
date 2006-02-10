@@ -1,31 +1,42 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
+
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Authors: David Rosckes (rosckes@us.ibm.com)
+//          Bert Rivero (hurivero@us.ibm.com)
+//          Chuck Carmack (carmack@us.ibm.com)
+//          Brian Lucier (lucier@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3588
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLChainedIdentifier_h
@@ -39,13 +50,13 @@
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
-PEGASUS_NAMESPACE_BEGIN
-class CQLFactory;
-class CQLChainedIdentifierRep;
+PEGASUS_NAMESPACE_BEGIN 
+class PEGASUS_CQL_LINKAGE CQLFactory;
+class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep;
 
-/**
+/**  
 CQLChainedIdentifier class is used for parsing (not resolving)
-the identifier portion of a CQL select statement.
+the identifier portion of a CQL select statement.  
 A couple examples of a CQLIdentifier:
 
   Class.EmbeddedObject.Property[3]
@@ -61,35 +72,34 @@ The CQLChainedIdentifier class can parse and return each
 
 Note:  this must handle wildcard("*"), embedded objects, arrays, symbolic
 constants, etc.
-*/
+   */
 class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
 {
   public:
 
     CQLChainedIdentifier();
-    /**
-    Constructor
+    /**  
+	Constructor 
         Parses the string into the various components of a CQL identifier.
-        @param  - inString.  The raw string to be parsed into a
-                  CQLChainedIdentifier
+	@param  - inString.  The raw string to be parsed into a CQLChainedIdentifier
         @return - None.
         @throws - None.
     */
     CQLChainedIdentifier(const String& inString);
-
-    /**
-    The constructor for a CQLChainedIdentifier object.
-
+    
+    /**  
+	The constructor for a CQLChainedIdentifier object.
+                                                                                                                                                             
         @param  - id.  The CQLIdentifier to construct this object with.
         @return - None.
         @throws - None.
     */
     CQLChainedIdentifier(const CQLIdentifier & id);
-
+ 
     /**
         Copy Constructor
-
-        @param  - cid. The CQLChainedIdentifier to construct this object with.
+                                                                                                                                                             
+        @param  - cid.  The CQLChainedIdentifier to construct this object with.
         @return - None.
         @throws - None.
     */
@@ -97,7 +107,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
 
     /**
         Destructor
-
+                                                                                                                                                             
         @param  - None.
         @return - None.
         @throws - None.
@@ -106,7 +116,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
 
     /**
         Opertor=
-
+                                                                                                                                                             
         @param  - rhs. Right hand side of assignement operator.
         @return - *this.
         @throws - None.
@@ -115,17 +125,16 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
 
     /**
         Operator[]. Allows indexed access into the CQLChainedIdentifier
-
+                                                                                                                                                             
         @param  - index. Location of data within the CQLChainedIdentifier
-        @return - CQLIdentifier.  returns CQLIdentifer() if index is
-                  out of bounds.
+        @return - CQLIdentifier.  returns CQLIdentifer() if index is out of bounds.
         @throws - None.
     */
     CQLIdentifier operator[](Uint32 index)const;
 
     /**
         Gets all of the CQLIdentifiers within the CQLChainedIdentifier
-
+                                                                                                                                                             
         @param  - None.
         @return - Array<CQLIdentifier>.
         @throws - None.
@@ -134,13 +143,13 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
 
     /**
         Gets the last CQLIdentifier in this objects Array of CQLIdentifiers
-
+                                                                                                                                                             
         @param  - None.
         @return - CQLIdentifier.
         @throws - None.
     */
     CQLIdentifier getLastIdentifier()const;
-
+	
     friend class CQLFactory;
 
   private:

@@ -1,37 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
-// Modified By:
+// Modified By: 
 //
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WMIClientRep_h
 #define Pegasus_WMIClientRep_h
@@ -73,55 +75,52 @@ class WMIClientRep : public CIMClientInterface
 {
 public:
 
-    WMIClientRep(Uint32 timeoutMilliseconds =
-        PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
+    WMIClientRep(Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
     ~WMIClientRep();
 
     virtual void handleEnqueue();
 
-    void registerClientOpPerformanceDataHandler(
-        ClientOpPerformanceDataHandler & handler) {};
-
+	void registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler) {};
     void deregisterClientOpPerformanceDataHandler(){};
 
-    Uint32 getTimeout() const
-    {
-        return _timeoutMilliseconds;
-    }
-
+	Uint32 getTimeout() const 
+	{
+		return _timeoutMilliseconds;
+	}
+    
     void setTimeout(Uint32 timeoutMilliseconds)
-    {
-        _timeoutMilliseconds = timeoutMilliseconds;
-    }
+	{
+		_timeoutMilliseconds = timeoutMilliseconds;
+	}
 
-    // l10n start
-    AcceptLanguageList getRequestAcceptLanguages() const
-    {
-        return AcceptLanguageList();
-    };
+	// l10n start
+	AcceptLanguageList getRequestAcceptLanguages() const 
+	{ 
+		return AcceptLanguageList();
+	};
+	
+	ContentLanguageList getRequestContentLanguages() const 
+	{ 
+		return ContentLanguageList(); 
+	};
+	
+	ContentLanguageList getResponseContentLanguages() const 
+	{ 
+		return ContentLanguageList(); 
+	};
 
-    ContentLanguageList getRequestContentLanguages() const
-    {
-        return ContentLanguageList();
-    };
-
-    ContentLanguageList getResponseContentLanguages() const
-    {
-        return ContentLanguageList();
-    };
-
-    void setRequestAcceptLanguages(const AcceptLanguageList& langs) { };
-    void setRequestContentLanguages(const ContentLanguageList& langs) { };
-    void setRequestDefaultLanguages() { };
-    // l10n end
-
-    void connect(
+	void setRequestAcceptLanguages(const AcceptLanguageList& langs) { };
+	void setRequestContentLanguages(const ContentLanguageList& langs) { };
+	void setRequestDefaultLanguages() { };
+	// l10n end	
+	
+	void connect(
         const String& host,
         const Uint32 portNumber,
         const String& userName,
         const String& password
-        ) { };
+		) { };
 
     void connect(
         const String& host,
@@ -136,172 +135,172 @@ public:
     void disconnect();
 
     virtual CIMClass getClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    Boolean localOnly = true,
-    Boolean includeQualifiers = true,
-    Boolean includeClassOrigin = false,
-    const CIMPropertyList& propertyList = CIMPropertyList()
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className,
+	Boolean localOnly = true,
+	Boolean includeQualifiers = true,
+	Boolean includeClassOrigin = false,
+	const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
     virtual CIMInstance getInstance(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    Boolean localOnly = true,
-    Boolean includeQualifiers = false,
-    Boolean includeClassOrigin = false,
-    const CIMPropertyList& propertyList = CIMPropertyList()
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& instanceName,
+	Boolean localOnly = true,
+	Boolean includeQualifiers = false,
+	Boolean includeClassOrigin = false,
+	const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
     virtual void deleteClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className
     );
 
     virtual void deleteInstance(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& instanceName
     );
 
     virtual void createClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMClass& newClass
+	const CIMNamespaceName& nameSpace,
+	const CIMClass& newClass
     );
 
     virtual CIMObjectPath createInstance(
-    const CIMNamespaceName& nameSpace,
-    const CIMInstance& newInstance
+	const CIMNamespaceName& nameSpace,
+	const CIMInstance& newInstance
     );
 
     virtual void modifyClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMClass& modifiedClass
+	const CIMNamespaceName& nameSpace,
+	const CIMClass& modifiedClass
     );
 
     virtual void modifyInstance(
-    const CIMNamespaceName& nameSpace,
-    const CIMInstance& modifiedInstance,
-    Boolean includeQualifiers = true,
-    const CIMPropertyList& propertyList = CIMPropertyList()
+	const CIMNamespaceName& nameSpace,
+	const CIMInstance& modifiedInstance,
+	Boolean includeQualifiers = true,
+	const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
     virtual Array<CIMClass> enumerateClasses(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className = CIMName(),
-    Boolean deepInheritance = false,
-    Boolean localOnly = true,
-    Boolean includeQualifiers = true,
-    Boolean includeClassOrigin = false
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className = CIMName(),
+	Boolean deepInheritance = false,
+	Boolean localOnly = true,
+	Boolean includeQualifiers = true,
+	Boolean includeClassOrigin = false
     );
 
     virtual Array<CIMName> enumerateClassNames(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className = CIMName(),
-    Boolean deepInheritance = false
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className = CIMName(),
+	Boolean deepInheritance = false
     );
 
     virtual Array<CIMInstance> enumerateInstances(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    Boolean deepInheritance = true,
-    Boolean localOnly = true,
-    Boolean includeQualifiers = false,
-    Boolean includeClassOrigin = false,
-    const CIMPropertyList& propertyList = CIMPropertyList()
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className,
+	Boolean deepInheritance = true,
+	Boolean localOnly = true,
+	Boolean includeQualifiers = false,
+	Boolean includeClassOrigin = false,
+	const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
     virtual Array<CIMObjectPath> enumerateInstanceNames(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className
     );
 
     virtual Array<CIMObject> execQuery(
-    const CIMNamespaceName& nameSpace,
-    const String& queryLanguage,
-    const String& query
+	const CIMNamespaceName& nameSpace,
+	const String& queryLanguage,
+	const String& query
     );
 
     virtual Array<CIMObject> associators(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& objectName,
-    const CIMName& assocClass = CIMName(),
-    const CIMName& resultClass = CIMName(),
-    const String& role = String::EMPTY,
-    const String& resultRole = String::EMPTY,
-    Boolean includeQualifiers = false,
-    Boolean includeClassOrigin = false,
-    const CIMPropertyList& propertyList = CIMPropertyList()
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& objectName,
+	const CIMName& assocClass = CIMName(),
+	const CIMName& resultClass = CIMName(),
+	const String& role = String::EMPTY,
+	const String& resultRole = String::EMPTY,
+	Boolean includeQualifiers = false,
+	Boolean includeClassOrigin = false,
+	const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
     virtual Array<CIMObjectPath> associatorNames(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& objectName,
-    const CIMName& assocClass = CIMName(),
-    const CIMName& resultClass = CIMName(),
-    const String& role = String::EMPTY,
-    const String& resultRole = String::EMPTY
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& objectName,
+	const CIMName& assocClass = CIMName(),
+	const CIMName& resultClass = CIMName(),
+	const String& role = String::EMPTY,
+	const String& resultRole = String::EMPTY
     );
 
     virtual Array<CIMObject> references(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& objectName,
-    const CIMName& resultClass = CIMName(),
-    const String& role = String::EMPTY,
-    Boolean includeQualifiers = false,
-    Boolean includeClassOrigin = false,
-    const CIMPropertyList& propertyList = CIMPropertyList()
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& objectName,
+	const CIMName& resultClass = CIMName(),
+	const String& role = String::EMPTY,
+	Boolean includeQualifiers = false,
+	Boolean includeClassOrigin = false,
+	const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
     virtual Array<CIMObjectPath> referenceNames(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& objectName,
-    const CIMName& resultClass = CIMName(),
-    const String& role = String::EMPTY
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& objectName,
+	const CIMName& resultClass = CIMName(),
+	const String& role = String::EMPTY
     );
 
     virtual CIMValue getProperty(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    const CIMName& propertyName
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& instanceName,
+	const CIMName& propertyName
     );
 
     virtual void setProperty(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    const CIMName& propertyName,
-    const CIMValue& newValue = CIMValue()
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& instanceName,
+	const CIMName& propertyName,
+	const CIMValue& newValue = CIMValue()
     );
 
     virtual CIMQualifierDecl getQualifier(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& qualifierName
+	const CIMNamespaceName& nameSpace,
+	const CIMName& qualifierName
     );
 
     virtual void setQualifier(
-    const CIMNamespaceName& nameSpace,
-    const CIMQualifierDecl& qualifierDeclaration
+	const CIMNamespaceName& nameSpace,
+	const CIMQualifierDecl& qualifierDeclaration
     );
 
     virtual void deleteQualifier(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& qualifierName
+	const CIMNamespaceName& nameSpace,
+	const CIMName& qualifierName
     );
 
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
-    const CIMNamespaceName& nameSpace
+	const CIMNamespaceName& nameSpace
     );
 
     virtual CIMValue invokeMethod(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    const CIMName& methodName,
-    const Array<CIMParamValue>& inParameters,
-    Array<CIMParamValue>& outParameters
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& instanceName,
+	const CIMName& methodName,
+	const Array<CIMParamValue>& inParameters,
+	Array<CIMParamValue>& outParameters
     );
 
 private:
-    Boolean _connected;
-    Uint32 _timeoutMilliseconds;
+	Boolean _connected;
+	Uint32 _timeoutMilliseconds;
 };
 
 PEGASUS_NAMESPACE_END

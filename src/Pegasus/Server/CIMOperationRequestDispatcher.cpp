@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -15,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -57,7 +59,7 @@
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
-#include <Pegasus/Common/ContentLanguages.h> // l10n
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Formatter.h>
@@ -326,6 +328,49 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 
     response.setComplete(isComplete);
 }
+
+/**********************************************************
+ * Define CIMOMHandleContext class
+ **********************************************************/
+class CIMOMHandleContext : public NormalizerContext
+{
+public:
+    CIMOMHandleContext() {}
+    virtual ~CIMOMHandleContext() {}
+
+    virtual CIMClass getClass(
+	      const CIMNamespaceName& nameSpace,
+	      const CIMName& name);
+
+    virtual Array<CIMName> enumerateClassNames(
+        const CIMNamespaceName& nameSpace, const CIMName& className,
+        bool deepInheritance);
+
+private:
+    CIMOMHandle handle;
+    OperationContext emptyContext;
+};
+
+CIMClass CIMOMHandleContext::getClass(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& name)
+{
+    // Get the whole class definition
+    return handle.getClass(emptyContext, nameSpace, name, false, true, true,
+        CIMPropertyList());
+}
+
+Array<CIMName> CIMOMHandleContext::enumerateClassNames(
+    const CIMNamespaceName& nameSpace, const CIMName& className,
+    bool deepInheritance)
+{
+    return handle.enumerateClassNames(emptyContext, nameSpace, className,
+        deepInheritance);
+}
+
+/**********************************************************
+ * End CIMOMHandleContext class
+ **********************************************************/
 
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     CIMRepository* repository,
@@ -2145,7 +2190,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
    {
         if (req->thread_changed())
         {
-            Thread::setLanguages(new AcceptLanguages(((AcceptLanguageListContainer)req->operationContext.get
+            Thread::setLanguages(new AcceptLanguageList(((AcceptLanguageListContainer)req->operationContext.get
                 (AcceptLanguageListContainer::NAME)).getLanguages()));
         }
    }
@@ -2285,6 +2330,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
    }
 
    delete request;
+   PEG_METHOD_EXIT();
 
 }
 
@@ -2442,8 +2488,9 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
        {
            requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+           AutoPtr<NormalizerContext> context(new CIMOMHandleContext());
            requestCopy->operationContext.insert(
-              RepositoryContainer(_repository));
+              NormalizerContextContainer(context));
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
        }
 #endif
@@ -3618,8 +3665,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         {
             requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            AutoPtr<NormalizerContext> context(new CIMOMHandleContext());
            requestCopy->operationContext.insert(
-              RepositoryContainer(_repository));
+              NormalizerContextContainer(context));
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
 #endif
@@ -3989,8 +4037,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         {
             requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            AutoPtr<NormalizerContext> context(new CIMOMHandleContext());
            requestCopy->operationContext.insert(
-              RepositoryContainer(_repository));
+              NormalizerContextContainer(context));
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
 #endif

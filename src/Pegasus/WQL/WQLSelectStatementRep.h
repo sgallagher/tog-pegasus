@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,18 +56,14 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class WQLSelectStatementRep: public SelectStatementRep
+class PEGASUS_WQL_LINKAGE WQLSelectStatementRep: public SelectStatementRep
 {
 public:
 
-    WQLSelectStatementRep(
-        const String& queryLang,
-        const String& query);
 
-    WQLSelectStatementRep(
-        const String& queryLang,
-        const String& query,
-        const QueryContext& inCtx);
+    WQLSelectStatementRep(String& queryLang, String& query);
+
+     WQLSelectStatementRep(String& queryLang, String& query, QueryContext& inCtx);
 
     /** Default constructor.
     */
@@ -78,15 +83,15 @@ public:
     */
     const CIMName& getClassName() const
     {
-        return _className;
+	return _className;
     }
 
     /** Modifier. This method should not be called by the user (only by the
-    parser).
+	parser).
     */
     void setClassName(const CIMName& className)
     {
-        _className = className;
+	_className = className;
     }
 
     /**
@@ -101,12 +106,12 @@ public:
     void setAllProperties(const Boolean allProperties);
 
     /** Returns the number of property names which were indicated in the
-        selection list.
+	selection list.
         This function should only be used if getAllProperties() returns false.
     */
     Uint32 getSelectPropertyNameCount() const
     {
-    return _selectPropertyNames.size();
+	return _selectPropertyNames.size();
     }
 
     /** Gets the i-th selected property name in the list.
@@ -114,82 +119,81 @@ public:
     */
     const CIMName& getSelectPropertyName(Uint32 i) const
     {
-    return _selectPropertyNames[i];
+	return _selectPropertyNames[i];
     }
 
     /**
         Returns a CIMPropertyList containing the selected properties.
         The list is NULL if the query selects all properties (SELECT * FROM...).
     */
-    const CIMPropertyList getSelectPropertyList(
-        const CIMObjectPath& inClassName) const;
+    const CIMPropertyList getSelectPropertyList
+        (const CIMObjectPath& inClassName) const;
 
     /** Appends a property name to the property name list. The user should
-        not call this method; it should only be called by the parser.
+	not call this method; it should only be called by the parser.
     */
     void appendSelectPropertyName(const CIMName& x)
     {
-        _selectPropertyNames.append(x);
+	_selectPropertyNames.append(x);
     }
 
     /** Returns the number of unique property names from the where clause.
     */
     Uint32 getWherePropertyNameCount() const
     {
-        return _wherePropertyNames.size();
+	return _wherePropertyNames.size();
     }
 
     /** Gets the i-th unique property appearing in the where clause.
     */
     const CIMName& getWherePropertyName(Uint32 i) const
     {
-        return _wherePropertyNames[i];
+	return _wherePropertyNames[i];
     }
 
     /**
         Returns a CIMPropertyList containing the unique properties used in the
         WHERE clause
     */
-    const CIMPropertyList getWherePropertyList(
-        const CIMObjectPath& inClassName) const;
+    const CIMPropertyList getWherePropertyList
+        (const CIMObjectPath& inClassName) const;
 
     /** Appends a property name to the where property name list. The user
-    should not call this method; it should only be called by the parser.
+	should not call this method; it should only be called by the parser.
 
-    @param x name of the property.
-    @return false if a property with that name already exists.
+	@param x name of the property.
+	@return false if a property with that name already exists.
     */
     Boolean appendWherePropertyName(const CIMName& x);
 
     /** Appends an operation to the operation array. This method should only
-    be called by the parser itself.
+	be called by the parser itself.
     */
     void appendOperation(WQLOperation x)
     {
-        _operations.append(x);
+	_operations.append(x);
     }
 
     /** Appends an operand to the operation array. This method should only
-    be called by the parser itself.
+	be called by the parser itself.
     */
     void appendOperand(const WQLOperand& x)
     {
-        _operands.append(x);
+	_operands.append(x);
     }
 
     /** Returns true if this class has a where clause.
     */
     Boolean hasWhereClause() const
     {
-        return _operations.size() != 0;
+	return _operations.size() != 0;
     }
 
     /** Evalautes the where clause using the symbol table to resolve symbols.
     */
     Boolean evaluateWhereClause(const WQLPropertySource* source) const;
 
-    /** Inspect an instance and remove properties not listed in Select
-        projection.
+    /** Inspect an instance and remove properties not listed in Select projection.
     */
     void applyProjection(CIMInstance& inst,
         Boolean allowMissing);
@@ -200,13 +204,15 @@ public:
     */
     void print() const;
 
+    //static const WQLSelectStatement EMPTY;
+
     Boolean evaluate(const CIMInstance& inCI);
 
     void validate();
 
     CIMPropertyList getPropertyList(const CIMObjectPath& inClassName);
 
-    Array<CIMObjectPath> getClassPathList() const;
+    Array<CIMObjectPath> getClassPathList();
 
 private:
 

@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Authors: David Rosckes (rosckes@us.ibm.com)
+//          Bert Rivero (hurivero@us.ibm.com)
+//          Chuck Carmack (carmack@us.ibm.com)
+//          Brian Lucier (lucier@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,20 +51,18 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct PropertyNode;
 
-class CQLSelectStatementRep : public SelectStatementRep
+class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
 {
   public:
 
     CQLSelectStatementRep();
 
-    CQLSelectStatementRep(
-        const String& inQlang,
-        const String& inQuery,
-        const QueryContext& inCtx);
+    CQLSelectStatementRep(String& inQlang,
+                          String& inQuery,
+                          QueryContext& inCtx);
 
-    CQLSelectStatementRep(
-        const String& inQlang,
-        const String& inQuery);
+    CQLSelectStatementRep(String& inQlang,
+                          String& inQuery);
 
     CQLSelectStatementRep(const CQLSelectStatementRep& rep);
 
@@ -64,13 +72,12 @@ class CQLSelectStatementRep : public SelectStatementRep
 
     Boolean evaluate(const CIMInstance& inCI);
 
-    void applyProjection(
-        CIMInstance& inCI,
+    void applyProjection(CIMInstance& inCI,
         Boolean allowMissing);
 
     void validate();
 
-    Array<CIMObjectPath> getClassPathList() const;
+    Array<CIMObjectPath> getClassPathList();
 
     CIMPropertyList getPropertyList(const CIMObjectPath& inClassName);
 
@@ -88,9 +95,8 @@ class CQLSelectStatementRep : public SelectStatementRep
 
     CQLPredicate getPredicate() const;
 
-    void insertClassPathAlias(
-        const CQLIdentifier& inIdentifier,
-        const String& inAlias);
+    void insertClassPathAlias(const CQLIdentifier& inIdentifier,
+                              String inAlias);
 
     void appendSelectIdentifier(const CQLChainedIdentifier& x);
 
@@ -98,11 +104,11 @@ class CQLSelectStatementRep : public SelectStatementRep
 
     void normalizeToDOC();
 
-    String toString() const;
+    String toString();
 
     void setHasWhereClause();
 
-    Boolean hasWhereClause() const;
+    Boolean hasWhereClause();
 
     void clear();
 
@@ -114,58 +120,42 @@ class CQLSelectStatementRep : public SelectStatementRep
 
   private:
 
-    Boolean applyProjection(
-        PropertyNode* node,
-        CIMProperty& nodeProp,
-        Boolean& preservePropsForParent,
-        Boolean allowMissing) const;
+    Boolean applyProjection(PropertyNode* node,
+                            CIMProperty& nodeProp,
+                            Boolean& preservePropsForParent,
+                            Boolean allowMissing);
 
-    void validateProperty(const QueryChainedIdentifier& chainId) const;
+    void validateProperty(QueryChainedIdentifier& chainId);
 
-    CIMName lookupFromClass(const String& lookup) const;
+    CIMName lookupFromClass(const String&  lookup);
 
-    CIMPropertyList getPropertyListInternal(
-        const CIMObjectPath& inClassName,
-        Boolean includeSelect,
-        Boolean includeWhere);
+    CIMPropertyList getPropertyListInternal(const CIMObjectPath& inClassName,
+                                            Boolean includeSelect,
+                                            Boolean includeWhere);
 
-    Boolean addRequiredProperty(
-        Array<CIMName>& reqProps,
-        const CIMName& className,
-        const QueryChainedIdentifier& chainId,
-        Array<CIMName>& matchedScopes,
-        Array<CIMName>& unmatchedScopes) const;
+    Boolean addRequiredProperty(Array<CIMName>& reqProps,
+                                CIMName& className,
+                                QueryChainedIdentifier& chainId,
+                                Array<CIMName>& matchedScopes,
+                                Array<CIMName>& unmatchedScopes);
 
-    Boolean isFilterable(
-        const CIMInstance& inst,
-        PropertyNode* node) const;
+    Boolean isFilterable(const CIMInstance& inst,
+                         PropertyNode* node);
 
-    void filterInstance(
-        CIMInstance& inst,
-        Boolean& allPropsRequired,
-        const CIMName& allPropsClass,
-        Array<CIMName>& requiredProps,
-        Boolean& preserveProps,
-        Boolean allowMissing) const;
+    void filterInstance(CIMInstance& inst,
+                        Boolean& allPropsRequired,
+                        const CIMName& allPropsClass,
+                        Array<CIMName>& requiredProps,
+                        Boolean& preserveProps,
+                        Boolean allowMissing);
 
-    static Boolean containsProperty(
-        const CIMName& name,
-        const Array<CIMName>& props);
+    Boolean containsProperty(const CIMName& name,
+                             const Array<CIMName>& props);
 
-    Boolean isFromChild(const CIMName& className) const;
+    Boolean isFromChild(const CIMName& className);
 
     void checkWellFormedIdentifier(const QueryChainedIdentifier& chainId,
                                    Boolean isSelectListId);
-
-    void reportNullContext() const;
-
-    void CheckQueryContext() const
-    {
-        if (0 == _ctx)
-        {
-            reportNullContext();
-        }
-    }
 
     CQLPredicate _predicate;
 

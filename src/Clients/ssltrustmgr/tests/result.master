@@ -1,0 +1,193 @@
+Connect with an expired certificate -- should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Add the expired certificate to the truststore -- should get an expiration error
+Failed to add certificate.
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The certificate has expired."
+
+Connect with a not yet valid certificate -- should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Add the not yet valid certificate to the truststore -- should get a not yet valid error
+Failed to add certificate.
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The certificate is not valid yet.  Check the timestamps on your machine."
+
+Connect with an untrusted certificate -- should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Add the self-signed certificate to the truststore
+Certificate added successfully.
+
+Try to connect, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Attempt to add the same certificate, this should get a duplication error
+Failed to add certificate.
+Specified certificate already exist.
+CIM_ERR_ALREADY_EXISTS: Operation cannot be carried out because an object already exists: "PG_SSLCertificate.IssuerName="/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1",SerialNumber="0",TruststoreType=2"
+
+Delete the self-signed certificate from the truststore
+Certificate removed successfully.
+
+Try to connect, this should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Attempt to delete the certificate we just deleted, this should get a DNE error
+Failed to remove certificate.
+Specified certificate does not exist.
+CIM_ERR_NOT_FOUND: The requested object could not be found: "The certificate does not exist."
+
+Add the CA certificate to the truststore
+Certificate added successfully.
+
+Try to connect with the 1st certificate issued by the CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the 2nd certificate issued by the CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the 3rd certificate issued by the CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Add the CA CRL to the truststore
+CRL added successfully.
+
+Try to connect with the 1st certificate, this should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Try to connect with the 2nd certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the 3rd certificate issued by the CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Add the updated CA CRL to the truststore, this should succeed
+CRL added successfully.
+
+Try to connect with the 1st certificate, this should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Try to connect with the 2nd certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the 3rd certificate, this should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Remove the CA CRL certificate
+CRL removed successfully.
+
+Try to connect with the 1st certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the 2nd certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the 3rd certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Remove the CA CRL that we just removed, this should get a DNE error
+Failed to remove CRL.
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "File does not exist 2ef780db.r0."
+
+Remove the CA certificate from the truststore to clean everything up, this should succeed
+Certificate removed successfully.
+
+Try to connect with the 1st certificate issued by the CA, this should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Try to connect with the 2nd certificate issued by the CA, this should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Try to connect with the 3rd certificate issued by the CA, this should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Add the self-signed root certificate to the truststore
+Certificate added successfully.
+
+Try to connect, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the intermediate certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the leaf certificate issued by the CA, this should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Add the intermediate CA signed certificate to the truststore
+Certificate added successfully.
+
+Try to connect with root CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the intermediate certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the leaf certificate issued by the CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Remove the CA certificate from the truststore, this should succeed
+Certificate removed successfully.
+
+Try to connect with the intermediate certificate issued by the CA, this should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Try to connect with the leaf certificate issued by the CA, this should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Remove the intermediate CA certificate from the truststore, this should succeed
+Certificate removed successfully.
+
+Add the root CA certificate to the truststore without an associated username
+NOTE: No user name will be associated with the certificate in the truststore.
+Certificate added successfully.
+
+Try to connect, this should fail since the root CA does not have an associated user name
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized): Detail = "The username registered to this certificate is not a valid user.".
+
+Remove the CA certificate from the truststore, this should succeed
+Certificate removed successfully.
+

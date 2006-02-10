@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,75 +43,60 @@
 #include <Pegasus/Common/CIMMethod.h>
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/General/MofWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static Boolean verbose;
+static char * verbose;
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     try
     {
-        CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-        m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-        m1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
-        m1.addParameter(CIMParameter(CIMName ("ipaddress"), CIMTYPE_STRING));
+	CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
+	m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
+	m1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
+	m1.addParameter(CIMParameter(CIMName ("ipaddress"), CIMTYPE_STRING));
 
 
-        // Tests for Qualifiers
-        PEGASUS_TEST_ASSERT(
-            m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 2);
+	// Tests for Qualifiers
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 2);
 
-        PEGASUS_TEST_ASSERT(
-            m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
-        PEGASUS_TEST_ASSERT(
-            m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 
-        Uint32 posQualifier;
-        posQualifier = m1.findQualifier(CIMName ("stuff"));
-        PEGASUS_TEST_ASSERT(posQualifier != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(posQualifier < m1.getQualifierCount());
+	Uint32 posQualifier;
+	posQualifier = m1.findQualifier(CIMName ("stuff"));
+	PEGASUS_TEST_ASSERT(posQualifier != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(posQualifier < m1.getQualifierCount());
 
-        m1.removeQualifier(posQualifier);
-        PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 1);
-        PEGASUS_TEST_ASSERT(
-            m1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	m1.removeQualifier(posQualifier);
+	PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 1);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
         // Tests for Parameters
-        PEGASUS_TEST_ASSERT(m1.findParameter(
-            CIMName ("ipaddress")) != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(m1.findParameter(
-            CIMName ("noparam"))  == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(m1.findParameter(CIMName ("ipaddress")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(m1.findParameter(CIMName ("noparam"))  == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(m1.getParameterCount()  == 1);
-        CIMParameter cp = m1.getParameter(
-            m1.findParameter(CIMName ("ipaddress")));
+        CIMParameter cp = m1.getParameter(m1.findParameter(CIMName ("ipaddress")));
         PEGASUS_TEST_ASSERT(cp.getName() == CIMName ("ipaddress"));
 
-        m1.removeParameter (m1.findParameter (
-            CIMName (CIMName ("ipaddress"))));
+        m1.removeParameter (m1.findParameter (CIMName (CIMName ("ipaddress"))));
         PEGASUS_TEST_ASSERT (m1.getParameterCount ()  == 0);
-        m1.addParameter (CIMParameter (CIMName ("ipaddress"),
-                                       CIMTYPE_STRING));
+        m1.addParameter (CIMParameter (CIMName ("ipaddress"), CIMTYPE_STRING));
         PEGASUS_TEST_ASSERT (m1.getParameterCount ()  == 1);
-
+ 
         // throws OutOfBounds
         try
         {
@@ -111,7 +106,7 @@ int main(int, char** argv)
         {
             if (verbose)
             {
-                PEGASUS_STD (cout) << "Caught expected exception: "
+                PEGASUS_STD (cout) << "Caught expected exception: " 
                                    << oob.getMessage () << PEGASUS_STD (endl);
             }
         }
@@ -130,19 +125,14 @@ int main(int, char** argv)
         PEGASUS_TEST_ASSERT(m2.getPropagated() == true);
 
         const CIMMethod cm1(m1);
-        PEGASUS_TEST_ASSERT(cm1.findQualifier(
-            CIMName ("stuff21")) == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(cm1.findQualifier(
-            CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cm1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cm1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT((cm1.getParameterCount() != 3));
-        PEGASUS_TEST_ASSERT(cm1.findParameter(
-            CIMName ("ipaddress")) != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(cm1.findQualifier(
-            CIMName ("stuff")) == PEG_NOT_FOUND);
-
+        PEGASUS_TEST_ASSERT(cm1.findParameter(CIMName ("ipaddress")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(cm1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+        
         CIMQualifier q = m1.getQualifier(posQualifier);
-        CIMConstParameter ccp = cm1.getParameter(
-                    cm1.findParameter(CIMName ("ipaddress")));
+        CIMConstParameter ccp = cm1.getParameter(cm1.findParameter(CIMName ("ipaddress")));
         PEGASUS_TEST_ASSERT(cm1.getName() == CIMName ("getHostName"));
         PEGASUS_TEST_ASSERT(cm1.getType() == CIMTYPE_STRING);
         PEGASUS_TEST_ASSERT(!(cm1.getClassOrigin() == CIMName ("test")));
@@ -152,20 +142,17 @@ int main(int, char** argv)
         // throws OutOfBounds
         try
         {
-            CIMConstParameter p = cm1.getParameter(cm1.findParameter(
-                                        CIMName ("ipaddress")));
+            CIMConstParameter p = cm1.getParameter(cm1.findParameter(CIMName ("ipaddress")));
         }
-        catch(IndexOutOfBoundsException&)
+        catch(IndexOutOfBoundsException& e)
         {
         }
-
         // throws OutOfBounds
         try
         {
-            CIMConstQualifier q1 = cm1.getQualifier(cm1.findQualifier(
-                                        CIMName ("abstract")));
+            CIMConstQualifier q = cm1.getQualifier(cm1.findQualifier(CIMName ("abstract")));
         }
-        catch(IndexOutOfBoundsException&)
+        catch(IndexOutOfBoundsException& e)
         {
         }
 
@@ -178,12 +165,12 @@ int main(int, char** argv)
         XmlWriter::appendMethodElement(out, cm1);
         MofWriter::appendMethodElement(out, cm1);
 
-        Boolean nullMethod = cm1.isUninitialized();
-        PEGASUS_TEST_ASSERT(!nullMethod);
+        Boolean nullMethod = cm1.isUninitialized(); 
+	PEGASUS_TEST_ASSERT(!nullMethod);
 
         CIMMethod m3 = m2.clone();
         m3 = cm1.clone();
-
+        
         CIMMethod m4;
         CIMMethod m5(m4);
 
@@ -196,10 +183,8 @@ int main(int, char** argv)
         PEGASUS_TEST_ASSERT(!ccm1.getPropagated() == true);
         PEGASUS_TEST_ASSERT(!(ccm1.getParameterCount() == 3));
         PEGASUS_TEST_ASSERT(ccm1.getQualifierCount() == 0);
-        PEGASUS_TEST_ASSERT(ccm1.findQualifier(
-            CIMName ("Stuff")) == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(ccm1.findParameter(
-            CIMName ("ipaddress")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(ccm1.findQualifier(CIMName ("Stuff")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(ccm1.findParameter(CIMName ("ipaddress")) == PEG_NOT_FOUND);
 
         if (verbose)
         {
@@ -208,44 +193,40 @@ int main(int, char** argv)
         }
 
         XmlWriter::appendMethodElement(out, ccm1);
-
+      
         CIMConstMethod ccm2(ccm1);
         CIMConstMethod ccm3;
 
         ccm3 = ccm1.clone();
         ccm1 = ccm3;
         PEGASUS_TEST_ASSERT(ccm1.identical(ccm3));
-        PEGASUS_TEST_ASSERT(ccm1.findQualifier(
-            CIMName ("stuff")) == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(ccm1.findParameter(
-            CIMName ("ipaddress")) == PEG_NOT_FOUND);
-
+        PEGASUS_TEST_ASSERT(ccm1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(ccm1.findParameter(CIMName ("ipaddress")) == PEG_NOT_FOUND);
+        
         nullMethod = ccm1.isUninitialized();
         PEGASUS_TEST_ASSERT(!nullMethod);
 
         // throws OutOfBounds
         try
         {
-            //CIMParameter p = m1.getParameter(
-            //     m1.findParameter(CIMName ("ipaddress")));
+            //CIMParameter p = m1.getParameter(m1.findParameter(CIMName ("ipaddress")));
             CIMConstParameter p = ccm1.getParameter(0);
         }
-        catch(IndexOutOfBoundsException&)
+        catch(IndexOutOfBoundsException& e)
         {
         }
-
         // throws OutOfBounds
         try
         {
-            CIMConstQualifier q1 = ccm1.getQualifier(0);
+            CIMConstQualifier q = ccm1.getQualifier(0);
         }
-        catch(IndexOutOfBoundsException&)
+        catch(IndexOutOfBoundsException& e)
         {
         }
     }
     catch(Exception& e)
     {
-        cerr << "Exception: " << e.getMessage() << endl;
+	cerr << "Exception: " << e.getMessage() << endl;
     }
 
     // Test for add second qualifier with same name.

@@ -1,34 +1,35 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
-
+#//==============================================================================
 #
-# CompareXmlBin Makefile
+# CompareXmlBin MAkefile
 #
 # Commands available are:
 #
@@ -39,16 +40,24 @@
 # make repo_build_Internal  	build the repository with Interanal namespace 
 # make repo_build_Interop	build the repository with InterOp namespace
 # make repo_build_ManagedSystem	build the repository with ManagedSystem namespace
-#
+#	
 # make run_test			runs the test
+# make repo_clean		cleans the repsoitory
 # make clean			cleans all
 #
-
+#
+#
 ROOT = ../../../../..
 DIR = Pegasus/Repository/tests/CompareXmlBin
 
 include $(ROOT)/mak/config.mak
-include $(ROOT)/mak/test.mak
+### include ../libraries.mak
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+LOCAL_CLEAN_TARGET=local-clean
+
+PROGRAM = TestCompareRepositories
+SOURCES = 
 
 ##
 ## REPO_DIR : Directory to build the test repositories in.
@@ -62,11 +71,7 @@ include $(ROOT)/mak/test.mak
 ##
 
 ## REPO_DIR = $(REPOSITORY_DIR) 
-ifeq ($(TMP_DIR),.)
-    REPO_DIR = $(PEGASUS_ROOT)/src/$(DIR)
-else
-    REPO_DIR = $(TMP_DIR)
-endif
+REPO_DIR = $(ROOT)/src/Pegasus/Repository/tests/CompareXmlBin
 
 
 ## REPO_XXX : The file name to be used for each type of test repository.
@@ -74,7 +79,12 @@ endif
 REPO_XML = repository_xml
 REPO_BIN = repository_bin
 
-.PHONY: repo_build run_test tests poststarttests
+## include $(ROOT)/mak/program.mak
+
+.PHONY: FORCE repo_build run_test repo_clean tests poststarttests
+
+FORCE: 
+
 
 tests:  repo_build run_test clean
 	@ $(ECHO) +++++ CompareXmlBin repository test: FINISHED with test
@@ -85,25 +95,27 @@ tests:  repo_build run_test clean
 # or a file. Build one (XML) repository in the server and the BIN 
 # in a local file then compare them. It might be an interesting test
 #
-# poststarttests: repo_Server_build run_test clean
+# poststarttests: repo_Server_build run_test repo_clean
 # 	@ $(ECHO) +++++ CompareXmlBin repository test: FINISHED with test
 #
 
 poststarttests:
 
-clean:
-	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_XML)
-	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_BIN)
+clean: local-clean
 
 messages:
 
 depend:
 
-general:
+repo_clean:
+	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_XML)
+	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_BIN)
+
+local-clean: repo_clean
+	@ - $(RM) -rf file1 file2
 
 run_test:
-	TestCompareRepositories $(REPO_DIR)/$(REPO_XML) $(REPO_DIR)/$(REPO_BIN) 
-
+	$(PROGRAM) $(REPO_DIR)/$(REPO_XML) $(REPO_DIR)/$(REPO_BIN) 
 #
 # build both XML and BIN in local files 
 #
@@ -148,4 +160,6 @@ repo_build_ManagedSystems:
 repo_Server_build:
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repositoryServer REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_BIN) REPOSITORY_MODE=BIN
+
+
 

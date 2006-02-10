@@ -1,36 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#define FILE_ENTRY(n,s,c,m,a,o,t) {'f',#n,s,c,m,a,o,#t}
-#define DIR_ENTRY(n,s,c,m,a,o,t) {'d',#n,s,c,m,a,o,#t}
+//   FILE_ENTRY(/Simulated/CMPI/tests/Providers: directory
+
+#define FILE_ENTRY(n,s,c,m,a,o,t) {'f',#n,s,c,m,a,o,#t} 
+#define DIR_ENTRY(n,s,c,m,a,o,t) {'d',#n,s,c,m,a,o,#t} 
 
 #include <time.h>
 
@@ -41,8 +45,8 @@ typedef struct fileData {
    time_t cTime,mTime,aTime;
    int mode;
    char *type;
-} FileData;
-
+} FileData;  
+  
 FileData files[]={
   DIR_ENTRY(/Simulated/CMPI/tests/Providers,
    4096,1078617123,1078617429,1078617123,0775,
@@ -53,8 +57,8 @@ FileData files[]={
   DIR_ENTRY(/Simulated/CMPI/tests/Providers/util,
    4096,1078617429,1078617429,1078617429,0755,
    directory),
-
-  FILE_ENTRY(/Simulated/CMPI/tests/Providers/CWS_Directory.c,
+   
+  FILE_ENTRY(/Simulated/CMPI/tests/Providers/CWS_Directory.c, 
    6291,1078582741,1078609332,1074173331,0644,
    ASCII C program text),
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/CWS_DirectoryContainsFile.c,
@@ -94,7 +98,7 @@ FileData files[]={
    33768,1078589724,1078609332,1078589724,664,
    ELF 32-bit LSB relocatable; Intel 80386; version 1 (SYSV); not stripped),
 
-  FILE_ENTRY(/Simulated/CMPI/tests/Providers/env,
+  FILE_ENTRY(/Simulated/CMPI/tests/Providers/env, 
    145,1078583810,1078609332,1078583810,0644,
    ASCII text),
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/libCWS_DirectoryContainsFile.so,
@@ -109,7 +113,7 @@ FileData files[]={
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/libCWS_PlainFile.so,
    33832,1078589724,1078609332,1078589724,0775,
    ELF 32-bit LSB shared object; Intel 80386; version 1 (SYSV); not stripped),
-  FILE_ENTRY(/Simulated/CMPI/tests/Providers/makefile,
+  FILE_ENTRY(/Simulated/CMPI/tests/Providers/makefile, 
    1031,1078582741,1078609332,1074173331,0644,
    ASCII make commands text),
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/README,
@@ -135,8 +139,7 @@ FileData files[]={
 
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/util/cwstest,
    20800,1078590300,1078608953,1078590300,0775,
-   ELF 32-bit LSB executable; Intel 80386; version 1 (SYSV);
-   for GNU/Linux 2.2.5; dynamically linked (uses shared libs); not stripped),
+   ELF 32-bit LSB executable; Intel 80386; version 1 (SYSV); for GNU/Linux 2.2.5; dynamically linked (uses shared libs); not stripped),
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/util/cwstest.c,
    1671,1078582732,1078608953,1044457030,0644,
    ASCII C program text),

@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Bob Blair (bblair@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 //
@@ -64,66 +73,43 @@ PEGASUS_NAMESPACE_BEGIN
 // Forward declarations
 class cimmofRepository;
 class cimmofClient;
-class cimmofMRR;
 class CIMClass;
 class CIMQualifierDecl;
 class CIMInstance;
 
-class PEGASUS_COMPILER_LINKAGE cimmofRepositoryInterface
-{
-    private:
-        cimmofRepository *_repository;
-        cimmofClient        *_client;
-        cimmofMRR* _mrr;
-        compilerCommonDefs::operationType _ot;
-    public:
-        enum _repositoryType
-        {
-            REPOSITORY_INTERFACE_LOCAL = 0,
-            REPOSITORY_INTERFACE_CLIENT = 1,
-            REPOSITORY_INTERFACE_MRR = 2
-        };
-        cimmofRepositoryInterface();
-        virtual ~cimmofRepositoryInterface();
-        /*
-            Initialize a repository
-            @param type repository type defines whether client, local or
-            MRR repository is to be initialized
-            @param location String defining location of the repository. The
-            exact format depends on type paramter
-            @param mode
-            @param ot operationType
-            @param descriptions bool that defines whether descripton
-            qualifiers are to be included in the compiled output. This
-            parameter is used ONLY for MMR compilations.
-        */
-        void init(_repositoryType type, String location, Uint32 mode,
-                compilerCommonDefs::operationType ot, bool descriptions);
-        Boolean ok() const
-        {
-            return _repository || _client || _mrr;
-        }
-        virtual void addClass(
-                const CIMNamespaceName &nameSpace,
-                CIMClass &Class) const;
-        virtual void addQualifier(
-                const CIMNamespaceName &nameSpace,
-                CIMQualifierDecl &qual) const;
-        virtual void addInstance(
-                const CIMNamespaceName &nameSpace,
-                CIMInstance &instance) const;
-        virtual CIMQualifierDecl getQualifierDecl(
-                const CIMNamespaceName &nameSpace,
-                const CIMName &qualifierName) const;
-        virtual CIMClass getClass(
-                const CIMNamespaceName &nameSpace,
-                const CIMName &className) const;
-        virtual void modifyClass(
-                const CIMNamespaceName &nameSpace,
-                CIMClass &Class) const;
-        virtual void createNameSpace(const CIMNamespaceName &nameSpace) const;
-        virtual void start();
-        virtual void finish();
+class PEGASUS_COMPILER_LINKAGE cimmofRepositoryInterface {
+ private:
+  cimmofRepository *_repository;
+  cimmofClient        *_client;
+  compilerCommonDefs::operationType _ot;
+ public:
+  enum _repositoryType { REPOSITORY_INTERFACE_LOCAL = 0,
+                          REPOSITORY_INTERFACE_CLIENT
+  };
+  cimmofRepositoryInterface();
+  virtual ~cimmofRepositoryInterface();
+  void init(_repositoryType type, String location, const CIMRepository_Mode Mode,
+	    compilerCommonDefs::operationType ot);
+  Boolean ok() const { return _repository || _client; }
+  virtual void addClass(
+      const CIMNamespaceName &nameSpace,
+      CIMClass &Class) const;
+  virtual void addQualifier(
+      const CIMNamespaceName &nameSpace,
+      CIMQualifierDecl &qual) const;
+  virtual void addInstance(
+      const CIMNamespaceName &nameSpace,
+      CIMInstance &instance) const;
+  virtual CIMQualifierDecl getQualifierDecl(
+      const CIMNamespaceName &nameSpace,
+      const CIMName &qualifierName) const;
+  virtual CIMClass getClass(
+      const CIMNamespaceName &nameSpace,
+      const CIMName &className) const;
+  virtual void modifyClass(
+      const CIMNamespaceName &nameSpace,
+      CIMClass &Class) const;
+  virtual void createNameSpace(const CIMNamespaceName &nameSpace) const;
 };
 
 PEGASUS_NAMESPACE_END

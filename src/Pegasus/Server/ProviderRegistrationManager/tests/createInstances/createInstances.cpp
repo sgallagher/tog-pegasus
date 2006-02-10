@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,14 +42,12 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
-#include \
-    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static Boolean verbose;
-#define VCOUT if (verbose) cout
+Boolean verbose = false;
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 const CIMName CLASSNAME = CIMName ("PG_ProviderModule");
@@ -74,23 +81,14 @@ void TestCreateInstances(ProviderRegistrationManager & prmanager)
     instanceName.setNameSpace(NAMESPACE);
     instanceName.setClassName(CLASSNAME);
 
-    returnRef = prmanager.createInstance(instanceName, cimInstance);
-
-    // Test duplicate create of provider instance
-    Boolean callFailed = false;
     try
     {
         returnRef = prmanager.createInstance(instanceName, cimInstance);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        callFailed = true;
-        VCOUT << "CIMException code " << e.getCode()
-            << "(" << cimStatusCodeToString(e.getCode()) << ")"
-            <<  "\nDescription \"" << e.getMessage() << "\"" << endl;
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS);
+        throw;
     }
-    PEGASUS_TEST_ASSERT(callFailed);
 
     // Test create PG_Provider instances
 
@@ -110,23 +108,14 @@ void TestCreateInstances(ProviderRegistrationManager & prmanager)
     instanceName2.setNameSpace(NAMESPACE);
     instanceName2.setClassName(CLASSNAME2);
 
-    returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
-
-    // test duplicate create fails
-    callFailed = false;
     try
     {
-        returnRef = prmanager.createInstance(instanceName2, cimInstance2);
+        returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        callFailed = true;
-        VCOUT << "CIMException code " << e.getCode()
-            << "(" << cimStatusCodeToString(e.getCode()) << ")"
-            <<  "\nDescription \"" << e.getMessage() << "\"" << endl;
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS);
+        throw;
     }
-    PEGASUS_TEST_ASSERT(callFailed);
 
     //
     // test create provider capability instances
@@ -176,68 +165,20 @@ void TestCreateInstances(ProviderRegistrationManager & prmanager)
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
 
-    returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
-
-    // Test duplicate create code
-    callFailed = false;
     try
     {
-        returnRef = prmanager.createInstance(instanceName3, cimInstance3);
+        returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        callFailed = true;
-        VCOUT << "CIMException code " << e.getCode()
-            << "(" << cimStatusCodeToString(e.getCode()) << ")"
-            <<  "\nDescription \"" << e.getMessage() << "\"" << endl;
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS);
+        throw;
     }
 }
 
-// test for error where Provider created before module exists.
-void TestCreateInstancesError1(ProviderRegistrationManager & prmanager)
-{
-    // Test create PG_Provider instances
-
-    CIMObjectPath returnRef2;
-
-    CIMClass cimClass2(CLASSNAME2);
-
-    CIMInstance cimInstance2(CLASSNAME2);
-
-    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
-        String("providersModuleNotcreated")));
-    cimInstance2.addProperty(CIMProperty(CIMName ("Name"),
-        String("PG_ProviderInstance100")));
-
-    CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
-
-    instanceName2.setNameSpace(NAMESPACE);
-    instanceName2.setClassName(CLASSNAME2);
-
-    // test create of provider with no module fails
-    Boolean callFailed = false;
-    try
-    {
-        returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
-    }
-    catch(CIMException& e)
-    {
-        callFailed = true;
-        VCOUT << "CIMException code " << e.getCode()
-            << "(" << cimStatusCodeToString(e.getCode()) << ")"
-            <<  "\nDescription \"" << e.getMessage() << "\"" << endl;
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_FAILED);
-    }
-    PEGASUS_TEST_ASSERT(callFailed);
-}
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-    if (verbose)
-    {
-        cout << argv[0] << ": started" << endl;
-    }
+    if (verbose) cout << argv[0] << ": started" << endl;
 
     const char* tmpDir = getenv ("PEGASUS_TMP");
     String repositoryRoot;
@@ -259,7 +200,6 @@ int main(int, char** argv)
     try
     {
         TestCreateInstances(prmanager);
-        TestCreateInstancesError1(prmanager);
     }
 
     catch(Exception& e)
@@ -270,8 +210,7 @@ int main(int, char** argv)
         exit(-1);
     }
 
-    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests"
-                      << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD(endl);
 
-    return 0;
+    exit (0);
 }

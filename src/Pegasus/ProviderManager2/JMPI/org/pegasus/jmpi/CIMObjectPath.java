@@ -1,274 +1,161 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
-// Author:      Adrian Schuur, schuur@de.ibm.com
+// Author:      Adrian Schuur, schuur@de.ibm.com 
 //
 // Modified By: Magda
 //
 //%/////////////////////////////////////////////////////////////////////////////
-package org.pegasus.jmpi;
 
+
+package org.pegasus.jmpi;
 import java.util.*;
 
 public class CIMObjectPath
 {
-   private long cInst;
-
-   private native long        _new           ();
-   private native long        _newCn         (String cn);
-   private native long        _newCnNs       (String cn,
-                                              String ns);
-   private native long        _newCi         (long   cInst);
-   private native long        _newCiNs       (long   cInst,
-                                              String ns);
-   private native void        _finalize      (long   cInst);
-   private native String      _getNameSpace  (long   cInst);
-   private native void        _setNameSpace  (long   cInst,
-                                              String ns);
-   private native String      _getHost       (long   cInst);
-   private native void        _setHost       (long   cInst,
-                                              String hn);
-   private native String      _getObjectName (long   cInst);
-   private native void        _setObjectName (long   cInst,
-                                              String objectName);
-   private native Vector      _getKeys       (long   cInst,
-                                              Vector v);
-   private native void        _setKeys       (long   cInst,
-                                              Vector v);
-   private native void        _addKey        (long   cInst,
-                                              String key,
-                                              long   vInst);
-   private native String      _getKeyValue   (long   cInst,
-                                              String keyValue);
-   private native String      _toString      (long   cInst);
-   private native long        _clone         (long   cInst);
-   private static native long _set           (String copStr);
-
-   CIMObjectPath (long ci)
-   {
-      cInst = ci;
+   int cInst;
+   private native int    _new();
+   private native int    _newCn(String cn);
+   private native int    _newCnNs(String cn, String ns);
+   private native int    _newCi(int ci);
+   private native int    _newCiNs(int ci,String ns);
+   private native void   _finalize(int ci);
+   private native String _getNameSpace(int ci);
+   private native void   _setNameSpace(int ci, String ns);
+   private native String _getHost(int ci);
+   private native void   _setHost(int ci, String hn);
+   private native String _getObjectName(int ci);
+   private native void   _setObjectName(int ci,String objectName);
+   private native Vector _getKeys(int ci, Vector v);
+   private native void   _setKeys(int ci, Vector v);
+   private native void   _addKey(int ci, String key, int vInst);
+   private native String _getKeyValue(int ci, String keyValue);
+   private native String _toString(int ci);
+   private native int    _clone(int ci);
+   private static native int _set(String copStr);
+  
+   CIMObjectPath(int ci) {
+      cInst=ci;
    }
-
-   protected long cInst ()
-   {
+   
+   int cInst() {
       return cInst;
    }
-
-   protected void finalize ()
-   {
-      _finalize (cInst);
+   
+   public CIMObjectPath() {
+      cInst=_new();
+   }
+   
+   public CIMObjectPath(String className) {
+      if (className==null) cInst=_new();
+      else cInst=_newCn(className);
    }
 
-   public CIMObjectPath ()
-   {
-      cInst = _new ();
-   }
-
-   public CIMObjectPath (String className)
-   {
-      if (className == null)
-         cInst = _new ();
-      else
-         cInst = _newCn (className);
-   }
-
-   public CIMObjectPath (String className, String nameSpace)
-   {
-      if (nameSpace == null)
-         cInst = _newCn (className);
-      else
-         cInst = _newCnNs (className, nameSpace);
+   public CIMObjectPath(String className, String nameSpace) {
+      if (nameSpace==null) cInst=_newCn(className);
+      else cInst=_newCnNs(className,nameSpace);
   }
 
-   public CIMObjectPath (String className, Vector keyValuePairs)
-   {
-      cInst = _newCn (className);
-      if (keyValuePairs != null)
-      {
-         if (cInst != 0)
-         {
-            _setKeys (cInst, keyValuePairs);
-         }
-      }
+   public CIMObjectPath(String className, Vector keyValuePairs) {
+      cInst=_newCn(className);
+      if (keyValuePairs!=null) _setKeys(cInst,keyValuePairs);
    }
 
-   public CIMObjectPath (CIMInstance ci)
-   {
-      cInst = _newCi (ci.cInst ());
+   public CIMObjectPath(CIMInstance ci) {
+      cInst=_newCi(ci.cInst());
    }
 
-   public CIMObjectPath (CIMInstance ci, String ns)
-   {
-      cInst = _newCiNs (ci.cInst (), ns);
+   public CIMObjectPath(CIMInstance ci,String ns) {
+      cInst=_newCiNs(ci.cInst(),ns);
    }
 
-   public Object clone ()
-   {
-      long ciNew = _clone (cInst);
-
-      if (ciNew != 0)
-      {
-         return new CIMObjectPath (ciNew);
-      }
-      else
-      {
-         return null;
-      }
+   public String getHost() {
+      return _getHost(cInst);
    }
 
-   public String getHost ()
-   {
-      if (cInst != 0)
-      {
-         return _getHost (cInst);
-      }
-      else
-      {
-         return null;
-      }
+   public void setHost(String hn) {
+      _setHost(cInst,hn);
    }
 
-   public void setHost (String hn)
-   {
-      if (cInst != 0)
-      {
-         _setHost (cInst, hn);
-      }
+   public String getNameSpace() {
+      return _getNameSpace(cInst);
    }
-
-   public String getNameSpace ()
-   {
-      if (cInst != 0)
-      {
-         return _getNameSpace (cInst);
-      }
-      else
-      {
-         return null;
-      }
+   
+   public void setNameSpace(String ns) {
+      _setNameSpace(cInst,ns);
+   }  
+   
+   public String getObjectName() {
+      return _getObjectName(cInst);
    }
-
-   public void setNameSpace (String ns)
-   {
-      if (cInst != 0)
-      {
-         _setNameSpace (cInst, ns);
-      }
+   
+   public void setObjectName(String objectName) {
+      _setObjectName(cInst,objectName);
    }
-
-   public String getObjectName ()
-   {
-      if (cInst != 0)
-      {
-         return _getObjectName (cInst);
-      }
-      else
-      {
-         return null;
-      }
+   
+   public Vector getKeys() {
+      return _getKeys(cInst,new Vector());
    }
-
-   public void setObjectName (String objectName)
-   {
-      if (cInst != 0)
-      {
-         _setObjectName (cInst, objectName);
-      }
+   
+   public String getKeyValue(String keyName) {
+      return _getKeyValue(cInst,keyName);
    }
-
-   public Vector getKeys ()
-   {
-      Vector ret = new Vector ();
-
-      if (cInst != 0)
-      {
-         _getKeys (cInst, ret);
-      }
-
-      return ret;
+     
+   public void setKeys(Vector keys) { 
+      _setKeys(cInst,keys);
    }
-
-   public String getKeyValue (String keyName)
-   {
-      if (cInst != 0)
-      {
-         return _getKeyValue (cInst, keyName);
-      }
-      else
-      {
-         return null;
-      }
+   
+   public void addKey(String key, CIMValue val) { 
+      _addKey(cInst,key,val.cInst);
    }
-
-   public void setKeys (Vector keys)
-   {
-      if (cInst != 0)
-      {
-         _setKeys (cInst, keys);
-      }
+   
+   public String toString() {
+      return _toString(cInst);
    }
-
-   public void addKey (String key, CIMValue val)
-   {
-      if (cInst != 0)
-      {
-         _addKey (cInst, key, val.cInst ());
-      }
+   
+   public static CIMObjectPath toCop(String copStr) {
+      return new CIMObjectPath(_set(copStr));
    }
-
-   public String toString ()
-   {
-      if (cInst != 0)
-      {
-         return _toString (cInst);
-      }
-      else
-      {
-         return null;
-      }
+   
+   protected void finalize() {
+      _finalize(cInst);
    }
-
-   public static CIMObjectPath toCop (String copStr)
-   {
-      long ciObjectPath = _set (copStr);
-
-      if (ciObjectPath != 0)
-      {
-         return new CIMObjectPath (ciObjectPath);
-      }
-      else
-      {
-         return null;
-      }
-   }
-
+   
    static {
       System.loadLibrary("JMPIProviderManager");
    }
-}
+};
+
+
+
+
+
+

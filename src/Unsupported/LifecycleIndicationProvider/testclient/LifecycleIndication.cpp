@@ -1,32 +1,35 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
+// Author: Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 //
@@ -53,12 +56,9 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-
-// Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
-const CIMNamespaceName SOURCE_NAMESPACE =
-    CIMNamespaceName ("root/SampleProvider");
-const CIMName SAMPLE_CLASSNAME  =
-    CIMName ("Sample_LifecycleIndicationProviderClass");
+const CIMNamespaceName INTEROP_NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+const CIMNamespaceName SOURCE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+const CIMName SAMPLE_CLASSNAME  = CIMName ("Sample_LifecycleIndicationProviderClass");
 
 void _renameLogFile()
 {
@@ -91,18 +91,14 @@ void _createInstance(CIMClient & client)
     Uint32 _uniqueId;
     try
     {
-        objectNames = client.enumerateInstanceNames(
-                        SOURCE_NAMESPACE, SAMPLE_CLASSNAME);
+        objectNames = client.enumerateInstanceNames(SOURCE_NAMESPACE, SAMPLE_CLASSNAME);
 
         _uniqueId = objectNames.size() + 1;
 
         CIMInstance cimInstance(SAMPLE_CLASSNAME);
-        cimInstance.addProperty(
-            CIMProperty(CIMName ("uniqueId"), Uint32(_uniqueId)));
-        cimInstance.addProperty(
-                CIMProperty(CIMName ("lastOp"), String("createInstance")));
-        CIMObjectPath createdinstanceName =
-            client.createInstance(SOURCE_NAMESPACE, cimInstance);
+        cimInstance.addProperty(CIMProperty(CIMName ("uniqueId"), Uint32(_uniqueId)));
+        cimInstance.addProperty(CIMProperty(CIMName ("lastOp"), String("createInstance")));
+        CIMObjectPath createdinstanceName = client.createInstance(SOURCE_NAMESPACE, cimInstance);
     }
     catch (Exception & e)
     {
@@ -121,15 +117,13 @@ void _deleteInstance(CIMClient & client)
     Uint32 _uniqueId;
     try
     {
-        objectNames = client.enumerateInstanceNames(
-                        SOURCE_NAMESPACE, SAMPLE_CLASSNAME);
+        objectNames = client.enumerateInstanceNames(SOURCE_NAMESPACE, SAMPLE_CLASSNAME);
 
         _uniqueId = objectNames.size();
 
         if (_uniqueId == 0)
         {
-            PEGASUS_STD (cerr) << "No instances to delete."
-                << PEGASUS_STD (endl);
+            PEGASUS_STD (cerr) << "No instances to delete." << PEGASUS_STD (endl);
             exit (-1);
         }
 
@@ -162,8 +156,7 @@ void _createHandlerInstance
     handlerInstance.addProperty (CIMProperty (CIMName ("Destination"),
         destination));
 
-    CIMObjectPath path = client.createInstance (
-                            PEGASUS_NAMESPACENAME_INTEROP, handlerInstance);
+    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, handlerInstance);
 }
 
 void _createFilterInstance
@@ -186,8 +179,7 @@ void _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
         SOURCE_NAMESPACE.getString ()));
 
-    CIMObjectPath path = client.createInstance (
-                            PEGASUS_NAMESPACENAME_INTEROP, filterInstance);
+    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, filterInstance);
 }
 
 void _createSubscriptionInstance
@@ -203,7 +195,7 @@ void _createSubscriptionInstance
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
+    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE,
         subscriptionInstance);
 }
 
@@ -244,7 +236,7 @@ void _deleteSubscriptionInstance
         handlerPath.toString (), CIMKeyBinding::REFERENCE));
     CIMObjectPath subscriptionPath ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, subscriptionPath);
+    client.deleteInstance (INTEROP_NAMESPACE, subscriptionPath);
 }
 
 void _deleteHandlerInstance
@@ -263,7 +255,7 @@ void _deleteHandlerInstance
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, keyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+    client.deleteInstance (INTEROP_NAMESPACE, path);
 }
 
 void _deleteFilterInstance
@@ -281,15 +273,14 @@ void _deleteFilterInstance
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDFILTER, keyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+    client.deleteInstance (INTEROP_NAMESPACE, path);
 }
 
 void _usage ()
 {
     PEGASUS_STD (cerr)
         << "Usage:" << PEGASUS_STD (endl)
-        << "\tTestLifecycleIndication setup [ WQL | CIM:CQL ]"
-        << PEGASUS_STD (endl)
+        << "\tTestLifecycleIndication setup [ WQL | CIM:CQL ]" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication createInstance" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication deleteInstance" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication cleanup" << PEGASUS_STD (endl);
@@ -300,71 +291,56 @@ void _setup (CIMClient & client, String& qlang)
     try
     {
         // The first filter is a subscription for the class
-        // InstCreation_for_Sample_LifecycleIndicationProviderClass,
-        // which is a subclass
+        // InstCreation_for_Sample_LifecycleIndicationProviderClass, which is a subclass
         // of CIM_InstCreation. This filter also selects the properties:
         //    IndicationIdentifier, IndicationTime, SourceInstance
         _createFilterInstance (client,
                                String ("LIFilter01"),
-                               String ("SELECT IndicationIdentifier, "
-                                   "IndicationTime, SourceInstance FROM "
-                                   "InstCreation_for_Sample_Lifecycle"
-                                   "IndicationProviderClass"),
+                               String ("SELECT IndicationIdentifier, IndicationTime, SourceInstance FROM InstCreation_for_Sample_LifecycleIndicationProviderClass"),
                                qlang);
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 1 failed: " << e.getMessage ()
-            << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "setup 1 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
 
     try
     {
         // The second filter is a subscription for the class
-        // InstDeletion_for_Sample_LifecycleIndicationProviderClass,
-        // which is a subclass
+        // InstDeletion_for_Sample_LifecycleIndicationProviderClass, which is a subclass
         // of CIM_InstDeletion. This filter also selects the properties:
         //    IndicationIdentifier, SourceInstance
         _createFilterInstance (client,
                                String ("LIFilter02"),
-                               String ("SELECT IndicationIdentifier, "
-                                   "SourceInstance FROM InstDeletion_for_"
-                                   "Sample_LifecycleIndicationProviderClass"),
+                               String ("SELECT IndicationIdentifier, SourceInstance FROM InstDeletion_for_Sample_LifecycleIndicationProviderClass"),
                                qlang);
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 2 failed: " << e.getMessage ()
-            << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "setup 2 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
 
     try
     {
         _createHandlerInstance (client,
                                 String ("LIHandler01"),
-                                String ("localhost/CIMListener/"
-                                    "Pegasus_SimpleDisplayConsumer"));
+                                String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"));
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 3 failed: " << e.getMessage ()
-            << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "setup 3 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
 
     try
     {
         String filterPathString;
-        filterPathString.append ("CIM_IndicationFilter.CreationClassName="
-                "\"CIM_IndicationFilter\",Name=\"LIFilter01\","
-                "SystemCreationClassName=\"");
+        filterPathString.append ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"LIFilter01\",SystemCreationClassName=\"");
         filterPathString.append (System::getSystemCreationClassName ());
         filterPathString.append ("\",SystemName=\"");
         filterPathString.append (System::getFullyQualifiedHostName ());
         filterPathString.append ("\"");
         String handlerPathString;
-        handlerPathString.append ("CIM_IndicationHandlerCIMXML."
-            "CreationClassName=\"CIM_IndicationHandlerCIMXML\","
-            "Name=\"LIHandler01\",SystemCreationClassName=\"");
+        handlerPathString.append ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"LIHandler01\",SystemCreationClassName=\"");
         handlerPathString.append (System::getSystemCreationClassName ());
         handlerPathString.append ("\",SystemName=\"");
         handlerPathString.append (System::getFullyQualifiedHostName ());
@@ -374,24 +350,19 @@ void _setup (CIMClient & client, String& qlang)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 4 failed: " << e.getMessage ()
-            << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "setup 4 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
 
     try
     {
         String filterPathString;
-        filterPathString.append ("CIM_IndicationFilter.CreationClassName"
-                "=\"CIM_IndicationFilter\",Name=\"LIFilter02\","
-                "SystemCreationClassName=\"");
+        filterPathString.append ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"LIFilter02\",SystemCreationClassName=\"");
         filterPathString.append (System::getSystemCreationClassName ());
         filterPathString.append ("\",SystemName=\"");
         filterPathString.append (System::getFullyQualifiedHostName ());
         filterPathString.append ("\"");
         String handlerPathString;
-        handlerPathString.append ("CIM_IndicationHandlerCIMXML."
-                "CreationClassName=\"CIM_IndicationHandlerCIMXML\","
-                "Name=\"LIHandler01\",SystemCreationClassName=\"");
+        handlerPathString.append ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"LIHandler01\",SystemCreationClassName=\"");
         handlerPathString.append (System::getSystemCreationClassName ());
         handlerPathString.append ("\",SystemName=\"");
         handlerPathString.append (System::getFullyQualifiedHostName ());
@@ -401,12 +372,10 @@ void _setup (CIMClient & client, String& qlang)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 5 failed: " << e.getMessage ()
-            << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "setup 5 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
 
-    PEGASUS_STD (cout) << "+++++ setup completed successfully"
-        << PEGASUS_STD (endl);
+    PEGASUS_STD (cout) << "+++++ setup completed successfully" << PEGASUS_STD (endl);
 }
 
 void _cleanup (CIMClient & client)
@@ -418,8 +387,7 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 1 failed: " << e.getMessage ()
-            << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "cleanup 1 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
 
     try
@@ -429,8 +397,7 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 2 failed: " << e.getMessage ()
-            << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "cleanup 2 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
 
     try
@@ -439,8 +406,7 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 3 failed: " << e.getMessage ()
-            << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "cleanup 3 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
 
     try
@@ -449,8 +415,7 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 4 failed: " << e.getMessage ()
-            << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "cleanup 4 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
 
     try
@@ -459,12 +424,10 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 5 failed: " << e.getMessage ()
-            << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "cleanup 5 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
 
-    PEGASUS_STD (cout) << "+++++ cleanup completed successfully"
-        << PEGASUS_STD (endl);
+    PEGASUS_STD (cout) << "+++++ cleanup completed successfully" << PEGASUS_STD (endl);
 }
 
 int _test(CIMClient& client, const char* opt, const char* optLang)
@@ -473,8 +436,7 @@ int _test(CIMClient& client, const char* opt, const char* optLang)
     {
         if (optLang == NULL)
         {
-            cerr << "Error, query language not specified, must be 'WQL' "
-                "or 'CIM:CQL'" << endl;
+            cerr << "Error, query language not specified, must be 'WQL' or 'CIM:CQL'" << endl;
             _usage ();
             return -1;
         }
@@ -536,11 +498,10 @@ int main (int argc, char** argv)
             optLang = NULL;
         }
 
-#ifndef PEGASUS_ENABLE_CQL
+#ifdef PEGASUS_DISABLE_CQL
         if (qlang == "CIM:CQL")
         {
-            PEGASUS_STD (cout) << "+++++ cql test disabled"
-                << PEGASUS_STD (endl);
+            PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
             return 0;
         }
 #endif

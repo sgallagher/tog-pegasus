@@ -1,32 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
-//
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)  
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,39 +41,66 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    Values for the Repeat Notification Policy property of the Subscription
+    Values for the Subscription State property of the Subscription class,
+    as defined in the CIM Events MOF
+ */
+enum SubscriptionState {_STATE_UNKNOWN = 0, _STATE_OTHER = 1, 
+     _STATE_ENABLED = 2, _STATE_ENABLEDDEGRADED = 3, _STATE_DISABLED = 4};
+
+/**
+    Values for the Repeat Notification Policy property of the Subscription 
     class, as defined in the CIM Events MOF
  */
 enum RepeatNotificationPolicy {_POLICY_UNKNOWN = 0, _POLICY_OTHER = 1,
      _POLICY_NONE = 2, _POLICY_SUPPRESS = 3, _POLICY_DELAY = 4};
 
 /**
-    Values for the On Fatal Error Policy property of the Subscription
+    Values for the On Fatal Error Policy property of the Subscription 
     class, as defined in the CIM Events MOF
  */
-enum OnFatalErrorPolicy {_ERRORPOLICY_OTHER = 1, _ERRORPOLICY_IGNORE = 2,
+enum OnFatalErrorPolicy {_ERRORPOLICY_OTHER = 1, _ERRORPOLICY_IGNORE = 2, 
     _ERRORPOLICY_DISABLE = 3, _ERRORPOLICY_REMOVE = 4};
 
 /**
-    Values for the Probable Cause property of the Alert Indication
+    Values for the Persistence Type property of the Handler class, 
+    as defined in the CIM Events MOF
+ */
+enum PersistenceType {_PERSISTENCE_OTHER = 1, _PERSISTENCE_PERMANENT = 2, 
+    _PERSISTENCE_TRANSIENT = 3};
+
+/**
+    Values for the Perceived Severity property of the Alert Indication 
+    class, as defined in the CIM Events MOF
+ */
+enum PerceivedSeverity {_SEVERITY_UNKNOWN = 0, _SEVERITY_OTHER = 1, 
+     _SEVERITY_INFORMATION = 2, _SEVERITY_WARNING = 3, _SEVERITY_MINOR = 4,
+     _SEVERITY_MAJOR = 5, _SEVERITY_CRITICAL = 6, _SEVERITY_FATAL = 7};
+
+/**
+    Values for the Probable Cause property of the Alert Indication 
     class, as defined in the CIM Events MOF
     Note: not all possible values have been included
  */
 enum ProbableCause {_CAUSE_UNKNOWN = 0, _CAUSE_OTHER = 1};
 
 /**
-    Values for the Alert Type property of the Alert Indication class,
+    Values for the Alert Type property of the Alert Indication class, 
     as defined in the CIM Events MOF
  */
 enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
      _TYPE_PROCESSING = 4, _TYPE_DEVICE = 5, _TYPE_ENVIRONMENTAL = 6,
      _TYPE_MODELCHANGE = 7, _TYPE_SECURITY = 8};
 
+/**
+    Values for the SNMPVersion property of the PG_IndicationHandlerSNMPMapper 
+    class, as defined in the PG Events MOF
+ */
+enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
+     _SNMPV3_TRAP = 5, _SNMPV3_INFORM = 6};
 
 //
 //  Class names
@@ -79,7 +112,8 @@ enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
 //
 //  ATTN: Update once CimomShutdownAlertIndication has been defined
 //
-extern const CIMName _CLASS_CIMOM_SHUTDOWN_ALERT;
+static const CIMName _CLASS_CIMOM_SHUTDOWN_ALERT =
+    CIMName ("CIM_AlertIndication");
 
 /**
     The name of the No Provider alert indication class
@@ -87,7 +121,7 @@ extern const CIMName _CLASS_CIMOM_SHUTDOWN_ALERT;
 //
 //  ATTN: Update once NoProviderAlertIndication has been defined
 //
-extern const CIMName _CLASS_NO_PROVIDER_ALERT;
+static const CIMName _CLASS_NO_PROVIDER_ALERT = CIMName ("CIM_AlertIndication");
 
 /**
     The name of the CIMOM shutdown alert indication class
@@ -95,7 +129,8 @@ extern const CIMName _CLASS_NO_PROVIDER_ALERT;
 //
 //  ATTN: Update once ProviderTerminatedAlertIndication has been defined
 //
-extern const CIMName _CLASS_PROVIDER_TERMINATED_ALERT;
+static const CIMName _CLASS_PROVIDER_TERMINATED_ALERT =
+    CIMName ("CIM_AlertIndication");
 
 
 //
@@ -103,299 +138,268 @@ extern const CIMName _CLASS_PROVIDER_TERMINATED_ALERT;
 //
 
 /**
-    The name of the Other Subscription State property for Indication
+    The name of the Filter reference property for indication subscription class
+ */
+static const CIMName _PROPERTY_FILTER = CIMName ("Filter");
+
+/**
+    The name of the Handler reference property for indication subscription class
+ */
+static const CIMName _PROPERTY_HANDLER = CIMName ("Handler");
+
+/**
+    The name of the Subscription State property for indication subscription 
+    class
+ */
+static const CIMName _PROPERTY_STATE = CIMName ("SubscriptionState");
+
+/**
+    The name of the Other Subscription State property for Indication 
     Subscription class
  */
-extern const CIMName _PROPERTY_OTHERSTATE;
+static const CIMName _PROPERTY_OTHERSTATE = CIMName ("OtherSubscriptionState");
 
 /**
     The name of the Repeat Notification Policy property for indication
     subscription class
  */
-extern const CIMName _PROPERTY_REPEATNOTIFICATIONPOLICY;
+static const CIMName _PROPERTY_REPEATNOTIFICATIONPOLICY =
+    CIMName ("RepeatNotificationPolicy");
 
 /**
     The name of the Other Repeat Notification Policy property for
     indication subscription class
  */
-extern const CIMName _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY;
+static const CIMName _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY =
+    CIMName ("OtherRepeatNotificationPolicy");
 
 /**
-    The name of the On Fatal Error Policy property for Indication Subscription
+    The name of the On Fatal Error Policy property for Indication Subscription 
     class
  */
-extern const CIMName _PROPERTY_ONFATALERRORPOLICY;
+static const CIMName _PROPERTY_ONFATALERRORPOLICY = 
+    CIMName ("OnFatalErrorPolicy");
 
 /**
-    The name of the Other On Fatal Error Policy property for Indication
+    The name of the Other On Fatal Error Policy property for Indication 
     Subscription class
  */
-extern const CIMName _PROPERTY_OTHERONFATALERRORPOLICY;
+static const CIMName _PROPERTY_OTHERONFATALERRORPOLICY = 
+    CIMName ("OtherOnFatalErrorPolicy");
 
 /**
-    The name of the Time Of Last State Change property for Indication
+    The name of the Failure Trigger Time Interval property for Indication 
     Subscription class
  */
-extern const CIMName _PROPERTY_LASTCHANGE;
+static const CIMName _PROPERTY_FAILURETRIGGERTIMEINTERVAL = 
+    CIMName ("FailureTriggerTimeInterval");
 
 /**
-    The name of the Subscription Start Time property for Indication
+    The name of the Time Of Last State Change property for Indication 
     Subscription class
  */
-extern const CIMName _PROPERTY_STARTTIME;
+static const CIMName _PROPERTY_LASTCHANGE = CIMName ("TimeOfLastStateChange");
 
 /**
-    The name of the Subscription Duration property for Indication
+    The name of the Subscription Start Time property for Indication 
     Subscription class
  */
-extern const CIMName _PROPERTY_DURATION;
+static const CIMName _PROPERTY_STARTTIME = CIMName ("SubscriptionStartTime");
 
 /**
-    The name of the Subscription Time Remaining property for Indication
+    The name of the Subscription Duration property for Indication 
     Subscription class
  */
-extern const CIMName _PROPERTY_TIMEREMAINING;
+static const CIMName _PROPERTY_DURATION = CIMName ("SubscriptionDuration");
 
 /**
+    The name of the Subscription Time Remaining property for Indication 
+    Subscription class
+ */
+static const CIMName _PROPERTY_TIMEREMAINING = 
+    CIMName ("SubscriptionTimeRemaining");
 
+/**
+    The name of the Repeat Notification Interval property for indication
+    subscription class
+ */
+static const CIMName _PROPERTY_REPEATNOTIFICATIONINTERVAL = 
+    CIMName ("RepeatNotificationInterval");
+
+/**
+    The name of the Repeat Notification Gap property for indication
+    subscription class
+ */
+static const CIMName _PROPERTY_REPEATNOTIFICATIONGAP = 
+    CIMName ("RepeatNotificationGap");
+
+/**
+    The name of the Repeat Notification Count property for indication
+    subscription class
+ */
+static const CIMName _PROPERTY_REPEATNOTIFICATIONCOUNT = 
+    CIMName ("RepeatNotificationCount");
+
+/**
+    The name of the TextFormatOwningEntity property for Formatted Indication
+    Subscription class
+*/
+static const CIMName _PROPERTY_TEXTFORMATOWNINGENTITY =
+    CIMName ("TextFormatOwningEntity");
+
+/**
+    The name of the TextFormatID property for Formatted Indication
+    Subscription class
+*/
+static const CIMName _PROPERTY_TEXTFORMATID = CIMName ("TextFormatID");
+
+/**
     The name of the Caption property for Managed Element class
  */
-extern const CIMName _PROPERTY_CAPTION;
+static const CIMName _PROPERTY_CAPTION = CIMName ("Caption");
 
 /**
     The name of the Description property for Managed Element class
  */
-extern const CIMName _PROPERTY_DESCRIPTION;
+static const CIMName _PROPERTY_DESCRIPTION = CIMName ("Description");
 
 /**
     The name of the ElementName property for Managed Element class
  */
-extern const CIMName _PROPERTY_ELEMENTNAME;
+static const CIMName _PROPERTY_ELEMENTNAME = CIMName ("ElementName");
+
+/**
+    The name of the Query property for indication filter class
+ */
+static const CIMName _PROPERTY_QUERY = CIMName ("Query");
+
+/**
+    The name of the Query Language property for indication filter class
+ */
+static const CIMName _PROPERTY_QUERYLANGUAGE = CIMName ("QueryLanguage");
 
 /**
     The name of the Source Namespace property for indication filter class
  */
-extern const CIMName _PROPERTY_SOURCENAMESPACE;
+static const CIMName _PROPERTY_SOURCENAMESPACE = CIMName ("SourceNamespace");
 
 /**
-    The name of the Source Namespaces property for indication filter class
+    The name of the Name property for indication filter and indications handler     classes
  */
-extern const CIMName _PROPERTY_SOURCENAMESPACES;
+static const CIMName _PROPERTY_NAME = CIMName ("Name");
 
 /**
-    The name of the System Name property for indication filter and indications
+    The name of the Creation Class Name property for indication filter and 
+    indications handler classes
+ */
+static const CIMName _PROPERTY_CREATIONCLASSNAME = 
+    CIMName ("CreationClassName");
+
+/**
+    The name of the System Name property for indication filter and indications 
     handler classes
  */
-extern const CIMName _PROPERTY_SYSTEMNAME;
+static const CIMName _PROPERTY_SYSTEMNAME = CIMName ("SystemName");
 
 /**
-    The name of the System Creation Class Name property for indication filter
+    The name of the System Creation Class Name property for indication filter 
     and indications handler classes
  */
-extern const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME;
+static const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME = 
+    CIMName ("SystemCreationClassName");
 
 /**
-    The name of the Other Persistence Type property for Indication Handler
+    The name of the Persistence Type property for Indication Handler class
+ */
+static const CIMName _PROPERTY_PERSISTENCETYPE = CIMName ("PersistenceType");
+
+/**
+    The name of the Other Persistence Type property for Indication Handler 
     class
  */
-extern const CIMName _PROPERTY_OTHERPERSISTENCETYPE;
+static const CIMName _PROPERTY_OTHERPERSISTENCETYPE = 
+    CIMName ("OtherPersistenceType");
 
 /**
-    The name of the TargetHostFormat property for SNMP Mapper Indication
-    Handler subclass
+    The name of the Owner property for Indication Handler class
  */
-extern const CIMName _PROPERTY_TARGETHOSTFORMAT;
+static const CIMName _PROPERTY_OWNER = CIMName ("Owner");
 
 /**
-    The name of the OtherTargetHostFormat property for SNMP Mapper Indication
+    The name of the TargetHostFormat property for SNMP Mapper Indication 
     Handler subclass
  */
-extern const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT;
+static const CIMName _PROPERTY_TARGETHOSTFORMAT = CIMName ("TargetHostFormat");
+
+/**
+    The name of the OtherTargetHostFormat property for SNMP Mapper Indication 
+    Handler subclass
+ */
+static const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT =
+    CIMName ("OtherTargetHostFormat");
+
+/**
+    The name of the SNMP Version property for SNMP Mapper Indication Handler 
+    subclass
+ */
+static const CIMName _PROPERTY_SNMPVERSION = CIMName ("SNMPVersion");
+
+/**
+    The name of the Port Number property for SNMP Mapper Indication Handler 
+    subclass
+ */
+static const CIMName _PROPERTY_PORTNUMBER = CIMName ("PortNumber");
+
+/**
+    The name of the SNMP Security Name property for SNMP Mapper Indication 
+    Handler subclass
+ */
+static const CIMName _PROPERTY_SNMPSECURITYNAME = CIMName ("SNMPSecurityName");
+
+/**
+    The name of the SNMP Engine ID property for SNMP Mapper Indication Handler 
+    subclass
+ */
+static const CIMName _PROPERTY_SNMPENGINEID = CIMName ("SNMPEngineID");
+
+/**
+    The name of the MailTo property for Email Handler subclass
+*/
+static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO = 
+    CIMName ("MailTo");
+
+/**
+    The name of the MailSubject property for Email Handler subclass
+*/
+static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT = 
+    CIMName ("MailSubject");
+
+/**
+    The name of the MailCc  property for Email Handler subclass
+ */
+static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC = 
+    CIMName ("MailCc");
 
 /**
     The name of the Alert Type property for Alert Indication class
  */
-extern const CIMName _PROPERTY_ALERTTYPE;
+static const CIMName _PROPERTY_ALERTTYPE = CIMName ("AlertType");
 
 /**
     The name of the Other Alert Type property for Alert Indication class
  */
-extern const CIMName _PROPERTY_OTHERALERTTYPE;
+static const CIMName _PROPERTY_OTHERALERTTYPE = CIMName ("OtherAlertType");
 
 /**
     The name of the Perceived Severity property for Alert Indication class
  */
-extern const CIMName _PROPERTY_PERCEIVEDSEVERITY;
+static const CIMName _PROPERTY_PERCEIVEDSEVERITY = 
+    CIMName ("PerceivedSeverity");
 
 /**
     The name of the Probable Cause property for Alert Indication class
  */
-extern const CIMName _PROPERTY_PROBABLECAUSE;
-
-/**
-    The name of the CreationClassName property of CIM_Service class.
-*/
-extern const CIMName _PROPERTY_CREATIONCLASSNAME;
-
-/**
-    The name of the Name property of CIM_Service class.
-*/
-extern const CIMName _PROPERTY_NAME;
-
-/**
-    The name of the Started property of CIM_Service class.
-*/
-extern const CIMName _PROPERTY_STARTED;
-
-/**
-    The name of the InstanceID property of CIM_Capabilities
-    class.
-*/
-extern const CIMName _PROPERTY_INSTANCEID;
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-/**
-    The name of the FilterCreationEnabled property of IndicationService class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_FILTERCREATIONENABLED;
-
-/**
-    The name of the SubscriptionRemovalAction property of IndicationService
-    class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_SUBSCRIPTIONREMOVALACTION;
-
-/**
-    The name of the DeliveryRetryAttempts property of
-    IndicationService class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_DELIVERYRETRYATTEMPTS;
-
-/**
-    The name of the DeliveryRetryInterval property of
-    IndicationService class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_DELIVERYRETRYINTERVAL;
-
-/**
-    The name of the FilterCreationEnabledIsSettable property of
-    IndicationServiceCapabilities class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName
-    _PROPERTY_FILTERCREATIONENABLEDISSETTABLE;
-
-/**
-    The name of the DeliveryRetryAttemptsIsSettable property of
-    IndicationServiceCapabilities class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName
-    _PROPERTY_DELIVERYRETRYATTEMPTSISSETTABLE;
-
-/**
-    The name of the DeliveryRetryIntervalIsSettable property of
-    IndicationServiceCapabilities class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName
-    _PROPERTY_DELIVERYRETRYINTERVALISSETTABLE;
-
-/**
-    The name of the SubscriptionRemovalActionIsSettable property of
-    IndicationServiceCapabilities class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName
-    _PROPERTY_SUBSCRIPTIONREMOVALACTIONISSETTABLE;
-
-/**
-    The name of the SubscriptionRemovalTimeIntervalIsSettable property of
-    IndicationServiceCapabilities class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName
-    _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVALISSETTABLE;
-
-/**
-    The name of the MaxListenerDestinations property of
-    IndicationServiceCapabilities class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName
-    _PROPERTY_MAXLISTENERDESTINATIONS;
-
-/**
-    The name of the MaxActiveSubscriptions property of
-    IndicationServiceCapabilities class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_MAXACTIVESUBSCRIPTIONS;
-
-/**
-    The name of the SubscriptionsPersisted property of
-    IndicationServiceCapabilities class.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_SUBSCRIPTIONSPERSISTED;
-
-/**
-    CIM_IndicationService instance default values.
-*/
-
-const Boolean _PROPERTY_FILTERCREATIONENABLED_VALUE = true;
-const Uint16 _PROPERTY_SUBSCRIPTIONREMOVALACTION_VALUE = 4;
-const Uint32 _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL_VALUE = 2592000;
-const Uint16 _PROPERTY_DELIVERYRETRYATTEMPTS_VALUE = 3;
-const Uint32 _PROPERTY_DELIVERYRETRYINTERVAL_VALUE = 30;
-
-/**
-    Return codes for CIM_EnabledLogicalElement.RequestStateChange() method.
-*/
-
-const Uint32 _RETURNCODE_COMPLETEDWITHNOERROR = 0;
-const Uint32 _RETURNCODE_NOTSUPPORTED = 1;
-const Uint32 _RETURNCODE_TIMEOUT = 3;
-const Uint32 _RETURNCODE_FAILED = 4;
-const Uint32 _RETURNCODE_INVALIDPARAMETER = 5;
-
-/**
-    The name of the CIM_EnabledLogicalElement.RequestStateChange() method.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _METHOD_REQUESTSTATECHANGE;
-
-/**
-    The name of the RequestedState parameter(input) of
-    CIM_EnabledLogicalElement.RequestStateChange() method.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PARAM_REQUESTEDSTATE;
-
-/**
-    The name of the TimeoutPeriod parameter(input) of
-    CIM_EnabledLogicalElement.RequestStateChange() method.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PARAM_TIMEOUTPERIOD;
-
-/**
-    The name of the CIM_EnabledLogicalElement.EnabledState property.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_ENABLEDSTATE;
-
-/**
-    The name of the CIM_ManagedSystemElement.EnabledState property.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_HEALTHSTATE;
-
-#endif
-
-/**
-    CIM_EnabledLogicalElement.EnabledState values.
-*/
-const Uint16 _ENABLEDSTATE_SHUTTINGDOWN = 4;
-const Uint16 _ENABLEDSTATE_STARTING = 10;
-const Uint16 _ENABLEDSTATE_ENABLED = 2;
-const Uint16 _ENABLEDSTATE_DISABLED = 3;
-const Uint16 _ENABLEDSTATE_UNKNOWN = 0;
-
-/**
-    Service health States. See CIM_ManagedSystemElement.HealthState
-*/
-
-const Uint16 _HEALTHSTATE_OK = 5;
-const Uint16 _HEALTHSTATE_DEGRADEDWARNING = 10;
-
+static const CIMName _PROPERTY_PROBABLECAUSE = CIMName ("ProbableCause");
 
 //
 //  Qualifier names
@@ -404,7 +408,7 @@ const Uint16 _HEALTHSTATE_DEGRADEDWARNING = 10;
 /**
     The name of the Indication qualifier for classes
  */
-extern const CIMName _QUALIFIER_INDICATION;
+static const CIMName _QUALIFIER_INDICATION = CIMName ("INDICATION");
 
 
 //
@@ -414,12 +418,12 @@ extern const CIMName _QUALIFIER_INDICATION;
 /**
     The WHERE keyword in WQL
  */
-extern const char _QUERY_WHERE[];
+static const char   _QUERY_WHERE []         = "WHERE";
 
 /**
     A zero value CIMDateTime interval
  */
-extern const char _ZERO_INTERVAL_STRING[];
+static const char _ZERO_INTERVAL_STRING [] = "00000000000000.000000:000";
 
 PEGASUS_NAMESPACE_END
 

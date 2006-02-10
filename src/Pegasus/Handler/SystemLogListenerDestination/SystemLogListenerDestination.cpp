@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,13 +40,12 @@
 
 #include <iostream>
 #include <Pegasus/Handler/CIMHandler.h>
-#include <Pegasus/Handler/IndicationFormatter.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMType.h>
-
+#include <Pegasus/Common/IndicationFormatter.h>
 
 #include "SystemLogListenerDestination.h"
 
@@ -55,12 +60,12 @@ void SystemLogListenerDestination::initialize(CIMRepository* repository)
 void SystemLogListenerDestination::handleIndication(
     const OperationContext& context,
     const String nameSpace,
-    CIMInstance& indication,
-    CIMInstance& handler,
-    CIMInstance& subscription,
-    ContentLanguageList& contentLanguages)
+    CIMInstance& indication, 
+    CIMInstance& handler, 
+    CIMInstance& subscription, 
+    ContentLanguageList & contentLanguages)
 {
-    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+    PEG_METHOD_ENTER (TRC_IND_HANDLER, 
         "SystemLogListenerDestination::handleIndication");
 
     String ident_name = "CIM Indication";
@@ -68,33 +73,24 @@ void SystemLogListenerDestination::handleIndication(
 
     try
     {
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
-            "SystemLogListenerDestination %s:%s.%s processing %s Indication",
-           (const char*)(nameSpace.getCString()),
-           (const char*)(handler.getClassName().getString().getCString()),
-           (const char*)(handler.getProperty(
-           handler.findProperty(PEGASUS_PROPERTYNAME_NAME)).
-           getValue().toString().getCString()),
-           (const char*)(indication.getClassName().getString().
-           getCString())));
-        // gets formatted indication message
-        indicationText = IndicationFormatter::getFormattedIndText(
-            subscription, indication, contentLanguages);
+	// gets formatted indication message
+	indicationText = IndicationFormatter::getFormattedIndText(
+	    subscription, indication, contentLanguages);
 
         // default severity
         Uint32 severity = Logger::INFORMATION;
 
         // If an indication contains severity information, gets the value
-        // and maps it to Pegasus logger severity. Otherwise, default value
+        // and maps it to Pegasus logger severity. Otherwise, default value 
         // is used.
 
-        Uint32 severityPos =
-            indication.findProperty(CIMName("PerceivedSeverity"));
+        Uint32 severityPos = indication.findProperty(CIMName 
+	    ("PerceivedSeverity")); 
 
         if (severityPos != PEG_NOT_FOUND)
         {
             Uint16 perceivedSeverity;
-            CIMValue perceivedSeverityValue =
+            CIMValue perceivedSeverityValue = 
                 indication.getProperty(severityPos).getValue();
 
             if (!perceivedSeverityValue.isNull())
@@ -133,49 +129,42 @@ void SystemLogListenerDestination::handleIndication(
 
                     default:
                     {
-                        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL2,
-                            "PerceivedSeverity = %d is not a valid value."
-                            " Using default severity.", perceivedSeverity));
+			Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+			    "PerceivedSeverity = %d is not a valid value." 
+			    " Using default severity.", perceivedSeverity);
                         break;
                     }
                 }
             }
         }
 
-       PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
-           "SystemLogListenerDestination writing %s Indication to system log",
-           (const char*)(indication.getClassName().getString().getCString())));
-       // writes the formatted indication to a system log file
-        _writeToSystemLog(ident_name, severity, indicationText);
-       PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
-           "%s Indication written to system log successfully",
-           (const char*)(indication.getClassName().getString().getCString())));
+	// writes the formatted indication to a system log file
+	_writeToSystemLog(ident_name, severity, indicationText);
+
     }
-    catch (CIMException& c)
+    catch (CIMException & c)
     {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1, "CIMException: %s",
-            (const char*)c.getMessage().getCString()));
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
         PEG_METHOD_EXIT();
 
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, c.getMessage());
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, c.getMessage());
     }
-    catch (Exception&e)
+    catch (Exception& e)
     {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1, "Exception: %s",
-            (const char*)e.getMessage().getCString()));
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
         PEG_METHOD_EXIT();
 
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Failed to deliver indication to system log file.");
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-            "Handler.SystemLogListenerDestination.SystemLogListenerDestination."
-                "FAILED_TO_DELIVER_INDICATION_TO_SYSTEM_LOG",
+   
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+            MessageLoaderParms("Handler.SystemLogListenerDestination."
+	    "SystemLogListenerDestination.FAILED_TO_DELIVER_INDICATION_TO_SYSTEM_LOG",
             "Failed to deliver indication to system log file."));
     }
 
@@ -183,12 +172,12 @@ void SystemLogListenerDestination::handleIndication(
 }
 
 void SystemLogListenerDestination::_writeToSystemLog(
-    const String& identifier,
+    const String & identifier,
     Uint32 severity,
-    const String& formattedText)
+    const String & formattedText)
 {
-    PEG_METHOD_ENTER(TRC_IND_HANDLER,
-        "SystemLogListenerDestination::_writeToSystemLog");
+    PEG_METHOD_ENTER (TRC_IND_HANDLER,
+	"SystemLogListenerDestination::_writeToSystemLog");
 
 #if defined(PEGASUS_USE_SYSLOGS)
 
@@ -196,12 +185,10 @@ void SystemLogListenerDestination::_writeToSystemLog(
 
 #else
 
-    PEG_TRACE_CSTRING(TRC_INDICATION_GENERATION, Tracer::LEVEL3,
-       "SystemLogListenerDestination writing to PegasusStandard.log");
-    // PEGASUS_USE_SYSLOGS is not defined, writes the formatted
+    // PEGASUS_USE_SYSLOGS is not defined, writes the formatted 
     // indications into PegasusStandard.log file
-    Logger::put(Logger::STANDARD_LOG , identifier, severity,
-        (const char*)formattedText.getCString());
+    Logger::put (Logger::STANDARD_LOG , identifier, severity, 
+		 (const char *)formattedText.getCString());
 
 #endif
 
@@ -209,19 +196,14 @@ void SystemLogListenerDestination::_writeToSystemLog(
 
 }
 
-PEGASUS_NAMESPACE_END
+// This is the dynamic entry point into this dynamic module. The name of
+// this handler is "SystemLogListenerDestination" which is appended to "PegasusCreateHandler_"
+// to form a symbol name. This function is called by the HandlerTable
+// to load this handler.
 
-PEGASUS_USING_PEGASUS;
-
-// This is the entry point into this dynamic module.
-
-extern "C" PEGASUS_EXPORT CIMHandler* PegasusCreateHandler(
-    const String& handlerName)
-{
-    if (handlerName == "SystemLogListenerDestination")
-    {
-        return new SystemLogListenerDestination;
-    }
-
-    return 0;
+extern "C" PEGASUS_EXPORT CIMHandler* 
+    PegasusCreateHandler_SystemLogListenerDestination() {
+    return new SystemLogListenerDestination;
 }
+
+PEGASUS_NAMESPACE_END

@@ -1,31 +1,46 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Christopher Neufeld <neufeld@linuxcare.com>
+//         David Kennedy       <dkennedy@linuxcare.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -42,92 +57,89 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+
 class ProcessProvider : public CIMInstanceProvider
 {
+
 public:
 
-    ProcessProvider();
+  ProcessProvider();
 
-    ~ProcessProvider();
+  ~ProcessProvider();
 
-    void createInstance(
-        const OperationContext &context,
-        const CIMObjectPath &instanceName,
-        const CIMInstance &instanceObject,
-        ObjectPathResponseHandler &handler);
+  void createInstance(const OperationContext       &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+                    ObjectPathResponseHandler &handler);
 
-    void deleteInstance(
-        const OperationContext &context,
-        const CIMObjectPath &instanceReference,
-        ResponseHandler &handler);
+  void deleteInstance(const OperationContext       &context,
+                    const CIMObjectPath           &instanceReference,
+                    ResponseHandler &handler);
 
-    void enumerateInstances(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-        InstanceResponseHandler & handler);
+  void enumerateInstances(
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	InstanceResponseHandler & handler);
 
-    void enumerateInstanceNames(
-        const OperationContext &context,
-        const CIMObjectPath &ref,
-        ObjectPathResponseHandler &handler);
+  void enumerateInstanceNames(const OperationContext        &context,
+                            const CIMObjectPath            &ref,
+                            ObjectPathResponseHandler &handler);
 
-    void getInstance(
-        const OperationContext &context,
-        const CIMObjectPath &instanceName,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList &propertyList,
-        InstanceResponseHandler &handler);
+  void getInstance(const OperationContext       &context,
+                 const CIMObjectPath           &instanceName,
+                 const Boolean                 includeQualifiers,
+                 const Boolean                 includeClassOrigin,
+                 const CIMPropertyList        &propertyList,
+                 InstanceResponseHandler &handler);
 
-    void modifyInstance(
-        const OperationContext &context,
-        const CIMObjectPath &instanceName,
-        const CIMInstance &instanceObject,
-        const Boolean includeQualifiers,
-        const CIMPropertyList &propertyList,
-        ResponseHandler &handler);
+  void modifyInstance(const OperationContext       &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+                    const Boolean                includeQualifiers,
+		    const CIMPropertyList        &propertyList,
+                    ResponseHandler &handler);
 
-    void initialize(CIMOMHandle&);
+  void initialize(CIMOMHandle&);
 
-    void terminate();
+  void terminate(void);
 
 private:
 
-    // private member to store handle passed by initialize()
-    CIMOMHandle _cimomHandle;
+  // private member to store handle passed by initialize()
+  CIMOMHandle _cimomHandle;
 
-    Array<CIMKeyBinding> _constructKeyBindings(const Process&);
+  Array<CIMKeyBinding> _constructKeyBindings(const Process&);
 
-    // Used to add properties to an instance
-    // first argument is the class of instance to be built
-    // second argument is a Process instance that contains
-    // process status information that has been fetched
-    CIMInstance _constructInstance(
-        const CIMName &clnam,
-        const CIMNamespaceName &nameSpace,
-        const Process &p);
+  // Used to add properties to an instance
+  // first argument is the class of instance to be built
+  // second argument is a Process instance that contains
+  // process status information that has been fetched
+  CIMInstance _constructInstance(const CIMName &clnam,
+                                 const CIMNamespaceName &nameSpace,
+                                 const Process &p);
 
-    // checks the class passed by the cimom and throws
-    // an exception if it's not supported by this provider
-    void _checkClass(CIMName&);
+  // checks the class passed by the cimom and throws
+  // an exception if it's not supported by this provider
+  void _checkClass(CIMName&);
 
-    // returns the private member _hostname
-    // used so that a future version could obtain this
-    // value dynamically, if necessary
-    String &_getCSName();
+  // returns the private member _hostname
+  // used so that a future version could obtain this
+  // value dynamically, if necessary
+  String &_getCSName(void);
 
-    // returns the private member _osName
-    // for same reason as above
-    String &_getOSName();
+  // returns the private member _osName
+  // for same reason as above
+  String &_getOSName(void);
 
-    // uninitialized; will be set during initialize() processing
-    String _hostName;
+  // uninitialized; will be set during initialize() processing
+  String _hostName;
 
-    // uninitialized; will be set during initialize() processing
-    String _osName;
+  // uninitialized; will be set during initialize() processing
+  String _osName;
 };
+
 
 #endif  /* #ifndef PG_PROCESS_PROVIDER_H */

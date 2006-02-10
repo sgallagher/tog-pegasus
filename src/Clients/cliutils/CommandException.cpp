@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+//         (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,18 +43,18 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-
+  
     Constructs a CommandException with the specified message.
-
+  
     @param  exceptionMessage  a string containing the exception message
-
+  
  */
-CommandException::CommandException (const String& exceptionMessage) : Exception
+CommandException::CommandException (const String& exceptionMessage) : Exception 
     (exceptionMessage)
 {
 }
 //l10n
-CommandException::CommandException (MessageLoaderParms &parms) : Exception
+CommandException::CommandException (MessageLoaderParms &parms) : Exception 
     (parms)
 {
 }
@@ -73,7 +80,7 @@ CommandFormatException::CommandFormatException (MessageLoaderParms &parms)
     appeared in the command line.
 
  */
-const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION1 [] =
+const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION1 [] = 
     "duplicate \"-";
 
 /**
@@ -82,7 +89,7 @@ const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION1 [] =
     appeared in the command line.
 
  */
-const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION2 [] =
+const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION2 [] = 
     "\" option";
 
 /**
@@ -96,15 +103,14 @@ const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION2 [] =
 DuplicateOptionException::DuplicateOptionException (char duplicateOption) :
     CommandFormatException (String ())
 {
-    //l10n
+	//l10n
     //_rep->message = _MESSAGE_DUPLICATE_OPTION1;
     //_rep->message.append (duplicateOption);
     //_rep->message.append (_MESSAGE_DUPLICATE_OPTION2);
-    MessageLoaderParms parms(
-            "Clients.cliutils.CommandException.DUPLICATE_OPTION",
-            "duplicate \"-$0\" option",
-            String().append(duplicateOption));
-    _rep->message.append(MessageLoader::getMessage(parms));
+    MessageLoaderParms parms("Clients.cliutils.CommandException.DUPLICATE_OPTION",
+    					     "duplicate \"-$0\" option",
+    					     String().append(duplicateOption));
+	_rep->message.append(MessageLoader::getMessage(parms));
 }
 
 /**
@@ -148,18 +154,18 @@ InvalidOptionArgumentException::InvalidOptionArgumentException
     (const String& invalidArgument, char option) : CommandFormatException
         (String ())
 {
-    //l10n
+	//l10n
     //_rep->message = _MESSAGE_INVALID_ARG1;
     //_rep->message.append (invalidArgument);
     //_rep->message.append (_MESSAGE_INVALID_ARG2);
     //_rep->message.append (option);
     //_rep->message.append (_MESSAGE_INVALID_ARG3);
     MessageLoaderParms parms("Clients.cliutils.CommandException.INVALID_ARG",
-                             "argument \"$0\" is not valid for option \"-$1\"",
-                             invalidArgument,
-                             String().append(option));
+    						 "argument \"$0\" is not valid for option \"-$1\"",
+    						 invalidArgument,
+    						 String().append(option));
     _rep->message.append(MessageLoader::getMessage(parms));
-
+    					
 
 }
 
@@ -177,7 +183,7 @@ const char InvalidOptionException::_MESSAGE_INVALID_OPTION1 [] = "option \"-";
     appeared in the command line.
 
  */
-const char InvalidOptionException::_MESSAGE_INVALID_OPTION2 [] =
+const char InvalidOptionException::_MESSAGE_INVALID_OPTION2 [] = 
     "\" is not valid for this command";
 
 /**
@@ -191,14 +197,14 @@ const char InvalidOptionException::_MESSAGE_INVALID_OPTION2 [] =
 InvalidOptionException::InvalidOptionException (char invalidOption) :
     CommandFormatException (String ())
 {
-    //l10n
+	//l10n
     //_rep->message = _MESSAGE_INVALID_OPTION1;
     //_rep->message.append (invalidOption);
     //_rep->message.append (_MESSAGE_INVALID_OPTION2);
     MessageLoaderParms parms("Clients.cliutils.CommandException.INVALID_OPTION",
-                             "option \"-$0\" is not valid for this command",
-                             String().append(invalidOption));
-    _rep->message.append(MessageLoader::getMessage(parms));
+    						 "option \"-$0\" is not valid for this command",
+    						 String().append(invalidOption));
+    _rep->message.append(MessageLoader::getMessage(parms));						 
 }
 
 /**
@@ -207,7 +213,7 @@ InvalidOptionException::InvalidOptionException (char invalidOption) :
     argument missing from the command line.
 
  */
-const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG1 [] =
+const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG1 [] = 
     "missing argument value for \"-";
 
 /**
@@ -216,7 +222,7 @@ const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG1 [] =
     argument missing from the command line.
 
  */
-const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG2 [] =
+const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG2 [] = 
     "\" option";
 
 /**
@@ -231,14 +237,13 @@ const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG2 [] =
 MissingOptionArgumentException::MissingOptionArgumentException (char option) :
     CommandFormatException (String ())
 {
-    //l10n
+	//l10n
     //_rep->message = _MESSAGE_MISSING_OPTARG1;
     //_rep->message.append (option);
     //_rep->message.append (_MESSAGE_MISSING_OPTARG2);
-    MessageLoaderParms parms(
-        "Clients.cliutils.CommandException.MISSING_OPTION_ARG",
-        "missing argument value for \"-$0\" option",
-        String().append(option));
+    MessageLoaderParms parms("Clients.cliutils.CommandException.MISSING_OPTION_ARG",
+    						 "missing argument value for \"-$0\" option",
+    						 String().append(option));
     _rep->message.append(MessageLoader::getMessage(parms));
 }
 
@@ -256,7 +261,7 @@ const char MissingOptionException::_MESSAGE_MISSING_OPTION1 [] = "the \"-";
     is missing from the command line.
 
  */
-const char MissingOptionException::_MESSAGE_MISSING_OPTION2 [] =
+const char MissingOptionException::_MESSAGE_MISSING_OPTION2 [] = 
     "\" option is required";
 
 /**
@@ -271,13 +276,13 @@ const char MissingOptionException::_MESSAGE_MISSING_OPTION2 [] =
 MissingOptionException::MissingOptionException (char missingOption) :
     CommandFormatException (String ())
 {
-    //l10n
+	//l10n
     //_rep->message = _MESSAGE_MISSING_OPTION1;
     //_rep->message.append (missingOption);
     //_rep->message.append (_MESSAGE_MISSING_OPTION2);
     MessageLoaderParms parms("Clients.cliutils.CommandException.MISSING_OPTION",
-                             "the \"-$0\" option is required",
-                             String().append(missingOption));
+    						 "the \"-$0\" option is required",
+    						 String().append(missingOption));
     _rep->message.append(MessageLoader::getMessage(parms));
 }
 
@@ -287,7 +292,7 @@ MissingOptionException::MissingOptionException (char missingOption) :
     argument appeared in the command line.
 
  */
-const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG1 [] =
+const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG1 [] = 
     "argument \"";
 
 /**
@@ -296,7 +301,7 @@ const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG1 [] =
     argument appeared in the command line.
 
  */
-const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG2 [] =
+const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG2 [] = 
     "\" was unexpected";
 
 /**
@@ -310,13 +315,13 @@ const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG2 [] =
 UnexpectedArgumentException::UnexpectedArgumentException
     (const String& argumentValue) : CommandFormatException (String ())
 {
-    //l10n
+	//l10n
     //_rep->message = _MESSAGE_UNEXPECTED_ARG1;
     //_rep->message.append (argumentValue);
     //_rep->message.append (_MESSAGE_UNEXPECTED_ARG2);
     MessageLoaderParms parms("Clients.cliutils.CommandException.UNEXPECTED_ARG",
-                             "argument \"$0\" was unexpected",
-                             argumentValue);
+    						 "argument \"$0\" was unexpected",
+    						 argumentValue);
     _rep->message.append(MessageLoader::getMessage(parms));
 }
 
@@ -326,7 +331,7 @@ UnexpectedArgumentException::UnexpectedArgumentException
     appeared in the command line.
 
  */
-const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT1 [] =
+const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT1 [] = 
     "option \"-";
 
 /**
@@ -335,7 +340,7 @@ const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT1 [] =
     appeared in the command line.
 
  */
-const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT2 [] =
+const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT2 [] = 
     "\" was unexpected";
 
 /**
@@ -350,14 +355,13 @@ const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT2 [] =
 UnexpectedOptionException::UnexpectedOptionException (char optionValue) :
     CommandFormatException (String ())
 {
-    //l10n
+	//l10n
     //_rep->message = _MESSAGE_UNEXPECTED_OPT1;
     //_rep->message.append (optionValue);
     //_rep->message.append (_MESSAGE_UNEXPECTED_OPT2);
-    MessageLoaderParms parms(
-        "Clients.cliutils.CommandException.UNEXPECTED_OPTION",
-        "option \"-$0\" was unexpected",
-        String().append(optionValue));
+    MessageLoaderParms parms("Clients.cliutils.CommandException.UNEXPECTED_OPTION",
+    						 "option \"-$0\" was unexpected",
+    						 String().append(optionValue));
     _rep->message.append(MessageLoader::getMessage(parms));
 }
 
@@ -370,14 +374,12 @@ UnexpectedOptionException::UnexpectedOptionException (char optionValue) :
                          unexpected
 
  */
-UnexpectedOptionException::UnexpectedOptionException(const String& optionValue)
-    :
+UnexpectedOptionException::UnexpectedOptionException (const String& optionValue) :
     CommandFormatException (String ())
 {
-    MessageLoaderParms parms(
-        "Clients.cliutils.CommandException.UNEXPECTED_OPTION",
-        "option \"-$0\" was unexpected",
-        optionValue);
+    MessageLoaderParms parms("Clients.cliutils.CommandException.UNEXPECTED_OPTION",
+    						 "option \"-$0\" was unexpected",
+    						 optionValue);
     _rep->message.append(MessageLoader::getMessage(parms));
 }
 

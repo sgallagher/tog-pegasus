@@ -1,31 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Dave Rosckes (rosckes@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,9 +51,9 @@
 #include <Pegasus/CQL/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-class CQLFactory;
+class PEGASUS_CQL_LINKAGE CQLFactory;
 
-class CQLValueRep
+class PEGASUS_CQL_LINKAGE CQLValueRep
 {
   public:
 
@@ -81,9 +89,9 @@ class CQLValueRep
    CQLValueRep(const CIMObject& inObject);
    CQLValueRep(const CIMValue& inVal);
 
-    /**  This method is used to ask an identifier to resolve itself to
+    /**  This method is used to ask an identifier to resolve itself to 
            a number or string (primitive value).
-
+    
           Resolves:
            - symbolic constants
            - indexing an array
@@ -128,8 +136,8 @@ class CQLValueRep
 
     Boolean operator<=(const CQLValueRep& x);
 
-    /** operator >= compares two CQLValue objects to see if x is greater than
-                            or equal to y and performs type checking.
+    /** operator >= compares two CQLValue objects to see if x is greater than or
+                            equal to y and performs type checking.
         @param x - First CQLValue to compare
         @param y - Second CQLValue to compare
         @return true if x is greater than or equal to y,
@@ -162,7 +170,7 @@ class CQLValueRep
 
     /** This overload operator (+) concatenates or adds the value of
     CQLValue objects and performs type checking and Uint64 handling.
-          For example,
+          For example, 
         <pre>
             CQLValue  t1 = "abc";  // it's a string type
             CQLValue  t2 = "def";   // it's another string type
@@ -170,28 +178,28 @@ class CQLValueRep
             PEGASUS_ASSERT(t3 == "abcdef");
         </pre>
     */
-
-     CQLValueRep operator+(const CQLValueRep &x);
+ 
+     CQLValueRep operator+(const CQLValueRep x);
 
     /** This overload operator (-) subtracts the value of CQLValue
           objects and performs type checking and Uint64 handling.
-          For example,
+          For example, 
         <pre>
-            CQLValue  t1 = 5;
-            CQLValue  t2 = 2;
+            CQLValue  t1 = 5;  
+            CQLValue  t2 = 2;   
             CQLValue   t3 = t1 - t2;
             PEGASUS_ASSERT(t3 == 3);
         </pre>
     */
-
+ 
     //CQLValueRep operator-(const CQLValueRep& x);
 
     /** This overload operator (*) multiplies the values of CQLValue
           objects and performs type checking and Uint64 handling.
-          For example,
+          For example, 
         <pre>
-            CQLValue  t1 = 3;
-            CQLValue  t2 = 2;
+            CQLValue  t1 = 3;  
+            CQLValue  t2 = 2;   
             CQLValue   t3 = t1 *  t2;
             PEGASUS_ASSERT(t3 == 6);
         </pre>
@@ -201,10 +209,10 @@ class CQLValueRep
 
     /** This overload operator (*) divides the values of CQLValue
           objects and performs type checking and Uint64 handling.
-          For example,
+          For example, 
         <pre>
-            CQLValue  t1 = 6;
-            CQLValue  t2 = 2;
+            CQLValue  t1 = 6;  
+            CQLValue  t2 = 2;   
             CQLValue   t3 = t1 /  t2;
             PEGASUS_ASSERT(t3 == 2);
         </pre>
@@ -213,11 +221,16 @@ class CQLValueRep
     //CQLValueRep operator/(const CQLValueRep& x);
 
     /** Accessor for getting the type of the CQLValue.
-
+    
     TODO:  do we need this method?
       */
 
     CQLValue::CQLValueType getValueType();
+
+    /** Clears this object and sets its type to NULL_VALUE
+      */
+
+    void setNull();
 
     /** Returns whether the value has been resolved to a primitive.
       */
@@ -227,7 +240,7 @@ class CQLValueRep
     /** Returns whether the CQLValue is null.
       */
 
-    Boolean isNull() const;
+    Boolean isNull();
 
     /** Tests to see if this "isa" the input string.
     */
@@ -237,13 +250,13 @@ class CQLValueRep
     /** Tests to see if this "like" the input string.
           Both sides of the LIKE comparison must have a String type:
           the result is a Boolean type.
-
+    
          The LIKE comparison allows a string to be tested by pattern-matching,
           using special characters n the right-hand-side string.
           See the DMTF CQL Specification for details.
-
+    
           For Basic Query, the left-hand expression (this) may be restricted to
-    chain, and
+    chain, and 
           the right-hand expression may be restricted to be a literal-string.
     */
 
@@ -263,21 +276,19 @@ class CQLValueRep
    String toString()const;
    void applyContext(const QueryContext& _ctx,
                      const CQLChainedIdentifier& inCid);
-
+   
    static String valueTypeToString(const CQLValue::CQLValueType parmType);
-   friend class CQLFactory;
+   friend class CQLFactory; 
    friend class CQLValue;
   private:
-   Boolean _areClassesInline(const CIMClass& c1,const CIMClass& c2,
-                             QueryContext& in);
+   Boolean _areClassesInline(const CIMClass& c1,const CIMClass& c2,QueryContext& in);
    void _validate(const CQLValueRep& x);
    void _resolveSymbolicConstant(const QueryContext& inQueryCtx);
    void _setValue(CIMValue cv, Sint64 Index = -1);
-   void _process_value(CIMProperty& propObj,CQLIdentifier& _id,
-                       const QueryContext& inQueryContext);
+   void _process_value(CIMProperty& propObj,CQLIdentifier& _id,const QueryContext& inQueryContext);
    Boolean _compareObjects(CIMObject& _in1, CIMObject& _in2);
    Boolean _compareArray(const CQLValueRep& _in);
-   CQLValue::CQLValueType _getCQLType(const CIMType &type) const;
+
    CIMValue _theValue;
 
    CQLChainedIdentifier _CQLChainId;

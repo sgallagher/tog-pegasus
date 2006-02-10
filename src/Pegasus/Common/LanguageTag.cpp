@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,26 +45,19 @@ PEGASUS_NAMESPACE_BEGIN
 class LanguageTagRep
 {
 public:
-    LanguageTagRep() : refs(1) { }
-    AtomicInt refs;
     String tag;           // complete language tag
     String language;      // language part of language tag
     String country;       // country code part of the language tag
     String variant;       // language variant part of the language tag
 };
 
-static inline void _ref(LanguageTagRep* rep)
+// Check for a valid rep pointer.  Throw an UninitializedObjectException if
+// the rep is null.
+static void _checkRep(LanguageTagRep* rep)
 {
-    if (rep)
-        (reinterpret_cast<LanguageTagRep*>(rep))->refs++;
-}
-
-static inline void _unref(LanguageTagRep* rep)
-{
-    if (rep &&
-        (reinterpret_cast<LanguageTagRep*>(rep))->refs.decAndTestIfZero())
+    if (!rep)
     {
-        delete reinterpret_cast<LanguageTagRep*>(rep);
+        throw UninitializedObjectException();
     }
 }
 
@@ -70,66 +69,94 @@ LanguageTag::LanguageTag()
 LanguageTag::LanguageTag(const String& languageTagString)
 {
     _rep = new LanguageTagRep();
+    AutoPtr<LanguageTagRep> rep(_rep);
 
-    try
-    {
-        LanguageParser::parseLanguageTag(
-            languageTagString,
-            _rep->language,
-            _rep->country,
-            _rep->variant);
-    }
-    catch (...)
-    {
-        _unref(_rep);
-        throw;
-    }
+    LanguageParser::parseLanguageTag(
+        languageTagString,
+        _rep->language,
+        _rep->country,
+        _rep->variant);
 
     _rep->tag = languageTagString;
+
+    rep.release();
 }
 
-LanguageTag::LanguageTag(const LanguageTag& x)
+LanguageTag::LanguageTag(const LanguageTag& languageTag)
 {
-    _ref(_rep = x._rep);
+    if (languageTag._rep)
+    {
+        _rep = new LanguageTagRep();
+        AutoPtr<LanguageTagRep> rep(_rep);
+
+        _rep->tag = languageTag._rep->tag;
+        _rep->language = languageTag._rep->language;
+        _rep->country = languageTag._rep->country;
+        _rep->variant = languageTag._rep->variant;
+
+        rep.release();
+    }
+    else
+    {
+        _rep = 0;
+    }
 }
 
 LanguageTag::~LanguageTag()
 {
-    _unref(_rep);
+    delete _rep;
 }
 
-LanguageTag& LanguageTag::operator=(const LanguageTag& x)
+LanguageTag& LanguageTag::operator=(const LanguageTag& languageTag)
 {
-    if (_rep != x._rep)
+    if (&languageTag != this)
     {
-        _unref(_rep);
-        _ref(_rep = x._rep);
-    }
+        if (!languageTag._rep)
+        {
+            delete _rep;
+            _rep = 0;
+        }
+        else
+        {
+            if (!_rep)
+            {
+                _rep = new LanguageTagRep();
+            }
 
+            AutoPtr<LanguageTagRep> rep(_rep);
+
+            _rep->tag = languageTag._rep->tag;
+            _rep->language = languageTag._rep->language;
+            _rep->country = languageTag._rep->country;
+            _rep->variant = languageTag._rep->variant;
+
+            rep.release();
+        }
+    }
     return *this;
 }
 
 String LanguageTag::getLanguage() const
 {
-    CheckRep(_rep);
+    _checkRep(_rep);
     return _rep->language;
 }
 
 String LanguageTag::getCountry() const
 {
-    CheckRep(_rep);
+    _checkRep(_rep);
     return _rep->country;
 }
 
 String LanguageTag::getVariant() const
 {
-    CheckRep(_rep);
+    _checkRep(_rep);
     return _rep->variant;
 }
 
 String LanguageTag::toString() const
 {
-    CheckRep(_rep);
+    _checkRep(_rep);
     return _rep->tag;
 }
 

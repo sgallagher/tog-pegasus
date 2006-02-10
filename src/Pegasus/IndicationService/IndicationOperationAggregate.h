@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3601
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,8 +46,6 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Magic.h>
-#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Server/Linkage.h>
 
 #include "ProviderClassList.h"
@@ -63,17 +71,23 @@ public:
 
         @param   origRequest           the original request, if any, received by
                                            the Indication Service
-        @param   controlProviderName   Name of the control provider if the
-                                       request destination is control provider.
         @param   indicationSubclasses  the list of indication subclasses for the
                                            subscription
      */
     IndicationOperationAggregate(
         CIMRequestMessage* origRequest,
-        const String &controlProviderName,
-        const Array<NamespaceClassList>& indicationSubclasses);
+        const Array<CIMName>& indicationSubclasses);
 
     ~IndicationOperationAggregate();
+
+    /**
+        Determines if the instance is valid, based on the magic number set
+        in the constructor.
+
+        @return  TRUE, if valid
+                 FALSE, otherwise
+    */
+    Boolean isValid() const;
 
     /**
         Gets the original request, if any,  received by the IndicationService
@@ -93,7 +107,25 @@ public:
         @return  the request type, if there is a request
                  0, otherwise
     */
-    MessageType getOrigType() const;
+    Uint32 getOrigType() const;
+
+    /**
+        Gets the message ID of the original request, if any, received by the
+        IndicationService.
+
+        @return  the message ID, if there is a request
+                 String::EMPTY, otherwise
+    */
+    String getOrigMessageId() const;
+
+    /**
+        Gets the destination of the original request, if any, received by the
+        IndicationService.
+
+        @return  the destination, if there is a request
+                 0, otherwise
+    */
+    Uint32 getOrigDest() const;
 
     /**
         Determines if the original request requires a response, based on the
@@ -110,7 +142,24 @@ public:
 
         @return  the list of indication subclasses
     */
-    Array<NamespaceClassList>& getIndicationSubclasses();
+    Array<CIMName>& getIndicationSubclasses();
+
+    /**
+        Stores the object path of the created instance in the operation
+        aggregate object, if original request was to create a subscription
+        instance.
+
+        @param   path                  the object path of the created instance
+    */
+    void setPath(const CIMObjectPath& path);
+
+    /**
+        Gets the object path of the created instance, if original request was
+        to create a subscription instance.
+
+        @return  CIMObjectPath of the created instance
+    */
+    const CIMObjectPath& getPath();
 
     /**
         Gets the number of requests to be issued for this aggregation.
@@ -223,15 +272,38 @@ private:
     IndicationOperationAggregate& operator==(
         const IndicationOperationAggregate& x);
 
+    /**
+        Deletes the request at the specified position in the list for this
+        aggregation.
+
+        Note: Only the destructor uses this method.
+
+        @param   pos                   the position in the list of the request
+                                           to be deleted
+    */
+    void _deleteRequest (Uint32 pos);
+
+    /**
+        Deletes the response at the specified position in the list for this
+        aggregation.
+
+        Note: Only the destructor uses this method.
+
+        @param   pos                   the position in the list of the response
+                                           to be deleted
+    */
+    void _deleteResponse (Uint32 pos);
+
     CIMRequestMessage* _origRequest;
-    String _controlProviderName;
-    Array<NamespaceClassList> _indicationSubclasses;
+    Array<CIMName> _indicationSubclasses;
+    CIMObjectPath _path;
     Uint32 _numberIssued;
     Array<CIMRequestMessage*> _requestList;
     Mutex _appendRequestMutex;
     Array<CIMResponseMessage*> _responseList;
     Mutex _appendResponseMutex;
-    Magic<0x872FB41C> _magic;
+    Uint32 _magicNumber;
+    static const Uint32 _theMagicNumber;
 };
 
 PEGASUS_NAMESPACE_END

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //              (carolann_graves@hp.com)
@@ -61,14 +63,17 @@ public:
     virtual ~Command();
 
     /**
+
         Gets command usage string.  Usage string may be retrieved and displayed
         when a CommandFormatException is caught.
 
         @return  String containing the command usage message
+
      */
-    String& getUsage();
+    String& getUsage ();
 
     /**
+
         Parses the command line, validates the options, and sets instance
         variables based on the options and arguments.
 
@@ -77,10 +82,12 @@ public:
 
         @exception     CommandFormatException    Indicates the command line was
                                                  improperly formed
+
      */
-    virtual void setCommand(Uint32 argc, char *argv []) = 0;
+    virtual void setCommand (Uint32 argc, char *argv []) = 0;
 
     /**
+
         Executes the command and writes the results to the output streams.
 
         @param  outPrintWriter  the ostream to which output should be
@@ -91,56 +98,64 @@ public:
 
         @return  0              if the command is successful
                  1              if an error occurs in executing the command
+
      */
-    virtual Uint32 execute(
-        PEGASUS_STD(ostream)& outPrintWriter,
-        PEGASUS_STD(ostream)& errPrintWriter) = 0;
+    virtual Uint32 execute (PEGASUS_STD(ostream)& outPrintWriter,
+                            PEGASUS_STD(ostream)& errPrintWriter) = 0;
 
     //
     // Return codes
     //
     /**
+
         Return value from the execute method indicating the command executed
         successfully.
+
     */
-    static const Uint32 RC_SUCCESS;
+    static const Uint32    RC_SUCCESS;
 
     /**
+
         Return value from the execute method indicating an error occurred in
         executing the command.
-    */
-    static const Uint32 RC_ERROR;
 
-    String localizeMessage(
-        const char *resource_path,
-        const char * key,
-        const char * default_msg,
-        Formatter::Arg arg0 = Formatter::Arg(),
-        Formatter::Arg arg1 = Formatter::Arg(),
-        Formatter::Arg arg2 = Formatter::Arg(),
-        Formatter::Arg arg3 = Formatter::Arg(),
-        Formatter::Arg arg4 = Formatter::Arg(),
-        Formatter::Arg arg5 = Formatter::Arg(),
-        Formatter::Arg arg6 = Formatter::Arg(),
-        Formatter::Arg arg7 = Formatter::Arg(),
-        Formatter::Arg arg8 = Formatter::Arg(),
-        Formatter::Arg arg9 = Formatter::Arg());
+    */
+    static const Uint32    RC_ERROR;
+
+    //l10n
+	String localizeMessage(	const char *resource_path,
+						   	const char * key,
+						   	const char * default_msg,
+							Formatter::Arg arg0 = Formatter::Arg(),
+							Formatter::Arg arg1 = Formatter::Arg(),
+							Formatter::Arg arg2 = Formatter::Arg(),
+							Formatter::Arg arg3 = Formatter::Arg(),
+							Formatter::Arg arg4 = Formatter::Arg(),
+							Formatter::Arg arg5 = Formatter::Arg(),
+							Formatter::Arg arg6 = Formatter::Arg(),
+							Formatter::Arg arg7 = Formatter::Arg(),
+							Formatter::Arg arg8 = Formatter::Arg(),
+							Formatter::Arg arg9 = Formatter::Arg());
 
 protected:
     /**
+
         Sets command usage string.  Usage string should be set by Command
         subclass constructor.
 
         @param    usageMessage    the command usage message
+
      */
-    void setUsage(String& usageMessage);
+    void setUsage (String& usageMessage);
 
 private:
 
     /**
+
         The usage string for this command.  The value of the string should be
         set in the command subclass constructor.  The string may be retrieved
         and displayed when a CommandFormatException is caught.
+
      */
     String _usage;
 };

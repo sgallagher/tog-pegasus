@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -72,20 +82,11 @@ public:
     /**
     Get information about the specified property.
 
-    @param name   The name of the property.
+    @param propertyName   The name of the property.
     @param propertyInfo   List to store the property info.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
     void getPropertyInfo(const String& name, Array<String>& propertyInfo)const;
-
-    /**
-        Get the help supplementary info (i.e. Possible values on the
-        specified property.
-
-        @param name - The name of the property.
-        @return String with Supplemental help info
-    */
-    String getPropertyHelpSupplement(const String& name) const;
 
     /**
     Get default value of the specified property.
@@ -147,17 +148,11 @@ public:
 
     @param  name         The name of the property.
     @param  value        The current value of the property.
-    @param  userName     User requesting the update.
-    @param timeoutSeconds Timeout in seconds to complete the update.
     @exception     NonDynamicConfigProperty  if the property is not dynamic.
     @exception     InvalidPropertyValue  if the property value is not valid.
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     */
-    void updateCurrentValue(
-        const String& name,
-        const String& value,
-        const String& userName,
-        Uint32 timeoutSeconds);
+    void updateCurrentValue(const String& name, const String& value);
         //throw (NonDynamicConfigProperty, InvalidPropertyValue,
         //    UnrecognizedConfigProperty);
 
@@ -193,35 +188,6 @@ public:
 private:
     struct ConfigProperty* _lookupConfigProperty(const String& name) const;
 
-
-    /**
-    Converts the string representation of a trace level into a tracer
-    constant.
-
-    @param  traceLevel   The trace level as string
-    @return Uint32       The matching trace level constant value.
-    */
-    Uint32 getTraceLevel(const String& traceLevel);
-
-    /**
-    Checks if a given string representation of a trace level matches a
-    valid value.
-
-    @param  traceLevel   The trace level as string
-    @return Boolean      True if specified level is valid.
-    */
-    Boolean isLevelValid(const String& traceLevel) const;
-
-    /**
-    Makes sure the tracer has the trace file set with the current
-    value from the config manager and issue a warning, if the
-    traceFile cannot be used for tracing.
-
-    @return Boolean      True if tracefile is valid
-    */
-    Boolean applyTraceFileConfigSetting(void) const;
-
-
     /**
     The trace properties owned by this class
     */
@@ -230,18 +196,6 @@ private:
     AutoPtr<struct ConfigProperty>      _traceComponents; //PEP101
 
     AutoPtr<struct ConfigProperty>      _traceFilePath; //PEP101
-
-    AutoPtr<struct ConfigProperty>      _traceFacility; //PEP315
-
-    AutoPtr<struct ConfigProperty>      _traceMemoryBufferKbytes; //PEP316
-    
-    AutoPtr<struct ConfigProperty>      _traceFileSizeKBytes;
-
-    AutoPtr<struct ConfigProperty>      _numberOfTraceFiles;
-    /**
-    Remember if configproperties are already initialized.
-    */
-    Boolean _initialized;
 
 };
 

@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+//         (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +47,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static Boolean verbose;
+static char * verbose;
 
 void test01 ()
 {
@@ -51,7 +58,7 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s0: " << s0.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s0.toString () == String::EMPTY);
@@ -60,7 +67,7 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s1: " << s1.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s1.toString () == String::EMPTY);
@@ -72,7 +79,7 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s2: " << s2.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s2.toString () == String::EMPTY);
@@ -81,7 +88,7 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s3: " << s3.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s3.toString () == "PROPERTY");
@@ -90,17 +97,17 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s4: " << s4.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (s4.toString () ==
+    PEGASUS_TEST_ASSERT (s4.toString () == 
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 
     CIMScope s5 = CIMScope (CIMScope::CLASS + CIMScope::ASSOCIATION);
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s5: " << s5.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s5.toString () == "CLASS ASSOCIATION");
@@ -112,7 +119,7 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s6: " << s6.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s6.toString () == String::EMPTY);
@@ -121,7 +128,7 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s7: " << s7.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s7.toString () == String::EMPTY);
@@ -130,7 +137,7 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s8: " << s8.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s8.toString () == "PROPERTY");
@@ -139,17 +146,17 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s9: " << s9.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (s9.toString () ==
+    PEGASUS_TEST_ASSERT (s9.toString () == 
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 
     CIMScope s10 = CIMScope (s5);
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s10: " << s10.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s10.toString () == "CLASS ASSOCIATION");
@@ -161,23 +168,23 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s0: " << s0.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (s0.toString () ==
+    PEGASUS_TEST_ASSERT (s0.toString () == 
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 
     s0 = s3;
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s0: " << s0.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s0.toString () == "PROPERTY");
 
     //
-    //  Test equal (CIMScope)
+    //  Test equal (CIMScope) 
     //
     PEGASUS_TEST_ASSERT (s1.equal (s2));
     PEGASUS_TEST_ASSERT (s3.equal (s0));
@@ -185,13 +192,13 @@ void test01 ()
     PEGASUS_TEST_ASSERT (!(s9.equal (s10)));
 
     //
-    //  Test addScope (Uint32)
+    //  Test addScope (Uint32) 
     //
     s0.addScope (CIMScope::INDICATION);
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s0: " << s0.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s0.toString () == "INDICATION PROPERTY");
@@ -200,7 +207,7 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s7: " << s7.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s7.toString () == "REFERENCE METHOD PARAMETER");
@@ -209,17 +216,17 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s4: " << s4.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (s4.toString () ==
+    PEGASUS_TEST_ASSERT (s4.toString () == 
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 
     s10.addScope (CIMScope::NONE);
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s10: " << s10.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s10.toString () == "CLASS ASSOCIATION");
@@ -228,21 +235,19 @@ void test01 ()
 
     if (verbose)
     {
-    PEGASUS_STD (cout) << "\n----------------------\n";
+	PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s2: " << s2.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (s2.toString () ==
+    PEGASUS_TEST_ASSERT (s2.toString () == 
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 
     //
-    //  Test hasScope (Uint32)
+    //  Test hasScope (Uint32) 
     //
     PEGASUS_TEST_ASSERT (s0.hasScope (CIMScope::INDICATION));
-    PEGASUS_TEST_ASSERT (s0.hasScope (CIMScope::INDICATION
-                                      + CIMScope::PROPERTY));
+    PEGASUS_TEST_ASSERT (s0.hasScope (CIMScope::INDICATION + CIMScope::PROPERTY));
     PEGASUS_TEST_ASSERT (!(s0.hasScope (CIMScope::ASSOCIATION)));
-    PEGASUS_TEST_ASSERT (!(s0.hasScope (CIMScope::ASSOCIATION
-                                        + CIMScope::CLASS)));
+    PEGASUS_TEST_ASSERT (!(s0.hasScope (CIMScope::ASSOCIATION + CIMScope::CLASS)));
     PEGASUS_TEST_ASSERT (!(s0.hasScope (CIMScope::ANY)));
 
     PEGASUS_TEST_ASSERT (s7.hasScope (CIMScope::PARAMETER));
@@ -256,7 +261,7 @@ void test01 ()
     PEGASUS_TEST_ASSERT (s4.hasScope (CIMScope::CLASS + CIMScope::PARAMETER));
 
     //
-    //  Test hasScope (CIMScope)
+    //  Test hasScope (CIMScope) 
     //
     PEGASUS_TEST_ASSERT (s0.hasScope (s8));
     PEGASUS_TEST_ASSERT (s4.hasScope (s9));
@@ -277,24 +282,24 @@ void test01 ()
     PEGASUS_TEST_ASSERT (ss7 == "REFERENCE METHOD PARAMETER");
 
     String ss4 = s4.toString ();
-    PEGASUS_TEST_ASSERT (ss4 ==
+    PEGASUS_TEST_ASSERT (ss4 == 
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 }
 
-int main (int, char** argv)
+int main (int argc, char** argv)
 {
-    verbose = getenv ("PEGASUS_TEST_VERBOSE") ? true : false;
+    verbose = getenv ("PEGASUS_TEST_VERBOSE");
 
     try
     {
         test01 ();
 
-        PEGASUS_STD (cout) << argv [0] << " +++++ passed all tests"
+        PEGASUS_STD (cout) << argv [0] << " +++++ passed all tests" 
                            << PEGASUS_STD (endl);
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << argv [0] << " Exception " << e.getMessage ()
+        PEGASUS_STD (cerr) << argv [0] << " Exception " << e.getMessage () 
                            << PEGASUS_STD (endl);
         exit (1);
     }

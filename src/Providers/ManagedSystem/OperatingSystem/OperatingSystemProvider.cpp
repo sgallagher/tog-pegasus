@@ -1,31 +1,43 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Al Stone <ahs3@fc.hp.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Kennedy       <dkennedy@linuxcare.com>
+//              Christopher Neufeld <neufeld@linuxcare.com>
+//              Al Stone            <ahs3@fc.hp.com>
+//              Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -46,21 +58,21 @@ PEGASUS_USING_STD;
 #define EXTENDEDOPERATINGSYSTEMCLASS CIMName ("PG_OperatingSystem")
 #define CSCREATIONCLASSNAME CIMName ("CIM_UnitaryComputerSystem")
 
-OperatingSystemProvider::OperatingSystemProvider()
+OperatingSystemProvider::OperatingSystemProvider(void)
 {
 }
 
-OperatingSystemProvider::~OperatingSystemProvider()
+OperatingSystemProvider::~OperatingSystemProvider(void)
 {
 }
 
-void OperatingSystemProvider::getInstance(
-    const OperationContext& context,
-    const CIMObjectPath& ref,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    InstanceResponseHandler &handler)
+void
+OperatingSystemProvider::getInstance(const OperationContext& context,
+				     const CIMObjectPath& ref,
+				     const Boolean includeQualifiers,
+				     const Boolean includeClassOrigin,
+				     const CIMPropertyList& propertyList,
+				     InstanceResponseHandler &handler)
 {
     Array<CIMKeyBinding> keys;
     CIMInstance instance;
@@ -74,11 +86,7 @@ void OperatingSystemProvider::getInstance(
     className = ref.getClassName();
     if (!(className.equal (STANDARDOPERATINGSYSTEMCLASS)) &&
         !(className.equal (EXTENDEDOPERATINGSYSTEMCLASS)))
-    {
-        throw CIMNotSupportedException(
-            "OperatingSystemProvider does not support class " +
-                className.getString());
-    }
+        throw CIMNotSupportedException("OperatingSystemProvider does not support class " + className.getString());
 
     //-- make sure we're the right instance
     int keyCount;
@@ -111,35 +119,32 @@ void OperatingSystemProvider::getInstance(
     {
          keyName = keys[ii].getName();
 
-         if ((keyName.equal("CSCreationClassName")) &&
-             String::equalNoCase(
-                 keys[ii].getValue(),
-                 CSCREATIONCLASSNAME.getString()))
+         if ((keyName.equal ("CSCreationClassName")) &&
+       	    String::equalNoCase(keys[ii].getValue(),
+                                CSCREATIONCLASSNAME.getString()))
          {
-             keyCount--;
+              keyCount--;
          }
          else if ((keyName.equal ("CSName")) &&
-                  String::equalNoCase(keys[ii].getValue(), csName))
+  	         String::equalNoCase(keys[ii].getValue(), csName))
          {
-             keyCount--;
+              keyCount--;
          }
          else if ((keyName.equal ("CreationClassName")) &&
-                  String::equalNoCase(
-                      keys[ii].getValue(),
-                      STANDARDOPERATINGSYSTEMCLASS.getString()))
+ 	         String::equalNoCase(keys[ii].getValue(),
+                                     STANDARDOPERATINGSYSTEMCLASS.getString()))
          {
-             keyCount--;
+              keyCount--;
          }
          else if ((keyName.equal ("Name")) &&
-                  String::equalNoCase(keys[ii].getValue(), name))
+ 	         String::equalNoCase(keys[ii].getValue(), name))
          {
-             keyCount--;
+              keyCount--;
          }
          else
          {
-             throw CIMInvalidParameterException(
-                 "OperatingSystemProvider unrecognized key " +
-                     keyName.getString());
+              throw CIMInvalidParameterException("OperatingSystemProvider"
+                             " unrecognized key " + keyName.getString());
          }
      }
 
@@ -165,13 +170,14 @@ void OperatingSystemProvider::getInstance(
     return;
 }
 
-void OperatingSystemProvider::enumerateInstances(
-    const OperationContext& context,
-    const CIMObjectPath& ref,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    InstanceResponseHandler& handler)
+void
+OperatingSystemProvider::enumerateInstances(
+      				const OperationContext& context,
+			        const CIMObjectPath& ref,
+				const Boolean includeQualifiers,
+				const Boolean includeClassOrigin,
+			        const CIMPropertyList& propertyList,
+			        InstanceResponseHandler& handler)
 {
     CIMName className;
     CIMInstance instance;
@@ -205,10 +211,11 @@ void OperatingSystemProvider::enumerateInstances(
     return;
 }
 
-void OperatingSystemProvider::enumerateInstanceNames(
-    const OperationContext& context,
-    const CIMObjectPath &ref,
-    ObjectPathResponseHandler& handler)
+void
+OperatingSystemProvider::enumerateInstanceNames(
+      				const OperationContext& context,
+			  	const CIMObjectPath &ref,
+			  	ObjectPathResponseHandler& handler )
 {
     CIMObjectPath newref;
     CIMName className;
@@ -240,35 +247,38 @@ void OperatingSystemProvider::enumerateInstanceNames(
     return;
 }
 
-void OperatingSystemProvider::modifyInstance(
-    const OperationContext& context,
-    const CIMObjectPath& ref,
-    const CIMInstance& instanceObject,
-    const Boolean includeQualifiers,
-    const CIMPropertyList& propertyList,
-    ResponseHandler& handler)
+void
+OperatingSystemProvider::modifyInstance(
+      				const OperationContext& context,
+			  	const CIMObjectPath& ref,
+			  	const CIMInstance& instanceObject,
+				const Boolean includeQualifiers,
+			  	const CIMPropertyList& propertyList,
+			  	ResponseHandler& handler )
 {
-    throw CIMNotSupportedException(
-        "OperatingSystemProvider does not support modifyInstance");
+    throw CIMNotSupportedException("OperatingSystemProvider "
+                       "does not support modifyInstance");
 }
 
-void OperatingSystemProvider::createInstance(
-    const OperationContext& context,
-    const CIMObjectPath& ref,
-    const CIMInstance& instanceObject,
-    ObjectPathResponseHandler& handler )
+void
+OperatingSystemProvider::createInstance(
+      				const OperationContext& context,
+			  	const CIMObjectPath& ref,
+			  	const CIMInstance& instanceObject,
+			  	ObjectPathResponseHandler& handler )
 {
-    throw CIMNotSupportedException(
-        "OperatingSystemProvider does not support createInstance");
+    throw CIMNotSupportedException("OperatingSystemProvider "
+                       "does not support createInstance");
 }
 
-void OperatingSystemProvider::deleteInstance(
-    const OperationContext& context,
-    const CIMObjectPath& ref,
-    ResponseHandler& handler)
+void
+OperatingSystemProvider::deleteInstance(
+      				const OperationContext& context,
+			  	const CIMObjectPath& ref,
+			  	ResponseHandler& handler )
 {
-    throw CIMNotSupportedException(
-        "OperatingSystemProvider does not support deleteInstance");
+    throw CIMNotSupportedException("OperatingSystemProvider "
+                       "does not support deleteInstance");
 }
 
 void OperatingSystemProvider::initialize(CIMOMHandle& handle)
@@ -280,14 +290,14 @@ void OperatingSystemProvider::initialize(CIMOMHandle& handle)
 }
 
 
-void OperatingSystemProvider::terminate()
+void OperatingSystemProvider::terminate(void)
 {
     delete this;
 }
 
 
-CIMInstance OperatingSystemProvider::_build_instance(
-    const CIMObjectPath& objectReference)
+CIMInstance
+OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
 {
     CIMInstance instance(objectReference.getClassName());
     OperatingSystem os;
@@ -303,16 +313,16 @@ CIMInstance OperatingSystemProvider::_build_instance(
     className = objectReference.getClassName();
 
     //-- fill in all the blanks
-    instance.addProperty(CIMProperty(
-        "CSCreationClassName", CSCREATIONCLASSNAME.getString()));
+    instance.addProperty(CIMProperty("CSCreationClassName",
+ 	                 (CSCREATIONCLASSNAME.getString())));
 
     if (os.getCSName(stringValue))
     {
         instance.addProperty(CIMProperty("CSName", stringValue));
     }
 
-    instance.addProperty(CIMProperty(
-        "CreationClassName", STANDARDOPERATINGSYSTEMCLASS.getString()));
+    instance.addProperty(CIMProperty("CreationClassName",
+ 	                 (STANDARDOPERATINGSYSTEMCLASS.getString())));
 
     if (os.getName(stringValue))
     {
@@ -396,8 +406,7 @@ CIMInstance OperatingSystemProvider::_build_instance(
 
     if (os.getTotalVirtualMemorySize(uint64Value))
     {
-        instance.addProperty(
-            CIMProperty("TotalVirtualMemorySize", uint64Value));
+        instance.addProperty(CIMProperty("TotalVirtualMemorySize", uint64Value));
     }
 
     if (os.getFreeVirtualMemory(uint64Value))
@@ -417,14 +426,12 @@ CIMInstance OperatingSystemProvider::_build_instance(
 
     if (os.getSizeStoredInPagingFiles(uint64Value))
     {
-        instance.addProperty(
-            CIMProperty("SizeStoredInPagingFiles", uint64Value));
+        instance.addProperty(CIMProperty("SizeStoredInPagingFiles", uint64Value));
     }
 
     if (os.getFreeSpaceInPagingFiles(uint64Value))
     {
-        instance.addProperty(
-            CIMProperty("FreeSpaceInPagingFiles", uint64Value));
+        instance.addProperty(CIMProperty("FreeSpaceInPagingFiles", uint64Value));
     }
 
     if (os.getMaxProcessMemorySize(uint64Value))
@@ -458,9 +465,9 @@ CIMInstance OperatingSystemProvider::_build_instance(
     return instance;
 }
 
-CIMObjectPath OperatingSystemProvider::_fill_reference(
-    const CIMNamespaceName &nameSpace,
-    const CIMName &className)
+CIMObjectPath
+OperatingSystemProvider::_fill_reference(const CIMNamespaceName &nameSpace,
+				         const CIMName &className)
 {
     Array<CIMKeyBinding> keys;
     OperatingSystem os;
@@ -479,15 +486,13 @@ CIMObjectPath OperatingSystemProvider::_fill_reference(
                   "can't determine name of Operating System");
     }
 
-    keys.append(CIMKeyBinding(
-        "CSCreationClassName",
-        CSCREATIONCLASSNAME.getString(),
-        CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("CSCreationClassName",
+ 	                   CSCREATIONCLASSNAME.getString(),
+			   CIMKeyBinding::STRING));
     keys.append(CIMKeyBinding("CSName", csName, CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding(
-        "CreationClassName",
-        STANDARDOPERATINGSYSTEMCLASS.getString(),
-        CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("CreationClassName",
+                              STANDARDOPERATINGSYSTEMCLASS.getString(),
+                              CIMKeyBinding::STRING));
     keys.append(CIMKeyBinding("Name", name, CIMKeyBinding::STRING));
 
     return CIMObjectPath(csName, nameSpace, className, keys);
@@ -495,13 +500,13 @@ CIMObjectPath OperatingSystemProvider::_fill_reference(
 
 
 void OperatingSystemProvider::invokeMethod(
-    const OperationContext& context,
-    const CIMObjectPath& objectReference,
-    const CIMName& methodName,
-    const Array<CIMParamValue>& inParameters,
-    MethodResultResponseHandler& handler)
+      				const OperationContext& context,
+    				const CIMObjectPath& objectReference,
+				const CIMName& methodName,
+				const Array<CIMParamValue>& inParameters,
+				MethodResultResponseHandler& handler)
 {
-    throw CIMNotSupportedException(
-        "OperatingSystemProvider does not support invokeMethod");
+    throw CIMNotSupportedException("OperatingSystemProvider "
+                       "does not support invokeMethod");
 }
 

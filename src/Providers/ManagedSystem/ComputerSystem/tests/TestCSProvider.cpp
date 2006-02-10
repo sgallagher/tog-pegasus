@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -139,13 +146,15 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+CIMClient c;
+
 void errorExit(Exception& e)
 {
   cout << "Error: Failed" << endl << e.getMessage() << endl;
   exit(1);
 }
 
-int testClass(CIMClient &c, const String& className)
+int testClass(const String& className)
 {
   Array<CIMObjectPath> refs;
 
@@ -195,12 +204,12 @@ int testClass(CIMClient &c, const String& className)
   // ATTN-MG-20020501: Can add some property value checks here
 
   // ------------------ do getInstance() with bad key ----------------------
-
+  
   Array<CIMKeyBinding> kb = ref.getKeyBindings();
   // mess up first key name
   kb[0].setName("foobar");
   ref.setKeyBindings(kb);
-
+  
   int status = 0;
 
   cout << "+++++ getInstance with bad key" << endl;
@@ -212,7 +221,7 @@ int testClass(CIMClient &c, const String& className)
   {
     if (e.getCode() == CIM_ERR_INVALID_PARAMETER) status = 1;
   }
-  catch (Exception&)
+  catch (Exception& e)
   {
     // any other exception is a failure; leave status alone
   }
@@ -237,7 +246,7 @@ int testClass(CIMClient &c, const String& className)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (Exception&)
+  catch (Exception& e)
   {
     // any other Exception is a problem; leave status alone
   }
@@ -261,7 +270,7 @@ int testClass(CIMClient &c, const String& className)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (Exception&)
+  catch (Exception& e)
   {
     // any other Exception is a problem; leave status alone
   }
@@ -276,7 +285,7 @@ int testClass(CIMClient &c, const String& className)
   // =======================================================================
 
   cout << "+++++ enumerateInstances(" << className << ")" << endl;
-
+  
   Array<CIMInstance> ia;
   try
   {
@@ -290,8 +299,7 @@ int testClass(CIMClient &c, const String& className)
   // There should be several instances
   if (ia.size() == 0)
   {
-    cout << "+++++ Error: enumerateInstances on " << className <<
-        " returned too few instances" << endl;
+    cout << "+++++ Error: enumerateInstances on " << className << " returned too few instances" << endl;
     cout << "+++++ Test failed" << endl;
     return 1;
   }
@@ -316,7 +324,7 @@ int testClass(CIMClient &c, const String& className)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (Exception&)
+  catch (Exception& e)
   {
     // any other Exception is a problem; leave status alone
   }
@@ -336,15 +344,7 @@ int testClass(CIMClient &c, const String& className)
 int main()
 {
   cout << "+++++ Testing ComputerSystem Provider" << endl;
-
-  //
-  // This MUST be inside of main for OpenVMS because the OS has a problem
-  //  with initializing global variables 'in a timely manner' during
-  //  executable initialization.
-  //
-
-  CIMClient c;
-
+  
   // Connect
   try
   {
@@ -356,9 +356,9 @@ int main()
   }
 
   int rc;
-  if ((rc = testClass(c, CLASS_CIM_COMPUTER_SYSTEM)) != 0) return rc;
-  if ((rc = testClass(c, CLASS_CIM_UNITARY_COMPUTER_SYSTEM)) != 0) return rc;
-  if ((rc = testClass(c, CLASS_EXTENDED_COMPUTER_SYSTEM)) != 0) return rc;
+  if ((rc = testClass(CLASS_CIM_COMPUTER_SYSTEM)) != 0) return rc;
+  if ((rc = testClass(CLASS_CIM_UNITARY_COMPUTER_SYSTEM)) != 0) return rc;
+  if ((rc = testClass(CLASS_EXTENDED_COMPUTER_SYSTEM)) != 0) return rc;
   cout << "+++++ passed all tests" << endl;
   return 0;
 }

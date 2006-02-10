@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Authors: David Rosckes (rosckes@us.ibm.com)
+//          Bert Rivero (hurivero@us.ibm.com)
+//          Chuck Carmack (carmack@us.ibm.com)
+//          Brian Lucier (lucier@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +54,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CQLSelectStatementRep;
+class PEGASUS_CQL_LINKAGE CQLSelectStatementRep;
 
 /**
 This class is derived from the SelectStatement base class.
@@ -58,6 +68,10 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     /**
       Constructs a CQLSelectStatement default object.
 
+      @param  - None.
+      @return - None.
+      @throw  - None.
+
       <I><B>Experimental Interface</B></I><BR>
     */
     CQLSelectStatement();
@@ -68,30 +82,33 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       @param  inQlang - String containing the language of the query.
       @param  inQuery - String containing the query.
       @param  inCtx - Context in which the select statement is running.
+      @return - None.
+      @throw  - None.
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    CQLSelectStatement(
-        const String& inQlang,
-        const String& inQuery,
-        const QueryContext& inCtx);
+    CQLSelectStatement(String& inQlang,
+                       String& inQuery,
+                       QueryContext& inCtx);
 
     /**
       Constructs a CQLSelectStatement object.
 
       @param  inQlang - String containing the language of the query.
       @param  inQuery - String containing the query.
+      @return - None.
+      @throw  - None.
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    CQLSelectStatement(
-        const String& inQlang,
-        const String& inQuery);
+    CQLSelectStatement(String& inQLang, String& inQuery);
 
     /**
       Copy constructs a CQLSelectStatement object.
 
       @param  statement - CQLSelectStatement to be copied.
+      @return - None.
+      @throw  - None.
 
       <I><B>Experimental Interface</B></I><BR>
     */
@@ -99,6 +116,10 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
     /**
       Destructs a CQLSelectStatement object.
+
+      @param  - None.
+      @return - None.
+      @throw  - None.
 
       <I><B>Experimental Interface</B></I><BR>
     */
@@ -134,10 +155,11 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       Pre-condition: QueryContext has been set into this object.
       Post-condition: Chained identifiers have been normalized.
 
+      @param None.
+      @return None
       @throw CQLRuntimeException if the QueryContext had not been set.
       @throw CQLValidationException if a chained identifier is not well formed.
-      @throw CQLSyntaxErrorException if a chained identifier is not well
-        formed.
+      @throw CQLSyntaxErrorException if a chained identifier is not well formed.
 
       <I><B>Experimental Interface</B></I><BR>
      */
@@ -175,6 +197,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       @param inCI - The instance to be projected.
       @param allowMissing indicates whether missing project properties are
                           allowed
+      @return None
       @throw  CQLRuntimeException if the instance cannot be projected
       @throw CQLValidationException for applyContext error.
       @throw CQLSyntaxErrorException for applyContext error.
@@ -193,7 +216,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
-      @throw CQLRuntimeException if the QueryContext had not been set.
+      @param None
+      @return None
       @throw CQLValidationException for applyContext error, the select
       statement is invalid against the schema, or the QueryContext has
       not been set.
@@ -234,7 +258,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
      */
-    Array<CIMObjectPath> getClassPathList() const;
+    Array<CIMObjectPath> getClassPathList();
 
     /**
       Returns the required properties from the combined SELECT and WHERE
@@ -248,8 +272,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
-      @param inClassName - class to determine the required properties.
-      Defaults to the FROM class.
+      @param inClassName - class to determine the required properties.  Defaults
+      to the FROM class.
       @return CIMPropertyList containing the required properties for the class.
       If all the properties are required, a null CIMPropertyList is returned.
       If no properties are required, an empty CIMPropertyList is returned.
@@ -259,23 +283,21 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    CIMPropertyList getPropertyList(
-        const CIMObjectPath& inClassName = CIMObjectPath());
+    CIMPropertyList getPropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
 
     /**
       Returns the required properties from the SELECT clause for the
       classname passed in.  The classname parameter is needed in case
       scoping operators are used in the select statement.  This function
       does not return properties for the classname if they are required
-      on embedded objects. This function does not return required
-      array indices.
+      on embedded objects. This function does not return required array indices.
 
       Pre-condition: QueryContext has been set into this object.
       Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
-      @param inClassName - class to determine the required properties.
-      Defaults to the FROM class.
+      @param inClassName - class to determine the required properties.  Defaults
+      to the FROM class.
       @return CIMPropertyList containing the required properties for the class.
       If all the properties are required, a null CIMPropertyList is returned.
       If no properties are required, an empty CIMPropertyList is returned.
@@ -285,23 +307,21 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    CIMPropertyList getSelectPropertyList(
-        const CIMObjectPath& inClassName = CIMObjectPath());
+    CIMPropertyList getSelectPropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
 
     /**
       Returns the required properties from the WHERE clause for the
       classname passed in.  The classname parameter is needed in case
       scoping operators are used in the select statement.  This function
       does not return properties for the classname if they are required
-      on embedded objects.  This function does not return required array
-      indices.
+      on embedded objects.  This function does not return required array indices.
 
       Pre-condition: QueryContext has been set into this object.
       Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
-      @param inClassName - class to determine the required properties.
-      Defaults to the FROM class.
+      @param inClassName - class to determine the required properties.  Defaults
+      to the FROM class.
       @return CIMPropertyList containing the required properties for the class.
       If all the properties are required, a null CIMPropertyList is returned.
       If no properties are required, an empty CIMPropertyList is returned.
@@ -311,14 +331,12 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    CIMPropertyList getWherePropertyList(
-        const CIMObjectPath& inClassName = CIMObjectPath());
+    CIMPropertyList getWherePropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
 
     /**
       Returns the chained identifiers from the SELECT clause.  These chained
-      identifiers contain the fully qualified property names, including
-      embedded objects, array indices, scoping operators,
-      and symbolic constants.
+      identifiers contain the fully qualified property names, including embedded
+      objects, array indices, scoping operators, and symbolic constants.
 
       Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
@@ -334,9 +352,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
     /**
       Returns the chained identifiers from the WHERE clause.  These chained
-      identifiers contain the fully qualified property names, including
-      embedded objects, array indices, scoping operators,
-      and symbolic constants.
+      identifiers contain the fully qualified property names, including embedded
+      objects, array indices, scoping operators, and symbolic constants.
 
       Pre-condition: QueryContext has been set into this object.
       Post-condition: Chained identifiers have been normalized
@@ -374,7 +391,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    Boolean hasWhereClause() const;
+    Boolean hasWhereClause();
 
     /**
       Returns the select statement in string form.
@@ -390,7 +407,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    String toString() const;
+    String toString();
 
     /*
        ATTN - the following methods should only be set by CQLParser.
@@ -404,14 +421,12 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       @param inIdentifier - CQLIdentifier to append.
       @param inAlias - Alias of the identifier.
       @return None
-      @throw CQLRuntimeException if the QueryContext had not been set.
       @throw QueryException if the identifier/alias cannot be appended.
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    void insertClassPathAlias(
-        const CQLIdentifier& inIdentifier,
-        const String& inAlias);
+    void insertClassPathAlias(const CQLIdentifier& inIdentifier,
+                              String inAlias);
 
     /**
       Appends a CQLIdentifier into the FROM list of the statement.
@@ -419,7 +434,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       @param inIdentifier - CQLIdentifier to append.
       @return None
-      @throw CQLRuntimeException if the QueryContext had not been set.
       @throw QueryException if the identifier cannot be appended.
 
       <I><B>Experimental Interface</B></I><BR>

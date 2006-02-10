@@ -1,31 +1,42 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +51,6 @@
 #include <iostream>
 
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMType.h>
@@ -69,38 +79,33 @@ PEGASUS_NAMESPACE_BEGIN
     The constants representing the Username and Password properties in the
     schema.
 */
-static const CIMName PROPERTY_NAME_USERNAME = CIMNameCast("Username");
+static const CIMName PROPERTY_NAME_USERNAME       = CIMName ("Username");
 
-static const CIMName PROPERTY_NAME_PASSWORD = CIMNameCast("Password");
+static const CIMName PROPERTY_NAME_PASSWORD       = CIMName ("Password");
 
-static const char OLD_PASSWORD[] = "OldPassword";
+static const char OLD_PASSWORD []                 = "OldPassword";
 
-static const char NEW_PASSWORD[] = "NewPassword";
+static const char NEW_PASSWORD []                 = "NewPassword";
 
 /**
     The constants representing the namespace and authorization
     in the schema.
 */
-static const CIMName PROPERTY_NAME_NAMESPACE       =
-    CIMNameCast("Namespace");
+static const CIMName PROPERTY_NAME_NAMESPACE       = CIMName ("Namespace");
 
-static const CIMName PROPERTY_NAME_AUTHORIZATION   =
-    CIMNameCast("Authorization");
+static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
 
 /**
     The constant representing the User class name.
 */
-static const CIMName CLASS_NAME_PG_USER            =
-    CIMNameCast("PG_User");
+static const CIMName CLASS_NAME_PG_USER            = CIMName ("PG_User");
 
-static const CIMName METHOD_NAME_MODIFY_PASSWORD   =
-    CIMNameCast("modifyPassword");
+static const CIMName METHOD_NAME_MODIFY_PASSWORD   = CIMName ("modifyPassword");
 
 /**
     The constant representing the authorization class name
 */
-static const CIMName CLASS_NAME_PG_AUTHORIZATION =
-    CIMNameCast("PG_Authorization");
+static const CIMName CLASS_NAME_PG_AUTHORIZATION = CIMName ("PG_Authorization");
 
 //
 // Verify user authorization
@@ -110,14 +115,15 @@ void UserAuthProvider::_verifyAuthorization(const String& user)
     PEG_METHOD_ENTER(TRC_CONFIG,
         "UserAuthProvider::_verifyAuthorization()");
 
-    if ( user.size() && !System::isPrivilegedUser(user) )
+    if ( System::isPrivilegedUser(user) == false )
     {
-        MessageLoaderParms parms(
-            "ControlProviders.UserAuthProvider."
-            "MUST_BE_PRIVILEGED_USER",
-            "Superuser authority is required to run this CIM operation.");
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,parms);
+	//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
+            //"Must be a privileged user to execute this CIM operation.");
+	MessageLoaderParms parms("ControlProviders.UserAuthProvider.MUST_BE_PRIVILEGED_USER",
+						 "Must be a privileged user to execute this CIM operation.");
+	throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,parms);
     }
 
     PEG_METHOD_EXIT();
@@ -140,15 +146,14 @@ void UserAuthProvider::createInstance(
     String      passwordStr;
     String      namespaceStr;
     String      authorizationStr;
-    Boolean     authAlreadyExists = false;
+
     //
     // get userName
     //
     String user;
     try
     {
-        const IdentityContainer container =
-            context.get(IdentityContainer::NAME);
+        const IdentityContainer container = context.get(IdentityContainer::NAME);
         user= container.getUserName();
     }
     catch (...)
@@ -159,7 +164,7 @@ void UserAuthProvider::createInstance(
     //
     // verify user authorizations
     //
-    if (user != String::EMPTY)
+    if ( user != String::EMPTY || user != "" )
     {
         _verifyAuthorization(user);
     }
@@ -173,28 +178,44 @@ void UserAuthProvider::createInstance(
     //
     // check if the class name requested is PG_User
     //
-    if (CLASS_NAME_PG_USER.equal(instanceReference.getClassName()))
+    if (CLASS_NAME_PG_USER.equal (instanceReference.getClassName()))
     {
-        //
-        // Get the user name from the instance
-        //
-        Uint32 pos = myInstance.findProperty(PROPERTY_NAME_USERNAME);
-        CIMProperty prop = (CIMProperty)modifiedInst.getProperty(pos);
-        userName = prop.getValue();
-        userName.get(userNameStr);
+        try
+        {
+            //
+            // Get the user name from the instance
+            //
+            Uint32 pos = myInstance.findProperty ( PROPERTY_NAME_USERNAME );
+            CIMProperty prop = (CIMProperty)modifiedInst.getProperty(pos);
+            userName = prop.getValue();
+            userName.get(userNameStr);
 
-        //
-        // Get the password from the instance
-        //
-        pos = myInstance.findProperty (PROPERTY_NAME_PASSWORD);
-        prop = (CIMProperty) modifiedInst.getProperty(pos);
-        password = prop.getValue();
-        password.get(passwordStr);
+            //
+            // Get the password from the instance
+            //
+            pos = myInstance.findProperty ( PROPERTY_NAME_PASSWORD );
+            prop = (CIMProperty) modifiedInst.getProperty(pos);
+            password = prop.getValue();
+            password.get(passwordStr);
 
-        //
-        // Add the user to the User Manager
-        //
-        _userManager->addUser(userNameStr, passwordStr);
+            //
+            // Add the user to the User Manager
+            //
+            _userManager->addUser( userNameStr, passwordStr);
+
+        }
+        catch ( const CIMException & )
+        {
+            handler.complete();
+            PEG_METHOD_EXIT();
+            throw;
+        }
+        catch ( const Exception &e )
+        {
+            handler.complete();
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+        }
     }
     //
     // check if the class name requested is PG_Authorization
@@ -248,18 +269,6 @@ void UserAuthProvider::createInstance(
             }
 #endif
 
-            try
-            {
-                _userManager->getAuthorization(userNameStr, namespaceStr);
-                authAlreadyExists = true;
-            }
-            catch(...)
-            {
-                //if authorization does not exist, It will be created 
-                //If exist, exception is thrown later
-            }
-            if (!authAlreadyExists)
-            {
             _repository->createInstance(
                 instanceReference.getNameSpace(), myInstance);
 
@@ -269,10 +278,9 @@ void UserAuthProvider::createInstance(
             _userManager->setAuthorization(
                 userNameStr, namespaceStr, authorizationStr );
         }
-        }
         catch ( InvalidUser &iu )
         {
-            PEG_METHOD_EXIT();
+        PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_INVALID_PARAMETER, iu.getMessage());
         }
@@ -302,14 +310,8 @@ void UserAuthProvider::createInstance(
     else
     {
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
-                                 instanceReference.getClassName().getString());
-    }
-    if (authAlreadyExists)
-    {
-        throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_ALREADY_EXISTS,
-            userNameStr);
+        throw PEGASUS_CIM_EXCEPTION (
+            CIM_ERR_NOT_SUPPORTED, instanceReference.getClassName().getString());
     }
 
     handler.deliver(instanceReference);
@@ -353,7 +355,7 @@ void UserAuthProvider::deleteInstance(
     //
     // verify user authorizations
     //
-    if (user != String::EMPTY)
+    if ( user != String::EMPTY || user != "" )
     {
         _verifyAuthorization(user);
     }
@@ -370,31 +372,49 @@ void UserAuthProvider::deleteInstance(
         //
         // Get the user name from the instance
         //
-        kbArray = myInstance.getKeyBindings();
-        if (!kbArray.size())
+        try
         {
-            MessageLoaderParms parms(
-                "ControlProviders.UserAuthProvider."
-                    "UNABLE_TO_FIND_KEY_PROPERTY_USERNAME",
-                "Unable to find Key Property Username");
-            throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_INVALID_PARAMETER,parms);
-        }
-        if (kbArray[0].getName() == PROPERTY_NAME_USERNAME)
-        {
-            userNameStr = kbArray[0].getValue();
-        }
-        else
-        {
-            MessageLoaderParms parms(
-                "ControlProviders.UserAuthProvider.UNEXPECTED_KEY_PROPERTY",
-                "Unexpected Key property");
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, parms);
-        }
+            kbArray = myInstance.getKeyBindings();
+            if ( ! kbArray.size() )
+            {
+		//l10n
+                //throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
+                     //"Unable to find Key Property Username");
+		MessageLoaderParms parms("ControlProviders.UserAuthProvider.UNABLE_TO_FIND_KEY_PROPERTY_USERNAME",
+								 "Unable to find Key Property Username");
+		throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_INVALID_PARAMETER,parms);
+            }
+            if ( kbArray[0].getName() == PROPERTY_NAME_USERNAME )
+            {
+                userNameStr = kbArray[0].getValue();
+            }
+            else
+            {
+		//l10n
+                //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+                     //"Unexpected Key property");
+		MessageLoaderParms parms("ControlProviders.UserAuthProvider.UNEXPECTED_KEY_PROPERTY",
+								 "Unexpected Key property");
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,parms);
+            }
 
-        //
-        // Remove the user from User Manager
-        //
-        _userManager->removeUser(userNameStr);
+            //
+            // Remove the user from User Manager
+            //
+            _userManager->removeUser(userNameStr);
+        }
+        catch ( const CIMException & )
+        {
+            handler.complete();
+            PEG_METHOD_EXIT();
+            throw;
+        }
+        catch ( const Exception &e )
+        {
+            handler.complete();
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+        }
     }
     //
     // check if the class name requested is PG_Authorization
@@ -404,54 +424,79 @@ void UserAuthProvider::deleteInstance(
     if (myInstance.getClassName().equal (CLASS_NAME_PG_AUTHORIZATION))
 #endif
     {
-        //
-        // Get the user name and namespace from the instance
-        //
-        kbArray = myInstance.getKeyBindings();
-        for (Uint32 i = 0; i < kbArray.size(); i++)
+        try
         {
-            if ( kbArray[i].getName() == PROPERTY_NAME_USERNAME )
+            //
+            // Get the user name and namespace from the instance
+            //
+            kbArray = myInstance.getKeyBindings();
+            for (Uint32 i = 0; i < kbArray.size(); i++)
             {
-                userNameStr = kbArray[i].getValue();
+                if ( kbArray[i].getName() == PROPERTY_NAME_USERNAME )
+                {
+                    userNameStr = kbArray[i].getValue();
+                }
+                else if ( kbArray[i].getName() == PROPERTY_NAME_NAMESPACE )
+                {
+                    namespaceStr = kbArray[i].getValue();
+                }
             }
-            else if ( kbArray[i].getName() == PROPERTY_NAME_NAMESPACE )
-            {
-                namespaceStr = kbArray[i].getValue();
-            }
+        }
+        catch ( CIMException &e )
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
         }
 
         if ( !userNameStr.size() )
         {
             PEG_METHOD_EXIT();
-            MessageLoaderParms parms("ControlProviders.UserAuthProvider."
-                                        "USERNAME_PROPERTY_CANNOT_BE_EMPTY",
-                                        "Username property can not be empty.");
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,parms);
+	    //l10n
+            //throw PEGASUS_CIM_EXCEPTION (
+                //CIM_ERR_INVALID_PARAMETER,
+                //"Username property can not be empty.") ;
+	    MessageLoaderParms parms("ControlProviders.UserAuthProvider.USERNAME_PROPERTY_CANNOT_BE_EMPTY",
+							 "Username property can not be empty.");
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,parms);
         }
         else if ( !namespaceStr.size() )
         {
             PEG_METHOD_EXIT();
-            MessageLoaderParms parms("ControlProviders.UserAuthProvider."
-                                         "NAMESPACE_PROPERTY_CANNOT_BE_EMPTY",
-                                     "Namespace property can not be empty.");
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,parms);
+	    //l10n
+            //throw PEGASUS_CIM_EXCEPTION (
+                //CIM_ERR_INVALID_PARAMETER,
+                //"Namespace property can not be empty.") ;
+	    MessageLoaderParms parms("ControlProviders.UserAuthProvider.NAMESPACE_PROPERTY_CANNOT_BE_EMPTY",
+							 "Namespace property can not be empty.");
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,parms);
         }
 
-        //
-        // ATTN: Note that the following is a hack, because
-        // deleteInstance() in repository does not like
-        // the hostname and namespace included in the CIMObjectPath
-        // passed to it as a parameter.
-        //
-        CIMObjectPath ref("", CIMNamespaceName (),
-            myInstance.getClassName(), myInstance.getKeyBindings());
+        try
+        {
+            //
+            // ATTN: Note that the following is a hack, because
+            // deleteInstance() in repository does not like
+            // the hostname and namespace included in the CIMObjectPath
+            // passed to it as a parameter.
+            //
+            CIMObjectPath ref("", CIMNamespaceName (),
+                myInstance.getClassName(), myInstance.getKeyBindings());
 
-        _repository->deleteInstance(myInstance.getNameSpace(), ref);
+            _repository->deleteInstance(
+                myInstance.getNameSpace(), ref);
 
-        //
-        // remove authorization in the UserManager
-        //
-        _userManager->removeAuthorization(userNameStr, namespaceStr);
+            //
+            // remove authorization in the UserManager
+            //
+            _userManager->removeAuthorization(
+                userNameStr, namespaceStr );
+
+        }
+        catch ( CIMException &e )
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+        }
     }
     else
     {
@@ -498,7 +543,7 @@ void UserAuthProvider::modifyInstance(
     //
     // verify user authorizations
     //
-    if (user != String::EMPTY)
+    if ( user != String::EMPTY || user != "" )
     {
         _verifyAuthorization(user);
     }
@@ -510,8 +555,7 @@ void UserAuthProvider::modifyInstance(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION (
-            CIM_ERR_NOT_SUPPORTED,
-            instanceReference.getClassName().getString());
+            CIM_ERR_NOT_SUPPORTED, instanceReference.getClassName().getString());
     }
 
     CIMInstance newInstance = modifiedIns;
@@ -519,59 +563,69 @@ void UserAuthProvider::modifyInstance(
     // begin processing the request
     handler.processing();
 
-    //
-    // Get the user name from the instance
-    //
-    String userNameStr;
-    String namespaceStr;
-    String authorizationStr;
+    try
+    {
+        //
+        // Get the user name from the instance
+        //
+        String userNameStr;
+        String namespaceStr;
+        String authorizationStr;
 
-    Uint32 pos = modifiedIns.findProperty ( PROPERTY_NAME_USERNAME );
-    CIMProperty prop = (CIMProperty)newInstance.getProperty(pos);
-    prop.getValue().get(userNameStr);
+        Uint32 pos = modifiedIns.findProperty ( PROPERTY_NAME_USERNAME );
+        CIMProperty prop = (CIMProperty)newInstance.getProperty(pos);
+        prop.getValue().get(userNameStr);
 
-    //
-    // Get the namespace from the instance
-    //
-    pos = modifiedIns.findProperty ( PROPERTY_NAME_NAMESPACE );
-    prop = (CIMProperty)newInstance.getProperty(pos);
-    prop.getValue().get(namespaceStr);
+        //
+        // Get the namespace from the instance
+        //
+        pos = modifiedIns.findProperty ( PROPERTY_NAME_NAMESPACE );
+        prop = (CIMProperty)newInstance.getProperty(pos);
+        prop.getValue().get(namespaceStr);
 
-    //
-    // Get the authorization from the instance
-    //
-    pos = modifiedIns.findProperty ( PROPERTY_NAME_AUTHORIZATION );
-    prop = (CIMProperty)newInstance.getProperty(pos);
-    prop.getValue().get(authorizationStr);
+        //
+        // Get the authorization from the instance
+        //
+        pos = modifiedIns.findProperty ( PROPERTY_NAME_AUTHORIZATION );
+        prop = (CIMProperty)newInstance.getProperty(pos);
+        prop.getValue().get(authorizationStr);
 
-    //
-    // ATTN: Note that the following is a hack, because
-    // modifyInstance() in repository does not like
-    // the hostname and namespace included in the CIMObjectPath
-    // passed to it as a parameter.
-    //
-    CIMObjectPath ref("", CIMNamespaceName (),
-        modifiedIns.getClassName(), instanceReference.getKeyBindings());
+        //
+        // ATTN: Note that the following is a hack, because
+        // modifyInstance() in repository does not like
+        // the hostname and namespace included in the CIMObjectPath
+        // passed to it as a parameter.
+        //
+        CIMObjectPath ref("", CIMNamespaceName (),
+            modifiedIns.getClassName(), instanceReference.getKeyBindings());
 
-    CIMInstance newModifiedIns = modifiedIns.clone ();
-    newModifiedIns.setPath (ref);
+        CIMInstance newModifiedIns = modifiedIns.clone ();
+        newModifiedIns.setPath (ref);
 
-    //
-    // call modifyInstances of the repository
-    //
-    _repository->modifyInstance(
-        instanceReference.getNameSpace(), newModifiedIns);
+        //
+        // call modifyInstances of the repository
+        //
+        _repository->modifyInstance(
+            instanceReference.getNameSpace(), newModifiedIns);
 
-    //
-    // set authorization in the UserManager
-    //
-    _userManager->setAuthorization(
-        userNameStr, namespaceStr, authorizationStr);
+        //
+        // set authorization in the UserManager
+        //
+        _userManager->setAuthorization(
+            userNameStr, namespaceStr, authorizationStr );
+
+    }
+    catch(Exception& e)
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+    }
 
     // complete processing the request
     handler.complete();
 
     PEG_METHOD_EXIT();
+    return;
 }
 
 //
@@ -607,7 +661,7 @@ void UserAuthProvider::enumerateInstances(
     //
     // verify user authorizations
     //
-    if (user != String::EMPTY)
+    if ( user != String::EMPTY || user != "" )
     {
         _verifyAuthorization(user);
     }
@@ -625,11 +679,20 @@ void UserAuthProvider::enumerateInstances(
     // begin processing the request
     handler.processing();
 
-    //
-    // call enumerateInstancesForClass of the repository
-    //
-    namedInstances = _repository->enumerateInstancesForClass(
-        ref.getNameSpace(), ref.getClassName());
+    try
+    {
+        //
+        // call enumerateInstances of the repository
+        //
+        namedInstances = _repository->enumerateInstances(
+            ref.getNameSpace(), ref.getClassName());
+
+    }
+    catch(Exception& e)
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+    }
 
     for(Uint32 i = 0, n = namedInstances.size(); i < n; i++)
     {
@@ -651,8 +714,7 @@ void UserAuthProvider::enumerateInstanceNames(
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler)
 {
-    PEG_METHOD_ENTER(TRC_USER_MANAGER,
-                     "UserAuthProvider::enumerateInstanceNames");
+    PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::enumerateInstanceNames");
 
     Array<CIMObjectPath> instanceRefs;
     Array<String>       userNames;
@@ -677,7 +739,7 @@ void UserAuthProvider::enumerateInstanceNames(
     //
     // verify user authorizations
     //
-    if (user != String::EMPTY)
+    if ( user != String::EMPTY || user != "" )
     {
         _verifyAuthorization(user);
     }
@@ -692,28 +754,41 @@ void UserAuthProvider::enumerateInstanceNames(
     //
     // check if the class name requested is PG_User
     //
-    if (className.equal(CLASS_NAME_PG_USER))
+    if (className.equal (CLASS_NAME_PG_USER))
     {
-        hostName.assign(System::getHostName());
-
-        _userManager->getAllUserNames(userNames);
-
-        Uint32 size = userNames.size();
-
-        for (Uint32 i = 0; i < size; i++)
+        try
         {
-            keyBindings.append(CIMKeyBinding(PROPERTY_NAME_USERNAME,
-                userNames[i],
-                CIMKeyBinding::STRING));
+            hostName.assign(System::getHostName());
 
-            //
-            // Convert instance names to References
-            //
-            CIMObjectPath ref(hostName, nameSpace, className, keyBindings);
+            _userManager->getAllUserNames(userNames);
 
-            handler.deliver(ref);
+            Uint32 size = userNames.size();
 
-            keyBindings.clear();
+            for (Uint32 i = 0; i < size; i++)
+            {
+                keyBindings.append(CIMKeyBinding(PROPERTY_NAME_USERNAME, userNames[i],
+                   CIMKeyBinding::STRING));
+
+                //
+                // Convert instance names to References
+                //
+                CIMObjectPath ref(hostName, nameSpace, className, keyBindings);
+
+                handler.deliver(ref);
+
+                keyBindings.clear();
+            }
+        }
+        catch( const CIMException& )
+        {
+            handler.complete();
+            PEG_METHOD_EXIT();
+            throw;
+        }
+        catch(const Exception& e)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
         }
     }
     //
@@ -724,13 +799,22 @@ void UserAuthProvider::enumerateInstanceNames(
     if (className.equal (CLASS_NAME_PG_AUTHORIZATION))
 #endif
     {
-        //
-        // call enumerateInstanceNamesForClass of the repository
-        //
-        instanceRefs = _repository->enumerateInstanceNamesForClass(
-            nameSpace, className);
+        try
+        {
+            //
+            // call enumerateInstanceNames of the repository
+            //
+            instanceRefs = _repository->enumerateInstanceNames(
+                nameSpace, className);
 
-        handler.deliver(instanceRefs);
+            handler.deliver(instanceRefs);
+
+        }
+        catch ( CIMException &e )
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+        }
     }
     else
     {
@@ -776,7 +860,7 @@ void UserAuthProvider::invokeMethod(
     //
     // verify user authorizations
     //
-    if (user != String::EMPTY)
+    if ( user != String::EMPTY || user != "" )
     {
         _verifyAuthorization(user);
     }
@@ -803,75 +887,96 @@ void UserAuthProvider::invokeMethod(
     {
         handler.complete();
         PEG_METHOD_EXIT();
-        MessageLoaderParms parms("ControlProviders.UserAuthProvider."
-                                     "UNSUPPORTED_METHOD_NAME",
-                                 "Unsupported method name, $0",
-                                 methodName.getString());
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,parms);
+	//l10n
+        //throw PEGASUS_CIM_EXCEPTION (
+            //CIM_ERR_FAILED,
+           //"Unsupported method name, " + methodName.getString());
+	MessageLoaderParms parms("ControlProviders.UserAuthProvider.UNSUPPORTED_METHOD_NAME",
+						 "Unsupported method name, $0",
+						 methodName.getString());
+	throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,parms);
     }
 
     // Check if all the input parameters are passed.
-    if (inParams.size() < 2)
+    if ( inParams.size() < 2 )
     {
         handler.complete();
         PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "ControlProviders.UserAuthProvider.INPUT_PARAMETERS_NOT_VALID",
-            "Input parameters are not valid.");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, parms);
+	//l10n
+       //     throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
+         //                           "Input parameters are not valid.");
+	MessageLoaderParms parms("ControlProviders.UserAuthProvider.INPUT_PARAMETERS_NOT_VALID",
+						 "Input parameters are not valid.");
+	throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_INVALID_PARAMETER, parms);
     }
 
-    kbArray = ref.getKeyBindings();
+    try
+    {
+        kbArray = ref.getKeyBindings();
 
-    if (!kbArray.size())
-    {
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "ControlProviders.UserAuthProvider."
-                "UNABLE_TO_FIND_KEY_PROPERTY_USERNAME",
-            "Unable to find Key Property Username");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, parms);
-    }
-
-    //
-    // Get the user name
-    //
-    if (kbArray[0].getName() == PROPERTY_NAME_USERNAME)
-    {
-        userName = kbArray[0].getValue();
-    }
-    else
-    {
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "ControlProviders.UserAuthProvider.UNEXPECTED_KEY_PROPERTY",
-            "Unexpected key property");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, parms);
-    }
-
-    //
-    // Get the old and the new password params
-    //
-    for ( Uint32 i=0; i < 2; i++)
-    {
-        //
-        // check the param name
-        //
-        if (inParams[i].getParameterName() == OLD_PASSWORD)
+        if ( !kbArray.size() )
         {
-            inParams[i].getValue().get(password);
+            PEG_METHOD_EXIT();
+	    //l10n
+            //throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
+              //       "Unable to find Key Property Username");
+	    MessageLoaderParms parms("ControlProviders.UserAuthProvider.UNABLE_TO_FIND_KEY_PROPERTY_USERNAME",
+	    						 "Unable to find Key Property Username");
+	    throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_INVALID_PARAMETER,parms);
         }
-        if (inParams[i].getParameterName() == NEW_PASSWORD)
-        {
-            inParams[i].getValue().get(newPassword);
-        }
-    }
 
-    // Modify the user's password in User Manager
-    _userManager->modifyUser(
-        userName,
-        password,
-        newPassword);
+        //
+        // Get the user name
+        //
+        if ( kbArray[0].getName() == PROPERTY_NAME_USERNAME )
+        {
+            userName = kbArray[0].getValue();
+        }
+        else
+        {
+            PEG_METHOD_EXIT();
+            MessageLoaderParms parms(
+                "ControlProviders.UserAuthProvider.UNEXPECTED_KEY_PROPERTY",
+                "Unexpected key property");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, parms);
+        }
+
+        //
+        // Get the old and the new password params
+        //
+        for ( Uint32 i=0; i < 2; i++)
+        {
+            //
+            // check the param name
+            //
+            if ( inParams[i].getParameterName() == OLD_PASSWORD )
+            {
+                inParams[i].getValue().get(password);
+            }
+            if ( inParams[i].getParameterName() == NEW_PASSWORD )
+            {
+                inParams[i].getValue().get(newPassword);
+            }
+        }
+
+        // Modify the user's password in User Manager
+        _userManager->modifyUser(
+            userName,
+            password,
+            newPassword);
+    }
+    catch ( const CIMException& )
+    {
+        handler.complete();
+        PEG_METHOD_EXIT();
+        throw;
+    }
+    catch (const Exception& e)
+    {
+        handler.complete();
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+    }
 
     // Return zero as there is no error
     Uint32 retCode = 0;

@@ -1,31 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         Denise Eckstein, Hewlett-Packard Company <denise_eckstein@hp.com>
+//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,9 +44,9 @@
 // dnsinfo client that does an enumerateInstances of the
 // PG_DNSService class and displays properties of interest.
 
-// At this time, there is only one instance of PG_DNSService.
+// At this time, there is only one instance of PG_DNSService. 
 
-#include "DNSInfo.h"
+#include "DNSInfo.h" 
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -49,13 +57,21 @@ PEGASUS_USING_STD;
 /**  Constructor for DNSInfo Client
   */
 
-DNSInfo::DNSInfo()
+DNSInfo::DNSInfo(void)
 {
+   dnsSystemName = String::EMPTY;
+   dnsSystemCreationClassName = String::EMPTY;
+   dnsName = String::EMPTY;
+   dnsCreationClassName = String::EMPTY;
+   dnsCaption = String::EMPTY;
+   dnsDescription = String::EMPTY;
+   dnsSearchList = NULL;
+   dnsAddresses = NULL;
 }
 
-DNSInfo::~DNSInfo()
+DNSInfo::~DNSInfo(void)
 {
-}
+}         
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -74,10 +90,10 @@ void DNSInfo::errorExit(const String& message)
 */
 void DNSInfo::_usage()
 {
-    cerr << "Usage: osinfo [-c]" << endl;
-    cerr << "Example:" << endl;
-    cerr << "  dnsinfo " << endl;
-    cerr << "  dnsinfo -c " << endl;
+  cerr << "Usage: osinfo [-c]" << endl;
+  cerr << "Example:" << endl;
+  cerr << "  dnsinfo " << endl;
+  cerr << "  dnsinfo -c " << endl;
 }
 
 /**
@@ -115,7 +131,7 @@ void DNSInfo::displayProperties()
 /**
    gatherProperties method of the dnsinfo Test Client
   */
-void DNSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
+void DNSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat) 
 {
 #ifdef DEBUG
    cout << "DNSInfo::gatherProperties()" << endl;
@@ -137,10 +153,10 @@ void DNSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
       {
          inst.getProperty(j).getValue().get(dnsSystemCreationClassName);
       }  // end if SystemCreationClassName
-
+      
       if (propertyName.equal (CIMName ("Name")))
       {
-         inst.getProperty(j).getValue().get(dnsName);
+         inst.getProperty(j).getValue().get(dnsName); 
       }  // end if Name
 
       if (propertyName.equal (CIMName ("CreationClassName")))
@@ -150,34 +166,34 @@ void DNSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
 
       if (propertyName.equal (CIMName ("Caption")))
       {
-         inst.getProperty(j).getValue().get(dnsCaption);
+         inst.getProperty(j).getValue().get(dnsCaption); 
       }  // end if Caption
 
       if (propertyName.equal (CIMName ("Description")))
       {
-         inst.getProperty(j).getValue().get(dnsDescription);
-      }  // end if Description
+         inst.getProperty(j).getValue().get(dnsDescription); 
+      }  // end if Description 
 
       if (propertyName.equal (CIMName ("SearchList")))
       {
-         inst.getProperty(j).getValue().get(dnsSearchList);
+         inst.getProperty(j).getValue().get(dnsSearchList); 
       }  // end if SearchList
 
       if (propertyName.equal (CIMName ("Addresses")))
       {
-         inst.getProperty(j).getValue().get(dnsAddresses);
+         inst.getProperty(j).getValue().get(dnsAddresses); 
       }  // end if ServerAddress
    }  // end of for looping through properties
 }
 
-/*
-   getDNSInfo of the DNS provider.
+/* 
+   getDNSInfo of the DNS provider. 
 */
 void DNSInfo::getDNSInfo(const int argc, const char** argv)
 {
 
 // ATTN-SLC-16-May-02-P1  enhance to take host & user info
-//  Decided to keep local only for first release
+//  Decided to keep local only for first release 
 
     Boolean cimFormat = false;
 
@@ -214,8 +230,8 @@ void DNSInfo::getDNSInfo(const int argc, const char** argv)
         // in milliseconds, thus setting to one minute
         CIMClient client;
         client.setTimeout(60 * 1000);
-        client.connectLocal();
-
+	client.connectLocal();
+        
         Boolean deepInheritance = true;
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
@@ -227,16 +243,16 @@ void DNSInfo::getDNSInfo(const int argc, const char** argv)
              << endl;
 #endif
 
-        Array<CIMInstance> cimNInstances =
-           client.enumerateInstances(NAMESPACE, CLASSNAME,
+        Array<CIMInstance> cimNInstances = 
+	       client.enumerateInstances(NAMESPACE, CLASSNAME, 
                                          deepInheritance,
-                         localOnly,  includeQualifiers,
-                         includeClassOrigin );
+				         localOnly,  includeQualifiers,
+				         includeClassOrigin );
 
 #ifdef DEBUG
         cout << "DNSInfo::getDNSInfo() - enumerateInstances done" << endl;
 #endif
-
+	  
         numberInstances = cimNInstances.size();
 
         // while we only have one instance (the running OS), we can take the
@@ -253,14 +269,14 @@ void DNSInfo::getDNSInfo(const int argc, const char** argv)
 
            // first gather the interesting properties
            gatherProperties(cimNInstances[i], cimFormat);
-
+         
            // then display them
            displayProperties();
 
       }   // end for looping through instances
-
-    }  // end try
-
+    
+    }  // end try 
+   
     catch(Exception& e)
     {
       errorExit(e.getMessage());

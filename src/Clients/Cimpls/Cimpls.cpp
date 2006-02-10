@@ -1,31 +1,35 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+// Author: Mike Glantz, Hewlett-Packard Company (michael_glantz@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,10 +37,10 @@
 #include <iostream>
 #include <unistd.h>
 #include <stdlib.h>
-#include <Pegasus/Common/Constants.h>
 
+static const int TIMEOUT = 20000;
 static CIMClient _c;
-static String _nameSpace = PEGASUS_NAMESPACENAME_INTEROP.getString();
+static String _nameSpace("root/PG_InterOp");
 static String _providerType[] = { "Unknown", "Other", "Instance",
   "Association", "Indication", "Method" };
 static String _providerState[] = {"Unknown", "Other", "OK",
@@ -58,7 +62,7 @@ int main(const int argc, const char **argv)
   //   Module:     OperatingSystemModule
   //   File:       libOSProvider.sl
 
-  _c.setTimeout(PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
+  _c.setTimeout(20000);
 
   // everything in big try/catch to display errors
   try
@@ -67,19 +71,17 @@ int main(const int argc, const char **argv)
 
     // Start by enumerating PG_ProviderCapabilities
     Array<CIMObjectPath> capRef =
-      _c.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP,
-              "PG_ProviderCapabilities");
+      _c.enumerateInstanceNames(_nameSpace, "PG_ProviderCapabilities");
     for (int i=0; i<capRef.size(); i++)
     {
       // get the instance
-      CIMInstance cap = _c.getInstance(PEGASUS_NAMESPACENAME_INTEROP,capRef[i]);
+      CIMInstance cap = _c.getInstance(_nameSpace,capRef[i]);
 
       // get referenced instance of PG_ProviderModule for later use
       String pMod;
-      cap.getProperty(
-              cap.findProperty("ProviderModuleName")).getValue().get(pMod);
+      cap.getProperty(cap.findProperty("ProviderModuleName")).getValue().get(pMod);
       CIMObjectPath modRef(String("PG_ProviderModule.Name=\"") + pMod + "\"");
-      CIMInstance mod = _c.getInstance(PEGASUS_NAMESPACENAME_INTEROP,modRef);
+      CIMInstance mod = _c.getInstance(_nameSpace,modRef);
 
       // display name of class instrumented
       String className;
@@ -88,12 +90,11 @@ int main(const int argc, const char **argv)
 
       // display namespaces
       Array<String> nameSpaces;
-      cap.getProperty(
-              cap.findProperty("Namespaces")).getValue().get(nameSpaces);
+      cap.getProperty(cap.findProperty("Namespaces")).getValue().get(nameSpaces);
       cout << "  Namespaces:";
       for (int j=0; j<nameSpaces.size(); j++) cout << " " << nameSpaces[j];
       cout << endl;
-
+      
       // display name of provider
       String pName;
       cap.getProperty(cap.findProperty("ProviderName")).getValue().get(pName);
@@ -106,16 +107,15 @@ int main(const int argc, const char **argv)
       for (int j=0; j<pType.size(); j++)
         cout << " " << _providerType[ pType[j] ];
       cout << endl;
-
+      
       // display state
       Array<Uint16> state;
-      mod.getProperty(
-              mod.findProperty("OperationalStatus")).getValue().get(state);
+      mod.getProperty(mod.findProperty("OperationalStatus")).getValue().get(state);
       cout << "  State:     ";
       for (int j=0; j<state.size(); j++)
         cout << " " << _providerState[ state[j] ];
       cout << endl;
-
+      
       // display module
       cout << "  Module:     " << pMod << endl;
 
@@ -144,7 +144,7 @@ int _getClass(const int argc, const char **argv)
   CIMClass cldef;
   try
   {
-    cldef = _c.getClass( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
+    cldef = _c.getClass( _nameSpace, argv[0] );
   }
   catch (Exception& e)
   {
@@ -159,7 +159,7 @@ int _getClass(const int argc, const char **argv)
   cout << "class " << cldef.getClassName().getString() << " : "
     << cldef.getSuperClassName().getString() << endl;
   cout << "{" << endl;
-
+  
   // Now the properties
   // No qualifiers except [key], but specify type, array
   for (int i=0; i<cldef.getPropertyCount(); i++)
@@ -181,7 +181,7 @@ int _getClass(const int argc, const char **argv)
     // final eol
     cout << ";" << endl;
   }
-
+  
   // need to do methods
   for (int i=0; i<cldef.getMethodCount(); i++)
   {
@@ -225,11 +225,11 @@ int _getClass(const int argc, const char **argv)
     // finish output
     cout << ";" << endl;
   }
-
+  
   // final brace and done
   cout << "};" << endl;
 
-  return 0;
+  return 0; 
 }
 
 // ===============================================================
@@ -252,7 +252,7 @@ int _getInstance(const int argc, const char **argv)
   CIMClass cldef;
   try
   {
-    cldef = _c.getClass( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
+    cldef = _c.getClass( _nameSpace, argv[0] );
   }
   catch(Exception& e)
   {
@@ -265,10 +265,10 @@ int _getInstance(const int argc, const char **argv)
 
   // If there are no more args, prompt user for keys
   if (argv[1] == 0) ref = CIMObjectPath(String::EMPTY, // hostname left blank
-                                       PEGASUS_NAMESPACENAME_INTEROP,
+                                       _nameSpace,
                                        argv[0],
                                        _inputInstanceKeys(cldef));
-
+  
   // else if there's another arg and it's "list", enumInstNames and print
   // a list from which user will select (return if none)
   else if (String::equalNoCase("list",argv[1]))
@@ -277,7 +277,7 @@ int _getInstance(const int argc, const char **argv)
     // An empty ObjectPath means nothing was selected
     if (ref.identical(CIMObjectPath())) return 0;
   }
-
+    
   // else there's another arg but it's invalid
   else
   {
@@ -287,7 +287,7 @@ int _getInstance(const int argc, const char **argv)
   // get the specified instance
   try
   {
-    inst = _c.getInstance(PEGASUS_NAMESPACENAME_INTEROP,ref);
+    inst = _c.getInstance(_nameSpace,ref);
   }
   catch(Exception& e)
   {
@@ -307,16 +307,16 @@ int _enumerateInstances(const int argc, const char **argv)
   Array<CIMInstance> ia;
   try
   {
-    ia = _c.enumerateInstances( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
+    ia = _c.enumerateInstances( _nameSpace, argv[0] );
   }
   catch(Exception& e)
   {
     cerr << /* "enumerateInstances: " << */ e.getMessage() << endl;
     return 1;
   }
-
+  
   cerr << ia.size() << " instances" << endl;
-
+  
   for (int i=0; i<ia.size(); i++)
   {
     cout << endl;
@@ -332,11 +332,10 @@ int _enumerateInstances(const int argc, const char **argv)
 
 int _enumerateInstanceNames(const int argc, const char **argv)
 {
-  Array<CIMObjectPath> iNames;
+  Array<CIMObjectPath> iNames; 
   try
   {
-    iNames = _c.enumerateInstanceNames( PEGASUS_NAMESPACENAME_INTEROP,
-                                        argv[0] );
+    iNames = _c.enumerateInstanceNames( _nameSpace, argv[0] );
   }
   catch(Exception& e)
   {
@@ -362,7 +361,7 @@ int _getProperty(const int argc, const char **argv)
   CIMClass cldef;
   try
   {
-    cldef = _c.getClass( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
+    cldef = _c.getClass( _nameSpace, argv[0] );
   }
   catch(Exception& e)
   {
@@ -374,14 +373,13 @@ int _getProperty(const int argc, const char **argv)
   CIMInstance inst;
 
   // If next arg is "ask", prompt user for keys
-  if (String::equalNoCase("ask",argv[1])) ref =
-            CIMObjectPath(String::EMPTY,
-                          PEGASUS_NAMESPACENAME_INTEROP,
-                          argv[0],
-                          _inputInstanceKeys(cldef) );
+  if (String::equalNoCase("ask",argv[1])) ref = CIMObjectPath(String::EMPTY,
+                                                   _nameSpace,
+                                                   argv[0],
+                                                   _inputInstanceKeys(cldef) );
 
   // else if the next arg and is "list", enumInstNames and print
-  // a list from which user will select
+  // a list from which user will select  
   else if (String::equalNoCase("list",argv[1]))
   {
     ref = _selectInstance( argv[0] );
@@ -422,7 +420,7 @@ int _getProperty(const int argc, const char **argv)
   CIMValue v;
   try
   {
-    v = _c.getProperty( PEGASUS_NAMESPACENAME_INTEROP, ref, pDef.getName() );
+    v = _c.getProperty( _nameSpace, ref, pDef.getName() );
   }
   catch (Exception &e)
   {
@@ -431,7 +429,7 @@ int _getProperty(const int argc, const char **argv)
   }
 
   cout << "  " << pDef.getName().getString();
-
+  
   if (v.isArray()) cout << "[" << v.getArraySize() << "]";
 
   if (v.isNull()) cout << "=NULL";
@@ -450,7 +448,7 @@ int _deleteClass(const int argc, const char **argv)
   CIMClass cldef;
   try
   {
-    _c.deleteClass( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
+    _c.deleteClass( _nameSpace, argv[0] );
   }
   catch (Exception& e)
   {
@@ -471,7 +469,7 @@ int _deleteInstance(const int argc, const char **argv)
   CIMClass cldef;
   try
   {
-    cldef = _c.getClass( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
+    cldef = _c.getClass( _nameSpace, argv[0] );
   }
   catch(Exception& e)
   {
@@ -484,10 +482,10 @@ int _deleteInstance(const int argc, const char **argv)
 
   // If there are no more args, prompt user for keys
   if (argv[1] == 0) ref = CIMObjectPath(String::EMPTY, // hostname left blank
-                                       PEGASUS_NAMESPACENAME_INTEROP,
+                                       _nameSpace,
                                        argv[0],
                                        _inputInstanceKeys(cldef));
-
+  
   // else if there's another arg and it's "list", enumInstNames and print
   // a list from which user will select (return if none)
   else if (String::equalNoCase("list",argv[1]))
@@ -496,7 +494,7 @@ int _deleteInstance(const int argc, const char **argv)
     // An empty ObjectPath means nothing was selected
     if (ref.identical(CIMObjectPath())) return 0;
   }
-
+    
   // else there's another arg but it's invalid
   else
   {
@@ -506,7 +504,7 @@ int _deleteInstance(const int argc, const char **argv)
   // delete the specified instance
   try
   {
-    _c.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP,ref);
+    _c.deleteInstance(_nameSpace,ref);
   }
   catch(Exception& e)
   {
@@ -532,8 +530,7 @@ Array<CIMKeyBinding> _inputInstanceKeys(const CIMClass &cldef)
     if (_isKey(prop))
     {
       char s[256];
-      cout << prop.getName().getString() << " ("
-          << cimTypeToString(prop.getType()) << "): ";
+      cout << prop.getName().getString() << " (" << cimTypeToString(prop.getType()) << "): ";
       cin.getline(s,sizeof(s));
       enum CIMKeyBinding::Type t;
       switch (prop.getType())
@@ -576,7 +573,7 @@ CIMObjectPath _selectInstance(const String &clnam)
   Array<CIMObjectPath> iNames;
   try
   {
-    iNames = _c.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP,clnam);
+    iNames = _c.enumerateInstanceNames(_nameSpace,clnam);
   }
   catch (Exception& e)
   {
@@ -626,7 +623,7 @@ void _displayInstance(CIMInstance &inst)
 void _displayProperty(const CIMProperty &p)
 {
   cout << "  " << p.getName().getString();
-
+  
   CIMValue v = p.getValue();
 
   if (v.isArray())

@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Robert Kieninger (kieningr@de.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,85 +39,48 @@
 #define Pegasus_AssocClassCache_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Repository/PersistentStoreData.h>
 #include <Pegasus/Repository/Linkage.h>
+#include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/IPC.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class AssocClassCache;
-
-/** Maintains association class caches for all namespaces.
-*/
-class PEGASUS_REPOSITORY_LINKAGE AssocClassCacheManager
-{
-public:
-
-    AssocClassCacheManager();
-    ~AssocClassCacheManager();
-
-    /** Retrieves the association class cache for the given namespace.
-    */
-    AssocClassCache* getAssocClassCache(const String& nameSpace);
-
-private:
-
-    Array<AssocClassCache*> _assocClassCacheList;
-};
-
-/** Maintains a cache for all association classes in a namespace.
+/** Maintains a cache for all association classes.
 */
 class PEGASUS_REPOSITORY_LINKAGE AssocClassCache
 {
 public:
 
-    AssocClassCache(const String& nameSpace);
-    ~AssocClassCache();
-
-    const String& getNameSpace()
-    {
-        return _nameSpace;
-    }
+    /** Retrieves a singleton instance of the class cache for the
+     * given namespace.
+    */
+    static AssocClassCache* getAssocClassCache(const String& nameSpace);
+    static void cleanupAssocClassCaches();
 
     /** Retrieve an entry for an association class through direct
-        access via the from class name.
+     * access via the from class name.
     */
-    Boolean getAssocClassEntry(
-        const CIMName& fromClassName,
-        Array<ClassAssociation>& entryList);
-
-    /** Gets the names of the association classes which reference the specified
-        classes.  The results can be constrained by specifying a set of
-        resulting association classes and the property name that refers to the
-        specified class.
-    */
-    Boolean getReferenceNames(
-        const Array<CIMName>& classList,
-        const Array<CIMName>& resultClassList,
-        const String& role,
-        Array<String>& referenceNames);
+    Boolean getAssocClassEntry(const String& lowerCaseFromClassName,
+                               Array< Array<String> >& entryList);
 
     /** Add a new entry to the association cache.
     */
-    Boolean addRecord(
-        const CIMName& fromClassName,
-        const ClassAssociation& assocClassEntry);
+    Boolean addRecord(const String& lowerCaseFromClassName,
+                      Array<String> assocClassEntry);
 
-    /** Remove an association record from the association cache specified by
-        the given from class name and association name.
+    /** Remove an entry from the association cache specified by the given
+     * association class name.
     */
-    Boolean removeRecord(
-        const CIMName& fromClassName,
-        const CIMName& assocClassName);
+    Boolean removeEntry(const String& lowerCaseFromClassName);
 
-    /** Remove association records from the association cache specified by the
-        association class name.
+   /** Remove an association record from the association cache specified by the given
+    *  from class name and association name.
     */
-    Boolean removeAssocClassRecords(
-        const CIMName& assocClassName);
+    Boolean removeRecord(const String& lowerCaseFromClassName,
+                         const String& lowerCaseAssocClassName);
 
     /** Check if the cache is loaded with objects already.
     */
@@ -119,13 +88,18 @@ public:
     void setActive(Boolean flag);
 
 private:
+    static Array<AssocClassCache*> _assocClassCacheList;
     String _nameSpace;
     Boolean _isInitialized;
 
-    typedef HashTable<String, Array<ClassAssociation>,
-        EqualNoCaseFunc, HashLowerCaseFunc > AssocClassCacheHashTableType;
+    typedef HashTable<String, Array< Array<String> >,
+       EqualFunc<String>, HashFunc<String> > AssocClassCacheHashTableType;
 
-    AssocClassCacheHashTableType _assocTable;
+    AssocClassCacheHashTableType *_assocClassCache;
+
+    AssocClassCache() {/*private*/};
+    ~AssocClassCache();
+    AssocClassCache(const String& nameSpace);
 };
 
 PEGASUS_NAMESPACE_END

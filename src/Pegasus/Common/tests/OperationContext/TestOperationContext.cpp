@@ -1,31 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//      Carol Ann Krug Graves, Hewlett-Packard Company(carolann_graves@hp.com)
+//      Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,41 +51,27 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static Boolean verbose;
+static char * verbose = 0;
 
 CIMInstance _createFilterInstance1(void)
 {
     CIMInstance filterInstance(PEGASUS_CLASSNAME_INDFILTER);
 
     // add properties
-    filterInstance.addProperty(CIMProperty("SystemCreationClassName",
-                                   String("CIM_UnitaryComputerSystem")));
-    filterInstance.addProperty(CIMProperty("SystemName",
-                                    String("server001.acme.com")));
-    filterInstance.addProperty(CIMProperty("CreationClassName",
-                                    PEGASUS_CLASSNAME_INDFILTER.getString()));
-    filterInstance.addProperty(CIMProperty("Name",
-                                   String("Filter1")));
-    filterInstance.addProperty(CIMProperty("Query",
-                                   String("SELECT * FROM CIM_AlertIndication"
-                                          " WHERE AlertType = 5")));
-    filterInstance.addProperty(CIMProperty("QueryLanguage",
-                                   String("WQL1")));
-    filterInstance.addProperty(CIMProperty("SourceNamespace",
-                                   PEGASUS_NAMESPACENAME_INTEROP.getString()));
+    filterInstance.addProperty(CIMProperty("SystemCreationClassName", String("CIM_UnitaryComputerSystem")));
+    filterInstance.addProperty(CIMProperty("SystemName", String("server001.acme.com")));
+    filterInstance.addProperty(CIMProperty("CreationClassName", PEGASUS_CLASSNAME_INDFILTER.getString()));
+    filterInstance.addProperty(CIMProperty("Name", String("Filter1")));
+    filterInstance.addProperty(CIMProperty("Query", String("SELECT * FROM CIM_AlertIndication WHERE AlertType = 5")));
+    filterInstance.addProperty(CIMProperty("QueryLanguage", String("WQL1")));
+    filterInstance.addProperty(CIMProperty("SourceNamespace", String("root/PG_InterOp")));
 
     // create keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("SystemCreationClassName",
-                              "CIM_UnitaryComputerSystem",
-                              CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("SystemName",
-                              "server001.acme.com",
-                              CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("CreationClassName",
-                              PEGASUS_CLASSNAME_INDFILTER.getString(),
-                              CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("SystemCreationClassName", "CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("SystemName", "server001.acme.com", CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("CreationClassName", PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
     keys.append(CIMKeyBinding("Name", "Filter1", CIMKeyBinding::STRING));
 
     // update object path
@@ -95,31 +89,19 @@ CIMInstance _createHandlerInstance1(void)
     CIMInstance handlerInstance(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
 
     // add properties
-    handlerInstance.addProperty(CIMProperty(
-        "SystemCreationClassName", String("CIM_UnitaryComputerSystem")));
-    handlerInstance.addProperty(CIMProperty(
-        "SystemName", String("server001.acme.com")));
-    handlerInstance.addProperty(CIMProperty(
-        "CreationClassName", PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
-    handlerInstance.addProperty(CIMProperty(
-        "Name", String("Handler1")));
-    handlerInstance.addProperty(CIMProperty(
-        "Destination", String("localhost:5988/test1")));
+    handlerInstance.addProperty(CIMProperty("SystemCreationClassName", String("CIM_UnitaryComputerSystem")));
+    handlerInstance.addProperty(CIMProperty("SystemName", String("server001.acme.com")));
+    handlerInstance.addProperty(CIMProperty("CreationClassName", PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
+    handlerInstance.addProperty(CIMProperty("Name", String("Handler1")));
+    handlerInstance.addProperty(CIMProperty("Destination", String("localhost:5988/test1")));
 
     // create keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("SystemCreationClassName",
-                              "CIM_UnitaryComputerSystem",
-                              CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("SystemName",
-                              "server001.acme.com",
-                              CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("CreationClassName",
-                              PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(),
-                              CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding(
-        "Name", "Handler1", CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("SystemCreationClassName", "CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("SystemName", "server001.acme.com", CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("CreationClassName", PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(), CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("Name", "Handler1", CIMKeyBinding::STRING));
 
     // update object path
     CIMObjectPath objectPath = handlerInstance.getPath();
@@ -136,34 +118,20 @@ CIMInstance _createFilterInstance2(void)
     CIMInstance filterInstance(PEGASUS_CLASSNAME_INDFILTER);
 
     // add properties
-    filterInstance.addProperty(CIMProperty(
-        "SystemCreationClassName", String("CIM_UnitaryComputerSystem")));
-    filterInstance.addProperty(CIMProperty(
-        "SystemName", String("server001.acme.com")));
-    filterInstance.addProperty(CIMProperty(
-        "CreationClassName", PEGASUS_CLASSNAME_INDFILTER.getString()));
-    filterInstance.addProperty(CIMProperty(
-        "Name", String("Filter2")));
-    filterInstance.addProperty(CIMProperty(
-        "Query",
-        String("SELECT * FROM CIM_AlertIndication WHERE AlertType = 8")));
-    filterInstance.addProperty(CIMProperty(
-        "QueryLanguage", String("WQL1")));
-    filterInstance.addProperty(CIMProperty(
-        "SourceNamespace", PEGASUS_NAMESPACENAME_INTEROP.getString()));
+    filterInstance.addProperty(CIMProperty("SystemCreationClassName", String("CIM_UnitaryComputerSystem")));
+    filterInstance.addProperty(CIMProperty("SystemName", String("server001.acme.com")));
+    filterInstance.addProperty(CIMProperty("CreationClassName", PEGASUS_CLASSNAME_INDFILTER.getString()));
+    filterInstance.addProperty(CIMProperty("Name", String("Filter2")));
+    filterInstance.addProperty(CIMProperty("Query", String("SELECT * FROM CIM_AlertIndication WHERE AlertType = 8")));
+    filterInstance.addProperty(CIMProperty("QueryLanguage", String("WQL1")));
+    filterInstance.addProperty(CIMProperty("SourceNamespace", String("root/PG_InterOp")));
 
     // create keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("SystemCreationClassName",
-                              "CIM_UnitaryComputerSystem",
-                              CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("SystemName",
-                              "server001.acme.com",
-                              CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("CreationClassName",
-                              PEGASUS_CLASSNAME_INDFILTER.getString(),
-                              CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("SystemCreationClassName", "CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("SystemName", "server001.acme.com", CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("CreationClassName", PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
     keys.append(CIMKeyBinding("Name", "Filter2", CIMKeyBinding::STRING));
 
     // update object path
@@ -181,29 +149,18 @@ CIMInstance _createHandlerInstance2(void)
     CIMInstance handlerInstance(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
 
     // add properties
-    handlerInstance.addProperty(CIMProperty(
-        "SystemCreationClassName", String("CIM_UnitaryComputerSystem")));
-    handlerInstance.addProperty(CIMProperty(
-        "SystemName", String("server001.acme.com")));
-    handlerInstance.addProperty(CIMProperty(
-        "CreationClassName", PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
-    handlerInstance.addProperty(CIMProperty(
-        "Name", String("Handler2")));
-    handlerInstance.addProperty(CIMProperty(
-        "Destination", String("localhost:5988/test2")));
+    handlerInstance.addProperty(CIMProperty("SystemCreationClassName", String("CIM_UnitaryComputerSystem")));
+    handlerInstance.addProperty(CIMProperty("SystemName", String("server001.acme.com")));
+    handlerInstance.addProperty(CIMProperty("CreationClassName", PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
+    handlerInstance.addProperty(CIMProperty("Name", String("Handler2")));
+    handlerInstance.addProperty(CIMProperty("Destination", String("localhost:5988/test2")));
 
     // create keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("SystemCreationClassName",
-                              "CIM_UnitaryComputerSystem",
-                              CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("SystemName",
-                              "server001.acme.com",
-                              CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("CreationClassName",
-                              PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(),
-                              CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("SystemCreationClassName","CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("SystemName", "server001.acme.com", CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("CreationClassName", PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(), CIMKeyBinding::STRING));
     keys.append(CIMKeyBinding("Name", "Handler2", CIMKeyBinding::STRING));
 
     // update object path
@@ -224,46 +181,26 @@ CIMInstance _createSubscriptionInstance1(void)
     CIMInstance subscriptionInstance(PEGASUS_CLASSNAME_INDSUBSCRIPTION);
 
     // add properties
-    subscriptionInstance.addProperty(CIMProperty(
-        "Filter", filterInstance1.getPath(), 0,
-        PEGASUS_CLASSNAME_INDFILTER));
-    subscriptionInstance.addProperty(CIMProperty(
-        "Handler", handlerInstance1.getPath(), 0,
-        PEGASUS_CLASSNAME_INDHANDLER_CIMXML));
-    subscriptionInstance.addProperty(CIMProperty(
-        "OnFatalErrorPolicy", Uint16(4)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "FailureTriggerTimeInterval", Uint64(60)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "SubscriptionState", Uint16(2)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "TimeOfLastStateChange", CIMDateTime::getCurrentDateTime()));
-    subscriptionInstance.addProperty(CIMProperty(
-        "SubscriptionDuration", Uint64(86400)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "SubscriptionStartTime", CIMDateTime::getCurrentDateTime()));
-    subscriptionInstance.addProperty(CIMProperty(
-        "SubscriptionTimeRemaining", Uint64(86400)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "RepeatNotificationPolicy", Uint16(1)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "OtherRepeatNotificationPolicy", String("AnotherPolicy")));
-    subscriptionInstance.addProperty(CIMProperty(
-        "RepeatNotificationInterval", Uint64(60)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "RepeatNotificationGap", Uint64(15)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "RepeatNotificationCount", Uint16(3)));
+    subscriptionInstance.addProperty(CIMProperty("Filter", filterInstance1.getPath(), 0, PEGASUS_CLASSNAME_INDFILTER));
+    subscriptionInstance.addProperty(CIMProperty("Handler", handlerInstance1.getPath(), 0, PEGASUS_CLASSNAME_INDHANDLER_CIMXML));
+    subscriptionInstance.addProperty(CIMProperty("OnFatalErrorPolicy", Uint16(4)));
+    subscriptionInstance.addProperty(CIMProperty("FailureTriggerTimeInterval", Uint64(60)));
+    subscriptionInstance.addProperty(CIMProperty("SubscriptionState", Uint16(2)));
+    subscriptionInstance.addProperty(CIMProperty("TimeOfLastStateChange", CIMDateTime::getCurrentDateTime()));
+    subscriptionInstance.addProperty(CIMProperty("SubscriptionDuration", Uint64(86400)));
+    subscriptionInstance.addProperty(CIMProperty("SubscriptionStartTime", CIMDateTime::getCurrentDateTime()));
+    subscriptionInstance.addProperty(CIMProperty("SubscriptionTimeRemaining", Uint64(86400)));
+    subscriptionInstance.addProperty(CIMProperty("RepeatNotificationPolicy", Uint16(1)));
+    subscriptionInstance.addProperty(CIMProperty("OtherRepeatNotificationPolicy", String("AnotherPolicy")));
+    subscriptionInstance.addProperty(CIMProperty("RepeatNotificationInterval", Uint64(60)));
+    subscriptionInstance.addProperty(CIMProperty("RepeatNotificationGap", Uint64(15)));
+    subscriptionInstance.addProperty(CIMProperty("RepeatNotificationCount", Uint16(3)));
 
     // create keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("Filter",
-                              filterInstance1.getPath().toString(),
-                              CIMKeyBinding::REFERENCE));
-    keys.append(CIMKeyBinding("Handler",
-                               handlerInstance1.getPath().toString(),
-                              CIMKeyBinding::REFERENCE));
+    keys.append(CIMKeyBinding("Filter", filterInstance1.getPath().toString(), CIMKeyBinding::REFERENCE));
+    keys.append(CIMKeyBinding("Handler", handlerInstance1.getPath().toString(), CIMKeyBinding::REFERENCE));
 
     // update object path
     CIMObjectPath objectPath = subscriptionInstance.getPath();
@@ -283,44 +220,26 @@ CIMInstance _createSubscriptionInstance2(void)
     CIMInstance subscriptionInstance(PEGASUS_CLASSNAME_INDSUBSCRIPTION);
 
     // add properties
-    subscriptionInstance.addProperty(CIMProperty(
-        "Filter", filterInstance2.getPath(), 0,
-        PEGASUS_CLASSNAME_INDFILTER));
-    subscriptionInstance.addProperty(CIMProperty(
-        "Handler", handlerInstance2.getPath(), 0,
-         PEGASUS_CLASSNAME_INDHANDLER_CIMXML));
-    subscriptionInstance.addProperty(CIMProperty(
-        "OnFatalErrorPolicy", Uint16(2)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "FailureTriggerTimeInterval", Uint64(120)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "SubscriptionState", Uint16(2)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "TimeOfLastStateChange", CIMDateTime::getCurrentDateTime()));
-    subscriptionInstance.addProperty(CIMProperty(
-        "SubscriptionDuration", Uint64(172800)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "SubscriptionStartTime", CIMDateTime::getCurrentDateTime()));
-    subscriptionInstance.addProperty(CIMProperty(
-        "SubscriptionTimeRemaining", Uint64(172800)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "RepeatNotificationPolicy", Uint16(1)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "OtherRepeatNotificationPolicy", String("AnotherPolicy2")));
-    subscriptionInstance.addProperty(CIMProperty(
-        "RepeatNotificationInterval", Uint64(120)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "RepeatNotificationGap", Uint64(30)));
-    subscriptionInstance.addProperty(CIMProperty(
-        "RepeatNotificationCount", Uint16(6)));
+    subscriptionInstance.addProperty(CIMProperty("Filter", filterInstance2.getPath(), 0, PEGASUS_CLASSNAME_INDFILTER));
+    subscriptionInstance.addProperty(CIMProperty("Handler", handlerInstance2.getPath(), 0, PEGASUS_CLASSNAME_INDHANDLER_CIMXML));
+    subscriptionInstance.addProperty(CIMProperty("OnFatalErrorPolicy", Uint16(2)));
+    subscriptionInstance.addProperty(CIMProperty("FailureTriggerTimeInterval", Uint64(120)));
+    subscriptionInstance.addProperty(CIMProperty("SubscriptionState", Uint16(2)));
+    subscriptionInstance.addProperty(CIMProperty("TimeOfLastStateChange", CIMDateTime::getCurrentDateTime()));
+    subscriptionInstance.addProperty(CIMProperty("SubscriptionDuration", Uint64(172800)));
+    subscriptionInstance.addProperty(CIMProperty("SubscriptionStartTime", CIMDateTime::getCurrentDateTime()));
+    subscriptionInstance.addProperty(CIMProperty("SubscriptionTimeRemaining", Uint64(172800)));
+    subscriptionInstance.addProperty(CIMProperty("RepeatNotificationPolicy", Uint16(1)));
+    subscriptionInstance.addProperty(CIMProperty("OtherRepeatNotificationPolicy", String("AnotherPolicy2")));
+    subscriptionInstance.addProperty(CIMProperty("RepeatNotificationInterval", Uint64(120)));
+    subscriptionInstance.addProperty(CIMProperty("RepeatNotificationGap", Uint64(30)));
+    subscriptionInstance.addProperty(CIMProperty("RepeatNotificationCount", Uint16(6)));
 
     // create keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("Filter", filterInstance2.getPath().toString(),
-                              CIMKeyBinding::REFERENCE));
-    keys.append(CIMKeyBinding("Handler", handlerInstance2.getPath().toString(),
-                              CIMKeyBinding::REFERENCE));
+    keys.append(CIMKeyBinding("Filter", filterInstance2.getPath().toString(), CIMKeyBinding::REFERENCE));
+    keys.append(CIMKeyBinding("Handler", handlerInstance2.getPath().toString(), CIMKeyBinding::REFERENCE));
 
     // update object path
     CIMObjectPath objectPath = subscriptionInstance.getPath();
@@ -395,8 +314,7 @@ void Test1(void)
 
         if(userName != container.getUserName())
         {
-            cout << "----- Identity Container assignment operator failed"
-                << endl;
+            cout << "----- Identity Container assignment operator failed" << endl;
 
             throw 0;
         }
@@ -425,8 +343,7 @@ void Test2(void)
 
         if(!subscriptionInstance.identical(container.getInstance()))
         {
-            cout << "----- Subscription Instance Container failed"
-                 << endl;
+            cout << "----- Subscription Instance Container failed" << endl;
 
             throw 0;
         }
@@ -446,8 +363,7 @@ void Test2(void)
 
         if(!subscriptionInstance.identical(container.getInstance()))
         {
-            cout << "----- Subscription Instance Container copy"
-                    " constructor failed" << endl;
+            cout << "----- Subscription Instance Container copy constructor failed" << endl;
 
             throw 0;
         }
@@ -469,8 +385,7 @@ void Test2(void)
 
         if(!subscriptionInstance.identical(container.getInstance()))
         {
-            cout << "----- Subscription Instance Container assignment"
-                    " operator failed" << endl;
+            cout << "----- Subscription Instance Container assignment operator failed" << endl;
 
             throw 0;
         }
@@ -493,8 +408,7 @@ void Test3(void)
         String filterCondition("AlertType = 5");
         String queryLanguage("WQL1");
 
-        context.insert(SubscriptionFilterConditionContainer(filterCondition,
-                                                            queryLanguage));
+        context.insert(SubscriptionFilterConditionContainer(filterCondition, queryLanguage));
 
         SubscriptionFilterConditionContainer container =
             context.get(SubscriptionFilterConditionContainer::NAME);
@@ -502,8 +416,7 @@ void Test3(void)
         if((filterCondition != container.getFilterCondition()) ||
            (queryLanguage != container.getQueryLanguage()))
         {
-            cout << "----- Subscription Filter Condition Container failed"
-                 << endl;
+            cout << "----- Subscription Filter Condition Container failed" << endl;
 
             throw 0;
         }
@@ -516,8 +429,7 @@ void Test3(void)
         String queryLanguage("WQL1");
 
         context.insert(
-            SubscriptionFilterConditionContainer(filterCondition,
-                                                 queryLanguage));
+            SubscriptionFilterConditionContainer(filterCondition, queryLanguage));
 
         //
         //  This test exercises the SubscriptionFilterConditionContainer copy
@@ -529,8 +441,7 @@ void Test3(void)
         if((filterCondition != container.getFilterCondition()) ||
            (queryLanguage != container.getQueryLanguage()))
         {
-            cout << "----- SubscriptionFilterCondition Container copy"
-                    " constructor failed" << endl;
+            cout << "----- SubscriptionFilterCondition Container copy constructor failed" << endl;
 
             throw 0;
         }
@@ -543,8 +454,7 @@ void Test3(void)
         String queryLanguage("WQL1");
 
         context.insert(
-            SubscriptionFilterConditionContainer(filterCondition,
-                                                 queryLanguage));
+            SubscriptionFilterConditionContainer(filterCondition, queryLanguage));
 
         //
         //  This test exercises the SubscriptionFilterConditionContainer
@@ -558,8 +468,7 @@ void Test3(void)
         if((filterCondition != container.getFilterCondition()) ||
            (queryLanguage != container.getQueryLanguage()))
         {
-            cout << "----- SubscriptionFilterCondition Container assignment"
-                    " operator failed" << endl;
+            cout << "----- SubscriptionFilterCondition Container assignment operator failed" << endl;
 
             throw 0;
         }
@@ -579,15 +488,12 @@ void Test4(void)
     OperationContext context;
 
     {
-        String filterQuery(
-            "SELECT * FROM CIM_AlertIndication WHERE AlertType = 5");
+        String filterQuery("SELECT * FROM CIM_AlertIndication WHERE AlertType = 5");
         String queryLanguage("WQL1");
         CIMNamespaceName sourceNamespace("root/sampleprovider");
 
         context.insert(
-            SubscriptionFilterQueryContainer(filterQuery,
-                                             queryLanguage,
-                                             sourceNamespace));
+            SubscriptionFilterQueryContainer(filterQuery, queryLanguage, sourceNamespace));
 
         SubscriptionFilterQueryContainer container =
             context.get(SubscriptionFilterQueryContainer::NAME);
@@ -605,15 +511,12 @@ void Test4(void)
     context.clear();
 
     {
-        String filterQuery(
-            "SELECT * FROM CIM_AlertIndication WHERE AlertType = 5");
+        String filterQuery("SELECT * FROM CIM_AlertIndication WHERE AlertType = 5");
         String queryLanguage("WQL1");
         CIMNamespaceName sourceNamespace("root/sampleprovider");
 
         context.insert(
-            SubscriptionFilterQueryContainer(filterQuery,
-                                             queryLanguage,
-                                             sourceNamespace));
+            SubscriptionFilterQueryContainer(filterQuery, queryLanguage, sourceNamespace));
 
         //
         //  This test exercises the SubscriptionFilterQueryContainer copy
@@ -627,8 +530,7 @@ void Test4(void)
            (queryLanguage != container.getQueryLanguage()) ||
            (!(sourceNamespace == container.getSourceNameSpace())))
         {
-            cout << "----- SubscriptionFilterQuery Container copy"
-                    " constructor failed" << endl;
+            cout << "----- SubscriptionFilterQuery Container copy constructor failed" << endl;
 
             throw 0;
         }
@@ -637,16 +539,13 @@ void Test4(void)
     context.clear();
 
     {
-        String filterQuery(
-            "SELECT * FROM CIM_AlertIndication WHERE AlertType = 5");
+        String filterQuery("SELECT * FROM CIM_AlertIndication WHERE AlertType = 5");
         String queryLanguage("WQL1");
         CIMNamespaceName sourceNamespace("root/sampleprovider");
         CIMNamespaceName junkNamespace("root/junk");
 
         context.insert(
-            SubscriptionFilterQueryContainer(filterQuery,
-                                             queryLanguage,
-                                             sourceNamespace));
+            SubscriptionFilterQueryContainer(filterQuery, queryLanguage, sourceNamespace));
 
         //
         //  This test exercises the SubscriptionFilterQueryContainer
@@ -661,8 +560,7 @@ void Test4(void)
            (queryLanguage != container.getQueryLanguage()) ||
            (!(sourceNamespace == container.getSourceNameSpace())))
         {
-            cout << "----- SubscriptionFilterQuery Container assignment"
-                    " operator failed" << endl;
+            cout << "----- SubscriptionFilterQuery Container assignment operator failed" << endl;
 
             throw 0;
         }
@@ -699,13 +597,11 @@ void Test5(void)
         Array<CIMObjectPath> returnedInstanceNames =
             container.getInstanceNames();
 
-        for(Uint8 i = 0,n = subscriptionInstanceNames.size(); i < n; i++)
+        for(Uint8 i = 0, n = subscriptionInstanceNames.size(); i < n; i++)
         {
-            if(!subscriptionInstanceNames[i].identical(
-                returnedInstanceNames[i]))
+            if(!subscriptionInstanceNames[i].identical(returnedInstanceNames[i]))
             {
-                cout << "----- Subscription Instance Names Container failed"
-                     << endl;
+                cout << "----- Subscription Instance Names Container failed" << endl;
 
                 throw 0;
             }
@@ -730,11 +626,9 @@ void Test5(void)
 
         for(Uint8 i = 0, n = subscriptionInstanceNames.size(); i < n; i++)
         {
-            if(!subscriptionInstanceNames[i].identical(
-                                                returnedInstanceNames[i]))
+            if(!subscriptionInstanceNames[i].identical(returnedInstanceNames[i]))
             {
-                cout << "----- Subscription Instance Names Container copy"
-                        " constructor failed" << endl;
+                cout << "----- Subscription Instance Names Container copy constructor failed" << endl;
 
                 throw 0;
             }
@@ -762,11 +656,9 @@ void Test5(void)
 
         for(Uint8 i = 0, n = subscriptionInstanceNames.size(); i < n; i++)
         {
-            if(!subscriptionInstanceNames[i].identical(
-                                                returnedInstanceNames[i]))
+            if(!subscriptionInstanceNames[i].identical(returnedInstanceNames[i]))
             {
-                cout << "----- Subscription Instance Names Container assignment"
-                        " operator failed" << endl;
+                cout << "----- Subscription Instance Names Container assignment operator failed" << endl;
 
                 throw 0;
             }
@@ -811,10 +703,7 @@ void Test7(void)
     Boolean isRemoteNameSpace = true;
     String remoteInfo("remote_info");
 
-    context.insert(ProviderIdContainer(module,
-                                       provider,
-                                       isRemoteNameSpace,
-                                       remoteInfo));
+    context.insert(ProviderIdContainer(module, provider, isRemoteNameSpace, remoteInfo));
 
     ProviderIdContainer container = context.get(ProviderIdContainer::NAME);
 
@@ -873,8 +762,7 @@ void Test9(void)
 
         context.insert(SnmpTrapOidContainer(snmpTrapOid));
 
-        SnmpTrapOidContainer container =
-            context.get(SnmpTrapOidContainer::NAME);
+        SnmpTrapOidContainer container = context.get(SnmpTrapOidContainer::NAME);
 
         if(snmpTrapOid != container.getSnmpTrapOid())
         {
@@ -895,13 +783,11 @@ void Test9(void)
         //  This test exercises the SnmpTrapOidContainer copy
         //  constructor
         //
-        SnmpTrapOidContainer container =
-            context.get(SnmpTrapOidContainer::NAME);
+        SnmpTrapOidContainer container = context.get(SnmpTrapOidContainer::NAME);
 
         if(snmpTrapOid != container.getSnmpTrapOid())
         {
-            cout << "----- SnmpTrapOid Container copy constructor failed"
-                 << endl;
+            cout << "----- SnmpTrapOid Container copy constructor failed" << endl;
 
             throw 0;
         }
@@ -924,8 +810,7 @@ void Test9(void)
 
         if(snmpTrapOid != container.getSnmpTrapOid())
         {
-            cout << "----- SnmpTrapOid Container assignment operator failed"
-                 << endl;
+            cout << "----- SnmpTrapOid Container assignment operator failed" << endl;
 
             throw 0;
         }
@@ -948,8 +833,7 @@ void Test10(void)
     CachedClassDefinitionContainer container =
         context.get(CachedClassDefinitionContainer::NAME);
 
-    if(cimClass.getClassName().getString() !=
-                        container.getClass().getClassName().getString())
+    if(cimClass.getClassName().getString() != container.getClass().getClassName().getString())
     {
         cout << "----- CachedClassDefinitionContainer failed" << endl;
 
@@ -957,32 +841,9 @@ void Test10(void)
     }
 }
 
-void Test11(void)
+int main(int argc, char** argv)
 {
-    if(verbose)
-    {
-        cout << "Test11()" << endl;
-    }
-
-    OperationContext context;
-
-    String userRole("GodLikeEntity");
-
-    context.insert(UserRoleContainer(userRole));
-
-    UserRoleContainer container = context.get(UserRoleContainer::NAME);
-
-    if(userRole != container.getUserRole())
-    {
-        cout << "----- Locale Container failed" << endl;
-
-        throw 0;
-    }
-}
-
-int main(int, char** argv)
-{
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     try
     {
@@ -996,19 +857,16 @@ int main(int, char** argv)
         Test8();
         Test9();
         Test10();
-        Test11();
 
         cout << argv[0] << " +++++ passed all tests" << endl;
     }
     catch(CIMException & e)
     {
-        cout << argv[0] << " ----- failed with CIMException("
-             << e.getCode() << "):" << e.getMessage() << endl;
+        cout << argv[0] << " ----- failed with CIMException(" << e.getCode() << "):" << e.getMessage() << endl;
     }
     catch(Exception & e)
     {
-        cout << argv[0] << " ----- failed with Exception:" << e.getMessage()
-             << endl;
+        cout << argv[0] << " ----- failed with Exception:" << e.getMessage() << endl;
     }
     catch(...)
     {

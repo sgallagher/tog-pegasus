@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +50,7 @@ PEGASUS_USING_STD;
 //**********************************************************
 /*  Encode thanslates one six-bit pattern into a base-64 character.
     Unsigned char is used to represent a six-bit stream of date.
+    
 */
 inline PEGASUS_COMMON_LINKAGE char Base64::_Encode(Uint8 uc)
 {
@@ -59,10 +67,9 @@ inline PEGASUS_COMMON_LINKAGE char Base64::_Encode(Uint8 uc)
         return '+';
 
     return '/';
-}
+};
 
-// Helper function returns true is a character is a valid base-64 character
-// and false otherwise.
+ //Helper function returns true is a character is a valid base-64 character and false otherwise.
 
 inline Boolean Base64::_IsBase64(char c)
 {
@@ -86,8 +93,8 @@ inline Boolean Base64::_IsBase64(char c)
         return true;
 
     return false;
-}
-
+};
+ 
  // Translate one base-64 character into a six bit pattern
 inline Uint8 Base64::_Decode(char c)
 {
@@ -103,7 +110,7 @@ inline Uint8 Base64::_Decode(char c)
         return 62;
 
     return 63;
-}
+};
 
 
 //*************************************************************
@@ -122,6 +129,7 @@ Buffer Base64::encode(const Buffer& vby)
     // for every character in the input array taken 3 bytes at a time
     for (Uint32 i=0; i < vby.size(); i+=3)
     {
+        
         // Create from 3 8 bit values to 4 6 bit values
         Uint8 by1=0,by2=0,by3=0;
         by1 = vby[i];
@@ -146,7 +154,7 @@ Buffer Base64::encode(const Buffer& vby)
         if (i+1<vby.size())
             retArray.append( _Encode(by6));
         else
-            retArray.append('=');
+            retArray.append('='); 
 
 
         if (i+2<vby.size())
@@ -165,22 +173,12 @@ Buffer Base64::encode(const Buffer& vby)
     };
 
     return retArray;
-}
-
-/*
-    I checked for the zero length. The algorithm would also work for zero
-    length input stream, but I知 pretty adamant about handling border
-    conditions. They are often the culprits of run-time production failures.
-    The algorithm goes thru each three bytes of data at a time. The first
-    thing I do is to shift the bits around from three 8-bit values to four
-    6-bit values. Then I encode the 6-bit values and add then one at a time
-    to the output stream. This is actually quite inefficient. The STL
-    character array is being allocated one byte at a time. The algorithm
-    would be much faster, if I pre-allocated that array. I値l leave that as
-    an optimization practical exercise for the reader.
+};
+/*I checked for the zero length. The algorithm would also work for zero length input stream, but I知 pretty adamant about handling border conditions. They are often the culprits of run-time production failures.
+The algorithm goes thru each three bytes of data at a time. The first thing I do is to shift the bits around from three 8-bit values to four 6-bit values. Then I encode the 6-bit values and add then one at a time to the output stream. This is actually quite inefficient. The STL character array is being allocated one byte at a time. The algorithm would be much faster, if I pre-allocated that array. I値l leave that as an optimization practical exercise for the reader.
 */
 
-/*  The decode static method takes a base-64 stream and converts it
+/*  The decode static method takes a base-64 stream and converts it 
     to an array of 8-bit values.
 */
 Buffer Base64::decode(const Buffer& strInput)
@@ -222,7 +220,7 @@ Buffer Base64::decode(const Buffer& strInput)
         //      " 2 " << c2 << " " << by2 <<
         //      " 3 " << c3 << " " << by3 <<
         //      " 4 " << c4 << " " << by4 << endl;
-
+        
         // append first byte by shifting
         retArray.append( static_cast<char>((by1<<2)|(by2>>4)) );
 
@@ -236,6 +234,6 @@ Buffer Base64::decode(const Buffer& strInput)
 
 
     return retArray;
-}
+};
 
 PEGASUS_NAMESPACE_END

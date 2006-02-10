@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Paulo F. Borges (pfborges@wowmail.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Sean Keenan Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -222,10 +228,7 @@ DNSTestClient::testEnumerateInstanceNames(CIMClient &client,
 
         numberInstances = cimReferences.size();
         if (verboseTest)
-        {
-            cout << numberInstances << " instances of " <<
-                CLASS_NAME.getString() << endl;
-        }
+            cout << numberInstances << " instances of " << CLASS_NAME.getString() <<endl;
 
         for (Uint32 i = 0; i < cimReferences.size(); i++)
         {
@@ -251,9 +254,9 @@ DNSTestClient::testEnumerateInstanceNames(CIMClient &client,
 /*
    testEnumerateInstances of the DNS provider.
 */
-void DNSTestClient::testEnumerateInstances(
-    CIMClient &client,
-    Boolean verboseTest)
+void
+DNSTestClient::testEnumerateInstances(CIMClient &client,
+                                      Boolean verboseTest)
 {
     try
     {
@@ -278,41 +281,40 @@ void DNSTestClient::testEnumerateInstances(
             cout << numberInstances << " instances of PG_DNSService" <<endl;
         for (Uint32 i = 0; i < cimNInstances.size(); i++)
         {
-            CIMObjectPath instanceRef = cimNInstances[i].getPath();
+            CIMObjectPath instanceRef = cimNInstances[i].getPath ();
             if (verboseTest)
-            {
-                cout << "Instance ClassName is " <<
-                    instanceRef.getClassName().getString() << endl;
-            }
-
-            if (!(instanceRef.getClassName().equal(CLASS_NAME.getString())))
+                cout<<"Instance ClassName is " << instanceRef.getClassName().getString() << endl;
+            if( !(instanceRef.getClassName().equal( CLASS_NAME.getString() ) ) )
             {
                 errorExit("EnumInstances failed");
             }
 
             // now validate the properties
-            _validateProperties(cimNInstances[i], verboseTest);
+            _validateProperties(cimNInstances[i],
+                                 verboseTest);
         }   // end for looping through instances
 
         testLog("DNS Provider Test EnumInstances Passed");
-    }
-    catch (Exception& e)
+    }  // end try
+
+    catch(Exception& e)
     {
-        errorExit(e.getMessage());
+      errorExit(e.getMessage());
     }
 }
 
 /*
    testGetInstance of the DNS provider.
 */
-void DNSTestClient::testGetInstance(
-    CIMClient &client,
-    Boolean verboseTest)
+void
+DNSTestClient::testGetInstance (CIMClient &client,
+                                Boolean verboseTest)
 {
     CIMObjectPath  getTestRef;    //  will need an instance for Get
 
     try
     {
+        Boolean deepInheritance = true;
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
@@ -362,7 +364,8 @@ void DNSTestClient::testGetInstance(
         _validateProperties(getTestInstance, verboseTest);
 
         testLog("DNS Provider Test Get Instance passed ");
-    }
+    }  // end try
+
     catch(Exception& e)
     {
       errorExit(e.getMessage());
@@ -427,7 +430,7 @@ int main(int argc, char** argv)
         cout << "DNSTestClient disconnecting from CIMOM " << endl;
         client.disconnect();
     }
-    catch (Exception& e)
+    catch(Exception& e)
     {
         cout << "---- DNS Provider Test Failed " << e.getMessage() << endl;
     }

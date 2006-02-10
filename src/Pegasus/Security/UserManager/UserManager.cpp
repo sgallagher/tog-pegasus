@@ -1,37 +1,47 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4421
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
-//
+// 
 // User Manager
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,7 +59,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    Initialize UserManager instance
+Initialize UserManager instance
 */
 UserManager* UserManager::_instance = 0;
 Mutex UserManager::_userManagerMutex;
@@ -60,12 +70,12 @@ Mutex UserManager::_userManagerMutex;
 UserManager::UserManager(CIMRepository* repository)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::UserManager");
-
+          
 #ifndef PEGASUS_NO_PASSWORDFILE
     _userFileHandler.reset(new UserFileHandler());
 #endif
     _authHandler.reset(new AuthorizationHandler(repository));
-
+    
     PEG_METHOD_EXIT();
 }
 
@@ -82,12 +92,15 @@ UserManager::~UserManager()
 //
 // Terminates the usermanager;
 //
-void UserManager::destroy()
+void
+UserManager::destroy(void)
 {
-    delete _instance;
-    _instance = 0;
+    if (_instance)
+    {
+       delete _instance;
+       _instance = 0;
+    }
 }
-
 //
 // Construct the singleton instance of the UserManager and return a
 // pointer to that instance.
@@ -116,12 +129,10 @@ UserManager* UserManager::getInstance(CIMRepository* repository)
     return _instance;
 }
 
-//
+// 
 // Add a user
 //
-void UserManager::addUser(
-    const String& userName,
-    const String& password)
+void UserManager::addUser(const String& userName, const String& password)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::addUser");
 
@@ -129,16 +140,24 @@ void UserManager::addUser(
     //
     // Check if the user is a valid system user
     //
-    if (!System::isSystemUser(userName.getCString()))
+    if ( !System::isSystemUser( userName.getCString() ) )
     {
         PEG_METHOD_EXIT();
-        throw InvalidSystemUser(userName);
+	throw InvalidSystemUser(userName); 
     }
 
-    //
+    // 
     // Add the user to the password file
     //
-    _userFileHandler->addUserEntry(userName, password);
+    try
+    {
+        _userFileHandler->addUserEntry(userName,password);
+    }
+    catch (const Exception&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
 #endif
 
     PEG_METHOD_EXIT();
@@ -148,20 +167,28 @@ void UserManager::addUser(
 // Modify user's password
 //
 void UserManager::modifyUser(
-    const String& userName,
-    const String& password,
-    const String& newPassword)
+               const String& userName,
+	       const String& password,
+	       const String& newPassword )
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::modifyUser");
 
 #ifndef PEGASUS_NO_PASSWORDFILE
-    _userFileHandler->modifyUserEntry(userName, password, newPassword);
+    try
+    {
+        _userFileHandler->modifyUserEntry(userName, password, newPassword);
+    }
+    catch (const Exception&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
 #endif
 
     PEG_METHOD_EXIT();
 }
 
-//
+// 
 // Remove a user
 //
 void UserManager::removeUser(const String& userName)
@@ -169,7 +196,15 @@ void UserManager::removeUser(const String& userName)
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::removeUser");
 
 #ifndef PEGASUS_NO_PASSWORDFILE
-    _userFileHandler->removeUserEntry(userName);
+    try
+    {
+        _userFileHandler->removeUserEntry(userName);
+    }
+    catch (const Exception&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
 #endif
 
     PEG_METHOD_EXIT();
@@ -184,7 +219,15 @@ void UserManager::getAllUserNames(Array<String>& userNames)
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::getAllUserNames");
 
 #ifndef PEGASUS_NO_PASSWORDFILE
-    _userFileHandler->getAllUserNames(userNames);
+    try
+    {
+        _userFileHandler->getAllUserNames( userNames );
+        PEG_METHOD_EXIT();
+    }
+    catch (const Exception&)
+    {
+        throw;
+    }
 #endif
 
     PEG_METHOD_EXIT();
@@ -193,59 +236,103 @@ void UserManager::getAllUserNames(Array<String>& userNames)
 //
 // Verify whether the specified CIM user is valid
 //
-Boolean UserManager::verifyCIMUser(const String& userName)
+Boolean UserManager::verifyCIMUser (const String& userName)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::verifyCIMUser");
 
 #ifndef PEGASUS_NO_PASSWORDFILE
-    if (_userFileHandler->verifyCIMUser(userName))
+    try
+    {
+        if ( _userFileHandler->verifyCIMUser( userName ))
+	{
+            PEG_METHOD_EXIT();
+	    return true;
+        }
+	else
+	{
+            PEG_METHOD_EXIT();
+	    return false;
+        }
+    }
+    catch (const InvalidUser&)
     {
         PEG_METHOD_EXIT();
-        return true;
+        throw;
     }
-#endif
-
+    catch (const Exception&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
+#else
     PEG_METHOD_EXIT();
     return false;
+#endif
 }
 
 //
 // Verify whether the specified user's password is valid
 //
-Boolean UserManager::verifyCIMUserPassword(
-    const String& userName,
-    const String& password)
+Boolean UserManager::verifyCIMUserPassword (
+			   const String& userName, 
+			   const String& password)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::verifyCIMUserPassword");
 
 #ifndef PEGASUS_NO_PASSWORDFILE
-    if (_userFileHandler->verifyCIMUserPassword(userName, password))
+    try
+    {
+        if ( _userFileHandler->verifyCIMUserPassword( userName, password ))
+	{
+            PEG_METHOD_EXIT();
+	    return true;
+        }
+	else
+	{
+            PEG_METHOD_EXIT();
+	    return false;
+        }
+    }
+    catch (const InvalidUser&)
     {
         PEG_METHOD_EXIT();
-        return true;
+        throw;
     }
-#endif
-
+    catch (const Exception&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
+#else
     PEG_METHOD_EXIT();
     return false;
+#endif
 }
 
 //
 // Verify whether the specified namespace is valid
 //
-Boolean UserManager::verifyNamespace(const CIMNamespaceName& myNamespace)
+Boolean UserManager::verifyNamespace( const CIMNamespaceName& myNamespace )
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::verifyNamespace");
 
-    if (_authHandler->verifyNamespace(myNamespace))
+    try
     {
-        PEG_METHOD_EXIT();
-        return true;
+        if ( _authHandler->verifyNamespace( myNamespace ))
+        {
+            PEG_METHOD_EXIT();
+            return true;
+        }
+        else
+        {
+            PEG_METHOD_EXIT();
+            return false;
+        }
     }
-    else
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-        return false;
+        throw;
     }
 }
 
@@ -254,22 +341,30 @@ Boolean UserManager::verifyNamespace(const CIMNamespaceName& myNamespace)
 // to be performed by the specified user.
 //
 Boolean UserManager::verifyAuthorization(
-    const String& userName,
-    const CIMNamespaceName& nameSpace,
-    const CIMName& cimMethodName)
+                            const String& userName,
+                            const CIMNamespaceName& nameSpace,
+                            const CIMName& cimMethodName)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::verifyAuthorization");
 
-    if (_authHandler->verifyAuthorization(
-            userName, nameSpace, cimMethodName))
+    try
     {
-        PEG_METHOD_EXIT();
-        return true;
+        if ( _authHandler->verifyAuthorization(
+            userName, nameSpace, cimMethodName ) )
+        {
+            PEG_METHOD_EXIT();
+            return true;
+        }
+        else
+        {
+            PEG_METHOD_EXIT();
+            return false;
+        }
     }
-    else
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-        return false;
+        throw;
     }
 }
 
@@ -277,13 +372,21 @@ Boolean UserManager::verifyAuthorization(
 // Set the authorizations
 //
 void UserManager::setAuthorization(
-    const String& userName,
-    const CIMNamespaceName& myNamespace,
-    const String& auth)
+                            const String& userName,
+                            const CIMNamespaceName& myNamespace,
+                            const String& auth)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::setAuthorization");
 
-    _authHandler->setAuthorization(userName, myNamespace, auth);
+    try
+    {
+        _authHandler->setAuthorization( userName, myNamespace, auth );
+    }
+    catch (const Exception&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -292,12 +395,20 @@ void UserManager::setAuthorization(
 // Remove the authorizations for the specified user and namespace
 //
 void UserManager::removeAuthorization(
-    const String& userName,
-    const CIMNamespaceName& myNamespace)
+                            const String& userName,
+                            const CIMNamespaceName& myNamespace)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::removeAuthorization");
 
-    _authHandler->removeAuthorization(userName, myNamespace);
+    try
+    {
+        _authHandler->removeAuthorization( userName, myNamespace);
+    }
+    catch (const Exception&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -307,12 +418,22 @@ void UserManager::removeAuthorization(
 // Get the authorizations for the specified user and namespace
 //
 String UserManager::getAuthorization(
-    const String& userName,
-    const CIMNamespaceName& myNamespace)
+                            const String& userName,
+                            const CIMNamespaceName& myNamespace)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::getAuthorization");
 
-    String auth = _authHandler->getAuthorization(userName, myNamespace);
+    String auth = String::EMPTY;
+
+    try
+    {
+        auth = _authHandler->getAuthorization( userName, myNamespace);
+    }
+    catch (const Exception&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
 
     PEG_METHOD_EXIT();
 
@@ -320,3 +441,5 @@ String UserManager::getAuthorization(
 }
 
 PEGASUS_NAMESPACE_END
+
+

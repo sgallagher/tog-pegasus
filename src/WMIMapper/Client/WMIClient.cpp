@@ -1,37 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 // Modified By: Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Client/CIMClientRep.h>
@@ -56,30 +58,30 @@ CIMClient::CIMClient()
     // we simply call functions in the WMI Provider .dll directly, rather than
     // through using a domain socket/local authentication as is done on Unix).
     //
-    // For this, we handle 2 separate cccClientRep classes: CIMClientRep (the
+    // For this, we handle 2 separate cccClientRep classes: CIMClientRep (the 
     // standard Pegasus client rep) is used for remote connections, and our
-    // custom WMI rep (WMIClientRep) is used for local connections. So, the
+    // custom WMI rep (WMIClientRep) is used for local connections. So, the 
     // basic idea is to instantiate the appropriate _rep, depending on the
     // type of connection being used (local or remote).
     //
-    // A problem arises in the storing of the timeout value: The user must be
+    // A problem arises in the storing of the timeout value: The user must be 
     // able to set this value independently of the current connection state
     // (e.g., construct CIMClient, set timeout, then connect). In the standard
     // Pegasus implementation of CIMClient, the timeout value is store in the
-    // CIMClientRep object, not in the CIMClient object. The problem is, we
-    // need to persist this value while potentially deleting and constructing
+    // CIMClientRep object, not here in the CIMClient object. The problem is,
+    // we need to persist this value while potentially deleting and constructing
     // new _rep objects -- and we cannot add the timeout as a member of our
     // version of CIMClient, or this will create memory corruption problems for
     // client apps (since they #include <Pegasus/Client/CIMClient.h>, but link
     // to the WMI Mapper implementation of this class -- at least to utilize
     // the Mapper's localConnect feature (found this out the hard way)!
     //
-    // So, in order to handle this, we must construct a WMIClientRep object
-    // here, if only as a container for the timeout setting, then in the
-    // connect() methods, we must save the timeout, delete the current _rep,
-    // create a new _rep using the current timeout, then finally connect()!
+    // So, in order to handle this, we must construct a WMIClientRep object here,
+    // if only as a container for the timeout setting, then in the connect()
+    // methods, we must save the timeout, delete the current _rep, create a new
+    // _rep using the current timeout, then finally connect()!
     //
-    // Not pretty, but the best solution so far (also, there is very little
+    // Not pretty, but the best solution so far (also, there is very little 
     // overhead in constructing a WMIClientRep object here -- even if its only
     // purpose is to be a container for the timeout value!
 
@@ -108,13 +110,13 @@ void CIMClient::connect(
     const String& password
 )
 {
-    // See the comment in the constructor for why we need to get the
+    // See the comment in the constructor for why we need to get the 
     // current timeout, delete and create a new _rep object here:
     Uint32 timeout = _rep->getTimeout();
     delete _rep;
     _rep = new CIMClientRep(timeout);
-
-    _rep->connect(host, portNumber, userName, password);
+    
+	_rep->connect(host, portNumber, userName, password);
 }
 
 void CIMClient::connect(
@@ -125,7 +127,7 @@ void CIMClient::connect(
     const String& password
 )
 {
-    // See the comment in the constructor for why we need to get the
+    // See the comment in the constructor for why we need to get the 
     // current timeout, delete and create a new _rep object here:
     Uint32 timeout = _rep->getTimeout();
     delete _rep;
@@ -136,7 +138,7 @@ void CIMClient::connect(
 
 void CIMClient::connectLocal()
 {
-    // See the comment in the constructor for why we need to get the
+    // See the comment in the constructor for why we need to get the 
     // current timeout, delete and create a new _rep object here:
     Uint32 timeout = _rep->getTimeout();
     delete _rep;
@@ -154,27 +156,27 @@ void CIMClient::disconnect()
 // l10n start
 void CIMClient::setRequestAcceptLanguages(const AcceptLanguageList& langs)
 {
-    _rep->setRequestAcceptLanguages(langs);
+	_rep->setRequestAcceptLanguages(langs);		
 }
 
 AcceptLanguageList CIMClient::getRequestAcceptLanguages() const
 {
-    return _rep->getRequestAcceptLanguages();
+	return _rep->getRequestAcceptLanguages();
 }
-
+	
 void CIMClient::setRequestContentLanguages(const ContentLanguageList& langs)
 {
-    _rep->setRequestContentLanguages(langs);
+	_rep->setRequestContentLanguages(langs);		
 }
-
+  
 ContentLanguageList CIMClient::getRequestContentLanguages() const
 {
-    return _rep->getRequestContentLanguages();
-}
-
+	return _rep->getRequestContentLanguages();	
+}	
+    	
 ContentLanguageList CIMClient::getResponseContentLanguages() const
 {
-    return _rep->getResponseContentLanguages();
+	return _rep->getResponseContentLanguages();
 }
 
 void CIMClient::setRequestDefaultLanguages()

@@ -1,31 +1,47 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Christopher Neufeld <neufeld@linuxcare.com>
+//         David Kennedy       <dkennedy@linuxcare.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -44,8 +60,8 @@
 // are important for clients of this provider.
 // ==========================================================================
 
-static const CIMName CLASS_CIM_UNITARY_COMPUTER_SYSTEM = CIMName(
-    "CIM_UnitaryComputerSystem");
+static const CIMName CLASS_CIM_UNITARY_COMPUTER_SYSTEM = CIMName 
+    ("CIM_UnitaryComputerSystem");
 static const CIMName CLASS_PG_IP_ROUTE                 = CIMName ("PG_IPRoute");
 
 // ==========================================================================
@@ -61,16 +77,16 @@ static const CIMName CLASS_PG_IP_ROUTE                 = CIMName ("PG_IPRoute");
 
 // Properties in CIM_ManagedElement
 
-static const CIMName PROPERTY_CAPTION                    = CIMName("Caption");
-static const CIMName PROPERTY_DESCRIPTION                = CIMName(
-    "Description");
+static const CIMName PROPERTY_CAPTION                    = CIMName ("Caption");
+static const CIMName PROPERTY_DESCRIPTION                = CIMName 
+    ("Description");
 
 // Properties in CIM_ManagedSystemElement
 
-static const CIMName PROPERTY_INSTALL_DATE               = CIMName(
-    "InstallDate");
-static const CIMName PROPERTY_NAME                       = CIMName("Name");
-static const CIMName PROPERTY_STATUS                     = CIMName("Status");
+static const CIMName PROPERTY_INSTALL_DATE               = CIMName 
+    ("InstallDate");
+static const CIMName PROPERTY_NAME                       = CIMName ("Name");
+static const CIMName PROPERTY_STATUS                     = CIMName ("Status");
 
 // Properties in CIM_LogicalElement
 
@@ -78,31 +94,31 @@ static const CIMName PROPERTY_STATUS                     = CIMName("Status");
 
 // Properties in CIM_NextHopRouting
 
-static const CIMName PROPERTY_DESTINATION_ADDRESS        = CIMName(
-    "DestinationAddress");
-static const CIMName PROPERTY_DESTINATION_MASK           = CIMName(
-    "DestinationMask");
-static const CIMName PROPERTY_NEXT_HOP                   = CIMName("NextHop");
-static const CIMName PROPERTY_IS_STATIC                  = CIMName("IsStatic");
+static const CIMName PROPERTY_DESTINATION_ADDRESS        = CIMName 
+    ("DestinationAddress");
+static const CIMName PROPERTY_DESTINATION_MASK           = CIMName 
+    ("DestinationMask");
+static const CIMName PROPERTY_NEXT_HOP                   = CIMName ("NextHop");
+static const CIMName PROPERTY_IS_STATIC                  = CIMName ("IsStatic");
 
 // Properties in CIM_IPRoute  -- note all 8 of these are the keys
 
-static const CIMName PROPERTY_SYSTEM_CREATION_CLASS_NAME = CIMName(
-    "SystemCreationClassName");
-static const CIMName PROPERTY_SYSTEM_NAME                = CIMName(
-    "SystemName");
-static const CIMName PROPERTY_SERVICE_CREATION_CLASS_NAME= CIMName(
-    "ServiceCreationClassName");
-static const CIMName PROPERTY_SERVICE_NAME               = CIMName(
-    "ServiceName");
-static const CIMName PROPERTY_CREATION_CLASS_NAME        = CIMName(
-    "CreationClassName");
-static const CIMName PROPERTY_IP_DESTINATION_ADDRESS     = CIMName(
-    "IPDestinationAddress");
-static const CIMName PROPERTY_IP_DESTINATION_MASK        = CIMName(
-    "IPDestinationMask");
-static const CIMName PROPERTY_ADDRESS_TYPE               = CIMName(
-    "AddressType");
+static const CIMName PROPERTY_SYSTEM_CREATION_CLASS_NAME = CIMName 
+    ("SystemCreationClassName");
+static const CIMName PROPERTY_SYSTEM_NAME                = CIMName 
+    ("SystemName");
+static const CIMName PROPERTY_SERVICE_CREATION_CLASS_NAME= CIMName 
+    ("ServiceCreationClassName");
+static const CIMName PROPERTY_SERVICE_NAME               = CIMName 
+    ("ServiceName");
+static const CIMName PROPERTY_CREATION_CLASS_NAME        = CIMName 
+    ("CreationClassName");
+static const CIMName PROPERTY_IP_DESTINATION_ADDRESS     = CIMName 
+    ("IPDestinationAddress");
+static const CIMName PROPERTY_IP_DESTINATION_MASK        = CIMName 
+    ("IPDestinationMask");
+static const CIMName PROPERTY_ADDRESS_TYPE               = CIMName 
+    ("AddressType");
 
 //      DestinationAddress & DestinationMask overridden to insert
 //      model correspondence strings.
@@ -118,13 +134,14 @@ PEGASUS_USING_PEGASUS;
 
 IPRouteProvider::IPRouteProvider()
 {
-#ifdef IPPROVIDER_DEBUG
-    cout << "IPRouteProvider::IPRouteProvider()" << endl;
+#ifdef DEBUG
+  cout << "IPRouteProvider::IPRouteProvider()" << endl;
 #endif
 }
 
 IPRouteProvider::~IPRouteProvider()
 {
+  
 }
 
 
@@ -139,14 +156,13 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void IPRouteProvider::createInstance(
-    const OperationContext &context,
-    const CIMObjectPath &instanceName,
-    const CIMInstance &instanceObject,
-    ObjectPathResponseHandler &handler)
+void IPRouteProvider::createInstance(const OperationContext &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+                    ObjectPathResponseHandler &handler)
 
 {
-    throw CIMNotSupportedException(String::EMPTY);
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 /*
@@ -160,13 +176,12 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void IPRouteProvider::deleteInstance(
-    const OperationContext &context,
-    const CIMObjectPath &instanceReference,
-    ResponseHandler &handler)
+void IPRouteProvider::deleteInstance(const OperationContext &context,
+                    const CIMObjectPath           &instanceReference,
+                    ResponseHandler &handler)
 
 {
-    throw CIMNotSupportedException(String::EMPTY);
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 /*
@@ -183,14 +198,14 @@ PARAMETERS        :
 ================================================================================
 */
 void IPRouteProvider::enumerateInstances(
-    const OperationContext & context,
-    const CIMObjectPath & classReference,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList,
-    InstanceResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList,
+	InstanceResponseHandler & handler)
 {
-#ifdef IPPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "IPRouteProvider::enumerateInstances()" << endl;
 #endif
 
@@ -208,8 +223,9 @@ void IPRouteProvider::enumerateInstances(
 
     for (i = 0; i < _rList.size(); i++)
     {
-        handler.deliver(_constructInstance(
-            CLASS_PG_IP_ROUTE, nameSpace, _rList.getRoute(i)));
+	handler.deliver(
+		_constructInstance(CLASS_PG_IP_ROUTE,
+		     nameSpace, _rList.getRoute(i) ) );
     }
 
     // Notify processing is complete
@@ -230,12 +246,11 @@ NOTES             : Localization is not supported by this provider.
 PARAMETERS        :
 ================================================================================
 */
-void IPRouteProvider::enumerateInstanceNames(
-    const OperationContext &ctx,
-    const CIMObjectPath &ref,
-    ObjectPathResponseHandler &handler)
+void IPRouteProvider::enumerateInstanceNames(const OperationContext &ctx,
+                            const CIMObjectPath &ref,
+                            ObjectPathResponseHandler &handler)
 {
-#ifdef IPPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "IPRouteProvider::enumerateInstanceNames()" << endl;
 #endif
 
@@ -251,19 +266,18 @@ void IPRouteProvider::enumerateInstanceNames(
     int i;
     RouteList _rList;
 
-#ifdef IPPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "IPRouteProvider::enumerateInstanceNames() _rList Initialized"
-         << endl;
+    	 << endl;
 #endif
 
     for (i = 0; i < _rList.size(); i++)
     {
         // Deliver the names
-        handler.deliver(CIMObjectPath(
-            String::EMPTY, // hostname
-            nameSpace,
-            CLASS_PG_IP_ROUTE,
-            _constructKeyBindings(_rList.getRoute(i))));
+        handler.deliver(
+		CIMObjectPath(String::EMPTY, // hostname
+			nameSpace, CLASS_PG_IP_ROUTE,
+			_constructKeyBindings(_rList.getRoute(i) ) ) );
     }
 
     // Notify processing is complete
@@ -285,16 +299,15 @@ NOTES             : LocalOnly, DeepInheritance and propertyList are not
 PARAMETERS        :
 ================================================================================
 */
-void IPRouteProvider::getInstance(
-    const OperationContext &ctx,
-    const CIMObjectPath &instanceName,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList &propertyList,
-    InstanceResponseHandler &handler)
+void IPRouteProvider::getInstance(const OperationContext &ctx,
+                 const CIMObjectPath           &instanceName,
+                 const Boolean includeQualifiers,
+                 const Boolean includeClassOrigin,
+                 const CIMPropertyList        &propertyList,
+                 InstanceResponseHandler &handler)
 {
-#ifdef IPPROVIDER_DEBUG
-  cout << "IPRouteProvider::getInstance(" << instanceName.toString() << ")"
+#ifdef DEBUG
+  cout << "IPRouteProvider::getInstance(" << instanceName.toString() << ")" 
        << endl;
 #endif
 
@@ -305,7 +318,7 @@ void IPRouteProvider::getInstance(
   int keysFound; // this will be used as a bit array
   String sn;     // system name
   String ipda,   // IP Destination Address
-         ipdm;   // IP Destination Mask
+	 ipdm;   // IP Destination Mask
   Uint16 ipat;   // IP Address Type
 
   // Grab the system name
@@ -337,31 +350,31 @@ void IPRouteProvider::getInstance(
     if (keyName.equal (PROPERTY_SYSTEM_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
-          String::equalNoCase(keyValue,
+          String::equalNoCase(keyValue, 
               CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString()))
         keysFound |= 1;
       else
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
             keyName.getString());
     }
-
+	
     // SystemName can be empty or must match
     else if (keyName.equal (PROPERTY_SYSTEM_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
-          String::equalNoCase(keyValue, sn) )
+	  String::equalNoCase(keyValue, sn) )
         keysFound |= 2;
       else
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
             keyName.getString());
     }
-
+	
     // ServiceCreationClassName must exist, but can be ignored
     else if (keyName.equal (PROPERTY_SERVICE_CREATION_CLASS_NAME))
     {
         keysFound |= 4;
     }
-
+	
     // ServiceName must exist, but can be ignored
     else if (keyName.equal (PROPERTY_SERVICE_NAME))
     {
@@ -372,7 +385,7 @@ void IPRouteProvider::getInstance(
     else if (keyName.equal (PROPERTY_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
-          String::equalNoCase(keyValue, CLASS_PG_IP_ROUTE.getString()))
+	  String::equalNoCase(keyValue, CLASS_PG_IP_ROUTE.getString()))
         keysFound |= 16;
       else
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -400,16 +413,17 @@ void IPRouteProvider::getInstance(
     // AddressType must be present
     else if (keyName.equal (PROPERTY_ADDRESS_TYPE))
     {
-      unsigned short ti;
+      int ti;
 
-      sscanf(keyValue.getCString(), "%hu", &ti);
+      sscanf(keyValue.getCString(), "%u", &ti);
       ipat = Uint16(ti);
       keysFound |= 128;
     }
 
     // Key name was not recognized by any of the above tests
-    else throw CIMInvalidParameterException(keyName.getString() +
+    else throw CIMInvalidParameterException(keyName.getString()+ 
         ": Unrecognized key");
+		
   } // for
 
   // We could get here if we didn't get all the keys, which
@@ -418,7 +432,7 @@ void IPRouteProvider::getInstance(
   // any duplicates (e.g., two Names, no SystemName)
   if (keysFound != (1<<NUMKEYS_PG_IP_ROUTE)-1)
     throw CIMInvalidParameterException("Bad object name");
-
+	
   /* Find the instance.  First convert the instance id which is the */
   /* process handle to an integer.  This is necessary because the   */
   /* handle is the process id on HP-UX which must be passed to      */
@@ -442,12 +456,10 @@ void IPRouteProvider::getInstance(
   }
 
   char c[100];
-  sprintf (c, "%hu", ipat);
-  throw CIMObjectNotFoundException(
-      "DestAddr=" + String(ipda) +
-      ", DestMask=" + String(ipdm) +
-      ", AddrType=" + String(c) +
-      ": No such IP Route");
+  sprintf (c, "%u", ipat);
+  throw CIMObjectNotFoundException("DestAddr="+String(ipda)+
+		       ", DestMask="+String(ipdm)+
+		       ", AddrType="+String(c)+": No such IP Route");
 
   return; // can never execute, but required to keep compiler happy
 }
@@ -463,16 +475,15 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void IPRouteProvider::modifyInstance(
-    const OperationContext &context,
-    const CIMObjectPath &instanceName,
-    const CIMInstance &instanceObject,
-    const Boolean includeQualifiers,
-    const CIMPropertyList &propertyList,
-    ResponseHandler &handler)
+void IPRouteProvider::modifyInstance(const OperationContext &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+                    const Boolean includeQualifiers,
+		    const CIMPropertyList        &propertyList,
+                    ResponseHandler &handler)
 {
-    // Could be supported in the future for certain properties
-    throw CIMNotSupportedException(String::EMPTY);
+  // Could be supported in the future for certain properties
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 /*
@@ -488,19 +499,20 @@ PARAMETERS        :
 */
 void IPRouteProvider::initialize(CIMOMHandle &ch)
 {
-#ifdef IPPROVIDER_DEBUG
-    cout << "IPRouteProvider::initialize()" << endl;
+#ifdef DEBUG
+  cout << "IPRouteProvider::initialize()" << endl;
 #endif
 
-    _cimomHandle = ch;
+  _cimomHandle = ch;
 
-    // call platform-specific routine to initialize System Name
-    // This hides whether or not the platform-specific code wants
-    // to set up a static System Name or dynamically obtain it
-    // each time.
-    IPInterface::initSystemName();
+  // call platform-specific routine to initialize System Name
+  // This hides whether or not the platform-specific code wants
+  // to set up a static System Name or dynamically obtain it
+  // each time.
+  IPInterface::initSystemName();
 
-    return;
+  return;
+
 }  /* initialize */
 
 /*
@@ -516,11 +528,11 @@ PARAMETERS        :
 */
 void IPRouteProvider::terminate()
 {
-#ifdef IPPROVIDER_DEBUG
-    cout << "IPRouteProvider::terminate()" << endl;
+#ifdef DEBUG
+  cout << "IPRouteProvider::terminate()" << endl;
 #endif
 
-    delete this;
+  delete this;
 }
 
 /*
@@ -535,87 +547,77 @@ PARAMETERS        : IP Route
 ================================================================================
 */
 Array<CIMKeyBinding> IPRouteProvider::_constructKeyBindings(
-    const IPRoute& _ipr)
+					const IPRoute& _ipr)
 {
-#ifdef IPPROVIDER_DEBUG
-    cout << "IPRouteProvider::_constructKeyBindings()" << endl;
+#ifdef DEBUG
+  cout << "IPRouteProvider::_constructKeyBindings()" << endl;
 #endif
 
-    Array<CIMKeyBinding> keyBindings;
-    String s;
-    Uint16 i16;
+  Array<CIMKeyBinding> keyBindings;
+  String s;
+  Uint16 i16;
 
 
-    // Construct the key bindings
+  // Construct the key bindings
 
-    keyBindings.append(CIMKeyBinding(
-        PROPERTY_SYSTEM_CREATION_CLASS_NAME,
-        CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString(),
-        CIMKeyBinding::STRING));
+  keyBindings.append(CIMKeyBinding(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
+	    	                CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString(),
+                                CIMKeyBinding::STRING));
 
-    if (IPInterface::getSystemName(s))
-        keyBindings.append(CIMKeyBinding(
-            PROPERTY_SYSTEM_NAME,
-            s,
-            CIMKeyBinding::STRING));
-    else
-        throw CIMNotSupportedException(
-            String("Host-specific module doesn't support Key `") +
-                PROPERTY_SYSTEM_NAME.getString() + String("'"));
-
-    keyBindings.append(CIMKeyBinding(
-        PROPERTY_SERVICE_CREATION_CLASS_NAME,
-        String::EMPTY,
-        CIMKeyBinding::STRING));
-
-    keyBindings.append(CIMKeyBinding(
-        PROPERTY_SERVICE_NAME,
-        String::EMPTY,
-        CIMKeyBinding::STRING));
-
-    keyBindings.append(CIMKeyBinding(
-        PROPERTY_CREATION_CLASS_NAME,
-        CLASS_PG_IP_ROUTE.getString(),
-        CIMKeyBinding::STRING));
-
-    if (_ipr.getDestinationAddress(s))
-        keyBindings.append(CIMKeyBinding(
-            PROPERTY_IP_DESTINATION_ADDRESS,
-            s,
-            CIMKeyBinding::STRING));
-    else
-        throw CIMNotSupportedException(
-            String("Host-specific module doesn't support Key `") +
-                PROPERTY_IP_DESTINATION_ADDRESS.getString() + String("'"));
-
-    if (_ipr.getDestinationMask(s))
-        keyBindings.append(CIMKeyBinding(PROPERTY_IP_DESTINATION_MASK,
+  if (IPInterface::getSystemName(s))
+	keyBindings.append(CIMKeyBinding(PROPERTY_SYSTEM_NAME,
                                 s, CIMKeyBinding::STRING));
-    else
-        throw CIMNotSupportedException(
-            String("Host-specific module doesn't support Key `") +
-                PROPERTY_IP_DESTINATION_MASK.getString() + String("'"));
+  else
+	throw CIMNotSupportedException(
+		String("Host-specific module doesn't support Key `") +
+		PROPERTY_SYSTEM_NAME.getString() + String("'"));
 
-    if (_ipr.getAddressType(i16))
-    {
-        char c[100];
-        sprintf(c,"%hu",i16);
-        s = String(c);
-        keyBindings.append(CIMKeyBinding(
-            PROPERTY_ADDRESS_TYPE,
-            s,
-            CIMKeyBinding::NUMERIC));
-    }
-    else
-        throw CIMNotSupportedException(
-            String("Host-specific module doesn't support Key `") +
-                PROPERTY_ADDRESS_TYPE.getString() + String("'"));
+  keyBindings.append(CIMKeyBinding(PROPERTY_SERVICE_CREATION_CLASS_NAME,
+	    	                String::EMPTY,
+                                CIMKeyBinding::STRING));
 
-#ifdef IPPROVIDER_DEBUG
-    cout << "IPRouteProvider::_constructKeyBindings() -- done" << endl;
+  keyBindings.append(CIMKeyBinding(PROPERTY_SERVICE_NAME,
+	    	                String::EMPTY,
+                                CIMKeyBinding::STRING));
+
+  keyBindings.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
+		                CLASS_PG_IP_ROUTE.getString(),
+                                CIMKeyBinding::STRING));
+
+  if (_ipr.getDestinationAddress(s))
+	keyBindings.append(CIMKeyBinding(PROPERTY_IP_DESTINATION_ADDRESS,
+                                s, CIMKeyBinding::STRING));
+  else
+	throw CIMNotSupportedException(
+		String("Host-specific module doesn't support Key `") +
+		PROPERTY_IP_DESTINATION_ADDRESS.getString() + String("'"));
+
+  if (_ipr.getDestinationMask(s))
+	keyBindings.append(CIMKeyBinding(PROPERTY_IP_DESTINATION_MASK,
+                                s, CIMKeyBinding::STRING));
+  else
+	throw CIMNotSupportedException(
+		String("Host-specific module doesn't support Key `") +
+		PROPERTY_IP_DESTINATION_MASK.getString() + String("'"));
+
+  if (_ipr.getAddressType(i16))
+  {
+	char c[100];
+	sprintf(c,"%u",i16);
+	s = String(c);
+	keyBindings.append(CIMKeyBinding(PROPERTY_ADDRESS_TYPE,
+                                s, CIMKeyBinding::NUMERIC));
+  }
+  else
+	throw CIMNotSupportedException(
+		String("Host-specific module doesn't support Key `") +
+		PROPERTY_ADDRESS_TYPE.getString() + String("'"));
+
+#ifdef DEBUG
+  cout << "IPRouteProvider::_constructKeyBindings() -- done" << endl;
 #endif
 
-    return keyBindings;
+  return keyBindings;
 }
 
 /*
@@ -636,7 +638,7 @@ CIMInstance IPRouteProvider::_constructInstance(
     const CIMNamespaceName &nameSpace,
     const IPRoute &_ipr)
 {
-#ifdef IPPROVIDER_DEBUG
+#ifdef DEBUG
   cout << "IPRouteProvider::_constructInstance()" << endl;
 #endif
 
@@ -701,26 +703,26 @@ CIMInstance IPRouteProvider::_constructInstance(
 
 //   String SystemCreationClassName
   inst.addProperty(CIMProperty(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
-                               CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString()));
+			       CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString()));
 
 //   String SystemName
   if (IPInterface::getSystemName(s))
-        inst.addProperty(CIMProperty(PROPERTY_SYSTEM_NAME, s));
+	inst.addProperty(CIMProperty(PROPERTY_SYSTEM_NAME, s));
   else
-        throw CIMNotSupportedException(
-                String("Host-specific module doesn't support Key `") +
-                PROPERTY_SYSTEM_NAME.getString() + String("'"));
+	throw CIMNotSupportedException(
+		String("Host-specific module doesn't support Key `") +
+		PROPERTY_SYSTEM_NAME.getString() + String("'"));
 
 //   String ServiceCreationClassName
   inst.addProperty(CIMProperty(PROPERTY_SERVICE_CREATION_CLASS_NAME,
-                               String::EMPTY));
+			       String::EMPTY));
 //   String ServiceName
   inst.addProperty(CIMProperty(PROPERTY_SERVICE_NAME,
-                               String::EMPTY));
+			       String::EMPTY));
 
 //   String CreationClassName
   inst.addProperty(CIMProperty(PROPERTY_CREATION_CLASS_NAME,
-                               CLASS_PG_IP_ROUTE.getString()));
+			       CLASS_PG_IP_ROUTE.getString()));
 
 //   String IPDestinationAddress
   if (_ipr.getDestinationAddress(s))
@@ -734,7 +736,7 @@ CIMInstance IPRouteProvider::_constructInstance(
   if (_ipr.getAddressType(ui))
     inst.addProperty(CIMProperty(PROPERTY_ADDRESS_TYPE,ui));
 
-#ifdef IPPROVIDER_DEBUG
+#ifdef DEBUG
   cout << "IPRouteProvider::_constructInstance() -- done" << endl;
 #endif
 
@@ -755,7 +757,7 @@ PARAMETERS        : className
 */
 void IPRouteProvider::_checkClass(CIMName& className)
 {
-    if (!className.equal (CLASS_PG_IP_ROUTE))
-        throw CIMNotSupportedException(
-            className.getString() + ": Class not supported");
+  if (!className.equal (CLASS_PG_IP_ROUTE))
+    throw CIMNotSupportedException(className.getString()+
+        ": Class not supported");
 }

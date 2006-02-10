@@ -1,35 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Amit K Arora, IBM (amita@in.ibm.com)
 //
-// Modified By:
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +64,7 @@ void testQuery1(CIMClient& client)
 
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY1));
-
+        
    Array<CIMInstance> instances = client.enumerateInstances(
                                  NAMESPACE, CIMName("TST_Person"));
 
@@ -89,7 +91,7 @@ void testQuery1(CIMClient& client)
           continue;
      }
    }
-
+   
    if(matchedCount != arr.size())
          throw(Exception("The Property values do not match."));
 }
@@ -100,7 +102,7 @@ void testQuery2(CIMClient& client)
    unsigned int matchedCount = 0;
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY2));
-
+        
    Array<CIMInstance> instancesAll = client.enumerateInstances(
                                  NAMESPACE, CIMName("TST_Person"));
 
@@ -113,7 +115,7 @@ void testQuery2(CIMClient& client)
      if(String::equal(cv1.toString(), String(NAME2)))
        instances.append(instancesAll[i]);
    }
-
+   
    if(arr.size() != instances.size())
    {
       throw(Exception("Number of instances returned do not match."));
@@ -148,7 +150,7 @@ void testQuery3(CIMClient& client)
    unsigned int matchedCount = 0;
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY3));
-
+        
    Array<CIMInstance> instancesAll = client.enumerateInstances(
                                  NAMESPACE, CIMName("TST_Person"));
 
@@ -160,7 +162,7 @@ void testQuery3(CIMClient& client)
      int idx = instancesAll[i].findProperty(CIMName("name"));
      CIMValue cv1 =  instancesAll[i].getProperty(idx).getValue();
      idx = instancesAll[i].findProperty(CIMName("extraProperty"));
-     if(idx >= 0)
+     if(idx >= 0) 
      {
        CIMValue cv2 =  instancesAll[i].getProperty(idx).getValue();
        if(String::equal(cv2.toString(),String(PROP3)))
@@ -205,7 +207,7 @@ void testQuery4(CIMClient& client)
    unsigned int matchedCount = 0;
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY4));
-
+        
    Array<CIMInstance> instancesAll = client.enumerateInstances(
                                  NAMESPACE, CIMName("TST_Person"));
 
@@ -251,7 +253,7 @@ void testQuery4(CIMClient& client)
 
 
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
   CIMClient client;
   String testName;
@@ -273,11 +275,11 @@ int main(int, char** argv)
   {
     cout << argv[0] << ": "<< e.getMessage() << endl;
     cout << argv[0] << " ----- " << testName << " testcase failed" << endl;
-    client.disconnect();
+    client.disconnect(); 
     return 1;
   }
-
-  client.disconnect();
+ 
+  client.disconnect(); 
   cout << argv[0] << " +++++ passed all tests" << endl;
 
   return 0;

@@ -1,36 +1,45 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+// 		Sean Keenan (sean.keenan@hp.com)
 //
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/CIMBinMsgSerializer.h>
-#include <Pegasus/Common/CIMBinMsgDeserializer.h>
+#include <Pegasus/Common/CIMMessageSerializer.h>
+#include <Pegasus/Common/CIMMessageDeserializer.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Tracer.h>
@@ -41,13 +50,12 @@
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
 # include "AnonymousPipeWindows.cpp"
 #elif defined (PEGASUS_OS_TYPE_UNIX)
-# include "AnonymousPipePOSIX.cpp"
+# include "AnonymousPipeUnix.cpp"
 #elif defined (PEGASUS_OS_VMS)
-# include "AnonymousPipePOSIX.cpp"
+# include "AnonymousPipeVms.cpp"
 #else
 # error "Unsupported platform"
 #endif
-
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,17 +66,16 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
     //
     // Serialize the request
     //
-    CIMBuffer messageBuffer(4096);
-
+    Buffer messageBuffer;
+    messageBuffer.reserveCapacity (4096);
     try
     {
-        CIMBinMsgSerializer::serialize(messageBuffer, message);
+        CIMMessageSerializer::serialize (messageBuffer, message);
     }
     catch (Exception & e)
     {
-        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            "Failed to serialize message: %s",
-            (const char*)e.getMessage().getCString()));
+        PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "Failed to serialize message: " + e.getMessage ());
         PEG_METHOD_EXIT ();
         throw;
     }
@@ -76,15 +83,25 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
     //
     // Write the serialized message to the pipe
     //
-    Uint32 messageLength = messageBuffer.size();
-    const char * messageData = messageBuffer.getData ();
-
-    Status writeStatus =
-        writeBuffer((const char*) &messageLength, sizeof(Uint32));
-
-    if (writeStatus == STATUS_SUCCESS)
+    Status writeStatus;
+    try
     {
-        writeStatus = writeBuffer(messageData, messageLength);
+        Uint32 messageLength = messageBuffer.size ();
+        const char * messageData = messageBuffer.getData ();
+
+        writeStatus = writeBuffer ((const char *) &messageLength, 
+            sizeof (Uint32));
+
+        if (writeStatus == STATUS_SUCCESS)
+        {
+            writeStatus = writeBuffer (messageBuffer.getData (), 
+                messageLength);
+        }
+    }
+    catch (...)
+    {
+        PEG_METHOD_EXIT ();
+        throw;
     }
 
     PEG_METHOD_EXIT ();
@@ -121,9 +138,7 @@ AnonymousPipe::Status AnonymousPipe::readMessage (CIMMessage * & message)
     //
     //  Read the message data
     //
-    // CIMBuffer uses realloc() and free() so the buffer must be allocated
-    // with malloc().
-    AutoPtr<char, FreeCharPtr> messageBuffer((char*)malloc(messageLength + 1));
+    AutoArrayPtr <char> messageBuffer (new char [messageLength + 1]);
 
     //
     //  We know a message is coming
@@ -145,23 +160,15 @@ AnonymousPipe::Status AnonymousPipe::readMessage (CIMMessage * & message)
         //
         //  De-serialize the message
         //
-        // CIMBuffer frees messageBuffer upon destruction.
-        CIMBuffer buf(messageBuffer.release(), messageLength);
-        message = CIMBinMsgDeserializer::deserialize(buf, messageLength);
-
-        if (!message)
-        {
-            throw CIMException(CIM_ERR_FAILED, "deserialize() failed");
-        }
+        message = CIMMessageDeserializer::deserialize (messageBuffer.get ());
     }
     catch (Exception & e)
     {
         //
         //  De-serialization failed
         //
-        PEG_TRACE ((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            "Failed to de-serialize message: %s",
-            (const char*)e.getMessage().getCString()));
+        PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "Failed to de-serialize message: " + e.getMessage ());
         PEG_METHOD_EXIT ();
         throw;
     }

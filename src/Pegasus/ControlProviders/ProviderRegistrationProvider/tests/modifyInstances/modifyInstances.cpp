@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//               (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,9 +41,7 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/Constants.h>
-// NOCHKSRC
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
-// DOCHKSRC
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -72,8 +77,14 @@ void TestModifyInstances(CIMClient& client)
     instanceName.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName.setClassName(CLASSNAME);
 
-    returnRef =
-        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
+    try
+    {
+        returnRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
+    }
+    catch(const CIMException&)
+    {
+        throw;
+    }
 
     // create PG_Provider instances
 
@@ -93,8 +104,14 @@ void TestModifyInstances(CIMClient& client)
     instanceName2.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName2.setClassName(CLASSNAME2);
 
-    returnRef2 =
-        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
+    try
+    {
+        returnRef2 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
+    }
+    catch(const CIMException&)
+    {
+        throw;
+    }
 
     //
     // create provider capability instances
@@ -144,8 +161,14 @@ void TestModifyInstances(CIMClient& client)
     instanceName3.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName3.setClassName(CLASSNAME3);
 
-    returnRef3 =
-        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
+    try
+    {
+        returnRef3 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
+    }
+    catch(const CIMException&)
+    {
+        throw;
+    }
 
     // create CIMObjectPath
     Array<CIMKeyBinding> keys;
@@ -184,11 +207,14 @@ void TestModifyInstances(CIMClient& client)
     CIMInstance modifyedInstance(cimInstance4);
     modifyedInstance.setPath (instanceName3);
 
-    client.modifyInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        modifyedInstance,
-        false,
-        propertyList);
+    try
+    {
+        client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP, modifyedInstance, false, propertyList);
+    }
+    catch(const CIMException&)
+    {
+        throw;
+    }
 
     CIMKeyBinding kbm1(CIMName ("Name"), "providersModule1",
         CIMKeyBinding::STRING);
@@ -199,23 +225,23 @@ void TestModifyInstances(CIMClient& client)
     client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
 }
 
-int main()
+int main(int argc, char** argv)
 {
 
     CIMClient client;
 
     try
     {
-        client.connectLocal();
-        TestModifyInstances(client);
+	client.connectLocal();
+	TestModifyInstances(client);
     }
 
     catch(Exception& e)
     {
-        PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-        PEGASUS_STD (cout) << "+++++ modify instances failed"
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	PEGASUS_STD (cout) << "+++++ modify instances failed"
                            << PEGASUS_STD (endl);
-        exit(-1);
+	exit(-1);
     }
 
     PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);

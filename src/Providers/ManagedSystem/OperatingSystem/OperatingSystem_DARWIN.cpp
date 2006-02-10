@@ -1,36 +1,44 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Uday Birajdar (uday@spsoftindia.com)
 //
-//////////////////////////////////////////////////////////////////////////
+//
+// Modified By: Swapnil Joshi (joshi.swapnil@spsoftindia.com)
+//              Girish Dudhe (dudhe.girish@spsoftindia.com)
+//		Mukesh Bafna (bafna.mukesh@spsoftindia.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
 #include "OperatingSystem.h"
@@ -39,8 +47,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <sys/types.h>
-#include <sys/sysctl.h>
 
 PEGASUS_USING_STD;
 
@@ -81,7 +87,7 @@ static Boolean getUtilGetHostName(String& csName)
      // Now get the official hostname.  If this call fails then return
      // the value from gethostname().
 
-     if ((he=gethostbyname(hostName)))
+     if (he=gethostbyname(hostName))
      {
          csName.assign(he->h_name);
      }
@@ -95,19 +101,19 @@ static Boolean getUtilGetHostName(String& csName)
 
 Boolean OperatingSystem::getCSName(String& csName)
 {
-    return getUtilGetHostName(csName);
+return getUtilGetHostName(csName);
 }
 
 Boolean OperatingSystem::getName(String& osName)
 {
-    return _getOSName(osName);
+	return _getOSName(osName);
 }
 
 Boolean OperatingSystem::getCaption(String& caption)
 {
-    caption.assign("The current Operating System");
+      caption.assign("The current Operating System");
 
-    return true;
+     return true;
 }
 
 Boolean OperatingSystem::getDescription(String& description)
@@ -203,19 +209,7 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
 
 Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 {
-    int mib[2] = { CTL_KERN, KERN_BOOTTIME };
-    struct timeval   tv;
-    size_t len = sizeof(tv);
-
-    if (sysctl(mib, 2, &tv, &len, NULL, 0) == -1)
-    {
-        return false;
-    }
-    else
-    {
-        lastBootUpTime = time_t_to_CIMDateTime(&(tv.tv_sec));
-        return true;
-    }
+    return false;
 }
 
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
@@ -260,13 +254,13 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
 
     endutxent();
 */
-    numberOfUsers =0;
+	numberOfUsers =0;
     return true;
 }
 
 Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
 {
-    return false;
+      return false;
 }
 
 Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
@@ -304,8 +298,7 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
     return false;
 }
 
-Boolean OperatingSystem::getFreeSpaceInPagingFiles(
-    Uint64& freeSpaceInPagingFiles)
+Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64& freeSpaceInPagingFiles)
 {
     return false;
 }
@@ -328,21 +321,7 @@ Boolean OperatingSystem::getMaxProcsPerUser(Uint32& maxProcsPerUser)
 
 Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 {
-    int mib[2] = { CTL_KERN, KERN_BOOTTIME };
-    struct timeval   tv;
-    size_t len = sizeof(tv);
-
-    if (sysctl(mib, 2, &tv, &len, NULL, 0) == -1)
-    {
-        return false;
-    }
-    else
-    {
-        time_t now;
-        now = time(NULL);
-        mUpTime = difftime(now,tv.tv_sec);
-        return true;
-    }
+    return false;
 }
 
 Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)

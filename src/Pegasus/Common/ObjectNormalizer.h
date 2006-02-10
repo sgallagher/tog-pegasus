@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -15,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -38,11 +40,25 @@
 
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class PEGASUS_COMMON_LINKAGE NormalizerContext
+{
+public:
+  virtual ~NormalizerContext();
+
+  virtual CIMClass getClass(
+	    const CIMNamespaceName& nameSpace,
+	    const CIMName& name) = 0;
+
+  virtual Array<CIMName> enumerateClassNames(
+      const CIMNamespaceName& nameSpace, const CIMName& className,
+      bool deepInheritance) = 0;
+};
 
 // TODO: add documentation
 class PEGASUS_COMMON_LINKAGE ObjectNormalizer
@@ -54,7 +70,7 @@ public:
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMNamespaceName& nameSpace,
-        CIMRepository * repository=0);
+        NormalizerContext * context=0);
 
     CIMObjectPath processClassObjectPath(const CIMObjectPath & cimObjectPath) const;
     CIMObjectPath processInstanceObjectPath(const CIMObjectPath & cimObjectPath) const;
@@ -68,7 +84,7 @@ private:
 
     Boolean _includeQualifiers;
     Boolean _includeClassOrigin;
-    CIMRepository * _repository;
+    NormalizerContext * _context;
     CIMNamespaceName _nameSpace;
 };
 

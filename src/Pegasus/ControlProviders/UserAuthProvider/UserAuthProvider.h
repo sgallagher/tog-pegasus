@@ -1,31 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
+//
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +92,7 @@ public:
 
     UserAuthProvider(CIMRepository* repository)
     {
-    PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::UserAuthProvider");
+	PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::UserAuthProvider");
 
         //
         // get an instance of User Manager and initialize
@@ -94,31 +102,26 @@ public:
 
         _repository = repository;
 
-    PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
     }
 
     virtual ~UserAuthProvider()
     {
-    PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::~UserAuthProvider");
+	PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::~UserAuthProvider");
 
-    PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
     }
-
-    // Note:  The initialize() and terminate() methods are not called for
-    // Control Providers.
-    void initialize(CIMOMHandle& cimomHandle) { }
-    void terminate() { }
 
     /**
     Returns the instance based on instanceName.
     */
     virtual void getInstance(
-    const OperationContext & context,
+	const OperationContext & context,
         const CIMObjectPath& instanceName,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
-    InstanceResponseHandler & handler)
+	InstanceResponseHandler & handler)
     {
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, "");
     }
@@ -128,26 +131,26 @@ public:
 
     @param  context
     @param  instanceReference
-    @param  myInstance
+    @param  CIMInstance
     @param  handler
     */
     virtual void createInstance(
-        const OperationContext& context,
-        const CIMObjectPath& instanceReference,
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
         const CIMInstance& myInstance,
-        ObjectPathResponseHandler & handler);
+	ObjectPathResponseHandler & handler);
 
     /**
     Deletes the specified instance.
 
     @param  context
-    @param  myInstance
+    @param  InstanceName
     @param  handler
     */
     virtual void deleteInstance(
-        const OperationContext& context,
+	const OperationContext & context,
         const CIMObjectPath& myInstance,
-        ResponseHandler& handler);
+	ResponseHandler & handler);
 
 
     /**
@@ -156,11 +159,7 @@ public:
     @param context specifies security and locale information relevant for
                    the lifetime of this operation.
     @param instanceReference the fully qualified object path of the instance.
-    @param includeQualifiers Indicates whether the qualifiers should be
-        modified as specified in modifiedIns.
-    @param propertyList If not null, only the properties in this list should
-        be modified in the instance.
-    @param modifiedIns the modified instance.
+    @param modifiedInstance  the modified instance.
     @param handler enables providers to asynchronously return the results.
     */
     virtual void modifyInstance(
@@ -177,10 +176,7 @@ public:
     @param context specifies security and locale information relevant for
                    the lifetime of this operation.
     @param ref the fully qualified object path of the instance.
-    @param includeQualifiers specifies whether qualifiers should be included
-        inthe instances.
-    @param includeClassOrigin specifies whether class origin information
-        should be included inthe instances.
+    @param flag specifies additional details regarding the operation.
     @param propertyList list containing the properties.
     @param handler enables providers to asynchronously return the results.
     */
@@ -196,8 +192,8 @@ public:
     Enumerates all the user names.
     */
     virtual void enumerateInstanceNames(
-    const OperationContext & context,
-    const CIMObjectPath & classReference,
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
         ObjectPathResponseHandler & handler);
 
     /**
@@ -210,11 +206,40 @@ public:
         const Array<CIMParamValue> & inParams,
         MethodResultResponseHandler & handler);
 
+    /**
+    Standard initialization function for the provider.  This method should
+    never be called since this is an internal control provider.
+    */
+    void initialize(CIMOMHandle& cimomHandle)
+    {
+	PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::initialize");
+
+        //
+        // get an instance of User Manager and initialize
+        // the instance variable.
+        //
+        _userManager = UserManager::getInstance();
+
+        // Can't get the respository handle here.
+
+	PEG_METHOD_EXIT();
+    }
+
+    void terminate(void)
+    {
+	PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::terminate");
+	// delete self. this is necessary because the entry point for this object allocated it, and
+    	// the module is responsible for its memory management.
+
+	delete this;
+	PEG_METHOD_EXIT();
+    }
+
 private:
     /**
         Verify User Authorization.
 
-        @param  user                    userName to be verified
+        @param  user	                userName to be verified
 
         @throw  CIM_ERR_ACCESS_DENIED   if the specified user is not a
                                         priviliged user.

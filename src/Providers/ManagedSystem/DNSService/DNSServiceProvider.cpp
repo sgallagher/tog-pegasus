@@ -1,36 +1,44 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Paulo F. Borges (pfborges@wowmail.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/ProviderException.h>
+#include <Pegasus/Provider/ProviderException.h>    
 #include "DNSService.h"
 #include "DNSServiceProvider.h"
 
@@ -41,38 +49,39 @@ PEGASUS_USING_STD;
    ========================================================================== */
 static const int MAX_KEYS = 4;  // The number of keys for the class
 static const String CLASS_PG_DNS_SERVICE("PG_DNSService");
-static const String CLASS_CIM_UNITARY_COMPUTER_SYSTEM(
-    "CIM_UnitaryComputerSystem");
+static const String CLASS_CIM_UNITARY_COMPUTER_SYSTEM
+			("CIM_UnitaryComputerSystem");
 
 /* ==========================================================================
    WBEM MOF property names.  These values are returned by the provider as
    the property names.
    ========================================================================== */
 static const String PROPERTY_CAPTION("Caption");
-static const String PROPERTY_DESCRIPTION("Description");
-static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME(
-    "SystemCreationClassName");
+static const String PROPERTY_DESCRIPTION("Description");    
+static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME
+			("SystemCreationClassName");
 static const String PROPERTY_SYSTEM_NAME("SystemName");
 static const String PROPERTY_CREATION_CLASS_NAME("CreationClassName");
 static const String PROPERTY_NAME("Name");
 static const String PROPERTY_SEARCH_LIST("SearchList");
 static const String PROPERTY_ADDRESSES("Addresses");
 
-DNSServiceProvider::DNSServiceProvider()
+DNSServiceProvider::DNSServiceProvider(void)
 {
 }
 
-DNSServiceProvider::~DNSServiceProvider()
+DNSServiceProvider::~DNSServiceProvider(void)
 {
 }
 
-void DNSServiceProvider::getInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList,
-    InstanceResponseHandler & handler)
+void 
+DNSServiceProvider::getInstance(
+                const OperationContext & context,
+                const CIMObjectPath & instanceReference,
+                const Boolean includeQualifiers,
+                const Boolean includeClassOrigin,
+                const CIMPropertyList & propertyList,
+                InstanceResponseHandler & handler)
 {
     CIMName className;
     String dName, systemName;
@@ -84,8 +93,8 @@ void DNSServiceProvider::getInstance(
     className = instanceReference.getClassName();
     if (!className.equal (CLASS_PG_DNS_SERVICE))
         throw CIMNotSupportedException(
-            "DNSServiceProvider does not support class " +
-                className.getString());
+		"DNSServiceProvider does not support class " +
+		className.getString());
 
     DNSService dns;
 
@@ -111,86 +120,85 @@ void DNSServiceProvider::getInstance(
     if(!dns.getSystemName(systemName))
         throw CIMOperationFailedException("DNSProvider "
                   "can't determine system name");
-
+    
     if(!dns.getDNSName(dName))
         throw CIMOperationFailedException("DNSProvider "
                   "can't determine domain name");
-
+    
     for (unsigned int ii = 0; ii < keys.size(); ii++) {
          keyName = keys[ii].getName();
          keyValue = keys[ii].getValue();
 
         if (keyName.equal (PROPERTY_CREATION_CLASS_NAME) &&
-            (String::equalNoCase(keyValue, CLASS_NAME.getString()) ||
+            (String::equalNoCase(keyValue, CLASS_NAME.getString()) || 
              keyValue.size() == 0))
             keyCount--;
         else if (keyName.equal (PROPERTY_NAME) &&
-                 String::equalNoCase(keyValue, dName))
+                 String::equalNoCase(keyValue, dName)) 
             keyCount--;
         else if (keyName.equal (PROPERTY_SYSTEM_CREATION_CLASS_NAME) &&
-                 ((keyValue.size() == 0) || (String::equalNoCase(keyValue,
+                 ((keyValue.size() == 0) || (String::equalNoCase(keyValue, 
                          SYSTEM_CREATION_CLASS_NAME.getString()))))
             keyCount--;
-        else if (keyName.equal (PROPERTY_SYSTEM_NAME) &&
-                 ((keyValue.size() == 0) ||
+        else if (keyName.equal (PROPERTY_SYSTEM_NAME) && 
+                 ((keyValue.size() == 0) || 
                   (String::equalNoCase(keyValue, systemName))))
             keyCount--;
-
+                 
     }
 
     if (keyCount)
     {
         throw CIMInvalidParameterException("Wrong keys");
-    }
+     }
     handler.processing();
 
     //-- fill 'er up...
-    instance = _build_instance(
-        className,
-        instanceReference.getNameSpace(),
-        instanceReference.getKeyBindings(),
-        dns);
+    instance = _build_instance(className, 
+                               instanceReference.getNameSpace(), 
+                               instanceReference.getKeyBindings(),
+			       dns);
     handler.deliver(instance);
     handler.complete();
 }
 
-void DNSServiceProvider::enumerateInstances(
-    const OperationContext & context,
-    const CIMObjectPath & classReference,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList,
-    InstanceResponseHandler & handler)
+void 
+DNSServiceProvider::enumerateInstances(
+                const OperationContext & context,
+                const CIMObjectPath & classReference,
+                const Boolean includeQualifiers,
+                const Boolean includeClassOrigin,
+                const CIMPropertyList & propertyList,
+                InstanceResponseHandler & handler)
 {
-#ifdef DNSPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "DNSServiceProvider::enumerateInstances()" << endl;
 #endif
 
     CIMName className;
     CIMInstance instance;
     CIMObjectPath newref;
-
+   
     className = classReference.getClassName();
 
-    // only return instances when enumerate on our subclass, CIMOM
-    // will call us as natural part of recursing through subtree on
-    // enumerate - if we return instances on enumerate of our superclass,
+    // only return instances when enumerate on our subclass, CIMOM 
+    // will call us as natural part of recursing through subtree on 
+    // enumerate - if we return instances on enumerate of our superclass, 
     // there would be dups
     if (className.equal (CLASS_PG_DNS_SERVICE))
     {
         handler.processing();
 
-        DNSService dns;
+	DNSService dns;
 
-        if (!dns.AccessOk(context))
-            throw CIMAccessDeniedException("Access denied by DNSProvider");
+	    if (!dns.AccessOk(context))
+	       throw CIMAccessDeniedException("Access denied by DNSProvider");
 
         newref = _fill_reference(classReference.getNameSpace(), className, dns);
-        instance = _build_instance(
-            className,
-            classReference.getNameSpace(),
-            classReference.getKeyBindings(),
-            dns);
+        instance = _build_instance(className, 
+                                   classReference.getNameSpace(), 
+                                   classReference.getKeyBindings(),
+				   dns);
         instance.setPath(newref);
         handler.deliver(instance);
         handler.complete();
@@ -202,10 +210,11 @@ void DNSServiceProvider::enumerateInstances(
     }
 }
 
-void DNSServiceProvider::enumerateInstanceNames(
-    const OperationContext & context,
-    const CIMObjectPath & classReference,
-    ObjectPathResponseHandler & handler)
+void 
+DNSServiceProvider::enumerateInstanceNames(
+                const OperationContext & context,
+                const CIMObjectPath & classReference,
+                ObjectPathResponseHandler & handler)
 {
     CIMObjectPath newref;
     CIMName className;
@@ -233,42 +242,47 @@ void DNSServiceProvider::enumerateInstanceNames(
     handler.complete();
 }
 
-void DNSServiceProvider::modifyInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    const CIMInstance & instanceObject,
-    const Boolean includeQualifiers,
-    const CIMPropertyList & propertyList,
-    ResponseHandler & handler)
+void 
+DNSServiceProvider::modifyInstance(
+                const OperationContext & context,
+                const CIMObjectPath & instanceReference,
+                const CIMInstance & instanceObject,
+                const Boolean includeQualifiers,
+                const CIMPropertyList & propertyList,
+                ResponseHandler & handler)
 {
     throw CIMNotSupportedException("DNSServiceProvider "
                        "does not support modifyInstance");
 }
 
-void DNSServiceProvider::createInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    const CIMInstance & instanceObject,
-    ObjectPathResponseHandler & handler)
+void 
+DNSServiceProvider::createInstance(
+                const OperationContext & context,
+                const CIMObjectPath & instanceReference,
+                const CIMInstance & instanceObject,
+                ObjectPathResponseHandler & handler)
 {
     throw CIMNotSupportedException("DNSServiceProvider "
                        "does not support createInstance");
 }
 
-void DNSServiceProvider::deleteInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    ResponseHandler & handler)
+void 
+DNSServiceProvider::deleteInstance(
+                const OperationContext & context,
+                const CIMObjectPath & instanceReference,
+                ResponseHandler & handler)
 {
     throw CIMNotSupportedException("DNSServiceProvider "
                        "does not support deleteInstance");
 }
 
-void DNSServiceProvider::initialize(CIMOMHandle & cimom)
+void 
+DNSServiceProvider::initialize(CIMOMHandle & cimom)
 {
 }
 
-void DNSServiceProvider::terminate()
+void 
+DNSServiceProvider::terminate(void)
 {
     delete this;
 }
@@ -277,13 +291,13 @@ void DNSServiceProvider::terminate()
  Create properties to provider
 ***********************************************************************/
 
-CIMInstance DNSServiceProvider::_build_instance(
-    const CIMName & className,
-    const CIMNamespaceName & nameSpace,
-    const Array<CIMKeyBinding> keys,
-    DNSService dns)
+CIMInstance
+DNSServiceProvider::_build_instance(const CIMName & className,
+                                        const CIMNamespaceName & nameSpace,
+                                        const Array<CIMKeyBinding> keys,
+					DNSService dns)
 {
-#ifdef DNSPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "DNSServiceProvider::_build_instance()" << endl;
 #endif
 
@@ -291,29 +305,29 @@ CIMInstance DNSServiceProvider::_build_instance(
     String strValue;
     Array<String> strArr;
 
-    if (dns.getSystemName(strValue))
+    if(dns.getSystemName(strValue)) 
     {
         instance.setPath(CIMObjectPath(strValue, nameSpace, className, keys));
         instance.addProperty(CIMProperty(PROPERTY_SYSTEM_NAME, strValue));
     }
     else
-        throw CIMOperationFailedException(
-            "DNSProvider can't determine System Name property");
+        throw CIMOperationFailedException("DNSProvider "
+                  "can't determine System Name property");
 
-#ifdef DNSPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "DNSServiceProvider::_build_instance() SystemName = `" <<
-        strValue << "'" << endl;
+	 strValue << "'" << endl;
 #endif
 
-    if (dns.getDNSName(strValue))
+    if(dns.getDNSName(strValue)) 
         instance.addProperty(CIMProperty(PROPERTY_NAME, strValue));
     else
         throw CIMOperationFailedException("DNSProvider "
                   "can't determine Name property");
 
-#ifdef DNSPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "DNSServiceProvider::_build_instance() Name = `" <<
-        strValue << "'" << endl;
+	 strValue << "'" << endl;
 #endif
 
     instance.addProperty(CIMProperty(PROPERTY_CREATION_CLASS_NAME,
@@ -322,19 +336,19 @@ CIMInstance DNSServiceProvider::_build_instance(
     instance.addProperty(CIMProperty(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
                                      CLASS_CIM_UNITARY_COMPUTER_SYSTEM));
 
-    if (dns.getCaption(strValue))
+    if(dns.getCaption(strValue)) 
         instance.addProperty(CIMProperty(PROPERTY_CAPTION, strValue));
 
-    if (dns.getDescription(strValue))
+    if(dns.getDescription(strValue)) 
         instance.addProperty(CIMProperty(PROPERTY_DESCRIPTION, strValue));
 
-    if (dns.getSearchList(strArr))
+    if(dns.getSearchList(strArr)) 
         instance.addProperty(CIMProperty(PROPERTY_SEARCH_LIST, strArr));
 
-    if (dns.getAddresses(strArr))
+    if(dns.getAddresses(strArr)) 
         instance.addProperty(CIMProperty(PROPERTY_ADDRESSES, strArr));
 
-#ifdef DNSPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "DNSServiceProvider::_build_instance() - done" << endl;
 #endif
 
@@ -345,43 +359,39 @@ CIMInstance DNSServiceProvider::_build_instance(
     Return CIMObjectPath instance of class valid keys
 ***********************************************************************/
 
-CIMObjectPath DNSServiceProvider::_fill_reference(
-    const CIMNamespaceName &nameSpace,
-    const CIMName &className,
-    DNSService dns)
+CIMObjectPath
+DNSServiceProvider::_fill_reference(const CIMNamespaceName &nameSpace,
+                                        const CIMName &className,
+					DNSService dns)
 {
-#ifdef DNSPROVIDER_DEBUG
+#ifdef DEBUG
     cout << "DNSServiceProvider::_fill_reference()" << endl;
 #endif
 
     Array<CIMKeyBinding> keys;
     String strValue;
 
-    keys.append(CIMKeyBinding(
-        PROPERTY_SYSTEM_CREATION_CLASS_NAME,
-        CLASS_CIM_UNITARY_COMPUTER_SYSTEM,
-        CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
+			   CLASS_CIM_UNITARY_COMPUTER_SYSTEM,
+                           CIMKeyBinding::STRING));
 
-    keys.append(CIMKeyBinding(
-        PROPERTY_CREATION_CLASS_NAME,
-        CLASS_PG_DNS_SERVICE,
-        CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
+			   CLASS_PG_DNS_SERVICE,
+                           CIMKeyBinding::STRING));
 
-    if (dns.getDNSName(strValue))
-        keys.append(
-            CIMKeyBinding(PROPERTY_NAME, strValue, CIMKeyBinding::STRING));
+    if(dns.getDNSName(strValue)) 
+        keys.append(CIMKeyBinding(PROPERTY_NAME, strValue,
+                                 CIMKeyBinding::STRING));
     else
         throw CIMOperationFailedException("DNSProvider "
                   "can't determine Name property");
+        
+    if(!dns.getSystemName(strValue)) 
+        throw CIMOperationFailedException("DNSProvider "
+                  "can't determine System Name property");
 
-    if (!dns.getSystemName(strValue))
-        throw CIMOperationFailedException(
-            "DNSProvider can't determine System Name property");
-
-    keys.append(CIMKeyBinding(
-        PROPERTY_SYSTEM_NAME,
-        strValue,
-        CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding(PROPERTY_SYSTEM_NAME, strValue,
+                                 CIMKeyBinding::STRING));
 
     return CIMObjectPath(strValue, nameSpace, className, keys);
 }

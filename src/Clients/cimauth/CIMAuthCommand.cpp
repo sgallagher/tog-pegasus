@@ -1,31 +1,44 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2311,#2333,#2351
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101, Bug#2756
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3032
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +63,10 @@
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
 #include <Pegasus/Common/PegasusVersion.h>
+
+#ifdef PEGASUS_OS_OS400
+#include "qycmutiltyUtility.H"
+#endif
 
 PEGASUS_USING_STD;
 
@@ -80,8 +97,7 @@ static const CIMName PROPERTY_NAME_USERNAME        = CIMName ("Username");
 static const CIMName PROPERTY_NAME_NAMESPACE       = CIMName ("Namespace");
 
 /**
-    This constant represents the name of the authorizations property in
-    the schema
+    This constant represents the name of the authorizations property in the schema
 */
 static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
 
@@ -90,6 +106,11 @@ static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
     when an error occurs in parsing or validating the command line.
 */
 static const char USAGE []                        = "Usage: ";
+
+/**
+    This constant represents the getoopt argument designator
+*/
+static const char GETOPT_ARGUMENT_DESIGNATOR      = ':';
 
 /*
     These constants represent the operation modes supported by the CLI.
@@ -139,11 +160,23 @@ static const Uint32 OPERATION_TYPE_VERSION        = 6;
 
 //l10n default messages and corresponding resource keys
 
+static const char NOT_PRIVILEGED_USER [] =
+    "You must have superuser privilege to run this command.";
+
+static const char NOT_PRIVILEGED_USER_KEY [] =
+    "Clients.cimauth.CIMAuthCommand.NOT_PRIVILEGED_USER";
+
 static const char CIMOM_NOT_RUNNING [] =
     "CIM Server may not be running.";
 
 static const char CIMOM_NOT_RUNNING_KEY [] =
     "Clients.cimauth.CIMAuthCommand.CIMOM_NOT_RUNNING";
+
+static const char FILE_NOT_READABLE [] =
+    "Unable to read the config file.";
+
+static const char FILE_NOT_READABLE_KEY [] =
+    "Clients.cimauth.CIMAuthCommand.FILE_NOT_READABLE";
 
 static const char ADD_AUTH_FAILURE [] =
     "Failed to add authorizations.";
@@ -187,6 +220,12 @@ static const char REMOVE_AUTH_SUCCESS [] =
 static const char REMOVE_AUTH_SUCCESS_KEY [] =
     "Clients.cimauth.CIMAuthCommand.REMOVE_AUTH_SUCCESS";
 
+static const char NO_AUTHS_FOUND [] =
+    "No user authorizations found for listing.";
+
+static const char NO_AUTHS_FOUND_KEY [] =
+    "Clients.cimauth.CIMAuthCommand.NO_AUTHS_FOUND";
+
 static const char AUTH_SCHEMA_NOT_LOADED [] =
     "Please restore the internal repository on the CIM Server.";
 
@@ -211,12 +250,23 @@ static const char AUTH_NOT_FOUND [] =
 static const char AUTH_NOT_FOUND_KEY [] =
     "Clients.cimauth.CIMAuthCommand.AUTH_NOT_FOUND";
 
+static const char ERR_OPTION_NOT_SUPPORTED_KEY [] =
+    "Clients.cimauth.CIMAuthCommand.ERR_OPTION_NOT_SUPPORTED";
+
+static const char ERR_OPTION_NOT_SUPPORTED [] =
+    "Invalid option. Use '--help' to obtain command syntax.";
+
 static const char ERR_USAGE_KEY [] =
     "Clients.cimauth.CIMAuthCommand.ERR_USAGE";
 
 static const char ERR_USAGE [] =
-    "Use '--help' to obtain command syntax.";
+    "Incorrect usage. Use '--help' to obtain command syntax.";
 //l10n end default messages and resource keys
+
+/**
+    The constant representing the user provider class name
+*/
+static const char PG_USER_MGR_PROV_CLASS []    = "PG_UserManager";
 
 
 static const char   LONG_HELP []  = "help";
@@ -423,6 +473,10 @@ CIMAuthCommand::CIMAuthCommand ()
         Initialize the instance variables.
     */
     _operationType       = OPERATION_TYPE_UNINITIALIZED;
+    _userName            = String::EMPTY;
+    _namespace           = String::EMPTY;
+    _authorizations      = String::EMPTY;
+    _hostName            = String::EMPTY;
     _namespaceSet        = false;
     _userNameSet         = false;
     _readFlagSet         = false;
@@ -433,6 +487,11 @@ CIMAuthCommand::CIMAuthCommand ()
     */
 
     usage.reserveCapacity(200);
+    //l10n
+    //localize usage keyword:
+    //MessageLoaderParms parms("Clients.CLI.USAGE_STRING","usage: ");
+    //String USAGE_L = MessageLoader::getMessage(parms);
+    //usage.append(USAGE_L);
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 
@@ -459,24 +518,18 @@ CIMAuthCommand::CIMAuthCommand ()
     usage.append("               --").append(LONG_VERSION).append(" \n");
 
     usage.append("Options : \n");
-    usage.append("    -a         - Add authorizations for a user on a"
-                    " namespace\n");
+    usage.append("    -a         - Add authorizations for a user on a namespace\n");
     usage.append("    -h, --help - Display this help message\n");
-    usage.append("    -l         - Display the authorizations of all the"
-                    " authorized users\n");
-    usage.append("    -m         - Modify authorizations for a user on a"
-                 "   namespace\n");
+    usage.append("    -l         - Display the authorizations of all the authorized users\n");
+    usage.append("    -m         - Modify authorizations for a user on a namespace\n");
     usage.append("    -n         - Use the specified namespace\n");
-    usage.append("    -r         - Remove authorizations for a user on a"
-                    " namespace\n");
+    usage.append("    -r         - Remove authorizations for a user on a namespace\n");
     usage.append("    -R         - Specify a READ authorization (Default)\n");
-    usage.append("    -u         - Perform operations for the specified user"
-                    " name\n");
+    usage.append("    -u         - Perform operations for the specified user name\n");
     usage.append("    --version  - Display CIM Server version number\n");
     usage.append("    -W         - Specify a WRITE authorization\n");
 
-    usage.append("\nUsage note: The cimauth command requires that the"
-                    " CIM Server is running.\n");
+    usage.append("\nUsage note: The cimauth command requires that the CIM Server is running.\n");
 
     setUsage (usage);
 }
@@ -902,8 +955,10 @@ Uint32 CIMAuthCommand::execute (
         //
         _client->connectLocal();
     }
-    catch(Exception&)
+    catch(Exception& e)
     {
+        //l10n
+        //outPrintWriter << CIMOM_NOT_RUNNING << endl;
         outPrintWriter << localizeMessage(MSG_PATH,
             CIMOM_NOT_RUNNING_KEY,
             CIMOM_NOT_RUNNING)
@@ -927,6 +982,8 @@ Uint32 CIMAuthCommand::execute (
 
                 if (code == CIM_ERR_FAILED)
                 {
+                    //l10n
+                    //outPrintWriter << ADD_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         ADD_AUTH_FAILURE_KEY,
                         ADD_AUTH_FAILURE)
@@ -935,6 +992,8 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
+                    //l10n
+                    //outPrintWriter << ADD_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         ADD_AUTH_FAILURE_KEY,
                         ADD_AUTH_FAILURE)
@@ -943,6 +1002,9 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
+                    //l10n
+                    //outPrintWriter << ADD_AUTH_FAILURE << endl;
+                    //outPrintWriter << AUTH_ALREADY_EXISTS << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         ADD_AUTH_FAILURE_KEY,
                         ADD_AUTH_FAILURE)
@@ -956,6 +1018,9 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
+                    //l10n
+                    //outPrintWriter << ADD_AUTH_FAILURE << endl;
+                    //outPrintWriter << AUTH_SCHEMA_NOT_LOADED << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         ADD_AUTH_FAILURE_KEY,
                         ADD_AUTH_FAILURE)
@@ -1070,6 +1135,8 @@ Uint32 CIMAuthCommand::execute (
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
                 {
+                    //l10n
+                    //outPrintWriter << REMOVE_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         REMOVE_AUTH_FAILURE_KEY,
                         REMOVE_AUTH_FAILURE)
@@ -1078,6 +1145,8 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
+                    //l10n
+                    //outPrintWriter << REMOVE_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         REMOVE_AUTH_FAILURE_KEY,
                         REMOVE_AUTH_FAILURE)
@@ -1086,6 +1155,9 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_NOT_FOUND)
                 {
+                    //l10n
+                    //outPrintWriter << REMOVE_AUTH_FAILURE << endl;
+                    //outPrintWriter << AUTH_NOT_FOUND          << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         REMOVE_AUTH_FAILURE_KEY,
                         REMOVE_AUTH_FAILURE)
@@ -1098,6 +1170,9 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
+                    //l10n
+                    //outPrintWriter << REMOVE_AUTH_FAILURE << endl;
+                    //outPrintWriter << AUTH_SCHEMA_NOT_LOADED << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         REMOVE_AUTH_FAILURE_KEY,
                         REMOVE_AUTH_FAILURE)
@@ -1115,6 +1190,9 @@ Uint32 CIMAuthCommand::execute (
             }
             catch (Exception& e)
             {
+                //l10n
+                //outPrintWriter << REMOVE_AUTH_FAILURE << endl <<
+                    //e.getMessage() << endl;
                 outPrintWriter << localizeMessage(MSG_PATH,
                     REMOVE_AUTH_FAILURE_KEY,
                     REMOVE_AUTH_FAILURE)
@@ -1133,6 +1211,8 @@ Uint32 CIMAuthCommand::execute (
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
                 {
+                    //l10n
+                    //outPrintWriter << LIST_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         LIST_AUTH_FAILURE_KEY,
                         LIST_AUTH_FAILURE)
@@ -1141,6 +1221,8 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
+                    //l10n
+                    //outPrintWriter << LIST_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         LIST_AUTH_FAILURE_KEY,
                         LIST_AUTH_FAILURE)
@@ -1149,6 +1231,8 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
+                    //l10n
+                    //outPrintWriter << LIST_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         LIST_AUTH_FAILURE_KEY,
                         LIST_AUTH_FAILURE)
@@ -1157,6 +1241,9 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
+                    //l10n
+                    //outPrintWriter << LIST_AUTH_FAILURE << endl;
+                    //outPrintWriter << AUTH_SCHEMA_NOT_LOADED << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         LIST_AUTH_FAILURE_KEY,
                         LIST_AUTH_FAILURE)
@@ -1174,6 +1261,9 @@ Uint32 CIMAuthCommand::execute (
             }
             catch (Exception& e)
             {
+                //l10n
+                //outPrintWriter << LIST_AUTH_FAILURE << endl <<
+                //e.getMessage() << endl;
                 outPrintWriter << localizeMessage(MSG_PATH,
                     LIST_AUTH_FAILURE_KEY,
                     LIST_AUTH_FAILURE)
@@ -1214,7 +1304,8 @@ void CIMAuthCommand::_AddAuthorization
     _client->createInstance(
         PEGASUS_NAMESPACENAME_AUTHORIZATION,
         newInstance);
-
+    //l10n
+    //outPrintWriter << ADD_AUTH_SUCCESS << endl;
     outPrintWriter << localizeMessage(MSG_PATH,
         ADD_AUTH_SUCCESS_KEY,
         ADD_AUTH_SUCCESS)
@@ -1265,7 +1356,8 @@ void CIMAuthCommand::_ModifyAuthorization
     _client->modifyInstance(
         PEGASUS_NAMESPACENAME_AUTHORIZATION,
         namedInstance);
-
+    //l10n
+    //outPrintWriter << MODIFY_AUTH_SUCCESS << endl;
     outPrintWriter << localizeMessage(MSG_PATH,
         MODIFY_AUTH_SUCCESS_KEY,
         MODIFY_AUTH_SUCCESS)
@@ -1348,6 +1440,8 @@ void CIMAuthCommand::_RemoveAuthorization
         }
     }
 
+    //l10n
+    //outPrintWriter << REMOVE_AUTH_SUCCESS << endl;
     outPrintWriter << localizeMessage(MSG_PATH,
         REMOVE_AUTH_SUCCESS_KEY,
         REMOVE_AUTH_SUCCESS)
@@ -1429,9 +1523,30 @@ int main (int argc, char* argv [])
 {
     AutoPtr<CIMAuthCommand> command;
     Uint32               retCode;
-    // l10n set messageloading to process locale
-    MessageLoader::_useProcessLocale = true;
+
+    MessageLoader::_useProcessLocale = true;  //l10n set messageloading to process locale
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
+
+#ifdef PEGASUS_OS_OS400
+    if(FALSE == ycmCheckCmdAuthorities())
+    {
+        return 1;
+    }
+#else
+    //
+    // Check if root is issuing the command
+    //
+    if ( !System::isPrivilegedUser(System::getEffectiveUserName()) )
+    {
+        //l10n
+        //cerr << NOT_PRIVILEGED_USER << endl;
+        MessageLoaderParms parms(NOT_PRIVILEGED_USER_KEY,
+                                 NOT_PRIVILEGED_USER);
+        parms.msg_src_path = MSG_PATH;
+        cerr << MessageLoader::getMessage(parms) << endl;
+        return 1;
+    }
+#endif
 
     command.reset(new CIMAuthCommand ());
 
@@ -1441,12 +1556,23 @@ int main (int argc, char* argv [])
     }
     catch (CommandFormatException& cfe)
     {
-        cerr << COMMAND_NAME << ": " << cfe.getMessage() <<  endl;
+        String msg(cfe.getMessage());
+        cerr << COMMAND_NAME << ": " << msg <<  endl;
 
-        MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
-        parms.msg_src_path = MSG_PATH;
-        cerr << COMMAND_NAME <<
-            ": " << MessageLoader::getMessage(parms) << endl;
+        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
+        {
+            MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,ERR_OPTION_NOT_SUPPORTED);
+            parms.msg_src_path = MSG_PATH;
+            cerr << COMMAND_NAME <<
+                ": " << MessageLoader::getMessage(parms) << endl;
+        }
+        else
+        {
+            MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
+            parms.msg_src_path = MSG_PATH;
+            cerr << COMMAND_NAME <<
+                ": " << MessageLoader::getMessage(parms) << endl;
+        }
         exit (Command::RC_ERROR);
     }
 

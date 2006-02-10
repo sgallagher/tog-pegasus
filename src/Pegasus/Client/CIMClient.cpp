@@ -1,31 +1,44 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Willis White (whiwill@us.ibm.com) PEP 128
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,13 +61,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMClient::CIMClient()
 {
-    _rep = new CIMClientRep();
-}
-
-CIMClient::~CIMClient()
-{
-    delete _rep;
-}
+    _rep = new CIMClientRep();   
+}   
+    
+CIMClient::~CIMClient()   
+{   
+    delete _rep;   
+} 
 
 Uint32 CIMClient::getTimeout() const
 {
@@ -70,7 +83,8 @@ void CIMClient::connect(
     const String& host,
     const Uint32 portNumber,
     const String& userName,
-    const String& password)
+    const String& password
+)
 {
     _rep->connect(host, portNumber, userName, password);
 }
@@ -80,7 +94,8 @@ void CIMClient::connect(
     const Uint32 portNumber,
     const SSLContext& sslContext,
     const String& userName,
-    const String& password)
+    const String& password
+)
 {
     _rep->connect(host, portNumber, sslContext, userName, password);
 }
@@ -95,6 +110,7 @@ void CIMClient::disconnect()
     _rep->disconnect();
 }
 
+// l10n start
 void CIMClient::setRequestAcceptLanguages(const AcceptLanguageList& langs)
 {
     _rep->setRequestAcceptLanguages(langs);
@@ -124,6 +140,7 @@ void CIMClient::setRequestDefaultLanguages()
 {
     _rep->setRequestDefaultLanguages();
 }
+// l10n end
 
 CIMClass CIMClient::getClass(
     const CIMNamespaceName& nameSpace,
@@ -131,7 +148,8 @@ CIMClass CIMClient::getClass(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+)
 {
     return _rep->getClass(
         nameSpace,
@@ -148,41 +166,22 @@ CIMInstance CIMClient::getInstance(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+)
 {
-    CIMInstance inst = _rep->getInstance(
+    return _rep->getInstance(
         nameSpace,
         instanceName,
         localOnly,
         includeQualifiers,
         includeClassOrigin,
-        propertyList).getInstance();
-
-    if (!inst.isUninitialized())
-    {
-        // remove key bindings, name space and host name form object path.
-        CIMObjectPath& p =
-            const_cast<CIMObjectPath&>(inst.getPath());
-
-        CIMName cls = p.getClassName();
-        p.clear();
-        p.setClassName(cls);
-
-    }
-#ifdef PEGASUS_ENABLE_PROTOCOL_BINARY
-    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
-    if (rep->_binaryResponse)
-    {
-        inst.instanceFilter(includeQualifiers,includeClassOrigin,propertyList);
-    }
-#endif
-
-    return inst;
+        propertyList);
 }
 
 void CIMClient::deleteClass(
     const CIMNamespaceName& nameSpace,
-    const CIMName& className)
+    const CIMName& className
+)
 {
     _rep->deleteClass(
         nameSpace,
@@ -191,7 +190,8 @@ void CIMClient::deleteClass(
 
 void CIMClient::deleteInstance(
     const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName)
+    const CIMObjectPath& instanceName
+)
 {
     _rep->deleteInstance(
         nameSpace,
@@ -200,7 +200,8 @@ void CIMClient::deleteInstance(
 
 void CIMClient::createClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& newClass)
+    const CIMClass& newClass
+)
 {
     _rep->createClass(
         nameSpace,
@@ -209,7 +210,8 @@ void CIMClient::createClass(
 
 CIMObjectPath CIMClient::createInstance(
     const CIMNamespaceName& nameSpace,
-    const CIMInstance& newInstance)
+    const CIMInstance& newInstance
+)
 {
     return _rep->createInstance(
         nameSpace,
@@ -218,7 +220,8 @@ CIMObjectPath CIMClient::createInstance(
 
 void CIMClient::modifyClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& modifiedClass)
+    const CIMClass& modifiedClass
+)
 {
     _rep->modifyClass(
         nameSpace,
@@ -229,7 +232,8 @@ void CIMClient::modifyInstance(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+)
 {
     _rep->modifyInstance(
         nameSpace,
@@ -244,7 +248,8 @@ Array<CIMClass> CIMClient::enumerateClasses(
     Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
-    Boolean includeClassOrigin)
+    Boolean includeClassOrigin
+)
 {
     return _rep->enumerateClasses(
         nameSpace,
@@ -258,7 +263,8 @@ Array<CIMClass> CIMClient::enumerateClasses(
 Array<CIMName> CIMClient::enumerateClassNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    Boolean deepInheritance)
+    Boolean deepInheritance
+)
 {
     return _rep->enumerateClassNames(
         nameSpace,
@@ -273,19 +279,10 @@ Array<CIMInstance> CIMClient::enumerateInstances(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+)
 {
-#ifndef PEGASUS_ENABLE_PROTOCOL_BINARY
-    Array<CIMInstance> a = _rep->enumerateInstances(
-            nameSpace,
-            className,
-            deepInheritance,
-            localOnly,
-            includeQualifiers,
-            includeClassOrigin,
-            propertyList).getInstances();
-#else
-    CIMResponseData respData = _rep->enumerateInstances(
+    return _rep->enumerateInstances(
         nameSpace,
         className,
         deepInheritance,
@@ -293,67 +290,28 @@ Array<CIMInstance> CIMClient::enumerateInstances(
         includeQualifiers,
         includeClassOrigin,
         propertyList);
-
-    Array<CIMInstance> a = respData.getInstances();
-    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
-
-    if (rep->_binaryResponse)
-    {
-        CIMPropertyList returnedPropList = respData.getPropertyList();
-        for (Uint32 i = 0, n = a.size(); i < n ; i++)
-        {
-            CIMInstance & inst = a[i];
-            inst.instanceFilter(
-                includeQualifiers,
-                includeClassOrigin,
-                returnedPropList);
-        }
-    }
-#endif
-    // remove name space and host name to be instance names
-    for (Uint32 i = 0, n = a.size(); i < n ; i++)
-    {
-        if (!a[i].isUninitialized())
-        {
-            CIMObjectPath& p = const_cast<CIMObjectPath&>(a[i].getPath());
-            p.setNameSpace(CIMNamespaceName());
-            p.setHost(String());
-        }
-    }
-
-    return a;
 }
 
 Array<CIMObjectPath> CIMClient::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
-    const CIMName& className)
+    const CIMName& className
+)
 {
-
-    Array<CIMObjectPath> p = _rep->enumerateInstanceNames(
+    return _rep->enumerateInstanceNames(
         nameSpace,
-        className).getInstanceNames();
-
-    // remover name space and host name from object paths to be
-    // instance names.
-    for (Uint32 i = 0, n = p.size(); i < n ; i++)
-    {
-        p[i].setNameSpace(CIMNamespaceName());
-        p[i].setHost(String());
-    }
-
-    return p;
-
+        className);
 }
 
 Array<CIMObject> CIMClient::execQuery(
     const CIMNamespaceName& nameSpace,
     const String& queryLanguage,
-    const String& query)
+    const String& query
+)
 {
     return _rep->execQuery(
         nameSpace,
         queryLanguage,
-        query).getObjects();
+        query);
 }
 
 Array<CIMObject> CIMClient::associators(
@@ -365,9 +323,10 @@ Array<CIMObject> CIMClient::associators(
     const String& resultRole,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+)
 {
-    CIMResponseData respData = _rep->associators(
+    return _rep->associators(
         nameSpace,
         objectName,
         assocClass,
@@ -377,27 +336,6 @@ Array<CIMObject> CIMClient::associators(
         includeQualifiers,
         includeClassOrigin,
         propertyList);
-
-    Array<CIMObject> a = respData.getObjects();
-#ifdef PEGASUS_ENABLE_PROTOCOL_BINARY
-    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
-    if (rep->_binaryResponse)
-    {
-        CIMPropertyList returnedPropList = respData.getPropertyList();
-        if ((a.size() > 0) && (a[0].isInstance()))
-        {
-            for (Uint32 i = 0, n = a.size(); i < n ; i++)
-            {
-                CIMObject & obj = a[i];
-                obj.instanceFilter(
-                    includeQualifiers,
-                    includeClassOrigin,
-                    propertyList);
-            }
-        }
-    }
-#endif
-    return a;
 }
 
 Array<CIMObjectPath> CIMClient::associatorNames(
@@ -406,7 +344,8 @@ Array<CIMObjectPath> CIMClient::associatorNames(
     const CIMName& assocClass,
     const CIMName& resultClass,
     const String& role,
-    const String& resultRole)
+    const String& resultRole
+)
 {
     return _rep->associatorNames(
         nameSpace,
@@ -414,7 +353,7 @@ Array<CIMObjectPath> CIMClient::associatorNames(
         assocClass,
         resultClass,
         role,
-        resultRole).getInstanceNames();
+        resultRole);
 }
 
 Array<CIMObject> CIMClient::references(
@@ -424,9 +363,10 @@ Array<CIMObject> CIMClient::references(
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList
+)
 {
-    CIMResponseData respData = _rep->references(
+    return _rep->references(
         nameSpace,
         objectName,
         resultClass,
@@ -434,46 +374,27 @@ Array<CIMObject> CIMClient::references(
         includeQualifiers,
         includeClassOrigin,
         propertyList);
-    Array<CIMObject> a = respData.getObjects();
-
-#ifdef PEGASUS_ENABLE_PROTOCOL_BINARY
-    CIMClientRep * rep = static_cast<CIMClientRep*>(_rep);
-    if (rep->_binaryResponse)
-    {
-        CIMPropertyList returnedPropList = respData.getPropertyList();
-        if ((a.size() > 0) && (a[0].isInstance()))
-        {
-            for (Uint32 i = 0, n = a.size(); i < n ; i++)
-            {
-                CIMObject & obj = a[i];
-                obj.instanceFilter(
-                    includeQualifiers,
-                    includeClassOrigin,
-                    propertyList);
-            }
-        }
-    }
-#endif
-    return a;
 }
 
 Array<CIMObjectPath> CIMClient::referenceNames(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& resultClass,
-    const String& role)
+    const String& role
+)
 {
     return _rep->referenceNames(
         nameSpace,
         objectName,
         resultClass,
-        role).getInstanceNames();
+        role);
 }
 
 CIMValue CIMClient::getProperty(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    const CIMName& propertyName)
+    const CIMName& propertyName
+)
 {
     return _rep->getProperty(
         nameSpace,
@@ -485,7 +406,8 @@ void CIMClient::setProperty(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     const CIMName& propertyName,
-    const CIMValue& newValue)
+    const CIMValue& newValue
+)
 {
     _rep->setProperty(
         nameSpace,
@@ -496,7 +418,8 @@ void CIMClient::setProperty(
 
 CIMQualifierDecl CIMClient::getQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMName& qualifierName)
+    const CIMName& qualifierName
+)
 {
     return _rep->getQualifier(
         nameSpace,
@@ -505,7 +428,8 @@ CIMQualifierDecl CIMClient::getQualifier(
 
 void CIMClient::setQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMQualifierDecl& qualifierDeclaration)
+    const CIMQualifierDecl& qualifierDeclaration
+)
 {
     _rep->setQualifier(
         nameSpace,
@@ -514,7 +438,8 @@ void CIMClient::setQualifier(
 
 void CIMClient::deleteQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMName& qualifierName)
+    const CIMName& qualifierName
+)
 {
     _rep->deleteQualifier(
         nameSpace,
@@ -522,7 +447,8 @@ void CIMClient::deleteQualifier(
 }
 
 Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
-    const CIMNamespaceName& nameSpace)
+    const CIMNamespaceName& nameSpace
+)
 {
     return _rep->enumerateQualifiers(
         nameSpace);
@@ -533,7 +459,8 @@ CIMValue CIMClient::invokeMethod(
     const CIMObjectPath& instanceName,
     const CIMName& methodName,
     const Array<CIMParamValue>& inParameters,
-    Array<CIMParamValue>& outParameters)
+    Array<CIMParamValue>& outParameters
+)
 {
     return _rep->invokeMethod(
         nameSpace,
@@ -543,15 +470,17 @@ CIMValue CIMClient::invokeMethod(
         outParameters);
 }
 
-void CIMClient::registerClientOpPerformanceDataHandler(
-    ClientOpPerformanceDataHandler& handler)
+
+void CIMClient::registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler)
 {
-    _rep->registerClientOpPerformanceDataHandler(handler);
+  _rep->registerClientOpPerformanceDataHandler(handler);
 }
 
+   
 void CIMClient::deregisterClientOpPerformanceDataHandler()
 {
-    _rep->deregisterClientOpPerformanceDataHandler();
+  _rep->deregisterClientOpPerformanceDataHandler();
 }
+
 
 PEGASUS_NAMESPACE_END

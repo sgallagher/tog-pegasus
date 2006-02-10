@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Tony Fiorentino (fiorentino_tony@emc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,65 +49,57 @@ PEGASUS_USING_STD;
 int main(int argc, char** argv)
 {
 #ifdef PEGASUS_ENABLE_SLP
-    try
+  try
     {
-        CIMServerDiscovery disco;
+      CIMServerDiscovery disco;
 
-        Array<Attribute> criteria;
-        Attribute attr(
-            PEG_WBEM_SLP_SERVICE_ID"="PEG_WBEM_SLP_SERVICE_ID_DEFAULT);
-        Array<CIMServerDescription> connections;
-        SLPClientOptions* opts = (SLPClientOptions*)NULL;
-        if (argc == 2)
+      Array<Attribute> criteria;
+      Attribute attr(PEG_WBEM_SLP_SERVICE_ID"="PEG_WBEM_SLP_SERVICE_ID_DEFAULT);
+      Array<CIMServerDescription> connections ;
+	      SLPClientOptions* opts = (SLPClientOptions*)NULL; //new SLPClientOptions();
+      if(argc==2){
+	      // argv[1] should be a DA address
+	      opts = new SLPClientOptions();
+	      opts->target_address = strdup(argv[1]);
+	      opts->scopes=strdup("DEFAULT");
+	      opts->spi=strdup("");
+	      opts->use_directory_agent = false;
+      }
+      connections = disco.lookup(opts);
+      if((SLPClientOptions*)NULL!=opts){
+	      delete opts;
+      }
+	
+      for (Uint32 i=0; i<connections.size(); i++)
         {
-            // argv[1] should be a DA address
-            opts = new SLPClientOptions();
-            opts->target_address = strdup(argv[1]);
-            opts->scopes=strdup("DEFAULT");
-            opts->spi=strdup("");
-            opts->use_directory_agent = false;
-        }
-        connections = disco.lookup(opts);
-        if ((SLPClientOptions*)NULL != opts)
-        {
-            delete opts;
-        }
-
-        for (Uint32 i = 0; i < connections.size(); i++)
-        {
-            cout << "\n======================================================"
-                 << endl;
-            cout << connections[i].getUrl() << endl;
-            cout << "======================================================"
-                 << endl;
-            Array<Attribute> attributes = connections[i].getAttributes();
-            for (Uint32 j = 0; j < attributes.size(); j++)
+          PEGASUS_STD(cout) << "\n======================================================" << PEGASUS_STD(endl);
+          PEGASUS_STD(cout) << connections[i].getUrl() << PEGASUS_STD(endl);
+          PEGASUS_STD(cout) << "======================================================" << PEGASUS_STD(endl);
+          Array<Attribute> attributes = connections[i].getAttributes();
+          for (Uint32 j=0; j<attributes.size(); j++)
             {
-                cout << "'" << attributes[j] << "'" << endl;
+              PEGASUS_STD(cout) << "'" << attributes[j] << "'" << PEGASUS_STD(endl);
             }
         }
 
-        if (connections.size() == 0)
+      if (connections.size() == 0)
         {
-            if (criteria.size() > 0)
-                cout << "Warning: No registered wbem connections found using "
-                    "criteria: '" << attr << "'" << endl;
-            else
-                cout << "Warning: No registered wbem connections found."
-                     << endl;
+          if (criteria.size() > 0)
+            PEGASUS_STD(cout) << "Warning: No registered wbem connections found using criteria: '" << attr << "'" << PEGASUS_STD(endl);
+          else
+            PEGASUS_STD(cout) << "Warning: No registered wbem connections found." << PEGASUS_STD(endl);
         }
     }
-    catch (Exception& e)
+  catch(Exception& e)
     {
-        cerr << "Error: " << e.getMessage() << endl;
-        exit(1);
+      PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+      exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+  PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
 #else
-    cout << "+++++ PEGASUS_ENABLE_SLP *not* set during the pegasus build"
-         << endl;
+  PEGASUS_STD(cout) << "+++++ PEGASUS_ENABLE_SLP *not* set during the pegasus build" << PEGASUS_STD(endl);
 #endif // PEGASUS_ENABLE_SLP
 
-    return 0;
+  return 0;
 }

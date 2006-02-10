@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:  Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP101
+//               Josephine Eskaline Joyce (jojustin@in.ibm.com) for Bug#2486
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,29 +48,43 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMOMHandle::CIMOMHandle()
+CIMOMHandle::CIMOMHandle(void)
 {
-    // The existence of a RequestDispatcher determines which Rep to use
-    MessageQueue* dispatcher =
-        MessageQueue::lookup(PEGASUS_QUEUENAME_OPREQDISPATCHER);
-    if (dispatcher != 0)
+    // The existence of a BinaryMessageHandler determines which Rep to use
+    MessageQueue* bmh = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);
+    if (bmh != 0)
     {
-        // RequestDispatcher exists.  We can use InternalCIMOMHandleRep
+        // A BinaryMessageHandler exists.  We can use InternalCIMOMHandleRep
         _rep = new InternalCIMOMHandleRep();
     }
     else
     {
-        // No RequestDispatcher exists.  We must use ClientCIMOMHandleRep
+        // No BinaryMessageHandler exists.  We must use ClientCIMOMHandleRep
         _rep = new ClientCIMOMHandleRep();
     }
 }
+
+#ifdef PEGASUS_OS_OS400
+CIMOMHandle::CIMOMHandle(Uint32 os400UserStateKey)
+{
+
+  // A BinaryMessageHandler exists.  We can use InternalCIMOMHandleRep
+  _rep = new InternalCIMOMHandleRep(os400UserStateKey);
+   
+}
+
+void CIMOMHandle::setOS400ProfileHandle(const char * profileHandle)
+{
+    _rep->setOS400ProfileHandle(profileHandle);
+}
+#endif
 
 CIMOMHandle::CIMOMHandle(const CIMOMHandle & handle)
 {
     Inc(this->_rep = handle._rep);
 }
 
-CIMOMHandle::~CIMOMHandle()
+CIMOMHandle::~CIMOMHandle(void)
 {
     Dec(_rep);
 }
@@ -176,9 +197,10 @@ CIMInstance CIMOMHandle::getInstance(
         context,
         nameSpace,
         instanceName,
+        localOnly,
         includeQualifiers,
         includeClassOrigin,
-        propertyList).getInstance();
+        propertyList);
 }
 
 Array<CIMInstance> CIMOMHandle::enumerateInstances(
@@ -196,9 +218,10 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
         nameSpace,
         className,
         deepInheritance,
+        localOnly,
         includeQualifiers,
         includeClassOrigin,
-        propertyList).getInstances();
+        propertyList);
 }
 
 Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
@@ -209,7 +232,7 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     return _rep->enumerateInstanceNames(
         context,
         nameSpace,
-        className).getInstanceNames();
+        className);
 }
 
 CIMObjectPath CIMOMHandle::createInstance(
@@ -259,7 +282,7 @@ Array<CIMObject> CIMOMHandle::execQuery(
         context,
         nameSpace,
         queryLanguage,
-        query).getObjects();
+        query);
 }
 
 Array<CIMObject> CIMOMHandle::associators(
@@ -284,7 +307,7 @@ Array<CIMObject> CIMOMHandle::associators(
         resultRole,
         includeQualifiers,
         includeClassOrigin,
-        propertyList).getObjects();
+        propertyList);
 }
 
 Array<CIMObjectPath> CIMOMHandle::associatorNames(
@@ -303,7 +326,7 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
         assocClass,
         resultClass,
         role,
-        resultRole).getInstanceNames();
+        resultRole);
 }
 
 Array<CIMObject> CIMOMHandle::references(
@@ -324,7 +347,7 @@ Array<CIMObject> CIMOMHandle::references(
         role,
         includeQualifiers,
         includeClassOrigin,
-        propertyList).getObjects();
+        propertyList);
 }
 
 Array<CIMObjectPath> CIMOMHandle::referenceNames(
@@ -339,7 +362,7 @@ Array<CIMObjectPath> CIMOMHandle::referenceNames(
         nameSpace,
         objectName,
         resultClass,
-        role).getInstanceNames();
+        role);
 }
 
 CIMValue CIMOMHandle::getProperty(
@@ -388,6 +411,21 @@ CIMValue CIMOMHandle::invokeMethod(
 }
 
 
+void CIMOMHandle::get_idle_timer(void *tv)
+{
+    _rep->get_idle_timer(reinterpret_cast<struct timeval*>(tv));
+}
+
+void CIMOMHandle::update_idle_timer(void)
+{
+    _rep->update_idle_timer();
+}
+
+Boolean CIMOMHandle::pending_operation(void)
+{
+    return _rep->pending_operation();
+}
+
 void CIMOMHandle::disallowProviderUnload()
 {
     _rep->disallowProviderUnload();
@@ -398,13 +436,13 @@ void CIMOMHandle::allowProviderUnload()
     _rep->allowProviderUnload();
 }
 
-Boolean CIMOMHandle::unload_ok()
+Boolean CIMOMHandle::unload_ok(void)
 {
     return _rep->unload_ok();
 }
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-OperationContext CIMOMHandle::getResponseContext()
+OperationContext CIMOMHandle::getResponseContext(void)
 {
     return _rep->getResponseContext();
 }

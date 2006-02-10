@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,67 +52,52 @@ class Resolver;
 class CIMConstParameter;
 class CIMParameterRep;
 
-/**
-    The CIMParameter class represents the DMTF standard CIM parameter
-    definition.  A CIMParameter is generally defined in the context of
-    a CIMMethod.
+/** This class provides the interface to construct and manage CIM Parameters.
+    CIM Parameters are the parameters attached to CIMMethods.
     A CIM Parameter consists of:
-    <ul>
-        <li>A CIMName containing the name of the parameter
-        <li>A CIMType defining the parameter type
-        <li>A Boolean indicating whether it is an Array parameter
-        <li>A Uint32 indicating the size of the Array, if the parameter is an
-            Array parameter
-        <li>A CIMName containing the reference class name for this parameter,
-            if the parameter is of reference type
-        <li>Zero or more CIMQualifier objects
-    </ul>
+    <UL>
+    <LI> <B>qualifiers</B> - zero or more qualifiers.
+    <LI> <B>name</B> - The name of the parameter which must be a valid CIM name.
+    <LI> <B>type</B> - The type for the parameter, one of the inherent CIM types
+    <LI> <B>value</B> - Which is dependent on the type. The value can be
+        <UL>
+        <LI> a reference type. In this class the value is a Class reference. This must be
+        a single value
+        <LI> an array (fixed or variable number of elements) or a single value
+        with any CIMType other than reference.  The input parameters allow specifying
+        these conditions.
+        </UL>
+    </UL>
 
-    <p>The CIMParameter class uses a shared representation model, such that
-    multiple CIMParameter objects may refer to the same data copy.  Assignment
-    and copy operators create new references to the same data, not distinct
-    copies.  An update to a CIMParameter object affects all the CIMParameter
-    objects that refer to the same data copy.  The data remains valid until
-    all the CIMParameter objects that refer to it are destructed.  A separate
-    copy of the data may be created using the clone method.
+    ATTN: Define the form of this objec, the rep and what it means.
 */
 class PEGASUS_COMMON_LINKAGE CIMParameter
 {
 public:
 
-    /**
-        Constructs an uninitialized CIMParameter object.  A method
-        invocation on an uninitialized object will result in the throwing
-        of an UninitializedObjectException.  An uninitialized object may
-        be converted into an initialized object only by using the assignment
-        operator with an initialized object.
-    */
+    /// Construct a NULL CIMParameter object.
     CIMParameter();
 
-    /**
-        Constructs a CIMParameter object from the value of a specified
-        CIMParameter object, so that both objects refer to the same data copy.
-        @param x The CIMParameter object from which to construct a new
-            CIMParameter object.
+    /** Construct a CIMParameter from another CIMParameter
+        @param CIMParameter from which the new object is to be constructed
     */
     CIMParameter(const CIMParameter& x);
 
-    /**
-        Constructs a CIMParameter object with the specified attributes.
-        @param name A CIMName specifying the name of the parameter.
-        @param type A CIMType defining the parameter type.
-        @param isArray A Boolean indicating whether it is an Array parameter.
-        @param arraySize A Uint32 indicating the size of the Array, if the
-            parameter is an Array parameter.  The default value of zero
-            indicates a variable size array.
-        @param referenceClassName A CIMName containing the reference class
-            name for this parameter, if the parameter is of reference type.
-        @exception TypeMismatchException If the parameter is of reference
-            type and referenceClassName is null or if the parameter is not of
-            reference type and referenceClassName is not null.
-        @exception TypeMismatchException If isArray is true and arraySize is
-            not zero.
-        @exception UninitializedObjectException If the parameter name is null.
+    /** Constructs a CIMParameter object with properties. The Properties
+        Must include name and type and may include the indicator whether
+        this is an array or not, the size of the array and a reference
+        class name.
+        @param name Name of the parameter, a legal CIMName.
+        @param type CIMType defining the CIM Type for this parameter
+        @param isArray Boolean indicating whether this parameter defines an
+        array.
+        @param arraySize Size of the array if this is to be a fixed size
+        array parameter. The default is zero which indicates a variable size array.
+        @param referenceClassName Optional property but required for reference
+        type parameters.  This defines the class for the reference.
+        @exception TypeMismatchException Thrown if reference type and referenceClassname
+        is Null.
+        @exception TypeMismatchException Thrown if arraysize != zero and isArray true.
     */
     CIMParameter(
         const CIMName& name,
@@ -119,166 +106,132 @@ public:
         Uint32 arraySize = 0,
         const CIMName& referenceClassName = CIMName());
 
-    /**
-        Destructs the CIMParameter object.
+    /** Destroys the object.
     */
     ~CIMParameter();
 
-    /**
-        Assigns the value of the specified CIMParameter object to this object,
-        so that both objects refer to the same data copy.
-        @param x The CIMParameter object from which to assign this
-            CIMParameter object.
-        @return A reference to this CIMParameter object.
+    /** Assignment operator. Assigns one CIMParameter to
+        another CIMParameter
     */
     CIMParameter& operator=(const CIMParameter& x);
 
-    /**
-        Gets the parameter name.
-        @return A CIMName containing the name of the parameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Get the name from the CIMParameter object.
+        @return CIMName containing the name from the object.
     */
     const CIMName& getName() const;
 
-    /**
-        Sets the parameter name.
-        @param name A CIMName indicating the new name for the parameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-        @exception Exception If the object is already contained by CIMMethod
+    /** Set the name field in the object with a valid CIMName
+        @param name CIMName to set into the name field.
     */
     void setName(const CIMName& name);
 
-    /**
-        Checks whether the parameter is an Array parameter.
-        @return True if the parameter is an Array parameter, false otherwise.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Test for Array type for this parameter object.
+        @return true if the value for this parameter is defined
+        as an array (is array = true).
     */
     Boolean isArray() const;
 
-    /**
-        Gets the array size for the parameter.
+    /** Get the array size for the parameter.
         @return Uint32 array size.
-        @exception UninitializedObjectException If the object is not
-            initialized.
     */
     Uint32 getArraySize() const;
 
-    /**
-        Gets the reference class name for the parameter.
-        @return A CIMName containing the reference class name for the
-            parameter if the parameter is of reference type, a null CIMName
-            otherwise.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     const CIMName& getReferenceClassName() const;
 
-    /**
-        Gets the parameter type.
-        @return A CIMType indicating the type of this parameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Get the type (CIMTYPE) defined for this parameter.
+        If the parameter is not initialized the type returned is
+        TBD.
+        @return the type for this parameter defined as a CIMTYPE
+        object.
     */
-    CIMType getType() const;
+    CIMType getType() const ;
 
-    /**
-        Adds a qualifier to the parameter.
-        @param x The CIMQualifier to be added.
-        @return A reference to this CIMParameter object.
-        @exception AlreadyExistsException If a qualifier with the
-            same name already exists in the CIMParameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Add a single qualifier object to the CIMParameter.
+        @param x CIMQualifier object to be added.
+        @exception AlreadyExistsException if a qualifier with the
+        same name already exists for this CIMParameter.
     */
     CIMParameter& addQualifier(const CIMQualifier& x);
 
-    /**
-        Finds a qualifier by name.
-        @param name A CIMName specifying the name of the qualifier to be found.
-        @return Index of the qualifier if found or PEG_NOT_FOUND if not found.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Find a qualifier by name.  Finds a single qualifier
+        based on the name input as parameter and returns an
+        index to the name.
+        @param name CIMName with the name of the qualifier to be found
+        @return Uint32 with either the index (zero origin) of
+        the parameter that was to be found or the value
+        PEG_NOT_FOUND if no parameter is found with the
+        defined name.
     */
     Uint32 findQualifier(const CIMName& name) const;
 
-    /**
-        Gets the qualifier at the specified index.
-        @param index The index of the qualifier to be retrieved.
-        @return The CIMQualifier at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of qualifiers available for the CIMParameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Get qualifier at index defined by input.  Gets the
+        qualifier in the array of qualifiers for this parameter
+        defined by the index provided on input.
+        @param index Specifies the position in the qualifier array
+        of the qualifier to be retrieved
+        @return CIMQualifier object containing the qualifer defined
+        by the index
+        @exception IndexOutOfBoundsException thrown if index outside
+        the array of qualifiers.
     */
     CIMQualifier getQualifier(Uint32 index);
 
-    /**
-        Removes a qualifier from the parameter.
+    /** Removes the CIMQualifier defined by the input parameter.
         @param index Index of the qualifier to be removed.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of qualifiers available for the CIMParameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+        @exception IndexOutOfBoundsException if the index is outside
+        the range of qualifiers available for the CIMParameter.
+        @exception IndexOutOfBoundsException thrown if index outside
+        the array of qualifiers.
     */
     void removeQualifier (Uint32 index);
 
-    /**
-        Gets the qualifier at the specified index.
-        @param index The index of the qualifier to be retrieved.
-        @return The CIMConstQualifier at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of qualifiers available for the CIMParameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Get qualifier at index defined by input.  Gets the
+        qualifier in the array of qualifiers for this parameter
+        defined by the index provided on input.
+        @param index Specifies the position in the qualifier array
+        of the qualifier to be retrieved
+        @return CIMQualifier object containing the qualifer defined
+        by the index
+        @exception IndexOutOfBoundsException thrown if index outside
+        the array of qualifiers.
     */
     CIMConstQualifier getQualifier(Uint32 index) const;
 
-    /**
-        Gets the number of qualifiers in the parameter.
+    /** Gets the count of qualifiers attached to this CIMParameter.
+        @return count of number of qualifiers that have been added
+        to this CIMparameter.
         <pre>
              // loop to access all qualifiers in a CIMparameter
              CIMParameter parm;
              ....               // build the parameter
-             for (Uint32 i = 0 ; i < parm.getQualifierCount() ; i++)
-                 ....
+            for (Uint32 i = 0 ; i < parm.getQualifierCount() ; i++
+                ....
         </pre>
-        @return An integer count of the CIMQualifiers in the CIMParameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
     */
     Uint32 getQualifierCount() const;
 
-    /**
-        Determines whether the object has been initialized.
-        @return True if the object has not been initialized, false otherwise.
-    */
+    /** Determines if the object has not been initialized. A CIM parameter
+        is intialized only when the name and type fields have been set either
+        on construction or through the set functions.
+        @return  true if the object has not been initialized,
+                 false otherwise.
+     */
     Boolean isUninitialized() const;
 
-    /**
-        Compares the parameter with another parameter.
-        @param x The CIMConstParameter to be compared.
-        @return True if this parameter is identical to the one specified,
-            false otherwise.
-        @exception UninitializedObjectException If either of the objects
-            is not initialized.
-    */
+    ///
     Boolean identical(const CIMConstParameter& x) const;
 
-    /**
-        Makes a deep copy of the parameter.  This creates a new copy
-        of all the parameter attributes including qualifiers.
-        @return A new copy of the CIMParameter object.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Creates a deep copy, i.e. a clone, of the associated object.
+        @return The deep copy of the associated object.
     */
     CIMParameter clone() const;
 
 private:
 
     CIMParameter(CIMParameterRep* rep);
+
+    void _checkRep() const;
 
     CIMParameterRep* _rep;
 
@@ -289,66 +242,27 @@ private:
     friend class BinaryStreamer;
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMConstParameter
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
-    The CIMConstParameter class provides a const interface to a CIMParameter
-    object.  This class is needed because the shared representation model
-    used by CIMParameter does not prevent modification to a const CIMParameter
-    object.  Note that the value of a CIMConstParameter object could still be
-    modified by a CIMParameter object that refers to the same data copy.
-*/
+///
 class PEGASUS_COMMON_LINKAGE CIMConstParameter
 {
 public:
 
-    /**
-        Constructs an uninitialized CIMConstParameter object.  A method
-        invocation on an uninitialized object will result in the throwing
-        of an UninitializedObjectException.  An uninitialized object may
-        be converted into an initialized object only by using the assignment
-        operator with an initialized object.
-    */
+    ///
     CIMConstParameter();
 
-    /**
-        Constructs a CIMConstParameter object from the value of a specified
-        CIMConstParameter object, so that both objects refer to the same data
-        copy.
-        @param x The CIMConstParameter object from which to construct a new
-            CIMConstParameter object.
-    */
+    ///
     CIMConstParameter(const CIMConstParameter& x);
 
-    /**
-        Constructs a CIMConstParameter object from the value of a specified
-        CIMParameter object, so that both objects refer to the same data
-        copy.
-        @param x The CIMParameter object from which to construct a new
-            CIMConstParameter object.
-    */
+    ///
     CIMConstParameter(const CIMParameter& x);
 
-    /**
-        Constructs a CIMConstParameter object with the specified attributes.
-        @param name A CIMName specifying the name of the parameter.
-        @param type A CIMType defining the parameter type.
-        @param isArray A Boolean indicating whether it is an Array parameter.
-        @param arraySize A Uint32 indicating the size of the Array, if the
-            parameter is an Array parameter.  The default value of zero
-            indicates a variable size array.
-        @param referenceClassName A CIMName containing the reference class
-            name for this parameter, if the parameter is of reference type.
-        @exception TypeMismatchException If the parameter is of reference
-            type and referenceClassName is null.
-        @exception TypeMismatchException If isArray is true and arraySize is
-            not zero.
-    */
+    ///
     CIMConstParameter(
         const CIMName& name,
         CIMType type,
@@ -356,126 +270,51 @@ public:
         Uint32 arraySize = 0,
         const CIMName& referenceClassName = CIMName());
 
-    /**
-        Destructs the CIMConstParameter object.
-    */
+    ///
     ~CIMConstParameter();
 
-    /**
-        Assigns the value of the specified CIMConstParameter object to this
-        object, so that both objects refer to the same data copy.
-        @param x The CIMConstParameter object from which to assign this
-            CIMConstParameter object.
-        @return A reference to this CIMConstParameter object.
-    */
+    ///
     CIMConstParameter& operator=(const CIMConstParameter& x);
 
-    /**
-        Assigns the value of the specified CIMParameter object to this
-        object, so that both objects refer to the same data copy.
-        @param x The CIMParameter object from which to assign this
-            CIMConstParameter object.
-        @return A reference to this CIMConstParameter object.
-    */
+    ///
     CIMConstParameter& operator=(const CIMParameter& x);
 
-    /**
-        Gets the parameter name.
-        @return A CIMName containing the name of the parameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     const CIMName& getName() const;
 
-    /**
-        Checks whether the parameter is an Array parameter.
-        @return True if the parameter is an Array parameter, false otherwise.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     Boolean isArray() const;
 
-    /**
-        Gets the array size for the parameter.
-        @return Uint32 array size.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     Uint32 getArraySize() const;
 
-    /**
-        Gets the reference class name for the parameter.
-        @return A CIMName containing the reference class name for the
-            parameter if the parameter is of reference type, a null CIMName
-            otherwise.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     const CIMName& getReferenceClassName() const;
 
-    /**
-        Gets the parameter type.
-        @return A CIMType indicating the type of this parameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     CIMType getType() const;
 
-    /**
-        Finds a qualifier by name.
-        @param name A CIMName specifying the name of the qualifier to be found.
-        @return Index of the qualifier if found or PEG_NOT_FOUND if not found.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     Uint32 findQualifier(const CIMName& name) const;
 
-    /**
-        Gets the qualifier at the specified index.
-        @param index The index of the qualifier to be retrieved.
-        @return The CIMConstQualifier at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of qualifiers available for the CIMParameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     CIMConstQualifier getQualifier(Uint32 index) const;
 
-    /**
-        Gets the number of qualifiers in the parameter.
-        @return An integer count of the qualifiers in the CIMParameter.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     Uint32 getQualifierCount() const;
 
-    /**
-        Determines whether the object has been initialized.
-        @return True if the object has not been initialized, false otherwise.
-    */
+    ///
     Boolean isUninitialized() const;
 
-    /**
-        Compares the parameter with another parameter.
-        @param x The CIMConstParameter to be compared.
-        @return True if this parameter is identical to the one specified,
-            false otherwise.
-        @exception UninitializedObjectException If either of the objects
-            is not initialized.
-    */
+    ///
     Boolean identical(const CIMConstParameter& x) const;
 
-    /**
-        Makes a deep copy of the parameter.  This creates a new copy
-        of all the parameter attributes including qualifiers.
-        @return A CIMParameter object with a separate copy of the
-            CIMConstParameter object.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     CIMParameter clone() const;
 
 private:
+
+    void _checkRep() const;
 
     CIMParameterRep* _rep;
     friend class CIMParameter;

@@ -1,129 +1,63 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author:      Adrian Duta
 //
 // Modified By: Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
 package org.pegasus.jmpi;
 
-public class CIMMethod
-{
-   private long cInst;
+public class CIMMethod {
 
-   private native int    _getType           (long cInst);
-   private native String _getName           (long cInst);
-   private native int    _findParameter     (long cInst, String name);
-   private native long   _getParameter      (long cInst, int    iParameter);
-   private native int    _getParameterCount (long cInst);
-   private native void   _finalize          (long cInst);
+   int cInst;
+
+   private native int  _getType  (int p);
+   private native void _finalize (int cInst);
 
    protected void finalize ()
    {
-      _finalize (cInst);
+      _finalize(cInst);
    }
 
-   protected long cInst ()
+   public CIMMethod (int p)
    {
-      return cInst;
-   }
-
-   public CIMMethod (long ci)
-   {
-      cInst = ci;
+      cInst=p;
    }
 
    public int getType ()
    {
-      if (cInst != 0)
-      {
-         return _getType (cInst);
-      }
-      else
-      {
-         return 0;
-      }
-   }
-
-   public String getName ()
-   {
-      if (cInst != 0)
-      {
-         return _getName (cInst);
-      }
-      else
-      {
-         return null;
-      }
-   }
-
-   public int findParameter (String name)
-   {
-      if (cInst != 0)
-      {
-         return _findParameter (cInst, name);
-      }
-      else
-      {
-         return -1;
-      }
-   }
-
-   public CIMParameter getParameter (int iParameter)
-      throws CIMException
-   {
-      CIMParameter ret = null;
-
-      if (cInst != 0)
-      {
-         long ciParameter = _getParameter (cInst, iParameter);
-
-         if (ciParameter != 0)
-         {
-            ret = new CIMParameter (ciParameter);
-         }
-      }
-
-      return ret;
-   }
-
-   public int getParameterCount ()
-   {
-      if (cInst != 0)
-      {
-         return _getParameterCount (cInst);
-      }
-      else
-      {
-         return 0;
-      }
+      // to be implemented
+      return _getType(cInst);
    }
 
    public String toString ()
@@ -132,6 +66,6 @@ public class CIMMethod
    }
 
    static {
-      System.loadLibrary ("JMPIProviderManager");
+      System.loadLibrary("JMPIProviderManager");
    }
 }

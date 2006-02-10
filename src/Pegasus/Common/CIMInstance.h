@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,273 +52,251 @@ class CIMConstInstance;
 class CIMInstanceRep;
 class Resolver;
 
-/**
-    The CIMInstance class represents the DMTF standard CIM instance definition.
-
-    <p>The CIMInstance class uses a shared representation model, such that
-    multiple CIMInstance objects may refer to the same data copy.  Assignment
-    and copy operators create new references to the same data, not distinct
-    copies.  An update to a CIMInstance object affects all the CIMInstance
-    objects that refer to the same data copy.  The data remains valid until
-    all the CIMInstance objects that refer to it are destructed.  A separate
-    copy of the data may be created using the clone method.
+/** This class represents the instance of a CIM class. It is used manipulate
+    instances and their members.
 */
 class PEGASUS_COMMON_LINKAGE CIMInstance
 {
 public:
 
-    /**
-        Constructs an uninitialized CIMInstance object.  A method
-        invocation on an uninitialized object will result in the throwing
-        of an UninitializedObjectException.  An uninitialized object may
-        be converted into an initialized object only by using the assignment
-        operator with an initialized object.
+    /** Creates a CIMInstance object.
     */
     CIMInstance();
 
-    /**
-        Constructs a CIMInstance object from the value of a specified
-        CIMInstance object, so that both objects refer to the same data copy.
-        @param x The CIMInstance object from which to construct a new
-            CIMInstance object.
+    /** Creates a CIMInstance object from another CIMInstance object.
+	@param x - CIMInstance object from which the new instance is created.
     */
     CIMInstance(const CIMInstance& x);
 
-    /**
-        Constructs a CIMInstance object from the value of a specified
-        CIMObject object, so that both objects refer to the same data copy.
-        @param x The CIMObject object from which to construct the
-            CIMInstance object.
-        @exception DynamicCastFailedException If a CIMInstance can not be
-            created from the given CIMObject.
+    /**	Creates a CIMInstance object from the given CIMObject.
+	@param x - CIMObject from which to create the CIMInstance.
+	@exception DynamicCastFailedException If a CIMInstance can not be
+        created from the given CIMObject.
     */
-    explicit CIMInstance(const CIMObject& x);
+    PEGASUS_EXPLICIT CIMInstance(const CIMObject& x);
 
-    /**
-        Constructs a CIMInstance object with the specified class name.
-        @param className A CIMName specifying the class name of the instance.
+    /**	Creates a CIMInstance object of the class specified by
+	the input parameter.
+	@param className - CIMName to be used with new instance object.
     */
     CIMInstance(const CIMName& className);
 
-    /**
-        Assigns the value of the specified CIMInstance object to this object,
-        so that both objects refer to the same data copy.
-        @param x The CIMInstance object from which to assign this CIMInstance
-            object.
-        @return A reference to this CIMInstance object.
-    */
+    /** Copy Constructor. */
     CIMInstance& operator=(const CIMInstance& x);
 
-    /**
-        Destructs the CIMInstance object.
-    */
+    /** Destructor. */
     ~CIMInstance();
 
-    /**
-        Gets the class name of the instance.
-        @return A CIMName containing the class name.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Gets the class name of the instance.
+	@return CIMName with the class name.
     */
     const CIMName& getClassName() const;
 
-    /**
-        Gets the object path for the instance.
-        @return A CIMObjectPath containing the object path.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     const CIMObjectPath& getPath() const;
 
-    /**
-        Sets the object path for the instance.
-        @param path A CIMObjectPath containing the object path.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Sets the object path for the instance.
+        @param  path - CIMObjectPath containing the object path.
     */
     void setPath (const CIMObjectPath & path);
 
-    /**
-        Adds a qualifier to the instance.
-        @param qualifier The CIMQualifier to be added.
-        @return A reference to this CIMInstance object.
-        @exception AlreadyExistsException If a qualifier with the
-            same name already exists in the CIMInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Adds the CIMQualifier object to the instance.
+	@param qualifier - CIMQualifier object to add to instance.
+	@return the resulting CIMInstance.
+	@exception AlreadyExistsException if the CIMQualifier 
+        already exists in the instance.
     */
     CIMInstance& addQualifier(const CIMQualifier& qualifier);
 
-    /**
-        Finds a qualifier by name.
-        @param name A CIMName specifying the name of the qualifier to be found.
-        @return Index of the qualifier if found or PEG_NOT_FOUND if not found.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Searches the instance for the qualifier object defined by 
+        the input parameter.
+	@param name - CIMName defining the qualifier object to be found.
+	@return Position of the qualifier to be used in subsequent
+	operations or PEG_NOT_FOUND if the qualifier is not found.
     */
     Uint32 findQualifier(const CIMName& name) const;
 
-    /**
-        Gets the qualifier at the specified index.
-        @param index The index of the qualifier to be retrieved.
-        @return The CIMQualifier at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of qualifiers available for the CIMInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Retrieves the qualifier object defined by the input parameter.  
+	The index to qualifier objects is zero-origin and continuous
+	so that incrementing loops can be used to get all qualifier
+	objects in a CIMInstance.
+        @param index - Index for the qualifier object.
+	@return Qualifier object defined by index.
+	@exception IndexOutOfBoundsException exception if the index
+	is out of bounds.
     */
     CIMQualifier getQualifier(Uint32 index);
 
-    /**
-        Gets the qualifier at the specified index.
-        @param index The index of the qualifier to be retrieved.
-        @return The CIMConstQualifier at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of qualifiers available for the CIMInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Retrieves the qualifier object defined by the input parameter.  
+	The index to qualifier objects is zero-origin and continuous
+	so that incrementing loops can be used to get all qualifier
+	objects in a CIMInstance.
+        @param index - Index for the qualifier object.
+	@return Qualifier object defined by index.
+	@exception IndexOutOfBoundsException exception if the index
+	is out of bounds.
     */
     CIMConstQualifier getQualifier(Uint32 index) const;
 
-    /**
-        Removes a qualifier from the instance.
-        @param index The index of the qualifier to remove.
-        @exception IndexOutOfBoundsException If the index is
-            outside the range of qualifiers available for the CIMInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Removes the qualifier defined by the index parameter.
+        @param index Defines the index of the qualifier to be removed.
+        @exception IndexOutOfBoundsException if the index is outside
+        the range of existing qualifier objects for this instance.
     */
     void removeQualifier(Uint32 index);
 
-    /**
-        Gets the number of qualifiers in the instance.
-        @return An integer count of the qualifiers in the CIMInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Gets the count of the CIMQualifier objects defined
+        for this CIMInstance.
+	@return	Count of the number of CIMQalifier objects in the
+	CIMInstance.
     */
     Uint32 getQualifierCount() const;
 
-    /**
-        Adds a property to the instance.
-        @param x The CIMProperty to be added.
-        @return A reference to this CIMInstance object.
-        @exception AlreadyExistsException If a property with the
-            same name already exists in the CIMInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Adds a property object defined by the input parameter to 
+        the CIMInstance.
+	@param x - Property Object to be added. See the CIMProperty
+	class for definition of the property object.
+	@return the resulting CIMInstance.
+	@exception AlreadyExistsException if the property already exists.
     */
     CIMInstance& addProperty(const CIMProperty& x);
 
-    /**
-        Finds a property by name.
-        @param name A CIMName specifying the name of the property to be found.
-        @return Index of the property if found or PEG_NOT_FOUND if not found.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Searches the CIMProperty objects in the CIMInstance for 
+        property object with the name defined by the input parameter.
+	@param name - CIMName with the name of the property object to be found.
+	@return Position in the CIM Instance to the property object if found or
+	PEG_NOT_FOUND if no property object found with the name defined by the
+	input parameter.
     */
     Uint32 findProperty(const CIMName& name) const;
 
-    /**
-        Gets the property at the specified index.
-        @param index The index of the property to be retrieved.
-        @return The CIMProperty at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of properties available for the CIMInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Gets the CIMProperty object in the CIMInstance defined
+	by the input parameter.
+    	The index to qualifier objects is zero-origin and continuous
+	so that incrementing loops can be used to get all qualifier
+	objects in a CIMInstance.
+	@param index - Index to the property object in the CIMInstance.
+	@return CIMProperty object corresponding to the index.
+	@exception IndexOutOfBoundsException if index is outside the range of
+        properties in this instance.
     */
     CIMProperty getProperty(Uint32 index);
 
-    /**
-        Gets the property at the specified index.
-        @param index The index of the property to be retrieved.
-        @return The CIMConstProperty at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of properties available for the CIMInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Gets the CIMproperty object in the CIMInstance defined
+	by the input parameter.
+    	The index to qualifier objects is zero-origin and continuous
+	so that incrementing loops can be used to get all qualifier
+	objects in a CIMInstance.
+	@param index - Index to the property object in the CIMInstance.
+	@return CIMProperty object corresponding to the index.
+	@exception IndexOutOfBoundsException if index is outside the range of
+        properties in this instance.
     */
     CIMConstProperty getProperty(Uint32 index) const;
 
-    /**
-        Removes a property from the instance.
-        @param index The index of the property to remove.
-        @exception IndexOutOfBoundsException If the index is
-            outside the range of properties available for the CIMInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Removes the property defined by the input parameter 
+        from the instance.
+	@param index - Index to the property to be removed from the
+	instance.  Normally this is obtained by getProperty().
+	@exception IndexOutOfBoundsException if index is outside the range of
+        properties in this instance.
     */
     void removeProperty(Uint32 index);
 
-    /**
-        Gets the number of properties in the instance.
-        @return An integer count of the properties in the CIMInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Gets the count of CIMProperty objects defined for 
+        this CIMInstance.
+	@return	Count of the number of CIMProperty objects in the
+	CIMInstance. Zero indicates that no CIMProperty objects
+	are contained in the CIMInstance.
     */
     Uint32 getPropertyCount() const;
 
-    /**
-        Builds the object path for this instance, based on the class name
-        and property values in the instance and the Key qualifiers on the
-        properties in the class definition.  The returned object path does
-        not include hostname and namespace attributes.
-        Note that this method does not update the path attribute of the
-        CIMInstance.
-        @return A CIMObjectPath containing the object path for the instance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /** Builds the CIM object path for this instance. The class
+	argument is used to determine which fields are keys. The instance
+	name has this form:
+
+	<PRE>
+	    ClassName.key1=value1,...,keyN=valueN
+	</PRE>
+
+	The object path is in standard form (the class name and key name
+	are all lowercase; the key-value pairs appear in sorted order by
+	key name).
+
+        Note that the path attribute of the CIMInstanceRep object is not 
+        modified.
     */
     CIMObjectPath buildPath(const CIMConstClass& cimClass) const;
 
-    /**
-        Makes a deep copy of the instance.  This creates a new copy of all
-        the instance attributes including qualifiers and properties.
-        @return A new copy of the CIMInstance object.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    /** Makes a deep copy (clone) of the CIMInstance object. */
     CIMInstance clone() const;
 
-    /**
-        Compares the CIMInstance with a specified CIMConstInstance.
-        @param x The CIMConstInstance to be compared.
-        @return True if this instance is identical to the one specified,
-            false otherwise.
-        @exception UninitializedObjectException If the object is not
-            initialized.
+    /**	Compares the CIMInstance with another CIMInstance
+	defined by the input parameter for equality of all components.
+	@param x - CIMInstance to be compared.
+	@return true if they are identical, false otherwise.
     */
     Boolean identical(const CIMConstInstance& x) const;
 
-    /**
-        Determines whether the object has been initialized.
-        @return True if the object has not been initialized, false otherwise.
-    */
+    /** Determines if the object has not been initialized.
+        @return  true if the object has not been initialized,
+                 false otherwise.
+     */
     Boolean isUninitialized() const;
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /**  <I><B>Experimental Interface</B></I><BR>
+    Filter the properties, qualifiers and class origin attributes from this 
+    instance based on filtering criteria defined in the input parameters.  
+    Note that this function does not add anything that was not in the instance 
+    at the beginning of the call.  This function does NOT clone the instance 
+    but modifies the existing instance.  The function was defined specifically 
+    for providers to allow creating instances for a specific instance 
+    operation response corresponding to the parameters provided with the 
+    operation call (includeQualifiers, etc.) from a more general instance 
+    template.  
+    
+    @param includeQualifiers If false, qualifiers are removed from the 
+    instance and any properties included in the instance; otherwise no 
+    qualifiers are removed.  Because there is still confusion over the exact 
+    operation of this parameter in the CIM specifications and the concept of 
+    instance level qualifiers, the behavior of this function when the 
+    parameter is true MAY change in the future to match any future 
+    clarifications of interoperable behavior in the CIM specifications.  
+    
+    @param includeClassOrigin If false, ClassOrigin attributes are removed from
+    all properties.  Otherwise, ClassOrigin attributes are not filtered.
+    
+    @param propertyList This CIMPropertyList defines the list of properties that should be on the
+    instance after completion of the call. If not NULL, properties absent from this list will
+    be removed from the list. If NULL, no properties will be removed from the instance.
+    If empty, all properties will be removed from the instance.
+    
+    @return The CIMInstance with properties and qualifiers from this
+    instance based on the filtering criteria. 
+    <p><b>Example:</b>
+    <pre>
+        CIMClass myClass .. a defined and complete CIMClass.
+        // create instance with qualifiers, class origin and all properties
+        CIMInstance myInstance =
+                myClass.buildInstance(true, true, CIMPropertyList());
+        // filter qualifiers off of the instance.
+                myInstance.filterInstance(false, true, CIMPropertyList());
+    </pre>
+    */ 
 
-// This function has been deprecated. Property filtering is now done by the 
-// CIMOM infrastructure.
-    void filter(
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList);
+    void filter(Boolean includeQualifiers,
+            Boolean includeClassOrigin,
+            const CIMPropertyList & propertyList);
 #endif
-
-//This is a replacement function for filter(), it has   
-//added for backward compatability and it is not optimized 
-//for performance.
-void instanceFilter(
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList);         
 
 private:
 
     CIMInstanceRep* _rep;
 
     CIMInstance(CIMInstanceRep* rep);
+
+    void _checkRep() const;
 
     friend class CIMConstInstance;
     friend class CIMObject;
@@ -325,9 +305,6 @@ private:
     friend class XmlWriter;
     friend class MofWriter;
     friend class BinaryStreamer;
-    friend class CIMClassRep;
-    friend class SCMOInstance;
-    friend class SCMOClass;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -336,208 +313,79 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
-    The CIMConstInstance class provides a const interface to a CIMInstance
-    object.  This class is needed because the shared representation model
-    used by CIMInstance does not prevent modification to a const CIMInstance
-    object.  Note that the value of a CIMConstInstance object could still be
-    modified by a CIMInstance object that refers to the same data copy.
-*/
+///
 class PEGASUS_COMMON_LINKAGE CIMConstInstance
 {
 public:
 
-    /**
-        Constructs an uninitialized CIMConstInstance object.  A method
-        invocation on an uninitialized object will result in the throwing
-        of an UninitializedObjectException.  An uninitialized object may
-        be converted into an initialized object only by using the assignment
-        operator with an initialized object.
-    */
+    ///
     CIMConstInstance();
 
-    /**
-        Constructs a CIMConstInstance object from the value of a specified
-        CIMConstInstance object, so that both objects refer to the same data
-        copy.
-        @param x The CIMConstInstance object from which to construct a new
-            CIMConstInstance object.
-    */
+    ///
     CIMConstInstance(const CIMConstInstance& x);
 
-    /**
-        Constructs a CIMConstInstance object from the value of a specified
-        CIMInstance object, so that both objects refer to the same data
-        copy.
-        @param x The CIMInstance object from which to construct a new
-            CIMConstInstance object.
-    */
+    ///
     CIMConstInstance(const CIMInstance& x);
 
-    /**
-        Constructs a CIMConstInstance object from the value of a specified
-        CIMObject object, so that both objects refer to the same data copy.
-        @param x The CIMObject object from which to construct the
-            CIMConstInstance object.
-        @exception DynamicCastFailedException If a CIMConstInstance can not be
-            created from the given CIMObject.
-    */
-    explicit CIMConstInstance(const CIMObject& x);
+    ///
+    PEGASUS_EXPLICIT CIMConstInstance(const CIMObject& x);
 
-    /**
-        Constructs a CIMConstInstance object from the value of a specified
-        CIMConstObject object, so that both objects refer to the same data
-        copy.
-        @param x The CIMConstObject object from which to construct the
-            CIMConstInstance object.
-        @exception DynamicCastFailedException If a CIMConstInstance can not be
-            created from the given CIMConstObject.
-    */
-    explicit CIMConstInstance(const CIMConstObject& x);
+    ///
+    PEGASUS_EXPLICIT CIMConstInstance(const CIMConstObject& x);
 
-    /**
-        Constructs a CIMConstInstance object with the specified class name.
-        @param className A CIMName specifying the class name of the instance.
-    */
+    ///
     CIMConstInstance(const CIMName& className);
 
-    /**
-        Assigns the value of the specified CIMConstInstance object to this
-        object, so that both objects refer to the same data copy.
-        @param x The CIMConstInstance object from which to assign this
-            CIMConstInstance object.
-        @return A reference to this CIMConstInstance object.
-    */
+    ///
     CIMConstInstance& operator=(const CIMConstInstance& x);
 
-    /**
-        Assigns the value of the specified CIMInstance object to this
-        object, so that both objects refer to the same data copy.
-        @param x The CIMInstance object from which to assign this
-            CIMConstInstance object.
-        @return A reference to this CIMConstInstance object.
-    */
+    ///
     CIMConstInstance& operator=(const CIMInstance& x);
 
-    /**
-        Destructs the CIMConstInstance object.
-    */
+    ///
     ~CIMConstInstance();
 
-    /**
-        Gets the class name of the instance.
-        @return A CIMName containing the class name.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     const CIMName& getClassName() const;
 
-    /**
-        Gets the object path for the instance.
-        @return A CIMObjectPath containing the object path.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     const CIMObjectPath& getPath() const;
 
-    /**
-        Finds a qualifier by name.
-        @param name A CIMName specifying the name of the qualifier to be found.
-        @return Index of the qualifier if found or PEG_NOT_FOUND if not found.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     Uint32 findQualifier(const CIMName& name) const;
 
-    /**
-        Gets the qualifier at the specified index.
-        @param index The index of the qualifier to be retrieved.
-        @return The CIMConstQualifier at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of qualifiers available for the CIMConstInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     CIMConstQualifier getQualifier(Uint32 index) const;
 
-    /**
-        Gets the number of qualifiers in the instance.
-        @return An integer count of the qualifiers in the CIMInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     Uint32 getQualifierCount() const;
 
-    /**
-        Finds a property by name.
-        @param name A CIMName specifying the name of the property to be found.
-        @return Index of the property if found or PEG_NOT_FOUND if not found.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     Uint32 findProperty(const CIMName& name) const;
 
-    /**
-        Gets the property at the specified index.
-        @param index The index of the property to be retrieved.
-        @return The CIMConstProperty at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside
-            the range of properties available for the CIMConstInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     CIMConstProperty getProperty(Uint32 index) const;
 
-    /**
-        Gets the number of properties in the instance.
-        @return An integer count of the properties in the CIMConstInstance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     Uint32 getPropertyCount() const;
 
-    /**
-        Builds the object path for this instance, based on the class name
-        and property values in the instance and the Key qualifiers on the
-        properties in the class definition.  The returned object path does
-        not include hostname and namespace attributes.
-        Note that this method does not update the path attribute of the
-        CIMInstance.
-        @return A CIMObjectPath containing the object path for the instance.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     CIMObjectPath buildPath(const CIMConstClass& cimClass) const;
 
-    /**
-        Makes a deep copy of the instance.  This creates a new copy of all
-        the instance attributes including qualifiers and properties.
-        @return A CIMInstance object with a separate copy of the
-            CIMConstInstance object.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     CIMInstance clone() const;
 
-    /**
-        Compares the CIMConstInstance with a specified CIMConstInstance.
-        @param x The CIMConstInstance to be compared.
-        @return True if this instance is identical to the one specified,
-            false otherwise.
-        @exception UninitializedObjectException If the object is not
-            initialized.
-    */
+    ///
     Boolean identical(const CIMConstInstance& x) const;
 
-    /**
-        Determines whether the object has been initialized.
-        @return True if the object has not been initialized, false otherwise.
-    */
+    ///
     Boolean isUninitialized() const;
 
 private:
 
     CIMInstanceRep* _rep;
+
+    void _checkRep() const;
 
     friend class CIMInstance;
     friend class CIMObject;
@@ -545,7 +393,6 @@ private:
     friend class XmlWriter;
     friend class MofWriter;
     friend class BinaryStreamer;
-    friend class SCMOInstance;
 };
 
 #define PEGASUS_ARRAY_T CIMInstance

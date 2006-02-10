@@ -1,31 +1,3 @@
-//%LICENSE////////////////////////////////////////////////////////////////
-//
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
 #pragma locale ("en_US")
 
 instance of PG_ProviderModule
@@ -51,7 +23,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "1";
    ClassName = "benchmarkClassP00001S04000I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };
 
@@ -62,7 +34,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "2";
    ClassName = "benchmarkClassP00010S00400I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };
 
@@ -73,7 +45,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "3";
    ClassName = "benchmarkClassP00100S00040I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };
 
@@ -84,7 +56,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "4";
    ClassName = "benchmarkClassP00200S00020I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };
 
@@ -95,7 +67,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "5";
    ClassName = "benchmarkClassP00400S00010I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };
 
@@ -106,7 +78,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "6";
    ClassName = "benchmarkClassP00001S04000I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };
 
@@ -117,7 +89,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "7";
    ClassName = "benchmarkClassP00010S00400I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };
 
@@ -128,7 +100,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "8";
    ClassName = "benchmarkClassP00100S00040I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };
 
@@ -139,7 +111,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "9";
    ClassName = "benchmarkClassP00200S00020I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };
 
@@ -150,7 +122,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "10";
    ClassName = "benchmarkClassP00400S00010I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };
 
@@ -161,7 +133,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "11";
    ClassName = "benchmarkClassP00001S34000I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };
 
@@ -172,6 +144,6 @@ instance of PG_ProviderCapabilities
    CapabilityID = "12";
    ClassName = "benchmarkClassP00001S34000I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2};
+   ProviderType = {2}; 
    SupportedProperties = NULL;
 };

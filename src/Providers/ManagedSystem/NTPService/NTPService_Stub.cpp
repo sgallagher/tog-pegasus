@@ -1,34 +1,36 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
-//
+//         
 //
 // Modified By: Jair Francisco T. dos Santos (t.dos.santos.francisco@non.hp.com)
 //==============================================================================
@@ -83,12 +85,12 @@ Boolean NTPService::getSystemName(String& systemName)
 //
 // REMARKS: returns the Name property
 //
-// PARAMETERS: [OUT] strValue -> string that will receive the NTP_Name property
+// PARAMETERS: [OUT] strValue -> string that will receive the NTP_Name property 
 //                                 value
 //
 // RETURN: TRUE (hard-coded property value)
 //------------------------------------------------------------------------------
-Boolean NTPService::getNTPName(String & strValue)
+Boolean NTPService::getNTPName(String & strValue) 
 {
     return false;
 }
@@ -110,12 +112,12 @@ Boolean NTPService::AccessOk(const OperationContext & context)
 //------------------------------------------------------------------------------
 // FUNCTION: getNTPInfo
 //
-// REMARKS: Retrieves the NTP information from the "/etc/ntp.conf" file,
+// REMARKS: Retrieves the NTP information from the "/etc/ntp.conf" file, 
 //            and sets private variables to hold the data read.
 //
-// RETURN:
+// RETURN: 
 //------------------------------------------------------------------------------
-Boolean NTPService::getNTPInfo()
+Boolean NTPService::getNTPInfo() 
 {
     return true;
 }
@@ -129,7 +131,7 @@ Boolean NTPService::getNTPInfo()
 //
 // RETURN: TRUE if local hostname is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NTPService::getLocalHostName(String & hostName)
+Boolean NTPService::getLocalHostName(String & hostName) 
 {
     return true;
 }
@@ -139,12 +141,12 @@ Boolean NTPService::getLocalHostName(String & hostName)
 //
 // REMARKS: returns the Caption property
 //
-// PARAMETERS: [OUT] strValue -> string that will receive the Caption property
+// PARAMETERS: [OUT] strValue -> string that will receive the Caption property 
 //                                 value
 //
 // RETURN: TRUE
 //------------------------------------------------------------------------------
-Boolean NTPService::getCaption(String & strValue)
+Boolean NTPService::getCaption(String & strValue) 
 {
     return true;
 }
@@ -154,12 +156,12 @@ Boolean NTPService::getCaption(String & strValue)
 //
 // REMARKS: returns the Description property
 //
-// PARAMETERS: [OUT] strValue -> string that will receive the Description
+// PARAMETERS: [OUT] strValue -> string that will receive the Description 
 //                                 property value
 //
 // RETURN: TRUE
 //------------------------------------------------------------------------------
-Boolean NTPService::getDescription(String & strValue)
+Boolean NTPService::getDescription(String & strValue) 
 {
     return true;
 }
@@ -169,12 +171,12 @@ Boolean NTPService::getDescription(String & strValue)
 //
 // REMARKS: returns the ServerAddress property
 //
-// PARAMETERS: [OUT] strValue -> string that will receive the ServerAddress
+// PARAMETERS: [OUT] strValue -> string that will receive the ServerAddress 
 //                                 property value
 //
 // RETURN: TRUE
 //------------------------------------------------------------------------------
-Boolean NTPService::getServerAddress(Array<String> & strValue)
+Boolean NTPService::getServerAddress(Array<String> & strValue) 
 {
     return true;
 }

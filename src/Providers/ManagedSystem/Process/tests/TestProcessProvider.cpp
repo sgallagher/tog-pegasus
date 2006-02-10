@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +62,7 @@
 // Includes
 // ==========================================================================
 
+#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Client/CIMClient.h>
 #include "TestProcessProvider.h"
 #include "../ProcessPlatform.h"
@@ -155,7 +163,7 @@ void errorExit(Exception& e)
   exit(1);
 }
 
-int testClass(const String& className, const int& attempt)
+int testClass(const String& className)
 {
   Array<CIMObjectPath> refs;
 
@@ -191,12 +199,8 @@ int testClass(const String& className, const int& attempt)
 
   // -------------------- First do normal getInstance() --------------------
 
-  // pick the middle instance of the bunch in the first attempt, or 
-  // 1/4th or 1/8th of the list in second and third attempts respectively.
-  
-  Uint32 i = (refs.size()-1) 
-      >> (attempt + 1);  // This is a shift right, not streamio!
-  
+  // pick the middle instance of the bunch
+  Uint32 i = (refs.size()-1) >> 1;  // This is a shift right, not streamio!
   CIMObjectPath ref = refs[i];
   CIMInstance inst;
   cout << "+++++ getInstance " << i << endl;
@@ -215,8 +219,7 @@ int testClass(const String& className, const int& attempt)
     Array<CIMKeyBinding> keys = ref.getKeyBindings();
     cout << "  Keys:" << endl;
     for (i=0; i<keys.size(); i++)
-      cout << "    " << keys[i].getName().getString() << " = " <<
-          keys[i].getValue() << endl;
+      cout << "    " << keys[i].getName() << " = " << keys[i].getValue() << endl;
   }
 
   // check returned property values
@@ -240,7 +243,7 @@ int testClass(const String& className, const int& attempt)
   Uint32 i32a, i32b;
   Uint64 i64a, i64b;
   CIMDateTime da, db;
-
+  
   // For each property, get it from the just-loaded process
   // object and compare with what was returned by getInstance()
 
@@ -255,7 +258,7 @@ int testClass(const String& className, const int& attempt)
       return 1;
     }
   }
-
+  
   if (p.getDescription(sa))
   {
     if (processTestVerbose) cout << "    Description" << endl;
@@ -266,7 +269,7 @@ int testClass(const String& className, const int& attempt)
       return 1;
     }
   }
-
+  
   // The rest of the properties to check depend on the
   // class we are testing
 
@@ -285,7 +288,7 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getStatus(sa))
     {
       if (processTestVerbose) cout << "    Status" << endl;
@@ -296,7 +299,7 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getName(sa))
     {
       if (processTestVerbose) cout << "    Name" << endl;
@@ -307,47 +310,29 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getPriority(i32a))
     {
       if (processTestVerbose) cout << "    Priority" << endl;
       inst.getProperty(inst.findProperty("Priority")).getValue().get(i32b);
-#ifdef PEGASUS_OS_HPUX
-      // Empirical evidence has shown that the priority of a process may
-      // change by as much as 24 between the times it is retrieved by the
-      // provider and by the test client.
-      if (abs((int)i32a - (int)i32b) > 24)
-#elif defined (PEGASUS_OS_LINUX)
-      // On RHEL4 U2 systems, priority may change by 1.
-      if (abs((int)i32a - (int)i32b) > 1)
-#else
       if (i32a != i32b)
-#endif
       {
         cout << "+++++ Error: property mismatch: Priority" << endl;
-        cout << "Process handle = " << handle << endl;
-        if (p.getDescription(sa))
-        {
-            cout << "Process description = " << sa << endl;
-        }
-        cout << "Priority expected = " << i32a << ", received = " << i32b <<
-            endl;
         return 1;
       }
     }
-
+  
     if (p.getExecutionState(i16a))
     {
       if (processTestVerbose) cout << "    ExecutionState" << endl;
-      inst.getProperty(
-          inst.findProperty("ExecutionState")).getValue().get(i16b);
+      inst.getProperty(inst.findProperty("ExecutionState")).getValue().get(i16b);
       if (i16a != i16b)
       {
         cout << "+++++ Error: property mismatch: ExecutionState" << endl;
         return 1;
       }
     }
-
+  
     if (p.getOtherExecutionDescription(sa))
     {
       if (processTestVerbose) cout << "    OtherExecutionDescription" << endl;
@@ -359,12 +344,11 @@ int testClass(const String& className, const int& attempt)
          sb = String::EMPTY;
       if (sa != sb)
       {
-        cout << "+++++ Error: property mismatch: OtherExecutionDescription" <<
-            endl;
+        cout << "+++++ Error: property mismatch: OtherExecutionDescription" << endl;
         return 1;
       }
     }
-
+  
     if (p.getCreationDate(da))
     {
       if (processTestVerbose) cout << "    CreationDate" << endl;
@@ -375,7 +359,7 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getTerminationDate(da))
     {
       if (processTestVerbose) cout << "    TerminationDate" << endl;
@@ -386,19 +370,18 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getKernelModeTime(i64a))
     {
       if (processTestVerbose) cout << "    KernelModeTime" << endl;
-      inst.getProperty(
-          inst.findProperty("KernelModeTime")).getValue().get(i64b);
+      inst.getProperty(inst.findProperty("KernelModeTime")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: KernelModeTime" << endl;
         return 1;
       }
     }
-
+  
     if (p.getUserModeTime(i64a))
     {
       if (processTestVerbose) cout << "    UserModeTime" << endl;
@@ -409,19 +392,18 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getWorkingSetSize(i64a))
     {
       if (processTestVerbose) cout << "    WorkingSetSize" << endl;
-      inst.getProperty(
-          inst.findProperty("WorkingSetSize")).getValue().get(i64b);
+      inst.getProperty(inst.findProperty("WorkingSetSize")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: WorkingSetSize" << endl;
         return 1;
       }
     }
-
+  
     if (p.getParentProcessID(sa))
     {
       if (processTestVerbose) cout << "    ParentProcessID" << endl;
@@ -432,7 +414,7 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getRealUserID(i64a))
     {
       if (processTestVerbose) cout << "    RealUserID" << endl;
@@ -443,31 +425,29 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getProcessGroupID(i64a))
     {
       if (processTestVerbose) cout << "    ProcessGroupID" << endl;
-      inst.getProperty(
-          inst.findProperty("ProcessGroupID")).getValue().get(i64b);
+      inst.getProperty(inst.findProperty("ProcessGroupID")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: ProcessGroupID" << endl;
         return 1;
       }
     }
-
+  
     if (p.getProcessSessionID(i64a))
     {
       if (processTestVerbose) cout << "    ProcessSessionID" << endl;
-      inst.getProperty(
-          inst.findProperty("ProcessSessionID")).getValue().get(i64b);
+      inst.getProperty(inst.findProperty("ProcessSessionID")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: ProcessSessionID" << endl;
         return 1;
       }
     }
-
+  
     if (p.getProcessTTY(sa))
     {
       if (processTestVerbose) cout << "    ProcessTTY" << endl;
@@ -478,7 +458,7 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getModulePath(sa))
     {
       if (processTestVerbose) cout << "    ModulePath" << endl;
@@ -489,7 +469,7 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getParameters(asa))
     {
       if (processTestVerbose) cout << "    Parameters" << endl;
@@ -500,28 +480,25 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getProcessNiceValue(i32a))
     {
       if (processTestVerbose) cout << "    ProcessNiceValue" << endl;
-      inst.getProperty(
-          inst.findProperty("ProcessNiceValue")).getValue().get(i32b);
+      inst.getProperty(inst.findProperty("ProcessNiceValue")).getValue().get(i32b);
       if (i32a != i32b)
       {
         cout << "+++++ Error: property mismatch: ProcessNiceValue" << endl;
         return 1;
       }
     }
-
+  
     if (p.getProcessWaitingForEvent(sa))
     {
       if (processTestVerbose) cout << "    ProcessWaitingForEvent" << endl;
-      inst.getProperty(
-          inst.findProperty("ProcessWaitingForEvent")).getValue().get(sb);
+      inst.getProperty(inst.findProperty("ProcessWaitingForEvent")).getValue().get(sb);
       if (sa != sb)
       {
-        cout << "+++++ Error: property mismatch: ProcessWaitingForEvent" <<
-            endl;
+        cout << "+++++ Error: property mismatch: ProcessWaitingForEvent" << endl;
         return 1;
       }
     }
@@ -530,8 +507,7 @@ int testClass(const String& className, const int& attempt)
 
   // ========== UnixProcessStatisticalInformation instances ===============
 
-  else if (String::equalNoCase(
-               className,"PG_UnixProcessStatisticalInformation"))
+  else if (String::equalNoCase(className,"PG_UnixProcessStatisticalInformation"))
   {
     if (p.getCPUTime(i32a))
     {
@@ -540,17 +516,10 @@ int testClass(const String& className, const int& attempt)
       if (i32a != i32b)
       {
         cout << "+++++ Error: property mismatch: CPUTime" << endl;
-        cout << "Process handle = " << handle << endl;
-        if (p.getDescription(sa))
-        {
-            cout << "Process description = " << sa << endl;
-        }
-        cout << "CPUTime expected = " << i32a << ", received = " << i32b <<
-            endl;
         return 1;
       }
     }
-
+  
     if (p.getRealText(i64a))
     {
       if (processTestVerbose) cout << "    RealText" << endl;
@@ -561,7 +530,7 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getRealData(i64a))
     {
       if (processTestVerbose) cout << "    RealData" << endl;
@@ -572,7 +541,7 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getRealStack(i64a))
     {
       if (processTestVerbose) cout << "    RealStack" << endl;
@@ -583,7 +552,7 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getVirtualText(i64a))
     {
       if (processTestVerbose) cout << "    VirtualText" << endl;
@@ -594,7 +563,7 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getVirtualData(i64a))
     {
       if (processTestVerbose) cout << "    VirtualData" << endl;
@@ -605,7 +574,7 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getVirtualStack(i64a))
     {
       if (processTestVerbose) cout << "    VirtualStack" << endl;
@@ -616,37 +585,33 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     if (p.getVirtualMemoryMappedFileSize(i64a))
     {
       if (processTestVerbose) cout << "    VirtualMemoryMappedFileSize" << endl;
-      inst.getProperty(inst.findProperty(
-          "VirtualMemoryMappedFileSize")).getValue().get(i64b);
+      inst.getProperty(inst.findProperty("VirtualMemoryMappedFileSize")).getValue().get(i64b);
       if (i64a != i64b)
       {
-        cout << "+++++ Error: property mismatch: VirtualMemoryMappedFileSize"
-             << endl;
+        cout << "+++++ Error: property mismatch: VirtualMemoryMappedFileSize" << endl;
         return 1;
       }
     }
-
+  
     if (p.getVirtualSharedMemory(i64a))
     {
       if (processTestVerbose) cout << "    VirtualSharedMemory" << endl;
-      inst.getProperty(
-          inst.findProperty("VirtualSharedMemory")).getValue().get(i64b);
+      inst.getProperty(inst.findProperty("VirtualSharedMemory")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: VirtualSharedMemory" << endl;
         return 1;
       }
     }
-
+  
     if (p.getCpuTimeDeadChildren(i64a))
     {
       if (processTestVerbose) cout << "    CpuTimeDeadChildren" << endl;
-      inst.getProperty(
-          inst.findProperty("CpuTimeDeadChildren")).getValue().get(i64b);
+      inst.getProperty(inst.findProperty("CpuTimeDeadChildren")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: CpuTimeDeadChildren" << endl;
@@ -657,16 +622,14 @@ int testClass(const String& className, const int& attempt)
     if (p.getSystemTimeDeadChildren(i64a))
     {
       if (processTestVerbose) cout << "    SystemTimeDeadChildren" << endl;
-      inst.getProperty(
-          inst.findProperty("SystemTimeDeadChildren")).getValue().get(i64b);
+      inst.getProperty(inst.findProperty("SystemTimeDeadChildren")).getValue().get(i64b);
       if (i64a != i64b)
       {
-        cout << "+++++ Error: property mismatch: SystemTimeDeadChildren" <<
-            endl;
+        cout << "+++++ Error: property mismatch: SystemTimeDeadChildren" << endl;
         return 1;
       }
     }
-
+  
     if (p.getRealSpace(i64a))
     {
       if (processTestVerbose) cout << "    RealSpace" << endl;
@@ -677,10 +640,10 @@ int testClass(const String& className, const int& attempt)
         return 1;
       }
     }
-
+  
     cout << "+++++ property values ok" << endl;
   }
-
+  
   else
   {
     cout << "+++++ Error: class " << className << " not recognized" << endl;
@@ -688,12 +651,12 @@ int testClass(const String& className, const int& attempt)
   }
 
   // ------------------ do getInstance() with bad key ----------------------
-
+  
   Array<CIMKeyBinding> kb = ref.getKeyBindings();
   // mess up first key name
   kb[0].setName("foobar");
   ref.setKeyBindings(kb);
-
+  
   int status = 0;
 
   cout << "+++++ getInstance with bad key" << endl;
@@ -705,7 +668,7 @@ int testClass(const String& className, const int& attempt)
   {
     if (e.getCode() == CIM_ERR_INVALID_PARAMETER) status = 1;
   }
-  catch (Exception&)
+  catch (Exception& e)
   {
     // any other exception is a failure; leave status alone
   }
@@ -730,7 +693,7 @@ int testClass(const String& className, const int& attempt)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (Exception&)
+  catch (Exception& e)
   {
     // any other Exception is a problem; leave status alone
   }
@@ -754,7 +717,7 @@ int testClass(const String& className, const int& attempt)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (Exception&)
+  catch (Exception& e)
   {
     // any other Exception is a problem; leave status alone
   }
@@ -769,7 +732,7 @@ int testClass(const String& className, const int& attempt)
   // =======================================================================
 
   cout << "+++++ enumerateInstances(" << className << ")" << endl;
-
+  
   Array<CIMInstance> ia;
   try
   {
@@ -783,12 +746,10 @@ int testClass(const String& className, const int& attempt)
   // There should be several instances
   if (ia.size() < 5)
   {
-    cout << "+++++ Error: enumerateInstances on " << className <<
-        " returned too few instances" << endl;
+    cout << "+++++ Error: enumerateInstances on " << className << " returned too few instances" << endl;
     return 1;
   }
-
-#ifndef PEGASUS_TEST_VALGRIND
+  
   // For UnixProcess, we should be able to find this test process
   // and the cimserver
   if (String::equalNoCase(className,"CIM_Process") ||
@@ -804,7 +765,7 @@ int testClass(const String& className, const int& attempt)
         status++;
         if (processTestVerbose) cout << "    cimserver" << endl;
       }
-      if (cmd[0] == "TestClientProcessProvider")
+      if (cmd[0] == "ProcessProviderTestClient")
       {
         status++;
         if (processTestVerbose) cout << "    ProcessProviderTestClient" << endl;
@@ -816,7 +777,6 @@ int testClass(const String& className, const int& attempt)
       return 1;
     }
   }
-#endif
 
   // =======================================================================
   // modifyInstance
@@ -838,7 +798,7 @@ int testClass(const String& className, const int& attempt)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (Exception&)
+  catch (Exception& e)
   {
     // any other Exception is a problem; leave status alone
   }
@@ -855,37 +815,10 @@ int testClass(const String& className, const int& attempt)
   return 0;
 }
 
-int testClass(const String& className) 
-{
-
-    // The approach of this test assumes that the process attributes 
-    // gathered by the provider remain the same when the test client gathers
-    // the same data a little later. 
-    // It's possible that the data could be different depending on the process
-    // that get's picked. 
-    // So, repeat this with a different process if the checks for a process
-    // failed. This change isn't going to eliminate this possibility,
-    // but makes it less likely. This is probably better than not 
-    // verifying those properties at all.
-
-    int attempt = 0;
-    while (attempt < 3)
-    {
-        if (testClass(className, attempt) == 0)
-        {
-            return 0;
-        }
-        cout << "+++++ Process attributes changed, trying again" << endl;
-        ++attempt;
-    }
-    return 1;
-}
-
-
 int main()
 {
   cout << "+++++ Testing ProcessProviders" << endl;
-
+  
   // Connect
   try
   {
@@ -897,7 +830,7 @@ int main()
   }
 
   //
-  //  Set a timeout longer than the default to avoid operations such as
+  //  Set a timeout longer than the default to avoid operations such as 
   //  enumerateInstances timing out on slower systems
   //
   c.setTimeout (TIMEOUT);

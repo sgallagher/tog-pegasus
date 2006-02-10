@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Denise Eckstein, Hewlett-Packard Company
+//         Significant portions of the code in this application were copied
+//         from the wbemexec application.
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 //
@@ -41,7 +50,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/General/Stopwatch.h>
+#include <Pegasus/Common/Stopwatch.h>
 
 #include <Pegasus/Common/Tracer.h>
 
@@ -54,7 +63,7 @@ FILE *_resultsFileHandle = NULL;
 String _startTime;
 
 #ifndef PLATFORM_PRODUCT_VERSION
-# define PLATFORM_PRODUCT_VERSION "1.0.0"
+ #define PLATFORM_PRODUCT_VERSION "1.0.0"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -172,10 +181,8 @@ benchmarkTestCommand::benchmarkTestCommand ()
     String usage = String (_USAGE);
     usage.append (COMMAND_NAME);
     usage.append (" [ -");
-#ifdef PEGASUS_HAS_SSL
     usage.append (_OPTION_SSL);
     usage.append (" ] [ -");
-#endif
     usage.append (_OPTION_VERSION);
     usage.append (" ] [ -");
     usage.append (_OPTION_HOSTNAME);
@@ -271,12 +278,8 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
         {
            if( _useSSL )
            {
-#ifdef PEGASUS_HAS_SSL
                _portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
                                           WBEM_DEFAULT_HTTPS_PORT );
-#else
-               PEGASUS_TEST_ASSERT(false);
-#endif
            }
            else
            {
@@ -297,21 +300,18 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
     }
     else if( _useSSL )
     {
-#ifdef PEGASUS_HAS_SSL
         //
         // Get environment variables:
         //
         const char* pegasusHome = getenv("PEGASUS_HOME");
 
-        String certpath = FileSystem::getAbsolutePath(
-            pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+    String certpath = FileSystem::getAbsolutePath(
+           pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-        String randFile = String::EMPTY;
+    String randFile = String::EMPTY;
 
-#ifdef PEGASUS_SSL_RANDOMFILE
-        randFile = FileSystem::getAbsolutePath(
-             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
-#endif
+    randFile = FileSystem::getAbsolutePath(
+            pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
         SSLContext  sslcontext (certpath, verifyCertificate, randFile);
 
         if (!_userNameSet)
@@ -323,10 +323,7 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
         {
             _password = _promptForPassword( outPrintWriter );
         }
-        client.connect(host, portNumber, sslcontext,  _userName, _password );
-#else
-        PEGASUS_TEST_ASSERT(false);
-#endif
+    client.connect(host, portNumber, sslcontext,  _userName, _password );
     }
     else
     {
@@ -352,11 +349,13 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
  */
 void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
 {
-    String httpVersion;
-    String httpMethod;
-    String timeoutStr;
-    String GetOptString;
-    getoopt getOpts;
+    Uint32         i              = 0;
+    Uint32         c              = 0;
+    String         httpVersion    = String ();
+    String         httpMethod     = String ();
+    String         timeoutStr     = String ();
+    String         GetOptString   = String ();
+    getoopt        getOpts;
 
     //
     //  Construct GetOptString
@@ -366,9 +365,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
     GetOptString.append (_OPTION_PORTNUMBER);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_VERSION);
-#ifdef PEGASUS_HAS_SSL
     GetOptString.append (_OPTION_SSL);
-#endif
     GetOptString.append (_OPTION_TIMEOUT);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_USERNAME);
@@ -394,25 +391,30 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        throw CommandFormatException(getOpts.getErrorStrings()[0]);
+        CommandFormatException e (getOpts.getErrorStrings () [0]);
+        throw e;
     }
 
     //
     //  Get options and arguments from the command line
     //
-    for (Uint32 i = getOpts.first(); i < getOpts.last(); i++)
+    for (i =  getOpts.first (); i <  getOpts.last (); i++)
     {
         if (getOpts [i].getType () == Optarg::LONGFLAG)
         {
-            throw UnexpectedArgumentException(getOpts[i].Value());
+            UnexpectedArgumentException e (
+                         getOpts [i].Value ());
+            throw e;
         }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
-            throw UnexpectedArgumentException(getOpts[i].Value());
+            UnexpectedArgumentException e (
+                         getOpts [i].Value ());
+            throw e;
         }
         else /* getOpts [i].getType () == FLAG */
         {
-            Uint32 c = getOpts [i].getopt () [0];
+            c = getOpts [i].getopt () [0];
 
             switch (c)
             {
@@ -423,7 +425,8 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one hostname option was found
                         //
-                        throw DuplicateOptionException(_OPTION_HOSTNAME);
+                        DuplicateOptionException e (_OPTION_HOSTNAME);
+                        throw e;
                     }
                     _hostName = getOpts [i].Value ();
                     _hostNameSet = true;
@@ -437,7 +440,8 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one portNumber option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PORTNUMBER);
+                        DuplicateOptionException e (_OPTION_PORTNUMBER);
+                        throw e;
                     }
 
                     _portNumberStr = getOpts [i].Value ();
@@ -448,25 +452,25 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        throw InvalidOptionArgumentException(
-                            _portNumberStr,
+                        InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
+                        throw e;
                     }
-                    _portNumberSet = true;
+            _portNumberSet = true;
                     break;
                 }
-#ifdef PEGASUS_HAS_SSL
+
                 case _OPTION_SSL:
                 {
                     //
                     // Use port 5989 as the default port for SSL
                     //
-                    _useSSL = true;
+            _useSSL = true;
                     if (!_portNumberSet)
                        _portNumber = 5989;
                     break;
                 }
-#endif
+
                 case _OPTION_VERSION:
                 {
             _displayVersion = true;
@@ -480,7 +484,8 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one timeout option was found
                         //
-                        throw DuplicateOptionException(_OPTION_TIMEOUT);
+                        DuplicateOptionException e (_OPTION_TIMEOUT);
+                        throw e;
                     }
 
                     timeoutStr = getOpts [i].Value ();
@@ -491,9 +496,9 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        throw InvalidOptionArgumentException(
-                            timeoutStr,
+                        InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);
+                        throw e;
                     }
                     break;
                 }
@@ -505,7 +510,8 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one username option was found
                         //
-                        throw DuplicateOptionException(_OPTION_USERNAME);
+                        DuplicateOptionException e (_OPTION_USERNAME);
+                        throw e;
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
@@ -519,7 +525,8 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one password option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PASSWORD);
+                        DuplicateOptionException e (_OPTION_PASSWORD);
+                        throw e;
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
@@ -533,8 +540,8 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one log directory option was found
                         //
-                        throw DuplicateOptionException(
-                            _OPTION_RESULTS_DIRECTORY);
+                        DuplicateOptionException e (_OPTION_RESULTS_DIRECTORY);
+                        throw e;
                     }
                     _resultsDirectory = getOpts [i].Value ();
                     break;
@@ -547,7 +554,8 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one iteration option was found
                         //
-                        throw DuplicateOptionException(_OPTION_ITERATIONS);
+                        DuplicateOptionException e (_OPTION_ITERATIONS);
+                        throw e;
                     }
 
                     _iterationsStr = getOpts [i].Value ();
@@ -558,11 +566,11 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        throw InvalidOptionArgumentException(
-                            _iterationsStr,
+                        InvalidOptionArgumentException e (_iterationsStr,
                             _OPTION_ITERATIONS);
+                        throw e;
                     }
-                    _iterationsSet = true;
+            _iterationsSet = true;
                     break;
                 }
 
@@ -573,7 +581,8 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one TESTID option was found
                         //
-                        throw DuplicateOptionException(_OPTION_TESTID);
+                        DuplicateOptionException e (_OPTION_TESTID);
+                        throw e;
                     }
 
                     _testIDStr = getOpts [i].Value ();
@@ -584,11 +593,11 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        throw InvalidOptionArgumentException(
-                            _testIDStr,
+                        InvalidOptionArgumentException e (_testIDStr,
                             _OPTION_TESTID);
+                        throw e;
                     }
-                    _testIDSet = true;
+            _testIDSet = true;
                     break;
                 }
 
@@ -605,9 +614,9 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         //  Invalid debug option
                         //
-                        throw InvalidOptionArgumentException(
-                            debugOptionStr,
+                        InvalidOptionArgumentException e (debugOptionStr,
                             _OPTION_DEBUG);
+                        throw e;
                     }
 
                     if (debugOptionStr [0] == _DEBUG_OPTION1)
@@ -623,9 +632,9 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         //  Invalid debug option
                         //
-                        throw InvalidOptionArgumentException(
-                            debugOptionStr,
+                        InvalidOptionArgumentException e (debugOptionStr,
                             _OPTION_DEBUG);
+                        throw e;
                     }
                     break;
                 }
@@ -656,9 +665,9 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  Portnumber out of valid range
             //
-            throw InvalidOptionArgumentException(
-                _portNumberStr,
+            InvalidOptionArgumentException e (_portNumberStr,
                 _OPTION_PORTNUMBER);
+            throw e;
         }
     }
 
@@ -672,12 +681,14 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
     }
     else
     {
-        if (_timeout == 0)
+        if (_timeout <= 0)
         {
             //
             //  Timeout out of valid range
             //
-            throw InvalidOptionArgumentException(timeoutStr, _OPTION_TIMEOUT);
+            InvalidOptionArgumentException e (timeoutStr,
+                _OPTION_TIMEOUT);
+            throw e;
         }
     }
 
@@ -1457,7 +1468,7 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
 
         if (_generateReport)
         {
-             benchmarkTestCommand::_getSystemConfiguration(
+             benchmarkTestCommand::_getSystemConfiguration( 
                  outPrintWriter, errPrintWriter);
         }
 
@@ -1495,7 +1506,7 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
                        (const char *)_startTime.getCString());
                }
             }
-
+    
             testID++;
             if (!_testIDSet || (testID == _testID))
             {

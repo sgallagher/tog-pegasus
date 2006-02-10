@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Konrad Rzeszutek <konradr@us.ibm.com>
 //
@@ -45,6 +47,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
 const CIMNamespaceName SOURCENAMESPACE =
 CIMNamespaceName ("root/SampleProvider");
 
@@ -390,14 +393,14 @@ void _deleteSubscriptionInstance
 {
   CIMObjectPath subscriptionPath = _buildSubscriptionPath
     (filterName, handlerClass, handlerName);
-  client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, subscriptionPath);
+  client.deleteInstance (NAMESPACE, subscriptionPath);
 }
 
 void _deleteHandlerInstance
   (CIMClient & client, const CIMName & className, const String & name)
 {
   CIMObjectPath path = _buildFilterOrHandlerPath (className, name);
-  client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+  client.deleteInstance (NAMESPACE, path);
 }
 
 void
@@ -405,7 +408,7 @@ _deleteFilterInstance (CIMClient & client, const String & name)
 {
   CIMObjectPath path = _buildFilterOrHandlerPath
     (PEGASUS_CLASSNAME_INDFILTER, name);
-  client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+  client.deleteInstance (NAMESPACE, path);
 }
 
 
@@ -440,10 +443,10 @@ _addFilter (CIMClient & client, String & filter, String & query,
                       SOURCENAMESPACE.getString ());
   _addStringProperty (filter01, "Query", query);
   _addStringProperty (filter01, "QueryLanguage", qlang);
-  path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, filter01);
+  path = client.createInstance (NAMESPACE, filter01);
 
   _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, filter);
-  retrievedInstance = client.getInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+  retrievedInstance = client.getInstance (NAMESPACE, path);
   _checkStringProperty (retrievedInstance, "SystemCreationClassName",
                         System::getSystemCreationClassName ());
   _checkStringProperty (retrievedInstance, "SystemName",
@@ -480,12 +483,12 @@ _addHandler (CIMClient & client, String & handler, String & dest)
   _addStringProperty (handler01, "Destination", dest);
 
 
-  path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handler01);
+  path = client.createInstance (NAMESPACE, handler01);
 
   _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                              handler);
 
-  retrievedInstance = client.getInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+  retrievedInstance = client.getInstance (NAMESPACE, path);
   _checkStringProperty (retrievedInstance, "SystemCreationClassName",
                         System::getSystemCreationClassName ());
   _checkStringProperty (retrievedInstance, "SystemName",
@@ -528,11 +531,11 @@ _addSubscription (CIMClient & client, String & filter, String & handler)
   _addUint64Property (subscription01, "RepeatNotificationInterval", 60);
   _addUint64Property (subscription01, "RepeatNotificationGap", 30);
   _addUint16Property (subscription01, "RepeatNotificationCount", 5);
-  path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscription01);
+  path = client.createInstance (NAMESPACE, subscription01);
 
   _checkSubscriptionPath (path, filter,
                           PEGASUS_CLASSNAME_INDHANDLER_CIMXML, handler);
-  retrievedInstance = client.getInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+  retrievedInstance = client.getInstance (NAMESPACE, path);
   _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
   _checkStringProperty (retrievedInstance, "OtherOnFatalErrorPolicy",
                         String::EMPTY, true);

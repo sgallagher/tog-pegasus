@@ -1,32 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Karl Schopmeyer (k.schopmeyer@opengrooup.org)
 //
-//////////////////////////////////////////////////////////////////////////
-//
+// Modified By:
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -68,11 +73,11 @@ PEGASUS_NAMESPACE_BEGIN
     same characteristics as the CIM_namespace class defined in CIM 2.6.
 
     This provider implements the following functions:
-    - createInstance            ( adds a new namespace to the repository)
-    - getInstance               ( Gets one instance containing a namespace name)
-    - modifyInstance            ( Not supported )
-    - enumerateInstances        ( Lists all namespaces as Instances)
-    - enumerateInstanceNames    ( Lists all namespace names )
+    - createInstance		( adds a new namespace to the repository)
+    - getInstance		( Gets one instance containing a namespace name)
+    - modifyInstance		( Not supported )
+    - enumerateInstances	( Lists all namespaces as Instances)
+    - enumerateInstanceNames	( Lists all namespace names )
 
 */
 
@@ -81,15 +86,19 @@ class PEGASUS_NAMESPACEPROVIDER_LINKAGE NamespaceProvider
 {
 public:
 
-    NamespaceProvider(CIMRepository* repository);
+    NamespaceProvider(CIMRepository* repository)
+    {
+	PEG_METHOD_ENTER(TRC_USER_MANAGER,"NamespaceProvider::NamespaceProvider");
+        _repository = repository;
+	PEG_METHOD_EXIT();
+    }
 
-    PEGASUS_HIDDEN_LINKAGE
-    virtual ~NamespaceProvider();
+    virtual ~NamespaceProvider()
+    {
+	PEG_METHOD_ENTER(TRC_USER_MANAGER,"NamespaceProvider::~NamespaceProvider");
 
-    // Note:  The initialize() and terminate() methods are not called for
-    // Control Providers.
-    virtual void initialize(CIMOMHandle& cimomHandle) { }
-    virtual void terminate() { }
+	PEG_METHOD_EXIT();
+    }
 
     /**
     Creates a new instance. This function is used to create new namespaces.
@@ -99,12 +108,11 @@ public:
     @param  CIMInstance
     @param  handler
     */
-    PEGASUS_HIDDEN_LINKAGE
     virtual void createInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
         const CIMInstance& myInstance,
-        ObjectPathResponseHandler & handler);
+	ObjectPathResponseHandler & handler);
 
     /**
     Deletes the specified instance. In the namespace provider, this deletes
@@ -114,17 +122,16 @@ public:
     @param  InstanceName
     @param  handler
     */
-    PEGASUS_HIDDEN_LINKAGE
     virtual void deleteInstance(
-        const OperationContext & context,
+	const OperationContext & context,
         const CIMObjectPath& instanceName,
-        ResponseHandler & handler);
+	ResponseHandler & handler);
 
     /**
     Returns the instance based on instanceName.
 
     @param context specifies security and locale information relevant for
-                   the lifetime of this operation.
+		   the lifetime of this operation.
     @param instanceName name of the class for which instance is requested.
     @param includeQualifiers specifies whether qualifiers must be included in
     the returned instance
@@ -133,20 +140,19 @@ public:
     @param propertyList list containing the properties.
     @param handler enables providers to asynchronously return the results.
     */
-    PEGASUS_HIDDEN_LINKAGE
     virtual void getInstance(
-        const OperationContext & context,
+	const OperationContext & context,
         const CIMObjectPath& instanceName,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
-        InstanceResponseHandler & handler);
+	InstanceResponseHandler & handler);
 
     /**
     Modify instance based on modifiedInstance.
 
     @param context specifies security and locale information relevant for
-                   the lifetime of this operation.
+		   the lifetime of this operation.
     @param instanceReference the fully qualified object path of the instance.
     @param modifiedInstance  the modified instance.
     @param includeQualifiers specifies whether qualifiers must be updated as
@@ -155,20 +161,22 @@ public:
                         operation must be limited.
     @param handler enables providers to asynchronously return the results.
     */
-    PEGASUS_HIDDEN_LINKAGE
-    virtual void modifyInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
+    void modifyInstance(
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
         const CIMInstance& modifiedIns,
-        const Boolean includeQualifiers,
+	const Boolean includeQualifiers,
         const CIMPropertyList& propertyList,
-        ResponseHandler & handler);
+	ResponseHandler & handler)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "");
+    }
 
     /**
     Enumerates all the config properties and values.
 
     @param context specifies security and locale information relevant for
-                   the lifetime of this operation.
+		   the lifetime of this operation.
     @param ref the fully qualified object path of the instance.
     @param includeQualifiers specifies whether qualifiers must be included in
     the returned instances
@@ -177,28 +185,43 @@ public:
     @param propertyList list containing the properties.
     @param handler enables providers to asynchronously return the results.
     */
-    PEGASUS_HIDDEN_LINKAGE
     virtual void enumerateInstances(
-        const OperationContext & context,
-        const CIMObjectPath & ref,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
+	const OperationContext & context,
+	const CIMObjectPath & ref,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
-        InstanceResponseHandler & handler);
+	InstanceResponseHandler & handler);
 
     /**
     Enumerates all the config property names.
 
     @param context specifies security and locale information relevant for
-                   the lifetime of this operation.
+		   the lifetime of this operation.
     @param classReference the fully qualified object path of the instance.
     @param handler enables providers to asynchronously return the results.
     */
-    PEGASUS_HIDDEN_LINKAGE
     virtual void enumerateInstanceNames(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
         ObjectPathResponseHandler & handler);
+
+    /**
+    Standard initialization function for the provider.
+    */
+    void initialize(CIMOMHandle& cimomHandle)
+    {
+        // derefence repository pointer and save for later.
+	//ATTN: Cannot get repository here.
+	// _repository = cimomHandle.getRepository();
+    }
+
+    void terminate(void)
+    {
+	// delete self. this is necessary because the entry point for this object allocated it, and
+    	// the module is responsible for its memory management.
+	delete this;
+    }
 
 private:
 

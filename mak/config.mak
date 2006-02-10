@@ -1,4 +1,4 @@
-#//%2005////////////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
 #// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 #// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 #// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 #// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 #// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
 #// Permission is hereby granted, free of charge, to any person obtaining a copy
 #// of this software and associated documentation files (the "Software"), to
@@ -86,6 +88,15 @@ ifndef PEGASUS_PLATFORM
 endif
 
 ################################################################################
+ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
+    ifdef CXX
+      GCC_VERSION = $(shell $(CXX) -dumpversion)
+    else
+      GCC_VERSION = $(shell g++ -dumpversion)
+    endif
+else
+    GCC_VERSION =
+endif
 
 OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
 BIN_DIR = $(HOME_DIR)/bin
@@ -161,7 +172,7 @@ endif
 #
 # To use the PEGASUS_CIM_SCHEMA variable the Schema mof
 # files must be placed in the directory
-# $(PEGAUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
+# $(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
 #
 # The value of PEGASUS_CIM_SCHEMA must conform to the
 # following syntax:
@@ -465,7 +476,7 @@ endif
 # PEP 233
 # Controls support for EmbeddedInstance properties
 # and parameters
-ifndef PEGASUS_DISABLE_EMBEDDED_INSTANCES
+ifdef PEGASUS_ENABLE_EMBEDDED_INSTANCES
     DEFINES += -DPEGASUS_EMBEDDED_INSTANCE_SUPPORT
 endif
 
@@ -492,6 +503,20 @@ endif
 # Controls snmp indication handler to use NET-SNMP to deliver trap
 ifdef PEGASUS_USE_NET_SNMP
   DEFINES += -DPEGASUS_USE_NET_SNMP
+endif
+
+ifdef PEGASUS_HAS_SSL
+ ifndef OPENSSL_BIN
+    OPENSSL_BIN = $(OPENSSL_HOME)/bin
+ endif
+ OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
+ ifndef OPENSSL_SET_SERIAL_SUPPORTED
+    ifneq (, $(findstring 0.9.6, $(shell $(OPENSSL_COMMAND) version)))
+        OPENSSL_SET_SERIAL_SUPPORTED = false
+    else
+        OPENSSL_SET_SERIAL_SUPPORTED = true
+    endif
+endif
 endif
 
 #
@@ -535,6 +560,63 @@ ifdef PEGASUS_ENABLE_SLP
   endif
 endif
 
+
+############################################################################
+#
+# PEGASUS_USE_OPENSLP
+#
+# Environment variable to set openslp as SLP environment to use
+# for SLP Directory and User Agents.
+#
+# Allows enabling use of openslp interfaces for slp instead of the
+# internal pegasus slp agent.  Note that this does not disable the
+# compilation of the internal agent code, etc.  However, it assumes
+# openslp is installed on the platform and changes the interfaces
+# to match this.  At this moment, this is a change specifically for
+# adaptec but we expect to generalize it to provide openslp as a
+# generalized alternative to ldapslp.
+# to use this. To set this function up, 
+#
+# Use this variable in conjunction with PEGASUS_OPENSLP_HOME
+# to enable OpenSlp as the slp implementation.  
+#
+# NOTE that it has no affect if the PEGASUS_ENABLE_SLP etc. flags are not set.
+#
+
+ifdef PEGASUS_USE_OPENSLP
+   ifeq ($(PEGASUS_ENABLE_SLP),true)
+      DEFINES += -DPEGASUS_USE_OPENSLP
+    else
+      $(error PEGASUS_USE_OPENSLP defined but PEGASUS_ENABLE_SLP is not true. Please correct this inconsistency)
+    endif
+endif
+
+
+############################################################################
+#
+# PEGASUS_OPENSLP_HOME
+#
+# Environment variable to set home location for OpenSLP include and library
+# files if they are located somewhere other than /usr/include and /usr/lib. 
+#
+# PEGASUS_USE_OPENSLP must also be defined for this environment variable
+# to have any effect.
+#
+# This is the directory level within which both the include and lib 
+# directories holding the OpenSLP files will be found.  
+#
+# EG: If the are located in /opt/OpenSLP/include and /opt/OpenSLP/lib 
+#     then this environment variable should be set to /opt/OpenSLP.
+#
+
+
+#
+# Enable this flag to allow the handshake to continue regardless of verification result 
+#
+ifdef PEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT
+  DEFINES += -DPEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT
+endif
+
 # set PEGASUS_DEBUG into the DEFINES if it exists.
 # Note that this flag is the general separator between
 # debug compiles and non-debug compiles and controls both
@@ -572,6 +654,18 @@ endif
 # Set compile flag to control compilation of SNIA Extensions
 ifdef PEGASUS_SNIA_EXTENSIONS
     FLAGS += -DPEGASUS_SNIA_EXTENSIONS
+endif
+
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+    ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
+        FLAGS += -DPEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+    else
+        ifneq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), false)
+            $(error PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER \
+                 ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)) invalid, \
+                  must be true or false)
+        endif
+    endif
 endif
 
 # Allow remote CMPI functionality to be enabled

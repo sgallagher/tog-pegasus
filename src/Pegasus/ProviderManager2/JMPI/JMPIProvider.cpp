@@ -1,31 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//              Mike Day, IBM (mdday@us.ibm.com)
+//              Adrian Schuur, schuur@de.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,61 +46,46 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
+#ifdef PEGASUS_DEBUG
+#define DDD(x) if (JMPIjvm::trace) x;
+#else
+#define DDD(x)
+#endif
+
 #include "Convert.h"
 
 // set current operations to 1 to prevent an unload
 // until the provider has had a chance to initialize
-JMPIProvider::JMPIProvider (const String       &name,
-                            JMPIProviderModule *module,
-                            ProviderVector     *mv)
+JMPIProvider::JMPIProvider(const String & name,
+		   JMPIProviderModule *module,
+		   ProviderVector *mv)
+   : _module(module), _cimom_handle(0), _name(name),
+     _no_unload(0), _rm(0)
 {
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "JMPIProvider::JMPIProvider(name, module, mv)");
-
-   _module               = module;
-   _cimom_handle         = 0;
-   _java_cimom_handle    = new CIMOMHandle ();
-   _name                 = name;
-   _no_unload            = false;
-   _current_operations   = 1;
+   _current_operations = 1;
    _currentSubscriptions = 0;
-   miVector              = *mv;
-   jProvider             = mv->jProvider;
-   jProviderClass        = mv->jProviderClass;
-   noUnload              = false;
-   cachedClass           = NULL;
-
-   PEG_METHOD_EXIT();
+   miVector=*mv;
+   jProvider=mv->jProvider;
+   jProviderClass=mv->jProviderClass;
+   noUnload=false;
+   cachedClass=NULL;
 }
 
-JMPIProvider::JMPIProvider (JMPIProvider *pr)
+JMPIProvider::JMPIProvider(JMPIProvider *pr)
+  : _module(pr->_module), _cimom_handle(0), _name(pr->_name),
+    _no_unload(0), _rm(0)
 {
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "JMPIProvider::JMPIProvider(pr)");
-
-   _module               = pr->_module;
-   _cimom_handle         = 0;
-   _java_cimom_handle    = new CIMOMHandle ();
-   _name                 = pr->_name;
-   _no_unload            = pr->noUnload;
-   _current_operations   = 1;
+   _current_operations = 1;
    _currentSubscriptions = 0;
-   miVector              = pr->miVector;
-   noUnload              = pr->noUnload;
-   cachedClass           = NULL;
-
-   PEG_METHOD_EXIT();
+   miVector=pr->miVector;
+   _cimom_handle=new CIMOMHandle();
+   noUnload=pr->noUnload;
+   cachedClass=NULL;
 }
 
 JMPIProvider::~JMPIProvider(void)
 {
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "JMPIProvider::~JMPIProvider");
-
-   delete _java_cimom_handle;
    delete cachedClass;
-
-   PEG_METHOD_EXIT();
 }
 
 JMPIProvider::Status JMPIProvider::getStatus(void) const
@@ -116,26 +109,16 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
     _status       = INITIALIZING;
     _cimom_handle = &cimom;
 
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "JMPIProvider::Initialize");
+    DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::Initialize()"<<PEGASUS_STD(endl));
 
     JvmVector *jv  = 0;
     JNIEnv    *env = JMPIjvm::attachThread(&jv);
 
     if (!env)
     {
-       PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-           "JMPIProvider:"
-               "Could not initialize the JVM (Java Virtual Machine) "
-               "runtime environment.");
-
-        PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION_L(
-            CIM_ERR_FAILED,
-            MessageLoaderParms(
-                "ProviderManager.JMPI.JMPIProvider.INIT_JVM_FAILED",
-                "Could not initialize the JVM (Java Virtual Machine)"
-                    " runtime environment."));
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                       MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                          "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
     }
 
     // public abstract void initialize (org.pegasus.jmpi.CIMOMHandle ch)
@@ -144,8 +127,12 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
                                     "initialize",
                                     "(Lorg/pegasus/jmpi/CIMOMHandle;)V");
 
-    PEG_TRACE(( TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "JVM id = %X",(long)id));
+    DDD(PEGASUS_STD(cout)
+        <<"--- JMPIProvider::Initialize:id = "
+        <<PEGASUS_STD(hex)
+        <<(int)id
+        <<PEGASUS_STD(dec)
+        <<PEGASUS_STD(endl));
 
     JMPIjvm::checkException(env);
 
@@ -155,12 +142,9 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
 
        JMPIjvm::checkException(env);
 
-       jlong jCimomRef = DEBUG_ConvertCToJava(
-                             CIMOMHandle*,
-                             jlong,
-                             _java_cimom_handle);
+       jint    jCimomRef = DEBUG_ConvertCToJava (CIMOMHandle*, jint, &cimom);
        jobject jch       = env->NewObject(jv->CIMOMHandleClassRef,
-                                          JMPIjvm::jv.CIMOMHandleNewJSt,
+                                          JMPIjvm::jv.CIMOMHandleNewISt,
                                           jCimomRef,
                                           jName);
 
@@ -176,9 +160,6 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
 
     _status             = INITIALIZED;
     _current_operations = 0;
-
-    PEG_METHOD_EXIT();
-    return;
 }
 
 Boolean JMPIProvider::tryTerminate(void)
@@ -195,7 +176,40 @@ void JMPIProvider::terminate(void)
 {
 }
 
+Boolean JMPIProvider::operator == (const void *key) const
+{
+   if( (void *)this == key)
+      return true;
+   return false;
+}
+
+Boolean JMPIProvider::operator == (const JMPIProvider &prov) const
+{
+   if(String::equalNoCase(_name, prov._name))
+      return true;
+   return false;
+}
 /*
+void JMPIProvider::get_idle_timer(struct timeval *t)
+{
+   if(t && _cimom_handle)
+      _cimom_handle->get_idle_timer(t);
+}
+
+void JMPIProvider::update_idle_timer(void)
+{
+   if(_cimom_handle)
+      _cimom_handle->update_idle_timer();
+}
+
+Boolean JMPIProvider::pending_operation(void)
+{
+   if(_cimom_handle)
+      return _cimom_handle->pending_operation();
+   return false;
+}
+
+
 Boolean JMPIProvider::unload_ok(void)
 {
    return false;

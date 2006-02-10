@@ -1,34 +1,33 @@
-/*
-//%LICENSE////////////////////////////////////////////////////////////////
+/*//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-*/
-/* NOCHKSRC */
+//============================================================================*/
 /*****************************************************************************
  *  Description: encode/decode attribute urls
  *
@@ -36,20 +35,22 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  Copyright (c) 2001 - 2003  IBM
- *  Copyright (c) 2000 - 2003 Michael Day
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.l,v 1.2.12.1 2006/02/10 16:17:22 a.dunfey Exp $ 	                                                            
+ *               					                    
+ *  Copyright (c) 2001 - 2003  IBM                                          
+ *  Copyright (c) 2000 - 2003 Michael Day                                    
+ *                                                                           
+ *  Permission is hereby granted, free of charge, to any person obtaining a  
  *  copy of this software and associated documentation files (the "Software"),
- *  to deal in the Software without restriction, including without limitation
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
- *  and/or sell copies of the Software, and to permit persons to whom the
- *  Software is furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in
+ *  to deal in the Software without restriction, including without limitation 
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+ *  and/or sell copies of the Software, and to permit persons to whom the     
+ *  Software is furnished to do so, subject to the following conditions:       
+ * 
+ *  The above copyright notice and this permission notice shall be included in 
  *  all copies or substantial portions of the Software.
- *
- *
+ * 
+ * 
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -61,7 +62,9 @@
  *****************************************************************************/
 
 
+
 %{
+
 #undef YYLMAX
 #define YYLMAX 2048
 #define YY_NEVER_INTERACTIVE 1
@@ -73,16 +76,16 @@
 #include <stdarg.h>
 
 #define urlless yyless
-void urlerror(const char *, ...);
+void urlerror(char *, ...);
 
 static int16 heapIndex;
-static char *heap;
-static char *buf;
+static char heap[2052];
+static char buf[2052];
 /* special counter to exit the appletalk state */
 char atalk_state = 0;
 
 static char *_lslp_strdup(const char *s);
-void url_close_lexer(size_t handle);
+void url_close_lexer(uint32 handle);
 size_t url_init_lexer(const char *s);
 
 %}
@@ -101,23 +104,13 @@ unreserved		({alphanum}|{mark})
 reserved		[;/?:@&=+$,]
 uric			({reserved} | {unreserved} | {escaped})
 
- /* IPv6 definitions */
-hex4			({hex}{1,4})
-hexseq			{hex4}|{hex4}(":"{hex4})*
-hexpart			{hexseq}|{hexseq}"::"({hexseq})*|"::"({hexseq})*
-ip6prefix		{hexpart}"/"{1}{digit}{2}
-ip4addr			({digit}{1,3})"."({digit}{1,3})"."({digit}{1,3})"."({digit}{1,3})
-ip6addr			{hexpart}|{hexpart}":"{ip4addr}
-
 %x IP_SITE
 %x AT_SITE
 %x ATTRIBUTE
 %p 	 9000
-%n    300
-%e    700
+%n    300 
+%e    700 
 %option noyywrap prefix="url"
-%option nounput
-%option noinput
 %%
 
  /* the ip user @ host syntax is a special state because some reserved */
@@ -133,7 +126,7 @@ ip6addr			{hexpart}|{hexpart}":"{ip4addr}
 
  /* this next rule needs to kick in even if it matches a zero-length string */
  /* i.e., it needs to be guaranteed even if there is no user @ host production */
-<IP_SITE>[-_.!~*'()a-zA-Z0-9;+&=\%]*|"["{ip6addr}"]" {
+<IP_SITE>[-_.!~*'()a-zA-Z0-9;+&=\%]* {
 			BEGIN INITIAL;
 			if (urlleng > 0)
 			{
@@ -202,7 +195,7 @@ ip6addr			{hexpart}|{hexpart}":"{ip4addr}
 			}
 
  /* an ipv4 address */
-({hex}{1,3})"."({hex}{1,3})"."({hex}{1,3})"."({hex}{1,3})|"["{ip6addr}"]" {
+({hex}{1,3})"."({hex}{1,3})"."({hex}{1,3})"."({hex}{1,3}) {
  			if(NULL != (urllval._s	= _lslp_strdup(urltext)))
 				return(_IPADDR);
 			else
@@ -240,47 +233,32 @@ ip6addr			{hexpart}|{hexpart}":"{ip4addr}
 
 %%
 
-static char *_lslp_strdup(const char *s)
-{
-  char *p = &heap[heapIndex];
 
-  while ((heap[heapIndex++] = *s++))
-      ;
-  return p;
-}
-
-void url_close_lexer(size_t handle)
+void url_close_lexer(uint32 handle)
 {
-  PEGASUS_ASSERT(handle);
-  PEGASUS_ASSERT(buf);
-  PEGASUS_ASSERT(heap);
+  assert(handle != 0);
   url_delete_buffer((YY_BUFFER_STATE)handle);
-  free(buf);
-  free(heap);
-  buf = heap = 0;
 }
+
 
 size_t url_init_lexer(const char *s)
 {
-  size_t len = strlen(s) + 2;
-
-  if (!(heap = (char*)malloc(len)))
-  {
-      return 0;
-  }
-  if (!(buf = (char*)malloc(len)))
-  {
-      free (heap);
-      return 0;
-  }
+  memset(&buf[0], 0x00, 2052);
+  memset(&heap[0], 0x00, 2052);
   heapIndex = 0;
-  strcpy(buf, s);
-  buf[len - 1] = 0;
-
-  return ((size_t) url_scan_buffer(buf, len));
+  strncpy(&buf[0], s, 2048);
+  return((size_t) url_scan_buffer(&buf[0], strlen(s) + 2));
 }
 
-void urlerror(const char *s, ...)
+
+static char *_lslp_strdup(const char *s)
+{
+  char *p = &heap[heapIndex];
+  do { heap[heapIndex++] = *s; } while ((*s != 0x00) && (heapIndex < 2049) && (++s));
+  return(p);
+}
+
+void urlerror(char *s, ...)
 {
  return;
 }	

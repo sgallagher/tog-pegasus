@@ -1,31 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Michael E. Brasher (mbrasher@bmc.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,16 +66,16 @@ PEGASUS_NAMESPACE_BEGIN
         Zebra (index file).
         Zebra.instances (instance-file).
     </pre>
-
-    When an instance is created, it is appended to the end of the instance
+  
+    When an instance is created, it is appended to the end of the instance 
     file. When one is deleted, it is marked as free in the index file. When
     an instance is modified, the old one is marked as deleted and the new
-    modified instance is appended to the end of the data file. Note that
+    modified instance is appended to the end of the data file. Note that 
     deletion and modification may leave unused gaps in the data file. These
     gaps are reclaimed during compaction (performed when the data file has
     N gaps where N is some arbitrarily chosen number for now). Performing
     compaction during each modify and delete would be extremely inefficient.
-    By postponing it until N such operations have been performed, we
+    By postponing it until N such operations have been performed, we 
     improve performance considerably.
 
     Note the three operations which may be performed on an instance and there
@@ -90,55 +98,49 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_REPOSITORY_LINKAGE InstanceDataFile
 {
 public:
-
+    
     /** loads an instance from the data file into memory.
 
         @param path the file path of the instance file
         @param index the byte positon of the instance record
-        @param size the size of the instance record
-        @param data the buffer to hold the instance data
+        @param size the size of the instance record 
+        @param data the buffer to hold the instance data 
         @return true on success.
     */
     static Boolean loadInstance(
-        const String& path,
-        Uint32 index,
-        Uint32 size,
+	const String& path, 
+	Uint32 index,
+	Uint32 size,  
         Buffer& data);
-
-    /** loads all the instances from the data file into memory.
+    
+    /** loads all the instances from the data file into memory. 
 
         @param path the file path of the instance file
-        @param data the buffer to hold the data
+        @param data the buffer to hold the data 
         @return true on success.
     */
     static Boolean loadAllInstances(
-        const String& path,
+	const String& path, 
         Buffer& data);
-
+    
     /** Appends a new instance to the end of the file.
-
-        @param out the buffer containing the CIM/XML encoding of the
+     
+        @param out the buffer containing the CIM/XML encoding of the 
         @param path the file path of the instance file
         @param index the byte positon of the instance record
         @return true on success
     */
     static Boolean appendInstance(
-        const String& path,
+	const String& path, 
         const Buffer& data,
-        Uint32& index);
+	Uint32& index);
 
     /** Begin a transaction to modify this file. The effect of subsequent
-        modifications can be rolled back by calling rollbackTransaction().
+	modifications can be rolled back by calling rollbackTransaction().
     */
     static Boolean beginTransaction(const String& path);
 
-    /** In case of a failure in the beginTransaction(), undo the changes
-        done in the begin transaction and restore the repository
-        to the previous state
-    */
-    static void undoBeginTransaction(const String& path);
-
-    /** Roll back any changes to the file since the last time
+    /** Roll back any changes to the file since the last time 
         beginTransaction() was called.
     */
     static Boolean rollbackTransaction(const String& path);
@@ -148,12 +150,12 @@ public:
     static Boolean commitTransaction(const String& path);
 
     /** Reorganizes the data file to reclaim free space. This is done by
-        copying over all non-free instances to a temporary file and then
-        deleting the original file and renaming the temporary file to the
-        same name as the original.
+	copying over all non-free instances to a temporary file and then
+	deleting the original file and renaming the temporary file to the
+	same name as the original.
     */
     static Boolean compact(
-        const String& path,
+	const String& path,
         const Array<Uint32>& freeFlags,
         const Array<Uint32>& indices,
         const Array<Uint32>& sizes);
@@ -161,9 +163,9 @@ public:
 private:
 
     static Boolean _openFile(
-        PEGASUS_STD(fstream)& fs,
-        const String& path,
-        int mode);
+	PEGASUS_STD(fstream)& fs,
+	const String& path,
+	int mode);
 };
 
 PEGASUS_NAMESPACE_END

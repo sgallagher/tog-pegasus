@@ -1,4 +1,4 @@
-#//%2005////////////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
 #// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 #// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 #// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 #// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 #// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
 #// Permission is hereby granted, free of charge, to any person obtaining a copy
 #// of this software and associated documentation files (the "Software"), to
@@ -58,13 +60,13 @@ DIRS = \
 	TestAggregationOutputProvider \
 	TestAggregationOutputProvider/testclient
 
-ifndef PEGASUS_DISABLE_EMBEDDED_INSTANCES
+ifdef PEGASUS_ENABLE_EMBEDDED_INSTANCES
 DIRS += \
 	EmbeddedInstanceProvider \
 	EmbeddedInstanceProvider/testClient
 endif
 
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 DIRS += \
 	CMPI/TestUtilLib \
 	CMPI/TestMethod \
@@ -81,9 +83,9 @@ DIRS += \
 	CMPI/TestProviderThreaded/tests
 
 ifndef PEGASUS_DISABLE_CQL
-#DIRS += \
-#	CMPI/TestIndications \
-#	CMPI/TestIndications/tests        temporarily disabled, see bug 4280
+DIRS += \
+	CMPI/TestIndications \
+	CMPI/TestIndications/tests
 
 ifdef PEGASUS_ENABLE_EXECQUERY
 DIRS += \

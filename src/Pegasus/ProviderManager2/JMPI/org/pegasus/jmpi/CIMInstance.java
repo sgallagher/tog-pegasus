@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Adrian Duta
 //
 //%/////////////////////////////////////////////////////////////////////////////
 package org.pegasus.jmpi;
@@ -39,125 +45,66 @@ import java.util.*;
     with the CIMClient instance methods like createInstance or setInstance
     to manipulate instances within a namespace.
  */
-public class CIMInstance
-             implements CIMElement
-{
-    private long   cInst;
-    private String name;
+public class CIMInstance implements CIMElement {
+    int cInst;
+    String name;
 
-    private native long   _new              ();
-    private native long   _newCn            (String   n);
-    private native long   _filterProperties (long     cInst,
-                                             String[] pl,
-                                             boolean  iq,
-                                             boolean  ic,
-                                             boolean  lo);
-    private native void   _setName          (long     cInst,
-                                             String   n);
-    private native void   _setProperty      (long     cInst,
-                                             String   n,
-                                             long     vInst);
-    private native void   _setProperties    (long     cInst,
-                                             Vector   v);
-    private native long   _getProperty      (long     cInst,
-                                             String   n);
-    private native Vector _getKeyValuePairs (long     cInst,
-                                             Vector   vec);
-    private native Vector _getProperties    (long     cInst,
-                                             Vector   vec);
-    private native String _getClassName     (long     cInst);
-    private native long   _getQualifier     (long     cInst,
-                                             String   n);
-    private native long   _clone            (long     cInst);
-    private native void   _finalize         (long     ci);
-    private native long   _getObjectPath    (long     cInst);
-    private native void   _setObjectPath    (long     cInst,
-                                             long     ciCop);
-    private native int    _getPropertyCount (long     cInst);
-    private native long   _getPropertyI     (long     cInst,
-                                             int      i);
+    private native int    _new();
+    private native int    _newCn(String n);
+    private native int    _filterProperties(int cInst, String[] pl, boolean iq, boolean ic, boolean lo);
+    private native void   _setName(int cInst, String n);
+    private native void   _setProperty(int cInst, String n, int vInst);
+    private native void   _setProperties(int cInst, Vector v);
+    private native int    _getProperty(int cInst, String n);
+    private native Vector _getKeyValuePairs(int cInst, Vector vec);
+    private native Vector _getProperties(int cInst, Vector vec);
+    private native String _getClassName(int cInst);
+    private native int    _getQualifier(int cInst,String n);
+    private native int    _clone(int cInst);
+    private native String _toString(int cInst);
+    private native void   _finalize(int ci);
 
-    protected void finalize ()
-    {
+    protected void finalize () {
         _finalize (cInst);
     }
 
-    CIMInstance (long ci)
-    {
-        cInst = ci;
+    CIMInstance (int ci) {
+        cInst=ci;
     }
 
-    protected long cInst ()
-    {
+    int cInst () {
         return cInst;
     }
 
-    public CIMInstance (String cn)
-    {
-        name  = cn;
+ ///public CIMInstance () {
+ ///    cInst=_new();
+ ///}
+
+    public CIMInstance (String cn) {
+        name = cn;
         cInst = _newCn (cn);
     }
 
     public CIMInstance filterProperties (String  propertyList[],
                                          boolean includeQualifier,
-                                         boolean includeClassOrigin)
-    {
-       long ciInstance = 0;
-
-       if (cInst != 0)
-       {
-          ciInstance = _filterProperties (cInst,
-                                          propertyList,
-                                          includeQualifier,
-                                          includeClassOrigin,
-                                          false);
-       }
-
-       if (ciInstance != 0)
-       {
-          return new CIMInstance (ciInstance);
-       }
-       else
-       {
-          return null;
-       }
+                                         boolean includeClassOrigin) {
+        return new CIMInstance (_filterProperties (cInst, propertyList, includeQualifier, includeClassOrigin, false));
     }
 
-    public CIMInstance localElements ()
-    {
-       long ciInstance = 0;
-
-       if (cInst != 0)
-       {
-          ciInstance = _filterProperties (cInst,
-                                          null,
-                                          false,
-                                          false,
-                                          true);
-       }
-
-       if (ciInstance != 0)
-       {
-          return new CIMInstance (ciInstance);
-       }
-       else
-       {
-          return null;
-       }
+    public CIMInstance localElements () {
+        return new CIMInstance (_filterProperties (cInst, null, false, false, true));
     }
 
-    public void setName (String n)
-    {
+    public void setName (String n) {
         name = n;
 
-        if (cInst == 0)
+        if (cInst == -1)
             return;
 
         _setName (cInst, n);
     }
 
-    public String getName ()
-    {
+    public String getName () {
         return name;
     }
 
@@ -166,26 +113,17 @@ public class CIMInstance
          @param String property name to set
          @param CIMValue a CIMProperty value
       */
-    public void setProperty(String n, CIMValue v)
-       throws CIMException
-    {
+    public void setProperty(String n, CIMValue v) {
         /* Fix for 4019 */
-        if (cInst == 0)
-        {
-           throw new CIMException (1, "Invalid CIMInstance");
-        }
-        if (v.cInst () == 0)
-        {
-           throw new CIMException (1, "Invalid CIMValue");
-        }
+        if (cInst == -1 || v.cInst == -1)
+            return;
         /* Fix for 4019 */
 
-        _setProperty (cInst, n, v.cInst ());
+        _setProperty (cInst, n, v.cInst);
     }
 
-    public void setProperty(Vector v)
-    {
-        if (cInst == 0)
+    public void setProperty(Vector v) {
+        if (cInst == -1)
             return;
 
         _setProperties (cInst, v);
@@ -196,15 +134,13 @@ public class CIMInstance
          @param String name  - name of the property
          @return CIMProperty property object the specified name
       */
-    public CIMProperty getProperty (String n)
-    {
-        if (cInst == 0)
+    public CIMProperty getProperty (String n) {
+        if (cInst == -1)
             return null;
 
-        long ciProperty = _getProperty (cInst, n);
+        int p = _getProperty (cInst, n);
 
-        if (ciProperty != 0)
-           return new CIMProperty (ciProperty);
+        if (p != -1) return new CIMProperty (p);
 
         return null;
     }
@@ -213,9 +149,8 @@ public class CIMInstance
         Returns the list of key-value pairs for this instance
         @return Vector  list of key-value pairs for this instance
      */
-    public Vector getKeyValuePairs ()
-    {
-        if (cInst == 0)
+    public Vector getKeyValuePairs () {
+        if (cInst == -1)
             return null;
 
         return _getKeyValuePairs (cInst, new Vector ());
@@ -225,9 +160,8 @@ public class CIMInstance
         Gets the properties list
         @return Vector  properties list
      */
-    public Vector getProperties ()
-    {
-        if (cInst == 0)
+    public Vector getProperties () {
+        if (cInst == -1)
             return null;
 
         return _getProperties (cInst, new Vector ());
@@ -237,9 +171,8 @@ public class CIMInstance
         Returns the class name of the instance
         @return String with the class name.
      */
-    public String getClassName()
-    {
-        if (cInst == 0)
+    public String getClassName() {
+        if (cInst == -1)
             return null;
 
         return _getClassName (cInst);
@@ -250,15 +183,14 @@ public class CIMInstance
                         instance.
         @return Vector  list of qualifier objects for the CIMInstance.
      */
-    public CIMQualifier getQualifier(String n)
-    {
-        if (cInst == 0)
+    public CIMQualifier getQualifier(String n) {
+        if (cInst == -1)
             return null;
 
-        long ciQualifier = _getQualifier(cInst,n);
+        int qInst = _getQualifier(cInst,n);
 
-        if (ciQualifier != 0)
-            return new CIMQualifier(ciQualifier);
+        if (qInst != -1)
+            return new CIMQualifier(qInst);
 
         return null;
     }
@@ -267,16 +199,13 @@ public class CIMInstance
         Returns a String representation of the CIMInstance.
         @return String representation of the CIMInstance
      */
-    public String toString ()
-    {
-        if (cInst == 0)
+    public String toString () {
+        if (cInst == -1)
             return null;
 
-        Vector       v   = getProperties ();
+        Vector       v  = getProperties ();
         StringBuffer str = new StringBuffer ("Instance of "+getClassName()+" {\n");
-
-        for (int i = 0, m = v.size (); i < m; i++)
-        {
+        for (int i = 0, m = v.size (); i < m; i++) {
             CIMProperty cp = (CIMProperty)v.elementAt (i);
 
             str.append ("  " + cp.toString () + "\n");
@@ -286,72 +215,14 @@ public class CIMInstance
         return str.toString ();
     }
 
-    public Object clone ()
-    {
-        if (cInst == 0)
+    public Object clone () {
+        if (cInst == -1)
             return null;
 
-        long ciNew = _clone (cInst);
-
-        if (ciNew != 0)
-        {
-            return new CIMInstance (ciNew);
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public CIMObjectPath getObjectPath ()
-    {
-        long ciCop = _getObjectPath (cInst);
-
-        if (ciCop != 0)
-        {
-            return new CIMObjectPath (ciCop);
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public void setObjectPath (CIMObjectPath cop)
-    {
-       if (cInst != 0)
-       {
-          _setObjectPath (cInst, cop.cInst ());
-       }
-    }
-
-    public int getPropertyCount ()
-    {
-       if (cInst != 0)
-       {
-          return _getPropertyCount (cInst);
-       }
-       else
-       {
-          return 0;
-       }
-    }
-
-    public CIMProperty getProperty (int i)
-    {
-        long ciProperty = _getPropertyI (cInst, i);
-
-        if (ciProperty != 0)
-        {
-            return new CIMProperty (ciProperty);
-        }
-        else
-        {
-            return null;
-        }
+        return new CIMInstance (_clone (cInst));
     }
 
     static {
        System.loadLibrary("JMPIProviderManager");
     }
-}
+};

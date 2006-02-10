@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Paulo F. Borges (pfborges@wowmail.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,15 +49,16 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 //------------------------------------------------------------------------------
-// FUNCTION: getUtilGetHostName
+// FUNCTION: getUtilGetHostName 
 //
-// REMARKS:
+// REMARKS: 
 //
-// PARAMETERS:  [OUT] systemName -> string that will contain the host name
+// PARAMETERS:  [OUT] systemName -> string that will contain the host name 
 //
 // RETURN: TRUE if successful, FALSE otherwise
 //------------------------------------------------------------------------------
-static Boolean getUtilGetHostName(String& systemName)
+static 
+Boolean getUtilGetHostName(String& systemName)
 {
      char    hostName[PEGASUS_MAXHOSTNAMELEN + 1];
      struct  hostent *he;
@@ -82,26 +89,24 @@ static Boolean getUtilGetHostName(String& systemName)
     Checks the specified value against the expected value and returns
     TRUE if the same, else FALSE.
 */
-Boolean NISTestClient::goodSystemName(
-    String & param,
-    Boolean verbose)
+Boolean 
+NISTestClient::goodSystemName(String & param, Boolean verbose)
 {
    String host;
    getUtilGetHostName(host);
-
-   if (verbose)
+   
+   if(verbose)
       cout<< "Checking " << param << " against " << host.getCString() << endl;
    return (String::equalNoCase(param, host));
 }
 
 /**
-    Retrieves the SystemCreationClassName property value for the NIS Provider
+    Retrieves the SystemCreationClassName property value for the NIS Provider 
     Test Client.  Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE.
 */
-Boolean NISTestClient::goodSystemCreationClassName(
-    String & param,
-    Boolean verbose)
+Boolean 
+NISTestClient::goodSystemCreationClassName(String & param, Boolean verbose)
 {
    if(verbose)
       cout<< "Checking " << param << " against ";
@@ -126,7 +131,7 @@ NISTestClient::goodCreationClassName(String & param, Boolean verbose)
 
 /**
     Retrieves Name property value for the NIS Provider Test Client.
-    Checks the specified value against the expected value and returns
+    Checks the specified value against the expected value and returns 
     TRUE if the same, else FALSE
 */
 Boolean
@@ -139,27 +144,26 @@ NISTestClient::goodName(String & param, Boolean verbose)
    String strValue;
    String strBuffer;
 
-   if (verbose)
+   if(verbose)
       cout<< "Checking Name property ... " <<endl;
-
+   
    // Open file
-   if ((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
+   if((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
        return ok;
-
+   
     memset(buffer, 0, sizeof(buffer));
-    while (fgets(buffer, sizeof(buffer), fp) != NULL)
-    {
+    while(fgets(buffer, sizeof(buffer), fp) != NULL) {
         buffer[strlen(buffer) - 1] = 0;
         strBuffer.assign(buffer);
-
+        
         ps = strBuffer.find(KEY_DOMAIN);
-        if (ps < 0)
+        if(ps < 0)
             continue;
-
+        
         ps = strBuffer.find("=");
-        if (ps < 0)
+        if(ps < 0)
             continue;
-
+        
         strValue = strBuffer.subString(ps + 1);
         if(String::equalNoCase(strValue, param) ||
            strValue.size() == 0)
@@ -169,7 +173,7 @@ NISTestClient::goodName(String & param, Boolean verbose)
     }
     fclose(fp);
     if(verbose)
-        cout << "Name = " << strValue << endl;
+        cout << "Name = " << strValue << endl;    
    return ok;
 }
 
@@ -202,140 +206,133 @@ NISTestClient::goodDescription(String & param, Boolean verbose)
 }
 
 /**
-    Retrieves the ServerWaitFlag property value for the NIS Provider Test
+    Retrieves the ServerWaitFlag property value for the NIS Provider Test 
     Client.  Checks the specified value against the expected value and returns
     TRUE if the same, else FALSE.
 */
-Boolean NISTestClient::goodServerWaitFlag(
-    Uint16 & param,
-    Boolean verbose)
+Boolean
+NISTestClient::goodServerWaitFlag(Uint16 & param, Boolean verbose)
 {
     FILE *fp;
     int ps;
     Boolean ok = false,
-            found = false;
+               found = false;
     char buffer[1000];
     Uint16 intValue = 0; // Set default to "Unknown"
     String strValue;
     String strBuffer;
 
     // Open file
-    if ((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
+    if((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
         return ok;
+    
+     memset(buffer, 0, sizeof(buffer));
+     while(fgets(buffer, sizeof(buffer), fp) != NULL) {
+         buffer[strlen(buffer) - 1] = 0;
+         strBuffer.assign(buffer);
+         
+         found = true;
+         ps = strBuffer.find(KEY_WAIT_SERVER);
+         if(ps < 0)
+             continue;
+         
+         ps = strBuffer.find("=");
+         if(ps < 0)
+             continue;
+         
+         strValue.assign(strBuffer.subString(ps + 1));
+         if(String::equalNoCase(strValue, "TRUE"))
+             intValue = 2;
+         else if(String::equalNoCase(strValue, "FALSE"))
+             intValue = 3;
+         else 
+             intValue = 1;
+         
+         if(param == intValue)
+             ok = true;
 
-    memset(buffer, 0, sizeof(buffer));
-    while (fgets(buffer, sizeof(buffer), fp) != NULL)
-    {
-        buffer[strlen(buffer) - 1] = 0;
-        strBuffer.assign(buffer);
+         break;
+     }
+     fclose(fp);    
 
-        found = true;
-        ps = strBuffer.find(KEY_WAIT_SERVER);
-        if (ps < 0)
-            continue;
+     if(verbose) 
+	cout<< "Checking " << param << " against " << intValue << endl;
 
-        ps = strBuffer.find("=");
-        if (ps < 0)
-            continue;
-
-        strValue.assign(strBuffer.subString(ps + 1));
-        if (String::equalNoCase(strValue, "TRUE"))
-            intValue = 2;
-        else if (String::equalNoCase(strValue, "FALSE"))
-            intValue = 3;
-        else
-            intValue = 1;
-
-        if (param == intValue)
-            ok = true;
-
-        break;
-    }
-    fclose(fp);
-
-    if (verbose)
-        cout<< "Checking " << param << " against " << intValue << endl;
-
-    return found;
+     return found;
 }
 
 /**
     Retrieves the ServerType property value for the NIS Provider Test Client.
-    Checks the specified value against the expected value and returns
+    Checks the specified value against the expected value and returns 
     TRUE if the same, else FALSE.
 */
-Boolean NISTestClient::goodServerType(
-    Uint16 & param,
-    Boolean verbose)
+Boolean
+NISTestClient::goodServerType(Uint16 & param, Boolean verbose)
 {
     FILE *fp;
-    int ps, ind = 0;
+    int ps, i, ind = 0,
+    	count = 0;
     char buffer[1000];
-    Boolean ok = false;
+    Boolean okMaster = false,
+        	okSlave = false,
+        	okPlus = false,
+    		ok = false;
     String strValue;
     String strBuffer;
-    Uint16 serverType = 2;  // Set default to "None";
+    Uint16 serverType = 2;	// Set default to "None";
 
     // Open file
-    if ((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
+    if((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
         return ok;
-
-    memset(buffer, 0, sizeof(buffer));
-    while(fgets(buffer, sizeof(buffer), fp) != NULL)
-    {
-        buffer[strlen(buffer) - 1] = 0;
-        strBuffer.assign(buffer);
-
-        ind = 0;
-        ps = strBuffer.find(KEY_MASTER_SERVER);
-        if (ps < 0)
-        {
-            ind = 1;
-            ps = strBuffer.find(KEY_SLAVE_SERVER);
-            if (ps < 0)
-            {
-                ind = 2;
-                ps = strBuffer.find(KEY_PLUS_SERVER);
-                if (ps < 0)
-                    continue;
-            }
-        }
-
-        ps = strBuffer.find("=");
-        if (ps < 0)
-            continue;
-
-        ok = true;
-        strValue.assign(strBuffer.subString(ps + 1));
-        switch(ind)
-        {
-            case 0:
-                if (String::equalNoCase(strValue, "1"))
-                    serverType = 3;
-                break;
-            case 1:
-                if (String::equalNoCase(strValue, "1"))
-                    serverType = 4;
-                break;
-            case 2:
-                if (serverType == 2)
-                {
-                    if (String::equalNoCase(strValue, "1"))
-                        serverType = 0;
-                    else
-                        serverType = 1;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-    fclose(fp);
-
-    if (param != serverType)
-        return false;
-
-    if (verbose)
-        cout<< "Checking " << param << " against " << serverType << endl;
-    return ok;
+   
+     memset(buffer, 0, sizeof(buffer));
+     while(fgets(buffer, sizeof(buffer), fp) != NULL) {
+         buffer[strlen(buffer) - 1] = 0;
+         strBuffer.assign(buffer);
+         
+         ind = 0;
+         ps = strBuffer.find(KEY_MASTER_SERVER);
+         if(ps < 0) {
+             ind = 1;
+	         ps = strBuffer.find(KEY_SLAVE_SERVER);
+	         if(ps < 0) {
+                 ind = 2;
+                 ps = strBuffer.find(KEY_PLUS_SERVER);
+                 if(ps < 0)
+             		continue;
+             }
+         }
+         
+         ps = strBuffer.find("=");
+         if(ps < 0)
+             continue;
+         
+         ok = true;
+         strValue.assign(strBuffer.subString(ps + 1));
+         switch(ind) {
+             case 0: if(String::equalNoCase(strValue, "1")) 
+             			serverType = 3;
+            		 break;
+             case 1: if(String::equalNoCase(strValue, "1"))  
+             			serverType = 4;
+              		 break;
+             case 2: if(serverType == 2) {
+                 		if(String::equalNoCase(strValue, "1"))
+                            serverType = 0;
+                        else
+                    		serverType = 1;
+             		 }
+              		 break;
+             default:
+                 break;        
+         }
+     }
+     fclose(fp);
+     
+     if(param != serverType)
+         return false;
+     
+     if(verbose) 
+	cout<< "Checking " << param << " against " << serverType << endl;
+     return ok;
 }

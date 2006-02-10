@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Karl Schopmeyer
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,12 +52,11 @@
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/Resolver.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static Boolean verbose;
+static char * verbose;
 
 void test01()
 {
@@ -90,12 +99,9 @@ void test01()
         .addProperty(CIMProperty(CIMName("ratio"), Real32(1.5)));
 
     // Test
-    PEGASUS_TEST_ASSERT(
-        class1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        class1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        class1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
 
     Resolver::resolveClass(class1, context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
@@ -116,15 +122,11 @@ void test01()
 
     instance1.addProperty(CIMProperty(CIMName("message"), String("Goodbye")));
 
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
 
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("ratio")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("ratio")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(instance1.getPropertyCount() == 1);
 
     if (verbose)
@@ -141,14 +143,10 @@ void test01()
 
     // Now test for properties after resolution.
 
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(instance1.getPropertyCount() == 3);
 
     // Now remove a property
@@ -157,14 +155,10 @@ void test01()
     posProperty = instance1.findProperty(CIMName("count"));
     instance1.removeProperty(posProperty);
 
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
 
     PEGASUS_TEST_ASSERT(instance1.getPropertyCount() == 2);
 
@@ -175,10 +169,8 @@ void test01()
 
     const CIMInstance instance2 = instance1.clone();
     PEGASUS_TEST_ASSERT(instance2.identical(instance1));
-    PEGASUS_TEST_ASSERT(
-        instance1.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        instance2.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance2.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(instance1.getQualifierCount() != 4);
     PEGASUS_TEST_ASSERT(instance1.getQualifierCount() == 1);
     PEGASUS_TEST_ASSERT(instance2.getQualifierCount() == 1);
@@ -198,8 +190,7 @@ void test01()
     PEGASUS_TEST_ASSERT(cinstance1.getQualifierCount() == 1);
     CIMConstQualifier ccq = cinstance1.getQualifier(cinstance1.findQualifier(
         CIMName("classcounter")));
-    PEGASUS_TEST_ASSERT(
-        cinstance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cinstance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
     CIMConstProperty ccp =
         cinstance1.getProperty(cinstance1.findProperty(CIMName("message")));
 
@@ -249,12 +240,9 @@ void test02()
     cimInstance.addProperty(CIMProperty(CIMName("last"), String("Smith")));
     cimInstance.addProperty(CIMProperty(CIMName("age"), Uint8(101)));
 
-    PEGASUS_TEST_ASSERT(
-        cimInstance.findProperty(CIMName("first")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        cimInstance.findProperty(CIMName("last")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(
-        cimInstance.findProperty(CIMName("age")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cimInstance.findProperty(CIMName("first")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cimInstance.findProperty(CIMName("last")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cimInstance.findProperty(CIMName("age")) != PEG_NOT_FOUND);
 
     PEGASUS_TEST_ASSERT(cimInstance.getPropertyCount() == 3);
 
@@ -275,7 +263,8 @@ void test02()
         CIMInstance badInstance(CIMName("MyClass"));
         badInstance.addProperty(CIMProperty(CIMName("first"), String("John")));
         badInstance.addProperty(CIMProperty(CIMName("last"), String("Smith")));
-        instanceName = badInstance.buildPath(CIMConstClass(cimClass));
+        CIMObjectPath instanceName =
+            badInstance.buildPath(CIMConstClass(cimClass));
     }
     catch (const NoSuchProperty&)
     {
@@ -375,152 +364,6 @@ Boolean _propertyIdentical(
     return (p1.identical(p2));
 }
 
-// Compare the class and instance provided to determine if the attributes
-// and properties match.  The includeQualifier parameter, classOrigin
-// parameter and pl define whether these attributes were used in creating
-// or filtering the instance so they are tested to in accord with the
-// parameters.
-// Processing continues with error messages produced for discrepencies.
-// If there are any discrepencies, both objects are displayed and false
-// is returned to the caller.
-bool _compare(const CIMClass& myClass,
-                     const CIMInstance& inst,
-                     bool includeQualifiers,
-                     bool classOrigin,
-                     const CIMPropertyList& pl)
-{
-    bool rtn = true;
-    if (myClass.getClassName() != inst.getClassName())
-    {
-        rtn = false;
-        cout << "Class and Instance Name mismatch" << endl;
-    }
-
-    if (includeQualifiers && 
-        myClass.getQualifierCount() != inst.getQualifierCount())
-    {
-        rtn = false;
-        cout << "Diff in class qualifiers" << endl;
-    }
-    else if (!includeQualifiers && inst.getQualifierCount() != 0)
-    {
-        rtn = false;
-        cout << "Expected class level qualifier count == 0" << endl;
-    }
-
-    // test for properties expected in instance before executing 
-    // detailed property tests
-    if (pl.isNull() ||  pl.size() != 0)
-    {
-        Array<CIMName> plArray = pl.getPropertyNameArray();
-
-        // Loop to test properties from class
-        for (Uint32 i = 0 ; i < myClass.getPropertyCount() ; i++)
-        {
-            CIMConstProperty p1 = myClass.getProperty(i);
-            String pName = p1.getName().getString();
-
-            // if this property is in the property list or the
-            // propertylist is NULL compare this property with
-            // the instance
-            if (pl.isNull() || Contains(plArray, p1.getName()))
-            {
-                CIMConstProperty p2;
-                
-                // if the property exists in the instance
-                Uint32 pos;
-                if ((pos = inst.findProperty( p1.getName())) != PEG_NOT_FOUND)
-                {
-                     p2 = inst.getProperty(pos);
-                }
-                else
-                {
-                    rtn = false;
-                    cout << "Property " << pName
-                         << " Not found in instance" << endl;
-                    continue;
-                }
-
-                // Property exists in instance.  Compare to property in class
-                if (!p1.identical(p2))
-                {
-                    if (p1.getName() != p2.getName())
-                    {
-                        rtn = false;
-                        cout << "Property Name difference " << pName
-                             << " " << p1.getName().getString()
-                             << " 2 " << p2.getName().getString()
-                            << endl;
-                    }
-                    if (p1.getType() != p2.getType())
-                    {
-                        rtn = false;
-                        cout << " Property Types differ " << pName
-                            << endl;
-                    }
-                    if (includeQualifiers &&
-                         (p1.getQualifierCount() != p2.getQualifierCount()))
-                    {
-                        rtn = false;
-                        cout << " Property QualifierCounts differ "
-                             << pName
-                             << endl;
-                    }
-                    else if (!includeQualifiers && 
-                             inst.getQualifierCount() != 0)
-                    {
-                        rtn = false;
-                        cout << "Expected QualifierCount == 0" 
-                             << pName << endl;
-                    }
-                    
-                    // test for classOrigin true and values match
-                    // or expect classorigin null
-                    if ( classOrigin &&
-                         (p1.getClassOrigin() != p2.getClassOrigin()))
-                    {
-                        rtn = false;
-                        cout << "ClassOrigins Differ" << endl;
-                    }
-                    else if (!classOrigin && !p2.getClassOrigin().isNull())
-                    {
-                        rtn = false;
-                        cout << "Expect ClassOrigin == Null " << endl;
-                    }
-
-                    if (p1.getPropagated() != p2.getPropagated())
-                    {
-                        rtn = false;
-                        cout << "Propagated Attributes Differ" << endl;
-                    }
-
-                    if (p1.getArraySize() != p2.getArraySize())
-                    {
-                        rtn = false;
-                        cout << "ArraySize Attributes Differ" << endl;
-                    }
-
-                    if (p1.getValue() != p2.getValue())
-                    {
-                        rtn = false;
-                        cout << "Propagated Attributes Differ" << endl;
-                    }
-                }
-            }
-        }
-    }
-
-    // if error, display the class and instance
-    if (!rtn)
-    {
-        cout << "Error in class property to inst property comparison. "
-                "Class" << endl;
-        XmlWriter::printClassElement(myClass);
-        cout << "Instance" << endl;
-        XmlWriter::printInstanceElement(inst);
-    }
-    return rtn;
-}
 //
 // Test of the Instance creation and instance filtering
 //
@@ -558,10 +401,6 @@ void test04()
         CIMScope::PROPERTY));
 
     CIMClass class1(CIMName("MyClass"));
-    Array<Uint32> testArray;
-    testArray.append(Uint32(1));
-    testArray.append(Uint32(2));
-    CIMValue testArrayValue(testArray);
 
     class1
         .addProperty(CIMProperty(CIMName("count"), Uint32(55))
@@ -571,24 +410,16 @@ void test04()
         .addProperty(CIMProperty(CIMName("message"), String("Hello"))
             .addQualifier(CIMQualifier(CIMName("description"),
                 String("My Message"))))
-        .addProperty(CIMProperty(CIMName("ratio"), Real32(1.5)))
-        .addProperty(CIMProperty(CIMName("array"), testArrayValue));
+        .addProperty(CIMProperty(CIMName("ratio"), Real32(1.5)));
+
 
     Resolver::resolveClass(class1, context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
 
 
-    // Create a subclass to do classOrigin and propagation testing
-    CIMClass mySubClass(CIMName("subclass"));
-    mySubClass.setSuperClassName(CIMName("MyClass"));
-
-    Resolver::resolveClass(mySubClass, context, NAMESPACE);
-    context->addClass(NAMESPACE, mySubClass);
-
     if (verbose)
     {
         XmlWriter::printClassElement(class1);
-        XmlWriter::printClassElement(mySubClass);
     }
 
     //
@@ -604,47 +435,11 @@ void test04()
             XmlWriter::printInstanceElement(newInstance);
         }
 
-        PEGASUS_TEST_ASSERT(
-            newInstance.getPropertyCount() == class1.getPropertyCount());
-        PEGASUS_TEST_ASSERT(
-            newInstance.getQualifierCount() == class1.getQualifierCount());
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("message") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("array") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == class1.getPropertyCount());
+        PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == class1.getQualifierCount());
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") != PEG_NOT_FOUND);
 
-        PEGASUS_TEST_ASSERT(_compare(class1, newInstance, true, true,
-                                     CIMPropertyList()));
-    }
-
-    // Test with instance of subclass
-    // Create instance with qualifiers, classorigin, and Null propertyList
-    // Primary function is testing propagated  and classOrigin attributes.
-    {
-        CIMInstance newInstance;
-
-        newInstance = mySubClass.buildInstance(true, true, CIMPropertyList());
-
-        if (verbose)
-        {
-            XmlWriter::printInstanceElement(newInstance);
-        }
-
-        PEGASUS_TEST_ASSERT(
-            newInstance.getPropertyCount() == class1.getPropertyCount());
-        PEGASUS_TEST_ASSERT(
-            newInstance.getQualifierCount() == class1.getQualifierCount());
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("message") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("array") != PEG_NOT_FOUND);
-
-        PEGASUS_TEST_ASSERT(_compare(mySubClass, newInstance, true, true,
-                                     CIMPropertyList()));
     }
 
     //
@@ -655,17 +450,9 @@ void test04()
             class1.buildInstance(false, true, CIMPropertyList());
 
         PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
-        PEGASUS_TEST_ASSERT(
-            newInstance.getPropertyCount() == class1.getPropertyCount());
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("message") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("array") != PEG_NOT_FOUND);
-
-        PEGASUS_TEST_ASSERT(_compare(class1, newInstance, false, true,
-                                            CIMPropertyList()));
+        PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == class1.getPropertyCount());
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") != PEG_NOT_FOUND);
     }
 
     //
@@ -679,9 +466,6 @@ void test04()
 
         PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
         PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == 0);
-
-        PEGASUS_TEST_ASSERT(_compare(class1, newInstance, false, true,
-                                            pl1));
     }
 
     //
@@ -701,16 +485,9 @@ void test04()
         }
 
         PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == 1);
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("message") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("array") == PEG_NOT_FOUND);
-
-        PEGASUS_TEST_ASSERT(_compare(class1, newInstance, false, true,
-                                            pl1));
     }
 
     //
@@ -729,15 +506,258 @@ void test04()
         PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == 1);
         PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(newInstance.findProperty("blob") == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(
-            newInstance.findProperty("message") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
-
-        PEGASUS_TEST_ASSERT(_compare(class1, newInstance, false, true,
-                                            pl1));
     }
 
+    ///////////////////////////////////////////////////////////////////////
+    //
+    // Instance Filtering function tests
+    //
+    ///////////////////////////////////////////////////////////////////////
 
+    // build instance as starting point for tests.
+    CIMInstance tstInstance =
+        class1.buildInstance(true, true, CIMPropertyList());
+
+    //
+    // Test complete copy, no change
+    //
+    {
+        if (verbose)
+        {
+            cout << "Test1" << endl;
+        }
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, CIMPropertyList());
+
+        PEGASUS_TEST_ASSERT(tstInstance.identical(filterInstance));
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 3);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
+            tstInstance.getQualifierCount());
+    }
+
+    //
+    // Filter to one property, ratio
+    //
+    {
+        if (verbose)
+        {
+            cout << "Test2" << endl;
+        }
+
+        Array<CIMName> pl1Array;
+        pl1Array.append("ratio");
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, pl1);
+
+        if (verbose)
+        {
+            XmlWriter::printInstanceElement(filterInstance);
+        }
+
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 1);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(_propertyIdentical("ratio", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
+                tstInstance.getQualifierCount());
+    }
+
+    //
+    // Filter to one property, message
+    //
+    {
+        if (verbose)
+        {
+            cout << "Test3" << endl;
+        }
+
+        Array<CIMName> pl1Array;
+        pl1Array.append("message");
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, pl1);
+
+        if (verbose)
+        {
+            XmlWriter::printInstanceElement(filterInstance);
+        }
+
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 1);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(_propertyIdentical("message", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
+                tstInstance.getQualifierCount());
+    }
+
+    //
+    // Filter to one property, count
+    //
+    {
+        if (verbose)
+        {
+            cout << "Test4" << endl;
+        }
+
+        Array<CIMName> pl1Array;
+        pl1Array.append("count");
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, pl1);
+
+        if (verbose)
+        {
+            XmlWriter::printInstanceElement(filterInstance);
+        }
+
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 1);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("count") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
+                tstInstance.getQualifierCount());
+    }
+
+    //
+    // Filter to no properties
+    //
+    {
+        if (verbose)
+        {
+            cout << "Test5a" << endl;
+        }
+
+        Array<CIMName> pl1Array;
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, pl1);
+
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 0);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
+            tstInstance.getQualifierCount());
+    }
+
+    //
+    // Filter to two properties
+    //
+    {
+        if (verbose)
+        {
+            cout << "Test5b" << endl;
+        }
+
+        Array<CIMName> pl1Array;
+        pl1Array.append("count");
+        pl1Array.append("message");
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, pl1);
+
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 2);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(_propertyIdentical("message", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("count") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(_propertyIdentical("count", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
+                tstInstance.getQualifierCount());
+    }
+
+    //
+    // Filter to no qualifiers and all properties.
+    //
+    {
+        if (verbose)
+        {
+            cout << "Test6" << endl;
+        }
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(false, true, CIMPropertyList());
+
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 3);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() == 0);
+        for (Uint32 i = 0; i < filterInstance.getPropertyCount() ; i++)
+        {
+            CIMConstProperty p = filterInstance.getProperty(i);
+            PEGASUS_TEST_ASSERT(p.getQualifierCount() == 0);
+        }
+    }
+
+    //
+    // Filter to no qualifiers and no properties.
+    //
+    {
+        if (verbose)
+        {
+            cout << "Test6a" << endl;
+        }
+
+        Array<CIMName> pl1Array;
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(false, true, pl1);
+
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 0);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() == 0);
+    }
+
+    //
+    // Test Class Origin Filter
+    //
+    {
+        if (verbose)
+        {
+            cout << "Test7 Class Origin" << endl;
+        }
+
+        // Create a subclass to do classOrigin testing
+        CIMClass mySubClass(CIMName("subclass"));
+        mySubClass.setSuperClassName(CIMName("MyClass"));
+
+        Resolver::resolveClass(mySubClass, context, NAMESPACE);
+        context->addClass(NAMESPACE, mySubClass);
+
+        // build instance
+        CIMInstance filterInstance =
+            mySubClass.buildInstance(true, true, CIMPropertyList());
+        filterInstance.filter(false, true, CIMPropertyList());
+
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 3);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() == 0);
+        for (Uint32 i = 0 ; i < filterInstance.getPropertyCount() ; i++)
+        {
+            CIMProperty p = filterInstance.getProperty(i);
+            PEGASUS_TEST_ASSERT(!(p.getClassOrigin() == CIMName()));
+
+        }
+        filterInstance.filter(false, false, CIMPropertyList());
+
+        for (Uint32 i = 0 ; i < filterInstance.getPropertyCount() ; i++)
+        {
+            CIMProperty p = filterInstance.getProperty(i);
+            PEGASUS_TEST_ASSERT(p.getClassOrigin() == CIMName());
+        }
+
+        CIMInstance filterInstance2 =
+            mySubClass.buildInstance(true, false, CIMPropertyList());
+
+        for (Uint32 i = 0 ; i < filterInstance2.getPropertyCount() ; i++)
+        {
+            CIMProperty p = filterInstance2.getProperty(i);
+            PEGASUS_TEST_ASSERT(p.getClassOrigin() == CIMName());
+        }
+    }
     delete context;
 }
 
@@ -863,10 +883,9 @@ void test05()
     PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
         test01();

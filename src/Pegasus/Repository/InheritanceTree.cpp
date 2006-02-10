@@ -1,37 +1,48 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) for bug#3352
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/CIMNameCast.h>
+#include <Pegasus/Common/Dir.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "InheritanceTree.h"
 
 #if 0
@@ -47,6 +58,20 @@ PEGASUS_USING_STD;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// NoCaseEqualFunc
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct NoCaseEqualFunc
+{
+    static Boolean equal(const String& x, const String& y)
+    {
+        return String::equalNoCase(x, y);
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // InheritanceTreeRep
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +81,7 @@ struct InheritanceTreeNode;
 struct InheritanceTreeRep
 {
     typedef HashTable<
-        String, InheritanceTreeNode*, EqualNoCaseFunc, HashLowerCaseFunc> Table;
+	String, InheritanceTreeNode*, NoCaseEqualFunc, HashLowerCaseFunc> Table;
     Table table;
 
     // Tradeoff: chosing a larger value decreases hash lookup time but
@@ -87,17 +112,16 @@ struct InheritanceTreeExt
 
 struct InheritanceTreeNode
 {
-    InheritanceTreeNode(const CIMName& className_);
-    ~InheritanceTreeNode();
+    InheritanceTreeNode(const CIMName& className);
 
     void addSubClass(InheritanceTreeNode* subClass);
 
     Boolean removeSubClass(InheritanceTreeNode* subClass);
 
     void getSubClassNames(
-        Array<CIMName>& subClassNames,
-        Boolean deepInheritance,
-        NameSpace* tag = 0);
+	Array<CIMName>& subClassNames, 
+	Boolean deepInheritance,
+        NameSpace *tag=0);
 
     void getSuperClassNames(Array<CIMName>& superClassNames);
 
@@ -116,22 +140,10 @@ struct InheritanceTreeNode
     Boolean extension;
 };
 
-InheritanceTreeNode::InheritanceTreeNode(const CIMName& className_)
-    : className(className_), superClass(0),
+InheritanceTreeNode::InheritanceTreeNode(const CIMName& className) 
+    : className(className), superClass(0), 
     sibling(0), subClasses(0), provisional(true), extension(false)
 {
-}
-
-InheritanceTreeNode::~InheritanceTreeNode()
-{
-    if (extension)
-    {
-        for(Uint32 i = 0, size = extNodes->size(); i < size; i++)
-        {
-            delete (*extNodes)[i];
-        }
-        delete extNodes;
-    }
 }
 
 void InheritanceTreeNode::addSubClass(InheritanceTreeNode* subClass)
@@ -147,16 +159,16 @@ Boolean InheritanceTreeNode::removeSubClass(InheritanceTreeNode* subClass)
 
     for (InheritanceTreeNode* p = subClasses; p; p = p->sibling)
     {
-        if (p == subClass)
-        {
-            if (prev)
-                prev->sibling = subClass->sibling;
-            else
-                subClasses = subClass->sibling;
+	if (p == subClass)
+	{
+	    if (prev)
+		prev->sibling = subClass->sibling;
+	    else
+		subClasses = subClass->sibling;
 
-            return true;
-        }
-        prev = p;
+	    return true;
+	}
+	prev = p;
     }
 
     return false;
@@ -165,39 +177,33 @@ Boolean InheritanceTreeNode::removeSubClass(InheritanceTreeNode* subClass)
 void InheritanceTreeNode::getSubClassNames(
     Array<CIMName>& subClassNames,
     Boolean deepInheritance,
-    NameSpace* ns)
+    NameSpace *ns)
 {
     // For each subClass:
 
-    for (InheritanceTreeNode* p = subClasses; p; p = p->sibling)
-    {
-        if (p->extension)
-        {
-            for (int j = 0, m = p->extNodes->size(); j < m; j++)
-            {
-                InheritanceTreeExt* itx = (*(p->extNodes))[j];
-                subClassNames.append(p->className);
-                if (!ns)
-                {
-                    InheritanceTreeNode* itn=itx->node;
-                    itn->getSubClassNames(subClassNames, deepInheritance, ns);
-                }
-                else if (itx->tag == ns)
-                {
-                    InheritanceTreeNode* itn=itx->node;
-                    itn->getSubClassNames(subClassNames, deepInheritance, ns);
-                    break;
-                }
-            }
-        }
-        else
-        {
-            subClassNames.append(p->className);
-            if (deepInheritance)
-            {
-                p->getSubClassNames(subClassNames, true, ns);
-            }
-        }
+    for (InheritanceTreeNode* p = subClasses; p; p = p->sibling) {
+       if (p->extension) {
+          for (int j=0,m=p->extNodes->size(); j<m; j++) {
+             InheritanceTreeExt *itx=(*(p->extNodes))[j];
+             subClassNames.append(p->className);
+             if (!ns) {
+                InheritanceTreeNode* itn=itx->node;
+                itn->getSubClassNames(subClassNames, deepInheritance, ns);
+             }
+             else if (itx->tag==ns) {
+                InheritanceTreeNode* itn=itx->node;
+                itn->getSubClassNames(subClassNames, deepInheritance, ns);
+                break;
+             }
+          }
+       }
+
+       else {
+          subClassNames.append(p->className);
+          if (deepInheritance) {
+             p->getSubClassNames(subClassNames, true, ns);
+          }
+	}
     }
 }
 
@@ -205,12 +211,12 @@ void InheritanceTreeNode::getSubClassNames(
 Boolean InheritanceTreeNode::isSubClass(const CIMName& className_) const
 {
     if (className.equal (className_))
-        return true;
+	return true;
 
     for (InheritanceTreeNode* p = subClasses; p; p = p->sibling)
     {
-        if (p->className.equal (className_))
-            return true;
+	if (p->className.equal (className_))
+	    return true;
     }
 
     return false;
@@ -223,20 +229,20 @@ void InheritanceTreeNode::getSuperClassNames(Array<CIMName>& superClassNames)
 
     for (InheritanceTreeNode* p = superClass; p; p = p->superClass)
     {
-        superClassNames.append(p->className);
-        // p->getSuperClassNames(superClassNames);
+	superClassNames.append(p->className);
+//	p->getSuperClassNames(superClassNames);
     }
 }
 
 void InheritanceTreeNode::print(PEGASUS_STD(ostream)& os) const
 {
-    os << className.getString() << " : " ;
-    os << (superClass ? superClass->className : CIMName()).getString();
+    os << className << " : " ;
+    os << (superClass ? superClass->className : CIMName ());
 
     os << " { ";
 
     for (InheritanceTreeNode* p = subClasses; p; p = p->sibling)
-        os << p->className.getString() << ' ';
+	os << p->className << ' ';
 
     os << "}" << endl;
 }
@@ -263,48 +269,55 @@ void InheritanceTree::insert(
     const String& className,
     const String& superClassName,
     InheritanceTree& parentTree,
-    NameSpace* tag)
+    NameSpace *tag)
 {
     InheritanceTreeNode* superClassNode = 0;
 
-    if (superClassName.size() &&
-        !parentTree._rep->table.lookup(superClassName, superClassNode))
-    {
-        superClassNode =
-            new InheritanceTreeNode(CIMNameCast(superClassName));
-        parentTree._rep->table.insert(superClassName, superClassNode);
+    if ((superClassName.size()) &&
+    	!parentTree._rep->table.lookup(superClassName, superClassNode)) {
+        	superClassNode = 
+		    new InheritanceTreeNode(CIMNameUnchecked(superClassName));
+        	parentTree._rep->table.insert(superClassName, superClassNode);
     }
 
     InheritanceTreeNode* extNode = 0;
 
-    if (!parentTree._rep->table.lookup(className, extNode))
-    {
-        extNode = new InheritanceTreeNode(CIMNameCast(className));
-        parentTree._rep->table.insert(className, extNode);
-        extNode->extension=true;
-        extNode->extNodes=new Array<InheritanceTreeExt*>;
+    if (!parentTree._rep->table.lookup(className, extNode)) {
+    	extNode = new InheritanceTreeNode(CIMNameUnchecked(className));
+    	parentTree._rep->table.insert(className, extNode);
+    	extNode->extension=true;
+    	extNode->extNodes=new Array<InheritanceTreeExt*>;
     }
 
     extNode->provisional = false;
 
     if (superClassNode)
-        superClassNode->addSubClass(extNode);
+    	superClassNode->addSubClass(extNode);
 
     InheritanceTreeNode* classNode = 0;
 
-    if (!_rep->table.lookup(className, classNode))
-    {
-        classNode = new InheritanceTreeNode(className);
-        _rep->table.insert(className, classNode);
+    if (!_rep->table.lookup(className, classNode)) {
+    	classNode = new InheritanceTreeNode(className);
+    	_rep->table.insert(className, classNode);
     }
 
     extNode->extNodes->append(new InheritanceTreeExt(tag,classNode));
 
     classNode->superClass = superClassNode;
+    /* temp comment out this code from bug 3352.  See bug 3498 for reason
+    if(extNode)
+    {
+       for(int i=0, m=extNode->extNodes->size(); i < m; i++)
+          if ((*extNode->extNodes)[i]) 
+            delete (*(extNode->extNodes))[i];
+       delete extNode;
+    }    
+    extNode = NULL;*/
+
 }
 
 void InheritanceTree::insert(
-    const String& className,
+    const String& className, 
     const String& superClassName)
 {
     // ATTN: need found flag!
@@ -313,22 +326,22 @@ void InheritanceTree::insert(
 
     InheritanceTreeNode* superClassNode = 0;
 
-    if (superClassName.size() &&
-        !_rep->table.lookup(superClassName, superClassNode))
+    if ((superClassName.size()) &&
+	!_rep->table.lookup(superClassName, superClassNode))
     {
-        superClassNode =
-            new InheritanceTreeNode(CIMNameCast(superClassName));
-        _rep->table.insert(superClassName, superClassNode);
+	superClassNode = 
+	    new InheritanceTreeNode(CIMNameUnchecked(superClassName));
+	_rep->table.insert(superClassName, superClassNode);
     }
 
     // -- Insert class:
-
+    
     InheritanceTreeNode* classNode = 0;
 
     if (!_rep->table.lookup(className, classNode))
     {
-        classNode = new InheritanceTreeNode(CIMNameCast(className));
-        _rep->table.insert(className, classNode);
+	classNode = new InheritanceTreeNode(CIMNameUnchecked(className));
+	_rep->table.insert(className, classNode);
     }
 
     classNode->provisional = false;
@@ -336,15 +349,91 @@ void InheritanceTree::insert(
     // -- Link the class and superclass nodes:
 
     if (superClassNode)
-        superClassNode->addSubClass(classNode);
+	superClassNode->addSubClass(classNode);
+}
+
+void InheritanceTree::insertFromPath(const String& path,
+      InheritanceTree* parentTree,
+      NameSpace *ns)
+{
+#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+        Array<String> classNames;
+        Array<String> superClassNames;
+        Array<Uint32> fileInodes;
+#endif
+    for (Dir dir(path); dir.more(); dir.next())
+    {
+	String fileName = dir.getName();
+
+	#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+        Uint32 fileInode = dir.getInode(); // To do to get the inode value
+        #endif
+	
+	// Ignore the current and parent directories.
+
+	if (fileName == "." || fileName == "..")
+	    continue;
+
+	Uint32 dot = fileName.find('.');
+
+	// Ignore files without dots in them:
+
+	if (dot == PEG_NOT_FOUND)
+	    continue;
+
+	String className = fileName.subString(0, dot);
+	String superClassName = fileName.subString(dot + 1);
+
+	if (superClassName == "#")
+	    superClassName.clear();
+
+	#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+                // To do on Mac OS X for rearranging classNames sorted on Inode
+                fileInodes.append(fileInode);
+                Sint32 index = 0;
+                for (index = fileInodes.size() - 2; index >= 0 && fileInode < fileInodes[index]; --index )
+                        fileInodes[index+1] = fileInodes[index];
+                // Insert the className and superClassName sorted on Inode values
+                fileInodes[index + 1] = fileInode;
+                classNames.insert(index + 1,className);
+                superClassNames.insert(index + 1,superClassName);
+        #endif
+
+#if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+        if (ns) insert(escapeStringDecoder(className), escapeStringDecoder(superClassName),
+           *parentTree,ns);
+	else insert(escapeStringDecoder(className),
+	    escapeStringDecoder(superClassName));
+#else
+        if (ns) insert(className, superClassName, *parentTree,ns);
+	else insert(className,superClassName);
+#endif
+#endif
+    }
+    #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+    // To do on Mac OS X - insert the sorted classNames
+    for ( Uint32 i = 0; i < classNames.size(); i++ )
+    {
+        #ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+                if (ns) insert(escapeStringDecoder(classNames[i]), escapeStringDecoder(superClassNames[i]),
+                   *parentTree,ns);
+                else insert(escapeStringDecoder(classNames[i]),
+                    escapeStringDecoder(superClassNames[i]));
+        #else
+                if (ns) insert(classNames[i], superClassNames[i], *parentTree,ns);
+                else insert(classNames[i],superClassNames[i]);
+        #endif
+    } // end for ( Uint32 i = 0; i < classNames.size(); i++ );
+    #endif  
 }
 
 void InheritanceTree::check() const
 {
     for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
     {
-        if (i.value()->provisional)
-            throw InvalidInheritanceTree(i.value()->className.getString());
+	if (i.value()->provisional)
+	    throw InvalidInheritanceTree(i.value()->className.getString());
     }
 }
 
@@ -352,77 +441,67 @@ Boolean InheritanceTree::getSubClassNames(
     const CIMName& className,
     Boolean deepInheritance,
     Array<CIMName>& subClassNames,
-    NameSpace* ns) const
+    NameSpace *ns) const
 {
-    // -- Case 1: className is empty: get all class names (if deepInheritance)
-    // -- or just root class names (if not deepInheritance).
 
-    if (className.isNull())
-    {
-        for (InheritanceTreeRep::Table::Iterator i = _rep->table.start();i;i++)
-        {
-            InheritanceTreeNode* itn=i.value();
-            if (itn->extension)
-            {
-                if (!ns)
-                    continue;
-                for (int j=0,m=itn->extNodes->size(); j<m; j++)
-                {
-                    InheritanceTreeExt* itx=(*(itn->extNodes))[j];
-                    if (itx->tag==ns)
-                    {
-                        InheritanceTreeNode* itxn=itx->node;
-                        if (deepInheritance)
-                        {
-                            subClassNames.append(CIMNameCast(i.key()));
-                            itxn->getSubClassNames(
-                                subClassNames, deepInheritance, ns);
-                        }
-                        else if (!i.value()->superClass)
-                            subClassNames.append(CIMNameCast(i.key()));
-                        break;
-                    }
-                }
+   // -- Case 1: className is empty: get all class names (if deepInheritance)
+   // -- or just root class names (if not deepInheritance).
+
+   if (className.isNull()) {
+
+      for (InheritanceTreeRep::Table::Iterator i = _rep->table.start();i;i++) {
+         InheritanceTreeNode *itn=i.value();
+         if (itn->extension) {
+            if  (!ns) continue;
+            for (int j=0,m=itn->extNodes->size(); j<m; j++) {
+               InheritanceTreeExt *itx=(*(itn->extNodes))[j];
+               if (itx->tag==ns) {
+                  InheritanceTreeNode *itn=itx->node;
+                  if (deepInheritance) {
+	             subClassNames.append(CIMNameUnchecked(i.key()));
+		     itn->getSubClassNames(subClassNames, deepInheritance, ns);
+		  }
+	          else if (!i.value()->superClass)
+	             subClassNames.append(CIMNameUnchecked(i.key()));
+                  break;
+               }
             }
-            else if (deepInheritance)
-            {
-                // Append all classes:
-                subClassNames.append(CIMNameCast(i.key()));
-            }
-            else if (!i.value()->superClass)
-            {
-                // Just append root classes:
-                subClassNames.append(CIMNameCast(i.key()));
-            }
-        }
-        return true;
-    }
+         }
 
-    // -- Case 2: className non-empty: get names of classes descendent from
-    // -- the given class.
+         else if (deepInheritance) {
+	    // Append all classes:
+	    subClassNames.append(CIMNameUnchecked(i.key()));
+	 }
+	 else if (!i.value()->superClass) {
+	    // Just append root classes:
+	    subClassNames.append(CIMNameUnchecked(i.key()));
+	 }
+      }
+      return true;
+   }
 
-    for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
-    {
-        if (className.equal (CIMNameCast(i.key())))
-        {
-            i.value()->getSubClassNames(subClassNames, deepInheritance, ns);
-            return true;
-        }
-    }
+   // -- Case 2: className non-empty: get names of classes descendent from
+   // -- the given class.
 
-    // Not found!
-    return false;
+   for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++) {
+      if (className.equal (CIMNameUnchecked(i.key()))) {
+         i.value()->getSubClassNames(subClassNames, deepInheritance, ns);
+	 return true;
+      }
+   }
+   
+   // Not found!
+   return false;
 }
-
 #if 0
 Boolean InheritanceTree::isSubClass(
-    const CIMName& class1,
+    const CIMName& class1, 
     const CIMName& class2) const
 {
-    InheritanceTreeNode* node = 0;
+    InheritanceTreeNode* node = 0;	
 
     if (!_rep->table.lookup(class1.getString(), node))
-        return false;
+	return false;
 
     return node->isSubClass(class2.getString());
 }
@@ -436,8 +515,8 @@ Boolean InheritanceTree::getSuperClassNames(
 
     if (_rep->table.lookup(className.getString(), classNode))
     {
-        classNode->getSuperClassNames(superClassNames);
-        return true;
+	classNode->getSuperClassNames(superClassNames);
+	return true;
     }
 
     return false;
@@ -451,16 +530,16 @@ Boolean InheritanceTree::getSuperClass(
 
     if (_rep->table.lookup(className.getString(), classNode))
     {
-        if (classNode->superClass)
-        {
-            superClassName = classNode->superClass->className;
-        }
-        else
-        {
-            superClassName.clear();
-        }
+	if (classNode->superClass)
+	{
+	    superClassName = classNode->superClass->className;
+	}
+	else
+	{
+	    superClassName.clear();
+	}
 
-        return true;
+	return true;
     }
 
     return false;
@@ -470,10 +549,10 @@ Boolean InheritanceTree::hasSubClasses(
     const CIMName& className,
     Boolean& hasSubClasses) const
 {
-    InheritanceTreeNode* node = 0;
+    InheritanceTreeNode* node = 0;	
 
     if (!_rep->table.lookup(className.getString(), node))
-        return false;
+	return false;
 
     hasSubClasses = node->subClasses != 0;
     return true;
@@ -484,75 +563,68 @@ Boolean InheritanceTree::containsClass(const CIMName& className) const
     return _rep->table.contains(className.getString());
 }
 
-void InheritanceTree::remove(
-    const CIMName& className,
-    InheritanceTree& parentTree,
-    NameSpace* tag)
+void InheritanceTree::remove(const CIMName& className,
+        InheritanceTree &parentTree,
+        NameSpace *tag)
 {
     // -- Lookup the node:
 
-    InheritanceTreeNode* node = 0;
+    InheritanceTreeNode* node = 0;	
 
     if (!_rep->table.lookup(className.getString(), node))
-        throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_INVALID_CLASS, className.getString());
+	throw PEGASUS_CIM_EXCEPTION
+            (CIM_ERR_INVALID_CLASS, className.getString());
 
     // -- Disallow if is has any subclasses:
 
     if (node->subClasses)
-        throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_CLASS_HAS_CHILDREN, className.getString());
+	throw PEGASUS_CIM_EXCEPTION
+            (CIM_ERR_CLASS_HAS_CHILDREN, className.getString());
 
     // -- Remove as child of superclass:
 
     InheritanceTreeNode* superClass = node->superClass;
 
-    if (tag)
-    {
-        InheritanceTreeNode* itn = 0;
-        if (parentTree._rep->table.lookup(className.getString(), itn))
-        {
-            if (itn->extension)
-            {
-                for (int j = 0, m = itn->extNodes->size(); j < m; j++)
-                {
-                    if ((*(itn->extNodes))[j]->tag == tag)
-                    {
-                        itn->extNodes->remove(j);
-                        break;
-                    }
+    if (tag) {
+       InheritanceTreeNode* itn = 0;
+       if (parentTree._rep->table.lookup(className.getString(),itn)) {
+          if (itn->extension) {
+             for (int j=0,m=itn->extNodes->size(); j<m; j++) {
+                if ((*(itn->extNodes))[j]->tag==tag) {
+                   itn->extNodes->remove(j);
+                   break;
                 }
-                if (itn->extNodes->size() == 0)
-                {
-                    delete itn->extNodes;
-                    parentTree._rep->table.remove(className.getString());
-                }
-            }
-        }
-        else
-        {
-            PEGASUS_FCT_EXECUTE_AND_ASSERT(
-                true,
-                superClass->removeSubClass(node));
-        }
+             }
+             if (itn->extNodes->size()==0) {
+                delete itn->extNodes;
+                parentTree._rep->table.remove(className.getString());
+             }
+          }
+       }
+       else {
+          Boolean result = superClass->removeSubClass(node);
+	  PEGASUS_ASSERT(result);
+       }
     }
+
     else if (superClass)
     {
-        PEGASUS_FCT_EXECUTE_AND_ASSERT(true,superClass->removeSubClass(node));
+	Boolean result = superClass->removeSubClass(node);
+	PEGASUS_ASSERT(result);
     }
 
-    // -- Remove from the hash table and delete:
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-        true,
-        _rep->table.remove(className.getString()));
 
+    // -- Remove from the hash table and delete:
+
+    Boolean result = _rep->table.remove(className.getString());
+    PEGASUS_ASSERT(result);
     delete node;
 }
 
 void InheritanceTree::print(PEGASUS_STD(ostream)& os) const
 {
     for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
-        i.value()->print(os);
+	i.value()->print(os);
 }
 
 PEGASUS_NAMESPACE_END

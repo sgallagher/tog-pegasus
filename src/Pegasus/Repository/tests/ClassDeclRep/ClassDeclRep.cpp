@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,9 +44,9 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static Boolean verbose;
+static char * verbose;
 
-void Test01(Uint32 mode)
+void Test01(CIMRepository_Mode mode)
 {
     String repositoryRoot;
     const char* tmpDir = getenv ("PEGASUS_TMP");
@@ -53,8 +60,6 @@ void Test01(Uint32 mode)
     }
 
     repositoryRoot.append("/repository");
-
-    FileSystem::removeDirectoryHier(repositoryRoot);
 
     CIMRepository r (repositoryRoot, mode);
 
@@ -74,44 +79,44 @@ void Test01(Uint32 mode)
     // Create two simple classes:
 
     CIMClass class1(CIMName ("Class1"));
-    class1.addQualifier(
-        CIMQualifier(CIMName ("abstract"), true, CIMFlavor::DEFAULTS));
+    class1.addQualifier(CIMQualifier(CIMName ("abstract"), true));
     CIMClass class2(CIMName ("Class2"), CIMName ("Class1"));
 
     r.createClass(NAMESPACE, class1);
     r.createClass(NAMESPACE, class2);
 
     // Enumerate the class names:
-    Array<CIMName> classNames =
-        r.enumerateClassNames(NAMESPACE, CIMName(), true);
+    Array<CIMName> classNames = 
+	r.enumerateClassNames(NAMESPACE, CIMName (), true);
 
     BubbleSort(classNames);
 
     PEGASUS_TEST_ASSERT(classNames.size() == 2);
-    PEGASUS_TEST_ASSERT(classNames[0] == "Class1");
-    PEGASUS_TEST_ASSERT(classNames[1] == "Class2");
+    // ATTN-RK-20020729: Remove CIMName cast when Repository uses CIMName
+    PEGASUS_TEST_ASSERT(CIMName(classNames[0]).equal(CIMName ("Class1")));
+    PEGASUS_TEST_ASSERT(CIMName(classNames[1]).equal(CIMName ("Class2")));
 
-    // Get the classes and determine if they are identical with input
+	// Get the classes and determine if they are identical with input
 
-    CIMClass c1 = r.getClass(NAMESPACE, CIMName ("Class1"), true, true, false);
-    CIMClass c2 = r.getClass(NAMESPACE, CIMName ("Class2"), true, true, false);
+	CIMClass c1 =  r.getClass(NAMESPACE, CIMName ("Class1"), true, true, true);
+	CIMClass c2 =  r.getClass(NAMESPACE, CIMName ("Class2"), true, true, true);
 
-    PEGASUS_TEST_ASSERT(c1.identical(class1));
-    PEGASUS_TEST_ASSERT(c1.identical(class1));
+	PEGASUS_TEST_ASSERT(c1.identical(class1));
+	PEGASUS_TEST_ASSERT(c1.identical(class1));
 
-    Array<CIMClass> classes =
-        r.enumerateClasses(NAMESPACE, CIMName (), true, true, true);
+    Array<CIMClass> classes = 
+	r.enumerateClasses(NAMESPACE, CIMName (), true, true, true);
 
     // Attempt to delete Class1. It should fail since the class has
     // children.
 
     try
     {
-        r.deleteClass(NAMESPACE, CIMName ("Class1"));
+	r.deleteClass(NAMESPACE, CIMName ("Class1"));
     }
     catch (CIMException& e)
     {
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_CLASS_HAS_CHILDREN);
+	PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_CLASS_HAS_CHILDREN);
     }
 
     // Delete all classes created here:
@@ -119,68 +124,43 @@ void Test01(Uint32 mode)
     r.deleteClass(NAMESPACE, CIMName ("Class2"));
     r.deleteClass(NAMESPACE, CIMName ("Class1"));
 
-    // Be sure the classes are really gone:
+    // Be sure the class files are really gone:
 
-    try
-    {
-        CIMClass c1 = r.getClass(
-            NAMESPACE, CIMName ("Class1"), true, true, true);
-        PEGASUS_TEST_ASSERT(false);
-    }
-    catch (CIMException& e)
-    {
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
-    }
-
-    try
-    {
-        CIMClass c2 = r.getClass(
-            NAMESPACE, CIMName ("Class2"), true, true, true);
-        PEGASUS_TEST_ASSERT(false);
-    }
-    catch (CIMException& e)
-    {
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
-    }
-
-    FileSystem::removeDirectoryHier(repositoryRoot);
+    Array<String> tmp;
+    String classesDir (repositoryRoot);
+    classesDir.append("/zzz/classes");
+    PEGASUS_TEST_ASSERT(FileSystem::getDirectoryContents (classesDir, tmp));
+    PEGASUS_TEST_ASSERT(tmp.size() == 0);
 }
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-
-    if (argc != 2)
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    try 
     {
-        cout << "Usage: " << argv[0] << " XML | BIN" << endl;
-        return 1;
-    }
-
-    try
-    {
-      Uint32 mode;
+      CIMRepository_Mode mode;
       if (!strcmp(argv[1],"XML") )
-    {
-      mode = CIMRepository::MODE_XML;
-      if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
-    }
+	{
+	  mode.flag = CIMRepository_Mode::NONE;
+	  if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
+	}
       else if (!strcmp(argv[1],"BIN") )
-    {
-      mode = CIMRepository::MODE_BIN;
-      if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
-    }
+	{
+	  mode.flag = CIMRepository_Mode::BIN;
+	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
+	}
       else
-    {
-      cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-      return 1;
-    }
+	{
+	  cout << argv[0] << ": invalid argument: " << argv[1] << endl;
+	  return 0;
+	}
 
-    Test01(mode);
+	Test01(mode);
     }
     catch (Exception& e)
     {
-    cout << e.getMessage() << endl;
-    exit(1);
+	cout << e.getMessage() << endl;
+	exit(1);
     }
 
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;

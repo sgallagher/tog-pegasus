@@ -1,33 +1,44 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//		Sean Keenan (sean.keenan@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/AnonymousPipe.h>
@@ -41,6 +52,8 @@
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
 #include <windows.h>
+#elif defined (PEGASUS_OS_OS400)
+# include <unistd.cleinc>
 #elif defined (PEGASUS_OS_VMS)
 # include <perror.h>
 # include <climsgdef.h>
@@ -78,7 +91,7 @@ int main ()
             homeDir = ".";
         }
         childPath.append (homeDir);
-        childPath.append ("/bin/TestAnonymousPipeChild");
+        childPath.append ("/bin/TestChild");
 
         CString childPathCStr = childPath.getCString ();
 
@@ -91,26 +104,26 @@ int main ()
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
         PROCESS_INFORMATION piProcInfo;
         STARTUPINFO siStartInfo;
-
+    
         //
         //  Set up members of the PROCESS_INFORMATION structure
         //
         ZeroMemory (&piProcInfo, sizeof (PROCESS_INFORMATION));
-
+    
         //
         //  Set up members of the STARTUPINFO structure
         //
         ZeroMemory (&siStartInfo, sizeof (STARTUPINFO));
         siStartInfo.cb = sizeof (STARTUPINFO);
-
+    
         //
         //  Generate command line
         //
         char childCommandLine [2048];
-        sprintf (childCommandLine, "\"%s\" %s %s",
-            (const char *) childPath.getCString (),
+        sprintf (childCommandLine, "\"%s\" %s %s", 
+            (const char *) childPath.getCString (), 
             childReadHandle.get (), childWriteHandle.get ());
-
+    
         //
         //  Create the child process
         //
@@ -126,7 +139,7 @@ int main ()
             &siStartInfo,      //  STARTUPINFO
             &piProcInfo))      //  PROCESS_INFORMATION
         {
-            cerr << "Parent failed to CreateProcess:" << GetLastError ()
+            cerr << "Parent failed to CreateProcess:" << GetLastError () 
                 << endl;
             PEGASUS_TEST_ASSERT (0);
         }
@@ -141,11 +154,11 @@ int main ()
         switch (status)
         {
           case 0:
-            if ((status = execl ((const char *) childPathCStr,
-                                 (const char *) childPathCStr,
+            if ((status = execl ((const char *) childPathCStr, 
+                                 (const char *) childPathCStr, 
                                  childReadHandle.get (),
-                                 childWriteHandle.get (),
-                                 (char *) 0))
+                                 childWriteHandle.get (), 
+                                 (char *) 0)) 
                                  == -1)
             {
               //
@@ -176,7 +189,7 @@ int main ()
 
           default:
             //
-            //  Parent: Close child handles
+            //  Parent: Close child handles 
             //
             pipeToChild->closeReadHandle ();
             pipeFromChild->closeWriteHandle ();
@@ -201,7 +214,7 @@ int main ()
         else if (pid > 0)
         {
             //
-            //  Parent: Close child handles
+            //  Parent: Close child handles 
             //
             pipeToChild->closeReadHandle ();
             pipeFromChild->closeWriteHandle ();
@@ -209,14 +222,14 @@ int main ()
         else
         {
             //
-            //  Child: Close parent handles
+            //  Child: Close parent handles 
             //
             pipeFromChild->closeReadHandle ();
             pipeToChild->closeWriteHandle ();
 
-            if (execl ((const char *) childPathCStr,
+            if (execl ((const char *) childPathCStr, 
                 (const char *) childPathCStr,
-                childReadHandle.get (),
+                childReadHandle.get (), 
                 childWriteHandle.get (),
                 (char *) 0) < 0)
             {
@@ -245,13 +258,13 @@ int main ()
         char buffer [32];
         sprintf (buffer, "%s", "Hello world");
         requestBuffer.append (buffer, strlen (buffer));
-        Uint32 bufferLength = requestBuffer.size();
+        Uint32 bufferLength = requestBuffer.size ();
         AnonymousPipe::Status writeBufferStatus = pipeToChild->writeBuffer
             ((const char *) &bufferLength, sizeof (Uint32));
         if (writeBufferStatus == AnonymousPipe::STATUS_SUCCESS)
         {
-            writeBufferStatus = pipeToChild->writeBuffer
-                (requestBuffer.getData(), requestBuffer.size());
+            writeBufferStatus = pipeToChild->writeBuffer 
+                (requestBuffer.getData (), requestBuffer.size ());
             if (writeBufferStatus != AnonymousPipe::STATUS_SUCCESS)
             {
                 cerr << "Parent failed to write request data: "
@@ -269,7 +282,7 @@ int main ()
         //
         //  Read the response buffer from the child via the anonymous pipe
         //
-        AnonymousPipe::Status readBufferStatus = pipeFromChild->readBuffer
+        AnonymousPipe::Status readBufferStatus = pipeFromChild->readBuffer 
             ((char *) &bufferLength, sizeof (Uint32));
         if (readBufferStatus != AnonymousPipe::STATUS_SUCCESS)
         {
@@ -298,7 +311,7 @@ int main ()
         responseBuffer.get () [bufferLength] = 0;
         if (verbose)
         {
-            cout << "Response received by parent: " << responseBuffer.get ()
+            cout << "Response received by parent: " << responseBuffer.get () 
                 << endl;
         }
         PEGASUS_TEST_ASSERT (strcmp (responseBuffer.get (), "Good-bye") == 0);
@@ -311,12 +324,13 @@ int main ()
                 (String ("00000001"),
                 CIMNamespaceName ("root/test/A"),
                 CIMObjectPath ("MCCA_TestClass.theKey=1"),
+                true,
                 false,
                 false,
                 CIMPropertyList (),
                 QueueIdStack ()));
 
-        AnonymousPipe::Status writeMessageStatus =
+        AnonymousPipe::Status writeMessageStatus = 
             pipeToChild->writeMessage (request.get ());
         if (writeMessageStatus == AnonymousPipe::STATUS_SUCCESS)
         {
@@ -337,14 +351,14 @@ int main ()
 
             if (verbose)
             {
-                cout << "CIMGetInstanceResponseMessage received by parent"
+                cout << "CIMGetInstanceResponseMessage received by parent" 
                     << endl;
             }
 
             PEGASUS_TEST_ASSERT (response->getType () ==
                 CIM_GET_INSTANCE_RESPONSE_MESSAGE);
             PEGASUS_TEST_ASSERT (response->messageId == String ("00000002"));
-            PEGASUS_TEST_ASSERT (response->cimException.getCode () ==
+            PEGASUS_TEST_ASSERT (response->cimException.getCode () == 
                 CIM_ERR_FAILED);
             PEGASUS_TEST_ASSERT (((ContentLanguageListContainer)
                 response->operationContext.get
@@ -361,7 +375,7 @@ int main ()
         //
         //  Error cases
         //
-
+    
         //
         //  Test invalid use of constructor
         //
@@ -373,7 +387,7 @@ int main ()
         catch (Exception &)
         {
         }
-
+    
         try
         {
             AutoPtr <AnonymousPipe> pipeError2 (new AnonymousPipe (NULL, "h"));
@@ -382,7 +396,7 @@ int main ()
         catch (Exception &)
         {
         }
-
+    
         //
         //  Close handles already closed
         //
@@ -394,11 +408,11 @@ int main ()
         //
         //  Try to read or write after handles have been closed
         //
-        writeBufferStatus = pipeToChild->writeBuffer
+        writeBufferStatus = pipeToChild->writeBuffer 
             ((const char *) &bufferLength, sizeof (Uint32));
         PEGASUS_TEST_ASSERT (writeBufferStatus == AnonymousPipe::STATUS_CLOSED);
 
-        readBufferStatus = pipeFromChild->readBuffer ((char *) &bufferLength,
+        readBufferStatus = pipeFromChild->readBuffer ((char *) &bufferLength, 
             sizeof (Uint32));
         PEGASUS_TEST_ASSERT (readBufferStatus == AnonymousPipe::STATUS_CLOSED);
 

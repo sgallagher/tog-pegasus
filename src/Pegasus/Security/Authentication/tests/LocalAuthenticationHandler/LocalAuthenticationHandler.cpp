@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,15 +54,15 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
-static Boolean verbose;
+Boolean verbose = false;
 
 String authType = "Local";
 
 String testUser = System::getEffectiveUserName();
 
-String secret;
+String challenge = String::EMPTY;
 
-String filePath;
+String filePath = String::EMPTY;
 
 AuthenticationInfo* authInfo = 0;
 
@@ -64,15 +70,14 @@ void testAuthHeader()
 {
     LocalAuthenticationHandler  localAuthHandler;
 
-    String respHeader =
+    String respHeader = 
         localAuthHandler.getAuthResponseHeader(authType, testUser, authInfo);
 
 #ifdef DEBUG
-    if (verbose)
-        cout << "respHeader= " << respHeader << endl;
+    if (verbose) cout << "respHeader= " << respHeader << endl;
 #endif
-
-    secret = authInfo->getLocalAuthSecret();
+    
+    challenge = authInfo->getAuthChallenge();
 
     PEGASUS_TEST_ASSERT(respHeader.size() != 0);
 
@@ -82,8 +87,7 @@ void testAuthHeader()
     Uint32 endQuote = respHeader.find(startQuote + 1, '"');
     PEGASUS_TEST_ASSERT(startQuote != PEG_NOT_FOUND);
 
-    filePath =
-        respHeader.subString(startQuote + 1, (endQuote - startQuote - 1));
+    filePath = respHeader.subString(startQuote + 1, (endQuote - startQuote - 1));
 
     PEGASUS_TEST_ASSERT(filePath.size() != 0);
 }
@@ -93,10 +97,8 @@ void testAuthHeader()
 //
 void testAuthenticationFailure_1()
 {
-    String authHeader;
+    String authHeader = String::EMPTY;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     LocalAuthenticationHandler  localAuthHandler;
 
@@ -105,17 +107,17 @@ void testAuthenticationFailure_1()
     //
     authHeader = testUser;
     authHeader.append(filePath);
-    authHeader.append(secret);
+    authHeader.append(challenge);
 
-    authStatus = localAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose)
-    {
-        cout << "authHeader: " << authHeader << endl;
-        cout << "Authentication of user " + testUser + " returned with: ";
-        cout << authenticated << endl;
-    }
+    if (verbose) cout << "authHeader: " << authHeader << endl;
+
+    if (authenticated)
+        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+    else
+        if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
+
     PEGASUS_TEST_ASSERT(!authenticated);
 }
 
@@ -124,10 +126,8 @@ void testAuthenticationFailure_1()
 //
 void testAuthenticationFailure_2()
 {
-    String authHeader;
+    String authHeader = String::EMPTY;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     LocalAuthenticationHandler  localAuthHandler;
 
@@ -137,28 +137,25 @@ void testAuthenticationFailure_2()
     authHeader = testUser;
     authHeader.append(filePath);
 
-    authStatus = localAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose)
-    {
-        cout << "authHeader: " << authHeader << endl;
-        cout << "Authentication of user " + testUser + " returned with: ";
-        cout << authenticated << endl;
-    }
+    if (verbose) cout << "authHeader: " << authHeader << endl;
+
+    if (authenticated)
+        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+    else
+        if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
 
     PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
-// Test with invalid password
+// Test with invalid password 
 //
 void testAuthenticationFailure_3()
 {
-    String authHeader;
+    String authHeader = String::EMPTY;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     LocalAuthenticationHandler  localAuthHandler;
 
@@ -167,15 +164,14 @@ void testAuthenticationFailure_3()
     authHeader.append(filePath);
     authHeader.append(":");
 
-    authStatus = localAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose)
-    {
-        cout << "authHeader: " << authHeader << endl;
-        cout << "Authentication of user " + testUser + " returned with: ";
-        cout << authenticated << endl;
-    }
+    if (verbose) cout << "authHeader: " << authHeader << endl;
+
+    if (authenticated)
+        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+    else
+        if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
 
     PEGASUS_TEST_ASSERT(!authenticated);
 }
@@ -185,10 +181,8 @@ void testAuthenticationFailure_3()
 //
 void testAuthenticationFailure_4()
 {
-    String authHeader;
+    String authHeader = String::EMPTY;
     Boolean authenticated;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
 
     LocalAuthenticationHandler  localAuthHandler;
 
@@ -198,27 +192,24 @@ void testAuthenticationFailure_4()
     authHeader.append(":");
     authHeader.append("asd442394asd");
 
-    authStatus = localAuthHandler.authenticate(authHeader, authInfo);
-    authenticated = authStatus.isSuccess();
+    authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose)
-    {
-        cout << "authHeader: " << authHeader << endl;
-        cout << "Authentication of user " + testUser + " returned with: ";
-        cout << authenticated << endl;
-    }
+    if (verbose) cout << "authHeader: " << authHeader << endl;
+
+    if (authenticated)
+        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+    else
+        if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
 
     PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
-// Test with valid user name and password
+// Test with valid user name and password 
 //
 void testAuthenticationSuccess()
 {
-    String authHeader;
-    // initialize with success to ensure failure is detected
-    AuthenticationStatus authStatus(AUTHSC_SUCCESS);
+    String authHeader = String::EMPTY;
 
     LocalAuthenticationHandler  localAuthHandler;
 
@@ -226,26 +217,24 @@ void testAuthenticationSuccess()
     authHeader.append(":");
     authHeader.append(filePath);
     authHeader.append(":");
-    authHeader.append(secret);
+    authHeader.append(challenge);
 
-    authInfo->setLocalAuthFilePath(filePath);
-    authStatus = localAuthHandler.authenticate(authHeader, authInfo);
-    Boolean authenticated = authStatus.isSuccess();
-    authInfo->setLocalAuthFilePath(String::EMPTY);
+    Boolean authenticated =
+        localAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose)
-    {
-        cout << "authHeader: " << authHeader << endl;
-        cout << "User " + testUser + " authenticated ";
-        cout << ((authenticated) ? "successfully.":"failed..") << endl;
-    }
+    if (verbose) cout << "authHeader: " << authHeader << endl;
+
+    if (authenticated)
+        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+    else
+        if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
 
     PEGASUS_TEST_ASSERT(authenticated);
 }
 
 ////////////////////////////////////////////////////////////////////
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;
@@ -257,20 +246,18 @@ int main(int, char** argv)
 #ifdef DEBUG
         Tracer::setTraceFile("/tmp/trace");
         Tracer::setTraceComponents("all");
-        verbose = true;
+	verbose = true;
 #endif
 
         ConfigManager* configManager = ConfigManager::getInstance();
-        PEGASUS_TEST_ASSERT(0 != configManager);
 
         const char* path = getenv("PEGASUS_HOME");
         String pegHome = path;
 
-        if (pegHome.size())
+        if(pegHome.size())
             ConfigManager::setPegasusHome(pegHome);
 
-        if (verbose)
-            cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
+        if (verbose) cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
         authInfo = new AuthenticationInfo(true);
 
         if (verbose) cout << "Doing testAuthHeader()...." << endl;
@@ -294,7 +281,7 @@ int main(int, char** argv)
     }
     catch(Exception& e)
     {
-        cout << argv[0] << "Exception: " << e.getMessage() << endl;
+      cout << argv[0] << "Exception: " << e.getMessage() << endl;
         PEGASUS_TEST_ASSERT(0);
     }
 

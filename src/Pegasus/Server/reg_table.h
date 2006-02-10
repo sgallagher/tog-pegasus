@@ -1,61 +1,46 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Day (mdday@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
-
+// Modified By: 
+//
 //%////////////////////////////////////////////////////////////////////////////
 
-/*
-    Definitions for the DynamicRoutingTable that controls fixed registration
-    of OpenPegasus control providers and services.
-    NOTE: The actual Control Provider and Service registration definitions
-    are contained in the DynamicRoutingTable .cpp file.
-
-    DynamicRoutingTable is a singleton which includes the following
-    public functions:
-      - getRouting - Gets the provider routing for a particular class,namespace
-        Asserts if called before the table is built. This is the function
-        used to get routing information about Control Providers and
-        OpenPegasus services
-      - getRoutingTable - gets the pointer to the DynamicRoutingTable but
-        does not actually create the table. Used to allow the
-        CIMOperationRequestDispatcher to set an address for the table as part
-        of initialization before it the table is created.
-      - buildRoutingTable - Builds the DynamicRouting table hash table
-        from the definitions defined in the cpp file.  This must be done
-        late in initialization since this table includes queueId information
-        which is not defined until almost the end of the OpenPegasus
-        initialization sequence.
-*/
 
 #ifndef Pegasus_reg_table_h
 #define Pegasus_reg_table_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/ArrayInter.h>
 #include <Pegasus/Common/HashTable.h>
@@ -63,108 +48,161 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Server/Linkage.h>
-#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-/*
-    Class defining a single DynamicRoutingTable Record.
-*/
-class RegTableRecord
+class reg_table_rep;
+
+class PEGASUS_SERVER_LINKAGE DynamicRoutingTable  
 {
-public:
-    RegTableRecord(
-        const CIMName& className,
-        const CIMNamespaceName& namespaceName,
-        const String& providerName,
-        Uint32 serviceId);
-    ~RegTableRecord();
+   public:
+      DynamicRoutingTable(void);
+      DynamicRoutingTable(const DynamicRoutingTable & table);
+      DynamicRoutingTable & operator =(const DynamicRoutingTable & table);
+      ~DynamicRoutingTable(void);
 
-    CIMName className;
-    CIMNamespaceName namespaceName;
-    String providerName;
-    Uint32 serviceId;
-private:
-    RegTableRecord(const RegTableRecord&);
-    RegTableRecord& operator=(const RegTableRecord&);
-};
+      static const DynamicRoutingTable get_ro_routing_table(void);
+      static DynamicRoutingTable get_rw_routing_table(void);
+      
+      // get a single service that can route this spec. 
+      MessageQueueService *get_routing(const CIMName& classname, 
+				       const CIMNamespaceName& ns, 
+				       Uint32 type,
+				       Uint32 flags) const;
 
-class PEGASUS_SERVER_LINKAGE DynamicRoutingTable
-{
-public:
-    // Removes the hash table and pointer
-    ~DynamicRoutingTable();
+      // get a single service that can route this spec. 
+      MessageQueueService *get_routing(const CIMName& classname, 
+				       const CIMNamespaceName& ns, 
+				       Uint32 type,
+				       Uint32 flags,
+				       String & provider,
+				       String & module) const;
 
-    // Get pointer to the singleton instance of DynamicRoutingTable.
-    // Note that this does NOT build the table. It simply allocates a pointer
-    // for the table if necessary and returns the pointer. This allows
-    // initialization of the table pointer in the OpenPegasus initialization
-    // sequence before the table is actually built.
-    static DynamicRoutingTable* getRoutingTable();
+      
+      // get a single service that can route this extended spec. 
+      MessageQueueService *get_routing(const CIMName& classname,
+				       const CIMNamespaceName& ns,
+				       Uint32 type,
+				       const Array<Uint8>& extended_type,
+				       Uint32 flags,
+				       const Array<Uint8>& extended_flags) const ;
 
-    /* Get a single provider or service that can handle the className and
-       namespace provided as parameters.
-       If successful, returns provider in providerName and and queueId of
-       the correct service for routing..
-       @param CIMName className for which provider info wanted
-       @param CIMNamespaceName namespace of request
-       @param provider String defining provider name on return if the
-       routing is to a ControlProvider. Empty String if service routing
-       found.
-       @param serviceId Uint32 queueId for routing to provider of service
-       defined by CIMName and className if an entry is found.
-       @return true if routing found. False if routing not found.
-    */
-    Boolean getRouting(
-        const CIMName& className,
-        const CIMNamespaceName& namespaceName,
-        String& provider,
-        Uint32 &serviceId) const;
+      // get a single service that can route this extended spec. 
+      MessageQueueService *get_routing(const CIMName& classname,
+				       const CIMNamespaceName& ns,
+				       Uint32 type,
+				       const Array<Uint8>& extended_type,
+				       Uint32 flags,
+				       const Array<Uint8>& extended_flags,
+				       String & provider, 
+				       String & module) const ;
 
-    // Build the complete routing table. Builds the DynamicRoutingTable from
-    // definition of Control Providers and Services in reg_table.cpp
-    static void buildRoutingTable();
+      // get an array of services that can route this spec. 
+      void get_routing(const CIMName& classname, 
+		       const CIMNamespaceName& ns, 
+		       Uint32 type,
+		       Uint32 flags,
+		       Array<MessageQueueService *>& results) const;
+      
+      // get an array of services that can route this extended spec. 
+      void get_routing(const CIMName& classname,
+		       const CIMNamespaceName& ns,
+		       Uint32 type,
+		       const Array<Uint8>& extended_type,
+		       Uint32 flags,
+		       const Array<Uint8>& extended_flags, 
+		       Array<MessageQueueService *>& results) const ;
+      
+      Boolean insert_record(const CIMName& classname, 
+			    const CIMNamespaceName& ns, 
+			    Uint32 type,
+			    Uint32 flags,
+			    MessageQueueService* svce) ;
+      
+      Boolean insert_record(const CIMName& classname, 
+			    const CIMNamespaceName& ns, 
+			    Uint32 type,
+			    const Array<Uint8>& extended_type,
+			    Uint32 flags,
+			    const Array<Uint8>& extended_flags, 
+			    MessageQueueService* svce) ;
 
-#ifdef PEGASUS_DEBUG
-    void dumpRegTable();
-#endif
-private:
-    // Private since the only way to construct the table is getRoutingTable
-    // and buildRoutingTable.
-    // Not a general singleton pattern because table is built during
-    // initialization by buildRoutingTable() and only accessed subsequently.
-    DynamicRoutingTable();
-    DynamicRoutingTable(const DynamicRoutingTable& table);
-    DynamicRoutingTable& operator=(const DynamicRoutingTable& table);
+      Boolean insert_record(const CIMName& classname, 
+			    const CIMNamespaceName& ns, 
+			    Uint32 type,
+			    Uint32 flags,
+			    MessageQueueService* svce, 
+			    const String& provider, 
+			    const String& module) ;
+      
+      Boolean insert_record(const CIMName& classname, 
+			    const CIMNamespaceName& ns, 
+			    Uint32 type,
+			    const Array<Uint8>& extended_type,
+			    Uint32 flags,
+			    const Array<Uint8>& extended_flags, 
+			    MessageQueueService* svce,
+			    const String& provider,
+			    const String& module) ;
 
-    void _insertRecord(
-        const CIMName& className,
-        const CIMNamespaceName& namespaceName,
-        const String& provider,
-        Uint32 serviceId);
+      MessageQueueService * remove_record(const CIMName& classname, 
+					   const CIMNamespaceName& ns, 
+					   Uint32 type,
+					   Uint32 flags);
+      
+      MessageQueueService * remove_record(const CIMName& classname, 
+					  const CIMNamespaceName& ns, 
+					  Uint32 type,
+					  const Array<Uint8>& extended_type,
+					  Uint32 flags,
+					  const Array<Uint8>& extended_flags);
+      Uint32 remove_multiple_records(const CIMName& classname, 
+				     const CIMNamespaceName& ns, 
+				     Uint32 type,
+				     Uint32 flags);
+      
+      Uint32 remove_multiple_records(const CIMName& classname, 
+				     const CIMNamespaceName& ns, 
+				     Uint32 type,
+				     const Array<Uint8>& extended_type,
+				     Uint32 flags,
+				     const Array<Uint8>& extended_flags);
+      Uint32 remove_router_records(const MessageQueueService* router);
 
-    String _getRoutingKey(
-        const CIMName& className,
-        const CIMNamespaceName& namespaceName) const;
+      /**
+	 Router "types". These are actually keys used in the routing table. 
+	 A provider manager (or other service provider) that can route messages
+	 must register as being of a certain type. These types classify the routers
+	 according to function and also make queries faster. 
+      
+	 Most of the current types correspond to provider interfaces. However, some
+	 are generic pegasus services, and others are specific services.
 
-    String _getWildRoutingKey(
-        const CIMName& className) const;
+	 The extended type is an escape mechanism that allows unlimited expansion
+	 of "types" in the future. 
+      */
 
-    typedef HashTable<String, RegTableRecord*,
-        EqualNoCaseFunc, HashFunc<String> > RoutingTable;
+      static const Uint32 INTERNAL; // "control providers"
+      static const Uint32 INSTANCE;
+      static const Uint32 CLASS;
+      static const Uint32 METHOD;
+      static const Uint32 ASSOCIATION;
+      static const Uint32 QUERY;
+      static const Uint32 INDICATION;
+      static const Uint32 CONSUMER;
+      static const Uint32 SERVICE; // derived from MessageQueueService
+      static const Uint32 AUTHORIZATION; // authorization plug-in
+      static const Uint32 AUTHENTICATION; // authentication plug-in
+      static const Uint32 ENCODE_HOOK;  // hook to process outbound messages
+      static const Uint32 DECODE_HOOK; // hook to process incoming messages
+      static const Uint32 EXTENDED;
 
-    RoutingTable _routingTable;
 
-    // pointer to the singleton instance of the DynamicRoutingTable.
-    static AutoPtr<DynamicRoutingTable> _this;
-#ifdef PEGASUS_DEBUG
-    // flag to indication table actually built. DEBUG only since the
-    // order should be fixed between getRouting and buildRoutingTable
-    // functions
-    static Boolean _tableInitialized;
-#endif
+      void dump_table(void);
+      
+   private:
+      reg_table_rep *_rep;
 };
 
 PEGASUS_NAMESPACE_END
-
 #endif // Pegasus_reg_table_h

@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -15,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -293,14 +295,14 @@ Buffer& operator<<(Buffer& out, const CIMName& name)
 
 
 // l10n
-Buffer& operator<<(Buffer& out, const AcceptLanguages& al)
+Buffer& operator<<(Buffer& out, const AcceptLanguageList& al)
 {
     XmlWriter::append(out, LanguageParser::buildAcceptLanguageHeader(al));
     return out;
 }
 
 // l10n
-Buffer& operator<<(Buffer& out, const ContentLanguages& cl)
+Buffer& operator<<(Buffer& out, const ContentLanguageList& cl)
 {
     XmlWriter::append(out, LanguageParser::buildContentLanguageHeader(cl));
     return out;
@@ -574,109 +576,68 @@ void XmlWriter::appendSpecial(Buffer& out, const char* str)
 void XmlWriter::appendSpecial(Buffer& out, const String& str)
 {
     const Uint16* p = (const Uint16*)str.getChar16Data();
-    size_t n = str.size();
+    // prevCharIsSpace is true when the last character written to the Buffer
+    // is a space character (not a character reference).
+    Boolean prevCharIsSpace = false;
 
-    // Handle leading ASCII 7 characers in these next two loops (use unrolling).
-
-    while (n >= 8)
+    // If the first character is a space, use a character reference to avoid
+    // space compression.
+    if (*p == ' ')
     {
-	// The following condition is equivalent to this:
-	//     (p[0] < 128 && p[1] < 128 && p[2] < 128 && p[3] < 128 &&
-	//      p[4] < 128 && p[5] < 128 && p[6] < 128 && p[7] < 128)
-
-	if (((p[0]|p[1]|p[2]|p[3]|p[4]|p[5]|p[6]|p[7]) & 0xFF80) == 0)
-	{
-	    // Note: "|" is faster than "||" and achieves the same effect
-	    // since p[i] is either 0 or 1.
-
-	    if (_isSpecialChar7[p[0]] | _isSpecialChar7[p[1]] |
-		_isSpecialChar7[p[2]] | _isSpecialChar7[p[3]] |
-		_isSpecialChar7[p[4]] | _isSpecialChar7[p[5]] |
-		_isSpecialChar7[p[6]] | _isSpecialChar7[p[7]])
-	    {
-		// Rare case.
-		_appendSpecialChar7(out, p[0]);
-		_appendSpecialChar7(out, p[1]);
-		_appendSpecialChar7(out, p[2]);
-		_appendSpecialChar7(out, p[3]);
-		_appendSpecialChar7(out, p[4]);
-		_appendSpecialChar7(out, p[5]);
-		_appendSpecialChar7(out, p[6]);
-		_appendSpecialChar7(out, p[7]);
-	    }
-	    else
-	    {
-		// Common case.
-		out.append(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
-	    }
-	    p += 8;
-	    n -= 8;
-	}
-	else
-	    break;
+        out.append(STRLIT_ARGS("&#32;"));
+        p++;
     }
 
-    while (n >= 4)
+    Uint16 c;
+    while ((c = *p++) != 0)
     {
-	// The following condition is equivalent to this:
-	//     (p[0] < 128 && p[1] < 128 && p[2] < 128 && p[3] < 128)
+        if (c < 128)
+        {
+	    if (_isSpecialChar7[c])
+            {
+                // Write the character reference for the special character
+                out.append(
+                    _specialChars[int(c)].str, _specialChars[int(c)].size);
+                prevCharIsSpace = false;
+            }
+            else if (prevCharIsSpace && (c == ' '))
+            {
+                // Write the character reference for the space character, to
+                // avoid compression
+                out.append(STRLIT_ARGS("&#32;"));
+                prevCharIsSpace = false;
+            }
+            else
+            {
+                out.append(c);
+                prevCharIsSpace = (c == ' ');
+            }
+        }
+        else
+        {
+	    // Handle UTF8 case
 
-	if (((p[0]|p[1]|p[2]|p[3]) & 0xFF80) == 0)
-	{
-	    if (_isSpecialChar7[p[0]] | _isSpecialChar7[p[1]] |
-		_isSpecialChar7[p[2]] | _isSpecialChar7[p[3]])
-	    {
-		// Rare case:
-		_appendSpecialChar7(out, p[0]);
-		_appendSpecialChar7(out, p[1]);
-		_appendSpecialChar7(out, p[2]);
-		_appendSpecialChar7(out, p[3]);
-	    }
-	    else
-	    {
-		// Common case:
-		out.append(p[0], p[1], p[2], p[3]);
-	    }
+            if ((((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
+                 ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE))) &&
+                *p)
+            {
+                _xmlWritter_appendSurrogatePair(out, c, *p++);
+            }
+            else
+            {
+                _xmlWritter_appendChar(out, c);
+            }
 
-	    p += 4;
-	    n -= 4;
-	}
-	else
-	    break;
+            prevCharIsSpace = false;
+        }
     }
 
-    // Process remaining characters. A UTF8 character must have been
-    // encountered or this would have never been reached.
-
-    while (n--)
+    // If the last character is a space, use a character reference to avoid
+    // space compression.
+    if (prevCharIsSpace)
     {
-	Uint16 c = *p++;
-
-	// Special processing for UTF8 case:
-
-	if (c < 128)
-	{
-	    _appendSpecialChar7(out, c);
-	    continue;
-	}
-
-	// Hanlde UTF8 case (if reached).
-
-	if(((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
-	   ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
-	{
-	    Char16 highSurrogate = p[-1];
-	    Char16 lowSurrogate = p[0];
-	    p++;
-	    n--;
-
-	    _xmlWritter_appendSurrogatePair(
-		out, Uint16(highSurrogate),Uint16(lowSurrogate));
-	}
-	else
-	{
-	    _xmlWritter_appendSpecialChar(out, c);
-	}
+        out.remove(out.size() - 1);
+        out.append(STRLIT_ARGS("&#32;"));
     }
 }
 
@@ -1936,8 +1897,8 @@ void XmlWriter::appendMethodCallHeader(
     const String& cimObject,
     const String& authenticationHeader,
     HttpMethod httpMethod,
-    const AcceptLanguages & acceptLanguages,
-    const ContentLanguages & contentLanguages,
+    const AcceptLanguageList& acceptLanguages,
+    const ContentLanguageList& contentLanguages,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -2012,7 +1973,7 @@ void XmlWriter::appendMethodCallHeader(
 void XmlWriter::appendMethodResponseHeader(
      Buffer& out,
      HttpMethod httpMethod,
-     const ContentLanguages & contentLanguages,
+     const ContentLanguageList& contentLanguages,
      Uint32 contentLength,
      Uint64 serverResponseTime)
 {
@@ -2732,8 +2693,8 @@ Buffer XmlWriter::formatSimpleMethodReqMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const String& authenticationHeader,
-    const AcceptLanguages& httpAcceptLanguages,
-    const ContentLanguages& httpContentLanguages)
+    const AcceptLanguageList& httpAcceptLanguages,
+    const ContentLanguageList& httpContentLanguages)
 {
     Buffer out;
     Buffer tmp;
@@ -2773,7 +2734,7 @@ Buffer XmlWriter::formatSimpleMethodRspMessage(
     const CIMName& methodName,
     const String& messageId,
     HttpMethod httpMethod,
-    const ContentLanguages & httpContentLanguages,
+    const ContentLanguageList& httpContentLanguages,
     const Buffer& body,
 		Uint64 serverResponseTime,
 		Boolean isFirst,
@@ -2855,8 +2816,8 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const String& authenticationHeader,
-    const AcceptLanguages& httpAcceptLanguages,
-    const ContentLanguages& httpContentLanguages,
+    const AcceptLanguageList& httpAcceptLanguages,
+    const ContentLanguageList& httpContentLanguages,
     const Buffer& body)
 {
     Buffer out;
@@ -2896,7 +2857,7 @@ Buffer XmlWriter::formatSimpleIMethodRspMessage(
     const CIMName& iMethodName,
     const String& messageId,
     HttpMethod httpMethod,
-    const ContentLanguages & httpContentLanguages,
+    const ContentLanguageList& httpContentLanguages,
     const Buffer& body,
     Uint64 serverResponseTime,
     Boolean isFirst,
@@ -2995,8 +2956,8 @@ void XmlWriter::appendEMethodRequestHeader(
     const CIMName& cimMethod,
     HttpMethod httpMethod,
     const String& authenticationHeader,
-    const AcceptLanguages& acceptLanguages,
-    const ContentLanguages& contentLanguages,
+    const AcceptLanguageList& acceptLanguages,
+    const ContentLanguageList& contentLanguages,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -3066,7 +3027,7 @@ void XmlWriter::appendEMethodRequestHeader(
 void XmlWriter::appendEMethodResponseHeader(
     Buffer& out,
     HttpMethod httpMethod,
-    const ContentLanguages& contentLanguages,
+    const ContentLanguageList& contentLanguages,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -3234,8 +3195,8 @@ Buffer XmlWriter::formatSimpleEMethodReqMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const String& authenticationHeader,
-    const AcceptLanguages& httpAcceptLanguages,
-    const ContentLanguages& httpContentLanguages,
+    const AcceptLanguageList& httpAcceptLanguages,
+    const ContentLanguageList& httpContentLanguages,
     const Buffer& body)
 {
     Buffer out;
@@ -3274,7 +3235,7 @@ Buffer XmlWriter::formatSimpleEMethodRspMessage(
     const CIMName& eMethodName,
     const String& messageId,
     HttpMethod httpMethod,
-    const ContentLanguages& httpContentLanguages,
+    const ContentLanguageList& httpContentLanguages,
     const Buffer& body)
 {
     Buffer out;
@@ -3455,7 +3416,7 @@ void XmlWriter::indentedPrint(
 	    case XmlEntry::CDATA:
 	    {
 		_xmlWritter_indent(os, stack.size(), indentChars);
-		os << "<![CDATA[...]]>";
+		os << "<![CDATA[" << entry.text << "]]>";
 		break;
 	    }
 

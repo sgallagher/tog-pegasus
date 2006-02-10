@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -56,6 +63,7 @@
 // ==========================================================================
 
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/XmlWriter.h>
 #include "TestProcessorProvider.h"
 #include "../ProcessorPlatform.h"
 
@@ -64,6 +72,7 @@
 // ==========================================================================
 
 const String NAMESPACE("root/cimv2");
+const int TIMEOUT=10000;                    // timeout value in milliseconds
 
 // ==========================================================================
 // Class names.  These values are the names of the classes that
@@ -76,8 +85,13 @@ const String NAMESPACE("root/cimv2");
 
 static const String CLASS_CIM_PROCESSOR("CIM_Processor");
 static const String CLASS_PROCESSOR("PG_Processor");
-static const String CLASS_CIM_UNITARY_COMPUTER_SYSTEM(
-    "CIM_UnitaryComputerSystem");
+static const String CLASS_CIM_UNITARY_COMPUTER_SYSTEM("CIM_UnitaryComputerSystem");
+
+// ==========================================================================
+// The number of keys for the classes.
+// ==========================================================================
+
+static const int NUMKEYS_CIM_PROCESSOR=4;
 
 // ==========================================================================
 // Property names.  These values are returned by the provider as
@@ -86,8 +100,7 @@ static const String CLASS_CIM_UNITARY_COMPUTER_SYSTEM(
 
 // Key properties (defined in CIM_LogicalDevice)
 
-static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME(
-    "SystemCreationClassName");
+static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME("SystemCreationClassName");
 static const String PROPERTY_SYSTEM_NAME("SystemName");
 static const String PROPERTY_CREATION_CLASS_NAME("CreationClassName");
 static const String PROPERTY_DEVICE_ID("DeviceID");
@@ -107,10 +120,8 @@ static const String PROPERTY_STATUS("Status");
 
 // Properties in CIM_LogicalDevice
 
-static const String PROPERTY_POWER_MANAGEMENT_SUPPORTED(
-    "PowerManagementSupported");
-static const String PROPERTY_POWER_MANAGEMENT_CAPABILITYES(
-    "PowerManagementCapabilities");
+static const String PROPERTY_POWER_MANAGEMENT_SUPPORTED("PowerManagementSupported");
+static const String PROPERTY_POWER_MANAGEMENT_CAPABILITYES("PowerManagementCapabilities");
 static const String PROPERTY_AVAILABILITY("Availability");
 static const String PROPERTY_STATUS_INFO("StatusInfo");
 static const String PROPERTY_LAST_ERROR_CODE("LastErrorCode");
@@ -119,8 +130,7 @@ static const String PROPERTY_ERROR_CLEARED("ErrorCleared");
 static const String PROPERTY_OTHER_IDENTIFYING_INFO("OtherIdentifyingInfo");
 static const String PROPERTY_POWER_ON_HOURS("PowerOnHours");
 static const String PROPERTY_TOTAL_POWER_HOURS("TotalPowerHours");
-static const String PROPERTY_IDENTIFYING_DESCRIPTIONS(
-    "IdentifyingDescriptions");
+static const String PROPERTY_IDENTIFYING_DESCRIPTIONS("IdentifyingDescriptions");
 static const String PROPERTY_ADDITIONAL_AVAILABILITY("AdditionalAvailability");
 static const String PROPERTY_MAX_QUIESCE_TIME("MaxQuiesceTime");
 static const String METHOD_SET_POWER_STATE("SetPowerState");
@@ -220,8 +230,7 @@ int testClass(const String& className)
     Array<CIMKeyBinding> keys = ref.getKeyBindings();
     cout << "  Keys:" << endl;
     for (i=0; i<keys.size(); i++)
-        cout << "    " << keys[i].getName().getString() << " = "
-             << keys[i].getValue() << endl;
+      cout << "    " << keys[i].getName() << " = " << keys[i].getValue() << endl;
   }
 
   // check returned property values
@@ -247,7 +256,7 @@ int testClass(const String& className)
   Uint32 i32a, i32b;
   Uint64 i64a, i64b;
   CIMDateTime da, db;
-
+  
   // For each property, get it from the just-loaded process
   // object and compare with what was returned by getInstance()
 
@@ -264,7 +273,7 @@ int testClass(const String& className)
       return 1;
     }
   }
-
+  
   if (p.getDescription(sa))
   {
     if (processorTestVerbose) cout << "    Description" << endl;
@@ -275,7 +284,7 @@ int testClass(const String& className)
       return 1;
     }
   }
-
+  
   // The rest of the properties to check depend on the
   // class we are testing
 
@@ -294,7 +303,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getStatus(sa))
     {
       if (processorTestVerbose) cout << "    Status" << endl;
@@ -305,36 +314,31 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
   // ===================== CIM_LogicalDevice =========================
 
     if (p.getPowerManagementSupported(ba))
     {
       if (processorTestVerbose) cout << "    PowerManagementSupported" << endl;
-      inst.getProperty(
-          inst.findProperty("PowerManagementSupported")).getValue().get(bb);
+      inst.getProperty(inst.findProperty("PowerManagementSupported")).getValue().get(bb);
       if (ba != bb)
       {
-        cout << "+++++ Error: property mismatch: PowerManagementSupported" <<
-            endl;
+        cout << "+++++ Error: property mismatch: PowerManagementSupported" << endl;
         return 1;
       }
     }
-
+  
     if (p.getPowerManagementCapabilities(ai16a))
     {
-      if (processorTestVerbose)
-          cout << "    PowerManagementCapabilities" << endl;
-      inst.getProperty(inst.findProperty(
-          "PowerManagementCapabilities")).getValue().get(ai16b);
+      if (processorTestVerbose) cout << "    PowerManagementCapabilities" << endl;
+      inst.getProperty(inst.findProperty("PowerManagementCapabilities")).getValue().get(ai16b);
       if (ai16a != ai16b)
       {
-        cout << "+++++ Error: property mismatch: PowerManagementCapabilities"
-             << endl;
+        cout << "+++++ Error: property mismatch: PowerManagementCapabilities" << endl;
         return 1;
       }
     }
-
+  
     if (p.getAvailability(i16a))
     {
       if (processorTestVerbose) cout << "    Availability" << endl;
@@ -345,7 +349,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getStatusInfo(i16a))
     {
       if (processorTestVerbose) cout << "    StatusInfo" << endl;
@@ -356,7 +360,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getLastErrorCode(i32a))
     {
       if (processorTestVerbose) cout << "    LastErrorCode" << endl;
@@ -367,19 +371,18 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getErrorDescription(sa))
     {
       if (processorTestVerbose) cout << "    ErrorDescription" << endl;
-      inst.getProperty(
-          inst.findProperty("ErrorDescription")).getValue().get(sb);
+      inst.getProperty(inst.findProperty("ErrorDescription")).getValue().get(sb);
       if (sa != sb)
       {
         cout << "+++++ Error: property mismatch: ErrorDescription" << endl;
         return 1;
       }
     }
-
+  
     if (p.getErrorCleared(ba))
     {
       if (processorTestVerbose) cout << "    ErrorCleared" << endl;
@@ -390,19 +393,18 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getOtherIdentifyingInfo(asa))
     {
       if (processorTestVerbose) cout << "    OtherIdentifyingInfo" << endl;
-      inst.getProperty(
-          inst.findProperty("OtherIdentifyingInfo")).getValue().get(asb);
+      inst.getProperty(inst.findProperty("OtherIdentifyingInfo")).getValue().get(asb);
       if (asa != asb)
       {
         cout << "+++++ Error: property mismatch: OtherIdentifyingInfo" << endl;
         return 1;
       }
     }
-
+  
     if (p.getPowerOnHours(i64a))
     {
       if (processorTestVerbose) cout << "    PowerOnHours" << endl;
@@ -413,57 +415,51 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getTotalPowerOnHours(i64a))
     {
       if (processorTestVerbose) cout << "    TotalPowerOnHours" << endl;
-      inst.getProperty(
-          inst.findProperty("TotalPowerOnHours")).getValue().get(i64b);
+      inst.getProperty(inst.findProperty("TotalPowerOnHours")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: TotalPowerOnHours" << endl;
         return 1;
       }
     }
-
+  
     if (p.getIdentifyingDescriptions(asa))
     {
       if (processorTestVerbose) cout << "    IdentifyingDescriptions" << endl;
-      inst.getProperty(
-          inst.findProperty("IdentifyingDescriptions")).getValue().get(asb);
+      inst.getProperty(inst.findProperty("IdentifyingDescriptions")).getValue().get(asb);
       if (asa != asb)
       {
-        cout << "+++++ Error: property mismatch: IdentifyingDescriptions" <<
-            endl;
+        cout << "+++++ Error: property mismatch: IdentifyingDescriptions" << endl;
         return 1;
       }
     }
-
+  
     if (p.getAdditionalAvailability(ai16a))
     {
       if (processorTestVerbose) cout << "    AdditionalAvailability" << endl;
-      inst.getProperty(
-          inst.findProperty("AdditionalAvailability")).getValue().get(ai16b);
+      inst.getProperty(inst.findProperty("AdditionalAvailability")).getValue().get(ai16b);
       if (ai16a != ai16b)
       {
-        cout << "+++++ Error: property mismatch: AdditionalAvailability" <<
-            endl;
+        cout << "+++++ Error: property mismatch: AdditionalAvailability" << endl;
         return 1;
       }
     }
-
+  
     if (p.getMaxQuiesceTime(i64a))
     {
       if (processorTestVerbose) cout << "    MaxQuiesceTime" << endl;
-      inst.getProperty(
-          inst.findProperty("MaxQuiesceTime")).getValue().get(i64b);
+      inst.getProperty(inst.findProperty("MaxQuiesceTime")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: MaxQuiesceTime" << endl;
         return 1;
       }
     }
-
+  
   // ===================== CIM_Processor =========================
 
     if (p.getRole(sa))
@@ -476,7 +472,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getFamily(i16a))
     {
       if (processorTestVerbose) cout << "    Family" << endl;
@@ -487,20 +483,18 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getOtherFamilyDescription(sa))
     {
       if (processorTestVerbose) cout << "    OtherFamilyDescription" << endl;
-      inst.getProperty(
-          inst.findProperty("OtherFamilyDescription")).getValue().get(sb);
+      inst.getProperty(inst.findProperty("OtherFamilyDescription")).getValue().get(sb);
       if (sa != sb)
       {
-        cout << "+++++ Error: property mismatch: OtherFamilyDescription" <<
-            endl;
+        cout << "+++++ Error: property mismatch: OtherFamilyDescription" << endl;
         return 1;
       }
     }
-
+  
     if (p.getUpgradeMethod(i16a))
     {
       if (processorTestVerbose) cout << "    UpgradeMethod" << endl;
@@ -511,7 +505,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getMaxClockSpeed(i32a))
     {
       if (processorTestVerbose) cout << "    MaxClockSpeed" << endl;
@@ -522,19 +516,18 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getCurrentClockSpeed(i32a))
     {
       if (processorTestVerbose) cout << "    CurrentClockSpeed" << endl;
-      inst.getProperty(
-          inst.findProperty("CurrentClockSpeed")).getValue().get(i32b);
+      inst.getProperty(inst.findProperty("CurrentClockSpeed")).getValue().get(i32b);
       if (i32a != i32b)
       {
         cout << "+++++ Error: property mismatch: CurrentClockSpeed" << endl;
         return 1;
       }
     }
-
+  
     if (p.getDataWidth(i16a))
     {
       if (processorTestVerbose) cout << "    DataWidth" << endl;
@@ -545,7 +538,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getAddressWidth(i16a))
     {
       if (processorTestVerbose) cout << "    AddressWidth" << endl;
@@ -556,21 +549,18 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getLoadPercentage(i16a))
     {
       if (processorTestVerbose) cout << "    LoadPercentage" << endl;
-      inst.getProperty(
-          inst.findProperty("LoadPercentage")).getValue().get(i16b);
+      inst.getProperty(inst.findProperty("LoadPercentage")).getValue().get(i16b);
       if (i16a != i16b)
       {
         cout << "+++++ Error: property mismatch: LoadPercentage" << endl;
-        cout << "LoadPercentage expected = " << i16a << ", received = " <<
-            i16b << endl;
         return 1;
       }
     }
-
+  
     if (p.getStepping(sa))
     {
       if (processorTestVerbose) cout << "    Stepping" << endl;
@@ -581,7 +571,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getUniqueID(sa))
     {
       if (processorTestVerbose) cout << "    UniqueID" << endl;
@@ -592,7 +582,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getCPUStatus(i16a))
     {
       if (processorTestVerbose) cout << "    CPUStatus" << endl;
@@ -603,7 +593,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
   // ===================== PG_Processor =========================
 
     if (p.getBiosID(sa))
@@ -616,7 +606,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     if (p.getFirmwareID(sa))
     {
       if (processorTestVerbose) cout << "    FirmwareID" << endl;
@@ -627,7 +617,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-
+  
     cout << "+++++ property values ok" << endl;
   }
 
@@ -638,12 +628,12 @@ int testClass(const String& className)
   }
 
   // ------------------ do getInstance() with bad key ----------------------
-
+  
   Array<CIMKeyBinding> kb = ref.getKeyBindings();
   // mess up first key name
   kb[0].setName("foobar");
   ref.setKeyBindings(kb);
-
+  
   int status = 0;
 
   cout << "+++++ getInstance with bad key" << endl;
@@ -707,7 +697,7 @@ int testClass(const String& className)
   // =======================================================================
 
   cout << "+++++ enumerateInstances(" << className << ")" << endl;
-
+  
   Array<CIMInstance> ia;
   try
   {
@@ -717,8 +707,8 @@ int testClass(const String& className)
   {
     errorExit(e);
   }
-
-
+  
+  
   // =======================================================================
   // modifyInstance
   // =======================================================================
@@ -755,7 +745,7 @@ int testClass(const String& className)
 int main(int argc, char *argv[])
 {
   cout << "+++++ Testing Processor Provider" << endl;
-
+  
   processorTestVerbose = getenv("PEGASUS_TEST_VERBOSE");
 
   if ((argc == 2) && String::equalNoCase(argv[1], "verbose"))

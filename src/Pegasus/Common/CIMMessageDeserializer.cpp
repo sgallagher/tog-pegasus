@@ -72,13 +72,11 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
 
     XmlReader::expectStartTag(parser, entry, "PGMESSAGE");
 
-    if (!entry.getAttributeValue("ID", messageID)) {
-        PEGASUS_ASSERT(0);
-    }
+    Boolean found = entry.getAttributeValue("ID", messageID);
+    PEGASUS_ASSERT(found);
 
-    if (!entry.getAttributeValue("TYPE", typeString)) {
-        PEGASUS_ASSERT(0);
-    }
+    found = entry.getAttributeValue("TYPE", typeString);
+    PEGASUS_ASSERT(found);
     type = Uint32(atoi(typeString.getCString()));
 
 #ifndef PEGASUS_DISABLE_PERFINST
@@ -101,15 +99,13 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
         message = _deserializeCIMRequestMessage(parser, type);
         XmlReader::expectEndTag(parser, "PGREQ");
     }
-    else if (XmlReader::testStartTag(parser, entry, "PGRESP"))
-    {
-        message = _deserializeCIMResponseMessage(parser, type);
-        XmlReader::expectEndTag(parser, "PGRESP");
-    }
     else
     {
-        // No other CIMMessage types are currently defined
-        PEGASUS_ASSERT(0);
+        // CIMResponseMessage is the only other CIMMessage type defined
+        Boolean found = XmlReader::testStartTag(parser, entry, "PGRESP");
+        PEGASUS_ASSERT(found);
+        message = _deserializeCIMResponseMessage(parser, type);
+        XmlReader::expectEndTag(parser, "PGRESP");
     }
 
     XmlReader::expectEndTag(parser, "PGMESSAGE");
@@ -164,19 +160,18 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
 
         switch (type)
         {
-        case CIM_GET_CLASS_REQUEST_MESSAGE:
-        case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-        case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-        case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-        case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-        case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-        case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-        case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-        case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-        case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-            // Not implemented.  No provider can support this message type.
-            PEGASUS_ASSERT(0);
-            break;
+        // A provider cannot implement these operation types, so the
+        // serialization of these messages is not implemented.
+        //case CIM_GET_CLASS_REQUEST_MESSAGE:
+        //case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+        //case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+        //case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+        //case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
+        //case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
+        //case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
+        //case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
+        //case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
+        //case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
 
         // Instance operations
         case CIM_GET_INSTANCE_REQUEST_MESSAGE:
@@ -227,10 +222,8 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
             cimOpReqMessage = _deserializeCIMInvokeMethodRequestMessage(parser);
             break;
-
-        default:
-            PEGASUS_ASSERT(0);
         }
+        PEGASUS_ASSERT(cimOpReqMessage != 0);
 
         XmlReader::expectEndTag(parser, "PGOPREQ");
 
@@ -254,9 +247,8 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
             cimIndReqMessage = _deserializeCIMDeleteSubscriptionRequestMessage(parser);
             break;
-        default:
-            PEGASUS_ASSERT(0);
         }
+        PEGASUS_ASSERT(cimIndReqMessage != 0);
 
         XmlReader::expectEndTag(parser, "PGINDREQ");
 
@@ -274,19 +266,16 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
             message = _deserializeCIMProcessIndicationRequestMessage(parser);
             break;
-        case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
+        //case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //message = _deserializeCIMNotifyProviderRegistrationRequestMessage(parser);
             break;
-        case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
+        //case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //message = _deserializeCIMNotifyProviderTerminationRequestMessage(parser);
             break;
-        case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
+        //case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //message = _deserializeCIMHandleIndicationRequestMessage(parser);
             break;
         case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
@@ -295,9 +284,8 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
             message = _deserializeCIMEnableModuleRequestMessage(parser);
             break;
-        case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
+        //case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //message = _deserializeCIMNotifyProviderEnableRequestMessage(parser);
             break;
         case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
@@ -318,10 +306,8 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
                 _deserializeCIMSubscriptionInitCompleteRequestMessage
                     (parser);
             break;
-
-        default:
-            PEGASUS_ASSERT(0);
         }
+        PEGASUS_ASSERT(message != 0);
 
         XmlReader::expectEndTag(parser, "PGOTHERREQ");
     }
@@ -351,19 +337,18 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
         // CIM Operation Response Messages
         //
 
-        case CIM_GET_CLASS_RESPONSE_MESSAGE:
-        case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
-        case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
-        case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
-        case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
-        case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
-        case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
-        case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
-        case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
-        case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
-            // Not implemented.  No provider can support this message type.
-            PEGASUS_ASSERT(0);
-            break;
+        // A provider cannot implement these operation types, so the
+        // serialization of these messages is not implemented.
+        //case CIM_GET_CLASS_RESPONSE_MESSAGE:
+        //case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
+        //case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
+        //case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
+        //case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
+        //case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
+        //case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
+        //case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
+        //case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
+        //case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
 
         // Instance operations
         case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
@@ -439,32 +424,28 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
         case CIM_PROCESS_INDICATION_RESPONSE_MESSAGE:
             message = _deserializeCIMProcessIndicationResponseMessage(parser);
             break;
-        case CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE:
+        //case CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //message = _deserializeCIMNotifyProviderRegistrationResponseMessage(parser);
-            break;
-        case CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE:
+            //break;
+        //case CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //message = _deserializeCIMNotifyProviderTerminationResponseMessage(parser);
-            break;
-        case CIM_HANDLE_INDICATION_RESPONSE_MESSAGE:
+            //break;
+        //case CIM_HANDLE_INDICATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //message = _deserializeCIMHandleIndicationResponseMessage(parser);
-            break;
+            //break;
         case CIM_DISABLE_MODULE_RESPONSE_MESSAGE:
             message = _deserializeCIMDisableModuleResponseMessage(parser);
             break;
         case CIM_ENABLE_MODULE_RESPONSE_MESSAGE:
             message = _deserializeCIMEnableModuleResponseMessage(parser);
             break;
-        case CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE:
+        //case CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //message = _deserializeCIMNotifyProviderEnableResponseMessage(parser);
-            break;
+            //break;
         case CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE:
             message = _deserializeCIMStopAllProvidersResponseMessage(parser);
             break;
@@ -483,10 +464,8 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
                 _deserializeCIMSubscriptionInitCompleteResponseMessage
                     (parser);
             break;
-
-        default:
-            PEGASUS_ASSERT(0);
     }
+    PEGASUS_ASSERT(message != 0);
 
     message->queueIds = queueIdStack;
     message->cimException = cimException;
@@ -551,7 +530,7 @@ void CIMMessageDeserializer::_deserializeOperationContext(
     XmlParser& parser,
     OperationContext& operationContext)
 {
-    // ATTN: Incoming operationContext is presumed to be empty
+    operationContext.clear();
 
     XmlEntry entry;
     CIMValue genericValue;
@@ -715,7 +694,7 @@ void CIMMessageDeserializer::_deserializeContentLanguageList(
     XmlParser& parser,
     ContentLanguageList& contentLanguages)
 {
-    // ATTN: Incoming contentLanguages is presumed to be empty
+    contentLanguages.clear();
 
     XmlEntry entry;
     CIMValue genericValue;
@@ -737,7 +716,7 @@ void CIMMessageDeserializer::_deserializeAcceptLanguageList(
     XmlParser& parser,
     AcceptLanguageList& acceptLanguages)
 {
-    // ATTN: Incoming acceptLanguages is presumed to be empty
+    acceptLanguages.clear();
 
     XmlEntry entry;
     CIMValue genericValue;

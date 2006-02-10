@@ -199,11 +199,6 @@ private:
 
 PEGASUS_INDICATION_CALLBACK BasicProviderManagerRouter::_indicationCallback = 0;
 
-// Private, unimplemented constructor
-BasicProviderManagerRouter::BasicProviderManagerRouter()
-{
-}
-
 BasicProviderManagerRouter::BasicProviderManagerRouter(
     PEGASUS_INDICATION_CALLBACK indicationCallback)
 {

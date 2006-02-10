@@ -286,17 +286,13 @@ public:
 
 private:
     // Unimplemented
-    CIMOMHandleOpSemaphore() {}
+    CIMOMHandleOpSemaphore();
 
     // Unimplemented
-    CIMOMHandleOpSemaphore(const CIMOMHandleOpSemaphore& sem) {}
+    CIMOMHandleOpSemaphore(const CIMOMHandleOpSemaphore& sem);
 
     // Unimplemented
-    CIMOMHandleOpSemaphore& operator=(const CIMOMHandleOpSemaphore& sem)
-    {
-        PEGASUS_ASSERT(0);
-        return *this;
-    }
+    CIMOMHandleOpSemaphore& operator=(const CIMOMHandleOpSemaphore& sem);
 
     CIMOMHandleRep *_rep;
 };

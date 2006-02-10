@@ -264,10 +264,6 @@ String IdentityContainer::getUserName(void) const
     return(_rep->userName);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-IdentityContainer::IdentityContainer()
-{
-}
 
 //
 // SubscriptionInstanceContainer
@@ -352,10 +348,6 @@ CIMInstance SubscriptionInstanceContainer::getInstance(void) const
     return(_rep->subscriptionInstance);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-SubscriptionInstanceContainer::SubscriptionInstanceContainer()
-{
-}
 
 //
 // SubscriptionInstanceNamesContainer
@@ -444,10 +436,6 @@ Array<CIMObjectPath>
     return(_rep->subscriptionInstanceNames);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer()
-{
-}
 
 //
 // SubscriptionFilterConditionContainer
@@ -546,10 +534,6 @@ String SubscriptionFilterConditionContainer::getQueryLanguage(void) const
     return(_rep->queryLanguage);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer()
-{
-}
 
 //
 // SubscriptionFilterQueryContainer
@@ -659,10 +643,6 @@ CIMNamespaceName SubscriptionFilterQueryContainer::getSourceNameSpace(void) cons
     return(_rep->sourceNameSpace);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer()
-{
-}
 
 //
 // TimeoutContainer
@@ -791,10 +771,6 @@ AcceptLanguageList AcceptLanguageListContainer::getLanguages(void) const
     return(_rep->languages);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-AcceptLanguageListContainer::AcceptLanguageListContainer()
-{
-}
 
 //
 // SubscriptionLanguageListContainer
@@ -879,10 +855,6 @@ AcceptLanguageList SubscriptionLanguageListContainer::getLanguages(void) const
     return(_rep->languages);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-SubscriptionLanguageListContainer::SubscriptionLanguageListContainer()
-{
-}
 
 //
 // ContentLanguageListContainer
@@ -967,10 +939,6 @@ ContentLanguageList ContentLanguageListContainer::getLanguages(void) const
     return(_rep->languages);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-ContentLanguageListContainer::ContentLanguageListContainer()
-{
-}
 
 // l10n end
 
@@ -1055,11 +1023,6 @@ void SnmpTrapOidContainer::destroy(void)
 String SnmpTrapOidContainer::getSnmpTrapOid(void) const
 {
     return(_rep->snmpTrapOid);
-}
-
-// Unimplemented, hidden constructor not intended for actual use
-SnmpTrapOidContainer::SnmpTrapOidContainer()
-{
 }
 
 PEGASUS_NAMESPACE_END

@@ -1901,7 +1901,7 @@ public:
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
-    : CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE,
+    : CIMResponseMessage(CIM_PROCESS_INDICATION_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_)
     {
     }

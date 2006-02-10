@@ -1,0 +1,8 @@
+#==============================================================
+# Testcases for applyProjection with embedded objects.
+#
+# NOTE: ONLY use this file for applyProjection testcases.
+#==============================================================
+
+# Simple properties
+SELECT EmbObjBase.CQL_EmbeddedTestElement::CS FROM CQL_EmbeddedSubClass

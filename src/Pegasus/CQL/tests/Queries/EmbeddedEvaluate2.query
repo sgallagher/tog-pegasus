@@ -1,0 +1,13 @@
+#==============================================================
+# Testcases for Evaluate with embedded objects.
+#
+# NOTE: ONLY use this file for evaluate testcases.
+#==============================================================
+
+
+#==============================================================
+# Testing resolve on embedded objects
+#==============================================================
+# This test compares two embedded properties
+# evaluates to true
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase = CQL_EmbeddedSubClass.EmbObjBase

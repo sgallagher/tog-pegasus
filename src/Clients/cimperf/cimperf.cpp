@@ -266,9 +266,11 @@ int main(int argc, char** argv)
     String location;
     om.lookupValue("location", location);
 
-    //Get port number from (option manager) command line if none use defualt
+    // Get port number from (option manager) command line; if none use the
+    // default.  The lookup will always be successful since the optionTable
+    // has a default value for this option.
     String str_port;
-    Uint32 port;
+    Uint32 port = 0;
     if (om.lookupValue("port", str_port))
     {
         port = (Uint32) atoi(str_port.getCString());

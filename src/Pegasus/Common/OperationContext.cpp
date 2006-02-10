@@ -686,8 +686,6 @@ Uint32 TimeoutContainer::getTimeOut(void) const
 }
 
 
-// l10n start
-
 //
 // AcceptLanguageListContainer
 //
@@ -767,90 +765,6 @@ void AcceptLanguageListContainer::destroy(void)
 }
 
 AcceptLanguageList AcceptLanguageListContainer::getLanguages(void) const
-{
-    return(_rep->languages);
-}
-
-
-//
-// SubscriptionLanguageListContainer
-//
-
-class SubscriptionLanguageListContainerRep
-{
-public:
-    AcceptLanguageList languages;
-};
-
-const String SubscriptionLanguageListContainer::NAME =
-    "SubscriptionLanguageListContainer";
-
-SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
-    (const OperationContext::Container & container)
-{
-    const SubscriptionLanguageListContainer * p = 
-    	dynamic_cast<const SubscriptionLanguageListContainer *>(&container);
-
-    if(p == 0)
-    {
-        throw DynamicCastFailedException();
-    }
-
-    _rep = new SubscriptionLanguageListContainerRep();
-    _rep->languages = p->_rep->languages;
-}
-
-SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
-    (const SubscriptionLanguageListContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-     : OperationContext::Container()
-#endif
-{
-    _rep = new SubscriptionLanguageListContainerRep();
-    _rep->languages = container._rep->languages;
-}
-
-SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
-    (const AcceptLanguageList & languages)
-{
-    _rep = new SubscriptionLanguageListContainerRep();
-    _rep->languages = languages;
-}
-
-SubscriptionLanguageListContainer::~SubscriptionLanguageListContainer(void)
-{
-    delete _rep;
-}
-
-SubscriptionLanguageListContainer & SubscriptionLanguageListContainer::operator=(
-    const SubscriptionLanguageListContainer & container)
-{
-    if (this == &container)
-    {
-        return (*this);
-    }
-
-    _rep->languages = container._rep->languages;
-
-    return (*this);
-}
-
-String SubscriptionLanguageListContainer::getName(void) const
-{
-    return(NAME);
-}
-
-OperationContext::Container * SubscriptionLanguageListContainer::clone(void) const
-{
-    return(new SubscriptionLanguageListContainer(_rep->languages));
-}
-
-void SubscriptionLanguageListContainer::destroy(void)
-{
-    delete this;
-}
-
-AcceptLanguageList SubscriptionLanguageListContainer::getLanguages(void) const
 {
     return(_rep->languages);
 }
@@ -940,7 +854,6 @@ ContentLanguageList ContentLanguageListContainer::getLanguages(void) const
 }
 
 
-// l10n end
 
 //
 // SnmpTrapOidContainer

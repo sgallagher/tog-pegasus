@@ -6095,8 +6095,6 @@ void IndicationService::_sendAsyncCreateRequests
             (condition,queryLanguage));
         request->operationContext.insert(SubscriptionFilterQueryContainer
             (query,queryLanguage,nameSpace));
-        request->operationContext.insert(SubscriptionLanguageListContainer
-            (acceptLangs));
         request->operationContext.insert(IdentityContainer(userName));
         request->operationContext.set(ContentLanguageListContainer
             (contentLangs));
@@ -6192,8 +6190,6 @@ Array <ProviderClassList> IndicationService::_sendWaitCreateRequests
             (condition,queryLanguage));
         request->operationContext.insert(SubscriptionFilterQueryContainer
             (query,queryLanguage,nameSpace));
-        request->operationContext.insert(SubscriptionLanguageListContainer
-            (acceptLangs));
         request->operationContext.insert(IdentityContainer(userName));
         request->operationContext.set(ContentLanguageListContainer
             (contentLangs));
@@ -6307,8 +6303,6 @@ void IndicationService::_sendWaitModifyRequests
             (condition,queryLanguage));
         request->operationContext.insert(SubscriptionFilterQueryContainer
             (query,queryLanguage,nameSpace));
-        request->operationContext.insert(SubscriptionLanguageListContainer
-            (acceptLangs));
         request->operationContext.insert(IdentityContainer(userName));
         request->operationContext.set(ContentLanguageListContainer
             (contentLangs));
@@ -6459,8 +6453,6 @@ void IndicationService::_sendAsyncDeleteRequests
             indicationProviders [i].provider));
         request->operationContext.insert(SubscriptionInstanceContainer
             (subscription));
-        request->operationContext.insert(SubscriptionLanguageListContainer
-            (acceptLangs));
         request->operationContext.insert(IdentityContainer(userName));
         request->operationContext.set(ContentLanguageListContainer
             (contentLangs));
@@ -6529,8 +6521,6 @@ void IndicationService::_sendWaitDeleteRequests
             indicationProviders [i].provider));
         request->operationContext.insert(SubscriptionInstanceContainer
             (subscription));
-        request->operationContext.insert(SubscriptionLanguageListContainer
-            (acceptLangs));
         request->operationContext.insert(IdentityContainer(userName));
         request->operationContext.set(ContentLanguageListContainer
             (contentLangs));

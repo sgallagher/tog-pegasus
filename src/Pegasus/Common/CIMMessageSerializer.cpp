@@ -647,19 +647,6 @@ void CIMMessageSerializer::_serializeOperationContext(
 
     try
     {
-        const SubscriptionLanguageListContainer container =
-            operationContext.get(SubscriptionLanguageListContainer::NAME);
-
-        XmlWriter::append(out, "<PGOCSLL>\n");
-        _serializeAcceptLanguageList(out, container.getLanguages());
-        XmlWriter::append(out, "</PGOCSLL>\n");
-    }
-    catch (...)
-    {
-    }
-
-    try
-    {
         const ContentLanguageListContainer container =
             operationContext.get(ContentLanguageListContainer::NAME);
 

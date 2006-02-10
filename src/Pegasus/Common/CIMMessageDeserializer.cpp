@@ -622,16 +622,6 @@ void CIMMessageDeserializer::_deserializeOperationContext(
         XmlReader::expectEndTag(parser, "PGOCALL");
     }
 
-    if (XmlReader::testStartTag(parser, entry, "PGOCSLL"))
-    {
-        AcceptLanguageList acceptLanguages;
-
-        _deserializeAcceptLanguageList(parser, acceptLanguages);
-        operationContext.insert(
-            SubscriptionLanguageListContainer(acceptLanguages));
-        XmlReader::expectEndTag(parser, "PGOCSLL");
-    }
-
     if (XmlReader::testStartTag(parser, entry, "PGOCCLL"))
     {
         ContentLanguageList contentLanguages;

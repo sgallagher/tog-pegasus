@@ -4242,7 +4242,6 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         context->insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
         context->insert(request->operationContext.get(ContentLanguageListContainer::NAME));
         context->insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-        context->insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
         context->insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
@@ -4463,7 +4462,6 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
         context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
         context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-        context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 

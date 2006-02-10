@@ -1442,7 +1442,6 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
 		 context.insert(request->operationContext.get(SubscriptionFilterQueryContainer::NAME));
 
@@ -1583,7 +1582,6 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
 		 context.insert(request->operationContext.get(SubscriptionFilterQueryContainer::NAME));
 
@@ -1709,7 +1707,6 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 

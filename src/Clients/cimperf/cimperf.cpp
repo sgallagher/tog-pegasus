@@ -293,8 +293,10 @@ int main(int argc, char** argv)
     CIMClient client;
 
     try
-    {
-        client.connect(location, port, userN, passW);
+    {   if(String::equal(location,"localhost"))
+            client.connectLocal();
+        else
+            client.connect(location, port, userN, passW);
     }
 
     catch (Exception& e)

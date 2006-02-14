@@ -96,7 +96,7 @@ PRESTARTTEST_FILES = \
    TestValidateClass \
    TestValue \
    TracerTest \
-   IPC
+   TestIPC
 
 PEGASUS_TEST_PROVIDERS = \
    libSampleInstanceProvider \

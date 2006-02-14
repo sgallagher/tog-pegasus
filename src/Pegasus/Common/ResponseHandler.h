@@ -128,6 +128,8 @@ public:
         delivered.  An Array form of this method is also available to
         deliver multiple results.
         @param instance The instance to deliver to the CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(const CIMInstance & instance) = 0;
 
@@ -135,6 +137,8 @@ public:
         Delivers multiple instance results to the CIM Server.  This method
         may be invoked multiple times, if necessary.
         @param instances The instances to deliver to the CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(const Array<CIMInstance> & instances) = 0;
 };
@@ -154,6 +158,8 @@ public:
         delivered.  An Array form of this method is also available to
         deliver multiple results.
         @param objectPath The object path to deliver to the CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(const CIMObjectPath & objectPath) = 0;
 
@@ -161,6 +167,8 @@ public:
         Delivers multiple object path results to the CIM Server.  This method
         may be invoked multiple times, if necessary.
         @param objectPaths The object paths to deliver to the CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(const Array<CIMObjectPath> & objectPaths) = 0;
 };
@@ -180,6 +188,8 @@ public:
         needs to be delivered.  An Array form of this method is also
         available to deliver multiple results.
         @param outParamValue The output parameter to deliver to the CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliverParamValue(const CIMParamValue & outParamValue) = 0;
 
@@ -188,6 +198,8 @@ public:
         may be invoked multiple times, if necessary.
         @param outParamValues An Array of method output parameters to deliver
         to the CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliverParamValue(
         const Array<CIMParamValue> & outParamValues) = 0;
@@ -195,6 +207,8 @@ public:
     /**
         Delivers an extrinsic method return value to the CIM Server.
         @param returnValue The return value to deliver to the CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(const CIMValue & returnValue) = 0;
 };
@@ -214,6 +228,8 @@ public:
         Another form is also available to specify the context for the
         delivery.
         @param indication The indication instance to deliver to the CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(const CIMIndication & indication) = 0;
 
@@ -222,6 +238,8 @@ public:
         this method is available to specify the context for the delivery.
         @param indications An Array of indication instances to deliver to the
         CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(const Array<CIMIndication> & indications) = 0;
 
@@ -232,6 +250,8 @@ public:
         with the indication, such as the content language.
         @param context A context associated with the indication delivery.
         @param indication The indication instance to deliver to the CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(
         const OperationContext & context,
@@ -244,6 +264,8 @@ public:
         @param context A context associated with the indication delivery.
         @param indications An Array of indication instances to deliver to the
         CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(
         const OperationContext & context,
@@ -265,6 +287,8 @@ public:
         delivered.  An Array form of this method is also available to
         deliver multiple results.
         @param object The object to deliver to the CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(const CIMObject & object) = 0;
 
@@ -272,6 +296,8 @@ public:
         Delivers multiple object results to the CIM Server.  This method
         may be invoked multiple times, if necessary.
         @param objects The objects to deliver to the CIM Server.
+        @exception Exception May be thrown if the data that is delivered is
+        not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(const Array<CIMObject> & objects) = 0;
 };

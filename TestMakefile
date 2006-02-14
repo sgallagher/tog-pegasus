@@ -884,14 +884,14 @@ TestLocalSecurity:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile poststarttests HOSTNAME= PORT= USER= PASSWORD= SECURITY_ENABLED=true
 
 TestRemoteSecurity:
-	TestClient -user guest -password guest $(system):5988
-	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-uguest PASSWORD=-wguest SECURITY_ENABLED=true
+	TestClient -user $(PEGASUS_TEST_USER_ID) -password $(PEGASUS_TEST_USER_PASS) $(system):5988
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-u$(PEGASUS_TEST_USER_ID) PASSWORD=-w$(PEGASUS_TEST_USER_PASS) SECURITY_ENABLED=true
 
 TestAuthorization:
-	TestPegClientDeleteNamespace -a -user guest -password guest
+	TestPegClientDeleteNamespace -a -user $(PEGASUS_TEST_USER_ID) -password $(PEGASUS_TEST_USER_PASS)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile RunTestClientLocal
-	TestClient -user guest -password guest $(system):5988
-	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-uguest PASSWORD=-wguest SECURITY_ENABLED=true
+	TestClient -user $(PEGASUS_TEST_USER_ID) -password $(PEGASUS_TEST_USER_PASS) $(system):5988
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-u$(PEGASUS_TEST_USER_ID) PASSWORD=-w$(PEGASUS_TEST_USER_PASS) SECURITY_ENABLED=true
 
 TestSubscriptions:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile DisableSecurity
@@ -930,30 +930,30 @@ EnableSSL:
 
 ConfigureUsers:
 ifndef PEGASUS_PAM_AUTHENTICATION
-	cimuser -a -u guest -w guest
+	cimuser -a -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS)
 endif
 
 ConfigureAuthorizations:
-	cimauth -a -u guest -n test/cimv2 -R -W
-	cimauth -a -u guest -n root/cimv2 -R -W
-	cimauth -a -u guest -n root/PG_Internal -R -W
-	cimauth -a -u guest -n root/PG_InterOp -R -W
-	cimauth -a -u guest -n root/benchmark -R -W
-	cimauth -a -u guest -n root/sampleprovider -R -W
-	cimauth -a -u guest -n test/static -R -W
-	cimauth -a -u guest -n root/SampleProvider -R -W
-	cimauth -a -u guest -n root -R -W
-	cimauth -a -u guest -n test1 -R -W
-	cimauth -a -u guest -n test2 -R -W
-	cimauth -a -u guest -n test3 -R -W
-	cimauth -a -u guest -n test4 -R -W
-	cimauth -a -u guest -n test5 -R -W
-	cimauth -a -u guest -n test6 -R -W
-	cimauth -a -u guest -n test1/test2 -R -W
-	cimauth -a -u guest -n test1/test2/test3 -R -W
-	cimauth -a -u guest -n test1/test2/test3/test4 -R -W
-	cimauth -a -u guest -n test1/test2/test3/test4/test5 -R -W
-	cimauth -a -u guest -n test1/test2/test3/test4/test5/test6 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test/cimv2 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/cimv2 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/PG_Internal -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/PG_InterOp -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/benchmark -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/sampleprovider -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test/static -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/SampleProvider -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test2 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test3 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test4 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test5 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test6 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2/test3 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2/test3/test4 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2/test3/test4/test5 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2/test3/test4/test5/test6 -R -W
 
 startcimWithoutSSL: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart

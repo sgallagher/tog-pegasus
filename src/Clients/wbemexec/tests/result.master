@@ -1,7 +1,7 @@
   
 Valid cases:
 All options specified except hostname
-wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml
+wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) ./cimrequest.xml
  
 <?xml version="1.0" encoding="utf-8"?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
@@ -42,7 +42,7 @@ Usage note: The wbemexec command requires that the CIM Server is running.
 Version 2.5.1
   
 All options specified except hostname
-wbemexec -p5988 -v1.1 -mM-POST -t10000 -uguest -wguest ./cimrequest.xml
+wbemexec -p5988 -v1.1 -mM-POST -t10000 -u(PEGASUS_TEST_USER_ID) -w(PEGASUS_TEST_USER_PASS) ./cimrequest.xml
  
 <?xml version="1.0" encoding="utf-8"?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
@@ -366,14 +366,14 @@ wbemexec: Invalid option. Use '--help' to obtain command syntax.
  
  
 Invalid option -x
-wbemexec -u guest -w guest -x < ./cimrequest.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) -x < ./cimrequest.xml
  
 wbemexec: Unknown flag -x
 wbemexec: Invalid option. Use '--help' to obtain command syntax.
  
  
 Invalid option -x
-wbemexec -u guest -x -w guest < ./cimrequest.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -x -w (PEGASUS_TEST_USER_PASS) < ./cimrequest.xml
  
 wbemexec: Unknown flag -x
 wbemexec: Invalid option. Use '--help' to obtain command syntax.
@@ -429,14 +429,14 @@ wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
  
  
 Duplicate -u option
-wbemexec -u guest -u guest2 ./cimrequest.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -u (PEGASUS_TEST_USER_ID)2 ./cimrequest.xml
  
 wbemexec: duplicate "-u" option
 wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
  
  
 Duplicate -w option
-wbemexec -w guest -w guest2 ./cimrequest.xml
+wbemexec -w (PEGASUS_TEST_USER_PASS) -w (PEGASUS_TEST_USER_PASS)2 ./cimrequest.xml
  
 wbemexec: duplicate "-w" option
 wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
@@ -692,76 +692,76 @@ wbemexec: Invalid XML request: Validation error: on line 2: missing CIM.DTDVERSI
  
  
 Invalid XML input: missing <MESSAGE> element (no element)
-wbemexec -u guest -w guest < ./cimreqerr02.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr02.xml
  
 wbemexec: Invalid XML request: Validation error: on line 3: expected MESSAGE element
  
  
 Invalid XML input: missing <MESSAGE> element (different element)
-wbemexec -u guest -w guest < ./cimreqerr02a.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr02a.xml
  
 wbemexec: Invalid XML request: Validation error: on line 3: expected MESSAGE element
  
  
 Invalid XML input: missing PROTOCOLVERSION attribute
-wbemexec -u guest -w guest < ./cimreqerr02b.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr02b.xml
  
 wbemexec: Invalid XML request: Validation error: on line 3: Invalid or missing MESSAGE.PROTOCOLVERSION attribute
  
  
 Invalid XML input: missing <SIMPLEREQ> element (no element)
-wbemexec -u guest -w guest < ./cimreqerr03.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr03.xml
  
 wbemexec: Invalid XML request: Validation error: on line 4: expected SIMPLEREQ or MULTIREQ element
  
  
 Invalid XML input: missing <SIMPLEREQ> element (different element)
-wbemexec -u guest -w guest < ./cimreqerr03a.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr03a.xml
  
 wbemexec: Invalid XML request: Validation error: on line 4: expected SIMPLEREQ or MULTIREQ element
  
  
 Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element 
     (no element)
-wbemexec -u guest -w guest < ./cimreqerr04.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr04.xml
  
 wbemexec: Invalid XML request: Validation error: on line 5: expected IMETHODCALL or METHODCALL element
  
  
 Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element 
     (different element)
-wbemexec -u guest -w guest < ./cimreqerr04a.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr04a.xml
  
 wbemexec: Invalid XML request: Validation error: on line 5: expected IMETHODCALL or METHODCALL element
  
  
 Invalid XML input: missing NAME attribute 
-wbemexec -u guest -w guest < ./cimreqerr04b.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr04b.xml
  
 wbemexec: Invalid XML request: Validation error: on line 5: missing IMETHODCALL.NAME attribute
  
  
 Invalid XML input: missing <LOCALNAMESPACEPATH> element (no element)
-wbemexec -u guest -w guest < ./cimreqerr05.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr05.xml
  
 wbemexec: Invalid XML request: Validation error: on line 6: expected LOCALNAMESPACEPATH element
  
  
 Invalid XML input: missing <LOCALNAMESPACEPATH> element (different 
     element)
-wbemexec -u guest -w guest < ./cimreqerr05a.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr05a.xml
  
 wbemexec: Invalid XML request: Validation error: on line 6: expected LOCALNAMESPACEPATH element
  
  
 Invalid XML input: missing <NAMESPACE> element (no element)
-wbemexec -u guest -w guest < ./cimreqerr06.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr06.xml
  
 wbemexec: Invalid XML request: Validation error: on line 7: Expected one or more NAMESPACE elements within LOCALNAMESPACEPATH element
  
  
 Invalid XML input: missing <NAMESPACE> element (different element)
-wbemexec -u guest -w guest < ./cimreqerr06a.xml
+wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) < ./cimreqerr06a.xml
  
 wbemexec: Invalid XML request: Validation error: on line 7: Expected one or more NAMESPACE elements within LOCALNAMESPACEPATH element
  

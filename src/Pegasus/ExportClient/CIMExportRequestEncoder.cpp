@@ -128,7 +128,14 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
 	 ((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
       params);
 
-   _outputQueue->enqueue(new HTTPMessage(buffer));
+   HTTPMessage* httpMessage = new HTTPMessage(buffer);
+   Tracer::traceBuffer(
+       TRC_XML_IO,
+       Tracer::LEVEL2,
+       httpMessage->message.getData(),
+       httpMessage->message.size());
+
+   _outputQueue->enqueue(httpMessage);
    PEG_METHOD_EXIT();
 }
 

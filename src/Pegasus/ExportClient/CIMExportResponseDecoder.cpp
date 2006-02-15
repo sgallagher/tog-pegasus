@@ -171,6 +171,8 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
             //reconnect and then resend next request.
             cimReconnect=true;
         }
+    Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
+                  httpMessage->message.getData());
     }
 
 

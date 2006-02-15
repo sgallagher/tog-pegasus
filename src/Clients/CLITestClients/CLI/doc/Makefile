@@ -52,8 +52,16 @@ html:
 manpage:
 	nroff -$(GROFFOPTIONS) $(SOURCE) >$(DOCUMENT)
 
-test:
+testnroff:
 	nroff -$(GROFFOPTIONS) $(SOURCE) | less
 
+testgroff:
+	groff -$(GROFFOPTIONS) -X $(SOURCE)
+
 text:
+	nroff -$(GROFFOPTIONS) $(SOURCE) | col -b > $(DOCUMENT).txt
+
+textgroff:
 	groff -$(GROFFOPTIONS) $(SOURCE) | col -b > $(DOCUMENT).txt
+
+all: manpage html text

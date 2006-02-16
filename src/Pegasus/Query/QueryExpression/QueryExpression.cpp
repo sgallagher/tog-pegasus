@@ -57,11 +57,13 @@ QueryExpression::QueryExpression():
 QueryExpression::QueryExpression(String queryLang, String query, QueryContext& ctx):
   _queryLang(queryLang)
 {
-   String cql("CIM:CQL");
+   String cimCQL("CIM:CQL");
+   String dmtfCQL("DMTF:CQL");
    String wql("WQL");
 
 #ifndef PEGASUS_DISABLE_CQL
-   if (queryLang == cql)
+   if (queryLang == cimCQL ||
+     queryLang == dmtfCQL)
    {
      CQLSelectStatement* cqlss = new CQLSelectStatement(queryLang, query, ctx);
 
@@ -97,11 +99,13 @@ QueryExpression::QueryExpression(String queryLang, String query, QueryContext& c
 QueryExpression::QueryExpression(String queryLang, String query):
   _queryLang(queryLang)
 {
-   String cql("CIM:CQL");
+   String cimCQL("CIM:CQL");
+   String dmtfCQL("DMTF:CQL");
    String wql("WQL");
 
 #ifndef PEGASUS_DISABLE_CQL
-   if (queryLang == cql)
+   if (queryLang == cimCQL ||
+     queryLang == dmtfCQL)
    {
      CQLSelectStatement* cqlss = new CQLSelectStatement(queryLang, query);
 
@@ -142,11 +146,13 @@ QueryExpression::QueryExpression(const QueryExpression& expr):
   {
     _ss = NULL;
 
-    String cql("CIM:CQL");
+    String cimCQL("CIM:CQL");
+    String dmtfCQL("DMTF:CQL");
     String wql("WQL");
 
 #ifndef PEGASUS_DISABLE_CQL
-    if (expr._queryLang == cql)
+    if (expr._queryLang == cimCQL ||
+        expr._queryLang == dmtfCQL)
     {
       CQLSelectStatement* tempSS = dynamic_cast<CQLSelectStatement*>(expr._ss);
       if (tempSS != NULL)
@@ -180,11 +186,13 @@ QueryExpression QueryExpression::operator=(const QueryExpression& rhs)
 
   if (rhs._ss != NULL)
   {
-    String cql("CIM:CQL");
+    String cimCQL("CIM:CQL");
+    String dmtfCQL("DMTF:CQL");
     String wql("WQL");
 
 #ifndef PEGASUS_DISABLE_CQL
-    if (rhs._queryLang == cql)
+    if (rhs._queryLang == cimCQL ||
+        rhs._queryLang == dmtfCQL)
     {
       CQLSelectStatement* tempSS = dynamic_cast<CQLSelectStatement*>(rhs._ss);
       if (tempSS != NULL)
@@ -402,9 +410,11 @@ void QueryExpression::setQueryContext(QueryContext& inCtx)
   _ss->setQueryContext(inCtx);
 
 #ifndef PEGASUS_DISABLE_CQL
-  String cql("CIM:CQL");
+  String cimCQL("CIM:CQL");
+  String dmtfCQL("DMTF:CQL");
 
-  if (_queryLang == cql)
+  if (_queryLang == cimCQL ||
+      _queryLang == dmtfCQL)
   {
     // Now that we have a QueryContext, we can finish compiling
     // the CQL statement.

@@ -218,6 +218,24 @@ int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
+    // Perform a pre-test to ensure the Provider User Context feature is only
+    // enabled when running in a privileged user context.
+
+    if ((argc == 2) && !strcmp(argv[1], "pretest"))
+    {
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT
+        if (!System::isPrivilegedUser(System::getEffectiveUserName()))
+        {
+            cerr << "ERROR:  When running in a non-privileged user context, "
+                "PEGASUS_DISABLE_PROV_USERCTXT must be set to 'true' in the "
+                "build and test environment." << endl;
+            return 1;
+        }
+#endif
+        cout << argv[0] << " +++++ passed pretest" << endl;
+        return 0;
+    }
+
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
     try
     {

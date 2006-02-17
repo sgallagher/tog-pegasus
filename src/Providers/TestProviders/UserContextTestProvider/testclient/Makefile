@@ -51,6 +51,7 @@ SOURCES = TestUserContext.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+	$(PROGRAM) pretest
 
 poststarttests:
 	$(PROGRAM)

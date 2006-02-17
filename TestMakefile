@@ -971,7 +971,7 @@ EnableSSL:
 #
 ConfigureUsers:
 ifndef PEGASUS_PAM_AUTHENTICATION
-	cimuser -l
+	-cimuser -l
 	-cimuser -a -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS)
 endif
 

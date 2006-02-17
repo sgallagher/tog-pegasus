@@ -329,7 +329,9 @@ Boolean ProviderAgent::_readAndProcessRequest()
         PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
             "Processed the agent initialization message.");
 
-        // Do not write a response for this request
+        // Notify the cimserver that the provider agent is initialized.
+        Uint32 messageLength = 0;
+        _pipeToServer->writeBuffer((const char*)&messageLength, sizeof(Uint32));
     }
     else if (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE)
     {
@@ -384,8 +386,11 @@ Boolean ProviderAgent::_readAndProcessRequest()
 
         // If StopAllProviders, terminate the agent process.
         // If DisableModule not successful, leave agent process running.
-        if ((respMsg->cimException.getCode() == CIM_ERR_SUCCESS) ||
-            (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE))
+        if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
+            ((request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE) &&
+             (!dynamic_cast<CIMDisableModuleRequestMessage*>(request)->
+                  disableProviderOnly) &&
+             (respMsg->cimException.getCode() == CIM_ERR_SUCCESS)))
         {
             // Operation is successful. End the agent process.
             _terminating = true;

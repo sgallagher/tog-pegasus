@@ -122,6 +122,54 @@ void test01()
     XmlWriter::appendParamValueElement(xmlOut, a4clone);
 }
 
+#define TEST_UNINITIALIZED_OBJECT_EXCEPTION(statement) \
+    {                                                  \
+        Boolean gotException = false;                  \
+        try                                            \
+        {                                              \
+            statement;                                 \
+        }                                              \
+        catch (const UninitializedObjectException&)    \
+        {                                              \
+            gotException = true;                       \
+        }                                              \
+        PEGASUS_TEST_ASSERT(gotException);             \
+    }
+
+void testUninitializedObject()
+{
+    CIMParamValue uninitializedParamValue;
+    String name("name");
+    CIMValue value(String("value"));
+
+    PEGASUS_TEST_ASSERT(uninitializedParamValue.isUninitialized());
+
+    // Copy constructor allows an uninitialized object
+    {
+        CIMParamValue initializedParamValue(uninitializedParamValue);
+    }
+
+    // Assignment operator allows an uninitialized object
+    {
+        CIMParamValue initializedParamValue(name, value);
+        initializedParamValue = uninitializedParamValue;
+    }
+
+    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
+        uninitializedParamValue.getParameterName());
+    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
+        uninitializedParamValue.getValue());
+    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
+        uninitializedParamValue.isTyped());
+    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
+        uninitializedParamValue.setParameterName(name));
+    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
+        uninitializedParamValue.setValue(value));
+    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
+        uninitializedParamValue.setIsTyped(true));
+    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
+        uninitializedParamValue.clone());
+}
 
 int main(int argc, char** argv)
 {
@@ -130,6 +178,7 @@ int main(int argc, char** argv)
     try
     {
         test01();
+        testUninitializedObject();
     }
     catch (Exception& e)
     {

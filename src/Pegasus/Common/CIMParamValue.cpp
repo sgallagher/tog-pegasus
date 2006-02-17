@@ -128,6 +128,7 @@ Boolean CIMParamValue::isUninitialized() const
 
 CIMParamValue CIMParamValue::clone() const
 {
+    _checkRep();
     return CIMParamValue(_rep->clone());
 }
 

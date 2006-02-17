@@ -134,6 +134,7 @@ int main(int argc, char** argv)
     catch (Exception& e)
     {
         cout << "Exception: " << e.getMessage() << endl;
+        return 1;
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

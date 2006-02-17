@@ -686,47 +686,57 @@ TestRegBuild: FORCE
 
 usagetrace: FORCE
 	$(USAGE)
-	$(USAGE)"TestMakefile Trace Commands: (cimserver should be running)"
+	$(USAGE)"TestMakefile Trace Commands: "
+	$(USAGE)"  The cimserver must be running when using W=c which is the default for W"
 	$(USAGE)
-	$(USAGE)
-	$(USAGE)" traceon:                  Enables all tracing."
-	$(USAGE)" traceoff:                 Disables all tracing."
-	$(USAGE)" tracesettings:            Displays trace settings."
-	$(USAGE)" tracecomp:                Displays a trace componenets list."
-	$(USAGE)" traceon-CL C=[comp] L=[level(1,2,3,4)]:  "
+	$(USAGE)" traceon  W=[current/planned(c,p):   Enables all tracing."
+	$(USAGE)" traceoff W=[current/planned(c,p):   Disables all tracing."
+	$(USAGE)" tracesettings:                      Displays all trace settings."
+	$(USAGE)" tracecomp:                          Displays a trace componenets list."
+	$(USAGE)" traceon-CL C=[comp] L=[level(1,2,3,4)] W=[current/planned(c,p): "
 	$(USAGE)"                           Enables tracing on component C at trace level L."
-	$(USAGE)"                           Usage example:"
-	$(USAGE)"                           Turns tracing on for DiscardedData at level 3"
-	$(USAGE)"                           traceon-CL C=DiscardedData L=3"
+	$(USAGE)
+	$(USAGE)" W defaults to c in the above commands where W can be specified" 
+	$(USAGE)
+	$(USAGE)"  Usage examples:"
+	$(USAGE)"   traceon       turns on trace in current server config"
+	$(USAGE)"   traceon W=c   turns on trace in current server config"
+	$(USAGE)"   traceon W=p   turns on trace in planned server config"
+	$(USAGE)"   traceoff      turns on trace in current server config"
+	$(USAGE)"   traceoff W=c  turns on trace in current server config"
+	$(USAGE)"   traceoff W=p  turns on trace in planned server config"
+	$(USAGE)
+	$(USAGE)"   traceon-CL C=DiscardedData L=3 W=c"
+	$(USAGE)"     Turns on trace for DiscardedData at level 3 in current server config"
+	$(USAGE)"   traceon-CL C=DiscardedData L=3 W=p"
+	$(USAGE)"     Turns on trace for DiscardedData at level 3 in planned server config"
 	$(USAGE)
 	$(USAGE)
 
 traceon: FORCE
-	@ cimconfig -s traceComponents=ALL
-	@ cimconfig -s traceLevel=3 -c
-	@ cimconfig -g traceComponents
-	@ cimconfig -g traceLevel
+	@ cimconfig -s traceComponents=ALL -$W 
+	@ cimconfig -s traceLevel=3 -$W
+	$(MAKE) -f $(ROOT)/TestMakefile tracesettings
+
 
 traceoff: FORCE
-	@ cimconfig -s traceComponents=
-	@ cimconfig -g traceComponents
-	@ cimconfig -g traceLevel
+	@ cimconfig -s traceComponents=  -$W
+	$(MAKE) -f $(ROOT)/TestMakefile tracesettings
 
 
 tracesettings: FORCE
 	@ $(ECHO) " "
-	cimconfig -g traceComponents
+	cimconfig -g traceComponents -c -p
 	@ $(ECHO) " "
-	cimconfig -g traceLevel
+	cimconfig -g traceLevel -c -p
 	@ $(ECHO) " "
-	cimconfig -g traceFilePath
+	cimconfig -g traceFilePath -c -p
 	@ $(ECHO) " "
 
 traceon-CL: FORCE
-	@ cimconfig -s traceComponents=$C -c
-	@ cimconfig -s traceLevel=$L -c
-	@ cimconfig -g traceComponents
-	@ cimconfig -g traceLevel
+	@ cimconfig -s traceComponents=$C -$W
+	@ cimconfig -s traceLevel=$L -$W
+	$(MAKE) -f $(ROOT)/TestMakefile tracesettings
 
 tracecomp: FORCE
 	$(USAGE)

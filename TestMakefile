@@ -232,10 +232,12 @@ servertestsclean: FORCE
 
 servertestssetup: FORCE
 ifdef PEGASUS_HAS_SSL
-# The association between user names and certificates is stored in the repository.  If the
-# repository is recreated, we also need to re-initialize the trust store directories.
-# Otherwise, the truststore content will be out-of-sync with the mapping stored in the
-# repository.
+#
+# The association between user names and certificates is stored in the 
+# repository.  If the repository is recreated, we also need to re-initialize
+# the trust store directories. Otherwise, the truststore content will be 
+# out-of-sync with the mapping stored in the repository.
+#
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile removeSSLTrustDirectories
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile createSSLTrustDirectories
 endif
@@ -243,11 +245,9 @@ endif
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
 	$(SLEEP) 5
-ifdef PEGASUS_HAS_SSL
-ifdef PEGASUS_TEST_USER_DEFINED
-	ssltrustmgr -a -c pegtest -f $(PEGASUS_HOME)/server.pem
-endif
-endif
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile ConfigureUsers
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile Create_SSL_Certificate
+
 
 servertests: servertestsclean servertestssetup serversuite
 	@ $(ECHO) "+++++ TestMakefile servertests suites complete"
@@ -376,7 +376,7 @@ INDSSL_TS1b_TEST_CMDS = \
 
 ifdef PEGASUS_HAS_SSL
 ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
-run_INDSSL_TS1: FORCE
+run_INDSSL_TS1: EnableUsers Create_SSL_Certificate_ignore
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(INDSSL_TS1a_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(INDSSL_TS1a_TEST_CMDS)"
@@ -423,6 +423,27 @@ else
 run_SSL_TS1: FORCE
 	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_SSL_TS1 poststarttest"
 
+endif
+
+############################################################################
+# 
+# Create_SSL_Certificate
+#
+# create a certificate that can be used for certification testing.
+# It is currently used by the following tests:
+#            -run_INDSSL_TS1
+#
+Create_SSL_Certificate_ignore: FORCE
+	-$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile Create_SSL_Certificate
+
+Create_SSL_Certificate: FORCE
+ifdef PEGASUS_HAS_SSL
+ifdef PEGASUS_TEST_USER_DEFINED
+	$(ECHO) "Creating SSL certificate for test"
+	ssltrustmgr -a -c $(PEGASUS_TEST_USER_ID) -f $(PEGASUS_HOME)/server.pem
+endif
+else
+	$(ECHO) "PEGASUS_HAS_SSL not defined - Not Creating SSL certificate for test"
 endif
 
 ###############################################################################
@@ -922,6 +943,11 @@ DisableSecurity:
 	cimconfig -s enableAuthentication=false -p
 	cimconfig -s enableNamespaceAuthorization=false -p
 
+EnableUsers:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithoutSSL
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile ConfigureUsers
+
 EnableAuthentication:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	cimconfig -s enableAuthentication=true -p
@@ -938,11 +964,22 @@ EnableSSL:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithSSL
 
+#
+# ConfigureUsers
+#
+# The server must be running prior to invoking this rule
+#
 ConfigureUsers:
 ifndef PEGASUS_PAM_AUTHENTICATION
-	cimuser -a -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS)
+	cimuser -l
+	-cimuser -a -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS)
 endif
 
+#
+# ConfigureAuthorizations rule
+#
+# The server must be running prior to invoking this rule
+#
 ConfigureAuthorizations:
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test/cimv2 -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/cimv2 -R -W

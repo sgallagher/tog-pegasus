@@ -55,6 +55,8 @@ SOURCES = IndicationStressTest.cpp
 
 include $(ROOT)/mak/program.mak
 
+include $(ROOT)/mak/test.mak
+
 tests:
 
 ## poststarttests: wql_10_1  cql_10_1 wql_10_10 cql_10_10 wql_10_100 cql_10_100 wql_100_10 cql_100_10
@@ -193,6 +195,6 @@ run_TS1_HTTPS_VERIFY_USER:
 ifdef PEGASUS_HAS_SSL
 ifdef PEGASUS_TEST_USER_DEFINED
 	$(PROGRAM) setup WQL HTTPS
-	$(PROGRAM) run 10 1 pegtest
+	$(PROGRAM) run 10 1 $(PEGASUS_TEST_USER_ID)
 endif
 endif

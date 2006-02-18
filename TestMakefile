@@ -440,7 +440,7 @@ Create_SSL_Certificate: FORCE
 ifdef PEGASUS_HAS_SSL
 ifdef PEGASUS_TEST_USER_DEFINED
 	$(ECHO) "Creating SSL certificate for test"
-	ssltrustmgr -a -c $(PEGASUS_TEST_USER_ID) -f $(PEGASUS_HOME)/server.pem
+	ssltrustmgr -a -c pegtest -f $(PEGASUS_HOME)/server.pem
 endif
 else
 	$(ECHO) "PEGASUS_HAS_SSL not defined - Not Creating SSL certificate for test"

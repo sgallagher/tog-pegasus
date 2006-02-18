@@ -98,4 +98,4 @@ show-old-licenses:
 
 # Show Files with NO license
 nolicense:
-	grep -r -L %2006 .| grep -v CVS |grep -v ".log" | grep -v ".master" | grep -v ".cert" | grep -v ".xml" | grep -v ".key" | grep -v Unsupported
+	grep -r -L %2006 .| grep -v CVS |grep -v ".log" | grep -v ".master" | grep -v ".cert" | grep -v ".xml" | grep -v ".key" | grep -v Unsupported | grep -v InterfaceArchive | grep -v Schema

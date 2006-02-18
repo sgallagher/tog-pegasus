@@ -1,22 +1,15 @@
-Pegasus Unsupported Source Tree
-=================================
-
-This area of the Pegasus source code tree contains files that are not
-part of the default build environment or test suite environment of
-Pegasus.
-
-Criteria for Submission to Unsupported Repository
-=================================================
-
-1) Pegasus License
-
-All submissions to this area must be in the form of source code (no
-binaries) and must be licensed under the Pegasus source license, which
-is as follows:
-
-//%/////////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003 (author or author's employer)
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -35,6 +28,22 @@ is as follows:
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+Pegasus Unsupported Source Tree
+=================================
+
+This area of the Pegasus source code tree contains files that are not
+part of the default build environment or test suite environment of
+Pegasus.
+
+Criteria for Submission to Unsupported Repository
+=================================================
+
+1) Pegasus License
+
+All submissions to this area must be in the form of source code (no
+binaries) and must be licensed under the Pegasus source license, which
+is as follows:
+
 //
 ////////////////////////////////////////////////////////////////////////////////
 

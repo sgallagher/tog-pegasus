@@ -86,6 +86,12 @@ done
 cd $PEGASUS_ROOT
 echo "Completed Schemas mof files"  >> licensechange.log
 
+# modify the various forms of readme files.
+cd $PEGASUS_ROOT
+find -name "README*.*" -o name "readme*.*" -o name "README*" | grep -v InterfaceArchive | while read filename ; do
+      make -f $PEGASUS_ROOT/mak/license.mak fix-code-license FILENAME=${filename} >> licensechange.log
+done
+
 # Test for any remaining files that have the previous year license
 cd $PEGASUS_ROOT
 grep -r \/%2005\/ . >> $LOGFILE

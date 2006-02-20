@@ -48,7 +48,7 @@ struct timespec {
    long tv_nsec;
 };
 
-#elif defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#elif defined( CMPI_PLATFORM_ZOS_ZSERIES_IBM)
 
 #ifndef __cplusplus
    #define CMPI_THREAD_CDECL

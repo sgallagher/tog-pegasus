@@ -356,19 +356,10 @@ void InheritanceTree::insertFromPath(const String& path,
       InheritanceTree* parentTree,
       NameSpace *ns)
 {
-#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-        Array<String> classNames;
-        Array<String> superClassNames;
-        Array<Uint32> fileInodes;
-#endif
     for (Dir dir(path); dir.more(); dir.next())
     {
 	String fileName = dir.getName();
 
-	#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-        Uint32 fileInode = dir.getInode(); // To do to get the inode value
-        #endif
-	
 	// Ignore the current and parent directories.
 
 	if (fileName == "." || fileName == "..")
@@ -387,19 +378,7 @@ void InheritanceTree::insertFromPath(const String& path,
 	if (superClassName == "#")
 	    superClassName.clear();
 
-	#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-                // To do on Mac OS X for rearranging classNames sorted on Inode
-                fileInodes.append(fileInode);
-                Sint32 index = 0;
-                for (index = fileInodes.size() - 2; index >= 0 && fileInode < fileInodes[index]; --index )
-                        fileInodes[index+1] = fileInodes[index];
-                // Insert the className and superClassName sorted on Inode values
-                fileInodes[index + 1] = fileInode;
-                classNames.insert(index + 1,className);
-                superClassNames.insert(index + 1,superClassName);
-        #endif
 
-#if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 #ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
         if (ns) insert(escapeStringDecoder(className), escapeStringDecoder(superClassName),
            *parentTree,ns);
@@ -409,23 +388,7 @@ void InheritanceTree::insertFromPath(const String& path,
         if (ns) insert(className, superClassName, *parentTree,ns);
 	else insert(className,superClassName);
 #endif
-#endif
     }
-    #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-    // To do on Mac OS X - insert the sorted classNames
-    for ( Uint32 i = 0; i < classNames.size(); i++ )
-    {
-        #ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
-                if (ns) insert(escapeStringDecoder(classNames[i]), escapeStringDecoder(superClassNames[i]),
-                   *parentTree,ns);
-                else insert(escapeStringDecoder(classNames[i]),
-                    escapeStringDecoder(superClassNames[i]));
-        #else
-                if (ns) insert(classNames[i], superClassNames[i], *parentTree,ns);
-                else insert(classNames[i],superClassNames[i]);
-        #endif
-    } // end for ( Uint32 i = 0; i < classNames.size(); i++ );
-    #endif  
 }
 
 void InheritanceTree::check() const

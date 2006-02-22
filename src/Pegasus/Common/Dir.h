@@ -141,10 +141,6 @@ public:
     /** Return true if there are more file names to iterator. */
     Boolean more() const { return _more; }
 
-    #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-    /** Returns the file inode number. */
-    const Uint32 getInode() const;
-    #endif
 
     /** Returns the current file name. */
     const char* getName() const;

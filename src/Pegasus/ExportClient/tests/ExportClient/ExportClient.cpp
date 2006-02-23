@@ -47,9 +47,14 @@ PEGASUS_USING_STD;
 
 const String NAMESPACE = "root/cimv2";
 
-static void TestExportIndication(CIMExportClient& client)
+static void TestSendingToNonExistentConsumer()
 {
     CIMException testException;
+    Monitor* monitor = new Monitor;
+    HTTPConnector* httpConnector = new HTTPConnector(monitor);
+
+    CIMExportClient client(monitor, httpConnector);
+    client.connect("localhost", 5988);
 
     CIMInstance indication(CIMName("My_IndicationClass"));
     indication.addProperty(CIMProperty(CIMName("DeviceName"), String("Disk")));
@@ -57,7 +62,7 @@ static void TestExportIndication(CIMExportClient& client)
 
     try
     {
-        client.exportIndication("/CIMListener/consumer1", indication);
+        client.exportIndication("/CIMListener/NOT_A_CONSUMER", indication);
     }
     catch (CIMException& e)
     {
@@ -67,16 +72,57 @@ static void TestExportIndication(CIMExportClient& client)
     PEGASUS_TEST_ASSERT(testException.getCode() == CIM_ERR_NOT_SUPPORTED);
 }
 
+static void TestExceptionHandling()
+{
+    Monitor* monitor = new Monitor;
+    HTTPConnector* httpConnector = new HTTPConnector(monitor);
+    CIMExportClient client(monitor, httpConnector);
+
+    CIMInstance indication(CIMName("My_IndicationClass"));
+    indication.addProperty(CIMProperty(CIMName("DeviceName"), String("Disk")));
+    indication.addProperty(CIMProperty(CIMName("DeviceId"), Uint32(1)));
+
+    /*
+         Missing call to client.connect(...).  Verify NotConnectedException
+         is returned.
+    */
+    Boolean exceptionCaught;
+    exceptionCaught = false;
+    try
+    {
+        client.exportIndication(
+           "/CIMListener/Pegasus_IndicationStressTestConsumer", indication);
+    }
+    catch (const NotConnectedException&)
+    {
+        exceptionCaught = true;
+    }
+    PEGASUS_TEST_ASSERT(exceptionCaught);
+}
+
+static void TestTimeout()
+{
+    Monitor* monitor = new Monitor;
+    HTTPConnector* httpConnector = new HTTPConnector(monitor);
+    CIMExportClient client(monitor, httpConnector);
+
+    PEGASUS_TEST_ASSERT(client.getTimeout() ==
+        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
+    client.setTimeout(CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS+20000);
+    PEGASUS_TEST_ASSERT(client.getTimeout() ==
+        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS+20000);
+    client.setTimeout(CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
+    PEGASUS_TEST_ASSERT(client.getTimeout() ==
+        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
+}
+
 int main(int argc, char** argv)
 {
     try
     {
-	Monitor* monitor = new Monitor;
-	HTTPConnector* httpConnector = new HTTPConnector(monitor);
-
-	CIMExportClient client(monitor, httpConnector);
-	client.connect("localhost", 5988);
-	TestExportIndication(client);
+        TestExceptionHandling();
+        TestTimeout();
+        TestSendingToNonExistentConsumer();
     }
     catch(Exception& e)
     {

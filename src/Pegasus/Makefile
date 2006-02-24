@@ -180,6 +180,7 @@ DIRS += \
     Server \
     Server/tests \
     Handler/CIMxmlIndicationHandler \
+    Handler/CIMxmlIndicationHandler/tests/Destination \
     Handler/snmpIndicationHandler \
     msg/Server \
     msg/CLI \

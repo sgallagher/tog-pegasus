@@ -105,7 +105,8 @@ public:
             "CIMxmlIndicationHandler::handleIndication()");
 
         //get destination for the indication
-        Uint32 pos = indicationHandlerInstance.findProperty(CIMName ("destination"));
+        Uint32 pos = indicationHandlerInstance.findProperty(
+                CIMName ("destination"));
         if (pos == PEG_NOT_FOUND)
         {
             String msg = _getMalformedExceptionMsg();
@@ -130,10 +131,11 @@ public:
         catch (TypeMismatchException& e)
         {
             MessageLoaderParms param(
-                "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", 
+                "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR",
                 "CIMxmlIndicationHandler Error: ");
 
-            String msg = String(MessageLoader::getMessage(param) + e.getMessage());
+            String msg = String(MessageLoader::getMessage(param) +
+                e.getMessage());
 
             PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg);
 
@@ -147,7 +149,8 @@ public:
     
         try
         {
-            static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
+            static String PROPERTY_NAME__SSLCERT_FILEPATH =
+                "sslCertificateFilePath";
             static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
 
             //
@@ -207,7 +210,7 @@ public:
                 {
                     String msg = _getMalformedExceptionMsg();
 
-                    PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
+                    PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg+dest);
                     PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "CIMxmlIndicationHandler::handleIndication failed to "
                         "deliver indication: "
@@ -215,7 +218,8 @@ public:
                         "in Destination " + dest);
 
                     PEG_METHOD_EXIT();
-                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest); 
+                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                        msg + dest); 
                 }
             }
             else
@@ -256,10 +260,8 @@ public:
                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest); 
             }
 
-	    char dummy[64];
-	    dummy[0] = 0;
+            bool parseError = false;
             colon = destStr.find (":");
-
             //
             // get hostname and port number from destination string
             //
@@ -267,20 +269,12 @@ public:
             {
                 hostStr = destStr.subString (0, colon);
                 destStr = destStr.subString(colon + 1, PEG_NOT_FOUND);
+                String portStr = destStr.subString (0, destStr.find ("/"));
 
-                Uint32 slash = destStr.find ("/");
-                String portStr;
-
-                if (slash != PEG_NOT_FOUND)
-                {
-                    portStr = destStr.subString (0, slash);
-                }
-                else
-                {
-                    portStr = destStr.subString (0, PEG_NOT_FOUND);
-                }
-
-                sscanf (portStr.getCString (), "%u%s", &portNumber, dummy);  
+                char dummy;
+                int noOfConversions = sscanf(portStr.getCString (), "%u%c",
+                    &portNumber, &dummy);
+                parseError = (noOfConversions != 1);
             }
             //
             // There is no port number in the destination string,
@@ -288,15 +282,7 @@ public:
             //
             else
             {
-                Uint32 slash = destStr.find ("/");
-                if (slash != PEG_NOT_FOUND)
-                { 
-                    hostStr = destStr.subString (0, slash);
-                }
-                else
-                {
-                    hostStr = destStr.subString (0, PEG_NOT_FOUND);
-                }
+                hostStr = destStr.subString(0, destStr.find ("/"));
                 if (useHttps)
                 {
                      portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
@@ -310,12 +296,15 @@ public:
             }    
 
 	    char hostName[PEGASUS_MAXHOSTNAMELEN];
-	    char dummy2[64];
-	    dummy2[0] = 0;
+            if (!parseError)
+            {
+                char dummy;
+                int noOfConversions = sscanf(hostStr.getCString (), "%s%c",
+                    hostName, &dummy);
+                parseError = (noOfConversions != 1);
+            }
 
-            sscanf (hostStr.getCString (), "%s%s", hostName, dummy2);  
-
-	    if (dummy[0] != 0 || dummy2[0] != 0)
+	    if (parseError)
 	    {
                 String msg = _getMalformedExceptionMsg();
 

@@ -363,11 +363,6 @@ private:
 
     CIMProperty(CIMPropertyRep* rep);
 
-    /**
-        Allows the CIMClassRep friend class to cast away constness.
-    */
-    PEGASUS_EXPLICIT CIMProperty(const CIMConstProperty& x);
-
     void _checkRep() const;
 
     friend class CIMConstProperty;

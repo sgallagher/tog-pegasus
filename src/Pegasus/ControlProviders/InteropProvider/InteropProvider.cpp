@@ -2366,8 +2366,8 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
             ****/
 
         }
-        PEG_METHOD_EXIT();
         return(instances);
+        PEG_METHOD_EXIT();
     }
 
 //***************************************************************************

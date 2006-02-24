@@ -417,6 +417,7 @@ void validateCIMMessageAttributes(
 {
     // Validate Message attributes
     PEGASUS_TEST_ASSERT(inMessage->getType() == outMessage->getType());
+    PEGASUS_TEST_ASSERT(inMessage->isComplete() == outMessage->isComplete());
 
     // Validate messageId member
     PEGASUS_TEST_ASSERT(inMessage->messageId == outMessage->messageId);
@@ -2166,6 +2167,8 @@ int main(int argc, char** argv)
 
     try
     {
+        testEmptyMessage();
+
         testCIMGetInstanceRequestMessage(
             oc2, mid1, ns3, path1, lo1, iq2, ico1, pl4, qids3, auth2, user4);
         testCIMGetInstanceRequestMessage(

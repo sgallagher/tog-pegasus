@@ -294,7 +294,7 @@ void CMPIProviderManager::unloadIdleProviders()
     PEGASUS_ASSERT(response != 0); \
     response->setKey(request->getKey()); \
     response->setHttpMethod(request->getHttpMethod()); \
-    type1##ResponseHandler handler(request, response);
+    type1##ResponseHandler handler(request, response, _responseChunkCallback);
 
 #define VOIDINTRO );
 #define NOVOIDINTRO(type) ,type);
@@ -2489,7 +2489,7 @@ ProviderName CMPIProviderManager::_resolveProviderName(
 
 void CMPIProviderManager::_callEnableIndications
     (CIMInstance & req_provider,
-     PEGASUS_INDICATION_CALLBACK _indicationCallback,
+     PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
      CMPIProvider::OpProviderHolder & ph)
 {
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
@@ -2503,8 +2503,12 @@ void CMPIProviderManager::_callEnableIndications
             provRec->enabled = true;
             CIMRequestMessage * request = 0;
             CIMResponseMessage * response = 0;
-            provRec->handler=new EnableIndicationsResponseHandler
-                (request, response, req_provider, _indicationCallback);
+            provRec->handler=new EnableIndicationsResponseHandler(
+                request,
+                response,
+                req_provider,
+                _indicationCallback,
+                _responseChunkCallback);
         }
 
         CMPIProvider & pr=ph.GetProvider();

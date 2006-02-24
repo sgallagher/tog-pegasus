@@ -76,8 +76,8 @@ public:
     void unloadIdleProviders();
 
     static void indicationCallback(CIMProcessIndicationRequestMessage* request);
-    static void handleCimResponse(
-        CIMRequestMessage& request, CIMResponseMessage& response);
+    static void responseChunkCallback(
+        CIMRequestMessage* request, CIMResponseMessage* response);
 
 private:
     ProviderManagerService();

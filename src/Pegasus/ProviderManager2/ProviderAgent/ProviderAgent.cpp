@@ -67,7 +67,6 @@ public:
     {
         agent = agent_;
         request = request_;
-        request->requestIsOOP = true;
     }
 
     ProviderAgent* agent;
@@ -90,7 +89,7 @@ ProviderAgent::ProviderAgent(
     const String& agentId,
     AnonymousPipe* pipeFromServer,
     AnonymousPipe* pipeToServer)
-  : _providerManagerRouter(_indicationCallback),
+  : _providerManagerRouter(_indicationCallback, _responseChunkCallback),
     _threadPool(0, "ProviderAgent", 0, 0, deallocateWait)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::ProviderAgent");
@@ -590,6 +589,18 @@ void ProviderAgent::_indicationCallback(
 
     // Send request back to the server to process
     _providerAgent->_writeResponse(message);
+
+    PEG_METHOD_EXIT();
+}
+
+void ProviderAgent::_responseChunkCallback(
+    CIMRequestMessage* request, CIMResponseMessage* response)
+{
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERAGENT, "ProviderAgent::_responseChunkCallback");
+
+    // Send request back to the server to process
+    _providerAgent->_writeResponse(response);
 
     PEG_METHOD_EXIT();
 }

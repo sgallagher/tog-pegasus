@@ -76,6 +76,8 @@ void CIMMessageSerializer::serialize(Buffer& out, CIMMessage* cimMessage)
         out, cimMessage->getEndProviderTime().toMicroseconds());
 #endif
 
+    XmlWriter::appendValueElement(out, cimMessage->isComplete());
+
     _serializeOperationContext(out, cimMessage->operationContext);
 
     CIMRequestMessage* cimReqMessage;

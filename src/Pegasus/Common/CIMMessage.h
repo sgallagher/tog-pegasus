@@ -147,7 +147,6 @@ public:
 #endif
 
     QueueIdStack queueIds;
-    Boolean requestIsOOP;
 };
 
 

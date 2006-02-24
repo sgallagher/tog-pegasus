@@ -60,7 +60,9 @@ class PEGASUS_PPM_LINKAGE OOPProviderManagerRouter
     : public ProviderManagerRouter
 {
 public:
-    OOPProviderManagerRouter(PEGASUS_INDICATION_CALLBACK indicationCallback);
+    OOPProviderManagerRouter(
+        PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual ~OOPProviderManagerRouter();
 
@@ -112,7 +114,12 @@ private:
         Callback function to which all generated indications are sent for
         processing.
      */
-    PEGASUS_INDICATION_CALLBACK _indicationCallback;
+    PEGASUS_INDICATION_CALLBACK_T _indicationCallback;
+
+    /**
+        Callback function to which all response chunks are sent for processing.
+     */
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T _responseChunkCallback;
 
     /**
         The _providerAgentTable contains a ProviderAgentContainer entry for

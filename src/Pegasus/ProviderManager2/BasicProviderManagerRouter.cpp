@@ -86,7 +86,8 @@ public:
         const String& physicalName,
         const String& logicalName,
         const String& interfaceName,
-        PEGASUS_INDICATION_CALLBACK indicationCallback,
+        PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
         Boolean subscriptionInitComplete)
     : _manager(0)
     {
@@ -138,6 +139,7 @@ public:
         }
 
         _manager->setIndicationCallback(indicationCallback);
+        _manager->setResponseChunkCallback(responseChunkCallback);
 
         _manager->setSubscriptionInitComplete (subscriptionInitComplete);
     }
@@ -197,15 +199,21 @@ private:
 // END TEMP SECTION
 
 
-PEGASUS_INDICATION_CALLBACK BasicProviderManagerRouter::_indicationCallback = 0;
+PEGASUS_INDICATION_CALLBACK_T
+    BasicProviderManagerRouter::_indicationCallback = 0;
+
+PEGASUS_RESPONSE_CHUNK_CALLBACK_T
+    BasicProviderManagerRouter::_responseChunkCallback = 0;
 
 BasicProviderManagerRouter::BasicProviderManagerRouter(
-    PEGASUS_INDICATION_CALLBACK indicationCallback)
+    PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "BasicProviderManagerRouter::BasicProviderManagerRouter");
 
     _indicationCallback = indicationCallback;
+    _responseChunkCallback = responseChunkCallback;
     _subscriptionInitComplete = false;
 
     PEG_METHOD_EXIT();
@@ -409,8 +417,12 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
         if (interfaceType == "C++Default")
         {
             ProviderManagerContainer* pmc = new ProviderManagerContainer(
-                LIBRARY_NAME_DEFAULTPM, "DEFAULT", "C++Default",
-                _indicationCallback, _subscriptionInitComplete);
+                LIBRARY_NAME_DEFAULTPM,
+                "DEFAULT",
+                "C++Default",
+                _indicationCallback,
+                _responseChunkCallback,
+                _subscriptionInitComplete);
             _providerManagerTable.append(pmc);
             return pmc->getProviderManager();
         }
@@ -420,7 +432,11 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
         if (interfaceType == "CMPI")
         {
             ProviderManagerContainer* pmc = new ProviderManagerContainer(
-                LIBRARY_NAME_CMPIPM, "CMPI", "CMPI", _indicationCallback,
+                LIBRARY_NAME_CMPIPM,
+                "CMPI",
+                "CMPI",
+                _indicationCallback,
+                _responseChunkCallback,
                 _subscriptionInitComplete);
             _providerManagerTable.append(pmc);
             return pmc->getProviderManager();
@@ -431,7 +447,11 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
         if (interfaceType == "JMPI")
         {
             ProviderManagerContainer* pmc = new ProviderManagerContainer(
-                LIBRARY_NAME_JMPIPM, "JMPI", "JMPI", _indicationCallback,
+                LIBRARY_NAME_JMPIPM,
+                "JMPI",
+                "JMPI",
+                _indicationCallback,
+                _responseChunkCallback,
                 _subscriptionInitComplete);
             _providerManagerTable.append(pmc);
             return pmc->getProviderManager();

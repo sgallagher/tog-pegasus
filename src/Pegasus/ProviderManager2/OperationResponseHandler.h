@@ -66,14 +66,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+typedef void (*PEGASUS_RESPONSE_CHUNK_CALLBACK_T)(
+    CIMRequestMessage* request, CIMResponseMessage* response);
+
 class PEGASUS_PPM_LINKAGE OperationResponseHandler
 {
     friend class SimpleResponseHandler;
 
 public:
     OperationResponseHandler(
-        CIMRequestMessage * request,
-        CIMResponseMessage * response);
+        CIMRequestMessage* request,
+        CIMResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual ~OperationResponseHandler(void);
 
@@ -115,6 +119,7 @@ protected:
 
     CIMRequestMessage * _request;
     CIMResponseMessage * _response;
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T _responseChunkCallback;
 
 private:
     Uint32 _responseObjectTotal;
@@ -127,8 +132,9 @@ class PEGASUS_PPM_LINKAGE GetInstanceResponseHandler : public OperationResponseH
 {
 public:
     GetInstanceResponseHandler(
-        CIMGetInstanceRequestMessage * request,
-        CIMGetInstanceResponseMessage * response);
+        CIMGetInstanceRequestMessage* request,
+        CIMGetInstanceResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMInstance & cimInstance);
     virtual void deliver(const Array<CIMInstance> & cimInstanceArray)
@@ -154,8 +160,9 @@ class PEGASUS_PPM_LINKAGE EnumerateInstancesResponseHandler : public OperationRe
 {
 public:
     EnumerateInstancesResponseHandler(
-        CIMEnumerateInstancesRequestMessage * request,
-        CIMEnumerateInstancesResponseMessage * response);
+        CIMEnumerateInstancesRequestMessage* request,
+        CIMEnumerateInstancesResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMInstance & cimInstance);
     virtual void deliver(const Array<CIMInstance> & cimInstanceArray)
@@ -177,8 +184,9 @@ class PEGASUS_PPM_LINKAGE EnumerateInstanceNamesResponseHandler : public Operati
 {
 public:
     EnumerateInstanceNamesResponseHandler(
-        CIMEnumerateInstanceNamesRequestMessage * request,
-        CIMEnumerateInstanceNamesResponseMessage * response);
+        CIMEnumerateInstanceNamesRequestMessage* request,
+        CIMEnumerateInstanceNamesResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMObjectPath & cimObjectPath);
     virtual void deliver(const Array<CIMObjectPath> & cimObjectPathArray)
@@ -200,8 +208,9 @@ class PEGASUS_PPM_LINKAGE CreateInstanceResponseHandler : public OperationRespon
 {
 public:
     CreateInstanceResponseHandler(
-        CIMCreateInstanceRequestMessage * request,
-        CIMCreateInstanceResponseMessage * response);
+        CIMCreateInstanceRequestMessage* request,
+        CIMCreateInstanceResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMObjectPath & cimObjectPath);
     virtual void deliver(const Array<CIMObjectPath> & cimObjectPathArray)
@@ -222,8 +231,9 @@ class PEGASUS_PPM_LINKAGE ModifyInstanceResponseHandler : public OperationRespon
 {
 public:
     ModifyInstanceResponseHandler(
-        CIMModifyInstanceRequestMessage * request,
-        CIMModifyInstanceResponseMessage * response);
+        CIMModifyInstanceRequestMessage* request,
+        CIMModifyInstanceResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
 protected:
     virtual String getClass(void) const;
@@ -234,8 +244,9 @@ class PEGASUS_PPM_LINKAGE DeleteInstanceResponseHandler : public OperationRespon
 {
 public:
     DeleteInstanceResponseHandler(
-        CIMDeleteInstanceRequestMessage * request,
-        CIMDeleteInstanceResponseMessage * response);
+        CIMDeleteInstanceRequestMessage* request,
+        CIMDeleteInstanceResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
 protected:
     virtual String getClass(void) const;
@@ -246,8 +257,9 @@ class PEGASUS_PPM_LINKAGE GetPropertyResponseHandler : public OperationResponseH
 {
 public:
     GetPropertyResponseHandler(
-        CIMGetPropertyRequestMessage * request,
-        CIMGetPropertyResponseMessage * response);
+        CIMGetPropertyRequestMessage* request,
+        CIMGetPropertyResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMValue & cimValue);
     virtual void deliver(const Array<CIMValue> & cimValueArray)
@@ -268,8 +280,9 @@ class PEGASUS_PPM_LINKAGE SetPropertyResponseHandler : public OperationResponseH
 {
 public:
     SetPropertyResponseHandler(
-        CIMSetPropertyRequestMessage * request,
-        CIMSetPropertyResponseMessage * response);
+        CIMSetPropertyRequestMessage* request,
+        CIMSetPropertyResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
 protected:
     virtual String getClass(void) const;
@@ -280,8 +293,9 @@ class PEGASUS_PPM_LINKAGE ExecQueryResponseHandler : public OperationResponseHan
 {
 public:
     ExecQueryResponseHandler(
-        CIMExecQueryRequestMessage * request,
-        CIMExecQueryResponseMessage * response);
+        CIMExecQueryRequestMessage* request,
+        CIMExecQueryResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMInstance & cimInstance);
     virtual void deliver(const Array<CIMInstance> & cimInstanceArray)
@@ -302,8 +316,9 @@ class PEGASUS_PPM_LINKAGE AssociatorsResponseHandler : public OperationResponseH
 {
 public:
     AssociatorsResponseHandler(
-        CIMAssociatorsRequestMessage * request,
-        CIMAssociatorsResponseMessage * response);
+        CIMAssociatorsRequestMessage* request,
+        CIMAssociatorsResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMObject & cimObject);
     virtual void deliver(const Array<CIMObject> & cimObjectArray)
@@ -322,8 +337,9 @@ class PEGASUS_PPM_LINKAGE AssociatorNamesResponseHandler : public OperationRespo
 {
 public:
     AssociatorNamesResponseHandler(
-        CIMAssociatorNamesRequestMessage * request,
-        CIMAssociatorNamesResponseMessage * response);
+        CIMAssociatorNamesRequestMessage* request,
+        CIMAssociatorNamesResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMObjectPath & cimObjectPath);
     virtual void deliver(const Array<CIMObjectPath> & cimObjectPathArray)
@@ -342,8 +358,9 @@ class PEGASUS_PPM_LINKAGE ReferencesResponseHandler : public OperationResponseHa
 {
 public:
     ReferencesResponseHandler(
-        CIMReferencesRequestMessage * request,
-        CIMReferencesResponseMessage * response);
+        CIMReferencesRequestMessage* request,
+        CIMReferencesResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMObject & cimObject);
     virtual void deliver(const Array<CIMObject> & cimObjectArray)
@@ -362,8 +379,9 @@ class PEGASUS_PPM_LINKAGE ReferenceNamesResponseHandler : public OperationRespon
 {
 public:
     ReferenceNamesResponseHandler(
-        CIMReferenceNamesRequestMessage * request,
-        CIMReferenceNamesResponseMessage * response);
+        CIMReferenceNamesRequestMessage* request,
+        CIMReferenceNamesResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMObjectPath & cimObjectPath);
     virtual void deliver(const Array<CIMObjectPath> & cimObjectPathArray)
@@ -382,8 +400,9 @@ class PEGASUS_PPM_LINKAGE InvokeMethodResponseHandler : public OperationResponse
 {
 public:
     InvokeMethodResponseHandler(
-        CIMInvokeMethodRequestMessage * request,
-        CIMInvokeMethodResponseMessage * response);
+        CIMInvokeMethodRequestMessage* request,
+        CIMInvokeMethodResponseMessage* response,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliverParamValue(const CIMParamValue & cimParamValue);
     virtual void deliverParamValue(
@@ -402,16 +421,18 @@ protected:
 
 };
 
-typedef void (*PEGASUS_INDICATION_CALLBACK)(CIMProcessIndicationRequestMessage*);
+typedef void (*PEGASUS_INDICATION_CALLBACK_T)(
+    CIMProcessIndicationRequestMessage*);
 
 class PEGASUS_PPM_LINKAGE EnableIndicationsResponseHandler : public OperationResponseHandler, public SimpleIndicationResponseHandler
 {
 public:
     EnableIndicationsResponseHandler(
-        CIMRequestMessage * request,
-        CIMResponseMessage * response,
-        CIMInstance & provider,
-        PEGASUS_INDICATION_CALLBACK indicationCallback);
+        CIMRequestMessage* request,
+        CIMResponseMessage* response,
+        CIMInstance& provider,
+        PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMIndication & cimIndication);
 
@@ -427,7 +448,7 @@ protected:
     virtual Boolean isAsync(void) const;
 
 private:
-    PEGASUS_INDICATION_CALLBACK _indicationCallback;
+    PEGASUS_INDICATION_CALLBACK_T _indicationCallback;
 
 };
 

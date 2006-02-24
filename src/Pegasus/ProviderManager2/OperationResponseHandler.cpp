@@ -33,14 +33,13 @@
 //
 // Modified By:
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "OperationResponseHandler.h"
 
 #include <Pegasus/Common/Logger.h>
-
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -50,12 +49,14 @@ PEGASUS_NAMESPACE_BEGIN
 
 OperationResponseHandler::OperationResponseHandler(
     CIMRequestMessage *request,
-    CIMResponseMessage *response)
+    CIMResponseMessage *response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
     : _request(request),
     _response(response),
+    _responseChunkCallback(responseChunkCallback),
     _responseObjectTotal(0),
     _responseMessageTotal(0),
-	_responseObjectThreshold(0)
+    _responseObjectThreshold(0)
 {
 #ifndef PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD
  #define PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD 100
@@ -64,7 +65,7 @@ OperationResponseHandler::OperationResponseHandler(
  #define PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD  ~0
 #endif
 
-    if (!request || (request->requestIsOOP == true))
+    if (!request)
     {
         _responseObjectThreshold = ~0;
     }
@@ -226,7 +227,7 @@ void OperationResponseHandler::send(Boolean isComplete)
 
 	if (isComplete == false)
 	{
-		ProviderManagerService::handleCimResponse(*_request, *_response);
+	    _responseChunkCallback(_request, _response);
 	}
 
 	// put caller's allocated response back in place. Note that _response
@@ -268,9 +269,10 @@ Uint32 OperationResponseHandler::getResponseObjectThreshold(void) const
 //
 
 GetInstanceResponseHandler::GetInstanceResponseHandler(
-    CIMGetInstanceRequestMessage * request,
-    CIMGetInstanceResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMGetInstanceRequestMessage* request,
+    CIMGetInstanceResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
     #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     // Attempt to get the cached class definition used to validate results of this
@@ -383,9 +385,10 @@ void GetInstanceResponseHandler::validate(void)
 //
 
 EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
-    CIMEnumerateInstancesRequestMessage * request,
-    CIMEnumerateInstancesResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMEnumerateInstancesRequestMessage* request,
+    CIMEnumerateInstancesResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
     #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     // Attempt to get the cached class definition used to validate results of this
@@ -450,9 +453,10 @@ void EnumerateInstancesResponseHandler::transfer(void)
 //
 
 EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
-    CIMEnumerateInstanceNamesRequestMessage * request,
-    CIMEnumerateInstanceNamesResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMEnumerateInstanceNamesRequestMessage* request,
+    CIMEnumerateInstanceNamesResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
     #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     // Attempt to get the cached class definition used to validate results of this
@@ -517,9 +521,10 @@ void EnumerateInstanceNamesResponseHandler::transfer(void)
 //
 
 CreateInstanceResponseHandler::CreateInstanceResponseHandler(
-    CIMCreateInstanceRequestMessage * request,
-    CIMCreateInstanceResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMCreateInstanceRequestMessage* request,
+    CIMCreateInstanceResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
 }
 
@@ -592,9 +597,10 @@ void CreateInstanceResponseHandler::transfer(void)
 //
 
 ModifyInstanceResponseHandler::ModifyInstanceResponseHandler(
-    CIMModifyInstanceRequestMessage * request,
-    CIMModifyInstanceResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMModifyInstanceRequestMessage* request,
+    CIMModifyInstanceResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
 }
 
@@ -608,9 +614,10 @@ String ModifyInstanceResponseHandler::getClass(void) const
 //
 
 DeleteInstanceResponseHandler::DeleteInstanceResponseHandler(
-    CIMDeleteInstanceRequestMessage * request,
-    CIMDeleteInstanceResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMDeleteInstanceRequestMessage* request,
+    CIMDeleteInstanceResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
 }
 
@@ -624,9 +631,10 @@ String DeleteInstanceResponseHandler::getClass(void) const
 //
 
 GetPropertyResponseHandler::GetPropertyResponseHandler(
-    CIMGetPropertyRequestMessage * request,
-    CIMGetPropertyResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMGetPropertyRequestMessage* request,
+    CIMGetPropertyResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
 }
 
@@ -675,9 +683,10 @@ void GetPropertyResponseHandler::validate(void)
 //
 
 SetPropertyResponseHandler::SetPropertyResponseHandler(
-    CIMSetPropertyRequestMessage * request,
-    CIMSetPropertyResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMSetPropertyRequestMessage* request,
+    CIMSetPropertyResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
 }
 
@@ -691,9 +700,10 @@ String SetPropertyResponseHandler::getClass(void) const
 //
 
 ExecQueryResponseHandler::ExecQueryResponseHandler(
-    CIMExecQueryRequestMessage * request,
-    CIMExecQueryResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMExecQueryRequestMessage* request,
+    CIMExecQueryResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
 }
 
@@ -734,9 +744,10 @@ Boolean ExecQueryResponseHandler::isAsync(void) const
 //
 
 AssociatorsResponseHandler::AssociatorsResponseHandler(
-    CIMAssociatorsRequestMessage * request,
-    CIMAssociatorsResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMAssociatorsRequestMessage* request,
+    CIMAssociatorsResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
 }
 
@@ -772,9 +783,10 @@ void AssociatorsResponseHandler::transfer(void)
 //
 
 AssociatorNamesResponseHandler::AssociatorNamesResponseHandler(
-    CIMAssociatorNamesRequestMessage * request,
-    CIMAssociatorNamesResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMAssociatorNamesRequestMessage* request,
+    CIMAssociatorNamesResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
 }
 
@@ -810,9 +822,10 @@ void AssociatorNamesResponseHandler::transfer(void)
 //
 
 ReferencesResponseHandler::ReferencesResponseHandler(
-    CIMReferencesRequestMessage * request,
-    CIMReferencesResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMReferencesRequestMessage* request,
+    CIMReferencesResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
 }
 
@@ -848,9 +861,10 @@ void ReferencesResponseHandler::transfer(void)
 //
 
 ReferenceNamesResponseHandler::ReferenceNamesResponseHandler(
-    CIMReferenceNamesRequestMessage * request,
-    CIMReferenceNamesResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMReferenceNamesRequestMessage* request,
+    CIMReferenceNamesResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
 }
 
@@ -886,9 +900,10 @@ void ReferenceNamesResponseHandler::transfer(void)
 //
 
 InvokeMethodResponseHandler::InvokeMethodResponseHandler(
-    CIMInvokeMethodRequestMessage * request,
-    CIMInvokeMethodResponseMessage * response)
-    : OperationResponseHandler(request, response)
+    CIMInvokeMethodRequestMessage* request,
+    CIMInvokeMethodResponseMessage* response,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback)
 {
 }
 
@@ -942,15 +957,14 @@ void InvokeMethodResponseHandler::transfer(void)
 // EnableIndicationsResponseHandler
 //
 
-typedef void (*PEGASUS_INDICATION_CALLBACK)(CIMProcessIndicationRequestMessage*);
-
 EnableIndicationsResponseHandler::EnableIndicationsResponseHandler(
-    CIMRequestMessage * request,
-    CIMResponseMessage * response,
-    CIMInstance & provider,
-    PEGASUS_INDICATION_CALLBACK indicationCallback)
-    : OperationResponseHandler(request, response),
-    _indicationCallback(indicationCallback)
+    CIMRequestMessage* request,
+    CIMResponseMessage* response,
+    CIMInstance& provider,
+    PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    : OperationResponseHandler(request, response, responseChunkCallback),
+      _indicationCallback(indicationCallback)
 {
     _provider = provider;
 }

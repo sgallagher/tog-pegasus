@@ -42,6 +42,10 @@ PEGASUS_USING_STD;
 
 static const char * verbose = 0;
 
+void dummyCallback(CIMRequestMessage* request, CIMResponseMessage* response)
+{
+}
+
 // test null object checks
 void Test1(void)
 {
@@ -69,7 +73,7 @@ void Test1(void)
             QueueIdStack(),
             CIMInstance());
 
-        GetInstanceResponseHandler handler(&request, &response);
+        GetInstanceResponseHandler handler(&request, &response, dummyCallback);
 
         handler.processing();
 
@@ -106,7 +110,8 @@ void Test1(void)
             QueueIdStack(),
             Array<CIMInstance>());
 
-        EnumerateInstancesResponseHandler handler(&request, &response);
+        EnumerateInstancesResponseHandler handler(
+            &request, &response, dummyCallback);
 
         handler.processing();
 
@@ -138,7 +143,8 @@ void Test1(void)
             QueueIdStack(),
             Array<CIMObjectPath>());
 
-        EnumerateInstanceNamesResponseHandler handler(&request, &response);
+        EnumerateInstanceNamesResponseHandler handler(
+            &request, &response, dummyCallback);
 
         handler.processing();
 
@@ -170,7 +176,8 @@ void Test1(void)
             QueueIdStack(),
             CIMObjectPath());
 
-        CreateInstanceResponseHandler handler(&request, &response);
+        CreateInstanceResponseHandler handler(
+            &request, &response, dummyCallback);
 
         handler.processing();
 
@@ -214,7 +221,7 @@ void Test2(void)
             QueueIdStack(),
             CIMInstance());
 
-        GetInstanceResponseHandler handler(&request, &response);
+        GetInstanceResponseHandler handler(&request, &response, dummyCallback);
 
         handler.processing();
 
@@ -246,7 +253,7 @@ void Test2(void)
             QueueIdStack(),
             CIMInstance());
 
-        GetInstanceResponseHandler handler(&request, &response);
+        GetInstanceResponseHandler handler(&request, &response, dummyCallback);
 
         handler.processing();
 
@@ -282,7 +289,8 @@ void Test2(void)
             QueueIdStack(),
             CIMObjectPath());
 
-        CreateInstanceResponseHandler handler(&request, &response);
+        CreateInstanceResponseHandler handler(
+            &request, &response, dummyCallback);
 
         handler.processing();
 
@@ -309,7 +317,8 @@ void Test2(void)
             QueueIdStack(),
             CIMObjectPath());
 
-        CreateInstanceResponseHandler handler(&request, &response);
+        CreateInstanceResponseHandler handler(
+            &request, &response, dummyCallback);
 
         handler.processing();
 

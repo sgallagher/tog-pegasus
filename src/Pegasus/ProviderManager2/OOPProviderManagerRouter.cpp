@@ -98,15 +98,18 @@ class OutstandingRequestEntry
 public:
     OutstandingRequestEntry(
         String messageId_,
+        CIMRequestMessage* requestMessage_,
         CIMResponseMessage*& responseMessage_,
         Semaphore* responseReady_)
         : messageId(messageId_),
+          requestMessage(requestMessage_),
           responseMessage(responseMessage_),
           responseReady(responseReady_)
     {
     }
 
     String messageId;
+    CIMRequestMessage* requestMessage;
     CIMResponseMessage*& responseMessage;
     Semaphore* responseReady;
 };
@@ -125,7 +128,8 @@ public:
     ProviderAgentContainer(
         const String & moduleName,
         const String & userName,
-        PEGASUS_INDICATION_CALLBACK indicationCallback,
+        PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
         Boolean subscriptionInitComplete);
 
     ~ProviderAgentContainer();
@@ -224,7 +228,12 @@ private:
         Callback function to which all generated indications are sent for
         processing.
      */
-    PEGASUS_INDICATION_CALLBACK _indicationCallback;
+    PEGASUS_INDICATION_CALLBACK_T _indicationCallback;
+
+    /**
+        Callback function to which response chunks are sent for processing.
+     */
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T _responseChunkCallback;
 
     /**
         Indicates whether the Provider Agent is active.
@@ -316,11 +325,13 @@ CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
 ProviderAgentContainer::ProviderAgentContainer(
     const String & moduleName,
     const String & userName,
-    PEGASUS_INDICATION_CALLBACK indicationCallback,
+    PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
     Boolean subscriptionInitComplete)
     : _moduleName(moduleName),
       _userName(userName),
       _indicationCallback(indicationCallback),
+      _responseChunkCallback(responseChunkCallback),
       _isInitialized(false),
       _subscriptionInitComplete(subscriptionInitComplete)
 {
@@ -982,7 +993,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
         //
         Semaphore waitSemaphore(0);
         OutstandingRequestEntry outstandingRequestEntry(
-            uniqueMessageId, response, &waitSemaphore);
+            uniqueMessageId, request, response, &waitSemaphore);
 
         //
         // Lock the Provider Agent Container while initializing the
@@ -1260,6 +1271,29 @@ void ProviderAgentContainer::_processResponses()
                     reinterpret_cast<CIMProcessIndicationRequestMessage*>(
                         message));
             }
+            else if (!message->isComplete())
+            {
+                CIMResponseMessage* response;
+                response = dynamic_cast<CIMResponseMessage*>(message);
+                PEGASUS_ASSERT(response != 0);
+
+                // Get the OutstandingRequestEntry for this response chunk
+                OutstandingRequestEntry* _outstandingRequestEntry = 0;
+                {
+                    AutoMutex tableLock(_outstandingRequestTableMutex);
+                    Boolean foundEntry = _outstandingRequestTable.lookup(
+                        response->messageId, _outstandingRequestEntry);
+                    PEGASUS_ASSERT(foundEntry);
+                }
+
+                // Put the original message ID into the response
+                response->messageId =
+                    _outstandingRequestEntry->requestMessage->messageId;
+
+                // Call the response chunk callback to process the chunk
+                _responseChunkCallback(
+                    _outstandingRequestEntry->requestMessage, response);
+            }
             else
             {
                 CIMResponseMessage* response;
@@ -1314,12 +1348,14 @@ ProviderAgentContainer::_responseProcessor(void* arg)
 /////////////////////////////////////////////////////////////////////////////
 
 OOPProviderManagerRouter::OOPProviderManagerRouter(
-    PEGASUS_INDICATION_CALLBACK indicationCallback)
+    PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "OOPProviderManagerRouter::OOPProviderManagerRouter");
 
     _indicationCallback = indicationCallback;
+    _responseChunkCallback = responseChunkCallback;
     _subscriptionInitComplete = false;
 
     PEG_METHOD_EXIT();
@@ -1676,7 +1712,7 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
     if (!_providerAgentTable.lookup(key, pa))
     {
         pa = new ProviderAgentContainer(
-            moduleName, userName, _indicationCallback,
+            moduleName, userName, _indicationCallback, _responseChunkCallback,
             _subscriptionInitComplete);
         _providerAgentTable.insert(key, pa);
     }

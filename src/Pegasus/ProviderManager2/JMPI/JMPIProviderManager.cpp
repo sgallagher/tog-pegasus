@@ -428,7 +428,7 @@ void JMPIProviderManager::unloadIdleProviders()
     PEGASUS_ASSERT(response != 0); \
     response->setKey(request->getKey()); \
     response->setHttpMethod(request->getHttpMethod()); \
-    type1##ResponseHandler handler(request, response);
+    type1##ResponseHandler handler(request, response, _responseChunkCallback);
 
 #define VOIDINTRO );
 #define NOVOIDINTRO(type) ,type);
@@ -4370,8 +4370,12 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                     prec->enabled = true;
                     CIMRequestMessage * request = 0;
                     CIMResponseMessage * response = 0;
-                    prec->handler = new EnableIndicationsResponseHandler
-                        (request, response, req_provider, _indicationCallback);
+                    prec->handler = new EnableIndicationsResponseHandler(
+                        request,
+                        response,
+                        req_provider,
+                        _indicationCallback,
+                        _responseChunkCallback);
                 }
             }
 
@@ -4772,8 +4776,12 @@ Message * JMPIProviderManager::handleSubscriptionInitCompleteRequest (const Mess
                 prec->enabled = true;
                 CIMRequestMessage * request = 0;
                 CIMResponseMessage * response = 0;
-                prec->handler = new EnableIndicationsResponseHandler
-                    (request, response, provider, _indicationCallback);
+                prec->handler = new EnableIndicationsResponseHandler(
+                    request,
+                    response,
+                    provider,
+                    _indicationCallback,
+                    _responseChunkCallback);
             }
         }
         catch (CIMException & e)

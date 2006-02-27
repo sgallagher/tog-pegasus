@@ -1378,7 +1378,18 @@ void HTTPConnection::_handleReadEventTransferEncoding()
         // If we dont have enough remainder bytes to process from the length parsed
         // then return and wait for the next iteration.
 
-        if (chunkLengthParsed + chunkMetaLength > remainderLength)
+        //
+        // Also, if this is the last chunk, then we have to know if there
+        // is enough data in here to be able to verify that meta crlf for 
+        // the end of the whole chunked message is present.
+        // If chunkLengthParsed + chunkMetaLenght == reminderLength, it 
+        // means that there is a space only for meta crlf of the last chunk.
+        // Therefore go back and re-read socket until you get enough data 
+        // for at least 2 crlfs.  One for the end of the last chunk or 
+        // the end of the optional trailer, and one for the end of whole 
+        // message.
+
+        if (chunkLengthParsed + chunkMetaLength >= remainderLength)
             break;
 
         // at this point we have a complete chunk. proceed and strip out meta-data

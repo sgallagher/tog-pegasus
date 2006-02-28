@@ -240,7 +240,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
 
       if(msg != 0 )
       {
-//         delete msg;
+         delete msg;
          replies++;  
       }
       pegasus_yield();

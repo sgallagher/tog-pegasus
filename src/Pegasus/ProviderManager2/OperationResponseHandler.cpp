@@ -1,79 +1,55 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "OperationResponseHandler.h"
-#include "CIMOMHandleContext.h"
 
-#include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/SharedPtr.h>
-#include <Pegasus/Provider/CIMOMHandle.h>
-#include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/Common/SCMOClassCache.h>
+#include <Pegasus/Common/Logger.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-static void _initializeNormalizer(
-    CIMOperationRequestMessage *request,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    ObjectNormalizer &normalizer)
-{
-    // Attempt to get the cached class definition, normalization is disabled
-    // if it does not exist.
-    if (request->operationContext.contains(
-            CachedClassDefinitionContainer::NAME))
-    {
-        CachedClassDefinitionContainer container =
-            request->operationContext.get(
-                CachedClassDefinitionContainer::NAME);
-        CIMClass cimClass = container.getClass().clone();
-        container = CachedClassDefinitionContainer(cimClass);
-        SharedPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
-        ObjectNormalizer tmpNormalizer(
-            cimClass,
-            includeQualifiers,
-            includeClassOrigin,
-            request->nameSpace,
-            tmpContext);
-        normalizer = tmpNormalizer;
-    }
-}
 
 //
 // OperationResponseHandler
 //
 
 OperationResponseHandler::OperationResponseHandler(
-    CIMRequestMessage* request,
-    CIMResponseMessage* response,
+    CIMRequestMessage *request,
+    CIMResponseMessage *response,
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
     : _request(request),
     _response(response),
@@ -83,65 +59,64 @@ OperationResponseHandler::OperationResponseHandler(
     _responseObjectThreshold(0)
 {
 #ifndef PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD
-# define PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD 100
+ #define PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD 100
 #elif PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD  == 0
-# undef PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD
-# define PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD  ~0
+ #undef PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD
+ #define PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD  ~0
 #endif
 
     if (!request)
     {
         _responseObjectThreshold = ~0;
     }
-    else
+	else
     {
         _responseObjectThreshold = PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD;
 
 #ifdef PEGASUS_DEBUG
-        static const char* responseObjectThreshold =
-            getenv("PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD");
+	    static const char *responseObjectThreshold =
+		    getenv("PEGASUS_RESPONSE_OBJECT_COUNT_THRESHOLD");
 
         if (responseObjectThreshold)
-        {
-            Uint32 i = (Uint32)atoi(responseObjectThreshold);
+	    {
+		    Uint32 i = (Uint32)atoi(responseObjectThreshold);
 
             if (i > 0)
             {
                 _responseObjectThreshold = i;
             }
-        }
+	    }
 #endif
     }
 }
 
 OperationResponseHandler::~OperationResponseHandler()
 {
-    _request = 0;
-    _response = 0;
+	_request = 0;
+	_response = 0;
 }
 
-CIMRequestMessage* OperationResponseHandler::getRequest() const
+CIMRequestMessage * OperationResponseHandler::getRequest(void) const
 {
-    return _request;
+    return(_request);
 }
 
-CIMResponseMessage* OperationResponseHandler::getResponse() const
+CIMResponseMessage * OperationResponseHandler::getResponse(void) const
 {
-    return _response;
+    return(_response);
 }
 
 void OperationResponseHandler::setStatus(
     const Uint32 code,
-    const String& message)
+    const String & message)
 {
-    _response->cimException =
-        PEGASUS_CIM_EXCEPTION(CIMStatusCode(code), message);
+    _response->cimException = PEGASUS_CIM_EXCEPTION(CIMStatusCode(code), message);
 }
 
 void OperationResponseHandler::setStatus(
     const Uint32 code,
-    const ContentLanguageList& langs,
-    const String& message)
+    const ContentLanguageList & langs,
+    const String & message)
 {
     _response->cimException =
         PEGASUS_CIM_EXCEPTION_LANG(
@@ -150,20 +125,9 @@ void OperationResponseHandler::setStatus(
         message);
 }
 
-void OperationResponseHandler::setCIMException(
-    const CIMException& cimException)
+Boolean OperationResponseHandler::isAsync(void) const
 {
-    // Assign the cimException argument to _response->cimException. Note that
-    // there is no need to use the PEGASUS_CIM_EXCEPTION_LANG() macro to create
-    // a TraceableCIMException since both _response->cimException and
-    // cimException are of type CIMException and the TraceableCIMException
-    // constructor has no side effects.
-    _response->cimException = cimException;
-}
-
-Boolean OperationResponseHandler::isAsync() const
-{
-    return _responseChunkCallback != 0;
+    return(true);
 }
 
 // This is only called from SimpleResponseHandler.deliver() but lives in this
@@ -171,135 +135,133 @@ Boolean OperationResponseHandler::isAsync() const
 // to go through. Only operation classes have a response pointer
 void OperationResponseHandler::send(Boolean isComplete)
 {
-    // It is possible to instantiate this class directly (not a derived
-    // class, which would also inherit from SimpleResponseHandler).
-    // The caller would do this only if the operation does not have any
-    // data to be returned.
+	// some handlers do not send async because their callers cannot handle
+	// partial responses. If this is the case, stop here.
 
-    SimpleResponseHandler* simpleP =
-        dynamic_cast<SimpleResponseHandler*>(this);
-    if (simpleP == 0)
-    {
-        // if there is no data to be returned, then the message should NEVER be
-        // incomplete (even on an error)
-        PEGASUS_ASSERT(isComplete);
-        return;
-    }
-
-    // some handlers do not send async because their callers cannot handle
-    // partial responses. If this is the case, stop here.
-
-    if (!isAsync())
-    {
-        // preserve traditional behavior
-        if (isComplete)
+	if (isAsync() == false)
+	{
+		// preserve tradional behavior
+		if (isComplete == true)
         {
-            if (_response != 0)
-            {
-                _response->operationContext.set(
-                    ContentLanguageListContainer(simpleP->getLanguages()));
-            }
             transfer();
         }
 
         return;
-    }
+	}
 
-    SimpleResponseHandler& simple = *simpleP;
-    PEGASUS_ASSERT(_response);
-    Uint32 objectCount = simple.size();
+	SimpleResponseHandler *simpleP = dynamic_cast<SimpleResponseHandler*>(this);
 
-    // have not reached threshold yet
-    if ((isComplete == false) && (objectCount < _responseObjectThreshold))
+	// It is possible to instantiate this class directly (not derived)
+	// The caller would do this only if the operation does not have any data to
+	// be returned
+
+	if (! simpleP)
+	{
+		// if there is no data to be returned, then the message should NEVER be
+		// incomplete (even on an error)
+		if (isComplete == false)
+        {
+            PEGASUS_ASSERT(false);
+        }
+
+        return;
+	}
+
+	SimpleResponseHandler &simple = *simpleP;
+	PEGASUS_ASSERT(_response);
+	Uint32 objectCount = simple.size();
+
+	// have not reached threshold yet
+	if ((isComplete == false) && (objectCount < _responseObjectThreshold))
     {
         return;
     }
 
-    CIMResponseMessage* response = _response;
+	CIMResponseMessage *response = _response;
 
-    // for complete responses, just use the one handed down from caller
-    // otherwise, create our own that the caller never sees but is
-    // utilized for async responses underneath
+	// for complete responses, just use the one handed down from caller
+	// otherwise, create our own that the caller never sees but is
+	// utilized for async responses underneath
 
-    if (isComplete == false)
+	if (isComplete == false)
     {
         _response = _request->buildResponse();
     }
 
-    _response->setComplete(isComplete);
-    _responseObjectTotal += objectCount;
+	_response->setComplete(isComplete);
+	_responseObjectTotal += objectCount;
 
-    // since we are reusing response for every chunk, keep track of original
-    // count
-    _response->setIndex(_responseMessageTotal++);
+	// since we are reusing response for every chunk,keep track of original count
+	_response->setIndex(_responseMessageTotal++);
 
-    // set the originally allocated response to one more than the current.
-    // The reason for doing this is proactive in case of an exception. This
-    // allows the last response to be set as it may not re-enter this code.
+	// set the originally allocated response to one more than the current.
+	// The reason for doing this is proactive in case of an exception. This
+	// allows the last response to be set as it may not re-enter this code.
 
-    if (isComplete == false)
+	if (isComplete == false)
     {
         response->setIndex(_responseMessageTotal);
     }
 
-    validate();
+	validate();
 
-    if (_response->cimException.getCode() != CIM_ERR_SUCCESS)
+	if (_response->cimException.getCode() != CIM_ERR_SUCCESS)
     {
         simple.clear();
     }
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "%s::transfer",
-        (const char*) getClass().getCString()));
+	String function = getClass() + "::" + "transfer";
+	Logger::put(
+        Logger::STANDARD_LOG,
+        System::CIMSERVER,
+        Logger::TRACE,
+        function);
 
-    transfer();
-    simple.clear();
+	transfer();
+	simple.clear();
 
-    _response->operationContext.set(
-        ContentLanguageListContainer(simple.getLanguages()));
+	// l10n
+	_response->operationContext.set(ContentLanguageListContainer(simple.getLanguages()));
 
-    // call thru ProviderManager to get externally declared entry point
+	// call thru ProviderManager to get externally declared entry point
 
-    if (isComplete == false)
-    {
-        _responseChunkCallback(_request, _response);
-    }
+	if (isComplete == false)
+	{
+	    _responseChunkCallback(_request, _response);
+	}
 
-    // put caller's allocated response back in place. Note that _response
-    // is INVALID after sending because it has been deleted externally
+	// put caller's allocated response back in place. Note that _response
+	// is INVALID after sending because it has been deleted externally
 
-    _response = response;
+	_response = response;
 }
 
-void OperationResponseHandler::transfer()
+void OperationResponseHandler::transfer(void)
 {
 }
 
-void OperationResponseHandler::validate()
+void OperationResponseHandler::validate(void)
 {
 }
 
-String OperationResponseHandler::getClass() const
+String OperationResponseHandler::getClass(void) const
 {
-    return String("OperationResponseHandler");
+    return(String("OperationResponseHandler"));
 }
 
-Uint32 OperationResponseHandler::getResponseObjectTotal() const
+Uint32 OperationResponseHandler::getResponseObjectTotal(void) const
 {
-    return _responseObjectTotal;
+    return(_responseObjectTotal);
 }
 
-Uint32 OperationResponseHandler::getResponseMessageTotal() const
+Uint32 OperationResponseHandler::getResponseMessageTotal(void) const
 {
-    return _responseMessageTotal;
+    return(_responseMessageTotal);
 }
 
-Uint32 OperationResponseHandler::getResponseObjectThreshold() const
+Uint32 OperationResponseHandler::getResponseObjectThreshold(void) const
 {
-    return _responseObjectThreshold;
+    return(_responseObjectThreshold);
 }
 
 //
@@ -312,16 +274,37 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
     : OperationResponseHandler(request, response, responseChunkCallback)
 {
-    _initializeNormalizer(
-        request,
-        request->includeQualifiers,
-        request->includeClassOrigin,
-        _normalizer);
+    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+    // Attempt to get the cached class definition used to validate results of this
+    // operation. If it does not exist, then this feature is disabled for this
+    // operation.
+    CIMClass cimClass;
+
+    try
+    {
+        CachedClassDefinitionContainer container =
+            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+
+        cimClass = container.getClass();
+
+    }
+    catch(Exception &)
+    {
+        // Do nothing. Container is missing, which implies normalization is disabled
+        // for this operation.
+    }
+
+    _normalizer =
+        ObjectNormalizer(
+            cimClass,
+            request->includeQualifiers,
+            request->includeClassOrigin);
+    #endif
 }
 
-void GetInstanceResponseHandler::deliver(const CIMInstance& cimInstance)
+void GetInstanceResponseHandler::deliver(const CIMInstance & cimInstance)
 {
-    if (cimInstance.isUninitialized())
+    if(cimInstance.isUninitialized())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -330,7 +313,7 @@ void GetInstanceResponseHandler::deliver(const CIMInstance& cimInstance)
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
-    if (SimpleInstanceResponseHandler::size() != 0)
+    if(SimpleInstanceResponseHandler::size() != 0)
     {
         MessageLoaderParms message(
             "Server.OperationResponseHandler.TOO_MANY_OBJECTS_DELIVERED",
@@ -339,87 +322,57 @@ void GetInstanceResponseHandler::deliver(const CIMInstance& cimInstance)
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
-    CIMInstance localInstance(cimInstance);
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     // The normalizer expects an object path embedded in instances even
     // though it is not required by this operation. Use the requested
     // object path is missing from the instance.
-    if (localInstance.getPath().getKeyBindings().size() == 0)
+    CIMInstance localInstance(cimInstance);
+
+    if(localInstance.getPath().getKeyBindings().size() == 0)
     {
         // ATTN: should clone before modification
-        localInstance.setPath(static_cast<CIMGetInstanceRequestMessage*>(
-            getRequest())->instanceName);
-    }
-#endif
-    SimpleInstanceResponseHandler::deliver(
-        _normalizer.processInstance(localInstance));
-}
-
-void GetInstanceResponseHandler::deliver(const SCMOInstance& cimInstance)
-{
-    if (cimInstance.isUninitialized())
-    {
-        MessageLoaderParms message(
-            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-            "The object is not initialized.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
+        localInstance.setPath(static_cast<CIMGetInstanceRequestMessage *>(getRequest())->instanceName);
     }
 
-    if (SimpleInstanceResponseHandler::size() != 0)
-    {
-        MessageLoaderParms message(
-            "Server.OperationResponseHandler.TOO_MANY_OBJECTS_DELIVERED",
-            "Too many objects delivered.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
+    SimpleInstanceResponseHandler::deliver(_normalizer.processInstance(localInstance));
+    #else
     SimpleInstanceResponseHandler::deliver(cimInstance);
+    #endif
 }
 
-void GetInstanceResponseHandler::complete()
+void GetInstanceResponseHandler::complete(void)
 {
-    if (SimpleInstanceResponseHandler::size() == 0)
+    if(SimpleInstanceResponseHandler::size() == 0)
     {
         MessageLoaderParms message(
             "Server.OperationResponseHandler.TOO_FEW_OBJECTS_DELIVERED",
             "Too few objects delivered.");
-        // Provider claims success, no instances returned. -V see Bug #4104
-        setStatus(CIM_ERR_NOT_FOUND);
+
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
     SimpleInstanceResponseHandler::complete();
 }
 
-String GetInstanceResponseHandler::getClass() const
+String GetInstanceResponseHandler::getClass(void) const
 {
-    return String("GetInstanceResponseHandler");
+    return(String("GetInstanceResponseHandler"));
 }
 
-void GetInstanceResponseHandler::transfer()
+void GetInstanceResponseHandler::transfer(void)
 {
-    if (size() > 0)
+    if(size() > 0)
     {
-        CIMGetInstanceResponseMessage& msg =
-            *static_cast<CIMGetInstanceResponseMessage*>(getResponse());
-        Array<CIMInstance> cimObjs= getObjects();
-        Array<SCMOInstance> scmoObjs= getSCMOObjects();
-        if (cimObjs.size() != 0)
-        {
-            msg.getResponseData().setInstance(cimObjs[0]);
-        }
-        else
-        {
-            msg.getResponseData().setSCMO(scmoObjs);
-        }
+        CIMGetInstanceResponseMessage & msg =
+            *static_cast<CIMGetInstanceResponseMessage *>(getResponse());
+
+        msg.cimInstance = getObjects()[0];
     }
 }
 
-void GetInstanceResponseHandler::validate()
+void GetInstanceResponseHandler::validate(void)
 {
-    if (getResponseObjectTotal() == 0)
+    if(getResponseObjectTotal() == 0)
     {
         // error? provider claims success,
         // but did not deliver an instance.
@@ -437,16 +390,36 @@ EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
     : OperationResponseHandler(request, response, responseChunkCallback)
 {
-    _initializeNormalizer(
-        request,
-        request->includeQualifiers,
-        request->includeClassOrigin,
-        _normalizer);
+    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+    // Attempt to get the cached class definition used to validate results of this
+    // operation. If it does not exist, then this feature is disabled for this
+    // operation.
+    CIMClass cimClass;
+
+    try
+    {
+        CachedClassDefinitionContainer container =
+            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+
+        cimClass = container.getClass();
+    }
+    catch(Exception &)
+    {
+        // Do nothing. Container is missing, which implies normalization is disabled
+        // for this operation.
+    }
+
+    _normalizer =
+        ObjectNormalizer(
+            cimClass,
+            request->includeQualifiers,
+            request->includeClassOrigin);
+    #endif
 }
 
-void EnumerateInstancesResponseHandler::deliver(const CIMInstance& cimInstance)
+void EnumerateInstancesResponseHandler::deliver(const CIMInstance & cimInstance)
 {
-    if (cimInstance.isUninitialized())
+    if(cimInstance.isUninitialized())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -455,44 +428,24 @@ void EnumerateInstancesResponseHandler::deliver(const CIMInstance& cimInstance)
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
-    SimpleInstanceResponseHandler::deliver(
-        _normalizer.processInstance(cimInstance));
+    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+    SimpleInstanceResponseHandler::deliver(_normalizer.processInstance(cimInstance));
+    #else
+    SimpleInstanceResponseHandler::deliver(cimInstance);
+    #endif
 }
 
-void EnumerateInstancesResponseHandler::deliver(
-    const SCMOInstance& scmoInstance)
+String EnumerateInstancesResponseHandler::getClass(void) const
 {
-    if (scmoInstance.isUninitialized())
-    {
-        MessageLoaderParms message(
-            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-            "The object is not initialized.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-    SimpleInstanceResponseHandler::deliver(scmoInstance);
+    return(String("EnumerateInstancesResponseHandler"));
 }
 
-String EnumerateInstancesResponseHandler::getClass() const
+void EnumerateInstancesResponseHandler::transfer(void)
 {
-    return String("EnumerateInstancesResponseHandler");
-}
+    CIMEnumerateInstancesResponseMessage & msg =
+        *static_cast<CIMEnumerateInstancesResponseMessage *>(getResponse());
 
-void EnumerateInstancesResponseHandler::transfer()
-{
-    CIMEnumerateInstancesResponseMessage& msg =
-        *static_cast<CIMEnumerateInstancesResponseMessage*>(getResponse());
-
-    Array<CIMInstance> cimObjs= getObjects();
-    Array<SCMOInstance> scmoObjs= getSCMOObjects();
-    if (cimObjs.size() != 0)
-    {
-        msg.getResponseData().setInstances(cimObjs);
-    }
-    if (scmoObjs.size() != 0)
-    {
-        msg.getResponseData().setSCMO(scmoObjs);
-    }
+    msg.cimNamedInstances = getObjects();
 }
 
 //
@@ -505,17 +458,36 @@ EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
     : OperationResponseHandler(request, response, responseChunkCallback)
 {
-    _initializeNormalizer(
-        request,
-        false,
-        false,
-        _normalizer);
+    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+    // Attempt to get the cached class definition used to validate results of this
+    // operation. If it does not exist, then this feature is disabled for this
+    // operation.
+    CIMClass cimClass;
+
+    try
+    {
+        CachedClassDefinitionContainer container =
+            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+
+        cimClass = container.getClass();
+    }
+    catch(Exception &)
+    {
+        // Do nothing. Container is missing, which implies normalization is disabled
+        // for this operation.
+    }
+
+    _normalizer =
+        ObjectNormalizer(
+            cimClass,
+            false,
+            false);
+    #endif
 }
 
-void EnumerateInstanceNamesResponseHandler::deliver(
-    const CIMObjectPath& cimObjectPath)
+void EnumerateInstanceNamesResponseHandler::deliver(const CIMObjectPath & cimObjectPath)
 {
-    if (cimObjectPath.getClassName().isNull())
+    if(cimObjectPath.getClassName().isNull())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -524,45 +496,24 @@ void EnumerateInstanceNamesResponseHandler::deliver(
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
-    SimpleObjectPathResponseHandler::deliver(
-        _normalizer.processInstanceObjectPath(cimObjectPath));
+    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+    SimpleObjectPathResponseHandler::deliver(_normalizer.processInstanceObjectPath(cimObjectPath));
+    #else
+    SimpleObjectPathResponseHandler::deliver(cimObjectPath);
+    #endif
 }
 
-void EnumerateInstanceNamesResponseHandler::deliver(
-    const SCMOInstance& scmoObjectPath)
+String EnumerateInstanceNamesResponseHandler::getClass(void) const
 {
-    if (scmoObjectPath.getClassName()==NULL)
-    {
-        MessageLoaderParms message(
-            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-            "The object is not initialized.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
-    SimpleObjectPathResponseHandler::deliver(scmoObjectPath);
+    return(String("EnumerateInstanceNamesResponseHandler"));
 }
 
-String EnumerateInstanceNamesResponseHandler::getClass() const
+void EnumerateInstanceNamesResponseHandler::transfer(void)
 {
-    return String("EnumerateInstanceNamesResponseHandler");
-}
+    CIMEnumerateInstanceNamesResponseMessage & msg =
+        *static_cast<CIMEnumerateInstanceNamesResponseMessage *>(getResponse());
 
-void EnumerateInstanceNamesResponseHandler::transfer()
-{
-    CIMEnumerateInstanceNamesResponseMessage& msg =
-        *static_cast<CIMEnumerateInstanceNamesResponseMessage*>(getResponse());
-
-    Array<CIMObjectPath> cimObjs= getObjects();
-    Array<SCMOInstance> scmoObjs= getSCMOObjects();
-    if (cimObjs.size() != 0)
-    {
-        msg.getResponseData().setInstanceNames(cimObjs);
-    }
-    if (scmoObjs.size() != 0)
-    {
-        msg.getResponseData().setSCMO(scmoObjs);
-    }
+    msg.instanceNames = getObjects();
 }
 
 //
@@ -577,9 +528,9 @@ CreateInstanceResponseHandler::CreateInstanceResponseHandler(
 {
 }
 
-void CreateInstanceResponseHandler::deliver(const CIMObjectPath& cimObjectPath)
+void CreateInstanceResponseHandler::deliver(const CIMObjectPath & cimObjectPath)
 {
-    if (cimObjectPath.getClassName().isNull())
+    if(cimObjectPath.getClassName().isNull())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -588,7 +539,7 @@ void CreateInstanceResponseHandler::deliver(const CIMObjectPath& cimObjectPath)
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
-    if (SimpleObjectPathResponseHandler::size() != 0)
+    if(SimpleObjectPathResponseHandler::size() != 0)
     {
         MessageLoaderParms message(
             "Server.OperationResponseHandler.TOO_MANY_OBJECTS_DELIVERED",
@@ -600,9 +551,9 @@ void CreateInstanceResponseHandler::deliver(const CIMObjectPath& cimObjectPath)
     SimpleObjectPathResponseHandler::deliver(cimObjectPath);
 }
 
-void CreateInstanceResponseHandler::complete()
+void CreateInstanceResponseHandler::complete(void)
 {
-    if (SimpleObjectPathResponseHandler::size() == 0)
+    if(SimpleObjectPathResponseHandler::size() == 0)
     {
         MessageLoaderParms message(
             "Server.OperationResponseHandler.TOO_FEW_OBJECTS_DELIVERED",
@@ -614,39 +565,30 @@ void CreateInstanceResponseHandler::complete()
     SimpleObjectPathResponseHandler::complete();
 }
 
-String CreateInstanceResponseHandler::getClass() const
+String CreateInstanceResponseHandler::getClass(void) const
 {
-    return String("CreateInstanceResponseHandler");
+    return(String("CreateInstanceResponseHandler"));
 }
 
 #if 0
 // ATTN: is it an error to not return instance name?
-void CreateInstanceResponseHandler::validate()
+void CreateInstanceResponseHandler::validate(void)
 {
-    if (getResponseObjectTotal() == 0)
+    if(getResponseObjectTotal() == 0)
     {
         setStatus(CIM_ERR_NOT_FOUND);
     }
 }
 #endif
 
-void CreateInstanceResponseHandler::transfer()
+void CreateInstanceResponseHandler::transfer(void)
 {
-    if (size() > 0)
+    if(size() > 0)
     {
-        CIMCreateInstanceResponseMessage& msg =
-            *static_cast<CIMCreateInstanceResponseMessage*>(getResponse());
+        CIMCreateInstanceResponseMessage & msg =
+            *static_cast<CIMCreateInstanceResponseMessage *>(getResponse());
 
-        Array<CIMObjectPath> cimObjs= getObjects();
-        Array<SCMOInstance> scmoObjs= getSCMOObjects();
-        if (cimObjs.size() != 0)
-        {
-            msg.instanceName = cimObjs[0];
-        }
-        else
-        {
-            scmoObjs[0].getCIMObjectPath(msg.instanceName);
-        }
+        msg.instanceName = getObjects()[0];
     }
 }
 
@@ -662,9 +604,9 @@ ModifyInstanceResponseHandler::ModifyInstanceResponseHandler(
 {
 }
 
-String ModifyInstanceResponseHandler::getClass() const
+String ModifyInstanceResponseHandler::getClass(void) const
 {
-    return String("ModifyInstanceResponseHandler");
+    return(String("ModifyInstanceResponseHandler"));
 }
 
 //
@@ -679,9 +621,9 @@ DeleteInstanceResponseHandler::DeleteInstanceResponseHandler(
 {
 }
 
-String DeleteInstanceResponseHandler::getClass() const
+String DeleteInstanceResponseHandler::getClass(void) const
 {
-    return String("DeleteInstanceResponseHandler");
+    return(String("DeleteInstanceResponseHandler"));
 }
 
 //
@@ -696,9 +638,9 @@ GetPropertyResponseHandler::GetPropertyResponseHandler(
 {
 }
 
-void GetPropertyResponseHandler::deliver(const CIMValue& cimValue)
+void GetPropertyResponseHandler::deliver(const CIMValue & cimValue)
 {
-    if (cimValue.isNull())
+    if(cimValue.isNull())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -710,27 +652,27 @@ void GetPropertyResponseHandler::deliver(const CIMValue& cimValue)
     SimpleValueResponseHandler::deliver(cimValue);
 }
 
-String GetPropertyResponseHandler::getClass() const
+String GetPropertyResponseHandler::getClass(void) const
 {
-    return String("GetPropertyResponseHandler");
+    return(String("GetPropertyResponseHandler"));
 }
 
-void GetPropertyResponseHandler::transfer()
+void GetPropertyResponseHandler::transfer(void)
 {
-    if (size() > 0)
+    if(size() > 0)
     {
-        CIMGetPropertyResponseMessage& msg =
-            *static_cast<CIMGetPropertyResponseMessage*>(getResponse());
+        CIMGetPropertyResponseMessage & msg =
+            *static_cast<CIMGetPropertyResponseMessage *>(getResponse());
 
         msg.value = getObjects()[0];
     }
 }
 
-void GetPropertyResponseHandler::validate()
+void GetPropertyResponseHandler::validate(void)
 {
     // error? provider claims success,
     // but did not deliver an instance.
-    if (getResponseObjectTotal() == 0)
+    if(getResponseObjectTotal() == 0)
     {
         setStatus(CIM_ERR_NOT_FOUND);
     }
@@ -748,9 +690,9 @@ SetPropertyResponseHandler::SetPropertyResponseHandler(
 {
 }
 
-String SetPropertyResponseHandler::getClass() const
+String SetPropertyResponseHandler::getClass(void) const
 {
-    return String("SetPropertyResponseHandler");
+    return(String("SetPropertyResponseHandler"));
 }
 
 //
@@ -765,9 +707,9 @@ ExecQueryResponseHandler::ExecQueryResponseHandler(
 {
 }
 
-void ExecQueryResponseHandler::deliver(const CIMInstance& cimInstance)
+void ExecQueryResponseHandler::deliver(const CIMInstance & cimInstance)
 {
-    if (cimInstance.isUninitialized())
+    if(cimInstance.isUninitialized())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -779,76 +721,22 @@ void ExecQueryResponseHandler::deliver(const CIMInstance& cimInstance)
     SimpleInstance2ObjectResponseHandler::deliver(cimInstance);
 }
 
-void ExecQueryResponseHandler::deliver(const SCMOInstance& scmoInstance)
+String ExecQueryResponseHandler::getClass(void) const
 {
-    if (scmoInstance.isUninitialized())
-    {
-        MessageLoaderParms message(
-            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-            "The object is not initialized.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
-    SimpleInstance2ObjectResponseHandler::deliver(scmoInstance);
+    return(String("ExecQueryResponseHandler"));
 }
 
-String ExecQueryResponseHandler::getClass() const
+void ExecQueryResponseHandler::transfer(void)
 {
-    return String("ExecQueryResponseHandler");
+    CIMExecQueryResponseMessage & msg =
+        *static_cast<CIMExecQueryResponseMessage *>(getResponse());
+
+    msg.cimObjects = getObjects();
 }
 
-void ExecQueryResponseHandler::transfer()
+Boolean ExecQueryResponseHandler::isAsync(void) const
 {
-    CIMExecQueryResponseMessage& msg =
-        *static_cast<CIMExecQueryResponseMessage*>(getResponse());
-
-    Array<CIMObject> cimObjs= getObjects();
-    Array<SCMOInstance> scmoObjs= getSCMOObjects();
-    if (cimObjs.size() != 0)
-    {
-        // complete keybindings based on set property values
-        CIMOperationRequestMessage * reqMsg =
-            (CIMOperationRequestMessage*) _request;
-
-        Boolean clsRead=false;
-        for (Uint32 j = 0, m = cimObjs.size(); j < m; j++)
-        {
-            CIMObject & co=cimObjs[j];
-            CIMObjectPath op=co.getPath();
-            const Array<CIMKeyBinding>& kbs=op.getKeyBindings();
-            if (kbs.size()==0)
-            {     // no path set why ?
-                if (clsRead==false || _cimClass.isUninitialized())
-                {
-                    SCMOClassCache * classCache = SCMOClassCache::getInstance();
-                    CString nsName = reqMsg->nameSpace.getString().getCString();
-                    CString clName = reqMsg->className.getString().getCString();
-                    SCMOClass theClass = classCache->getSCMOClass(
-                        nsName,
-                        strlen(nsName),
-                        clName,
-                        strlen(clName));
-                    theClass.getCIMClass(_cimClass);
-                    clsRead=true;
-                }
-                op = CIMInstance(co).buildPath(_cimClass);
-            }
-            op.setNameSpace(reqMsg->nameSpace);
-            op.setHost(System::getHostName());
-            co.setPath(op);
-        }
-        msg.getResponseData().setObjects(cimObjs);
-    }
-    if (scmoObjs.size() != 0)
-    {
-        msg.getResponseData().setSCMO(scmoObjs);
-    }
-}
-
-Boolean ExecQueryResponseHandler::isAsync() const
-{
-    return false;
+    return(false);
 }
 
 //
@@ -863,9 +751,9 @@ AssociatorsResponseHandler::AssociatorsResponseHandler(
 {
 }
 
-void AssociatorsResponseHandler::deliver(const CIMObject& cimObject)
+void AssociatorsResponseHandler::deliver(const CIMObject & cimObject)
 {
-    if (cimObject.isUninitialized())
+    if(cimObject.isUninitialized())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -877,53 +765,17 @@ void AssociatorsResponseHandler::deliver(const CIMObject& cimObject)
     SimpleObjectResponseHandler::deliver(cimObject);
 }
 
-void AssociatorsResponseHandler::deliver(const CIMInstance& cimInstance)
+String AssociatorsResponseHandler::getClass(void) const
 {
-    if (cimInstance.isUninitialized())
-    {
-        MessageLoaderParms message(
-            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-            "The object is not initialized.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
-    SimpleObjectResponseHandler::deliver(cimInstance);
+    return(String("AssociatorsResponseHandler"));
 }
 
-void AssociatorsResponseHandler::deliver(const SCMOInstance& scmoObject)
+void AssociatorsResponseHandler::transfer(void)
 {
-    if (scmoObject.isUninitialized())
-    {
-        MessageLoaderParms message(
-            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-            "The object is not initialized.");
+    CIMAssociatorsResponseMessage & msg =
+        *static_cast<CIMAssociatorsResponseMessage *>(getResponse());
 
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-    SimpleObjectResponseHandler::deliver(scmoObject);
-}
-
-String AssociatorsResponseHandler::getClass() const
-{
-    return String("AssociatorsResponseHandler");
-}
-
-void AssociatorsResponseHandler::transfer()
-{
-    CIMAssociatorsResponseMessage& msg =
-        *static_cast<CIMAssociatorsResponseMessage*>(getResponse());
-
-    Array<CIMObject> cimObjs= getObjects();
-    Array<SCMOInstance> scmoObjs= getSCMOObjects();
-    if (cimObjs.size() != 0)
-    {
-        msg.getResponseData().setObjects(cimObjs);
-    }
-    if (scmoObjs.size() != 0)
-    {
-        msg.getResponseData().setSCMO(scmoObjs);
-    }
+    msg.cimObjects = getObjects();
 }
 
 //
@@ -938,9 +790,9 @@ AssociatorNamesResponseHandler::AssociatorNamesResponseHandler(
 {
 }
 
-void AssociatorNamesResponseHandler::deliver(const CIMObjectPath& cimObjectPath)
+void AssociatorNamesResponseHandler::deliver(const CIMObjectPath & cimObjectPath)
 {
-    if (cimObjectPath.getClassName().isNull())
+    if(cimObjectPath.getClassName().isNull())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -952,31 +804,17 @@ void AssociatorNamesResponseHandler::deliver(const CIMObjectPath& cimObjectPath)
     SimpleObjectPathResponseHandler::deliver(cimObjectPath);
 }
 
-void AssociatorNamesResponseHandler::deliver(const SCMOInstance& scmoObjectPath)
+String AssociatorNamesResponseHandler::getClass(void) const
 {
-    SimpleObjectPathResponseHandler::deliver(scmoObjectPath);
+    return(String("AssociatorNamesResponseHandler"));
 }
 
-String AssociatorNamesResponseHandler::getClass() const
+void AssociatorNamesResponseHandler::transfer(void)
 {
-    return String("AssociatorNamesResponseHandler");
-}
+    CIMAssociatorNamesResponseMessage & msg =
+        *static_cast<CIMAssociatorNamesResponseMessage *>(getResponse());
 
-void AssociatorNamesResponseHandler::transfer()
-{
-    CIMAssociatorNamesResponseMessage& msg =
-        *static_cast<CIMAssociatorNamesResponseMessage*>(getResponse());
-
-    Array<CIMObjectPath> cimObjs= getObjects();
-    Array<SCMOInstance> scmoObjs= getSCMOObjects();
-    if (cimObjs.size() != 0)
-    {
-        msg.getResponseData().setInstanceNames(cimObjs);
-    }
-    if (scmoObjs.size() != 0)
-    {
-        msg.getResponseData().setSCMO(scmoObjs);
-    }
+    msg.objectNames = getObjects();
 }
 
 //
@@ -991,9 +829,9 @@ ReferencesResponseHandler::ReferencesResponseHandler(
 {
 }
 
-void ReferencesResponseHandler::deliver(const CIMObject& cimObject)
+void ReferencesResponseHandler::deliver(const CIMObject & cimObject)
 {
-    if (cimObject.isUninitialized())
+    if(cimObject.isUninitialized())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -1005,39 +843,17 @@ void ReferencesResponseHandler::deliver(const CIMObject& cimObject)
     SimpleObjectResponseHandler::deliver(cimObject);
 }
 
-void ReferencesResponseHandler::deliver(const SCMOInstance& scmoObject)
+String ReferencesResponseHandler::getClass(void) const
 {
-    if (scmoObject.isUninitialized())
-    {
-        MessageLoaderParms message(
-            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-            "The object is not initialized.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-    SimpleObjectResponseHandler::deliver(scmoObject);
+    return(String("ReferencesResponseHandler"));
 }
 
-String ReferencesResponseHandler::getClass() const
+void ReferencesResponseHandler::transfer(void)
 {
-    return String("ReferencesResponseHandler");
-}
+    CIMReferencesResponseMessage & msg =
+        *static_cast<CIMReferencesResponseMessage *>(getResponse());
 
-void ReferencesResponseHandler::transfer()
-{
-    CIMReferencesResponseMessage& msg =
-        *static_cast<CIMReferencesResponseMessage*>(getResponse());
-
-    Array<CIMObject> cimObjs= getObjects();
-    Array<SCMOInstance> scmoObjs= getSCMOObjects();
-    if (cimObjs.size() != 0)
-    {
-        msg.getResponseData().setObjects(cimObjs);
-    }
-    if (scmoObjs.size() != 0)
-    {
-        msg.getResponseData().setSCMO(scmoObjs);
-    }
+    msg.cimObjects = getObjects();
 }
 
 //
@@ -1052,9 +868,9 @@ ReferenceNamesResponseHandler::ReferenceNamesResponseHandler(
 {
 }
 
-void ReferenceNamesResponseHandler::deliver(const CIMObjectPath& cimObjectPath)
+void ReferenceNamesResponseHandler::deliver(const CIMObjectPath & cimObjectPath)
 {
-    if (cimObjectPath.getClassName().isNull())
+    if(cimObjectPath.getClassName().isNull())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -1066,31 +882,17 @@ void ReferenceNamesResponseHandler::deliver(const CIMObjectPath& cimObjectPath)
     SimpleObjectPathResponseHandler::deliver(cimObjectPath);
 }
 
-void ReferenceNamesResponseHandler::deliver(const SCMOInstance& scmoObjectPath)
+String ReferenceNamesResponseHandler::getClass(void) const
 {
-    SimpleObjectPathResponseHandler::deliver(scmoObjectPath);
+    return(String("ReferenceNamesResponseHandler"));
 }
 
-String ReferenceNamesResponseHandler::getClass() const
+void ReferenceNamesResponseHandler::transfer(void)
 {
-    return String("ReferenceNamesResponseHandler");
-}
+    CIMReferenceNamesResponseMessage & msg =
+        *static_cast<CIMReferenceNamesResponseMessage *>(getResponse());
 
-void ReferenceNamesResponseHandler::transfer()
-{
-    CIMReferenceNamesResponseMessage& msg =
-        *static_cast<CIMReferenceNamesResponseMessage*>(getResponse());
-
-    Array<CIMObjectPath> cimObjs= getObjects();
-    Array<SCMOInstance> scmoObjs= getSCMOObjects();
-    if (cimObjs.size() != 0)
-    {
-        msg.getResponseData().setInstanceNames(cimObjs);
-    }
-    if (scmoObjs.size() != 0)
-    {
-        msg.getResponseData().setSCMO(scmoObjs);
-    }
+    msg.objectNames = getObjects();
 }
 
 //
@@ -1105,10 +907,9 @@ InvokeMethodResponseHandler::InvokeMethodResponseHandler(
 {
 }
 
-void InvokeMethodResponseHandler::deliverParamValue(
-    const CIMParamValue& cimParamValue)
+void InvokeMethodResponseHandler::deliverParamValue(const CIMParamValue & cimParamValue)
 {
-    if (cimParamValue.isUninitialized())
+    if(cimParamValue.isUninitialized())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -1120,9 +921,9 @@ void InvokeMethodResponseHandler::deliverParamValue(
     SimpleMethodResultResponseHandler::deliverParamValue(cimParamValue);
 }
 
-void InvokeMethodResponseHandler::deliver(const CIMValue& cimValue)
+void InvokeMethodResponseHandler::deliver(const CIMValue & cimValue)
 {
-    if (cimValue.isNull())
+    if(cimValue.isNull())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -1134,15 +935,15 @@ void InvokeMethodResponseHandler::deliver(const CIMValue& cimValue)
     SimpleMethodResultResponseHandler::deliver(cimValue);
 }
 
-String InvokeMethodResponseHandler::getClass() const
+String InvokeMethodResponseHandler::getClass(void) const
 {
-    return String("InvokeMethodResponseHandler");
+    return(String("InvokeMethodResponseHandler"));
 }
 
-void InvokeMethodResponseHandler::transfer()
+void InvokeMethodResponseHandler::transfer(void)
 {
-    CIMInvokeMethodResponseMessage& msg =
-        *static_cast<CIMInvokeMethodResponseMessage*>(getResponse());
+    CIMInvokeMethodResponseMessage & msg =
+        *static_cast<CIMInvokeMethodResponseMessage *>(getResponse());
 
     msg.outParameters = getParamValues();
 
@@ -1159,7 +960,7 @@ void InvokeMethodResponseHandler::transfer()
 EnableIndicationsResponseHandler::EnableIndicationsResponseHandler(
     CIMRequestMessage* request,
     CIMResponseMessage* response,
-    const CIMInstance& provider,
+    CIMInstance& provider,
     PEGASUS_INDICATION_CALLBACK_T indicationCallback,
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
     : OperationResponseHandler(request, response, responseChunkCallback),
@@ -1168,24 +969,20 @@ EnableIndicationsResponseHandler::EnableIndicationsResponseHandler(
     _provider = provider;
 }
 
-void EnableIndicationsResponseHandler::deliver(
-    const CIMIndication& cimIndication)
+void EnableIndicationsResponseHandler::deliver(const CIMIndication & cimIndication)
 {
     OperationContext context;
 
     Array<CIMObjectPath> subscriptionInstanceNames;
 
-    context.insert(
-        SubscriptionInstanceNamesContainer(subscriptionInstanceNames));
+    context.insert(SubscriptionInstanceNamesContainer(subscriptionInstanceNames));
 
     deliver(context, cimIndication);
 }
 
-void EnableIndicationsResponseHandler::deliver(
-    const OperationContext& context,
-    const CIMIndication& cimIndication)
+void EnableIndicationsResponseHandler::deliver(const OperationContext & context, const CIMIndication & cimIndication)
 {
-    if (cimIndication.isUninitialized())
+    if(cimIndication.isUninitialized())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -1200,21 +997,22 @@ void EnableIndicationsResponseHandler::deliver(
     //  Get list of subscription instance names from context
     Array<CIMObjectPath> subscriptionInstanceNames;
 
-    if (context.contains(SubscriptionInstanceNamesContainer::NAME))
+    try
     {
         SubscriptionInstanceNamesContainer container =
             context.get(SubscriptionInstanceNamesContainer::NAME);
 
         subscriptionInstanceNames = container.getInstanceNames();
     }
-    else
+    catch(Exception &)
     {
         subscriptionInstanceNames.clear();
     }
 
+    // l10n
     ContentLanguageList contentLangs;
 
-    if (context.contains(ContentLanguageListContainer::NAME))
+    try
     {
         // Get the Content-Language for this indication.  The provider
         // does not have to add specify a language for the indication.
@@ -1223,74 +1021,62 @@ void EnableIndicationsResponseHandler::deliver(
 
         contentLangs = langContainer.getLanguages();
     }
-    else
+    catch(Exception &)
     {
         // The provider did not explicitly set a Content-Language for
         // the indication.  Fall back to the lang set in this object.
         contentLangs = getLanguages();
     }
-
-    Uint32 timeoutMilliSec = 0;
-    if (context.contains(TimeoutContainer::NAME))
-    {
-        TimeoutContainer timeoutContainer =
-            context.get(TimeoutContainer::NAME);
-        timeoutMilliSec = timeoutContainer.getTimeOut();
-    }
+    // l10n -end
 
     // create message
-    CIMProcessIndicationRequestMessage* request =
+    // l10n
+    CIMProcessIndicationRequestMessage * request =
         new CIMProcessIndicationRequestMessage(
         XmlWriter::getNextMessageId(),
         cimInstance.getPath().getNameSpace(),
         cimInstance,
         subscriptionInstanceNames,
         _provider,
-        QueueIdStack(),  // Must be filled in by the callback function
-        timeoutMilliSec);
+        QueueIdStack());  // Must be filled in by the callback function
 
     request->operationContext = context;
 
-    if (request->operationContext.contains(ContentLanguageListContainer::NAME))
+    try
     {
-        request->operationContext.set(
-            ContentLanguageListContainer(contentLangs));
+        request->operationContext.set(ContentLanguageListContainer(contentLangs));
     }
-    else
+    catch(Exception &)
     {
-        request->operationContext.insert(
-            ContentLanguageListContainer(contentLangs));
+        request->operationContext.insert(ContentLanguageListContainer(contentLangs));
     }
 
     _indicationCallback(request);
 }
 
-void EnableIndicationsResponseHandler::deliver(
-    const Array<CIMIndication>& cimIndications)
+void EnableIndicationsResponseHandler::deliver(const Array<CIMIndication> & cimIndications)
 {
     OperationContext context;
 
     deliver(context, cimIndications);
 }
 
-void EnableIndicationsResponseHandler::deliver(
-    const OperationContext& context,
-    const Array<CIMIndication>& cimIndications)
+void EnableIndicationsResponseHandler::deliver(const OperationContext & context, const Array<CIMIndication> & cimIndications)
 {
-    for (Uint32 i = 0, n = cimIndications.size(); i < n; i++)
+    for(Uint32 i = 0, n = cimIndications.size(); i < n; i++)
     {
         deliver(context, cimIndications[i]);
     }
 }
 
-String EnableIndicationsResponseHandler::getClass() const
+String EnableIndicationsResponseHandler::getClass(void) const
 {
-    return String("EnableIndicationsResponseHandler");
+    return(String("EnableIndicationsResponseHandler"));
 }
 
-Boolean EnableIndicationsResponseHandler::isAsync() const
+Boolean EnableIndicationsResponseHandler::isAsync(void) const
 {
-    return false;
+    return(false);
 }
 
 PEGASUS_NAMESPACE_END

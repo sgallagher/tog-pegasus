@@ -1,31 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,85 +42,13 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/OperationContextInternal.h>
-#include <Pegasus/Common/SCMOClassCache.h>
-#include <Pegasus/Common/CIMBinMsgSerializer.h>
-#include <Pegasus/Common/CIMBinMsgDeserializer.h>
+#include <Pegasus/Common/CIMMessageSerializer.h>
+#include <Pegasus/Common/CIMMessageDeserializer.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-// Local CIM Class repository for lookup by the SCMOClassCache
-// This is needed for converting CIM objects to SCMOInstances
-static Array<CIMClass>* classArray = 0;
-static Boolean verbose;
-
-
-// Appends a CIMInstance to an array of SCMOInstance
-void getSCMOInstanceFromCIM(
-    Array<SCMOInstance>& instArraySCMO,
-    const CIMInstance& instance)
-{
-    if (!instance.isUninitialized())
-    {
-        // Note, the conversion from CIMInstance to SCMOInstance
-        // causes a lookup in the SCMOClassCache of the CIMClass for
-        // this instance.
-        SCMOInstance scmoInst(instance);
-        instArraySCMO.append(scmoInst);
-    }
-}
-
-// Converts an array of CIMInstance to an array of SCMOInstance
-void getSCMOInstancesFromCIM(
-    Array<SCMOInstance>& instArraySCMO,
-    const Array<CIMInstance>& instances)
-{
-    for (Uint32 x=0; x < instances.size(); x++)
-    {
-        if (!instances[x].isUninitialized())
-        {
-            // Note, the conversion from CIMInstance to SCMOInstance
-            // causes a lookup in the SCMOClassCache of the CIMClass for
-            // this instance.
-            SCMOInstance scmoInst(instances[x]);
-            instArraySCMO.append(scmoInst);
-        }
-    }
-}
-
-// Converts an array of CIMObjectPath to an array of SCMOInstance
-void getSCMOInstancesFromCIM(
-    Array<SCMOInstance>& instArraySCMO,
-    const Array<CIMObjectPath>& instanceNames)
-{
-    for (Uint32 x=0; x < instanceNames.size(); x++)
-    {
-        SCMOInstance scmoInst(instanceNames[x]);
-        instArraySCMO.append(scmoInst);
-    }
-}
-
-// Converts an array of CIMObject to an array of SCMOInstance
-// CIMObjects that represent CIMClasses are ignored
-void getSCMOInstancesFromCIM(
-    Array<SCMOInstance>& instArraySCMO,
-    const Array<CIMObject>& objects)
-{
-    for (Uint32 x=0; x < objects.size(); x++)
-    {
-        if (!objects[x].isUninitialized() && !objects[x].isClass())
-        {
-            // Note, the conversion from CIMObject to SCMOInstance
-            // causes a lookup in the SCMOClassCache of the CIMClass for
-            // this instance.
-            SCMOInstance scmoInst(objects[x]);
-            instArraySCMO.append(scmoInst);
-        }
-    }
-}
-
-
-
+static char * verbose;
 
 //
 // validateCIMPropertyList
@@ -470,26 +406,6 @@ void validateOperationContext(
     catch(const Exception&)
     {
     }
-    
-    try
-    {
-        const UserRoleContainer inContainer =
-            inOperationContext.get(UserRoleContainer::NAME);
-        try
-        {
-            const UserRoleContainer outContainer =
-                outOperationContext.get(UserRoleContainer::NAME);
-            PEGASUS_TEST_ASSERT(
-                inContainer.getUserRole() == outContainer.getUserRole());
-        }
-        catch(const Exception&)
-        {
-            PEGASUS_TEST_ASSERT(0);
-        }
-    }
-    catch(const Exception&)
-    {
-    }
 }
 
 //
@@ -502,7 +418,6 @@ void validateCIMMessageAttributes(
     // Validate Message attributes
     PEGASUS_TEST_ASSERT(inMessage->getType() == outMessage->getType());
     PEGASUS_TEST_ASSERT(inMessage->isComplete() == outMessage->isComplete());
-    PEGASUS_TEST_ASSERT(inMessage->getIndex() == outMessage->getIndex());
 
     // Validate messageId member
     PEGASUS_TEST_ASSERT(inMessage->messageId == outMessage->messageId);
@@ -589,14 +504,22 @@ void validateCIMResponseMessageAttributes(
 */
 CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
 {
-    CIMBuffer buf(64*1024);
-    CIMBinMsgSerializer::serialize(buf, inMessage);
+    Buffer outBuffer;
+    CIMMessageSerializer::serialize(outBuffer, inMessage);
+    outBuffer.append(0);
 
-    size_t size = buf.size();
-    buf.rewind();
+    char* inBuffer = new char[outBuffer.size()];
+    memcpy(inBuffer, outBuffer.getData(), outBuffer.size());
+
+    if (verbose)
+    {
+        cout << inBuffer << endl;
+    }
 
     CIMMessage* outMessage;
-    outMessage = CIMBinMsgDeserializer::deserialize(buf, size);
+    outMessage = CIMMessageDeserializer::deserialize(inBuffer);
+
+    delete [] inBuffer;
 
     return outMessage;
 }
@@ -606,14 +529,12 @@ CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
 //
 void testEmptyMessage()
 {
-    CIMBuffer buf(64*1024);
-    CIMBinMsgSerializer::serialize(buf, 0);
-    PEGASUS_TEST_ASSERT(buf.size() == 0);
+    Buffer outBuffer;
+    CIMMessageSerializer::serialize(outBuffer, 0);
+    PEGASUS_TEST_ASSERT(outBuffer.size() == 0);
 
-    size_t size = buf.size();
-    buf.rewind();
-
-    CIMMessage* outMessage = CIMBinMsgDeserializer::deserialize(buf, size);
+    char inBuffer[1] = { 0 };
+    CIMMessage* outMessage = CIMMessageDeserializer::deserialize(inBuffer);
     PEGASUS_TEST_ASSERT(outMessage == 0);
 }
 
@@ -625,6 +546,7 @@ void testCIMGetInstanceRequestMessage(
     const String& mid,
     const CIMNamespaceName& ns,
     const CIMObjectPath& path,
+    Boolean lo,
     Boolean iq,
     Boolean ico,
     const CIMPropertyList& pl,
@@ -633,7 +555,7 @@ void testCIMGetInstanceRequestMessage(
     const String& user)
 {
     CIMGetInstanceRequestMessage inMessage(
-        mid, ns, path, iq, ico, pl, qids, auth, user);
+        mid, ns, path, lo, iq, ico, pl, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMGetInstanceRequestMessage> outMessage(
         dynamic_cast<CIMGetInstanceRequestMessage*>(
@@ -642,6 +564,7 @@ void testCIMGetInstanceRequestMessage(
 
     validateCIMOperationRequestMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(inMessage.instanceName == outMessage->instanceName);
+    PEGASUS_TEST_ASSERT(inMessage.localOnly == outMessage->localOnly);
     PEGASUS_TEST_ASSERT(
         inMessage.includeQualifiers == outMessage->includeQualifiers);
     PEGASUS_TEST_ASSERT(
@@ -649,11 +572,6 @@ void testCIMGetInstanceRequestMessage(
     validateCIMPropertyList(inMessage.propertyList, outMessage->propertyList);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMGetInstanceRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -679,11 +597,6 @@ void testCIMCreateInstanceRequestMessage(
     validateCIMInstance(inMessage.newInstance, outMessage->newInstance);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMCreateInstanceRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -716,11 +629,6 @@ void testCIMModifyInstanceRequestMessage(
     validateCIMPropertyList(inMessage.propertyList, outMessage->propertyList);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMModifyInstanceRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -746,11 +654,6 @@ void testCIMDeleteInstanceRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.instanceName == outMessage->instanceName);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMDeleteInstanceRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -762,6 +665,7 @@ void testCIMEnumerateInstancesRequestMessage(
     const CIMNamespaceName& ns,
     const CIMName& className,
     Boolean di,
+    Boolean lo,
     Boolean iq,
     Boolean ico,
     const CIMPropertyList& pl,
@@ -770,7 +674,7 @@ void testCIMEnumerateInstancesRequestMessage(
     const String& user)
 {
     CIMEnumerateInstancesRequestMessage inMessage(
-        mid, ns, className, di, iq, ico, pl, qids, auth, user);
+        mid, ns, className, di, lo, iq, ico, pl, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMEnumerateInstancesRequestMessage> outMessage(
         dynamic_cast<CIMEnumerateInstancesRequestMessage*>(
@@ -780,6 +684,7 @@ void testCIMEnumerateInstancesRequestMessage(
     validateCIMOperationRequestMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(
         inMessage.deepInheritance == outMessage->deepInheritance);
+    PEGASUS_TEST_ASSERT(inMessage.localOnly == outMessage->localOnly);
     PEGASUS_TEST_ASSERT(
         inMessage.includeQualifiers == outMessage->includeQualifiers);
     PEGASUS_TEST_ASSERT(
@@ -787,11 +692,6 @@ void testCIMEnumerateInstancesRequestMessage(
     validateCIMPropertyList(inMessage.propertyList, outMessage->propertyList);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMEnumerateInstancesRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -817,11 +717,6 @@ void testCIMEnumerateInstanceNamesRequestMessage(
     validateCIMOperationRequestMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMEnumerateInstanceNamesRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -849,11 +744,6 @@ void testCIMExecQueryRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.query == outMessage->query);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMExecQueryRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -877,7 +767,7 @@ void testCIMAssociatorsRequestMessage(
 {
     CIMAssociatorsRequestMessage inMessage(
         mid, ns, path, assocClass, resultClass, role, resultRole,
-        iq, ico, pl, qids, false, auth, user);
+        iq, ico, pl, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorsRequestMessage> outMessage(
         dynamic_cast<CIMAssociatorsRequestMessage*>(
@@ -897,11 +787,6 @@ void testCIMAssociatorsRequestMessage(
     validateCIMPropertyList(inMessage.propertyList, outMessage->propertyList);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMAssociatorsRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -922,7 +807,7 @@ void testCIMAssociatorNamesRequestMessage(
 {
     CIMAssociatorNamesRequestMessage inMessage(
         mid, ns, path, assocClass, resultClass, role, resultRole,
-        qids, false, auth, user);
+        qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorNamesRequestMessage> outMessage(
         dynamic_cast<CIMAssociatorNamesRequestMessage*>(
@@ -937,11 +822,6 @@ void testCIMAssociatorNamesRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.resultRole == outMessage->resultRole);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMAssociatorNamesRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -962,7 +842,7 @@ void testCIMReferencesRequestMessage(
     const String& user)
 {
     CIMReferencesRequestMessage inMessage(
-        mid, ns, path, resultClass, role, iq, ico, pl, qids, false, auth, user);
+        mid, ns, path, resultClass, role, iq, ico, pl, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferencesRequestMessage> outMessage(
         dynamic_cast<CIMReferencesRequestMessage*>(
@@ -980,11 +860,6 @@ void testCIMReferencesRequestMessage(
     validateCIMPropertyList(inMessage.propertyList, outMessage->propertyList);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMReferencesRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1002,7 +877,7 @@ void testCIMReferenceNamesRequestMessage(
     const String& user)
 {
     CIMReferenceNamesRequestMessage inMessage(
-        mid, ns, path, resultClass, role, qids, false, auth, user);
+        mid, ns, path, resultClass, role, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferenceNamesRequestMessage> outMessage(
         dynamic_cast<CIMReferenceNamesRequestMessage*>(
@@ -1015,11 +890,6 @@ void testCIMReferenceNamesRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.role == outMessage->role);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMReferenceNamesRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1048,11 +918,6 @@ void testCIMGetPropertyRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.propertyName == outMessage->propertyName);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMGetPropertyRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1083,11 +948,6 @@ void testCIMSetPropertyRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.newValue == outMessage->newValue);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMSetPropertyRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1119,11 +979,6 @@ void testCIMInvokeMethodRequestMessage(
         inMessage.inParameters, outMessage->inParameters);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMInvokeMethodRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1162,11 +1017,6 @@ void testCIMCreateSubscriptionRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.query == outMessage->query);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMCreateSubscriptionRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1205,11 +1055,6 @@ void testCIMModifySubscriptionRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.query == outMessage->query);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMModifySubscriptionRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1241,11 +1086,6 @@ void testCIMDeleteSubscriptionRequestMessage(
     validateCIMNameArray(inMessage.classNames, outMessage->classNames);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMDeleteSubscriptionRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1275,11 +1115,6 @@ void testCIMExportIndicationRequestMessage(
         inMessage.indicationInstance, outMessage->indicationInstance);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMExportIndicationRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1309,11 +1144,6 @@ void testCIMProcessIndicationRequestMessage(
     validateCIMObjectPathArray(inMessage.subscriptionInstanceNames,
         outMessage->subscriptionInstanceNames);
     validateCIMInstance(inMessage.provider, outMessage->provider);
-
-    if (verbose)
-    {
-        cout << "testCIMProcessIndicationRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1353,11 +1183,6 @@ void testCIMDisableModuleRequestMessage(
     }
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMDisableModuleRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1383,11 +1208,6 @@ void testCIMEnableModuleRequestMessage(
         inMessage.providerModule, outMessage->providerModule);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMEnableModuleRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1406,11 +1226,24 @@ void testCIMStopAllProvidersRequestMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMRequestMessageAttributes(&inMessage, outMessage.get());
+}
 
-    if (verbose)
-    {
-        cout << "testCIMStopAllProvidersRequestMessage - OK" << endl;
-    }
+//
+// testCIMInitializeProviderRequestMessage
+//
+void testCIMInitializeProviderRequestMessage(
+    const OperationContext& oc,
+    const String& mid,
+    const QueueIdStack& qids)
+{
+    CIMInitializeProviderRequestMessage inMessage(mid, qids);
+    inMessage.operationContext = oc;
+    AutoPtr<CIMInitializeProviderRequestMessage> outMessage(
+        dynamic_cast<CIMInitializeProviderRequestMessage*>(
+            serializeDeserializeMessage(&inMessage)));
+    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
+
+    validateCIMRequestMessageAttributes(&inMessage, outMessage.get());
 }
 
 //
@@ -1447,11 +1280,6 @@ void testCIMInitializeProviderAgentRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.bindVerbose == outMessage->bindVerbose);
     PEGASUS_TEST_ASSERT(inMessage.subscriptionInitComplete ==
         outMessage->subscriptionInitComplete);
-
-    if (verbose)
-    {
-        cout << "testCIMInitializeProviderAgentRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1479,11 +1307,6 @@ void testCIMNotifyConfigChangeRequestMessage(
         inMessage.newPropertyValue == outMessage->newPropertyValue);
     PEGASUS_TEST_ASSERT(inMessage.currentValueModified ==
         outMessage->currentValueModified);
-
-    if (verbose)
-    {
-        cout << "testCIMNotifyConfigChangeRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1502,37 +1325,6 @@ void testCIMSubscriptionInitCompleteRequestMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMRequestMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMSubscriptionInitCompleteRequestMessage - OK" << endl;
-    }
-}
-
-//
-// testProvAgtGetScmoClassRequestMessage
-//
-void testProvAgtGetScmoClassRequestMessage(
-    const String& mid,
-    const CIMNamespaceName& ns,
-    const CIMName& className,
-    const QueueIdStack& qids)
-{
-    ProvAgtGetScmoClassRequestMessage inMessage(mid, ns, className, qids);    
-    AutoPtr<ProvAgtGetScmoClassRequestMessage> outMessage(
-        dynamic_cast<ProvAgtGetScmoClassRequestMessage*>(
-            serializeDeserializeMessage(&inMessage)));
-    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
-
-    PEGASUS_TEST_ASSERT(
-        inMessage.nameSpace == outMessage->nameSpace);
-    PEGASUS_TEST_ASSERT(
-        inMessage.className == outMessage->className);
-
-    if (verbose)
-    {
-        cout << "testProvAgtGetScmoClassRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1545,8 +1337,7 @@ void testCIMGetInstanceResponseMessage(
     const QueueIdStack& qids,
     const CIMInstance& inst)
 {
-    CIMGetInstanceResponseMessage inMessage(mid, ex, qids);
-    inMessage.getResponseData().setInstance(inst);
+    CIMGetInstanceResponseMessage inMessage(mid, ex, qids, inst);
     inMessage.operationContext = oc;
     AutoPtr<CIMGetInstanceResponseMessage> outMessage(
         dynamic_cast<CIMGetInstanceResponseMessage*>(
@@ -1554,44 +1345,7 @@ void testCIMGetInstanceResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMInstance(
-        inMessage.getResponseData().getInstance(),
-        outMessage->getResponseData().getInstance());
-
-    if (verbose)
-    {
-        cout << "testCIMGetInstanceResponseMessage - OK" << endl;
-    }
-}
-
-void testCIMGetInstanceResponseMessageSCMO(
-    const OperationContext& oc,
-    const String& mid,
-    const CIMException& ex,
-    const QueueIdStack& qids,
-    const CIMInstance& inst)
-{
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstanceFromCIM(instArraySCMO, inst);
-
-    CIMGetInstanceResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setSCMO(instArraySCMO);
-    inMessage.operationContext = oc;
-    AutoPtr<CIMGetInstanceResponseMessage> outMessage(
-        dynamic_cast<CIMGetInstanceResponseMessage*>(
-            serializeDeserializeMessage(&inMessage)));
-    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
-
-    validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMInstance(
-        inMessage.getResponseData().getInstance(),
-        outMessage->getResponseData().getInstance());
-
-    if (verbose)
-    {
-        cout << "testCIMGetInstanceResponseMessageSCMO - OK" << endl;
-    }
+    validateCIMInstance(inMessage.cimInstance, outMessage->cimInstance);
 }
 
 //
@@ -1613,11 +1367,6 @@ void testCIMCreateInstanceResponseMessage(
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(inMessage.instanceName == outMessage->instanceName);
-
-    if (verbose)
-    {
-        cout << "testCIMCreateInstanceResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -1637,11 +1386,6 @@ void testCIMModifyInstanceResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMModifyInstanceResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -1661,11 +1405,6 @@ void testCIMDeleteInstanceResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMDeleteInstanceResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -1678,30 +1417,16 @@ void testCIMEnumerateInstancesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMInstance>& instances)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, instances);
-
-    CIMEnumerateInstancesResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setInstances(instances);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMEnumerateInstancesResponseMessage inMessage(mid, ex, qids, instances);
     inMessage.operationContext = oc;
     AutoPtr<CIMEnumerateInstancesResponseMessage> outMessage(
         dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
             serializeDeserializeMessage(&inMessage)));
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
-
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
     validateCIMInstanceArray(
-        inMessage.getResponseData().getInstances(),
-        outMessage->getResponseData().getInstances());
-
-    if (verbose)
-    {
-        cout << "testCIMEnumerateInstancesResponseMessage - OK" << endl;
-    }
+        inMessage.cimNamedInstances, outMessage->cimNamedInstances);
 }
 
 //
@@ -1714,13 +1439,8 @@ void testCIMEnumerateInstanceNamesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObjectPath>& instNames)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, instNames);
-
-    CIMEnumerateInstanceNamesResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setInstanceNames(instNames);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMEnumerateInstanceNamesResponseMessage inMessage(
+        mid, ex, qids, instNames);
     inMessage.operationContext = oc;
     AutoPtr<CIMEnumerateInstanceNamesResponseMessage> outMessage(
         dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>(
@@ -1729,13 +1449,7 @@ void testCIMEnumerateInstanceNamesResponseMessage(
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
     validateCIMObjectPathArray(
-        inMessage.getResponseData().getInstanceNames(),
-        outMessage->getResponseData().getInstanceNames());
-
-    if (verbose)
-    {
-        cout << "testCIMEnumerateInstanceNamesResponseMessage - OK" << endl;
-    }
+        inMessage.instanceNames, outMessage->instanceNames);
 }
 
 //
@@ -1748,13 +1462,7 @@ void testCIMExecQueryResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObject>& objects)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, objects);
-
-    CIMExecQueryResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setObjects(objects);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMExecQueryResponseMessage inMessage(mid, ex, qids, objects);
     inMessage.operationContext = oc;
     AutoPtr<CIMExecQueryResponseMessage> outMessage(
         dynamic_cast<CIMExecQueryResponseMessage*>(
@@ -1762,14 +1470,7 @@ void testCIMExecQueryResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectArray(
-        inMessage.getResponseData().getObjects(),
-        outMessage->getResponseData().getObjects());
-
-    if (verbose)
-    {
-        cout << "testCIMExecQueryResponseMessage - OK" << endl;
-    }
+    validateCIMObjectArray(inMessage.cimObjects, outMessage->cimObjects);
 }
 
 //
@@ -1782,13 +1483,7 @@ void testCIMAssociatorsResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObject>& objArray)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, objArray);
-
-    CIMAssociatorsResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setObjects(objArray);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMAssociatorsResponseMessage inMessage(mid, ex, qids, objArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorsResponseMessage> outMessage(
         dynamic_cast<CIMAssociatorsResponseMessage*>(
@@ -1796,14 +1491,7 @@ void testCIMAssociatorsResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectArray(
-        inMessage.getResponseData().getObjects(),
-        outMessage->getResponseData().getObjects());
-
-    if (verbose)
-    {
-        cout << "testCIMAssociatorsResponseMessage - OK" << endl;
-    }
+    validateCIMObjectArray(inMessage.cimObjects, outMessage->cimObjects);
 }
 
 //
@@ -1816,13 +1504,7 @@ void testCIMAssociatorNamesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObjectPath>& pathArray)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, pathArray);
-
-    CIMAssociatorNamesResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setInstanceNames(pathArray);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMAssociatorNamesResponseMessage inMessage(mid, ex, qids, pathArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorNamesResponseMessage> outMessage(
         dynamic_cast<CIMAssociatorNamesResponseMessage*>(
@@ -1830,14 +1512,7 @@ void testCIMAssociatorNamesResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectPathArray(
-        inMessage.getResponseData().getInstanceNames(),
-        outMessage->getResponseData().getInstanceNames());
-
-    if (verbose)
-    {
-        cout << "testCIMAssociatorNamesResponseMessage - OK" << endl;
-    }
+    validateCIMObjectPathArray(inMessage.objectNames, outMessage->objectNames);
 }
 
 //
@@ -1850,13 +1525,7 @@ void testCIMReferencesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObject>& objArray)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, objArray);
-
-    CIMReferencesResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setObjects(objArray);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMReferencesResponseMessage inMessage(mid, ex, qids, objArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferencesResponseMessage> outMessage(
         dynamic_cast<CIMReferencesResponseMessage*>(
@@ -1864,14 +1533,7 @@ void testCIMReferencesResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectArray(
-        inMessage.getResponseData().getObjects(),
-        outMessage->getResponseData().getObjects());
-
-    if (verbose)
-    {
-        cout << "testCIMReferencesResponseMessage - OK" << endl;
-    }
+    validateCIMObjectArray(inMessage.cimObjects, outMessage->cimObjects);
 }
 
 //
@@ -1884,13 +1546,7 @@ void testCIMReferenceNamesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObjectPath>& pathArray)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, pathArray);
-
-    CIMReferenceNamesResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setInstanceNames(pathArray);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMReferenceNamesResponseMessage inMessage(mid, ex, qids, pathArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferenceNamesResponseMessage> outMessage(
         dynamic_cast<CIMReferenceNamesResponseMessage*>(
@@ -1898,14 +1554,7 @@ void testCIMReferenceNamesResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectPathArray(
-        inMessage.getResponseData().getInstanceNames(),
-        outMessage->getResponseData().getInstanceNames());
-
-    if (verbose)
-    {
-        cout << "testCIMReferenceNamesResponseMessage - OK" << endl;
-    }
+    validateCIMObjectPathArray(inMessage.objectNames, outMessage->objectNames);
 }
 
 //
@@ -1927,11 +1576,6 @@ void testCIMGetPropertyResponseMessage(
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(inMessage.value == outMessage->value);
-
-    if (verbose)
-    {
-        cout << "testCIMGetPropertyResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -1951,11 +1595,6 @@ void testCIMSetPropertyResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMSetPropertyResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -1983,11 +1622,6 @@ void testCIMInvokeMethodResponseMessage(
     validateCIMParamValueArray(
         inMessage.outParameters, outMessage->outParameters);
     PEGASUS_TEST_ASSERT(inMessage.methodName == outMessage->methodName);
-
-    if (verbose)
-    {
-        cout << "testCIMInvokeMethodResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2007,11 +1641,6 @@ void testCIMCreateSubscriptionResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMCreateSubscriptionResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2031,11 +1660,6 @@ void testCIMModifySubscriptionResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMModifySubscriptionResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2055,11 +1679,6 @@ void testCIMDeleteSubscriptionResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMDeleteSubscriptionResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2079,11 +1698,6 @@ void testCIMExportIndicationResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMExportIndicationResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2103,11 +1717,6 @@ void testCIMProcessIndicationResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMProcessIndicationResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2134,11 +1743,6 @@ void testCIMDisableModuleResponseMessage(
     {
         PEGASUS_TEST_ASSERT(inMessage.operationalStatus[i] ==
             outMessage->operationalStatus[i]);
-    }
-
-    if (verbose)
-    {
-        cout << "testCIMDisableModuleResponseMessage - OK" << endl;
     }
 }
 
@@ -2167,11 +1771,6 @@ void testCIMEnableModuleResponseMessage(
         PEGASUS_TEST_ASSERT(inMessage.operationalStatus[i] ==
             outMessage->operationalStatus[i]);
     }
-
-    if (verbose)
-    {
-        cout << "testCIMEnableModuleResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2191,11 +1790,25 @@ void testCIMStopAllProvidersResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
+}
 
-    if (verbose)
-    {
-        cout << "testCIMStopAllProvidersResponseMessage - OK" << endl;
-    }
+//
+// testCIMInitializeProviderResponseMessage
+//
+void testCIMInitializeProviderResponseMessage(
+    const OperationContext& oc,
+    const String& mid,
+    const CIMException& ex,
+    const QueueIdStack& qids)
+{
+    CIMInitializeProviderResponseMessage inMessage(mid, ex, qids);
+    inMessage.operationContext = oc;
+    AutoPtr<CIMInitializeProviderResponseMessage> outMessage(
+        dynamic_cast<CIMInitializeProviderResponseMessage*>(
+            serializeDeserializeMessage(&inMessage)));
+    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
+
+    validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
 }
 
 //
@@ -2215,11 +1828,6 @@ void testCIMInitializeProviderAgentResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMInitializeProviderAgentResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2239,11 +1847,6 @@ void testCIMNotifyConfigChangeResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMNotifyConfigChangeResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2263,92 +1866,14 @@ void testCIMSubscriptionInitCompleteResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMSubscriptionInitCompleteResponseMessage - OK" << endl;
-    }
-}
-
-SCMOClass _scmoClassCache_GetClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className)
-{
-    for (Uint32 x=0; x < classArray->size(); x++)
-    {
-        CIMClass cls = (*classArray)[x];
-        if (!cls.isUninitialized())
-        {
-            if (cls.getClassName() == className &&
-                cls.getPath().getNameSpace() == nameSpace )
-            {
-                return SCMOClass(cls);
-            }
-        }
-    }
-
-    return SCMOClass("","");
 }
 
 //
-// testProvAgtGetScmoClassResponseMessage
+// main
 //
-void testProvAgtGetScmoClassResponseMessage(
-    const String& mid,
-    const CIMException& ex,
-    const CIMClass& cls,
-    const QueueIdStack& qids)
+int main(int argc, char** argv)
 {
-
-    CIMClass inCls;
-    CIMClass outCls;
-
-    SCMOClass inc = SCMOClass("","");
-
-    if (!cls.isUninitialized())
-    {
-        inc = SCMOClass(cls);
-    }
-
-    ProvAgtGetScmoClassResponseMessage inMessage(mid, ex, qids, inc);    
-    AutoPtr<ProvAgtGetScmoClassResponseMessage> outMessage(
-        dynamic_cast<ProvAgtGetScmoClassResponseMessage*>(
-            serializeDeserializeMessage(&inMessage)));
-    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
-
-
-    if (!inMessage.scmoClass.isEmpty() && 
-        !outMessage->scmoClass.isEmpty())
-    {
-        inMessage.scmoClass.getCIMClass(inCls);
-        outMessage->scmoClass.getCIMClass(outCls);
-        PEGASUS_TEST_ASSERT(inCls.identical(outCls));
-    }
-    else
-    {
-       PEGASUS_TEST_ASSERT(
-           inMessage.scmoClass.isEmpty() && 
-           outMessage->scmoClass.isEmpty());
-    }
-
-    if (verbose)
-    {
-        cout << "testProvAgtGetScmoClassResponseMessage - OK" << endl;
-    }
-}
-
-
-void testMessageSerialization()
-{
-    // Initialize the SCMO Class cache and set the callback function
-    // for retrieving CIMClasses to local routine
-    classArray = new Array<CIMClass>();
-
-
-    SCMOClassCache* scmoCache = SCMOClassCache::getInstance();
-    scmoCache->setCallBack(_scmoClassCache_GetClass);
-
-
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     // Message IDs
     String mid1;
@@ -2386,6 +1911,8 @@ void testMessageSerialization()
     CIMException ex4(CIM_ERR_SUCCESS, "How can you have a \"success\" error?");
 
     // Operation flags
+    Boolean lo1 = false;
+    Boolean lo2 = true;
     Boolean di1 = false;
     Boolean di2 = true;
     Boolean iq1 = false;
@@ -2432,7 +1959,7 @@ void testMessageSerialization()
     CIMObjectPath path3("", ns3, name3, kb);
     kb.append(CIMKeyBinding(CIMName("zzzz"), CIMValue(String("sleepy..."))));
     kb.append(CIMKeyBinding(CIMName("HowMany"), CIMValue(Uint32(102030405))));
-    CIMObjectPath path4("", ns4, name4, kb);
+    CIMObjectPath path4("", ns1, name4, kb);
 
     // CIMObjectPath Arrays
     Array<CIMObjectPath> pathArray1;
@@ -2453,8 +1980,8 @@ void testMessageSerialization()
     CIMInstance inst2(name2);
     inst2.setPath(path2);
     CIMInstance inst3(name3);
-    inst3.addProperty(CIMProperty("Name", String("BoringInstance")));
-    inst3.addProperty(CIMProperty("Identifier", String("111")));
+    inst3.addProperty(CIMProperty("Name", "BoringInstance"));
+    inst3.addProperty(CIMProperty("Identifier", "111"));
     inst3.setPath(path3);
     CIMInstance inst4(name4);
     inst4.addProperty(CIMProperty("P1", CIMValue(Uint16(65))));
@@ -2464,39 +1991,21 @@ void testMessageSerialization()
         CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE));
     inst4.setPath(path4);
 
-    //CIMProperties
-    CIMProperty prop1("P1", CIMValue(Uint16(65)));
-    CIMProperty prop2("P2", CIMValue(Boolean(false)));
-    CIMProperty prop3("P3", CIMValue(CIMDateTime()));
-    CIMProperty prop4("zzzz", CIMValue(String("sleepy...")));
-    CIMProperty prop5("HowMany", CIMValue(Uint32(102030405)));
-    prop2.addQualifier(CIMQualifier("Q1", CIMValue(Uint32(8)),
-        CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE));
-    prop4.addQualifier(CIMQualifier("KEY", CIMValue(Boolean(true))));
-    prop5.addQualifier(CIMQualifier("KEY", CIMValue(Boolean(true))));
-
     // CIMClasses
     CIMClass class1;
-    CIMClass class2(name2);
+    CIMClass class2("TST_EmptyClass");
     class2.setPath(path2);
-    CIMClass class3(name3);
-    class3.addProperty(CIMProperty("Name", String("BoringInstance")));
-    class3.addProperty(CIMProperty("Identifier", String("111")));
+    CIMClass class3("ClassName3");
+    class3.addProperty(CIMProperty("Name", "BoringInstance"));
+    class3.addProperty(CIMProperty("Identifier", "111"));
     class3.setPath(path3);
-    CIMClass class4(name4);
-    class4.addProperty(prop1);
-    class4.addProperty(prop2);
-    class4.addProperty(prop3);
-    class4.addProperty(prop4);
-    class4.addProperty(prop5);
+    CIMClass class4("TST_ClassDef");
+    class4.addProperty(CIMProperty("P1", CIMValue(Uint16(65))));
+    class4.addProperty(CIMProperty("P2", CIMValue(Boolean(false))));
+    class4.addProperty(CIMProperty("P3", CIMValue(CIMDateTime())));
+    class4.getProperty(1).addQualifier(CIMQualifier("Q1", CIMValue(Uint32(8)),
+        CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE));
     class4.setPath(path4);
-
-    // CIMClass Array, use for conversion from CIMInstance to SCMOInstance
-    classArray->append(class1);
-    classArray->append(class2);
-    classArray->append(class3);
-    classArray->append(class4);
-
 
     // CIMName Arrays
     Array<CIMName> nameArray1;
@@ -2570,16 +2079,12 @@ void testMessageSerialization()
     CIMValue val2(CIMDateTime("20060209142430.123456-420"));
     CIMValue val3(path3);
     CIMValue val4(Boolean(false));
-    CIMValue val5(CIMTYPE_UINT8, false);
-    CIMValue val6(CIMTYPE_REFERENCE, true);
 
     // CIMParamValue Arrays
     CIMParamValue pv1;
     CIMParamValue pv2("1", val2);
     CIMParamValue pv3("HiMom", val3);
     CIMParamValue pv4("Howdy do?", val4);
-    CIMParamValue pv5("Test1", val5);
-    CIMParamValue pv6("Test2", val6);
     Array<CIMParamValue> pvArray1;
     Array<CIMParamValue> pvArray2;
     pvArray2.append(pv4);
@@ -2590,8 +2095,6 @@ void testMessageSerialization()
     pvArray4.append(pv4);
     pvArray4.append(pv3);
     pvArray4.append(pv2);
-    pvArray4.append(pv5);
-    pvArray4.append(pv6);
 
     // Boolean Arrays
     Array<Boolean> boolArray1;
@@ -2641,7 +2144,6 @@ void testMessageSerialization()
     ContentLanguageList cll2;
     oc2.insert(ContentLanguageListContainer(cll2));
     oc2.insert(LocaleContainer(""));
-    oc2.insert(UserRoleContainer(""));
     OperationContext oc3;
     oc3.insert(SubscriptionFilterConditionContainer(ql2, qs3));
     OperationContext oc4;
@@ -2653,8 +2155,8 @@ void testMessageSerialization()
     oc4.insert(TimeoutContainer(100000000));
     AcceptLanguageList all4;
     all4.insert(LanguageTag("en-US"), 1);
-    all4.insert(LanguageTag("de"), Real32(0.5));
-    all4.insert(LanguageTag("*"), Real32(0.1));
+    all4.insert(LanguageTag("de"), 0.5);
+    all4.insert(LanguageTag("*"), 0.1);
     oc4.insert(AcceptLanguageListContainer(all4));
     ContentLanguageList cll4;
     cll4.append(LanguageTag("en-US"));
@@ -2662,412 +2164,390 @@ void testMessageSerialization()
     oc4.insert(ContentLanguageListContainer(cll4));
     oc4.insert(SnmpTrapOidContainer("1.43.213.53.23.52.1"));
     oc4.insert(LocaleContainer("here"));
-    oc4.insert(UserRoleContainer("NoRoleUser"));
-
-    testEmptyMessage();
-
-    testCIMGetInstanceRequestMessage(
-        oc2, mid1, ns3, path1, iq2, ico1, pl4, qids3, auth2, user4);
-    testCIMGetInstanceRequestMessage(
-        oc3, mid2, ns4, path2, iq1, ico2, pl1, qids4, auth3, user1);
-    testCIMGetInstanceRequestMessage(
-        oc4, mid3, ns1, path3, iq1, ico1, pl2, qids1, auth4, user2);
-    testCIMGetInstanceRequestMessage(
-        oc1, mid4, ns2, path4, iq2, ico2, pl3, qids2, auth1, user3);
-
-    testCIMCreateInstanceRequestMessage(
-        oc1, mid4, ns1, inst2, qids2, auth4, user3);
-    testCIMCreateInstanceRequestMessage(
-        oc2, mid1, ns2, inst3, qids3, auth1, user4);
-    testCIMCreateInstanceRequestMessage(
-        oc3, mid2, ns3, inst4, qids4, auth2, user1);
-    testCIMCreateInstanceRequestMessage(
-        oc4, mid3, ns4, inst2, qids1, auth3, user2);
-
-    testCIMModifyInstanceRequestMessage(
-        oc4, mid2, ns1, inst2, iq2, pl4, qids2, auth3, user1);
-    testCIMModifyInstanceRequestMessage(
-        oc1, mid3, ns2, inst3, iq1, pl1, qids3, auth4, user2);
-    testCIMModifyInstanceRequestMessage(
-        oc2, mid4, ns3, inst4, iq2, pl2, qids4, auth1, user3);
-    testCIMModifyInstanceRequestMessage(
-        oc3, mid1, ns4, inst2, iq1, pl3, qids1, auth2, user4);
-
-    testCIMDeleteInstanceRequestMessage(
-        oc2, mid4, ns3, path3, qids1, auth2, user1);
-    testCIMDeleteInstanceRequestMessage(
-        oc3, mid1, ns4, path4, qids2, auth3, user2);
-    testCIMDeleteInstanceRequestMessage(
-        oc4, mid2, ns1, path1, qids3, auth4, user3);
-    testCIMDeleteInstanceRequestMessage(
-        oc1, mid3, ns2, path2, qids4, auth1, user4);
-
-    testCIMEnumerateInstancesRequestMessage(oc2, mid1, ns2, name3,
-        di1, iq2, ico1, pl2, qids4, auth3, user4);
-    testCIMEnumerateInstancesRequestMessage(oc3, mid2, ns3, name4,
-        di2, iq1, ico1, pl3, qids1, auth4, user1);
-    testCIMEnumerateInstancesRequestMessage(oc4, mid3, ns4, name1,
-        di1, iq2, ico2, pl4, qids2, auth1, user2);
-    testCIMEnumerateInstancesRequestMessage(oc1, mid4, ns1, name2,
-        di2, iq1, ico2, pl1, qids3, auth2, user3);
-
-    testCIMEnumerateInstanceNamesRequestMessage(
-        oc3, mid2, ns3, name1, qids2, auth4, user1);
-    testCIMEnumerateInstanceNamesRequestMessage(
-        oc4, mid3, ns4, name2, qids3, auth1, user2);
-    testCIMEnumerateInstanceNamesRequestMessage(
-        oc1, mid4, ns1, name3, qids4, auth2, user3);
-    testCIMEnumerateInstanceNamesRequestMessage(
-        oc2, mid1, ns2, name4, qids1, auth3, user4);
-
-    testCIMExecQueryRequestMessage(
-        oc3, mid1, ns1, ql2, qs3, qids2, auth4, user2);
-    testCIMExecQueryRequestMessage(
-        oc4, mid2, ns2, ql3, qs4, qids3, auth1, user3);
-    testCIMExecQueryRequestMessage(
-        oc1, mid3, ns3, ql4, qs1, qids4, auth2, user4);
-    testCIMExecQueryRequestMessage(
-        oc2, mid4, ns4, ql1, qs2, qids1, auth3, user1);
-
-    testCIMAssociatorsRequestMessage(oc3, mid1, ns4, path2, name2,
-        name4, role2, role1, iq2, ico1, pl4, qids3, auth3, user3);
-    testCIMAssociatorsRequestMessage(oc4, mid2, ns1, path3, name3,
-        name1, role3, role2, iq1, ico2, pl1, qids4, auth4, user4);
-    testCIMAssociatorsRequestMessage(oc1, mid3, ns2, path4, name4,
-        name2, role4, role3, iq2, ico2, pl2, qids1, auth1, user1);
-    testCIMAssociatorsRequestMessage(oc2, mid4, ns3, path1, name1,
-        name3, role1, role4, iq1, ico1, pl3, qids2, auth2, user2);
-
-    testCIMAssociatorNamesRequestMessage(oc4, mid4, ns2, path2,
-        name3, name2, role1, role2, qids1, auth4, user3);
-    testCIMAssociatorNamesRequestMessage(oc1, mid1, ns3, path3,
-        name4, name3, role2, role3, qids2, auth1, user4);
-    testCIMAssociatorNamesRequestMessage(oc2, mid2, ns4, path4,
-        name1, name4, role3, role4, qids3, auth2, user1);
-    testCIMAssociatorNamesRequestMessage(oc3, mid3, ns1, path1,
-        name2, name1, role4, role1, qids4, auth3, user2);
-
-    testCIMReferencesRequestMessage(oc3, mid1, ns4, path1, name2,
-        role2, iq2, ico1, pl4, qids4, auth1, user2);
-    testCIMReferencesRequestMessage(oc4, mid2, ns1, path2, name3,
-        role3, iq1, ico2, pl1, qids1, auth2, user3);
-    testCIMReferencesRequestMessage(oc1, mid3, ns2, path3, name4,
-        role4, iq2, ico2, pl2, qids2, auth3, user4);
-    testCIMReferencesRequestMessage(oc2, mid4, ns3, path4, name1,
-        role1, iq1, ico1, pl3, qids3, auth4, user1);
-
-    testCIMReferenceNamesRequestMessage(oc1, mid2, ns1, path4, name4,
-        role2, qids3, auth1, user2);
-    testCIMReferenceNamesRequestMessage(oc2, mid3, ns2, path1, name1,
-        role3, qids4, auth2, user3);
-    testCIMReferenceNamesRequestMessage(oc3, mid4, ns3, path2, name2,
-        role4, qids1, auth3, user4);
-    testCIMReferenceNamesRequestMessage(oc4, mid1, ns4, path3, name3,
-        role1, qids2, auth4, user1);
-
-    testCIMGetPropertyRequestMessage(
-        oc1, mid3, ns2, path1, name1, qids1, auth2, user2);
-    testCIMGetPropertyRequestMessage(
-        oc2, mid4, ns3, path2, name2, qids2, auth3, user3);
-    testCIMGetPropertyRequestMessage(
-        oc3, mid1, ns4, path3, name3, qids3, auth4, user4);
-    testCIMGetPropertyRequestMessage(
-        oc4, mid2, ns1, path4, name4, qids4, auth1, user1);
-
-    testCIMSetPropertyRequestMessage(
-        oc4, mid1, ns2, path2, name4, val2, qids3, auth2, user1);
-    testCIMSetPropertyRequestMessage(
-        oc1, mid2, ns3, path3, name2, val3, qids4, auth3, user2);
-    testCIMSetPropertyRequestMessage(
-        oc2, mid3, ns4, path4, name2, val4, qids1, auth4, user3);
-    testCIMSetPropertyRequestMessage(
-        oc3, mid4, ns1, path1, name3, val1, qids2, auth1, user4);
-
-    testCIMInvokeMethodRequestMessage(
-        oc4, mid2, ns4, path1, name2, pvArray3, qids3, auth4, user2);
-    testCIMInvokeMethodRequestMessage(
-        oc1, mid3, ns1, path2, name3, pvArray4, qids4, auth1, user3);
-    testCIMInvokeMethodRequestMessage(
-        oc2, mid4, ns2, path3, name4, pvArray1, qids1, auth2, user4);
-    testCIMInvokeMethodRequestMessage(
-        oc3, mid1, ns3, path4, name1, pvArray2, qids2, auth3, user1);
-
-    testCIMCreateSubscriptionRequestMessage(oc1, mid3, ns1, inst3,
-        nameArray1, pl3,     8, qs2, qids2, auth1, user3);
-    testCIMCreateSubscriptionRequestMessage(oc2, mid4, ns2, inst4,
-        nameArray2, pl4,     0, qs3, qids3, auth2, user4);
-    testCIMCreateSubscriptionRequestMessage(oc3, mid1, ns3, inst1,
-        nameArray3, pl1, 65535, qs4, qids4, auth3, user1);
-    testCIMCreateSubscriptionRequestMessage(oc4, mid2, ns4, inst2,
-        nameArray4, pl2,    10, qs1, qids1, auth4, user2);
-
-    testCIMModifySubscriptionRequestMessage(oc2, mid1, ns4, inst2,
-        nameArray2, pl3, 65535, qs4, qids1, auth4, user3);
-    testCIMModifySubscriptionRequestMessage(oc3, mid2, ns1, inst3,
-        nameArray3, pl4,     0, qs1, qids2, auth1, user4);
-    testCIMModifySubscriptionRequestMessage(oc4, mid3, ns2, inst4,
-        nameArray4, pl1,     1, qs2, qids3, auth2, user1);
-    testCIMModifySubscriptionRequestMessage(oc1, mid4, ns3, inst1,
-        nameArray1, pl2,   100, qs3, qids4, auth3, user2);
-
-    testCIMDeleteSubscriptionRequestMessage(
-        oc1, mid4, ns3, inst2, nameArray1, qids2, auth3, user4);
-    testCIMDeleteSubscriptionRequestMessage(
-        oc2, mid1, ns4, inst3, nameArray2, qids3, auth4, user1);
-    testCIMDeleteSubscriptionRequestMessage(
-        oc3, mid2, ns1, inst4, nameArray3, qids4, auth1, user2);
-    testCIMDeleteSubscriptionRequestMessage(
-        oc4, mid3, ns2, inst1, nameArray4, qids1, auth2, user3);
-
-    testCIMExportIndicationRequestMessage(
-        oc4, mid3, mid1, inst2, qids1, auth3, user3);
-    testCIMExportIndicationRequestMessage(
-        oc1, mid4, mid2, inst3, qids2, auth4, user4);
-    testCIMExportIndicationRequestMessage(
-        oc2, mid1, mid3, inst4, qids3, auth1, user1);
-    testCIMExportIndicationRequestMessage(
-        oc3, mid2, mid4, inst1, qids4, auth2, user2);
-
-    testCIMProcessIndicationRequestMessage(
-        oc1, mid4, ns3, inst2, pathArray2, inst4, qids4);
-    testCIMProcessIndicationRequestMessage(
-        oc2, mid1, ns4, inst3, pathArray3, inst1, qids1);
-    testCIMProcessIndicationRequestMessage(
-        oc3, mid2, ns1, inst4, pathArray4, inst2, qids2);
-    testCIMProcessIndicationRequestMessage(
-        oc4, mid3, ns2, inst1, pathArray1, inst3, qids3);
-
-    testCIMDisableModuleRequestMessage(oc2, mid1, inst2, instArray3,
-        false, boolArray4, qids3, auth1, user4);
-    testCIMDisableModuleRequestMessage(oc3, mid2, inst3, instArray4,
-         true, boolArray1, qids4, auth2, user1);
-    testCIMDisableModuleRequestMessage(oc4, mid3, inst4, instArray1,
-        false, boolArray2, qids1, auth3, user2);
-    testCIMDisableModuleRequestMessage(oc1, mid4, inst1, instArray2,
-         true, boolArray3, qids2, auth4, user3);
-
-    testCIMEnableModuleRequestMessage(
-         oc1, mid2, inst1, qids3, auth1, user4);
-    testCIMEnableModuleRequestMessage(
-         oc2, mid3, inst2, qids4, auth2, user1);
-    testCIMEnableModuleRequestMessage(
-         oc3, mid4, inst3, qids1, auth3, user2);
-    testCIMEnableModuleRequestMessage(
-         oc4, mid1, inst4, qids2, auth4, user3);
-
-    testCIMStopAllProvidersRequestMessage(oc2, mid1, qids3);
-    testCIMStopAllProvidersRequestMessage(oc3, mid2, qids4);
-    testCIMStopAllProvidersRequestMessage(oc4, mid3, qids1);
-    testCIMStopAllProvidersRequestMessage(oc1, mid4, qids2);
-
-    testCIMInitializeProviderAgentRequestMessage(
-        oc2, mid1, mid4, spa3, false,  true, qids2);
-    testCIMInitializeProviderAgentRequestMessage(
-        oc3, mid2, mid1, spa4,  true, false, qids3);
-    testCIMInitializeProviderAgentRequestMessage(
-        oc4, mid3, mid2, spa1,  true,  true, qids4);
-    testCIMInitializeProviderAgentRequestMessage(
-        oc1, mid4, mid3, spa2, false, false, qids1);
-
-    testCIMNotifyConfigChangeRequestMessage(
-        oc3, mid1, mid4, mid3, false, qids1);
-    testCIMNotifyConfigChangeRequestMessage(
-        oc4, mid2, mid1, mid4,  true, qids2);
-    testCIMNotifyConfigChangeRequestMessage(
-        oc1, mid3, mid2, mid1, false, qids3);
-    testCIMNotifyConfigChangeRequestMessage(
-        oc2, mid4, mid3, mid2,  true, qids4);
-
-    testCIMSubscriptionInitCompleteRequestMessage(oc1, mid2, qids3);
-    testCIMSubscriptionInitCompleteRequestMessage(oc2, mid3, qids4);
-    testCIMSubscriptionInitCompleteRequestMessage(oc3, mid4, qids1);
-    testCIMSubscriptionInitCompleteRequestMessage(oc4, mid1, qids2);
-
-    testProvAgtGetScmoClassRequestMessage(mid4,ns2,name1,qids3);
-    testProvAgtGetScmoClassRequestMessage(mid1,ns3,name3,qids2);
-    testProvAgtGetScmoClassRequestMessage(mid2,ns1,name4,qids4);
-    testProvAgtGetScmoClassRequestMessage(mid3,ns4,name2,qids1);
-
-    testProvAgtGetScmoClassResponseMessage(mid2,ex1,class3,qids4);
-    testProvAgtGetScmoClassResponseMessage(mid1,ex3,class2,qids3);
-    testProvAgtGetScmoClassResponseMessage(mid4,ex2,class1,qids2);
-    testProvAgtGetScmoClassResponseMessage(mid3,ex4,class4,qids1);
-
-    testCIMGetInstanceResponseMessage(oc4, mid1, ex2, qids3, inst4);
-    testCIMGetInstanceResponseMessage(oc1, mid2, ex3, qids4, inst1);
-    testCIMGetInstanceResponseMessage(oc2, mid3, ex4, qids1, inst2);
-    testCIMGetInstanceResponseMessage(oc3, mid4, ex1, qids2, inst3);
-
-    testCIMGetInstanceResponseMessageSCMO(oc4, mid1, ex2, qids3, inst4);
-    testCIMGetInstanceResponseMessageSCMO(oc1, mid2, ex3, qids4, inst1);
-    testCIMGetInstanceResponseMessageSCMO(oc2, mid3, ex4, qids1, inst2);
-    testCIMGetInstanceResponseMessageSCMO(oc3, mid4, ex1, qids2, inst3);
-
-    testCIMCreateInstanceResponseMessage(oc3, mid4, ex1, qids2, path1);
-    testCIMCreateInstanceResponseMessage(oc4, mid1, ex2, qids3, path2);
-    testCIMCreateInstanceResponseMessage(oc1, mid2, ex3, qids4, path3);
-    testCIMCreateInstanceResponseMessage(oc2, mid3, ex4, qids1, path4);
-
-    testCIMModifyInstanceResponseMessage(oc2, mid1, ex4, qids1);
-    testCIMModifyInstanceResponseMessage(oc3, mid2, ex1, qids2);
-    testCIMModifyInstanceResponseMessage(oc4, mid3, ex2, qids3);
-    testCIMModifyInstanceResponseMessage(oc1, mid4, ex3, qids4);
-
-    testCIMDeleteInstanceResponseMessage(oc4, mid1, ex2, qids4);
-    testCIMDeleteInstanceResponseMessage(oc1, mid2, ex3, qids1);
-    testCIMDeleteInstanceResponseMessage(oc2, mid3, ex4, qids2);
-    testCIMDeleteInstanceResponseMessage(oc3, mid4, ex1, qids3);
-
-    testCIMEnumerateInstancesResponseMessage(
-        oc2, mid2, ex1, qids4, instArray4);
-    testCIMEnumerateInstancesResponseMessage(
-        oc3, mid3, ex2, qids1, instArray1);
-    testCIMEnumerateInstancesResponseMessage(
-        oc4, mid4, ex3, qids2, instArray2);
-    testCIMEnumerateInstancesResponseMessage(
-        oc1, mid1, ex4, qids3, instArray3);
-
-    testCIMEnumerateInstanceNamesResponseMessage(
-        oc4, mid3, ex2, qids1, pathArray2);
-    testCIMEnumerateInstanceNamesResponseMessage(
-        oc1, mid4, ex3, qids2, pathArray3);
-    testCIMEnumerateInstanceNamesResponseMessage(
-        oc2, mid1, ex4, qids3, pathArray4);
-    testCIMEnumerateInstanceNamesResponseMessage(
-        oc3, mid2, ex1, qids4, pathArray1);
-
-    testCIMExecQueryResponseMessage(oc1, mid3, ex2, qids4, objArray3);
-    testCIMExecQueryResponseMessage(oc2, mid4, ex3, qids1, objArray4);
-    testCIMExecQueryResponseMessage(oc3, mid1, ex4, qids2, objArray1);
-    testCIMExecQueryResponseMessage(oc4, mid2, ex1, qids3, objArray2);
-
-    testCIMAssociatorsResponseMessage(oc1, mid2, ex4, qids1, objArray2);
-    testCIMAssociatorsResponseMessage(oc2, mid3, ex1, qids2, objArray3);
-    testCIMAssociatorsResponseMessage(oc3, mid4, ex2, qids3, objArray4);
-    testCIMAssociatorsResponseMessage(oc4, mid1, ex3, qids4, objArray1);
-
-    testCIMAssociatorNamesResponseMessage(
-        oc2, mid1, ex2, qids4, pathArray3);
-    testCIMAssociatorNamesResponseMessage(
-        oc3, mid2, ex3, qids1, pathArray4);
-    testCIMAssociatorNamesResponseMessage(
-        oc4, mid3, ex4, qids2, pathArray1);
-    testCIMAssociatorNamesResponseMessage(
-        oc1, mid4, ex1, qids3, pathArray2);
-
-    testCIMReferencesResponseMessage(oc3, mid2, ex4, qids1, objArray1);
-    testCIMReferencesResponseMessage(oc4, mid3, ex1, qids2, objArray2);
-    testCIMReferencesResponseMessage(oc1, mid4, ex2, qids3, objArray3);
-    testCIMReferencesResponseMessage(oc2, mid1, ex3, qids4, objArray4);
-
-    testCIMReferenceNamesResponseMessage(
-        oc1, mid4, ex3, qids2, pathArray1);
-    testCIMReferenceNamesResponseMessage(
-        oc2, mid1, ex4, qids3, pathArray2);
-    testCIMReferenceNamesResponseMessage(
-        oc3, mid2, ex1, qids4, pathArray3);
-    testCIMReferenceNamesResponseMessage(
-        oc4, mid3, ex2, qids1, pathArray4);
-
-    testCIMGetPropertyResponseMessage(oc1, mid2, ex4, qids3, val2);
-    testCIMGetPropertyResponseMessage(oc2, mid3, ex1, qids4, val3);
-    testCIMGetPropertyResponseMessage(oc3, mid4, ex2, qids1, val4);
-    testCIMGetPropertyResponseMessage(oc4, mid1, ex3, qids2, val1);
-
-    testCIMSetPropertyResponseMessage(oc2, mid1, ex1, qids3);
-    testCIMSetPropertyResponseMessage(oc3, mid2, ex2, qids4);
-    testCIMSetPropertyResponseMessage(oc4, mid3, ex3, qids1);
-    testCIMSetPropertyResponseMessage(oc1, mid4, ex4, qids2);
-
-    testCIMInvokeMethodResponseMessage(
-        oc1, mid4, ex2, qids3, val4, pvArray1, name3);
-    testCIMInvokeMethodResponseMessage(
-        oc2, mid1, ex3, qids4, val1, pvArray2, name4);
-    testCIMInvokeMethodResponseMessage(
-        oc3, mid2, ex4, qids1, val2, pvArray3, name1);
-    testCIMInvokeMethodResponseMessage(
-        oc4, mid3, ex1, qids2, val3, pvArray4, name2);
-
-    testCIMCreateSubscriptionResponseMessage(oc1, mid3, ex2, qids2);
-    testCIMCreateSubscriptionResponseMessage(oc2, mid4, ex3, qids3);
-    testCIMCreateSubscriptionResponseMessage(oc3, mid1, ex4, qids4);
-    testCIMCreateSubscriptionResponseMessage(oc4, mid2, ex1, qids1);
-
-    testCIMModifySubscriptionResponseMessage(oc1, mid1, ex1, qids1);
-    testCIMModifySubscriptionResponseMessage(oc2, mid2, ex2, qids2);
-    testCIMModifySubscriptionResponseMessage(oc3, mid3, ex3, qids3);
-    testCIMModifySubscriptionResponseMessage(oc4, mid4, ex4, qids4);
-
-    testCIMDeleteSubscriptionResponseMessage(oc3, mid1, ex1, qids2);
-    testCIMDeleteSubscriptionResponseMessage(oc4, mid2, ex2, qids3);
-    testCIMDeleteSubscriptionResponseMessage(oc1, mid3, ex3, qids4);
-    testCIMDeleteSubscriptionResponseMessage(oc2, mid4, ex4, qids1);
-
-    testCIMExportIndicationResponseMessage(oc2, mid1, ex2, qids4);
-    testCIMExportIndicationResponseMessage(oc3, mid2, ex3, qids1);
-    testCIMExportIndicationResponseMessage(oc4, mid3, ex4, qids2);
-    testCIMExportIndicationResponseMessage(oc1, mid4, ex1, qids3);
-
-    testCIMProcessIndicationResponseMessage(oc1, mid3, ex2, qids4);
-    testCIMProcessIndicationResponseMessage(oc2, mid4, ex3, qids1);
-    testCIMProcessIndicationResponseMessage(oc3, mid1, ex4, qids2);
-    testCIMProcessIndicationResponseMessage(oc4, mid2, ex1, qids3);
-
-    testCIMDisableModuleResponseMessage(
-        oc1, mid4, ex1, qids2, uint16Array3);
-    testCIMDisableModuleResponseMessage(
-        oc2, mid1, ex2, qids3, uint16Array4);
-    testCIMDisableModuleResponseMessage(
-        oc3, mid2, ex3, qids4, uint16Array1);
-    testCIMDisableModuleResponseMessage(
-        oc4, mid3, ex4, qids1, uint16Array2);
-
-    testCIMEnableModuleResponseMessage(
-        oc1, mid3, ex4, qids2, uint16Array1);
-    testCIMEnableModuleResponseMessage(
-        oc2, mid4, ex1, qids3, uint16Array2);
-    testCIMEnableModuleResponseMessage(
-        oc3, mid1, ex2, qids4, uint16Array3);
-    testCIMEnableModuleResponseMessage(
-        oc4, mid2, ex3, qids1, uint16Array4);
-
-    testCIMStopAllProvidersResponseMessage(oc1, mid2, ex2, qids1);
-    testCIMStopAllProvidersResponseMessage(oc2, mid3, ex3, qids2);
-    testCIMStopAllProvidersResponseMessage(oc3, mid4, ex4, qids3);
-    testCIMStopAllProvidersResponseMessage(oc4, mid1, ex1, qids4);
-
-    testCIMInitializeProviderAgentResponseMessage(oc1, mid4, ex3, qids1);
-    testCIMInitializeProviderAgentResponseMessage(oc2, mid1, ex4, qids2);
-    testCIMInitializeProviderAgentResponseMessage(oc3, mid2, ex1, qids3);
-    testCIMInitializeProviderAgentResponseMessage(oc4, mid3, ex2, qids4);
-
-    testCIMNotifyConfigChangeResponseMessage(oc1, mid2, ex4, qids1);
-    testCIMNotifyConfigChangeResponseMessage(oc2, mid3, ex1, qids2);
-    testCIMNotifyConfigChangeResponseMessage(oc3, mid4, ex2, qids3);
-    testCIMNotifyConfigChangeResponseMessage(oc4, mid1, ex3, qids4);
-
-    testCIMSubscriptionInitCompleteResponseMessage(oc1, mid3, ex1, qids2);
-    testCIMSubscriptionInitCompleteResponseMessage(oc2, mid4, ex2, qids3);
-    testCIMSubscriptionInitCompleteResponseMessage(oc3, mid1, ex3, qids4);
-    testCIMSubscriptionInitCompleteResponseMessage(oc4, mid2, ex4, qids1);
-
-    // Destroy the SCMO Class cache for housekeeping
-    delete classArray;
-
-    scmoCache->destroy();
-
-}
-
-//
-// main
-//
-int main(int, char** argv)
-{
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     try
     {
-        testMessageSerialization();
+        testEmptyMessage();
+
+        testCIMGetInstanceRequestMessage(
+            oc2, mid1, ns3, path1, lo1, iq2, ico1, pl4, qids3, auth2, user4);
+        testCIMGetInstanceRequestMessage(
+            oc3, mid2, ns4, path2, lo2, iq1, ico2, pl1, qids4, auth3, user1);
+        testCIMGetInstanceRequestMessage(
+            oc4, mid3, ns1, path3, lo1, iq1, ico1, pl2, qids1, auth4, user2);
+        testCIMGetInstanceRequestMessage(
+            oc1, mid4, ns2, path4, lo1, iq2, ico2, pl3, qids2, auth1, user3);
+
+        testCIMCreateInstanceRequestMessage(
+            oc1, mid4, ns1, inst2, qids2, auth4, user3);
+        testCIMCreateInstanceRequestMessage(
+            oc2, mid1, ns2, inst3, qids3, auth1, user4);
+        testCIMCreateInstanceRequestMessage(
+            oc3, mid2, ns3, inst4, qids4, auth2, user1);
+        testCIMCreateInstanceRequestMessage(
+            oc4, mid3, ns4, inst2, qids1, auth3, user2);
+
+        testCIMModifyInstanceRequestMessage(
+            oc4, mid2, ns1, inst2, iq2, pl4, qids2, auth3, user1);
+        testCIMModifyInstanceRequestMessage(
+            oc1, mid3, ns2, inst3, iq1, pl1, qids3, auth4, user2);
+        testCIMModifyInstanceRequestMessage(
+            oc2, mid4, ns3, inst4, iq2, pl2, qids4, auth1, user3);
+        testCIMModifyInstanceRequestMessage(
+            oc3, mid1, ns4, inst2, iq1, pl3, qids1, auth2, user4);
+
+        testCIMDeleteInstanceRequestMessage(
+            oc2, mid4, ns3, path3, qids1, auth2, user1);
+        testCIMDeleteInstanceRequestMessage(
+            oc3, mid1, ns4, path4, qids2, auth3, user2);
+        testCIMDeleteInstanceRequestMessage(
+            oc4, mid2, ns1, path1, qids3, auth4, user3);
+        testCIMDeleteInstanceRequestMessage(
+            oc1, mid3, ns2, path2, qids4, auth1, user4);
+
+        testCIMEnumerateInstancesRequestMessage(oc2, mid1, ns2, name3,
+            di1, lo1, iq2, ico1, pl2, qids4, auth3, user4);
+        testCIMEnumerateInstancesRequestMessage(oc3, mid2, ns3, name4,
+            di2, lo2, iq1, ico1, pl3, qids1, auth4, user1);
+        testCIMEnumerateInstancesRequestMessage(oc4, mid3, ns4, name1,
+            di1, lo2, iq2, ico2, pl4, qids2, auth1, user2);
+        testCIMEnumerateInstancesRequestMessage(oc1, mid4, ns1, name2,
+            di2, lo1, iq1, ico2, pl1, qids3, auth2, user3);
+
+        testCIMEnumerateInstanceNamesRequestMessage(
+            oc3, mid2, ns3, name1, qids2, auth4, user1);
+        testCIMEnumerateInstanceNamesRequestMessage(
+            oc4, mid3, ns4, name2, qids3, auth1, user2);
+        testCIMEnumerateInstanceNamesRequestMessage(
+            oc1, mid4, ns1, name3, qids4, auth2, user3);
+        testCIMEnumerateInstanceNamesRequestMessage(
+            oc2, mid1, ns2, name4, qids1, auth3, user4);
+
+        testCIMExecQueryRequestMessage(
+            oc3, mid1, ns1, ql2, qs3, qids2, auth4, user2);
+        testCIMExecQueryRequestMessage(
+            oc4, mid2, ns2, ql3, qs4, qids3, auth1, user3);
+        testCIMExecQueryRequestMessage(
+            oc1, mid3, ns3, ql4, qs1, qids4, auth2, user4);
+        testCIMExecQueryRequestMessage(
+            oc2, mid4, ns4, ql1, qs2, qids1, auth3, user1);
+
+        testCIMAssociatorsRequestMessage(oc3, mid1, ns4, path2, name2,
+            name4, role2, role1, iq2, ico1, pl4, qids3, auth3, user3);
+        testCIMAssociatorsRequestMessage(oc4, mid2, ns1, path3, name3,
+            name1, role3, role2, iq1, ico2, pl1, qids4, auth4, user4);
+        testCIMAssociatorsRequestMessage(oc1, mid3, ns2, path4, name4,
+            name2, role4, role3, iq2, ico2, pl2, qids1, auth1, user1);
+        testCIMAssociatorsRequestMessage(oc2, mid4, ns3, path1, name1,
+            name3, role1, role4, iq1, ico1, pl3, qids2, auth2, user2);
+
+        testCIMAssociatorNamesRequestMessage(oc4, mid4, ns2, path2,
+            name3, name2, role1, role2, qids1, auth4, user3);
+        testCIMAssociatorNamesRequestMessage(oc1, mid1, ns3, path3,
+            name4, name3, role2, role3, qids2, auth1, user4);
+        testCIMAssociatorNamesRequestMessage(oc2, mid2, ns4, path4,
+            name1, name4, role3, role4, qids3, auth2, user1);
+        testCIMAssociatorNamesRequestMessage(oc3, mid3, ns1, path1,
+            name2, name1, role4, role1, qids4, auth3, user2);
+
+        testCIMReferencesRequestMessage(oc3, mid1, ns4, path1, name2,
+            role2, iq2, ico1, pl4, qids4, auth1, user2);
+        testCIMReferencesRequestMessage(oc4, mid2, ns1, path2, name3,
+            role3, iq1, ico2, pl1, qids1, auth2, user3);
+        testCIMReferencesRequestMessage(oc1, mid3, ns2, path3, name4,
+            role4, iq2, ico2, pl2, qids2, auth3, user4);
+        testCIMReferencesRequestMessage(oc2, mid4, ns3, path4, name1,
+            role1, iq1, ico1, pl3, qids3, auth4, user1);
+
+        testCIMReferenceNamesRequestMessage(oc1, mid2, ns1, path4, name4,
+            role2, qids3, auth1, user2);
+        testCIMReferenceNamesRequestMessage(oc2, mid3, ns2, path1, name1,
+            role3, qids4, auth2, user3);
+        testCIMReferenceNamesRequestMessage(oc3, mid4, ns3, path2, name2,
+            role4, qids1, auth3, user4);
+        testCIMReferenceNamesRequestMessage(oc4, mid1, ns4, path3, name3,
+            role1, qids2, auth4, user1);
+
+        testCIMGetPropertyRequestMessage(
+            oc1, mid3, ns2, path1, name1, qids1, auth2, user2);
+        testCIMGetPropertyRequestMessage(
+            oc2, mid4, ns3, path2, name2, qids2, auth3, user3);
+        testCIMGetPropertyRequestMessage(
+            oc3, mid1, ns4, path3, name3, qids3, auth4, user4);
+        testCIMGetPropertyRequestMessage(
+            oc4, mid2, ns1, path4, name4, qids4, auth1, user1);
+
+        testCIMSetPropertyRequestMessage(
+            oc4, mid1, ns2, path2, name4, val2, qids3, auth2, user1);
+        testCIMSetPropertyRequestMessage(
+            oc1, mid2, ns3, path3, name2, val3, qids4, auth3, user2);
+        testCIMSetPropertyRequestMessage(
+            oc2, mid3, ns4, path4, name2, val4, qids1, auth4, user3);
+        testCIMSetPropertyRequestMessage(
+            oc3, mid4, ns1, path1, name3, val1, qids2, auth1, user4);
+
+        testCIMInvokeMethodRequestMessage(
+            oc4, mid2, ns4, path1, name2, pvArray3, qids3, auth4, user2);
+        testCIMInvokeMethodRequestMessage(
+            oc1, mid3, ns1, path2, name3, pvArray4, qids4, auth1, user3);
+        testCIMInvokeMethodRequestMessage(
+            oc2, mid4, ns2, path3, name4, pvArray1, qids1, auth2, user4);
+        testCIMInvokeMethodRequestMessage(
+            oc3, mid1, ns3, path4, name1, pvArray2, qids2, auth3, user1);
+
+        testCIMCreateSubscriptionRequestMessage(oc1, mid3, ns1, inst3,
+            nameArray1, pl3,     8, qs2, qids2, auth1, user3);
+        testCIMCreateSubscriptionRequestMessage(oc2, mid4, ns2, inst4,
+            nameArray2, pl4,     0, qs3, qids3, auth2, user4);
+        testCIMCreateSubscriptionRequestMessage(oc3, mid1, ns3, inst1,
+            nameArray3, pl1, 65535, qs4, qids4, auth3, user1);
+        testCIMCreateSubscriptionRequestMessage(oc4, mid2, ns4, inst2,
+            nameArray4, pl2,    10, qs1, qids1, auth4, user2);
+
+        testCIMModifySubscriptionRequestMessage(oc2, mid1, ns4, inst2,
+            nameArray2, pl3, 65535, qs4, qids1, auth4, user3);
+        testCIMModifySubscriptionRequestMessage(oc3, mid2, ns1, inst3,
+            nameArray3, pl4,     0, qs1, qids2, auth1, user4);
+        testCIMModifySubscriptionRequestMessage(oc4, mid3, ns2, inst4,
+            nameArray4, pl1,     1, qs2, qids3, auth2, user1);
+        testCIMModifySubscriptionRequestMessage(oc1, mid4, ns3, inst1,
+            nameArray1, pl2,   100, qs3, qids4, auth3, user2);
+
+        testCIMDeleteSubscriptionRequestMessage(
+            oc1, mid4, ns3, inst2, nameArray1, qids2, auth3, user4);
+        testCIMDeleteSubscriptionRequestMessage(
+            oc2, mid1, ns4, inst3, nameArray2, qids3, auth4, user1);
+        testCIMDeleteSubscriptionRequestMessage(
+            oc3, mid2, ns1, inst4, nameArray3, qids4, auth1, user2);
+        testCIMDeleteSubscriptionRequestMessage(
+            oc4, mid3, ns2, inst1, nameArray4, qids1, auth2, user3);
+
+        testCIMExportIndicationRequestMessage(
+            oc4, mid3, mid1, inst2, qids1, auth3, user3);
+        testCIMExportIndicationRequestMessage(
+            oc1, mid4, mid2, inst3, qids2, auth4, user4);
+        testCIMExportIndicationRequestMessage(
+            oc2, mid1, mid3, inst4, qids3, auth1, user1);
+        testCIMExportIndicationRequestMessage(
+            oc3, mid2, mid4, inst1, qids4, auth2, user2);
+
+        testCIMProcessIndicationRequestMessage(
+            oc1, mid4, ns3, inst2, pathArray2, inst4, qids4);
+        testCIMProcessIndicationRequestMessage(
+            oc2, mid1, ns4, inst3, pathArray3, inst1, qids1);
+        testCIMProcessIndicationRequestMessage(
+            oc3, mid2, ns1, inst4, pathArray4, inst2, qids2);
+        testCIMProcessIndicationRequestMessage(
+            oc4, mid3, ns2, inst1, pathArray1, inst3, qids3);
+
+        testCIMDisableModuleRequestMessage(oc2, mid1, inst2, instArray3,
+            false, boolArray4, qids3, auth1, user4);
+        testCIMDisableModuleRequestMessage(oc3, mid2, inst3, instArray4,
+             true, boolArray1, qids4, auth2, user1);
+        testCIMDisableModuleRequestMessage(oc4, mid3, inst4, instArray1,
+            false, boolArray2, qids1, auth3, user2);
+        testCIMDisableModuleRequestMessage(oc1, mid4, inst1, instArray2,
+             true, boolArray3, qids2, auth4, user3);
+
+        testCIMEnableModuleRequestMessage(
+             oc1, mid2, inst1, qids3, auth1, user4);
+        testCIMEnableModuleRequestMessage(
+             oc2, mid3, inst2, qids4, auth2, user1);
+        testCIMEnableModuleRequestMessage(
+             oc3, mid4, inst3, qids1, auth3, user2);
+        testCIMEnableModuleRequestMessage(
+             oc4, mid1, inst4, qids2, auth4, user3);
+
+        testCIMStopAllProvidersRequestMessage(oc2, mid1, qids3);
+        testCIMStopAllProvidersRequestMessage(oc3, mid2, qids4);
+        testCIMStopAllProvidersRequestMessage(oc4, mid3, qids1);
+        testCIMStopAllProvidersRequestMessage(oc1, mid4, qids2);
+
+        testCIMInitializeProviderRequestMessage(oc1, mid1, qids2);
+        testCIMInitializeProviderRequestMessage(oc2, mid2, qids3);
+        testCIMInitializeProviderRequestMessage(oc3, mid3, qids4);
+        testCIMInitializeProviderRequestMessage(oc4, mid4, qids1);
+
+        testCIMInitializeProviderAgentRequestMessage(
+            oc2, mid1, mid4, spa3, false,  true, qids2);
+        testCIMInitializeProviderAgentRequestMessage(
+            oc3, mid2, mid1, spa4,  true, false, qids3);
+        testCIMInitializeProviderAgentRequestMessage(
+            oc4, mid3, mid2, spa1,  true,  true, qids4);
+        testCIMInitializeProviderAgentRequestMessage(
+            oc1, mid4, mid3, spa2, false, false, qids1);
+
+        testCIMNotifyConfigChangeRequestMessage(
+            oc3, mid1, mid4, mid3, false, qids1);
+        testCIMNotifyConfigChangeRequestMessage(
+            oc4, mid2, mid1, mid4,  true, qids2);
+        testCIMNotifyConfigChangeRequestMessage(
+            oc1, mid3, mid2, mid1, false, qids3);
+        testCIMNotifyConfigChangeRequestMessage(
+            oc2, mid4, mid3, mid2,  true, qids4);
+
+        testCIMSubscriptionInitCompleteRequestMessage(oc1, mid2, qids3);
+        testCIMSubscriptionInitCompleteRequestMessage(oc2, mid3, qids4);
+        testCIMSubscriptionInitCompleteRequestMessage(oc3, mid4, qids1);
+        testCIMSubscriptionInitCompleteRequestMessage(oc4, mid1, qids2);
+
+        testCIMGetInstanceResponseMessage(oc4, mid1, ex2, qids3, inst4);
+        testCIMGetInstanceResponseMessage(oc1, mid2, ex3, qids4, inst1);
+        testCIMGetInstanceResponseMessage(oc2, mid3, ex4, qids1, inst2);
+        testCIMGetInstanceResponseMessage(oc3, mid4, ex1, qids2, inst3);
+
+        testCIMCreateInstanceResponseMessage(oc3, mid4, ex1, qids2, path1);
+        testCIMCreateInstanceResponseMessage(oc4, mid1, ex2, qids3, path2);
+        testCIMCreateInstanceResponseMessage(oc1, mid2, ex3, qids4, path3);
+        testCIMCreateInstanceResponseMessage(oc2, mid3, ex4, qids1, path4);
+
+        testCIMModifyInstanceResponseMessage(oc2, mid1, ex4, qids1);
+        testCIMModifyInstanceResponseMessage(oc3, mid2, ex1, qids2);
+        testCIMModifyInstanceResponseMessage(oc4, mid3, ex2, qids3);
+        testCIMModifyInstanceResponseMessage(oc1, mid4, ex3, qids4);
+
+        testCIMDeleteInstanceResponseMessage(oc4, mid1, ex2, qids4);
+        testCIMDeleteInstanceResponseMessage(oc1, mid2, ex3, qids1);
+        testCIMDeleteInstanceResponseMessage(oc2, mid3, ex4, qids2);
+        testCIMDeleteInstanceResponseMessage(oc3, mid4, ex1, qids3);
+
+        testCIMEnumerateInstancesResponseMessage(
+            oc2, mid2, ex1, qids4, instArray4);
+        testCIMEnumerateInstancesResponseMessage(
+            oc3, mid3, ex2, qids1, instArray1);
+        testCIMEnumerateInstancesResponseMessage(
+            oc4, mid4, ex3, qids2, instArray2);
+        testCIMEnumerateInstancesResponseMessage(
+            oc1, mid1, ex4, qids3, instArray3);
+
+        testCIMEnumerateInstanceNamesResponseMessage(
+            oc4, mid3, ex2, qids1, pathArray2);
+        testCIMEnumerateInstanceNamesResponseMessage(
+            oc1, mid4, ex3, qids2, pathArray3);
+        testCIMEnumerateInstanceNamesResponseMessage(
+            oc2, mid1, ex4, qids3, pathArray4);
+        testCIMEnumerateInstanceNamesResponseMessage(
+            oc3, mid2, ex1, qids4, pathArray1);
+
+        testCIMExecQueryResponseMessage(oc1, mid3, ex2, qids4, objArray3);
+        testCIMExecQueryResponseMessage(oc2, mid4, ex3, qids1, objArray4);
+        testCIMExecQueryResponseMessage(oc3, mid1, ex4, qids2, objArray1);
+        testCIMExecQueryResponseMessage(oc4, mid2, ex1, qids3, objArray2);
+
+        testCIMAssociatorsResponseMessage(oc1, mid2, ex4, qids1, objArray2);
+        testCIMAssociatorsResponseMessage(oc2, mid3, ex1, qids2, objArray3);
+        testCIMAssociatorsResponseMessage(oc3, mid4, ex2, qids3, objArray4);
+        testCIMAssociatorsResponseMessage(oc4, mid1, ex3, qids4, objArray1);
+
+        testCIMAssociatorNamesResponseMessage(
+            oc2, mid1, ex2, qids4, pathArray3);
+        testCIMAssociatorNamesResponseMessage(
+            oc3, mid2, ex3, qids1, pathArray4);
+        testCIMAssociatorNamesResponseMessage(
+            oc4, mid3, ex4, qids2, pathArray1);
+        testCIMAssociatorNamesResponseMessage(
+            oc1, mid4, ex1, qids3, pathArray2);
+
+        testCIMReferencesResponseMessage(oc3, mid2, ex4, qids1, objArray1);
+        testCIMReferencesResponseMessage(oc4, mid3, ex1, qids2, objArray2);
+        testCIMReferencesResponseMessage(oc1, mid4, ex2, qids3, objArray3);
+        testCIMReferencesResponseMessage(oc2, mid1, ex3, qids4, objArray4);
+
+        testCIMReferenceNamesResponseMessage(
+            oc1, mid4, ex3, qids2, pathArray1);
+        testCIMReferenceNamesResponseMessage(
+            oc2, mid1, ex4, qids3, pathArray2);
+        testCIMReferenceNamesResponseMessage(
+            oc3, mid2, ex1, qids4, pathArray3);
+        testCIMReferenceNamesResponseMessage(
+            oc4, mid3, ex2, qids1, pathArray4);
+
+        testCIMGetPropertyResponseMessage(oc1, mid2, ex4, qids3, val2);
+        testCIMGetPropertyResponseMessage(oc2, mid3, ex1, qids4, val3);
+        testCIMGetPropertyResponseMessage(oc3, mid4, ex2, qids1, val4);
+        testCIMGetPropertyResponseMessage(oc4, mid1, ex3, qids2, val1);
+
+        testCIMSetPropertyResponseMessage(oc2, mid1, ex1, qids3);
+        testCIMSetPropertyResponseMessage(oc3, mid2, ex2, qids4);
+        testCIMSetPropertyResponseMessage(oc4, mid3, ex3, qids1);
+        testCIMSetPropertyResponseMessage(oc1, mid4, ex4, qids2);
+
+        testCIMInvokeMethodResponseMessage(
+            oc1, mid4, ex2, qids3, val4, pvArray1, name3);
+        testCIMInvokeMethodResponseMessage(
+            oc2, mid1, ex3, qids4, val1, pvArray2, name4);
+        testCIMInvokeMethodResponseMessage(
+            oc3, mid2, ex4, qids1, val2, pvArray3, name1);
+        testCIMInvokeMethodResponseMessage(
+            oc4, mid3, ex1, qids2, val3, pvArray4, name2);
+
+        testCIMCreateSubscriptionResponseMessage(oc1, mid3, ex2, qids2);
+        testCIMCreateSubscriptionResponseMessage(oc2, mid4, ex3, qids3);
+        testCIMCreateSubscriptionResponseMessage(oc3, mid1, ex4, qids4);
+        testCIMCreateSubscriptionResponseMessage(oc4, mid2, ex1, qids1);
+
+        testCIMModifySubscriptionResponseMessage(oc1, mid1, ex1, qids1);
+        testCIMModifySubscriptionResponseMessage(oc2, mid2, ex2, qids2);
+        testCIMModifySubscriptionResponseMessage(oc3, mid3, ex3, qids3);
+        testCIMModifySubscriptionResponseMessage(oc4, mid4, ex4, qids4);
+
+        testCIMDeleteSubscriptionResponseMessage(oc3, mid1, ex1, qids2);
+        testCIMDeleteSubscriptionResponseMessage(oc4, mid2, ex2, qids3);
+        testCIMDeleteSubscriptionResponseMessage(oc1, mid3, ex3, qids4);
+        testCIMDeleteSubscriptionResponseMessage(oc2, mid4, ex4, qids1);
+
+        testCIMExportIndicationResponseMessage(oc2, mid1, ex2, qids4);
+        testCIMExportIndicationResponseMessage(oc3, mid2, ex3, qids1);
+        testCIMExportIndicationResponseMessage(oc4, mid3, ex4, qids2);
+        testCIMExportIndicationResponseMessage(oc1, mid4, ex1, qids3);
+
+        testCIMProcessIndicationResponseMessage(oc1, mid3, ex2, qids4);
+        testCIMProcessIndicationResponseMessage(oc2, mid4, ex3, qids1);
+        testCIMProcessIndicationResponseMessage(oc3, mid1, ex4, qids2);
+        testCIMProcessIndicationResponseMessage(oc4, mid2, ex1, qids3);
+
+        testCIMDisableModuleResponseMessage(
+            oc1, mid4, ex1, qids2, uint16Array3);
+        testCIMDisableModuleResponseMessage(
+            oc2, mid1, ex2, qids3, uint16Array4);
+        testCIMDisableModuleResponseMessage(
+            oc3, mid2, ex3, qids4, uint16Array1);
+        testCIMDisableModuleResponseMessage(
+            oc4, mid3, ex4, qids1, uint16Array2);
+
+        testCIMEnableModuleResponseMessage(
+            oc1, mid3, ex4, qids2, uint16Array1);
+        testCIMEnableModuleResponseMessage(
+            oc2, mid4, ex1, qids3, uint16Array2);
+        testCIMEnableModuleResponseMessage(
+            oc3, mid1, ex2, qids4, uint16Array3);
+        testCIMEnableModuleResponseMessage(
+            oc4, mid2, ex3, qids1, uint16Array4);
+
+        testCIMStopAllProvidersResponseMessage(oc1, mid2, ex2, qids1);
+        testCIMStopAllProvidersResponseMessage(oc2, mid3, ex3, qids2);
+        testCIMStopAllProvidersResponseMessage(oc3, mid4, ex4, qids3);
+        testCIMStopAllProvidersResponseMessage(oc4, mid1, ex1, qids4);
+
+        testCIMInitializeProviderResponseMessage(oc1, mid1, ex4, qids3);
+        testCIMInitializeProviderResponseMessage(oc2, mid2, ex1, qids4);
+        testCIMInitializeProviderResponseMessage(oc3, mid3, ex2, qids1);
+        testCIMInitializeProviderResponseMessage(oc4, mid4, ex3, qids2);
+
+        testCIMInitializeProviderAgentResponseMessage(oc1, mid4, ex3, qids1);
+        testCIMInitializeProviderAgentResponseMessage(oc2, mid1, ex4, qids2);
+        testCIMInitializeProviderAgentResponseMessage(oc3, mid2, ex1, qids3);
+        testCIMInitializeProviderAgentResponseMessage(oc4, mid3, ex2, qids4);
+
+        testCIMNotifyConfigChangeResponseMessage(oc1, mid2, ex4, qids1);
+        testCIMNotifyConfigChangeResponseMessage(oc2, mid3, ex1, qids2);
+        testCIMNotifyConfigChangeResponseMessage(oc3, mid4, ex2, qids3);
+        testCIMNotifyConfigChangeResponseMessage(oc4, mid1, ex3, qids4);
+
+        testCIMSubscriptionInitCompleteResponseMessage(oc1, mid3, ex1, qids2);
+        testCIMSubscriptionInitCompleteResponseMessage(oc2, mid4, ex2, qids3);
+        testCIMSubscriptionInitCompleteResponseMessage(oc3, mid1, ex3, qids4);
+        testCIMSubscriptionInitCompleteResponseMessage(oc4, mid2, ex4, qids1);
     }
     catch (Exception& e)
     {
@@ -3076,5 +2556,6 @@ int main(int, char** argv)
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;
+
     return 0;
 }

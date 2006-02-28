@@ -1,31 +1,43 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
+//      Dave Rosckes (rosckes@us.ibm.com)
+//      Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//      Adrian Schuur (schuur@de.ibm.com)
+//      Seema Gupta (gseema@in.ibm.com) for PEP135
+//      Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,48 +79,46 @@ public:
         CIMResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual ~OperationResponseHandler();
+    virtual ~OperationResponseHandler(void);
 
-    CIMRequestMessage* getRequest() const;
+    CIMRequestMessage * getRequest(void) const;
 
-    CIMResponseMessage* getResponse() const;
-
-    virtual void setStatus(
-        const Uint32 code,
-        const String& message = String::EMPTY);
+    CIMResponseMessage * getResponse(void) const;
 
     virtual void setStatus(
         const Uint32 code,
-        const ContentLanguageList& langs,
-        const String& message = String::EMPTY);
+        const String & message = String::EMPTY);
 
-    virtual void setCIMException(const CIMException& cimException);
+    virtual void setStatus(
+        const Uint32 code,
+        const ContentLanguageList & langs,
+        const String & message = String::EMPTY);
 
 protected:
     // the default for all derived handlers. Some handlers may not apply
     // async behavior because their callers cannot handle partial responses.
-    virtual Boolean isAsync() const;
+    virtual Boolean isAsync(void) const;
 
     // send (deliver) asynchronously
     virtual void send(Boolean isComplete);
 
     // transfer any objects from handler to response. this does not clear()
-    virtual void transfer();
+    virtual void transfer(void);
 
     // validate whatever is necessary before the transfer
-    virtual void validate();
+    virtual void validate(void);
 
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    Uint32 getResponseObjectTotal() const;
+    Uint32 getResponseObjectTotal(void) const;
 
     // there can be many objects per message (or none at all - i.e complete())
-    Uint32 getResponseMessageTotal() const;
+    Uint32 getResponseMessageTotal(void) const;
 
-    Uint32 getResponseObjectThreshold() const;
+    Uint32 getResponseObjectThreshold(void) const;
 
-    CIMRequestMessage* _request;
-    CIMResponseMessage* _response;
+    CIMRequestMessage * _request;
+    CIMResponseMessage * _response;
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T _responseChunkCallback;
 
 private:
@@ -118,8 +128,7 @@ private:
 
 };
 
-class PEGASUS_PPM_LINKAGE GetInstanceResponseHandler :
-    public OperationResponseHandler, public SimpleInstanceResponseHandler
+class PEGASUS_PPM_LINKAGE GetInstanceResponseHandler : public OperationResponseHandler, public SimpleInstanceResponseHandler
 {
 public:
     GetInstanceResponseHandler(
@@ -127,29 +136,27 @@ public:
         CIMGetInstanceResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliver(const CIMInstance& cimInstance);
-    virtual void deliver(const Array<CIMInstance>& cimInstanceArray)
+    virtual void deliver(const CIMInstance & cimInstance);
+    virtual void deliver(const Array<CIMInstance> & cimInstanceArray)
     {
         SimpleInstanceResponseHandler::deliver(cimInstanceArray);
     }
-    virtual void deliver(const SCMOInstance& cimInstance);
 
-    virtual void complete();
+    virtual void complete(void);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual void transfer();
+    virtual void transfer(void);
 
-    virtual void validate();
+    virtual void validate(void);
 
 private:
     ObjectNormalizer _normalizer;
 
 };
 
-class PEGASUS_PPM_LINKAGE EnumerateInstancesResponseHandler :
-    public OperationResponseHandler, public SimpleInstanceResponseHandler
+class PEGASUS_PPM_LINKAGE EnumerateInstancesResponseHandler : public OperationResponseHandler, public SimpleInstanceResponseHandler
 {
 public:
     EnumerateInstancesResponseHandler(
@@ -157,25 +164,23 @@ public:
         CIMEnumerateInstancesResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliver(const CIMInstance& cimInstance);
-    virtual void deliver(const Array<CIMInstance>& cimInstanceArray)
+    virtual void deliver(const CIMInstance & cimInstance);
+    virtual void deliver(const Array<CIMInstance> & cimInstanceArray)
     {
         SimpleInstanceResponseHandler::deliver(cimInstanceArray);
     }
-    virtual void deliver(const SCMOInstance& scmoInstance);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual void transfer();
+    virtual void transfer(void);
 
 private:
     ObjectNormalizer _normalizer;
 
 };
 
-class PEGASUS_PPM_LINKAGE EnumerateInstanceNamesResponseHandler :
-    public OperationResponseHandler, public SimpleObjectPathResponseHandler
+class PEGASUS_PPM_LINKAGE EnumerateInstanceNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
 {
 public:
     EnumerateInstanceNamesResponseHandler(
@@ -183,25 +188,23 @@ public:
         CIMEnumerateInstanceNamesResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliver(const CIMObjectPath& cimObjectPath);
-    virtual void deliver(const Array<CIMObjectPath>& cimObjectPathArray)
+    virtual void deliver(const CIMObjectPath & cimObjectPath);
+    virtual void deliver(const Array<CIMObjectPath> & cimObjectPathArray)
     {
         SimpleObjectPathResponseHandler::deliver(cimObjectPathArray);
     }
-    virtual void deliver(const SCMOInstance& scmoObjectPath);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual void transfer();
+    virtual void transfer(void);
 
 private:
     ObjectNormalizer _normalizer;
 
 };
 
-class PEGASUS_PPM_LINKAGE CreateInstanceResponseHandler :
-    public OperationResponseHandler, public SimpleObjectPathResponseHandler
+class PEGASUS_PPM_LINKAGE CreateInstanceResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
 {
 public:
     CreateInstanceResponseHandler(
@@ -209,23 +212,22 @@ public:
         CIMCreateInstanceResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliver(const CIMObjectPath& cimObjectPath);
-    virtual void deliver(const Array<CIMObjectPath>& cimObjectPathArray)
+    virtual void deliver(const CIMObjectPath & cimObjectPath);
+    virtual void deliver(const Array<CIMObjectPath> & cimObjectPathArray)
     {
         SimpleObjectPathResponseHandler::deliver(cimObjectPathArray);
     }
 
-    virtual void complete();
+    virtual void complete(void);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual void transfer();
+    virtual void transfer(void);
 
 };
 
-class PEGASUS_PPM_LINKAGE ModifyInstanceResponseHandler :
-    public OperationResponseHandler, public SimpleResponseHandler
+class PEGASUS_PPM_LINKAGE ModifyInstanceResponseHandler : public OperationResponseHandler, public SimpleResponseHandler
 {
 public:
     ModifyInstanceResponseHandler(
@@ -234,12 +236,11 @@ public:
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
 };
 
-class PEGASUS_PPM_LINKAGE DeleteInstanceResponseHandler :
-    public OperationResponseHandler, public SimpleResponseHandler
+class PEGASUS_PPM_LINKAGE DeleteInstanceResponseHandler : public OperationResponseHandler, public SimpleResponseHandler
 {
 public:
     DeleteInstanceResponseHandler(
@@ -248,12 +249,11 @@ public:
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
 };
 
-class PEGASUS_PPM_LINKAGE GetPropertyResponseHandler :
-    public OperationResponseHandler, public SimpleValueResponseHandler
+class PEGASUS_PPM_LINKAGE GetPropertyResponseHandler : public OperationResponseHandler, public SimpleValueResponseHandler
 {
 public:
     GetPropertyResponseHandler(
@@ -261,23 +261,22 @@ public:
         CIMGetPropertyResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliver(const CIMValue& cimValue);
-    virtual void deliver(const Array<CIMValue>& cimValueArray)
+    virtual void deliver(const CIMValue & cimValue);
+    virtual void deliver(const Array<CIMValue> & cimValueArray)
     {
         SimpleValueResponseHandler::deliver(cimValueArray);
     }
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual void transfer();
+    virtual void transfer(void);
 
-    virtual void validate();
+    virtual void validate(void);
 
 };
 
-class PEGASUS_PPM_LINKAGE SetPropertyResponseHandler :
-    public OperationResponseHandler, public SimpleResponseHandler
+class PEGASUS_PPM_LINKAGE SetPropertyResponseHandler : public OperationResponseHandler, public SimpleResponseHandler
 {
 public:
     SetPropertyResponseHandler(
@@ -286,13 +285,11 @@ public:
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
 };
 
-class PEGASUS_PPM_LINKAGE ExecQueryResponseHandler :
-    public OperationResponseHandler,
-    public SimpleInstance2ObjectResponseHandler
+class PEGASUS_PPM_LINKAGE ExecQueryResponseHandler : public OperationResponseHandler, public SimpleInstance2ObjectResponseHandler
 {
 public:
     ExecQueryResponseHandler(
@@ -300,26 +297,22 @@ public:
         CIMExecQueryResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliver(const CIMInstance& cimInstance);
-    virtual void deliver(const Array<CIMInstance>& cimInstanceArray)
+    virtual void deliver(const CIMInstance & cimInstance);
+    virtual void deliver(const Array<CIMInstance> & cimInstanceArray)
     {
         SimpleInstance2ObjectResponseHandler::deliver(cimInstanceArray);
     }
-    virtual void deliver(const SCMOInstance& scmoInstance);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual void transfer();
+    virtual void transfer(void);
 
-    virtual Boolean isAsync() const;
-
-    CIMClass _cimClass;
+    virtual Boolean isAsync(void) const;
 
 };
 
-class PEGASUS_PPM_LINKAGE AssociatorsResponseHandler :
-    public OperationResponseHandler, public SimpleObjectResponseHandler
+class PEGASUS_PPM_LINKAGE AssociatorsResponseHandler : public OperationResponseHandler, public SimpleObjectResponseHandler
 {
 public:
     AssociatorsResponseHandler(
@@ -327,23 +320,20 @@ public:
         CIMAssociatorsResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliver(const CIMObject& cimObject);
-    virtual void deliver(const CIMInstance& cimInstance);
-    virtual void deliver(const Array<CIMObject>& cimObjectArray)
+    virtual void deliver(const CIMObject & cimObject);
+    virtual void deliver(const Array<CIMObject> & cimObjectArray)
     {
         SimpleObjectResponseHandler::deliver(cimObjectArray);
     }
-    virtual void deliver(const SCMOInstance& scmoObject);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual void transfer();
+    virtual void transfer(void);
 
 };
 
-class PEGASUS_PPM_LINKAGE AssociatorNamesResponseHandler :
-    public OperationResponseHandler, public SimpleObjectPathResponseHandler
+class PEGASUS_PPM_LINKAGE AssociatorNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
 {
 public:
     AssociatorNamesResponseHandler(
@@ -351,22 +341,20 @@ public:
         CIMAssociatorNamesResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliver(const CIMObjectPath& cimObjectPath);
-    virtual void deliver(const Array<CIMObjectPath>& cimObjectPathArray)
+    virtual void deliver(const CIMObjectPath & cimObjectPath);
+    virtual void deliver(const Array<CIMObjectPath> & cimObjectPathArray)
     {
         SimpleObjectPathResponseHandler::deliver(cimObjectPathArray);
     }
-    virtual void deliver(const SCMOInstance& scmoObjectPath);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual void transfer();
+    virtual void transfer(void);
 
 };
 
-class PEGASUS_PPM_LINKAGE ReferencesResponseHandler :
-    public OperationResponseHandler, public SimpleObjectResponseHandler
+class PEGASUS_PPM_LINKAGE ReferencesResponseHandler : public OperationResponseHandler, public SimpleObjectResponseHandler
 {
 public:
     ReferencesResponseHandler(
@@ -374,22 +362,20 @@ public:
         CIMReferencesResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliver(const CIMObject& cimObject);
-    virtual void deliver(const Array<CIMObject>& cimObjectArray)
+    virtual void deliver(const CIMObject & cimObject);
+    virtual void deliver(const Array<CIMObject> & cimObjectArray)
     {
         SimpleObjectResponseHandler::deliver(cimObjectArray);
     }
-    virtual void deliver(const SCMOInstance& scmoObject);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual void transfer();
+    virtual void transfer(void);
 
 };
 
-class PEGASUS_PPM_LINKAGE ReferenceNamesResponseHandler :
-    public OperationResponseHandler, public SimpleObjectPathResponseHandler
+class PEGASUS_PPM_LINKAGE ReferenceNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
 {
 public:
     ReferenceNamesResponseHandler(
@@ -397,22 +383,20 @@ public:
         CIMReferenceNamesResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliver(const CIMObjectPath& cimObjectPath);
-    virtual void deliver(const Array<CIMObjectPath>& cimObjectPathArray)
+    virtual void deliver(const CIMObjectPath & cimObjectPath);
+    virtual void deliver(const Array<CIMObjectPath> & cimObjectPathArray)
     {
         SimpleObjectPathResponseHandler::deliver(cimObjectPathArray);
     }
-    virtual void deliver(const SCMOInstance& scmoObjectPath);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual void transfer();
+    virtual void transfer(void);
 
 };
 
-class PEGASUS_PPM_LINKAGE InvokeMethodResponseHandler :
-    public OperationResponseHandler, public SimpleMethodResultResponseHandler
+class PEGASUS_PPM_LINKAGE InvokeMethodResponseHandler : public OperationResponseHandler, public SimpleMethodResultResponseHandler
 {
 public:
     InvokeMethodResponseHandler(
@@ -420,53 +404,48 @@ public:
         CIMInvokeMethodResponseMessage* response,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliverParamValue(const CIMParamValue& cimParamValue);
+    virtual void deliverParamValue(const CIMParamValue & cimParamValue);
     virtual void deliverParamValue(
-        const Array<CIMParamValue>& cimParamValueArray)
+        const Array<CIMParamValue> & cimParamValueArray)
     {
         SimpleMethodResultResponseHandler::deliverParamValue(
             cimParamValueArray);
     }
 
-    virtual void deliver(const CIMValue& cimValue);
+    virtual void deliver(const CIMValue & cimValue);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual void transfer();
+    virtual void transfer(void);
 
 };
 
 typedef void (*PEGASUS_INDICATION_CALLBACK_T)(
     CIMProcessIndicationRequestMessage*);
 
-class PEGASUS_PPM_LINKAGE EnableIndicationsResponseHandler :
-    public OperationResponseHandler, public SimpleIndicationResponseHandler
+class PEGASUS_PPM_LINKAGE EnableIndicationsResponseHandler : public OperationResponseHandler, public SimpleIndicationResponseHandler
 {
 public:
     EnableIndicationsResponseHandler(
         CIMRequestMessage* request,
         CIMResponseMessage* response,
-        const CIMInstance& provider,
+        CIMInstance& provider,
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
-    virtual void deliver(const CIMIndication& cimIndication);
+    virtual void deliver(const CIMIndication & cimIndication);
 
-    virtual void deliver(
-        const OperationContext& context,
-        const CIMIndication& cimIndication);
+    virtual void deliver(const OperationContext & context, const CIMIndication & cimIndication);
 
-    virtual void deliver(const Array<CIMIndication>& cimIndications);
+    virtual void deliver(const Array<CIMIndication> & cimIndications);
 
-    virtual void deliver(
-        const OperationContext& context,
-        const Array<CIMIndication>& cimIndications);
+    virtual void deliver(const OperationContext & context, const Array<CIMIndication> & cimIndications);
 
 protected:
-    virtual String getClass() const;
+    virtual String getClass(void) const;
 
-    virtual Boolean isAsync() const;
+    virtual Boolean isAsync(void) const;
 
 private:
     PEGASUS_INDICATION_CALLBACK_T _indicationCallback;

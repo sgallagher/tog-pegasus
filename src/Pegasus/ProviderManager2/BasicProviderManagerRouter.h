@@ -29,77 +29,55 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "ProviderManager.h"
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Config/ConfigManager.h>
+#ifndef Pegasus_BasicProviderManagerRouter_h
+#define Pegasus_BasicProviderManagerRouter_h
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/Common/IPC.h>
+
+#include <Pegasus/ProviderManager2/ProviderManagerRouter.h>
+#include <Pegasus/ProviderManager2/ProviderManager.h>
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderManager::ProviderManager(void)
+class ProviderManagerContainer;
+
+class PEGASUS_PPM_LINKAGE BasicProviderManagerRouter
+    : public ProviderManagerRouter
 {
-}
+public:
+    BasicProviderManagerRouter(
+        PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
+    virtual ~BasicProviderManagerRouter();
 
-ProviderManager::~ProviderManager(void)
-{
-}
+    virtual Message* processMessage(Message* message);
 
-String ProviderManager::_resolvePhysicalName(String physicalName)
-{
-    String fileName = FileSystem::buildLibraryFileName(physicalName);
+    virtual Boolean hasActiveProviders();
+    virtual void unloadIdleProviders();
 
-#if defined(PEGASUS_OS_VMS)
-    String temp, temp2;
+private:
+    BasicProviderManagerRouter();    // Unimplemented
 
-    temp =  String("/") + fileName + String(".exe");
+    ProviderManager* _lookupProviderManager(const String& interfaceType);
 
-    temp2 = FileSystem::getAbsoluteFileName(
-                           ConfigManager::getInstance()->getCurrentValue("providerDir"),
-                         temp);
-    if (temp2 == String::EMPTY)
-    {
-      return temp2;
-    }
-    else
-    {
-      return (ConfigManager::getInstance()->getCurrentValue("providerDir") + temp);
-    }
-#else
-#ifndef PEGASUS_OS_OS400
-    fileName = FileSystem::getAbsoluteFileName(
-        ConfigManager::getHomedPath(
-            ConfigManager::getInstance()->getCurrentValue("providerDir")),
-        fileName);
-#endif
+    Array<ProviderManagerContainer*> _providerManagerTable;
+    ReadWriteSem _providerManagerTableLock;
 
-    return fileName;
-#endif
-}
-
-void ProviderManager::setIndicationCallback(
-        PEGASUS_INDICATION_CALLBACK_T indicationCallback)
-{
-    _indicationCallback = indicationCallback;
-}
-
-void ProviderManager::setResponseChunkCallback(
-        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
-{
-    _responseChunkCallback = responseChunkCallback;
-}
-
-void ProviderManager::setSubscriptionInitComplete
-    (Boolean subscriptionInitComplete)
-{
-    _subscriptionInitComplete = subscriptionInitComplete;
-}
+    static PEGASUS_INDICATION_CALLBACK_T _indicationCallback;
+    static PEGASUS_RESPONSE_CHUNK_CALLBACK_T _responseChunkCallback;
+};
 
 PEGASUS_NAMESPACE_END
+
+#endif

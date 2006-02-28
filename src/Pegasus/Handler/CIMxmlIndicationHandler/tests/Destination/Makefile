@@ -33,10 +33,10 @@ DIR = Pegasus/Handler/CIMxmlIndicationHandler/tests/Destination
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegcommon \
     pegconfig \
     pegrepository \
-    peghandlerservice
+    peghandlerservice \
+    pegcommon 
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

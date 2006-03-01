@@ -96,7 +96,6 @@ inline StringRep::StringRep() : size(0), cap(0), refs(2)
 inline StringRep::~StringRep()
 {
     // Only called on _emptyRep.
-    refs.~AtomicInt();
 }
 
 inline void StringRep::ref(const StringRep* rep)

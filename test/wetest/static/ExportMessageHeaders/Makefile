@@ -28,27 +28,16 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT=../../..
 
+ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
-DIRS = \
-	Load\
-	Headers\
-	CreateInstance\
-	GetInstance\
-	EnumerateInstanceNames\
-	EnumerateInstances\
-	ErrorXml\
-	ModifyInstance\
-	DeleteInstance\
-        Property\
-        ExportMessageHeaders
+XMLSCRIPTS = \
+   EMBadExpMethodCallName01 \
+   EMUnsupportedHTTPMethod01 \
+   EMIncompatibleHTTPVersion01 \
+   EMMissingMethodRequest01 \
+   EMIncorrectCIMExportBatchRequest01
 
-# These tests are not re-runnable
-#	ModifyClass\
-#	DeleteClass
-	
-include $(ROOT)/mak/recurse.mak
-
+include $(ROOT)/test/configend.mak

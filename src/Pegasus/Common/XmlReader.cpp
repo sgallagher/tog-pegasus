@@ -1596,7 +1596,7 @@ CIMValue XmlReader::stringToValue(
 
         if (*valueString == '\0')
         {
-            x = CIMObject();
+            return CIMValue(CIMTYPE_OBJECT, false, 0);
         }
         else
         {

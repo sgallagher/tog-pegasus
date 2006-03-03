@@ -49,7 +49,6 @@
 #include "Config.h"
 #include "Constants.h"
 #include <iostream>
-#include "Socket.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 #include <windows.h>

@@ -202,7 +202,8 @@ static void TestInstanceOperations(CIMClient& client)
 
     try
     {
-        client.deleteClass(SAMPLEPROVIDER_NAMESPACE, CIMName ("myclass"));
+        client.deleteClass(SAMPLEPROVIDER_NAMESPACE, CIMName ("MyClass"));
+        client.deleteClass(SAMPLEPROVIDER_NAMESPACE, CIMName ("MyEmbeddedClass"));
     }
     catch (const CIMException& e)
     {
@@ -213,6 +214,9 @@ static void TestInstanceOperations(CIMClient& client)
        }
     }
 
+    // First create a new class to test embedded objects.
+
+
     // Create a new class:
 
     CIMClass cimClass(CIMName ("MyClass"));
@@ -222,8 +226,29 @@ static void TestInstanceOperations(CIMClient& client)
 	.addProperty(CIMProperty(CIMName ("first"), String())
 	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
 	.addProperty(CIMProperty(CIMName ("age"), Uint8(0))
-	    .addQualifier(CIMQualifier(CIMName ("key"), true)));
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("birthday"), String())
+            .addQualifier(CIMQualifier(CIMName ("EmbeddedObject"), true)));
     client.createClass(SAMPLEPROVIDER_NAMESPACE, cimClass);
+
+    // Create a new class for the EmbeddedObject:
+
+    CIMClass cimEmbeddedClass(CIMName ("MyEmbeddedClass"));
+    cimEmbeddedClass
+	.addProperty(CIMProperty(CIMName ("birth_year"), Uint32(0))
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("birth_month"), Uint32(0))
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("birth_day"), Uint32(0))
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)));
+    client.createClass(SAMPLEPROVIDER_NAMESPACE, cimEmbeddedClass);
+
+    // Create an instance of the Embedded Object:
+
+    CIMInstance cimEmbeddedInstance(CIMName ("MyEmbeddedClass"));
+    cimEmbeddedInstance.addProperty(CIMProperty(CIMName ("birth_year"), Uint32(1965)));
+    cimEmbeddedInstance.addProperty(CIMProperty(CIMName ("birth_month"), Uint32(5)));
+    cimEmbeddedInstance.addProperty(CIMProperty(CIMName ("birth_day"), Uint32(24)));
 
     // Create an instance of that class:
 
@@ -231,6 +256,7 @@ static void TestInstanceOperations(CIMClient& client)
     cimInstance.addProperty(CIMProperty(CIMName ("last"), String("Smith")));
     cimInstance.addProperty(CIMProperty(CIMName ("first"), String("John")));
     cimInstance.addProperty(CIMProperty(CIMName ("age"), Uint8(101)));
+    cimInstance.addProperty(CIMProperty(CIMName ("birthday"), CIMObject(cimEmbeddedInstance)));
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
     CIMObjectPath createdinstanceName = client.createInstance(SAMPLEPROVIDER_NAMESPACE, cimInstance);
 

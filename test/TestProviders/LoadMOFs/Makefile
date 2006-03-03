@@ -88,21 +88,21 @@ SAMPLEPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#SampleProvider
 # before reloading.
 
 repository:
-	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
+	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
 	@$(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
-	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
 
-	@ echo +++++ Loading All Sample Providers class definitions into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading All Sample Providers class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS)	CIMOMSampleProvider.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) LargeDataProvider.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) MultithreadingSampleProvider.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) ExceptionsTest.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) TimingProvider.mof
 
-	@ echo +++++ Registering All Sample Providers ....
+	@ $(ECHO) +++++ Registering All Sample Providers ....
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTEROPNS) CIMOMSampleProviderR.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTEROPNS) LargeDataProviderR.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTEROPNS) MultithreadingSampleProviderR.mof
@@ -112,18 +112,18 @@ repository:
 # Load the sample mofe through the Client interface compiler but do not
 # clean out the existing version.
 repositoryServer:
-	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading All the Sample Providers class definitions into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading All the Sample Providers class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -n$(SAMPLEPROVIDERNS) CIMOMSampleProvider.mof
 	@ cimmof -n$(SAMPLEPROVIDERNS) LargeDataProvider.mof
 	@ cimmof -n$(SAMPLEPROVIDERNS) MultithreadingSampleProvider.mof
 	@ cimmof -n$(SAMPLEPROVIDERNS) ExceptionsTest.mof
 	@ cimmof -n$(SAMPLEPROVIDERNS) TimingProvider.mof
 
-	@ echo +++++ Registering All Sample Providers Schema Providers  ...
+	@ $(ECHO) +++++ Registering All Sample Providers Schema Providers  ...
 	@ cimmof -n$(INTEROPNS)	CIMOMSampleProviderR.mof
 	@ cimmof -n$(INTEROPNS) LargeDataProviderR.mof
 	@ cimmof -n$(INTEROPNS) MultithreadingSampleProviderR.mof
@@ -131,7 +131,7 @@ repositoryServer:
 	@ cimmof -n$(INTEROPNS) TimingProviderR.mof
 
 removerepository:
-	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
+	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
 	@ $(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
 
 unregister:

@@ -82,6 +82,6 @@ LOCAL_DEFINES=-DTEST_EXCEPTIONS
 include $(PEGASUS_ROOT)/mak/library.mak
 
 client:
-	@ echo +++++ Building the Test Client for the Test Providers
+	@ $(ECHO) +++++ Building the Test Client for the Test Providers
 	@cd Client
 	@$(MAKE) 

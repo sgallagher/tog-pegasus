@@ -61,8 +61,8 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
     String messageID;
     String typeString;
     Uint32 type;
-#ifndef PEGASUS_DISABLE_PERFINST
     CIMValue genericValue;
+#ifndef PEGASUS_DISABLE_PERFINST
     Uint64 timeServerStart;
     Uint64 timeServerEnd;
     Uint64 timeProviderStart;

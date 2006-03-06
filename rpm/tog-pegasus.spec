@@ -125,7 +125,7 @@ sources.
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-arch.spec
 
 %global PEGASUS_ARCH_LIB %{_lib}
-%global OPENSSL_HOME /usr/include/openssl
+%global OPENSSL_HOME /usr
 %global OPENSSL_BIN /usr/bin
 %global PEGASUS_PEM_DIR /etc/Pegasus
 %global PEGASUS_SSL_CERT_FILE server.pem

@@ -79,6 +79,8 @@ static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
 
 static const char* programVersion =  "2.0";
 
+static AtomicInt errorCount(0);
+
 /**
   Thread Parameters Class
 */
@@ -249,12 +251,14 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
                   PEGASUS_STD(cerr) << "CIMException NameSpace Creation: "
                       << e.getMessage() << " Creating " << instanceName
                       << PEGASUS_STD(endl);
+                  errorCount++;
                   return;
              }
         }
         catch(Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Creation: " << e.getMessage() << PEGASUS_STD(endl);
+            errorCount++;
             return;
         }
             // Now try getting the instance.
@@ -267,6 +271,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
              PEGASUS_STD(cerr) << "Exception NameSpace getInstance: "
                 << e.getMessage() << " Retrieving " << instanceName
                 << PEGASUS_STD(endl);
+             errorCount++;
              return;
         }
 
@@ -284,6 +289,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
              PEGASUS_STD(cerr) << "Exception NameSpace Deletion: "
                 << e.getMessage() << " Deleting " << instanceName
                     << PEGASUS_STD(endl);
+             errorCount++;
              return;
         }
     }
@@ -312,6 +318,7 @@ static void TestEnumerateClassNames (CIMClient* client, Boolean activeTest,
     {
          cout << "Error NameSpace Enumeration:" << endl;
          cout << e.getMessage() << endl;
+         errorCount++;
     }
 
 }
@@ -356,6 +363,8 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
                 catch (CIMException& e)
                 {
                         cout << "TestClass " << testClass << " delete failed " << e.getMessage() << endl;
+                        errorCount++;
+                        return;
                 }
         }
         // CreateClass:
@@ -377,6 +386,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
             else
             {
                 cout << "TestClass " << testClass << " create failed " <<  e.getMessage() << endl;
+                errorCount++;
                 return;
             }
         }
@@ -401,6 +411,8 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
         catch (CIMException& e)
         {
             cout << "Testclass Modification failed " << e.getMessage() << endl;
+            errorCount++;
+            return;
         }
         // GetClass:
         CIMClass c3 = client->getClass(globalNamespace, testClass, true);
@@ -408,6 +420,8 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
         if (!c3.identical(c2))
         {
         cout << "Test Failed. Rtned class c3 not equal to c2" << endl;
+            errorCount++;
+            return;
         }
         //PEGASUS_TEST_ASSERT(c3.identical(c2));
 
@@ -426,6 +440,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
         if (!found)
         {
             cout << "Test Class " << testClass << " Not found in enumeration " << endl;
+            errorCount++;
             return;
         }
         //PEGASUS_TEST_ASSERT(found);
@@ -438,6 +453,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
         catch (CIMException& e)
         {
             cout << "Testclass delete failed " << e.getMessage() << endl;
+            errorCount++;
             return;
         }
     }
@@ -447,10 +463,11 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
     Array<CIMClass> classDecls = client->enumerateClasses(
          globalNamespace, CIMName(), false, false, true, true);
     //PEGASUS_TEST_ASSERT(classDecls.size() == classNames.size());
-    if (classDecls.size() == classNames.size())
+    if (classDecls.size() != classNames.size())
     {
-        cout << "Class total count before and after test. Before = " << classNames.size()
-            << " after = " <<  classDecls.size() << endl;
+        cout << "Error: Class total count before and after test. Before = " <<
+            classNames.size() << ", after = " <<  classDecls.size() << endl;
+        errorCount++;
         return;
     }
     for (Uint32 i = 0; i < classNames.size(); i++)
@@ -572,6 +589,8 @@ static void TestInstanceGetOperations(CIMClient* client, Boolean activeTest,
                  {
                     cerr << "CIMException : " << classNames[i] << endl;
                     cerr << e.getMessage() << endl;
+                    errorCount++;
+                    return;
                  }
            }
        catch(ConnectionTimeoutException& e)
@@ -762,6 +781,8 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
     if (result.size() != resultObjects.size())
     {
         cout << "ERROR, Reference and reference Name count difference" << endl;
+        errorCount++;
+        return;
     }
     for (Uint32 i = 0; i < resultObjects.size(); i++)
     {
@@ -790,6 +811,12 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
             << " != "
             << result[i].toString()
             << endl;
+    }
+
+    if (result.size())
+    {
+        errorCount++;
+        return;
     }
 
 
@@ -831,6 +858,7 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
 
             cout << i << " " << ((i < assocResultObjects.size())? assocResultObjects[i].getPath().toString() : "") << endl;
         }
+        errorCount++;
         return;
     }
 
@@ -862,6 +890,12 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
             << " != "
             << assocResult[i].toString()
             << endl;
+    }
+
+    if (assocResult.size())
+    {
+        errorCount++;
+        return;
     }
 }
 static void TestAssociationOperations(CIMClient* client, Boolean
@@ -898,6 +932,8 @@ static void TestAssociationOperations(CIMClient* client, Boolean
               {
                  cerr << "CIMException : " << className << endl;
                  cerr << e.getMessage() << endl;
+                 errorCount++;
+                 return;
               }
         }
     }
@@ -1136,6 +1172,7 @@ static void TestEnumerateInstances( CIMClient * client,
                   << INSTANCE2.toString()
                   << "received = " << instanceRef.toString() << PEGASUS_STD(endl);
 
+              errorCount++;
               return;
           }
         }
@@ -1145,6 +1182,7 @@ static void TestEnumerateInstances( CIMClient * client,
   catch(Exception& e)
     {
       PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+      errorCount++;
       return;
     }
 }
@@ -1326,8 +1364,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL executeTests(void *parm){
         TestEnumerateInstances(client, activeTest, verboseTest, uniqueID);
         elapsedTime.stop();
         testEnd(elapsedTime.getElapsed());
-    }catch(Exception e){
+    }catch(Exception& e){
       cout << e.getMessage() << endl;
+      errorCount++;
     }
     }
     my_thread->exit_self((PEGASUS_THREAD_RETURN)5);
@@ -1604,9 +1643,18 @@ int main(int argc, char** argv)
                 if(clientThreads[i]) delete clientThreads[i];
         }
     }
-    PEGASUS_STD(cout) << "+++++ "<< argv[0] << " Terminated Normally" << PEGASUS_STD(endl);
-    exit(0);
-    //return 0; this line cause segmentation fault on linux
+
+    if (errorCount.get() == 0)
+    {
+        cout << "+++++ "<< argv[0] << " Terminated Normally" << endl;
+        exit(0);
+    }
+    else
+    {
+        cout << "Test case failures: "<< errorCount.get() << endl;
+        cout << "+++++ "<< argv[0] << " Failed" << endl;
+        exit(1);
+    }
 }
 
 /*

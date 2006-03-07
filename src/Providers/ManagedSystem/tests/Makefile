@@ -32,13 +32,14 @@
 
 ROOT = ../../../..
 include $(ROOT)/mak/config.mak
+include $(ROOT)/mak/test.mak
 
 HOSTNAME =
 PORT = -p 5988
 HTTPMETHOD = -m M-POST
 HTTPVERSION = -v 1.1
-USER = -u guest
-PASSWORD = -w guest
+USER = -u $(PEGASUS_TEST_USER_ID)
+PASSWORD = -w $(PEGASUS_TEST_USER_PASS)
 
 
 XMLREQUESTS = $(foreach i, $(XMLSCRIPTS), $i.xml)

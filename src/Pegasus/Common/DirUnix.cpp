@@ -119,12 +119,6 @@ Dir::~Dir()
 
 }
 
-#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-const Uint32 Dir::getInode() const
-{
-        return Uint32(_dirRep.entry->d_fileno);
-}
-#endif
 
 const char* Dir::getName() const
 {

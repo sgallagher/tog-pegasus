@@ -27,33 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
-#//%////////////////////////////////////////////////////////////////////////////
-#// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
-#// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
-#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
-#// IBM Corp.; EMC Corporation, The Open Group.
-#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
-#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
-#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
-#// EMC Corporation; VERITAS Software Corporation; The Open Group.
-#//
-#//
-#// Permission is hereby granted, free of charge, to any person obtaining a copy
-#// of this software and associated documentation files (the "Software"), to
-#// deal in the Software without restriction, including without limitation the
-#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-#// sell copies of the Software, and to permit persons to whom the Software is
-#// furnished to do so, subject to the following conditions:
-#// 
-#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
-#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
-#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#//=============================================================================
 # 
 # Author: Subodh Soni (ssubodh@in.ibm.com)
 #
@@ -88,21 +62,21 @@ SAMPLEPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#SampleProvider
 # before reloading.
 
 repository:
-	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
+	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
 	@$(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
-	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
 
-	@ echo +++++ Loading All Sample Providers class definitions into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading All Sample Providers class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS)	CIMOMSampleProvider.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) LargeDataProvider.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) MultithreadingSampleProvider.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) ExceptionsTest.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) TimingProvider.mof
 
-	@ echo +++++ Registering All Sample Providers ....
+	@ $(ECHO) +++++ Registering All Sample Providers ....
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTEROPNS) CIMOMSampleProviderR.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTEROPNS) LargeDataProviderR.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTEROPNS) MultithreadingSampleProviderR.mof
@@ -112,18 +86,18 @@ repository:
 # Load the sample mofe through the Client interface compiler but do not
 # clean out the existing version.
 repositoryServer:
-	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading All the Sample Providers class definitions into $(SAMPLEPROVIDERNS) namespace ...
+	@ $(ECHO) +++++ Loading All the Sample Providers class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -n$(SAMPLEPROVIDERNS) CIMOMSampleProvider.mof
 	@ cimmof -n$(SAMPLEPROVIDERNS) LargeDataProvider.mof
 	@ cimmof -n$(SAMPLEPROVIDERNS) MultithreadingSampleProvider.mof
 	@ cimmof -n$(SAMPLEPROVIDERNS) ExceptionsTest.mof
 	@ cimmof -n$(SAMPLEPROVIDERNS) TimingProvider.mof
 
-	@ echo +++++ Registering All Sample Providers Schema Providers  ...
+	@ $(ECHO) +++++ Registering All Sample Providers Schema Providers  ...
 	@ cimmof -n$(INTEROPNS)	CIMOMSampleProviderR.mof
 	@ cimmof -n$(INTEROPNS) LargeDataProviderR.mof
 	@ cimmof -n$(INTEROPNS) MultithreadingSampleProviderR.mof
@@ -131,7 +105,7 @@ repositoryServer:
 	@ cimmof -n$(INTEROPNS) TimingProviderR.mof
 
 removerepository:
-	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
+	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
 	@ $(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
 
 unregister:

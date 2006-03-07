@@ -46,24 +46,24 @@ PEGASUS_NAMESPACE_BEGIN
     representation type.
 
     <pre>
-	    CIM CIMType	Constant	        C++ CIMType
-	    -------------------------------------------------------
-	    boolean	CIMTYPE_BOOLEAN		Boolean
-	    uint8	CIMTYPE_UINT8		Uint8
-	    sint8	CIMTYPE_SINT8		Sint8
-	    uint16	CIMTYPE_UINT16		Uint16
-	    sint16	CIMTYPE_SINT16		Sint16
-	    uint32	CIMTYPE_UINT32		Uint32
-	    sint32	CIMTYPE_SINT32		Sint32
-	    uint64	CIMTYPE_UINT64		Sint64
-	    sint64	CIMTYPE_SINT64		Sint64
-	    real32	CIMTYPE_REAL32		Real32
-	    real64	CIMTYPE_REAL64		Real64
-	    char16	CIMTYPE_CHAR16		Char16
-	    string	CIMTYPE_STRING		String
-	    datetime	CIMTYPE_DATETIME	CIMDateTime
-	    reference	CIMTYPE_REFERENCE	CIMObjectPath
-        object      CIMTYPE_OBJECT      CIMObject  (not a "real" CIM type -- see PEP 194)
+        CIM Type    CIMType Symbol       C++ Type
+        ----------------------------------------------
+        boolean     CIMTYPE_BOOLEAN      Boolean
+        uint8       CIMTYPE_UINT8        Uint8
+        sint8       CIMTYPE_SINT8        Sint8
+        uint16      CIMTYPE_UINT16       Uint16
+        sint16      CIMTYPE_SINT16       Sint16
+        uint32      CIMTYPE_UINT32       Uint32
+        sint32      CIMTYPE_SINT32       Sint32
+        uint64      CIMTYPE_UINT64       Sint64
+        sint64      CIMTYPE_SINT64       Sint64
+        real32      CIMTYPE_REAL32       Real32
+        real64      CIMTYPE_REAL64       Real64
+        char16      CIMTYPE_CHAR16       Char16
+        string      CIMTYPE_STRING       String
+        datetime    CIMTYPE_DATETIME     CIMDateTime
+        reference   CIMTYPE_REFERENCE    CIMObjectPath
+        object      CIMTYPE_OBJECT       CIMObject (not a basic CIM type)
     </pre>
 */
 
@@ -91,13 +91,14 @@ enum CIMType
 };
 
 /** 
-    Returns a string representation of the given type.
+    Gets a string representation of a CIMType.
 
     Note: the current implementation returns a string matching the first 
     column in the table above, but that is subject to change in later 
     revisions.
-    @param type REVIEWERS: Insert description here.
- */
+    @param type The CIMType to convert to string form.
+    @return The string form of the specified CIMType.
+*/
 PEGASUS_COMMON_LINKAGE const char * cimTypeToString (
     const CIMType type);
 

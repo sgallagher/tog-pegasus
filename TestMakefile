@@ -232,10 +232,12 @@ servertestsclean: FORCE
 
 servertestssetup: FORCE
 ifdef PEGASUS_HAS_SSL
-# The association between user names and certificates is stored in the repository.  If the
-# repository is recreated, we also need to re-initialize the trust store directories.
-# Otherwise, the truststore content will be out-of-sync with the mapping stored in the
-# repository.
+#
+# The association between user names and certificates is stored in the 
+# repository.  If the repository is recreated, we also need to re-initialize
+# the trust store directories. Otherwise, the truststore content will be 
+# out-of-sync with the mapping stored in the repository.
+#
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile removeSSLTrustDirectories
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile createSSLTrustDirectories
 endif
@@ -243,11 +245,9 @@ endif
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
 	$(SLEEP) 5
-ifdef PEGASUS_HAS_SSL
-ifdef PEGASUS_TEST_USER_DEFINED
-	ssltrustmgr -a -c pegtest -f $(PEGASUS_HOME)/server.pem
-endif
-endif
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile ConfigureUsers
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile Create_SSL_Certificate
+
 
 servertests: servertestsclean servertestssetup serversuite
 	@ $(ECHO) "+++++ TestMakefile servertests suites complete"
@@ -376,7 +376,7 @@ INDSSL_TS1b_TEST_CMDS = \
 
 ifdef PEGASUS_HAS_SSL
 ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
-run_INDSSL_TS1: FORCE
+run_INDSSL_TS1: EnableUsers Create_SSL_Certificate_ignore
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(INDSSL_TS1a_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(INDSSL_TS1a_TEST_CMDS)"
@@ -423,6 +423,27 @@ else
 run_SSL_TS1: FORCE
 	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_SSL_TS1 poststarttest"
 
+endif
+
+############################################################################
+# 
+# Create_SSL_Certificate
+#
+# create a certificate that can be used for certification testing.
+# It is currently used by the following tests:
+#            -run_INDSSL_TS1
+#
+Create_SSL_Certificate_ignore: FORCE
+	-$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile Create_SSL_Certificate
+
+Create_SSL_Certificate: FORCE
+ifdef PEGASUS_HAS_SSL
+ifdef PEGASUS_TEST_USER_DEFINED
+	$(ECHO) "Creating SSL certificate for test"
+	ssltrustmgr -a -c $(PEGASUS_TEST_USER_ID) -f $(PEGASUS_HOME)/server.pem
+endif
+else
+	$(ECHO) "PEGASUS_HAS_SSL not defined - Not Creating SSL certificate for test"
 endif
 
 ###############################################################################
@@ -686,47 +707,57 @@ TestRegBuild: FORCE
 
 usagetrace: FORCE
 	$(USAGE)
-	$(USAGE)"TestMakefile Trace Commands: (cimserver should be running)"
+	$(USAGE)"TestMakefile Trace Commands: "
+	$(USAGE)"  The cimserver must be running when using W=c which is the default for W"
 	$(USAGE)
-	$(USAGE)
-	$(USAGE)" traceon:                  Enables all tracing."
-	$(USAGE)" traceoff:                 Disables all tracing."
-	$(USAGE)" tracesettings:            Displays trace settings."
-	$(USAGE)" tracecomp:                Displays a trace componenets list."
-	$(USAGE)" traceon-CL C=[comp] L=[level(1,2,3,4)]:  "
+	$(USAGE)" traceon  W=[current/planned(c,p):   Enables all tracing."
+	$(USAGE)" traceoff W=[current/planned(c,p):   Disables all tracing."
+	$(USAGE)" tracesettings:                      Displays all trace settings."
+	$(USAGE)" tracecomp:                          Displays a trace componenets list."
+	$(USAGE)" traceon-CL C=[comp] L=[level(1,2,3,4)] W=[current/planned(c,p): "
 	$(USAGE)"                           Enables tracing on component C at trace level L."
-	$(USAGE)"                           Usage example:"
-	$(USAGE)"                           Turns tracing on for DiscardedData at level 3"
-	$(USAGE)"                           traceon-CL C=DiscardedData L=3"
+	$(USAGE)
+	$(USAGE)" W defaults to c in the above commands where W can be specified" 
+	$(USAGE)
+	$(USAGE)"  Usage examples:"
+	$(USAGE)"   traceon       turns on trace in current server config"
+	$(USAGE)"   traceon W=c   turns on trace in current server config"
+	$(USAGE)"   traceon W=p   turns on trace in planned server config"
+	$(USAGE)"   traceoff      turns on trace in current server config"
+	$(USAGE)"   traceoff W=c  turns on trace in current server config"
+	$(USAGE)"   traceoff W=p  turns on trace in planned server config"
+	$(USAGE)
+	$(USAGE)"   traceon-CL C=DiscardedData L=3 W=c"
+	$(USAGE)"     Turns on trace for DiscardedData at level 3 in current server config"
+	$(USAGE)"   traceon-CL C=DiscardedData L=3 W=p"
+	$(USAGE)"     Turns on trace for DiscardedData at level 3 in planned server config"
 	$(USAGE)
 	$(USAGE)
 
 traceon: FORCE
-	@ cimconfig -s traceComponents=ALL
-	@ cimconfig -s traceLevel=3 -c
-	@ cimconfig -g traceComponents
-	@ cimconfig -g traceLevel
+	@ cimconfig -s traceComponents=ALL -$W 
+	@ cimconfig -s traceLevel=3 -$W
+	$(MAKE) -f $(ROOT)/TestMakefile tracesettings
+
 
 traceoff: FORCE
-	@ cimconfig -s traceComponents=
-	@ cimconfig -g traceComponents
-	@ cimconfig -g traceLevel
+	@ cimconfig -s traceComponents=  -$W
+	$(MAKE) -f $(ROOT)/TestMakefile tracesettings
 
 
 tracesettings: FORCE
 	@ $(ECHO) " "
-	cimconfig -g traceComponents
+	cimconfig -g traceComponents -c -p
 	@ $(ECHO) " "
-	cimconfig -g traceLevel
+	cimconfig -g traceLevel -c -p
 	@ $(ECHO) " "
-	cimconfig -g traceFilePath
+	cimconfig -g traceFilePath -c -p
 	@ $(ECHO) " "
 
 traceon-CL: FORCE
-	@ cimconfig -s traceComponents=$C -c
-	@ cimconfig -s traceLevel=$L -c
-	@ cimconfig -g traceComponents
-	@ cimconfig -g traceLevel
+	@ cimconfig -s traceComponents=$C -$W
+	@ cimconfig -s traceLevel=$L -$W
+	$(MAKE) -f $(ROOT)/TestMakefile tracesettings
 
 tracecomp: FORCE
 	$(USAGE)
@@ -884,14 +915,14 @@ TestLocalSecurity:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile poststarttests HOSTNAME= PORT= USER= PASSWORD= SECURITY_ENABLED=true
 
 TestRemoteSecurity:
-	TestClient -user guest -password guest $(system):5988
-	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-uguest PASSWORD=-wguest SECURITY_ENABLED=true
+	TestClient -user $(PEGASUS_TEST_USER_ID) -password $(PEGASUS_TEST_USER_PASS) $(system):5988
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-u$(PEGASUS_TEST_USER_ID) PASSWORD=-w$(PEGASUS_TEST_USER_PASS) SECURITY_ENABLED=true
 
 TestAuthorization:
-	TestPegClientDeleteNamespace -a -user guest -password guest
+	TestPegClientDeleteNamespace -a -user $(PEGASUS_TEST_USER_ID) -password $(PEGASUS_TEST_USER_PASS)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile RunTestClientLocal
-	TestClient -user guest -password guest $(system):5988
-	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-uguest PASSWORD=-wguest SECURITY_ENABLED=true
+	TestClient -user $(PEGASUS_TEST_USER_ID) -password $(PEGASUS_TEST_USER_PASS) $(system):5988
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-u$(PEGASUS_TEST_USER_ID) PASSWORD=-w$(PEGASUS_TEST_USER_PASS) SECURITY_ENABLED=true
 
 TestSubscriptions:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile DisableSecurity
@@ -912,6 +943,11 @@ DisableSecurity:
 	cimconfig -s enableAuthentication=false -p
 	cimconfig -s enableNamespaceAuthorization=false -p
 
+EnableUsers:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithoutSSL
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile ConfigureUsers
+
 EnableAuthentication:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	cimconfig -s enableAuthentication=true -p
@@ -928,32 +964,43 @@ EnableSSL:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithSSL
 
+#
+# ConfigureUsers
+#
+# The server must be running prior to invoking this rule
+#
 ConfigureUsers:
 ifndef PEGASUS_PAM_AUTHENTICATION
-	cimuser -a -u guest -w guest
+	-cimuser -l
+	-cimuser -a -u $(PEGASUS_TEST_USER_ID) -w $(PEGASUS_TEST_USER_PASS)
 endif
 
+#
+# ConfigureAuthorizations rule
+#
+# The server must be running prior to invoking this rule
+#
 ConfigureAuthorizations:
-	cimauth -a -u guest -n test/cimv2 -R -W
-	cimauth -a -u guest -n root/cimv2 -R -W
-	cimauth -a -u guest -n root/PG_Internal -R -W
-	cimauth -a -u guest -n root/PG_InterOp -R -W
-	cimauth -a -u guest -n root/benchmark -R -W
-	cimauth -a -u guest -n root/sampleprovider -R -W
-	cimauth -a -u guest -n test/static -R -W
-	cimauth -a -u guest -n root/SampleProvider -R -W
-	cimauth -a -u guest -n root -R -W
-	cimauth -a -u guest -n test1 -R -W
-	cimauth -a -u guest -n test2 -R -W
-	cimauth -a -u guest -n test3 -R -W
-	cimauth -a -u guest -n test4 -R -W
-	cimauth -a -u guest -n test5 -R -W
-	cimauth -a -u guest -n test6 -R -W
-	cimauth -a -u guest -n test1/test2 -R -W
-	cimauth -a -u guest -n test1/test2/test3 -R -W
-	cimauth -a -u guest -n test1/test2/test3/test4 -R -W
-	cimauth -a -u guest -n test1/test2/test3/test4/test5 -R -W
-	cimauth -a -u guest -n test1/test2/test3/test4/test5/test6 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test/cimv2 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/cimv2 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/PG_Internal -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/PG_InterOp -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/benchmark -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/sampleprovider -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test/static -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/SampleProvider -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test2 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test3 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test4 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test5 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test6 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2/test3 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2/test3/test4 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2/test3/test4/test5 -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2/test3/test4/test5/test6 -R -W
 
 startcimWithoutSSL: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart

@@ -56,7 +56,10 @@ else
   CVS = cvs
 endif
 
-cleanbuild: recheckout build tests
+# Explicitly invoke the TestMakefile so that the re-checked-out copy is used.
+cleanbuild: recheckout
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile build
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile alltests
 
 recheckout: removeall checkout
 

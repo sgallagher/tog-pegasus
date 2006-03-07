@@ -1,35 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 
 // Example of use of Instance Alias
 
-// Defines a Class with String key properties
+// Defines a Class with key properties
 [Version ("2.2.0")]
 class X
 {
@@ -39,20 +41,7 @@ class X
      string key2;
      string valuePropertya;
 };
-// Defines a Class with String, numberic, Bool key properties
-[Version ("2.2.0")]
-class X2
-{
-     [key]
-     string key1;
-     [key]
-     string key2;
-     [key]
-     boolean key3;
-     [key]
-     Uint32 key4;
-     string valuePropertya;
-};
+
 
 // define the class Y
 [Version ("2.2.0")]
@@ -71,14 +60,6 @@ class A
 {
      [key] X ref left;
      [key] Y ref right;
-};
-
-// Define as association between X2 and X2
-[association, Version ("2.2.0")]
-class X2_Association
-{
-     [key] X2 ref left;
-     [key] X2 ref right;
 };
 
 
@@ -106,34 +87,6 @@ instance of X
      valuePropertya= "an instance of class X";
 };
 
-// Create instance of X2
-instance of X2 as $X2_Alias1
-{
-     key1 = "Jimmy Smith";
-     key2 = "son";
-     key3 = true;
-     key4 = 999;
-     valuePropertya= "an instance of class X2";
-};
-// Create instance of X2
-instance of X2 as $X2_Alias2
-{
-     key1 = "Jimmy Smith";
-     key2 = "son";
-     key3 = false;
-     key4 = 333;
-     valuePropertya= "an instance of class X2";
-};
-
-
-// Instance of X2_Association with left key as alias and right key
-// manually created.
-instance of X2_Association
-{
-    left = $X2_Alias1;
-    //right should be same path as left.
-    right = "X2.key1=\"Jimmy Smith\",key2=\"son\",key3=true,key4=999";
-};
 
 // Create an instance of X
 instance of X as $X_Alias
@@ -150,6 +103,9 @@ instance of Y as $Y_Alias
      keyb = "Grandfather";
      valuePropertyb= "instance of class Y";
 };
+
+
+
 
 // Instance of the association using instance Alias
 
@@ -171,8 +127,8 @@ instance of C as $C_Alias
      right = $Y_Alias;
 };
 
-// More stuff to compile using classes from the CIM_InterOp.mof
-// to better test aliases
+// More stuf to compile using classes from the CIM_InterOp.mof to better test aliases 
+
 
 // instances of registered profile for test.
 

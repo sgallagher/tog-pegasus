@@ -95,6 +95,51 @@ void drive_LanguageParser()
         PEGASUS_TEST_ASSERT(LanguageParser::buildContentLanguageHeader(cl) ==
             "en-US-mn,en-US-ca");
     }
+
+    // Test handling of non-ASCII characters in Content-Languages comment
+    {
+        String headerValue = "en-US (will add non-ASCII character in comment)";
+        headerValue[14] = 132;
+        ContentLanguageList cl =
+            LanguageParser::parseContentLanguageHeader(headerValue);
+        PEGASUS_TEST_ASSERT(cl.size() == 1);
+        PEGASUS_TEST_ASSERT(cl.getLanguageTag(0).toString() == "en-US");
+        PEGASUS_TEST_ASSERT(
+            LanguageParser::buildContentLanguageHeader(cl) == "en-US");
+    }
+
+    // Test handling of non-ASCII characters in Content-Languages value
+    {
+        String headerValue = "en-US-ca (will add non-ASCII character in tag)";
+        headerValue[4] = 132;
+        Boolean gotException = false;
+        try
+        {
+            ContentLanguageList cl =
+                LanguageParser::parseContentLanguageHeader(headerValue);
+        }
+        catch (const InvalidContentLanguageHeader&)
+        {
+            gotException = true;
+        }
+        PEGASUS_TEST_ASSERT(gotException);
+    }
+
+    // Test handling of trailing escape character in Content-Languages value
+    {
+        String headerValue = "en-US-ca (trailing escape character) \\";
+        Boolean gotException = false;
+        try
+        {
+            ContentLanguageList cl =
+                LanguageParser::parseContentLanguageHeader(headerValue);
+        }
+        catch (const InvalidContentLanguageHeader&)
+        {
+            gotException = true;
+        }
+        PEGASUS_TEST_ASSERT(gotException);
+    }
 }
 
 
@@ -183,6 +228,7 @@ void drive_LanguageTag()
         LanguageTag lt7 = lt6;
         LanguageTag lt8 = lt1;
         lt7 = lt1;
+        lt7 = lt7;
         lt8 = lt6;
         lt8 = lt1;
 
@@ -330,6 +376,42 @@ void drive_LanguageTag()
             try
             {
                 LanguageTag lt("en--ca");
+            }
+            catch (Exception&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid language tag:  Non-ASCII primary tag
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                String tag = "en-US-ca";
+                tag[1] = 132;
+                LanguageTag lt(tag);
+            }
+            catch (Exception&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid language tag:  Non-ASCII subtag
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                String tag = "en-US-ca";
+                tag[4] = 132;
+                LanguageTag lt(tag);
             }
             catch (Exception&)
             {

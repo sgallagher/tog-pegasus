@@ -1599,7 +1599,7 @@ CIMValue XmlReader::stringToValue(
 
         if (*valueString == '\0')
         {
-            x = CIMObject();
+            return CIMValue(type, false, 0);
         }
         else
         {

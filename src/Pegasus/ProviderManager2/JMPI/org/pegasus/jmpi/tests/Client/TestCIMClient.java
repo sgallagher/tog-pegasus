@@ -48,7 +48,7 @@
 //
 // Contributor(s):
 //
-// $Id: TestCIMClient.java,v 1.3.16.1 2006/02/10 16:12:51 a.dunfey Exp $
+// $Id: TestCIMClient.java,v 1.3.16.2 2006/03/07 18:46:00 a.dunfey Exp $
 //
 // Revision 1.7  2001/08/05 15:13:31   bpatil
 // -  Added Pegasus CIMServer support

@@ -51,6 +51,7 @@ PACKAGEDIR = org/pegasus/jmpi
    CIMInstance.class \
    CIMMethod.class \
    CIMNameSpace.class \
+   CIMObject.class \
    CIMObjectPath.class \
    CIMOMHandle.class \
    ProviderCIMOMHandle.class \

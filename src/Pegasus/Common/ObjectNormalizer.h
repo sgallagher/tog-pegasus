@@ -40,7 +40,6 @@
 
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
 
@@ -49,7 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE NormalizerContext
 {
 public:
-  virtual ~NormalizerContext();
+  virtual ~NormalizerContext() {};
 
   virtual CIMClass getClass(
 	    const CIMNamespaceName& nameSpace,

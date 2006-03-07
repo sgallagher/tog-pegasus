@@ -1,40 +1,42 @@
-%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 Timing Related Testing
 ----------------------
 
 This directory contains the sample provider for timing related test cases.
-Its an attempt to find out any inconsistencies in the provider load/unload
+Its an attempt to find out any inconsistencies in the provider load/unload 
 (if any) logic.The ideal test case requires that a provider unloads when
-another client is invoking enumerate instances for a provider class and
-vice versa. It is quite difficult to create this kind of situation with this
-set of test programs. By running these tests for long hours we might hit some
+another client is invoking enumerate instances for a provider class and 
+vice versa. It is quite difficult to create this kind of situation with this 
+set of test programs. By running these tests for long hours we might hit some 
 problem.
 
 The files included in this test are:
@@ -48,7 +50,7 @@ The files included in this test are:
 The provider implements the base class TimingSampleClass with 3 derived classes
 TimeOne, TimeTwo, TimeThree.
 
-The instances of the TimeOne and TimeTwo classes are created inside the
+The instances of the TimeOne and TimeTwo classes are created inside the 
 TimingProvider:initialize method in the provider.
 
 build
@@ -56,7 +58,7 @@ build
 Run this script to build the provider, compile the MOFs, register the provider,
 compile the client program and finally restarting the cimserver.
 
-Client
+Client 
 ------
 Makefile.Client - Makefile for compiling TimingClient
 TimingClient.cpp
@@ -65,7 +67,7 @@ This program tests the TimingProvider implemented by running multiple threads
 performing different CIM operations.
 main() forks and child calls EnumerateInstances for one class. The parent make
 calls to EnumerateInstances and EnumerateClass.
-Long sleeps are inserted between the calls to enumerateinstances and
+Long sleeps are inserted between the calls to enumerateinstances and 
 enumerateClasses.
 
 testscript

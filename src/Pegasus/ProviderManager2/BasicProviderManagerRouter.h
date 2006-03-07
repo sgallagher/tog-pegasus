@@ -56,7 +56,9 @@ class PEGASUS_PPM_LINKAGE BasicProviderManagerRouter
     : public ProviderManagerRouter
 {
 public:
-    BasicProviderManagerRouter(PEGASUS_INDICATION_CALLBACK indicationCallback);
+    BasicProviderManagerRouter(
+        PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
     virtual ~BasicProviderManagerRouter();
 
     virtual Message* processMessage(Message* message);
@@ -72,7 +74,8 @@ private:
     Array<ProviderManagerContainer*> _providerManagerTable;
     ReadWriteSem _providerManagerTableLock;
 
-    static PEGASUS_INDICATION_CALLBACK _indicationCallback;
+    static PEGASUS_INDICATION_CALLBACK_T _indicationCallback;
+    static PEGASUS_RESPONSE_CHUNK_CALLBACK_T _responseChunkCallback;
 };
 
 PEGASUS_NAMESPACE_END

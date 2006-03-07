@@ -85,9 +85,15 @@ String ProviderManager::_resolvePhysicalName(String physicalName)
 }
 
 void ProviderManager::setIndicationCallback(
-        PEGASUS_INDICATION_CALLBACK indicationCallback)
+        PEGASUS_INDICATION_CALLBACK_T indicationCallback)
 {
     _indicationCallback = indicationCallback;
+}
+
+void ProviderManager::setResponseChunkCallback(
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+{
+    _responseChunkCallback = responseChunkCallback;
 }
 
 void ProviderManager::setSubscriptionInitComplete

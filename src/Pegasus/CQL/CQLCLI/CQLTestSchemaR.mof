@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 
 instance of CQL_TestElement
 {
@@ -126,19 +128,19 @@ instance of CQL_TestPropertyTypes
    PropertyStringUint = "347";
    PropertyStringSint = "-743";
    PropertystringReal = "9.1250000000000000E1";	
-
+                                                                                
    PropertyUint8 = 8;
    PropertyUint8Array = { 0,1,2,3,4,5,6,7,8 };
-
+                                                                                
    PropertyUint16 = 16;
    PropertyUint16Array = { 16,15,14,13,12,11,10 };
-
+                                                                                
    PropertyUint32 = 6811;
    PropertyUint32Array = { 32,31,30,29,28,27,26 };
-
+                                                                                
    PropertyUint64 = 0xFFFFFFFFFFFFFFFF;
    PropertyUint64Array = { 0xFFFFFFFFFFFFFFFF,0xFFFFFFFFFFFFFFFE,0xFFFFFFFFFFFFFFFD,0xFFFFFFFFFFFFFFFC,0xFFFFFFFFFFFFFFFB,0xFFFFFFFFFFFFFFFA };
-
+                                                                                
    PropertySint8 = 16;
    PropertySint8Lower = -128;
    PropertySint8Upper = 127;
@@ -146,24 +148,24 @@ instance of CQL_TestPropertyTypes
 
    PropertySint16 = 16;
    PropertySint16Array = { -16,-15,-14,-13,12,11,10 };
-
+                                                                                
    PropertySint32 = -6811;
    PropertySint32Array = { -32,-31,-30,-29,-28,-27,-26 };
-
+                                                                                
    PropertySint64 = 0x7FFFFFFFFFFFFFFF;
    PropertySint64Lower = -808;
    PropertySint64Upper = 807;
    PropertySint64Array = { 0x7FFFFFFFFFFFFFFF, 0x7FFFFFFFFFFFFFFE, 0x7FFFFFFFFFFFFFFD, 0x7FFFFFFFFFFFFFFC, 0x7FFFFFFFFFFFFFFB, 0x7FFFFFFFFFFFFFFA };
-
+                                                                                
    PropertyBoolean = true;
    PropertyBooleanArray = { true,false,false,true,true,true,false };
-
+                                                                                
    PropertyReal32 = 32.2;
    PropertyReal32Array = { 32.001,31.001,30.001,29.001,28.001,27.001,-26.001 };
-
+                                                                                
    PropertyReal64 = 64.64;
    PropertyReal64Array = { 64.001,63.001,62.001,61.001,60.001,59.001,-58.001 };
-
+                                                                                
    PropertyDatetime = "20040811105625.000000-360";
    PropertyInterval = "00005678223344.000056:000";
    PropertyDatetimeArray = { "20040811105625.000000-360", "20030811105625.000000-360", "20020811105625.000000-360" };
@@ -187,15 +189,4 @@ instance of CIM_ComputerSystem
    Description = "Computer System";
    EnabledState = 2;
    ResetCapability = 3;
-};
-
-instance of CQL_TestNullValueTypes
-{
-   InstanceId = 1;
-   stringProperty = "stringProperty";
-   sint64Property = -5332;
-   uint64Property = 5332;
-   real64Property = -123.567;
-   datetimeProperty = "20040811105625.000000-360";
-   char16Property = "I";
 };

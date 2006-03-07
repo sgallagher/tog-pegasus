@@ -30,7 +30,7 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-DIR = Providers/sample/CMPI/FilesAndDirectories_CWS
+DIR = Providers/sample/CMPI/FilesAndDirectories_CXX
 
 include $(ROOT)/mak/config.mak
 

@@ -43,42 +43,30 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMPropertyListRep;
 
-/** The CIMPropertyList class is used to represent a list of CIM
-    properties in Pegasus.
+/**
+    The CIMPropertyList class represents a propertyList parameter in a CIM
+    operation request, as defined in the DMTF Specification for CIM
+    Operations over HTTP.
 
-    This class comprises an array of propertyNames and a flag indicating whether
-    the list is null. There are three possibilities which must be represented by
-    the CIMPropertyList object because the CIMOperations that use CIMPropertyList
-    define functional differences based on these three conditions.
-    The property list is:
+    <p>This class consists of an array of property names and a flag
+    indicating whether the list is null.  A null property list indicates
+    that no filtering is performed on the basis of this parameter.  A
+    non-null property list indicates that any property not specified in the
+    list is to be filtered from the CIM operation response.  (An empty
+    property list implies that all properties should be filtered from the
+    response.)
 
-    <ul>
-    <li>Non-empty (and non-null) - Operations where some properties are to be
-    returned by the operation. The values in the list are valid property names.
-    <li>Empty (and non-null)- Operations where NO properties are to be
-    returned by the operation. The propertyList is empty but not Null.
-    <li>Null - Operations where there is no propertyList filter. The list
-.       is Null (a specific attributed of the list).  There are, of course,
-        no properties in the list.
-    </ul>
-
-    To create a null property list use the default constructor or use the
-    clear() method.
-
-    To create an empty property list use the constructor which takes
-    a property array (pass an empty property array which produces an empty
-    but not Null property list object).
-
-    Methods are provided for accessing elements of the the internal property
-    list. There are none for modifying elements (the entire array must be
-    formed and passed to the constructor or replaced by calling set()).
+    <p>A null property list is created by using the default constructor or the
+    clear method.  An empty property list is created by setting the value to
+    an empty Array.
 */
 class PEGASUS_COMMON_LINKAGE CIMPropertyList
 {
 public:
 
-    /** Default constructor (sets isNull attribute of the list to true).
-        An array created with this constructor is Null.
+    /**
+        Constructs a null property list.
+        <p><b>Example:</b>
         <pre>
             CIMPropertyList pl;
             assert(pl.isNull());
@@ -86,98 +74,103 @@ public:
     */
     CIMPropertyList();
 
-    /** Copies the property list to the value specified for the parameter x.
-        @param x Specifies the name of the CIMPropertyList object to be copied.
+    /**
+        Constructs a CIMPropertyList object from the value of a specified
+        CIMPropertyList object.
+        @param x The CIMPropertyList object from which to construct a new
+            CIMPropertyList object.
     */
     CIMPropertyList(const CIMPropertyList& x);
 
-    /** Constructor that initializes propertyNames and creates an array with
-        non-null values (sets isNull to false).
-        @param Array of CIMNames with which the propertyList object is
-        initialized. For example:
+    /**
+        Constructs a non-null property list with the specified property names.
+        <p><b>Example:</b>
         <pre>
             Array<CIMName> n;
             n.append("name");
             n.append("type");
             CIMPropertyList pl(n);
         </pre>
+        @param propertyNames An Array of CIMNames specifying the property
+            names in the list.
     */
     CIMPropertyList(const Array<CIMName>& propertyNames);
 
-    /** CIMPropertyList destructor.
+    /**
+        Destructs the CIMPropertyList object.
     */
     ~CIMPropertyList();
 
-    /** Modifier for propertyNames (sets isNull to false) and
-        sets the CIMName values in the input array into the
-        propertyList object.
-        @param Array of CIMNames. For example:
+    /**
+        Sets the property list with the specified property names.  The
+        resulting property list is non-null.
+        <p><b>Example:</b>
         <pre>
             Array<CIMName> n;
             n.append("name");
             n.append("type");
             CIMPropertyList pl;
             pl.set(n);
-            assert pl.size() = 2);
+            assert(pl.size() = 2);
         </pre>
+        @param propertyNames An Array of CIMNames specifying the property
+            names in the list.
     */
     void set(const Array<CIMName>& propertyNames);
 
-    /** Assigns the values of the CIMPropertyList instance to the 
-        CIMPropertyList.
-        @param x Specifies the name of the CIMPropertyList instance 
-        whose values are to be assigned to the CIMPropertyList object.
+    /**
+        Assigns the value of the specified CIMPropertyList object to this
+        object.
+        @param x The CIMPropertyList object from which to assign this
+            CIMPropertyList object.
+        @return A reference to this CIMPropertyList object.
     */
     CIMPropertyList& operator=(const CIMPropertyList& x);
 
-    /** Clears the propertyNames array (sets isNull to true).
+    /**
+        Sets the property list to a null value.
     */
     void clear();
 
-    /** Returns true if the property list is null.
-        @return A Boolean value of true if the property list is Null.
-        It may be null because it was created without input or because it
-        was set to Null with the clear() method. Otherwise, a value of
-        false is returned.  For example:
-        <pre>
-            CIMPropertyList pl;
-            assert(pl.isNull());    // Newly created object is Null
-        </pre>
-        Therefore the a new instance of the CIMPropertyList object is
-        created, pl, with null values.
+    /**
+        Determines whether the property list is null.
+        @return True if the property list is null, false otherwise.
     */
     Boolean isNull() const;
 
-    /** Returns the number of propertyNames in the list.
-        @return Uint32 with count of number of properties in the
-        list. Returns 0 if property list is Null but this is not
-        sufficient to determine if it is Null. Use isNull to determine
-        if it is Null.
+    /**
+        Gets the number of property names in the property list.
+        @return An integer count of the property names in the CIMPropertyList.
+        A value of 0 is returned if the list is null or empty.
     */
     Uint32 size() const;
 
-    /** Return the property at the given index.
-        @param index Specifies the index value that contains the property
-        list to retrieve.
-        @return CIMName at the defined location.
-        @exception out_of_index exception if the index is
-        outside of the size of the propertyList. For example:
-    <pre>
-        Array<CIMName> n;
-        n.append("name");
-        n.append("type");
-        CIMPropertyList pl(n);
-        assert(pl[0] == CIMName("name"));
-    </pre>
+    /**
+        Gets the property name at a specified index.
+        <p><b>Example:</b>
+        <pre>
+            Array<CIMName> n;
+            n.append("name");
+            n.append("type");
+            CIMPropertyList pl(n);
+            assert(pl[0] == CIMName("name"));
+        </pre>
+        @param index The index of the property name to be retrieved.
+        @return A CIMName containing the property name at the specified index.
+        @exception IndexOutOfBoundsException If the index is outside the
+            range of property names in the property list or if the property
+            list is null.
     */
     const CIMName& operator[](Uint32 index) const;
 
-    /** Get an array of the property names.
-        @return Array of CIMName containing the property names
-        from the propertyList object.
+    /**
+        Gets an Array of the property names in the property list.
+        <p><b>Example:</b>
         <pre>
             Array<CIMName> n = pl.getPropertyNameArray();
         </pre>
+        @return An Array of CIMName objects containing the property names
+        in the property list.
     */
     Array<CIMName> getPropertyNameArray() const;
 

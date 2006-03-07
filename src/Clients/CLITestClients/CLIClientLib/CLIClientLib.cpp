@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -39,6 +39,7 @@
 //              Josephine Eskaline Joyce(jojustin@in.ibm.com) for Bug #1664
 //              Amit K Arora (amita@in.ibm.com) for Bug#2926
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4349, #4228
+//              Muni S Reddy, IBM (mreddy@in.ibm.com) for Bug#4069
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
@@ -246,7 +247,7 @@ Array<String> _tokenize(const String& input, const Char16 separator)
             tokens.append(input.subString(start, length));
             start += (length + 1);
         }
-        if(start < input.size())
+        if(start <= input.size())
         {
             tokens.append(input.subString(start));
         }
@@ -265,7 +266,7 @@ Boolean _tokenPair(const String& input, String& key, String& value)
     }
     // If there is more than 1 "=" it is part of the reference and we
     // rebuild the reference.
-    if (pair.size() < 2)
+    if (pair.size() > 2)
     {
         for (Uint32 i = 2 ; i < pair.size() ; i++)
         {
@@ -278,6 +279,60 @@ Boolean _tokenPair(const String& input, String& key, String& value)
     value = pair[1];
     return(true);
 }
+
+
+void _nextParamToken(String& input, String& token)
+{
+    unsigned int end;
+    // Check for Character Literal
+    if (input.find('\'') == 0)
+    {
+        input.remove(0,1);  // remove quote
+        if ((end = input.find("\'")) != PEG_NOT_FOUND)
+        {
+            token = input.subString(0, end);
+            input.remove(0, end + 1);   // +1 to delete final quote char
+        }
+        else
+        {
+            printf(" ERROR -- no matching quote!");
+        }
+        return;
+    }
+    // Check for String Literal
+    if (input.find('\"') == 0)
+    {
+        input.remove(0,1);  // remove quote
+        if ((end = input.find("\"")) != PEG_NOT_FOUND)
+        {
+            token = input.subString(0, end);
+            input.remove(0, end + 1);   // +1 to delete final quote char
+        }
+        else
+        {
+            printf("ERROR -- no matching quote!");
+        }
+        return;
+    }
+    // Take line up to separator (, or }) as token
+    if ((end = input.find(',')) != PEG_NOT_FOUND)
+    {
+        token = input.subString(0, end);
+        input.remove(0, end+1); // +1 to capture the comma
+        return;
+    }
+    if ((end = input.find('}')) != PEG_NOT_FOUND)
+    {
+        token = input.subString(0, end);
+        input.remove(0, end+1); // +1 to capture the brace
+        return;
+    }
+    // Fall through.. take entire input as token
+    token = input;
+    input = "";
+    return;
+}
+
 CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
 {
     String key;
@@ -300,6 +355,42 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
     //
     //}
 
+     String tmp = value;
+     if (value.find('{') == 0)
+     {
+         // assume { at first character position indictates an
+         // array value
+         tmp.remove(0,1);  // remove open brace
+         Array<String> arr;
+         while (tmp.size() != 0)
+         {
+             String token;
+             _nextParamToken(tmp, token);
+             arr.append(token);
+             // Now remove token separators (comma, brace or whitespace)
+             while ((tmp.size() > 0) && ((tmp.find(",") == 0) || (tmp.find("}") == 0) || (tmp.find(" ") == 0)))
+                 tmp.remove(0,1);
+         }
+         CIMValue v(arr);
+         CIMParamValue pv(key, v);
+         return pv;
+     }
+     // Scalar type -- only one token expected
+     // tokenize the value (to remove quote separaters)
+     String token;
+     _nextParamToken(tmp, token);
+
+     // Check for References
+     if (token.find('=') != PEG_NOT_FOUND)
+     {
+         // assume presence of = means reference
+         CIMObjectPath cop(token);
+         CIMValue v(cop);
+         CIMParamValue pv(key, v, false);
+         return pv;
+     }
+
+     // Fallthrough...
     CIMValue v(value);
     CIMParamValue pv(key, v, false);
     return pv;
@@ -1854,7 +1945,7 @@ void GetOptions(
                             "Defines a role string for associators operation resultRole parameter. "},
 
         {"inputParameters", "", false, Option::STRING, 0, 0, "ip",
-                            "Defines an invokeMethod input parameter list. Format is p1=v1,p2=v2,..,pn=vn (without spaces) "},
+                            "Defines an invokeMethod input parameter list. Format is p1=v1 p2=v2 .. pn=vn (parameters are seperated by spaces) "},
 
         {"filter", "", false, Option::STRING, 0, 0, "f",
                             "defines a filter to use for query. Single String input "},
@@ -2393,8 +2484,8 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     String inputParameters;
     if(om.lookupValue("inputParameters", inputParameters))
     {
-        // first tokenization is the ','
-        Array<String> pList =  _tokenize(inputParameters, ',');
+        // first tokenization is the ' '
+        Array<String> pList =  _tokenize(inputParameters, ' ');
         for (Uint32 i = 0 ; i< pList.size() ; i++)
         {
             CIMParamValue pv;

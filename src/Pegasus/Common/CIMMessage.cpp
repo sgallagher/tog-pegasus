@@ -528,7 +528,7 @@ CIMMessage::CIMMessage(Uint32 type, const String& messageId_)
 
 CIMRequestMessage::CIMRequestMessage(
     Uint32 type_, const String& messageId_, const QueueIdStack& queueIds_)
-    : CIMMessage(type_, messageId_), queueIds(queueIds_), requestIsOOP(false)
+    : CIMMessage(type_, messageId_), queueIds(queueIds_)
 {
 }
 

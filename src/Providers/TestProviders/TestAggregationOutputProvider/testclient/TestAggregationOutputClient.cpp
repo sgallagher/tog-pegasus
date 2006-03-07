@@ -66,7 +66,17 @@ static const CIMName PLANNED_VALUE      = CIMName ("PlannedValue");
 static const CIMName DYNAMIC_PROPERTY   = CIMName ("DynamicProperty");
 Uint32 My_isDefaultInstanceProvider = 0;
 
-static CIMClient client;
+// For the resolution of Bug#4590
+#ifdef PEGASUS_OS_DARWIN
+CIMClient& getCIMClientRef()
+{
+        static CIMClient client;
+        return client;
+}
+#define client getCIMClientRef()
+#else
+        static CIMClient client;
+#endif
 static Boolean verbose = false;
 
 ////////////////////////////////////////////////////////////////////////////

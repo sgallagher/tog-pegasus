@@ -199,7 +199,9 @@ void _unpack(const Buffer& in, Uint32& pos, CIMObject& x)
     
     if (tmp_String.size() == 0)
     {
-        x = CIMObject();
+        // This should not occur since _unpackValue() won't call _unpack()
+        // if the value is Null.
+        PEGASUS_ASSERT(false);
     }
     else
     {

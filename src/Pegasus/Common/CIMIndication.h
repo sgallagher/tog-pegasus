@@ -40,14 +40,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// REVIEW: delete this class. CIM indications are represented using
-// CIMInstance objects.
-
-// ATTN: This class is necessary to distinguish between instances and
-// indications, which are logical different things
-
-// NOTE: This class definition is incomplete.  Definition of this class
-// will be completed along with the implementation of indications support.
 typedef CIMInstance CIMIndication;
 
 PEGASUS_NAMESPACE_END

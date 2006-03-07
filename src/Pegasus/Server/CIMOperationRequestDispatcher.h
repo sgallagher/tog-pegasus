@@ -223,7 +223,7 @@ public:
 
 private:
     /** Hidden (unimplemented) copy constructor */
-    OperationAggregate(const OperationAggregate& x) : _query(NULL) {}
+    OperationAggregate(const OperationAggregate& x);
 
     Array<CIMResponseMessage*> _responseList;
     Mutex _appendResponseMutex;

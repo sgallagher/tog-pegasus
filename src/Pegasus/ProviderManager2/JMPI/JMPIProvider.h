@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -204,7 +204,16 @@ private:
     friend class ProviderManagerService;
     class OpProviderHolder;
     friend class OpProviderHolder;
+    mutable Mutex _cimomMutex;
+    /* NOTE:  This is a C++ provider only handle which is currently
+    **        used for calls to ->getClass ().  getClass returns
+    **        immediately with data and is therefore safe to lock.
+    */
     CIMOMHandle *_cimom_handle;
+    /* NOTE:  This is the java provider's handle and is left
+    **        untouched.
+    */
+    CIMOMHandle *_java_cimom_handle;
     void *jProviderClass,*jProvider;
     String _name;
     AtomicInt _no_unload;

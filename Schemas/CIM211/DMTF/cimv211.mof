@@ -36,7 +36,7 @@
 
 #pragma locale ("en_US")
 #pragma include ("qualifiers.mof")
-//MOF Revision: $Revision: 1.1.2.2 $
+//MOF Revision: $Revision: 1.1.2.3 $
 
 #pragma include ("System\CIM_DiagnosticResult.mof")
 #pragma include ("Event\CIM_Indication.mof")

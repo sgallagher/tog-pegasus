@@ -43,7 +43,8 @@ DIRS = \
 	ErrorXml\
 	ModifyInstance\
 	DeleteInstance\
-        Property
+        Property\
+        ExportMessageHeaders
 
 # These tests are not re-runnable
 #	ModifyClass\

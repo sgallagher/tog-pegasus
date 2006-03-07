@@ -32,31 +32,43 @@
 // Author:      Adrian Schuur, schuur@de.ibm.com 
 //
 // Modified By: Adrian Duta
+//              Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 package org.pegasus.jmpi;
 
 import java.util.*;
 
-class InstEnumeration implements Enumeration {
+class InstEnumeration implements Enumeration
+{
    int cInst;
-   int cur,max;
+   int cur;
+   int max;
    
-   private native int _getInstance(int cInst, int pos);
-   private native int _size(int cInst);
+   private native int _getInstance (int cInst, int pos);
+   private native int _size        (int cInst);
    
-   InstEnumeration(int ci) {
-      cInst=ci;
-      max=_size(ci);
-      cur=0;
+   InstEnumeration (int ci)
+   {
+      cInst = ci;
+      max   = _size (ci);
+      cur   = 0;
    }
-   public boolean hasMoreElements() {
-      return (cur<max);
+
+   public boolean hasMoreElements ()
+   {
+      return (cur < max);
    }
-   public Object nextElement() {
-      if (cur>=max) return null;
-      return new CIMInstance(_getInstance(cInst,cur++));
+
+   public Object nextElement ()
+   {
+      if (cur >= max)
+          return null;
+
+      return new CIMInstance (_getInstance (cInst, cur++));
+   }
+
+   static {
+       System.loadLibrary ("JMPIProviderManager");
    }
 }

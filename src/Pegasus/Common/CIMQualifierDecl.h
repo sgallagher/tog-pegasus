@@ -56,32 +56,55 @@ class CIMConstQualifierDecl;
 class CIMClassRep;
 class CIMQualifierDeclRep;
 
-/** The CIMQualifierDecl class is used to represent CIM qualifier
-    declarations in Pegasus.
-    Note that the Declarations
-    are not the same as CIM Qualiifers as seen on Classes, properties, etc.
-    These are the original declarations of qualifiers (i.e. input from the compiler
-    qualifier Declarations).
+/**
+    A CIMQualifierDecl represents a DMTF standard CIM qualifier declaration.
+    A CIMQualifierDecl differs from a CIMQualifier in that it has a scope
+    attribute.  A CIMQualifierDecl defines a qualifier, whereas a CIMQualifier
+    applies the qualifier.
+
+    <p>The CIMQualifierDecl class uses a shared representation model, such
+    that multiple CIMQualifierDecl objects may refer to the same data copy.
+    Assignment and copy operators create new references to the same data, not
+    distinct copies.  An update to a CIMQualifierDecl object affects all the
+    CIMQualifierDecl objects that refer to the same data copy.  The data
+    remains valid until all the CIMQualifierDecl objects that refer to it are
+    destructed.  A separate copy of the data may be created using the clone
+    method.
 */
 class PEGASUS_COMMON_LINKAGE CIMQualifierDecl
 {
 public:
-    /// Constructor.
+
+    /**
+        Constructs an uninitialized CIMQualifierDecl object.  A method
+        invocation on an uninitialized object will result in the throwing
+        of an UninitializedObjectException.  An uninitialized object may
+        be converted into an initialized object only by using the assignment
+        operator with an initialized object.
+    */
     CIMQualifierDecl();
 
-    /// Constructor - Creates a CIMQualifierDecl from another CIMQualifierDecl.
+    /**
+        Constructs a CIMQualifierDecl object from the value of a specified
+        CIMQualifierDecl object, so that both objects refer to the same data
+        copy.
+        @param x The CIMQualifierDecl object from which to construct a new
+            CIMQualifierDecl object.
+    */
     CIMQualifierDecl(const CIMQualifierDecl& x);
 
-    /** Constructor - Constructs a single CIMQualifierDecl object.
-        @param name - CIMName containing the name of the Qualifier being created.
-        @param value - CIMValue for the qualifier.
-        @param scope - CIMScope containing the scope of the qualifier.
-        @param flavor - Optional definition of the flavor for the qualifier.  
-        CIMFlavor::DEFAULTS is used if no value supplied.  
-        @param arraySize - Optional integer defining the arraysize if the
-        qualifier is an array type with fixed value array. The default is
-        zero indicating that the qualifier declaration is not a fixed size
-        array.
+    /**
+        Constructs a CIMQualifierDecl object with the specified attributes.
+        @param name A CIMName specifying the name of the qualifier.
+        @param value A CIMValue specifying the default qualifier value, and
+            implicitly defining the qualifier type and whether the qualifier
+            is an Array qualifier.
+        @param scope A CIMScope indicating the qualifier scope.
+        @param flavor A CIMFlavor indicating the qualifier flavors.
+        @param arraySize A Uint32 indicating the size of the Array, if the
+            qualifier is an Array qualifier.  The default value of zero
+            indicates a variable size array.
+        @exception UninitializedObjectException If the qualifier name is null.
     */
     CIMQualifierDecl(
         const CIMName& name, 
@@ -90,65 +113,116 @@ public:
         const CIMFlavor & flavor = CIMFlavor (CIMFlavor::DEFAULTS),
         Uint32 arraySize = 0);
 
-    /// Destructor.
+    /**
+        Destructs the CIMQualifierDecl object.
+    */
     ~CIMQualifierDecl();
 
-    /// Operator.
+    /**
+        Assigns the value of the specified CIMQualifierDecl object to this
+        object, so that both objects refer to the same data copy.
+        @param x The CIMQualifierDecl object from which to assign this
+            CIMQualifierDecl object.
+        @return A reference to this CIMQualifierDecl object.
+    */
     CIMQualifierDecl& operator=(const CIMQualifierDecl& x);
 
-    /** Get the name of the CIMQualifierDecl object.
-        @return CIMName containing the name of the CIMQualifierDecl object.
+    /**
+        Gets the name of the qualifier.
+        @return A CIMName containing the name of the qualifier.
+        @exception UninitializedObjectException If the object is not
+            initialized.
     */
     const CIMName& getName() const;
 
-    /** Sets the name in the CIMQualifierDecl object.
-        @param name CIMName containing name to be set on this qualifier.
+    /**
+        Sets the qualifier name.
+        @param name A CIMName containing the new name of the qualifier.
+        @exception UninitializedObjectException If the object is not
+            initialized.
     */
     void setName(const CIMName& name);
 
-    /** Gets the Qualifier Declaration type which is the
-        value type (boolean, etc. for this qualifier).
-        @return the type as CIMType.
+    /**
+        Gets the qualifier type.
+        @return A CIMType containing the qualifier type.
+        @exception UninitializedObjectException If the object is not
+            initialized.
     */
     CIMType getType() const;
 
-    /** Determines if this qualifier declaration is an array type.
-        @return true if this is an array type, false otherwise.
+    /**
+        Checks whether the qualifier is an Array qualifier.
+        @return True if the qualifier is an Array qualifier, false otherwise.
+        @exception UninitializedObjectException If the object is not
+            initialized.
     */
     Boolean isArray() const;
 
-    ///
+    /**
+        Gets the qualifier default value.
+        @return A CIMValue containing the qualifier default value.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     const CIMValue& getValue() const;
 
-    ///
+    /**
+        Sets the qualifier default value.
+        @param name A CIMValue containing the new default value of the
+            qualifier.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     void setValue(const CIMValue& value);
 
-    ///
+    /**
+        Gets the qualifier scope.
+        @return A CIMScope containing the qualifier scope.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     const CIMScope & getScope() const;
 
-    /** Gets the Flavor definition from the qualifier declaration.
-        @return CIMFlavor object containing the flavor flags.  The 
-        CIMFlavor hasFlavor method can be used to test against the flavor 
-        constants defined in CIMFlavor.
-        @See CIMFlavor
+    /**
+        Gets the qualifier flavors.
+        @return A CIMFlavor containing the qualifier flavor settings.
+        @exception UninitializedObjectException If the object is not
+            initialized.
     */
     const CIMFlavor & getFlavor() const;
 
-    ///
+    /**
+        Gets the array size for the qualifier.
+        @return Uint32 array size.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     Uint32 getArraySize() const;
 
-    /** Determines if the object has not been initialized.
-        @return  true if the object has not been initialized,
-                 false otherwise.
+    /**
+        Determines whether the object has been initialized.
+        @return True if the object has not been initialized, false otherwise.
     */
     Boolean isUninitialized() const;
     
-    /** Compares two qualifier declarations.
-        @return true if they are identical, false otherwise.
-    */ 
+    /**
+        Compares the qualifier declaration with another qualifier declaration.
+        @param x The CIMConstQualifierDecl to be compared.
+        @return True if this qualifier declaration is identical to the one
+            specified, false otherwise.
+        @exception UninitializedObjectException If either of the objects
+            is not initialized.
+    */
     Boolean identical(const CIMConstQualifierDecl& x) const;
 
-    ///
+    /**
+        Makes a deep copy of the qualifier declaration.  This creates a new
+        copy of all the qualifier declaration attributes.
+        @return A new copy of the CIMQualifierDecl object.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     CIMQualifierDecl clone() const;
 
 private:
@@ -171,29 +245,58 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-///
+/**
+    The CIMConstQualifierDecl class provides a const interface to a
+    CIMQualifierDecl object.  This class is needed because the shared
+    representation model used by CIMQualifierDecl does not prevent
+    modification to a const CIMQualifierDecl object.  Note that the value
+    of a CIMConstQualifierDecl object could still be modified by a
+    CIMQualifierDecl object that refers to the same data copy.
+*/
 class PEGASUS_COMMON_LINKAGE CIMConstQualifierDecl
 {
 public:
-    ///
+
+    /**
+        Constructs an uninitialized CIMConstQualifierDecl object.  A method
+        invocation on an uninitialized object will result in the throwing
+        of an UninitializedObjectException.  An uninitialized object may
+        be converted into an initialized object only by using the assignment
+        operator with an initialized object.
+    */
     CIMConstQualifierDecl();
 
-    ///
+    /**
+        Constructs a CIMConstQualifierDecl object from the value of a
+        specified CIMConstQualifierDecl object, so that both objects refer
+        to the same data copy.
+        @param x The CIMConstQualifierDecl object from which to construct a
+            new CIMConstQualifierDecl object.
+    */
     CIMConstQualifierDecl(const CIMConstQualifierDecl& x);
 
-    ///
+    /**
+        Constructs a CIMConstQualifierDecl object from the value of a
+        specified CIMQualifierDecl object, so that both objects refer
+        to the same data copy.
+        @param x The CIMQualifierDecl object from which to construct a
+            new CIMConstQualifierDecl object.
+    */
     CIMConstQualifierDecl(const CIMQualifierDecl& x);
 
-    /** Constructor - Creates a CIMConstQualiferDecl.
-        @param name - CIMName containing the name of the Qualifier declaration.
-        @param value - CIMValue for the qualifier.
-        @param scope - CIMScope containing the scope of the qualifier.
-        @param flavor - Optional definition of the flavor for the qualifier.  
-        CIMFlavor::DEFAULTS is used if no value supplied.  
-        @param arraySize - Optional integer defining the arraysize if the
-        qualifier is an array type with fixed value array. The default is
-        zero indicating that the qualifier declaration is not a fixed size
-        array.
+    /**
+        Constructs a CIMConstQualifierDecl object with the specified
+        attributes.
+        @param name A CIMName specifying the name of the qualifier.
+        @param value A CIMValue specifying the default qualifier value, and
+            implicitly defining the qualifier type and whether the qualifier
+            is an Array qualifier.
+        @param scope A CIMScope indicating the qualifier scope.
+        @param flavor A CIMFlavor indicating the qualifier flavors.
+        @param arraySize A Uint32 indicating the size of the Array, if the
+            qualifier is an Array qualifier.  The default value of zero
+            indicates a variable size array.
+        @exception UninitializedObjectException If the qualifier name is null.
     */
     CIMConstQualifierDecl(
         const CIMName& name, 
@@ -202,43 +305,109 @@ public:
         const CIMFlavor & flavor = CIMFlavor (CIMFlavor::DEFAULTS),
         Uint32 arraySize = 0);
 
-    ///
+    /**
+        Destructs the CIMConstQualifierDecl object.
+    */
     ~CIMConstQualifierDecl();
 
-    ///
+    /**
+        Assigns the value of the specified CIMConstQualifierDecl object to
+        this object, so that both objects refer to the same data copy.
+        @param x The CIMConstQualifierDecl object from which to assign this
+            CIMConstQualifierDecl object.
+        @return A reference to this CIMConstQualifierDecl object.
+    */
     CIMConstQualifierDecl& operator=(const CIMConstQualifierDecl& x);
 
-    ///
+    /**
+        Assigns the value of the specified CIMQualifierDecl object to
+        this object, so that both objects refer to the same data copy.
+        @param x The CIMQualifierDecl object from which to assign this
+            CIMConstQualifierDecl object.
+        @return A reference to this CIMConstQualifierDecl object.
+    */
     CIMConstQualifierDecl& operator=(const CIMQualifierDecl& x);
 
-    ///
+    /**
+        Gets the name of the qualifier.
+        @return A CIMName containing the name of the qualifier.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     const CIMName& getName() const;
 
-    ///
+    /**
+        Gets the qualifier type.
+        @return A CIMType containing the qualifier type.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     CIMType getType() const;
 
-    ///
+    /**
+        Checks whether the qualifier is an Array qualifier.
+        @return True if the qualifier is an Array qualifier, false otherwise.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     Boolean isArray() const;
 
-    ///
+    /**
+        Gets the qualifier default value.
+        @return A CIMValue containing the qualifier default value.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     const CIMValue& getValue() const;
 
-    ///
+    /**
+        Gets the qualifier scope.
+        @return A CIMScope containing the qualifier scope.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     const CIMScope & getScope() const;
 
-    ///
+    /**
+        Gets the qualifier flavors.
+        @return A CIMFlavor containing the qualifier flavor settings.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     const CIMFlavor & getFlavor() const;
 
-    ///
+    /**
+        Gets the array size for the qualifier.
+        @return Uint32 array size.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     Uint32 getArraySize() const;
 
-    ///
+    /**
+        Determines whether the object has been initialized.
+        @return True if the object has not been initialized, false otherwise.
+    */
     Boolean isUninitialized() const;
 
-    ///
+    /**
+        Compares the qualifier declaration with another qualifier declaration.
+        @param x The CIMConstQualifierDecl to be compared.
+        @return True if this qualifier declaration is identical to the one
+            specified, false otherwise.
+        @exception UninitializedObjectException If either of the objects
+            is not initialized.
+    */
     Boolean identical(const CIMConstQualifierDecl& x) const;
 
-    ///
+    /**
+        Makes a deep copy of the qualifier declaration.  This creates a new
+        copy of all the qualifier declaration attributes.
+        @return A CIMQualifierDecl object with a separate copy of the
+            CIMConstQualifierDecl object.
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     CIMQualifierDecl clone() const;
 
 private:

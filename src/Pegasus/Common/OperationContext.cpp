@@ -212,7 +212,7 @@ IdentityContainer::IdentityContainer(const OperationContext::Container & contain
 }
 
 IdentityContainer::IdentityContainer(const IdentityContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined (PEGASUS_PLATFORM_DARWIN_PPC_GNU)
      : OperationContext::Container()
 #endif
 {
@@ -264,10 +264,6 @@ String IdentityContainer::getUserName(void) const
     return(_rep->userName);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-IdentityContainer::IdentityContainer()
-{
-}
 
 //
 // SubscriptionInstanceContainer
@@ -299,7 +295,7 @@ SubscriptionInstanceContainer::SubscriptionInstanceContainer
 
 SubscriptionInstanceContainer::SubscriptionInstanceContainer
     (const SubscriptionInstanceContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
      : OperationContext::Container()
 #endif
 {
@@ -352,10 +348,6 @@ CIMInstance SubscriptionInstanceContainer::getInstance(void) const
     return(_rep->subscriptionInstance);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-SubscriptionInstanceContainer::SubscriptionInstanceContainer()
-{
-}
 
 //
 // SubscriptionInstanceNamesContainer
@@ -387,7 +379,7 @@ SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
 
 SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
     (const SubscriptionInstanceNamesContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
      : OperationContext::Container()
 #endif
 {
@@ -444,10 +436,6 @@ Array<CIMObjectPath>
     return(_rep->subscriptionInstanceNames);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer()
-{
-}
 
 //
 // SubscriptionFilterConditionContainer
@@ -481,7 +469,7 @@ SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer
 
 SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer
     (const SubscriptionFilterConditionContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
      : OperationContext::Container()
 #endif
 {
@@ -546,10 +534,6 @@ String SubscriptionFilterConditionContainer::getQueryLanguage(void) const
     return(_rep->queryLanguage);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer()
-{
-}
 
 //
 // SubscriptionFilterQueryContainer
@@ -585,7 +569,7 @@ SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer
 
 SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer
     (const SubscriptionFilterQueryContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
      : OperationContext::Container()
 #endif
 {
@@ -659,10 +643,6 @@ CIMNamespaceName SubscriptionFilterQueryContainer::getSourceNameSpace(void) cons
     return(_rep->sourceNameSpace);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer()
-{
-}
 
 //
 // TimeoutContainer
@@ -706,8 +686,6 @@ Uint32 TimeoutContainer::getTimeOut(void) const
 }
 
 
-// l10n start
-
 //
 // AcceptLanguageListContainer
 //
@@ -738,7 +716,7 @@ AcceptLanguageListContainer::AcceptLanguageListContainer
 
 AcceptLanguageListContainer::AcceptLanguageListContainer
     (const AcceptLanguageListContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
      : OperationContext::Container()
 #endif
 {
@@ -791,98 +769,6 @@ AcceptLanguageList AcceptLanguageListContainer::getLanguages(void) const
     return(_rep->languages);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-AcceptLanguageListContainer::AcceptLanguageListContainer()
-{
-}
-
-//
-// SubscriptionLanguageListContainer
-//
-
-class SubscriptionLanguageListContainerRep
-{
-public:
-    AcceptLanguageList languages;
-};
-
-const String SubscriptionLanguageListContainer::NAME =
-    "SubscriptionLanguageListContainer";
-
-SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
-    (const OperationContext::Container & container)
-{
-    const SubscriptionLanguageListContainer * p = 
-    	dynamic_cast<const SubscriptionLanguageListContainer *>(&container);
-
-    if(p == 0)
-    {
-        throw DynamicCastFailedException();
-    }
-
-    _rep = new SubscriptionLanguageListContainerRep();
-    _rep->languages = p->_rep->languages;
-}
-
-SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
-    (const SubscriptionLanguageListContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-     : OperationContext::Container()
-#endif
-{
-    _rep = new SubscriptionLanguageListContainerRep();
-    _rep->languages = container._rep->languages;
-}
-
-SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
-    (const AcceptLanguageList & languages)
-{
-    _rep = new SubscriptionLanguageListContainerRep();
-    _rep->languages = languages;
-}
-
-SubscriptionLanguageListContainer::~SubscriptionLanguageListContainer(void)
-{
-    delete _rep;
-}
-
-SubscriptionLanguageListContainer & SubscriptionLanguageListContainer::operator=(
-    const SubscriptionLanguageListContainer & container)
-{
-    if (this == &container)
-    {
-        return (*this);
-    }
-
-    _rep->languages = container._rep->languages;
-
-    return (*this);
-}
-
-String SubscriptionLanguageListContainer::getName(void) const
-{
-    return(NAME);
-}
-
-OperationContext::Container * SubscriptionLanguageListContainer::clone(void) const
-{
-    return(new SubscriptionLanguageListContainer(_rep->languages));
-}
-
-void SubscriptionLanguageListContainer::destroy(void)
-{
-    delete this;
-}
-
-AcceptLanguageList SubscriptionLanguageListContainer::getLanguages(void) const
-{
-    return(_rep->languages);
-}
-
-// Unimplemented, hidden constructor not intended for actual use
-SubscriptionLanguageListContainer::SubscriptionLanguageListContainer()
-{
-}
 
 //
 // ContentLanguageListContainer
@@ -914,7 +800,7 @@ ContentLanguageListContainer::ContentLanguageListContainer
 
 ContentLanguageListContainer::ContentLanguageListContainer
     (const ContentLanguageListContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
      : OperationContext::Container()
 #endif
 {
@@ -967,12 +853,7 @@ ContentLanguageList ContentLanguageListContainer::getLanguages(void) const
     return(_rep->languages);
 }
 
-// Unimplemented, hidden constructor not intended for actual use
-ContentLanguageListContainer::ContentLanguageListContainer()
-{
-}
 
-// l10n end
 
 //
 // SnmpTrapOidContainer
@@ -1004,7 +885,7 @@ SnmpTrapOidContainer::SnmpTrapOidContainer
 
 SnmpTrapOidContainer::SnmpTrapOidContainer
     (const SnmpTrapOidContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
      : OperationContext::Container()
 #endif
 {
@@ -1055,11 +936,6 @@ void SnmpTrapOidContainer::destroy(void)
 String SnmpTrapOidContainer::getSnmpTrapOid(void) const
 {
     return(_rep->snmpTrapOid);
-}
-
-// Unimplemented, hidden constructor not intended for actual use
-SnmpTrapOidContainer::SnmpTrapOidContainer()
-{
 }
 
 PEGASUS_NAMESPACE_END

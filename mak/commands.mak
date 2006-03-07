@@ -257,7 +257,7 @@ ifeq ($(OS),zos)
     CHGRP = chgrp
     CHOWNDIRHIER = chown -R
     CHGRPDIRHIER = chgrp -R
-	
+
     GET_HOSTNAME = `host \`hostname\`|cut -d" " -f1`
 
     LIB_LINK_SUFFIX = .so
@@ -454,6 +454,7 @@ mkdirhier_IgnoreError: CMDSFORCE
 ##       cimstart command.
 ##
 runTestSuite: CMDSFORCE
+	-$(CIMSERVER_STOP_SERVICE)
 	$(CIMSERVER_START_SERVICE)
 	$(WINDOWS_ONLY_SLEEP)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))

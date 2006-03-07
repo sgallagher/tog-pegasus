@@ -116,22 +116,22 @@ ProviderManagerService::ProviderManagerService(
 #ifdef PEGASUS_DISABLE_PROV_USERCTXT
     if (forceProviderProcesses)
     {
-        _oopProviderManagerRouter =
-            new OOPProviderManagerRouter(indicationCallback);
+        _oopProviderManagerRouter = new OOPProviderManagerRouter(
+            indicationCallback, responseChunkCallback);
     }
     else
     {
-        _basicProviderManagerRouter =
-            new BasicProviderManagerRouter(indicationCallback);
+        _basicProviderManagerRouter = new BasicProviderManagerRouter(
+            indicationCallback, responseChunkCallback);
     }
 #else
-    _oopProviderManagerRouter =
-        new OOPProviderManagerRouter(indicationCallback);
+    _oopProviderManagerRouter = new OOPProviderManagerRouter(
+        indicationCallback, responseChunkCallback);
 
     if (!forceProviderProcesses)
     {
-        _basicProviderManagerRouter =
-            new BasicProviderManagerRouter(indicationCallback);
+        _basicProviderManagerRouter = new BasicProviderManagerRouter(
+            indicationCallback, responseChunkCallback);
     }
 #endif
 }
@@ -563,9 +563,9 @@ void ProviderManagerService::handleCimRequest(
     PEG_METHOD_EXIT();
 }
 
-void 
-ProviderManagerService::handleCimResponse(CIMRequestMessage &request,
-																					CIMResponseMessage &response)
+void ProviderManagerService::responseChunkCallback(
+    CIMRequestMessage* request,
+    CIMResponseMessage* response)
 {
 	CIMStatusCode code = CIM_ERR_SUCCESS;
 	String message;
@@ -574,16 +574,16 @@ ProviderManagerService::handleCimResponse(CIMRequestMessage &request,
 	{
 		// only incomplete messages are processed because the caller ends up
 		// sending the complete() stage
-		PEGASUS_ASSERT(response.isComplete() == false);
+		PEGASUS_ASSERT(response->isComplete() == false);
 		
 		AsyncLegacyOperationStart *requestAsync = 
-			dynamic_cast<AsyncLegacyOperationStart *>(request._async);
+			dynamic_cast<AsyncLegacyOperationStart *>(request->_async);
 		PEGASUS_ASSERT(requestAsync);
 		AsyncOpNode *op = requestAsync->op;
 		PEGASUS_ASSERT(op);
-		PEGASUS_ASSERT(! response._async);
-		response._async = new AsyncLegacyOperationResult
-			(requestAsync->getKey(), requestAsync->getRouting(), op, &response);
+		PEGASUS_ASSERT(!response->_async);
+		response->_async = new AsyncLegacyOperationResult(
+			requestAsync->getKey(), requestAsync->getRouting(), op, response);
 		
 		// set the destination
 		op->_op_dest = op->_callback_response_q;
@@ -619,7 +619,7 @@ ProviderManagerService::handleCimResponse(CIMRequestMessage &request,
 	}
 
 	if (code !=  CIM_ERR_SUCCESS)
-		response.cimException = PEGASUS_CIM_EXCEPTION(code, message);
+		response->cimException = PEGASUS_CIM_EXCEPTION(code, message);
 }
 
 Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)

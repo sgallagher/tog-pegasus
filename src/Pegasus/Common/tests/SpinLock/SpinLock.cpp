@@ -79,7 +79,10 @@ int main(int argc, char** argv)
     void* arg;
 
     for (size_t i = 0; i < NUM_THREADS; i++)
-	thread[i]->join();
+    {
+        thread[i]->join();
+        delete thread[i];
+    }
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

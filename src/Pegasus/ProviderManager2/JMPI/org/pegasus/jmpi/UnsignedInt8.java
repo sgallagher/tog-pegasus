@@ -34,18 +34,15 @@
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 package org.pegasus.jmpi;
 
 public class UnsignedInt8 extends UnsignedNumber {
 
     public UnsignedInt8(short num) throws java.lang.NumberFormatException {
-       super((long)num,(long)0xff,"Not an unsigned 8 bit integer");
+       super((long)num,(long)0xff,"Not an unsigned 8 bit integer (" + num + ")");
     }
 
     public UnsignedInt8(java.lang.String str) throws java.lang.NumberFormatException {
-        super(str,(long)0xff,"Not an unsigned 8 bit integer");
+        super(str,(long)0xff,"Not an unsigned 8 bit integer (" + str + ")");
     }
 }
-

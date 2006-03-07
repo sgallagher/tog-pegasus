@@ -47,9 +47,42 @@ PEGASUS_NAMESPACE_BEGIN
 #ifdef PEGASUS_OVERRIDE_PRODUCT_ID
 # include <Pegasus/Common/ProductVersion.h>
 #else
+//
+// The Pegasus version string should be changed immediatly after a release
+// to include the word development and should then be changed immediatly
+// prior to release to remove it. Leaving the Version set to the prior release
+// makes it difficult to determine a development version from a released
+//  version that may be in use.
+//
+// The sequence would look like:
+//  # define PEGASUS_PRODUCT_VERSION "2.5"
+//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released 
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.1"
+//  # define PEGASUS_PRODUCT_STATUS  "Development"
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.1"
+//  # define PEGASUS_PRODUCT_STATUS  "Pre-Release"
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.1"
+//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released 
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.2"
+//  # define PEGASUS_PRODUCT_STATUS  "Development"
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.2"
+//  # define PEGASUS_PRODUCT_STATUS  "Pre-Release"
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.2"
+//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released 
+// 
+
+
 # define PEGASUS_PRODUCT_NAME    "CIM Server"
-# define PEGASUS_PRODUCT_VERSION "2.5"
-# define PEGASUS_PRODUCT_STATUS  ""
+
+# define PEGASUS_PRODUCT_STATUS  "Development"
+# define PEGASUS_PRODUCT_VERSION "2.6.0"
+
 # define PEGASUS_CIMOM_GENERIC_NAME "Pegasus"
 // If the following is non-zero length it becomes SLP description.
 # define PEGASUS_CIMOM_DESCRIPTION ""
@@ -85,6 +118,8 @@ static const char *PLATFORM_EMBEDDED_IDENTIFICATION_STRING =
         PLATFORM_COMPONENT_VERSION " " PLATFORM_COMPONENT_STATUS "("
         COMPONENT_BUILD_DATE ")";
 
+#endif /* PEGASUS_OS_HPUX */
+
 // This macro can be examined by preprocessor directives (i.e., #if) to 
 // make compile time branch decisions based on the Pegasus version number. 
 // When read from left to right, the bytes have the following meaning:
@@ -111,9 +146,7 @@ static const char *PLATFORM_EMBEDDED_IDENTIFICATION_STRING =
 // CAUTION: always check whether PEGASUS_VERSION_NUMBER is defined when 
 // integrating with versions prior to 2.5.1.
 //
-#define PEGASUS_VERSION_NUMBER 0x02050100
-
-#endif /* PEGASUS_OS_HPUX */
+#define PEGASUS_VERSION_NUMBER 0x02060000
 
 PEGASUS_NAMESPACE_END
 

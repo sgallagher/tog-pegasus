@@ -98,15 +98,18 @@ class OutstandingRequestEntry
 public:
     OutstandingRequestEntry(
         String messageId_,
+        CIMRequestMessage* requestMessage_,
         CIMResponseMessage*& responseMessage_,
         Semaphore* responseReady_)
         : messageId(messageId_),
+          requestMessage(requestMessage_),
           responseMessage(responseMessage_),
           responseReady(responseReady_)
     {
     }
 
     String messageId;
+    CIMRequestMessage* requestMessage;
     CIMResponseMessage*& responseMessage;
     Semaphore* responseReady;
 };
@@ -125,7 +128,8 @@ public:
     ProviderAgentContainer(
         const String & moduleName,
         const String & userName,
-        PEGASUS_INDICATION_CALLBACK indicationCallback,
+        PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
         Boolean subscriptionInitComplete);
 
     ~ProviderAgentContainer();
@@ -224,7 +228,12 @@ private:
         Callback function to which all generated indications are sent for
         processing.
      */
-    PEGASUS_INDICATION_CALLBACK _indicationCallback;
+    PEGASUS_INDICATION_CALLBACK_T _indicationCallback;
+
+    /**
+        Callback function to which response chunks are sent for processing.
+     */
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T _responseChunkCallback;
 
     /**
         Indicates whether the Provider Agent is active.
@@ -316,11 +325,13 @@ CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
 ProviderAgentContainer::ProviderAgentContainer(
     const String & moduleName,
     const String & userName,
-    PEGASUS_INDICATION_CALLBACK indicationCallback,
+    PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
     Boolean subscriptionInitComplete)
     : _moduleName(moduleName),
       _userName(userName),
       _indicationCallback(indicationCallback),
+      _responseChunkCallback(responseChunkCallback),
       _isInitialized(false),
       _subscriptionInitComplete(subscriptionInitComplete)
 {
@@ -661,7 +672,27 @@ void ProviderAgentContainer::_sendInitializationData()
             _moduleName));
     }
 
-    // Do not wait for a response from the Provider Agent.  (It isn't coming.)
+    // Wait for a null response from the Provider Agent indicating it has
+    // initialized successfully.
+
+    CIMMessage* message;
+    AnonymousPipe::Status readStatus;
+    do
+    {
+        readStatus = _pipeFromAgent->readMessage(message);
+    } while (readStatus == AnonymousPipe::STATUS_INTERRUPT);
+
+    if (readStatus != AnonymousPipe::STATUS_SUCCESS)
+    {
+        PEG_METHOD_EXIT();
+        throw Exception(MessageLoaderParms(
+            "ProviderManager.OOPProviderManagerRouter."
+                "CIMPROVAGT_COMMUNICATION_FAILED",
+            "Failed to communicate with cimprovagt \"$0\".",
+            _moduleName));
+    }
+
+    PEGASUS_ASSERT(message == 0);
 
     PEG_METHOD_EXIT();
 }
@@ -681,7 +712,8 @@ void ProviderAgentContainer::_initialize()
 
     if (_maxProviderProcesses == PEG_NOT_FOUND)
     {
-        String maxProviderProcesses = ConfigManager::getInstance()->getCurrentValue("maxProviderProcesses");
+        String maxProviderProcesses = ConfigManager::getInstance()->
+            getCurrentValue("maxProviderProcesses");
         CString maxProviderProcessesString = maxProviderProcesses.getCString();
         char* end = 0;
         _maxProviderProcesses = strtol(maxProviderProcessesString, &end, 10);
@@ -894,6 +926,34 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
     do
     {
         response = _processMessage(request);
+
+        if (response == _REQUEST_NOT_PROCESSED)
+        {
+            // Check for request message types that should not be retried.
+            if ((request->getType() ==
+                     CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
+                (request->getType() ==
+                     CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE) ||
+                (request->getType() ==
+                     CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
+                (request->getType() ==
+                     CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE))
+            {
+                response = request->buildResponse();
+                break;
+            }
+            else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
+            {
+                CIMDisableModuleResponseMessage* dmResponse =
+                    dynamic_cast<CIMDisableModuleResponseMessage*>(response);
+                PEGASUS_ASSERT(dmResponse != 0);
+
+                Array<Uint16> operationalStatus;
+                operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_STOPPED);
+                dmResponse->operationalStatus = operationalStatus;
+                break;
+            }
+        }
     } while (response == _REQUEST_NOT_PROCESSED);
 
     PEG_METHOD_EXIT();
@@ -933,7 +993,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
         //
         Semaphore waitSemaphore(0);
         OutstandingRequestEntry outstandingRequestEntry(
-            uniqueMessageId, response, &waitSemaphore);
+            uniqueMessageId, request, response, &waitSemaphore);
 
         //
         // Lock the Provider Agent Container while initializing the
@@ -1017,11 +1077,27 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                     Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                         "Failed to write message to pipe.  writeStatus = %d.",
                         writeStatus);
-                    throw Exception(MessageLoaderParms(
-                        "ProviderManager.OOPProviderManagerRouter."
-                            "CIMPROVAGT_COMMUNICATION_FAILED",
-                        "Failed to communicate with cimprovagt \"$0\".",
-                        _moduleName));
+
+                    request->messageId = originalMessageId;
+
+                    if (doProviderModuleOptimization)
+                    {
+                        request->operationContext.set(*origProviderId.get());
+                    }
+
+                    // Remove this OutstandingRequestTable entry
+                    {
+                        AutoMutex tableLock(_outstandingRequestTableMutex);
+                        Boolean removed =
+                            _outstandingRequestTable.remove(uniqueMessageId);
+                        PEGASUS_ASSERT(removed);
+                    }
+
+                    // A response value of _REQUEST_NOT_PROCESSED indicates
+                    // that the request was not processed by the provider
+                    // agent, so it can be retried safely.
+                    PEG_METHOD_EXIT();
+                    return _REQUEST_NOT_PROCESSED;
                 }
 
                 if (updateProviderModuleCache)
@@ -1047,6 +1123,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                         _outstandingRequestTable.remove(uniqueMessageId);
                     PEGASUS_ASSERT(removed);
                 }
+                PEG_METHOD_EXIT();
                 throw;
             }
         }
@@ -1068,6 +1145,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                     _outstandingRequestTable.remove(uniqueMessageId);
                 PEGASUS_ASSERT(removed);
             }
+            PEG_METHOD_EXIT();
             throw;
         }
 
@@ -1077,6 +1155,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
         // retried safely.
         if (response == _REQUEST_NOT_PROCESSED)
         {
+            PEG_METHOD_EXIT();
             return response;
         }
 
@@ -1192,6 +1271,29 @@ void ProviderAgentContainer::_processResponses()
                     reinterpret_cast<CIMProcessIndicationRequestMessage*>(
                         message));
             }
+            else if (!message->isComplete())
+            {
+                CIMResponseMessage* response;
+                response = dynamic_cast<CIMResponseMessage*>(message);
+                PEGASUS_ASSERT(response != 0);
+
+                // Get the OutstandingRequestEntry for this response chunk
+                OutstandingRequestEntry* _outstandingRequestEntry = 0;
+                {
+                    AutoMutex tableLock(_outstandingRequestTableMutex);
+                    Boolean foundEntry = _outstandingRequestTable.lookup(
+                        response->messageId, _outstandingRequestEntry);
+                    PEGASUS_ASSERT(foundEntry);
+                }
+
+                // Put the original message ID into the response
+                response->messageId =
+                    _outstandingRequestEntry->requestMessage->messageId;
+
+                // Call the response chunk callback to process the chunk
+                _responseChunkCallback(
+                    _outstandingRequestEntry->requestMessage, response);
+            }
             else
             {
                 CIMResponseMessage* response;
@@ -1246,12 +1348,14 @@ ProviderAgentContainer::_responseProcessor(void* arg)
 /////////////////////////////////////////////////////////////////////////////
 
 OOPProviderManagerRouter::OOPProviderManagerRouter(
-    PEGASUS_INDICATION_CALLBACK indicationCallback)
+    PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "OOPProviderManagerRouter::OOPProviderManagerRouter");
 
     _indicationCallback = indicationCallback;
+    _responseChunkCallback = responseChunkCallback;
     _subscriptionInitComplete = false;
 
     PEG_METHOD_EXIT();
@@ -1608,7 +1712,7 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
     if (!_providerAgentTable.lookup(key, pa))
     {
         pa = new ProviderAgentContainer(
-            moduleName, userName, _indicationCallback,
+            moduleName, userName, _indicationCallback, _responseChunkCallback,
             _subscriptionInitComplete);
         _providerAgentTable.insert(key, pa);
     }

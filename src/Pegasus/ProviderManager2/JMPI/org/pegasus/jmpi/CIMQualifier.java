@@ -69,7 +69,14 @@ public class CIMQualifier
 
       if (oValue != null)
       {
-         return new CIMValue (oValue);
+         try
+         {
+             return new CIMValue (oValue);
+         }
+         catch (Exception e)
+         {
+             return null;
+         }
       }
       else
       {

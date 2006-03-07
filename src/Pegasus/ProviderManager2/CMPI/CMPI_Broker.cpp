@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -219,9 +219,9 @@ extern "C" {
       CMReturnWithChars(mb,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-3");
    }
 
-   static CMPIEnumeration* mbExecQuery(const CMPIBroker *mb, 
+   static CMPIEnumeration* mbExecQuery(const CMPIBroker *mb,
 				       const CMPIContext *ctx,
-				       const CMPIObjectPath *cop, 
+				       const CMPIObjectPath *cop,
 				       const char *query, const char *lang, CMPIStatus *rc) {
       DDD(cout<<"--- mbExecQuery()"<<endl);
       mb=CM_BROKER;
@@ -385,10 +385,10 @@ extern "C" {
       return NULL;
    }
 
-   static CMPIEnumeration* mbAssociatorNames(const CMPIBroker *mb, 
+   static CMPIEnumeration* mbAssociatorNames(const CMPIBroker *mb,
 					     const CMPIContext *ctx,
-					     const CMPIObjectPath *cop, 
-					     const char *assocClass, 
+					     const CMPIObjectPath *cop,
+					     const char *assocClass,
 					     const char *resultClass,
          const char *role, const char *resultRole, CMPIStatus *rc) {
       DDD(cout<<"--- mbAssociatorsNames()"<<endl);
@@ -506,12 +506,53 @@ extern "C" {
       return NULL;
    }
 
-   static CMPIData mbInvokeMethod(const CMPIBroker *mb, const CMPIContext *ctx,
-                  const CMPIObjectPath *cop, const char *method, const CMPIArgs *in, CMPIArgs *out,
-         CMPIStatus *rc) {
+#define CM_Args(args) ((Array<CIMParamValue>*)args->hdl)
+
+   static CMPIData mbInvokeMethod(const CMPIBroker *mb,
+                                  const CMPIContext *ctx,
+                                  const CMPIObjectPath *cop,
+                                  const char *method,
+                                  const CMPIArgs *in,
+                                  CMPIArgs *out,
+                                  CMPIStatus *rc)
+   {
+      DDD(cout<<"--- mbInvokeMethod()"<<endl);
       CMPIData data={0,CMPI_nullValue,{0}};
       mb=CM_BROKER;
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+      CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
+            CM_ObjectPath(cop)->getClassName(),
+            CM_ObjectPath(cop)->getKeyBindings());
+
+      AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
+      try {
+         CIMValue v=CM_CIMOM(mb)->invokeMethod(
+             OperationContext(*CM_Context(ctx)),
+             CM_ObjectPath(cop)->getNameSpace(),
+             qop,
+             method ? String(method) : String::EMPTY,
+             *CM_Args(in),
+             *CM_Args(out));
+         CIMType vType=v.getType();
+         CMPIType t=type2CMPIType(vType,v.isArray());
+         value2CMPIData(v,t,&data);
+         if (rc)
+         {
+             CMSetStatus(rc,CMPI_RC_OK);
+         }
+         return data;
+      }
+      catch (const CIMException &e) {
+         DDD(cout<<"### exception: mbInvokeMethod - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
+         if (rc)
+         {
+             CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
+                                   (CMPIString*)string2CMPIString(e.getMessage()));
+         }
+      }
+      if (rc)
+      {
+           CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBroker.cpp-11.1");
+      }
       return data;
    }
 
@@ -590,11 +631,11 @@ extern "C" {
 
    static CMPIStatus mbDetachThread(const CMPIBroker* mb, const CMPIContext* eCtx) {
       DDD(cout<<"--- mbDetachThread()"<<endl);
-      mb=CM_BROKER;  
+      mb=CM_BROKER;
       CMPI_Context *neCtx = (CMPI_Context *)eCtx;
       delete neCtx->thr;
       // Delete also CMPIContext
-      delete neCtx; 
+      delete neCtx;
       CMReturn(CMPI_RC_OK);
    }
 

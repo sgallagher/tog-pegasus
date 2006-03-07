@@ -132,6 +132,12 @@ private:
     static void _indicationCallback(
         CIMProcessIndicationRequestMessage* request);
 
+    /**
+        Callback function to which all response chunks are sent for processing.
+     */
+    static void _responseChunkCallback(
+        CIMRequestMessage* request, CIMResponseMessage* response);
+
     void _unloadIdleProviders();
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
         _unloadIdleProvidersHandler(void* arg) throw();

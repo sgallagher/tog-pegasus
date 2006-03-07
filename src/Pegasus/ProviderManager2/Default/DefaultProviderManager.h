@@ -142,7 +142,8 @@ private:
         _responseTable.
 
         @param  req_provider  CIMInstance for the provider to be enabled
-        @param  _indicationCallback  PEGASUS_INDICATION_CALLBACK for indications
+        @param  _indicationCallback  PEGASUS_INDICATION_CALLBACK_T for
+            indications
         @param  ph  OpProviderHolder for the provider to be enabled
 
         Note that since an exception thrown by the provider's 
@@ -151,7 +152,7 @@ private:
      */
     void _callEnableIndications
         (CIMInstance & req_provider,
-         PEGASUS_INDICATION_CALLBACK _indicationCallback,
+         PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
          OpProviderHolder & ph);
 };
 

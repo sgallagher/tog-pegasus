@@ -76,6 +76,8 @@ void CIMMessageSerializer::serialize(Buffer& out, CIMMessage* cimMessage)
         out, cimMessage->getEndProviderTime().toMicroseconds());
 #endif
 
+    XmlWriter::appendValueElement(out, cimMessage->isComplete());
+
     _serializeOperationContext(out, cimMessage->operationContext);
 
     CIMRequestMessage* cimReqMessage;
@@ -88,14 +90,10 @@ void CIMMessageSerializer::serialize(Buffer& out, CIMMessage* cimMessage)
     {
         _serializeCIMRequestMessage(out, cimReqMessage);
     }
-    else if (cimRespMessage)
-    {
-        _serializeCIMResponseMessage(out, cimRespMessage);
-    }
     else
     {
-        // No other CIMMessage types are currently defined
-        PEGASUS_ASSERT(0);
+        PEGASUS_ASSERT(cimRespMessage != 0);
+        _serializeCIMResponseMessage(out, cimRespMessage);
     }
 
     XmlWriter::append(out, "</PGMESSAGE>");
@@ -132,19 +130,18 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
 
         switch (cimMessage->getType())
         {
-        case CIM_GET_CLASS_REQUEST_MESSAGE:
-        case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-        case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-        case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-        case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-        case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-        case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-        case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-        case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-        case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-            // Not implemented.  No provider can support this message type.
-            PEGASUS_ASSERT(0);
-            break;
+        // A provider cannot implement these operation types, so the
+        // serialization of these messages is not implemented.
+        //case CIM_GET_CLASS_REQUEST_MESSAGE:
+        //case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+        //case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+        //case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+        //case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
+        //case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
+        //case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
+        //case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
+        //case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
+        //case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
 
         // Instance operations
         case CIM_GET_INSTANCE_REQUEST_MESSAGE:
@@ -254,21 +251,18 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
             _serializeCIMProcessIndicationRequestMessage(
                 out, (CIMProcessIndicationRequestMessage*)cimMessage);
             break;
-        case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
+        //case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //_serializeCIMNotifyProviderRegistrationRequestMessage(
             //    out, (CIMNotifyProviderRegistrationRequestMessage*)cimMessage);
             break;
-        case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
+        //case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //_serializeCIMNotifyProviderTerminationRequestMessage(
             //    out, (CIMNotifyProviderTerminationRequestMessage*)cimMessage);
             break;
-        case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
+        //case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //_serializeCIMHandleIndicationRequestMessage(
             //    out, (CIMHandleIndicationRequestMessage*)cimMessage);
             break;
@@ -280,9 +274,8 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
             _serializeCIMEnableModuleRequestMessage(
                 out, (CIMEnableModuleRequestMessage*)cimMessage);
             break;
-        case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
+        //case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //_serializeCIMNotifyProviderEnableRequestMessage(
             //    out, (CIMNotifyProviderEnableRequestMessage*)cimMessage);
             break;
@@ -341,19 +334,18 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
         // CIM Operation Response Messages
         //
 
-        case CIM_GET_CLASS_RESPONSE_MESSAGE:
-        case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
-        case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
-        case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
-        case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
-        case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
-        case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
-        case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
-        case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
-        case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
-            // Not implemented.  No provider can support this message type.
-            PEGASUS_ASSERT(0);
-            break;
+        // A provider cannot implement these operation types, so the
+        // serialization of these messages is not implemented.
+        //case CIM_GET_CLASS_RESPONSE_MESSAGE:
+        //case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
+        //case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
+        //case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
+        //case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
+        //case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
+        //case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
+        //case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
+        //case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
+        //case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
 
         // Instance operations
         case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
@@ -448,21 +440,18 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
             _serializeCIMProcessIndicationResponseMessage(
                 out, (CIMProcessIndicationResponseMessage*)cimMessage);
             break;
-        case CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE:
+        //case CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //_serializeCIMNotifyProviderRegistrationResponseMessage(
             //    out, (CIMNotifyProviderRegistrationResponseMessage*)cimMessage);
             break;
-        case CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE:
+        //case CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //_serializeCIMNotifyProviderTerminationResponseMessage(
             //    out, (CIMNotifyProviderTerminationResponseMessage*)cimMessage);
             break;
-        case CIM_HANDLE_INDICATION_RESPONSE_MESSAGE:
+        //case CIM_HANDLE_INDICATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //_serializeCIMHandleIndicationResponseMessage(
             //    out, (CIMHandleIndicationResponseMessage*)cimMessage);
             break;
@@ -474,9 +463,8 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
             _serializeCIMEnableModuleResponseMessage(
                 out, (CIMEnableModuleResponseMessage*)cimMessage);
             break;
-        case CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE:
+        //case CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
-            PEGASUS_ASSERT(0);
             //_serializeCIMNotifyProviderEnableResponseMessage(
             //    out, (CIMNotifyProviderEnableResponseMessage*)cimMessage);
             break;
@@ -654,19 +642,6 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "<PGOCALL>\n");
         _serializeAcceptLanguageList(out, container.getLanguages());
         XmlWriter::append(out, "</PGOCALL>\n");
-    }
-    catch (...)
-    {
-    }
-
-    try
-    {
-        const SubscriptionLanguageListContainer container =
-            operationContext.get(SubscriptionLanguageListContainer::NAME);
-
-        XmlWriter::append(out, "<PGOCSLL>\n");
-        _serializeAcceptLanguageList(out, container.getLanguages());
-        XmlWriter::append(out, "</PGOCSLL>\n");
     }
     catch (...)
     {

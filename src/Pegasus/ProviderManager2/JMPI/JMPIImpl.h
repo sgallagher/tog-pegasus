@@ -48,6 +48,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Mutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -135,72 +136,199 @@ class _nameSpace {
    String nameSpace_;
 };
 
-static int pTypeToJType[]=
- /* CIMTYPE_BOOLEAN,   public static final int BOOLEAN  = 10; 0
-    CIMTYPE_UINT8,     public static final int UINT8    = 1;  1
-    CIMTYPE_SINT8,     public static final int SINT8    = 2;  2
-    CIMTYPE_UINT16,    public static final int UINT16   = 3;  3
-    CIMTYPE_SINT16,    public static final int SINT16   = 4;  4
-    CIMTYPE_UINT32,    public static final int UINT32   = 5;  5
-    CIMTYPE_SINT32,    public static final int SINT32   = 6;  6
-    CIMTYPE_UINT64,    public static final int UINT64   = 7;  7
-    CIMTYPE_SINT64,    public static final int SINT64   = 8;  8
-    CIMTYPE_REAL32,    public static final int REAL32   = 11; 9
-    CIMTYPE_REAL64,    public static final int REAL64   = 12; 10
-    CIMTYPE_CHAR16,    public static final int CHAR16   = 14; 11
-    CIMTYPE_STRING,    public static final int STRING   = 9;  12
-    CIMTYPE_DATETIME,  public static final int DATETIME = 13; 12
-    CIMTYPE_REFERENCE  public static final int REFERENCE = 0x32+1; 14
-    CIMTYPE_OBJECT     public static final int OBJECT   = 15; 15
-*/
-   {10, 1, 2, 3, 4, 5, 6, 7, 8,11,12,14, 9,13,0x32+1, 15};
-//   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14      15
-
-static int jTypeToPType[]=
-   {0, 1, 2, 3, 4, 5, 6, 7, 8,12, 0, 9,10,12,14,15};
-//  0  1  2  3  4  5  6  7  8  9 10 11 12 13,??,15
-
-   static char *jTypeToChars[]= {
-        NULL,
-        "uint8",
-        "sint8",
-        "uint16",
-        "sint16",
-        "uint32",
-        "sint32",
-        "uint64",
-        "sint64",
-        "string",
-        "boolean",
-        "real32",
-        "real64",
-        "datetime",
-        "char16",
-        "object" };
-
-
 class _dataType {
-  public:
-   int     _type,_size;
+   public:
+
+   _dataType (int          type,
+              int          size,
+              Boolean      reference,
+              Boolean      null,
+              Boolean      array,
+              String&      refClass,
+              Boolean      fromProperty)
+      : _type(type),
+        _size(size),
+        _reference(reference),
+        _array(array),
+        _refClass(refClass),
+        _fromProperty(fromProperty)
+   {
+   }
+
+   _dataType (int          type)
+      : _type(type),
+        _size(1),
+        _reference(false),
+        _array(false),
+        _refClass(String::EMPTY),
+        _fromProperty(false)
+   {
+   }
+
+   _dataType (int          type,
+              int          size)
+      : _type(type),
+        _size(size),
+        _reference(false),
+        _array(true),
+        _refClass(String::EMPTY),
+        _fromProperty(true)
+   {
+   }
+
+   _dataType (int          type,
+              const String ref)
+       : _type(type),
+         _size(0),
+         _reference(true),
+         _array(false),
+         _refClass(ref),
+         _fromProperty(true)
+   {
+   }
+
+   static int convertCTypeToJavaType (CIMType cType, bool *pfSuccess)
+   {
+      static int cTypeToJType[]=
+      /*  CIMType.h                CIMDataType.java
+          CIMTYPE_BOOLEAN,     0   public static final int BOOLEAN   =      10;
+          CIMTYPE_UINT8,       1   public static final int UINT8     =       1;
+          CIMTYPE_SINT8,       2   public static final int SINT8     =       2;
+          CIMTYPE_UINT16,      3   public static final int UINT16    =       3;
+          CIMTYPE_SINT16,      4   public static final int SINT16    =       4;
+          CIMTYPE_UINT32,      5   public static final int UINT32    =       5;
+          CIMTYPE_SINT32,      6   public static final int SINT32    =       6;
+          CIMTYPE_UINT64,      7   public static final int UINT64    =       7;
+          CIMTYPE_SINT64,      8   public static final int SINT64    =       8;
+          CIMTYPE_REAL32,      9   public static final int REAL32    =      11;
+          CIMTYPE_REAL64,     10   public static final int REAL64    =      12;
+          CIMTYPE_CHAR16,     11   public static final int CHAR16    =      14;
+          CIMTYPE_STRING,     12   public static final int STRING    =       9;
+          CIMTYPE_DATETIME,   13   public static final int DATETIME  =      13;
+          CIMTYPE_REFERENCE,  14   public static final int REFERENCE = 0x20+ 1;
+          CIMTYPE_OBJECT      15   public static final int OBJECT    =      15;
+      */
+      //  p:      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14     15
+      {/* j: */  10, 1, 2, 3, 4, 5, 6, 7, 8,11,12,14, 9,13,0x20+1,15};
+
+      if ((int)cType < (int)CIMTYPE_BOOLEAN || (int)cType > (int)CIMTYPE_OBJECT)
+      {
+         *pfSuccess = false;
+
+         return cTypeToJType[0];
+      }
+      else
+      {
+         *pfSuccess = true;
+
+         return cTypeToJType[cType];
+      }
+   }
+
+   static CIMType convertJavaTypeToCType (int jType, bool *pfSuccess)
+   {
+      static int jTypeToCType[]=
+      /*  CIMDataType.java                              CIMType.h
+          public static final int UINT8     =       1;  CIMTYPE_UINT8,       1
+          public static final int SINT8     =       2;  CIMTYPE_SINT8,       2
+          public static final int UINT16    =       3;  CIMTYPE_UINT16,      3
+          public static final int SINT16    =       4;  CIMTYPE_SINT16,      4
+          public static final int UINT32    =       5;  CIMTYPE_UINT32,      5
+          public static final int SINT32    =       6;  CIMTYPE_SINT32,      6
+          public static final int UINT64    =       7;  CIMTYPE_UINT64,      7
+          public static final int SINT64    =       8;  CIMTYPE_SINT64,      8
+          public static final int STRING    =       9;  CIMTYPE_STRING,     12
+          public static final int BOOLEAN   =      10;  CIMTYPE_BOOLEAN,     0
+          public static final int REAL32    =      11;  CIMTYPE_REAL32,      9
+          public static final int REAL64    =      12;  CIMTYPE_REAL64,     10
+          public static final int DATETIME  =      13;  CIMTYPE_DATETIME,   13
+          public static final int CHAR16    =      14;  CIMTYPE_CHAR16,     11
+          public static final int REFERENCE = 0x20+ 1;  CIMTYPE_REFERENCE,  14
+          public static final int OBJECT    =      15;  CIMTYPE_OBJECT      15
+      */
+      //  j:      0  1  2  3  4  5  6  7  8   9 10 11  12  13  14  15
+      {/* p: */   0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 0, 9, 10, 13, 11, 15};
+
+      if (jType < 1)
+      {
+         *pfSuccess = false;
+
+         return CIMTYPE_BOOLEAN;
+      }
+      else if (jType <= 15)
+      {
+         *pfSuccess = true;
+
+         return (CIMType)jTypeToCType[jType];
+      }
+      else if (jType == 0x20 + 1) // REFERENCE
+      {
+         *pfSuccess = true;
+
+         return CIMTYPE_REFERENCE;
+      }
+      else
+      {
+         *pfSuccess = false;
+
+         return CIMTYPE_BOOLEAN;
+      }
+   }
+
+   static char *convertJavaTypeToChars (int jType, bool *pfSuccess)
+   {
+      static char *jTypeToChars[]= {
+      /* CIMDataType.java                             */ NULL,
+      /* public static final int UINT8     =       1; */ "uint8",
+      /* public static final int SINT8     =       2; */ "sint8",
+      /* public static final int UINT16    =       3; */ "uint16",
+      /* public static final int SINT16    =       4; */ "sint16",
+      /* public static final int UINT32    =       5; */ "uint32",
+      /* public static final int SINT32    =       6; */ "sint32",
+      /* public static final int UINT64    =       7; */ "uint64",
+      /* public static final int SINT64    =       8; */ "sint64",
+      /* public static final int STRING    =       9; */ "string",
+      /* public static final int BOOLEAN   =      10; */ "boolean",
+      /* public static final int REAL32    =      11; */ "real32",
+      /* public static final int REAL64    =      12; */ "real64",
+      /* public static final int DATETIME  =      13; */ "datetime",
+      /* public static final int CHAR16    =      14; */ "char16",
+      /* public static final int OBJECT    =      15; */ "object"
+      };
+
+      if (jType < 1)
+      {
+         *pfSuccess = false;
+
+         return NULL;
+      }
+      else if (jType <= 15)
+      {
+         *pfSuccess = true;
+
+         return jTypeToChars[jType];
+      }
+      else if (jType == 0x20 + 1) // REFERENCE
+      {
+         *pfSuccess = true;
+
+         return "reference";
+      }
+      else
+      {
+         *pfSuccess = false;
+
+         return NULL;
+      }
+   }
+
+   int     _type;
+   int     _size;
    Boolean _reference;
    Boolean _null;
    Boolean _array;
-   String _refClass;
+   String  _refClass;
    Boolean _fromProperty;
-
-   _dataType(int type, int size, Boolean reference,
-             Boolean null, Boolean array, String &refClass, Boolean fromProperty) :
-      _type(type), _size(size), _reference(reference), _array(array),
-      _refClass(refClass), _fromProperty(fromProperty) {}
-   _dataType(int type) :
-             _type(type), _size(1), _reference(false), _array(false),
-       _refClass(String::EMPTY), _fromProperty(false) {}
-   _dataType(int type, int size) :
-       _type(type), _size(size), _reference(false), _array(true),
-       _refClass(String::EMPTY), _fromProperty(true) {}
-   _dataType(int type, const String ref) :
-     _type(type), _size(0), _reference(true), _array(false),
-     _refClass(ref), _fromProperty(true) {}
 };
 
 #define VectorClassRef               classRefs[0]
@@ -234,6 +362,8 @@ class _dataType {
 #define CIMFlavorClassRef            classRefs[28]
 #define CIMArgumentClassRef          classRefs[29]
 #define CIMInstanceExceptionClassRef classRefs[30]
+#define CIMObjectClassRef            classRefs[31]
+#define CharacterClassRef            classRefs[32]
 
 #define BigIntegerValueOf            staticMethodIDs[0]
 #define JarClassLoaderLoad           staticMethodIDs[1]
@@ -284,6 +414,8 @@ class _dataType {
 #define CIMArgumentCInst             instMethodIDs[39]
 #define ObjectToString               instMethodIDs[24]
 #define ThrowableGetMessage          instMethodIDs[25]
+#define CIMObjectNewIZ               instMethodIDs[46]
+#define CharacterNewC                instMethodIDs[47]
 
 //extern "C" JNIEnv* attachThread(JvmVector**);
 //extern "C" void detachThread();

@@ -48,9 +48,9 @@ class CIMKeyBindingRep;
 class CIMObjectPathRep;
 class CIMValue;
 
-/** The CIMKeyBinding class associates a key name, value, and type.
-    It is used by the CIMObjectPath class to represent key bindings.
-    See the CIMObjectPath class to see how they are used.
+/**
+    The CIMKeyBinding class associates a key name, value, and type.
+    It is used to represent a key binding in a CIMObjectPath.
 */
 class PEGASUS_COMMON_LINKAGE CIMKeyBinding
 {
@@ -58,70 +58,114 @@ public:
 
     enum Type { BOOLEAN, STRING, NUMERIC, REFERENCE };
 
-    /** Constructs a CIMKeyBinding object with null values (default constructor).
-     */
+    /**
+        Constructs a CIMKeyBinding object with null values.
+    */
     CIMKeyBinding();
 
-    /** Copy constructor. 
-    @param x Specifies the name of the CIMKeyBinding instance.
+    /**
+        Constructs a CIMKeyBinding object from the value of a specified
+        CIMKeyBinding object.
+        @param x The CIMKeyBinding object from which to construct a new
+            CIMKeyBinding object.
     */
     CIMKeyBinding(const CIMKeyBinding& x);
 
-    /** Constructs a CIMKeyBinding with a name, value, and type.
-        @param name CIMName for the key for this binding object.
-        @param value String value for this key.
-        @param type CIMKeyBinding::Type representing the type of this key.
+    /**
+        Constructs a CIMKeyBinding with a name, value, and type.
+        @param name A CIMName containing the key name.
+        @param value A String value for this key.
+        @param type A CIMKeyBinding::Type specifying the type of this key.
     */
     CIMKeyBinding(const CIMName& name, const String& value, Type type);
 
-    /** Constructs a CIMKeyBinding with a name and CIMValue, mapping from
-        CIMValue types to CIMKeyBinding types.
-        @param name CIMName for the key for this binding object.
-        @param value CIMValue from which to extract the value for this key.
-        @exception TypeMismatchException True if the type of the value is not valid
-        for a key property; otherwise, false.
+    /**
+        Constructs a CIMKeyBinding with a key name and CIMValue.  The key
+        value and type are taken from the CIMValue.  CIM types are converted
+        to key binding types using this mapping:
+
+        <pre>
+        boolean - BOOLEAN
+        uint8 - NUMERIC
+        sint8 - NUMERIC
+        uint16 - NUMERIC
+        sint16 - NUMERIC
+        uint32 - NUMERIC
+        sint32 - NUMERIC
+        uint64 - NUMERIC
+        sint64 - NUMERIC
+        real32 - NUMERIC
+        real64 - NUMERIC
+        char16 - STRING
+        string - STRING
+        datetime - STRING
+        reference - REFERENCE
+        </pre>
+
+        A value of type CIMTYPE_OBJECT cannot be used in a key binding.
+
+        @param name A CIMName containing the key name.
+        @param value A CIMValue specifying the value and type of this key.
+        @exception TypeMismatchException If the type is not a valid key type,
+            false otherwise.
     */
     CIMKeyBinding(const CIMName& name, const CIMValue& value);
 
-    /** CIMKeyBinding destructor 
+    /**
+        Destructs the CIMKeyBinding object.
     */
     ~CIMKeyBinding();
 
-    /** Assigns the values of the specified CIMKeyBinding instance 
-    to the CIMKeyBinding object.
+    /**
+        Assigns the value of the specified CIMKeyBinding object to this object.
+        @param x The CIMKeyBinding object from which to assign this
+            CIMKeyBinding object.
+        @return A reference to this CIMKeyBinding object.
     */
     CIMKeyBinding& operator=(const CIMKeyBinding& x);
 
-    /** REVIEWERS: Insert description here.
+    /**
+        Gets the key name for the key binding.
+        @return A CIMName containing the key name.
     */
     const CIMName& getName() const;
 
-    /** REVIEWERS: Insert description here.
-    @param name Reviewers: Insert description here.
+    /**
+        Sets the key name for the key binding.
+        @param name A CIMName containing the key name.
     */
     void setName(const CIMName& name);
 
-    /** REVIEWERS: Insert description here.
+    /**
+        Gets the key value for the key binding.
+        @return A String containing the key value.
     */
     const String& getValue() const;
 
-    /** REVIEWERS: Insert description here.
-    @param value Reviewers: Insert description here.
+    /**
+        Sets the key value for the key binding.
+        @param value A String containing the key value.
     */
     void setValue(const String& value);
 
-    /** REVIEWERS: Insert description here.
+    /**
+        Gets the key type for the key binding.
+        @return A CIMKeyBinding::Type containing the key type.
     */
     Type getType() const;
 
-    /** REVIEWERS: Insert description here.
-    @param type Reviewers: Insert description here.
+    /**
+        Sets the key type for the key binding.
+        @param type A CIMKeyBinding::Type containing the key type.
     */
     void setType(Type type);
 
-    /** REVIEWERS: Insert description here.
-    @param value Reviewers: Insert description here.
-    @return Reviewers: Insert description here.
+    /**
+        Compares the value and type of the key binding with a specified
+        CIMValue.
+        @param value The CIMValue to be compared.
+        @return True if the value and type of the key binding are the same as
+            the specified CIMValue, false otherwise.
     */
     Boolean equal(CIMValue value);
 
@@ -132,6 +176,13 @@ private:
     friend class CIMObjectPath;
 };
 
+/**
+    Compares two key bindings for equality.
+    @param x The first CIMKeyBinding to be compared.
+    @param y The second CIMKeyBinding to be compared.
+    @return True if the names, values, and types of the two key bindings are
+        equivalent, false otherwise.
+*/
 PEGASUS_COMMON_LINKAGE Boolean operator==(
     const CIMKeyBinding& x,
     const CIMKeyBinding& y);
@@ -142,9 +193,10 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
 
 class XmlWriter;
 
-/** The CIMObjectPath class represents the value of a reference. A reference
-    is one of the property types that an association may contain. Consider the
-    following MOF for example:
+/**
+    The CIMObjectPath class represents the DMTF standard CIM object name or
+    reference.  A reference is a property type that is used in an association.
+    Consider this MOF example:
 
     <pre>
     [Association]
@@ -155,11 +207,11 @@ class XmlWriter;
     };
     </pre>
 
-    The value of the from and to properties are internally represented using
-    the CIMObjectPath class.
+    The value of the "from" and "to" properties are represented using a
+    CIMObjectPath.
 
     A CIM reference is used to uniquely identify a CIM class or CIM instance
-    object. CIMObjectPath objects contain the following parts:
+    object.  A CIMObjectPath consists of:
 
     <ul>
     <li>Host - name of host that contains the object</li>
@@ -259,39 +311,6 @@ class XmlWriter;
     keyBindings.append(CIMKeyBinding("last", "Rafter", CIMKeyBinding::STRING));
     </pre>
 
-    The key binding types that are supported are:
-
-    <ul>
-    <li>CIMKeyBinding::BOOLEAN</li>
-    <li>CIMKeyBinding::STRING</li>
-    <li>CIMKeyBinding::NUMERIC</li>
-    <li>CIMKeyBinding::REFERENCE</li>
-    </ul>
-
-    The CIM types are encoded as one of the key binding types in the
-    following way
-
-    <pre>
-    boolean - BOOLEAN (the value must be "true" or "false")
-    uint8 - NUMERIC
-    sint8 - NUMERIC
-    uint16 - NUMERIC
-    sint16 - NUMERIC
-    uint32 - NUMERIC
-    sint32 - NUMERIC
-    uint64 - NUMERIC
-    sint64 - NUMERIC
-    char16 - STRING
-    string - STRING
-    datetime - STRING
-    reference - REFERENCE
-    </pre>
-
-    Notice that real32 and real64 are missing. Properties of these types
-    cannot be used as keys.
-   
-    Also, properties of CIMTYPE_OBJECT cannot be used as keys.
-
     Notice that the keys in the object name may appear in any order.
     That is the following object names refer to the same object:
 
@@ -359,186 +378,227 @@ class PEGASUS_COMMON_LINKAGE CIMObjectPath
 {
 public:
 
-    /** Constructs a CIMObjectPath object with null values (default constructor). 
+    /**
+        Constructs a CIMObjectPath object with null values.
     */
     CIMObjectPath();
 
-    /** Copies the values of the specified CIMObjectPath instance to the 
-    CIMObjectPath object.
-    @param x Specifies the name of the CIMObjectPath instance.
+    /**
+        Constructs a CIMObjectPath object from the value of a specified
+        CIMObjectPath object.
+        @param x The CIMObjectPath object from which to construct a new
+            CIMObjectPath object.
     */
     CIMObjectPath(const CIMObjectPath& x);
 
-    /** Initializes a CIMObjectPath object from a CIM object name.
-        @param objectName String representing the object name.
-        @return Returns the initialized CIMObjectPath
-        @exception MalformedObjectNameException True if the name is not parsable;
-        otherwise, false.
-        <PRE>
+    /**
+        Constructs a CIMObjectPath from a CIM object name in String form.
+        <p><b>Example:</b>
+        <pre>
             CIMObjectPath r1 = "MyClass.z=true,y=1234,x=\"Hello World\"";
-        </PRE>
+        </pre>
+        @param objectName A String representation of the object name.
+        @exception MalformedObjectNameException If the String does not contain
+            a properly formed object name.
     */
     CIMObjectPath(const String& objectName);
 
-    /** Constructs a CIMObjectPath from constituent elements.
-        @param host Name of host (e.g., "nemesis-5988").
-        @param nameSpace Namespace (e.g., "root/cimv2").
-        @param className Name of a class (e.g., "MyClass").
-        @param keyBindings An array of CIMKeyBinding objects.
-        @return Returns the constructed CIMObjectPath
+    /**
+        Constructs a CIMObjectPath object with the specified attributes.
+        @param host A String containing the host name (e.g., "nemesis:5988").
+            An empty String indicates that the object path does not contain
+            a host name attribute.
+        @param nameSpace A CIMNamespaceName specifying the namespace name.
+            A null name indicates that the object path does not contain
+            a namespace attribute.
+        @param nameSpace A CIMName specifying the class name.
+        @param keyBindings An Array of CIMKeyBinding objects specifying the
+            key bindings.
+        @exception MalformedObjectNameException If the host name String
+            contains an improperly formed host name.
     */
     CIMObjectPath(
         const String& host,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        //
-        //  NOTE: Due to a bug in MSVC 5, the following will not work on MSVC 5
-        //
         const Array<CIMKeyBinding>& keyBindings = Array<CIMKeyBinding>());
 
-    /** Destroys CIMObjectPath object.
+    /**
+        Destructs the CIMObjectPath object.
     */
     ~CIMObjectPath();
 
-    /** Assigns the values of the CIMObjectPath instance to the CIMObjectPath object.
-    @param x Specifies the name of the CIMObjectPath instance.
-     */
+    /**
+        Assigns the value of the specified CIMObjectPath object to this object.
+        @param x The CIMObjectPath object from which to assign this
+            CIMObjectPath object.
+        @return A reference to this CIMObjectPath object.
+    */
     CIMObjectPath& operator=(const CIMObjectPath& x);
 
-    /** Clears out the internal fields of this object making it an empty
-        (or uninitialized) reference. The effect is the same as if the object
-        was initialized with the default constructor.
+    /**
+        Resets the attributes of the object path to null values.
+        The result is equivalent to using the default constructor.
     */
     void clear();
 
-    /** Sets this reference from constituent elements. The effect is same
-        as if the object was initialized using the constructor above that
-        has the same arguments.
-        @exception MalformedObjectNameException True if host name is not specified
-		correctly otherwise, false.
-        @param host REVIEWERS: Insert description here.
-        @param nameSpace REVIEWERS: Insert description here.
-        @param className REVIEWERS: Insert description here.
-        @param keyBindings REVIEWERS: Insert description here.
+    /**
+        Sets the CIMObjectPath with the specified attributes.
+        @param host A String containing the host name (e.g., "nemesis:5988").
+            An empty String indicates that the object path does not contain
+            a host name attribute.
+        @param nameSpace A CIMNamespaceName specifying the namespace name.
+            A null name indicates that the object path does not contain
+            a namespace attribute.
+        @param nameSpace A CIMName specifying the class name.
+        @param keyBindings An Array of CIMKeyBinding objects specifying the
+            key bindings.
+        @exception MalformedObjectNameException If the host name String
+            contains an improperly formed host name.
     */
     void set(
         const String& host,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        //
-        //  NOTE: Due to a bug in MSVC 5, the following will not work on MSVC 5
-        //
         const Array<CIMKeyBinding>& keyBindings = Array<CIMKeyBinding>());
 
-    /** Set the reference from an object name. 
-    @param objectName Specifies the name of the String instance.
+    /**
+        Sets the CIMObjectPath from a CIM object name in String form.
+        @param objectName A String representation of the object name.
+        @exception MalformedObjectNameException If the String does not contain
+            a properly formed object name.
     */
     void set(const String& objectName);
 
-    /** Set the reference from an object name using an assignment operator. 
-    @param objectName Specifies the name of the String instance.
+    /**
+        Sets the CIMObjectPath from a CIM object name in String form.
+        @param objectName A String representation of the object name.
+        @exception MalformedObjectNameException If the String does not contain
+            a properly formed object name.
     */
     CIMObjectPath& operator=(const String& objectName);
 
-    /** Gets the hostname component of the CIMObjectPath.
-        @return String containing hostname.
+    /**
+        Gets the host name for the object path.
+        @return A String containing the host name.
     */
     const String& getHost() const;
 
-    /** Sets the hostname component of the CIMObjectPath
-        object to the input parameter.
-        @param host String parameter with the hostname
-        <PRE>
+    /**
+        Sets the host name for the object path.
+        <p><b>Example:</b>
+        <pre>
         CIMObjectPath r1;
         r1.setHost("fred:5988");
-        </PRE>
-        Note that Pegasus does not check whether or not the host names are valid.
+        </pre>
+        @param host A String containing the host name.
+        @exception MalformedObjectNameException If the host name String
+            contains an improperly formed host name.
     */
     void setHost(const String& host);
 
-    /** Gets the namespace component of the
-        CIMObjectPath as a CIMNamespaceName.
+    /**
+        Gets the namespace name for the object path.
+        @return A CIMNamespaceName containing the namespace name.
     */
     const CIMNamespaceName& getNameSpace() const;
 
-    /** Sets the namespace component.
-        @param nameSpace CIMNamespaceName representing the namespace.
+    /**
+        Sets the namespace name for the object path.
+        @param nameSpace A CIMNamespaceName containing the namespace name.
     */
     void setNameSpace(const CIMNamespaceName& nameSpace);
 
-    /** Gets the className component of the CIMObjectPath.
-        @return CIMName containing the classname.
-     */
+    /**
+        Gets the class name for the object path.
+        @return A CIMName containing the class name.
+    */
     const CIMName& getClassName() const;
 
-    /** Sets the classname component of the CIMObjectPath object to 
-        the input parameter.
-        @param className CIMName containing the className.
+    /**
+        Sets the class name for the object path.
+        @param className A CIMName containing the class name.
     */
     void setClassName(const CIMName& className);
 
-    /** Returns an Array of keybindings from the
-        CIMObjectPath representing all of the key/value pairs defined 
-        in the ObjectPath.
-        @return Array of CIMKeyBinding objects from the CIMObjectPath.
+    /**
+        Gets the key bindings for the object path.
+        @return An Array of CIMKeyBinding objects containing the key bindings.
     */
     const Array<CIMKeyBinding>& getKeyBindings() const;
 
-    /** Sets the key/value pairs in the CIMObjectPath
-        from an array of keybindings defined by the input parameter.
-        @param keyBindings Array of keybindings to set into the CIMObjectPath
-        object.
+    /**
+        Sets the key bindings for the object path.
+        @param keyBindings An Array of CIMKeyBinding objects containing the
+            key bindings.
     */
     void setKeyBindings(const Array<CIMKeyBinding>& keyBindings);
 
+    /**
+        Generates a String form of the object path.
+        The format is:
 
-    /** Returns the object name represented by this reference. The returned
-        string is formed from the hostname, namespace, classname
-        and keybindings defined for this CIMObjectPath object.
-        The form of the name is:
-
-        <PRE>
+        <pre>
             "//" + hostname + "/" + namespace + ":" + classname +"." +
             (keyname) + "=" (keyvalue) +"," ...
-        </PRE>
+        </pre>
 
-        The building includes the escaping of special characters.
+        Special characters are escaped in the resulting String.
+
+        @return A String form of the object path.
+        @exception UninitializedObjectException If the class name attribute
+            of the object path is null.
     */
     String toString() const;
 
-    /** Returns true if this reference is identical to the one given
-        by the x argument. Since CIMObjectPaths are normalized when they
-        are created, any differences in the ordering of keybindings is accounted
-        for as are the case insensitivity characteristics defined by
-        the specification.
-        @param x CIMObjectPath for comparison.
-        @return True if the objects have identical components; otherwise, false.
+    /**
+        Compares the CIMObjectPath with a specified CIMObjectPath.
+        Comparisons of CIM names are case-insensitive, per the CIM
+        specification.
+        @param x The CIMObjectPath to be compared.
+        @return True if this object is identical to the one specified,
+            false otherwise.
     */
     Boolean identical(const CIMObjectPath& x) const;
 
-    /** Generates hash code for the given reference. Two identical references
-        generate the same hash code (despite any subtle differences such as
-        the case of the classname and key names as well as the order of the
-        keys).
+    /**
+        Generates a hash code for the object path.  Identical references
+        generate the same hash code (despite insignificant differences such as
+        the case of names and the order of the key bindings).
     */
     Uint32 makeHashCode() const;
 
-
 private:
 
-    /** String object into canonical form (in which all keys are sorted
-        into ascending order and classnames and keynames are shifted to
-        lower case.
+    /**
+        Generates a canonical String form of the object path (in which key
+        bindings are sorted and classnames and keynames are converted to
+        lower case).
+        @return A canonical String form of the object path.
+        @exception UninitializedObjectException If the class name attribute
+            of the object path is null.
     */
     String _toStringCanonical() const;
 
     CIMObjectPathRep* _rep;
 };
 
+/**
+    Compares two object paths for equality.
+    @param x The first CIMObjectPath to be compared.
+    @param y The second CIMObjectPath to be compared.
+    @return True if the object paths are identical, false otherwise.
+*/
 PEGASUS_COMMON_LINKAGE Boolean operator==(
     const CIMObjectPath& x,
     const CIMObjectPath& y);
 
+/**
+    Compares two object paths for inequality.
+    @param x The first CIMObjectPath to be compared.
+    @param y The second CIMObjectPath to be compared.
+    @return False if the object paths are identical, true otherwise.
+*/
 PEGASUS_COMMON_LINKAGE Boolean operator!=(
     const CIMObjectPath& x,
     const CIMObjectPath& y);

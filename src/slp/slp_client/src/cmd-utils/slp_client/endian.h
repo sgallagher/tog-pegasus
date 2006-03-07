@@ -30,7 +30,7 @@
 //==============================================================================
 /*****************************************************************************
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/endian.h,v 1.4.16.1 2006/02/10 16:17:21 a.dunfey Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/endian.h,v 1.4.16.2 2006/03/07 18:46:16 a.dunfey Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    

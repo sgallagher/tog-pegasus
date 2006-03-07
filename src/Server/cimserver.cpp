@@ -181,6 +181,15 @@ public:
     }
 
     //defined in PegasusVersion.h
+    virtual const char* getCompleteVersion() const
+    {
+      if (*PEGASUS_PRODUCT_STATUS == '\0' )
+	return PEGASUS_PRODUCT_VERSION;
+      else
+	return PEGASUS_PRODUCT_VERSION " " PEGASUS_PRODUCT_STATUS;      
+    }
+
+    //defined in PegasusVersion.h
     virtual const char* getVersion() const
     {
         return PEGASUS_PRODUCT_VERSION;
@@ -319,7 +328,7 @@ void PrintHelp(const char* arg0)
     usage.append ("                    - sets CIM Server configuration property\n");
 
     cout << endl;
-    cout << _cimServerProcess->getProductName() << " " << _cimServerProcess->getVersion() << endl;
+    cout << _cimServerProcess->getProductName() << " " << _cimServerProcess->getCompleteVersion() << endl;
     cout << endl;
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -693,7 +702,7 @@ setlocale(LC_ALL, "");
             }
             else if(String::equal(arg,"--version"))
             {
-                cout << _cimServerProcess->getVersion() << endl;
+                cout << _cimServerProcess->getCompleteVersion() << endl;
                 exit(0);
             }
             // Check for -option
@@ -708,7 +717,7 @@ setlocale(LC_ALL, "");
                 if (*option == OPTION_VERSION &&
                     strlen(option) == 1)
                 {
-                    cout << _cimServerProcess->getVersion() << endl;
+                    cout << _cimServerProcess->getCompleteVersion() << endl;
                     exit(0);
                 }
                 //
@@ -1168,7 +1177,7 @@ int CIMServerProcess::cimserver_run(
     }
 #if defined(PEGASUS_DEBUG)
     // Put out startup up message.
-    cout << _cimServerProcess->getProductName() << " " << _cimServerProcess->getVersion() << endl;
+    cout << _cimServerProcess->getProductName() << " " << _cimServerProcess->getCompleteVersion() << endl;
     //l10n
     //cout << "Built " << __DATE__ << " " << __TIME__ << endl;
     //cout <<"Starting..."
@@ -1454,7 +1463,7 @@ MessageLoader::_useProcessLocale = false;
             Logger::INFORMATION,
             "src.Server.cimserver.STARTED_VERSION",
             "Started $0 version $1.",
-            _cimServerProcess->getProductName(), _cimServerProcess->getVersion());
+		      _cimServerProcess->getProductName(), _cimServerProcess->getCompleteVersion());
 
 #if defined(PEGASUS_OS_TYPE_UNIX)    
         if (daemonOption && !debugOutputOption)

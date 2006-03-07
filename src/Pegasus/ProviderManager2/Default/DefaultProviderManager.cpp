@@ -258,7 +258,8 @@ Message * DefaultProviderManager::handleInitializeProviderRequest(
             request->buildResponse());
     PEGASUS_ASSERT(response != 0);
 
-    OperationResponseHandler handler(request, response);
+    OperationResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -312,7 +313,8 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    GetInstanceResponseHandler handler(request, response);
+    GetInstanceResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -387,7 +389,8 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    EnumerateInstancesResponseHandler handler(request, response);
+    EnumerateInstancesResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -463,7 +466,8 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    EnumerateInstanceNamesResponseHandler handler(request, response);
+    EnumerateInstanceNamesResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     // process the request
     try
@@ -536,7 +540,8 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    CreateInstanceResponseHandler handler(request, response);
+    CreateInstanceResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -610,7 +615,8 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    ModifyInstanceResponseHandler handler(request, response);
+    ModifyInstanceResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -688,7 +694,8 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    DeleteInstanceResponseHandler handler(request, response);
+    DeleteInstanceResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -760,7 +767,8 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    ExecQueryResponseHandler handler(request, response);
+    ExecQueryResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -839,7 +847,8 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    AssociatorsResponseHandler handler(request, response);
+    AssociatorsResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     // process the request
     try
@@ -919,7 +928,8 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    AssociatorNamesResponseHandler handler(request, response);
+    AssociatorNamesResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     // process the request
     try
@@ -996,7 +1006,8 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    ReferencesResponseHandler handler(request, response);
+    ReferencesResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     // process the request
     try
@@ -1079,7 +1090,8 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    ReferenceNamesResponseHandler handler(request, response);
+    ReferenceNamesResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     // process the request
     try
@@ -1159,7 +1171,8 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
             request->buildResponse());
     PEGASUS_ASSERT(response != 0);
 
-    GetPropertyResponseHandler handler(request, response);
+    GetPropertyResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -1234,7 +1247,8 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
             request->buildResponse());
     PEGASUS_ASSERT(response != 0);
 
-    SetPropertyResponseHandler handler(request, response);
+    SetPropertyResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -1312,7 +1326,8 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
     PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
-    InvokeMethodResponseHandler handler(request, response);
+    InvokeMethodResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -1388,7 +1403,8 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
             request->buildResponse());
     PEGASUS_ASSERT(response != 0);
 
-    OperationResponseHandler handler(request, response);
+    OperationResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -1442,7 +1458,6 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
 		 context.insert(request->operationContext.get(SubscriptionFilterQueryContainer::NAME));
 
@@ -1535,7 +1550,8 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
             request->buildResponse());
     PEGASUS_ASSERT(response != 0);
 
-    OperationResponseHandler handler(request, response);
+    OperationResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -1583,7 +1599,6 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
 		 context.insert(request->operationContext.get(SubscriptionFilterQueryContainer::NAME));
 
@@ -1659,7 +1674,8 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
             request->buildResponse());
     PEGASUS_ASSERT(response != 0);
 
-    OperationResponseHandler handler(request, response);
+    OperationResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -1709,7 +1725,6 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-	    context.insert(request->operationContext.get(SubscriptionLanguageListContainer::NAME));
 
         CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 
@@ -1808,7 +1823,8 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
             request->buildResponse());
     PEGASUS_ASSERT(response != 0);
 
-    OperationResponseHandler handler(request, response);
+    OperationResponseHandler handler(
+        request, response, _responseChunkCallback);
 
     try
     {
@@ -2238,7 +2254,7 @@ void DefaultProviderManager::unloadIdleProviders()
 
 void DefaultProviderManager::_callEnableIndications
     (CIMInstance & req_provider,
-     PEGASUS_INDICATION_CALLBACK _indicationCallback,
+     PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
      OpProviderHolder & ph)
 {
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER, 
@@ -2249,8 +2265,12 @@ void DefaultProviderManager::_callEnableIndications
         CIMRequestMessage * request = 0;
         CIMResponseMessage * response = 0;
         EnableIndicationsResponseHandler * enableHandler =
-            new EnableIndicationsResponseHandler
-                (request, response, req_provider, _indicationCallback);
+            new EnableIndicationsResponseHandler(
+                request,
+                response,
+                req_provider,
+                _indicationCallback,
+                _responseChunkCallback);
     
         PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enableIndications: " +

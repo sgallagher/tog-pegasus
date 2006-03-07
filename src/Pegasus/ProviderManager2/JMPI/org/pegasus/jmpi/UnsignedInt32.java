@@ -34,18 +34,15 @@
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 package org.pegasus.jmpi;
 
 public class UnsignedInt32 extends UnsignedNumber  {
 
     public UnsignedInt32(long num)  throws java.lang.NumberFormatException {
-       super((long)num,(long)0xffffffff,"Not an unsigned 32 bit integer");
+       super((long)num,(long)0xffffffff,"Not an unsigned 32 bit integer (" + num + ")");
     }
 
     public UnsignedInt32(java.lang.String str) throws java.lang.NumberFormatException {
-        super(str,(long)0xffffffff,"Not an unsigned 32 bit integer");
+        super(str,(long)0xffffffff,"Not an unsigned 32 bit integer (" + str + ")");
     }
 }
-

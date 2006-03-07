@@ -148,12 +148,13 @@ protected:
         exception is ignored, and no exceptions are thrown by this method.
 
         @param  req_provider  CIMInstance for the provider to be enabled
-        @param  _indicationCallback  PEGASUS_INDICATION_CALLBACK for indications
+        @param  _indicationCallback  PEGASUS_INDICATION_CALLBACK_T for
+            indications
         @param  ph  OpProviderHolder for the provider to be enabled
      */
     void _callEnableIndications
         (CIMInstance & req_provider,
-         PEGASUS_INDICATION_CALLBACK _indicationCallback,
+         PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
          CMPIProvider::OpProviderHolder & ph);
 
     /**

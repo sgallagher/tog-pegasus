@@ -113,10 +113,17 @@ public class CIMInstance implements CIMElement {
          @param String property name to set
          @param CIMValue a CIMProperty value
       */
-    public void setProperty(String n, CIMValue v) {
+    public void setProperty(String n, CIMValue v) throws CIMException
+    {
         /* Fix for 4019 */
-        if (cInst == -1 || v.cInst == -1)
-            return;
+        if (cInst == -1)
+        {
+           throw new CIMException (1, "Invalid CIMInstance");
+        }
+        if (v.cInst == -1)
+        {
+           throw new CIMException (1, "Invalid CIMValue");
+        }
         /* Fix for 4019 */
 
         _setProperty (cInst, n, v.cInst);

@@ -422,7 +422,7 @@ int main(int argc, char ** argv)
             {
 					String query(text);
 					if(query == "WQL:\n") lang = "WQL";
-					else if(query == "CQL:\n") lang = "CIM:CQL";
+					else if(query == "CQL:\n") lang = "DMTF:CQL";
                else
                {
                try

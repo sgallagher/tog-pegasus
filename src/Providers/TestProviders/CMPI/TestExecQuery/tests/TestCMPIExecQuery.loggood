@@ -39,7 +39,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- --- Query: [select n32,s,ElementName,n64,n16,r32, r64,d from TestCMPI_ExecQuery where n32=42], language: [CIM:CQL]
+ --- Query: [select n32,s,ElementName,n64,n16,r32, r64,d from TestCMPI_ExecQuery where n32=42], language: [DMTF:CQL]
  --- Projection list is: 
  ---- CMGetArrayCount, 8
  --- CMGetArrayElementAt (0), type is 5632
@@ -149,7 +149,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -178,7 +178,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -218,7 +218,7 @@
  ----- CMPI_RC_OK
  --- Query: [SELECT not_present_property FROM TestCMPI_ExecQuery], language: [CIMxCQL]
  !!!! CMPI_RC_ERR_INVALID_QUERY []
- --- Query: [SELECT not_present_property FROM TestCMPI_ExecQuery], language: [CIM:CQL]
+ --- Query: [SELECT not_present_property FROM TestCMPI_ExecQuery], language: [DMTF:CQL]
  !!!! CMPI_RC_ERR_INVALID_QUERY []
  --- Query: [SELECT not_present_property FROM TestCMPI_ExecQuery], language: [WQL]
  --- Projection list is: 
@@ -268,7 +268,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s=s) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where s=s], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where s=s], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -298,7 +298,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery where s=s) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery where s=s) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s=s], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -372,7 +372,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s=s AND n64=64) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where s=s AND n64=64], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where s=s AND n64=64], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -403,7 +403,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery where s=s AND n64=64) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery where s=s AND n64=64) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s=s AND n64=64], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -457,7 +457,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- --- Query: [SELECT s FROM TestCMPI_ExecQuery where n64=40], language: [CIM:CQL]
+ --- Query: [SELECT s FROM TestCMPI_ExecQuery where n64=40], language: [DMTF:CQL]
  --- Projection list is: 
  ---- CMGetArrayCount, 1
  --- CMGetArrayElementAt (0), type is 5632
@@ -526,7 +526,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery WHERE (s IS NULL) OR (n16=16)) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery WHERE (s IS NULL) OR (n16=16)], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery WHERE (s IS NULL) OR (n16=16)], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -557,7 +557,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery WHERE (s IS NULL) OR (n16=16)) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery WHERE (s IS NULL) OR (n16=16)) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery WHERE (s IS NULL) OR (n16=16)], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -599,7 +599,7 @@
  ----- CMPI_RC_OK
  --- Query: [select n32,s,ElementName,n64,n16,f,d from TestCMPI_ExecQuery where n32>42], language: [CIMxCQL]
  !!!! CMPI_RC_ERR_INVALID_QUERY []
- --- Query: [select n32,s,ElementName,n64,n16,f,d from TestCMPI_ExecQuery where n32>42], language: [CIM:CQL]
+ --- Query: [select n32,s,ElementName,n64,n16,f,d from TestCMPI_ExecQuery where n32>42], language: [DMTF:CQL]
  !!!! CMPI_RC_ERR_INVALID_QUERY []
  --- Query: [select n32,s,ElementName,n64,n16,f,d from TestCMPI_ExecQuery where n32>42], language: [WQL]
  --- Projection list is: 
@@ -661,7 +661,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where s<s], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where s<s], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -759,7 +759,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s<=s OR n64>=64) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where s<=s OR n64>=64], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where s<=s OR n64>=64], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -790,7 +790,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery where s<=s OR n64>=64) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery where s<=s OR n64>=64) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s<=s OR n64>=64], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -865,7 +865,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s=s OR n64<=64) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where s=s OR n64<=64], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where s=s OR n64<=64], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -896,7 +896,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery where s=s OR n64<=64) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery where s=s OR n64<=64) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s=s OR n64<=64], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -939,7 +939,7 @@
  ----- CMPI_RC_OK
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where n64!=40], language: [CIMxCQL]
  !!!! CMPI_RC_ERR_INVALID_QUERY []
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where n64!=40], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where n64!=40], language: [DMTF:CQL]
  !!!! CMPI_RC_ERR_INVALID_QUERY []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where n64!=40], language: [WQL]
  --- Projection list is: 
@@ -1009,7 +1009,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where n16 < 4], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where n16 < 4], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -1107,7 +1107,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n16 > 4 AND n64 < 100) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where n16 > 4 AND n64 < 100], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where n16 > 4 AND n64 < 100], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -1138,7 +1138,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery where n16 > 4 AND n64 < 100) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery where n16 > 4 AND n64 < 100) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where n16 > 4 AND n64 < 100], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -1210,7 +1210,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s>=s) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where s>=s], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where s>=s], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -1240,7 +1240,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery where s>=s) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery where s>=s) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s>=s], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -1313,7 +1313,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where c=c) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where c=c], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where c=c], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -1343,7 +1343,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery where c=c) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery where c=c) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where c=c], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -1415,7 +1415,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where b=1], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where b=1], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -1484,7 +1484,7 @@
  ----- CMPI_RC_OK
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where n8!=64], language: [CIMxCQL]
  !!!! CMPI_RC_ERR_INVALID_QUERY []
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where n8!=64], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where n8!=64], language: [DMTF:CQL]
  !!!! CMPI_RC_ERR_INVALID_QUERY []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where n8!=64], language: [WQL]
  --- Projection list is: 
@@ -1557,7 +1557,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n64=64) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where n64=64], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where n64=64], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -1587,7 +1587,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery where n64=64) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery where n64=64) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where n64=64], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -1659,7 +1659,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n32<=32) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where n32<=32], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where n32<=32], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -1689,7 +1689,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery where n32<=32) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery where n32<=32) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where n32<=32], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -1761,7 +1761,7 @@
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n16>=16) returns true when using CIMxCQL query language.
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where n16>=16], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where n16>=16], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -1791,7 +1791,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- Query (SELECT * FROM TestCMPI_ExecQuery where n16>=16) returns true when using CIM:CQL query language.
+ Query (SELECT * FROM TestCMPI_ExecQuery where n16>=16) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where n16>=16], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
@@ -1860,7 +1860,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where r32=1.232], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where r32=1.232], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -1954,7 +1954,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where r64>=112323], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where r64>=112323], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -2021,7 +2021,7 @@
  ----- CMPI_RC_OK
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s8<=255], language: [CIMxCQL]
  !!!! CMPI_RC_ERR_INVALID_QUERY []
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where s8<=255], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where s8<=255], language: [DMTF:CQL]
  !!!! CMPI_RC_ERR_INVALID_QUERY []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s8<=255], language: [WQL]
  --- Projection list is: 
@@ -2091,7 +2091,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where s16<=-11], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where s16<=-11], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -2185,7 +2185,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where s32>-11], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where s32>-11], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *
@@ -2279,7 +2279,7 @@
  !!!! CMPI_RC_ERROR_SYSTEM []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
- --- Query: [SELECT * FROM TestCMPI_ExecQuery where s64<-11], language: [CIM:CQL]
+ --- Query: [SELECT * FROM TestCMPI_ExecQuery where s64<-11], language: [DMTF:CQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *
  --- _setProperty: * -> *

@@ -221,7 +221,7 @@ Boolean _checkIndicationLog
                 }
                 if (String::equalNoCase (propertyName, "IndicationIdentifier"))
                 {
-                    if (qlang == "CIM:CQL")
+                    if (qlang == "DMTF:CQL")
                     {
                       id += 10;
                     }
@@ -555,7 +555,7 @@ void _usage ()
         << "| checkNormalAll | checkMissingAll | checkExtraAll "
         << "| checkNormalWhere | checkMissingWhere "
         << "| checkNormalWhereNotSatisfied "
-        << "| delete1 | delete2 | delete3 | delete4 | cleanup} {WQL | CIM:CQL}" 
+        << "| delete1 | delete2 | delete3 | delete4 | cleanup} {WQL | DMTF:CQL}" 
         << PEGASUS_STD (endl);
 }
 
@@ -1238,7 +1238,7 @@ int main (int argc, char** argv)
         String qlang(optLang);
 
 #ifdef PEGASUS_DISABLE_CQL
-        if (qlang == "CIM:CQL")
+        if (qlang == "DMTF:CQL")
         {
           PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
           return 0;

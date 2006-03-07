@@ -439,7 +439,7 @@ SELECT * FROM QExpr_TestElement
  = TRUE
 
 
-CIM:CQL ========Apply Projection Results========
+DMTF:CQL ========Apply Projection Results========
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
 
 Instance of class QExpr_TestPropertyTypes
@@ -448,7 +448,7 @@ Instance of class QExpr_TestPropertyTypes
 -----Prop #2 Name = PropertyBoolean Value = TRUE
 -----Prop #3 Name = PropertyChar16 Value = A
 
-CIM:CQL ========Get Property List Results=======
+DMTF:CQL ========Get Property List Results=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
 
 
@@ -479,12 +479,12 @@ WHERE Property List for the FROM class
 WHERE Property List for QExpr_TestPropertyTypes
 -----no properties required
 
-CIM:CQL ========Validating QueryExpression=======
+DMTF:CQL ========Validating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
 
 validate ok
 
-CIM:CQL ========Evaluating QueryExpression=======
+DMTF:CQL ========Evaluating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
 
 
@@ -492,7 +492,7 @@ SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_T
  = TRUE
 
 
-CIM:CQL ========Apply Projection Results========
+DMTF:CQL ========Apply Projection Results========
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE OR PropertyBoolean = FALSE
 
 Instance of class QExpr_TestPropertyTypes
@@ -501,7 +501,7 @@ Instance of class QExpr_TestPropertyTypes
 -----Prop #2 Name = PropertyBoolean Value = TRUE
 -----Prop #3 Name = PropertyChar16 Value = A
 
-CIM:CQL ========Get Property List Results=======
+DMTF:CQL ========Get Property List Results=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE OR PropertyBoolean = FALSE
 
 
@@ -532,12 +532,12 @@ WHERE Property List for the FROM class
 WHERE Property List for QExpr_TestPropertyTypes
 -----Required property PropertyBoolean
 
-CIM:CQL ========Validating QueryExpression=======
+DMTF:CQL ========Validating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE OR PropertyBoolean = FALSE
 
 validate ok
 
-CIM:CQL ========Evaluating QueryExpression=======
+DMTF:CQL ========Evaluating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE OR PropertyBoolean = FALSE
 
 
@@ -545,7 +545,7 @@ SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_T
  = TRUE
 
 
-CIM:CQL ========Apply Projection Results========
+DMTF:CQL ========Apply Projection Results========
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten'
 
 Instance of class QExpr_TestPropertyTypes
@@ -554,7 +554,7 @@ Instance of class QExpr_TestPropertyTypes
 -----Prop #2 Name = PropertyBoolean Value = TRUE
 -----Prop #3 Name = PropertyChar16 Value = A
 
-CIM:CQL ========Get Property List Results=======
+DMTF:CQL ========Get Property List Results=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten'
 
 
@@ -593,12 +593,12 @@ WHERE Property List for QExpr_TestPropertyTypes
 -----Required property PropertyReal32
 -----Required property PropertyString
 
-CIM:CQL ========Validating QueryExpression=======
+DMTF:CQL ========Validating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten'
 
 validate ok
 
-CIM:CQL ========Evaluating QueryExpression=======
+DMTF:CQL ========Evaluating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten'
 
 
@@ -606,13 +606,13 @@ SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_T
  = TRUE
 
 
-CIM:CQL ========Apply Projection Results========
+DMTF:CQL ========Apply Projection Results========
 SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten') 
 
 Instance of class QExpr_TestPropertyTypes
 Instance has 33 properties
 
-CIM:CQL ========Get Property List Results=======
+DMTF:CQL ========Get Property List Results=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten') 
 
 
@@ -637,12 +637,12 @@ WHERE Property List for QExpr_TestPropertyTypes
 -----Required property PropertyReal32
 -----Required property PropertyString
 
-CIM:CQL ========Validating QueryExpression=======
+DMTF:CQL ========Validating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten') 
 
 validate ok
 
-CIM:CQL ========Evaluating QueryExpression=======
+DMTF:CQL ========Evaluating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten') 
 
 
@@ -650,13 +650,13 @@ SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND Property
  = TRUE
 
 
-CIM:CQL ========Apply Projection Results========
+DMTF:CQL ========Apply Projection Results========
 SELECT * FROM QExpr_TestPropertyTypes WHERE PropertyStringArray[0] = 'hello'
 
 Instance of class QExpr_TestPropertyTypes
 Instance has 33 properties
 
-CIM:CQL ========Get Property List Results=======
+DMTF:CQL ========Get Property List Results=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE PropertyStringArray[0] = 'hello'
 
 
@@ -675,12 +675,12 @@ WHERE Property List for the FROM class
 WHERE Property List for QExpr_TestPropertyTypes
 -----Required property PropertyStringArray
 
-CIM:CQL ========Validating QueryExpression=======
+DMTF:CQL ========Validating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE PropertyStringArray[0] = 'hello'
 
 validate ok
 
-CIM:CQL ========Evaluating QueryExpression=======
+DMTF:CQL ========Evaluating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE PropertyStringArray[0] = 'hello'
 
 
@@ -688,13 +688,13 @@ SELECT * FROM QExpr_TestPropertyTypes WHERE PropertyStringArray[0] = 'hello'
  = FALSE
 
 
-CIM:CQL ========Apply Projection Results========
+DMTF:CQL ========Apply Projection Results========
 SELECT * FROM QExpr_TestPropertyTypes WHERE Property32 < 5
 
 Instance of class QExpr_TestPropertyTypes
 Instance has 33 properties
 
-CIM:CQL ========Get Property List Results=======
+DMTF:CQL ========Get Property List Results=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE Property32 < 5
 
 
@@ -713,12 +713,12 @@ WHERE Property List for the FROM class
 WHERE Property List for QExpr_TestPropertyTypes
 -----Required property Property32
 
-CIM:CQL ========Validating QueryExpression=======
+DMTF:CQL ========Validating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE Property32 < 5
 
 The property Property32 does not exist on class QExpr_TestPropertyTypes.
 
-CIM:CQL ========Evaluating QueryExpression=======
+DMTF:CQL ========Evaluating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE Property32 < 5
 
 
@@ -726,7 +726,7 @@ SELECT * FROM QExpr_TestPropertyTypes WHERE Property32 < 5
  = FALSE
 
 
-CIM:CQL ========Apply Projection Results========
+DMTF:CQL ========Apply Projection Results========
 SELECT * FROM CIM_ComputerSystem
 
 Instance of class QExpr_TestPropertyTypes
@@ -734,7 +734,7 @@ Instance of class QExpr_TestPropertyTypes
 Instance of class QExpr_TestPropertyTypes.  Allow missing properties.
 -----No properties left after projection
 
-CIM:CQL ========Get Property List Results=======
+DMTF:CQL ========Get Property List Results=======
 SELECT * FROM CIM_ComputerSystem
 
 
@@ -753,12 +753,12 @@ WHERE Property List for the FROM class
 WHERE Property List for QExpr_TestPropertyTypes
 -----Class QExpr_TestPropertyTypes does not match the FROM class or any of its subclasses.
 
-CIM:CQL ========Validating QueryExpression=======
+DMTF:CQL ========Validating QueryExpression=======
 SELECT * FROM CIM_ComputerSystem
 
 validate ok
 
-CIM:CQL ========Evaluating QueryExpression=======
+DMTF:CQL ========Evaluating QueryExpression=======
 SELECT * FROM CIM_ComputerSystem
 
 
@@ -766,13 +766,13 @@ SELECT * FROM CIM_ComputerSystem
  = FALSE
 
 
-CIM:CQL ========Apply Projection Results========
+DMTF:CQL ========Apply Projection Results========
 SELECT * FROM QExpr_TestElement
 
 Instance of class QExpr_TestPropertyTypes
 -----Prop #0 Name = InstanceId Value = 1
 
-CIM:CQL ========Get Property List Results=======
+DMTF:CQL ========Get Property List Results=======
 SELECT * FROM QExpr_TestElement
 
 
@@ -791,12 +791,12 @@ WHERE Property List for the FROM class
 WHERE Property List for QExpr_TestPropertyTypes
 -----no properties required
 
-CIM:CQL ========Validating QueryExpression=======
+DMTF:CQL ========Validating QueryExpression=======
 SELECT * FROM QExpr_TestElement
 
 validate ok
 
-CIM:CQL ========Evaluating QueryExpression=======
+DMTF:CQL ========Evaluating QueryExpression=======
 SELECT * FROM QExpr_TestElement
 
 

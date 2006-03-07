@@ -209,7 +209,7 @@ _test (CIMClient & client)
   try
   {
     String wql ("WQL");
-    String cql ("CIM:CQL");
+    String cql ("DMTF:CQL");
 
     for (Uint32 i = 0; i < QUERIES; i++)
       {

@@ -489,12 +489,12 @@ TestCMPIExecQueryProviderExecQuery (CMPIInstanceMI * mi,
   }
 
   // Try some bogus ones first.
-  PROV_LOG ("--- Query: [%s], language: [%s]", query, "CIM:CQL");
-  se_def=construct_instance(_broker, query, "CIM:CQL", inst);
+  PROV_LOG ("--- Query: [%s], language: [%s]", query, "DMTF:CQL");
+  se_def=construct_instance(_broker, query, "DMTF:CQL", inst);
 
   if (evaluate(se_def, inst,  instance_accessor, (void *)_broker)==CMPI_true)
   {
-	  PROV_LOG("Query (%s) returns true when using CIM:CQL query language.", query);
+	  PROV_LOG("Query (%s) returns true when using DMTF:CQL query language.", query);
   }
   if (se_def) {
   	CMRelease(se_def); se_def = NULL;

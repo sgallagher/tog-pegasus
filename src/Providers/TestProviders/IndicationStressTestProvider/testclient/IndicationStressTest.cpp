@@ -520,7 +520,7 @@ void _usage ()
    cerr << endl
         << "Usage:" << endl
         << "    TestIndicationStressTest [setup | setupCL | setupSL]\n"
-        << "                  [ WQL | CIM:CQL ]\n"
+        << "                  [ WQL | DMTF:CQL ]\n"
         << "                  [INTERNAL | HTTP | HTTPS]\n"
         << "    where: " << endl
         << "       setup configures both the Client-resident Listener and\n"
@@ -1005,7 +1005,7 @@ int _beginTest(CIMClient& workClient, const char* opt,
     {
         if ((optTwo == NULL) ||
             (!(String::equal(optTwo, "WQL") ||
-               String::equal(optTwo, "CIM:CQL"))))
+               String::equal(optTwo, "DMTF:CQL"))))
         {
             cerr << "Invalid query language: '" << optTwo << "'" << endl;
             _usage();

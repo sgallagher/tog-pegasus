@@ -936,7 +936,7 @@ void _valid (CIMClient & client, String& qlang)
           "WHERE IndicationTime IS NOT NULL AND CorrelatedIndications IS NOT NULL";
     _addStringProperty (filter04a, "Name", "Filter04a");
     _addStringProperty (filter04a, "Query", query);
-    _addStringProperty (filter04a, "QueryLanguage", "CIM:CQL");  // hardcode to CQL
+    _addStringProperty (filter04a, "QueryLanguage", "DMTF:CQL");  // hardcode to CQL
     _addStringProperty (filter04a, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter04a);
@@ -953,7 +953,7 @@ void _valid (CIMClient & client, String& qlang)
     _checkStringProperty (retrievedInstance, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
-    _checkStringProperty (retrievedInstance, "QueryLanguage", "CIM:CQL"); // hardcode to CQL
+    _checkStringProperty (retrievedInstance, "QueryLanguage", "DMTF:CQL"); // hardcode to CQL
 #endif
 
     //
@@ -2061,7 +2061,7 @@ void _errorQueries (CIMClient & client, String& qlang)
     catch (CIMException & e)
     {
 #ifdef PEGASUS_DISABLE_CQL
-        if (qlang == "CIM:CQL")
+        if (qlang == "DMTF:CQL")
         {
           // If CQL is disabled, then a non-supported error
           // for invalid language is expected.
@@ -4250,7 +4250,7 @@ void _test (CIMClient & client)
     try
     {
          String wql("WQL");
-         String cql("CIM:CQL");
+         String cql("DMTF:CQL");
 
         _valid (client, wql);
         _default (client);

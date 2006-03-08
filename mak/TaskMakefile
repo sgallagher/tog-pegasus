@@ -67,7 +67,7 @@
 ###     The following are directory position independent.
 ###        branch_create,        branch_delete,           branch_rename
 ###        branch_lists,         usage                    usage_all
-###        deaults,              branch_diff_to_root,     branch_diff_to_trunk
+###        defaults,             branch_diff_to_root,     branch_diff_to_trunk
 ###        branch_diff_unmerged_branch,
 ###        branch_diff_unmerged_trunk
 ###    
@@ -101,12 +101,12 @@
 ##       branch_create
 ##       branch_rename
 ##       branch_delete
-##       branch_check_out
-##       branch_check_in
+##       branch_checkout
+##       branch_commit
 ##       branch_diff_to_root
 ##       bracnh_diff_unmerged_branch
 ##       branch_diff_unmerged_trunk
-##       branch_diff_to_head
+##       branch_diff_to_trunk
 ##       branch_merge_in
 ##       branch_merge_out
 ##       branch_migrate

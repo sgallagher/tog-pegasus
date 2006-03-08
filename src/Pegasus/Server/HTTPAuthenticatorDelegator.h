@@ -125,8 +125,6 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
 
 private:
 
-      Boolean _validateUser(const String& userName, Uint32 queueId);
-
       CIMRepository* _repository;
 };
 

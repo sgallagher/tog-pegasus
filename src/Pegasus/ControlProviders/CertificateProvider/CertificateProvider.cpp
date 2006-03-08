@@ -1212,9 +1212,7 @@ void CertificateProvider::invokeMethod(
     
             //read in the certificate contents
             BIO *mem = BIO_new(BIO_s_mem());
-            char contents[2048];
-            sprintf(contents, "%s", (const char*) certificateContents.getCString());
-            BIO_puts(mem, contents);
+            BIO_puts(mem, (const char*)certificateContents.getCString());
     
             X509 *xCert = NULL;
             if (!PEM_read_bio_X509(mem, &xCert, 0, NULL))
@@ -1415,9 +1413,7 @@ void CertificateProvider::invokeMethod(
             //check for a valid CRL
             //read in the CRL contents
             BIO *mem = BIO_new(BIO_s_mem());
-            char contents[2048];
-            sprintf(contents, "%s", (const char*) crlContents.getCString());
-            BIO_puts(mem, contents);
+            BIO_puts(mem, (const char*)crlContents.getCString());
     
             X509_CRL *xCrl = NULL;
             if (!PEM_read_bio_X509_CRL(mem, &xCrl, NULL, NULL))

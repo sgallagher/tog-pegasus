@@ -455,6 +455,10 @@ void ProviderRegistrationProvider::createInstance(
 #ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
             && ifcTypeString != "CMPI"
 #endif
+#ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
+            && (ifcTypeString != "JMPI")
+            && (ifcTypeString != "JMPIExperimental")
+#endif
 	        )
 	{
 		//l10n 485
@@ -483,6 +487,14 @@ void ProviderRegistrationProvider::createInstance(
 #ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
            (ifcTypeString == "CMPI" &&
             ifcVersionString != "2.0.0") ||
+#endif
+#ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
+           (ifcTypeString == "JMPI" &&
+            ifcVersionString != "1.0.0" &&
+            ifcVersionString != "2.0.0" &&
+            ifcVersionString != "2.2.0") ||
+           (ifcTypeString == "JMPIExperimental" &&
+            ifcVersionString != "0.0.1") ||
 #endif
            (ifcTypeString == "C++Default" &&
             ifcVersionString != "2.1.0" &&

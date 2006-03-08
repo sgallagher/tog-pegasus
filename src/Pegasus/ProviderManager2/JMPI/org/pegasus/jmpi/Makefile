@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -64,17 +64,26 @@ PACKAGEDIR = org/pegasus/jmpi
    CIMScope.class \
    CIMArgument.class \
    \
+   OperationContext.class \
+   \
    CIMProvider.class \
    CIMInstanceProvider.class \
+   CIMInstanceProvider2.class \
    CIMAssociatorProvider.class \
+   CIMAssociatorProvider2.class \
    CIMMethodProvider.class \
+   CIMMethodProvider2.class \
    \
    InstanceProvider.class \
    InstanceProvider2.class \
    MethodProvider.class \
+   MethodProvider2.class \
    AssociatorProvider.class \
+   AssociatorProvider2.class \
    EventProvider.class \
+   EventProvider2.class \
    PropertyProvider.class \
+   PropertyProvider2.class \
    \
    SelectExp.class \
    FromExp.class \

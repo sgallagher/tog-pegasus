@@ -28,6 +28,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+//
+// Author:      Mark Hamzy, hamzy@us.ibm.com
+//
+// Modified By:
+//
+//==============================================================================
 package org.pegasus.jmpi.sample;
 
 import org.pegasus.jmpi.*;
@@ -57,11 +63,126 @@ public class TestJavaProvider implements InstanceProvider2
       System.err.println ("~~~ TestJavaProvider::cleanup()");
    }
 
-   public CIMObjectPath createInstance (CIMObjectPath op,
-                                        CIMInstance   ci)
+   private void testOperationContext (OperationContext oc)
+   {
+      try
+      {
+         Object o = oc.get (OperationContext.IdentityContainer, "userName");
+         if (o != null)
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (IdentityContainer, userName): \"" + o + "\"");
+         else
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (IdentityContainer, userName): null");
+      }
+      catch (Exception e)
+      {
+         System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (IdentityContainer, userName): caught " + e);
+      }
+      try
+      {
+         Object o = oc.get (OperationContext.SubscriptionInstanceContainer, "subscriptionInstance");
+         if (o != null)
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionInstanceContainer, subscriptionInstance): \"" + o + "\"");
+         else
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionInstanceContainer, subscriptionInstance): null");
+      }
+      catch (Exception e)
+      {
+         System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionInstanceContainer, subscriptionInstance): caught " + e);
+      }
+      try
+      {
+         Object o = oc.get (OperationContext.SubscriptionInstanceNamesContainer, "subscriptionInstanceNames");
+         if (o != null)
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionInstanceNamesContainer, subscriptionInstanceNames): \"" + o + "\"");
+         else
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionInstanceNamesContainer, subscriptionInstanceNames): null");
+      }
+      catch (Exception e)
+      {
+         System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionInstanceNamesContainer, subscriptionInstanceNames): caught " + e);
+      }
+      try
+      {
+         Object o = oc.get (OperationContext.SubscriptionFilterConditionContainer, "filterCondition");
+         if (o != null)
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterConditionContainer, filterCondition): \"" + o + "\"");
+         else
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterConditionContainer, filterCondition): null");
+      }
+      catch (Exception e)
+      {
+         System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterConditionContainer, filterCondition): caught " + e);
+      }
+      try
+      {
+         Object o = oc.get (OperationContext.SubscriptionFilterConditionContainer, "queryLanguage");
+         if (o != null)
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterConditionContainer, queryLanguage): \"" + o + "\"");
+         else
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterConditionContainer, queryLanguage): null");
+      }
+      catch (Exception e)
+      {
+         System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterConditionContainer, queryLanguage): caught " + e);
+      }
+      try
+      {
+         Object o = oc.get (OperationContext.SubscriptionFilterQueryContainer, "filterQuery");
+         if (o != null)
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterQueryContainer, filterQuery): \"" + o + "\"");
+         else
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterQueryContainer, filterQuery): null");
+      }
+      catch (Exception e)
+      {
+         System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterQueryContainer, filterQuery): caught " + e);
+      }
+      try
+      {
+         Object o = oc.get (OperationContext.SubscriptionFilterQueryContainer, "queryLanguage");
+         if (o != null)
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterQueryContainer, queryLanguage): \"" + o + "\"");
+         else
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterQueryContainer, queryLanguage): null");
+      }
+      catch (Exception e)
+      {
+         System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterQueryContainer, queryLanguage): caught " + e);
+      }
+      try
+      {
+         Object o = oc.get (OperationContext.SubscriptionFilterQueryContainer, "sourceNameSpace");
+         if (o != null)
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterQueryContainer, sourceNameSpace): \"" + o + "\"");
+         else
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterQueryContainer, sourceNameSpace): null");
+      }
+      catch (Exception e)
+      {
+         System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SubscriptionFilterQueryContainer, sourceNameSpace): caught " + e);
+      }
+      try
+      {
+         Object o = oc.get (OperationContext.SnmpTrapOidContainer, "snmpTrapOid");
+         if (o != null)
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SnmpTrapOidContainer, snmpTrapOid): \"" + o + "\"");
+         else
+            System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SnmpTrapOidContainer, snmpTrapOid): null");
+      }
+      catch (Exception e)
+      {
+         System.err.println ("~~~ TestJavaProvider::testOperationContext: oc.get (SnmpTrapOidContainer, snmpTrapOid): caught " + e);
+      }
+   }
+
+   public CIMObjectPath createInstance (OperationContext oc,
+                                        CIMObjectPath    op,
+                                        CIMInstance      ci)
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProvider::createInstance()");
+
+      testOperationContext (oc);
 
       CIMProperty cpk = ci.getProperty ("Identifier");
       Object      k   = cpk.getValue ().getValue ();
@@ -79,11 +200,12 @@ public class TestJavaProvider implements InstanceProvider2
       return op;
    }
 
-   public CIMInstance getInstance (CIMObjectPath op,
-                                   CIMClass      cc,
-                                   boolean       includeQualifiers,
-                                   boolean       includeClassOrigin,
-                                   String        propertyList[])
+   public CIMInstance getInstance (OperationContext oc,
+                                   CIMObjectPath    op,
+                                   CIMClass         cc,
+                                   boolean          includeQualifiers,
+                                   boolean          includeClassOrigin,
+                                   String           propertyList[])
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProvider::getInstance()");
@@ -114,8 +236,9 @@ public class TestJavaProvider implements InstanceProvider2
       return null;
    }
 
-   public void setInstance (CIMObjectPath cop,
-                            CIMInstance   cimInstance)
+   public void setInstance (OperationContext oc,
+                            CIMObjectPath    cop,
+                            CIMInstance      cimInstance)
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProvider::setInstance()");
@@ -131,7 +254,8 @@ public class TestJavaProvider implements InstanceProvider2
       data.put ((String)k, (String)d);
    }
 
-   public void deleteInstance (CIMObjectPath cop)
+   public void deleteInstance (OperationContext oc,
+                               CIMObjectPath    cop)
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProvider::deleteInstance()");
@@ -146,8 +270,9 @@ public class TestJavaProvider implements InstanceProvider2
       data.remove((String)k);
    }
 
-   public Vector enumerateInstanceNames (CIMObjectPath cop,
-                                         CIMClass      cimClass)
+   public Vector enumerateInstanceNames (OperationContext oc,
+                                         CIMObjectPath    cop,
+                                         CIMClass         cimClass)
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProvider::enumerateInstanceNames()");
@@ -170,11 +295,12 @@ public class TestJavaProvider implements InstanceProvider2
       return vec;
    }
 
-   public Vector enumerateInstances (CIMObjectPath cop,
-                                     CIMClass      cimClass,
-                                     boolean       includeQualifiers,
-                                     boolean       includeClassOrigin,
-                                     String        propertyList[])
+   public Vector enumerateInstances (OperationContext oc,
+                                     CIMObjectPath    cop,
+                                     CIMClass         cimClass,
+                                     boolean          includeQualifiers,
+                                     boolean          includeClassOrigin,
+                                     String           propertyList[])
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProvider::enumerateInstances()");
@@ -196,10 +322,11 @@ public class TestJavaProvider implements InstanceProvider2
       return vec;
    }
 
-   public Vector execQuery (CIMObjectPath cop,
-                            CIMClass      cimClass,
-                            String        queryStatement,
-                            String        queryLanguage)
+   public Vector execQuery (OperationContext oc,
+                            CIMObjectPath    cop,
+                            CIMClass         cimClass,
+                            String           queryStatement,
+                            String           queryLanguage)
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProvider::execQuery()");

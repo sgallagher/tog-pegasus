@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,8 @@
 //
 //==============================================================================
 //
-// Author:      Mark Hamzy, hamzy@us.ibm.com
+// Author:      Adrian Schuur, schuur@de.ibm.com
+//              Mark Hamzy, hamzy@us.ibm.com
 //
 // Modified By:
 //
@@ -38,46 +39,54 @@ package org.pegasus.jmpi;
 
 import java.util.Vector;
 
-public interface InstanceProvider2 extends CIMProvider
+public interface InstanceProvider2
+                 extends CIMProvider
 {
-    public CIMInstance getInstance                         (CIMObjectPath cop,
-                                                            CIMClass      cimClass,
-                                                            boolean       includeQualifiers,
-                                                            boolean       includeClassOrigin,
-                                                            String        propertyList[])
+    public CIMInstance getInstance                (OperationContext oc,
+                                                   CIMObjectPath    cop,
+                                                   CIMClass         cimClass,
+                                                   boolean          includeQualifiers,
+                                                   boolean          includeClassOrigin,
+                                                   String           propertyList[])
         throws CIMException;
 
 
-    public CIMObjectPath createInstance                    (CIMObjectPath cop,
-                                                            CIMInstance   cimInstance)
+    public CIMObjectPath createInstance           (OperationContext oc,
+                                                   CIMObjectPath    cop,
+                                                   CIMInstance      cimInstance)
         throws CIMException;
 
 
-    public abstract void setInstance                       (CIMObjectPath cop,
-                                                            CIMInstance   cimInstance)
+    public abstract void setInstance              (OperationContext oc,
+                                                   CIMObjectPath    cop,
+                                                   CIMInstance      cimInstance)
         throws CIMException;
 
 
-    public abstract void deleteInstance                    (CIMObjectPath cop)
+    public abstract void deleteInstance           (OperationContext oc,
+                                                   CIMObjectPath    cop)
          throws CIMException;
 
 
-    public abstract Vector enumerateInstances              (CIMObjectPath cop,
-                                                            CIMClass      cimClass,
-                                                            boolean       includeQualifiers,
-                                                            boolean       includeClassOrigin,
-                                                            String        propertyList[])
+    public abstract Vector enumerateInstances     (OperationContext oc,
+                                                   CIMObjectPath    cop,
+                                                   CIMClass         cimClass,
+                                                   boolean          includeQualifiers,
+                                                   boolean          includeClassOrigin,
+                                                   String           propertyList[])
         throws CIMException;
 
 
-    public abstract Vector enumerateInstanceNames          (CIMObjectPath cop,
-                                                            CIMClass      cimClass)
+    public abstract Vector enumerateInstanceNames (OperationContext oc,
+                                                   CIMObjectPath    cop,
+                                                   CIMClass         cimClass)
         throws CIMException;
 
 
-    public abstract Vector execQuery                       (CIMObjectPath cop,
-                                                            CIMClass      cimClass,
-                                                            String        queryStatement,
-                                                            String        queryLanguage)
+    public abstract Vector execQuery              (OperationContext oc,
+                                                   CIMObjectPath    cop,
+                                                   CIMClass         cimClass,
+                                                   String           queryStatement,
+                                                   String           queryLanguage)
         throws CIMException;
-};
+}

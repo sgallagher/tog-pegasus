@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -129,8 +129,9 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider2
         paths.addElement (cop2);
     }
 
-    public CIMObjectPath createInstance (CIMObjectPath cop,
-                                         CIMInstance   ci)
+    public CIMObjectPath createInstance (OperationContext oc,
+                                         CIMObjectPath    cop,
+                                         CIMInstance      ci)
        throws CIMException
     {
         if (this.fDebug)
@@ -171,11 +172,12 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider2
         return returnOp;
     }
 
-    public CIMInstance getInstance (CIMObjectPath cop,
-                                    CIMClass      cimClass,
-                                    boolean       includeQualifiers,
-                                    boolean       includeClassOrigin,
-                                    String        propertyList[])
+    public CIMInstance getInstance (OperationContext oc,
+                                    CIMObjectPath    cop,
+                                    CIMClass         cimClass,
+                                    boolean          includeQualifiers,
+                                    boolean          includeClassOrigin,
+                                    String           propertyList[])
        throws CIMException
     {
         if (this.fDebug)
@@ -214,8 +216,9 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider2
         return (CIMInstance)instances.elementAt (index);
     }
 
-    public void setInstance (CIMObjectPath cop,
-                             CIMInstance   cimInstance)
+    public void setInstance (OperationContext oc,
+                             CIMObjectPath    cop,
+                             CIMInstance      cimInstance)
        throws CIMException
     {
         if (this.fDebug)
@@ -242,7 +245,8 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider2
             throw new CIMException (CIMException.CIM_ERR_NOT_FOUND);
     }
 
-    public void deleteInstance (CIMObjectPath cop)
+    public void deleteInstance (OperationContext oc,
+                                CIMObjectPath    cop)
        throws CIMException
     {
         if (this.fDebug)
@@ -263,8 +267,9 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider2
             throw new CIMException (CIMException.CIM_ERR_NOT_FOUND);
     }
 
-    public Vector enumerateInstanceNames (CIMObjectPath cop,
-                                          CIMClass      cimClass)
+    public Vector enumerateInstanceNames (OperationContext oc,
+                                          CIMObjectPath    cop,
+                                          CIMClass         cimClass)
        throws CIMException
     {
         if (this.fDebug)
@@ -284,11 +289,12 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider2
         return paths;
     }
 
-    public Vector enumerateInstances (CIMObjectPath cop,
-                                      CIMClass      cimClass,
-                                      boolean       includeQualifiers,
-                                      boolean       includeClassOrigin,
-                                      String        propertyList[])
+    public Vector enumerateInstances (OperationContext oc,
+                                      CIMObjectPath    cop,
+                                      CIMClass         cimClass,
+                                      boolean          includeQualifiers,
+                                      boolean          includeClassOrigin,
+                                      String           propertyList[])
        throws CIMException
     {
         if (this.fDebug)
@@ -333,10 +339,11 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider2
     /**
      * Pegasus 2.4 version
      */
-    public Vector execQuery (CIMObjectPath cop,
-                             CIMClass      cimClass,
-                             String        queryStatement,
-                             String        queryLanguage)
+    public Vector execQuery (OperationContext oc,
+                             CIMObjectPath    cop,
+                             CIMClass         cimClass,
+                             String           queryStatement,
+                             String           queryLanguage)
        throws CIMException
     {
         ConvertibleVector returnVector = new ConvertibleVector ();

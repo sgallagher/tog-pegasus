@@ -28,6 +28,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+//
+// Author:      Mark Hamzy, hamzy@us.ibm.com
+//
+// Modified By:
+//
+//==============================================================================
 package org.pegasus.jmpi.sample;
 
 import org.pegasus.jmpi.*;
@@ -57,8 +63,9 @@ public class TestJavaProviderB implements InstanceProvider2
       System.err.println ("~~~ TestJavaProviderB::cleanup()");
    }
 
-   public CIMObjectPath createInstance (CIMObjectPath op,
-                                        CIMInstance   ci)
+   public CIMObjectPath createInstance (OperationContext oc,
+                                        CIMObjectPath    op,
+                                        CIMInstance      ci)
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProviderB::createInstance()");
@@ -79,11 +86,12 @@ public class TestJavaProviderB implements InstanceProvider2
       return op;
    }
 
-   public CIMInstance getInstance (CIMObjectPath op,
-                                   CIMClass      cc,
-                                   boolean       includeQualifiers,
-                                   boolean       includeClassOrigin,
-                                   String        propertyList[])
+   public CIMInstance getInstance (OperationContext oc,
+                                   CIMObjectPath    op,
+                                   CIMClass         cc,
+                                   boolean          includeQualifiers,
+                                   boolean          includeClassOrigin,
+                                   String           propertyList[])
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProviderB::getInstance(): op                 = " + op);
@@ -119,8 +127,9 @@ public class TestJavaProviderB implements InstanceProvider2
       return null;
    }
 
-   public void setInstance (CIMObjectPath cop,
-                            CIMInstance   cimInstance)
+   public void setInstance (OperationContext oc,
+                            CIMObjectPath    cop,
+                            CIMInstance      cimInstance)
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProviderB::setInstance()");
@@ -136,7 +145,8 @@ public class TestJavaProviderB implements InstanceProvider2
       data.put ((String)k, (String)d);
    }
 
-   public void deleteInstance (CIMObjectPath cop)
+   public void deleteInstance (OperationContext oc,
+                               CIMObjectPath    cop)
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProviderB::deleteInstance()");
@@ -151,8 +161,9 @@ public class TestJavaProviderB implements InstanceProvider2
       data.remove((String)k);
    }
 
-   public Vector enumerateInstanceNames (CIMObjectPath cop,
-                                         CIMClass      cimClass)
+   public Vector enumerateInstanceNames (OperationContext oc,
+                                         CIMObjectPath    cop,
+                                         CIMClass         cimClass)
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProviderB::enumerateInstanceNames()");
@@ -175,11 +186,12 @@ public class TestJavaProviderB implements InstanceProvider2
       return vec;
    }
 
-   public Vector enumerateInstances (CIMObjectPath cop,
-                                     CIMClass      cimClass,
-                                     boolean       includeQualifiers,
-                                     boolean       includeClassOrigin,
-                                     String        propertyList[])
+   public Vector enumerateInstances (OperationContext oc,
+                                     CIMObjectPath    cop,
+                                     CIMClass         cimClass,
+                                     boolean          includeQualifiers,
+                                     boolean          includeClassOrigin,
+                                     String           propertyList[])
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProviderB::enumerateInstances()");
@@ -239,10 +251,11 @@ Enumeration enumA2Instances = ch.enumerateInstances (cop,
       return vec;
    }
 
-   public Vector execQuery (CIMObjectPath cop,
-                            CIMClass      cimClass,
-                            String        queryStatement,
-                            String        queryLanguage)
+   public Vector execQuery (OperationContext oc,
+                            CIMObjectPath    cop,
+                            CIMClass         cimClass,
+                            String           queryStatement,
+                            String           queryLanguage)
       throws CIMException
    {
       System.err.println ("~~~ TestJavaProviderB::execQuery()");

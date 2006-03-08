@@ -34,8 +34,8 @@ instance of PG_ProviderModule
    Location = "JMPI_TestPropertyTypes.jar:org/pegasus/jmpi/tests/JMPI_TestPropertyTypes/JMPI_TestPropertyTypes";
    Vendor = "OpenPegasus";
    Version = "2.0.0";
-   InterfaceType = "JMPI";
-   InterfaceVersion = "1.0.0";
+   InterfaceType = "JMPIExperimental";
+   InterfaceVersion = "0.0.1";
 };
 
 instance of PG_Provider
@@ -44,7 +44,7 @@ instance of PG_Provider
    Name = "JMPI_TestPropertyTypes";
 };
 
-instance of PG_ProviderCapabilities 
+instance of PG_ProviderCapabilities
 {
    ProviderModuleName = "JMPI_TestPropertyTypesModule";
    ProviderName = "JMPI_TestPropertyTypes";
@@ -56,7 +56,7 @@ instance of PG_ProviderCapabilities
    SupportedMethods = NULL; // All methods
 };
 
-instance of PG_ProviderCapabilities 
+instance of PG_ProviderCapabilities
 {
    ProviderModuleName = "JMPI_TestPropertyTypesModule";
    ProviderName = "JMPI_TestPropertyTypes";

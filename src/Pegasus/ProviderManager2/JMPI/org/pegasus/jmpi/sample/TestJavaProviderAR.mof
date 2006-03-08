@@ -37,8 +37,8 @@ instance of PG_ProviderModule
    Location = "TestJavaProviderA.jar:org/pegasus/jmpi/sample/TestJavaProviderA";
    Vendor = "OpenPegasus";
    Version = "2.0.0";
-   InterfaceType = "JMPI";
-   InterfaceVersion = "2.0.0";
+   InterfaceType = "JMPIExperimental";
+   InterfaceVersion = "0.0.1";
 };
 
 instance of PG_Provider

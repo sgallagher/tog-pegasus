@@ -106,7 +106,7 @@
 ##       branch_diff_to_root
 ##       bracnh_diff_unmerged_branch
 ##       branch_diff_unmerged_trunk
-##       branch_diff_to_trunk
+##       branch_diff_to_trund
 ##       branch_merge_in
 ##       branch_merge_out
 ##       branch_migrate
@@ -665,7 +665,11 @@ branch_diff_unmerged_trunk: exists_minimum exists_BNAME
 ##  Note:     Must be executed from the directory where the top pegasus 
 ##            directory shall be placed when the checkout is performed 
 ##            to instantiate the working copy of the trunk within which 
-##            the merge will be performed 
+##            the merge will be performed.
+##
+##  Note:     You can start this process over prior to the commit by 
+##            removing the working copy of the tree and starting over with
+##            the branch_merge_in command.
 ##
 ##  Process:
 ##
@@ -684,8 +688,10 @@ branch_diff_unmerged_trunk: exists_minimum exists_BNAME
 ##     - Manually resolve any conflicts in the working copy of the trunk.
 ##
 ##   branch_merge_in_commit BNAME=(BRANCH NAME)
-##     - Check in merged changes from the working copy of the trunk into the 
-##           main branch.
+##     - Check in merged changes from the working copy of the trunk in.
+##     - executes branch_merge_in_finish  
+##
+##   If you chose to do a manual checkin then execute branch_merge_in_finish
 ##  
 ##   branch_merge_in_finish BNAME=(BRANCH NAME)
 ##     - Move the merged_in_to_trunk tag to the merging_in_to_trunk tag
@@ -723,6 +729,10 @@ branch_merge_in: exists_minimum exists_BNAME
 	@ $(ECHO) within the $(MODULE_NAME) directory to reset the appropriate
 	@ $(ECHO) branch management tags.
 	@ $(ECHO)
+	@ $(ECHO) You can start this process over prior to the commit by removing
+	@ $(ECHO) the working copy of the tree and then start over with
+	@ $(ECHO) "  $(MAKE) -f $(FILE_NAME) branch_merge_in BNAME=$(BNAME)" 
+	@ $(ECHO)
 	@ $(ECHO)
 
 
@@ -757,6 +767,10 @@ branch_merge_in_finish: exists_minimum exists_BNAME
 ##            to instantiate the working copy of the trunk within which 
 ##            the merge will be performed 
 ##
+##  Note:     You can start this process over prior to the commit by 
+##            removing the working copy of the tree and starting over with
+##            the branch_merge_out command.
+##
 ##  Process:
 ##
 ##   branch_merge_out BNAME=(BRANCH NAME)
@@ -771,11 +785,13 @@ branch_merge_in_finish: exists_minimum exists_BNAME
 ##                and merged on the subsequent merge_out. It is safer to 
 ##                do this than to risk the chance of missing a commit.
 ##     - Use update to merge in the trunk changes since last the merge_out.
-##     - Manually resolve any conflicts in the working copy of the trunk.
+##     - Manually resolve any conflicts in the working copy of the branch.
 ##
 ##   branch_merge_out_commit BNAME=(BRANCH NAME)    
-##     - Check in merged changes from the working copy of the trunk into the 
-##           branch. 
+##     - Check in merged changes from the working copy of the branch in.
+##     - executes branch_merge_out_finish  
+##
+##   If you chose to do a manual checkin then execute branch_merge_out_finish
 ##
 ##   branch_merge_out_finish BNAME=(BRANCH NAME)
 ##     - Move the merged_out_from_trunk tag to the merging_out_from_trunk tag
@@ -783,8 +799,6 @@ branch_merge_in_finish: exists_minimum exists_BNAME
 ##           the merging_out_to_branch tag
 ##     - Delete the  TASK-$(BNAME)-merging_out_from_trunk tag
 ##     - Delete the  TASK-$(BNAME)-merging_out_to_branch tag
-##        
-##
 ##
 ##
 branch_merge_out: exists_minimum exists_BNAME
@@ -811,6 +825,10 @@ branch_merge_out: exists_minimum exists_BNAME
 	@ $(ECHO) "  $(MAKE) -f $(FILE_NAME) branch_merge_out_finish BNAME=$(BNAME)"
 	@ $(ECHO) within the $(MODULE_NAME) directory to reset the appropriate
 	@ $(ECHO) branch management tags.
+	@ $(ECHO)
+	@ $(ECHO) You can start this process over prior to the commit by removing
+	@ $(ECHO) the working copy of the tree and then start over with
+	@ $(ECHO) "  $(MAKE) -f $(FILE_NAME) branch_merge_out BNAME=$(BNAME)" 
 	@ $(ECHO)
 	@ $(ECHO)
 
@@ -844,7 +862,12 @@ branch_merge_out_finish: exists_minimum exists_BNAME
 ##  Note:     Must be executed from the directory where the top pegasus 
 ##            directory shall be placed when the checkout is performed 
 ##            to instantiate the working copy of the trunk within which 
-##            the merge will be performed 
+##            the merge will be performed.
+##
+##  Note:     You can start this process over prior to the commit by 
+##            removing the working copy of the tree and doing a 
+##            "branch_delete (BNAME)_new" and then starting over with
+##            the branch_migrate command.
 ##
 ##  Process:
 ##
@@ -888,16 +911,26 @@ branch_migrate: exists_minimum exists_BNAME
 	@ $(ECHO) "  $(MAKE) -f $(FILE_NAME) branch_migrate_ci BNAME=$(BNAME)"
 	@ $(ECHO) within the $(MODULE_NAME) directory.
 	@ $(ECHO)
-	@ $(ECHO) If you chose to do a manual commit then after the commit 
-	@ $(ECHO) is complete then do a
-	@ $(ECHO)   "$(MAKE) -f $(FILE_NAME) branch_migrate_finish BNAME=$(BNAME)"
+	@ $(ECHO) After the commit is complete do either one of the following
+	@ $(ECHO) dependent on wheter you want the previous branch deleted or saved.
+	@ $(ECHO)
+	@ $(ECHO) This will delete the previous branch and move the branch management.
+	@ $(ECHO)
+	@ $(ECHO) "  $(MAKE) -f $(FILE_NAME) branch_migrate_finish BNAME=$(BNAME)"
 	@ $(ECHO) within the $(MODULE_NAME) directory to reset the appropriate
 	@ $(ECHO) branch management tags.
 	@ $(ECHO)
-	@ $(ECHO) If you wish to start this process over then do a
+	@ $(ECHO) This will rename the branch just migrated to keeping the old branch.
+	@ $(ECHO)
+	@ $(ECHO) "  $(MAKE) -f $(FILE_NAME) branch_rename BNAME=$(BNAME)_new NEW_BNAME=$(BNAME)_(VER)" 
+	@ $(ECHO) 
+	@ $(ECHO) You can start this process over prior to the commit by removing
+	@ $(ECHO) the working copy of the tree and then deleting the new branch this
+	@ $(ECHO) process created with
 	@ $(ECHO) "  $(MAKE) -f $(FILE_NAME) branch_delete BNAME=$(BNAME)_new"
-	@ $(ECHO) to remove the new branch that was created as the migration 
-	@ $(ECHO) target.
+	@ $(ECHO) and then start over with
+	@ $(ECHO) "  $(MAKE) -f $(FILE_NAME) branch_migrate BNAME=$(BNAME)" 
+	@ $(ECHO) 
 	@ $(ECHO)
 
 branch_migrate_ci branch_migrate_commit: exists_minimum exists_BNAME

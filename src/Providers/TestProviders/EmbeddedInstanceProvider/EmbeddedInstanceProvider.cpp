@@ -308,20 +308,26 @@ void EmbeddedInstanceProvider::createInstance(
   printf("Create Instance called\n");
     handler.processing();
     errorInstance.reset(new CIMInstance(obj));
+    Array<CIMName> propNameList;
+    propNameList.append(CIMName("errorKey"));
+    propNameList.append(CIMName("EmbeddedInst"));
+    CIMPropertyList propList(propNameList);
     CIMClass objClass = cimom.getClass(context,
       STATIC_REPOSITORY,
       obj.getClassName(),
-      false, true, false, CIMPropertyList());
+      false, true, false, propList);
     CIMObjectPath objPath = obj.buildPath(objClass);
     errorInstance->setPath(objPath);
+    errorInstance->filter(false, false, propList);
 
     repositoryPath = cimom.createInstance(context,
       STATIC_REPOSITORY, *errorInstance);
 
     CIMInstance repositoryInstance = cimom.getInstance(context,
-      STATIC_REPOSITORY, repositoryPath, false, true, true,
-      CIMPropertyList());
+      STATIC_REPOSITORY, repositoryPath, false, false, false,
+      propList);
     repositoryInstance.setPath(repositoryPath);
+    repositoryInstance.filter(false, false, propList);
     if(!errorInstance->identical(repositoryInstance))
     {
       std::cout << "Repository Instance: " << std::endl

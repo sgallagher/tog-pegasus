@@ -129,6 +129,18 @@ public:
     static String buildContentLanguageHeader(
         const ContentLanguageList& contentLanguages);
 
+#ifdef PEGASUS_HAS_ICU
+    /**
+        Converts a locale ID to language tag syntax by replacing the '_'
+        separators with '-' separators.
+        @param localeId The locale ID string to convert to language tag
+        syntax.  The conversion is performed on the localeId object
+        directly.
+        @return The converted String with language tag syntax.
+     */
+    static String& convertLocaleIdToLanguageTag(String& localeId);
+#endif
+
     /**
         Returns the default accept languages based on environment settings.
         ATTN: What is the behavior?  This is only implemented if MESSAGES and

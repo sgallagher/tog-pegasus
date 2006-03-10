@@ -268,16 +268,6 @@ private:
 		static String uChar2String(UChar * uchar_str, int len);
 		
         static void xferFormattable(Formatter::Arg& arg, Formattable &formattable);
-
-        /**
-            Converts a locale ID to language tag syntax by replacing the '_'
-            separators with '-' separators.
-            @param localeId The locale ID string to convert to language tag
-            syntax.  The conversion is performed on the localeId object
-            directly.
-            @return The converted String with language tag syntax.
-         */
-        static String& _convertLocaleIdToLanguageTag(String& localeId);
 	#endif
 	
 }; // end MessageLoader

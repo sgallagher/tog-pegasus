@@ -1,61 +1,55 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author:      Adrian Schuur, schuur@de.ibm.com
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
 
 #ifndef _Provider_JMPIImpl_h
 #define _Provider_JMPIImpl_h
 
-#include <Pegasus/Common/Config.h>
-
 #include <jni.h>
-
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-#if defined (__GNUC__) && GCC_VERSION >= 40000
-// If gcc is compiled with -fvisibility=hidden then JMPI is broken.
-// This is because the JNI h file defines JNIEXPORT as empty since
-// the default is visible.
-#undef  JNIEXPORT
-#define JNIEXPORT __attribute__ ((visibility("default")))
-#endif
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Mutex.h>
-#include <Pegasus/ProviderManager2/JMPI/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -65,29 +59,17 @@ PEGASUS_NAMESPACE_BEGIN
 #define Catch(jEnv) \
    catch(CIMException & e) { \
       JMPIjvm::cacheIDs(jEnv); \
-      jobject ev=jEnv->NewObject( \
-                     JMPIjvm::jv.CIMExceptionClassRef, \
-                     JMPIjvm::jv.CIMExceptionNewISt, \
-                     (jint)e.getCode(), \
-                     jEnv->NewStringUTF(e.getMessage().getCString())); \
+      jobject ev=jEnv->NewObject(JMPIjvm::jv.CIMExceptionClassRef,JMPIjvm::jv.CIMExceptionNewISt,(jint)e.getCode(),jEnv->NewStringUTF(e.getMessage().getCString())); \
       jEnv->Throw((jthrowable)ev); \
    } \
    catch(Exception & e) { \
       JMPIjvm::cacheIDs(jEnv);\
-      jobject ev=jEnv->NewObject( \
-                     JMPIjvm::jv.CIMExceptionClassRef, \
-                     JMPIjvm::jv.CIMExceptionNewISt, \
-                     (jint)1, \
-                     jEnv->NewStringUTF(e.getMessage().getCString())); \
+      jobject ev=jEnv->NewObject(JMPIjvm::jv.CIMExceptionClassRef,JMPIjvm::jv.CIMExceptionNewISt,(jint)1,jEnv->NewStringUTF(e.getMessage().getCString())); \
       jEnv->Throw((jthrowable)ev); \
    } \
    catch(...)  { \
       JMPIjvm::cacheIDs(jEnv); \
-      jobject ev=jEnv->NewObject( \
-                     JMPIjvm::jv.CIMExceptionClassRef, \
-                     JMPIjvm::jv.CIMExceptionNewISt, \
-                     (jint)1, \
-                     jEnv->NewStringUTF("Exception: Unknown")); \
+      jobject ev=jEnv->NewObject(JMPIjvm::jv.CIMExceptionClassRef,JMPIjvm::jv.CIMExceptionNewISt,(jint)1,"Exception: Unknown"); \
       jEnv->Throw((jthrowable)ev); \
    }
 
@@ -107,7 +89,7 @@ typedef struct jvmVector {
    const METHOD_STRUCT *instanceMethodNames;
 } JvmVector;
 
-class PEGASUS_JMPIPM_LINKAGE JMPIjvm {
+class JMPIjvm {
  public:
    static int trace;
    static JavaVM *jvm;
@@ -119,18 +101,10 @@ class PEGASUS_JMPIPM_LINKAGE JMPIjvm {
    static JNIEnv* attachThread(JvmVector **jvp);
    static void detachThread();
    static jobject getProvider(JNIEnv *env, const char *cn, jclass *cls) ;
-   static jobject getProvider(
-                      JNIEnv *env,
-                      String jar,
-                      String cln,
-                      const char *cn,
-                      jclass *cls) ;
+   static jobject getProvider(JNIEnv *env, String jar, String cln, const char *cn, jclass *cls) ;
    static void checkException(JNIEnv *env);
    static jstring NewPlatformString(JNIEnv *env,char *s);
-   static jobjectArray NewPlatformStringArray(
-                           JNIEnv *env,
-                           char **strv,
-                           int strc);
+   static jobjectArray NewPlatformStringArray(JNIEnv *env,char **strv, int strc);
    static int cacheIDs(JNIEnv *env);
    static int destroyJVM();
 
@@ -138,16 +112,8 @@ class PEGASUS_JMPIPM_LINKAGE JMPIjvm {
    static jclass getGlobalClassRef(JNIEnv *env, const char* name);
    static int initJVM();
 
-   typedef HashTable<
-               String,
-               jclass,
-               EqualFunc<String>,
-               HashFunc<String> >  ClassTable;
-   typedef HashTable<
-               String,
-               jobject,
-               EqualFunc<String>,
-               HashFunc<String> > ObjectTable;
+   typedef HashTable<String,jclass,EqualFunc<String>,HashFunc<String> >  ClassTable;
+   typedef HashTable<String,jobject,EqualFunc<String>,HashFunc<String> > ObjectTable;
 
    static ClassTable  _classTable;
    static ObjectTable _objectTable;
@@ -164,12 +130,10 @@ class _nameSpace {
    int port();
    String hostName();
    String nameSpace();
-   Boolean isHttps ();
    int port_;
    String protocol_;
    String hostName_;
    String nameSpace_;
-   Boolean fHttps;
 };
 
 class _dataType {
@@ -367,104 +331,97 @@ class _dataType {
    Boolean _fromProperty;
 };
 
-#define VectorClassRef                 classRefs[0]
-#define BooleanClassRef                classRefs[1]
-#define ByteClassRef                   classRefs[2]
-#define ShortClassRef                  classRefs[3]
-#define IntegerClassRef                classRefs[4]
-#define LongClassRef                   classRefs[5]
-#define FloatClassRef                  classRefs[6]
-#define DoubleClassRef                 classRefs[7]
-#define UnsignedInt8ClassRef           classRefs[8]
-#define UnsignedInt16ClassRef          classRefs[9]
-#define UnsignedInt32ClassRef          classRefs[10]
-#define UnsignedInt64ClassRef          classRefs[11]
-#define CIMObjectPathClassRef          classRefs[12]
-#define CIMExceptionClassRef           classRefs[13]
-#define BigIntegerClassRef             classRefs[14]
-#define CIMPropertyClassRef            classRefs[15]
-#define CIMOMHandleClassRef            classRefs[16]
-#define CIMClassClassRef               classRefs[17]
-#define CIMInstanceClassRef            classRefs[18]
-#define CIMValueClassRef               classRefs[19]
-#define ObjectClassRef                 classRefs[20]
-#define ThrowableClassRef              classRefs[21]
-#define StringClassRef                 classRefs[22]
-#define JarClassLoaderClassRef         classRefs[23]
-#define CIMDateTimeClassRef            classRefs[24]
-#define SelectExpClassRef              classRefs[25]
-#define CIMQualifierClassRef           classRefs[26]
-#define CIMQualifierTypeClassRef       classRefs[27]
-#define CIMFlavorClassRef              classRefs[28]
-#define CIMArgumentClassRef            classRefs[29]
-#define CIMInstanceExceptionClassRef   classRefs[30]
-#define CIMObjectClassRef              classRefs[31]
-#define CharacterClassRef              classRefs[32]
-#define OperationContextClassRef       classRefs[33]
-#define ClassClassRef                  classRefs[34]
-#define ByteArrayOutputStreamClassRef  classRefs[35]
-#define PrintStreamClassRef            classRefs[36]
+#define VectorClassRef               classRefs[0]
+#define BooleanClassRef              classRefs[1]
+#define ByteClassRef                 classRefs[2]
+#define ShortClassRef                classRefs[3]
+#define IntegerClassRef              classRefs[4]
+#define LongClassRef                 classRefs[5]
+#define FloatClassRef                classRefs[6]
+#define DoubleClassRef               classRefs[7]
+#define UnsignedInt8ClassRef         classRefs[8]
+#define UnsignedInt16ClassRef        classRefs[9]
+#define UnsignedInt32ClassRef        classRefs[10]
+#define UnsignedInt64ClassRef        classRefs[11]
+#define CIMObjectPathClassRef        classRefs[12]
+#define CIMExceptionClassRef         classRefs[13]
+#define BigIntegerClassRef           classRefs[14]
+#define CIMPropertyClassRef          classRefs[15]
+#define CIMOMHandleClassRef          classRefs[16]
+#define CIMClassClassRef             classRefs[17]
+#define CIMInstanceClassRef          classRefs[18]
+#define CIMValueClassRef             classRefs[19]
+#define ObjectClassRef               classRefs[20]
+#define ThrowableClassRef            classRefs[21]
+#define StringClassRef               classRefs[22]
+#define JarClassLoaderClassRef       classRefs[23]
+#define CIMDateTimeClassRef          classRefs[24]
+#define SelectExpClassRef            classRefs[25]
+#define CIMQualifierClassRef         classRefs[26]
+#define CIMQualifierTypeClassRef     classRefs[27]
+#define CIMFlavorClassRef            classRefs[28]
+#define CIMArgumentClassRef          classRefs[29]
+#define CIMInstanceExceptionClassRef classRefs[30]
+#define CIMObjectClassRef            classRefs[31]
+#define CharacterClassRef            classRefs[32]
+#define OperationContextClassRef     classRefs[33]
+#define ClassClassRef                classRefs[34]
 
-#define BigIntegerValueOf              staticMethodIDs[0]
-#define JarClassLoaderLoad             staticMethodIDs[1]
+#define BigIntegerValueOf            staticMethodIDs[0]
+#define JarClassLoaderLoad           staticMethodIDs[1]
 
-#define VectorNew                      instMethodIDs[0]
-#define VectorAddElement               instMethodIDs[15]
-#define VectorElementAt                instMethodIDs[16]
-#define VectorRemoveElementAt          instMethodIDs[30]
-#define VectorSize                     instMethodIDs[27]
-#define BooleanNewZ                    instMethodIDs[1]
-#define ByteNewB                       instMethodIDs[2]
-#define ShortNewS                      instMethodIDs[3]
-#define IntegerNewI                    instMethodIDs[4]
-#define LongNewJ                       instMethodIDs[5]
-#define FloatNewF                      instMethodIDs[6]
-#define DoubleNewD                     instMethodIDs[7]
-#define UnsignedInt8NewS               instMethodIDs[8]
-#define UnsignedInt16NewI              instMethodIDs[9]
-#define UnsignedInt32NewJ              instMethodIDs[10]
-#define UnsignedInt64NewBi             instMethodIDs[11]
-#define CIMObjectPathNewJ              instMethodIDs[12]
-#define CIMObjectPathCInst             instMethodIDs[21]
-#define CIMExceptionNewSt              instMethodIDs[13]
-#define CIMExceptionNewISt             instMethodIDs[32]
-#define CIMExceptionNewI               instMethodIDs[18]
-#define CIMExceptionNew                instMethodIDs[41]
-#define CIMExceptionNewStOb            instMethodIDs[42]
-#define CIMExceptionNewStObOb          instMethodIDs[43]
-#define CIMExceptionNewStObObOb        instMethodIDs[44]
-#define CIMExceptionGetCode            instMethodIDs[33]
-#define CIMExceptionGetID              instMethodIDs[26]
-#define CIMPropertyNewJ                instMethodIDs[14]
-#define CIMPropertyCInst               instMethodIDs[28]
-#define CIMOMHandleNewJSt              instMethodIDs[17]
-#define CIMOMHandleGetClass            instMethodIDs[29]
-#define CIMClassNewJ                   instMethodIDs[19]
-#define CIMClassCInst                  instMethodIDs[23]
-#define CIMInstanceNewJ                instMethodIDs[20]
-#define CIMInstanceCInst               instMethodIDs[22]
-#define CIMValueNewJ                   instMethodIDs[45]
-#define CIMValueCInst                  instMethodIDs[31]
-#define CIMDateTimeNewJ                instMethodIDs[34]
-#define SelectExpNewJ                  instMethodIDs[35]
-#define CIMQualifierNewJ               instMethodIDs[36]
-#define CIMFlavorNewI                  instMethodIDs[37]
-#define CIMFlavorGetFlavor             instMethodIDs[38]
-#define CIMArgumentNewJ                instMethodIDs[40]
-#define CIMArgumentCInst               instMethodIDs[39]
-#define ObjectToString                 instMethodIDs[24]
-#define ThrowableGetMessage            instMethodIDs[25]
-#define CIMObjectNewJZ                 instMethodIDs[46]
-#define CharacterNewC                  instMethodIDs[47]
-#define OperationContextNewJ           instMethodIDs[48]
-#define OperationContextUnassociate    instMethodIDs[49]
-#define ClassGetInterfaces             instMethodIDs[50]
-#define ClassGetName                   instMethodIDs[51]
-#define UnsignedInt64NewStr            instMethodIDs[52]
-#define ByteArrayOutputStreamNew       instMethodIDs[53]
-#define PrintStreamNewOb               instMethodIDs[54]
-#define ThrowablePrintStackTrace       instMethodIDs[55]
-#define ByteArrayOutputStreamToString  instMethodIDs[56]
+#define VectorNew                    instMethodIDs[0]
+#define VectorAddElement             instMethodIDs[15]
+#define VectorElementAt              instMethodIDs[16]
+#define VectorRemoveElementAt        instMethodIDs[30]
+#define VectorSize                   instMethodIDs[27]
+#define BooleanNewZ                  instMethodIDs[1]
+#define ByteNewB                     instMethodIDs[2]
+#define ShortNewS                    instMethodIDs[3]
+#define IntegerNewI                  instMethodIDs[4]
+#define LongNewJ                     instMethodIDs[5]
+#define FloatNewF                    instMethodIDs[6]
+#define DoubleNewD                   instMethodIDs[7]
+#define UnsignedInt8NewS             instMethodIDs[8]
+#define UnsignedInt16NewI            instMethodIDs[9]
+#define UnsignedInt32NewJ            instMethodIDs[10]
+#define UnsignedInt64NewBi           instMethodIDs[11]
+#define CIMObjectPathNewI            instMethodIDs[12]
+#define CIMObjectPathCInst           instMethodIDs[21]
+#define CIMExceptionNewSt            instMethodIDs[13]
+#define CIMExceptionNewISt           instMethodIDs[32]
+#define CIMExceptionNewI             instMethodIDs[18]
+#define CIMExceptionNew              instMethodIDs[41]
+#define CIMExceptionNewStOb          instMethodIDs[42]
+#define CIMExceptionNewStObOb        instMethodIDs[43]
+#define CIMExceptionNewStObObOb      instMethodIDs[44]
+#define CIMExceptionGetCode          instMethodIDs[33]
+#define CIMExceptionGetID            instMethodIDs[26]
+#define CIMPropertyNewI              instMethodIDs[14]
+#define CIMPropertyCInst             instMethodIDs[28]
+#define CIMOMHandleNewISt            instMethodIDs[17]
+#define CIMOMHandleGetClass          instMethodIDs[29]
+#define CIMClassNewI                 instMethodIDs[19]
+#define CIMClassCInst                instMethodIDs[23]
+#define CIMInstanceNewI              instMethodIDs[20]
+#define CIMInstanceCInst             instMethodIDs[22]
+#define CIMValueNewI                 instMethodIDs[45]
+#define CIMValueCInst                instMethodIDs[31]
+#define CIMDateTimeNewI              instMethodIDs[34]
+#define SelectExpNewI                instMethodIDs[35]
+#define CIMQualifierNewI             instMethodIDs[36]
+#define CIMFlavorNewI                instMethodIDs[37]
+#define CIMFlavorGetFlavor           instMethodIDs[38]
+#define CIMArgumentNewI              instMethodIDs[40]
+#define CIMArgumentCInst             instMethodIDs[39]
+#define ObjectToString               instMethodIDs[24]
+#define ThrowableGetMessage          instMethodIDs[25]
+#define CIMObjectNewIZ               instMethodIDs[46]
+#define CharacterNewC                instMethodIDs[47]
+#define OperationContextNewI         instMethodIDs[48]
+#define OperationContextUnassociate  instMethodIDs[49]
+#define ClassGetInterfaces           instMethodIDs[50]
+#define ClassGetName                 instMethodIDs[51]
 
 //extern "C" JNIEnv* attachThread(JvmVector**);
 //extern "C" void detachThread();

@@ -29,37 +29,27 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
+// Author:      Anuradha, anua@india.hp.com
+//              Mark Hamzy, hamzy@us.ibm.com
 //
-// Modified By:
+// Modified By: Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
+package org.pegasus.jmpi;
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-
-#include "JMPIProviderManager.h"
-
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
-
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
+public interface PropertyProvider2
+                 extends CIMProvider
 {
-#ifdef PEGASUS_DEBUG
-    PEGASUS_STD(cerr)<<"--- PegasusCreateProviderManager ("<<providerManagerName<<")"<<PEGASUS_STD(endl);
-#endif
+   public abstract CIMValue getPropertyValue (OperationContext oc,
+                                              CIMObjectPath    cop,
+                                              String           oclass,
+                                              String           pName)
+      throws CIMException;
 
-    if (  String::equalNoCase(providerManagerName, "JMPI")
-       || String::equalNoCase(providerManagerName, "JMPIExperimental")
-       )
-    {
-#ifdef PEGASUS_DEBUG
-        PEGASUS_STD(cerr)<<"--- JMPI Provider Manager activated"<<PEGASUS_STD(endl);
-#endif
-
-        return new JMPIProviderManager (JMPIProviderManager::CMPI_MODE);
-    }
-
-    return 0;
+   public abstract void     setPropertyValue (OperationContext oc,
+                                              CIMObjectPath    cop,
+                                              String           oclass,
+                                              String           pName,
+                                              CIMValue         val)
+      throws CIMException;
 }

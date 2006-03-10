@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,38 +28,42 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
-//%/////////////////////////////////////////////////////////////////////////////
-
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-
-#include "JMPIProviderManager.h"
-
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
-
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
+instance of PG_ProviderModule
 {
-#ifdef PEGASUS_DEBUG
-    PEGASUS_STD(cerr)<<"--- PegasusCreateProviderManager ("<<providerManagerName<<")"<<PEGASUS_STD(endl);
-#endif
+   Name = "JMPI_TestPropertyTypesModule";
+   Location = "JMPI_TestPropertyTypes.jar:org/pegasus/jmpi/tests/JMPI_TestPropertyTypes/JMPI_TestPropertyTypes";
+   Vendor = "OpenPegasus";
+   Version = "2.0.0";
+   InterfaceType = "JMPIExperimental";
+   InterfaceVersion = "0.0.1";
+};
 
-    if (  String::equalNoCase(providerManagerName, "JMPI")
-       || String::equalNoCase(providerManagerName, "JMPIExperimental")
-       )
-    {
-#ifdef PEGASUS_DEBUG
-        PEGASUS_STD(cerr)<<"--- JMPI Provider Manager activated"<<PEGASUS_STD(endl);
-#endif
+instance of PG_Provider
+{
+   ProviderModuleName = "JMPI_TestPropertyTypesModule";
+   Name = "JMPI_TestPropertyTypes";
+};
 
-        return new JMPIProviderManager (JMPIProviderManager::CMPI_MODE);
-    }
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "JMPI_TestPropertyTypesModule";
+   ProviderName = "JMPI_TestPropertyTypes";
+   CapabilityID = "1";
+   ClassName = "JMPI_TestElement";
+   Namespaces = {"test/static"};
+   ProviderType = { 2 }; // Instance
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};
 
-    return 0;
-}
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "JMPI_TestPropertyTypesModule";
+   ProviderName = "JMPI_TestPropertyTypes";
+   CapabilityID = "2";
+   ClassName = "JMPI_TestPropertyTypes";
+   Namespaces = {"test/static"};
+   ProviderType = { 2, 5 }; // Instance and Method
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};

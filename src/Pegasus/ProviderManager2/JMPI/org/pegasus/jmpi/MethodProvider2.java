@@ -30,36 +30,27 @@
 //==============================================================================
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
+//              Mark Hamzy, hamzy@us.ibm.com
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
+package org.pegasus.jmpi;
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+import java.util.Vector;
 
-#include "JMPIProviderManager.h"
-
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
-
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
+// In order to be compatible with SNIA providers we need to decide either to
+// Vectors of nameless CIMValues (old SNIA syle) or Vectors of named CIMProperties.
+//
+// This version will support Vectors of Named CIMProperties
+//
+public interface MethodProvider2
+                 extends CIMProvider
 {
-#ifdef PEGASUS_DEBUG
-    PEGASUS_STD(cerr)<<"--- PegasusCreateProviderManager ("<<providerManagerName<<")"<<PEGASUS_STD(endl);
-#endif
-
-    if (  String::equalNoCase(providerManagerName, "JMPI")
-       || String::equalNoCase(providerManagerName, "JMPIExperimental")
-       )
-    {
-#ifdef PEGASUS_DEBUG
-        PEGASUS_STD(cerr)<<"--- JMPI Provider Manager activated"<<PEGASUS_STD(endl);
-#endif
-
-        return new JMPIProviderManager (JMPIProviderManager::CMPI_MODE);
-    }
-
-    return 0;
+   public abstract CIMValue invokeMethod (OperationContext oc,
+                                          CIMObjectPath    cop,
+                                          String           name,
+                                          Vector           in,
+                                          Vector           out)
+      throws CIMException;
 }

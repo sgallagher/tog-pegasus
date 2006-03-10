@@ -30,36 +30,49 @@
 //==============================================================================
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
+//              Mark Hamzy, hamzy@us.ibm.com
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
+package org.pegasus.jmpi;
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+import java.util.Vector;
 
-#include "JMPIProviderManager.h"
-
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
-
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
+public interface AssociatorProvider2
+                 extends CIMProvider
 {
-#ifdef PEGASUS_DEBUG
-    PEGASUS_STD(cerr)<<"--- PegasusCreateProviderManager ("<<providerManagerName<<")"<<PEGASUS_STD(endl);
-#endif
+   public Vector associators     (OperationContext oc,
+                                  CIMObjectPath    assocName,
+                                  CIMObjectPath    pathName,
+                                  String           resultClass,
+                                  String           role,
+                                  String           resultRole,
+                                  boolean          includeQualifiers,
+                                  boolean          includeClassOrigin,
+                                  String[]         propertyList)
+      throws CIMException;
 
-    if (  String::equalNoCase(providerManagerName, "JMPI")
-       || String::equalNoCase(providerManagerName, "JMPIExperimental")
-       )
-    {
-#ifdef PEGASUS_DEBUG
-        PEGASUS_STD(cerr)<<"--- JMPI Provider Manager activated"<<PEGASUS_STD(endl);
-#endif
+   public Vector associatorNames (OperationContext oc,
+                                  CIMObjectPath    assocName,
+                                  CIMObjectPath    pathName,
+                                  String           resultClass,
+                                  String           role,
+                                  String           resultRole)
+      throws CIMException;
 
-        return new JMPIProviderManager (JMPIProviderManager::CMPI_MODE);
-    }
+   public Vector references      (OperationContext oc,
+                                  CIMObjectPath    assocName,
+                                  CIMObjectPath    pathName,
+                                  String           role,
+                                  boolean          includeQualifiers,
+                                  boolean          includeClassOrigin,
+                                  String[]         propertyList)
+      throws CIMException;
 
-    return 0;
+   public Vector referenceNames  (OperationContext oc,
+                                  CIMObjectPath    assocName,
+                                  CIMObjectPath    pathName,
+                                  String           role)
+      throws CIMException;
 }

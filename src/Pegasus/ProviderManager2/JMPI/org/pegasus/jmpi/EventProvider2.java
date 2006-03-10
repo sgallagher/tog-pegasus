@@ -30,36 +30,40 @@
 //==============================================================================
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
+//              Mark Hamzy, hamzy@us.ibm.com
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
+package org.pegasus.jmpi;
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-
-#include "JMPIProviderManager.h"
-
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
-
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
+public interface EventProvider2
+                 extends CIMProvider
 {
-#ifdef PEGASUS_DEBUG
-    PEGASUS_STD(cerr)<<"--- PegasusCreateProviderManager ("<<providerManagerName<<")"<<PEGASUS_STD(endl);
-#endif
+   public void    authorizeFilter  (OperationContext oc,
+                                    SelectExp        filter,
+                                    String           eventType,
+                                    CIMObjectPath    classPath,
+                                    String           owner)
+      throws CIMException;
 
-    if (  String::equalNoCase(providerManagerName, "JMPI")
-       || String::equalNoCase(providerManagerName, "JMPIExperimental")
-       )
-    {
-#ifdef PEGASUS_DEBUG
-        PEGASUS_STD(cerr)<<"--- JMPI Provider Manager activated"<<PEGASUS_STD(endl);
-#endif
+   public boolean mustPoll         (OperationContext oc,
+                                    SelectExp        filter,
+                                    String           eventType,
+                                    CIMObjectPath    classPath)
+      throws CIMException;
 
-        return new JMPIProviderManager (JMPIProviderManager::CMPI_MODE);
-    }
+   public void    activateFilter   (OperationContext oc,
+                                    SelectExp        filter,
+                                    String           eventType,
+                                    CIMObjectPath    classPath,
+                                    boolean          firstActivation)
+      throws CIMException;
 
-    return 0;
+   public void    deActivateFilter (OperationContext oc,
+                                    SelectExp        filter,
+                                    String           eventType,
+                                    CIMObjectPath    classPath,
+                                    boolean          lastActivation)
+      throws CIMException;
 }

@@ -30,36 +30,20 @@
 //==============================================================================
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
+//              Mark Hamzy, hamzy@us.ibm.com
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
+package org.pegasus.jmpi;
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-
-#include "JMPIProviderManager.h"
-
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
-
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
+public interface CIMMethodProvider2
+                 extends CIMProvider
 {
-#ifdef PEGASUS_DEBUG
-    PEGASUS_STD(cerr)<<"--- PegasusCreateProviderManager ("<<providerManagerName<<")"<<PEGASUS_STD(endl);
-#endif
-
-    if (  String::equalNoCase(providerManagerName, "JMPI")
-       || String::equalNoCase(providerManagerName, "JMPIExperimental")
-       )
-    {
-#ifdef PEGASUS_DEBUG
-        PEGASUS_STD(cerr)<<"--- JMPI Provider Manager activated"<<PEGASUS_STD(endl);
-#endif
-
-        return new JMPIProviderManager (JMPIProviderManager::CMPI_MODE);
-    }
-
-    return 0;
+   public CIMValue invokeMethod (OperationContext oc,
+                                 CIMObjectPath    op,
+                                 String           methodName,
+                                 CIMArgument[]    inArgs,
+                                 CIMArgument[]    outArgs)
+      throws CIMException;
 }

@@ -90,6 +90,17 @@
 ###   come from the users's .cvsrc file. These rules set specific options that
 ###   are required for the operation to be performed.
 ###
+###  Branch Management Terminolgy:
+###
+###   branch merge out - The act of merging changes from the trunk, that have occured
+###                      since the branch was either created or last merged out
+###                      into the branch.
+###   branch merge in  - The act of merging changes from the branch, that have occured
+###                      since the branch was either created or last merged in, 
+###                      into the trunk.
+###   branch migration - The act of migrating all the changes on the branch, that have
+###                      not been merged into the trunk, to another branch rooted at 
+###                      the current head of the trunk.
 ###
 ##  Functions:
 ##       usage
@@ -129,7 +140,8 @@
 ##   BRANCH_NAME  - is the name of the branch as described above.
 ##   ACTION       - is the action or purpose of the tag. It is one of the following:
 ##                  root, branch, merged_in, merged_out, merging_in or merging_out.
-##   DIRECTION    - is the direction of the ACTION relative to the LOCATION.
+##   DIRECTION    - is the direction of the ACTION relative to the LOCATION, either
+##                  to or from.
 ##   LOCATION     - is the associated location of the tag. It is either on the trunk
 ##                    or branch.
 ##                  Note that the ACTION root does not have a DIRECTION or LOCATION 

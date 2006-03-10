@@ -125,35 +125,6 @@ protected:
     CIMClass _cimClass;
 
 };
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-class PEGASUS_COMMON_LINKAGE NormalizerContextContainer
-    : virtual public OperationContext::Container
-{
-public:
-    static const String NAME;
-
-    NormalizerContextContainer(const OperationContext::Container & container);
-
-    NormalizerContextContainer(
-        AutoPtr<NormalizerContext> & normalizerContext);
-
-    virtual ~NormalizerContextContainer();
-
-    NormalizerContextContainer & operator=(
-        NormalizerContextContainer & container);
-
-    virtual String getName() const;
-    virtual OperationContext::Container * clone() const;
-    virtual void destroy();
-
-    NormalizerContext * getContext(void) const;
-
-protected:
-    AutoPtr<NormalizerContext> _context;
-};
-#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 PEGASUS_NAMESPACE_END
 

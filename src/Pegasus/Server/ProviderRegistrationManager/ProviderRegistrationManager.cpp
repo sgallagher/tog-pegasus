@@ -1939,9 +1939,26 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             if (posModuleName == PEG_NOT_FOUND || providerModuleName.size() == 0 ||
                 posVendor == PEG_NOT_FOUND || vendor.size() == 0 ||
                 posVersion == PEG_NOT_FOUND || version.size() == 0 ||
-                posInterfaceType == PEG_NOT_FOUND || interfaceType.size() == 0 ||
+                posInterfaceType == PEG_NOT_FOUND ||
                 posInterfaceVersion == PEG_NOT_FOUND ||
-                interfaceVersion.size() == 0 ||
+                !(((interfaceType == "C++Default") &&
+                   ((interfaceVersion == "2.1.0") ||
+                    (interfaceVersion == "2.2.0") ||
+                    (interfaceVersion == "2.3.0") ||
+                    (interfaceVersion == "2.5.0")))
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+                  || ((interfaceType == "CMPI") &&
+                      (interfaceVersion == "2.0.0"))
+#endif
+#ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
+                  || ((interfaceType == "JMPI") &&
+                      (interfaceVersion == "1.0.0") ||
+                      (interfaceVersion == "2.0.0") ||
+                      (interfaceVersion == "2.2.0"))
+                  || ((interfaceType == "JMPIExperimental") &&
+                      (interfaceVersion == "0.0.1"))
+#endif
+                 ) ||
                 posLocation == PEG_NOT_FOUND || location.size() == 0
 #ifdef PEGASUS_DISABLE_PROV_USERCTXT
                 || (userContextSpecified)

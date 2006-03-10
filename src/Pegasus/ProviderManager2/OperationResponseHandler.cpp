@@ -40,8 +40,62 @@
 #include "OperationResponseHandler.h"
 
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Provider/CIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+/**********************************************************
+ * Define CIMOMHandleContext class
+ **********************************************************/
+class CIMOMHandleContext : public NormalizerContext
+{
+public:
+    CIMOMHandleContext() {}
+    virtual ~CIMOMHandleContext() {}
+
+    virtual CIMClass getClass(
+	      const CIMNamespaceName& nameSpace,
+	      const CIMName& name);
+
+    virtual Array<CIMName> enumerateClassNames(
+        const CIMNamespaceName& nameSpace, const CIMName& className,
+        bool deepInheritance);
+
+    virtual AutoPtr<NormalizerContext> clone();
+
+protected:
+    CIMOMHandleContext(CIMOMHandle & hndl) : handle(hndl) {}
+private:
+    CIMOMHandle handle;
+    OperationContext emptyContext;
+};
+
+CIMClass CIMOMHandleContext::getClass(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& name)
+{
+    // Get the whole class definition
+    return handle.getClass(emptyContext, nameSpace, name, false, true, true,
+        CIMPropertyList());
+}
+
+Array<CIMName> CIMOMHandleContext::enumerateClassNames(
+    const CIMNamespaceName& nameSpace, const CIMName& className,
+    bool deepInheritance)
+{
+    return handle.enumerateClassNames(emptyContext, nameSpace, className,
+        deepInheritance);
+}
+
+AutoPtr<NormalizerContext> CIMOMHandleContext::clone()
+{
+  AutoPtr<NormalizerContext> tmpPtr(new CIMOMHandleContext(handle));
+  return tmpPtr;
+}
+
+/**********************************************************
+ * End CIMOMHandleContext class
+ **********************************************************/
 
 //
 // OperationResponseHandler
@@ -279,8 +333,6 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
     // operation. If it does not exist, then this feature is disabled for this
     // operation.
     CIMClass cimClass;
-    
-    NormalizerContext * context = 0;
 
     try
     {
@@ -288,11 +340,6 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
             request->operationContext.get(CachedClassDefinitionContainer::NAME);
 
         cimClass = container.getClass();
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        NormalizerContextContainer contextContainer =
-            request->operationContext.get(NormalizerContextContainer::NAME);
-        context = contextContainer.getContext();
-#endif //PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     }
     catch(Exception &)
     {
@@ -300,13 +347,14 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
         // for this operation.
     }
 
-    _normalizer =
-        ObjectNormalizer(
-            cimClass,
-            request->includeQualifiers,
-            request->includeClassOrigin,
-            request->nameSpace,
-            context);
+    AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
+    ObjectNormalizer tmpNormalizer(
+        cimClass,
+        request->includeQualifiers,
+        request->includeClassOrigin,
+        request->nameSpace,
+        tmpContext);
+    _normalizer = tmpNormalizer;
     #endif
 }
 
@@ -403,7 +451,6 @@ EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
     // operation. If it does not exist, then this feature is disabled for this
     // operation.
     CIMClass cimClass;
-    NormalizerContext * context = 0;
 
     try
     {
@@ -411,11 +458,6 @@ EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
             request->operationContext.get(CachedClassDefinitionContainer::NAME);
 
         cimClass = container.getClass();
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        NormalizerContextContainer contextContainer =
-            request->operationContext.get(NormalizerContextContainer::NAME);
-        context = contextContainer.getContext();
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     }
     catch(Exception &)
     {
@@ -423,14 +465,15 @@ EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
         // for this operation.
     }
 
-    _normalizer =
-        ObjectNormalizer(
-            cimClass,
-            request->includeQualifiers,
-            request->includeClassOrigin,
-            request->nameSpace,
-            context);
-    #endif
+    AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
+    ObjectNormalizer tmpNormalizer(
+        cimClass,
+        request->includeQualifiers,
+        request->includeClassOrigin,
+        request->nameSpace,
+        tmpContext);
+    _normalizer = tmpNormalizer;
+#endif
 }
 
 void EnumerateInstancesResponseHandler::deliver(const CIMInstance & cimInstance)
@@ -479,7 +522,6 @@ EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
     // operation. If it does not exist, then this feature is disabled for this
     // operation.
     CIMClass cimClass;
-    NormalizerContext * context = 0;
 
     try
     {
@@ -487,11 +529,6 @@ EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
             request->operationContext.get(CachedClassDefinitionContainer::NAME);
 
         cimClass = container.getClass();
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        NormalizerContextContainer contextContainer =
-            request->operationContext.get(NormalizerContextContainer::NAME);
-        context = contextContainer.getContext();
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     }
     catch(Exception &)
     {
@@ -499,14 +536,15 @@ EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
         // for this operation.
     }
 
-    _normalizer =
-        ObjectNormalizer(
-            cimClass,
-            false,
-            false,
-            request->nameSpace,
-            context);
-    #endif
+    AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
+    ObjectNormalizer tmpNormalizer(
+        cimClass,
+        false,
+        false,
+        request->nameSpace,
+        tmpContext);
+    _normalizer = tmpNormalizer;
+#endif
 }
 
 void EnumerateInstanceNamesResponseHandler::deliver(const CIMObjectPath & cimObjectPath)

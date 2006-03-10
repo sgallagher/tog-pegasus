@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,14 +28,22 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+// 
+// This example of how to call lib$initialize from C++ was taken 
+// from the internal notes file: cxxc_bugs 11466.4
+//
+#include <unixlib.h>      // decc$feature_get_index(), set_value()
+#include <stdio.h>        // perror()
+#include <errno.h>        // errno
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-#include <unixlib.h>
-#include <stdio.h>
-#include <errno.h>
+typedef void (*fptr_t)(void);
 
-int decc$feature_get_index(const char *name);
-int decc$feature_set_value(int index, int mode, int value);
+void LIB$INITIALIZE();
 
 //
 // Sets current value for a feature
@@ -65,7 +73,11 @@ static void set_coe(void)
   set ("DECC$EFS_CHARSET", TRUE);
   set ("DECC$EFS_FILE_TIMESTAMPS", TRUE);
   set ("DECC$FILENAME_UNIX_NO_VERSION", TRUE);
+#if !defined FILENAME_UNIX_REPORT_FALSE
   set ("DECC$FILENAME_UNIX_REPORT", TRUE);
+#else
+  set ("DECC$FILENAME_UNIX_REPORT", FALSE);
+#endif
   set ("DECC$FILE_OWNER_UNIX", TRUE);
   set ("DECC$FILE_PERMISSION_UNIX", TRUE);
   set ("DECC$READDIR_DROPDOTNOTYPE", TRUE);
@@ -74,14 +86,16 @@ static void set_coe(void)
 }
 
 
-int LIB$INITIALIZE();
+fptr_t x = LIB$INITIALIZE;
 
 #pragma extern_model save
-#pragma extern_model strict_refdef "LIB$INITIALIZ" nopic,con,rel,gbl,noshr,noexe,nowrt,novec,long
-    int spare[8] = {0};
 
-#pragma extern_model strict_refdef "LIB$INITIALIZE" nopic,con,rel,gbl,noshr,noexe,nowrt,novec,long
-    void (*x_set_coe)() = set_coe;
+#pragma extern_model strict_refdef "LIB$INITIALIZD_" gbl,noexe,nowrt,noshr,long
+  extern const fptr_t y = set_coe;
 
 #pragma extern_model restore
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 

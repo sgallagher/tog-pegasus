@@ -329,49 +329,6 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
     response.setComplete(isComplete);
 }
 
-/**********************************************************
- * Define CIMOMHandleContext class
- **********************************************************/
-class CIMOMHandleContext : public NormalizerContext
-{
-public:
-    CIMOMHandleContext() {}
-    virtual ~CIMOMHandleContext() {}
-
-    virtual CIMClass getClass(
-	      const CIMNamespaceName& nameSpace,
-	      const CIMName& name);
-
-    virtual Array<CIMName> enumerateClassNames(
-        const CIMNamespaceName& nameSpace, const CIMName& className,
-        bool deepInheritance);
-
-private:
-    CIMOMHandle handle;
-    OperationContext emptyContext;
-};
-
-CIMClass CIMOMHandleContext::getClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& name)
-{
-    // Get the whole class definition
-    return handle.getClass(emptyContext, nameSpace, name, false, true, true,
-        CIMPropertyList());
-}
-
-Array<CIMName> CIMOMHandleContext::enumerateClassNames(
-    const CIMNamespaceName& nameSpace, const CIMName& className,
-    bool deepInheritance)
-{
-    return handle.enumerateClassNames(emptyContext, nameSpace, className,
-        deepInheritance);
-}
-
-/**********************************************************
- * End CIMOMHandleContext class
- **********************************************************/
-
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     CIMRepository* repository,
     ProviderRegistrationManager* providerRegistrationManager)
@@ -2487,11 +2444,6 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
        if(_enableNormalization && providerInfo.hasProviderNormalization)
        {
            requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-           AutoPtr<NormalizerContext> context(new CIMOMHandleContext());
-           requestCopy->operationContext.insert(
-              NormalizerContextContainer(context));
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
        }
 #endif
 
@@ -3664,11 +3616,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         if(_enableNormalization && providerInfo.hasProviderNormalization)
         {
             requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-            AutoPtr<NormalizerContext> context(new CIMOMHandleContext());
-           requestCopy->operationContext.insert(
-              NormalizerContextContainer(context));
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
 #endif
 
@@ -4036,11 +3983,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         if(_enableNormalization && providerInfo.hasProviderNormalization)
         {
             requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-            AutoPtr<NormalizerContext> context(new CIMOMHandleContext());
-           requestCopy->operationContext.insert(
-              NormalizerContextContainer(context));
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
 #endif
 

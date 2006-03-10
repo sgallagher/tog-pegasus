@@ -345,7 +345,7 @@ int main(int argc, char** argv)
     String query2cql="SELECT MethodName FROM RT_TestIndication WHERE IndicationIdentifier <> 'x'";
     
     String wql("WQL");
-    String cql("CIM:CQL");
+    String cql("DMTF:CQL");
 
     PEGASUS_STD (cout) << "+++++ start wql test" << PEGASUS_STD (endl);
     int rc;

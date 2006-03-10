@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,6 +34,7 @@
 // Modified By: Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
+
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
@@ -299,10 +300,13 @@ Boolean OperatingSystem::getDescription(String & description)
 
 Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
 {
+  Boolean bStatus;
   int status,
     istr;
   char record1[512],
    *rptr1 = 0;
+  char *HistFile = 0;
+  char  cmd[512];
   FILE *fptr1 = 0;
   unsigned __int64 bintime = 0;
   unsigned short int timbuf[7],
@@ -332,18 +336,63 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
   }
   item_list;
 
+  // A temp file is used to avoid a filename collision when two users
+  // call OsInfo at the same time.
+  // Note: The prefix string is limited to 5 chars.
+  //       P3 = 0 returns unix format \sys$sratch\hist_acca.out
+  //       P3 = 1 returns vms format. sys$scratch:hist_acca.out
+  HistFile = tempnam(NULL, "hist_", 1);
+  if (!HistFile) {
+    bStatus = false;
+    goto done;
+  }
+  strcat(HistFile, ".out");
+
   sysinfo.dsc$b_dtype = DSC$K_DTYPE_T;
   sysinfo.dsc$b_class = DSC$K_CLASS_S;
   sysinfo.dsc$w_length = sizeof (t_string);
   sysinfo.dsc$a_pointer = t_string;
 
-  status = system("pipe product show history openvms | search/nolog/nowarn/out=history.out sys$input install");
+
+  // "pipe product show history openvms | 
+  //       search/nolog/nowarn/out=history.out sys$input install");
+  strcpy(cmd, "pipe product show history openvms | search/nolog/nowarn/out=");
+  strcat(cmd, HistFile);
+  strcat(cmd, " sys$input install");
+
+// Note: The format of this string has changed from 8.2 to 8.3. Now it has
+//       just the date, no time.
+// OpenVMS 8.2
+// $ product sho history openvms
+// ----------------------------------- ----------- ----------- --------------------
+// PRODUCT                             KIT TYPE    OPERATION   DATE AND TIME
+// ----------------------------------- ----------- ----------- --------------------
+// HP I64VMS OPENVMS V8.2              Platform    Install     25-JAN-2005 10:26:24
+// HP I64VMS OPENVMS X8.2-ALQ          Platform    Remove      25-JAN-2005 10:26:24
+//
+// VI::_TNA37:> product sho history openvms
+// ------------------------------------ ----------- ----------- --- -----------
+// PRODUCT                              KIT TYPE    OPERATION   VAL DATE
+// ------------------------------------ ----------- ----------- --- -----------
+// HP I64VMS OPENVMS X8.3-B49           Platform    Install     (U) 09-JAN-2006
+// HP I64VMS OPENVMS X8.3-B3K           Platform    Remove       -  09-JAN-2006
+//
+
+
+  status = system(cmd);
   if (!$VMS_STATUS_SUCCESS(status))
   {
-    return false;
+    bStatus = false;
   }
 
-  if (fptr1 = fopen("history.out", "r"))
+  // "if (f$search(\"history.out\") .nes. \"\") then delete history.out;*"
+  strcpy(cmd, "if (f$search(\"");
+  strcat(cmd, HistFile);
+  strcat(cmd, "\") .nes. \"\") then delete ");
+  strcat(cmd, HistFile);
+  strcat(cmd, ";*");
+
+  if (fptr1 = fopen(HistFile, "r"))
   {
     while (fgets(record1, sizeof (record1), fptr1))
     {
@@ -360,6 +409,19 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
 	time(&tme);
 	tme1 = mktime(ptimetm);	/* get timezone */
 	strcpy(t_string, rptr1 - 2);
+        if (t_string[11] == 10) {
+          // a <cr>. 
+          // When the date; but not the time is provided, fill in zeros.
+          t_string[11] = ' ';
+          t_string[12] = '0';
+          t_string[13] = '0';
+          t_string[14] = ':';
+          t_string[15] = '0';
+          t_string[16] = '0';
+          t_string[17] = ':';
+          t_string[18] = '0';
+          t_string[19] = '0';
+        }
 	t_string[20] = '.';
 	t_string[21] = '0';
 	t_string[22] = '0';
@@ -367,27 +429,24 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
 	status = sys$bintim(&sysinfo, &bintime);
 	if (!$VMS_STATUS_SUCCESS(status))
 	{
-	  fclose(fptr1);
-	  fptr1 = 0;
-	  return false;
+	  bStatus = false;
+          goto done;
 	}
 
 	libop = LIB$K_DAY_OF_WEEK;
 	status = lib$cvt_from_internal_time(&libop, &libdayweek, &bintime);
 	if (!$VMS_STATUS_SUCCESS(status))
 	{
-	  fclose(fptr1);
-	  fptr1 = 0;
-	  return false;
+	  bStatus = false;
+          goto done;
 	}
 
 	libop = LIB$K_DAY_OF_YEAR;
 	status = lib$cvt_from_internal_time(&libop, &libdayear, &bintime);
 	if (!$VMS_STATUS_SUCCESS(status))
 	{
-	  fclose(fptr1);
-	  fptr1 = 0;
-	  return false;
+	  bStatus = false;
+          goto done;
 	}
 
 	dst_desc[0] = strlen(log_string);
@@ -401,17 +460,15 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
 	status = sys$trnlnm(0, &lnm_tbl, &dst_desc, 0, &item_list);
 	if (!$VMS_STATUS_SUCCESS(status))
 	{
-	  fclose(fptr1);
-	  fptr1 = 0;
-	  return false;
+	  bStatus = false;
+          goto done;
 	}
 
 	status = sys$numtim(timbuf, &bintime);
 	if (!$VMS_STATUS_SUCCESS(status))
 	{
-	  fclose(fptr1);
-	  fptr1 = 0;
-	  return false;
+	  bStatus = false;
+          goto done;
 	}
 
 	timetm.tm_sec = timbuf[5];
@@ -428,32 +485,42 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
 	status = convertToCIMDateString(ptimetm, cimtime);
 	if (!$VMS_STATUS_SUCCESS(status))
 	{
-	  fclose(fptr1);
-	  fptr1 = 0;
-	  return false;
+	  bStatus = false;
+          goto done;
 	}
 
 	installDate.clear();
 	installDate.set(cimtime);
 
-	status = system("if (f$search(\"history.out\") .nes. \"\") then delete history.out;*");
-	fclose(fptr1);
-	fptr1 = 0;
-	return true;
+	bStatus = true;
+        goto done;
       }				// end if (rptr1 = strstr(record1,"Install"))
 
     }
-    fclose(fptr1);
-    fptr1 = 0;
-    status = system("if (f$search(\"history.out\") .nes. \"\") then delete history.out;*");
-    return false;
-  }				// end if (fptr1 = fopen(history.out, "r"))
+    bStatus = false;
+    goto done;
+  }				// end if (fptr1 = fopen(HistFile, "r"))
 
   else
   {
-    status = system("if (f$search(\"history.out\") .nes. \"\") then delete history.out;*");
-    return false;
+    bStatus = false;
+    goto done;
   }
+
+done:
+
+if (fptr1) {
+  fclose(fptr1);
+  fptr1 = 0;
+}
+
+status = system(cmd);
+if (HistFile) {
+  free(HistFile);
+  HistFile = 0;
+}
+
+return bStatus;
 }
 
 //
@@ -730,84 +797,186 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16 & currentTimeZone)
 
 Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers)
 {
+  Boolean bStatus = false;
   int status,
-    loaded_units,
-    req_units;
-  char record1[512],
-    record2[512],
-   *rptr1 = 0,
-   *rptr2 = 0,
-   *rptr3 = 0;
+      loaded_units,
+      req_units;
+  char  record1[512],
+        record2[512],
+       *rptr1 = 0,
+       *rptr2 = 0,
+       *rptr3 = 0;
+  char *UsageFile = 0;
+  char *UnitsFile = 0;
+  char  usage_cmd[512];
+  char  units_cmd[512];
   FILE *fptr1 = 0,
-   *fptr2 = 0;
+       *fptr2 = 0;
 
-  status = system("show license/usage/out=usage.out openvms-alpha");
+
+  // A temp file is used to avoid a filename collision when two users
+  // call OsInfo at the same time.
+  // Note: The prefix string is limited to 5 chars.
+  //       P3 = 0 returns unix format \sys$sratch\usageacca.out
+  //       P3 = 1 returns vms format. sys$scratch:usageacca.out
+  UsageFile = tempnam(NULL, "usage", 1);
+  if (!UsageFile) {
+    bStatus = false;
+    goto done;
+  }
+  strcat(UsageFile, ".out");
+
+  UnitsFile = tempnam(NULL, "units", 1);
+  if (!UnitsFile) {
+    bStatus = false;
+    goto done;
+  }
+  strcat(UnitsFile, ".out");
+
+// Note: This code may not work on non-English versions of OpenVMS...
+//
+// Alpha
+// $ sho lic/usage
+//
+// View of loaded licenses from node WALNUT                20-JAN-2006 11:57:02.12
+//
+// ------- Product ID --------   ---- Unit usage information ----
+// Product            Producer       Loaded  Allocated  Available
+// ACMS               DEC        Unlimited license, no usage information
+// ADA                DEC        Unlimited license, no usage information
+// ...
+// OPENVMS-ALPHA      DEC        Unlimited license, no usage information
+// OPENVMS-ALPHA-USER DEC        Unlimited license, no usage information
+// OPENVMS-GALAXY     DEC        Unlimited license, no usage information
+//
+// I64
+// $ sho lic/usage
+//
+// View of loaded licenses from node RED           20-JAN-2006 11:54:54.12
+//
+// ------- Product ID --------   ---- Unit usage information ----------------
+// Product            Producer       Loaded  Allocated  Available  Compliance
+// ACMS               HP                 50         14         36  Yes
+// BASIC              HP                 50         14         36  Yes
+// ...
+// OPENVMS-I64-EOE    HP                 50         14         36  Yes
+// OPENVMS-I64-FOE    HP                 50         14         36  Yes
+// OPENVMS-I64-MCOE   HP                 50         14         36  Yes
+//
+  strcpy(usage_cmd, "show license/usage/nowarning_interval/out=");
+  strcat(usage_cmd, UsageFile);
+#ifdef	PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
+  strcat(usage_cmd, " openvms-alpha");
+#endif
+#ifdef	PEGASUS_PLATFORM_VMS_IA64_DECCXX
+// Which of these to use for IA64?
+// When a machine has more than one of these installed, this will
+// find the first one.
+  strcat(usage_cmd, " openvms-i64-*");
+//  strcat(usage_cmd, " openvms-i64-EOE");
+//  strcat(usage_cmd, " openvms-i64-FOE");
+//  strcat(usage_cmd, " openvms-i64-MCOE");
+#endif
+
+  status = system(usage_cmd);
   if (!$VMS_STATUS_SUCCESS(status))
   {
-    return false;
+    bStatus = false;
+    goto done;
   }
 
-  status = system("show license/units/out=units.out");
+// Alpha 
+// $ sho lic/units/nowarn
+//   VMS/LMF Charge Information for node WALNUT
+//   This is a COMPAQ AlphaServer DS20E 666 MHz, hardware model type 1940
+//   Type: A, Units Required: 75     (VAX/VMS Capacity or OpenVMS Unlimited or Base)
+//   Type: B, * Not Permitted *      (VAX/VMS F&A Server)
+//   Type: C, * Not Permitted *      (VAX/VMS Concurrent User)
+//   Type: D, * Not Permitted *      (VAX/VMS Workstation)
+//   Type: E, * Not Permitted *      (VAX/VMS System Integrated Products)
+//   Type: F, * Not Permitted *      (VAX Layered Products)
+//   Type: G, * Not Permitted *      (Reserved)
+//   Type: H, Units Required: 1050   (Alpha Layered Products)
+//   Type: I, Units Required: 1050   (Layered Products)
+//
+// I64
+// $ sho lic/units/nowarn
+//   OpenVMS I64/LMF Charge Information for node RED
+//   This is an HP rx4640  (1.50GHz/6.0MB), with 4 CPUs active, 4 socket(s)
+//   Type: PPL,   Units Required: 4  (I64 Per Processor)
+//
+  strcpy(units_cmd, "show license/units/nowarning_interval/out=");
+  strcat(units_cmd, UnitsFile);
+
+  status = system(units_cmd);
   if (!$VMS_STATUS_SUCCESS(status))
   {
-    return false;
+    bStatus = false;
+    goto done;
   }
 
-  if (fptr1 = fopen("usage.out", "r"))
+
+  if (fptr1 = fopen(UsageFile, "r"))
   {
     while (fgets(record1, sizeof (record1), fptr1))
     {
+#ifdef	PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
       if (rptr1 = strstr(record1, "DEC "))
+#endif
+#ifdef	PEGASUS_PLATFORM_VMS_IA64_DECCXX
+      if (rptr1 = strstr(record1, "HP "))
+#endif
       {
 	rptr2 = strstr(rptr1 + 3, "Unlimited license");
 	if (rptr2)
 	{
 	  numberOfLicensedUsers = 0;
-	  status = system("if (f$search(\"usage.out\") .nes. \"\") then delete usage.out;*");
-	  status = system("if (f$search(\"units.out\") .nes. \"\") then delete units.out;*");
-	  fclose(fptr1);
-	  fptr1 = 0;
-	  return true;
+	  bStatus = true;
+          goto done;
 	}
 	else
 	{
 	  rptr2 = strtok(rptr1 + 3, " ");
 	  loaded_units = strtol(rptr2, NULL, 10);
-	  if (fptr2 = fopen("units.out", "r"))
+	  if (fptr2 = fopen(UnitsFile, "r"))
 	  {
 	    while (fgets(record2, sizeof (record2), fptr2))
 	    {
+#ifdef	PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
 	      if (rptr1 = strstr(record2, "Type: A, Units Required:"))
 	      {
 		rptr3 = strtok(rptr1 + 25, " ");
+#endif
+#ifdef	PEGASUS_PLATFORM_VMS_IA64_DECCXX
+	      if (rptr1 = strstr(record2, "Units Required:"))
+	      {
+		rptr3 = strtok(rptr1 + 15, " ");
+#endif
 		req_units = strtol(rptr3, NULL, 10);
-		fclose(fptr1);
-		fptr1 = 0;
-		fclose(fptr2);
-		fptr2 = 0;
-		status = system("if (f$search(\"usage.out\") .nes. \"\") then delete usage.out;*");
-		status = system("if (f$search(\"units.out\") .nes. \"\") then delete units.out;*");
 		if (req_units != 0)
 		{
 		  numberOfLicensedUsers = loaded_units / req_units;
-		  return true;
+		  bStatus = true;
+                  goto done;
 		}
 		else
 		{
-		  return false;
+		  bStatus = false;
+                  goto done;
 		}
 	      }
 	    }			// end while (fgets(record2, sizeof(record2), fptr2))
-
-	  }			// end if (fptr2 = fopen("units.out", "r"))
+            if (!fptr2 == 0)
+            {
+              fclose(fptr2);
+              fptr2 = 0;
+            }
+	  }			// end if (fptr2 = fopen(UnitsFile, "r"))
 
 	  else
 	  {
-	    fclose(fptr1);
-	    fptr1 = 0;
-	    status = system("if (f$search(\"usage.out\") .nes. \"\") then delete usage.out;*");
-	    status = system("if (f$search(\"units.out\") .nes. \"\") then delete units.out;*");
-	    return false;
+	    bStatus = false;
+            goto done;
 	  }
 	}			// end if (rptr2)
 
@@ -815,7 +984,9 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers
 
     }				// end while (fgets(record1, sizeof(record1), fptr1))
 
-  }				// end if (fptr1 = fopen(usage.out, "r"))
+  }				// end if (fptr1 = fopen(UsageFile, "r"))
+
+done: 
 
   if (!fptr1 == 0)
   {
@@ -828,7 +999,34 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers
     fptr2 = 0;
   }
 
-  return false;
+  // "if (f$search(\"usage.out\") .nes. \"\") then delete usage.out;*");
+  strcpy(usage_cmd, "if (f$search(\"");
+  strcat(usage_cmd, UsageFile);
+  strcat(usage_cmd, "\") .nes. \"\") then delete ");
+  strcat(usage_cmd, UsageFile);
+  strcat(usage_cmd, ";*");
+
+  // "if (f$search(\"units.out\") .nes. \"\") then delete units.out;*");
+  strcpy(units_cmd, "if (f$search(\"");
+  strcat(units_cmd, UnitsFile);
+  strcat(units_cmd, "\") .nes. \"\") then delete ");
+  strcat(units_cmd, UnitsFile);
+  strcat(units_cmd, ";*");
+
+  status = system(usage_cmd);
+  status = system(units_cmd);
+
+  if (UsageFile) {
+    free(UsageFile);
+    UsageFile = 0;
+  }
+
+  if (UnitsFile) {
+    free(UnitsFile);
+    UnitsFile = 0;
+  }
+
+  return bStatus;
 }
 
 //

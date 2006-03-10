@@ -45,6 +45,7 @@ endif
 LIBRARY = pegprovidermanager
 
 LIBRARIES = \
+    pegprovider \
     pegprm \
     pegwql \
     pegconfig \

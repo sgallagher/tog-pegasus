@@ -19,7 +19,7 @@ else
  LOCAL_DEFINES = -DINDICATION_DIR=\"$(DISPLAYCONSUMER_DIR)\"
 endif
 
-PROGRAM = EmbeddedInstanceTest
+PROGRAM = TestEmbeddedInstance
 
 SOURCES = EmbeddedInstanceTest.cpp
 

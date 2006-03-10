@@ -38,6 +38,7 @@
 #ifndef Pegasus_ObjectNormalizer_h
 #define Pegasus_ObjectNormalizer_h
 
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/String.h>
@@ -48,15 +49,17 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE NormalizerContext
 {
 public:
-  virtual ~NormalizerContext() {};
+    virtual ~NormalizerContext() {};
 
-  virtual CIMClass getClass(
-	    const CIMNamespaceName& nameSpace,
-	    const CIMName& name) = 0;
+    virtual CIMClass getClass(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& name) = 0;
 
-  virtual Array<CIMName> enumerateClassNames(
-      const CIMNamespaceName& nameSpace, const CIMName& className,
-      bool deepInheritance) = 0;
+    virtual Array<CIMName> enumerateClassNames(
+        const CIMNamespaceName& nameSpace, const CIMName& className,
+        bool deepInheritance) = 0;
+
+    virtual AutoPtr<NormalizerContext> clone() = 0;
 };
 
 // TODO: add documentation
@@ -69,7 +72,7 @@ public:
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMNamespaceName& nameSpace,
-        NormalizerContext * context=0);
+        AutoPtr<NormalizerContext> & context);
 
     CIMObjectPath processClassObjectPath(const CIMObjectPath & cimObjectPath) const;
     CIMObjectPath processInstanceObjectPath(const CIMObjectPath & cimObjectPath) const;
@@ -83,7 +86,7 @@ private:
 
     Boolean _includeQualifiers;
     Boolean _includeClassOrigin;
-    NormalizerContext * _context;
+    AutoPtr<NormalizerContext> _context;
     CIMNamespaceName _nameSpace;
 };
 

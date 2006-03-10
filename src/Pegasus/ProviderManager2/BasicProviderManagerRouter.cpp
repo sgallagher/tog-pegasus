@@ -444,12 +444,14 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
 #endif
 
 #if defined(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER)
-        if (interfaceType == "JMPI")
+        if (  interfaceType == "JMPI"
+           || interfaceType == "JMPIExperimental"
+           )
         {
             ProviderManagerContainer* pmc = new ProviderManagerContainer(
                 LIBRARY_NAME_JMPIPM,
-                "JMPI",
-                "JMPI",
+                interfaceType,
+                interfaceType,
                 _indicationCallback,
                 _responseChunkCallback,
                 _subscriptionInitComplete);

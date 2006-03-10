@@ -98,7 +98,7 @@ wql_10_1:
 ## setupCL, or SL the Server-resident Listener, setupSL. 
 
 cql_i_t:
-	$(PROGRAM) setup$L CIM:CQL $p
+	$(PROGRAM) setup$L DMTF:CQL $p
 	$(PROGRAM) run $i $t $I
 	$(PROGRAM) cleanup
 
@@ -134,33 +134,33 @@ wql_1000_100:
 	$(PROGRAM) cleanup
 
 cql_10_1:
-	$(PROGRAM) setup$L CIM:CQL $p 
+	$(PROGRAM) setup$L DMTF:CQL $p 
 	$(PROGRAM) run 1 1 $I
 	$(PROGRAM) run 10 1
 	$(PROGRAM) cleanup
 
 cql_10_10:
-	$(PROGRAM) setup$L CIM:CQL $p
+	$(PROGRAM) setup$L DMTF:CQL $p
 	$(PROGRAM) run 10 10 $I
 	$(PROGRAM) cleanup
 
 cql_10_100:
-	$(PROGRAM) setup$L CIM:CQL $p
+	$(PROGRAM) setup$L DMTF:CQL $p
 	$(PROGRAM) run 10 100 $I
 	$(PROGRAM) cleanup
 
 cql_100_10:
-	$(PROGRAM) setup$L CIM:CQL $p
+	$(PROGRAM) setup$L DMTF:CQL $p
 	$(PROGRAM) run 100 10 $I
 	$(PROGRAM) cleanup
 
 cql_100_100:
-	$(PROGRAM) setup$L CIM:CQL $p
+	$(PROGRAM) setup$L DMTF:CQL $p
 	$(PROGRAM) run 100 100 $I
 	$(PROGRAM) cleanup
 
 cql_1000_100:
-	$(PROGRAM) setup$L CIM:CQL $p
+	$(PROGRAM) setup$L DMTF:CQL $p
 	$(PROGRAM) run 1000 100 $I
 	$(PROGRAM) cleanup
 

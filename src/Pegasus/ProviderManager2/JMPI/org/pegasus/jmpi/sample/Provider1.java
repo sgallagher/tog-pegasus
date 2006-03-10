@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,7 +31,7 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:
+// Modified By: Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -82,8 +82,9 @@ public class Provider1 implements InstanceProvider2 {
     }
 
 
-    public Vector enumerateInstanceNames (CIMObjectPath cop,
-                                          CIMClass      cimClass)
+    public Vector enumerateInstanceNames (OperationContext oc,
+                                          CIMObjectPath    cop,
+                                          CIMClass         cimClass)
            throws CIMException {
 	buildClass();
 
@@ -98,11 +99,12 @@ public class Provider1 implements InstanceProvider2 {
 	return(test);
     }
 
-    public Vector enumerateInstances (CIMObjectPath cop,
-                                      CIMClass      cimClass,
-                                      boolean       includeQualifiers,
-                                      boolean       includeClassOrigin,
-                                      String        propertyList[])
+    public Vector enumerateInstances (OperationContext oc,
+                                      CIMObjectPath    cop,
+                                      CIMClass         cimClass,
+                                      boolean          includeQualifiers,
+                                      boolean          includeClassOrigin,
+                                      String           propertyList[])
            throws CIMException {
 	buildClass();
 
@@ -122,11 +124,12 @@ public class Provider1 implements InstanceProvider2 {
 
 
 
-    public CIMInstance getInstance (CIMObjectPath cop,
-                                    CIMClass      cimClass,
-                                    boolean       includeQualifiers,
-                                    boolean       includeClassOrigin,
-                                    String        propertyList[])
+    public CIMInstance getInstance (OperationContext oc,
+                                    CIMObjectPath    cop,
+                                    CIMClass         cimClass,
+                                    boolean          includeQualifiers,
+                                    boolean          includeClassOrigin,
+                                    String           propertyList[])
            throws CIMException {
 	buildClass();
 
@@ -141,28 +144,32 @@ public class Provider1 implements InstanceProvider2 {
     }
 
 
-    public CIMObjectPath createInstance (CIMObjectPath cop,
-                                         CIMInstance   cimInstance)
+    public CIMObjectPath createInstance (OperationContext oc,
+                                         CIMObjectPath    cop,
+                                         CIMInstance      cimInstance)
            throws CIMException {
         return(cop);
     }
 
 
-    public void setInstance (CIMObjectPath cop,
-                             CIMInstance   cimInstance)
+    public void setInstance (OperationContext oc,
+                             CIMObjectPath    cop,
+                             CIMInstance      cimInstance)
            throws CIMException {
     }
 
 
-    public void deleteInstance (CIMObjectPath cop)
+    public void deleteInstance (OperationContext oc,
+                                CIMObjectPath    cop)
            throws CIMException {
     }
 
 
-    public Vector execQuery (CIMObjectPath cop,
-                             CIMClass      cimClass,
-                             String        queryStatement,
-                             String        queryLanguage)
+    public Vector execQuery (OperationContext oc,
+                             CIMObjectPath    cop,
+                             CIMClass         cimClass,
+                             String           queryStatement,
+                             String           queryLanguage)
            throws CIMException {
 	return(null);
     }

@@ -318,7 +318,6 @@ void EmbeddedInstanceProvider::createInstance(
       false, true, false, propList);
     CIMObjectPath objPath = obj.buildPath(objClass);
     errorInstance->setPath(objPath);
-    errorInstance->filter(false, false, propList);
 
     repositoryPath = cimom.createInstance(context,
       STATIC_REPOSITORY, *errorInstance);
@@ -328,6 +327,7 @@ void EmbeddedInstanceProvider::createInstance(
       propList);
     repositoryInstance.setPath(repositoryPath);
     repositoryInstance.filter(false, false, propList);
+    errorInstance->filter(false, false, propList);
     if(!errorInstance->identical(repositoryInstance))
     {
       std::cout << "Repository Instance: " << std::endl

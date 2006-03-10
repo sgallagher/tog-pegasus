@@ -81,40 +81,40 @@ poststarttests:
 	@$(ECHO) "TestDisableEnable2 cleanup WQL"
 	@$(PROGRAM) cleanup WQL
 ifndef PEGASUS_DISABLE_CQL
-	@$(ECHO) "TestDisableEnable2 setup CIM:CQL"
-	@$(PROGRAM) setup CIM:CQL
-	@$(ECHO) "TestDisableEnable2 sendFail CIM:CQL"
-	@$(PROGRAM) sendFail CIM:CQL
-	@$(ECHO) "TestDisableEnable2 create CIM:CQL"
-	@$(PROGRAM) create CIM:CQL
-	@$(ECHO) "TestDisableEnable2 sendSucceed CIM:CQL"
-	@$(PROGRAM) sendSucceed CIM:CQL
+	@$(ECHO) "TestDisableEnable2 setup DMTF:CQL"
+	@$(PROGRAM) setup DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 sendFail DMTF:CQL"
+	@$(PROGRAM) sendFail DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 create DMTF:CQL"
+	@$(PROGRAM) create DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 sendSucceed DMTF:CQL"
+	@$(PROGRAM) sendSucceed DMTF:CQL
 	cimprovider -d -m RT_IndicationProviderModule
-	@$(ECHO) "TestDisableEnable2 sendBlock CIM:CQL"
-	@$(PROGRAM) sendBlock CIM:CQL
-	@$(ECHO) "TestDisableEnable2 delete CIM:CQL"
-	@$(PROGRAM) delete CIM:CQL
-	@$(ECHO) "TestDisableEnable2 sendBlock CIM:CQL"
-	@$(PROGRAM) sendBlock CIM:CQL
+	@$(ECHO) "TestDisableEnable2 sendBlock DMTF:CQL"
+	@$(PROGRAM) sendBlock DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 delete DMTF:CQL"
+	@$(PROGRAM) delete DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 sendBlock DMTF:CQL"
+	@$(PROGRAM) sendBlock DMTF:CQL
 	cimprovider -e -m RT_IndicationProviderModule
-	@$(ECHO) "TestDisableEnable2 sendFail CIM:CQL"
-	@$(PROGRAM) sendFail CIM:CQL
-	@$(ECHO) "TestDisableEnable2 create CIM:CQL"
-	@$(PROGRAM) create CIM:CQL
-	@$(ECHO) "TestDisableEnable2 sendSucceed CIM:CQL"
-	@$(PROGRAM) sendSucceed CIM:CQL
+	@$(ECHO) "TestDisableEnable2 sendFail DMTF:CQL"
+	@$(PROGRAM) sendFail DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 create DMTF:CQL"
+	@$(PROGRAM) create DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 sendSucceed DMTF:CQL"
+	@$(PROGRAM) sendSucceed DMTF:CQL
 	cimprovider -d -m RT_IndicationProviderModule
-	@$(ECHO) "TestDisableEnable2 sendBlock CIM:CQL"
-	@$(PROGRAM) sendBlock CIM:CQL
+	@$(ECHO) "TestDisableEnable2 sendBlock DMTF:CQL"
+	@$(PROGRAM) sendBlock DMTF:CQL
 	cimprovider -e -m RT_IndicationProviderModule
-	@$(ECHO) "TestDisableEnable2 sendSucceed CIM:CQL"
-	@$(PROGRAM) sendSucceed CIM:CQL
-	@$(ECHO) "TestDisableEnable2 delete CIM:CQL"
-	@$(PROGRAM) delete CIM:CQL
-	@$(ECHO) "TestDisableEnable2 sendFail CIM:CQL"
-	@$(PROGRAM) sendFail CIM:CQL
-	@$(ECHO) "TestDisableEnable2 cleanup CIM:CQL"
-	@$(PROGRAM) cleanup CIM:CQL
+	@$(ECHO) "TestDisableEnable2 sendSucceed DMTF:CQL"
+	@$(PROGRAM) sendSucceed DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 delete DMTF:CQL"
+	@$(PROGRAM) delete DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 sendFail DMTF:CQL"
+	@$(PROGRAM) sendFail DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 cleanup DMTF:CQL"
+	@$(PROGRAM) cleanup DMTF:CQL
 endif
 	@$(ECHO) "TestDisableEnable2 setup2 WQL"
 	@$(PROGRAM) setup2 WQL
@@ -151,39 +151,39 @@ endif
 	@$(ECHO) "TestDisableEnable2 cleanup2 WQL"
 	@$(PROGRAM) cleanup2 WQL
 ifndef PEGASUS_DISABLE_CQL
-	@$(ECHO) "TestDisableEnable2 setup2 CIM:CQL"
-	@$(PROGRAM) setup2 CIM:CQL
-	@$(ECHO) "TestDisableEnable2 sendFail CIM:CQL"
-	@$(PROGRAM) sendFail CIM:CQL
-	@$(ECHO) "TestDisableEnable2 create2 CIM:CQL"
-	@$(PROGRAM) create2 CIM:CQL
-	@$(ECHO) "TestDisableEnable2 sendSucceed CIM:CQL"
-	@$(PROGRAM) sendSucceed CIM:CQL
+	@$(ECHO) "TestDisableEnable2 setup2 DMTF:CQL"
+	@$(PROGRAM) setup2 DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 sendFail DMTF:CQL"
+	@$(PROGRAM) sendFail DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 create2 DMTF:CQL"
+	@$(PROGRAM) create2 DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 sendSucceed DMTF:CQL"
+	@$(PROGRAM) sendSucceed DMTF:CQL
 	cimprovider -d -m RT_IndicationProviderModule
-	@$(ECHO) "TestDisableEnable2 sendBlock CIM:CQL"
-	@$(PROGRAM) sendBlock CIM:CQL
-	@$(ECHO) "TestDisableEnable2 delete2 CIM:CQL"
-	@$(PROGRAM) delete2 CIM:CQL
-	@$(ECHO) "TestDisableEnable2 sendBlock CIM:CQL"
-	@$(PROGRAM) sendBlock CIM:CQL
+	@$(ECHO) "TestDisableEnable2 sendBlock DMTF:CQL"
+	@$(PROGRAM) sendBlock DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 delete2 DMTF:CQL"
+	@$(PROGRAM) delete2 DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 sendBlock DMTF:CQL"
+	@$(PROGRAM) sendBlock DMTF:CQL
 	cimprovider -e -m RT_IndicationProviderModule
-	@$(ECHO) "TestDisableEnable2 sendFail CIM:CQL"
-	@$(PROGRAM) sendFail CIM:CQL
-	@$(ECHO) "TestDisableEnable2 create2 CIM:CQL"
-	@$(PROGRAM) create2 CIM:CQL
-	@$(ECHO) "TestDisableEnable2 sendSucceed CIM:CQL"
-	@$(PROGRAM) sendSucceed CIM:CQL
+	@$(ECHO) "TestDisableEnable2 sendFail DMTF:CQL"
+	@$(PROGRAM) sendFail DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 create2 DMTF:CQL"
+	@$(PROGRAM) create2 DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 sendSucceed DMTF:CQL"
+	@$(PROGRAM) sendSucceed DMTF:CQL
 	cimprovider -d -m RT_IndicationProviderModule
-	@$(ECHO) "TestDisableEnable2 sendBlock CIM:CQL"
-	@$(PROGRAM) sendBlock CIM:CQL
+	@$(ECHO) "TestDisableEnable2 sendBlock DMTF:CQL"
+	@$(PROGRAM) sendBlock DMTF:CQL
 	cimprovider -e -m RT_IndicationProviderModule
-	@$(ECHO) "TestDisableEnable2 sendSucceed CIM:CQL"
-	@$(PROGRAM) sendSucceed CIM:CQL
-	@$(ECHO) "TestDisableEnable2 delete2 CIM:CQL"
-	@$(PROGRAM) delete2 CIM:CQL
-	@$(ECHO) "TestDisableEnable2 sendFail CIM:CQL"
-	@$(PROGRAM) sendFail CIM:CQL
-	@$(ECHO) "TestDisableEnable2 cleanup2 CIM:CQL"
-	@$(PROGRAM) cleanup2 CIM:CQL
+	@$(ECHO) "TestDisableEnable2 sendSucceed DMTF:CQL"
+	@$(PROGRAM) sendSucceed DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 delete2 DMTF:CQL"
+	@$(PROGRAM) delete2 DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 sendFail DMTF:CQL"
+	@$(PROGRAM) sendFail DMTF:CQL
+	@$(ECHO) "TestDisableEnable2 cleanup2 DMTF:CQL"
+	@$(PROGRAM) cleanup2 DMTF:CQL
 endif
 	@$(ECHO) "+++++ TestDisableEnable2 passed all tests"

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -114,57 +114,63 @@ const char* classNames[]={
 /*30*/ "org/pegasus/jmpi/CIMInstanceException",
 /*31*/ "org/pegasus/jmpi/CIMObject",
 /*32*/ "java/lang/Character",
+/*33*/ "org/pegasus/jmpi/OperationContext",
+/*34*/ "java/lang/Class",
 };
 
 const METHOD_STRUCT instanceMethodNames[]={
-/*00 VectorNew               */ { /*Vector        */ 0, "<init>",          "()V" },
-/*01 BooleanNewZ             */ { /*Boolean       */ 1, "<init>",          "(Z)V" },
-/*02 ByteNewB                */ { /*Byte          */ 2, "<init>",          "(B)V" },
-/*03 ShortNewS               */ { /*Short         */ 3, "<init>",          "(S)V" },
-/*04 IntegerNewI             */ { /*Integer       */ 4, "<init>",          "(I)V" },
-/*05 LongNewJ                */ { /*Long          */ 5, "<init>",          "(J)V" },
-/*06 FloatNewF               */ { /*Float         */ 6, "<init>",          "(F)V" },
-/*07 DoubleNewD              */ { /*Double        */ 7, "<init>",          "(D)V" },
-/*08 UnsignedInt8NewS        */ { /*UnsignedInt8  */ 8, "<init>",          "(S)V" },
-/*09 UnsignedInt16NewI       */ { /*UnsignedInt16 */ 9, "<init>",          "(I)V" },
-/*10 UnsignedInt32NewJ       */ { /*UnsignedInt32 */10, "<init>",          "(J)V" },
-/*11 UnsignedInt64NewBi      */ { /*UnsignedInt64 */11, "<init>",          "(Ljava/math/BigInteger;)V" },
-/*12 CIMObjectPathNewI       */ { /*CIMObjectPath */12, "<init>",          "(I)V" },
-/*13 CIMExceptionNewSt       */ { /*CIMException  */13, "<init>",          "(Ljava/lang/String;)V" },
-/*14 CIMPropertyNewI         */ { /*CIMProperty   */15, "<init>",          "(I)V" },
-/*15 VectorAddElement        */ { /*Vector        */ 0, "addElement",      "(Ljava/lang/Object;)V" },
-/*16 VectorElementAt         */ { /*Vector        */ 0, "elementAt",       "(I)Ljava/lang/Object;" },
-/*17 CIMOMHandleNewISt       */ { /*CIMOMHandle   */16, "<init>",          "(ILjava/lang/String;)V" },
-/*18 CIMExceptionNewI        */ { /*CIMException  */13, "<init>",          "(I)V" },
-/*19 CIMClassNewI            */ { /*CIMClass      */17, "<init>",          "(I)V" },
-/*20 CIMInstanceNewI         */ { /*CIMInstance   */18, "<init>",          "(I)V" },
-/*21 CIMObjectPathCInst      */ { /*CIMObjectPath */12, "cInst",           "()I" },
-/*22 CIMInstanceCInst        */ { /*CIMInstance   */18, "cInst",           "()I" },
-/*23 CIMClassCInst           */ { /*CIMClass      */17, "cInst",           "()I" },
-/*24 ObjectToString          */ { /*Object        */20, "toString",        "()Ljava/lang/String;" },
-/*25 ThrowableGetMessage     */ { /*Throwable     */21, "getMessage",      "()Ljava/lang/String;" },
-/*26 CIMExceptionGetID       */ { /*CIMException  */13, "getID",           "()Ljava/lang/String;" },
-/*27 VectorSize              */ { /*Vector        */ 0, "size",            "()I" },
-/*28 CIMPropertyCInst        */ { /*CIMProperty   */15, "cInst",           "()I" },
-/*29 CIMOMHandleGetClass     */ { /*CIMOMHandle   */16, "getClass",        "(Lorg/pegasus/jmpi/CIMObjectPath;Z)Lorg/pegasus/jmpi/CIMClass;" },
-/*30 VectorRemoveElementAt   */ { /*Vector        */ 0, "removeElementAt", "(I)V" },
-/*31 CIMValueCInst           */ { /*CIMValue      */19, "cInst",           "()I" },
-/*32 CIMExceptionNewISt      */ { /*CIMException  */13, "<init>",          "(ILjava/lang/String;)V" },
-/*33 CIMExceptionGetCode     */ { /*CIMException  */13, "getCode",         "()I" },
-/*34 CIMDateTimeNewI         */ { /*CIMDateTime   */24, "<init>",          "(I)V" },
-/*35 SelectExpNewI           */ { /*SelectExp     */25, "<init>",          "(I)V" },
-/*36 CIMQualifierNewI        */ { /*CIMQualifier  */26, "<init>",          "(I)V" },
-/*37 CIMFlavorNewI           */ { /*CIMFlavor     */28, "<init>",          "(I)V" },
-/*38 CIMFlavorGetFlavor      */ { /*CIMFlavor     */28, "getFlavor",       "()I" },
-/*39 CIMArgumentCInst        */ { /*CIMArgument   */29, "cInst",           "()I" },
-/*40 CIMArgumentNewI         */ { /*CIMArgument   */29, "<init>",          "(I)V" },
-/*41 CIMExceptionNew         */ { /*CIMException  */13, "<init>",          "()V" },
-/*42 CIMExceptionNewStOb     */ { /*CIMException  */13, "<init>",          "(Ljava/lang/String;Ljava/lang/Object;)V" },
-/*43 CIMExceptionNewStObOb   */ { /*CIMException  */13, "<init>",          "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V" },
-/*44 CIMExceptionNewStObObOb */ { /*CIMException  */13, "<init>",          "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V" },
-/*45 CIMValueNewI            */ { /*CIMValue      */19, "<init>",          "(I)V" },
-/*46 CIMObjectNewIZ          */ { /*CIMObject     */31, "<init>",          "(IZ)V" },
-/*47 CharacterNewC           */ { /*Character     */32, "<init>",          "(C)V" },
+/*00 VectorNew                   */ { /*Vector           */ 0, "<init>",          "()V" },
+/*01 BooleanNewZ                 */ { /*Boolean          */ 1, "<init>",          "(Z)V" },
+/*02 ByteNewB                    */ { /*Byte             */ 2, "<init>",          "(B)V" },
+/*03 ShortNewS                   */ { /*Short            */ 3, "<init>",          "(S)V" },
+/*04 IntegerNewI                 */ { /*Integer          */ 4, "<init>",          "(I)V" },
+/*05 LongNewJ                    */ { /*Long             */ 5, "<init>",          "(J)V" },
+/*06 FloatNewF                   */ { /*Float            */ 6, "<init>",          "(F)V" },
+/*07 DoubleNewD                  */ { /*Double           */ 7, "<init>",          "(D)V" },
+/*08 UnsignedInt8NewS            */ { /*UnsignedInt8     */ 8, "<init>",          "(S)V" },
+/*09 UnsignedInt16NewI           */ { /*UnsignedInt16    */ 9, "<init>",          "(I)V" },
+/*10 UnsignedInt32NewJ           */ { /*UnsignedInt32    */10, "<init>",          "(J)V" },
+/*11 UnsignedInt64NewBi          */ { /*UnsignedInt64    */11, "<init>",          "(Ljava/math/BigInteger;)V" },
+/*12 CIMObjectPathNewI           */ { /*CIMObjectPath    */12, "<init>",          "(I)V" },
+/*13 CIMExceptionNewSt           */ { /*CIMException     */13, "<init>",          "(Ljava/lang/String;)V" },
+/*14 CIMPropertyNewI             */ { /*CIMProperty      */15, "<init>",          "(I)V" },
+/*15 VectorAddElement            */ { /*Vector           */ 0, "addElement",      "(Ljava/lang/Object;)V" },
+/*16 VectorElementAt             */ { /*Vector           */ 0, "elementAt",       "(I)Ljava/lang/Object;" },
+/*17 CIMOMHandleNewISt           */ { /*CIMOMHandle      */16, "<init>",          "(ILjava/lang/String;)V" },
+/*18 CIMExceptionNewI            */ { /*CIMException     */13, "<init>",          "(I)V" },
+/*19 CIMClassNewI                */ { /*CIMClass         */17, "<init>",          "(I)V" },
+/*20 CIMInstanceNewI             */ { /*CIMInstance      */18, "<init>",          "(I)V" },
+/*21 CIMObjectPathCInst          */ { /*CIMObjectPath    */12, "cInst",           "()I" },
+/*22 CIMInstanceCInst            */ { /*CIMInstance      */18, "cInst",           "()I" },
+/*23 CIMClassCInst               */ { /*CIMClass         */17, "cInst",           "()I" },
+/*24 ObjectToString              */ { /*Object           */20, "toString",        "()Ljava/lang/String;" },
+/*25 ThrowableGetMessage         */ { /*Throwable        */21, "getMessage",      "()Ljava/lang/String;" },
+/*26 CIMExceptionGetID           */ { /*CIMException     */13, "getID",           "()Ljava/lang/String;" },
+/*27 VectorSize                  */ { /*Vector           */ 0, "size",            "()I" },
+/*28 CIMPropertyCInst            */ { /*CIMProperty      */15, "cInst",           "()I" },
+/*29 CIMOMHandleGetClass         */ { /*CIMOMHandle      */16, "getClass",        "(Lorg/pegasus/jmpi/CIMObjectPath;Z)Lorg/pegasus/jmpi/CIMClass;" },
+/*30 VectorRemoveElementAt       */ { /*Vector           */ 0, "removeElementAt", "(I)V" },
+/*31 CIMValueCInst               */ { /*CIMValue         */19, "cInst",           "()I" },
+/*32 CIMExceptionNewISt          */ { /*CIMException     */13, "<init>",          "(ILjava/lang/String;)V" },
+/*33 CIMExceptionGetCode         */ { /*CIMException     */13, "getCode",         "()I" },
+/*34 CIMDateTimeNewI             */ { /*CIMDateTime      */24, "<init>",          "(I)V" },
+/*35 SelectExpNewI               */ { /*SelectExp        */25, "<init>",          "(I)V" },
+/*36 CIMQualifierNewI            */ { /*CIMQualifier     */26, "<init>",          "(I)V" },
+/*37 CIMFlavorNewI               */ { /*CIMFlavor        */28, "<init>",          "(I)V" },
+/*38 CIMFlavorGetFlavor          */ { /*CIMFlavor        */28, "getFlavor",       "()I" },
+/*39 CIMArgumentCInst            */ { /*CIMArgument      */29, "cInst",           "()I" },
+/*40 CIMArgumentNewI             */ { /*CIMArgument      */29, "<init>",          "(I)V" },
+/*41 CIMExceptionNew             */ { /*CIMException     */13, "<init>",          "()V" },
+/*42 CIMExceptionNewStOb         */ { /*CIMException     */13, "<init>",          "(Ljava/lang/String;Ljava/lang/Object;)V" },
+/*43 CIMExceptionNewStObOb       */ { /*CIMException     */13, "<init>",          "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V" },
+/*44 CIMExceptionNewStObObOb     */ { /*CIMException     */13, "<init>",          "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V" },
+/*45 CIMValueNewI                */ { /*CIMValue         */19, "<init>",          "(I)V" },
+/*46 CIMObjectNewIZ              */ { /*CIMObject        */31, "<init>",          "(IZ)V" },
+/*47 CharacterNewC               */ { /*Character        */32, "<init>",          "(C)V" },
+/*48 OperationContextNewI        */ { /*OperationContext */33, "<init>",          "(I)V" },
+/*49 OperationContextUnassociate */ { /*OperationContext */33, "unassociate",     "()V" },
+/*50 ClassGetInterfaces          */ { /*Class            */34, "getInterfaces",   "()[Ljava/lang/Class;" },
+/*51 ClassGetName                */ { /*Class            */34, "getName",         "()Ljava/lang/String;" },
 };
 
 const METHOD_STRUCT staticMethodNames[]={
@@ -3731,7 +3737,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
                                                                     JMPIjvm::jv.ShortClassRef,
                                                                     0);
 
-         for (int i=0; i < s; i++) 
+         for (int i=0; i < s; i++)
             jEnv->SetObjectArrayElement (jshortA,
                                          i,
                                          jEnv->NewObject (JMPIjvm::jv.ShortClassRef,
@@ -3769,7 +3775,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
                                                                   JMPIjvm::jv.IntegerClassRef,
                                                                   0);
 
-         for (int i=0; i < s; i++) 
+         for (int i=0; i < s; i++)
             jEnv->SetObjectArrayElement (jintA,
                                          i,
                                          jEnv->NewObject (JMPIjvm::jv.IntegerClassRef,
@@ -5015,6 +5021,153 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMObject__1finalize
    delete co;
 
    DEBUG_ConvertCleanup (jint, jInst);
+}
+
+/*
+ * Class:     OperationContext
+ * Method:    _get
+ * Signature: (ILjava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+ */
+JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_OperationContext__1get
+  (JNIEnv *jEnv, jobject jThs, jint jInst, jstring jContainer, jstring jKey)
+{
+   OperationContext *poc  = DEBUG_ConvertJavaToC (jint, OperationContext*, jInst);
+   jobject           jRet = 0;
+
+   if (!poc)
+   {
+      return jRet;
+   }
+
+   const char *pszContainer = jEnv->GetStringUTFChars (jContainer, NULL);
+   const char *pszKey       = jEnv->GetStringUTFChars (jKey, NULL);
+   String      container (pszContainer);
+   String      key       (pszKey);
+
+///printf ("container: %s\n", pszContainer);
+///printf ("key: %s\n", pszKey);
+
+   try {
+      if (container == "IdentityContainer")
+      {
+         IdentityContainer ic = poc->get (IdentityContainer::NAME);
+
+/////////printf ("ic\n");
+
+         if (key == "userName")
+         {
+            String userName = ic.getUserName ();
+
+////////////printf ("userName: %s\n", (const char*)userName.getCString ());
+
+            jRet = jEnv->NewStringUTF ((const char*)userName.getCString ());
+         }
+      }
+      else if (container == "SubscriptionInstanceContainer")
+      {
+         SubscriptionInstanceContainer sic = poc->get (SubscriptionInstanceContainer::NAME);
+
+         if (key == "subscriptionInstance")
+         {
+            CIMInstance ci     = sic.getInstance ();
+            jint        jciRef = DEBUG_ConvertCToJava (CIMInstance*, jint, new CIMInstance (ci));
+
+            jRet = jEnv->NewObject (JMPIjvm::jv.CIMInstanceClassRef,
+                                    JMPIjvm::jv.CIMInstanceNewI,
+                                    jciRef);
+         }
+      }
+      else if (container == "SubscriptionInstanceNamesContainer")
+      {
+         SubscriptionInstanceNamesContainer sinc = poc->get (SubscriptionInstanceNamesContainer::NAME);
+
+         if (key == "subscriptionInstanceNames")
+         {
+            Array<CIMObjectPath> copa        = sinc.getInstanceNames ();
+            jobjectArray         jcopa       = 0;
+            int                  jcopaLength = copa.size ();
+
+            jcopa = jEnv->NewObjectArray (jcopaLength,
+                                          JMPIjvm::jv.CIMObjectPathClassRef,
+                                          0);
+
+            for (int i = 0; i < jcopaLength; i++)
+            {
+               jEnv->SetObjectArrayElement (jcopa,
+                                            i,
+                                            jEnv->NewObject (JMPIjvm::jv.CIMObjectPathClassRef,
+                                                             JMPIjvm::jv.CIMObjectPathNewI,
+                                                             new CIMObjectPath (copa[i])));
+            }
+
+            jRet = (jobject)jcopa;
+         }
+      }
+      else if (container == "SubscriptionFilterConditionContainer")
+      {
+         SubscriptionFilterConditionContainer sfcc = poc->get (SubscriptionFilterConditionContainer::NAME);
+
+/////////printf ("sfcc\n");
+
+         if (key == "filterCondition")
+         {
+            String filterCondition = sfcc.getFilterCondition ();
+
+////////////printf ("filterCondition: %s\n", (const char*)filterCondition.getCString ());
+
+            jRet = jEnv->NewStringUTF ((const char*)filterCondition.getCString ());
+         }
+         else if (key == "queryLanguage")
+         {
+            String queryLanguage = sfcc.getQueryLanguage ();
+
+            jRet = jEnv->NewStringUTF ((const char*)queryLanguage.getCString ());
+         }
+      }
+      else if (container == "SubscriptionFilterQueryContainer")
+      {
+         SubscriptionFilterQueryContainer sfqc = poc->get (SubscriptionFilterQueryContainer::NAME);
+
+         if (key == "filterQuery")
+         {
+            String filterQuery = sfqc.getFilterQuery ();
+
+            jRet = jEnv->NewStringUTF ((const char*)filterQuery.getCString ());
+         }
+         else if (key == "queryLanguage")
+         {
+            String queryLanguage = sfqc.getQueryLanguage ();
+
+            jRet = jEnv->NewStringUTF ((const char*)queryLanguage.getCString ());
+         }
+         else if (key == "sourceNameSpace")
+         {
+            CIMNamespaceName cimNameSpaceName = sfqc.getSourceNameSpace ();
+            String           nameSpaceName    = cimNameSpaceName.getString ();
+
+            jRet = jEnv->NewStringUTF ((const char*)nameSpaceName.getCString ());
+         }
+      }
+      else if (container == "SnmpTrapOidContainer")
+      {
+         SnmpTrapOidContainer stoc = poc->get (SnmpTrapOidContainer::NAME);
+
+         if (key == "snmpTrapOid")
+         {
+            String snmpTrapOid = stoc.getSnmpTrapOid ();
+
+            jRet = jEnv->NewStringUTF ((const char*)snmpTrapOid.getCString ());
+         }
+      }
+   }
+   Catch(jEnv);
+
+///printf ("jRet: %08X\n", (int)jRet);
+
+   jEnv->ReleaseStringUTFChars (jContainer, pszContainer);
+   jEnv->ReleaseStringUTFChars (jKey, pszKey);
+
+   return jRet;
 }
 
 } // extern "C"

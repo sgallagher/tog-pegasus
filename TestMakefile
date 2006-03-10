@@ -990,6 +990,9 @@ ConfigureAuthorizations:
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test/static -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/SampleProvider -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/test/A -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n root/test/B -R -W
+	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test/TestProvider -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1 -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test2 -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test3 -R -W

@@ -39,7 +39,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static CIMQualifier _processQualifier(
+CIMQualifier _processQualifier(
     CIMConstQualifier & referenceQualifier,
     CIMConstQualifier & cimQualifier)
 {
@@ -82,7 +82,7 @@ static CIMQualifier _processQualifier(
     return(normalizedQualifier);
 }
 
-static CIMProperty _processProperty(
+CIMProperty _processProperty(
     CIMConstProperty & referenceProperty,
     CIMConstProperty & cimProperty,
     Boolean includeQualifiers,
@@ -194,6 +194,7 @@ static CIMProperty _processProperty(
               Array<CIMName> embeddedInstSubclasses =
                   context->enumerateClassNames(nameSpace, embedInstClassName,
                       true);
+              embeddedInstSubclasses.append(embedInstClassName);
 
               Array<CIMInstance> embeddedInstances;
               if(referenceProperty.isArray())
@@ -255,9 +256,15 @@ static CIMProperty _processProperty(
                           embeddedClassDefs.append(embeddedClassDef);
                       }
 
+                      AutoPtr<NormalizerContext> tmpContext(context->clone());
                       ObjectNormalizer tmpNormalizer(embeddedClassDef,
                           includeQualifiers, includeClassOrigin, nameSpace,
-                          context);
+                          tmpContext);
+                      if(currentInstance.getPath().getKeyBindings().size()==0)
+                      {
+                          currentInstance.setPath(
+                              currentInstance.buildPath(embeddedClassDef));
+                      }
                       embeddedInstances[i] = tmpNormalizer.processInstance(currentInstance);
                   }
               }
@@ -291,8 +298,8 @@ ObjectNormalizer::ObjectNormalizer(
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMNamespaceName & nameSpace,
-    NormalizerContext * context)
-    : _cimClass(cimClass),
+    AutoPtr<NormalizerContext> & context)
+  : _cimClass(cimClass),
     _includeQualifiers(includeQualifiers),
     _includeClassOrigin(includeClassOrigin),
     _context(context),
@@ -562,7 +569,7 @@ CIMInstance ObjectNormalizer::processInstance(const CIMInstance & cimInstance) c
                     cimProperty,
                     _includeQualifiers,
                     _includeClassOrigin,
-                    _context,
+                    _context.get(),
                     _nameSpace);
 
             normalizedInstance.addProperty(normalizedProperty);

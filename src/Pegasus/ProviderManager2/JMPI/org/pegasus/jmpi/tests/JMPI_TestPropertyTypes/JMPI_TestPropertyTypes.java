@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,7 +31,7 @@
 //
 // Author: Adrian Schuur schuur@deibm.com
 //
-// Modified By:
+// Modified By: Mark Hamzy, hamzy@us.ibm.com
 //
 //
 // This code is based on TestPropertyTypes.cpp
@@ -45,14 +45,12 @@
 //                        (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
 package org.pegasus.jmpi.tests.JMPI_TestPropertyTypes;
 
 import org.pegasus.jmpi.*;
 import java.util.*;
 
-
-public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider, EventProvider
+public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider2, EventProvider2
 {
    CIMOMHandle ch;
 
@@ -162,7 +160,6 @@ public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider
       return -1;
    }
 
-
    void testPropertyTypesValue(CIMInstance instanceObject)
                        throws CIMException {
 
@@ -244,8 +241,9 @@ public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider
       }
    }
 
-   public CIMObjectPath createInstance(CIMObjectPath cop,
-                                       CIMInstance   cimInstance)
+   public CIMObjectPath createInstance(OperationContext oc,
+                                       CIMObjectPath    cop,
+                                       CIMInstance      cimInstance)
                         throws CIMException {
 
       // ensure the Namespace is valid
@@ -281,13 +279,12 @@ public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider
       return rop;
    }
 
-
-
-   public CIMInstance getInstance(CIMObjectPath cop,
-                                  CIMClass      cimClass,
-                                  boolean       includeQualifiers,
-                                  boolean       includeClassOrigin,
-                                  String        propertyList[])
+   public CIMInstance getInstance(OperationContext oc,
+                                  CIMObjectPath    cop,
+                                  CIMClass         cimClass,
+                                  boolean          includeQualifiers,
+                                  boolean          includeClassOrigin,
+                                  String           propertyList[])
                         throws CIMException {
       // ensure the InstanceId key is valid
       Vector keys=cop.getKeys();
@@ -316,10 +313,9 @@ public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider
       return (CIMInstance)instances.elementAt(index);
    }
 
-
-
-   public void setInstance(CIMObjectPath cop,
-                           CIMInstance   cimInstance)
+   public void setInstance(OperationContext oc,
+                           CIMObjectPath    cop,
+                           CIMInstance      cimInstance)
                         throws CIMException  {
 
       // ensure the Namespace is valid
@@ -339,9 +335,8 @@ public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider
          throw new CIMException(CIMException.CIM_ERR_NOT_FOUND);
    }
 
-
-
-   public void deleteInstance(CIMObjectPath cop)
+   public void deleteInstance(OperationContext oc,
+                              CIMObjectPath cop)
                         throws CIMException  {
       // ensure the Namespace is valid
       if (!cop.getNameSpace().equalsIgnoreCase("test/static"))
@@ -357,10 +352,9 @@ public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider
          throw new CIMException(CIMException.CIM_ERR_NOT_FOUND);
    }
 
-
-
-   public Vector enumerateInstanceNames (CIMObjectPath cop,
-                                         CIMClass      cimClass)
+   public Vector enumerateInstanceNames (OperationContext oc,
+                                         CIMObjectPath    cop,
+                                         CIMClass         cimClass)
                         throws CIMException {
       // ensure the Namespace is valid
       if (!cop.getNameSpace().equalsIgnoreCase("test/static"))
@@ -373,13 +367,12 @@ public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider
       return paths;
    }
 
-
-
-   public Vector enumerateInstances (CIMObjectPath cop,
-                                     CIMClass      cimClass,
-                                     boolean       includeQualifiers,
-                                     boolean       includeClassOrigin,
-                                     String        propertyList[])
+   public Vector enumerateInstances (OperationContext oc,
+                                     CIMObjectPath    cop,
+                                     CIMClass         cimClass,
+                                     boolean          includeQualifiers,
+                                     boolean          includeClassOrigin,
+                                     String           propertyList[])
                         throws CIMException {
 //////System.out.println ("enumerateInstances");
 //////System.out.println ("enumerateInstances: cop = " + cop);
@@ -399,23 +392,20 @@ public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider
       return instances;
    }
 
-
-
-   public Vector execQuery (CIMObjectPath cop,
-                            CIMClass      cimClass,
-                            String        queryStatement,
-                            String        queryLanguage)
+   public Vector execQuery (OperationContext oc,
+                            CIMObjectPath    cop,
+                            CIMClass         cimClass,
+                            String           queryStatement,
+                            String           queryLanguage)
                         throws CIMException {
       return null;
    }
 
-
-
-
-   public CIMValue invokeMethod(CIMObjectPath op,
-                                String        method,
-                                Vector        in,
-                                Vector        out)
+   public CIMValue invokeMethod(OperationContext oc,
+                                CIMObjectPath    op,
+                                String           method,
+                                Vector           in,
+                                Vector           out)
                         throws CIMException {
 
       if (method.equalsIgnoreCase("SayHello"))
@@ -424,39 +414,35 @@ public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider
       throw new CIMException(CIMException.CIM_ERR_METHOD_NOT_AVAILABLE);
    }
 
-
-
-
-    public void authorizeFilter(SelectExp     filter,
-                                String        eventType,
-                                CIMObjectPath classPath,
-                                String        owner)
-                        throws CIMException {
-    }
-
-    public boolean mustPoll(SelectExp     filter,
-                            String        eventType,
-                            CIMObjectPath classPath)
-                        throws CIMException {
-        return false;
-    }
-
-
-    public void activateFilter(SelectExp     filter,
+   public void authorizeFilter(OperationContext oc,
+                               SelectExp     filter,
                                String        eventType,
                                CIMObjectPath classPath,
-                               boolean       firstActivation)
-                        throws CIMException {
-    }
+                               String        owner)
+                       throws CIMException {
+   }
 
+   public boolean mustPoll(OperationContext oc,
+                           SelectExp     filter,
+                           String        eventType,
+                           CIMObjectPath classPath)
+                       throws CIMException {
+       return false;
+   }
 
-    public void deActivateFilter(SelectExp     filter,
-                                 String        eventType,
-                                 CIMObjectPath classPath,
-                                 boolean       lastActivation)
-                        throws CIMException {
-    }
+   public void activateFilter(OperationContext oc,
+                              SelectExp     filter,
+                              String        eventType,
+                              CIMObjectPath classPath,
+                              boolean       firstActivation)
+                       throws CIMException {
+   }
 
-
+   public void deActivateFilter(OperationContext oc,
+                                SelectExp     filter,
+                                String        eventType,
+                                CIMObjectPath classPath,
+                                boolean       lastActivation)
+                       throws CIMException {
+   }
 }
-

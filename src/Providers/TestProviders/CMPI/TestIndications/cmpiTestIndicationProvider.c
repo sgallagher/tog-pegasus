@@ -548,7 +548,7 @@ thread (void *args)
       }
       // Create a couple of badly written ones.
       PROV_LOG ("-- #5.1 CMNewSelectExp with wrong query (CQL)");
-      run_test (broker, ctx, "Wrong query", "CIM:CQL", inst);
+      run_test (broker, ctx, "Wrong query", "DMTF:CQL", inst);
 
       PROV_LOG ("-- #5.2 CMNewSelectExp with wrong query (WQL)");
       run_test (broker, ctx, "Wrong query", "WQL", inst);
@@ -563,7 +563,7 @@ thread (void *args)
       run_test (broker, ctx, query, "WQL", inst);
 
       PROV_LOG ("-- #5.6 CMNewSelectExp with CQL");
-      run_test (broker, ctx, query, "CIM:CQL", inst);
+      run_test (broker, ctx, query, "DMTF:CQL", inst);
     }
   PROV_LOG ("--- CBDetachThread called");
   rc = CBDetachThread (broker, ctx);

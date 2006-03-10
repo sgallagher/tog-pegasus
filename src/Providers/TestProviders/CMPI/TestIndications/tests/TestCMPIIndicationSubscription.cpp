@@ -569,7 +569,7 @@ _test (CIMClient & client)
 {
   try
   {
-    String cql ("CIM:CQL");
+    String cql ("DMTF:CQL");
 
     char cnt[512];
     String filter;

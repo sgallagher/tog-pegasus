@@ -38,7 +38,7 @@ instance of PG_ProviderModule
     Vendor = "OpenPegasus";
     Version = "2.0.0";
     InterfaceType = "JMPI";
-    InterfaceVersion = "2.2.0";
+    InterfaceVersion = "1.0.0";
     Location = "JMPI_RT_SampleProvider1.jar:org/pegasus/jmpi/tests/ProcessIndication/JMPI_RT_SampleProvider1";
 };
 
@@ -68,7 +68,7 @@ instance of PG_ProviderModule
     Vendor = "OpenPegasus";
     Version = "2.0.0";
     InterfaceType = "JMPI";
-    InterfaceVersion = "2.2.0";
+    InterfaceVersion = "1.0.0";
     Location = "JMPI_RT_SampleProvider2.jar:org/pegasus/jmpi/tests/ProcessIndication/JMPI_RT_SampleProvider2";
 };
 

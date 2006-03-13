@@ -328,44 +328,45 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
 	  return;
 	}
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT     
-   CIMType propObjType = propObj.getType();   
-      if(index == IdSize-1)
-	{
-	  _process_value(propObj,Idstrings[index],inQueryCtx);
-	  return;
-	}
-   else if((propObjType != CIMTYPE_OBJECT &&
-     propObjType != CIMTYPE_INSTANCE) ||
-	      (propObj.getValue().isNull()))
-	{
-	  // Object is not embedded.
-	  _valueType = CQLValue::Null_type;
-          _isResolved = true;
-	  return;
-	}
-   CIMValue propValue = propObj.getValue();
-   // If the property is an embeddedInstance, convert to an object
-   if(propObjType == CIMTYPE_INSTANCE)
-   {
-     CIMInstance tmpInst;
-     propValue.get(tmpInst);
-     propValue = CIMValue((CIMObject)tmpInst);
-   }
-   propValue.get(objectContext);
+    CIMType propObjType = propObj.getType();   
+    if(index == IdSize-1)
+    {
+        _process_value(propObj,Idstrings[index],inQueryCtx);
+        return;
+    }
+    else if((propObjType != CIMTYPE_OBJECT &&
+        propObjType != CIMTYPE_INSTANCE) ||
+        (propObj.getValue().isNull()))
+    {
+        // Object is not embedded.
+        _valueType = CQLValue::Null_type;
+        _isResolved = true;
+        return;
+    }
+    CIMValue propValue = propObj.getValue();
+    // If the property is an embeddedInstance, convert to an object
+    if(propObjType == CIMTYPE_INSTANCE)
+    {
+        CIMInstance tmpInst;
+        propValue.get(tmpInst);
+        propValue = CIMValue((CIMObject)tmpInst);
+    }
+    propValue.get(objectContext);
 #else
-     if(index == IdSize-1)
-	{
-	  _process_value(propObj,Idstrings[index],inQueryCtx);
-	  return;
-	}
-      else if((propObj.getType() != CIMTYPE_OBJECT) ||
-	      (propObj.getValue().isNull()))
-	{
-	  // Object is not embedded.
-	  _valueType = CQLValue::Null_type;
-          _isResolved = true;
-	  return;
-	}
+    if(index == IdSize-1)
+    {
+        _process_value(propObj,Idstrings[index],inQueryCtx);
+        return;
+    }
+    else if((propObj.getType() != CIMTYPE_OBJECT) ||
+        (propObj.getValue().isNull()))
+    {
+        // Object is not embedded.
+        _valueType = CQLValue::Null_type;
+        _isResolved = true;
+        return;
+    }
+    propObj.getValue().get(objectContext);
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 		if(!objectContext.isInstance())
 		{

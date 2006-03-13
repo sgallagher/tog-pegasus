@@ -2763,7 +2763,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
-   STAT_PROVIDERSTART
+   STAT_PROVIDEREND
 
    CIMCreateClassResponseMessage* response =
       new CIMCreateClassResponseMessage(

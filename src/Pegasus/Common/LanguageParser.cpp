@@ -53,6 +53,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 static char LANGUAGE_TAG_SEPARATOR_CHAR = '-';
+static char LOCALE_ID_SEPARATOR_CHAR = '_';
 
 AcceptLanguageList LanguageParser::parseAcceptLanguageHeader(
     const String& acceptLanguageHeader)
@@ -269,6 +270,19 @@ String LanguageParser::buildContentLanguageHeader(
     return clString;
 }
 
+#ifdef PEGASUS_HAS_ICU
+String& LanguageParser::convertLocaleIdToLanguageTag(String& localeId)
+{
+    Uint32 index = 0;
+    while ((index = localeId.find(index, LOCALE_ID_SEPARATOR_CHAR)) !=
+                PEG_NOT_FOUND)
+    {
+        localeId[index] = LANGUAGE_TAG_SEPARATOR_CHAR;
+    }
+    return localeId;
+}
+#endif
+
 AcceptLanguageList LanguageParser::getDefaultAcceptLanguages()
 {
 #if defined(PEGASUS_HAS_MESSAGES) && defined(PEGASUS_HAS_ICU)
@@ -278,16 +292,16 @@ AcceptLanguageList LanguageParser::getDefaultAcceptLanguages()
     char* tmp = (char*)default_loc.getName();
     char tmp_[100];
     EtoA(strcpy(tmp_,tmp));
-    try
-    {
-        return LanguageParser::parseAcceptLanguageHeader(tmp_);
-    }
+    String localeId = tmp_;
 # else
+    String localeId = default_loc.getName();
+# endif
+
     try
     {
-        return LanguageParser::parseAcceptLanguageHeader(default_loc.getName());
+        return LanguageParser::parseAcceptLanguageHeader(
+            convertLocaleIdToLanguageTag(localeId));
     }
-# endif
     catch (const InvalidAcceptLanguageHeader& e)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,

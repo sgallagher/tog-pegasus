@@ -51,8 +51,6 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 static const int ID_INVALID = -1;
-static char LANGUAGE_TAG_SEPARATOR_CHAR = '-';
-static char LOCALE_ID_SEPARATOR_CHAR = '_';
 static const String server_resbundl_name = "pegasus/pegasusServer";
 String MessageLoader::pegasus_MSG_HOME;
 Boolean MessageLoader::_useProcessLocale = false;
@@ -159,7 +157,7 @@ AcceptLanguageList MessageLoader::_acceptlanguages;
 			String localeStr(_locale);	
 #endif
             parms.contentlanguages.append(LanguageTag(
-                _convertLocaleIdToLanguageTag(localeStr)));
+                LanguageParser::convertLocaleIdToLanguageTag(localeStr)));
     			ures_close(resbundl);
 			} else {
 				//cout << "PROCESS_LOCALE: could not open resouce, formatting default message" << endl;
@@ -243,7 +241,8 @@ AcceptLanguageList MessageLoader::_acceptlanguages;
 #endif
 
                         parms.contentlanguages.append(LanguageTag(
-                            _convertLocaleIdToLanguageTag(localeStr)));
+                            LanguageParser::convertLocaleIdToLanguageTag(
+                                localeStr)));
 						ures_close(resbundl);
 						break;
 					}
@@ -317,7 +316,8 @@ AcceptLanguageList MessageLoader::_acceptlanguages;
 				    if(localeStr != "root")					   
                     {
                         parms.contentlanguages.append(LanguageTag(
-                            _convertLocaleIdToLanguageTag(localeStr)));
+                            LanguageParser::convertLocaleIdToLanguageTag(
+                                localeStr)));
                     }
 				    ures_close(resbundl);
 			}
@@ -483,22 +483,6 @@ AcceptLanguageList MessageLoader::_acceptlanguages;
               break;
 			}
    }
-
-
-    /**
-        Converts the sub-tag separator characters in a tag from '_' to '-'.
-        This converts from ICU locale separators to RFC3066 separators.
-    */
-    String& MessageLoader::_convertLocaleIdToLanguageTag(String& localeId)
-    {
-        Uint32 index = 0;
-        while ((index = localeId.find(index, LOCALE_ID_SEPARATOR_CHAR)) !=
-                    PEG_NOT_FOUND)
-        {
-            localeId[index] = LANGUAGE_TAG_SEPARATOR_CHAR;
-        }
-        return localeId;
-    }
 
 #endif
 

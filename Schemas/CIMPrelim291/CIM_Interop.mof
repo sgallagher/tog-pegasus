@@ -1,9 +1,9 @@
 // ===================================================================
 // Title:  Interoperability MOF Specification
 // $State: Exp $
-// $Date: 2006/03/07 18:45:38 $
+// $Date: 2006/03/13 15:34:13 $
 // $Source: /cvs/MSB/pegasus/Schemas/CIMPrelim291/CIM_Interop.mof,v $
-// $Revision: 1.1.14.2 $
+// $Revision: 1.1.14.3 $
 // ===================================================================
 //#pragma inLine ("Includes/copyright.inc")
 // Copyright 1998-2005 Distributed Management Task Force, Inc. (DMTF).

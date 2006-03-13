@@ -286,8 +286,6 @@ PATCH ?= patch
 PATCH_FULL_PATH = $(call pathsearch,$(PATCH))
 
 
-
-
 # ===============================================================================
 # Shell internal commands
 # ===============================================================================
@@ -308,6 +306,11 @@ FILE_NAME = TaskMakefile
 
 FILE = $(FILE_PATH)/$(FILE_NAME)
 
+###################################
+# BNAME_INVAID_CHAR
+# BNAME and NEW_BNAME invalid charecters 
+DASH = -
+UNDERLINE = _
 
 # ===============================================================================
 # The remaining defaults will be set only if they are not already set.
@@ -332,6 +335,7 @@ DIFF_OPTIONS ?=
 
 RDIFF_OPTIONS ?= 
 
+VALID_TAGS = $(shell $(CVS) rlog $(MODULE_NAME)/$(BFILE) | $(GREP) TASK)
 
 # ==================================================================================
 # Rule definitions starts here
@@ -348,7 +352,7 @@ default: usage
 # assure that a minimum of commands exist. 
 #
 # Without ECHO and CVS essentially nothing can be done.
-exists_minimum: exists_MAKE exists_CVS exists_ECHO
+exists_minimum: exists_MAKE exists_CVS exists_ECHO exists_GREP
 
 # ======================
 # assure that MAKE exists
@@ -395,31 +399,80 @@ endif
 
 
 # ======================
-# assure that BNAME exists
+# assure that BNAME exists (is not null)
 #
 exists_BNAME: FORCE
 ifeq ($(BNAME),)
-	@ $(ECHO)
-	@ $(ECHO) "  BNAME not set, set is on the command line. "
-	@ $(ECHO) "  IE: $(MAKE) -f $(FILE_NAME) [command] BNAME=PEPX_Y "
-	@ $(ECHO)
-	@ $(MAKE) -f $(FILE) parm_error PARM_MSG="BNAME not set"
+	$(error ERROR: BNAME not set, set it on the command line )
 endif
 
+
+valid_BNAME: exists_BNAME
+ifneq ($(BNAME) ,$(subst $(DASH), X ,$(BNAME)))
+	@ $(error ERROR: BNAME contains invalid ($(DASH)) charecters)
+endif
+ifneq ($(BNAME) ,$(subst $(UNDERLINE), X ,$(BNAME)))
+	@ $(error ERROR: BNAME contains invalid ($(UNDERLINE)) charecters)
+endif
+
+
+
+valid_NEW_BNAME: exists_NEW_BNAME
+ifneq ($(NEW_BNAME) ,$(subst $(DASH), X ,$(NEW_BNAME)))
+	@ $(error ERROR: NEW_BNAME contains invalid ($(DASH)) charecters)
+endif
+ifneq ($(NEW_BNAME) ,$(subst $(UNDERLINE), X ,$(NEW_BNAME)))
+	@ $(error ERROR: NEW_BNAME contains invalid ($(UNDERLINE)) charecters)
+endif
+
+
 # ======================
-# assure that NEW_BNAME exists
+# assure that BNAME exist in cvs
+#
+exists_cvs_BNAME: exists_BNAME
+ifneq (TASK_$(BNAME)-branch, $(findstring TASK_$(BNAME)-branch, $(VALID_TAGS)))
+	@ $(error ERROR:  BNAME, $(BNAME), does not exists in cvs module $(MODULE_NAME))
+endif
+
+
+
+
+# ======================
+# assure that BNAME does not exist in cvs.
+#
+not_exists_cvs_BNAME: exists_BNAME
+ifeq (TASK_$(BNAME)-branch, $(findstring TASK_$(BNAME)-branch, $(VALID_TAGS)))
+	@ $(error ERROR: BNAME, $(BNAME), exists in cvs module $(MODULE_NAME))
+endif
+
+
+# ======================
+# assure that NEW_BNAME exists (is not null)
 #
 exists_NEW_BNAME: FORCE
 ifeq ($(NEW_BNAME),)
-	@ $(ECHO)
-	@ $(ECHO) "  NEW_BNAME not set, set is on the command line. "
-	@ $(ECHO) "  IE: $(MAKE) -f $(FILE_NAME) [command] NEW_BNAME=PEPX_Y "
-	@ $(ECHO)
-	@ $(MAKE) -f $(FILE) parm_error PARM_MSG="NEW_BNAME not set"
+	@ $(error ERROR: NEW_BNAME not set, set is on the command line.)
 endif
 
-parm_error: FORCE
-	$(error ERROR: $(PARM_MSG))
+
+# ======================
+# assure that NEW_BNAME exist in cvs
+#
+exists_cvs_NEW_BNAME: exists_NEW_BNAME
+ifneq (TASK_$(NEW_BNAME)-branch, $(findstring TASK_$(NEW_BNAME)-branch, $(VALID_TAGS)))
+	@ $(error ERROR: NEW_BNAME, $(NEW_BNAME), does not exists in cvs module $(MODULE_NAME) )
+endif
+
+
+
+
+# ======================
+# assure that NEW_BNAME does not exist in cvs.
+#
+not_exists_cvs_NEW_BNAME: exists_NEW_BNAME
+ifeq (TASK_$(NEW_BNAME)-branch, $(findstring TASK_$(NEW_BNAME)-branch, $(VALID_TAGS)))
+	@ $(error ERROR: NEW_BNAME, $(NEW_BNAME), exists in cvs module $(MODULE_NAME) )
+endif
 
 
 
@@ -481,7 +534,7 @@ defaults: exists_minimum
 	@ $(ECHO) "RDIFF_OPTIONS      = $(RDIFF_OPTIONS)"
 	@ $(ECHO)
 	@ $(ECHO) "For example"
-	@ $(ECHO) " $(MAKE) -f $(FILE_NAME) branch_checkout BNAME=PEPX_Y MODULE=module"
+	@ $(ECHO) " $(MAKE) -f $(FILE_NAME) branch_checkout BNAME=PEPXFunc MODULE=module"
 	@ $(ECHO)
 	@ $(ECHO) =======================================================================
 
@@ -531,7 +584,7 @@ branch_status: exists_minimum
 ##       Create a "merged_out_to_branch" tag for later use in the merge out.
 ##
 ##
-branch_create: exists_minimum exists_BNAME
+branch_create: exists_minimum valid_BNAME not_exists_cvs_BNAME
 	$(CVS) rtag -f TASK_$(BNAME)-root $(MODULE_NAME)
 	$(CVS) rtag -b -r TASK_$(BNAME)-root TASK_$(BNAME)-branch $(MODULE_NAME)
 	$(CVS) rtag -r TASK_$(BNAME)-root TASK_$(BNAME)-merged_in_to_trunk $(MODULE_NAME)
@@ -559,7 +612,7 @@ branch_create: exists_minimum exists_BNAME
 ##           to TASK_[NEW_BNAME]-merged_out_to_branch
 ##	 Delete Branch TASK_[BNAME]
 ##    
-branch_rename: exists_minimum exists_BNAME exists_NEW_BNAME
+branch_rename: exists_minimum exists_cvs_BNAME not_exists_cvs_NEW_BNAME valid_NEW_BNAME
 ifeq ($(BNAME),$(NEW_BNAME))
 	$(error ERROR: BNAME=NEW_BNAME=($(BNAME)), They must be different.)
 endif
@@ -590,7 +643,7 @@ endif
 ##       Delete the branch
 ##    
 ##
-branch_delete: exists_minimum exists_BNAME
+branch_delete: exists_minimum exists_cvs_BNAME
 	$(CVS) rtag -d TASK_$(BNAME)-root $(MODULE_NAME)
 	$(CVS) rtag -d TASK_$(BNAME)-merged_in_to_trunk $(MODULE_NAME)
 	$(CVS) rtag -d TASK_$(BNAME)-merged_out_from_trunk $(MODULE_NAME)
@@ -610,7 +663,7 @@ branch_delete: exists_minimum exists_BNAME
 ##  Note:     Must be executed from the directory where the top pegasus 
 ##            directory shall be placed. 
 ##
-branch_co branch_checkout: exists_minimum
+branch_co branch_checkout: exists_minimum exists_cvs_BNAME
 	$(CVS) checkout -r TASK_$(BNAME)-branch $(MODULE_NAME)
 
 
@@ -640,7 +693,7 @@ branch_diff: exists_minimum
 ### Function: branch_diff_to_root - diffs branch to its root
 ##  Usage:    branch_diff_to_root BNAME=(BRANCH NAME) [RDIFF_OPTIONS=(OPTIONS)]
 ##
-branch_diff_to_root: exists_minimum exists_BNAME
+branch_diff_to_root: exists_minimum exists_cvs_BNAME
 	$(CVS) rdiff $(RDIFF_OPTIONS) -r TASK_$(BNAME)-root -r TASK_$(BNAME)-branch $(MODULE_NAME)
 
 ## =====================
@@ -648,7 +701,7 @@ branch_diff_to_root: exists_minimum exists_BNAME
 ### Function: branch_diff_to_trunk - diffs branch head to the head of the trunk
 ##  Usage:    branch_diff_to_trunk BNAME=(BRANCH NAME) [RDIFF_OPTIONS=(OPTIONS)]
 ##
-branch_diff_to_trunk: exists_minimum exists_BNAME
+branch_diff_to_trunk: exists_minimum exists_cvs_BNAME
 	$(CVS) rdiff $(RDIFF_OPTIONS) -r TASK_$(BNAME)-branch $(MODULE_NAME)
 
 ## =====================
@@ -657,7 +710,7 @@ branch_diff_to_trunk: exists_minimum exists_BNAME
 ###                                  branch since the last merge in.
 ##  Usage:    branch_diff_unmerged_branch BNAME=(BRANCH NAME) [RDIFF_OPTIONS=(OPTIONS)]
 ##
-branch_diff_unmerged_branch: exists_minimum exists_BNAME
+branch_diff_unmerged_branch: exists_minimum exists_cvs_BNAME
 	$(CVS) rdiff  $(RDIFF_OPTIONS) -r TASK_$(BNAME)-merged_in_from_branch -r TASK_$(BNAME)-branch $(MODULE_NAME)
 
 
@@ -667,7 +720,7 @@ branch_diff_unmerged_branch: exists_minimum exists_BNAME
 ###                                  trunk since the last merge out
 ##  Usage:    branch_diff_unmerged_trunk BNAME=(BRANCH NAME) [RDIFF_OPTIONS=(OPTIONS)]
 ##
-branch_diff_unmerged_trunk: exists_minimum exists_BNAME
+branch_diff_unmerged_trunk: exists_minimum exists_cvs_BNAME
 	$(CVS) rdiff  $(RDIFF_OPTIONS) -r TASK_$(BNAME)-merged_out_from_trunk $(MODULE_NAME)
 
 
@@ -716,7 +769,7 @@ branch_diff_unmerged_trunk: exists_minimum exists_BNAME
 ##     - Delete the  TASK_$(BNAME)-merging_in_from_branch tag
 ##        
 ##
-branch_merge_in: exists_minimum exists_BNAME
+branch_merge_in: exists_minimum exists_cvs_BNAME
 	$(CVS) rtag -F TASK_$(BNAME)-merging_in_to_trunk $(MODULE_NAME)
 	$(CVS) rtag -F -r TASK_$(BNAME)-branch TASK_$(BNAME)-merging_in_from_branch $(MODULE_NAME)
 	$(CVS) checkout -P $(MODULE_NAME)
@@ -751,7 +804,7 @@ branch_merge_in: exists_minimum exists_BNAME
 	@ $(ECHO)
 
 
-branch_merge_in_ci branch_merge_in_commit: exists_minimum exists_BNAME
+branch_merge_in_ci branch_merge_in_commit: exists_minimum exists_cvs_BNAME
 	$(CD) $(MODULE_NAME)
 	$(CVS) commit
 	@ $(ECHO) 
@@ -760,7 +813,7 @@ branch_merge_in_ci branch_merge_in_commit: exists_minimum exists_BNAME
 	$(MAKE) -f $(FILE) branch_merge_in_finish BNAME=$(BNAME)
 
 
-branch_merge_in_finish: exists_minimum exists_BNAME
+branch_merge_in_finish: exists_minimum exists_cvs_BNAME
 	$(CVS) rtag -F -r TASK_$(BNAME)-merging_in_to_trunk TASK_$(BNAME)-merged_in_to_trunk $(MODULE_NAME)
 	$(CVS) rtag -F -r TASK_$(BNAME)-merging_in_from_branch TASK_$(BNAME)-merged_in_from_branch $(MODULE_NAME)
 	$(CVS) rtag -d TASK_$(BNAME)-merging_in_to_trunk $(MODULE_NAME)
@@ -816,7 +869,7 @@ branch_merge_in_finish: exists_minimum exists_BNAME
 ##     - Delete the  TASK_$(BNAME)-merging_out_to_branch tag
 ##
 ##
-branch_merge_out: exists_minimum exists_BNAME
+branch_merge_out: exists_minimum exists_cvs_BNAME
 	$(CVS) rtag -F TASK_$(BNAME)-merging_out_from_trunk $(MODULE_NAME)
 	$(CVS) rtag -F -r TASK_$(BNAME)-branch TASK_$(BNAME)-merging_out_to_branch $(MODULE_NAME)
 	$(CVS) checkout -P -r TASK_$(BNAME)-branch $(MODULE_NAME)
@@ -847,7 +900,7 @@ branch_merge_out: exists_minimum exists_BNAME
 	@ $(ECHO)
 	@ $(ECHO)
 
-branch_merge_out_ci branch_merge_out_commit: exists_minimum exists_BNAME
+branch_merge_out_ci branch_merge_out_commit: exists_minimum exists_cvs_BNAME
 	$(CD) $(MODULE_NAME)
 	$(CVS) commit
 	@ $(ECHO) 
@@ -855,7 +908,7 @@ branch_merge_out_ci branch_merge_out_commit: exists_minimum exists_BNAME
 	@ $(ECHO)
 	$(MAKE) -f $(FILE) branch_merge_out_finish BNAME=$(BNAME)
 
-branch_merge_out_finish: exists_minimum exists_BNAME
+branch_merge_out_finish: exists_minimum exists_cvs_BNAME
 	$(CVS) rtag -F -r TASK_$(BNAME)-merging_out_from_trunk TASK_$(BNAME)-merged_out_from_trunk $(MODULE_NAME)
 	$(CVS) rtag -F -r TASK_$(BNAME)-merging_out_to_branch TASK_$(BNAME)-merged_out_to_branch $(MODULE_NAME)
 	$(CVS) rtag -d TASK_$(BNAME)-merging_out_from_trunk $(MODULE_NAME)
@@ -905,7 +958,7 @@ branch_merge_out_finish: exists_minimum exists_BNAME
 ##   branch_rename BNAME=(BRANCH_NAME)_new  NEW_BNAME=(BRANCH NAME)_X
 ##
 ##
-branch_migrate: exists_minimum exists_BNAME
+branch_migrate: exists_minimum exists_cvs_BNAME
 	$(MAKE) -f $(FILE) branch_diff_unmerged_branch BNAME=$(BNAME) 1>branch_migrate_diffs
 	$(MAKE) -f $(FILE) branch_create BNAME=$(BNAME)_new
 	$(CVS) checkout -P -r TASK_$(BNAME)_new-branch $(MODULE_NAME)
@@ -948,7 +1001,7 @@ branch_migrate: exists_minimum exists_BNAME
 	@ $(ECHO) 
 	@ $(ECHO)
 
-branch_migrate_ci branch_migrate_commit: exists_minimum exists_BNAME
+branch_migrate_ci branch_migrate_commit: exists_minimum exists_cvs_BNAME
 	$(CD) $(MODULE_NAME)
 	$(CVS) commit
 	@ $(ECHO) 
@@ -971,7 +1024,7 @@ branch_migrate_ci branch_migrate_commit: exists_minimum exists_BNAME
 	@ $(ECHO) where X is something you chose to identify the new branch.
 
 
-branch_migrate_finish: exists_minimum exists_BNAME
+branch_migrate_finish: exists_minimum exists_cvs_BNAME
 	$(MAKE) -f $(FILE) branch_delete BNAME=$(BNAME)
 	$(MAKE) -f $(FILE) branch_rename BNAME=$(BNAME)_new NEW_BNAME=$(BNAME)
 	@ $(ECHO) 

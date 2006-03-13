@@ -126,9 +126,12 @@
 ##
 ## Tags created/maintained to manage the task branch by the rules within this Makefile
 ##
-## The [BRANCH NAME] is expected to be PEP number like PEP_XXX or 
-## BUG number like BUG_XXXX and functionality based like like 
-## PEP_XXX_Config_Changes or BUG_XXXX_Config_changes.
+## The [BRANCH NAME] is expected to be the combination of a PEP number or 
+## BUG number and functionality. For example PEPXXXConfigChanges or 
+## BUGXXXXConfigChanges. The branch name should use Camel Notation and 
+## should not contain underline (_) or dash (-) charecters.
+## Note that CVS further restircts this to not use any of the following
+## charecters enclosed within []: [$ , . : ; @].
 ##
 ##
 ## Branch and branch management tag naming convention
@@ -173,14 +176,14 @@
 ##                        this label have been merged into the trunk.
 ##
 ##
-## For Example if the branch name is PEPXX_FUNC then the following tags will 
+## For Example if the branch name is PEPXXNewFunc then the following tags will 
 ## be in use:
-##     TASK_PEPXX_FUNC-root
-##     TASK_PEPXX_FUNC-branch
-##     TASK_PEPXX_FUNC-merged_in_to_trunk
-##     TASK_PEPXX_FUNC-merged_out_from_trunk
-##     TASK_PEPXX_FUNC-merged_in_from_branch
-##     TASK_PEPXX_FUNC-merged_out_to_branch
+##     TASK_PEPXXNewFunc-root
+##     TASK_PEPXXNewFunc-branch
+##     TASK_PEPXXNewFunc-merged_in_to_trunk
+##     TASK_PEPXXNewFunc-merged_out_from_trunk
+##     TASK_PEPXXNewFunc-merged_in_from_branch
+##     TASK_PEPXXNewFunc-merged_out_to_branch
 ##
 ##
 ## Consider the following diagram:

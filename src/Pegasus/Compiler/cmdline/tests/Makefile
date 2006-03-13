@@ -97,9 +97,7 @@ defects:
 	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) -xml ValidMof2.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) --xml ValidMof1.mof >> $(TMPFILE) $(REDIRECTERROR)
 
-tests:
-
-failed_tests: clean
+tests: clean
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" "-I$(MOF_PATH)" $(MOF_PATH)/CIM_Core25.mof
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) -xml ValidMof1.mof" >> $(RESULTFILE)

@@ -881,6 +881,24 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
         // connection
         //
         {
+            //
+            //  If not a clean shutdown, log a warning message in case module
+            //  included indication providers
+            //
+            if (!cleanShutdown)
+            {
+                Logger::put_l(
+                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+                    "ProviderManager.OOPProviderManagerRouter."
+                        "OOP_PROVIDER_MODULE_FAILURE_DETECTED", 
+                    "A failure was detected in provider module $0.  The"
+                        " generation of indications by providers in this module"
+                        " may be affected.  To ensure these providers are"
+                        " serving active subscriptions, disable and then"
+                        " re-enable this module using the cimprovider command.",
+                    _moduleName);
+            }
+
             AutoMutex tableLock(_outstandingRequestTableMutex);
 
             CIMResponseMessage* response =

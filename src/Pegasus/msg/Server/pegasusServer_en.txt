@@ -356,6 +356,7 @@ en:table {
         */
         Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION:string {"PGS00416: The value of the CIM datetime type is out of range: {0}"}
 
+        Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION:string {"PGS00417: SSL CRL verification is not enabled."}
 
         // ==========================================================
         // Messages for XmlParser

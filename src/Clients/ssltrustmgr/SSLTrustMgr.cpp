@@ -633,10 +633,12 @@ SSLTrustMgr::SSLTrustMgr ()
     // Add option 3
     //
     //_usage.append ("                   -").append (_OPTION_ADD);
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _usage.append("       ").append (COMMAND_NAME);
     _usage.append (" -").append (_OPTION_ADD);
     _usage.append (" -").append (_OPTION_REVOKE);
     _usage.append (" -").append (_OPTION_CERTFILE).append (" crlfile");
+#endif
 
 #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION
     _usage.append (" [ -").append (_OPTION_HOSTNAME).append (" hostname")
@@ -652,8 +654,9 @@ SSLTrustMgr::SSLTrustMgr ()
     _usage.append (" [ -").append (_OPTION_SSL)
          .append (" ]");
 #endif /* #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION */
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _usage.append ("\n");
-
+#endif
 
     //
     // Remove option 1
@@ -689,10 +692,12 @@ SSLTrustMgr::SSLTrustMgr ()
     // Remove option 2
     //
     //_usage.append ("                   -").append (_OPTION_REMOVE);
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _usage.append("       ").append (COMMAND_NAME);
     _usage.append (" -").append (_OPTION_REMOVE);
     _usage.append (" -").append (_OPTION_REVOKE);
     _usage.append (" -").append (_OPTION_ISSUERNAME).append (" issuername");
+#endif
 
 #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION
     _usage.append (" [ -").append (_OPTION_HOSTNAME).append (" hostname")
@@ -708,7 +713,9 @@ SSLTrustMgr::SSLTrustMgr ()
     _usage.append (" [ -").append (_OPTION_SSL)
          .append (" ]");
 #endif /* #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION */
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _usage.append ("\n");
+#endif
 
 
     //
@@ -746,11 +753,13 @@ SSLTrustMgr::SSLTrustMgr ()
     // List option 2
     //
     //_usage.append ("                   -").append (_OPTION_LIST);
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _usage.append("       ").append (COMMAND_NAME);
     _usage.append (" -").append (_OPTION_LIST);
     _usage.append (" -").append (_OPTION_REVOKE);
     _usage.append (" [ -").append (_OPTION_ISSUERNAME).append (" issuername")
          .append (" ]");
+#endif
 
 #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION
     _usage.append (" [ -").append (_OPTION_HOSTNAME).append (" hostname")
@@ -766,7 +775,9 @@ SSLTrustMgr::SSLTrustMgr ()
     _usage.append (" [ -").append (_OPTION_SSL)
          .append (" ]");
 #endif /* #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION */
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _usage.append ("\n");
+#endif
 
     //
     // Version options
@@ -799,9 +810,11 @@ SSLTrustMgr::SSLTrustMgr ()
     _usage.append("    -l              ");
     _usage.append("- Displays the certificates in the trust store\n");
 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _usage.append("    -R              ");
     _usage.append("- Performs requested add, remove or list operation ");
     _usage.append("on the CRL store\n");
+#endif
 
     _usage.append("    -t truststore   ");
     _usage.append("- Specifies the target trust store name\n");
@@ -813,15 +826,23 @@ SSLTrustMgr::SSLTrustMgr ()
     _usage.append("- Specifies the PEM format file containing ");
     _usage.append("an X509 certificate\n");
 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _usage.append("    -f crlfile      ");
     _usage.append("- Specifies the PEM format file containing a CRL\n");
+#endif
 
     _usage.append("    -c certuser     ");
     _usage.append("- Specifies the user name to be associated with the ");
     _usage.append("certificate\n");
 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _usage.append("    -i issuername   ");
     _usage.append("- Specifies the certificate or the CRL issuer name\n");
+#else
+    _usage.append("    -i issuername   ");
+    _usage.append("- Specifies the certificate issuer name\n");
+
+#endif
 
     _usage.append("    -n serialnumber ");
     _usage.append("- Specifies the certificate serial number\n");
@@ -835,8 +856,14 @@ SSLTrustMgr::SSLTrustMgr ()
 //l10n localize usage
 #ifdef PEGASUS_HAS_ICU
 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     MessageLoaderParms menuparms(
         "Clients.ssltrustmgr.SSLTrustMgr.MENU.STANDARD", _usage);
+#else
+    MessageLoaderParms menuparms(
+        "Clients.ssltrustmgr.SSLTrustMgr.MENU.CRL.VERIFICATION.DISABLED",
+         _usage);
+#endif
     menuparms.msg_src_path = MSG_PATH;
     _usage = MessageLoader::getMessage(menuparms);
 
@@ -1685,12 +1712,14 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
     optString.append (_OPTION_CERTUSER);
     optString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     optString.append (_OPTION_ADD);
     optString.append (getoopt::NOARG);
     optString.append (_OPTION_REVOKE);
     optString.append (getoopt::NOARG);
     optString.append (_OPTION_CERTFILE);
     optString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+#endif
 
     optString.append (_OPTION_REMOVE);
     optString.append (getoopt::NOARG);
@@ -1703,12 +1732,14 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
     optString.append (_OPTION_SERIALNUMBER);
     optString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     optString.append (_OPTION_REMOVE);
     optString.append (getoopt::NOARG);
     optString.append (_OPTION_REVOKE);
     optString.append (getoopt::NOARG);
     optString.append (_OPTION_ISSUERNAME);
     optString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+#endif
 
     optString.append (_OPTION_LIST);
     optString.append (getoopt::NOARG);
@@ -1721,12 +1752,14 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
     optString.append (_OPTION_SERIALNUMBER);
     optString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     optString.append (_OPTION_LIST);
     optString.append (getoopt::NOARG);
     optString.append (_OPTION_REVOKE);
     optString.append (getoopt::NOARG);
     optString.append (_OPTION_ISSUERNAME);
     optString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+#endif
 
     optString.append (_OPTION_HELP);
     optString.append (getoopt::NOARG);
@@ -1890,6 +1923,7 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
                     break;
                 }
 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
                 case _OPTION_REVOKE:
                 {
                     if (getOpts.isSet (_OPTION_REVOKE) > 1)
@@ -1904,7 +1938,7 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
                     _crlSet = true;
                     break;
                 }
-
+#endif
                 case _OPTION_TRUSTSTORE:
                 {
                     if (getOpts.isSet (_OPTION_TRUSTSTORE) > 1)
@@ -2573,10 +2607,12 @@ Uint32 SSLTrustMgr::execute (
                 {
                     _addCertificate( client, outPrintWriter );
                 }
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
                 else
                 {
                     _addCRL( client, outPrintWriter );
                 }
+#endif
             }
             catch (CIMException& e)
             {
@@ -2657,10 +2693,12 @@ Uint32 SSLTrustMgr::execute (
                 {
                     _removeCertificate ( client, outPrintWriter );
                 }
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
                 else
                 {
                     _removeCRL ( client, outPrintWriter );
                 }
+#endif
             }
             catch (CIMException& e)
             {
@@ -2754,10 +2792,12 @@ Uint32 SSLTrustMgr::execute (
                 {
                     _listCertificates ( client, outPrintWriter );
                 }
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
                 else
                 {
                     _listCRL ( client, outPrintWriter );
                 }
+#endif
             }
             catch (CIMException& e)
             {

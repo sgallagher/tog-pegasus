@@ -100,10 +100,12 @@ static struct ConfigPropertyRow properties[] =
 #else
     {"exportSSLTrustStore", "indication_trust", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
 #ifdef PEGASUS_OS_OS400
     {"crlStore", "ssl/crlstore/", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
     {"crlStore", "crl", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
 #endif
 #ifdef PEGASUS_OS_OS400
     {"sslClientVerificationMode", "optional", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -157,7 +159,9 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _keyFilePath.reset(new ConfigProperty());
     _trustStore.reset(new ConfigProperty());
     _exportSSLTrustStore.reset(new ConfigProperty());
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
 	_crlStore.reset(new ConfigProperty());
+#endif
     _sslClientVerificationMode.reset(new ConfigProperty());
     _sslTrustStoreUserName.reset(new ConfigProperty());
     _enableRemotePrivilegedUserAccess.reset(new ConfigProperty());
@@ -285,6 +289,7 @@ void SecurityPropertyOwner::initialize()
             _exportSSLTrustStore->domainSize = properties[i].domainSize;
             _exportSSLTrustStore->externallyVisible = properties[i].externallyVisible;
         }
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
         else if (String::equalNoCase(
 			    properties[i].propertyName, 
                 "crlStore"))
@@ -299,6 +304,7 @@ void SecurityPropertyOwner::initialize()
             _crlStore->externallyVisible = properties[i].externallyVisible;
 
         } 
+#endif
         else if (String::equalNoCase(
             properties[i].propertyName, "sslClientVerificationMode")) 
         {
@@ -424,10 +430,12 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     {
         return _exportSSLTrustStore.get();
     }
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
 	else if (String::equalNoCase(_crlStore->propertyName, name))
     {
         return _crlStore.get();
     }
+#endif
     else if (String::equalNoCase(
                  _sslClientVerificationMode->propertyName, name))
     {
@@ -746,8 +754,11 @@ Boolean SecurityPropertyOwner::isValid(const String& name,
          return false;
     }
     else if (String::equalNoCase(_trustStore->propertyName, name) ||
-             String::equalNoCase(_exportSSLTrustStore->propertyName, name) || 
-			 String::equalNoCase(_crlStore->propertyName, name))
+             String::equalNoCase(_exportSSLTrustStore->propertyName, name)
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+        	|| String::equalNoCase(_crlStore->propertyName, name)
+#endif
+    )
     {
         //
         // Allow the exportSSLTrustStore and sslTrustStore file paths to be empty

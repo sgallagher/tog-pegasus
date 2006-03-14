@@ -120,7 +120,9 @@ static struct OwnerEntry _properties[] =
     {"sslKeyFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslTrustStore",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"exportSSLTrustStore",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
+#endif
     {"sslClientVerificationMode", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 	{"sslTrustStoreUserName", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION

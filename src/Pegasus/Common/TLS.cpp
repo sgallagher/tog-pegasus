@@ -110,8 +110,12 @@ SSLSocket::SSLSocket(
         //
         // Create a new callback info for each new connection
         //
-        _SSLCallbackInfo.reset(new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction(),
-                                                   _SSLContext->getCRLStore()));
+        _SSLCallbackInfo.reset(new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction()
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+                                                   , _SSLContext->getCRLStore()));
+#else
+                                                   ));
+#endif
 
         if (SSL_set_ex_data(_SSLConnection, SSLCallbackInfo::SSL_CALLBACK_INDEX, _SSLCallbackInfo.get()))
         {

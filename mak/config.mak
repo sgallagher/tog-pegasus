@@ -512,6 +512,24 @@ ifdef PEGASUS_HAS_SSL
         OPENSSL_SET_SERIAL_SUPPORTED = true
     endif
  endif
+
+# Enable CRL verification 
+ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    PEGASUS_ENABLE_SSL_CRL_VERIFICATION = true
+endif
+
+# Check for Enable SSL CRL verification
+ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), true)
+        FLAGS += -DPEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    else
+        ifneq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), false)
+            $(error PEGASUS_ENABLE_SSL_CRL_VERIFICATION\
+                 ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION)) invalid, \
+                  must be true or false)
+        endif
+    endif
+endif
 endif
 
 #

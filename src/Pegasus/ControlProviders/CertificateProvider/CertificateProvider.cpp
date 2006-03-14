@@ -354,7 +354,12 @@ _enableAuthentication(false)
 
     _sslTrustStore = ConfigManager::getHomedPath(configManager->getCurrentValue("sslTrustStore"));
     _exportSSLTrustStore = ConfigManager::getHomedPath(configManager->getCurrentValue("exportSSLTrustStore"));
+
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _crlStore = ConfigManager::getHomedPath(configManager->getCurrentValue("crlStore"));
+#else
+    _crlStore = String::EMPTY;
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -446,11 +451,15 @@ void CertificateProvider::getInstance(
         // complete request
         handler.complete();
 
-    } else if (className == PEGASUS_CLASSNAME_CRL)
+    } 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    else if (className == PEGASUS_CLASSNAME_CRL)
     {
         //ATTN: Fill in
 
-    } else
+    } 
+#endif
+    else
     {
         throw CIMException(CIM_ERR_INVALID_CLASS, className.getString());
     }
@@ -567,7 +576,9 @@ void CertificateProvider::enumerateInstances(
         // complete request
         handler.complete();
 
-    } else if (className == PEGASUS_CLASSNAME_CRL)
+    } 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    else if (className == PEGASUS_CLASSNAME_CRL)
     {
         // process request
         handler.processing();
@@ -635,7 +646,9 @@ void CertificateProvider::enumerateInstances(
                                      "Invalid directory $0.", _crlStore);
             throw CIMException(CIM_ERR_FAILED, parms);
         }
-    } else
+    } 
+#endif
+    else
     {
         throw CIMException(CIM_ERR_INVALID_CLASS, className.getString());
     }
@@ -682,7 +695,9 @@ void CertificateProvider::enumerateInstanceNames(
         // complete request
         handler.complete();
 
-    } else if (className == PEGASUS_CLASSNAME_CRL)
+    } 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    else if (className == PEGASUS_CLASSNAME_CRL)
     {
          // process request
         handler.processing();
@@ -761,7 +776,9 @@ void CertificateProvider::enumerateInstanceNames(
                                      "Invalid directory $0.", _crlStore);
             throw CIMException(CIM_ERR_FAILED, parms);
         }
-    } else
+    } 
+#endif
+    else
     {
         throw CIMException(CIM_ERR_INVALID_CLASS, className.getString());
     } 
@@ -940,7 +957,9 @@ void CertificateProvider::deleteInstance(
         // complete request
         handler.complete();
 
-    } else if (className == PEGASUS_CLASSNAME_CRL)
+    } 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    else if (className == PEGASUS_CLASSNAME_CRL)
     {
         Array<CIMKeyBinding> keys;
         CIMKeyBinding key;
@@ -1002,7 +1021,9 @@ void CertificateProvider::deleteInstance(
    
         X509_NAME_free(name);
 
-    } else
+    } 
+#endif
+    else
     {
         throw CIMException(CIM_ERR_INVALID_CLASS, className.getString());
     }
@@ -1396,7 +1417,9 @@ void CertificateProvider::invokeMethod(
             throw CIMException(CIM_ERR_METHOD_NOT_FOUND, methodName.getString());
         }
 
-    } else if (className == PEGASUS_CLASSNAME_CRL)
+    } 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    else if (className == PEGASUS_CLASSNAME_CRL)
     {
         if (methodName == METHOD_ADD_CRL)
         {
@@ -1529,7 +1552,9 @@ void CertificateProvider::invokeMethod(
         {
             throw CIMException(CIM_ERR_METHOD_NOT_FOUND, methodName.getString());
         }
-    } else
+    } 
+#endif
+    else
     {
         throw CIMException(CIM_ERR_INVALID_CLASS, className.getString());
     }

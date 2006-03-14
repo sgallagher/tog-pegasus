@@ -73,8 +73,10 @@ clean:
 	@$(RM) $(PEGASUS_HOME)/testca1.cert
 	@$(RM) $(PEGASUS_HOME)/testca1.key
 	@$(RM) $(PEGASUS_HOME)/testca1.srl
+ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), true)
 	@$(RM) $(PEGASUS_HOME)/testca1.crl
 	@$(RM) $(PEGASUS_HOME)/testca2.crl
+endif
 	@$(RM) $(PEGASUS_HOME)/testchca.cert
 	@$(RM) $(PEGASUS_HOME)/testchca.key
 	@$(RM) $(PEGASUS_HOME)/testchca.srl
@@ -157,6 +159,7 @@ ifdef PEGASUS_HAS_SSL
 	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn4.key -out $(PEGASUS_HOME)/testdn4.csr < testdn4.txt
 	@$(OPENSSL_COMMAND) x509 -req $(SETSERIAL_3) -days 365 -in $(PEGASUS_HOME)/testdn4.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn4.cert
 	@$(RM) $(PEGASUS_HOME)/testdn4.csr
+ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), true)
 	@#
 	@# Create a CRL issued by the test CA and revoke a certificate
 	@#
@@ -173,16 +176,21 @@ ifdef PEGASUS_HAS_SSL
 	@$(OPENSSL_COMMAND) ca -config $(OPENSSL_CNF) -revoke $(PEGASUS_HOME)/testdn4.cert -keyfile $(PEGASUS_HOME)/testca1.key -cert $(PEGASUS_HOME)/testca1.cert
 	@$(OPENSSL_COMMAND) ca -config $(OPENSSL_CNF) -gencrl -keyfile $(PEGASUS_HOME)/testca1.key -cert $(PEGASUS_HOME)/testca1.cert -out $(PEGASUS_HOME)/testca2.crl
 endif
+endif
 
 SSLCertificateTest1: test_setup
 ifdef PEGASUS_HAS_SSL
 	@$(RM) $(RESULTFILE)
 	@$(MAKE) -i -s SSLCertificateTest1_ignoreerror
 	@$(STRIPCRS)
+ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), true)
+	@$(DIFF) result.master.crl result
+else 
 ifdef PEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT
 	@$(DIFF) result.master.override result
 else
 	$(COMPARERESULTS)
+endif
 endif
 	@$(ECHO) +++ Test passed +++
 	#@$(RM) $(RESULTFILE) Leaving this file here for now, so we have it to debug any poststarttest failures
@@ -257,6 +265,7 @@ endif
 	@TestCertClient $(PEGASUS_HOME)/testdn4.cert $(PEGASUS_HOME)/testdn4.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
+ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), true)
 	@$(ECHO) "Add the CA CRL to the truststore" >> $(RESULTFILE)
 	@ssltrustmgr -a -R -f $(PEGASUS_HOME)/testca1.crl >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
@@ -308,6 +317,7 @@ endif
 	@$(ECHO) "Remove the CA CRL that we just removed, this should get a DNE error" >> $(RESULTFILE)
 	@ssltrustmgr -r -R -i /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)       
+endif
 	
 	@$(ECHO) "Remove the CA certificate from the truststore to clean everything up, this should succeed" >> $(RESULTFILE)
 	@ssltrustmgr -r -i /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA -n 0 >> $(RESULTFILE) $(REDIRECTERROR)

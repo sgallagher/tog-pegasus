@@ -847,6 +847,7 @@ SSLContext* CIMServer::_getSSLContext(Uint32 contextType)
             "Export trust store name: " + exportTrustStore);
     }
 
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     //
     // Get the crlStore property from the Config Manager.
     //
@@ -857,6 +858,9 @@ SSLContext* CIMServer::_getSSLContext(Uint32 contextType)
     {
         crlStore = ConfigManager::getHomedPath(crlStore);
     }
+#else
+    crlStore = String::EMPTY;
+#endif
 
     //
     // Get the sslCertificateFilePath property from the Config Manager.

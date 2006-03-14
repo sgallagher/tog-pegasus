@@ -552,7 +552,29 @@ en:table {
 	"\n"
 	}
 
-
+	Clients.ssltrustmgr.SSLTrustMgr.MENU.CRL.VERIFICATION.DISABLED:string {
+	"Usage: ssltrustmgr -a [ -t truststore ] [ -c certuser ] -f certfile\n"
+        "ssltrustmgr -a -T trustpath -f certfile\n"
+        "ssltrustmgr -r [ -t truststore | -T trustpath ] -i issuername -n serialnumber\n"
+        "ssltrustmgr -l [ -t truststore | -T trustpath ] [ -i issuername [ -n serialnumber ] ]\n"
+        "ssltrustmgr -v | --version\n"
+        "ssltrustmgr -h | --help\n"
+        "Options :\n"
+        "    -a              - Add the specified certificate to the trust store\n"
+        "    -r              - Remove the specified certificate from the trust store\n"
+        "    -l              - Display the certificates in the trust store\n"
+        "    -t truststore   - Specify the target trust store name\n"
+        "    -T trustpath    - Specify the target trust store path\n"
+        "    -f certfile     - Specify the PEM format file containing an X509 certificate\n"
+        "    -c certuser     - Specify the user name to be associated with the certificate\n"
+        "    -i issuername   - Specify the certificate issuer name\n"
+        "    -n serialnumber - Specify the certificate serial number\n"
+        "    -h, --help      - Display this help message\n"
+        "    -v, --version   - Display CIM Server version number\n"
+        "\n"
+        "Usage note: The ssltrustmgr command requires that the CIM Server is running.\n"
+	"\n"
+	}
         Clients.ssltrustmgr.SSLTrustMgr.REQUIRED_ARGS_MISSING:string {"PGC00900: Required arguments missing."}
 
         Clients.ssltrustmgr.SSLTrustMgr.CIMOM_NOT_RUNNING:string {"PGC00901: CIM Server may not be running."}

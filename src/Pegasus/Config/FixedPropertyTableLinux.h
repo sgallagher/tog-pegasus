@@ -61,7 +61,9 @@
     {"sslKeyFilePath",       PEGASUS_SSL_KEY_FILE_PATH},
     {"sslTrustStore",        PEGASUS_SSL_SERVER_TRUSTSTORE},
     {"exportSSLTrustStore",  PEGASUS_SSL_EXPORT_TRUSTSTORE},
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore",             PEGASUS_SSL_SERVER_CRL},
+#endif
     {"repositoryDir",        PEGASUS_REPOSITORY_DIR},
     {"providerDir",          PEGASUS_PROVIDER_LIB_DIR":/usr/lib/cmpi"},
 #else

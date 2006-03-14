@@ -331,7 +331,8 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     ssl = (SSL*) X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
     SSLCallbackInfo* exData = (SSLCallbackInfo*) SSL_get_ex_data(ssl, SSLCallbackInfo::SSL_CALLBACK_INDEX);
 
-
+	
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     //
     // Check to see if a CRL path is defined
     //
@@ -348,6 +349,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     }
 
     Tracer::trace(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL callback returned %d", revoked);
+#endif
 
     //
     // get the current certificate
@@ -1221,6 +1223,14 @@ SSLContext::SSLContext(
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile)
 {
+#ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+    if ( crlPath.size() > 0 )
+    {
+        MessageLoaderParms parms("Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION",
+                                 "SSL CRL verification is not enabled.");
+        throw Exception(parms);
+    }
+#endif
     _rep = new SSLContextRep(trustStore, certPath, keyPath, crlPath, verifyCert, randomFile);
 }
 
@@ -1269,12 +1279,24 @@ String SSLContext::getKeyPath() const
 
 String SSLContext::getCRLPath() const
 {
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     return (_rep->getCRLPath());
+#else
+    MessageLoaderParms parms("Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION",
+                             "SSL CRL verification is not enabled.");
+    throw Exception(parms);
+#endif
 }
 
 X509_STORE* SSLContext::getCRLStore() const
 {
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     return (_rep->getCRLStore());
+#else
+    MessageLoaderParms parms("Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION",
+                             "SSL CRL verification is not enabled.");
+    throw Exception(parms);
+#endif
 }
 
 Boolean SSLContext::isPeerVerificationEnabled() const

@@ -1,47 +1,59 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702, 3703, 3704
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 #include <cstring>
 
 #ifdef PEGASUS_HAS_ICU
 # include <unicode/locid.h>
 #endif
+#if defined(PEGASUS_OS_OS400)
+# include "OS400ConvertChar.h"
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
 static char LANGUAGE_TAG_SEPARATOR_CHAR = '-';
+static char LOCALE_ID_SEPARATOR_CHAR = '_';
 
 AcceptLanguageList LanguageParser::parseAcceptLanguageHeader(
     const String& acceptLanguageHeader)
@@ -63,8 +75,7 @@ AcceptLanguageList LanguageParser::parseAcceptLanguageHeader(
             Real32 qualityValue;
             LanguageParser::_parseAcceptLanguageElement(
                 languageElements[i], languageTagString, qualityValue);
-            acceptLanguages.insert(
-                LanguageTag(languageTagString), qualityValue);
+            acceptLanguages.insert(LanguageTag(languageTagString), qualityValue);
         }
     }
     catch (Exception& e)
@@ -146,12 +157,11 @@ void LanguageParser::parseLanguageTag(
     {
         // Except for "i" and "x", primary tags must be 2 or 3 characters,
         // according to RFC 3066.
-
-        // Do not localize this message; it could cause recursion.
+        MessageLoaderParms parms(
+            "Common.LanguageParser.INVALID_LANGUAGE_TAG",
+            "Invalid language tag \"$0\".", languageTagString);
         PEG_METHOD_EXIT();
-        throw Exception(Formatter::format(
-            "Invalid language tag \"$0\".",
-            languageTagString));
+        throw Exception(MessageLoader::getMessage(parms));
     }
 
     if (subtags.size() == 1)
@@ -168,12 +178,11 @@ void LanguageParser::parseLanguageTag(
     {
         // The second subtag may not be a single character according to
         // RFC 3066.
-
-        // Do not localize this message; it could cause recursion.
+        MessageLoaderParms parms(
+            "Common.LanguageParser.INVALID_LANGUAGE_TAG",
+            "Invalid language tag \"$0\".", languageTagString);
         PEG_METHOD_EXIT();
-        throw Exception(Formatter::format(
-            "Invalid language tag \"$0\".",
-            languageTagString));
+        throw Exception(MessageLoader::getMessage(parms));
     }
 
     if (isStandardFormat)
@@ -264,7 +273,6 @@ String LanguageParser::buildContentLanguageHeader(
 #ifdef PEGASUS_HAS_ICU
 String& LanguageParser::convertLocaleIdToLanguageTag(String& localeId)
 {
-    static char LOCALE_ID_SEPARATOR_CHAR = '_';
     Uint32 index = 0;
     while ((index = localeId.find(index, LOCALE_ID_SEPARATOR_CHAR)) !=
                 PEG_NOT_FOUND)
@@ -280,7 +288,14 @@ AcceptLanguageList LanguageParser::getDefaultAcceptLanguages()
 #if defined(PEGASUS_HAS_MESSAGES) && defined(PEGASUS_HAS_ICU)
     Locale default_loc = Locale::getDefault();
 
+# ifdef PEGASUS_OS_OS400
+    char* tmp = (char*)default_loc.getName();
+    char tmp_[100];
+    EtoA(strcpy(tmp_,tmp));
+    String localeId = tmp_;
+# else
     String localeId = default_loc.getName();
+# endif
 
     try
     {
@@ -290,10 +305,9 @@ AcceptLanguageList LanguageParser::getDefaultAcceptLanguages()
     catch (const InvalidAcceptLanguageHeader& e)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
-                "Cannot convert the system process locale into a valid "
-                    "Accept-Language format."));
+           "src.Server.cimserver.FAILED_TO_GET_PROCESS_LOCALE",
+           "Could not convert the system locale to a valid accept-language "
+               "format");
         Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             e.getMessage());
         AcceptLanguageList al;
@@ -447,23 +461,11 @@ void LanguageParser::_parseLanguageSubtags(
         if (((i == 0) && !_isValidPrimarySubtagSyntax(subtags[i])) ||
             ((i > 0) && !_isValidSubtagSyntax(subtags[i])))
         {
-            // throw Exception(MessageLoader::getMessage(parms));
-            // do not localize message, requires a language tag for this
-            // localization can cause recursion here
-            // MessageLoaderParms::toString adds 5kb static code size, Do NOT
-            // include in non-debug builds
-#ifdef PEGASUS_DEBUG
             MessageLoaderParms parms(
                 "Common.LanguageParser.MALFORMED_LANGUAGE_TAG",
                 "Malformed language tag \"$0\".", languageTagString);
             PEG_METHOD_EXIT();
-            throw Exception(parms.toString());
-#else
-            String malFormed("Malformed language tag:");
-            malFormed.append(languageTagString);
-            PEG_METHOD_EXIT();
-            throw Exception(malFormed);
-#endif
+            throw Exception(MessageLoader::getMessage(parms));
         }
     }
 

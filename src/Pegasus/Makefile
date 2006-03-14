@@ -182,6 +182,7 @@ DIRS += \
     Handler/CIMxmlIndicationHandler \
     Handler/CIMxmlIndicationHandler/tests/Destination \
     Handler/snmpIndicationHandler \
+    Handler/snmpIndicationHandler/tests/testclient \
     msg/Server \
     msg/CLI \
     msg/Listener

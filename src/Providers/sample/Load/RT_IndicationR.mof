@@ -60,6 +60,7 @@ instance of PG_ProviderCapabilities
     //  Note: these methods are not implemented in the subclass
     SupportedMethods = {"SendTestIndication", 
                         "SendTestIndicationNormal", 
+			"SendTestIndicationTrap",
                         "SendTestIndicationMissingProperty", 
                         "SendTestIndicationExtraProperty",
                         "SendTestIndicationMatchingInstance",

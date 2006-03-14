@@ -59,10 +59,6 @@ static Uint32 _nextUID = 0;
 static Uint32 _numSubscriptions = 0;
 static CIMOMHandle _cimom;
 
-void _generateIndication (
-    IndicationResponseHandler * handler,
-    const CIMName methodName);
-
 RT_IndicationProvider::RT_IndicationProvider (void) throw ()
 {
 	#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
@@ -105,7 +101,8 @@ void RT_IndicationProvider::enableIndications (
 
 void _generateIndication (
     IndicationResponseHandler * handler,
-    const CIMName methodName)
+    const CIMName methodName,
+    Uint32 indicationNumber)
 {
     if (_enabled)
     {
@@ -198,6 +195,21 @@ void _generateIndication (
             indicationInstance.addProperty
                 (CIMProperty ("MethodName", CIMValue (methodName.getString())));
         }
+        else if (methodName.equal ("SendTestIndicationTrap"))
+        {
+            indicationInstance.addProperty
+                (CIMProperty ("MethodName", 
+                 CIMValue (methodName.getString())));
+
+            indicationInstance.addProperty
+                (CIMProperty ("IndicationNumber", 
+                 CIMValue (Uint64(indicationNumber))));
+
+            indicationInstance.addProperty
+                (CIMProperty ("TestOidDataType", 
+                 CIMValue ("1.3.6.1.4.1.892.2.3.5006.5002")));
+
+        }
         else
         {
             indicationInstance.addProperty
@@ -273,6 +285,7 @@ void _generateIndication (
         //  Only deliver extra indication with trapOid for SendTestIndication
         //
         if ((!methodName.equal ("SendTestIndicationNormal")) &&
+            (!methodName.equal ("SendTestIndicationTrap")) &&
             (!methodName.equal ("SendTestIndicationSubclass")) &&
             (!methodName.equal ("SendTestIndicationMissingProperty")) &&
             (!methodName.equal ("SendTestIndicationExtraProperty")) &&
@@ -321,7 +334,7 @@ void RT_IndicationProvider::modifySubscription (
     String funcName("RT_IndicationProvider::modifySubscription ");
     _checkOperationContext(context, funcName);
 
-    _generateIndication(_handler, "modifySubscription");
+    _generateIndication(_handler, "modifySubscription", 0);
 }
 
 void RT_IndicationProvider::deleteSubscription (
@@ -342,6 +355,7 @@ void RT_IndicationProvider::invokeMethod(
         const Array<CIMParamValue> & inParameters,
         MethodResultResponseHandler & handler)
 {
+        Uint32 indicationSendCount = 1;
         Boolean sendIndication = false;
         handler.processing();
 
@@ -356,6 +370,12 @@ void RT_IndicationProvider::invokeMethod(
                 (methodName.equal ("SendTestIndicationUnmatchingNamespace")) ||
                 (methodName.equal ("SendTestIndicationUnmatchingClassName")))
             {
+                sendIndication = true;
+                handler.deliver( CIMValue( 0 ) );
+            }
+            else if (methodName.equal ("SendTestIndicationTrap"))
+            {
+                inParameters[0].getValue().get(indicationSendCount); 
                 sendIndication = true;
                 handler.deliver( CIMValue( 0 ) );
             }
@@ -374,13 +394,20 @@ void RT_IndicationProvider::invokeMethod(
         else
         {
              handler.deliver( CIMValue( 1 ) );
-	     PEGASUS_STD(cout) << "Provider is not enabled." << PEGASUS_STD(endl);
+	     PEGASUS_STD(cout) << "Provider is not enabled." << 
+                 PEGASUS_STD(endl);
         }
 
         handler.complete();
 
         if (sendIndication)
-           _generateIndication(_handler, methodName);
+        {
+            for (Uint32 numberOfInd = 1; numberOfInd <= indicationSendCount;
+                 numberOfInd++)
+            {
+                _generateIndication(_handler, methodName, numberOfInd);
+            }
+        }
 }
 
 void RT_IndicationProvider::_checkOperationContext(const OperationContext& context,

@@ -35,6 +35,7 @@
 
 #include <cstring>
 #include "Buffer.h"
+#include "Pegasus/Common/InternalException.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -61,6 +62,10 @@ static Uint32 _next_pow_2(Uint32 x)
 static inline BufferRep* _allocate(size_t cap)
 {
     BufferRep* rep = (BufferRep*)malloc(sizeof(BufferRep) + cap);
+    if (!rep)
+    {
+        throw PEGASUS_STD(bad_alloc)();
+    }
     rep->cap = cap;
     return rep;
 }
@@ -68,6 +73,10 @@ static inline BufferRep* _allocate(size_t cap)
 static inline BufferRep* _reallocate(BufferRep* rep, size_t cap)
 {
     rep = (BufferRep*)realloc(rep, sizeof(BufferRep) + cap);
+    if (!rep)
+    {
+        throw PEGASUS_STD(bad_alloc)();
+    }
     rep->cap = cap;
     return rep;
 }

@@ -1,7 +1,7 @@
 Using root/SampleProvider as default namespace.
 
 WQL ========Apply Projection Results========
-SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
+SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes 
 
 Instance of class QExpr_TestPropertyTypes
 -----Prop #0 Name = PropertyString Value = Ten
@@ -10,7 +10,7 @@ Instance of class QExpr_TestPropertyTypes
 -----Prop #3 Name = PropertyChar16 Value = A
 
 WQL ========Get Property List Results=======
-SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
+SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes 
 
 
 Get Class Path List
@@ -41,15 +41,15 @@ WHERE Property List for QExpr_TestPropertyTypes
 -----no properties required
 
 WQL ========Validating QueryExpression=======
-SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
+SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes 
 
 validate ok
 
 WQL ========Evaluating QueryExpression=======
-SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
+SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes 
 
 
-SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
+SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes 
  = TRUE
 
 
@@ -607,13 +607,13 @@ SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_T
 
 
 DMTF:CQL ========Apply Projection Results========
-SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten')
+SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten') 
 
 Instance of class QExpr_TestPropertyTypes
 Instance has 33 properties
 
 DMTF:CQL ========Get Property List Results=======
-SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten')
+SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten') 
 
 
 Get Class Path List
@@ -638,15 +638,15 @@ WHERE Property List for QExpr_TestPropertyTypes
 -----Required property PropertyString
 
 DMTF:CQL ========Validating QueryExpression=======
-SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten')
+SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten') 
 
 validate ok
 
 DMTF:CQL ========Evaluating QueryExpression=======
-SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten')
+SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten') 
 
 
-SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten')
+SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten') 
  = TRUE
 
 
@@ -730,7 +730,7 @@ DMTF:CQL ========Apply Projection Results========
 SELECT * FROM CIM_ComputerSystem
 
 Instance of class QExpr_TestPropertyTypes
------The property InstanceID is missing on the instance of class QExpr_TestPropertyTypes.
+-----The property Caption is missing on the instance of class QExpr_TestPropertyTypes.
 Instance of class QExpr_TestPropertyTypes.  Allow missing properties.
 -----No properties left after projection
 
@@ -770,7 +770,7 @@ DMTF:CQL ========Apply Projection Results========
 SELECT * FROM QExpr_TestElement
 
 Instance of class QExpr_TestPropertyTypes
------Prop #0 Name = QExprInstanceId Value = 1
+-----Prop #0 Name = InstanceId Value = 1
 
 DMTF:CQL ========Get Property List Results=======
 SELECT * FROM QExpr_TestElement
@@ -781,11 +781,11 @@ Get Class Path List
 Property List for the FROM class
 -----all properties required
 Property List for QExpr_TestPropertyTypes
------Required property QExprInstanceId
+-----Required property InstanceId
 SELECT Property List for the FROM class
 -----all properties required
 SELECT Property List for QExpr_TestPropertyTypes
------Required property QExprInstanceId
+-----Required property InstanceId
 WHERE Property List for the FROM class
 -----no properties required
 WHERE Property List for QExpr_TestPropertyTypes

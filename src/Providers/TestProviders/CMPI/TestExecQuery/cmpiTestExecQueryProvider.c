@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Konrad Rzeszutek <konradr@us.ibm.com>
 //
@@ -43,20 +45,23 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
+#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 
 #include <Providers/TestProviders/CMPI/TestUtilLib/cmpiUtilLib.h>
 
 #define _ClassName "TestCMPI_ExecQuery"
 #define _ClassName_size strlen(_ClassName)
 #define _Namespace    "test/TestProvider"
-#define _ProviderLocation  \
-    "/src/Providers/TestProviders/CMPI/TestExecQuery/tests/"
+#define _ProviderLocation "/src/Providers/TestProviders/CMPI/TestExecQuery/tests/"
 
 #ifdef CMPI_VER_100
 static const CMPIBroker *_broker;
 #else
 static CMPIBroker *_broker;
 #endif
+
+unsigned char CMPI_true = 1;
+unsigned char CMPI_false = 0;
 
 /* ---------------------------------------------------------------------------*/
 /*                       CMPI Helper function                        */
@@ -157,7 +162,7 @@ _setProperty (CMPIInstance * ci, const char *p)
     {
       val.uint8 = 8;
       rc = CMSetProperty (ci, "n8", &val, CMPI_uint8);
-    }
+	}
 
   else if ((strncmp (property, "r32", 3) == 0) && (strlen (property) == 3))
     {
@@ -231,15 +236,15 @@ _setProperty (CMPIInstance * ci, const char *p)
   return 0;
 }
           /* and many more .. */
-static CMPISelectExp* construct_instance(
-    const CMPIBroker* _broker,
-    const char* query,
-    const char* lang,
-    CMPIInstance* inst)
+static CMPISelectExp * 
+construct_instance(const CMPIBroker *_broker, const char *query, const char *lang, CMPIInstance *inst)
 {
   CMPIStatus rc = { CMPI_RC_OK, NULL };
+  CMPIString *type = NULL;
   CMPISelectExp *se_def = NULL;
+  CMPIObjectPath *objPath = NULL;
   unsigned int idx;
+  CMPIString *name = NULL;
   CMPIData data;
   CMPIArray *projection = NULL;
   CMPICount cnt = 0;
@@ -260,36 +265,32 @@ static CMPISelectExp* construct_instance(
             {
               data = CMGetArrayElementAt (projection, idx, &rc);
   check_CMPIStatus(rc);
-              PROV_LOG ("--- CMGetArrayElementAt (%d), type is %d",
-                  idx, data.type);
+              PROV_LOG ("--- CMGetArrayElementAt (%d), type is %d", idx, data.type);
               if (data.type == CMPI_chars)
-              {
+                {
                   PROV_LOG ("---- %s (chars)", data.value.chars);
                   rc_setProperty = _setProperty (inst, data.value.chars);
-                  if (rc_setProperty)
-                  {
+                  if (rc_setProperty) {
                     PROV_LOG ("--- Error finding the property");
-                  // At which point we would leave the function - as we cannot
-                  // satisfy the request. But this is a test-case provider so
-                  // we are continuing on and we just won't send the instance.
-                  // Wait you say, won't CMEvaluteSelExp figure this too - yes,
-                  // but only the CQL one. The WQL is not smart enough
-                  goto error;
-                  }
-              }
+                  // At which point we would leave the function - as we cannot satisfy the
+                  // request. But this is a test-case provider so we are continuing on and we
+                  // just won't send the instance.      Wait you say, won't CMEvaluteSelExp figure
+                  // this too - yes, but only the CQL one. The WQL is not smart enough
+		  goto error;
+		  }
+                }
               if (data.type == CMPI_string)
                 {
                   PROV_LOG ("---- %s (string)",
                             CMGetCharsPtr (data.value.string, &rc));
-                  // The _setProperty is a simple function to set
-                  // _only_ properties that are needed.
+                  // The _setProperty is a simple function to set _only_ properties
+                  // that are needed.
                   rc_setProperty =
                     _setProperty (inst, CMGetCharsPtr (data.value.string, &rc));
-                  if (rc_setProperty)
-                  {
-                      PROV_LOG ("--- Error finding the property");
-                      goto error;
-                  }
+                  if (rc_setProperty) {
+                    PROV_LOG ("--- Error finding the property");
+		    goto error;
+		  }
                 }
             }
 
@@ -352,14 +353,14 @@ TestCMPIExecQueryProviderEnumInstances (CMPIInstanceMI * mi,
                                             const CMPIContext * ctx,
                                             const CMPIResult * rslt,
                                             const CMPIObjectPath * ref,
-                                            const char **properties)
+					    const char **properties)
 #else
 CMPIStatus
 TestCMPIExecQueryProviderEnumInstances (CMPIInstanceMI * mi,
                                             CMPIContext * ctx,
                                             CMPIResult * rslt,
                                             CMPIObjectPath * ref,
-                                            char **properties)
+					    char **properties)
 #endif
 {
 
@@ -457,6 +458,7 @@ TestCMPIExecQueryProviderExecQuery (CMPIInstanceMI * mi,
 #endif
 {
 
+  CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPISelectExp *se_def = NULL;
   CMPIBoolean evalRes;
   CMPIInstance *inst = NULL;
@@ -475,17 +477,27 @@ TestCMPIExecQueryProviderExecQuery (CMPIInstanceMI * mi,
   inst = make_Instance (objPath);
 
   // Try some bogus ones first.
+  PROV_LOG ("--- Query: [%s], language: [%s]", query, "CIMxCQL");
+  se_def=construct_instance(_broker, query, "CIMxCQL", inst);
+
+  if (evaluate(se_def, inst,  instance_accessor, (void *)_broker)==CMPI_true)
+  {
+	  PROV_LOG("Query (%s) returns true when using CIMxCQL query language.", query);
+  }
+  if (se_def) {
+  	CMRelease(se_def); se_def = NULL;
+  }
+
+  // Try some bogus ones first.
   PROV_LOG ("--- Query: [%s], language: [%s]", query, "DMTF:CQL");
   se_def=construct_instance(_broker, query, "DMTF:CQL", inst);
 
   if (evaluate(se_def, inst,  instance_accessor, (void *)_broker)==CMPI_true)
   {
-      PROV_LOG("Query (%s) returns true when using DMTF:CQL query language.",
-          query);
+	  PROV_LOG("Query (%s) returns true when using DMTF:CQL query language.", query);
   }
-  if (se_def)
-  {
-      CMRelease(se_def); se_def = NULL;
+  if (se_def) {
+  	CMRelease(se_def); se_def = NULL;
   }
 
   PROV_LOG ("--- Query: [%s], language: [%s]", query, lang);
@@ -494,9 +506,9 @@ TestCMPIExecQueryProviderExecQuery (CMPIInstanceMI * mi,
   evalRes = evaluate(se_def, inst,  instance_accessor, (void *)_broker);
   if (evalRes)
   {
-       PROV_LOG("Returning instance for query:.%s",query);
-       CMReturnInstance (rslt, inst);
-       CMReturnDone (rslt);
+	  PROV_LOG("Returning instance for query:.%s",query);
+              CMReturnInstance (rslt, inst);
+              CMReturnDone (rslt);
   }
 
   PROV_LOG ("--- %s CMPI ExecQuery() exited", _ClassName);

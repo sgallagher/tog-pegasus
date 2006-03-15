@@ -1,44 +1,52 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Jim Wunderlich (Jim_Wunderlich@prodigy.net)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4400
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/General/OptionManager.h>
+#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/General/Stopwatch.h>
+#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AutoPtr.h>
 
@@ -46,24 +54,12 @@
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
 #include <Pegasus/Listener/CIMListener.h>
 
-
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-Array<String> sourceNamespaces;
-String indicationClassName;
-Boolean Ipv6Test;
+const CIMNamespaceName INTEROP_NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+const CIMNamespaceName SOURCE_NAMESPACE = CIMNamespaceName ("test/TestProvider");
 
-const CIMNamespaceName DEFAULT_NAMESPACE =
-    CIMNamespaceName ("test/TestProvider");
-const String DEFAULT_CLASS_NAME = String ("IndicationStressTestClass");
-const String HTTP_IPV6_DESTINATION = String ("http://[::1]:5988");
-const String HTTPS_IPV6_DESTINATION = String ("https://[::1]:5989");
-const String HTTP_IPV4_DESTINATION = String ("http://localhost:5988");
-const String HTTPS_IPV4_DESTINATION = String ("https://localhost:5989");
-
-const CIMNamespaceName INDICATION_CONSUMER_NAMESPACE =
-          CIMNamespaceName ("test/TestProvider");
 const String INDICATION_CONSUMER_CLASS_NAME = "PG_IndicationStressTestConsumer";
 const String INDICATION_CLASS_NAME = String ("IndicationStressTestClass");
 
@@ -102,7 +98,7 @@ enum indicationHandleProtocol {
 
 class T_Parms{
    public:
-    CIMClient* client;
+    AutoPtr<CIMClient> client;
     Uint32 indicationSendCount;
     Uint32 uniqueID;
 };
@@ -128,9 +124,9 @@ private:
 
 };
 
-MyIndicationConsumer::MyIndicationConsumer(String name_)
+MyIndicationConsumer::MyIndicationConsumer(String name)
 {
-    this->name = name_;
+    this->name = name;
     for (Uint32 i=0; i < MAX_UNIQUE_IDS; i++)
       seqNumPrevious[i] = 1;
 
@@ -153,12 +149,11 @@ void MyIndicationConsumer::consumeIndication(
   // Increment the count of indications received
   //
   receivedIndicationCount++;
-  PEGASUS_TEST_ASSERT(
-      indicationInstance.getClassName().getString() == indicationClassName);
+  PEGASUS_TEST_ASSERT(indicationInstance.getClassName().getString() == INDICATION_CLASS_NAME);
   if (receivedIndicationCount.get() % 200 == 0)
-    cout << "+++++     received indications = "
-         << receivedIndicationCount.get()
-         << " of " << indicationSendCountTotal << endl;
+    cout << "+++++     received indications = " 
+         << receivedIndicationCount.get() 
+         << " of " << indicationSendCountTotal << endl; 
 
   // cout << "IndicationStressTest consumer - recvd indication = "
   //     << ((CIMObject)indicationInstance).toString() << endl;
@@ -167,42 +162,36 @@ void MyIndicationConsumer::consumeIndication(
   // Get the date and time from the indication
   // Compare it to the current date
   // calculate the time it took to be delivered.
-  // add it to the total delivery time to calculate the average
+  // add it to the total delivery time to calculate the average 
   //      indication delivery time for the test.
   // Update the min and max delta times.
   //
 
-  //
+  // 
   // Calculate the time diference between when sent and received (now)
   //
 
-  Uint32 indicationTimeIndex =
-      indicationInstance.findProperty("IndicationTime");
-
+  Uint32 indicationTimeIndex = indicationInstance.findProperty("IndicationTime");
+  
 
   if (indicationTimeIndex == PEG_NOT_FOUND)
     {
-      cout << "+++++ ERROR: Indication Stress Test Consumer - indicationTime"
-           << " NOT FOUND" << endl;
+      cout << "+++++ ERROR: Indication Stress Test Consumer - indicationTime NOT FOUND" << endl;
       errorsEncountered++;
       return;
     }
 
 
-  CIMConstProperty indicationTime_property =
-      indicationInstance.getProperty(indicationTimeIndex);
-  // cout << "indicationTime = "
-  //      << indicationTime_property.getValue().toString() << endl;
+  CIMConstProperty indicationTime_property = indicationInstance.getProperty(indicationTimeIndex);
+  // cout << "indicationTime = " << indicationTime_property.getValue().toString() << endl;
 
   CIMDateTime indicationTime;
   indicationTime_property.getValue().get(indicationTime);
 
   CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-  Sint64 sendRecvDeltaTime =
-      CIMDateTime::getDifference(indicationTime, currentDateTime);
+  Sint64 sendRecvDeltaTime = CIMDateTime::getDifference(indicationTime, currentDateTime);
 
-  // cout << "sendRecvDeltaTime = "
- //       << (long)(sendRecvDeltaTime/1000) << " milli-seconds" << endl;
+  // cout << "sendRecvDeltaTime = " << (long)(sendRecvDeltaTime/1000) << " milli-seconds" << endl;
 
   sendRecvDeltaTimeTotal += sendRecvDeltaTime;
   sendRecvDeltaTimeCnt++;
@@ -215,73 +204,63 @@ void MyIndicationConsumer::consumeIndication(
 
   //
   // Get the unique ID
-  //
+  // 
   // This is sort of a Thread ID except that the unique ID keeps incrementing
-  // across tests runs as long as the server continues to run)
+  // across tests runs as long as the server continues to run) 
   //
 
-  Uint32 uniqueIDIndex =
-      indicationInstance.findProperty("IndicationIdentifier");
-
+  Uint32 uniqueIDIndex = indicationInstance.findProperty("IndicationIdentifier");
+  
 
   if (uniqueIDIndex == PEG_NOT_FOUND)
     {
-      cout << "+++++ ERROR: Indication Stress Test Consumer - indication"
-           << " Unique id NOT FOUND" << endl;
+      cout << "+++++ ERROR: Indication Stress Test Consumer - indication Unique id NOT FOUND" << endl;
       errorsEncountered++;
       return;
     }
 
 
-  CIMConstProperty uniqueID_property =
-      indicationInstance.getProperty(uniqueIDIndex);
+  CIMConstProperty uniqueID_property = indicationInstance.getProperty(uniqueIDIndex);
   // cout << "uniqueID = " << uniqueID_property.getValue().toString() << endl;
 
   String uniqueID_string;
   Uint32 uniqueID = 0;
   uniqueID_property.getValue().get(uniqueID_string);
   uniqueID = atoi (uniqueID_string.getCString());
-
+  
   // cout << "uniqueID = " << uniqueID << endl;
 
   //
   // Get the seq number
   //
 
-  Uint32 seqNumIndex =
-      indicationInstance.findProperty ("IndicationSequenceNumber");
+  Uint32 seqNumIndex = indicationInstance.findProperty ("IndicationSequenceNumber");
 
   if (seqNumIndex == PEG_NOT_FOUND)
     {
-      cout << "+++++ ERROR: Indication Stress Test Consumer - indication"
-           << " seq number NOT FOUND" << endl;
+      cout << "+++++ ERROR: Indication Stress Test Consumer - indication seq number NOT FOUND" << endl;
       errorsEncountered++;
     }
-  else if ((long)uniqueID >= MAX_UNIQUE_IDS)
+  else if ((long)uniqueID > MAX_UNIQUE_IDS)
     {
       if (!maxUniqueIDMsgIssued)
         {
           maxUniqueIDMsgIssued = true;
           cout << endl;
-          cout << "+++++ ERROR: Indication Stress TestConsumer - recvd"
-               << " uniqueID( " << (long)uniqueID
-               << " ) >= MAX_UNIQUE_IDS ( " << MAX_UNIQUE_IDS << " )"
+          cout << "+++++ ERROR: Indication Stress TestConsumer - recvd uniqueID ( "
+               << (long)uniqueID << " ) GT MAX_UNIQUE_IDS ( " << MAX_UNIQUE_IDS << " )"
                << endl;
-          cout << "+++++        To correct: Stop and start the server, this"
-               << " resets the uniqueID generated by the provider."
+          cout << "+++++        To correct: Stop and start the server, this resets the uniqueID generated by the provider." 
                << endl;
-          cout << "+++++        Sequence number checking is not completly"
-               << " enabled without this" << endl << endl;
+          cout << "+++++        Sequence number checking is not completly enabled without this" << endl << endl;
           errorsEncountered++;
         }
-
+      
     }
   else
     {
-      CIMConstProperty seqNum_property =
-          indicationInstance.getProperty(seqNumIndex);
-      // cout << "seqNum = " << (seqNum_property.getValue()).toString()
-      //        << endl;
+      CIMConstProperty seqNum_property = indicationInstance.getProperty(seqNumIndex);
+      // cout << "seqNum = " << (seqNum_property.getValue()).toString() << endl;
 
       Uint64 seqNumRecvd;
       seqNum_property.getValue().get(seqNumRecvd);
@@ -290,25 +269,24 @@ void MyIndicationConsumer::consumeIndication(
       //
       // See if seqNumRecvd less than previous received matches seqNumPrevious
       //
-      // The method used to determine the out of order count is
-      // (received < previous) received.
+      // The method used to determine the out of order count is 
+      // (received < previous) received. 
       //
       // The other choice would would be (received != expected) where expected
-      // is the previous received +1.
-      //
-      // The (actual < previous) was chosen as giving results that
+      // is the previous received +1. 
+      // 
+      // The (actual < previous) was chosen as giving results that  
       // are more representative of the ordering problems.
-      //
+      // 
       // Consider these indication sequences:
       //
       //     A: 1,3,4,2,5
       //     B: 1,4,3,2,5
       //
-      // The "out of sequence" counts for "(actual != expected)" are A=3, B=2,
+      // The "out of sequence" counts for "(actual != expected)" are A=3, B=2, 
       // while "(actual < previous)" gives A=1, B=2.
       //
-      // Thanks to Roger Kump at HP for suggesting the
-      // actual <  previous method.
+      // Thanks to Roger Kump at HP for suggesting the actual < previous method.
       //
       // JR Wunderlich 7/14/2005
       //
@@ -320,15 +298,14 @@ void MyIndicationConsumer::consumeIndication(
             {
               cout << "+++++ ERROR: Indication Stress Test Consumer"
                    << "- Sequence error "
-                   << " previous = "
-                   << (unsigned long) seqNumPrevious[uniqueID]
+                   << " previous = " << (unsigned long) seqNumPrevious[uniqueID]
                    << " received = " << (unsigned long) seqNumRecvd << endl;
             }
         }
-      seqNumPrevious[uniqueID] = seqNumRecvd;
+      seqNumPrevious[uniqueID] = seqNumRecvd;  
     }
 
-
+  
   return;
 
 }
@@ -375,10 +352,10 @@ CIMObjectPath _getSubscriptionObjectPath
      const String & filterName,
      const String & handlerName)
 {
-    CIMObjectPath filterObjectPath =
+    CIMObjectPath filterObjectPath = 
         _getFilterObjectPath(client, filterName);
 
-    CIMObjectPath handlerObjectPath =
+    CIMObjectPath handlerObjectPath = 
         _getHandlerObjectPath(client, handlerName);
 
     Array<CIMKeyBinding> subscriptionKeyBindings;
@@ -399,9 +376,7 @@ Boolean _subscriptionExists
     {
         CIMObjectPath subscriptionObjectPath =
              _getSubscriptionObjectPath(client, filterName, handlerName);
-        client.getInstance(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            subscriptionObjectPath);
+        client.getInstance (INTEROP_NAMESPACE, subscriptionObjectPath);
     }
     catch (CIMException& e)
     {
@@ -411,7 +386,7 @@ Boolean _subscriptionExists
         }
         else
         {
-            cerr << "----- Error: subscriptionExists failed: " << endl;
+            cerr << "----- Error: subscriptionExists failed: " << endl; 
             throw(e);
         }
     }
@@ -434,9 +409,7 @@ CIMObjectPath _createHandlerInstance
     handlerInstance.addProperty (CIMProperty (CIMName ("Destination"),
         destination));
 
-    return(client.createInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        handlerInstance));
+    return(client.createInstance (INTEROP_NAMESPACE, handlerInstance));
 }
 
 CIMObjectPath _createFilterInstance
@@ -456,12 +429,10 @@ CIMObjectPath _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("Query"), query));
     filterInstance.addProperty (CIMProperty (CIMName ("QueryLanguage"),
         String (qlang)));
-    filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespaces"),
-        sourceNamespaces));
+    filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
+        SOURCE_NAMESPACE.getString ()));
 
-    return(client.createInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        filterInstance));
+    return(client.createInstance (INTEROP_NAMESPACE, filterInstance));
 }
 
 CIMObjectPath _createSubscriptionInstance
@@ -477,40 +448,10 @@ CIMObjectPath _createSubscriptionInstance
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    return(client.createInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        subscriptionInstance));
+    return(client.createInstance (INTEROP_NAMESPACE, subscriptionInstance));
 }
 
-// Returns the Number of Subscriptions from a Provider
-static Uint32  _getCount(CIMClient&  client)
-{
-    Array <CIMParamValue> inParams;
-    Array <CIMParamValue> outParams;
-    Uint32 result;
-
-    CIMObjectPath  objPath;
-
-    objPath.setNameSpace("test/TestProvider");
-    objPath.setClassName("TestCMPI_IndicationStressTestClass");
-
-    CIMValue retValue = client.invokeMethod(
-        CIMNamespaceName("test/TestProvider"),
-        objPath,
-        "getSubscriptionCount",
-        inParams,
-        outParams);
-
-    retValue.get(result);
-    PEGASUS_TEST_ASSERT (result == 12);
-
-    return result;
-}
-
-void _sendTestIndication(
-    CIMClient* client,
-    const CIMName & methodName,
-    Uint32 indicationSendCount)
+void _sendTestIndication(CIMClient* client, const CIMName & methodName, Uint32 indicationSendCount)
 {
     //
     //  Invoke method to send test indication
@@ -521,15 +462,13 @@ void _sendTestIndication(
     Sint32 result;
 
     CIMValue sendCountValue(indicationSendCount);
-    inParams.append(
-        CIMParamValue(String("indicationSendCount"),
-        CIMValue(indicationSendCount)));
+    inParams.append(CIMParamValue(String("indicationSendCount"), CIMValue(indicationSendCount)));
 
     CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
-        CIMName (indicationClassName), keyBindings);
+        CIMName ("IndicationStressTestClass"), keyBindings);
 
-    CIMValue retValue = client->invokeMethod(
-        "test/TestProvider",
+    CIMValue retValue = client->invokeMethod
+        (SOURCE_NAMESPACE,
         className,
         methodName,
         inParams,
@@ -557,9 +496,7 @@ void _deleteSubscriptionInstance
 {
     CIMObjectPath subscriptionObjectPath =
        _getSubscriptionObjectPath(client, filterName, handlerName);
-    client.deleteInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        subscriptionObjectPath);
+    client.deleteInstance (INTEROP_NAMESPACE, subscriptionObjectPath);
 }
 
 void _deleteHandlerInstance
@@ -567,7 +504,7 @@ void _deleteHandlerInstance
      const String & name)
 {
     CIMObjectPath handlerObjectPath = _getHandlerObjectPath(client, name);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, handlerObjectPath);
+    client.deleteInstance (INTEROP_NAMESPACE, handlerObjectPath);
 }
 
 void _deleteFilterInstance
@@ -575,15 +512,14 @@ void _deleteFilterInstance
      const String & name)
 {
     CIMObjectPath filterObjectPath = _getFilterObjectPath(client, name);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, filterObjectPath);
+    client.deleteInstance (INTEROP_NAMESPACE, filterObjectPath);
 }
 
 void _usage ()
 {
    cerr << endl
         << "Usage:" << endl
-        << "    TestIndicationStressTest ClassName Namespace\n"
-        << "                  [setup | setupCL | setupSL]\n"
+        << "    TestIndicationStressTest [setup | setupCL | setupSL]\n"
         << "                  [ WQL | DMTF:CQL ]\n"
         << "                  [INTERNAL | HTTP | HTTPS]\n"
         << "    where: " << endl
@@ -595,9 +531,9 @@ void _usage ()
         << "            used, by the CIM-XML Indication Handler, to send\n"
         << "            Indications to the Server-resident Listener.\n"
         << "            INTERNAL is the default value."
-        << endl << endl
-        << "    TestIndicationStressTest ClassName Namespace"
-        << " run <indicationSendCount> [<threads>]\n"
+        << endl << endl 
+        << "    TestIndicationStressTest run <indicationSendCount> "
+        << "[<threads>]\n"
         << "    where: " << endl
         << "       <indicationSendCount> is the number of indications to\n"
         << "            generate, and can be zero to measure the overhead in\n"
@@ -606,19 +542,14 @@ void _usage ()
         << "            create, default is one." << endl
         << "       <SenderIdentity> is the system user name associated with\n"
         << "            the certificate of the server sending the Indication.\n"
-        << "            The cimtrust utility can be used to associate a\n"
-        << "            user name with a certificate.  This feature is only\n"
+        << "            The ssltrustmgr utility can be used to associate a\n"
+        << "            a user name with a certificate.  This feature is only\n"
         << "            supported for Server-resident Listeners.\n"
-        << "               cimtrust -a -U guest -f server.pem\n"
+        << "               ssltrustmgr -a -c guest -f server.pem\n"
         << "            Note: the <threads> parameter must be specified if\n"
         << "            the <SenderIdentity> value is defined.\n"
         << endl << endl
-        << "    TestIndicationStressTest ClassName Namespace "
-        << "getSubscriptionCount\n "
-        << "       getSubscriptionCount returns the number of\n"
-        << "           active Subscriptions from Provider.\n"
-        << endl << endl
-        << "    TestIndicationStressTest ClassName Namespace cleanup"
+        << "    TestIndicationStressTest cleanup"
         << endl << endl;
 }
 
@@ -633,7 +564,7 @@ void _getTestResults(
     Array<CIMParamValue> outParams;
 
     CIMValue retValue = client.invokeMethod(
-        INDICATION_CONSUMER_NAMESPACE.getString (),
+        SOURCE_NAMESPACE,
         classPath,
         CIMName("getTestResults"),
         inParams,
@@ -649,7 +580,7 @@ void _getTestResults(
     if (outParams.size() != 2)
     {
         throw Exception (
-            "Invalid number of parameters returned from getTestResults");
+            "Invalid number of parameters returned from getTestResults"); 
     }
     else
     {
@@ -680,7 +611,7 @@ void _getTestResults(
                 throw Exception("Invalid getTestResults parameter");
             }
         }
-        else
+        else 
         {
             throw Exception ("Invalid getTestResults parameter");
         }
@@ -722,7 +653,7 @@ void _setupServerResidentListener(CIMClient &client,
          CIMValue(expectedSenderIdentity)));
 
     CIMValue retValue = client.invokeMethod(
-        INDICATION_CONSUMER_NAMESPACE.getString (),
+        SOURCE_NAMESPACE,
         classPath,
         CIMName("setupTestConfiguration"),
         inParams,
@@ -750,10 +681,9 @@ void _setup (CIMClient & client, String& qlang,
     try
     {
         instanceAlreadyExists = false;
-        String query ("SELECT * FROM ");
-        query.append (indicationClassName);
         filterObjectPath = _createFilterInstance (client, FILTER_NAME,
-                                                  query, qlang);
+            String ("SELECT * FROM IndicationStressTestClass"),
+            qlang);
     }
     catch (CIMException& e)
     {
@@ -779,7 +709,7 @@ void _setup (CIMClient & client, String& qlang,
     {
         try
         {
-            // Create the handler for the Server-resident Listener
+            // Create the handler for the Server-resident Listener 
             String destinationProtocol;
             if (handleProtocol == PROTOCOL_CIMXML_INTERNAL)
             {
@@ -787,25 +717,11 @@ void _setup (CIMClient & client, String& qlang,
             }
             else if (handleProtocol == PROTOCOL_CIMXML_HTTP)
             {
-                 if (Ipv6Test)
-                 {
-                     destinationProtocol = HTTP_IPV6_DESTINATION;
-                 }
-                 else
-                 {
-                     destinationProtocol = HTTP_IPV4_DESTINATION;
-                 }
+               destinationProtocol = "http://localhost:5988";
             }
             else if (handleProtocol == PROTOCOL_CIMXML_HTTPS)
             {
-                 if (Ipv6Test)
-                 {
-                     destinationProtocol = HTTPS_IPV6_DESTINATION;
-                 }
-                 else
-                 {
-                     destinationProtocol = HTTPS_IPV4_DESTINATION;
-                 }
+               destinationProtocol = "https://localhost:5989";
             }
             else
             {
@@ -864,8 +780,6 @@ void _setup (CIMClient & client, String& qlang,
             // Create the handler with this program as the CIMListener
             clientHandlerObjectPath = _createHandlerInstance (client,
                 CLIENT_RESIDENT_HANDLER_NAME,
-                Ipv6Test ?
-                String ("http://[::1]:2005/TestIndicationStressTest") :
                 String ("http://localhost:2005/TestIndicationStressTest"));
         }
         catch (CIMException& e)
@@ -1011,16 +925,16 @@ static void _testEnd(const String& uniqueID, const double elapsedTime)
         << " seconds" << endl;
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL _executeTests(void *parm)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeTests(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client;
+    CIMClient *client = parms->client.get();
     Uint32 indicationSendCount = parms->indicationSendCount;
     Uint32 id = parms->uniqueID;
     char id_[4];
     memset(id_,0x00,sizeof(id_));
-    sprintf(id_,"%u",id);
+    sprintf(id_,"%i",id);
     String uniqueID = "_";
     uniqueID.append(id_);
 
@@ -1040,10 +954,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeTests(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-
-    delete parms;
-
-    return ThreadReturnType(0);
+    my_thread->exit_self((PEGASUS_THREAD_RETURN)5);
+    return(0);
 }
 
 Thread * _runTestThreads(
@@ -1053,13 +965,13 @@ Thread * _runTestThreads(
 {
     // package parameters, create thread and run...
     AutoPtr<T_Parms> parms(new T_Parms());
-    parms->client = client;
+    parms->client.reset(client);
     parms->indicationSendCount = indicationSendCount;
     parms->uniqueID = uniqueID;
     AutoPtr<Thread> t(new Thread(_executeTests, (void*)parms.release(), false));
 
     // zzzzz... (1 second) zzzzz...
-    Threads::sleep(1000);
+    pegasus_sleep(1000);
     t->run();
     return t.release();
 }
@@ -1177,22 +1089,14 @@ int _beginTest(CIMClient& workClient, const char* opt,
             // Finish starting the CIMListener
             try
             {
-                cout << "+++++ Starting the CIMListener at destination\n";
-                if (Ipv6Test)
-                {
-                    cout  << "     http://[::1]:2005/TestIndicationStressTest";
-                }
-                else
-                {
-                    cout  <<
-                         "     http://localhost:2005/TestIndicationStressTest";
-                }
-                cout << endl;
+                cout << "+++++ Starting the CIMListener at destination\n"
+                     << "       http://localhost:2005/TestIndicationStressTest"
+                     << endl;
 
                 // Start the listener
                 listener.start();
             }
-            catch (BindFailedException&)
+            catch (BindFailedException & bfe)
             {
                 // Got a bind error.  The port is probably already in use.
                 // Put out a message and fail.
@@ -1217,8 +1121,8 @@ int _beginTest(CIMClient& workClient, const char* opt,
 
 
         // calculate the timeout based on the total send count allowing
-        // using the MSG_PER_SEC rate
-        // allow 20 seconds of test overhead for very small tests
+        // using the MSG_PER_SEC rate 
+        // allow 20 seconds of test overhead for very small tests 
 
 #define MSG_PER_SEC 4
 
@@ -1264,11 +1168,13 @@ int _beginTest(CIMClient& workClient, const char* opt,
         // clean up
         for(Uint32 i=0; i< clientConnections.size(); i++)
         {
-            delete clientConnections[i];
+            if(clientConnections[i])
+                delete clientConnections[i];
         }
         for(Uint32 i=0; i < clientThreads.size(); i++)
         {
-            delete clientThreads[i];
+            if(clientThreads[i])
+                delete clientThreads[i];
         }
 
         //
@@ -1291,13 +1197,13 @@ int _beginTest(CIMClient& workClient, const char* opt,
 
         //
         // Wait for the Listeners to received the expected
-        // number of Indications, indicationSendCountTotal.
+        // number of Indications, indicationSendCountTotal. 
         //
         // We will continue to wait until either indicationSendCountTotal
         // Indications have been received by the Consumers or no new
         // Indications have been received in the previous
         // MAX_NO_CHANGE_ITERATIONS.
-        // iterations.
+        // iterations. 
         //
 
         Boolean clientResidentCountComplete = !monitorClientResidentListener;
@@ -1396,9 +1302,9 @@ int _beginTest(CIMClient& workClient, const char* opt,
             cout << "+++++ TEST RESULTS: Client Resident Listener " << endl;
             cout << "+++++     Number of Test Threads = "
                  << runClientThreadCount << endl;
-            cout << "+++++     Expected Number of Indications = "
+            cout << "+++++     Expected Number of Indications = " 
                  << indicationSendCountTotal <<endl;
-            cout << "+++++     Indications Received  = "
+            cout << "+++++     Indications Received  = "  
                  << currentClientResidentIndicationCount << endl;
             cout << "+++++     Out of Sequence = "
                  << seqNumberErrors.get() << endl;
@@ -1423,37 +1329,37 @@ int _beginTest(CIMClient& workClient, const char* opt,
             cout << "+++++     Elapsed time = " << eTime
                  << " seconds, or  " << eTime/60
                  << " minutes." << endl;
-            cout << "+++++     Rate = "
+            cout << "+++++     Rate = " 
                  << currentClientResidentIndicationCount/eTime
                  << " indications per second." << endl << endl;
-        }
+        }   
         if (monitorServerResidentListener)
         {
             cout << "+++++ TEST RESULTS: Server Resident Listener " << endl;
             cout << "+++++     Number of Test Threads = "
                  << runClientThreadCount << endl;
-            cout << "+++++     Expected Number of Indications = "
+            cout << "+++++     Expected Number of Indications = " 
                  << indicationSendCountTotal <<endl;
-            cout << "+++++     Number of Indications Received  = "
+            cout << "+++++     Number of Indications Received  = "  
                  << currentServerResidentIndicationCount << endl;
             if (expectedSenderIdentity != String::EMPTY)
             {
                 cout << "+++++     Number of Indications Received from "
-                     << expectedSenderIdentity << " = "
+                     << expectedSenderIdentity << " = "   
                      << currentServerResidentIdentityIndicationCount << endl;
             }
             cout << "+++++     Elapsed time = "
                  << serverResidentListenerElapsedTime.getElapsed()
-                 << " seconds, or  "
+                 << " seconds, or  " 
                  << serverResidentListenerElapsedTime.getElapsed()/60
                  << " minutes." << endl;
-            cout << "+++++     Rate = "
+            cout << "+++++     Rate = " 
                  << currentServerResidentIndicationCount/
                         serverResidentListenerElapsedTime.getElapsed()
                  << " indications per second." << endl << endl;
         }
 
-        // assert that all indications sent have been received.
+        // assert that all indications sent have been received. 
         if (monitorClientResidentListener)
         {
             PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
@@ -1466,7 +1372,7 @@ int _beginTest(CIMClient& workClient, const char* opt,
                 currentServerResidentIndicationCount);
             if (expectedSenderIdentity != String::EMPTY)
             {
-                PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
+                assert(indicationSendCountTotal ==
                     currentServerResidentIdentityIndicationCount);
             }
         }
@@ -1481,12 +1387,7 @@ int _beginTest(CIMClient& workClient, const char* opt,
           {
           cout << "+++++ passed all tests" << endl;
           }
-
-    }
-    else if (String::equalNoCase (opt, "getSubscriptionCount"))
-    {
-        Uint32 res = _getCount(workClient);
-        cout << " ++++++++ Number of Subscriptions " << res <<endl;
+        
     }
     else if (String::equalNoCase (opt, "cleanup"))
     {
@@ -1507,7 +1408,6 @@ int main (int argc, char** argv)
 {
     // This client connection is used soley to create subscriptions.
     CIMClient workClient;
-    CIMNamespaceName sourceNamespace;
     try
     {
         workClient.connectLocal();
@@ -1518,69 +1418,51 @@ int main (int argc, char** argv)
         return -1;
     }
 
-    if ((argc <= 3) || (argc > 7))
+    if (argc <= 1)
     {
         cerr << "Invalid argument count: " << argc << endl;
         _usage();
         return 1;
     }
-
-    const char* opt = argv[3];
-    const char* optTwo = NULL;
-    const char* optThree = NULL;
-    const char* optFour = NULL;
-
-    if (argc > 4)
-    {
-        optTwo = argv[4];
-    }
-
-    if (argc > 5)
-    {
-        optThree = argv[5];
-    }
-
-    if (argc > 6)
-    {
-        optFour = argv[6];
-    }
-
-    Ipv6Test = false;
-
-    // Check if class name is IPv6TestClass, handle this class name
-    // differently. We use default class-name and namespace for
-    // IPv6TestClass class. IPv6TestClass class does not exist, it is used
-    // to test IndicationStressTestProvider on IPv6.
-    if (!strcmp(argv[1], "IPv6TestClass"))
-    {
-        Ipv6Test = true;
-        indicationClassName = DEFAULT_CLASS_NAME;
-        sourceNamespace = DEFAULT_NAMESPACE;
-        cout << "++++ Testing with IPv6 LoopBack address " << endl;
-    }
     else
     {
-        indicationClassName = argv[1];
-        sourceNamespace = CIMNamespaceName (argv[2]);
+        const char * opt = argv[1];
+        const char * optTwo;
+        const char * optThree;
+        const char * optFour;
+
+        if (argc == 5) {
+            optTwo = argv[2];
+            optThree = argv[3];
+            optFour = argv[4];
+        }
+            
+        else if (argc == 4) {
+            optTwo = argv[2];
+            optThree = argv[3];
+            optFour = NULL;
+        }
+        else if (argc == 3) {
+            optTwo = argv[2];
+            optThree = NULL;
+            optFour = NULL;
+        }
+        else {
+            optTwo = NULL;
+            optThree = NULL;
+            optFour = NULL;
+        }
+
+        try
+        {
+            int rc = _beginTest(workClient, opt, optTwo, optThree, optFour);
+	    return rc;
+        }
+        catch (Exception & e)
+        {
+            cerr << e.getMessage () << endl;
+            return -1;
+        }
     }
-    cout << "++++ Testing with class " << indicationClassName
-         << " and Namespace " << sourceNamespace.getString () << endl;
-
-    int rc = 0;
-
-    sourceNamespaces.append("test/testProvider");
-    sourceNamespaces.append("test/testIndSrcNS1");
-    sourceNamespaces.append("test/testIndSrcNS2");
-
-    try
-    {
-        rc = _beginTest(workClient, opt, optTwo, optThree, optFour);
-    }
-    catch (Exception & e)
-    {
-        cerr << e.getMessage() << endl;
-        rc = -1;
-    }
-
-    return rc;
+    PEGASUS_UNREACHABLE( return 0; )
 }

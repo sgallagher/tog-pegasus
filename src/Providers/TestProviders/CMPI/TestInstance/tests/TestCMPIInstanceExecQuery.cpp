@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Konrad Rzeszutek <konradr@us.ibm.com>
 //
@@ -49,29 +51,17 @@ PEGASUS_USING_STD;
 const CIMNamespaceName PROVIDERNAMESPACE =
 CIMNamespaceName ("test/TestProvider");
 const char *queries[] = {
-  // 0
-  "select n32,s,ElementName,n64,n16,f,d "
-      "from TestCMPI_Instance where n32=42",
-  // 1
-  "SELECT * FROM TestCMPI_Instance",
-  // 2 - won't get anything back
-  "SELECT not_present_property FROM TestCMPI_Instance",
-  // 3
-  "SELECT * FROM TestCMPI_Instance where s=s",
-  // 4
-  "SELECT * FROM TestCMPI_Instance where s=s AND n64=64",
-  // 5
-  "SELECT s FROM TestCMPI_Instance where n64=40",
+  "select n32,s,ElementName,n64,n16,f,d from TestCMPI_Instance where n32=42",   // 0
+  "SELECT * FROM TestCMPI_Instance",    // 1
+  "SELECT not_present_property FROM TestCMPI_Instance", // 2 - won't get anything back
+  "SELECT * FROM TestCMPI_Instance where s=s",  // 3
+  "SELECT * FROM TestCMPI_Instance where s=s AND n64=64",       //4
+  "SELECT s FROM TestCMPI_Instance where n64=40",       // 5
 #if 0
-  // 6
-  "SELECT * FROM TestCMPI_Instance where "
-      "TestCMPI_Instance ISA TestCMPI_Parent",
-  //7 - wont'get anything back
-  "SELECT * FROM TestCMPI_Instance where "
-      "TestCMPI_Instance ISA TestCMPI_Indication",
+  "SELECT * FROM TestCMPI_Instance where TestCMPI_Instance ISA TestCMPI_Parent",        // 6
+  "SELECT * FROM TestCMPI_Instance where TestCMPI_Instance ISA TestCMPI_Indication",    //7 - wont'get anything back
 #endif
-  // 8
-  "SELECT * FROM TestCMPI_Instance  WHERE (s IS NULL) OR (n16=16)",
+  "SELECT * FROM TestCMPI_Instance  WHERE (s IS NULL) OR (n16=16)",     // 8
 };
 
 #define QUERIES  6
@@ -232,8 +222,8 @@ _test (CIMClient & client)
 
         if (objects.size () == 0)
           {
-            // Only the third (second when starting from zero) and
-            // eight(7) won't return instances.
+            // Only the third (second when starting from zero) and eight(7) won't
+            // return instances.
             PEGASUS_TEST_ASSERT (i == 2 || i == 5 || i == 7);
             if (verbose)
               cerr << "No instance returned.. That is good" << endl;

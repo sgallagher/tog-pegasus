@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
@@ -41,20 +43,21 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-// Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
-const CIMNamespaceName NAMESPACE1 = CIMNamespaceName("root/cimv2");
-const CIMNamespaceName NAMESPACE2 = CIMNamespaceName("test/TestProvider");
-const CIMNamespaceName NAMESPACE3 = CIMNamespaceName("root/SampleProvider");
-const CIMNamespaceName SOURCENAMESPACE = CIMNamespaceName("test/TestProvider");
+const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+const CIMNamespaceName NAMESPACE1 = CIMNamespaceName ("root/cimv2");
+const CIMNamespaceName NAMESPACE2 = CIMNamespaceName ("test/TestProvider");
+const CIMNamespaceName NAMESPACE3 = CIMNamespaceName ("root/SampleProvider");
+const CIMNamespaceName SOURCENAMESPACE = 
+    CIMNamespaceName ("root/SampleProvider");
 
-void _createHandlerInstance
-    (CIMClient & client,
+void _createHandlerInstance 
+    (CIMClient & client, 
      const String & name,
      const String & destination,
      const CIMNamespaceName & handlerNS)
 {
     CIMInstance handlerInstance (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
-    handlerInstance.addProperty (CIMProperty (CIMName
+    handlerInstance.addProperty (CIMProperty (CIMName 
         ("SystemCreationClassName"), System::getSystemCreationClassName ()));
     handlerInstance.addProperty (CIMProperty (CIMName ("SystemName"),
         System::getFullyQualifiedHostName ()));
@@ -67,15 +70,15 @@ void _createHandlerInstance
     CIMObjectPath path = client.createInstance (handlerNS, handlerInstance);
 }
 
-void _createFilterInstance
-    (CIMClient & client,
+void _createFilterInstance 
+    (CIMClient & client, 
      const String & name,
      const String & query,
      const String & qlang,
      const CIMNamespaceName & filterNS)
 {
     CIMInstance filterInstance (PEGASUS_CLASSNAME_INDFILTER);
-    filterInstance.addProperty (CIMProperty (CIMName
+    filterInstance.addProperty (CIMProperty (CIMName 
         ("SystemCreationClassName"), System::getSystemCreationClassName ()));
     filterInstance.addProperty (CIMProperty (CIMName ("SystemName"),
         System::getFullyQualifiedHostName ()));
@@ -91,7 +94,7 @@ void _createFilterInstance
     CIMObjectPath path = client.createInstance (filterNS, filterInstance);
 }
 
-void _createSubscriptionInstance
+void _createSubscriptionInstance 
     (CIMClient & client,
      const CIMObjectPath & filterPath,
      const CIMObjectPath & handlerPath,
@@ -105,11 +108,11 @@ void _createSubscriptionInstance
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    CIMObjectPath path = client.createInstance (subscriptionNS,
+    CIMObjectPath path = client.createInstance (subscriptionNS, 
         subscriptionInstance);
 }
 
-void _sendIndicationShouldSucceed
+void _sendIndicationShouldSucceed 
     (CIMClient & client)
 {
     Array <CIMParamValue> inParams;
@@ -118,10 +121,10 @@ void _sendIndicationShouldSucceed
     Sint32 result;
 
     CIMName methodName ("SendTestIndication");
-    CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
-        CIMName("Test_IndicationProviderClass"), keyBindings);
+    CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
+        CIMName ("RT_TestIndication"), keyBindings);
 
-    CIMValue retValue = client.invokeMethod
+    CIMValue retValue = client.invokeMethod 
         (SOURCENAMESPACE,
         className,
         methodName,
@@ -140,10 +143,10 @@ void _sendIndicationShouldFail
     Sint32 result;
 
     CIMName methodName ("SendTestIndication");
-    CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
-        CIMName("Test_IndicationProviderClass"), keyBindings);
+    CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
+        CIMName ("RT_TestIndication"), keyBindings);
 
-    CIMValue retValue = client.invokeMethod
+    CIMValue retValue = client.invokeMethod 
         (SOURCENAMESPACE,
         className,
         methodName,
@@ -153,7 +156,7 @@ void _sendIndicationShouldFail
     PEGASUS_TEST_ASSERT (result == 1);
 }
 
-void _sendIndicationShouldBeBlocked
+void _sendIndicationShouldBeBlocked 
     (CIMClient & client)
 {
     Array <CIMParamValue> inParams;
@@ -162,12 +165,12 @@ void _sendIndicationShouldBeBlocked
     Sint32 result;
 
     CIMName methodName ("SendTestIndication");
-    CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
-        CIMName("Test_IndicationProviderClass"), keyBindings);
+    CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
+        CIMName ("RT_TestIndication"), keyBindings);
 
     try
     {
-        CIMValue retValue = client.invokeMethod
+        CIMValue retValue = client.invokeMethod 
             (SOURCENAMESPACE,
             className,
             methodName,
@@ -178,12 +181,12 @@ void _sendIndicationShouldBeBlocked
     }
     catch (CIMException & e)
     {
-        PEGASUS_TEST_ASSERT (e.getCode () == CIM_ERR_NOT_SUPPORTED);
+        PEGASUS_TEST_ASSERT (e.getCode () == CIM_ERR_ACCESS_DENIED);
     }
 }
 
-void _deleteSubscriptionInstance
-    (CIMClient & client,
+void _deleteSubscriptionInstance 
+    (CIMClient & client, 
      const String & filterName,
      const String & handlerName,
      const CIMNamespaceName & filterNS,
@@ -225,18 +228,17 @@ void _deleteSubscriptionInstance
     client.deleteInstance (subscriptionNS, subscriptionPath);
 }
 
-void _deleteSubscriptionInstance
-    (CIMClient & client,
+void _deleteSubscriptionInstance 
+    (CIMClient & client, 
      const String & filterName,
      const String & handlerName)
 {
     _deleteSubscriptionInstance (client, filterName, handlerName,
-        CIMNamespaceName (), CIMNamespaceName (),
-        PEGASUS_NAMESPACENAME_INTEROP);
+        CIMNamespaceName (), CIMNamespaceName (), NAMESPACE);
 }
 
-void _deleteHandlerInstance
-    (CIMClient & client,
+void _deleteHandlerInstance 
+    (CIMClient & client, 
      const String & name,
      const CIMNamespaceName & handlerNS)
 {
@@ -255,8 +257,8 @@ void _deleteHandlerInstance
     client.deleteInstance (handlerNS, path);
 }
 
-void _deleteFilterInstance
-    (CIMClient & client,
+void _deleteFilterInstance 
+    (CIMClient & client, 
      const String & name,
      const CIMNamespaceName & filterNS)
 {
@@ -267,7 +269,7 @@ void _deleteFilterInstance
         System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
     keyBindings.append (CIMKeyBinding ("CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("Name", name,
+    keyBindings.append (CIMKeyBinding ("Name", name, 
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDFILTER, keyBindings);
@@ -276,11 +278,11 @@ void _deleteFilterInstance
 
 void _usage ()
 {
-    PEGASUS_STD (cerr)
+    PEGASUS_STD (cerr) 
         << "Usage: TestDisableEnable2 "
         << "{setup | setup2 | create | create2 "
         << "| sendSucceed | sendFail | sendBlock "
-        << "| delete | delete2 | cleanup | cleanup2} {WQL | DMTF:CQL}"
+        << "| delete | delete2 | cleanup | cleanup2} {WQL | DMTF:CQL}" 
         << PEGASUS_STD (endl);
 }
 
@@ -289,11 +291,11 @@ void _setup (CIMClient & client, String& qlang)
     try
     {
         _createFilterInstance (client, String ("DEFilter01"),
-            String ("SELECT MethodName FROM Test_IndicationProviderClass"),
-            qlang, PEGASUS_NAMESPACENAME_INTEROP);
-        _createHandlerInstance (client, String ("DEHandler01"),
+            String ("SELECT MethodName FROM RT_TestIndication"),
+            qlang, NAMESPACE);
+        _createHandlerInstance (client, String ("DEHandler01"), 
             String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"),
-            PEGASUS_NAMESPACENAME_INTEROP);
+            NAMESPACE);
     }
     catch (Exception & e)
     {
@@ -311,9 +313,9 @@ void _setup2 (CIMClient & client, String& qlang)
     try
     {
         _createFilterInstance (client, String ("DEFilter02"),
-            String ("SELECT MethodName FROM Test_IndicationProviderClass"),
+            String ("SELECT MethodName FROM RT_TestIndication"),
             qlang, NAMESPACE1);
-        _createHandlerInstance (client, String ("DEHandler02"),
+        _createHandlerInstance (client, String ("DEHandler02"), 
             String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"),
             NAMESPACE2);
     }
@@ -354,11 +356,11 @@ void _create (CIMClient & client)
 {
     try
     {
-        _createSubscriptionInstance (client,
-            _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
+        _createSubscriptionInstance (client, 
+            _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
                 "DEFilter01"),
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-                "DEHandler01"), PEGASUS_NAMESPACENAME_INTEROP);
+                "DEHandler01"), NAMESPACE);
     }
     catch (Exception & e)
     {
@@ -375,8 +377,8 @@ void _create2 (CIMClient & client)
 {
     try
     {
-        _createSubscriptionInstance (client,
-            _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
+        _createSubscriptionInstance (client, 
+            _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
                 "DEFilter02", NAMESPACE1),
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                 "DEHandler02", NAMESPACE2), NAMESPACE3);
@@ -483,10 +485,8 @@ void _cleanup (CIMClient & client)
 {
     try
     {
-        _deleteHandlerInstance (client, String ("DEHandler01"),
-                                PEGASUS_NAMESPACENAME_INTEROP);
-        _deleteFilterInstance (client, String ("DEFilter01"),
-                               PEGASUS_NAMESPACENAME_INTEROP);
+        _deleteHandlerInstance (client, String ("DEHandler01"), NAMESPACE);
+        _deleteFilterInstance (client, String ("DEFilter01"), NAMESPACE);
     }
     catch (Exception & e)
     {
@@ -565,12 +565,12 @@ int _test(CIMClient& client, const char* opt, String& qlang)
   }
   else
   {
-    PEGASUS_STD (cerr) << "Invalid option: " << opt
+    PEGASUS_STD (cerr) << "Invalid option: " << opt 
                        << PEGASUS_STD (endl);
     _usage ();
     return -1;
   }
-
+  
   return 0;
 }
 
@@ -593,17 +593,26 @@ int main (int argc, char** argv)
         return 1;
     }
 
-    const char* opt = argv[1];
-    const char* optLang = argv[2];
-    String qlang(optLang);
-
-#ifndef PEGASUS_ENABLE_CQL
-    if (qlang == "DMTF:CQL")
+    else
     {
-        PEGASUS_STD(cout) << "+++++ cql test disabled" << PEGASUS_STD(endl);
-        return 0;
-    }
-#endif
+        const char * opt = argv [1];
+        const char * optLang = argv [2];
+        String qlang(optLang);
 
-    return _test(client, opt, qlang);
+#ifdef PEGASUS_DISABLE_CQL
+        if (qlang == "DMTF:CQL")
+        {
+          PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
+          return 0;
+        }
+        else
+        {
+          return _test(client, opt, qlang);
+        }
+#else
+        return _test(client, opt, qlang);
+#endif
+    }
+
+    PEGASUS_UNREACHABLE( return 0; )
 }

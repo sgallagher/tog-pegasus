@@ -4388,6 +4388,13 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_THREAD_ALLOCATION_FAILED:string {"PGS13605:  Failed to allocate thread for cimprovagt \"{0}\"."}
 
+        /**
+        * @note  PGS13606
+        *    Substitution {0} is a string ID for a provider module name
+        * @version 2.5.1
+        */
+        ProviderManager.OOPProviderManagerRouter.OOP_PROVIDER_MODULE_FAILURE_DETECTED:string {"PGS13606:  A failure was detected in provider module {0}.  The generation of indications by providers in this module may be affected.  To ensure these providers are serving active subscriptions, disable and then re-enable this module using the cimprovider command."}
+
 
     // ==========================================================
         // Messages for ProviderManager.ProviderAgent.cimprovagt

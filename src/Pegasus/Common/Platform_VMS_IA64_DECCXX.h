@@ -88,4 +88,10 @@
 
 #define PEGASUS_SOCKLEN_T size_t
 
+// PEGASUS_DISABLE_INTERNAL_INLINES
+// Debug builds fail with undefined symbols. Perhaps this is
+// because debug (nooptimize) builds have the compiler inline
+// feature turned off.
+#define PEGASUS_DISABLE_INTERNAL_INLINES
+
 #endif /* Pegasus_Platform_VMS_IA64_DECCXX_h */

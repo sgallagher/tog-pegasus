@@ -663,35 +663,11 @@ void _removeTrapLogFile ()
     }
 }
 
-int _beginTest(CIMClient& workClient, 
+void _receiveExpectedTraps(CIMClient& workClient, 
     Uint32 indicationSendCount,
     Uint32 runClientThreadCount)
 {
 
-#ifdef PEGASUS_USE_NET_SNMP
-
-    // Stop snmptrapd process if it is running
-    _stopSnmptrapd();
-
-    // if trapLogFile exists, remove it
-    _removeTrapLogFile();
-
-    FILE * trapInfo;
-
-    try
-    {
-        _startSnmptrapd(&trapInfo);
-    }
-    catch (Exception & e)
-    {
-        cerr << e.getMessage() << endl;
-        return (-1);
-    }
-#else
-    cerr << "Cannot create a trap receiver." << endl;
-    return (-1);
-#endif
- 
     CIMClient * clientConnections = new CIMClient[runClientThreadCount];
 
     // determine total number of indication send count
@@ -838,13 +814,41 @@ int _beginTest(CIMClient& workClient,
        currentReceivedTrap1Count);
     PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
        currentReceivedTrap2Count);
+}
+
+int _beginTest(CIMClient& workClient, 
+    Uint32 indicationSendCount,
+    Uint32 runClientThreadCount)
+{
 
 #ifdef PEGASUS_USE_NET_SNMP
+
+    // Stop snmptrapd process if it is running
+    _stopSnmptrapd();
+
+    // if trapLogFile exists, remove it
+    _removeTrapLogFile();
+
+    FILE * trapInfo;
+
+    try
+    {
+        _startSnmptrapd(&trapInfo);
+    }
+    catch (Exception & e)
+    {
+        cerr << e.getMessage() << endl;
+        return (-1);
+    }
+
+    // Extended for all snmp implementation
+    _receiveExpectedTraps(workClient, indicationSendCount, 
+	runClientThreadCount);
+
     // Stop snmptrapd process if it is running and remove procIdFile
     _stopSnmptrapd();
 
     pclose(trapInfo);
-#endif
 
     // if error encountered then fail the test.
     if (errorsEncountered.get())
@@ -856,8 +860,13 @@ int _beginTest(CIMClient& workClient,
     {
         cout << "+++++ passed all tests" << endl;
     }
-        
-    return 0;
+
+    return (0);
+
+#else
+    cerr << "Cannot create a trap receiver." << endl;
+    return (-1);
+#endif
 }
 
 int main (int argc, char** argv)

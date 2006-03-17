@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -55,25 +57,21 @@ EmbeddedInstanceProvider::~EmbeddedInstanceProvider()
 
 void EmbeddedInstanceProvider::initialize(CIMOMHandle & cimomHandle)
 {
-    printf("Initializing embedded instance provider\n");
     cimom = cimomHandle;
 }
 
 void EmbeddedInstanceProvider::terminate()
 {
-    printf("EmbeddedInstanceProvider terminate\n");
 }
 
 void EmbeddedInstanceProvider::enableIndications (
     IndicationResponseHandler & handler)
 {
-    printf("Enabling indications\n");
     indicationHandler = &handler;
 }
 
 void EmbeddedInstanceProvider::disableIndications()
 {
-    printf("Disabling indications\n");
     indicationHandler = 0;
 }
 
@@ -84,7 +82,6 @@ void EmbeddedInstanceProvider::createSubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-    printf("Creating subscription\n");
     // I'm only expecting to receive one indication, and this is just
     // a test provider
 }
@@ -96,7 +93,6 @@ void EmbeddedInstanceProvider::modifySubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-    printf("Modifying subscription\n");
     // I'm only expecting to receive one indication, and this is just
     // a test provider
 }
@@ -106,7 +102,6 @@ void EmbeddedInstanceProvider::deleteSubscription (
     const CIMObjectPath & subscriptionName,
     const Array <CIMObjectPath> & classNames)
 {
-    printf("Deleting subscription\n");
     // I'm only expecting to receive one indication, and this is just
     // a test provider
 }
@@ -128,7 +123,6 @@ void EmbeddedInstanceProvider::invokeMethod(
         const Array<CIMParamValue> & inParameters,
         MethodResultResponseHandler & handler)
 {
-  printf("Invoking method\n");
     // This should start sending indications with the stored Job instance
     // embedded in the InstMethodIndication
     handler.processing();
@@ -204,13 +198,12 @@ void EmbeddedInstanceProvider::getInstance(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
-  printf("Get Instance Called\n");
     handler.processing();
     CIMInstance retInst;
     if(ref.getClassName().equal(CIMName("PG_EmbeddedError")))
-      retInst = errorInstance->clone();
+        retInst = errorInstance->clone();
     else if(ref.getClassName().equal(CIMName("PG_InstMethodIndication")))
-      retInst = indicationInstance->clone();
+        retInst = indicationInstance->clone();
 
     retInst.filter(includeQualifiers, includeClassOrigin, propertyList);
     handler.deliver(retInst);
@@ -229,7 +222,6 @@ void EmbeddedInstanceProvider::enumerateInstances(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
-  printf("Enumerate Instances called\n");
     handler.processing();
     CIMInstance retInst;
     if(ref.getClassName().equal(CIMName("PG_EmbeddedError")))
@@ -253,7 +245,6 @@ void EmbeddedInstanceProvider::enumerateInstanceNames(
 	const CIMObjectPath & ref,
 	ObjectPathResponseHandler & handler)
 {
-  printf("Enumerate Instance Names\n");
     handler.processing();
     if(ref.getClassName().equal(CIMName("PG_EmbeddedError")))
     {
@@ -287,7 +278,6 @@ void EmbeddedInstanceProvider::modifyInstance(
 	const CIMPropertyList & propertyList,
 	ResponseHandler & handler)
 {
-  printf("Modify Instance called\n");
   throw CIMException(CIM_ERR_NOT_SUPPORTED);
 //    handler.processing();
 //    handler.complete();
@@ -305,7 +295,6 @@ void EmbeddedInstanceProvider::createInstance(
 	const CIMInstance & obj,
 	ObjectPathResponseHandler & handler)
 {
-  printf("Create Instance called\n");
     handler.processing();
     errorInstance.reset(new CIMInstance(obj));
     Array<CIMName> propNameList;
@@ -349,7 +338,6 @@ void EmbeddedInstanceProvider::deleteInstance(
 	const CIMObjectPath & ref,
 	ResponseHandler & handler)
 {
-  printf("Delete Instance called\n");
     handler.processing();
     if(ref.getClassName().equal(CIMName("PG_EmbeddedError")))
     {

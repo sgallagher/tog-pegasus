@@ -332,7 +332,10 @@ void CIMPropertyRep::toXml(Buffer& out) const
                 // but this method toXml() *is* const. However, in this case we really
                 // do want to add the EmbeddedObject qualifier, so we cast away the
                 // implied const-ness of _qualifiers.
-                ((CIMQualifierList)_qualifiers).add(CIMQualifier(CIMName("EmbeddedObject"), true));
+                CIMQualifierList * tmpQualifiers =
+                    const_cast<CIMQualifierList *>(&_qualifiers);
+                tmpQualifiers->add(
+                    CIMQualifier(CIMName("EmbeddedObject"), true));
             }
 #ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
         }
@@ -366,9 +369,11 @@ void CIMPropertyRep::toXml(Buffer& out) const
 
           // For now, we assume that all the embedded instances in the
           // array are of the same type
-          ((CIMQualifierList)_qualifiers).add(CIMQualifier(
-            CIMName("EmbeddedInstance"),
-            a[0].getClassName().getString()));
+          CIMQualifierList * tmpQualifiers =
+              const_cast<CIMQualifierList *>(&_qualifiers);
+          tmpQualifiers->add(CIMQualifier(
+              CIMName("EmbeddedInstance"),
+              a[0].getClassName().getString()));
         }
 #endif
       }
@@ -483,7 +488,10 @@ void CIMPropertyRep::toXml(Buffer& out) const
                 // but this method toXml() *is* const. However, in this case we really
                 // do want to add the EmbeddedObject qualifier, so we cast away the
                 // implied const-ness of _qualifiers.
-                ((CIMQualifierList)_qualifiers).add(CIMQualifier(CIMName("EmbeddedObject"), true));
+                CIMQualifierList * tmpQualifiers =
+                    const_cast<CIMQualifierList *>(&_qualifiers);
+                tmpQualifiers->add(
+                    CIMQualifier(CIMName("EmbeddedObject"), true));
             }
 #ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
         }
@@ -504,7 +512,9 @@ void CIMPropertyRep::toXml(Buffer& out) const
         // but this	method toXml() *is*	const. However,	in this	case we	really
         // do	want to	add	the	EmbeddedObject qualifier,	so we	cast away	the
         // implied const-ness	of _qualifiers.
-        ((CIMQualifierList)_qualifiers).add(
+        CIMQualifierList * tmpQualifiers =
+            const_cast<CIMQualifierList *>(&_qualifiers);
+        tmpQualifiers->add(
           CIMQualifier(CIMName("EmbeddedInstance"),
           a.getClassName.getString()));
       }

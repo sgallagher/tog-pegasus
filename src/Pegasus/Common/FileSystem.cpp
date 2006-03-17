@@ -50,12 +50,6 @@
 #include "FileSystem.h"
 #include "Dir.h"
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-#define DIR_SEP "\\"
-#else
-#define DIR_SEP "/"
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 // Clone the path as a C String but discard trailing slash if any:
@@ -314,7 +308,7 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
     for (Uint32 i = 0, n = fileList.size(); i < n; i++)
     {   
         String newPath = path;   // extend path to subdir
-        newPath.append(DIR_SEP);
+        newPath.append("/");
         newPath.append(fileList[i]);
         
         if (FileSystem::isDirectory(newPath))
@@ -445,8 +439,8 @@ String FileSystem::getAbsoluteFileName(const String &paths, const String &filena
         }
         path = tempPath.subString(0, pos);
         tempPath.remove(0,pos+token);
-        if (FileSystem::exists( path + DIR_SEP + filename) == true) {
-          root = path + DIR_SEP + filename;
+        if (FileSystem::exists( path + "/" + filename) == true) {
+          root = path + "/" + filename;
           break;
         } else
           {

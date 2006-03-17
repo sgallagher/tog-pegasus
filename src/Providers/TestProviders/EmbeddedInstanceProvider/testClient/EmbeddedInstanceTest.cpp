@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -107,7 +109,7 @@ void EmbeddedInstanceIndicationConsumer::consumeIndication(
         receivedIndication.reset(new CIMInstance(indicationInstance));
     else if(!receivedIndication->identical(indicationInstance))
     {
-        std::cout << "Received multiple different indications" << std::endl;
+        cout << "Received multiple different indications" << endl;
     }
     receivedIndications++;
 }
@@ -243,8 +245,8 @@ int retrieveErrorInstance(CIMClient & client)
     }
     catch (Exception & e)
     {
-        std::cout << "Exception caught while getting error instance: "
-            << e.getMessage() << std::endl;
+        cout << "Exception caught while getting error instance: "
+            << e.getMessage() << endl;
         return -1;
     }
 
@@ -263,8 +265,8 @@ int retrieveErrorInstance(CIMClient & client)
     }
     catch (Exception & e)
     {
-        std::cout << "Exception caught while enumerating error instances: "
-            << e.getMessage() << std::endl;
+        cout << "Exception caught while enumerating error instances: "
+            << e.getMessage() << endl;
         return -1;
     }
 
@@ -292,8 +294,8 @@ int createSubscription(CIMClient & client)
     }
     catch (Exception & e)
     {
-        std::cout << "Exception caught while creating listener destination: "
-            << e.getMessage() << std::endl;
+        cout << "Exception caught while creating listener destination: "
+            << e.getMessage() << endl;
         return -1;
     }
 
@@ -320,8 +322,8 @@ int createSubscription(CIMClient & client)
     }
     catch (Exception & e)
     {
-        std::cout << "Exception caught while creating indication filter: "
-            << e.getMessage() << std::endl;
+        cout << "Exception caught while creating indication filter: "
+            << e.getMessage() << endl;
         return -1;
     }
 
@@ -340,8 +342,8 @@ int createSubscription(CIMClient & client)
     }
     catch (Exception & e)
     {
-        std::cout << "Exception caught while creating subscription: "
-            << e.getMessage() << std::endl;
+        cout << "Exception caught while creating subscription: "
+            << e.getMessage() << endl;
         return -1;
     }
 
@@ -362,9 +364,8 @@ int signalIndication(CIMClient & client)
 
         if(outParameters.size() != 1)
         {
-            std::cout
-                << "Expected to get 1 output parameter from PropagateError. "
-                << "Received " << outParameters.size() << std::endl;
+            cout << "Expected to get 1 output parameter from PropagateError. "
+                << "Received " << outParameters.size() << endl;
             return -1;
         }
 
@@ -373,14 +374,14 @@ int signalIndication(CIMClient & client)
         outParamInstance.setPath(errorInstance->getPath());
         if(!errorInstance->identical(outParamInstance))
         {
-            std::cout << "Output Instance differs from Input Instance" << std::endl;
+            cout << "Output Instance differs from Input Instance" << endl;
             return -1;
         }
     }
     catch(Exception & e)
     {
-        std::cout << "Exception caught during invoke method of PropagateError: "
-            << e.getMessage() << std::endl;
+        cout << "Exception caught during invoke method of PropagateError: "
+            << e.getMessage() << endl;
         return -1;
     }
 
@@ -405,15 +406,15 @@ int retrieveIndicationInstance(CIMClient & client)
     }
     catch (Exception & e)
     {
-        std::cout << "Exception caught while enumerating indications: "
-            << e.getMessage() << std::endl;
+        cout << "Exception caught while enumerating indications: "
+            << e.getMessage() << endl;
         return -1;
     }
 
     if(indications.size() != 5)
     {
-        std::cout << "Expected to get one instance. Received "
-            << indications.size() << std::endl;
+        cout << "Expected to get one instance. Received "
+            << indications.size() << endl;
         return -1;
     }
 
@@ -457,8 +458,8 @@ int removeSubscription(CIMClient & client)
     }
     catch (Exception & e)
     {
-        std::cout << "Exception caught while deleting subscription: "
-            << e.getMessage() << std::endl;
+        cout << "Exception caught while deleting subscription: "
+            << e.getMessage() << endl;
     }
 
     try {
@@ -466,8 +467,8 @@ int removeSubscription(CIMClient & client)
     }
     catch (Exception & e)
     {
-        std::cout << "Exception caught while deleting indication filter: "
-            << e.getMessage() << std::endl;
+        cout << "Exception caught while deleting indication filter: "
+            << e.getMessage() << endl;
     }
 
     try {
@@ -475,8 +476,8 @@ int removeSubscription(CIMClient & client)
     }
     catch (Exception & e)
     {
-        std::cout << "Exception caught while deleting listener destination: "
-            << e.getMessage() << std::endl;
+        cout << "Exception caught while deleting listener destination: "
+            << e.getMessage() << endl;
     }
 
     return 0;

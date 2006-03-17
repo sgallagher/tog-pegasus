@@ -36,6 +36,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/ObjectNormalizer.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -213,28 +214,7 @@ CIMProperty _processProperty(
               {
                   CIMInstance & currentInstance = embeddedInstances[i];
                   CIMName currentClassName = currentInstance.getClassName();
-                  Boolean found = false;
-                  for(Uint32 j = 0, m = embeddedInstSubclasses.size(); j < m; ++j)
-                  {
-                      if(currentClassName == embeddedInstSubclasses[j])
-                      {
-                          found = true;
-                          break;
-                      }
-                  }
-
-                  if(!found)
-                  {
-                      MessageLoaderParms message(
-                          "Common.ObjectNormalizer.INVALID_EMBEDDED_INSTANCE_TYPE",
-                          "Found embedded instance of type $0: was expecting $1 for property $2",
-                          currentClassName.getString(),
-                          qualClassStr,
-                          cimProperty.getName().getString());
-
-                      throw CIMException(CIM_ERR_FAILED, message);
-                  }
-                  else
+                  if(Contains(embeddedInstSubclasses, currentClassName))
                   {
                       CIMClass embeddedClassDef;
                       bool found = false;
@@ -267,6 +247,17 @@ CIMProperty _processProperty(
                       }
                       embeddedInstances[i] = tmpNormalizer.processInstance(currentInstance);
                   }
+                  else
+                  {
+                      MessageLoaderParms message(
+                          "Common.ObjectNormalizer.INVALID_EMBEDDED_INSTANCE_TYPE",
+                          "Found embedded instance of type $0: was expecting $1 for property $2",
+                          currentClassName.getString(),
+                          qualClassStr,
+                          cimProperty.getName().getString());
+
+                      throw CIMException(CIM_ERR_FAILED, message);
+                  }
               }
 
               if(referenceProperty.isArray())
@@ -278,6 +269,9 @@ CIMProperty _processProperty(
                 normalizedProperty.setValue(CIMValue(embeddedInstances[0]));
               }
           }
+          else
+          {
+          }
       }
     }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
@@ -288,8 +282,7 @@ CIMProperty _processProperty(
 ObjectNormalizer::ObjectNormalizer(void)
     : _includeQualifiers(false),
     _includeClassOrigin(false),
-    _context(0)/*,
-    _nameSpace(String::EMPTY)*/
+    _context(0)
 {
 }
 

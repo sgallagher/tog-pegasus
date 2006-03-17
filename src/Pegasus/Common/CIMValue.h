@@ -48,9 +48,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMValueRep;
 class CIMObject;
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 class CIMInstance;
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 /**
     The CIMValue class represents a value of any of the CIM data types
@@ -129,9 +131,11 @@ public:
     CIMValue(const CIMObject& x);
 
     /// Constructor.
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     CIMValue(const CIMInstance& x);
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /// Constructor.
     CIMValue(const Array<Boolean>& x);
@@ -190,9 +194,11 @@ public:
     CIMValue(const Array<CIMObject>& x);
 
     /// Constructor.
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT    
     CIMValue(const Array<CIMInstance>& x);
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /** Constructor.
         Note: If the input type is CIMObject, it/they will be cloned before
@@ -321,9 +327,11 @@ public:
     ///
     void set(const CIMObject& x);
     ///
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     void set(const CIMInstance& x);
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
     ///
     void set(const Array<Boolean>& x);
     ///
@@ -357,9 +365,11 @@ public:
     ///
     void set(const Array<CIMObject>& x);
     ///
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     void set(const Array<CIMInstance>& x);
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /** Gets the value of a CIMValue.
         Note: Before using get, the caller should use getType () and isNull ()
@@ -415,9 +425,11 @@ public:
     ///
     void get(CIMObject& x) const;
     ///
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     void get(CIMInstance& x) const;
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
     ///
     void get(Array<Boolean>& x) const;
     ///
@@ -451,9 +463,11 @@ public:
     ///
     void get(Array<CIMObject>& x) const; 
     ///
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     void get(Array<CIMInstance>& x) const; 
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /** Compares with another CIMValue object for equality.
         @param x - CIMValue to compare with.

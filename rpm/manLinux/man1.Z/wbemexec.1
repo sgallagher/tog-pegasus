@@ -1,4 +1,4 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/wbemexec.1,v 1.4 2005/05/02 05:35:42 joyce.j Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/wbemexec.1,v 1.5 2006/03/17 18:59:36 kumpf Exp $
 .\" .TA w \" lowercase initial letter of .TH name
 .TH "wbemexec" "1" "" "" ""
 .SH "NAME"
@@ -102,24 +102,21 @@ Display CIM Server version.
 .TP 
 \fB\-w\fP password
 Authenticate the connection using the specified 
-.I R password .
-If the 
-.I password 
-is not specified and the remote host requests authentication, the user is
-prompted for a password.
+.I password .
 This option is ignored if neither
 .I hostname 
 nor 
 .I portnumber 
 is specified.
+WARNING: A password should not be specified on the command line on a
+multi-user system, since command-line options are typically world-readable
+for a short window of time.  If the remote host requests authentication and
+this option is not specified,
+.B wbemexec
+will prompt for the password.
 (See
 .B "cimconfig (1)"
 for information on configuring the CIM Server.)
-This option is ignored if neither
-.I hostname 
-nor 
-.I portnumber 
-is specified.
 .PD
 .RE
 

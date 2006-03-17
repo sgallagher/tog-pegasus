@@ -334,11 +334,11 @@ DASH = -
 # The remaining defaults will be set only if they are not already set.
 # ===============================================================================
 
-# MODULE_NAME ?= pegasus
-MODULE_NAME ?= junk
+MODULE_NAME ?= pegasus
+## MODULE_NAME ?= junk      ## good for testing
 
 ifeq ($(MODULE_NAME),pegasus)
-BFILE ?= env_var.status
+BFILE ?= Makefile
 else
 # must be junk module
 BFILE ?= a.cpp

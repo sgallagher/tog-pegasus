@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -80,6 +82,7 @@ PEGASUS_USING_PEGASUS;
  *  PG_ElementSoftwareIdentity (CIM_ElementSoftwareIdentity)
  *  PG_HostedAccessPoint (CIM_HostedAccessPoint)
  *  PG_HostedObjectManager (CIM_HostedService)
+ *  PG_InstalledSoftwareIdentity (CIM_InstalledSoftwareIdentity)
  *  PG_Namespace (CIM_Namespace)
  *  PG_NamespaceInManager (CIM_NamespaceInManager)
  *  PG_ObjectManager (CIM_ObjectManager)
@@ -88,7 +91,7 @@ PEGASUS_USING_PEGASUS;
  *  PG_RegisteredSubProfile (CIM_RegisteredSubProfile)
  *  PG_SoftwareIdentity (CIM_SoftwareIdentity)
  *  PG_SubProfileRequiredProfile (CIM_SubProfileRequiresProfile)
- *  
+ *
  */
 
 typedef Array<CIMName> CIMNameArray;
@@ -147,8 +150,6 @@ public:
         ObjectPathResponseHandler & handler);
 
 
-    // Association Interfaces
-   
     // CIMAssociationProvider interface
     virtual void associators(
         const OperationContext & context,
@@ -187,12 +188,13 @@ public:
         const CIMName & resultClass,
         const String & role,
         ObjectPathResponseHandler & handler);
-    
+
     /**
     Standard initialization function for the provider.
     */
     void initialize(CIMOMHandle& handle)
     {
+      printf("Init called on Interop provider\n");
       cimomHandle = handle;
     }
 
@@ -209,7 +211,7 @@ private:
         const CIMNamespaceName & nameSpace,
         const CIMName& className,
         CIMClass& returnedClass);
-    
+
     CIMInstance buildCIMXMLCommunicationMechanismInstance(
         const String& namespaceType,
         const Uint16& accessProtocol,
@@ -220,20 +222,11 @@ private:
 
     Array<CIMInstance> enumHostedAccessPointInstances();
 
-    CIMInstance getObjectManagerInstance(
-        const CIMObjectPath& objectPath=CIMObjectPath(String::EMPTY,
-            PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PG_OBJECTMANAGER),
-        const CIMPropertyList& propertyList=CIMPropertyList());
+    CIMInstance getObjectManagerInstance();
 
-    CIMInstance getComputerSystemInstance(
-        const CIMObjectPath& objectPath=CIMObjectPath(String::EMPTY,
-            PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PG_OBJECTMANAGER),
-        const CIMPropertyList& propertyList=CIMPropertyList());
+    CIMInstance getComputerSystemInstance();
 
-    CIMInstance getHostedObjectManagerInstance(
-        const CIMObjectPath& objectPath=CIMObjectPath(String::EMPTY,
-            PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PG_OBJECTMANAGER),
-        const CIMPropertyList& propertyList=CIMPropertyList());
+    CIMInstance getHostedObjectManagerInstance();
 
     Array<CIMInstance> enumNamespaceInstances();
 
@@ -255,6 +248,11 @@ private:
         String & providerName,
         String & version,
         String & vendor,
+        Uint16 & majorVersion,
+        Uint16 & minorVersion,
+        Uint16 & revision,
+        Uint16 & build,
+        bool & extendedVersionSupplied,
         String & interfaceType);
 
     Array<CIMInstance> enumRegisteredProfileInstances();
@@ -266,6 +264,7 @@ private:
     Array<CIMInstance> enumSubProfileRequiresProfileInstances();
     Array<CIMInstance> enumSoftwareIdentityInstances();
     Array<CIMInstance> enumElementSoftwareIdentityInstances();
+    Array<CIMInstance> enumInstalledSoftwareIdentityInstances();
 
     CIMInstance buildRegisteredProfile(
         const String & instanceId,
@@ -285,8 +284,13 @@ private:
     CIMInstance buildSoftwareIdentity(
         const String & module,
         const String & provider,
-        const String & version,
         const String & vendor,
+        const String & version,
+        Uint16 majorVersion,
+        Uint16 minorVersion,
+        Uint16 revisionNumber,
+        Uint16 buildNumber,
+        bool extendedVersionSupplied,
         const String & interfaceType);
 
     Array<CIMInstance> getProfileInstances(
@@ -325,7 +329,7 @@ private:
 
     // Repository Instance variable
     CIMOMHandle cimomHandle;
-    CIMRepository*   repository;
+    CIMRepository * repository;
     // local save for name of object manager
     String objectManagerName;
     String hostName;

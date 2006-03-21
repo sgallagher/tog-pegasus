@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -15,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -139,10 +141,10 @@ PEGASUS_USING_STD;
 
 const char * thisProvider = "InteropProvider";
 
-// This Mutex serializes access to the instance change CIM requests. Keeps from mixing
-// instance creates, modifications, and deletes. This keeps the provider from
-// simultaneously execute creates, modifications, and deletes of instances. While
-// these operations are largely protected by the locking mechanisms of the 
+// This Mutex serializes access to the instance change CIM requests. Keeps from
+// mixing instance creates, modifications, and deletes. This keeps the provider
+// from simultaneously execute creates, modifications, and deletes of instances.
+// While these operations are largely protected by the locking mechanisms of the
 // repository this mutex guarantees that the provider will not simultaneously
 // execute the instance change operations.
 Mutex changeControlMutex;
@@ -153,61 +155,26 @@ static const CIMName VALUEMAP_QUALIFIERNAME("ValueMap");
 
 // Some Commonly shared property names
 static const CIMName COMMON_PROPERTY_NAME("Name");
-
-// Property Names for CIM_Namespace Class
-#define NAMESPACE_PROPERTYNAME  COMMON_PROPERTY_NAME
-
-// Root Namespace Name for test.
-static const CIMNamespaceName ROOTNS  = CIMNamespaceName ("root");
-
-
-// Property names for CIM_ObjectManager Class
-static const CIMName OM_GATHERSTATISTICALDATA  =
- CIMName ("GatherStatisticalData");
-
-// Property for the slp template.
-static const CIMName OM_DESCRIPTIONPROPERTY =
-    CIMName("Description");
-
-// Property Names for ObjectManagerCommunicationMechanism Class
-static const CIMName OM_COMMUNICATIONMECHANISM  =
-        CIMName ("CommunicationMechanism");
-static const CIMName OM_FUNCTIONALPROFILESSUPPORTED  =
- CIMName ("FunctionalProfilesSupported");
-static const CIMName OM_FUNCTIONALPROFILEDESCRIPTIONS  =
- CIMName ("FunctionalProfileDescriptions");
-static const CIMName OM_AUTHENTICATIONMECHANISMSSUPPORTED  =
- CIMName ("AuthenticationMechanismsSupported");
-static const CIMName OM_AUTHENTICATIONMECHANISMDESCRIPTIONS  =
- CIMName ("AuthenticationMechanismDescriptions");
-static const CIMName OM_MULTIPLEOPERATIONSSUPPORTED  =
- CIMName ("MultipleOperationsSupported");
-static const CIMName OM_VERSION  =
- CIMName ("Version");
-static const CIMName OM_OPERATIONALSTATUS("OperationalStatus");
-static const CIMName OM_STARTED("Started");
-
-// Property Names for CIMXML CommunicationMechanism
-
-static const CIMName CIMXMLCOMMMECH_PROPERTY_CIMVALIDATED("CIMValidated");
-static const CIMName CIMXMLCOMMMECH_PROPERTY_ELEMENTNAME("ElementName");
-#define CIMXMLCOMMMECH_PROPERTY_OPERATIONALSTATUS OM_OPERATIONALSTATUS
+static const CIMName COMMON_PROPERTY_CREATIONCLASSNAME("CreationClassName");
+static const CIMName COMMON_PROPERTY_SYSTEMNAME("SystemName");
+static const CIMName COMMON_PROPERTY_SYSTEMCREATIONCLASSNAME(
+    "SystemCreationClassName");
+static const CIMName COMMON_PROPERTY_ELEMENTNAME("ElementName");
+static const CIMName COMMON_PROPERTY_INSTANCEID("InstanceId");
 
 static const String CIMXMLProtocolVersion = "1.0";
 
 // Property names for CIM_Namespace Class
-
-static const CIMName CIM_NAMESPACE_PROPERTY_SYSTEMCREATIONCLASSNAME =
-        CIMName ("SystemCreationClassName");
-static const CIMName CIM_NAMESPACE_PROPERTY_SYSTEMNAME =
-        CIMName ("SystemName");
+#define CIM_NAMESPACE_PROPERTY_NAME  COMMON_PROPERTY_NAME
+#define CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME \
+    COMMON_PROPERTY_CREATIONCLASSNAME
+#define CIM_NAMESPACE_PROPERTY_SYSTEMCREATIONCLASSNAME \
+    COMMON_PROPERTY_SYSTEMCREATIONCLASSNAME
+#define CIM_NAMESPACE_PROPERTY_SYSTEMNAME COMMON_PROPERTY_SYSTEMNAME
 static const CIMName CIM_NAMESPACE_PROPERTY_OBJECTMANAGERCREATIONCLASSNAME =
         CIMName ("ObjectManagerCreationClassName");
 static const CIMName CIM_NAMESPACE_PROPERTY_OBJECTMANAGERNAME =
         CIMName ("ObjectManagerName");
-static const CIMName CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME =
-        CIMName ("CreationClassName");
-#define CIM_NAMESPACE_PROPERTY_NAME  COMMON_PROPERTY_NAME
 static const CIMName CIM_NAMESPACE_PROPERTY_CLASSINFO =
         CIMName ("ClassInfo");
 static const CIMName CIM_NAMESPACE_PROPERTY_DESCRIPTIONOFCLASSINFO =
@@ -222,10 +189,58 @@ static const CIMName PG_NAMESPACE_PROPERTY_ISSHAREABLE =
         CIMName ("IsShareable");
 static const CIMName PG_NAMESPACE_PROPERTY_PARENTNAMESPACE =
         CIMName ("ParentNamespace");
-#define PG_NAMESPACE_PROPERTY_NAME  COMMON_PROPERTY_NAME
+#define PG_NAMESPACE_PROPERTY_NAME COMMON_PROPERTY_NAME
+
+// Property names for ObjectManager Class
+#define OM_PROPERTY_NAME COMMON_PROPERTY_NAME
+#define OM_PROPERTY_ELEMENTNAME COMMON_PROPERTY_ELEMENTNAME
+#define OM_PROPERTY_CREATIONCLASSNAME COMMON_PROPERTY_CREATIONCLASSNAME
+static const CIMName OM_PROPERTY_GATHERSTATISTICALDATA(
+    "GatherStatisticalData");
+static const CIMName OM_PROPERTY_DESCRIPTION("Description");
+static const CIMName OM_PROPERTY_COMMUNICATIONMECHANISM(
+    "CommunicationMechanism");
+static const CIMName OM_PROPERTY_FUNCTIONALPROFILESSUPPORTED(
+    "FunctionalProfilesSupported");
+static const CIMName OM_PROPERTY_FUNCTIONALPROFILEDESCRIPTIONS(
+    "FunctionalProfileDescriptions");
+static const CIMName OM_PROPERTY_AUTHENTICATIONMECHANISMSSUPPORTED(
+    "AuthenticationMechanismsSupported");
+static const CIMName OM_PROPERTY_AUTHENTICATIONMECHANISMDESCRIPTIONS(
+    "AuthenticationMechanismDescriptions");
+static const CIMName OM_PROPERTY_MULTIPLEOPERATIONSSUPPORTED(
+    "MultipleOperationsSupported");
+static const CIMName OM_PROPERTY_VERSION("Version");
+static const CIMName OM_PROPERTY_OPERATIONALSTATUS("OperationalStatus");
+static const CIMName OM_PROPERTY_STARTED("Started");
+
+// Property Names for CIMXML CommunicationMechanism
+static const CIMName CIMXMLCOMMMECH_PROPERTY_CIMVALIDATED("CIMValidated");
+static const CIMName CIMXMLCOMMMECH_PROPERTY_COMMUNICATIONMECHANISM(
+        "CommunicationMechanism");
+static const CIMName CIMXMLCOMMMECH_PROPERTY_FUNCTIONALPROFILESSUPPORTED(
+        "FunctionalProfilesSupported");
+static const CIMName CIMXMLCOMMMECH_PROPERTY_FUNCTIONALPROFILEDESCRIPTIONS(
+        "FunctionalProfileDescriptions");
+static const CIMName CIMXMLCOMMMECH_PROPERTY_AUTHENTICATIONMECHANISMSSUPPORTED(
+        "AuthenticationMechanismsSupported");
+static const
+CIMName CIMXMLCOMMMECH_PROPERTY_AUTHENTICATIONMECHANISMDESCRIPTIONS(
+        "AuthenticationMechanismDescriptions");
+static const CIMName CIMXMLCOMMMECH_PROPERTY_MULTIPLEOPERATIONSSUPPORTED(
+        "MultipleOperationsSupported");
+static const CIMName CIMXMLCOMMMECH_PROPERTY_VERSION("Version");
+static const CIMName CIMXMLCOMMMECH_PROPERTY_NAMESPACETYPE("namespaceType");
+static const CIMName CIMXMLCOMMMECH_PROPERTY_NAMESPACEACCESSPROTOCOL(
+    "namespaceAccessProtocol");
+static const CIMName CIMXMLCOMMMECH_PROPERTY_IPADDRESS("IPAddress");
+#define CIMXMLCOMMMECH_PROPERTY_ELEMENTNAME OM_PROPERTY_ELEMENTNAME
+#define CIMXMLCOMMMECH_PROPERTY_OPERATIONALSTATUS OM_PROPERTY_OPERATIONALSTATUS
+#define CIMXMLCOMMMECH_PROPERTY_NAME OM_PROPERTY_NAME
+#define CIMXMLCOMMMECH_PROPERTY_CREATIONCLASSNAME OM_PROPERTY_CREATIONCLASSNAME
 
 // Property names for RegisteredProfile
-static const CIMName REGISTEREDPROFILE_PROPERTY_INSTANCEID("InstanceId");
+#define REGISTEREDPROFILE_PROPERTY_INSTANCEID COMMON_PROPERTY_INSTANCEID
 static const CIMName REGISTEREDPROFILE_PROPERTY_ADVERTISETYPES(
     "AdvertiseTypes");
 static const CIMName REGISTEREDPROFILE_PROPERTY_REGISTEREDNAME(
@@ -272,9 +287,11 @@ static const CIMName REFERENCEDPROFILES_PROPERTY_OTHERREGISTEREDPROFILES(
     "OtherRegisteredProfiles");
 static const CIMName REFERENCEDPROFILES_PROPERTY_OTHERDEPENDENTPROFILES(
     "OtherDependentProfiles");
-static const CIMName REFERENCEDPROFILES_PROPERTY_OTHERREGISTEREDPROFILEORGANIZATIONS(
+static const CIMName
+REFERENCEDPROFILES_PROPERTY_OTHERREGISTEREDPROFILEORGANIZATIONS(
     "OtherRegisteredProfileOrganizations");
-static const CIMName REFERENCEDPROFILES_PROPERTY_OTHERDEPENDENTPROFILEORGANIZATIONS(
+static const CIMName
+REFERENCEDPROFILES_PROPERTY_OTHERDEPENDENTPROFILEORGANIZATIONS(
     "OtherDependentProfileOrganizations");
 
 // Property names for ProviderModule class
@@ -282,6 +299,10 @@ static const CIMName REFERENCEDPROFILES_PROPERTY_OTHERDEPENDENTPROFILEORGANIZATI
 static const CIMName PROVIDERMODULE_PROPERTY_VENDOR("Vendor");
 static const CIMName PROVIDERMODULE_PROPERTY_VERSION("Version");
 static const CIMName PROVIDERMODULE_PROPERTY_INTERFACETYPE("InterfaceType");
+static const CIMName PROVIDERMODULE_PROPERTY_MAJORVERSION("MajorVersion");
+static const CIMName PROVIDERMODULE_PROPERTY_MINORVERSION("MinorVersion");
+static const CIMName PROVIDERMODULE_PROPERTY_REVISIONNUMBER("RevisionNumber");
+static const CIMName PROVIDERMODULE_PROPERTY_BUILDNUMBER("BuildNumber");
 
 // Property names for Provider class
 #define PROVIDER_PROPERTY_NAME  COMMON_PROPERTY_NAME
@@ -289,12 +310,15 @@ static const CIMName PROVIDER_PROPERTY_PROVIDERMODULENAME(
     "ProviderModuleName");
 
 // Property names for PG_Capabilities class
-#define CAPABILITIES_PROPERTY_PROVIDERMODULENAME PROVIDER_PROPERTY_PROVIDERMODULENAME
+#define CAPABILITIES_PROPERTY_PROVIDERMODULENAME \
+    PROVIDER_PROPERTY_PROVIDERMODULENAME
 static const CIMName CAPABILITIES_PROPERTY_PROVIDERNAME("ProviderName");
 
 // Property names for PG_ProviderCapabilities
-#define PROVIDERCAPABILITIES_PROPERTY_PROVIDERMODULENAME  PROVIDER_PROPERTY_PROVIDERMODULENAME
-#define PROVIDERCAPABILITIES_PROPERTY_PROVIDERNAME  CAPABILITIES_PROPERTY_PROVIDERNAME
+#define PROVIDERCAPABILITIES_PROPERTY_PROVIDERMODULENAME \
+    PROVIDER_PROPERTY_PROVIDERMODULENAME
+#define PROVIDERCAPABILITIES_PROPERTY_PROVIDERNAME \
+    CAPABILITIES_PROPERTY_PROVIDERNAME
 static const CIMName PROVIDERCAPABILITIES_PROPERTY_CLASSNAME("ClassName");
 static const CIMName PROVIDERCAPABILITIES_PROPERTY_NAMESPACES("Namespaces");
 
@@ -303,11 +327,25 @@ static const CIMName PROPERTY_ANTECEDENT("Antecedent");
 static const CIMName PROPERTY_DEPENDENT("Dependent");
 
 // Property names for SoftwareIdentity
-static const CIMName SOFTWAREIDENTITY_PROPERTY_INSTANCEID("InstanceID");
 #define SOFTWAREIDENTITY_PROPERTY_NAME  COMMON_PROPERTY_NAME
+#define SOFTWAREIDENTITY_PROPERTY_MAJORVERSION \
+    PROVIDERMODULE_PROPERTY_MAJORVERSION
+#define SOFTWAREIDENTITY_PROPERTY_MINORVERSION \
+    PROVIDERMODULE_PROPERTY_MINORVERSION
+#define SOFTWAREIDENTITY_PROPERTY_REVISIONNUMBER \
+    PROVIDERMODULE_PROPERTY_REVISIONNUMBER
+#define SOFTWAREIDENTITY_PROPERTY_BUILDNUMBER \
+    PROVIDERMODULE_PROPERTY_BUILDNUMBER
+static const CIMName SOFTWAREIDENTITY_PROPERTY_INSTANCEID("InstanceID");
 static const CIMName SOFTWAREIDENTITY_PROPERTY_VERSION("VersionString");
 static const CIMName SOFTWAREIDENTITY_PROPERTY_MANUFACTURER("Manufacturer");
-static const CIMName SOFTWAREIDENTITY_PROPERTY_CLASSIFICATIONS("Classifications");
+static const CIMName SOFTWAREIDENTITY_PROPERTY_CLASSIFICATIONS(
+    "Classifications");
+
+// Property names for InstalledSoftwareIdentity
+static const CIMName INSTALLEDSOFTWAREIDENTITY_PROPERTY_SYSTEM("System");
+static const CIMName INSTALLEDSOFTWAREIDENTITY_PROPERTY_INSTALLEDSOFTWARE(
+    "InstalledSoftware");
 
 // Implementation-specific constant strings
 static const String SNIA_NAME("SNIA");
@@ -336,6 +374,7 @@ enum TARGET_CLASS {
         PG_SUBPROFILEREQUIRESPROFILE,
         PG_SOFTWAREIDENTITY,
         PG_ELEMENTSOFTWAREIDENTITY,
+        PG_INSTALLEDSOFTWAREIDENTITY,
         PG_COMPUTERSYSTEM,
         PG_HOSTEDOBJECTMANAGER,
         PG_HOSTEDACCESSPOINT
@@ -351,21 +390,6 @@ inline String concatPathArray(Array<CIMObjectPath>& p)
         rtn.append(p[i].toString());
     }
     return(rtn);
-}
-
-/*  Gets the value for the CIMObjectManager name.  This is a key
-    property with the following characteristics.
-    1. It is persistent. This must be persistent through CIMOM
-    restarts.  We will save it in the instance database to achieve this.
-    2. It must be unique. We cannot create duplicate CIMOM names
-    3. It is based on the DMTF description of how unique InstanceIds
-    are defined (Trademark/etc followed by unique identification.
-    Use the Global constant PegasusInstanceIDGlobalPrefix as the
-    prefix allowing this to be changed.
-*/
-inline String buildObjectManagerName()
-{
-    return (String(PEGASUS_INSTANCEID_GLOBAL_PREFIX) + ":" + Guid::getGuid());
 }
 
 inline CIMObjectPath buildInstancePath(const CIMClass & cimClass,
@@ -411,133 +435,115 @@ InteropProvider::InteropProvider(CIMRepository * rep) : repository(rep),
     hostName(System::getHostName()), namespacesInitialized(false)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,"InteropProvider::InteropProvider");
-    objectManagerName = buildObjectManagerName();
+
+    // Initialize the object manager
+    CIMInstance objectManager = getObjectManagerInstance();
+    objectManager.getProperty(objectManager.findProperty(
+        OM_PROPERTY_NAME)).getValue().get(objectManagerName);
+
+    Uint32 gatherDataIndex = objectManager.findProperty(
+        OM_PROPERTY_GATHERSTATISTICALDATA);
+    if(gatherDataIndex != PEG_NOT_FOUND)
+    {
+        CIMConstProperty gatherDataProp =
+            objectManager.getProperty(gatherDataIndex);
+        if (gatherDataProp.getType() == CIMTYPE_BOOLEAN)
+        {
+            CIMValue gatherDataVal  = gatherDataProp.getValue();
+            if (!gatherDataVal.isNull())
+            {
+                Boolean gatherData;
+                gatherDataVal.get(gatherData);
+                if (gatherData == true) 
+                {
+                    StatisticalData* sd = StatisticalData::current();
+                    sd->setCopyGSD(true);
+                }
+            }
+        }
+    }
+
     profileCapabilitiesClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false, true, false);
     providerClassifications.append(Uint16(5)); // "Instrumentation"
-    //***********************************************
-    // This is a tempory fix untill there is a method created for the InteropProvider to 
-    // do it's inalization work. This fix sets StatisticalData::CopyGSD, enabling the 
-    //statistical gathering function.
-
-     Boolean instancesExists = true;
-     Array<CIMInstance> instance;
-
-     try
-     { 
-         instance = repository->enumerateInstances(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_OBJECTMANAGER);
-     }
-     catch(Exception e)
-     {
-         instancesExists = false;
-     }
-
-     if(instance.size() > 0 && instancesExists)
-     {                               
-        Boolean output = false;
-        Uint32 pos;
-        if ((pos = instance[0].findProperty(CIMName("GatherStatisticalData"))) != PEG_NOT_FOUND)
-        {
-            CIMConstProperty p1 = instance[0].getProperty(pos);
-            if (p1.getType() == CIMTYPE_BOOLEAN)
-            {
-                CIMValue v1  = p1.getValue();
-                if (!v1.isNull())
-                {
-                    v1.get(output);
-                    if (v1 == true) 
-                    {
-                        StatisticalData* sd = StatisticalData::current();
-                        sd->setCopyGSD(true);
-                    }
-                }
-            }                 
-        }  
-    }
 
     // Initialize the namespaces so that all namespaces with the
     // CIM_elementConformsToProfile class also have the
     // PG_elementConformsToProfile class
     if(!namespacesInitialized)
     {
-        AutoMutex mut(interopMut);
-        if(!namespacesInitialized)
+        Array<CIMNamespaceName> namespaceNames = 
+            repository->enumerateNameSpaces();
+        CIMClass conformsClass = repository->getClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE);
+        CIMClass profileClass = repository->getClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
+        for(Uint32 i = 0, n = namespaceNames.size(); i < n; ++i)
         {
-            Array<CIMNamespaceName> namespaceNames = 
-                repository->enumerateNameSpaces();
-            CIMClass conformsClass = repository->getClass(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE);
-            CIMClass profileClass = repository->getClass(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
-            for(Uint32 i = 0, n = namespaceNames.size(); i < n; ++i)
+            // Check if the PG_ElementConformsToProfile class is present
+            CIMNamespaceName & currentNamespace = namespaceNames[i];
+
+            CIMClass tmpCimClass;
+            CIMClass tmpPgClass;
+            CIMClass tmpPgProfileClass;
+            try
             {
-                // Check if the PG_ElementConformsToProfile class is present
-                CIMNamespaceName & currentNamespace = namespaceNames[i];
-
-                CIMClass tmpCimClass;
-                CIMClass tmpPgClass;
-                CIMClass tmpPgProfileClass;
-                try
-                {
-                    // Look for these classes in the same try-block since the
-                    // second depends on the first
-                    tmpCimClass = repository->getClass(currentNamespace,
-                        PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE);
-                    tmpPgClass = repository->getClass(currentNamespace,
-                        PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE);
-                }
-                catch(...)
-                {
-                }
-                try
-                {
-                    tmpPgProfileClass = repository->getClass(currentNamespace,
-                        PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
-                }
-                catch(...)
-                {
-                    // Note: if either of the above three classes aren't found,
-                    // an exception will be thrown, which we can ignore since it's
-                    // an expected case
-                    // TBD: Log trace message here?
-                }
-
-                // If the CIM_ElementConformsToProfile class is present, but
-                // the PG_ElementConformsToProfile or PG_RegisteredProfile
-                // class is not, then add it to that namespace.
-                //
-                // Note that we don't have to check for the
-                // CIM_RegisteredProfile class because if the
-                // CIM_ElementConformsToProfile class is present, the
-                // CIM_RegisteredProfile class must also be present.
-                if(!tmpCimClass.isUninitialized())
-                {
-                    if(tmpPgClass.isUninitialized())
-                    {
-                        CIMObjectPath newPath = conformsClass.getPath();
-                        newPath.setNameSpace(currentNamespace);
-                        conformsClass.setPath(newPath);
-                        repository->createClass(currentNamespace,
-                            conformsClass);
-                    }
-                    if(tmpPgProfileClass.isUninitialized())
-                    {
-                        CIMObjectPath newPath = conformsClass.getPath();
-                        newPath.setNameSpace(currentNamespace);
-                        conformsClass.setPath(newPath);
-                        repository->createClass(currentNamespace,
-                            profileClass);
-                    }
-                }
+                // Look for these classes in the same try-block since the
+                // second depends on the first
+                tmpCimClass = repository->getClass(currentNamespace,
+                    PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE);
+                tmpPgClass = repository->getClass(currentNamespace,
+                    PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE);
+            }
+            catch(...)
+            {
+            }
+            try
+            {
+                tmpPgProfileClass = repository->getClass(currentNamespace,
+                    PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
+            }
+            catch(...)
+            {
+                // Note: if any of the above three classes aren't found,
+                // an exception will be thrown, which we can ignore since it's
+                // an expected case
+                // TBD: Log trace message?
             }
 
-            namespacesInitialized = true;
+            // If the CIM_ElementConformsToProfile class is present, but
+            // the PG_ElementConformsToProfile or PG_RegisteredProfile
+            // class is not, then add it to that namespace.
+            //
+            // Note that we don't have to check for the
+            // CIM_RegisteredProfile class because if the
+            // CIM_ElementConformsToProfile class is present, the
+            // CIM_RegisteredProfile class must also be present.
+            if(!tmpCimClass.isUninitialized())
+            {
+                if(tmpPgClass.isUninitialized())
+                {
+                    CIMObjectPath newPath = conformsClass.getPath();
+                    newPath.setNameSpace(currentNamespace);
+                    conformsClass.setPath(newPath);
+                    repository->createClass(currentNamespace,
+                        conformsClass);
+                }
+                if(tmpPgProfileClass.isUninitialized())
+                {
+                    CIMObjectPath newPath = conformsClass.getPath();
+                    newPath.setNameSpace(currentNamespace);
+                    conformsClass.setPath(newPath);
+                    repository->createClass(currentNamespace,
+                        profileClass);
+                }
+            }
         }
+
+        namespacesInitialized = true;
     }
 
     // Now cache the Registration info used for ElementConformsToProfile assoc
@@ -624,8 +630,9 @@ void normalizeInstance(CIMInstance& instance, const CIMObjectPath& path,
     error indication.
     @param instance CIMInstance from which we get property value
     @param propertyName String name of the property containing the value
-    @param default String optional parameter that is substituted if the property does
-    not exist, is Null, or is not a string type. The substitute is String::EMPTY
+    @param default String optional parameter that is substituted if the property
+    does not exist, is Null, or is not a string type. The substitute is
+    String::EMPTY
     @return String value found or defaultValue.
 */
 String getPropertyValue(const CIMInstance& instance,
@@ -716,7 +723,8 @@ String getHostAddress(const String & hostName, Uint32 namespaceType,
   }
 
   // Question: is there a case where we leave off the port number.
-  // Code to get the property service_location_tcp ( which is equivalent to "IP address:5988")
+  // Code to get the property service_location_tcp ( which is equivalent to
+  // "IP address:5988")
 
   // if port is valid port number, we use it.  Else use
   // the default portnumber provided.
@@ -733,10 +741,6 @@ String getHostAddress(const String & hostName, Uint32 namespaceType,
   {
       ipAddress.append(port);
   }
-
-  // now fillout the serviceIDAttribute from the object manager instance name property.
-  // This is a key field so must have a value.
-  //String strUUID = _getPropertyValue( instance_ObjMgr, namePropertyName, "DefaultEmptyUUID");
 
   return ipAddress;
 }
@@ -766,7 +770,8 @@ String getHostAddress(const String & hostName, Uint32 namespaceType,
      profileDescriptions.append("Instance Manipulation");
 
      ConfigManager* configManager = ConfigManager::getInstance();
-     if (String::equal(configManager->getCurrentValue("enableAssociationTraversal"), "true"))
+     if (String::equal(configManager->getCurrentValue(
+         "enableAssociationTraversal"), "true"))
      {
          profiles.append(6);
          profileDescriptions.append("Association Traversal");
@@ -778,7 +783,8 @@ String getHostAddress(const String & hostName, Uint32 namespaceType,
      profiles.append(8);
      profileDescriptions.append("Qualifier Declaration");
 
-     if (String::equal(configManager->getCurrentValue("enableIndicationService"), "true"))
+     if (String::equal(configManager->getCurrentValue(
+         "enableIndicationService"), "true"))
      {
          profiles.append(9);
          profileDescriptions.append("Indications");
@@ -938,6 +944,9 @@ TARGET_CLASS translateClassInput(const CIMName& className)
     else if(className.equal(PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY))
         return PG_ELEMENTSOFTWAREIDENTITY;
 
+    else if(className.equal(PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY))
+        return PG_INSTALLEDSOFTWAREIDENTITY;
+
     else if(className.equal(PEGASUS_CLASSNAME_PG_COMPUTERSYSTEM))
         return PG_COMPUTERSYSTEM;
 
@@ -1011,7 +1020,8 @@ String retrieveUserID(const OperationContext & context)
     return userName;
 }
 
-/** Set the value of a property defined by property name in the instance provided.
+/** Set the value of a property defined by property name in the instance
+    provided.
     Sets a String into the value field unless the property name cannot be found.
     If the property cannot be found, it simply returns.
     ATTN: This function does not pass an error back if property not found.
@@ -1020,15 +1030,16 @@ String retrieveUserID(const OperationContext & context)
     @param value String value to set into property
 
 */
-void setPropertyValue(CIMInstance& instance, const CIMName& propertyName, const CIMValue & value)
+void setPropertyValue(CIMInstance& instance, const CIMName& propertyName,
+    const CIMValue & value)
 {
     Uint32 pos = instance.findProperty(propertyName);
     if(pos != PEG_NOT_FOUND)
         instance.getProperty(pos).setValue(value);
 }
 
-/** add the correct values to the common keys defined for all of the classes. This is
-    systemcreationclassname and systemname
+/** add the correct values to the common keys defined for all of the classes.
+    This is systemcreationclassname and systemname
     Note that if the properties do not exist, we simply ignore them.
 */
 void fixInstanceCommonKeys(CIMInstance& instance)
@@ -1036,16 +1047,16 @@ void fixInstanceCommonKeys(CIMInstance& instance)
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_fixInstanceCommonKeys()");
 
-    setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_SYSTEMCREATIONCLASSNAME,
+    setPropertyValue(instance, COMMON_PROPERTY_SYSTEMCREATIONCLASSNAME,
             PEGASUS_CLASSNAME_PG_COMPUTERSYSTEM.getString());
 
     // Add property SystemName
-    setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_SYSTEMNAME,
+    setPropertyValue(instance, COMMON_PROPERTY_SYSTEMNAME,
             System::getFullyQualifiedHostName());
     PEG_METHOD_EXIT();
 }
 
-/** builds one instance of the class named className. Gets Class defintion and f
+/** builds one instance of the class named className. Gets Class defintion and
     fills in the correct properties from the class.  This requires a repository
     getclass request for each instance built. The skeleton is built by
     creating the instance and copying qualifiers and properties from
@@ -1067,7 +1078,8 @@ CIMInstance InteropProvider::buildInstanceSkeleton(
     // get class with lo = false, qualifier = true classorig = true
     returnedClass = repository->getClass(nameSpace,
         className, false, true, true);
-    CIMInstance skeleton = returnedClass.buildInstance(true,true,CIMPropertyList());
+    CIMInstance skeleton = returnedClass.buildInstance(true,true,
+        CIMPropertyList());
 
     PEG_METHOD_EXIT();
     return skeleton;
@@ -1093,29 +1105,34 @@ CIMInstance InteropProvider::buildCIMXMLCommunicationMechanismInstance(
     fixInstanceCommonKeys(instance);
 
     //CreationClassName
-    setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME,
+    setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_CREATIONCLASSNAME,
             PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM.getString());
 
     //Name, this CommunicationMechanism.  We need to make it unique.  To do this
-    // we simply append the commtype to the classname since we have max of two right
-    // now.
-    setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_NAME,
+    // we simply append the commtype to the classname since we have max of two
+    // right now.
+    setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_NAME,
             (String("PEGASUSCOMM") + namespaceType));
 
     // CommunicationMechanism Property - Force to 2.
-    setPropertyValue(instance, OM_COMMUNICATIONMECHANISM, Uint16(2));
+    setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_COMMUNICATIONMECHANISM,
+        Uint16(2));
 
     //Functional Profiles Supported Property.
     Array<Uint16> profiles;
     Array<String> profileDescriptions = getFunctionalProfiles(profiles);
 
     // Set functional profiles in instance
-    setPropertyValue(instance, OM_FUNCTIONALPROFILESSUPPORTED, profiles);
+    setPropertyValue(instance,
+        CIMXMLCOMMMECH_PROPERTY_FUNCTIONALPROFILESSUPPORTED, profiles);
 
-    setPropertyValue(instance, OM_FUNCTIONALPROFILEDESCRIPTIONS, profileDescriptions);
+    setPropertyValue(instance,
+        CIMXMLCOMMMECH_PROPERTY_FUNCTIONALPROFILEDESCRIPTIONS,
+        profileDescriptions);
 
     // Multiple OperationsSupported Property
-    setPropertyValue(instance, OM_MULTIPLEOPERATIONSSUPPORTED, false);
+    setPropertyValue(instance,
+        CIMXMLCOMMMECH_PROPERTY_MULTIPLEOPERATIONSSUPPORTED, false);
 
     // AuthenticationMechanismsSupported Property
     Array<Uint16> authentications;
@@ -1125,18 +1142,26 @@ CIMInstance InteropProvider::buildCIMXMLCommunicationMechanismInstance(
     authentications.append(3);
     //authenticationDescriptions.append("Basic");
 
-    setPropertyValue(instance, OM_AUTHENTICATIONMECHANISMSSUPPORTED, authentications);
+    setPropertyValue(instance,
+        CIMXMLCOMMMECH_PROPERTY_AUTHENTICATIONMECHANISMSSUPPORTED,
+        authentications);
 
-    setPropertyValue(instance, OM_AUTHENTICATIONMECHANISMDESCRIPTIONS, authenticationDescriptions);
+    setPropertyValue(instance,
+        CIMXMLCOMMMECH_PROPERTY_AUTHENTICATIONMECHANISMDESCRIPTIONS,
+        authenticationDescriptions);
 
-    setPropertyValue(instance, OM_VERSION, CIMXMLProtocolVersion);
+    setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_VERSION,
+        CIMXMLProtocolVersion);
 
-    // Obsolete function 
-    setPropertyValue(instance, "namespaceType", namespaceType);
+    // Obsolete function
+    setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_NAMESPACETYPE,
+        namespaceType);
 
-    setPropertyValue(instance, "namespaceAccessProtocol", accessProtocol);
+    setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_NAMESPACEACCESSPROTOCOL,
+        accessProtocol);
 
-    setPropertyValue(instance, "IPAddress", IPAddress);
+    setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_IPADDRESS,
+        IPAddress);
 
     setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_ELEMENTNAME,
         String("Pegasus CIMXML Communication Mechanism"));
@@ -1145,7 +1170,7 @@ CIMInstance InteropProvider::buildCIMXMLCommunicationMechanismInstance(
         Boolean(false));
 
     Array<Uint16> opStatus;
-    opStatus.append(2);
+    opStatus.append(2); // "OK"
     setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_OPERATIONALSTATUS,
         opStatus);
 
@@ -1235,9 +1260,7 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
     @exception repository instances if exception to enumerateInstances
         for this class.
 */
-CIMInstance InteropProvider::getObjectManagerInstance(
-                        const CIMObjectPath& objectPath,
-                        const CIMPropertyList& propertyList)
+CIMInstance InteropProvider::getObjectManagerInstance()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::getObjectManagerInstance");
@@ -1245,37 +1268,22 @@ CIMInstance InteropProvider::getObjectManagerInstance(
     // Try to get the current object.  If true then it is already created.
     CIMInstance instance;
     bool found = false;
-    try
+    // If a real object path is not specified (only the class and
+    // and namespace are present), then we can enumerate and pick
+    // the first instance (if any) and then set found to true
+    Array<CIMInstance> tmpInstances = repository->enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PG_OBJECTMANAGER, true, false, false, false,
+        CIMPropertyList());
+    Uint32 numInstances = tmpInstances.size();
+    if(numInstances == 1)
     {
-        if(objectPath.getKeyBindings().size() == 0)
-        {
-            // If a real object path is not specified (only the class and
-            // and namespace are present), then we can enumerate and pick
-            // the first instance (if any) and then set found to true
-            Array<CIMInstance> tmpInstances = repository->enumerateInstances(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_PG_OBJECTMANAGER, true, false, false, false,
-                propertyList);
-            Uint32 numInstances = tmpInstances.size();
-            if(numInstances == 1)
-            {
-                instance = tmpInstances[0];
-            }
-            PEGASUS_ASSERT(numInstances <= 1);
-        }
-        else
-        {
-            instance = repository->getInstance(PEGASUS_NAMESPACENAME_INTEROP,
-                objectPath, false, false, false, propertyList);
-        }
-
-        found = (!instance.isUninitialized());
+        instance = tmpInstances[0];
     }
-    catch(...)
-    {
-    }
+    PEGASUS_ASSERT(numInstances <= 1);
 
-    if(!found)
+
+    if(instance.isUninitialized())
     {
         //
         // No instance in the repository. Build new instance and save it.
@@ -1286,14 +1294,17 @@ CIMInstance InteropProvider::getObjectManagerInstance(
 
         fixInstanceCommonKeys(instance);
 
-        setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME,
-                PEGASUS_CLASSNAME_PG_OBJECTMANAGER.getString());
-        setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_NAME, objectManagerName);
-        setPropertyValue(instance, CIMName("ElementName"), String("Pegasus"));
+        setPropertyValue(instance, OM_PROPERTY_CREATIONCLASSNAME,
+            PEGASUS_CLASSNAME_PG_OBJECTMANAGER.getString());
+        setPropertyValue(instance, OM_PROPERTY_NAME,
+            String(PEGASUS_INSTANCEID_GLOBAL_PREFIX) + ":" + Guid::getGuid());
+        setPropertyValue(instance, OM_PROPERTY_ELEMENTNAME, String("Pegasus"));
         Array<Uint16> operationalStatus;
         operationalStatus.append(2);
-        setPropertyValue(instance, OM_OPERATIONALSTATUS, operationalStatus);
-        setPropertyValue(instance, OM_STARTED, CIMValue(Boolean(true)));
+        setPropertyValue(instance, OM_PROPERTY_OPERATIONALSTATUS,
+            operationalStatus);
+        setPropertyValue(instance, OM_PROPERTY_STARTED,
+            CIMValue(Boolean(true)));
 
         //
         //Description property this object manager instance
@@ -1303,23 +1314,28 @@ CIMInstance InteropProvider::getObjectManagerInstance(
         // from config parameters.
         // If PEGASUS_CIMOM_DESCRIPTION is non-zero length, use it.
         // Otherwise build form the components below.
+        String descriptionStatus;
+        String pegasusProductStatus(PEGASUS_PRODUCT_STATUS);
+        if(pegasusProductStatus.size() > 0)
+            descriptionStatus = " " + pegasusProductStatus;
 
         String description = (String(PEGASUS_CIMOM_DESCRIPTION).size() != 0) ?
                 String(PEGASUS_CIMOM_DESCRIPTION)
             :
                 String(PEGASUS_CIMOM_GENERIC_NAME) + " " +
                 String(PEGASUS_PRODUCT_NAME) + " Version " +
-                String(PEGASUS_PRODUCT_VERSION) + " " +
-                String(PEGASUS_PRODUCT_STATUS);
+                String(PEGASUS_PRODUCT_VERSION) +
+                descriptionStatus;
 
-        setPropertyValue(instance, CIMName("Description"), description);
+        setPropertyValue(instance, OM_PROPERTY_DESCRIPTION, description);
 
         //Property GatherStatisticalData. Initially this is set to false
         // and can then be modified by a modify instance on the instance.
 
         Boolean gatherStatDataFlag = false;
 
-        setPropertyValue(instance, OM_GATHERSTATISTICALDATA, Boolean(gatherStatDataFlag));
+        setPropertyValue(instance, OM_PROPERTY_GATHERSTATISTICALDATA,
+            Boolean(gatherStatDataFlag));
 
         // Set the statistics property into the Statisticaldata class so that
         // it can perform statistics gathering if necessary.
@@ -1331,24 +1347,9 @@ CIMInstance InteropProvider::getObjectManagerInstance(
         // write instance to the repository
         CIMObjectPath instancePath;
 
-        try
-        {
-            instancePath = repository->createInstance(
-                objectPath.getNameSpace(), instance);
-            instance.setPath(instancePath);
-        }
-        catch(const CIMException&)
-        {
-            // TODO ATTN: KS generate log error if this not possible
-            PEG_METHOD_EXIT();
-            throw;
-        }
-        catch(const Exception&)
-        {
-            // ATTN: Generate log error.
-            PEG_METHOD_EXIT();
-            throw;
-        }
+        instancePath = repository->createInstance(
+            PEGASUS_NAMESPACENAME_INTEROP, instance);
+        instance.setPath(instancePath);
     }
 
     CIMObjectPath currentPath = instance.getPath();
@@ -1370,51 +1371,32 @@ CIMInstance InteropProvider::getObjectManagerInstance(
     @exception ObjectNotFound exception if a ComputerSystem instance cannot
         be retrieved.
 */
-CIMInstance InteropProvider::getComputerSystemInstance(
-                        const CIMObjectPath& objectPath,
-                        const CIMPropertyList& propertyList)
+CIMInstance InteropProvider::getComputerSystemInstance()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::getComputerSystemInstance");
 
     // Try to get the current object.  If true then it is already created.
     CIMInstance instance;
-    bool found = false;
 
-    if(objectPath.getKeyBindings().size() == 0)
+    // If a real object path is not specified (only the class and
+    // and namespace are present), then we can enumerate and pick
+    // the first instance (if any) and then set found to true
+    AutoMutex mut(interopMut);
+    Array<CIMInstance> tmpInstances = cimomHandle.enumerateInstances(
+        OperationContext(),
+        PEGASUS_NAMESPACENAME_CIMV2,
+        PEGASUS_CLASSNAME_PG_COMPUTERSYSTEM, true, false, false, false,
+        CIMPropertyList());
+    Uint32 numInstances = tmpInstances.size();
+    PEGASUS_ASSERT(numInstances <= 1);
+    if(numInstances > 0)
     {
-        // If a real object path is not specified (only the class and
-        // and namespace are present), then we can enumerate and pick
-        // the first instance (if any) and then set found to true
-        AutoMutex mut(interopMut);
-        Array<CIMInstance> tmpInstances = cimomHandle.enumerateInstances(
-            OperationContext(),
-            PEGASUS_NAMESPACENAME_CIMV2,
-            PEGASUS_CLASSNAME_PG_COMPUTERSYSTEM, true, false, false, false,
-            propertyList);
-        Uint32 numInstances = tmpInstances.size();
-        PEGASUS_ASSERT(numInstances <= 1);
-        if(numInstances > 0)
-        {
-            instance = tmpInstances[0];
-            CIMObjectPath tmpPath = instance.getPath();
-            tmpPath.setHost(hostName);
-            tmpPath.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
-            instance.setPath(tmpPath);
-        }
-    }
-    else
-    {
-        CIMObjectPath copyPath(objectPath);
-        copyPath.setNameSpace(PEGASUS_NAMESPACENAME_CIMV2);
-        AutoMutex mut(interopMut);
-        instance = cimomHandle.getInstance(
-            OperationContext(),
-            PEGASUS_NAMESPACENAME_CIMV2,
-            copyPath, false, false, false, propertyList);
-        copyPath.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
-        copyPath.setHost(hostName);
-        instance.setPath(copyPath);
+        instance = tmpInstances[0];
+        CIMObjectPath tmpPath = instance.getPath();
+        tmpPath.setHost(hostName);
+        tmpPath.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+        instance.setPath(tmpPath);
     }
 
     if(instance.isUninitialized())
@@ -1423,7 +1405,7 @@ CIMInstance InteropProvider::getComputerSystemInstance(
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_FOUND,
             "Could not find ComputerSystem instance");
     }
-    
+
     PEG_METHOD_EXIT();
     return instance;
 }
@@ -1439,9 +1421,7 @@ CIMInstance InteropProvider::getComputerSystemInstance(
     @exception ObjectNotFound exception if a ComputerSystem instance cannot
         be retrieved.
 */
-CIMInstance InteropProvider::getHostedObjectManagerInstance(
-                        const CIMObjectPath& objectPath,
-                        const CIMPropertyList& propertyList)
+CIMInstance InteropProvider::getHostedObjectManagerInstance()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::getHostedObjectManagerInstance");
@@ -1454,18 +1434,6 @@ CIMInstance InteropProvider::getHostedObjectManagerInstance(
     CIMObjectPath omPath = getObjectManagerInstance().getPath();
     String csPathString = csPath.toString();
     String omPathString = omPath.toString();
-
-    Array<CIMKeyBinding> objectPathBindings = objectPath.getKeyBindings();
-    for(Uint32 i = 0, n = objectPathBindings.size(); i < n; ++i)
-    {
-        const String & currentBinding = objectPathBindings[i].getValue();
-        if(currentBinding != csPathString && currentBinding != omPathString)
-        {
-            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_FOUND,
-                "Could not find HostedObjectManager instance " +
-                objectPath.toString());
-        }
-    }
 
     CIMClass hostedOMClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
@@ -1480,7 +1448,7 @@ CIMInstance InteropProvider::getHostedObjectManagerInstance(
         CIMValue(omPath));
 
     instance.setPath(instance.buildPath(hostedOMClass));
-    
+
     PEG_METHOD_EXIT();
     return instance;
 }
@@ -1506,7 +1474,7 @@ Array<CIMInstance> InteropProvider::enumHostedAccessPointInstances()
         hapInstance.setPath(hapInstance.buildPath(hapClass));
         instances.append(hapInstance);
     }
-    
+
     PEG_METHOD_EXIT();
     return instances;
 }
@@ -1545,13 +1513,7 @@ Array<CIMInstance> InteropProvider::enumNamespaceInManagerInstances()
 
     Array<CIMInstance> namespaceInstances = enumNamespaceInstances();
 
-    CIMObjectPath objectManagerPath(hostName, PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_OBJECTMANAGER);
-    CIMInstance instanceObjMgr = getObjectManagerInstance(objectManagerPath,
-      CIMPropertyList());
-
-    objectManagerPath = instanceObjMgr.getPath();
-
+    CIMObjectPath objectManagerPath = getObjectManagerInstance().getPath();
 
     Array<CIMInstance> assocInstances;
     CIMClass targetClass;
@@ -1583,7 +1545,8 @@ Array<CIMInstance> InteropProvider::enumCommMechanismForManagerInstances()
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::enumCommMechanismForManagerInstances");
 
-    Array<CIMInstance> commInstances = enumCIMXMLCommunicationMechanismInstances();
+    Array<CIMInstance> commInstances =
+        enumCIMXMLCommunicationMechanismInstances();
 
     CIMInstance instanceObjMgr = getObjectManagerInstance();
 
@@ -1661,9 +1624,11 @@ CIMInstance InteropProvider::buildNamespaceInstance(
 
 
     //
-    //  Everything above was commmon to CIM Namespace.  The following is PG_Namespace Properties
+    //  Everything above was commmon to CIM Namespace.  The following is
+    //  PG_Namespace Properties
     //
-    // ATTN: KS Get the correct values for these entities from repository interface.
+    // ATTN: KS Get the correct values for these entities from repository
+    //       interface.
 
     CIMRepository::NameSpaceAttributes attributes;
     repository->getNameSpaceAttributes(nameSpace, attributes);
@@ -1671,7 +1636,8 @@ CIMInstance InteropProvider::buildNamespaceInstance(
     String name = String::EMPTY;
     Boolean shareable = false;
     Boolean updatesAllowed = true;
-    for (CIMRepository::NameSpaceAttributes::Iterator i = attributes.start(); i; i++)
+    for (CIMRepository::NameSpaceAttributes::Iterator i = attributes.start();
+        i; i++)
     {
         String key=i.key();
         String value = i.value();
@@ -1691,12 +1657,14 @@ CIMInstance InteropProvider::buildNamespaceInstance(
             if (!String::equalNoCase(value, nameSpace))
             {
                 PEG_METHOD_EXIT();
-                // This is poor exception since it reflects internal error. Do error log
+                // This is poor exception since it reflects internal error. Do
+                // error log
                 throw CIMNotSupportedException(
-                    "Namespace attribute rtnd error for key " + key + "expected " +
-                     nameSpace + value + " in " + String(thisProvider));
+                    "Namespace attribute rtnd error for key " + key +
+                    "expected " + nameSpace + value + " in " +
+                    String(thisProvider));
             }
-            
+
             name = value;
         }
         else if (String::equalNoCase(key,"parent"))
@@ -1706,13 +1674,15 @@ CIMInstance InteropProvider::buildNamespaceInstance(
         else
         {
             PEG_METHOD_EXIT();
-            // Poor error definition since it reflects internal error. do error log
+            // Poor error definition since it reflects internal error. do error
+            // log
             throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, nameSpace +
                 " namespace attribute " + key + " option not supported in" +
                 String(thisProvider));
         }
     }
-    setPropertyValue(instance, PG_NAMESPACE_PROPERTY_SCHEMAUPDATESALLOWED, updatesAllowed);
+    setPropertyValue(instance, PG_NAMESPACE_PROPERTY_SCHEMAUPDATESALLOWED,
+        updatesAllowed);
     setPropertyValue(instance, PG_NAMESPACE_PROPERTY_ISSHAREABLE, shareable);
     setPropertyValue(instance, PG_NAMESPACE_PROPERTY_PARENTNAMESPACE, parent);
 	  setPropertyValue(instance, PG_NAMESPACE_PROPERTY_NAME, name);
@@ -1886,7 +1856,8 @@ Boolean completeCIMNamespaceKeys(CIMInstance& instance)
         throw CIMInvalidParameterException(
             "Invalid CIM_Namespace key property: " + propertyName.getString());
     }
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CIM_Namespace Keys Valid");
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "CIM_Namespace Keys Valid");
     PEG_METHOD_EXIT();
     return(valid);
 }
@@ -1954,7 +1925,8 @@ void validateCIMNamespaceKeys(const CIMInstance& instance)
         throw CIMInvalidParameterException(
             "Invalid CIM_Namespace key property: " + propertyName.getString());
     }
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CIM_Namespace Keys Valid");
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "CIM_Namespace Keys Valid");
     PEG_METHOD_EXIT();
 }
 
@@ -1980,7 +1952,8 @@ String getKeyValue(const CIMObjectPath& instanceName, const CIMName& keyName)
             return (kbArray[i].getValue());
     }
 
-    throw CIMInvalidParameterException("Invalid key property: " + keyName.getString());
+    throw CIMInvalidParameterException("Invalid key property: " +
+        keyName.getString());
 }
 
 String getKeyValue(const CIMInstance& instance, const CIMName& keyName)
@@ -1991,23 +1964,25 @@ String getKeyValue(const CIMInstance& instance, const CIMName& keyName)
     pos = instance.findProperty(keyName);
     if (pos == PEG_NOT_FOUND)
        throw CIMPropertyNotFoundException
-           (NAMESPACE_PROPERTYNAME.getString());
+           (keyName.getString());
 
     propertyValue = instance.getProperty(pos).getValue();
     if (propertyValue.getType() != CIMTYPE_STRING)
        throw CIMInvalidParameterException("Invalid type for property: "
-                             + NAMESPACE_PROPERTYNAME.getString());
+                             + keyName.getString());
     String name;
     propertyValue.get(name);
     return(name);
 }
 
-/** Test for valid CIMReferences from an association instance. If there is a role 
-    property, tests if there is a match for this role and the target object.
-    Confirms that this role and this reference exist in the target instance.
- 
+/** Test for valid CIMReferences from an association instance. If there is a
+    role property, tests if there is a match for this role and the target
+    object. Confirms that this role and this reference exist in the target
+    instance.
+
     @param target - The target path for the association. Localization assumed.
-    @param instance - The association class instance we are searching for references
+    @param instance - The association class instance we are searching for
+                      references
     @param role - The role we require. I there is no role, this is String::EMPTY
     @return - returns Boolean true if target is found in a reference that is
     the same role
@@ -2023,7 +1998,7 @@ Boolean isInstanceValidReference(const CIMObjectPath& target,
         // Test if property with this role exists.
         if ((pos = instance.findProperty(role)) == PEG_NOT_FOUND)
             throw CIMException(CIM_ERR_INVALID_PARAMETER);
-     
+
          // Check to be sure this is a reference property
          // This test may not be necessary. Combine it into the loop.
          if (instance.getProperty(pos).getType() != CIMTYPE_REFERENCE)
@@ -2076,13 +2051,15 @@ Array<CIMObject> filterReferenceInstances(Array<CIMInstance>& instances,
     Array<CIMObject> rtnObjects;
     for (Uint32 i = 0 ; i < instances.size() ; i++)
     {
-        if (resultClass.isNull() || resultClass.equal(instances[i].getClassName()))
+        if (resultClass.isNull() ||
+            resultClass.equal(instances[i].getClassName()))
         {
-            // if this association instance has this role in targetReference, true
-            if (isInstanceValidReference(targetobjectName, instances[i], resultRole))
-                {
-                    rtnObjects.append(instances[i]);
-                }
+            // if this association instance has this role in targetReference
+            if (isInstanceValidReference(targetobjectName, instances[i],
+                resultRole))
+            {
+                rtnObjects.append(instances[i]);
+            }
         }
     }
     PEG_METHOD_EXIT();
@@ -2227,8 +2204,8 @@ void InteropProvider::createInstance(
             attributes.insert("updatesAllowed", "false");
         }
 
-        // ATTN: Need to reflect and dependencies between these properties. Right now
-        // this lets anything happen.
+        // ATTN: Need to reflect and dependencies between these properties.
+        // Right now this lets anything happen.
         if (localInstance.findProperty(
             PG_NAMESPACE_PROPERTY_PARENTNAMESPACE) != PEG_NOT_FOUND)
         {
@@ -2295,9 +2272,10 @@ void InteropProvider::deleteInstance(
         // validate requred keys.  Exception out if not valid
         validatePGNamespaceKeys(instanceName);
 
-        deleteNamespaceName = getKeyValue(instanceName, PG_NAMESPACE_PROPERTY_NAME);
+        deleteNamespaceName = getKeyValue(instanceName,
+            PG_NAMESPACE_PROPERTY_NAME);
 
-        if (deleteNamespaceName.equal (ROOTNS))
+        if (deleteNamespaceName.equal(PEGASUS_NAMESPACENAME_ROOT))
         {
             throw CIMNotSupportedException("root namespace cannot be deleted.");
         }
@@ -2335,7 +2313,7 @@ CIMInstance InteropProvider::localGetInstance(
     const CIMPropertyList & propertyList)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::localGetInstance");
-    
+
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s getInstance. instanceName= %s , PropertyList= %s",
         thisProvider,
@@ -2354,7 +2332,7 @@ CIMInstance InteropProvider::localGetInstance(
         return cimomHandle.getInstance(context, opNamespace,
             instanceName, false, false, false, propertyList);
     }
-    
+
     // create reference from host, namespace, class components of
     // instance name
 
@@ -2362,16 +2340,15 @@ CIMInstance InteropProvider::localGetInstance(
     ref.setHost(instanceName.getHost());
     ref.setClassName(opClass);
     ref.setNameSpace(opNamespace);
-    
+
     // Enumerate instances for this class. Returns all instances
     // Note that this returns paths setup and instances already
     // filtered per the input criteria.
-    
     Array<CIMInstance> instances =  localEnumerateInstances(
             context,
             ref,
             propertyList);
-    
+
     // deliver a single instance if found.
     CIMInstance rtnInstance;
 
@@ -2381,7 +2358,8 @@ CIMInstance InteropProvider::localGetInstance(
        {
            /* DEBUG SUPPORT
            Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-               "%s getInstance return instance number %u\npath: %s\n %s\n",thisProvider, i,
+               "%s getInstance return instance number %u\npath: %s\n %s\n",
+               thisProvider, i,
                (instances[i].getPath().toString().getCString()),
                ( ( CIMObject) instances[i]).toString().getCString());
            *****/
@@ -2422,20 +2400,21 @@ void InteropProvider::getInstance(
     handler.complete();
 }
 
-//*****************************************************************************************
+//******************************************************************************
 //   localEnumerateInstances 
 //   EnumerateInstances equivalent to external but returns instances
 //   Used by other operations to build instances for processing
 //   Note that this delivers instances as a group rather than incrementally.
 //    This technique should only be used for small groups of instances.
-//****************************************************************************************
+//******************************************************************************
 
 Array<CIMInstance> InteropProvider::localEnumerateInstances(
     const OperationContext & context,
     const CIMObjectPath & ref,
     const CIMPropertyList& propertyList)
 {
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::localEnumerateInstances()");
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "InteropProvider::localEnumerateInstances()");
     const CIMName & className = ref.getClassName();
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s enumerateInstances. referenc= %s , PropertyList= %s",
@@ -2451,7 +2430,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
     {
         case PG_OBJECTMANAGER:
         {
-            instances.append(getObjectManagerInstance(ref, propertyList));
+            instances.append(getObjectManagerInstance());
             break;
         }
         case PG_CIMXMLCOMMUNICATIONMECHANISM:
@@ -2510,14 +2489,19 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
             instances = enumElementSoftwareIdentityInstances();
             break;
         }
+        case PG_INSTALLEDSOFTWAREIDENTITY:
+        {
+            instances = enumInstalledSoftwareIdentityInstances();
+            break;
+        }
         case PG_COMPUTERSYSTEM:
         {
-            instances.append(getComputerSystemInstance(ref, propertyList));
+            instances.append(getComputerSystemInstance());
             break;
         }
         case PG_HOSTEDOBJECTMANAGER:
         {
-            instances.append(getHostedObjectManagerInstance(ref, propertyList));
+            instances.append(getHostedObjectManagerInstance());
             break;
         }
         case PG_HOSTEDACCESSPOINT:
@@ -2554,7 +2538,8 @@ void InteropProvider::enumerateInstances(
     const CIMPropertyList& propertyList,
     InstanceResponseHandler & handler)
 {
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::enumerateInstances()");
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "InteropProvider::enumerateInstances()");
 
     // test for legal namespace for this provider. Exception if not
     namespaceSupported(ref);
@@ -2567,15 +2552,15 @@ void InteropProvider::enumerateInstances(
     PEG_METHOD_EXIT();
 }
 
-/** Modify the existing object Manager Object.  Only a single property modification
-    is allowed, the statistical data setting.  Any other change is rejected
-    with an exception
+/** Modify the existing object Manager Object.  Only a single property
+    modification is allowed, the statistical data setting.  Any other change is
+    rejected with an exception
     @param instanceReference - Reference for the instance to be modified.
-    @param modifiedIns CIMInstance defining the change. If this includes more than
-    a single property, the propertyList must specify modification only of the
-    statisticaldata property.
-    @includeQualifiers Boolean which must be false unless there are no qualifiers
-    in the modifiedIns.
+    @param modifiedIns CIMInstance defining the change. If this includes more
+    than a single property, the propertyList must specify modification only of
+    the statisticaldata property.
+    @includeQualifiers Boolean which must be false unless there are no
+    qualifiers in the modifiedIns.
     @propertyList CIMPropertyList defining the property to be modified if there
     is more than one property in the modifiedIns.
     @Exceptions CIMInvalidParameterException if the parameters are not valid for
@@ -2597,16 +2582,16 @@ void InteropProvider::modifyObjectManagerInstance(
     Uint32 propListSize = propertyList.size();
     for(Uint32 i = 0, n = propertyList.size(); i < n; ++i)
     {
-        if(propertyList[0] != OM_GATHERSTATISTICALDATA)
+        if(propertyList[0] != OM_PROPERTY_GATHERSTATISTICALDATA)
         {
             throw CIMNotSupportedException(String("Only modification of ") +
-                OM_GATHERSTATISTICALDATA.getString() + " allowed");
+                OM_PROPERTY_GATHERSTATISTICALDATA.getString() + " allowed");
         }
     }
 
     /*
     Array<CIMName> plA;
-    plA.append(CIMName(OM_GATHERSTATISTICALDATA));
+    plA.append(CIMName(OM_PROPERTY_GATHERSTATISTICALDATA));
     CIMPropertyList allowedModifyPropertyList(plA);
 
     // returns only if no exception and there is property to modify.
@@ -2628,16 +2613,19 @@ void InteropProvider::modifyObjectManagerInstance(
     // We modify only if this property exists.
     // could either use the property from modifiedIns or simply replace
     // value in property from object manager.
-    if (modifiedIns.findProperty(OM_GATHERSTATISTICALDATA) != PEG_NOT_FOUND)
+    if (modifiedIns.findProperty(OM_PROPERTY_GATHERSTATISTICALDATA) !=
+        PEG_NOT_FOUND)
     {
-        myInstance = getObjectManagerInstance(instanceReference, propertyList);
+        myInstance = getObjectManagerInstance();
         if(myInstance.isUninitialized())
         {
             throw CIMObjectNotFoundException(instanceReference.toString());
         }
-        statisticsFlag = getPropertyValue(modifiedIns, OM_GATHERSTATISTICALDATA, false);
+        statisticsFlag = getPropertyValue(modifiedIns,
+            OM_PROPERTY_GATHERSTATISTICALDATA, false);
         // set the changed property into the instance
-        setPropertyValue(myInstance, OM_GATHERSTATISTICALDATA, statisticsFlag);
+        setPropertyValue(myInstance, OM_PROPERTY_GATHERSTATISTICALDATA,
+            statisticsFlag);
     }
     else
     {
@@ -2673,7 +2661,7 @@ void InteropProvider::modifyObjectManagerInstance(
 #else
     PEG_METHOD_EXIT();
     throw CIMNotSupportedException
-        (OM_GATHERSTATISTICALDATA.getString() + 
+        (OM_PROPERTY_GATHERSTATISTICALDATA.getString() + 
                 " modify operation not supported by Interop Provider");
 #endif
 }
@@ -2732,9 +2720,9 @@ void InteropProvider::modifyInstance(const OperationContext & context,
 //***************************************************************************
 
 void InteropProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-        ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    ObjectPathResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::enumerateInstanceNames()");
@@ -2751,7 +2739,7 @@ void InteropProvider::enumerateInstanceNames(
 
     // begin processing the request
     handler.processing();
-    
+
     Array<CIMInstance> instances = localEnumerateInstances(
         context,
         classReference,
@@ -2825,13 +2813,13 @@ void InteropProvider::associators(
 //**************************************************************
 //**************************************************************
 void InteropProvider::associatorNames(
-	const OperationContext & context,
-	const CIMObjectPath & objectName,
-	const CIMName & associationClass,
-	const CIMName & resultClass,
-	const String & role,
-	const String & resultRole,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & objectName,
+    const CIMName & associationClass,
+    const CIMName & resultClass,
+    const String & role,
+    const String & resultRole,
+    ObjectPathResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::associatorNames()");
@@ -2864,14 +2852,14 @@ void InteropProvider::associatorNames(
 
 
 void InteropProvider::references(
-	const OperationContext & context,
-	const CIMObjectPath & objectName,
-	const CIMName & resultClass,
-	const String & role,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	ObjectResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & objectName,
+    const CIMName & resultClass,
+    const String & role,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    ObjectResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::references()");
@@ -2897,11 +2885,11 @@ void InteropProvider::references(
     PEG_METHOD_EXIT();
 }
 void InteropProvider::referenceNames(
-	const OperationContext & context,
-	const CIMObjectPath & objectName,
-	const CIMName & resultClass,
-	const String & role,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & objectName,
+    const CIMName & resultClass,
+    const String & role,
+    ObjectPathResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::referenceNames()");
@@ -2934,7 +2922,7 @@ bool InteropProvider::validAssocClassForObject(
         originClassEnum = translateClassInput(originClass);
     }
     else
-    {   
+    {
         // First check the classes served by the Interop provider...
         if(opNamespace != PEGASUS_NAMESPACENAME_INTEROP ||
             (originClass != PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE &&
@@ -3041,6 +3029,20 @@ bool InteropProvider::validAssocClassForObject(
               expectedOriginRole = PROPERTY_DEPENDENT;
           }
           break;
+      case PG_INSTALLEDSOFTWAREIDENTITY:
+          if(originClassEnum == PG_SOFTWAREIDENTITY)
+          {
+              expectedTargetRole = INSTALLEDSOFTWAREIDENTITY_PROPERTY_SYSTEM;
+              expectedOriginRole =
+                  INSTALLEDSOFTWAREIDENTITY_PROPERTY_INSTALLEDSOFTWARE;
+          }
+          else if(originClassEnum == PG_COMPUTERSYSTEM)
+          {
+              expectedTargetRole =
+                  INSTALLEDSOFTWAREIDENTITY_PROPERTY_INSTALLEDSOFTWARE;
+              expectedOriginRole = INSTALLEDSOFTWAREIDENTITY_PROPERTY_SYSTEM;
+          }
+          break;
       case PG_HOSTEDACCESSPOINT:
           if(originClassEnum == PG_COMPUTERSYSTEM)
           {
@@ -3136,7 +3138,7 @@ Array<CIMInstance> InteropProvider::localReferences(
                     // namespace.
                     CIMObjectPath targetPath = getRequiredValue<CIMObjectPath>(
                         currentInstance, targetProperty);
-                    
+
                     CIMNamespaceName targetNamespace(
                         targetPath.getNameSpace());
                     if(targetNamespace.isNull())
@@ -3244,10 +3246,12 @@ CIMInstance InteropProvider::buildRegisteredProfile(
     return instance;
 }
 
-String translateValue(const String & value, const CIMName & propName,
-                      const CIMName & sourceQualifier,
-                      const CIMName & targetQualifier,
-                      const CIMClass & classDef)
+String translateValue(
+    const String & value,
+    const CIMName & propName,
+    const CIMName & sourceQualifier,
+    const CIMName & targetQualifier,
+    const CIMClass & classDef)
 {
     String mappedValue(String::EMPTY);
     Uint32 index = classDef.findProperty(propName);
@@ -3417,6 +3421,37 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
     return buildProfileInstanceId(organizationName, name, version);
 }
 
+inline CIMObjectPath buildAntecedentPath(
+    const String & hostName,
+    const String & antecedentId,
+    const CIMName & antecedentClass)
+{
+    Array<CIMKeyBinding> antecedentKeys;
+    antecedentKeys.append(CIMKeyBinding(
+        COMMON_PROPERTY_INSTANCEID,
+        antecedentId,CIMKeyBinding::STRING));
+
+    return CIMObjectPath(hostName,
+        PEGASUS_NAMESPACENAME_INTEROP,
+        antecedentClass,
+        antecedentKeys);
+}
+
+inline CIMInstance buildDependencyInstanceFromPaths(
+    const CIMObjectPath & antecedent,
+    const CIMObjectPath & dependent,
+    const CIMClass & dependencyClass)
+{
+    CIMInstance dependencyInst = dependencyClass.buildInstance(false, false,
+            CIMPropertyList());
+    setPropertyValue(dependencyInst, PROPERTY_ANTECEDENT,
+        CIMValue(antecedent));
+    setPropertyValue(dependencyInst, PROPERTY_DEPENDENT,
+        CIMValue(dependent));
+    dependencyInst.setPath(dependencyInst.buildPath(dependencyClass));
+    return dependencyInst;
+}
+
 CIMInstance InteropProvider::buildDependencyInstance(
     const String & antecedentId,
     const CIMName & antecedentClass,
@@ -3424,31 +3459,19 @@ CIMInstance InteropProvider::buildDependencyInstance(
     const CIMName & dependentClass,
     const CIMClass & depClass)
 {
-    Array<CIMKeyBinding> antecedentKeys;
     Array<CIMKeyBinding> dependentKeys;
-    
-    antecedentKeys.append(CIMKeyBinding(
-        REGISTEREDPROFILE_PROPERTY_INSTANCEID,
-        antecedentId,CIMKeyBinding::STRING));
 
     dependentKeys.append(CIMKeyBinding(
-        REGISTEREDPROFILE_PROPERTY_INSTANCEID,
+        COMMON_PROPERTY_INSTANCEID,
         dependentId,CIMKeyBinding::STRING));
 
-    CIMInstance dependencyInst = depClass.buildInstance(false, false,
-        CIMPropertyList());
-    setPropertyValue(dependencyInst, PROPERTY_ANTECEDENT,
-        CIMValue(CIMObjectPath(hostName,
-            PEGASUS_NAMESPACENAME_INTEROP,
-            antecedentClass,
-            antecedentKeys)));
-    setPropertyValue(dependencyInst, PROPERTY_DEPENDENT,
-        CIMValue(CIMObjectPath(hostName,
+    return buildDependencyInstanceFromPaths(
+        buildAntecedentPath(hostName, antecedentId, antecedentClass),
+        CIMObjectPath(hostName,
             PEGASUS_NAMESPACENAME_INTEROP,
             dependentClass,
-            dependentKeys)));
-    dependencyInst.setPath(dependencyInst.buildPath(depClass));
-    return dependencyInst;
+            dependentKeys),
+        depClass);
 }
 
 Array<CIMInstance> InteropProvider::getProfileInstances(
@@ -3499,7 +3522,6 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
             profileVersion, profileOrganization, otherOrganization,
             organizationName, profileNames, justRegisteredProfileInfo);
         Array<String> tmpInstanceIds;
-        
 
         if(justRegisteredProfileInfo)
         {
@@ -3555,56 +3577,57 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
         }
     }
 
-    if(isRequiresProfileOperation)
+    for(i = 0, n = defaultSniaProfiles.size(); i < n; ++i)
     {
-        String serverProfileId = buildProfileInstanceId(
-            SNIA_NAME, "Server", SNIA_VER_110);
-        String indicationSubprofileId = buildProfileInstanceId(
-            SNIA_NAME, "Indication", SNIA_VER_110);
-        String compoundId = serverProfileId + ":" + indicationSubprofileId;
-        bool unique = true;
-        for(Uint32 k = 0, x = instanceIDs.size(); k < x; ++k)
+        if(isRequiresProfileOperation)
         {
-            if(instanceIDs[k] == compoundId)
+            static String serverProfileId(buildProfileInstanceId(
+                SNIA_NAME, "Server", SNIA_VER_110));
+            String subprofileId = buildProfileInstanceId(
+                SNIA_NAME, defaultSniaProfiles[i], SNIA_VER_110);
+            String compoundId = serverProfileId + ":" + subprofileId;
+            bool unique = true;
+            for(Uint32 k = 0, x = instanceIDs.size(); k < x; ++k)
             {
-                unique = false;
-                break;
-            }
-        }
-
-        if(unique)
-        {
-            instances.append(buildDependencyInstance(
-                serverProfileId, PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-                indicationSubprofileId, PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
-                subprofileReqProfileClass));
-        }
-    }
-    else
-    {
-        for(i = 0, n = defaultSniaProfiles.size(); i < n; ++i)
-        {
-            // We always have the Indication Subprofile
-            const String & currentProfile = defaultSniaProfiles[i];
-            String instanceId = buildProfileInstanceId(SNIA_NAME,
-                defaultSniaProfiles[i], SNIA_VER_110);
-            bool defaultProfileUnique = true;
-            for(Uint32 j = 0, m = instanceIDs.size(); j < m; ++j)
-            {
-                if(instanceIDs[j] == instanceId)
+                if(instanceIDs[k] == compoundId)
                 {
-                    defaultProfileUnique = false;
+                    unique = false;
                     break;
                 }
             }
 
-            if(defaultProfileUnique)
+            if(unique)
             {
-                instances.append(buildRegisteredProfile(instanceId,
-                    currentProfile, SNIA_VER_110, 11 /*"SNIA"*/, String::EMPTY,
-                    registeredProfileClass));
-                instanceIDs.append(instanceId);
+                instances.append(buildDependencyInstance(
+                    serverProfileId, PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+                    subprofileId,
+                    PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
+                    subprofileReqProfileClass));
             }
+        }
+        else
+        {
+                // We always have the Indication Subprofile
+                const String & currentProfile = defaultSniaProfiles[i];
+                String instanceId = buildProfileInstanceId(SNIA_NAME,
+                    defaultSniaProfiles[i], SNIA_VER_110);
+                bool defaultProfileUnique = true;
+                for(Uint32 j = 0, m = instanceIDs.size(); j < m; ++j)
+                {
+                    if(instanceIDs[j] == instanceId)
+                    {
+                        defaultProfileUnique = false;
+                        break;
+                    }
+                }
+
+                if(defaultProfileUnique)
+                {
+                    instances.append(buildRegisteredProfile(instanceId,
+                        currentProfile, SNIA_VER_110, 11 /*"SNIA"*/, String::EMPTY,
+                        registeredProfileClass));
+                    instanceIDs.append(instanceId);
+                }
         }
     }
 
@@ -3621,19 +3644,25 @@ Array<CIMInstance> InteropProvider::enumRegisteredProfileInstances()
         defaultSubprofiles);
 }
 
+String indicationProfileName("Indication");
+String softwareProfileName("Software");
+
 Array<CIMInstance> InteropProvider::enumRegisteredSubProfileInstances()
 {
-    static String indicationProfileName("Indication");
     Array<String> defaultSubprofiles;
     defaultSubprofiles.append(indicationProfileName);
+    defaultSubprofiles.append(softwareProfileName);
     return getProfileInstances(PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
         defaultSubprofiles);
 }
 
 Array<CIMInstance> InteropProvider::enumSubProfileRequiresProfileInstances()
 {
+    Array<String> defaultSubprofiles;
+    defaultSubprofiles.append(indicationProfileName);
+    defaultSubprofiles.append(softwareProfileName);
     return getProfileInstances(PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE,
-        Array<String>());
+        defaultSubprofiles);
 }
 
 Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
@@ -3772,7 +3801,8 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
                 }
 
                 profileName = otherProfiles[otherProfilesIndex];
-                profileOrgName = otherProfileOrganizations[otherProfilesIndex++];
+                profileOrgName =
+                    otherProfileOrganizations[otherProfilesIndex++];
             }
             else
             {
@@ -3804,7 +3834,8 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
                 }
 
                 dependentName = otherDependentProfiles[otherDependentsIndex];
-                dependentOrgName = otherDependentOrganizations[otherDependentsIndex++];
+                dependentOrgName =
+                    otherDependentOrganizations[otherDependentsIndex++];
             }
             else
             {
@@ -4093,11 +4124,19 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
 }
 
 CIMInstance InteropProvider::buildSoftwareIdentity(
-    const String & module, const String & provider, const String & version,
-    const String & vendor, const String & interfaceType)
+        const String & module,
+        const String & provider,
+        const String & vendor,
+        const String & version,
+        Uint16 majorVersion,
+        Uint16 minorVersion,
+        Uint16 revisionNumber,
+        Uint16 buildNumber,
+        bool extendedVersionSupplied,
+        const String & interfaceType)
 {
-    String instanceId = module + "+" + provider;
-    String name = provider + " (" + interfaceType + ")";
+    String instanceId(module + "+" + provider);
+    String name(provider + " (" + interfaceType + ")");
 
     // Use double-ifs to prevent locking for every request
     if(softwareIdentityClass.isUninitialized())
@@ -4123,15 +4162,35 @@ CIMInstance InteropProvider::buildSoftwareIdentity(
         vendor);
     setPropertyValue(softwareIdentity,
         SOFTWAREIDENTITY_PROPERTY_CLASSIFICATIONS, providerClassifications);
+    if(extendedVersionSupplied)
+    {
+        setPropertyValue(softwareIdentity,
+            SOFTWAREIDENTITY_PROPERTY_MAJORVERSION, majorVersion);
+        setPropertyValue(softwareIdentity,
+            SOFTWAREIDENTITY_PROPERTY_MINORVERSION, minorVersion);
+        setPropertyValue(softwareIdentity,
+            SOFTWAREIDENTITY_PROPERTY_REVISIONNUMBER, revisionNumber);
+        setPropertyValue(softwareIdentity,
+            SOFTWAREIDENTITY_PROPERTY_BUILDNUMBER, buildNumber);
+    }
 
     softwareIdentity.setPath(softwareIdentity.buildPath(softwareIdentityClass));
 
     return softwareIdentity;
 }
 
-void InteropProvider::extractSoftwareIdentityInfo(const CIMInstance & providerInstance,
-    String & moduleName, String & providerName, String & version,
-    String & vendor, String & interfaceType)
+void InteropProvider::extractSoftwareIdentityInfo(
+    const CIMInstance & providerInstance,
+    String & moduleName,
+    String & providerName,
+    String & vendor,
+    String & version,
+    Uint16 & majorVersion,
+    Uint16 & minorVersion,
+    Uint16 & revisionNumber,
+    Uint16 & buildNumber,
+    bool & extendedVersionSupplied,
+    String & interfaceType)
 {
     // Get the module and provider name from the PG_ProviderInstance supplied
     moduleName = getRequiredValue<String>(providerInstance,
@@ -4182,6 +4241,74 @@ void InteropProvider::extractSoftwareIdentityInfo(const CIMInstance & providerIn
     interfaceType = getRequiredValue<String>(providerModule,
         PROVIDERMODULE_PROPERTY_INTERFACETYPE);
 
+    // Now see if optional extended version information is available
+    extendedVersionSupplied = false;
+    Uint32 majorIndex = providerInstance.findProperty(
+        PROVIDERMODULE_PROPERTY_MAJORVERSION);
+    if(majorIndex != PEG_NOT_FOUND)
+    {
+        CIMValue majorValue = providerInstance.getProperty(majorIndex).getValue();
+        if(!majorValue.isNull())
+        {
+            extendedVersionSupplied = true;
+            majorValue.get(majorVersion);
+            minorVersion = 0;
+            revisionNumber = 0;
+            buildNumber = 0;
+
+            // Get the Version if present
+            Uint32 index = providerInstance.findProperty(
+                PROVIDERMODULE_PROPERTY_VERSION);
+            if(index != PEG_NOT_FOUND)
+            {
+                CIMValue propValue =
+                  providerInstance.getProperty(index).getValue();
+                if(!propValue.isNull())
+                {
+                    propValue.get(version);
+                }
+            }
+
+            // Get the Minor version if present
+            index = providerInstance.findProperty(
+                PROVIDERMODULE_PROPERTY_MINORVERSION);
+            if(index != PEG_NOT_FOUND)
+            {
+                CIMValue propValue =
+                  providerInstance.getProperty(index).getValue();
+                if(!propValue.isNull())
+                {
+                    propValue.get(minorVersion);
+                }
+            }
+
+            // Get the revision number if present
+            index = providerInstance.findProperty(
+                PROVIDERMODULE_PROPERTY_REVISIONNUMBER);
+            if(index != PEG_NOT_FOUND)
+            {
+                CIMValue propValue =
+                  providerInstance.getProperty(index).getValue();
+                if(!propValue.isNull())
+                {
+                    propValue.get(revisionNumber);
+                }
+            }
+
+            // Get the build number if present
+            index = providerInstance.findProperty(
+                    PROVIDERMODULE_PROPERTY_BUILDNUMBER);
+            if(index != PEG_NOT_FOUND)
+            {
+                CIMValue propValue =
+                  providerInstance.getProperty(index).getValue();
+                if(!propValue.isNull())
+                {
+                    propValue.get(buildNumber);
+                }
+            }
+        }
+    }
 }
 
 Array<CIMInstance> InteropProvider::enumSoftwareIdentityInstances()
@@ -4197,17 +4324,26 @@ Array<CIMInstance> InteropProvider::enumSoftwareIdentityInstances()
         String version;
         String vendor;
         String interfaceType;
+        Uint16 majorVersion;
+        Uint16 minorVersion;
+        Uint16 revisionNumber;
+        Uint16 buildNumber;
+        bool extendedVersionInfo;
         extractSoftwareIdentityInfo(registeredProviders[i], moduleName,
-            providerName, version, vendor, interfaceType);
+            providerName, vendor, version, majorVersion, minorVersion,
+            revisionNumber, buildNumber, extendedVersionInfo, interfaceType);
 
         instances.append(buildSoftwareIdentity(moduleName, providerName,
-            version, vendor, interfaceType));
+            vendor, version, majorVersion, minorVersion, revisionNumber,
+            buildNumber, extendedVersionInfo, interfaceType));
     }
 
-    // Always have the default Pegasus
+    // Always have the Interop provider
     instances.append(buildSoftwareIdentity(PEGASUS_MODULE_NAME,
-        INTEROP_PROVIDER_NAME, PEGASUS_PRODUCT_VERSION,
-        PEGASUS_CIMOM_GENERIC_NAME, PEGASUS_INTERNAL_PROVIDER_TYPE));
+        INTEROP_PROVIDER_NAME, PEGASUS_CIMOM_GENERIC_NAME,
+        PEGASUS_PRODUCT_VERSION,
+        0, 0, 0, 0, false, // no extended revision info
+        PEGASUS_INTERNAL_PROVIDER_TYPE));
     return instances;
 }
 
@@ -4222,7 +4358,9 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
     CIMClass elementSoftwareIdentityClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY, false, true, false);
-    
+
+    CIMObjectPath csPath = getComputerSystemInstance().getPath();
+
     for(Uint32 i = 0, n = profileCapabilities.size(); i < n; ++i)
     {
         CIMInstance & currentCapabilities = profileCapabilities[i];
@@ -4275,6 +4413,8 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
         SNIA_VER_110);
     String indicationProfileId = buildProfileInstanceId(SNIA_NAME,
         "Indication", SNIA_VER_110);
+    String softwareProfileId = buildProfileInstanceId(SNIA_NAME,
+        "Software", SNIA_VER_110);
 
     instances.append(buildDependencyInstance(interopSoftwareIdentity,
         PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, serverProfileId,
@@ -4286,6 +4426,40 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
         PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
         elementSoftwareIdentityClass));
 
+    instances.append(buildDependencyInstance(interopSoftwareIdentity,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, softwareProfileId,
+        PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
+        elementSoftwareIdentityClass));
+
+    return instances;
+}
+
+Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances()
+{
+    // All of the software identity instances are associated to the
+    // ComputerSystem on which the object manager resides. Simply loop through
+    // all the instances and build the association.
+    Array<CIMInstance> instances;
+    CIMObjectPath csPath = getComputerSystemInstance().getPath();
+    Array<CIMInstance> softwareInstances = enumSoftwareIdentityInstances();
+    CIMClass installedSoftwareClass;
+    CIMInstance skeletonInst =  buildInstanceSkeleton(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY, installedSoftwareClass);
+    for(Uint32 i = 0, n = softwareInstances.size(); i < n; ++i)
+    {
+        CIMInstance installedSoftwareInstance = skeletonInst.clone();
+        setPropertyValue(installedSoftwareInstance,
+            INSTALLEDSOFTWAREIDENTITY_PROPERTY_INSTALLEDSOFTWARE,
+            CIMValue(softwareInstances[i].getPath()));
+        setPropertyValue(installedSoftwareInstance,
+            INSTALLEDSOFTWAREIDENTITY_PROPERTY_SYSTEM,
+            CIMValue(csPath));
+        installedSoftwareInstance.setPath(installedSoftwareInstance.buildPath(
+            installedSoftwareClass));
+        instances.append(installedSoftwareInstance);
+    }
+
     return instances;
 }
 
@@ -4293,6 +4467,8 @@ typedef Array<String> StringArray;
 
 void InteropProvider::verifyCachedInfo()
 {
+    // TBD: May need an algorithm to determine whether or not the information
+    // cached by the Interop Provider is out of date in some way
 }
 
 void InteropProvider::cacheProfileRegistrationInfo()
@@ -4537,4 +4713,5 @@ void InteropProvider::cacheProfileRegistrationInfo()
     conformingElements.append(tmpNames);
     elementNamespaces.append(tmpNamespaces);*/
 }
+
 // END_OF_FILE

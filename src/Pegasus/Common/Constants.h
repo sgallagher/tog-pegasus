@@ -232,8 +232,10 @@ static const CIMName PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE  =
     CIMName ("PG_SubProfileRequiresProfile");
 static const CIMName PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY  = 
     CIMName ("PG_SoftwareIdentity");
-static const CIMName PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY  = 
+static const CIMName PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY  =
     CIMName ("PG_ElementSoftwareIdentity");
+static const CIMName PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY  =
+    CIMName ("PG_InstalledSoftwareIdentity");
 
 static const CIMName PEGASUS_CLASSNAME_PG_COMPUTERSYSTEM  = 
     CIMName ("PG_ComputerSystem");
@@ -247,7 +249,7 @@ static const CIMName PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES  =
     CIMName ("PG_ProviderProfileCapabilities");
 static const CIMName PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES  = 
     CIMName ("PG_ProviderReferencedProfiles");
-    
+
 // --NEW
 
 // slp Class which operates slp provider. Started by system
@@ -301,7 +303,8 @@ static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST =
 //
 // CIM Namespace Names
 //
-
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_ROOT  = 
+    CIMNamespaceName ("root");
 static const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP  = 
     CIMNamespaceName ("root/PG_InterOp");
 static const CIMNamespaceName PEGASUS_NAMESPACENAME_INTERNAL = 
@@ -496,7 +499,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 // Constant defines for path to icu resource bundles
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #define PEGASUS_DEFAULT_MESSAGE_SOURCE  "/QIBM/ProdData/OS400/CIM/msg"
-#elif PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #define PEGASUS_DEFAULT_MESSAGE_SOURCE  "/usr/lpp/wbem/msg"
 #else
 #undef PEGASUS_DEFAULT_MESSAGE_SOURCE

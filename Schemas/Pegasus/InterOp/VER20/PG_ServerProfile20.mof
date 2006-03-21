@@ -73,7 +73,7 @@ class PG_ProviderProfileCapabilities : PG_Capabilities {
                 ".."},
       Values{ "Other", "SNIA:Access Points", "SNIA:Backend Ports",//2
               "SNIA:Blades", "SNIA:Block Server Performance",//4
-              "SNIA:Block Storage Resource Ownership ",//5
+              "SNIA:Block Storage Resource Ownership",//5
               "SNIA:Cascading", "SNIA:Cluster", "SNIA:Copy Services",//8
               "SNIA:Device Credentials", "SNIA:Disk Drive",//10
               "SNIA:Disk Drive Lite", "SNIA:Disk Partition",//12
@@ -201,7 +201,7 @@ class PG_ProviderReferencedProfiles : PG_Capabilities {
               "SNIA:Self-contained NAS System",
               "SNIA:Access Points", "SNIA:Backend Ports",
               "SNIA:Blades", "SNIA:Block Server Performance",
-              "SNIA:Block Storage Resource Ownership ",
+              "SNIA:Block Storage Resource Ownership",
               "SNIA:Cascading", "SNIA:Cluster", "SNIA:Copy Services",
               "SNIA:Device Credentials", "SNIA:Disk Drive",
               "SNIA:Disk Drive Lite", "SNIA:Disk Partition",
@@ -257,7 +257,7 @@ class PG_ProviderReferencedProfiles : PG_Capabilities {
               "SNIA:Self-contained NAS System",
               "SNIA:Access Points", "SNIA:Backend Ports",
               "SNIA:Blades", "SNIA:Block Server Performance",
-              "SNIA:Block Storage Resource Ownership ",
+              "SNIA:Block Storage Resource Ownership",
               "SNIA:Cascading", "SNIA:Cluster", "SNIA:Copy Services",
               "SNIA:Device Credentials", "SNIA:Disk Drive",
               "SNIA:Disk Drive Lite", "SNIA:Disk Partition",

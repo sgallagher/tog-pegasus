@@ -69,6 +69,7 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
     Uint64 timeProviderEnd;
 #endif
     Boolean isComplete;
+    Uint32 index;
     OperationContext operationContext;
 
     XmlReader::expectStartTag(parser, entry, "PGMESSAGE");
@@ -95,6 +96,9 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
 
     XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
     genericValue.get(isComplete);
+
+    XmlReader::getValueElement(parser, CIMTYPE_UINT32, genericValue);
+    genericValue.get(index);
 
     _deserializeOperationContext(parser, operationContext);
 
@@ -130,6 +134,7 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
         Uint32(timeProviderEnd % Uint64(1000000))));
 #endif
     message->setComplete(isComplete);
+    message->setIndex(index);
     message->operationContext = operationContext;
 
     return message;

@@ -77,6 +77,7 @@ void CIMMessageSerializer::serialize(Buffer& out, CIMMessage* cimMessage)
 #endif
 
     XmlWriter::appendValueElement(out, cimMessage->isComplete());
+    XmlWriter::appendValueElement(out, cimMessage->getIndex());
 
     _serializeOperationContext(out, cimMessage->operationContext);
 

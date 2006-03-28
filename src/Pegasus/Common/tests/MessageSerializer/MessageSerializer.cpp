@@ -418,6 +418,7 @@ void validateCIMMessageAttributes(
     // Validate Message attributes
     PEGASUS_TEST_ASSERT(inMessage->getType() == outMessage->getType());
     PEGASUS_TEST_ASSERT(inMessage->isComplete() == outMessage->isComplete());
+    PEGASUS_TEST_ASSERT(inMessage->getIndex() == outMessage->getIndex());
 
     // Validate messageId member
     PEGASUS_TEST_ASSERT(inMessage->messageId == outMessage->messageId);

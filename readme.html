@@ -1,0 +1,635 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+
+<link rel="stylesheet" href="PEP_251_Draft_251_Readme_Version_1_2_files/info1margins.css">
+
+  <meta name="GENERATOR" content="Microsoft FrontPage 6.0">
+  <meta name="ProgId" content="FrontPage.Editor.Document">
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1252"><title>OpenPegasus</title>
+
+			<script language="javascript" src="PEP_251_Draft_251_Readme_Version_1_2_files/js.js"></script></head><body>
+<p align="center"><b><font size="4">Pegasus Enhancement Proposal (PEP)</font></b></p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>PEP #:</b> 251<br>
+</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;">&nbsp;</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Title: </b>OpenPegasus 
+Release 2.5.1 Readme file</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;">&nbsp;</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Version: </b><span style="color: rgb(0, 0, 0);">
+1.<br>
+</span></p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Created:</b> 20th March 2006</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;">&nbsp;</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Authors: </b>Martin Kirk<br>
+</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;">&nbsp;</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Status:&nbsp; </b>Draft</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;">&nbsp;</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Version History:</b></p>
+<table bordercolordark="#666666" bordercolorlight="#cccccc" style="font-family: Arial;" border="1" cellspacing="1" width="100%">
+  <tbody>
+    <tr>
+      <th bgcolor="#cae6ca">Version</th>
+      <th bgcolor="#cae6ca">Date</th>
+      <th bgcolor="#cae6ca">Author</th>
+      <th bgcolor="#cae6ca">Change Description</th>
+    </tr>
+    <tr>
+      <td align="center">1.0</td>
+      <td align="center">March 20th 2006</td>
+      <td align="center">Martin Kirk</td>
+      <td>First draft, basically unchanged from 2.5 ReadMe except for version 
+		numbers and typos</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;" align="center">1.1</td>
+      <td style="vertical-align: top; text-align: center;">March 23rd 2006</td>
+      <td style="vertical-align: top; text-align: center;">Martin Kirk</td>
+      <td style="vertical-align: top; text-align: center;">
+		<p style="text-align: left;">Draft for ballot incorporating draft 1.0 
+		comments.</p></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;" align="center">1.2</td>
+      <td style="vertical-align: top;" align="center">March 26th 2006</td>
+      <td style="vertical-align: top;" align="center">Martin Kirk</td>
+      <td style="vertical-align: top;">Draft for Steering Committee approval.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; color: rgb(0, 0, 0);" align="center">&nbsp;</td>
+      <td style="vertical-align: top; color: rgb(0, 0, 0);">&nbsp;</td>
+      <td style="vertical-align: top; color: rgb(0, 0, 0);">&nbsp;</td>
+      <td style="vertical-align: top; color: rgb(0, 0, 0);">&nbsp;</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;" align="center">&nbsp;</td>
+      <td style="vertical-align: top;">&nbsp;</td>
+      <td style="vertical-align: top;">&nbsp;</td>
+      <td style="vertical-align: top;">&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+<hr>
+<p><b>Abstract:</b>&nbsp; Installation, build, operation information on
+the OpenPegasus Version 2.5.1 Release. Note that if this readme
+conflicts with the documentation in the release notes or interface
+definition documents for a particular release, those documents should
+be considered authoritative. This is a simplified overview to act as an
+introduction to OpenPegasus.</p>
+<hr>
+<p align="center"><b><font size="5">OpenPegasus - A Manageability
+Services Broker for the DMTF CIM/WBEM Standards
+</font></b></p>
+<p align="left"><b>Tagline:</b> OpenPegasus is an object manager for
+DMTF CIM objects written in C++
+and hosted by The Open Group </p>
+<p align="left">
+<b>STATUS:</b> Revised March 2006 for&nbsp; Pegasus release version
+2.5.1&nbsp;
+- Draft<br>
+</p>
+<a href="#Overview">Overview</a>
+<blockquote style="margin-top: 0pt; margin-bottom: 0pt;"> 
+  <a href="#peg_sup_plat">Pegasus Supported Platforms</a><br>
+  	<a href="#cmnd">Commands</a><br>
+  <a href="#docs">Documentation</a><br>
+  <a href="#part">How to Participate</a><br>
+</blockquote>
+<a href="#inst_peg">Installing Pegasus</a>
+<blockquote style="margin-top: 0pt; margin-bottom: 0pt;"><a href="#download">
+	Obtain Pegasus in Source Code or Binary Executable Format</a><br>
+  	<a href="#peg_dep">Verify Dependencies</a><br>
+  <a href="#set_envt_var">Set the environment variables</a></blockquote>
+<a href="#build_peg">Building Pegasus</a><blockquote style="margin-top: 0pt; margin-bottom: 0pt;">
+<a href="#note_bld_peg_lnx">Building Pegasus on Linux</a><br>
+<a href="#note_bld_peg_ssl">Building Pegasus with SSL</a><br>
+<a href="#bld_peg_win">Building Pegasus on Windows 2000 or Windows XP With Microsoft Visual C++</a><br>
+  <blockquote style="margin-top: 0pt; margin-bottom: 0pt;"> <a href="#mu_utility">The MU Utility</a><br>
+  </blockquote>
+</blockquote>
+<a href="#pop_peg_rep">Populate the Pegasus repository</a><br>
+<a href="#reg_prov">Register providers in the Pegasus environment</a><br>
+<a href="#test">Test the Pegasus installation</a><br>
+<blockquote style="margin-top: 0pt; margin-bottom: 0pt;"> <a href="#test_icu">Testing with ICU enabled</a></blockquote>
+<a href="#sec0">Security Considerations</a><br>
+<hr>
+<h1><a name="Overview">Overview</a> </h1>
+<b>OpenPegasus (also referred to as Pegasus):</b>
+Pegasus is an open-source CIM Server for DMTF CIM objects. It is
+written
+in C++ and includes the Object manager (CIMOM), a set of defined
+interfaces, an implementation of the CIMOperations over HTTP operations
+and their cimxml HTTP encodings, and Interface libraries
+for both client and providers. It is maintained
+consistent with the DMTF CIM and WBEM specifications except for&nbsp;
+exceptions
+noted in the documentation.<br>
+<br>
+<span class="norm"></span>OpenPegasus includes components for: <br>
+<ol>
+  <li>DMTF compliant CIMServer that processes CIM operations, CIM
+Indications, and
+includes class and instance repositories and interfaces for creating
+CIM
+Providers and CIM Clients.</li>
+  <li>Provider interfaces so that providers may be developed in multiple
+languages (i.e.
+C++, C, Java).</li>
+  <li>A number of CIM clients and providers for basic instrumentation.</li>
+	<li>A number of CIM server administration commands.</li>
+  <li>A MOF compiler.</li>
+  <li>A number of sample CIM clients and providers to provide usage examples,</li>
+	<li>CIM server test functions providing both unit tests and end-to-end 
+	system tests.</li>
+  <li>More complete information on the exact functions
+and their functional state is available from the release notes for each
+OpenPegasus release.</li>
+</ol>
+OpenPegasus is open source and is covered under the MIT open-source
+license.
+OpenPegasus is being developed and maintained under the auspices of The Open 
+Group.&nbsp; OpenPegasus is maintained under the license defined in <font style="color: rgb(0, 0, 0);">pegasus/doc/license.txt</font>.&nbsp;
+This licensing is intended to support as
+wide a
+distribution as possible with minimal demands on the users.<br>
+<br>
+More information on this project, access to the CVS, and
+documentation on
+Pegasus are available from the OpenGroup WEB site - &nbsp;&nbsp;&nbsp; <a target="blank" href="http://www.openpegasus.org/">http://www.openpegasus.org</a><br>
+<h4><a name="peg_sup_plat">Pegasus Supported Platforms</a></h4>
+<p>
+Pegasus is regularly tested against a variety of platforms by the
+development group.&nbsp; The results of the nightly tests can be found
+here: <a href="http://cvs.opengroup.org/cgi-bin/pegasus-build-status.cgi">Nightly
+test status</a> .&nbsp; The Release notes provides additional details
+regarding the platforms.&nbsp;
+PEP 249 is the Release Notes PEP for 2.5.1.<br>
+</p>
+<h4><a name="cmnd">Commands</a></h4>
+<p></p>The manpages for each of the commands can be found in the Pegasus source
+tree in the pegasus/rpm/manLinux/ directory.<p></p>
+<p>To see simple help for a command, invoke it with the "--help" option.</p>
+<p><font face="Verdana">Here is a list of useful
+commands:</font></p>
+<span style="font-weight: bold;" class="norm"></span><span style="font-family: times new roman; font-weight: bold;"><span class="norm"></span></span><span style="font-weight: bold;">Some of
+the basic commands:</span>
+<br>
+NOTE: Refer to the admin guide in pegasus/doc/Admin_Guide_Release.pdf
+for
+more information about administering the Pegasus CIMServer.<br>
+<ul>
+  <li>cimserver daemon=true&nbsp; (Start the server
+cimserver)</li>
+  <li>cimserver -s&nbsp; (Shuts down the cimserver)</li>
+  <li>cimserver traceLevel=4 traceComponents=ALL&nbsp; (Starts server
+with
+config flags)</li>
+  <li>cimprovider -l -s&nbsp; (Lists providers and their status)</li>
+  <li>cimprovider -e -m OperatingSystemModule&nbsp; (Enables the
+OperatingSystem provider)</li>
+  <li>cimuser -a -u guest -w &lt;ThePassword&gt; (Adds the user <span style="font-style: italic;">guest</span> with specified password)<br>
+  </li>
+  <li>cimuser -l&nbsp; (Lists the users )<br>
+  </li>
+</ul>
+Note:&nbsp; there are some differences between windows and other
+platforms in
+starting the server as a daemon/service. Whereas most supported
+platforms use
+the configuration option daemon to start the server as a service, on
+windows it
+must be specifically installed as a service (ex. cimserver -install)
+and then
+started as a service (cimserver -start). The cimserver --help option
+explains the
+exact format of the start and stop options.<h4><a name="docs">Pegasus Documentation</a></h4>
+<p>Much of Pegasus
+is documented in the PEGASUS PEPs which are the basis for approval of
+Pegasus functionality, changes, plans, etc.&nbsp; These documents are
+openly available on the PEGASUS web site.&nbsp;The current documentation is
+maintained both as a manual created
+under the tool DOC++ in the runtime subdirectory manual/html (see
+doc/devManual to create), as an api document also creatable from the
+source tree (see doc/apidoc) and as other miscellaneous documentation
+in the doc directory. Also there is a set of release notes. Normally
+the release notes for the current release are available in the root
+source directory of CVS.</p>
+<p>Note that the Pegasus WEB site at The Open Group will be the source
+of most
+documentation in the future and today is the source of most discussion
+and
+design documentation. </p>
+<h4><a name="part">How to Participate</a></h4>
+<p><span class="norm"></span><font style="color: rgb(0, 0, 0);">Contributors
+are welcome to participate in the OpenPegasus development effort. Join
+the mailing list by visiting <a href="http://www.openpegasus.org/">http://www.openpegasus.org</a> and clicking on
+Mailing Lists. Joining the pegasus-l mailing list will provide a login/password 
+for the website.</font></p>
+<h1>
+<a name="inst_peg">Installing Pegasus</a> </h1>
+<h4><a name="download">Obtain Pegasus in Source Code or Binary Executable Format</a></h4>
+<h2></h2>
+<h2></h2>
+<ol>
+Pegasus can be obtained via any of the following:<br>
+  <ol>
+    <li>Released tarballs (see
+	<a href="http://www.openpegasus.org/page.tpl?ggid=392">Release
+tarballs link</a>)</li>
+    <li>CVS (See <a href="http://www.openpegasus.org/page.tpl?ggid=667">CVS
+code repository</a> for
+more information.)</li>
+    <li>Linux RPMs. See
+(<a href="http://www.openpegasus.org/pr">RPM
+link</a> for
+more information
+)</li>
+  </ol>
+</ol>
+<p>NOTE: Linux RPMs are only available for a limited set of releases.
+</p>
+<p>The distribution is available via CVS and snapshot images in
+tar and zip file formats on the web site.
+The source code from CVS can be found at the Open Group CVS server - 
+cvs.opengroup.org. The source can be checked out anonymously using the 
+instructions at <a href="http://www.openpegasus.org/protected/page.tpl?ggid=667">
+http://www.openpegasus.org/page.tpl?ggid=667</a></p>
+<p><span class="norm"></span><font style="color: rgb(0, 0, 0);">CVS
+write accounts are managed by Martin Kirk of The Open Group&nbsp;</font>
+(<a href="mailto:%28k.m.kirk@opengroup.org">m.kirk@opengroup.org</a>)&nbsp;
+</p>
+<p>RPM installation instructions can be found here: <a href="http://www.openpegasus.org/pr/">http://www.openpegasus.org/pr</a><br>
+</p>
+<strong></strong>
+<p></p>
+<h4><a name="peg_dep">Verify Dependencies</a></h4>
+<p>
+We have worked to minimize the dependence of Pegasus on other software
+packages and tools. Currently Pegasus has the following dependencies:
+</p>
+<p><b>1. GNUMAKE</b> - To simplify the building of Pegasus across
+multiple platforms we
+have standardized on a set of build tools including: GNUMAKE. We are
+using GNUMAKE 3.79.1 successfully both in Windows and Linux
+environments.
+</p>
+<p>GNUMAKE is available from :</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a target="blank" href="http://www.gnu.org/">http://www.gnu.org</a>
+</p>
+<p><b>2. FLEX and BISON</b> - These tools were used to develop the
+MOF
+compiler and WQL
+parser.&nbsp; <span class="norm"></span><font style="color: rgb(0, 0, 0);">These tools are required only for
+development of the parsers, not for building Pegasus.</font></p>
+<p><b>3. DOC++ </b>- The Pegasus documentation is taken from a
+combination of text files
+and the Pegasus header files themselves. This documentation is
+formatted with DOC++ and GAWK.&nbsp;&nbsp; <span class="norm"></span><font style="color: rgb(0, 0, 0);">These tools are required to build the
+interface documentation set.</font>
+</p>
+<p><b>4. ICU Internationalization libraries</b> - These libraries are
+used as the basis for message catalogs for message
+internationalization. See the ICU website
+(http://oss.software.ibm.com/icu/) for more information on these
+libraries</p>
+<p><span style="font-weight: bold;">5</span>. <b>OpenSSL </b>- If it
+is intended to use SSL on the
+communication protocol, the OpenSSL libraries are required.<br>
+</p>
+<p>&nbsp; NOTE: A set of the required
+tools for windows platforms is available on the openpegasus web
+site.&nbsp; <a href="http://www.openpegasus.org/pp/uploads/40/Pegasus24/www.openpegasus.org">www.openpegasus.org</a></p>
+<h4><a name="set_envt_var"><strong>Set the Environment
+Variables</strong></a></h4>
+<p>Before installing or running OpenPegasus, environment variables may
+have to be defined or updated.&nbsp; <br>
+</p>
+<p>PEP 237 contains the list of environment variables and setup necessary
+to use OpenPegasus.</p>
+<p></p>At a minimum, the following need to be set:<p></p>
+<blockquote>
+PEGASUS_ROOT=&lt;location of your pegasus source tree&gt;
+<br>
+PEGASUS_HOME=&lt;location for the built executables, repository, etc&gt;
+		
+<br>
+PEGASUS_PLATFORM=&lt;your platform&gt;
+</blockquote>
+<p>For a list of valid 
+platforms, enter "make listplatforms" from the root of the Pegasus 
+		source tree. <br>
+</p>
+<h1><a name="build_peg">Building Pegasus</a></h1>
+<div>
+	<div>
+		To accept the default build options and get started quickly, use the</div>
+	<div>
+		following commands from the root of the Pegasus source tree:</div>
+	<br>
+&nbsp;<div>
+		&nbsp;&nbsp; make build</div>
+	<div>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This will build the dependencies, any utilities that are needed, 
+		all</div>
+	<div>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the Pegasus and test executable code, and do any necessary setup 
+		to</div>
+	<div>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; run the CIM Server.</div>
+	<br>
+&nbsp;<div>
+		&nbsp;&nbsp; make alltests</div>
+	<div>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This will run the unit tests, create the repository by compiling 
+		in</div>
+	<div>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the MOF for the default CIM Schema (2.9 for Pegasus 2.5.1), 
+		compile</div>
+	<div>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; in the MOF for all Pegasus test cases, do any other configuration</div>
+	<div>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; necessary to run the tests, and then run a large automated test 
+		suite</div>
+	<div>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to verify Pegasus CIM Server functionality.`1<p>&nbsp;</p></div>
+	<div>
+		There are many variations possible. Refer to PEP 237 for possible build 
+		and</div>
+	<div>
+		run-time configuration options. Enter "make usage" for more information 
+		on</div>
+	<div>
+		make targets that are available for building and testing Pegasus.</div>
+</div>
+<h4><a name="note_bld_peg_lnx">Building OpenPegasus on Linux </a></h4>
+<p>
+To build OpenPegasus on Linux, ensure that you you have the environment
+variables set (PEGASUS_HOME, PEGASUS_ROOT, PEGASUS_PLATFORM.&nbsp; For
+32 bit linux, the definition of PEGASUS_PLATFORM is normally
+LINUX_IX86_GNU).<br>
+</p>
+<h4><a name="note_bld_peg_ssl">Building OpenPegasus with SSL
+</a></h4>
+<p>
+To build with SSL you need the OpenSSL libraries and header files. They
+are NOT distributed with OpenPegasus. Make sure you have them in a
+standard
+directory so OpenPegasus can find them. If that's not
+the case, set the environment variable OPENSSL_HOME= to point where
+your OpenSSL
+installation is.
+</p>
+<p>Also have the PEGASUS_HAS_SSL=true variable set. Then just run 'make'
+in Pegasus
+directory and you will have OpenPegasus with SSL enabled. See "Creating
+SSL
+certificates" below for more information on how to use SSL.
+</p>
+Refer to the OpenPegasus SSL Guidelines guide found in the doc directory for details on
+using OpenPegasus with SSL.<br>
+<h4><a name="bld_peg_win">Building OpenPegasus on Windows 2k or Windows XP with Microsoft
+Visual
+C++ </a></h4>
+<p>
+Use of Windows 2000 SP3 or later is recommended.&nbsp; OpenPegasus is
+regularly tested on both Windows 2000 and Windows XP using the
+Microsoft compilers.</p>
+<p>Today we build OpenPegasus on Windows using a set of make files
+contained
+in the source distribution, the Microsoft compilers (DevStudio 5.x is
+not supported, Visual Studio 6.0, SP5 is supported) and the GNUMAKE
+make utility.&nbsp; Note that you MUST have the OpenPegasus <a href="#mu_utility">mu.exe </a>utility compiled and available
+before trying to compile OpenPegasus on the normal windows platform.
+The
+following is the basic setup steps for the environment.
+</p>
+<p>Setup the environment variables and path for the Micrososft Visual C
+compiler.
+Typically this can be done by running the VCVARS32.BAT file supplied
+with Microsoft Visual C++. (contained in the same directory as cl.exe).
+</p>
+<p>For Windows, try the following for an example environment: </p>
+<blockquote>
+  <pre>REM call the standard Microsoft .bat for VC 6 setup. <br>call 'C:/Program Files\Microsoft Visual Studio\VC98\Bin\Vcvars32.bat' <br>REM Set debug to something if you want compile in debug mode <br>set PEGASUS_DEBUG=true <br>REM set PEGASUS_ROOT to top of source tree <br>set PEGASUS_ROOT=C:/cimom/pegasus (Note: <span class="norm">The '/' characters are intentional and required by the OpenPegasus build system)</span><br>REM set PEGASUS_HOME to where you want repository and executables<br>set PEGASUS_HOME=%PEGASUS_ROOT% <br>REM setup the path to the runtime files. <br>set path=%path%;%PEGASUS_HOME%\bin <br></pre>
+</blockquote>
+<h6>
+<a name="mu_utility">The MU Utility </a></h6>
+<p>
+In order to provide a consistent build structure across multiple
+platforms, we
+developed a small utility to provide a consistent set of small
+utilities
+across these platforms. The MU utility is a simple utility that
+contains
+many
+commands. For example:
+</p>
+<p><font face="Courier New">&nbsp;&nbsp;&nbsp;
+C:\&gt; mu rm myfile.cpp yourfile.cpp </font>
+</p>
+<p>You may type "mu" to get a list of valid commands. Here are some
+of them:
+</p>
+<p>&nbsp;&nbsp;&nbsp;
+rm, rmdirhier, mkdirhier, echo, touch, pwd, copy, move, compare depend
+</p>
+<p>The MU utility supports globing (expansion of wildcards) so
+you can do things like this:
+</p>
+<p><font face="Courier New">&nbsp;&nbsp;&nbsp;
+C:\&gt; mu rm *.obj *.exe </font>
+</p>
+<p>MU is required to build under the Windows environment. MU is
+available as part
+of the distribution of OpenPegasus.<br>
+</p>
+NOTE: The binary for MU.EXE is not distributed in the OpenPegasus bin
+directory.
+You must build it separately. MU source code is part of the
+distribution
+in the directory src/utils/MU with its own make file. You must compile
+MU
+before you initiate the OpenPegasus make.<br>
+A copy of the binary is made available as a zip file on the OpenPegasus
+WEB site.
+<p></p>
+<h1><a name="pop_peg_rep">Populate the Pegasus Repository</a> </h1>
+<p>
+Before using Pegasus you must populate the repository. Typically, this
+is done during the build process when you run the makefile. However,
+you
+can also do it manually after the Pegasus has been built. </p>
+<ol>
+  <li>Register the MOF (Managed Object Format) file describing the
+skeleton of the object. </li>
+  <li>Register a second MOF which only points out which lib*.so file to
+be loaded when a specific object is activated. </li>
+</ol>
+<p></p>
+<p>
+The providers included with Pegasus are automatically entered into the
+repository
+by running the following command: <tt>make repository</tt>
+</p>
+<p>
+The 'make repository' in the&nbsp; pegasus directory does three things:
+</p>
+<ul>
+  <li><span class="norm"></span> Removes the existing repository if one
+exists.</li>
+  <li>Generates the CIM Schema v2.9 in the repository (skeleton of CIM
+objects).&nbsp; </li>
+  <li><span class="norm"></span><font style="color: rgb(0, 0, 0);">Loads
+schema for CIM Server functions </font>(shutdown, add users, etc) and
+CIM indications
+(SNMP, Events, Alert, Threshold, etc)
+internal to the Pegasus. </li>
+  <li>Registers included CIM Providers (libOSProvider.so,
+libDNSProvider.so, … ) in Pegasus (which are located in
+src/Providers)&nbsp; </li>
+</ul>
+<h1>
+<a name="reg_prov">Registering
+Providers in the Pegasus Environment</a></h1>
+<p>
+Pegasus registers providers with a set of provider registration
+classes, not using the provider qualifier as is done in most DMTF CIM
+CIMOM implementations today. This set of classes is close to but not
+exactly the same as the experimental DMTF definition (See the DMTF
+Interop
+schema, experimental versions starting with 2.6). This will be
+harmonized in the future when the DMTF scheme is moved to final
+status.&nbsp; </p>
+<p><span class="norm"></span><font style="color: rgb(0, 0, 0);">Registration
+is performed by creating instances</font> of the
+registration classes that represent the provider module, providers,
+classes, etc. to be registered.&nbsp; The easiest way to create a new
+registration today is to copy from one of the existing registration
+MOFs.&nbsp; See the providers/sample/load directory for examples of
+several registration instance implementations that do work with
+OpenPegasus
+today.</p>
+<h1>
+<a name="test">Testing an OpenPegasus Installation</a></h1>
+<p>
+OpenPegasus includes an extensive set of test facilities as part of the
+CVS
+environment, including:
+</p>
+<ul>
+  <li><b>Test Clients</b> - There are several clients that have been
+built specifically to test OpenPegasus, or parts of OpenPegasus,
+including
+TestClient, Client, CLI, ipinfo, osinfo, wbemexec, etc. See the
+	pegasus/src/Clients directory for more information. These programs require a
+server complete with repository to be running.&nbsp; Note that some of
+these tests use classes and instances that are only installed with the
+"make testrepository" functions including test namespaces and extra
+classes and instances in those namespaces and additional providers from
+the pegasus/Providers/sample and pegasus/Providers/TestProviders directories. </li>
+  <li><b>Sample and test providers</b> -&nbsp; Test providers exist for
+the major provider types in the pegasus/Providers/sample directories and the 
+	pegasus/Providers/TestProviders directory </li>
+  <li><b>Unit Tests</b> - Most OpenPegasus functions include unit tests
+for
+the functions.&nbsp; These are normally executed with the "make tests"
+command which can be executed at many different levels of the source
+tree from the top level to execute all of the unit tests to individual
+directories.&nbsp; Usually the unit test functions can be found in test
+directories immediately below their corresponding source code
+(i.e&nbsp; common/tests is the unit test functions for the common
+directory). Unit tests are executed without the server being
+operational and normally do not require the existence of a Class
+repository. </li>
+  <li><b>An end-to-end Test Suite</b> - the directory "test" contains a
+set of operations tests that cover the major CIM operations.&nbsp; See
+the make file TestMakefile in the PEGASUS_ROOT directory to execute
+these tests.&nbsp; This set of tests executes an extensive set of fixed
+tests and compares the results against predefined results.</li>
+</ul>
+<h4><a name="test_icu">Testing with ICU enabled</a></h4>
+<p>ICU (International Components for Unicode) refers to the set of
+libraries that OpenPegasus uses to run globalized. For example: these
+libraries are used
+to
+load messages in different languages, format currency and numbers
+according to
+a specific locale etc. In order to enable globalization in OpenPegasus,
+OpenPegasus
+must be built with ICU enabled, ie. the right environment variables
+must be
+set prior to running "make". Refer to the GlobalizationHOWTO.htm in the
+docs
+directory for details.<br>
+</p>
+<p>&nbsp;When users run "make poststarttests"
+to verify the integrity of a OpenPegasus download, a series of tests
+are
+run that
+require the cimserver to be running. These tests currently depend on
+specific
+messages returned from the server. When ICU is enabled, all messages
+come from the resource bundles and these usually do not match the
+hardcoded default messages within OpenPegasus. These hardcoded default
+messages are what the various test programs expect in order to complete
+successfully. If the ICU enabled server is started without
+disabling message loading from the bundles, "make poststartests" will
+fail.
+In order to run "make poststarttests" successfully with ICU enabled, an
+environment variable called PEGASUS_USE_DEFAULT_MESSAGES must exist
+prior to
+starting the server. Once this is defined, when the cimserver starts,
+all
+messages generated will be the default hardcoded messages. This will
+enable
+"make poststarttests" to complete successfully. Once "make
+poststarttests" is
+complete, you should stop the cimserver and then undefine
+PEGASUS_USE_DEFAULT_MESSAGES. If this variable is left defined,
+OpenPegasus
+will not be able to load messages
+using ICU resource bundles.<br>
+</p>
+<p><span class="norm"></span><font style="color: rgb(0, 0, 0);">When
+running the make tests command with ICU enabled, the PEGASUS_MSG_HOME
+environment variable must be set to the home directory where the ICU
+resource bundles are built. By default the resource bundles are built
+into directories below PEGASUS_HOME/msg, so that should be the setting
+for PEGASUS_MSG_HOME.</font></p>
+<p></p>
+<h1>
+<a name="sec0">Security Considerations</a></h1>
+<p>Some of the steps of installing and running Pegasus have 
+security properties that you should be aware of. If you plan to administer a 
+Pegasus server, see the 'security considerations' section of the administrators 
+guide <pointer>. If you plan to write clients or providers for integration into 
+Pegasus, see the developer's security guidance.<br>
+</pointer></p>
+<hr>
+<p><font size="2"><i>Copyright (c) 2006 Hewlett-Packard Development Company, 
+L.P.; IBM Corp.;<br>
+EMC Corporation; Symantec Corporation; The Open Group.<br>
+<br>
+Permission is hereby granted, free of charge, to any person obtaining a copy<br>
+of this software and associated documentation files (the "Software"), to<br>
+deal in the Software without restriction, including without limitation the<br>
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or<br>
+sell copies of the Software, and to permit persons to whom the Software is<br>
+furnished to do so, subject to the following conditions:<br>
+<br>
+THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN<br>
+ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED<br>
+"AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT<br>
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR<br>
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT<br>
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN<br>
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION<br>
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</i></font></p>
+<hr>
+<p><i><font size="1"><big><big><span style="font-family: arial;">End of Document<br>
+</span></big></big></font></i></p>
+<p><span style="color: rgb(0, 0, 0);"></span> </p>
+
+<script language="javascript">postamble();</script>
+</body></html>

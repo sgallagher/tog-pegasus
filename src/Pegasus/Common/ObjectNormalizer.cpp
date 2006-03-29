@@ -183,96 +183,93 @@ CIMProperty _processProperty(
     // is non-zero.
     if(context != 0)
     {
-      if(referenceProperty.getType() == CIMTYPE_INSTANCE)
-      {
-          Uint32 pos = referenceProperty.findQualifier("EmbeddedInstance");
-          if(pos != PEG_NOT_FOUND)
-          {
-              String qualClassStr;
-              referenceProperty.getQualifier(pos).getValue().get(
-                  qualClassStr);
-              CIMName embedInstClassName(qualClassStr);
-              Array<CIMName> embeddedInstSubclasses =
-                  context->enumerateClassNames(nameSpace, embedInstClassName,
-                      true);
-              embeddedInstSubclasses.append(embedInstClassName);
+        if(referenceProperty.getType() == CIMTYPE_INSTANCE)
+        {
+            Uint32 pos = referenceProperty.findQualifier("EmbeddedInstance");
 
-              Array<CIMInstance> embeddedInstances;
-              if(referenceProperty.isArray())
-              {
-                cimProperty.getValue().get(embeddedInstances);
-              }
-              else
-              {
-                CIMInstance embeddedInst;
-                cimProperty.getValue().get(embeddedInst);
-                embeddedInstances.append(embeddedInst);
-              }
+            PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
 
-              Array<CIMClass> embeddedClassDefs;
-              for(Uint32 i = 0, n = embeddedInstances.size(); i < n; ++i)
-              {
-                  CIMInstance & currentInstance = embeddedInstances[i];
-                  CIMName currentClassName = currentInstance.getClassName();
-                  if(Contains(embeddedInstSubclasses, currentClassName))
-                  {
-                      CIMClass embeddedClassDef;
-                      bool found = false;
-                      for(Uint32 j = 0, m = embeddedClassDefs.size(); j < m;
-                          ++j)
-                      {
-                          CIMClass & tmpClassDef = embeddedClassDefs[j];
-                          if(tmpClassDef.getClassName() == currentClassName)
-                          {
-                              embeddedClassDef = tmpClassDef;
-                              found = true;
-                          }
-                      }
+            String qualClassStr;
+            referenceProperty.getQualifier(pos).getValue().get(
+                qualClassStr);
+            CIMName embedInstClassName(qualClassStr);
+            Array<CIMName> embeddedInstSubclasses =
+                context->enumerateClassNames(nameSpace, embedInstClassName,
+                    true);
+            embeddedInstSubclasses.append(embedInstClassName);
 
-                      if(!found)
-                      {
-                          embeddedClassDef = context->getClass(nameSpace,
-                              currentClassName);
-                          embeddedClassDefs.append(embeddedClassDef);
-                      }
+            Array<CIMInstance> embeddedInstances;
+            if(referenceProperty.isArray())
+            {
+              cimProperty.getValue().get(embeddedInstances);
+            }
+            else
+            {
+              CIMInstance embeddedInst;
+              cimProperty.getValue().get(embeddedInst);
+              embeddedInstances.append(embeddedInst);
+            }
 
-                      AutoPtr<NormalizerContext> tmpContext(context->clone());
-                      ObjectNormalizer tmpNormalizer(embeddedClassDef,
-                          includeQualifiers, includeClassOrigin, nameSpace,
-                          tmpContext);
-                      if(currentInstance.getPath().getKeyBindings().size()==0)
-                      {
-                          currentInstance.setPath(
-                              currentInstance.buildPath(embeddedClassDef));
-                      }
-                      embeddedInstances[i] = tmpNormalizer.processInstance(currentInstance);
-                  }
-                  else
-                  {
-                      MessageLoaderParms message(
-                          "Common.ObjectNormalizer.INVALID_EMBEDDED_INSTANCE_TYPE",
-                          "Found embedded instance of type $0: was expecting $1 for property $2",
-                          currentClassName.getString(),
-                          qualClassStr,
-                          cimProperty.getName().getString());
+            Array<CIMClass> embeddedClassDefs;
+            for(Uint32 i = 0, n = embeddedInstances.size(); i < n; ++i)
+            {
+                CIMInstance & currentInstance = embeddedInstances[i];
+                CIMName currentClassName = currentInstance.getClassName();
+                if(Contains(embeddedInstSubclasses, currentClassName))
+                {
+                    CIMClass embeddedClassDef;
+                    bool found = false;
+                    for(Uint32 j = 0, m = embeddedClassDefs.size(); j < m;
+                        ++j)
+                    {
+                        CIMClass & tmpClassDef = embeddedClassDefs[j];
+                        if(tmpClassDef.getClassName() == currentClassName)
+                        {
+                            embeddedClassDef = tmpClassDef;
+                            found = true;
+                        }
+                    }
 
-                      throw CIMException(CIM_ERR_FAILED, message);
-                  }
-              }
+                    if(!found)
+                    {
+                        embeddedClassDef = context->getClass(nameSpace,
+                            currentClassName);
+                        embeddedClassDefs.append(embeddedClassDef);
+                    }
 
-              if(referenceProperty.isArray())
-              {
-                normalizedProperty.setValue(CIMValue(embeddedInstances));
-              }
-              else
-              {
-                normalizedProperty.setValue(CIMValue(embeddedInstances[0]));
-              }
-          }
-          else
-          {
-          }
-      }
+                    AutoPtr<NormalizerContext> tmpContext(context->clone());
+                    ObjectNormalizer tmpNormalizer(embeddedClassDef,
+                        includeQualifiers, includeClassOrigin, nameSpace,
+                        tmpContext);
+                    if(currentInstance.getPath().getKeyBindings().size()==0)
+                    {
+                        currentInstance.setPath(
+                            currentInstance.buildPath(embeddedClassDef));
+                    }
+                    embeddedInstances[i] = tmpNormalizer.processInstance(currentInstance);
+                }
+                else
+                {
+                    MessageLoaderParms message(
+                        "Common.ObjectNormalizer.INVALID_EMBEDDED_INSTANCE_TYPE",
+                        "Found embedded instance of type $0: was expecting $1 for property $2",
+                        currentClassName.getString(),
+                        qualClassStr,
+                        cimProperty.getName().getString());
+
+                    throw CIMException(CIM_ERR_FAILED, message);
+                }
+            }
+
+            if(referenceProperty.isArray())
+            {
+              normalizedProperty.setValue(CIMValue(embeddedInstances));
+            }
+            else
+            {
+              normalizedProperty.setValue(CIMValue(embeddedInstances[0]));
+            }
+        }
     }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 

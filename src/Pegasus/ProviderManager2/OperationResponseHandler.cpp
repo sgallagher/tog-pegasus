@@ -67,7 +67,7 @@ protected:
     CIMOMHandleContext(CIMOMHandle & hndl) : handle(hndl) {}
 private:
     CIMOMHandleContext(const CIMOMHandleContext &);
-    operator=(const CIMOMHandleContext &);
+    CIMOMHandleContext & operator=(const CIMOMHandleContext &);
     CIMOMHandle handle;
     OperationContext emptyContext;
 };

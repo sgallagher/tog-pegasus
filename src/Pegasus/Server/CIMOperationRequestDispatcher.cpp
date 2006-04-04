@@ -1770,6 +1770,7 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     {
         // put back the async request because there are more chunks to come.
         op->put_request(asyncRequest);
+        delete asyncReply;
     }
     else
     {

@@ -96,27 +96,23 @@ static const struct
 
 
 /**
-   getName method of the Linux implementation for the OS Provider
+   getVendorInfo method for Linux implementation of OS Provider
 
-   Calls uname() to get the operating system name.
-
+   Gets the system text from vendor's release file
   */
-Boolean OperatingSystem::getName(String& osName)
+static String getVendorInfo()
 {
-   String s, buffer_s;
-   Uint32 buffer_index;	// rexex match index
+   static const Uint32 MAX_RELEASE_STRING_LEN=128;
+   String s;
    char info_file[MAXPATHLEN];
-   char buffer[MAXPATHLEN];
+   char buffer[MAX_RELEASE_STRING_LEN];
    struct stat statBuf;
-   FILE *vf;
 
-   s.clear();
+
    for (int ii = 0; LINUX_VENDOR_INFO[ii].vendor_name != NULL ; ii++)
    {
-      memset(info_file, 0, MAXPATHLEN);
-      strcat(info_file, "/etc/");
-      strcat(info_file, LINUX_VENDOR_INFO[ii].determining_filename);
-
+     sprintf(info_file,  "/etc/%s",
+             LINUX_VENDOR_INFO[ii].determining_filename );
 
       // If the file exists in /etc, we know what distro we're in
       if (!stat(info_file, &statBuf))
@@ -125,30 +121,49 @@ Boolean OperatingSystem::getName(String& osName)
          s.append(" Distribution");
          if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
          {
-	    // try to set s to a more descript value from the etc file
-            vf = fopen(info_file, "r");
+	    // try to set s to a more descriptive value from the etc file
+            FILE *vf = fopen(info_file, "r");
             if (vf)
             {
-               if (fgets(buffer, MAXPATHLEN, vf) != NULL)
-	       {
-                  buffer_s.assign(buffer);
+                if (fgets(buffer, MAX_RELEASE_STRING_LEN, vf) != NULL)
+                {
+		    String buffer_s = buffer;
 
-		  // parse the text to extract Distribution Name
-		  buffer_index = buffer_s.find(" release");
-		  if ( buffer_index != PEG_NOT_FOUND )
-		  {
-		     // then we have found a valid index into the config file
-		     s.assign(buffer_s.subString(0,buffer_index));
-		  }
+                    // parse the text to extract first line
+                    Uint32 buffer_index = buffer_s.find( '\n' );
+                    if ( buffer_index != PEG_NOT_FOUND )
+                    {
+                        // then we have found a valid index into the
+                        // config file
+                        s.assign(buffer_s.subString(0,buffer_index));
+                    }
 	       }
 	       fclose(vf);
 	    }
          }
+         break;
       }
    }
-   osName.assign(s);
-   return true;
+   return s;
+}
 
+/**
+   getName method of the Linux implementation for the OS Provider
+
+   Calls getVendorInfo() to get the operating system name.
+
+  */
+Boolean OperatingSystem::getName(String& osName)
+{
+    String buffer_s = getVendorInfo();
+
+    // parse the text to extract Distribution Name
+    Uint32 buffer_index = buffer_s.find( " release" );
+    if ( buffer_index != PEG_NOT_FOUND )
+    {
+        osName = buffer_s.subString(0,buffer_index);
+    }
+    return true;
 }
 
 /**
@@ -204,23 +219,22 @@ Boolean OperatingSystem::getCSName(String& csName)
 /**
    getCaption method for Linux implementation of OS Provider
 
-   Uses a string constant for the Caption.
+   Gets the text from the system's release file.
   */
 Boolean OperatingSystem::getCaption(String& caption)
 {
-
-   caption.assign("The current Operating System");
-
+   caption = getVendorInfo();
    return true;
 }
 
+/**
+   getDescription method for Linux implementation of OS Provider
+
+   Gets the text from the system's release file.
+  */
 Boolean OperatingSystem::getDescription(String& description)
 {
-
-   description.assign("This instance reflects the Operating System"
-        " on which the CIMOM is executing (as distinguished from instances"
-        " of other installed operating systems that could be run).");
-
+   description = getVendorInfo();
    return true;
 }
 

@@ -1169,7 +1169,7 @@ not be valid."}
 
     ControlProviders.CertificateProvider.TRUSTSTORE_RELOAD_FAILED:string {"PGS03313: Trust store reload failed. Certificate deletion will not be effective until cimserver restart."}
 
-    ControlProviders.CertificateProvider.ERROR_WRITING_CERT:string {"PGS03314: Unable to add certificate to truststore. Error while trying to write certificate.}
+    ControlProviders.CertificateProvider.ERROR_WRITING_CERT:string {"PGS03314: Unable to add certificate to truststore. Error while trying to write certificate."}
 
     ControlProviders.CertificateProvider.ERROR_WRITING_CRL:string {"PGS03315: Unable to add CRL to truststore. Error while trying to write CRL."}
 

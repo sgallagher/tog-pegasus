@@ -188,6 +188,7 @@ ifdef PEGASUS_HAS_SSL
 ifdef PEGASUS_TEST_USER_DEFINED
 	$(PROGRAM) setup WQL HTTPS
 	$(PROGRAM) run 10 1
+	$(PROGRAM) cleanup
 endif
 endif
 
@@ -196,5 +197,6 @@ ifdef PEGASUS_HAS_SSL
 ifdef PEGASUS_TEST_USER_DEFINED
 	$(PROGRAM) setup WQL HTTPS
 	$(PROGRAM) run 10 1 $(PEGASUS_TEST_USER_ID)
+	$(PROGRAM) cleanup
 endif
 endif

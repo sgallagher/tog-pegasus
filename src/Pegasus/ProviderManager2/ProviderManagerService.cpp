@@ -198,21 +198,21 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 
         _incomingQueue.enqueue(request->op);
         ThreadStatus rtn = PEGASUS_THREAD_OK;
-	while (( rtn =_thread_pool->allocate_and_awaken(
+        while (( rtn =_thread_pool->allocate_and_awaken(
                      (void *)this, ProviderManagerService::handleCimOperation)) != PEGASUS_THREAD_OK)
-	{
-	   if (rtn==PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-               pegasus_yield();
-	   else
-	   {
- 	       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            		"Not enough threads to service provider manager." );
- 
- 	       Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                        "Could not allocate thread for %s.",
-                         getQueueName());
-		   break;
-	   }
+        {
+            if (rtn==PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+                pegasus_yield();
+            else
+            {
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "Not enough threads to service provider manager." );
+
+                Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                    "Could not allocate thread for %s.",
+                    getQueueName());
+                break;
+           }
         }
     }
     else
@@ -229,7 +229,7 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 // Note: This method should not throw an exception.  It is used as a thread
 // entry point, and any exceptions thrown are ignored.
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
-ProviderManagerService::handleCimOperation(void* arg) 
+ProviderManagerService::handleCimOperation(void* arg)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderManagerService::handleCimOperation");
@@ -454,7 +454,7 @@ void ProviderManagerService::handleCimRequest(
             if (emResp->cimException.getCode() == CIM_ERR_SUCCESS)
             {
                 _updateProviderModuleStatus(
-                    providerModule, CIM_MSE_OPSTATUS_VALUE_STOPPED, 
+                    providerModule, CIM_MSE_OPSTATUS_VALUE_STOPPED,
                     CIM_MSE_OPSTATUS_VALUE_OK);
             }
         }
@@ -494,7 +494,7 @@ void ProviderManagerService::handleCimRequest(
             if (updateModuleStatus)
             {
                 _updateProviderModuleStatus(
-                    providerModule, CIM_MSE_OPSTATUS_VALUE_OK, 
+                    providerModule, CIM_MSE_OPSTATUS_VALUE_OK,
                     CIM_MSE_OPSTATUS_VALUE_STOPPING);
             }
 
@@ -510,7 +510,7 @@ void ProviderManagerService::handleCimRequest(
                 {
                     // Disable operation failed.  Module not stopped.
                     _updateProviderModuleStatus(
-                        providerModule, CIM_MSE_OPSTATUS_VALUE_STOPPING, 
+                        providerModule, CIM_MSE_OPSTATUS_VALUE_STOPPING,
                         CIM_MSE_OPSTATUS_VALUE_OK);
                 }
                 else
@@ -567,59 +567,54 @@ void ProviderManagerService::responseChunkCallback(
     CIMRequestMessage* request,
     CIMResponseMessage* response)
 {
-	CIMStatusCode code = CIM_ERR_SUCCESS;
-	String message;
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManagerService::responseChunkCallback");
 
-	try
-	{
-		// only incomplete messages are processed because the caller ends up
-		// sending the complete() stage
-		PEGASUS_ASSERT(response->isComplete() == false);
-		
-		AsyncLegacyOperationStart *requestAsync = 
-			dynamic_cast<AsyncLegacyOperationStart *>(request->_async);
-		PEGASUS_ASSERT(requestAsync);
-		AsyncOpNode *op = requestAsync->op;
-		PEGASUS_ASSERT(op);
-		PEGASUS_ASSERT(!response->_async);
-		response->_async = new AsyncLegacyOperationResult(
-			requestAsync->getKey(), requestAsync->getRouting(), op, response);
-		
-		// set the destination
-		op->_op_dest = op->_callback_response_q;
-		
-		MessageQueueService *service = 	
-			dynamic_cast<MessageQueueService *>(op->_callback_response_q);
+    try
+    {
+        // only incomplete messages are processed because the caller ends up
+        // sending the complete() stage
+        PEGASUS_ASSERT(response->isComplete() == false);
 
-		PEGASUS_ASSERT(service);
+        AsyncLegacyOperationStart *requestAsync =
+            dynamic_cast<AsyncLegacyOperationStart *>(request->_async);
+        PEGASUS_ASSERT(requestAsync);
+        AsyncOpNode *op = requestAsync->op;
+        PEGASUS_ASSERT(op);
+        PEGASUS_ASSERT(!response->_async);
+        response->_async = new AsyncLegacyOperationResult(
+            requestAsync->getKey(), requestAsync->getRouting(), op, response);
 
-		// the last chunk MUST be sent last, so use execute the callback
-		// not all chunks are going through the dispatcher's chunk 
-		// resequencer, so this must be a synchronous call here
-		// After the call is done, response and asyncResponse are now invalid 
-		// as they have been sent and deleted externally
-		
-		op->_async_callback(op, service, op->_callback_ptr);
-	}
+        // set the destination
+        op->_op_dest = op->_callback_response_q;
 
-	catch(CIMException &e)
-	{
-		code = e.getCode();
-		message = e.getMessage();
-	}
-	catch(Exception &e)
-	{
-		code = CIM_ERR_FAILED;
-		message = e.getMessage();
-	}
-	catch(...)
-	{
-		code = CIM_ERR_FAILED;
-		message = cimStatusCodeToString(code);
-	}
+        MessageQueueService *service =
+            dynamic_cast<MessageQueueService *>(op->_callback_response_q);
 
-	if (code !=  CIM_ERR_SUCCESS)
-		response->cimException = PEGASUS_CIM_EXCEPTION(code, message);
+        PEGASUS_ASSERT(service);
+
+        // the last chunk MUST be sent last, so use execute the callback
+        // not all chunks are going through the dispatcher's chunk
+        // resequencer, so this must be a synchronous call here
+        // After the call is done, response and asyncResponse are now invalid
+        // as they have been sent and deleted externally
+
+        op->_async_callback(op, service, op->_callback_ptr);
+    }
+    catch(Exception &e)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception in ProviderManagerService::responseChunkCallback: " +
+                e.getMessage() + ".  Chunk not delivered.");
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception in ProviderManagerService::responseChunkCallback.  "
+                "Chunk not delivered.");
+    }
+
+    PEG_METHOD_EXIT();
 }
 
 Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
@@ -627,7 +622,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
     Message* response = 0;
 
     if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
-        (request->getType() == 
+        (request->getType() ==
             CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
         (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE))
     {
@@ -725,14 +720,14 @@ void ProviderManagerService::unloadIdleProviders()
         // If we fail to allocate a thread, don't retry now.
         _unloadIdleProvidersBusy--;
     }
-    if (rtn != PEGASUS_THREAD_OK) 
+    if (rtn != PEGASUS_THREAD_OK)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		"Not enough threads to unload idle providers.");
- 
-	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-		"Could not allocate thread for %s to unload idle providers.", 
-		getQueueName());
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "Not enough threads to unload idle providers.");
+
+        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Could not allocate thread for %s to unload idle providers.",
+            getQueueName());
     }
     PEG_METHOD_EXIT();
 }
@@ -852,15 +847,15 @@ void ProviderManagerService::_updateProviderModuleStatus(
 void ProviderManagerService::indicationCallback(
     CIMProcessIndicationRequestMessage* request)
 {
- 	try
-	{
-		AcceptLanguageListContainer cntr = request->operationContext.get(AcceptLanguageListContainer::NAME);
-	}catch(const Exception &)
-	{
-		request->operationContext.insert(AcceptLanguageListContainer(AcceptLanguageList()));
-	}    
-	
-	if (_indicationServiceQueueId == PEG_NOT_FOUND)
+    try
+    {
+        AcceptLanguageListContainer cntr = request->operationContext.get(AcceptLanguageListContainer::NAME);
+    }catch(const Exception &)
+    {
+        request->operationContext.insert(AcceptLanguageListContainer(AcceptLanguageList()));
+    }
+
+    if (_indicationServiceQueueId == PEG_NOT_FOUND)
     {
         Array<Uint32> serviceIds;
 
@@ -889,12 +884,12 @@ void ProviderManagerService::indicationCallback(
 
 #ifdef PEGASUS_INDICATIONS_Q_THRESHOLD
 
-    // See Comments in config.mak asociated with 
+    // See Comments in config.mak asociated with
     //  PEGASUS_INDICATIONS_Q_THRESHOLD
     //
     // if INDICATIONS_Q_STALL THRESHOLD is gt 0
     // then if there are over INDICATIONS_Q_STALL_THRESHOLD
-    //           indications in the queue 
+    //           indications in the queue
     //      then force this provider to sleep until the queue count
     //      is lower than INDICATIONS_Q_RESUME_THRESHOLD
 
@@ -908,46 +903,46 @@ static Boolean indicationThresholdReported = false;
     MessageQueue * indicationsQueue = MessageQueue::lookup(_indicationServiceQueueId);
 
     if (((MessageQueueService *)indicationsQueue)->getIncomingCount() > INDICATIONS_Q_STALL_THRESHOLD)
-      {
+    {
         AutoMutex indicationThresholdReportedAutoMutex(indicationThresholdReportedLock);
         if (!indicationThresholdReported)
-          {
+        {
             indicationThresholdReported = true;
             indicationThresholdReportedAutoMutex.unlock();
 
-            // make log entry to record que max exceeded 
+            // make log entry to record que max exceeded
 
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-               "Indication generation stalled: maximum queue count ($0) exceeded.",
+                "Indication generation stalled: maximum queue count ($0) exceeded.",
                 INDICATIONS_Q_STALL_THRESHOLD);
-          }
-        else 
-          {
+        }
+        else
+        {
             indicationThresholdReportedAutoMutex.unlock();
-          }
+        }
 
         while (((MessageQueueService *)indicationsQueue)->getIncomingCount() > INDICATIONS_Q_RESUME_THRESHOLD)
-          {
+        {
             pegasus_sleep(INDICATIONS_Q_STALL_DURATION);
-          }
+        }
 
         AutoMutex indicationThresholdReportedAutoMutex1(indicationThresholdReportedLock);
         //        indicationThresholdReportedLock.lock(pegasus_thread_self());
         if(indicationThresholdReported)
-          {
+        {
             indicationThresholdReported = false;
             indicationThresholdReportedAutoMutex1.unlock();
-           
+
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                  "Indication generation resumed: current queue count = $0", 
+                  "Indication generation resumed: current queue count = $0",
                   ((MessageQueueService *)indicationsQueue)->getIncomingCount() );
 
-          }
+        }
         else
-          {
+        {
             indicationThresholdReportedAutoMutex1.unlock();
-          }
-      }  
+        }
+    }
 #endif /* INDICATIONS_Q_STALL_THRESHOLD */
 
 }

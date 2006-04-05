@@ -658,6 +658,9 @@ static const char _is_uri[128] =
     0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,
 };
 
+// Perform the necessary URI encoding of characters in HTTP header values.
+// This is required by the HTTP/1.1 specification and the CIM/HTTP
+// Specification (section 3.3.2).
 static void _xmlWritter_encodeURIChar(String& outString, Sint8 char8)
 {
     Uint8 c = (Uint8)char8;
@@ -1023,7 +1026,9 @@ inline void _xmlWritter_appendValue(Buffer& out, const String& x)
 
 inline void _xmlWritter_appendValue(Buffer& out, const CIMDateTime& x)
 {
-    out << x.toString();  //ATTN: append() method?
+    // It is not necessary to use XmlWriter::appendSpecial(), because
+    // CIMDateTime values do not contain special characters.
+    out << x.toString();
 }
 
 inline void _xmlWritter_appendValue(Buffer& out, const CIMObjectPath& x)
@@ -2013,9 +2018,6 @@ void XmlWriter::appendHttpErrorResponseHeader(
     }
     if (errorDetail != String::EMPTY)
     {
-        // ATTN-RK-P3-20020404: It is critical that this text not contain '\n'
-        // ATTN-RK-P3-20020404: Need to encode this value properly.  (See
-        // CIM/HTTP Specification section 3.3.2
         out << STRLIT(PEGASUS_HTTPHEADERTAG_ERRORDETAIL ": ")
             << encodeURICharacters(errorDetail) << STRLIT("\r\n");
     }
@@ -2416,30 +2418,6 @@ void XmlWriter::appendStringIParameter(
     out << STRLIT("<VALUE>");
     appendSpecial(out, str);
     out << STRLIT("</VALUE>\n");
-    _appendIParamValueElementEnd(out);
-}
-
-//------------------------------------------------------------------------------
-//
-// appendQualifierNameIParameter()
-//
-//------------------------------------------------------------------------------
-
-void XmlWriter::appendQualifierNameIParameter(
-    Buffer& out,
-    const char* name,
-    const String& qualifierName)
-{
-    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
-    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
-    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
-    //
-    // ATTN: notice that there is really no way to pass a qualifier name
-    // as an IPARAMVALUE element according to the spec (look above). So we
-    // just pass it as a class name. An answer must be obtained later.
-
-    _appendIParamValueElementBegin(out, name);
-    appendClassNameElement(out, qualifierName);
     _appendIParamValueElementEnd(out);
 }
 

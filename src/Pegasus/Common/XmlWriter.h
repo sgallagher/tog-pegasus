@@ -306,11 +306,6 @@ public:
         const char* name,
         const String& str);
 
-    static void appendQualifierNameIParameter(
-        Buffer& out,
-        const char* name,
-        const String& qualifierName);
-
     static void appendClassNameIParameter(
         Buffer& out,
         const char* name,

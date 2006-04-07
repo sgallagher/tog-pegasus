@@ -99,7 +99,7 @@ usage: FORCE
 	$(USAGE)"standardtests       - runs server extended tests"
 	$(USAGE)"testusage           - TestMakefile usage"
 	$(USAGE)"testusage2          - TestMakefile usage2"
-	$(USAGE)"stresstests         - runs the default stresstests"
+	$(USAGE)"stresstests         - builds and runs the default stresstests"
 	$(USAGE)
 	$(USAGE)"--------------------"
 	$(USAGE)"Quick start:"
@@ -224,20 +224,6 @@ testusage: FORCE
 testusage2: FORCE
 	@ $(MAKE) -f TestMakefile usage2
 
-stresstests:
-	@$(MAKE) "-SC" test/StressTests clean 
-	@$(ECHO) "Building PEGASUS StressTests"
-	@$(MAKE) "-SC" test/StressTests
-	@$(MAKE) "-SC" test/StressTests/testClient clean
-	@$(MAKE) "-SC" test/StressTests/testClient
-	@$(MAKE) "-SC" test/StressTests/testClient/ModelWalkStressClient clean
-	@$(MAKE) "-SC" test/StressTests/testClient/ModelWalkStressClient 
-	@$(MAKE) "-SC" test/StressTests/testClient/WrapperStressClient clean
-	@$(MAKE) "-SC" test/StressTests/testClient/WrapperStressClient
-	@$(MAKE) "-SC" test/StressTests/tests stresstests
-
-
-
 ##########################################################################
 #
 # This section defines functional rules
@@ -311,3 +297,20 @@ rootbundle:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile
 
 
+############################
+#
+# Target for OpenPegasus Stress Tests (PEP#241) 
+#
+#    The stresstest target will build and run the stress tests  
+
+stresstests:
+	@$(MAKE) "-SC" test/StressTests clean 
+	@$(ECHO) "Building PEGASUS StressTests"
+	@$(MAKE) "-SC" test/StressTests
+	@$(MAKE) "-SC" test/StressTests/testClient clean
+	@$(MAKE) "-SC" test/StressTests/testClient
+	@$(MAKE) "-SC" test/StressTests/testClient/ModelWalkStressClient clean
+	@$(MAKE) "-SC" test/StressTests/testClient/ModelWalkStressClient 
+	@$(MAKE) "-SC" test/StressTests/testClient/WrapperStressClient clean
+	@$(MAKE) "-SC" test/StressTests/testClient/WrapperStressClient
+	@$(MAKE) "-SC" test/StressTests/tests stresstests

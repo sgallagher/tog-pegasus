@@ -1384,10 +1384,38 @@ void CertificateProvider::invokeMethod(
             sprintf(newFileName, "%s", (const char*) certificateFileName.getCString());
         
             //use the ssl functions to write out the client x509 certificate
-            //TODO: add some error checking here
             BIO* outFile = BIO_new(BIO_s_file());
-            BIO_write_filename(outFile, newFileName);
-            int i = PEM_write_bio_X509(outFile, xCert);
+            if (outFile == NULL)
+            {
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                    "Unable to add certificate to truststore. " 
+                    "Error while trying to write certificate, BIO_new returned error");
+                MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CERT",
+                    "Unable to add certificate to truststore. Error while trying to write certificate.");
+                throw CIMException(CIM_ERR_FAILED, parms);
+            }
+
+            if (!BIO_write_filename(outFile, newFileName))
+            {
+                BIO_free_all(outFile);
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                    "Unable to add certificate to truststore. Error while trying to write certificate, " 
+                    "BIO_write_filename returned error");
+                MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CERT",
+                    "Unable to add certificate to truststore. Error while trying to write certificate.");
+                throw CIMException(CIM_ERR_FAILED, parms);
+            }
+            if (!PEM_write_bio_X509(outFile, xCert))
+            {
+                BIO_free_all(outFile);
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                    "Unable to add certificate to truststore. " 
+                    "Error while trying to write certificate, PEM_write_bio_X509 returned error");
+                MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CERT",
+                    "Unable to add certificate to truststore. Error while trying to write certificate.");
+                throw CIMException(CIM_ERR_FAILED, parms);
+            }
+
             BIO_free_all(outFile);
             
             if (userName == String::EMPTY)
@@ -1528,10 +1556,39 @@ void CertificateProvider::invokeMethod(
             sprintf(newFileName, "%s", (const char*) crlFileName.getCString());
         
             //use the ssl functions to write out the client x509 certificate
-            //TODO: add some error checking here
             BIO* outFile = BIO_new(BIO_s_file());
-            BIO_write_filename(outFile, newFileName);
-            int i = PEM_write_bio_X509_CRL(outFile, xCrl);
+            if (outFile == NULL)
+            {
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                    "Unable to add CRL to truststore. " 
+                    "Error while trying to write CRL, BIO_new returned error");
+                MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CRL",
+                    "Unable to add CRL to truststore. Error while trying to write CRL.");
+                throw CIMException(CIM_ERR_FAILED, parms);
+            }
+
+            if (!BIO_write_filename(outFile, newFileName))
+            {
+                BIO_free_all(outFile);
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                    "Unable to add CRL to truststore. " 
+                    "Error while trying to write CRL, BIO_write_filename returned error");
+                MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CRL",
+                    "Unable to add CRL to truststore. Error while trying to write CRL.");
+                throw CIMException(CIM_ERR_FAILED, parms);
+            }
+
+            if (!PEM_write_bio_X509_CRL(outFile, xCrl))
+            {
+                BIO_free_all(outFile);
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                    "Unable to add CRL to truststore. " 
+                    "Error while trying to write CRL, PEM_write_bio_X509_CRL returned error");
+                MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CRL",
+                    "Unable to add CRL to truststore. Error while trying to write CRL.");
+                throw CIMException(CIM_ERR_FAILED, parms);
+            }
+
             BIO_free_all(outFile);
 
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE, 

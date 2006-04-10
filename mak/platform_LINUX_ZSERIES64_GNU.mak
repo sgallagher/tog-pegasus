@@ -35,4 +35,4 @@ include $(ROOT)/mak/config-linux.mak
 
 ARCHITECTURE = zseries
 
-FLAGS = -fsigned-char
+FLAGS += -fsigned-char

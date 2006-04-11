@@ -1019,6 +1019,10 @@ void HTTPConnection::_getContentLengthAndContentOffset()
     char* sep;
     Uint32 lineNum = 0;
     Boolean bodylessMessage = false;
+    Boolean gotContentLength = false;
+    Boolean gotTransferEncoding = false;
+    Boolean gotContentLanguage = false;
+    Boolean gotTransferTE = false;
 
     while ((sep = _FindSeparator(line, size - (line - data))))
     {
@@ -1077,12 +1081,39 @@ void HTTPConnection::_getContentLengthAndContentOffset()
 
                 if (System::strcasecmp(line, headerNameContentLength) == 0)
                 {
+                    if (gotContentLength)
+                    {
+                        _throwEventFailure(HTTP_STATUS_BADREQUEST,
+                            "Duplicate Content-Length header detected");
+                    }
+                    gotContentLength = true;
+
                     if (_transferEncodingValues.size() == 0)
-                        _contentLength = atoi(valueStart);
-                    else _contentLength = -1;
+                    {
+                        // Use a dummy character conversion to catch an
+                        // invalid character in the value.
+                        char dummy;
+                        if (sscanf(valueStart, "%d%c",
+                                &_contentLength, &dummy) != 1)
+                        {
+                            _throwEventFailure(HTTP_STATUS_BADREQUEST,
+                                "Invalid Content-Length header detected");
+                        }
+                    }
+                    else
+                    {
+                        _contentLength = -1;
+                    }
                 }
                 else if (System::strcasecmp(line, headerNameTransferEncoding) == 0)
                 {
+                    if (gotTransferEncoding)
+                    {
+                        _throwEventFailure(HTTP_STATUS_BADREQUEST,
+                            "Duplicate Transfer-Encoding header detected");
+                    }
+                    gotTransferEncoding = true;
+
                     _transferEncodingValues.clear();
 
                     if (strcmp(valueStart,headerValueTransferEncodingChunked) == 0)
@@ -1099,9 +1130,26 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                     String contentLanguagesString(valueStart, valueEnd-valueStart+1);
                     try
                     {
-                        contentLanguages =
+                        ContentLanguageList contentLanguagesValue =
                             LanguageParser::parseContentLanguageHeader(
                                 contentLanguagesString);
+
+                        if (gotContentLanguage)
+                        {
+                            // Append these content languages to the existing
+                            // list.
+                            for (Uint32 i = 0;
+                                 i < contentLanguagesValue.size(); i++)
+                            {
+                                contentLanguages.append(
+                                    contentLanguagesValue.getLanguageTag(i));
+                            }
+                        }
+                        else
+                        {
+                            contentLanguages = contentLanguagesValue;
+                            gotContentLanguage = true;
+                        }
                     }
                     catch(...)
                     {
@@ -1114,6 +1162,13 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                 }
                 else if (System::strcasecmp(line, headerNameTransferTE) == 0)
                 {
+                    if (gotTransferTE)
+                    {
+                        _throwEventFailure(HTTP_STATUS_BADREQUEST,
+                            "Duplicate TE header detected");
+                    }
+                    gotTransferTE = true;
+
                     _transferEncodingTEValues.clear();
                     static const char valueDelimiter = ',';
                     char *valuesStart = valueStart;
@@ -1612,23 +1667,24 @@ void HTTPConnection::_handleReadEventTransferEncoding()
  * detail delimiter.
  */
 
-void HTTPConnection::_handleReadEventFailure(String &httpStatusWithDetail,
-    String cimError)
+void HTTPConnection::_handleReadEventFailure(
+    const String& httpStatusWithDetail,
+    const String& cimError)
 {
     Uint32 delimiterFound = httpStatusWithDetail.find(httpDetailDelimiter);
     String httpDetail;
-    String httpStatus;
+    String httpStatus = httpStatusWithDetail.subString(0, delimiterFound);
 
     if (delimiterFound != PEG_NOT_FOUND)
     {
-        httpDetail = httpStatus.subString(delimiterFound+1);
-        httpStatus = httpStatus.subString(0, delimiterFound);
+        httpDetail = httpStatusWithDetail.subString(
+            delimiterFound + httpDetailDelimiter.size());
     }
 
-    String combined = httpStatus + httpDetailDelimiter + httpDetail +
-        httpDetailDelimiter + cimError;
+    Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2,
+        httpStatus + httpDetailDelimiter + httpDetail +
+            httpDetailDelimiter + cimError);
 
-    Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, combined);
     _requestCount++;
     Buffer message;
     message = XmlWriter::formatHttpErrorRspMessage(httpStatus, cimError,

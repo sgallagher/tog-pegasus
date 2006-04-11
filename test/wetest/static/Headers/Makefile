@@ -42,6 +42,10 @@ XMLSCRIPTS = \
     BadCIMObjectValue04 \
     BadCIMOperationValue01 \
     BadCIMProtocolVersionValue01 \
+    BadTransferEncodingValue01 \
+    DuplicateCIMOperationTag01 \
+    DuplicateContentLengthTag01 \
+    DuplicateTransferEncodingTag01 \
     ExtraCIMBatchTag01 \
     ExtraCIMBatchTag02 \
     MissingCIMBatchTag01 \

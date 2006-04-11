@@ -35,7 +35,7 @@
 //              Dave Rosckes (rosckes@us.ibm.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP101
-//				Seema Gupta (gseema@in.ibm.com) for Bug#1096
+//              Seema Gupta (gseema@in.ibm.com) for Bug#1096
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //
@@ -94,17 +94,17 @@ static char* _FindSeparator(const char* data, Uint32 size)
 
     while (p != end)
     {
-	if (*p == '\r')
-	{
-	    Uint32 n = end - p;
+        if (*p == '\r')
+        {
+            Uint32 n = end - p;
 
-	    if (n >= 2 && p[1] == '\n')
-		return (char*)p;
-	}
-	else if (*p == '\n')
-	    return (char*)p;
+            if (n >= 2 && p[1] == '\n')
+                return (char*)p;
+        }
+        else if (*p == '\n')
+            return (char*)p;
 
-	p++;
+        p++;
     }
 
     return 0;
@@ -121,23 +121,23 @@ HTTPMessage::HTTPMessage(
     acceptLanguagesDecoded(false),
     contentLanguagesDecoded(false)
 {
-	if (cimException_)
-		cimException = *cimException_;
+    if (cimException_)
+        cimException = *cimException_;
 }
 
 
 HTTPMessage::HTTPMessage(const HTTPMessage & msg)
-   : Base(msg)
+    : Base(msg)
 {
-      message = msg.message;
-      queueId = msg.queueId;
-      authInfo = msg.authInfo;
-      acceptLanguages = msg.acceptLanguages;
-      contentLanguages = msg.contentLanguages;
-      acceptLanguagesDecoded = msg.acceptLanguagesDecoded;
-      contentLanguagesDecoded = msg.contentLanguagesDecoded;
-			cimException = msg.cimException;
- }
+    message = msg.message;
+    queueId = msg.queueId;
+    authInfo = msg.authInfo;
+    acceptLanguages = msg.acceptLanguages;
+    contentLanguages = msg.contentLanguages;
+    acceptLanguagesDecoded = msg.acceptLanguagesDecoded;
+    contentLanguagesDecoded = msg.contentLanguagesDecoded;
+    cimException = msg.cimException;
+}
 
 
 void HTTPMessage::parse(
@@ -157,73 +157,114 @@ void HTTPMessage::parse(
 
     while ((sep = _FindSeparator(line, size - (line - data))))
     {
-	// Look for double separator which terminates the header?
+        // Look for double separator which terminates the header?
 
-	if (line == sep)
-	{
-	    // Establish pointer to content (account for "\n" and "\r\n").
+        if (line == sep)
+        {
+            // Establish pointer to content (account for "\n" and "\r\n").
 
-	    char* content = line + ((*sep == '\r') ? 2 : 1);
+            char* content = line + ((*sep == '\r') ? 2 : 1);
 
-	    // Determine length of content:
+            // Determine length of content:
 
-	    contentLength = message.size() - (content - data);
-	    break;
-	}
+            contentLength = message.size() - (content - data);
+            break;
+        }
 
-	Uint32 lineLength = sep - line;
+        Uint32 lineLength = sep - line;
 
-	if (firstTime)
-	    startLine.assign(line, lineLength);
-	else
-	{
-	    // Find the colon:
+        if (firstTime)
+            startLine.assign(line, lineLength);
+        else
+        {
+            // Find the colon:
 
-	    char* colon = 0;
+            char* colon = 0;
 
-	    for (Uint32 i = 0; i < lineLength; i++)
-	    {
-		if (line[i] == ':')
-		{
-		    colon = &line[i];
-		    break;
-		}
-	    }
+            for (Uint32 i = 0; i < lineLength; i++)
+            {
+                if (line[i] == ':')
+                {
+                    colon = &line[i];
+                    break;
+                }
+            }
 
-	    // This should always be true:
+            // This should always be true:
 
-	    if (colon)
-	    {
-		// Get the name part:
+            if (colon)
+            {
+                // Get the name part:
 
-		char* end;
+                char* end;
 
-		for (end = colon - 1; end > line && isspace(*end); end--)
-		    ;
+                for (end = colon - 1; end > line && isspace(*end); end--)
+                    ;
 
-		end++;
+                end++;
 
-		String name(line, end - line);
+                String name(line, end - line);
 
-		// Get the value part:
+                // Get the value part:
 
-		char* start;
+                char* start;
 
-		for (start = colon + 1; start < sep && isspace(*start); start++)
-		    ;
+                for (start = colon + 1; start < sep && isspace(*start); start++)
+                    ;
 
-		String value(start, sep - start);
+                String value(start, sep - start);
 
-		headers.append(HTTPHeader(name, value));
+                // From the HTTP/1.1 specification (RFC 2616) section 4.2
+                // Message Headers:
+                //
+                // Multiple message-header fields with the same field-name
+                // MAY be present in a message if and only if the entire
+                // field-value for that header field is defined as a
+                // comma-separated list [i.e., #(values)]. It MUST be
+                // possible to combine the multiple header fields into one
+                // "field-name: field-value" pair, without changing the
+                // semantics of the message, by appending each subsequent
+                // field-value to the first, each separated by a comma.  The
+                // order in which header fields with the same field-name are
+                // received is therefore significant to the interpretation
+                // of the combined field value, and thus a proxy MUST NOT
+                // change the order of these field values when a message is
+                // forwarded.
 
-		PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 0,
-		    "HTTPMessage - HTTP header name: $0  HTTP header value: $1",
-		    name,value));
-	    }
-	}
+                // This implementation concatenates duplicate header values,
+                // with a comma separator.  If the resulting value is invalid,
+                // that should be detected when the value is used.
 
-	line = sep + ((*sep == '\r') ? 2 : 1);
-	firstTime = false;
+                Uint32 headerIndex = 0;
+                for (; headerIndex < headers.size(); headerIndex++)
+                {
+                    if (headers[headerIndex].first == name)
+                    {
+                        break;
+                    }
+                }
+
+                if (headerIndex == headers.size())
+                {
+                    headers.append(HTTPHeader(name, value));
+                    PEG_LOGGER_TRACE((
+                        Logger::STANDARD_LOG, System::CIMSERVER, 0,
+                        "HTTP header name: $0,  HTTP header value: $1",
+                        name, value));
+                }
+                else
+                {
+                    headers[headerIndex].second.append(", ").append(value);
+                    PEG_LOGGER_TRACE((
+                        Logger::STANDARD_LOG, System::CIMSERVER, 0,
+                        "HTTP header name: $0,  Updated HTTP header value: $1",
+                        name, headers[headerIndex].second));
+                }
+            }
+        }
+
+        line = sep + ((*sep == '\r') ? 2 : 1);
+        firstTime = false;
     }
 }
 
@@ -250,13 +291,13 @@ void HTTPMessage::printAll(ostream& os) const
 
     for (Uint32 i = 0; i < headers.size(); i++)
     {
-    	cout << headers[i].first << ": " << headers[i].second << endl;
+        cout << headers[i].first << ": " << headers[i].second << endl;
 
-    	if (String::equalNoCase(headers[i].first, _HTTP_HEADER_CONTENT_TYPE))
-    	{
-    	    if (headers[i].second.find("image/") == 0)
-    		image = true;
-    	}
+        if (String::equalNoCase(headers[i].first, _HTTP_HEADER_CONTENT_TYPE))
+        {
+            if (headers[i].second.find("image/") == 0)
+                image = true;
+        }
     }
 
     os << endl;
@@ -265,22 +306,22 @@ void HTTPMessage::printAll(ostream& os) const
 
     for (Uint32 i = 0; i < contentLength; i++)
     {
-	//char c = content[i];
+        //char c = content[i];
 
-	if (image)
-	{
-	    if ((i % 60) == 0)
-		os << endl;
+        if (image)
+        {
+            if ((i % 60) == 0)
+                os << endl;
 
-	    char c = content[i];
+            char c = content[i];
 
-	    if (c >= ' ' && c < '~')
-		os << c;
-	    else
-		os << '.';
-	}
-	else
-	    cout << content[i];
+            if (c >= ' ' && c < '~')
+                os << c;
+            else
+                os << '.';
+        }
+        else
+            cout << content[i];
     }
 
     os << endl;
@@ -300,37 +341,37 @@ void HTTPMessage::lookupHeaderPrefix(
     const String& fieldName,
     String& prefix)
 {
-	ArrayIterator<HTTPHeader> headers(headers_);
+    ArrayIterator<HTTPHeader> headers(headers_);
 
-	static const char keyword[] = "CIM";
-	prefix.clear();
+    static const char keyword[] = "CIM";
+    prefix.clear();
 
-	for (Uint32 i = 0, n = headers.size(); i < n; i++)
-	{
-		const String &h = headers[i].first;
+    for (Uint32 i = 0, n = headers.size(); i < n; i++)
+    {
+        const String &h = headers[i].first;
 
                 if ((h.size() >= 3) &&
                     (h[0] >= '0') && (h[0] <= '9') &&
                     (h[1] >= '0') && (h[1] <= '9') &&
                     (h[2] == Char16('-')))
-		{
-			String fieldNameCurrent = h.subString(3);
+        {
+            String fieldNameCurrent = h.subString(3);
 
-			// ONLY fields starting with keyword can have prefixed according to spec
-			if (String::equalNoCase(fieldNameCurrent, keyword) == false)
-				continue;
+            // ONLY fields starting with keyword can have prefixed according to spec
+            if (String::equalNoCase(fieldNameCurrent, keyword) == false)
+                continue;
 
-			prefix = h.subString(0,3);
+            prefix = h.subString(0,3);
 
-			// no field name given, just return the first prefix encountered
-			if (fieldName.size() == 0)
-				break;
+            // no field name given, just return the first prefix encountered
+            if (fieldName.size() == 0)
+                break;
 
-			if (String::equalNoCase(fieldNameCurrent, fieldName) == false)
-				prefix.clear();
-			else break;
-		}
-	}
+            if (String::equalNoCase(fieldNameCurrent, fieldName) == false)
+                prefix.clear();
+            else break;
+        }
+    }
 }
 
 Boolean HTTPMessage::lookupHeader(
@@ -349,10 +390,10 @@ Boolean HTTPMessage::lookupHeader(
              (headers[i].first[1] >= '0') && (headers[i].first[1] <= '9') &&
              (headers[i].first[2] == Char16('-')) &&
              String::equalNoCase(headers[i].first.subString(3), fieldName)))
-	{
-	    fieldValue = headers[i].second;
-	    return true;
-	}
+        {
+            fieldValue = headers[i].second;
+            return true;
+        }
     }
 
     // Not found:
@@ -372,7 +413,7 @@ Boolean HTTPMessage::parseRequestLine(
     Uint32 space1 = startLine.find(' ');
 
     if (space1 == PEG_NOT_FOUND)
-	return false;
+        return false;
 
     methodName = startLine.subString(0, space1);
 
@@ -381,7 +422,7 @@ Boolean HTTPMessage::parseRequestLine(
     Uint32 space2 = startLine.find(space1 + 1, ' ');
 
     if (space2 == PEG_NOT_FOUND)
-	return false;
+        return false;
 
     Uint32 uriPos = space1 + 1;
 
@@ -408,7 +449,7 @@ Boolean HTTPMessage::parseStatusLine(
     Uint32 space1 = statusLine.find(' ');
 
     if (space1 == PEG_NOT_FOUND)
-	return false;
+        return false;
 
     httpVersion = statusLine.subString(0, space1);
 
@@ -417,7 +458,7 @@ Boolean HTTPMessage::parseStatusLine(
     Uint32 space2 = statusLine.find(space1 + 1, ' ');
 
     if (space2 == PEG_NOT_FOUND)
-	return false;
+        return false;
 
     Uint32 statusCodePos = space1 + 1;
     String statusCodeStr;

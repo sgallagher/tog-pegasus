@@ -163,8 +163,8 @@ private:
 
     Boolean _handleWriteEvent(Message &message);
 
-    void _handleReadEventFailure(String &httpStatusWithDetail,
-                                 String cimError = String());
+    void _handleReadEventFailure(const String& httpStatusWithDetail,
+                                 const String& cimError = String());
     void _handleReadEventTransferEncoding();
     Boolean _isClient();
 

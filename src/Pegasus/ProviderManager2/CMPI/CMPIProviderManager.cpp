@@ -52,6 +52,7 @@
 
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Logger.h>
@@ -63,6 +64,7 @@
 #include <Pegasus/Server/CIMServer.h>
 
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
+#include <Pegasus/ProviderManager2/CIMOMHandleContext.h>
 #include <Pegasus/ProviderManager2/ProviderType.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
@@ -361,14 +363,15 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         // resolve provider name
         ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        
         ProviderName name = _resolveProviderName(pidc);
 
         if ((remote=pidc.isRemoteNameSpace())) {
            ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
-	}
-	else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
+        else {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
@@ -379,6 +382,32 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
         // forward request
         CMPIProvider & pr=ph.GetProvider();
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        // If normalization is enabled, then the normalizer will take care of
+        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
+        // to add a NormalizerContextContainer. The presence of an
+        // ObjectNormalizer is determined by the presence of the
+        // CachedClassDefinitionContainer
+        try {
+            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+        }
+        catch(Exception &)
+#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        {
+            // If a mechanism is needed to correct mismatches between the
+            // EmbeddedInstance and EmbeddedObject types, then insert
+            // containers for the class definition and a NormalizerContext.
+            AutoPtr<NormalizerContext> tmpNormalizerContext(
+                new CIMOMHandleContext(*pr._cimom_handle));
+            CIMClass classDef(tmpNormalizerContext->getClass(
+                request->nameSpace, request->className));
+            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                NormalizerContextContainer(tmpNormalizerContext));
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.getInstance: " + pr.getName());
@@ -501,6 +530,32 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        // If normalization is enabled, then the normalizer will take care of
+        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
+        // to add a NormalizerContextContainer. The presence of an
+        // ObjectNormalizer is determined by the presence of the
+        // CachedClassDefinitionContainer
+        try {
+            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+        }
+        catch(Exception &)
+#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        {
+            // If a mechanism is needed to correct mismatches between the
+            // EmbeddedInstance and EmbeddedObject types, then insert
+            // containers for the class definition and a NormalizerContext.
+            AutoPtr<NormalizerContext> tmpNormalizerContext(
+                new CIMOMHandleContext(*pr._cimom_handle));
+            CIMClass classDef(tmpNormalizerContext->getClass(
+                request->nameSpace, request->className));
+            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                NormalizerContextContainer(tmpNormalizerContext));
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enumerateInstances: " + pr.getName());
@@ -1223,6 +1278,32 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        // If normalization is enabled, then the normalizer will take care of
+        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
+        // to add a NormalizerContextContainer. The presence of an
+        // ObjectNormalizer is determined by the presence of the
+        // CachedClassDefinitionContainer
+        try {
+            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+        }
+        catch(Exception &)
+#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        {
+            // If a mechanism is needed to correct mismatches between the
+            // EmbeddedInstance and EmbeddedObject types, then insert
+            // containers for the class definition and a NormalizerContext.
+            AutoPtr<NormalizerContext> tmpNormalizerContext(
+                new CIMOMHandleContext(*pr._cimom_handle));
+            CIMClass classDef(tmpNormalizerContext->getClass(
+                request->nameSpace, request->className));
+            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                NormalizerContextContainer(tmpNormalizerContext));
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.associators: " + pr.getName());
 
@@ -1484,6 +1565,32 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        // If normalization is enabled, then the normalizer will take care of
+        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
+        // to add a NormalizerContextContainer. The presence of an
+        // ObjectNormalizer is determined by the presence of the
+        // CachedClassDefinitionContainer
+        try {
+            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+        }
+        catch(Exception &)
+#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        {
+            // If a mechanism is needed to correct mismatches between the
+            // EmbeddedInstance and EmbeddedObject types, then insert
+            // containers for the class definition and a NormalizerContext.
+            AutoPtr<NormalizerContext> tmpNormalizerContext(
+                new CIMOMHandleContext(*pr._cimom_handle));
+            CIMClass classDef(tmpNormalizerContext->getClass(
+                request->nameSpace, request->className));
+            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                NormalizerContextContainer(tmpNormalizerContext));
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.references: " + pr.getName());
 
@@ -1739,6 +1846,34 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        bool externalNormalizationEnabled = false;
+#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        // If normalization is enabled, then the normalizer will take care of
+        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
+        // to add a NormalizerContextContainer. The presence of an
+        // ObjectNormalizer is determined by the presence of the
+        // CachedClassDefinitionContainer
+        try {
+            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+            externalNormalizationEnabled = true;
+        }
+        catch(Exception &)
+#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        {
+            // If a mechanism is needed to correct mismatches between the
+            // EmbeddedInstance and EmbeddedObject types, then insert
+            // containers for the class definition and a NormalizerContext.
+            AutoPtr<NormalizerContext> tmpNormalizerContext(
+                new CIMOMHandleContext(*pr._cimom_handle));
+            CIMClass classDef(tmpNormalizerContext->getClass(
+                request->nameSpace, request->className));
+            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                NormalizerContextContainer(tmpNormalizerContext));
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.invokeMethod: " + pr.getName());
 
@@ -1802,8 +1937,85 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
            throw CIMException((CIMStatusCode)rc.rc,
                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-       for (int i=0,s=outArgs.size(); i<s; i++)
-           handler.deliverParamValue(outArgs[i]);
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        if(!externalNormalizationEnabled)
+        {
+            // There is no try catch here because if there is no external
+            // normalization, then these containers were added by this method.
+            const CachedClassDefinitionContainer * classCont =
+                dynamic_cast<const CachedClassDefinitionContainer *>(
+                    &request->operationContext.get(
+                        CachedClassDefinitionContainer::NAME));
+            const NormalizerContextContainer * contextCont =
+                dynamic_cast<const NormalizerContextContainer*>(
+                    &request->operationContext.get(
+                        NormalizerContextContainer::NAME));
+            CIMClass classDef(classCont->getClass());
+            Uint32 methodIndex = classDef.findMethod(request->methodName);
+            PEGASUS_ASSERT(methodIndex != PEG_NOT_FOUND);
+            CIMMethod methodDef(classDef.getMethod(methodIndex));
+            for(unsigned int i = 0, n = outArgs.size(); i < n; ++i)
+            {
+                CIMParamValue currentParam(outArgs[i]);
+                CIMValue paramValue(currentParam.getValue());
+                // If the parameter value is an EmbeddedObject type, we have
+                // to check against the type of the parameter definition.
+                // CMPI does not distinguish between EmbeddedObjects and
+                // EmbeddedInstances, so if the parameter definition has a type
+                // of EmbeddedInstance, the type of the output parameter must
+                // be changed.
+                if(paramValue.getType() == CIMTYPE_OBJECT)
+                {
+                    CIMObject paramObject;
+                    paramValue.get(paramObject);
+                    CIMInstance paramInst(paramObject);
+                    resolveEmbeddedInstanceTypes(&handler, paramInst);
+                    String currentParamName(currentParam.getParameterName());
+                    Uint32 paramIndex = methodDef.findParameter(
+                        CIMName(currentParamName));
+                    if(paramIndex == PEG_NOT_FOUND)
+                    {
+                        MessageLoaderParms msg("ProviderManager.CMPI."
+                            "CMPIProviderManager.PARAMETER_NOT_FOUND",
+                            "Parameter {0} not found in definition for "
+                            "method {1}.", currentParamName,
+                            request->methodName.getString());
+                        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                            msg.toString());
+                        handler.setStatus(CIM_ERR_FAILED,
+                            msg.toString());
+                    }
+                    else
+                    {
+                        CIMConstParameter paramDef(
+                            methodDef.getParameter(paramIndex));
+                        if(paramDef.findQualifier(CIMName("EmbeddedInstance"))
+                            != PEG_NOT_FOUND)
+                        {
+                            currentParam = CIMParamValue(currentParamName,
+                                CIMValue(paramInst));
+                        }
+                        else
+                        {
+                            currentParam = CIMParamValue(currentParamName,
+                                CIMValue(paramObject));
+                        }
+
+                        handler.deliverParamValue(currentParam);
+                    }
+                }
+                else
+                {
+                    handler.deliverParamValue(currentParam);
+                }
+            }
+        }
+#else
+        for (int i=0,s=outArgs.size(); i<s; i++)
+        {
+            handler.deliverParamValue(outArgs[i]);
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
        handler.complete();
     }
     HandlerCatch(handler);

@@ -66,7 +66,8 @@ SOURCES = \
 	SafeQueue.cpp \
 	Lockable.cpp \
 	OperationResponseHandler.cpp \
-	SimpleResponseHandler.cpp
+	SimpleResponseHandler.cpp \
+	CIMOMHandleContext.cpp
 
 
 include $(ROOT)/mak/library.mak

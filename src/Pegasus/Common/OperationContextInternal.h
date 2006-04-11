@@ -44,6 +44,8 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 
+#include <Pegasus/Common/ObjectNormalizer.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 // This class should be moved to the OperationContext module when localization
@@ -122,6 +124,31 @@ public:
 protected:
     CIMClass _cimClass;
 
+};
+
+class PEGASUS_COMMON_LINKAGE NormalizerContextContainer
+    : virtual public OperationContext::Container
+{
+public:
+    static const String NAME;
+
+    NormalizerContextContainer(const OperationContext::Container & container);
+    NormalizerContextContainer(AutoPtr<NormalizerContext> & context);
+    virtual ~NormalizerContextContainer(void);
+
+    NormalizerContextContainer & operator=(const NormalizerContextContainer & container);
+
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
+
+    NormalizerContext * getContext(void) const;
+
+protected:
+    AutoPtr<NormalizerContext> normalizerContext;
+    
+private:
+    NormalizerContextContainer();
 };
 
 PEGASUS_NAMESPACE_END

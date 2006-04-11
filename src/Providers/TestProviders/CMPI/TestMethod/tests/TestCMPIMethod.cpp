@@ -405,6 +405,93 @@ test08 (CIMClient & client)
 					   outParams);
     _checkUint32Value (retValue, 1);
 }
+
+/**
+ * This tests the embedded instance functionality through the CMPI Test
+ * Method Provider. It first invokes the returnInstance() method to retrieve
+ * an instance that can be used 
+ */
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+void test09 (CIMClient & client)
+{
+  CIMObjectPath instanceName;
+
+  instanceName.setNameSpace (PROVIDERNAMESPACE);
+  instanceName.setClassName (CLASSNAME);
+
+  Array < CIMParamValue > inParams;
+  Array < CIMParamValue > outParams;
+
+  /*     [EmbeddedObject] String returnInstance(); */
+
+  CIMValue retValue = client.invokeMethod (PROVIDERNAMESPACE,
+					   instanceName,
+					   "returnInstance",
+					   inParams,
+					   outParams);
+
+  PEGASUS_TEST_ASSERT (retValue.getType () == CIMTYPE_OBJECT);
+  PEGASUS_TEST_ASSERT (!retValue.isArray ());
+  PEGASUS_TEST_ASSERT (!retValue.isNull ());
+
+  CIMObject result;
+  retValue.get (result);
+
+  CIMObjectPath objPath  = result.getPath();
+
+  CIMInstance inputInstance(result);
+  CIMInstance outputInstance;
+
+  inParams.append(
+      CIMParamValue(String("inputInstance"), CIMValue(inputInstance)));
+
+  retValue = client.invokeMethod (PROVIDERNAMESPACE,
+      instanceName,
+      "processEmbeddedInstance",
+      inParams,
+      outParams);
+
+  // First test the return value
+  PEGASUS_TEST_ASSERT(retValue.getType() == CIMTYPE_INSTANCE);
+  PEGASUS_TEST_ASSERT(!retValue.isArray());
+  PEGASUS_TEST_ASSERT(!retValue.isNull());
+  retValue.get(outputInstance);
+  PEGASUS_TEST_ASSERT(objPath.toString() ==
+    outputInstance.getPath().toString());
+  PEGASUS_TEST_ASSERT(outputInstance.getPropertyCount() ==
+    inputInstance.getPropertyCount());
+  for(unsigned int i = 0, n = outputInstance.getPropertyCount(); i < n; ++i)
+  {
+    CIMProperty outputProp(outputInstance.getProperty(i));
+    CIMProperty inputProp(inputInstance.getProperty(i));
+
+    PEGASUS_TEST_ASSERT(outputProp.getName() == inputProp.getName());
+    PEGASUS_TEST_ASSERT(outputProp.getValue() == inputProp.getValue());
+  }
+
+  // Now test the output parameter
+  PEGASUS_TEST_ASSERT(outParams.size() == 1);
+  retValue = outParams[0].getValue();
+
+  PEGASUS_TEST_ASSERT(retValue.getType() == CIMTYPE_INSTANCE);
+  PEGASUS_TEST_ASSERT(!retValue.isArray());
+  PEGASUS_TEST_ASSERT(!retValue.isNull());
+  retValue.get(outputInstance);
+  PEGASUS_TEST_ASSERT(objPath.toString() ==
+    outputInstance.getPath().toString());
+  PEGASUS_TEST_ASSERT(outputInstance.getPropertyCount() ==
+    inputInstance.getPropertyCount());
+  for(unsigned int i = 0, n = outputInstance.getPropertyCount(); i < n; ++i)
+  {
+    CIMProperty outputProp(outputInstance.getProperty(i));
+    CIMProperty inputProp(inputInstance.getProperty(i));
+
+    PEGASUS_TEST_ASSERT(outputProp.getName() == inputProp.getName());
+    PEGASUS_TEST_ASSERT(outputProp.getValue() == inputProp.getValue());
+  }
+}
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+
 void
 _test (CIMClient & client)
 {
@@ -419,6 +506,9 @@ _test (CIMClient & client)
     test06 (client);
     test07 (client);
     test08 (client);
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    test09 (client); // Embedded Instance Test
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     
   }
   catch (Exception & e)

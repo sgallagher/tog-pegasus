@@ -81,6 +81,14 @@ public:
     CIMInstance processInstance(const CIMInstance & cimInstance) const;
     //CIMIndication processIndication(const CIMIndication & cimIndication);
 
+    static CIMProperty _processProperty(
+        CIMConstProperty & referenceProperty,
+        CIMConstProperty & cimProperty,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        NormalizerContext * context,
+        const CIMNamespaceName & nameSpace);
+
 private:
     CIMClass _cimClass;
 

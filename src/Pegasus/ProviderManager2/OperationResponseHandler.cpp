@@ -38,66 +38,13 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "OperationResponseHandler.h"
+#include "CIMOMHandleContext.h"
 
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-/**********************************************************
- * Define CIMOMHandleContext class
- **********************************************************/
-class CIMOMHandleContext : public NormalizerContext
-{
-public:
-    CIMOMHandleContext() {}
-    virtual ~CIMOMHandleContext() {}
-
-    virtual CIMClass getClass(
-	      const CIMNamespaceName& nameSpace,
-	      const CIMName& name);
-
-    virtual Array<CIMName> enumerateClassNames(
-        const CIMNamespaceName& nameSpace, const CIMName& className,
-        bool deepInheritance);
-
-    virtual AutoPtr<NormalizerContext> clone();
-
-protected:
-    CIMOMHandleContext(CIMOMHandle & hndl) : handle(hndl) {}
-private:
-    CIMOMHandleContext(const CIMOMHandleContext &);
-    CIMOMHandleContext & operator=(const CIMOMHandleContext &);
-    CIMOMHandle handle;
-    OperationContext emptyContext;
-};
-
-CIMClass CIMOMHandleContext::getClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& name)
-{
-    // Get the whole class definition
-    return handle.getClass(emptyContext, nameSpace, name, false, true, true,
-        CIMPropertyList());
-}
-
-Array<CIMName> CIMOMHandleContext::enumerateClassNames(
-    const CIMNamespaceName& nameSpace, const CIMName& className,
-    bool deepInheritance)
-{
-    return handle.enumerateClassNames(emptyContext, nameSpace, className,
-        deepInheritance);
-}
-
-AutoPtr<NormalizerContext> CIMOMHandleContext::clone()
-{
-  AutoPtr<NormalizerContext> tmpPtr(new CIMOMHandleContext(handle));
-  return tmpPtr;
-}
-
-/**********************************************************
- * End CIMOMHandleContext class
- **********************************************************/
 
 //
 // OperationResponseHandler

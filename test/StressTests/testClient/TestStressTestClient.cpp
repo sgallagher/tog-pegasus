@@ -189,7 +189,7 @@ void TestStressTestClient::logInfo( String clientid, pid_t clientPid,
     int indx=0;
     char pid_str[15];
     char status_str[15];
-    char time_str[15];
+    char time_str[32];
 
     searchstring.append(clientid.getCString());
 
@@ -206,9 +206,10 @@ void TestStressTestClient::logInfo( String clientid, pid_t clientPid,
 
     sprintf(pid_str, "%d", clientPid);
     sprintf(status_str, "%d", clientStatus);
-    sprintf(time_str, "%llu", nowMilliseconds);
+    sprintf(time_str,  "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", nowMilliseconds);
     
     fstream pfile(pidfile.getCString(),ios::in|ios::out);
+
     Boolean addClient= false;
     if (pfile.is_open())
     {
@@ -256,7 +257,7 @@ void TestStressTestClient::logInfo( String clientid, pid_t clientPid,
             pfile.close();
             fstream pfile(pidfile.getCString(),ios::out|ios::app);
             pfile<<clientid<<"::"<<clientPid<<"::"<<clientStatus<<"::"
-                        <<(Uint32)nowMilliseconds<<"\n";
+                        <<time_str<<"\n";
         }
     }
     pfile.close();

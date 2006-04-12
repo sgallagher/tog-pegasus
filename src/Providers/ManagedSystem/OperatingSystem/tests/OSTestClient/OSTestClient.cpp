@@ -61,8 +61,6 @@
 #  include "OSTestClient_VMS.cpp"
 #elif defined (PEGASUS_OS_SOLARIS)
 #  include "OSTestClient_Solaris.cpp"
-#elif defined (PEGASUS_OS_LINUX)
-#  include "OSTestClient_Linux.cpp"
 # else
 #  include "OSTestClient_Stub.cpp"
 #endif

@@ -79,6 +79,9 @@ static void endAllTests(int signum);
 
 static void cleanupProcess(void);
 
+static String convertUint64toString(Uint64 x);
+
+
 PEGASUS_NAMESPACE_BEGIN
 
 
@@ -943,13 +946,8 @@ Boolean StressTestControllerCommand::generateClientCommands(ostream& log_file)
        log_file<<StressTestControllerCommand::COMMAND_NAME<<"::Client Command[";
        log_file<<j<<"]"<<endl;
        log_file<<"  "<<_clientCommands[j]<<endl;
-       
-       char clientDuration_buffer[32];
-       char clientDelay_buffer[32];
-       sprintf(clientDuration_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", _clientDurations[j]);
-       sprintf(clientDelay_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", _clientDelays[j]);
-       log_file<<"   Client Duration: "<<clientDuration_buffer<<endl;
-       log_file<<"   Client Delay: "<<clientDelay_buffer<<endl;
+       log_file<<"   Client Duration: "<<convertUint64toString(_clientDurations[j])<<endl;
+       log_file<<"   Client Delay: "<<convertUint64toString(_clientDelays[j])<<endl;
 
        //
        // Verbose 
@@ -959,8 +957,8 @@ Boolean StressTestControllerCommand::generateClientCommands(ostream& log_file)
           cout<<StressTestControllerCommand::COMMAND_NAME<<"::Client Command[";
           cout<<j<<"]"<<endl;
           cout<<"  "<<_clientCommands[j]<<endl;
-          cout<<"   Client Duration: "<<clientDuration_buffer<<endl;
-          cout<<"   Client Delay: "<<clientDelay_buffer<<endl;
+          cout<<"   Client Duration: "<<convertUint64toString(_clientDurations[j])<<endl;
+          cout<<"   Client Delay: "<<convertUint64toString(_clientDelays[j])<<endl;
        }
     } /* for(Uint32 j=0; j< _clientCount; j++) */
     return true;
@@ -1106,25 +1104,18 @@ Uint32 StressTestControllerCommand::execute (ostream& outPrintWriter,
       stopMilliseconds    = nowMilliseconds + timeoutMilliseconds;
    
       log_file<<StressTestControllerCommand::COMMAND_NAME<<":: Test Duration information "<<endl;
-
-      char startMilliseconds_buffer[32];
-      char timeoutMilliseconds_buffer[32];
-      char stopMilliseconds_buffer[32];
-      sprintf(startMilliseconds_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",startMilliseconds);
-      sprintf(timeoutMilliseconds_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", timeoutMilliseconds);
-      sprintf(stopMilliseconds_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", stopMilliseconds);
-      log_file<<"  Start Time in milliseconds: "<<startMilliseconds_buffer<<endl;
-      log_file<<"  Total duration in milliseconds: "<<timeoutMilliseconds_buffer<<endl;
-      log_file<<"  Actual Stop Time in milliseconds: "<<stopMilliseconds_buffer<<endl;
+      log_file<<"  Start Time in milliseconds: "<<convertUint64toString(startMilliseconds)<<endl;
+      log_file<<"  Total duration in milliseconds: "<<convertUint64toString(timeoutMilliseconds)<<endl;
+      log_file<<"  Actual Stop Time in milliseconds: "<<convertUint64toString(stopMilliseconds)<<endl;
       // 
       //  Verbose details for Stress Test duration 
       //
       if(verboseEnabled)
       {
          outPrintWriter<<StressTestControllerCommand::COMMAND_NAME<<":: Test Duration information "<<endl;
-         outPrintWriter<<"  Start Time in milliseconds: "<<startMilliseconds_buffer<<endl;
-         outPrintWriter<<"  Total duration in milliseconds: "<<timeoutMilliseconds_buffer<<endl;
-         outPrintWriter<<"  Actual Stop Time in milliseconds: "<<stopMilliseconds_buffer<<endl;
+         outPrintWriter<<"  Start Time in milliseconds: "<<convertUint64toString(startMilliseconds)<<endl;
+         outPrintWriter<<"  Total duration in milliseconds: "<<convertUint64toString(timeoutMilliseconds)<<endl;
+         outPrintWriter<<"  Actual Stop Time in milliseconds: "<<convertUint64toString(stopMilliseconds)<<endl;
       }
 
       //
@@ -1192,18 +1183,12 @@ Uint32 StressTestControllerCommand::execute (ostream& outPrintWriter,
                 {
                    outPrintWriter<<"Client:"<<"["<<j<<"]"<<endl;
                    log_file<<"Client:"<<"["<<j<<"]"<<endl;
-                   char clientStartMilliseconds_buffer[32];
-                   char clientStopMilliseconds_buffer[32];
-                   char clientDurations_buffer[32];
-                   sprintf(clientStartMilliseconds_buffer,"%" PEGASUS_64BIT_CONVERSION_WIDTH "u",clientStartMilliseconds[j]);
-                   sprintf(clientDurations_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", _clientDurations[j]);
-                   sprintf(clientStopMilliseconds_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",clientStopMilliseconds[j]);
-                   outPrintWriter<<"ClientStart:"<<clientStartMilliseconds_buffer<<endl;
-                   outPrintWriter<<"ClientStop:"<<clientStopMilliseconds_buffer<<endl;
-                   outPrintWriter<<"ClientDuration:"<<clientDurations_buffer<<endl;
-                   log_file<<"ClientStart:"<<clientStartMilliseconds_buffer<<endl;
-                   log_file<<"ClientStop:"<<clientStopMilliseconds_buffer<<endl;
-                   log_file<<"ClientDuration:"<<clientDurations_buffer<<endl;
+                   outPrintWriter<<"ClientStart:"<<convertUint64toString(clientStartMilliseconds[j])<<endl;
+                   outPrintWriter<<"ClientStop:"<<convertUint64toString(clientStopMilliseconds[j])<<endl;
+                   outPrintWriter<<"ClientDuration:"<<convertUint64toString(_clientDurations[j])<<endl;
+                   log_file<<"ClientStart:"<<convertUint64toString(clientStartMilliseconds[j])<<endl;
+                   log_file<<"ClientStop:"<<convertUint64toString(clientStopMilliseconds[j])<<endl;
+                   log_file<<"ClientDuration:"<<convertUint64toString(_clientDurations[j])<<endl;
                 }
                 log_file<<"Number of instances of this client: "<<clientInstance[j]<<endl;
                 if(verboseEnabled)
@@ -1349,9 +1334,7 @@ Uint32 StressTestControllerCommand::execute (ostream& outPrintWriter,
                        log_file <<" Client: "<<i;
                        log_file <<" PID: "<<clientPIDs[i]<<", ";
                        log_file <<" Status: "<<clientStatus[i]<<", ";
-                       char clientTimeStamp_buffer[32];
-                       sprintf(clientTimeStamp_buffer,"%" PEGASUS_64BIT_CONVERSION_WIDTH "u",clientTimeStamp[i]);
-                       log_file<<"   TimeStamp: "<<clientTimeStamp_buffer<<endl;
+                       log_file<<"   TimeStamp: "<<convertUint64toString(clientTimeStamp[i])<<endl;
                     }
                 }
                 // 
@@ -3006,3 +2989,17 @@ void endAllTests(int signum)
    Quit = true;
 } /* endAllTests */
 
+/**
+    This function will convert a Uint64
+    to a string.
+
+    @param   x       The Uint64 integer
+
+    @return  String  Returns the converted string.
+*/
+String convertUint64toString(Uint64 x)
+{
+    char buffer[32];
+    sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
+    return(String(buffer));
+}

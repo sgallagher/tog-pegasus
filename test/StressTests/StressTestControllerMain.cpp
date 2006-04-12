@@ -48,6 +48,8 @@
 #include <windows.h>     /* for DWORD etc. */
 typedef DWORD pid_t;     /* getpid() and others */
 #include <process.h>
+#elif !defined(PEGASUS_OS_OS400)
+#include <unistd.h>
 #endif
 
 

@@ -426,18 +426,17 @@ Assumptions:
     5.2  Run the following command.
              "make stresstests"
         
-         - The new target "stresstests" will re-build all the stress test 
-           programs.
-
-         - Following successful build it will run the stress Tests 
+         - The new target "stresstests" will run the stress Tests 
            ("stressTestController") using default configuration.
+           The stress test programs are expected to be build already 
+           and ready to run.
 
          - Any failure, will be reported accordingly and end the tests.
  
     5.3 The new target "stresstests" can also be run from
-        $PEGASUS_ROOT/test/StressTests/tests. However, here it will NOT 
-        re-build the stress test programs. The stress test programs are 
-        expected to be build already and ready to run.
+        $PEGASUS_ROOT/test/StressTests/tests.
+        The stress test programs are expected to be build already 
+        and ready to run.
   
     5.4 Another target "teststresstests" can also be run from 
         $PEGASUS_ROOT/test/StressTests/tests. 

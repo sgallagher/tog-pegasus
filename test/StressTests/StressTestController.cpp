@@ -48,9 +48,6 @@
 #include <Pegasus/Common/TimeValue.h>
 #include <time.h>
 #include <signal.h>
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-#include <unistd.h>
-#endif
 #include "StressTestController.h"
 #include "StressTestControllerException.h"
 //
@@ -60,7 +57,8 @@
 #include <windows.h>     /* for DWORD etc. */
 typedef DWORD pid_t;     /* getpid() and others */
 #include <process.h>
-#define atoll(i) _atoi64(i)
+#elif !defined(PEGASUS_OS_OS400)
+#include <unistd.h>
 #endif
 
 //#define DEBUG
@@ -118,8 +116,8 @@ static Uint32 Total_Clients                                  = DEFAULT_CLIENTS;
 static Uint32 Total_vClients                                 = DEFAULT_CLIENTS;
 static Uint32 NEW_CLIENTS                                    = 5;
 
-static char* MODELWALK_CLIENT                                = "TestModelWalkStressClient";
-static char* WRAPPER_CLIENT                                  = "TestWrapperStressClient";
+static char MODELWALK_CLIENT[]                                = "TestModelWalkStressClient";
+static char WRAPPER_CLIENT[]                                  = "TestWrapperStressClient";
 
 /**
   StressTest Client Status types
@@ -945,13 +943,14 @@ Boolean StressTestControllerCommand::generateClientCommands(ostream& log_file)
        log_file<<StressTestControllerCommand::COMMAND_NAME<<"::Client Command[";
        log_file<<j<<"]"<<endl;
        log_file<<"  "<<_clientCommands[j]<<endl;
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-       log_file<<"   Client Duration:"<<_clientDurations[j]<<endl;
-       log_file<<"   Client Delay:"<<_clientDelays[j]<<endl;
-#else
-       log_file<<"   Client Duration:"<<(Uint32)_clientDurations[j]<<endl;
-       log_file<<"   Client Delay:"<<(Uint32)_clientDelays[j]<<endl;
-#endif
+       
+       char clientDuration_buffer[32];
+       char clientDelay_buffer[32];
+       sprintf(clientDuration_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", _clientDurations[j]);
+       sprintf(clientDelay_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", _clientDelays[j]);
+       log_file<<"   Client Duration: "<<clientDuration_buffer<<endl;
+       log_file<<"   Client Delay: "<<clientDelay_buffer<<endl;
+
        //
        // Verbose 
        //
@@ -960,13 +959,8 @@ Boolean StressTestControllerCommand::generateClientCommands(ostream& log_file)
           cout<<StressTestControllerCommand::COMMAND_NAME<<"::Client Command[";
           cout<<j<<"]"<<endl;
           cout<<"  "<<_clientCommands[j]<<endl;
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-          cout<<"   Client Duration:"<<_clientDurations[j]<<endl;
-          cout<<"   Client Delay:"<<_clientDelays[j]<<endl;
-#else
-          cout<<"   Client Duration:"<<(Uint32)_clientDurations[j]<<endl;
-          cout<<"   Client Delay:"<<(Uint32)_clientDelays[j]<<endl;
-#endif
+          cout<<"   Client Duration: "<<clientDuration_buffer<<endl;
+          cout<<"   Client Delay: "<<clientDelay_buffer<<endl;
        }
     } /* for(Uint32 j=0; j< _clientCount; j++) */
     return true;
@@ -1113,30 +1107,24 @@ Uint32 StressTestControllerCommand::execute (ostream& outPrintWriter,
    
       log_file<<StressTestControllerCommand::COMMAND_NAME<<":: Test Duration information "<<endl;
 
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-      log_file<<"  Start Time in milliseconds: "<<startMilliseconds<<endl;
-      log_file<<"  Total duration in milliseconds: "<<timeoutMilliseconds<<endl;
-      log_file<<"  Actual Stop Time in milliseconds: "<<stopMilliseconds<<endl;
-#else 
-      log_file<<"  Start Time in milliseconds: "<<(Uint32)startMilliseconds<<endl;
-      log_file<<"  Total duration in milliseconds: "<<(Uint32)timeoutMilliseconds<<endl;
-      log_file<<"  Actual Stop Time in milliseconds: "<<(Uint32)stopMilliseconds<<endl;
-#endif
+      char startMilliseconds_buffer[32];
+      char timeoutMilliseconds_buffer[32];
+      char stopMilliseconds_buffer[32];
+      sprintf(startMilliseconds_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",startMilliseconds);
+      sprintf(timeoutMilliseconds_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", timeoutMilliseconds);
+      sprintf(stopMilliseconds_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", stopMilliseconds);
+      log_file<<"  Start Time in milliseconds: "<<startMilliseconds_buffer<<endl;
+      log_file<<"  Total duration in milliseconds: "<<timeoutMilliseconds_buffer<<endl;
+      log_file<<"  Actual Stop Time in milliseconds: "<<stopMilliseconds_buffer<<endl;
       // 
       //  Verbose details for Stress Test duration 
       //
       if(verboseEnabled)
       {
          outPrintWriter<<StressTestControllerCommand::COMMAND_NAME<<":: Test Duration information "<<endl;
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-         outPrintWriter<<"  Start Time in milliseconds: "<<startMilliseconds<<endl;
-         outPrintWriter<<"  Total duration in milliseconds: "<<timeoutMilliseconds<<endl;
-         outPrintWriter<<"  Actual Stop Time in milliseconds: "<<stopMilliseconds<<endl;
-#else
-         outPrintWriter<<"  Start Time in milliseconds: "<<(Uint32)startMilliseconds<<endl;
-         outPrintWriter<<"  Total duration in milliseconds: "<<(Uint32)timeoutMilliseconds<<endl;
-         outPrintWriter<<"  Actual Stop Time in milliseconds: "<<(Uint32)stopMilliseconds<<endl;
-#endif
+         outPrintWriter<<"  Start Time in milliseconds: "<<startMilliseconds_buffer<<endl;
+         outPrintWriter<<"  Total duration in milliseconds: "<<timeoutMilliseconds_buffer<<endl;
+         outPrintWriter<<"  Actual Stop Time in milliseconds: "<<stopMilliseconds_buffer<<endl;
       }
 
       //
@@ -1204,21 +1192,18 @@ Uint32 StressTestControllerCommand::execute (ostream& outPrintWriter,
                 {
                    outPrintWriter<<"Client:"<<"["<<j<<"]"<<endl;
                    log_file<<"Client:"<<"["<<j<<"]"<<endl;
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-                   outPrintWriter<<"ClientStart:"<<clientStartMilliseconds[j]<<endl;
-                   outPrintWriter<<"ClientStop:"<<clientStopMilliseconds[j]<<endl;
-                   outPrintWriter<<"ClientDuration:"<<_clientDurations[j]<<endl;
-                   log_file<<"ClientStart:"<<clientStartMilliseconds[j]<<endl;
-                   log_file<<"ClientStop:"<<clientStopMilliseconds[j]<<endl;
-                   log_file<<"ClientDuration:"<<_clientDurations[j]<<endl;
-#else
-                   outPrintWriter<<"ClientStart:"<<(Uint32)clientStartMilliseconds[j]<<endl;
-                   outPrintWriter<<"ClientStop:"<<(Uint32)clientStopMilliseconds[j]<<endl;
-                   outPrintWriter<<"ClientDuration:"<<(Uint32)_clientDurations[j]<<endl;
-                   log_file<<"ClientStart:"<<(Uint32)clientStartMilliseconds[j]<<endl;
-                   log_file<<"ClientStop:"<<(Uint32)clientStopMilliseconds[j]<<endl;
-                   log_file<<"ClientDuration:"<<(Uint32)_clientDurations[j]<<endl;
-#endif
+                   char clientStartMilliseconds_buffer[32];
+                   char clientStopMilliseconds_buffer[32];
+                   char clientDurations_buffer[32];
+                   sprintf(clientStartMilliseconds_buffer,"%" PEGASUS_64BIT_CONVERSION_WIDTH "u",clientStartMilliseconds[j]);
+                   sprintf(clientDurations_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", _clientDurations[j]);
+                   sprintf(clientStopMilliseconds_buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",clientStopMilliseconds[j]);
+                   outPrintWriter<<"ClientStart:"<<clientStartMilliseconds_buffer<<endl;
+                   outPrintWriter<<"ClientStop:"<<clientStopMilliseconds_buffer<<endl;
+                   outPrintWriter<<"ClientDuration:"<<clientDurations_buffer<<endl;
+                   log_file<<"ClientStart:"<<clientStartMilliseconds_buffer<<endl;
+                   log_file<<"ClientStop:"<<clientStopMilliseconds_buffer<<endl;
+                   log_file<<"ClientDuration:"<<clientDurations_buffer<<endl;
                 }
                 log_file<<"Number of instances of this client: "<<clientInstance[j]<<endl;
                 if(verboseEnabled)
@@ -1364,11 +1349,9 @@ Uint32 StressTestControllerCommand::execute (ostream& outPrintWriter,
                        log_file <<" Client: "<<i;
                        log_file <<" PID: "<<clientPIDs[i]<<", ";
                        log_file <<" Status: "<<clientStatus[i]<<", ";
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-                       log_file<<"   TimeStamp: "<<(Uint32)clientTimeStamp[i]<<endl;
-#else
-                       log_file<<"   TimeStamp: "<<clientTimeStamp[i]<<endl;
-#endif
+                       char clientTimeStamp_buffer[32];
+                       sprintf(clientTimeStamp_buffer,"%" PEGASUS_64BIT_CONVERSION_WIDTH "u",clientTimeStamp[i]);
+                       log_file<<"   TimeStamp: "<<clientTimeStamp_buffer<<endl;
                     }
                 }
                 // 
@@ -2369,7 +2352,7 @@ Boolean StressTestControllerCommand::getClientPIDs(int actual_clients,ostream& l
         {
             clientPIDs[atoi(client.getCString())]=(pid_t)atoi(clntPID.getCString());
             clientStatus[atoi(client.getCString())]=(pid_t)atoi(clntStatus.getCString());
-            clientTimeStamp[atoi(client.getCString())]=(Uint64)atoll(clntTmStmp.getCString());
+            sscanf((const char*)clntTmStmp.getCString(), "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", &clientTimeStamp[atoi(client.getCString())]);
         }else {
  
             if(verboseEnabled)

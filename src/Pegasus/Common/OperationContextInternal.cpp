@@ -271,16 +271,15 @@ NormalizerContextContainer::~NormalizerContextContainer()
 {
 }
 
-NormalizerContextContainer & NormalizerContextContainer::operator=(const NormalizerContextContainer & container)
+NormalizerContextContainer & NormalizerContextContainer::operator=(
+  const NormalizerContextContainer & container)
 {
     if(this == &container)
     {
         return(*this);
     }
 
-    AutoPtr<NormalizerContext> tmpContext(
-        container.normalizerContext->clone());
-    normalizerContext = tmpContext;
+    normalizerContext.reset(container.normalizerContext->clone().release());
 
     return(*this);
 }

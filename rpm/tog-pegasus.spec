@@ -714,7 +714,17 @@ echo "ST                     = Berkshire" >> %PEGASUS_CONFIG_DIR/ssl.cnf
 echo "L                      = Reading" >> %PEGASUS_CONFIG_DIR/ssl.cnf
 echo "O                      = The Open Group" >> %PEGASUS_CONFIG_DIR/ssl.cnf
 echo "OU                     = The OpenPegasus Project" >> %PEGASUS_CONFIG_DIR/ssl.cnf
-echo "CN                     = `host \`hostname\`|cut -d\" \" -f1`" >> %PEGASUS_CONFIG_DIR/ssl.cnf
+DN=`hostname`;
+if [ -z "$DN" ] || [ "$DN" = "(none)" ]; then
+        DN='localhost.localdomain';
+fi;
+FQDN=`{ host -W1 $DN 2>/dev/null || echo "$DN has address "; } |\
+        grep 'has address' | head -1 | sed 's/\ .*$//'`;
+if [ -z "$FQDN" ] ; then
+    FQDN="$DN";
+fi;
+# cannot use 'hostname --fqdn' because this can hang indefinitely
+echo "CN                     = $FQDN"  >> %PEGASUS_CONFIG_DIR/ssl.cnf
 chmod 400 %PEGASUS_CONFIG_DIR/ssl.cnf
 chown root %PEGASUS_CONFIG_DIR/ssl.cnf
 chgrp root %PEGASUS_CONFIG_DIR/ssl.cnf

@@ -278,7 +278,9 @@ NormalizerContextContainer & NormalizerContextContainer::operator=(const Normali
         return(*this);
     }
 
-    normalizerContext = container.normalizerContext->clone();
+    AutoPtr<NormalizerContext> tmpContext(
+        container.normalizerContext->clone());
+    normalizerContext = tmpContext;
 
     return(*this);
 }

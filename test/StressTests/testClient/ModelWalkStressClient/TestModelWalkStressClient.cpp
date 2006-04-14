@@ -45,6 +45,7 @@ Boolean verboseTest = false;
 Boolean _quit = false;
 Boolean _nextCheck = false;
 int status = CLIENT_UNKNOWN;    
+char clientName[] = "ModelWalkStressClient";
 
 String errorInfo;
 
@@ -67,9 +68,14 @@ class TestModelWalkStressClient:public TestStressTestClient
     instances of that class are retrued by this method.
 //////////////////////////////////////////////////////////////////////////*/
 Array<CIMNamespaceName> getNameSpaces(
-                                     TestModelWalkStressClient &tmsc, CIMClient* client, OptionManager &om,
-                                     pid_t clientPid, String& clientlog, String &clientid, int status, 
-                                     String &pidfile)
+     TestModelWalkStressClient &tmsc,
+     CIMClient* client,
+     OptionManager &om,
+     pid_t clientPid,
+     String& clientlog,
+     String &clientid,
+     int status,
+     String &pidfile)
 {
     Array<CIMNamespaceName> topNamespaceNames;
     Array<CIMNamespaceName> returnNamespaces;
@@ -141,10 +147,14 @@ Array<CIMNamespaceName> getNameSpaces(
     of the "nameSpacesArray"
 //////////////////////////////////////////////////////////////////////////*/
 static void enumerateAllQualifiers(
-                                  TestModelWalkStressClient &tmsc, CIMClient* client, 
-                                  Array<CIMNamespaceName> nameSpacesArray,
-                                  pid_t clientPid, String& clientlog, String &clientid,
-                                  int status, String &pidfile)
+    TestModelWalkStressClient &tmsc,
+    CIMClient* client,
+    Array<CIMNamespaceName> nameSpacesArray,
+    pid_t clientPid,
+    String& clientlog,
+    String &clientid,
+    int status,
+    String &pidfile)
 {
     Array<CIMQualifierDecl> qualifierDecls;
     qualifierDecls.clear();
@@ -199,11 +209,16 @@ static void enumerateAllQualifiers(
     "cimInstances" for the "nameSpace" 
 //////////////////////////////////////////////////////////////////////////*/
 static void enumerateReferenceNames(
-                                   TestModelWalkStressClient &tmsc, CIMClient* client, 
-                                   Array<CIMInstance> cimNInstances,
-                                   CIMNamespaceName nameSpace, CIMName referenceClass,
-                                   pid_t clientPid, String& clientlog, String &clientid,
-                                   int status, String &pidfile)
+    TestModelWalkStressClient &tmsc,
+    CIMClient* client, 
+    Array<CIMInstance> cimNInstances,
+    CIMNamespaceName nameSpace,
+    CIMName referenceClass,
+    pid_t clientPid,
+    String& clientlog,
+    String &clientid,
+    int status,
+    String &pidfile)
 {
     String role = String::EMPTY;
     Array<CIMObjectPath> resultObjectPaths;
@@ -251,10 +266,16 @@ static void enumerateReferenceNames(
     "cimInstances" for the "nameSpace" 
 //////////////////////////////////////////////////////////////////////////*/
 static void enumerateAssociatorNames(
-                                    TestModelWalkStressClient &tmsc, CIMClient* client, 
-                                    Array<CIMInstance> cimNInstances, CIMNamespaceName nameSpace,
-                                    CIMName assocClass, pid_t clientPid, String& clientlog,
-                                    String &clientid, int status, String &pidfile)
+    TestModelWalkStressClient &tmsc,
+    CIMClient* client,
+    Array<CIMInstance> cimNInstances,
+    CIMNamespaceName nameSpace,
+    CIMName assocClass,
+    pid_t clientPid,
+    String& clientlog,
+    String &clientid,
+    int status,
+    String &pidfile)
 {
     CIMName resultClass = CIMName();
     String role = String::EMPTY;
@@ -304,10 +325,15 @@ static void enumerateAssociatorNames(
     re-thrown so that generic exception handling can be used in Main
 //////////////////////////////////////////////////////////////////////////*/
 static void enumerateInstanceRelatedInfo(
-                                        TestModelWalkStressClient &tmsc, CIMClient *client, 
-                                        Array<CIMName> classNames, CIMNamespaceName nameSpace,
-                                        pid_t clientPid, String& clientlog, String &clientid,
-                                        int status, String &pidfile )
+    TestModelWalkStressClient &tmsc,
+    CIMClient *client, 
+    Array<CIMName> classNames,
+    CIMNamespaceName nameSpace,
+    pid_t clientPid,
+    String& clientlog,
+    String &clientid,
+    int status,
+    String &pidfile )
 {
     Boolean deepInheritance = true;
     Boolean localOnly = true;
@@ -375,10 +401,15 @@ static void enumerateInstanceRelatedInfo(
     This method enumerates classes and instances (by way of subrotine)  
 //////////////////////////////////////////////////////////////////////////*/
 static void enumerateClassRelatedInfo (
-                                      TestModelWalkStressClient &tmsc, CIMClient* client,
-                                      OptionManager &om, Array<CIMNamespaceName> nameSpacesArray,
-                                      pid_t clientPid, String& clientlog, String &clientid,
-                                      int status, String &pidfile)
+    TestModelWalkStressClient &tmsc,
+    CIMClient* client,
+    OptionManager &om,
+    Array<CIMNamespaceName> nameSpacesArray,
+    pid_t clientPid,
+    String& clientlog,
+    String &clientid,
+    int status,
+    String &pidfile)
 {
     Array<CIMName> classNames;
     String tmpClassName;
@@ -707,8 +738,12 @@ int main(int argc, char** argv)
                 {
                     if (iteration==100)
                     {
-                        tmsc.logErrorPercentage(successCount, totalCount, clientpid,
-                            clientlog, "ModelWalkStressClient");
+                        tmsc.logErrorPercentage(
+                            successCount, 
+                            totalCount, 
+                            clientpid,
+                            clientlog,
+                            clientName);
                         iteration = 0;
                     }
                 }
@@ -716,8 +751,12 @@ int main(int argc, char** argv)
                 {
                     if (iteration==1000)
                     {
-                        tmsc.logErrorPercentage(successCount, totalCount, clientpid,
-                            clientlog, "ModelWalkStressClient");
+                        tmsc.logErrorPercentage(
+                            successCount,
+                            totalCount,
+                            clientpid,
+                            clientlog,
+                            clientName);
                         iteration = 0;
                     }
                 }

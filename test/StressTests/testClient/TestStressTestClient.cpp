@@ -211,7 +211,8 @@ void TestStressTestClient::logInfo( String clientid, pid_t clientPid,
     fstream pfile(pidfile.getCString(),ios::in|ios::out);
 
     Boolean addClient= false;
-    if (pfile.is_open())
+    //if (pfile.is_open())
+    if (pfile)
     {
         while(!pfile.eof())
         {   whileCount++;

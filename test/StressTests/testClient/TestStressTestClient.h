@@ -53,13 +53,15 @@
 #include <signal.h>
 
 #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-           #include <windows.h> /* DWORD etc. */
-           typedef DWORD pid_t;
-           #include <process.h> /* getpid() and others */
+#include <windows.h> /* DWORD etc. */
+typedef DWORD pid_t;
+#include <process.h> /* getpid() and others */
+#elif !defined(PEGASUS_OS_OS400)
+#include <unistd.h>
 #endif
 
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-           #include <iostream.h>
+#include <iostream.h>
 #endif
 
 #define SIXTYSECONDS 60

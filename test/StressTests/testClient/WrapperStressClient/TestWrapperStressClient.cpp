@@ -40,6 +40,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+char clientName[] = "WrapperStressClient";
+
 class TestWrapperStressClient : public TestStressTestClient
 {
 };
@@ -248,8 +250,12 @@ int main(int argc, char** argv)
             {
                 if (iteration==100)
                 {
-                    wc.logErrorPercentage( successCount, totalCount, clientPid, 
-                                           clientlog, "WrapperStressClient" );
+                    wc.logErrorPercentage(
+                        successCount,
+                        totalCount,
+                        clientPid,
+                        clientlog, 
+                        clientName);
                     iteration = 0;
                 }
             }
@@ -257,8 +263,12 @@ int main(int argc, char** argv)
             {
                 if (iteration==1000)
                 {
-                    wc.logErrorPercentage(successCount, totalCount, clientPid,
-                                            clientlog, "WrapperStressClient");
+                    wc.logErrorPercentage(
+                        successCount,
+                        totalCount,
+                        clientPid,
+                        clientlog,
+                        clientName);
                     iteration = 0;
                 }
             }

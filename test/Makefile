@@ -33,12 +33,12 @@ ROOT = ..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-   wetest \
-   StressTests \
-   StressTests/testClient \
-   StressTests/testClient/ModelWalkStressClient \
-   StressTests/testClient/WrapperStressClient
-
+	wetest \
+	StressTestController\
+	StressTestController/tests\
+	StressTestClients\
+	StressTestClients/ModelWalkStressClient \
+	StressTestClients/WrapperStressClient
 
 include $(ROOT)/mak/recurse.mak
 

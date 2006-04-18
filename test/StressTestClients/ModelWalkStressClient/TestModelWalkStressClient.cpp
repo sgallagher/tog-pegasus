@@ -1,35 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author:  Aruran, IBM (aruran.shanmug@in.ibm.com)
 //
-// Modified By:
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,43 +42,40 @@ PEGASUS_USING_STD;
 
 Boolean verboseTest = false;
 
-Boolean quit = false;
-Boolean nextCheck = false;
-int globalStatus = CLIENT_UNKNOWN;
+Boolean _quit = false;
+Boolean _nextCheck = false;
+int status = CLIENT_UNKNOWN;    
 char clientName[] = "ModelWalkStressClient";
 
 String errorInfo;
 
-/**
-     Signal handler for SIGALARM.
-     @param   signum - the alarm identifier.
-*/
+/** Signal handler for SIGALRM.
+    @param   signum  the alarm identifier */
 void endTest(int signum)
 {
-    PEGASUS_STD(cout) << "\nRecieved interrupt signal SIGINT!\n"
-                      << PEGASUS_STD(endl);
-    quit = true;
+    PEGASUS_STD(cout) << "\nRecieved interrupt signal SIGINT!\n" << PEGASUS_STD(endl);
+    _quit = true;
 }
 
 class TestModelWalkStressClient:public TestStressTestClient
 {
 };
 
-/**
-    GetNameSpaces
+/*//////////////////////////////////////////////////////////////////////////
+//  GetNameSpaces
     If no nameSpace is supplied on the command line, this method looks into
-    the root and test nameSpaces for the _Namespace class. The names of the
+    the root and test nameSpaces for the _Namespace class. The names of the 
     instances of that class are retrued by this method.
-*/
+//////////////////////////////////////////////////////////////////////////*/
 Array<CIMNamespaceName> getNameSpaces(
-    TestModelWalkStressClient &tmsc,
-    CIMClient* client,
-    OptionManager &om,
-    pid_t clientPid,
-    String& clientLog,
-    String &clientId,
-    int status,
-    String &pidFile)
+     TestModelWalkStressClient &tmsc,
+     CIMClient* client,
+     OptionManager &om,
+     pid_t clientPid,
+     String& clientlog,
+     String &clientid,
+     int status,
+     String &pidfile)
 {
     Array<CIMNamespaceName> topNamespaceNames;
     Array<CIMNamespaceName> returnNamespaces;
@@ -89,44 +88,31 @@ Array<CIMNamespaceName> getNameSpaces(
     }
     else
     {
-        //
         // Get all namespaces for display using the __Namespaces function.
-        //
         CIMName className = "__NameSpace";
 
-        //
-        // We have to append any new top level root namespace if created in
-        // repository.
-        //
+        //We have to add any new top level root namespace if added to repository..
         topNamespaceNames.append("root");
         topNamespaceNames.append("test");
 
         Uint32 start = 0;
         Uint32 end = topNamespaceNames.size();
 
-        //
-        // for all new elements in the output array.
-        //
+        // for all new elements in the output array
         for (Uint32 range = start; range < end; range ++)
         {
-            //
-            // Get the next increment in naming for all name element in
-            // the array.
-            //
-            Array<CIMInstance> instances = client->enumerateInstances(
-                topNamespaceNames[range], className);
-
+            // Get the next increment in naming for all name element in the array
+            Array<CIMInstance> instances = client->enumerateInstances
+                                           (topNamespaceNames[range], className);
             if (status != CLIENT_PASS)
             {
                 status = CLIENT_PASS;
-                tmsc.logInfo(clientId, clientPid, status, pidFile);
+                tmsc.logInfo(clientid, clientPid, status, pidfile);
             }
             for (Uint32 i = 0 ; i < instances.size(); i++)
             {
                 Uint32 pos;
-                //
                 // if we find the property and it is a string, use it.
-                //
                 if ((pos = instances[i].findProperty("name")) != PEG_NOT_FOUND)
                 {
                     CIMValue value;
@@ -148,28 +134,27 @@ Array<CIMNamespaceName> getNameSpaces(
     if (verboseTest)
     {
         errorInfo.clear();
-        errorInfo.append("+++++ Successfully Enumerated all Namespaces that ");
-        errorInfo.append("have a _NameSpace instance defined for them in the");
-        errorInfo.append(" root of test namespaces +++++");
-        tmsc.errorLog(clientPid, clientLog, errorInfo);
+        errorInfo.append("+++++ Successfully Enumerated all Namespaces that have ");
+        errorInfo.append("a _NameSpace instance defined for them in the root of test namespaces +++++");
+        tmsc.errorLog(clientPid, clientlog, errorInfo);
         errorInfo.clear();
     }
     return returnNamespaces;
 }
-/**
-    EnumerateAllQualifiers
+/*//////////////////////////////////////////////////////////////////////////
+//  EnumerateAllQualifiers
     This method enumerates all the qualifiers in each of the nameSpaces
     of the "nameSpacesArray"
-*/
+//////////////////////////////////////////////////////////////////////////*/
 static void enumerateAllQualifiers(
     TestModelWalkStressClient &tmsc,
     CIMClient* client,
     Array<CIMNamespaceName> nameSpacesArray,
     pid_t clientPid,
-    String& clientLog,
-    String &clientId,
+    String& clientlog,
+    String &clientid,
     int status,
-    String &pidFile)
+    String &pidfile)
 {
     Array<CIMQualifierDecl> qualifierDecls;
     qualifierDecls.clear();
@@ -183,12 +168,10 @@ static void enumerateAllQualifiers(
             if (status != CLIENT_PASS)
             {
                 status = CLIENT_PASS;
-                tmsc.logInfo(clientId, clientPid, status, pidFile);
+                tmsc.logInfo(clientid, clientPid, status, pidfile);
             }
         }
-        //
-        // Following exceptions will be caught in the Main method.
-        //
+        //the following exceptoins will be caught in the Main method
         catch (CIMException &e)
         {
             errorInfo.clear();
@@ -215,28 +198,27 @@ static void enumerateAllQualifiers(
     if (verboseTest)
     {
         errorInfo.clear();
-        errorInfo.append("+++++ Successfully Enumerated Qualifiers for ");
-        errorInfo.append("Namespaces +++++");
-        tmsc.errorLog(clientPid, clientLog, errorInfo);
+        errorInfo.append("+++++ Successfully Enumerated Qualifiers for Namespaces +++++");
+        tmsc.errorLog(clientPid, clientlog, errorInfo);
         errorInfo.clear();
     }
 }
-/**
-    EnumerateReferenceNames
+/*//////////////////////////////////////////////////////////////////////////
+//  EnumerateReferenceNames
     This method enumerates the references to each instance in the array
-    "cimInstances" for the "nameSpace"
-*/
+    "cimInstances" for the "nameSpace" 
+//////////////////////////////////////////////////////////////////////////*/
 static void enumerateReferenceNames(
     TestModelWalkStressClient &tmsc,
-    CIMClient* client,
+    CIMClient* client, 
     Array<CIMInstance> cimNInstances,
     CIMNamespaceName nameSpace,
     CIMName referenceClass,
     pid_t clientPid,
-    String& clientLog,
-    String &clientId,
+    String& clientlog,
+    String &clientid,
     int status,
-    String &pidFile)
+    String &pidfile)
 {
     String role = String::EMPTY;
     Array<CIMObjectPath> resultObjectPaths;
@@ -246,18 +228,15 @@ static void enumerateReferenceNames(
         try
         {
             resultObjectPaths = client->referenceNames(
-                nameSpace, cimNInstances[i].getPath(),
-                referenceClass, role);
-
+                                                      nameSpace, cimNInstances[i].getPath(),
+                                                      referenceClass, role);
             if (status != CLIENT_PASS)
             {
                 status = CLIENT_PASS;
-                tmsc.logInfo(clientId, clientPid, status, pidFile);
+                tmsc.logInfo(clientid, clientPid, status, pidfile);
             }
         }
-        //
-        // Following exceptions will be caught in the Main method.
-        //
+         //the following exceptoins will be caught in the Main method
         catch (CIMException &e)
         {
             errorInfo.clear();
@@ -281,11 +260,11 @@ static void enumerateReferenceNames(
         }
     }
 }
-/**
-    EnumerateAssociatorNames
+/*//////////////////////////////////////////////////////////////////////////
+//  EnumerateAssociatorNames
     This method enumerates the associators to each instance in the array
-    "cimInstances" for the "nameSpace"
-*/
+    "cimInstances" for the "nameSpace" 
+//////////////////////////////////////////////////////////////////////////*/
 static void enumerateAssociatorNames(
     TestModelWalkStressClient &tmsc,
     CIMClient* client,
@@ -293,10 +272,10 @@ static void enumerateAssociatorNames(
     CIMNamespaceName nameSpace,
     CIMName assocClass,
     pid_t clientPid,
-    String& clientLog,
-    String &clientId,
+    String& clientlog,
+    String &clientid,
     int status,
-    String &pidFile)
+    String &pidfile)
 {
     CIMName resultClass = CIMName();
     String role = String::EMPTY;
@@ -307,19 +286,15 @@ static void enumerateAssociatorNames(
     {
         try
         {
-            resultObjectPaths = client->associatorNames(
-                nameSpace, cimNInstances[i].getPath(),
-                assocClass, resultClass, role, resultRole);
-
+            resultObjectPaths = client->associatorNames( nameSpace, cimNInstances[i].getPath(),
+                                                         assocClass, resultClass, role, resultRole);
             if (status != CLIENT_PASS)
             {
                 status = CLIENT_PASS;
-                tmsc.logInfo(clientId, clientPid, status, pidFile);
+                tmsc.logInfo(clientid, clientPid, status, pidfile);
             }
         }
-        //
-        // Following exceptions will be caught in the Main method.
-        //
+         //the following exceptoins will be caught in the Main method
         catch (CIMException &e)
         {
             errorInfo.clear();
@@ -343,22 +318,22 @@ static void enumerateAssociatorNames(
         }
     }
 }
-/**
-    EnumerateInstanceRelatedInfo
-    This method enumerates instances, referances (by way of subrotine) and
-    associators (by way of subrotine.Exceptions are caught, modified and
+/*//////////////////////////////////////////////////////////////////////////
+//  EnumerateInstanceRelatedInfo
+    This method enumerates instances, referances (by way of subrotine) and 
+    associators (by way of subrotine.Exceptions are caught, modified and 
     re-thrown so that generic exception handling can be used in Main
-*/
+//////////////////////////////////////////////////////////////////////////*/
 static void enumerateInstanceRelatedInfo(
     TestModelWalkStressClient &tmsc,
-    CIMClient *client,
+    CIMClient *client, 
     Array<CIMName> classNames,
     CIMNamespaceName nameSpace,
     pid_t clientPid,
-    String& clientLog,
-    String &clientId,
+    String& clientlog,
+    String &clientid,
     int status,
-    String &pidFile )
+    String &pidfile )
 {
     Boolean deepInheritance = true;
     Boolean localOnly = true;
@@ -371,23 +346,19 @@ static void enumerateInstanceRelatedInfo(
         try
         {
             cimNInstances = client->enumerateInstances(
-                nameSpace, classNames[i], deepInheritance,
-                localOnly, includeQualifiers, includeClassOrigin);
-
+                                                      nameSpace, classNames[i], deepInheritance,
+                                                      localOnly, includeQualifiers, includeClassOrigin);
             if (status != CLIENT_PASS)
             {
                 status = CLIENT_PASS;
-                tmsc.logInfo(clientId, clientPid, status, pidFile);
+                tmsc.logInfo(clientid, clientPid, status, pidfile);
             }
         }
-        //
-        // Following exceptions will be caught in the Main method.
-        //
+        //the following exceptoins will be caught in the Main method
         catch (CIMException &e)
         {
             errorInfo.clear();
-            errorInfo.append("CIMException thrown from ");
-            errorInfo.append("enumerateInstanceRelatedInfo, class = ");
+            errorInfo.append("CIMException thrown from enumerateInstanceRelatedInfo, class = ");
             errorInfo.append(classNames[i].getString());
             errorInfo.append("  ");
             errorInfo.append(e.getMessage());
@@ -397,8 +368,7 @@ static void enumerateInstanceRelatedInfo(
         catch (Exception &e)
         {
             errorInfo.clear();
-            errorInfo.append("Exception thrown from ");
-            errorInfo.append("enumerateInstanceRelatedInfo, class = ");
+            errorInfo.append("Exception thrown from enumerateInstanceRelatedInfo, class = ");
             errorInfo.append(classNames[i].getString());
             errorInfo.append("  ");
             errorInfo.append(e.getMessage());
@@ -411,48 +381,46 @@ static void enumerateInstanceRelatedInfo(
             throw exp;
         }
 
-        enumerateReferenceNames (tmsc, client, cimNInstances, nameSpace,
-            CIMName(), clientPid, clientLog, clientId, status, pidFile);
-        enumerateAssociatorNames (tmsc, client, cimNInstances, nameSpace,
-            CIMName(), clientPid, clientLog, clientId, status, pidFile);
-
+        enumerateReferenceNames (tmsc, client, cimNInstances, nameSpace, CIMName(),
+                                 clientPid, clientlog, clientid, status, pidfile);
+        enumerateAssociatorNames (tmsc, client, cimNInstances, nameSpace, CIMName(),
+                                  clientPid, clientlog, clientid, status, pidfile);
         if (verboseTest)
         {
             errorInfo.clear();
-            errorInfo.append("+++++ Successfully Done Instance Operations ");
-            errorInfo.append("on class = ");
-            errorInfo.append(classNames[i].getString());
-            tmsc.errorLog(clientPid, clientLog, errorInfo);
+            errorInfo.append("+++++ Successfully Done Instance Operations on class = ");
+		    errorInfo.append(classNames[i].getString());
+            tmsc.errorLog(clientPid, clientlog, errorInfo);
             errorInfo.clear();
         }
     }
 
 }
-/**
-    EnumerateClassRelatedInfo
-    This method enumerates classes and instances (by way of subrotine)
-*/
-static void enumerateClassRelatedInfo(
+/*//////////////////////////////////////////////////////////////////////////
+//  EnumerateClassRelatedInfo
+    This method enumerates classes and instances (by way of subrotine)  
+//////////////////////////////////////////////////////////////////////////*/
+static void enumerateClassRelatedInfo (
     TestModelWalkStressClient &tmsc,
     CIMClient* client,
     OptionManager &om,
     Array<CIMNamespaceName> nameSpacesArray,
     pid_t clientPid,
-    String& clientLog,
-    String &clientId,
+    String& clientlog,
+    String &clientid,
     int status,
-    String &pidFile)
+    String &pidfile)
 {
     Array<CIMName> classNames;
     String tmpClassName;
 
+   
     om.lookupValue("classname",tmpClassName);
     if (tmpClassName != String::EMPTY)
     {
         classNames.append(CIMName(tmpClassName));
-        enumerateInstanceRelatedInfo(tmsc, client, classNames,
-            *nameSpacesArray.getData(), clientPid, clientLog, clientId,
-            status, pidFile);
+        enumerateInstanceRelatedInfo(tmsc, client, classNames, *nameSpacesArray.getData(),
+                                     clientPid, clientlog, clientid, status, pidfile);
     }
     else
     {
@@ -461,30 +429,27 @@ static void enumerateClassRelatedInfo(
         for (Uint32 i=0; i < nameSpacesArray.size();i++)
         {
             classNames = client->enumerateClassNames(nameSpacesArray[i],
-                className, deepInheritance);
-
+                                                     className, deepInheritance);
             if (status != CLIENT_PASS)
             {
                 status = CLIENT_PASS;
-                tmsc.logInfo(clientId, clientPid, status, pidFile);
+                tmsc.logInfo(clientid, clientPid, status, pidfile);
             }
-            enumerateInstanceRelatedInfo(tmsc, client, classNames,
-                nameSpacesArray[i], clientPid, clientLog, clientId, status,
-                pidFile );
+            enumerateInstanceRelatedInfo(tmsc, client, classNames, nameSpacesArray[i],
+                                         clientPid, clientlog, clientid, status, pidfile );
         }
     }
       if (verboseTest)
     {
         errorInfo.clear();
-        errorInfo.append("+++++ Successfully Enumerated classes ");
-        errorInfo.append("in Namespaces +++++");
-        tmsc.errorLog(clientPid, clientLog, errorInfo);
+        errorInfo.append("+++++ Successfully Enumerated classes in Namespaces +++++");
+        tmsc.errorLog(clientPid, clientlog, errorInfo);
         errorInfo.clear();
     }
 }
-/**
-    MAIN
-*/
+///////////////////////////////////////////////////////////////
+//    MAIN
+///////////////////////////////////////////////////////////////
 
 int main(int argc, char** argv)
 {
@@ -492,12 +457,10 @@ int main(int argc, char** argv)
     TestModelWalkStressClient tmsc;
     Uint32 validArg = 0;
     struct OptionRow *newOptionsTable = 0;
-    Uint32 newOptionsCount = 0;
+    Uint32 newOptionsCount;
     Uint32 cOptionCount =  0;
 
-    //
-    // Variables need to connect to server.
-    //
+    //Varriables need to connect to server
     Boolean useSSL;
     String host;
     Uint32 portNumber = 0;
@@ -507,68 +470,40 @@ int main(int argc, char** argv)
     String help;
     Boolean connectedToHost = false;
 
-    //
-    // Variables needed to do loging and status checking.
-    //
-    String pidFile;
-    String clientId;
-    pid_t clientPid;
-    String clientLog, stopClient;
+    //Varriables needed to do loging and status checking
+    String pidfile;
+    String clientid;
+    pid_t clientpid;
+    String clientlog, stopClient;
     char pid_str[15];
+    Uint32 successCount=0;        //Number of times the command succeeded.
+    Uint32 iteration=0;           //Number of iterations after which logErrorPercentage() is called.
+    Uint32 totalCount=0;          //Total number of times the command was executed.
 
-    //
-    // Number of times the command succeeded.
-    //
-    Uint32 successCount=0;
-
-    //
-    // Number of iterations after which logErrorPercentage() is called.
-    //
-    Uint32 iteration=0;
-
-    //
-    // Total number of times the command was executed.
-    //
-    Uint32 totalCount=0;
-
-    //
-    // timeout.
-    //
+    // timeout
     Uint32 timeout = 30000;
 
-    //
-    // This try block includes all the options gathering function.
-    //
+    //This try block includes all the options gathering function
     try
     {
-        //
-        // client specific options if any.
-        //
-        struct OptionRow *cOptionTable = 0;
+        // client specific options if any
+        struct OptionRow *cOptionTable = 0; 
         newOptionsCount = cOptionCount;
 
         try
         {
-            //
-            // Generate new option table for this client using
-            // the OptionManager.
-            //
-
-            newOptionsTable = tmsc.generateClientOptions(cOptionTable,
-                cOptionCount,newOptionsCount);
-            validArg = tmsc.GetOptions(om, argc, argv, newOptionsTable,
-                newOptionsCount);
+            //Generate new option table for this client using OptionManager
+            newOptionsTable = tmsc.generateClientOptions(cOptionTable,cOptionCount,newOptionsCount);
+            validArg = tmsc.GetOptions(om, argc, argv, newOptionsTable,newOptionsCount);
         }
         catch (Exception& e)
         {
-            PEGASUS_STD(cerr) << argv[0] << ": " << e.getMessage()
-                              << PEGASUS_STD(endl);
+            cerr << argv[0] << ": " << e.getMessage() << endl;
             exit(1);
         }
         catch (...)
         {
-            PEGASUS_STD(cerr) << argv[0] << ": Error in Options operation "
-                              << PEGASUS_STD(endl);
+            cerr << argv[0] << ": Error in Options operations " << endl;
             exit(1);
         }
 
@@ -589,10 +524,8 @@ int main(int argc, char** argv)
         {
             sscanf (portStr.getCString (), "%u", &portNumber);
         }
-
-        //
-        // Setting default ports.
-        //
+        
+        //  Setting default ports 
         if (!portNumber)
         {
             if (useSSL)
@@ -605,160 +538,140 @@ int main(int argc, char** argv)
             }
         }
 
-        //
-        // default host is localhost.
-        //
+        //  default host is localhost.
         if (host == String::EMPTY)
         {
             host = String("localhost");
         }
 
-        //
-        // Signal Handling - SIGINT
-        //
+        //Signal Handling - SIGINT
         signal(SIGINT, endTest);
 
-        om.lookupValue("clientid", clientId);
+        om.lookupValue("clientid", clientid);
 
-        om.lookupValue("pidfile", pidFile);
+        om.lookupValue("pidfile", pidfile);
 
-        clientPid = getpid();
-
-        om.lookupValue("clientlog", clientLog);
+        clientpid = getpid();
+       
+        om.lookupValue("clientlog", clientlog);
 
         om.lookupValue("help", help);
 
     }// end of option Try block
     catch (Exception& e)
     {
-        PEGASUS_STD(cerr) << argv[0] << ": " << e.getMessage()
-                          << PEGASUS_STD(endl);
+        cerr << argv[0] << ": " << e.getMessage() << endl;
         exit(1);
     }
     catch (...)
     {
-        PEGASUS_STD(cerr) << argv[0] << ": Unknown Error gathering options "
-                          << PEGASUS_STD(endl);
+        cerr << argv[0] << ": Unknown Error gathering options in ModelWalk client  " << endl;
         exit(1);
     }
 
-    /* Checking whether the user asked for HELP Info...
+    /** // Checking whether the user asked for HELP Info...
     if (om.valueEquals("help", "true"))
     {
         String header = "Usage ";
         header.append(argv[0]);
         header.append(" -parameters -n [namespace] -c [classname] ");
-        header.append(" -clientId [clientId] -pidFile [pidFile] ");
-        header.append(" -clientLog [clientLog]");
+        header.append(" -clientid [clientid] -pidfile [pidfile] -clientlog [clientlog]");
         String trailer = "Assumes localhost:5988 if host not specified";
         trailer.append("\nHost may be of the form name or name:port");
         trailer.append("\nPort 5988 assumed if port number missing.");
         om.printOptionsHelpTxt(header, trailer);
+
         exit(0);
     } */
 
     try
     {
-        //
-        // Timer Start.
-        //
+        //Timer Start
         tmsc.startTime();
 
-        tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
+        tmsc.logInfo(clientid, clientpid, status, pidfile);
 
-        //
-        // connect the client.
-        //
+        // connect the client
         CIMClient* client = new CIMClient();
 
-        sprintf(pid_str, "%d", clientPid);
+        sprintf(pid_str, "%d", clientpid);
 
         stopClient = String::EMPTY;
-        stopClient.append(FileSystem::extractFilePath(pidFile));
+        stopClient.append(FileSystem::extractFilePath(pidfile));
         stopClient.append("STOP_");
         stopClient.append(pid_str);
 
-        //
-        // This loop executes till the client gets stop signal from
-        // controller.
-        //
-        while (!quit)
+        // This loop executes till the client gets stop signal from controller
+        while (!_quit)
         {
             if (FileSystem::exists(stopClient))
             {
                 if (verboseTest)
                 {
-                    String mes("Ending client. ");
-                    tmsc.errorLog(clientPid, clientLog, mes);
+                    String mes("Ending client: ");
+                    mes.append((Uint32)clientpid);
+                    tmsc.errorLog(clientpid, clientlog, mes); 
                 }
                 break;
             }
 
+            #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
                 if (!verboseTest)
-                {
-#ifdef PEGASUS_OS_TYPE_WINDOWS
                     freopen("nul","w",stdout);
-#else
-                    FILE * file = freopen("/dev/null","w",stdout);
-                    if (0 == file)
-                    {
-                        // ignore possible error, not having stdout redirected
-                        // to /dev/null doesn't hurt the test
-                        continue;
-                    }
-#endif
-                }
+            #else 
+                if (!verboseTest)
+                    freopen("/dev/null","w",stdout);
+            #endif
 
             if (!connectedToHost)
             {
                 try
                 {
-                    tmsc.connectClient( client, host, portNumber, userName,
-                        password, useSSL, timeout, verboseTest);
+                    tmsc.connectClient( client, host, portNumber, userName, password, useSSL,
+                                        timeout, verboseTest);
                     connectedToHost = true;
-
+                    
+                   //  Client has successfully connected. to server
+                   //   update status if previously not Success.
                    //
-                   // Client has successfully connected to server.
-                   // update status if previously not Success.
-                   //
-                   if (globalStatus != CLIENT_PASS)
+                   if (status != CLIENT_PASS)
                    {
-                       globalStatus = CLIENT_PASS;
-                       tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
+                       status = CLIENT_PASS;
+                       tmsc.logInfo(clientid, clientpid, status, pidfile);
                    }
+
                 }
                 catch (CannotConnectException)
                 {
-                    globalStatus = CLIENT_UNKNOWN;
-                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
+                    status = CLIENT_UNKNOWN;
+                    tmsc.logInfo(clientid, clientpid, status, pidfile);
                     connectedToHost = false;
                 }
                 catch (CIMException &e)
                 {
-                    globalStatus = CLIENT_UNKNOWN;
-                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
+                    status = CLIENT_UNKNOWN;
+                    tmsc.logInfo(clientid, clientpid, status, pidfile);
                     connectedToHost = false;
                     String mes(e.getMessage());
-                    tmsc.errorLog(clientPid, clientLog, mes);
+                    tmsc.errorLog(clientpid, clientlog, mes);
                 }
                 catch (Exception &e)
                 {
-                    globalStatus = CLIENT_UNKNOWN;
-                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
+                    status = CLIENT_UNKNOWN;
+                    tmsc.logInfo(clientid, clientpid, status, pidfile);
                     connectedToHost = false;
                     String mes(e.getMessage());
-                    tmsc.errorLog(clientPid, clientLog, mes);
+                    tmsc.errorLog(clientpid, clientlog, mes);
                 }
                 catch (...)
                 {
-                    globalStatus = CLIENT_UNKNOWN;
-                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
+                    status = CLIENT_UNKNOWN;
+                    tmsc.logInfo(clientid, clientpid, status, pidfile);
                     connectedToHost = false;
-                    String mes("Error connencting to server in ModleWalk");
-                    mes.append(" client ");
-                    tmsc.errorLog(clientPid, clientLog,mes);
+                    String msg("Error connencting to server in ModleWalk client ");
+                    tmsc.errorLog(clientpid, clientlog,msg);
                 }
-            }/* end of if (!connectedToHost). */
+            }// end of if (!connectedToHost)
             iteration++;
             totalCount++;
             if (connectedToHost)
@@ -766,169 +679,131 @@ int main(int argc, char** argv)
                 try
                 {
                     Array<CIMNamespaceName> nameSpacesArray;
+  
+                    // Enumerate all the namespaces here....
+                    nameSpacesArray = getNameSpaces(tmsc, client, om,
+                        clientpid, clientlog, clientid, status, pidfile);
 
-                    //
-                    // Enumerate all the namespaces here.
-                    //
-                    nameSpacesArray = getNameSpaces(
-                                          tmsc,
-                                          client,
-                                          om,
-                                          clientPid,
-                                          clientLog,
-                                          clientId,
-                                          globalStatus,
-                                          pidFile);
+                    //Enumerate all qualifiers in the namespaces....
+                    enumerateAllQualifiers(tmsc, client, nameSpacesArray,
+                        clientpid, clientlog, clientid, status, pidfile);
 
-                    //
-                    // Enumerate all qualifiers in the namespaces.
-                    //
-                    enumerateAllQualifiers(
-                        tmsc,
-                        client,
-                        nameSpacesArray,
-                        clientPid,
-                        clientLog,
-                        clientId,
-                        globalStatus,
-                        pidFile);
-
-                    //
-                    // Enumerate all the class related info here.
-                    //
-                    enumerateClassRelatedInfo(
-                        tmsc,
-                        client,
-                        om,
-                        nameSpacesArray,
-                        clientPid,
-                        clientLog,
-                        clientId,
-                        globalStatus,
-                        pidFile);
+                    // Enumerate all the class related info here....
+                    enumerateClassRelatedInfo(tmsc, client, om, nameSpacesArray,
+                        clientpid, clientlog, clientid, status, pidfile);
 
                     successCount++;
                 }
-                //
-                // This specail catch block in needed so that we will know if
-                // the connenction was lost. We then connect on the next time
-                // through the loop.
-                //
-
+                /* This specail catch block in needed so that we will know if the connenction 
+                   was lost. We then connect on the next time through the loop*/
                 catch (CannotConnectException)
                 {
-                    globalStatus = CLIENT_UNKNOWN;
-                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
+                    status = CLIENT_UNKNOWN;
+                    tmsc.logInfo(clientid, clientpid, status, pidfile);
                     connectedToHost = false;
                 }
                 catch (CIMException &cimE)
                 {
-                    globalStatus = CLIENT_FAIL;
-                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
+                    status = CLIENT_FAIL;
+                    tmsc.logInfo(clientid, clientpid, status, pidfile);
                     String mes(cimE.getMessage());
-                    tmsc.errorLog(clientPid, clientLog, mes);
+                    tmsc.errorLog(clientpid, clientlog, mes);
                 }
                 catch (Exception &exp)
                 {
-                    globalStatus = CLIENT_FAIL;
-                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
+                    status = CLIENT_FAIL;
+                    tmsc.logInfo(clientid, clientpid, status, pidfile);
                     String mes(exp.getMessage());
-                    tmsc.errorLog(clientPid, clientLog, mes);
+                    tmsc.errorLog(clientpid, clientlog, mes);
                 }
                 catch (...)
                 {
-                    globalStatus = CLIENT_FAIL;
-                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
-                    String mes("Unknown Error during ModelWalk Execution");
-                    tmsc.errorLog(clientPid, clientLog, mes);
+                    status = CLIENT_FAIL;
+                    tmsc.logInfo(clientid, clientpid, status, pidfile);
+                    String err_msg("Unknown Error during ModelWalk Execution");
+                    tmsc.errorLog(clientpid, clientlog, err_msg);
                 }
 
-                nextCheck = tmsc.checkTime();
-                if (nextCheck)
+                _nextCheck = tmsc.checkTime();
+                if (_nextCheck)
                 {
-                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
-                    nextCheck = false;
+                    tmsc.logInfo(clientid, clientpid, status, pidfile);
+                    _nextCheck = false;
                 }
 
-                //
-                // If verbose is set, log success percentage for every 100
-                // iterations. If verbose is not set, log success percentage
-                // for every 10000 iterations.
-                //
+                /* If verbose is set log success percentage for every 100 iterations.
+                   If verbose is not set log success percentage for every 10000 iterations
+                */
                 if (verboseTest)
                 {
-                    if (iteration == 100)
+                    if (iteration==100)
                     {
                         tmsc.logErrorPercentage(
-                            successCount,
-                            totalCount,
-                            clientPid,
-                            clientLog,
+                            successCount, 
+                            totalCount, 
+                            clientpid,
+                            clientlog,
                             clientName);
                         iteration = 0;
                     }
                 }
                 else
                 {
-                    if (iteration == 1000)
+                    if (iteration==1000)
                     {
                         tmsc.logErrorPercentage(
                             successCount,
                             totalCount,
-                            clientPid,
-                            clientLog,
+                            clientpid,
+                            clientlog,
                             clientName);
                         iteration = 0;
                     }
                 }
             }
-        } // end of while (!quit).
+        } // end of while (!_quit)
     }
     catch (Exception &exp)
     {
-        String expStr("Exception in ModelWalk client, causing it to exit: ");
-        expStr.append(exp.getMessage());
-        tmsc.errorLog(clientPid, clientLog, expStr);
+        String exp_str("Exception in ModelWalk client causing it to exit: ");
+        exp_str.append(exp.getMessage());
+        tmsc.errorLog(clientpid, clientlog, exp_str);
 
         if (verboseTest)
         {
-            PEGASUS_STD(cerr) << expStr.getCString() << PEGASUS_STD(endl);
+            PEGASUS_STD(cerr) << exp_str.getCString() << PEGASUS_STD(endl);
         }
     }
     catch (...)
     {
-        String expStr("General Exception in ModelWalk, causing it to exit");
-        tmsc.errorLog(clientPid, clientLog, expStr);
+        String exp_str("General Exception in ModelWalk causing it to exit");
+        tmsc.errorLog(clientpid, clientlog, exp_str);
 
         if (verboseTest)
         {
-            PEGASUS_STD(cerr) << expStr.getCString() << PEGASUS_STD(endl);
+            PEGASUS_STD(cerr) << exp_str.getCString() << PEGASUS_STD(endl);
         }
     }
 
-//
-// One second delay before shutdown.
-//
-#ifndef PEGASUS_OS_TYPE_WINDOWS
+    // second delay before shutdown
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
     sleep(1);
 #else
     Sleep(1000);
 #endif
     if (FileSystem::exists(stopClient))
     {
-        //
-        // Remove STOP file here.
-        //
+        // Remove STOP file here 
         FileSystem::removeFile(stopClient);
     }
-
+   
     if (verboseTest)
     {
         errorInfo.clear();
-        errorInfo.append("+++++ TestModelWalkStressClient Terminated ");
-        errorInfo.append("Normally +++++");
-        tmsc.errorLog(clientPid, clientLog, errorInfo);
+        errorInfo.append("+++++ TestModelWalkStressClient Terminated Normally +++++");
+        tmsc.errorLog(clientpid, clientlog, errorInfo);
         errorInfo.clear();
     }
     return 0;
 }
+

@@ -1,35 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author:  Melvin, IBM (msolomon@in.ibm.com) for PEP# 241
 //
-// Modified By:
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,28 +40,29 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+char clientName[] = "WrapperStressClient";
+
 class TestWrapperStressClient : public TestStressTestClient
 {
 };
 
-Boolean quit = false;
-Boolean nextCheck = false;
+Boolean _quit = false;
+Boolean _nextCheck = false;
 String errorInfo;
-char thisClient[] = "WrapperStressClient";
 
 /**
-    Signal handler for SIGALARM.
-    @param signum - the alarm identifier
+    Signal handler for SIGALRM.
+    @param   signum  the alarm identifier
  */
 void endTest(int signum)
 {
-    cout<<"Recieved interupt signal SIGINT!\n"<<endl;
-    quit = true;
+   cout<<"Recieved interupt signal SIGINT!\n"<<endl;
+  _quit = true;
 }
 
-/**
-    MAIN
-*/
+///////////////////////////////////////////////////////////////
+//    MAIN
+///////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
     OptionManager om;
@@ -68,35 +71,18 @@ int main(int argc, char** argv)
     Uint32 validArg = 0;
     Boolean verboseTest;
 
-    //
-    // Varriables needed for loging and status checking.
-    //
-    String clientId;
-    String pidFile;
-    String clientLog, stopClient;
+    //Varriables needed to do loging and status checking
+    String clientid;
+    String pidfile;
+    String clientlog, stopClient;
     char pid_str[15];
     int status = CLIENT_UNKNOWN;
+    Uint32 successCount=0;        //Number of times the client command succeeded.
+    Uint32 iteration=0;           //Number of iterations after which logErrorPercentage() is called.
+    Uint32 totalCount=0;          //Total number of times the client command was executed.
 
-    //
-    // Number of times the client command succeeded.
-    //
-    Uint32 successCount = 0;
-
-    //
-    // Number of iterations after which logErrorPercentage() is called.
-    //
-    Uint32 iteration = 0;
-
-    //
-    // Total number of times the client command was executed.
-    //
-    Uint32 totalCount = 0;
-
-    //
-    // Variables needed for Command operation.
-    //
+    //Variables needed for Command operation
     String command;
-
     String options;
     String help;
 
@@ -105,13 +91,12 @@ int main(int argc, char** argv)
         struct OptionRow *newOptionsTable = 0;
         Uint32 newOptionsCount;
 
-        struct OptionRow cOptionTable[] =
-        {
-            {"clientname", "", true, Option::STRING, 0, 0, "clientname",
-                "Client name" },
-
-            {"options", "", true, Option::STRING, 0, 0, "options",
-                "Corresponding Client program's options" }
+        struct OptionRow cOptionTable[] = {
+          {"clientname", "", true, Option::STRING, 0, 0, "clientname",
+                                                       "Client name" },
+ 
+          {"options", "", true, Option::STRING, 0, 0, "options",
+                             "Corresponding Client program's options" }
         };
 
         Uint32 cOptionCount = sizeof(cOptionTable) / sizeof(cOptionTable[0]);
@@ -119,19 +104,9 @@ int main(int argc, char** argv)
 
         try
         {
-            //
-            // Generate new option table for this client using OptionManager
-            //
-            newOptionsTable = wc.generateClientOptions(
-                                  cOptionTable,
-                                  cOptionCount,
-                                  newOptionsCount);
-            validArg = wc.GetOptions(
-                           om,
-                           argc,
-                           argv,
-                           newOptionsTable,
-                           newOptionsCount);
+            //Generate new option table for this client using OptionManager
+            newOptionsTable = wc.generateClientOptions(cOptionTable,cOptionCount,newOptionsCount);
+            validArg = wc.GetOptions(om, argc, argv, newOptionsTable,newOptionsCount);
         }
         catch (Exception& e)
         {
@@ -140,51 +115,50 @@ int main(int argc, char** argv)
         }
         catch (...)
         {
-            cerr << argv[0] << ": Error in Options operations "<< endl;
+            cerr << argv[0] << ": Error in Options operations " << endl;
             exit(1);
         }
 
         verboseTest = om.isTrue("verbose");
+ 
+        om.lookupValue("clientid", clientid);
 
-        om.lookupValue("clientid", clientId);
+        om.lookupValue("pidfile", pidfile);
 
-        om.lookupValue("pidfile", pidFile);
-
-        om.lookupValue("clientlog", clientLog);
+        om.lookupValue("clientlog", clientlog);
 
         om.lookupValue("clientname", command);
 
         om.lookupValue("options", options);
 
         om.lookupValue("help", help);
-    } /** end of option Try block. */
+    }// end of option Try block
     catch (Exception& e)
     {
-        cerr << argv[0] << ": " << e.getMessage() <<endl;
+        cerr << argv[0] << ": " << e.getMessage() << endl;
         exit(1);
     }
     catch (...)
     {
-        cerr << argv[0] << ": Unknown Error gathering options "
-             << "in Wrapper Client " << endl;
+        cerr << argv[0] << ": Unknown Error gathering options in Wrapper Client  " << endl;
         exit(1);
     }
 
-    /** Checking whether the user asked for HELP Info...
+    /** // Checking whether the user asked for HELP Info...
     if (om.valueEquals("help", "true"))
     {
         String header = "Usage ";
         header.append(argv[0]);
-        header.append(" -parameters -clientName [clientName]
-        header.append(" -options [options] -clientid [clientId] ");
-        header.append(" -pidfile [pidFile] -clientlog [clientLog]");
+        header.append(" -parameters -clientname [clientname] -options [options] ");
+        header.append(" -clientid [clientid] -pidfile [pidfile] -clientlog [clientlog]");
         String trailer = "Assumes localhost:5988 if host not specified";
         trailer.append("\nHost may be of the form name or name:port");
         trailer.append("\nPort 5988 assumed if port number missing.");
         om.printOptionsHelpTxt(header, trailer);
+
         exit(0);
     }
-    */
+	*/
 
     try
     {
@@ -192,64 +166,51 @@ int main(int argc, char** argv)
         {
             command.append(" " + options);
         }
-        if (verboseTest)
+        if(verboseTest)
         {
             errorInfo.append("client command :  ");
             errorInfo.append(command);
-            wc.errorLog(clientPid, clientLog, errorInfo);
+            wc.errorLog(clientPid, clientlog, errorInfo);
             errorInfo.clear();
         }
 
-        //
-        // Signal Handling - SIGINT.
-        //
+        //Signal Handling - SIGINT
         signal(SIGINT, endTest);
 
-        //
-        // Timer Start.
-        //
+        //Timer Start
         wc.startTime();
 
-        wc.logInfo(clientId, clientPid, status, pidFile);
+        wc.logInfo(clientid, clientPid, status, pidfile);
         sprintf(pid_str, "%d", clientPid);
 
         stopClient = String::EMPTY;
-        stopClient.append(FileSystem::extractFilePath(pidFile));
+        stopClient.append(FileSystem::extractFilePath(pidfile));
         stopClient.append("STOP_");
         stopClient.append(pid_str);
 
-        //
-        // This loop executes till the client gets stop signal from
-        // controller.
-        //
-        while (!quit)
+        // This loop executes till the client gets stop signal from controller
+        while(!_quit)
         {
-            if (FileSystem::exists(stopClient))
+            if(FileSystem::exists(stopClient))
             {
-                if (verboseTest)
+                if(verboseTest)
                 {
-                    String mes("Ending client. ");
-                    wc.errorLog(clientPid, clientLog, mes);
+                    String mes("Ending client: ");
+                    mes.append((Uint32)clientPid);
+                    wc.errorLog(clientPid, clientlog, mes);
                 }
                 break;
             }
-
+           
+            #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
                 if (!verboseTest)
-                {
-#ifdef PEGASUS_OS_TYPE_WINDOWS
                     freopen("nul","w",stdout);
-#else
-                    FILE * file = freopen("/dev/null","w",stdout);
-                    if (0 == file)
-                    {
-                        // ignore possible error, not having stdout redirected
-                        // to /dev/null doesn't hurt the test
-                        continue;
-                    }
-#endif
-                }
+            #else 
+                if (!verboseTest)
+                    freopen("/dev/null","w",stdout);
+            #endif
 
-            int i = system(command.getCString());
+            int i = system (command.getCString()); 
 
             iteration++;
             totalCount++;
@@ -259,105 +220,98 @@ int main(int argc, char** argv)
                     if (status != CLIENT_PASS)
                     {
                         status = CLIENT_PASS;
-                        wc.logInfo(clientId, clientPid, status, pidFile);
+                        wc.logInfo(clientid, clientPid, status, pidfile);
                     }
                     successCount++;
                     break;
 
                 case 1:
                     status = CLIENT_UNKNOWN;
-                    wc.logInfo(clientId, clientPid, status, pidFile);
+                    wc.logInfo(clientid, clientPid, status, pidfile);
                     break;
 
                 default:
                     status = CLIENT_FAIL;
-                    wc.logInfo(clientId, clientPid, status, pidFile);
+                    wc.logInfo(clientid, clientPid, status, pidfile);
                     break;
             }
 
-            nextCheck = wc.checkTime();
-            if (nextCheck)
+            _nextCheck = wc.checkTime();
+            if (_nextCheck)
             {
-                wc.logInfo(clientId, clientPid, status, pidFile);
-                nextCheck = false;
+                wc.logInfo(clientid, clientPid, status, pidfile);
+                _nextCheck = false;
             }
 
-            //
-            // If verbose is set, log success percentage for every 100
-            // iterations.  If verbose is not set, log success percentage
-            // for every 1000 iterations.
-            //
+            /* If verbose is set log success percentage for every 100 iterations.
+               If verbose is not set log success percentage for every 10000 iterations
+            */
             if (verboseTest)
             {
-                if (iteration == 100)
+                if (iteration==100)
                 {
                     wc.logErrorPercentage(
                         successCount,
                         totalCount,
                         clientPid,
-                        clientLog,
-                        thisClient);
+                        clientlog, 
+                        clientName);
                     iteration = 0;
                 }
             }
             else
             {
-                if (iteration == 1000)
+                if (iteration==1000)
                 {
                     wc.logErrorPercentage(
                         successCount,
                         totalCount,
                         clientPid,
-                        clientLog,
-                        thisClient);
+                        clientlog,
+                        clientName);
                     iteration = 0;
                 }
             }
-        } /** end of while(!quit). */
-    } /** end of command execution try block. */
+        }//end of while(!_quit)
+
+    }//end of command execution try block
     catch (Exception &exp)
     {
-        String expStr("Exception in WrapperClient causing it to exit: ");
-        expStr.append(exp.getMessage());
-        wc.errorLog(clientPid, clientLog, expStr);
+        String exp_str("Exception in WrapperClient causing it to exit: ");
+        exp_str.append(exp.getMessage());
+        wc.errorLog(clientPid, clientlog, exp_str);
 
         if (verboseTest)
         {
-            cerr << expStr.getCString() << endl;
+            PEGASUS_STD(cerr) << exp_str.getCString() << PEGASUS_STD(endl);
         }
     }
     catch (...)
     {
-        String expStr("General Exception in WrapperClient causing it to exit");
-        wc.errorLog(clientPid, clientLog, expStr);
+        String exp_str("General Exception in WrapperClient causing it to exit");
+        wc.errorLog(clientPid, clientlog, exp_str);
 
         if (verboseTest)
         {
-            cerr << expStr.getCString() << endl;
+            PEGASUS_STD(cerr) << exp_str.getCString() << PEGASUS_STD(endl);
         }
     }
 
-//
-// second delay before shutdown.
-//
-#ifndef PEGASUS_OS_TYPE_WINDOWS
-    sleep(1);
+    // second delay before shutdown
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+           sleep(1);
 #else
-    Sleep(1000);
+           Sleep(1000);
 #endif
-
     if(FileSystem::exists(stopClient))
     {
-        //
-        // Remove STOP file here.
-        //
+        // Remove STOP file here 
         FileSystem::removeFile(stopClient);
     }
     if (verboseTest)
     {
-        errorInfo.append(
-            "++++ TestWrapperStressClient Terminated Normally +++++");
-        wc.errorLog(clientPid, clientLog, errorInfo);
+        errorInfo.append("++++ TestWrapperStressClient Terminated Normally +++++");
+        wc.errorLog(clientPid, clientlog, errorInfo);
         errorInfo.clear();
     }
     return 0;

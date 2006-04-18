@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+// Author:  Aruran (aruran.shanmug@in.ibm.com) & Melvin (msolomon@in.ibm.com), IBM
+//                                                         for PEP# 241
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,32 +42,26 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/TimeValue.h>
-
-#include <Pegasus/General/OptionManager.h>
-
-#include <Pegasus/Client/CIMClient.h>
-
 #include <signal.h>
-#include "Linkage.h"
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
- // DWORD etc.
-# include <windows.h>
- typedef DWORD pid_t;
- // getpid() and others.
-# include <process.h>
-#else
-# include <unistd.h>
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#include <windows.h> /* DWORD etc. */
+typedef DWORD pid_t;
+#include <process.h> /* getpid() and others */
+#elif !defined(PEGASUS_OS_OS400)
+#include <unistd.h>
 #endif
 
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-# include <iostream.h>
+#include <iostream.h>
 #endif
 
 #define SIXTYSECONDS 60
@@ -71,9 +71,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
-    StressTest Client Status types.
-*/
+// StressTest Client Status types
 enum CStatus
 {
     CLIENT_PASS,
@@ -81,45 +79,38 @@ enum CStatus
     CLIENT_UNKNOWN
 };
 
-/** The TestStressTestClient class holds the common functionality for all the
-    stress test clients.
-*/
-class PEGASUS_STRESSTESTCLIENT_LINKAGE TestStressTestClient
+/** The TestStressTestClient class holds the common functionality for all the 
+stress test clients.
+*/ 
+class PEGASUS_CLIENT_LINKAGE TestStressTestClient 
 {
+    
 public:
-    /**
-        Constructor.
-    */
+
+    /** Constructor. */
     TestStressTestClient();
 
-    /**
-       This method is used to get all the options that are passed through
-       command line.
-    */
-    int GetOptions(
-        OptionManager& om,
-        int& argc,
-        char** argv,
-        OptionRow* clientOptionsTable,
-        Uint32 clientOptionCount);
+	/* This method is use to get all the options that are passed through command line. */
 
-    /**
-        This method is used by clients to register client specific required
-        options to the option table. All these options are taken as mandatory
-        one.
+    int GetOptions( OptionManager& om,                     
+                     int& argc,
+                     char** argv,
+                     OptionRow* clientOptionsTable,
+                     Uint32 clientOptionCount
+    );      
+
+    /** This method is used by clients to register client specific required options
+        to the option table. All these options are taken as mandatory one.
     */
     OptionRow* generateClientOptions(
-        OptionRow* clientOptionsTable,
-        Uint32 clientOptionCount,
-        Uint32& totalOptionCount);
+        OptionRow* clientOptionsTable, Uint32 clientOptionCount,Uint32& totalOptionCount);
 
-    /**
-        This method is used by the clients to connect to the server. If useSSL
-        is true then an SSL connection will be atemped with the userName and
-        passWord that is passed in. If localConnection is true a connectLocal
-        connection will be attempted. All parameters are required.
+    /** This method is used by the clients to connect to the server. If useSSL is 
+    true then an SSL connection will be atemped with the userName and passWord that
+    is passed in. If localConnection is true a connectLocal connection will be 
+    attempted. All parameters are required. 
     */
-    void connectClient(
+    void connectClient(            
         CIMClient *client,
         String host,
         Uint32 portNumber,
@@ -129,48 +120,33 @@ public:
         Uint32 timeout,
         Boolean verboseTest);
 
-    /**
-        This method is used by the clients to log information which are
-        required for controller reference. It logs the inofrmation with
-        Client ID and status of the client in the PID File log file.
+    /** This method is used by the clients to log information which are required for controller
+        reference. It logs the inofrmation with Client ID and status of the client
+        in the PID File log file.
     */
-    void logInfo(
-        String clientId,
-        pid_t clientPid,
-        int clientStatus,
-        String &pidFile);
+    void logInfo(String clientid, pid_t clientPid, int clientStatus,
+                  String &pidfile);
 
-    /**
-        This method is used to take the client process start time.
+    /** This method is used to take the client process start time.
     */
     void startTime();
 
-    /**
-        This method is used to check the time stamp for logging information
-        about the success or failure.
+    /** This method is used to check the time stamp for logging information about the 
+        success or failure.
     */
     Boolean checkTime();
 
-    /**
-        This method is used to log the information about the client's success
-        or failure percentage at a specific interval of time.
+    /** This method is used to log the information about the client's success or failure percentage
+        at a specific interval of time.
     */
-    void logErrorPercentage(
-        Uint32 successCount,
-        Uint32 totalCount,
-        pid_t clientPid,
-        String &clientLog,
-        char client[]);
+    void logErrorPercentage( Uint32 successCount, Uint32 totalCount, pid_t clientPid,
+                             String &clientlog, char client[] );
 
-    /**
-        This method is used to log the informations of client logs to the
-        client log file.
+    /** This method is used to log the informations of client logs to the client log file
     */
-    void errorLog(pid_t clientPid, String &clientLog, String &message);
+    void errorLog( pid_t clientPid, String &clientlog, String &Message );
 
-    /**
-        Timer details.
-    */
+//Timer details
     Uint64 startMilliseconds;
     Uint64 nowMilliseconds;
     Uint64 nextCheckupInMillisecs;
@@ -178,4 +154,8 @@ public:
     Uint32 optionCount;
 };
 PEGASUS_NAMESPACE_END
-#endif /* TestStressTestClient_h */
+
+#endif /* TestStressTestClient_h
+ */
+
+

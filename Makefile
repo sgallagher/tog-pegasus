@@ -224,6 +224,9 @@ testusage: FORCE
 testusage2: FORCE
 	@ $(MAKE) -f TestMakefile usage2
 
+stresstests:
+	@$(MAKE)  -f TestMakefile stresstests
+
 ##########################################################################
 #
 # This section defines functional rules
@@ -295,13 +298,3 @@ config:
 
 rootbundle: 
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile
-
-############################
-#
-# Target for OpenPegasus Stress Tests (PEP#241) 
-#
-#    The stresstest target will run the stress tests  
-
-stresstests:
-	@$(ECHO) "Running PEGASUS StressTests"
-	@$(MAKE) "-SC" test/StressTests/tests stresstests

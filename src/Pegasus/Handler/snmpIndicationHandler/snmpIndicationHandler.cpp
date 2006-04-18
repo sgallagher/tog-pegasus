@@ -62,9 +62,54 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
+#ifdef HPUX_EMANATE
+        static snmpDeliverTrap_emanate snmpTrap;
+#elif defined (PEGASUS_USE_NET_SNMP)
+        static snmpDeliverTrap_netsnmp snmpTrap;
+#else
+        static snmpDeliverTrap_stub snmpTrap;
+#endif
+
+snmpIndicationHandler::snmpIndicationHandler()
+{
+    PEG_METHOD_ENTER (TRC_IND_HANDLER,
+        "snmpIndicationHandler::snmpIndicationHandler");
+    PEG_METHOD_EXIT();
+}
+
 void snmpIndicationHandler::initialize(CIMRepository* repository)
 {
+    PEG_METHOD_ENTER (TRC_IND_HANDLER,
+        "snmpIndicationHandler::initialize");
+
     _repository = repository;
+
+#ifdef PEGASUS_USE_NET_SNMP
+    snmpTrap.initialize();
+#endif
+
+    PEG_METHOD_EXIT();
+}
+
+void snmpIndicationHandler::terminate()
+{
+    PEG_METHOD_ENTER (TRC_IND_HANDLER,
+        "snmpIndicationHandler::terminate");
+
+#ifdef PEGASUS_USE_NET_SNMP
+    snmpTrap.terminate();
+#endif
+
+    PEG_METHOD_EXIT();
+}
+
+snmpIndicationHandler::~snmpIndicationHandler()
+{
+    PEG_METHOD_ENTER (TRC_IND_HANDLER,
+        "snmpIndicationHandler::~snmpIndicationHandler");
+
+
+    PEG_METHOD_EXIT();
 }
 
 // l10n - note: ignoring indication language
@@ -152,14 +197,6 @@ void snmpIndicationHandler::handleIndication(
         // Collected complete data in arrays and ready to send the trap.
         // trap destination and SNMP type are defined in handlerInstance
         // and passing this instance as it is to deliverTrap() call
-
-#ifdef HPUX_EMANATE
-        static snmpDeliverTrap_emanate emanateTrap;
-#elif defined (PEGASUS_USE_NET_SNMP)
-        static snmpDeliverTrap_netsnmp emanateTrap;
-#else
-        static snmpDeliverTrap_stub emanateTrap;
-#endif
 
         Uint32 targetHostPos = handler.findProperty(CIMName ("TargetHost"));
         Uint32 targetHostFormatPos = handler.findProperty(CIMName ("TargetHostFormat"));
@@ -263,7 +300,7 @@ void snmpIndicationHandler::handleIndication(
 	        handler.getProperty(engineIDPos).getValue().get(engineID);
 	    }
 
-	    emanateTrap.deliverTrap(
+	    snmpTrap.deliverTrap(
                 trapOid,
                 securityName,
                 targetHost,
@@ -315,6 +352,8 @@ void snmpIndicationHandler::handleIndication(
 		MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.FAILED_TO_DELIVER_TRAP", 
 				   "Failed to deliver trap."));
     }
+
+    PEG_METHOD_EXIT();
 }
 
 // This is the dynamic entry point into this dynamic module. The name of

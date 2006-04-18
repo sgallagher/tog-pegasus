@@ -50,19 +50,13 @@ public:
 
     CIMRepository* _repository;
 
-    snmpIndicationHandler()
-    {
-    }
+    snmpIndicationHandler();
 
-    virtual ~snmpIndicationHandler()
-    {
-    }
+    virtual ~snmpIndicationHandler();
 
     void initialize(CIMRepository* repository);
 
-    void terminate()
-    {
-    }
+    void terminate();
 
     void handleIndication(
 	const OperationContext& context,
@@ -71,6 +65,7 @@ public:
 	CIMInstance& handler, 
 	CIMInstance& subscription,
 	ContentLanguageList& contentLanguages);
+
 };
 
 PEGASUS_NAMESPACE_END

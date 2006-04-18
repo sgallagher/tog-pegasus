@@ -37,6 +37,7 @@
 
 #include <iostream>
 
+#include <Pegasus/Common/IPC.h>
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
 #include "snmpDeliverTrap.h"
@@ -120,6 +121,10 @@ class snmpDeliverTrap_netsnmp : public snmpDeliverTrap
 {
 public:
 
+    void initialize();
+
+    void terminate();
+
     void deliverTrap(
         const String& trapOid,
         const String& securityName, 
@@ -135,6 +140,10 @@ public:
 
 private:
 
+    // Mutex is needed before a session is created. Sessions created 
+    // using the Single API do not interact with other SNMP sessions.
+    Mutex _sessionInitMutex;
+
     /**
         Creates a SNMP session.
       
@@ -143,7 +152,6 @@ private:
                               to receive a trap
         @param portNumber     the port number to receive a trap
         @param securityName   the human readable community name
-        @param snmpSession    the SNMP session
         @param sessionHandle  an opaque pointer of the SNMP session
         @param sessionPtr     the SNMP session pointer to its associated 
                               struct snmp_session
@@ -153,7 +161,6 @@ private:
     void _createSession(const String & targetHost,
                         Uint32 portNumber,
                         const String & securityName,
-                        struct snmp_session & snmpSession,
                         void *&sessionHandle,
                         struct snmp_session *&sessionPtr);
 

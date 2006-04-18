@@ -41,6 +41,49 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+void snmpDeliverTrap_netsnmp::initialize()
+{
+
+    PEG_METHOD_ENTER (TRC_IND_HANDLER, 
+        "snmpDeliverTrap_netsnmp::initialize"); 
+
+    // Defined default MIB modules (in net-snmp-config.h) do not need to be 
+    // loaded and loading them can cause some stderr;
+    // use environment variable MIBS to override the default MIB modules.
+    // If there is no MIBS environment variable, add it in. 
+    char *envVar;
+    envVar = getenv("MIBS");
+
+    if (envVar == NULL)
+    {
+        putenv("MIBS=");
+    }
+
+    // Initialize the mib reader
+    netsnmp_set_mib_directory("");
+    init_mib();
+    
+    // Initializes the SNMP library
+    init_snmp("snmpIndicationHandler");
+
+    // windows32 specific initialization (is a NOOP on unix)
+    SOCK_STARTUP;
+
+    PEG_METHOD_EXIT ();
+    
+}
+
+void snmpDeliverTrap_netsnmp::terminate()
+{
+
+    PEG_METHOD_ENTER (TRC_IND_HANDLER, 
+        "snmpDeliverTrap_netsnmp::terminate"); 
+
+    SOCK_CLEANUP;
+
+    PEG_METHOD_EXIT ();
+}
+
 void snmpDeliverTrap_netsnmp::deliverTrap(
         const String& trapOid,
         const String& securityName, 
@@ -59,12 +102,12 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
         "snmpDeliverTrap_netsnmp::deliverTrap"); 
 
     void *sessionHandle;
-    struct snmp_session snmpSession, *sessionPtr;
+    struct snmp_session *sessionPtr;
 
     struct snmp_pdu *snmpPdu;
 
     // Creates a SNMP session
-    _createSession(targetHost, portNumber, securityName, snmpSession,
+    _createSession(targetHost, portNumber, securityName,
                    sessionHandle, sessionPtr);
 
     try
@@ -138,7 +181,6 @@ void snmpDeliverTrap_netsnmp::_createSession(
     const String & targetHost,
     Uint32 portNumber,
     const String & securityName,
-    snmp_session & snmpSession,
     void *&sessionHandle,
     snmp_session *&sessionPtr)
 {
@@ -148,33 +190,12 @@ void snmpDeliverTrap_netsnmp::_createSession(
     Sint32 libErr, sysErr;
     char *errStr;
     String exceptionStr;
+    
+    struct snmp_session snmpSession;
 
-    // Defined default MIB modules (in net-snmp-config.h) do not need to be 
-    // loaded and loading them can cause some stderr;
-    // use environment variable MIBS to override the default MIB modules.
-    // If there is no MIBS environment variable, add it in. 
-
-    char *envVar;
-    envVar = getenv("MIBS");
-
-    if (envVar == NULL)
     {
-        putenv("MIBS=");
-    }
-
-    // Initialize the mib reader
-    netsnmp_set_mib_directory("");
-    init_mib();
-
-    // Initializes the SNMP library
-    init_snmp("snmpIndicationHandler");
-
-    // Prepares a struct snmp_session that will be used for a set of
-    // SNMP transactions
+    AutoMutex autoMut(_sessionInitMutex);
     snmp_sess_init(&snmpSession);
-
-    // windows32 specific initialization (is a NOOP on unix)
-    SOCK_STARTUP;
 
     CString targetHostCStr = targetHost.getCString();
 
@@ -183,7 +204,9 @@ void snmpDeliverTrap_netsnmp::_createSession(
                                           1+32));
     sprintf(snmpSession.peername, "%s:%u", (const char*)targetHostCStr, 
             portNumber);
+
     sessionHandle = snmp_sess_open(&snmpSession);
+    }
 
     if (sessionHandle == NULL)
     {
@@ -195,8 +218,6 @@ void snmpDeliverTrap_netsnmp::_createSession(
         exceptionStr.append(errStr);
 
         free(errStr);
-
-        SOCK_CLEANUP;
 
         PEG_METHOD_EXIT ();
         
@@ -276,8 +297,6 @@ void snmpDeliverTrap_netsnmp::_destroySession(
 
     snmp_sess_close(sessionHandle);
 
-    SOCK_CLEANUP;
-    
     PEG_METHOD_EXIT ();
 }
 

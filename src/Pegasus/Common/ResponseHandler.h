@@ -84,8 +84,7 @@ public:
     */
     virtual void complete() = 0;
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
+    /**
         Sets the context for operation responses delivered to the CIM Server.
         This method allows a provider to communicate context information
         (such as content language) along with an operation response.  The
@@ -97,7 +96,6 @@ public:
 virtual
 #endif
     void setContext(const OperationContext & context);
-#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 protected:
 

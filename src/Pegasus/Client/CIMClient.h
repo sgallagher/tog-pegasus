@@ -183,8 +183,7 @@ public:
     */
     void disconnect();
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
+    /**
         Configures the accept languages to be specified on subsequent
         requests from this client.  Accept languages are the preferred
         languages for response data.
@@ -193,7 +192,7 @@ public:
     */
     void setRequestAcceptLanguages(const AcceptLanguageList& langs);
 
-    /** <I><B>Experimental Interface</B></I><BR>
+    /**
         Gets the accept languages currently configured for this client.
         Accept languages are the preferred languages for response data.
         @return An AcceptLanguageList object specifying the preferred languages
@@ -201,7 +200,7 @@ public:
     */
     AcceptLanguageList getRequestAcceptLanguages() const;
 
-    /** <I><B>Experimental Interface</B></I><BR>
+    /**
         Configures the content languages to be specified on subsequent
         requests from this client.  The content languages indicate the
         languages associated with request data sent from this client.
@@ -210,7 +209,7 @@ public:
     */
     void setRequestContentLanguages(const ContentLanguageList& langs);
 
-    /** <I><B>Experimental Interface</B></I><BR>
+    /**
         Gets the content languages currently configured for this client.
         The content languages indicate the languages associated with request
         data sent from this client.
@@ -219,7 +218,7 @@ public:
     */
     ContentLanguageList getRequestContentLanguages() const;
 
-    /** <I><B>Experimental Interface</B></I><BR>
+    /**
         Gets the content languages of the last response received by this
         client.  The content languages indicate the languages associated
         with the data included in the response.
@@ -228,6 +227,7 @@ public:
     */
     ContentLanguageList getResponseContentLanguages() const;
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     /** <I><B>Experimental Interface</B></I><BR>
     */
     void setRequestDefaultLanguages();

@@ -38,13 +38,11 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-
 PEGASUS_NAMESPACE_BEGIN
 
 class LanguageTagRep;
 
-/** <I><B>Experimental Interface</B></I><BR>
+/**
     This class specifies a language in a standard form (based on RFC 3066),
     including the special language range "*".  Note:  This class may be
     extended to support RFC 3066bis in the future.
@@ -160,7 +158,5 @@ private:
 };
 
 PEGASUS_NAMESPACE_END
-
-#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

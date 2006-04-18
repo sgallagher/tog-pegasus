@@ -1945,7 +1945,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                    ((interfaceVersion == "2.1.0") ||
                     (interfaceVersion == "2.2.0") ||
                     (interfaceVersion == "2.3.0") ||
-                    (interfaceVersion == "2.5.0")))
+                    (interfaceVersion == "2.5.0") ||
+                    (interfaceVersion == "2.6.0")))
 #ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
                   || ((interfaceType == "CMPI") &&
                       (interfaceVersion == "2.0.0"))

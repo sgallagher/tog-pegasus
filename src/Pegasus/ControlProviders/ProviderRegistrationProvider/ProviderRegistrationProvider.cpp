@@ -500,7 +500,8 @@ void ProviderRegistrationProvider::createInstance(
             ifcVersionString != "2.1.0" &&
             ifcVersionString != "2.2.0" &&
             ifcVersionString != "2.3.0" &&
-            ifcVersionString != "2.5.0"))
+            ifcVersionString != "2.5.0" &&
+            ifcVersionString != "2.6.0"))
 	{
 		//l10n 485
 	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,

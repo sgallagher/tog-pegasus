@@ -37,8 +37,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/LanguageTag.h>
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-
 PEGASUS_NAMESPACE_BEGIN
 
 class ContentLanguageListRep;
@@ -49,7 +47,7 @@ class ContentLanguageListRep;
 //
 //////////////////////////////////////////////////////////////
 
-/** <I><B>Experimental Interface</B></I><BR>
+/**
     This class represents a list of content languages (such as may appear
     in an HTTP Content-Language header value).  It is managed as a list of
     LanguageTag objects.
@@ -145,7 +143,5 @@ private:
 };
 
 PEGASUS_NAMESPACE_END
-
-#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

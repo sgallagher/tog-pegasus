@@ -37,8 +37,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/LanguageTag.h>
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-
 PEGASUS_NAMESPACE_BEGIN
 
 class AcceptLanguageListRep;
@@ -49,7 +47,7 @@ class AcceptLanguageListRep;
 //
 //////////////////////////////////////////////////////////////
 
-/** <I><B>Experimental Interface</B></I><BR>
+/**
     This class represents an list of languages that a reader can understand
     (as may be specified in an HTTP Accept-Language header value).  It is
     managed as a prioritized list of LanguageTag objects and quality values.
@@ -163,7 +161,5 @@ private:
 };
 
 PEGASUS_NAMESPACE_END
-
-#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

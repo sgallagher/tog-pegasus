@@ -704,11 +704,9 @@ private:
 };
 
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-
 class AcceptLanguageListContainerRep;
 
-/** <I><B>Experimental Interface</B></I><BR>
+/**
     An AcceptLanguageListContainer object holds a list of languages that
     are acceptable in the response for a given operation.
 */
@@ -796,7 +794,7 @@ private:
 
 class ContentLanguageListContainerRep;
 
-/** <I><B>Experimental Interface</B></I><BR>
+/**
     A ContentLanguageListContainer object holds a list of languages that
     are contained in the associated data.
 */
@@ -881,8 +879,6 @@ protected:
 private:
     ContentLanguageListContainer();    // Unimplemented
 };
-
-#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 
 class SnmpTrapOidContainerRep;

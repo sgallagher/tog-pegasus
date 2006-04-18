@@ -1,10 +1,10 @@
 M-POST /cimom HTTP/1.1
 Host: testsystem
 Content-Type: application/xml; charset="utf-8"
-Content-Length: 845
+Content-Length: 845a
 Man: http://www.dmtf.org/cim/mapping/http/v1.0;ns=23
 23-CIMProtocolVersion: 1.0
-23-CIMOperation: BadValue
+23-CIMOperation: MethodCall
 23-CIMMethod: PositionAtRecord
 23-CIMObject: root/cimv2:CIM_MessageLog.CreationClassName="CIM_MessageLog"
 

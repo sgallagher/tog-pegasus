@@ -444,36 +444,40 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
     String authHeader = _authenticator.buildRequestAuthHeader();
     if (authHeader != String::EMPTY)
     {
-        //
-        // Parse the HTTP message:
-        //
+        // Find the separator between the start line and the headers, so we
+        // can add the authorization header there.
 
-        String startLine;
-        Array<HTTPHeader> headers;
-        char* content;
-        Uint32 contentLength;
-        httpMessage->parse(startLine, headers, contentLength);
+        httpMessage->message.append('\0');
+        char* messageStart = (char*) httpMessage->message.getData();
+        char* headerStart =
+            (char*)memchr(messageStart, '\n', httpMessage->message.size());
 
-        // Calculate the beginning of the content from the message size and
-        // the content length
-
-        content = (char*) httpMessage->message.getData() +
-      httpMessage->message.size() - contentLength;
-
-        Buffer newMessageBuffer;
-        newMessageBuffer << startLine << HTTP_CRLF;
-        newMessageBuffer << authHeader << HTTP_CRLF;
-        for (Uint32 i=0; i<headers.size(); i++)
+        if (headerStart)
         {
-            newMessageBuffer << headers[i].first << HEADER_SEPARATOR <<
-                HTTP_SP << headers[i].second << HTTP_CRLF;
-        }
-        newMessageBuffer << HTTP_CRLF;
-        newMessageBuffer << content << HTTP_CRLF;
+            // Handle a CRLF or LF separator
+            if ((headerStart != messageStart) && (headerStart[-1] == '\r'))
+            {
+                headerStart[-1] = 0;
+            }
+            else
+            {
+                *headerStart = 0;
+            }
 
-        HTTPMessage* newMessage = new HTTPMessage(newMessageBuffer);
-        delete httpMessage;
-        httpMessage = newMessage;
+            headerStart++;
+
+            // Build a new message with the original start line, the new
+            // authorization header, and the original headers and content.
+
+            Buffer newMessageBuffer;
+            newMessageBuffer << messageStart << HTTP_CRLF;
+            newMessageBuffer << authHeader << HTTP_CRLF;
+            newMessageBuffer << headerStart << HTTP_CRLF;
+
+            HTTPMessage* newMessage = new HTTPMessage(newMessageBuffer);
+            delete httpMessage;
+            httpMessage = newMessage;
+        }
     }
 }
 

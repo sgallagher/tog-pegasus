@@ -462,12 +462,6 @@ Boolean ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
 
     Uint32 requestCount = _cimserver->getOutstandingRequestCount();
 
-    // create a mutex
-    Mutex _mutex;
-
-    // create a condition 
-    Condition _cond(_mutex);
-
     //
     // Loop and wait one second until either there is no more requests
     // or until timeout expires.
@@ -475,23 +469,9 @@ Boolean ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
     while (requestCount > (requestPending ? 1 : 0) &&
            maxWaitTime > 0)
     {
-         // lock the mutex
-         AutoMutex autoMut(_mutex);
-
-         try
-         {
-            _cond.unlocked_timed_wait(waitInterval*1000, pegasus_thread_self());
-         }
-         catch (TimeOut&)
-         {
-             requestCount = _cimserver->getOutstandingRequestCount();
-             maxWaitTime = maxWaitTime - waitInterval;
-         }
-         catch (...)
-         {
-             maxWaitTime = 0;
-         }
-
+         pegasus_sleep(waitInterval * 1000);
+         maxWaitTime -= waitInterval;
+         requestCount = _cimserver->getOutstandingRequestCount();
     } 
 
     if (requestCount > 1)

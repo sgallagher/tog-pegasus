@@ -101,15 +101,8 @@ SSLContextManager::SSLContextManager()
 
 SSLContextManager::~SSLContextManager()
 {
-    if (_sslContext)
-    {
-        delete _sslContext;
-    }
-
-    if (_exportSSLContext)
-    {
-        delete _exportSSLContext;
-    }
+    delete _sslContext;
+    delete _exportSSLContext;
 }
 
 //

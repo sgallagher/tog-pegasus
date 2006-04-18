@@ -70,10 +70,7 @@ BasicAuthenticationHandler::~BasicAuthenticationHandler()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
         "BasicAuthenticationHandler::~BasicAuthenticationHandler()");
 
-    if (_basicAuthenticator)
-    {
-        delete _basicAuthenticator;
-    }
+    delete _basicAuthenticator;
 
     PEG_METHOD_EXIT();
 }

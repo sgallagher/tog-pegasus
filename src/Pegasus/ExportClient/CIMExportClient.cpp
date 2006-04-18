@@ -148,11 +148,8 @@ void CIMExportClient::_disconnect()
         //
         // destroy response decoder
         //
-        if (_responseDecoder)
-        {
-            delete _responseDecoder;
-            _responseDecoder = 0;
-        }
+        delete _responseDecoder;
+        _responseDecoder = 0;
 
         //
         // Close the connection
@@ -167,11 +164,8 @@ void CIMExportClient::_disconnect()
         //
         // destroy request encoder
         //
-        if (_requestEncoder)
-        {
-            delete _requestEncoder;
-            _requestEncoder = 0;
-        }
+        delete _requestEncoder;
+        _requestEncoder = 0;
 
         _connected = false;
     }

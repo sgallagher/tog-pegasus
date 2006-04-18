@@ -141,11 +141,9 @@ DynamicListenerRep::~DynamicListenerRep()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerRep::~DynamicListenerRep");
 
-    if (_consumerManager)
-        delete _consumerManager;
+    delete _consumerManager;
 
-    if (_listenerService)
-        delete _listenerService;
+    delete _listenerService;
 
     PEG_METHOD_EXIT();
 }
@@ -299,10 +297,7 @@ DynamicListener::DynamicListener(Uint32 portNumber,
 
 DynamicListener::~DynamicListener()
 {
-    if (_rep!=NULL)
-        delete static_cast<DynamicListenerRep*>(_rep);
-
-    _rep=NULL;
+    delete static_cast<DynamicListenerRep*>(_rep);
 }
 
 void DynamicListener::start()

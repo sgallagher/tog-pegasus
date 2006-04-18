@@ -61,10 +61,8 @@ IndicationOperationAggregate::IndicationOperationAggregate(
 IndicationOperationAggregate::~IndicationOperationAggregate()
 {
     _magicNumber = 0;
-    if (_origRequest)
-    {
-        delete _origRequest;
-    }
+    delete _origRequest;
+
     Uint32 numberRequests = getNumberRequests();
     for (Uint32 i = 0; i < numberRequests; i++)
     {

@@ -81,11 +81,7 @@ ProviderRegistrationProvider::ProviderRegistrationProvider(
 
 ProviderRegistrationProvider::~ProviderRegistrationProvider(void)	
 {
-    if (_client_handle)
-    {
-	delete _client_handle;
-    }
-
+    delete _client_handle;
 }
 
 void ProviderRegistrationProvider::initialize(CIMOMHandle & cimom)

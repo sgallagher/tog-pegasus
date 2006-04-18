@@ -60,8 +60,7 @@ AutoStreamer::~AutoStreamer() {
 	if (_defaultReader != _readers[i].reader)
         	delete _readers[i].reader;
     }
-    if (_defaultReader)
-    	delete _defaultReader;
+    delete _defaultReader;
 }
 
 void AutoStreamer::addReader(ObjectStreamer *reader, Uint8 marker) {

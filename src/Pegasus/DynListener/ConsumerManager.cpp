@@ -105,10 +105,7 @@ ConsumerManager::~ConsumerManager()
 
     unloadAllConsumers();
 
-    if (_thread_pool != NULL)
-    {
     delete _thread_pool;
-    }
 
     ConsumerTable::Iterator i = _consumers.start();
     for (; i!=0; i++)

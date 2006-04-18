@@ -52,9 +52,7 @@ InterruptData::InterruptData(void)
 
 InterruptData::~InterruptData(void)
 {
-	if(irq) {
-		delete irq;
-	}
+	delete irq;
 }
 
 int InterruptData::initialize(void)

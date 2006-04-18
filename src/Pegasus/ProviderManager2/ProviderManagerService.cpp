@@ -467,10 +467,7 @@ void ProviderManagerService::handleCimRequest(
                     .getValue();
             itValue.get(operationalStatus);
 
-            if (response != 0)
-            {
-                delete response;
-            }
+            delete response;
 
             response = new CIMEnableModuleResponseMessage(
                 request->messageId,
@@ -534,10 +531,7 @@ void ProviderManagerService::handleCimRequest(
                     .getValue();
             itValue.get(operationalStatus);
 
-            if (response != 0)
-            {
-                delete response;
-            }
+            delete response;
 
             response = new CIMDisableModuleResponseMessage(
                 request->messageId,
@@ -635,10 +629,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
         {
             // Note: These responses do not contain interesting data, so just
             // use the last one.
-            if (response)
-            {
-                delete response;
-            }
+            delete response;
 
             response = _oopProviderManagerRouter->processMessage(request);
         }

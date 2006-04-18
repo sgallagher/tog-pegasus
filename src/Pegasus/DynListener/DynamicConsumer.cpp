@@ -97,20 +97,11 @@ DynamicConsumer::~DynamicConsumer(void)
     }
 
     //delete semaphores
-    if (_check_queue)
-    {
-        delete _check_queue;
-    }
+    delete _check_queue;
 
-    if (_shutdownSemaphore)
-    {
-        delete _shutdownSemaphore;
-    }
+    delete _shutdownSemaphore;
 
-    if (_listeningSemaphore)
-    {
-        delete _listeningSemaphore;
-    }
+    delete _listeningSemaphore;
 }
 
 CIMIndicationConsumerProvider* DynamicConsumer::getConsumer()

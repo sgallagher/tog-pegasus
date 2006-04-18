@@ -323,10 +323,10 @@ objectName::objectName(const String &namespaceType,
 }
 
 objectName::~objectName() {
-  if (_namespaceHandle) delete _namespaceHandle;
-  if (_modelPath)       delete _modelPath;
-  if (_reference)       delete _reference;
-  if (_instance)        delete _instance;
+  delete _namespaceHandle;
+  delete _modelPath;
+  delete _reference;
+  delete _instance;
 }
 
 void

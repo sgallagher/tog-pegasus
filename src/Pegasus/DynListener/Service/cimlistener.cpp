@@ -1075,20 +1075,14 @@ MessageLoader::_useProcessLocale = false;
         if (daemonOption)
                 _cimListenerProcess->notify_parent(1);
 
-        if (_cimListener)
-        {
-            delete _cimListener;
-            _cimListener = 0;
-        }
+        delete _cimListener;
+        _cimListener = 0;
 
         return 1;
     }
 
-    if (_cimListener)
-    {
-        delete _cimListener;
-        _cimListener = 0;
-    }
+    delete _cimListener;
+    _cimListener = 0;
 
 #if defined(PEGASUS_DEBUG)
     printf("Exiting child process\n");

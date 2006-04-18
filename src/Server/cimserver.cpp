@@ -359,10 +359,7 @@ void deleteCIMServer()
         FileSystem::removeFile(_cimServerProcess->getPIDFileName());
 #endif
     }
-   if (_monitor)
-   {
-	delete _monitor;
-   }
+    delete _monitor;
    if (dummyInitialThread)
    {
 	Thread::clearLanguages();

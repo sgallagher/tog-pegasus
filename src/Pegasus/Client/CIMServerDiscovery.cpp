@@ -119,9 +119,7 @@ CIMServerDiscovery::CIMServerDiscovery()
 
 CIMServerDiscovery::~CIMServerDiscovery()
 {
-  if (_rep != NULL)
     delete _rep;
-  _rep = NULL;
 }
 
 Array<CIMServerDescription>

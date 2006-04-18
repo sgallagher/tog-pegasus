@@ -107,11 +107,8 @@ ShutdownService::ShutdownService(CIMServer* cimserver)
 void
 ShutdownService::destroy(void)
 {
-    if (_instance)
-    {
-        delete _instance;
-        _instance = 0;
-    }
+    delete _instance;
+    _instance = 0;
 }
 /** Destructor. */
 ShutdownService::~ShutdownService()

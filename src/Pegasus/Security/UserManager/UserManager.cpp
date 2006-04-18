@@ -95,11 +95,8 @@ UserManager::~UserManager()
 void
 UserManager::destroy(void)
 {
-    if (_instance)
-    {
-       delete _instance;
-       _instance = 0;
-    }
+    delete _instance;
+    _instance = 0;
 }
 //
 // Construct the singleton instance of the UserManager and return a

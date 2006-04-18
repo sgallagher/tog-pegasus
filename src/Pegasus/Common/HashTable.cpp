@@ -218,8 +218,7 @@ _HashTableRep::_HashTableRep(const _HashTableRep& x)
 _HashTableRep::~_HashTableRep()
 {
     clear();
-    if (_chains)
-       delete [] _chains;
+    delete [] _chains;
 }
 
 _HashTableRep& _HashTableRep::operator=(const _HashTableRep& x)
@@ -231,8 +230,7 @@ _HashTableRep& _HashTableRep::operator=(const _HashTableRep& x)
 
     clear();
 
-    if (_chains)
-	delete [] _chains;
+    delete [] _chains;
 
     // Create chain array:
 

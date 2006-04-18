@@ -68,8 +68,7 @@ QueryIdentifier::QueryIdentifier(const QueryIdentifier& id){
 }
 
 QueryIdentifier::~QueryIdentifier(){
-	if(_rep)
-		delete _rep;
+    delete _rep;
 }
 
 const CIMName& QueryIdentifier::getName()const
@@ -125,7 +124,7 @@ void QueryIdentifier::applyScope(String scope)
 
 QueryIdentifier& QueryIdentifier::operator=(const QueryIdentifier& rhs){
 	if(&rhs != this){
-		if(_rep) delete _rep;
+		delete _rep;
 		_rep = new QueryIdentifierRep(rhs._rep);
 	}
 	return *this;

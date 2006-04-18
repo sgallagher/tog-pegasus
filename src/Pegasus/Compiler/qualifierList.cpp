@@ -45,14 +45,12 @@
 #include "qualifierList.h"
 
 qualifierList::~qualifierList() {
-   if (_pv)
-     delete (_pv);
+  delete (_pv);
 }
 
 void
 qualifierList::init(int size) {
-  if (_pv)
-    delete (_pv);
+  delete (_pv);
   _pv = new qplist;
   _pv->reserveCapacity(size ? size : _initsize);
 }

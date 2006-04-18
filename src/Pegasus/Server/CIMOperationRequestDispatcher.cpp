@@ -136,16 +136,8 @@ OperationAggregate::OperationAggregate(
 OperationAggregate::~OperationAggregate()
 {
     _magicNumber = 0;
-    if (_request)
-    {
-        delete _request;
-        _request = 0;
-    }
-    if (_query)
-    {
-        delete _query;
-        _query = 0;
-    }
+    delete _request;
+    delete _query;
 }
 
 Boolean OperationAggregate::valid() const

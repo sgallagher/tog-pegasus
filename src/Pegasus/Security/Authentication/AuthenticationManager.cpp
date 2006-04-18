@@ -88,14 +88,8 @@ AuthenticationManager::~AuthenticationManager()
     //
     // delete authentication handlers
     //
-    if ( _localAuthHandler )
-    {
-        delete _localAuthHandler;
-    }
-    if ( _httpAuthHandler )
-    {
-        delete _httpAuthHandler;
-    }
+    delete _localAuthHandler;
+    delete _httpAuthHandler;
 
     PEG_METHOD_EXIT();
 }

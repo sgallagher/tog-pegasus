@@ -315,10 +315,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         {
             ProviderManagerContainer* pmc=_providerManagerTable[i];
             Message* resp = pmc->getProviderManager()->processMessage(request);
-            if (resp)
-            {
-                delete resp;
-            }
+            delete resp;
         }
 
         response = request->buildResponse();

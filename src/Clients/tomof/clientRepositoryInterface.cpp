@@ -54,9 +54,7 @@ clientRepositoryInterface::clientRepositoryInterface() :
 
 clientRepositoryInterface::~clientRepositoryInterface() 
 {
-  if (_repository)
     delete _repository;
-  if (_client)
     delete _client;
 }
 

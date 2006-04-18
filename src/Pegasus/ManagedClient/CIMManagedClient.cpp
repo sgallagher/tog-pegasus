@@ -67,7 +67,7 @@ CIMManagedClient::CIMManagedClient(CIMClientConnectionManager* cccm)
 
 void CIMManagedClient::setConnectionManager(CIMClientConnectionManager* cccm)
 {
-    // if (_cccm != 0) delete _cccm;
+    // delete _cccm;
     _cccm = cccm;
 }
 
@@ -80,7 +80,7 @@ CIMManagedClient::~CIMManagedClient()
 {
     // ubs, we shouldn't delete the ClientConnectionManager,
     // as we don't know what it is anyway
-    // if (_cccm != 0) delete _cccm;
+    // delete _cccm;
 }
 
 // l10n start

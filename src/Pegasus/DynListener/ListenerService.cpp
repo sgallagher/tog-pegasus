@@ -82,20 +82,15 @@ ListenerService::~ListenerService()
     {
         //cleanup everything we initialized
 
-        if (_sslContext != NULL)
-            delete _sslContext;
+        delete _sslContext;
 
-        if (_dispatcher != NULL)
-            delete _dispatcher;
+        delete _dispatcher;
 
-        if (_responseEncoder != NULL)
-            delete _responseEncoder;
+        delete _responseEncoder;
 
-        if (_requestDecoder != NULL)
-            delete _requestDecoder;
+        delete _requestDecoder;
 
-        if (_shutdownSem != NULL)
-            delete _shutdownSem;
+        delete _shutdownSem;
         
         //do not delete _consumerManager
         //it is deleted by CIMListener

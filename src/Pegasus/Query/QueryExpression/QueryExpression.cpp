@@ -171,8 +171,7 @@ QueryExpression::QueryExpression(const QueryExpression& expr):
 
 QueryExpression::~QueryExpression()
 {
-  if (_ss != NULL)
-   delete _ss;
+  delete _ss;
 }
 
 QueryExpression QueryExpression::operator=(const QueryExpression& rhs)
@@ -180,8 +179,7 @@ QueryExpression QueryExpression::operator=(const QueryExpression& rhs)
   if (this == &rhs)
     return *this;
 
-  if (_ss != NULL)
-    delete _ss;
+  delete _ss;
   _ss = NULL;
 
   if (rhs._ss != NULL)

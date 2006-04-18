@@ -445,20 +445,9 @@ RepositoryUpgrade::RepositoryUpgrade ()
 
 RepositoryUpgrade::~RepositoryUpgrade ()
 {
-    if (_requestEncoder)
-    {
-        delete _requestEncoder;
-    }
-
-    if (_oldRepository)
-    {
-        delete _oldRepository;
-    }
-
-    if (_newRepository)
-    {
-        delete _newRepository;
-    }
+    delete _requestEncoder;
+    delete _oldRepository;
+    delete _newRepository;
 
 #ifdef ENABLE_MODULE_PROCESSING
     if (_modulesInitialized)
@@ -2111,8 +2100,7 @@ void RepositoryUpgrade::_logCreateClassError(
     // Log the request to output filepath.
     _logRequestToFile (outputFileName);
 
-    if (request)
-       delete request;
+    delete request;
 
     String errMsg = localizeMessage ( MSG_PATH,
                               REPOSITORY_UPGRADE_FAILURE_KEY,
@@ -2162,8 +2150,7 @@ void RepositoryUpgrade::_logCreateInstanceError(
     // Log the request to output filepath.
     _logRequestToFile (outputFileName);
 
-    if (request)
-       delete request;
+    delete request;
 
     String errMsg = localizeMessage ( MSG_PATH, REPOSITORY_UPGRADE_FAILURE_KEY,
                                        REPOSITORY_UPGRADE_FAILURE)
@@ -2209,8 +2196,7 @@ void RepositoryUpgrade::_logSetQualifierError(
     // Log the request to output filepath.
     _logRequestToFile (outputFileName);
 
-    if (request)
-       delete request;
+    delete request;
 
     String errMsg =  localizeMessage ( MSG_PATH, REPOSITORY_UPGRADE_FAILURE_KEY,
                                        REPOSITORY_UPGRADE_FAILURE)

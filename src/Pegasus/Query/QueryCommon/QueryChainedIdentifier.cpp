@@ -64,8 +64,7 @@ QueryChainedIdentifier::QueryChainedIdentifier(const QueryChainedIdentifier& cid
 }
 
 QueryChainedIdentifier::~QueryChainedIdentifier(){
-	if(_rep)
-		delete _rep;
+    delete _rep;
 }
 
 const Array<QueryIdentifier>& QueryChainedIdentifier::getSubIdentifiers()const
@@ -92,7 +91,7 @@ QueryIdentifier QueryChainedIdentifier::operator[](Uint32 index)const
 
 QueryChainedIdentifier& QueryChainedIdentifier::operator=(const QueryChainedIdentifier& rhs){
 	if(&rhs != this){
-		if(_rep) delete _rep;
+		delete _rep;
         	_rep = new QueryChainedIdentifierRep(rhs._rep);
 	}
 	return *this;

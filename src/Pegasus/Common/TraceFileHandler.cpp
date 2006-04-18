@@ -87,15 +87,9 @@ TraceFileHandler::~TraceFileHandler ()
     {
         fclose(_fileHandle);
     }
-    if (_fileName)
-    {
-        delete []_fileName;
-    }
+    delete [] _fileName;
 #ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-    if (_baseFileName)
-    {
-        delete []_baseFileName;
-    }
+    delete [] _baseFileName;
 #endif
 }
 

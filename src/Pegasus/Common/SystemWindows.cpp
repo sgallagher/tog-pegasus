@@ -838,7 +838,18 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     return retVal;
 }
 
-Boolean System::changeUserContext(const char* userName)
+Boolean System::lookupUserId(
+    const char* userName,
+    PEGASUS_UID_T& uid,
+    PEGASUS_GID_T& gid)
+{
+    // ATTN: Implement this method to look up the specified user
+    return false;
+}
+
+Boolean System::changeUserContext(
+    const PEGASUS_UID_T& uid,
+    const PEGASUS_GID_T& gid)
 {
     // ATTN: Implement this method to change the process user context to the
     //       specified user

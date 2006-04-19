@@ -1097,8 +1097,12 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
 
     return retVal;
 }
+
 #ifndef PEGASUS_OS_OS400
-Boolean System::changeUserContext(const char* userName)
+Boolean System::lookupUserId(
+    const char* userName,
+    PEGASUS_UID_T& uid,
+    PEGASUS_GID_T& gid)
 {
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd pwd;
@@ -1129,18 +1133,28 @@ Boolean System::changeUserContext(const char* userName)
         return false;
     }
 
+    uid = pwd.pw_uid;
+    gid = pwd.pw_gid;
+
+    return true;
+}
+
+Boolean System::changeUserContext(
+    const PEGASUS_UID_T& uid,
+    const PEGASUS_GID_T& gid)
+{
     Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
         "Changing user context to: uid = %d, gid = %d",
-        (int)pwd.pw_uid, (int)pwd.pw_gid);
+        (int)uid, (int)gid);
 
-    if (setgid(pwd.pw_gid) != 0)
+    if (setgid(gid) != 0)
     {
         PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             String("setgid failed: ") + String(strerror(errno)));
         return false;
     }
 
-    if (setuid(pwd.pw_uid) != 0)
+    if (setuid(uid) != 0)
     {
         PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             String("setuid failed: ") + String(strerror(errno)));
@@ -1150,6 +1164,7 @@ Boolean System::changeUserContext(const char* userName)
     return true;
 }
 #endif
+
 Uint32 System::getPID()
 {
     //

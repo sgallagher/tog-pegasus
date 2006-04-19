@@ -57,6 +57,16 @@ typedef unsigned long mode_t;
 #endif
 #endif
 
+#ifdef PEGASUS_OS_TYPE_UNIX
+# ifndef PEGASUS_OS_OS400
+#  include <unistd.h>
+# endif
+# define PEGASUS_UID_T uid_t
+# define PEGASUS_GID_T gid_t
+#else
+# define PEGASUS_UID_T Uint32
+# define PEGASUS_GID_T Uint32
+#endif
 
 //
 // Protocal Type
@@ -246,16 +256,33 @@ public:
     static Boolean isGroupMember(const char* userName, const char* groupName);
 
     /**
-    Changes the process user context to the specified user.
-
-    @param userName     User name to set as the process user context.
-
-    @return             True if the user context is successfully changed,
-                        false otherwise.
+        Gets the user and group IDs associated with the specified user.
+        @param userName  User name for which to look up user and group IDs.
+        @param uid       User ID for the specified user name.
+        @param gid       Group ID for the specified user name.
+        @return          True if the user and group IDs were retrieved
+                         successfully, false otherwise.
     */
 #ifndef PEGASUS_OS_OS400
-    static Boolean changeUserContext(const char* userName);
+    static Boolean lookupUserId(
+        const char* userName,
+        PEGASUS_UID_T& uid,
+        PEGASUS_GID_T& gid);
 #endif
+
+    /**
+        Changes the process user context to the specified user and group ID.
+        @param uid       User ID to set as the process user context.
+        @param gid       Group ID to set as the process group context.
+        @return          True if the user context is successfully changed,
+                         false otherwise.
+    */
+#ifndef PEGASUS_OS_OS400
+    static Boolean changeUserContext(
+        const PEGASUS_UID_T& uid,
+        const PEGASUS_GID_T& gid);
+#endif
+
     /**
     This function is used to get the process ID of the calling process.
 

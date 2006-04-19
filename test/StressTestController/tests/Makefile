@@ -51,15 +51,6 @@ tests:
 	@$(ECHO) +++ Usage Tests passed +++
 	@$(RM) $(RESULTFILE)
 
-stresstests:
-	@$(ECHO) Starting cimserver
-	@cimserver
-	@$(ECHO) Running controller tests:  
-	@TestStressTestController 
-	@$(ECHO) +++ stressTestsController Tests completed +++
-	@$(ECHO) Stoping cimserver:  
-	@cimserver -s
-
 stresstests_ignoreerror:
 	@$(ECHO) "Display usage - error" >> $(RESULTFILE)
 	@TestStressTestController -a >> $(RESULTFILE) $(REDIRECTERROR)

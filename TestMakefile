@@ -68,6 +68,7 @@ usage: FORCE
 	$(USAGE)
 	$(USAGE)"usage2             - usage on secondary test targets"
 	$(USAGE)"usagetrace         - usage on trace targets"
+	$(USAGE)"stresstests        - Execute the default stress test suite"
 	$(USAGE)
 
 usage2: FORCE
@@ -100,6 +101,7 @@ usage2: FORCE
 	$(USAGE)
 	$(USAGE)"serversuite             - the collection of test run by the servertests rule"
 	$(USAGE)"serverquicksuite        - The collection of test run by the serverquicktests rule"
+	$(USAGE)"run_STRESS_TS1          - Executes the stresstests"
 	$(USAGE)
 
 
@@ -260,6 +262,13 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_INDSSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_G11N_TS1
+
+#####################
+#
+# stresstests
+#
+stresstests:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_STRESS_TS1
 
 ####################
 #
@@ -461,6 +470,21 @@ run_G11N_TS1:
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(G11N_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(G11N_TS1_TEST_CMDS)"
+
+###############################################################################
+##  Stress Test Suite 1:  Default Stress Tests
+##
+##  Configuration Options: (none)
+##
+###############################################################################
+STRESS_TS1_CONFIG_OPTIONS =
+STRESS_TS1_TEST_CMDS = \
+        TestStressTestController
+
+run_STRESS_TS1:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(STRESS_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(STRESS_TS1_TEST_CMDS)"
 ###############################################################################
 
 
@@ -1013,12 +1037,3 @@ startcimWithSSL: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableHttpConnection=false enableHttpsConnection=true"
 	$(SLEEP) 5
 
-############################
-#
-# Target for OpenPegasus Stress Tests (PEP#241)
-#
-#    The stresstest target will run the stress tests
-
-stresstests:
-	@$(ECHO) "Running PEGASUS StressTests"
-	@$(MAKE) "-SC" test/StressTestController/tests stresstests

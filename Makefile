@@ -225,7 +225,9 @@ testusage2: FORCE
 	@ $(MAKE) -f TestMakefile usage2
 
 stresstests:
+	@$(ECHO) "Running OpenPegasus StressTests"
 	@$(MAKE)  -f TestMakefile stresstests
+	@$(ECHO) "+++++ OpenPegasus StressTests complete"
 
 ##########################################################################
 #

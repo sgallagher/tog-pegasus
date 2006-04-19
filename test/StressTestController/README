@@ -61,7 +61,7 @@ OR TOOLS.
    3. Stress Test Configuration.
        A flat file containing test configuration information.
 
-   The "TestStressTestController" will read the configuration file  and then, 
+   The "stressTestController" will read the configuration file  and then, 
    invoke the "Stress Test Client" instances specified in the "Stress Test 
    Configuration".  Each of the client instances will be a separate process.
    These Clients will in turn connect to the same CIM Server and perform 
@@ -450,16 +450,15 @@ Assumptions:
 
          - Any failure, will be reported accordingly and end the tests.
  
-    5.3 The new target "stresstests" can also be run from
-        $PEGASUS_ROOT/test/StressTests/tests.
-        The stress test programs are expected to be build already 
-        and ready to run.
-  
-    5.4 Another target "make tests" can also be run from 
-        $PEGASUS_ROOT/test/StressTests/tests. 
-        These tests will run some usage tests for the 
-        "TestStressTestController".  Any failure, will be reported 
-        accordingly and end the tests.
+    5.3 Target "tests" can also be run from $PEGASUS_ROOT/test/StressTests/tests
+        These tests will run some usage tests for the "TestStressTestController"
+        Any failure, will be reported accordingly and end the tests.
+        (These tests will be run as part of the nightly test.)
+
+        To invoke this target:
+         - Change directory to $PEGASUS_ROOT/test/StressTests/tests/
+         - Run the following command
+              "make tests"
 
 *****************************************************************************
 6.0 Stress Test Logs:

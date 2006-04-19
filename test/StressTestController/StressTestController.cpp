@@ -67,6 +67,7 @@ typedef DWORD pid_t;     /* getpid() and others */
 #define MILLISECONDS 1000
 #define CHECKUP_INTERVAL 1
 #define STOP_DELAY 1 
+#define SHUTDOWN_DELAY 5 
 #define RUN_DELAY 1 
 #define DEFAULT_INSTANCE "5"
 
@@ -1562,6 +1563,14 @@ Uint32 StressTestControllerCommand::execute (ostream& outPrintWriter,
     log_file<<"Cleaning all resources."<<endl;
     cleanupProcess();
     
+    //
+    // Waiting to allow clients to shutdown 
+    //
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+    sleep(SHUTDOWN_DELAY); 
+#else
+    Sleep(SHUTDOWN_DELAY * 1000);
+#endif
     // 
     // If the test did not run to completition
     //

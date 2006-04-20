@@ -681,6 +681,18 @@ ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
     endif
 endif
 
+ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
+    ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
+        FLAGS += -DPEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
+    else
+        ifneq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), false)
+            $(error PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER \
+                 ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER)) invalid, \
+                  must be true or false)
+        endif
+    endif
+endif
+
 # Allow remote CMPI functionality to be enabled
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
     FLAGS += -DPEGASUS_ENABLE_REMOTE_CMPI

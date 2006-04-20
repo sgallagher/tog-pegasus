@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,32 +31,40 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By: Mark Hamzy, hamzy@us.ibm.com
+// Modified By: Mark Hamzy,    hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 package org.pegasus.jmpi;
 
-import java.util.*;
+import java.util.List;
 
-public class JMPIQueryExp extends QueryExp {
+public class JMPIQueryExp
+             extends QueryExp
+{
+   private int ciSelectExp;
 
-   int cInst;
+   private native boolean _applyInstance (int ciSelectExp, int ciInstance);
 
-   private native void _finalize (int cInst);
-
-   protected void finalize ()
+   JMPIQueryExp (int ciSelectExp)
    {
-      _finalize (cInst);
+      this.ciSelectExp = ciSelectExp;
    }
 
-   JMPIQueryExp (int ci)
+   public boolean apply (CIMElement elm)
+      throws CIMException
    {
-     cInst=ci;
-   }
-
-   public boolean apply (CIMElement  old)
-   {
-      return false;
+      if (elm instanceof CIMInstance)
+      {
+         return _applyInstance (ciSelectExp, elm.cInst ());
+      }
+      else if (elm instanceof CIMClass)
+      {
+         throw new CIMException (CIMException.CIM_ERR_INVALID_PARAMETER);
+      }
+      else
+      {
+         throw new CIMException (CIMException.CIM_ERR_INVALID_PARAMETER);
+      }
    }
 
    public List canonizeDOC ()
@@ -72,4 +80,4 @@ public class JMPIQueryExp extends QueryExp {
    static {
       System.loadLibrary("JMPIProviderManager");
    }
-};
+}

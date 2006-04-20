@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,44 +31,16 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By: Mark Hamzy, hamzy@us.ibm.com
+// Modified By: Mark Hamzy,    hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 package org.pegasus.jmpi;
 
-import java.util.*;
+import java.util.Enumeration;
 
-public class SelectList {
-
-   int cInst;
-
-   private native void   _finalize (int cInst);
-
-   protected void finalize ()
-   {
-      _finalize(cInst);
-   }
-
-   SelectList (int ci)
-   {
-     cInst=ci;
-   }
-
-///public void addAttr (AttributeExp ae)
-///{
-///}
-
-   public Enumeration elements ()
-   {
-      return null;
-   }
-
-   public CIMElement apply (CIMElement ce)
-   {
-      return null;
-   }
-
-   static {
-      System.loadLibrary("JMPIProviderManager");
-   }
-};
+public abstract class SelectList
+{
+///public abstract void        addElement (AttributeExp ae);
+   public abstract Enumeration elements   ();
+   public abstract CIMElement  apply      (CIMElement   elm);
+}

@@ -5005,6 +5005,12 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1finalize
    DEBUG_ConvertCleanup (jint, jCc);
 }
 
+// -------------------------------------
+// ---
+// -		CIMObject
+// ---
+// -------------------------------------
+
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMObject__1newClass
   (JNIEnv *jEnv, jobject jThs, jobject jCc)
 {
@@ -5044,6 +5050,12 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMObject__1finalize
 
    DEBUG_ConvertCleanup (jint, jInst);
 }
+
+// -------------------------------------
+// ---
+// -		OperationContext
+// ---
+// -------------------------------------
 
 /*
  * Class:     OperationContext
@@ -5190,6 +5202,162 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_OperationContext__1get
    jEnv->ReleaseStringUTFChars (jKey, pszKey);
 
    return jRet;
+}
+
+// -------------------------------------
+// ---
+// -		SelectExp
+// ---
+// -------------------------------------
+
+/*
+ * Class:     org_pegasus_jmpi_SelectExp
+ * Method:    _finalize
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_pegasus_jmpi_SelectExp__1finalize
+  (JNIEnv *jEnv, jobject jThs, jint jEselx)
+{
+   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+
+   delete eSelx;
+
+   DEBUG_ConvertCleanup (jint, eSelx);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_SelectExp
+ * Method:    _newSelectExp
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_SelectExp__1newSelectExp
+  (JNIEnv *jEnv, jobject jThs, jstring jQuery)
+{
+   const char         *pszQuery = jEnv->GetStringUTFChars (jQuery, NULL);
+   CMPI_SelectExp     *eSelx    = NULL;
+   WQLSelectStatement *stmt     = NULL;
+   String              queryLanguage (CALL_SIGN_WQL);
+   String              query (pszQuery);
+
+   stmt  = new WQLSelectStatement (queryLanguage, query);
+   eSelx = new CMPI_SelectExp (stmt);
+
+   jEnv->ReleaseStringUTFChars (jQuery, pszQuery);
+
+   return DEBUG_ConvertCToJava (CMPI_SelectExp *, jint, eSelx);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_SelectExp
+ * Method:    _getSelectString
+ * Signature: (I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_SelectExp__1getSelectString
+  (JNIEnv *jEnv, jobject jThs, jint jEselx)
+{
+   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+
+   return (jstring)jEnv->NewStringUTF (eSelx->cond.getCString ());
+}
+
+// -------------------------------------
+// ---
+// -		JMPISelectList
+// ---
+// -------------------------------------
+
+/*
+ * Class:     org_pegasus_jmpi_JMPISelectList
+ * Method:    _applyInstance
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyInstance
+  (JNIEnv *jEnv, jobject jThs, jint jEselx, jint jciInstance)
+{
+   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+   CIMInstance    *ci    = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciInstance);
+   CIMInstance    *ciRet = 0;
+
+   if (  !eSelx
+      || !eSelx->wql_stmt
+      )
+   {
+      return 0;
+   }
+
+   ciRet = new CIMInstance (ci->clone ());
+
+   if (ciRet)
+   {
+      eSelx->wql_stmt->applyProjection (*ciRet, false);
+   }
+
+   return DEBUG_ConvertCToJava (CIMInstance *, jint, ciRet);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_JMPISelectList
+ * Method:    _applyClass
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyClass
+  (JNIEnv *jEnv, jobject jThs, jint jEselx, jint jciClass)
+{
+   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+   CIMClass       *cc    = DEBUG_ConvertJavaToC (jint, CIMClass*, jciClass);
+   CIMClass       *ccRet = NULL;
+
+   if (  !eSelx
+      || !eSelx->wql_stmt
+      )
+   {
+      return 0;
+   }
+
+   if (cc)
+   {
+      CIMObject co (cc->clone ());
+
+      eSelx->wql_stmt->applyProjection (co, false);
+
+      ccRet = new CIMClass (co);
+
+      return DEBUG_ConvertCToJava (CIMClass *, jint, ccRet);
+   }
+
+   return 0;
+}
+
+// -------------------------------------
+// ---
+// -		JMPIQueryExp
+// ---
+// -------------------------------------
+
+/*
+ * Class:     org_pegasus_jmpi_JMPIQueryExp
+ * Method:    _applyInstance
+ * Signature: (II)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_JMPIQueryExp__1applyInstance
+  (JNIEnv *jEnv, jobject jThs, jint jEselx, jint jciInstance)
+{
+   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+   CIMInstance    *ci    = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciInstance);
+
+   if (  !eSelx
+      || !eSelx->wql_stmt
+      )
+   {
+      return 0;
+   }
+
+   if (eSelx->wql_stmt)
+   {
+      return eSelx->wql_stmt->evaluate (*ci);
+   }
+
+   return false;
 }
 
 } // extern "C"

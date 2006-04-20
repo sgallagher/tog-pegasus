@@ -29,13 +29,66 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
+// Author:      Mark Hamzy,    hamzy@us.ibm.com
 //
 // Modified By: Mark Hamzy,    hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 package org.pegasus.jmpi;
 
-abstract class WQLExp
+import java.util.Enumeration;
+
+public class JMPISelectList
+             extends SelectList
 {
+   private int ciSelectExp;
+
+   private native int _applyInstance (int ciSelectExp, int ciInstance);
+   private native int _applyClass    (int ciSelectExp, int ciClass);
+
+   JMPISelectList (int ciSelectExp)
+   {
+      this.ciSelectExp = ciSelectExp;
+   }
+
+///public void addElement (AttributeExp ae)
+///{
+///}
+
+   public Enumeration elements ()
+   {
+      return null;
+   }
+
+   public CIMElement apply (CIMElement elm)
+   {
+      if (elm instanceof CIMInstance)
+      {
+         int ciInst = 0;
+
+         ciInst = _applyInstance (ciSelectExp, elm.cInst ());
+
+         if (ciInst != 0)
+         {
+            return new CIMInstance (ciInst);
+         }
+      }
+      else if (elm instanceof CIMClass)
+      {
+         int ciClass = 0;
+
+         ciClass = _applyClass (ciSelectExp, elm.cInst ());
+
+         if (ciClass != 0)
+         {
+            return new CIMClass (ciClass);
+         }
+      }
+
+      return null;
+   }
+
+   static {
+      System.loadLibrary("JMPIProviderManager");
+   }
 }

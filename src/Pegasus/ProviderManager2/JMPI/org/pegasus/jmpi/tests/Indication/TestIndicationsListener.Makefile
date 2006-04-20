@@ -28,96 +28,24 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-JAVAROOT = ../../..
-ROOT = ../../../../../../..
+ROOT = $(PEGASUS_ROOT)
+DIR  = Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/Indication
 
 include $(ROOT)/mak/config.mak
 
-.SUFFIXES: .java .class .jar
+PROGRAM            = TestIndicationsListener
+SOURCES            = TestIndicationsListener.cpp
+EXTRA_CXX_FLAGS    =
+LOCAL_DEFINES      =
+SYS_INCLUDES       =
+EXTRA_INCLUDES     =
+EXTRA_LINK_FLAGS   =
+LIBRARIES          = \
+	peglistener \
+	pegclient \
+	pegexportserver \
+	pegcommon
+LOCAL_CLEAN_TARGET =
 
-.java.class:
-	javac -classpath $(JAVAROOT) $*.java
-
-PACKAGEDIR = org/pegasus/jmpi
-
-   CLASSES = \
-   CIMClass.class \
-   CIMInstance.class \
-   CIMDataType.class \
-   CIMDateTime.class \
-   CIMElement.class \
-   CIMException.class \
-   CIMInstanceException.class \
-   CIMInstance.class \
-   CIMMethod.class \
-   CIMNameSpace.class \
-   CIMObject.class \
-   CIMObjectPath.class \
-   CIMOMHandle.class \
-   ProviderCIMOMHandle.class \
-   CIMProperty.class \
-   CIMValue.class \
-   CIMQualifier.class \
-   CIMQualifierType.class \
-   CIMDataType.class \
-   CIMFlavor.class \
-   CIMScope.class \
-   CIMArgument.class \
-   \
-   OperationContext.class \
-   \
-   CIMProvider.class \
-   CIMInstanceProvider.class \
-   CIMInstanceProvider2.class \
-   CIMAssociatorProvider.class \
-   CIMAssociatorProvider2.class \
-   CIMMethodProvider.class \
-   CIMMethodProvider2.class \
-   \
-   InstanceProvider.class \
-   InstanceProvider2.class \
-   MethodProvider.class \
-   MethodProvider2.class \
-   AssociatorProvider.class \
-   AssociatorProvider2.class \
-   EventProvider.class \
-   EventProvider2.class \
-   PropertyProvider.class \
-   PropertyProvider2.class \
-   \
-   SelectExp.class \
-   FromExp.class \
-   NonJoinExp.class \
-   SelectList.class \
-   JMPISelectList.class \
-   QueryExp.class \
-   JMPIQueryExp.class \
-   WQLExp.class \
-   \
-   UnsignedNumber.class \
-   UnsignedInt16.class \
-   UnsignedInt32.class \
-   UnsignedInt64.class \
-   UnsignedInt8.class \
-   \
-   CIMNameSpace.class \
-   CIMClient.class \
-   InstEnumeration.class \
-   PathEnumeration.class \
-   QualEnumeration.class \
-   \
-   JarClassLoader.class
-
-PFXCLASSES=$(addprefix -C ../../.. org/pegasus/jmpi/,$(CLASSES))
-
-all build: $(PEGASUS_HOME)/lib/JMPIImpl.jar $(CLASSES)
-
-depend:
-
-clean:
-	-$(RM) *.class
-	-$(RM) $(PEGASUS_HOME)/lib/JMPIImpl.jar
-
-$(PEGASUS_HOME)/lib/JMPIImpl.jar: $(CLASSES)
-	jar -cf $@ $(PFXCLASSES)
-
+include $(ROOT)/mak/program.mak
+include $(ROOT)/mak/test.mak

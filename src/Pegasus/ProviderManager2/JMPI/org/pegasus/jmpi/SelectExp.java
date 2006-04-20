@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,40 +31,48 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By: Mark Hamzy, hamzy@us.ibm.com
+// Modified By: Mark Hamzy,    hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 package org.pegasus.jmpi;
 
-public class SelectExp extends WQLExp {
+public class SelectExp
+             extends WQLExp
+{
+   private int cInst;
 
-   int cInst;
-
-   private native void   _finalize (int cInst);
+   private native void   _finalize        (int    cInst);
+   private native int    _newSelectExp    (String query);
+   private native String _getSelectString (int    cInst);
 
    protected void finalize ()
    {
-      _finalize(cInst);
+      _finalize (cInst);
    }
 
-   SelectExp (int ci)
+   protected SelectExp (int ci)
    {
-     cInst=ci;
+      cInst = ci;
+   }
+
+   public SelectExp (String query)
+   {
+      cInst = _newSelectExp (query);
    }
 
    public String getSelectString ()
    {
-      return null;
+      return _getSelectString (cInst);
    }
 
    public QueryExp getWhereClause ()
    {
-      return null;
+      return new JMPIQueryExp (cInst);
    }
 
    public SelectList getSelectList ()
    {
-      return null;
+      return new JMPISelectList (cInst);
    }
 
    public FromExp getFromClause ()
@@ -73,6 +81,6 @@ public class SelectExp extends WQLExp {
    }
 
    static {
-      System.loadLibrary("JMPIProviderManager");
+      System.loadLibrary ("JMPIProviderManager");
    }
-};
+}

@@ -28,14 +28,26 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Mark Hamzy,    hamzy@us.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
-package org.pegasus.jmpi;
 
-abstract class WQLExp
+// ==================================================================
+// TestIndication
+// ==================================================================
+
+[Version ("2.2.0"), Description (""), provider("JMPI_IndicationProvider")]
+class TestIndication : CIM_Indication
 {
-}
+// [Key, MaxLen (256), Description ("CreationClassName indicates the name of the class or the "
+//                                  "subclass used in the creation of an instance. When used "
+//                                  "with the other key properties of this class, this property "
+//                                  "allows all instances of this class and its subclasses to "
+//                                  "be uniquely identified.")]
+// string CreationClassName;
+
+   [Key, Description ("An identifier that uniquely identifies each instance of the TestIndication hierarchy.") ]
+   uint64 InstanceId;
+
+   [Maxlen (256), Description ("a string property of TestIndication")]
+   string PropertyString;
+
+   uint32 SendTestIndicationNormal (uint64 indicationSendCount);
+};

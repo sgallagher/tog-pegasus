@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -79,7 +79,7 @@ Environment settings
 
    export PEGASUS_JMPI_MAX_HEAP=128m
 
-   There is a new environment variable that tells the JVM to output more debugging information.  The variable name 
+   There is a new environment variable that tells the JVM to output more debugging information.  The variable name
    is called PEGASUS_JMPI_VERBOSE.  An example usage is as follows:
 
    export PEGASUS_JMPI_VERBOSE="jni,class"
@@ -94,18 +94,13 @@ This installment has a number of restrictios:
 
    The provider interfaces follow the SNIA OpenWBEM APIs
    Only Instance and Association providers are supported at the moment.
-	SetProperty and GetProperty CIM operations will crash cimserver
-   Jar support is not yet implemented - all classes must be accessable via the CLASSPATH variabe.
-   The Makefiles are not yet Pegasus conforming.
-	cimmofl must be used for provider registration.
-
-	Unloading of idle providers is not supported and Java will increase the memory footprint.
+   Unloading of idle providers is not supported and Java will increase the memory footprint.
 
 
 poststarttests
 
-   This installment has a set of tests modelled after wetest/static. All tests work properly except
-   the Property tests. I had to modify "diff" to "diff -w", why that is needed I do not understand.
+   This installment has a set of tests modelled after wetest/static.
+   For the tests, I had to modify "diff" to "diff -w", why that is needed I do not understand.
 
 
 Building poststarttests:
@@ -141,19 +136,28 @@ Provider Registration
    JMPI providers are registered as usual. The Location property in P_ProviderModule has a special format.
 	The format is: <jar-file-name>:<provider-class-name>
 
-	Although jar support is not yet working correctly, this format must be used. You should use cimmofl
-	for registration untill cimmof is prepared for JMPI.
-
    instance of PG_ProviderModule
    {
       Name = "JMPI_TestPropertyTypesModule";
-      Location = "JMPI_TestPropertyTypes.jar:"
-		           "org/pegasus/jmpi/tests/JMPI_TestPropertyTypes/JMPI_TestPropertyTypes";
+      Location = "JMPI_TestPropertyTypes.jar:org/pegasus/jmpi/tests/JMPI_TestPropertyTypes/JMPI_TestPropertyTypes";
       Vendor = "Pegasus Community";
       Version = "2.0.0";
       InterfaceType = "JMPI";
       InterfaceVersion = "1.0.0";
    };
+
+   JMPI providers now fall into two groups.
+   1) Legacy providers use:
+      InterfaceType = "JMPI"
+   and use one of the 3 following based on existing JMPI samples:
+      InterfaceVersion = "1.0.0";
+      InterfaceVersion = "2.0.0";
+      InterfaceVersion = "2.2.0";
+   Note that there is no difference in behavior in the three versions.
+   2) New style providers use:
+      InterfaceType = "JMPIExperimental"
+   and:
+      InterfaceVersion = "0.0.1";
 
 
 Bug reports

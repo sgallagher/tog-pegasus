@@ -61,6 +61,7 @@
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProviderManager.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_SelectExp.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -1402,36 +1403,52 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent
 {
    CIMOMHandle *ch  = DEBUG_ConvertJavaToC (jint, CIMOMHandle*, jCh);
    CIMInstance *ind = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInd);
-   const char  *str = jEnv->GetStringUTFChars(jName,NULL);
-   String       name(str);
+   const char  *str = jEnv->GetStringUTFChars (jName, NULL);
+   String       name (str);
 
-   jEnv->ReleaseStringUTFChars(jName,str);
+   jEnv->ReleaseStringUTFChars (jName, str);
 
-   str=jEnv->GetStringUTFChars(jNs,NULL);
+   str = jEnv->GetStringUTFChars (jNs, NULL);
 
-   String ns(str);
+   String ns (str);
 
-   jEnv->ReleaseStringUTFChars(jNs,str);
+   jEnv->ReleaseStringUTFChars (jNs, str);
 
-   CIMObjectPath ref(CIMObjectPath(ind->getPath()));
+   CIMObjectPath ref (ind->getPath ());
 
-   ref.setNameSpace(ns);
-   ind->setPath(ref);
+   ref.setNameSpace (ns);
+   DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() ref = "<<ref.toString ()<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() ind = "<<ind->getPath ().toString ()<<PEGASUS_STD(endl));
+   ind->setPath (ref);
+   DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() ind = "<<ind->getPath ().toString ()<<PEGASUS_STD(endl));
 
-   JMPIProviderManager::indProvRecord *prec;
-   OperationContext* context;
+   JMPIProviderManager::indProvRecord   *prec        = NULL;
+   String                                sPathString = ind->getPath ().toString ();
+   OperationContext                     *context     = NULL;
+   bool                                  fResult     = false;
 
-   if (JMPIProviderManager::provTab.lookup(name,prec)) {
-      if (prec->enabled) {
-         context=prec->ctx;
-         try {
-            prec->handler->deliver(*context, *ind);
+   {
+      AutoMutex lock (JMPIProviderManager::mutexProvTab);
+
+      fResult = JMPIProviderManager::provTab.lookup (name, prec);
+
+      DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() fResult = "<<fResult<<", name = "<<name<<PEGASUS_STD(endl));
+   }
+
+   if (fResult)
+   {
+      if (prec->enabled)
+      {
+         try
+         {
+            prec->handler->deliver (*prec->ctx, *ind);
          }
          Catch(jEnv);
       }
    }
-   else {
-      DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() "<<name<<" not found"<<PEGASUS_STD(endl));
+   else
+   {
+      DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() provider name \""<<name<<"\" not found"<<PEGASUS_STD(endl));
    }
 }
 
@@ -1908,7 +1925,12 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMInstance__1getKeyValuePairs
 
    CIMInstance *ci = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInst);
 
+//@HACK
+//printf("ci->getPropertyCount() = %d\n", ci->getPropertyCount());
    for (int i=0,s=ci->getPropertyCount(); i<s; i++) {
+//printf("%s %d\n",
+//     (const char *)ci->getProperty(i).getName ().getString ().getCString (),
+//     ci->getProperty(i).findQualifier(String("key")));
       if (ci->getProperty(i).findQualifier(String("key"))!=PEG_NOT_FOUND) {
          CIMProperty *cp  = new CIMProperty(ci->getProperty(i));
          jint         jCp = DEBUG_ConvertCToJava (CIMProperty*, jint, cp);

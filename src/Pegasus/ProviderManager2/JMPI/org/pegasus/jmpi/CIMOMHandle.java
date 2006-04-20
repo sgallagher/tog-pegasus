@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -42,7 +42,7 @@ import java.util.*;
 public class CIMOMHandle implements ProviderCIMOMHandle
 {
    int    cInst;
-   String name;
+   String providerName;
 
    private native int  _getClass               (int           inst,
                                                 int           cop,
@@ -177,10 +177,10 @@ public class CIMOMHandle implements ProviderCIMOMHandle
    }
 
    CIMOMHandle (int    ci,
-                String nm)
+                String name)
    {
-      cInst=ci;
-      name=nm;
+      cInst        = ci;
+      providerName = name;
    }
 
     /**
@@ -530,13 +530,13 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                              CIMInstance ind)
         throws CIMException
    {
-      _deliverEvent(cInst,
-                    name,
-                    ns,
-                    ind.cInst);
+      _deliverEvent (cInst,
+                     providerName,
+                     ns,
+                     ind.cInst);
    }
 
    static {
       System.loadLibrary("JMPIProviderManager");
    }
-};
+}

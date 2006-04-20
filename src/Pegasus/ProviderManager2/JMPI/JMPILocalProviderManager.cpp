@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -100,9 +100,18 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
             String interfaceName = *(parms->interfaceName);
 
             DDD(PEGASUS_STD(cout)
-                <<"--- JMPILocalProviderManager::_provider_ctrl: GET_PROVIDER "
+                <<"--- JMPILocalProviderManager::_provider_ctrl: GET_PROVIDER providerName = "
                 <<providerName
+                <<", moduleFileName = "
+                <<moduleFileName
+                <<", interfaceName = "
+                <<interfaceName
                 <<PEGASUS_STD(endl));
+
+            if (providerName.size () == 0)
+            {
+               throw NullPointer();
+            }
 
             JMPIProvider::OpProviderHolder* ph =
                reinterpret_cast< JMPIProvider::OpProviderHolder* >( ret );

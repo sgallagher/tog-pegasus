@@ -348,8 +348,11 @@ bool JMPIProviderManager::interfaceIsUsed (JNIEnv  *env,
 }
 
 JMPIProviderManager::IndProvTab    JMPIProviderManager::provTab;
+Mutex                              JMPIProviderManager::mutexProvTab;
 JMPIProviderManager::IndSelectTab  JMPIProviderManager::selxTab;
+Mutex                              JMPIProviderManager::mutexSelxTab;
 JMPIProviderManager::ProvRegistrar JMPIProviderManager::provReg;
+Mutex                              JMPIProviderManager::mutexProvReg;
 
 JMPIProviderManager::JMPIProviderManager(Mode m)
 {
@@ -377,7 +380,15 @@ Boolean JMPIProviderManager::insertProvider(const ProviderName & name,
 
     DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::insertProvider: "<<key<<PEGASUS_STD(endl));
 
-    return provReg.insert(key,name);
+    Boolean ret = false;
+
+    {
+       AutoMutex lock (mutexProvReg);
+
+       ret = provReg.insert(key,name);
+    }
+
+    return ret;
 }
 
 Message * JMPIProviderManager::processMessage(Message * request) throw()
@@ -6236,6 +6247,54 @@ int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstanc
     return 0;
 }
 
+CMPI_SelectExp *
+newSelectExp (CIMOMHandleQueryContext *qContext,
+              OperationContext        *ctx,
+              String&                  query,
+              String&                  queryLanguage,
+              CIMNamespaceName&        nameSpace,
+              Array<CIMName>&          classNames,
+              CIMPropertyList&         propertyList)
+{
+   CMPI_SelectExp *eSelx = NULL;
+
+   eSelx = new CMPI_SelectExp (*ctx,
+                               qContext,
+                               query,
+                               queryLanguage);
+
+   if (!eSelx)
+   {
+      return eSelx;
+   }
+
+   for (Uint32 i = 0, n = classNames.size (); i < n; i++)
+   {
+       CIMObjectPath className (System::getHostName(),
+                                nameSpace,
+                                classNames[i]);
+
+       eSelx->classNames.append (className);
+   }
+
+   if (!propertyList.isNull ())
+   {
+      Array<CIMName> p      = propertyList.getPropertyNameArray ();
+      int            pCount = p.size ();
+
+      eSelx->props = (const char**)malloc ((1 + pCount) * sizeof (char*));
+
+      for (int i = 0; i < pCount; i++)
+      {
+         eSelx->props[i] = strdup (p[i].getString ().getCString ());
+      }
+
+      eSelx->props[pCount] = NULL;
+   }
+
+   return eSelx;
+}
+
 Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * message) throw()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleCreateSubscriptionRequest");
@@ -6247,119 +6306,143 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
        METHOD_EVENTPROVIDER,
        METHOD_EVENTPROVIDER2,
     } METHOD_VERSION;
-    METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
-    JNIEnv          *env           = NULL;
+    METHOD_VERSION  eMethodFound = METHOD_UNKNOWN;
+    JNIEnv         *env          = NULL;
 
     try {
-        String               providerName,
+        String               fileName,
+                             providerName,
                              providerLocation;
         CIMInstance          req_provider,
                              req_providerModule;
+        ProviderIdContainer  pidc               = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
 
-        ProviderIdContainer  pidc                = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+        req_provider       = pidc.getProvider ();
+        req_providerModule = pidc.getModule ();
 
-        req_provider       = pidc.getProvider();
-        req_providerModule = pidc.getModule();
+        LocateIndicationProviderNames (req_provider,
+                                       req_providerModule,
+                                       providerName,
+                                       providerLocation);
 
-        LocateIndicationProviderNames(req_provider, req_providerModule,providerName,providerLocation);
+        fileName = resolveFileName (providerLocation);
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "JMPIProviderManager::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            providerName);
+        Logger::put (Logger::STANDARD_LOG,
+                     System::CIMSERVER,
+                     Logger::TRACE,
+                     "JMPIProviderManager::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
+                     System::getHostName(),
+                     request->nameSpace.getString(),
+                     providerName);
 
-        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", providername = "<<providerName<<PEGASUS_STD(endl));
-
-        String fileName = resolveFileName(providerLocation);
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: hostname = "
+                             <<System::getHostName()
+                             <<", namespace = "
+                             <<request->nameSpace.getString()
+                             <<", providername = "
+                             <<providerName
+                             <<", fileName = "
+                             <<fileName
+                             <<PEGASUS_STD(endl));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (fileName, providerName,
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (fileName,
+                                                                         providerName,
                                                                          String::EMPTY);
-
-        indProvRecord *prec = NULL;
-
-        provTab.lookup(providerName,prec);
-
-        if (prec)
-        {
-            prec->count++;
-        }
-        else
-        {
-            prec=new indProvRecord();
-            provTab.insert(providerName,prec);
-        }
 
         //
         //  Save the provider instance from the request
         //
         ph.GetProvider ().setProviderInstance (req_provider);
 
-        indSelectRecord     *srec  = new indSelectRecord();
-        const CIMObjectPath &sPath = request->subscriptionInstance.getPath();
+        JMPIProvider &pr = ph.GetProvider ();
 
-        selxTab.insert(sPath.toString(),srec);
+        //
+        //  Increment count of current subscriptions for this provider
+        //
+        pr.testIfZeroAndIncrementSubscriptions ();
 
-        // convert arguments
-        OperationContext *context=new OperationContext();
+        SubscriptionFilterConditionContainer  sub_cntr = request->operationContext.get (SubscriptionFilterConditionContainer::NAME);
+        indProvRecord                        *prec     = NULL;
+        bool                                  fNewPrec = false;
 
-        if (prec->ctx==NULL)
         {
-            prec->ctx=context;
+           AutoMutex lock (mutexProvTab);
+
+           provTab.lookup (providerName, prec);
+
+           if (!prec)
+           {
+               fNewPrec = true;
+
+               prec = new indProvRecord ();
+
+               // convert arguments
+               prec->ctx = new OperationContext ();
+
+               prec->ctx->insert (request->operationContext.get (IdentityContainer::NAME));
+               prec->ctx->insert (request->operationContext.get (AcceptLanguageListContainer::NAME));
+               prec->ctx->insert (request->operationContext.get (ContentLanguageListContainer::NAME));
+               prec->ctx->insert (request->operationContext.get (SubscriptionInstanceContainer::NAME));
+               prec->ctx->insert (request->operationContext.get (SubscriptionFilterConditionContainer::NAME));
+
+               prec->enabled = true;
+
+               prec->handler = new EnableIndicationsResponseHandler (0,
+                                                                     0,
+                                                                     req_provider,
+                                                                     _indicationCallback,
+                                                                     _responseChunkCallback);
+
+               DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: Adding to provTab "<<providerName<<PEGASUS_STD(endl));
+
+               provTab.insert (providerName, prec);
+           }
         }
 
-        context->insert(request->operationContext.get(IdentityContainer::NAME));
-        context->insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context->insert(request->operationContext.get(ContentLanguageListContainer::NAME));
-        context->insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-        context->insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
+        {
+           AutoMutex lock (prec->mutex);
 
-        CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
+           prec->count++;
+        }
 
-        SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get
-                (SubscriptionFilterConditionContainer::NAME);
+        // Add a selection record for JNI CIMOMHandle deliverEvent calls
+        indSelectRecord *srec = new indSelectRecord ();
 
-        JMPIProvider &pr = ph.GetProvider();
+        {
+           srec->query         = request->query;
+           srec->queryLanguage = sub_cntr.getQueryLanguage ();
+           srec->propertyList  = request->propertyList;
 
-        CIMOMHandleQueryContext *qcontext=new CIMOMHandleQueryContext(CIMNamespaceName(request->nameSpace.getString()),
-                                                                      *pr._cimom_handle);
+           CIMOMHandleQueryContext *qContext = new CIMOMHandleQueryContext (CIMNamespaceName (request->nameSpace.getString ()),
+                                                                            *pr._cimom_handle);
+           CMPI_SelectExp          *eSelx    = newSelectExp (qContext,
+                                                             prec->ctx,
+                                                             srec->query,
+                                                             srec->queryLanguage,
+                                                             request->nameSpace,
+                                                             request->classNames,
+                                                             srec->propertyList);
 
-        CMPI_SelectExp *eSelx = new CMPI_SelectExp(*context,
-                                                   qcontext,
-                                                   request->query,
-                                                   sub_cntr.getQueryLanguage());
+           srec->eSelx    = eSelx;
+           srec->qContext = qContext;
 
-        srec->eSelx=eSelx;
-        srec->qContext=qcontext;
+           CIMObjectPath sPath (request->subscriptionInstance.getPath ().getClassName ().getString ());
+
+           sPath.setNameSpace (request->subscriptionInstance.getPath ().getNameSpace ());
+
+           AutoMutex lock (mutexSelxTab);
+
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: Adding to selxTab "<<sPath.toString ()<<PEGASUS_STD(endl));
+
+           selxTab.insert (sPath.toString (), srec);
+
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: For selxTab "<<sPath.toString ()<<", srec = "<<PEGASUS_STD(hex)<<(int)srec<<PEGASUS_STD(dec)<<", eSelx = "<<PEGASUS_STD(hex)<<(int)eSelx<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(int)qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+        }
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.createSubscriptionRequest: " + pr.getName());
 
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: Calling provider createSubscriptionRequest: "<<pr.getName()<<PEGASUS_STD(endl));
-
-        for(Uint32 i = 0, n = request->classNames.size(); i < n; i++) {
-            CIMObjectPath className(
-                System::getHostName(),
-                request->nameSpace,
-                request->classNames[i]);
-            eSelx->classNames.append(className);
-        }
-
-        CIMPropertyList propertyList = request->propertyList;
-
-        if (!propertyList.isNull())
-        {
-           Array<CIMName> p      = propertyList.getPropertyNameArray();
-           int            pCount = p.size();
-
-           eSelx->props=(const char**)malloc((1+pCount)*sizeof(char*));
-
-           for (int i=0; i<pCount; i++)
-           {
-              eSelx->props[i]=strdup(p[i].getString().getCString());
-           }
-           eSelx->props[pCount]=NULL;
-        }
 
         JvmVector *jv = 0;
 
@@ -6384,7 +6467,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+        getInterfaceType (pidc,
                           interfaceType,
                           interfaceVersion);
 
@@ -6395,9 +6478,9 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
            //                             org.pegasus.jmpi.CIMObjectPath classPath,
            //                             boolean                        firstActivation)
            //        throws org.pegasus.jmpi.CIMException
-           id = env->GetMethodID((jclass)pr.jProviderClass,
-                                 "activateFilter",
-                                 "(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
+           id = env->GetMethodID ((jclass)pr.jProviderClass,
+                                  "activateFilter",
+                                  "(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
 
            if (id != NULL)
            {
@@ -6413,9 +6496,9 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
            //                             org.pegasus.jmpi.CIMObjectPath    classPath,
            //                             boolean                           firstActivation)
            //        throws org.pegasus.jmpi.CIMException
-           id = env->GetMethodID((jclass)pr.jProviderClass,
-                                 "activateFilter",
-                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
+           id = env->GetMethodID ((jclass)pr.jProviderClass,
+                                  "activateFilter",
+                                  "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
 
            if (id != NULL)
            {
@@ -6443,13 +6526,15 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         {
         case METHOD_EVENTPROVIDER:
         {
-            jint    jSelRef = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
-            jobject jSel    = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jSelRef);
-
-            JMPIjvm::checkException(env);
-
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &eSelx->classNames[0]);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            CMPI_SelectExp *eSelx     = newSelectExp (srec->qContext,
+                                                      prec->ctx,
+                                                      srec->query,
+                                                      srec->queryLanguage,
+                                                      request->nameSpace,
+                                                      request->classNames,
+                                                      srec->propertyList);
+            jint            jEselxRef = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
+            jobject         jEselx    = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jEselxRef);
 
             JMPIjvm::checkException(env);
 
@@ -6457,38 +6542,22 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
-            env->CallVoidMethod((jobject)pr.jProvider,
-                                id,
-                                jSel,
-                                jType,
-                                jcop,
-                                (jboolean)0);
+            CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
+                                                        request->nameSpace,
+                                                        request->classNames[0]);
+            jint           jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
 
             JMPIjvm::checkException(env);
 
-            //
-            //  Increment count of current subscriptions for this provider
-            //
-            if (ph.GetProvider ().testIfZeroAndIncrementSubscriptions ())
-            {
-                //
-                //  If there were no current subscriptions before the increment,
-                //  the first subscription has been created
-                //  Call the provider's enableIndications method
-                //
-                if (_subscriptionInitComplete)
-                {
-                    prec->enabled = true;
-                    CIMRequestMessage * request = 0;
-                    CIMResponseMessage * response = 0;
-                    prec->handler = new EnableIndicationsResponseHandler (
-                        request,
-                        response,
-                        req_provider,
-                        _indicationCallback,
-                        _responseChunkCallback);
-                }
-            }
+            env->CallVoidMethod ((jobject)pr.jProvider,
+                                 id,
+                                 jEselx,
+                                 jType,
+                                 jcop,
+                                 (jboolean)fNewPrec);
+
+            JMPIjvm::checkException(env);
 
             STAT_PMS_PROVIDEREND;
             break;
@@ -6499,13 +6568,15 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
             jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
 
-            jint    jSelRef = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
-            jobject jSel    = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jSelRef);
-
-            JMPIjvm::checkException(env);
-
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &eSelx->classNames[0]);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            CMPI_SelectExp *eSelx     = newSelectExp (srec->qContext,
+                                                      prec->ctx,
+                                                      srec->query,
+                                                      srec->queryLanguage,
+                                                      request->nameSpace,
+                                                      request->classNames,
+                                                      srec->propertyList);
+            jint            jEselxRef = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
+            jobject         jEselx    = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jEselxRef);
 
             JMPIjvm::checkException(env);
 
@@ -6513,13 +6584,21 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
-            env->CallVoidMethod((jobject)pr.jProvider,
-                                id,
-                                joc,
-                                jSel,
-                                jType,
-                                jcop,
-                                (jboolean)0);
+            CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
+                                                        request->nameSpace,
+                                                        request->classNames[0]);
+            jint           jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+
+            JMPIjvm::checkException(env);
+
+            env->CallVoidMethod ((jobject)pr.jProvider,
+                                 id,
+                                 joc,
+                                 jEselx,
+                                 jType,
+                                 jcop,
+                                 (jboolean)fNewPrec);
 
             JMPIjvm::checkException(env);
 
@@ -6528,30 +6607,6 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
-            }
-
-            //
-            //  Increment count of current subscriptions for this provider
-            //
-            if (ph.GetProvider ().testIfZeroAndIncrementSubscriptions ())
-            {
-                //
-                //  If there were no current subscriptions before the increment,
-                //  the first subscription has been created
-                //  Call the provider's enableIndications method
-                //
-                if (_subscriptionInitComplete)
-                {
-                    prec->enabled = true;
-                    CIMRequestMessage * request = 0;
-                    CIMResponseMessage * response = 0;
-                    prec->handler = new EnableIndicationsResponseHandler(
-                        request,
-                        response,
-                        req_provider,
-                        _indicationCallback,
-                        _responseChunkCallback);
-                }
             }
 
             STAT_PMS_PROVIDEREND;
@@ -6564,7 +6619,6 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             break;
         }
         }
-
     }
     HandlerCatch(handler);
 
@@ -6586,58 +6640,91 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
        METHOD_EVENTPROVIDER,
        METHOD_EVENTPROVIDER2,
     } METHOD_VERSION;
-    METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
-    JNIEnv          *env           = NULL;
+    METHOD_VERSION           eMethodFound = METHOD_UNKNOWN;
+    JNIEnv                  *env          = NULL;
+    bool                     fFreePrec    = false;
+    indProvRecord           *prec         = NULL;
+    indSelectRecord         *srec         = NULL;
 
     try {
-        String              providerName,
+        String              fileName,
+                            providerName,
                             providerLocation;
         CIMInstance         req_provider,
                             req_providerModule;
         ProviderIdContainer pidc               = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
 
-        req_provider       = pidc.getProvider();
-        req_providerModule = pidc.getModule();
+        req_provider       = pidc.getProvider ();
+        req_providerModule = pidc.getModule ();
 
-        LocateIndicationProviderNames(req_provider, req_providerModule, providerName,providerLocation);
+        LocateIndicationProviderNames (req_provider,
+                                       req_providerModule,
+                                       providerName,
+                                       providerLocation);
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "JMPIProviderManager::handleDeleteSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            providerName);
+        fileName = resolveFileName (providerLocation);
 
-        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", providername = "<<providerName<<PEGASUS_STD(endl));
+        Logger::put (Logger::STANDARD_LOG,
+                     System::CIMSERVER,
+                     Logger::TRACE,
+                     "JMPIProviderManager::handleDeleteSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
+                     System::getHostName(),
+                     request->nameSpace.getString(),
+                     providerName);
 
-        String fileName = resolveFileName(providerLocation);
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: hostname = "
+                             <<System::getHostName()
+                             <<", namespace = "
+                             <<request->nameSpace.getString()
+                             <<", providername = "
+                             <<providerName
+                             <<", fileName = "
+                             <<fileName
+                             <<PEGASUS_STD(endl));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (fileName, providerName,
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (fileName,
+                                                                         providerName,
                                                                          String::EMPTY);
 
-        indProvRecord *prec = NULL;
+        JMPIProvider &pr = ph.GetProvider ();
 
-        provTab.lookup(providerName,prec);
-        if (--prec->count <= 0)
         {
-            provTab.remove(providerName);
-            prec=NULL;
+           AutoMutex lock (mutexProvTab);
+
+           provTab.lookup (providerName, prec);
         }
 
-        indSelectRecord     *srec        = NULL;
-        const CIMObjectPath &sPath       = request->subscriptionInstance.getPath();
-        String               sPathString = sPath.toString();
+        {
+           AutoMutex lock (prec->mutex);
 
-        selxTab.lookup(sPathString,srec);
+           if (--prec->count <= 0)
+           {
+               DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: Removing provTab "<<providerName<<PEGASUS_STD(endl));
 
-        CMPI_SelectExp          *eSelx    = srec->eSelx;
-        CIMOMHandleQueryContext *qContext = srec->qContext;
+               provTab.remove (providerName);
 
-        selxTab.remove(sPathString);
+               fFreePrec = true;
+           }
+        }
 
-        CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
+        {
+           CIMObjectPath sPath (request->subscriptionInstance.getPath ().getClassName ().getString ());
 
-        JMPIProvider & pr=ph.GetProvider();
+           sPath.setNameSpace (request->subscriptionInstance.getPath ().getNameSpace ());
+
+           String sPathString = sPath.toString ();
+
+           AutoMutex lock (mutexSelxTab);
+
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: Removing selxTab "<<sPathString<<PEGASUS_STD(endl));
+
+           selxTab.lookup (sPathString, srec);
+
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: For selxTab "<<sPathString<<", srec = "<<PEGASUS_STD(hex)<<(int)srec<<PEGASUS_STD(dec)<<", eSelx = "<<PEGASUS_STD(hex)<<(int)srec->eSelx<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(int)srec->qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
+           selxTab.remove (sPathString);
+        }
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.deleteSubscriptionRequest: " + pr.getName());
 
@@ -6697,7 +6784,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
            //        throws org.pegasus.jmpi.CIMException
            id = env->GetMethodID((jclass)pr.jProviderClass,
                                  "deActivateFilter",
-                                 "(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
 
            if (id != NULL)
            {
@@ -6725,14 +6812,15 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         {
         case METHOD_EVENTPROVIDER:
         {
-            jint    jObj = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
-            jobject jSel = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jObj);
-
-            JMPIjvm::checkException(env);
-
-            jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &eSelx->classNames[0]);
-
-            jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
+            CMPI_SelectExp *eSelx     = newSelectExp (srec->qContext,
+                                                      prec->ctx,
+                                                      srec->query,
+                                                      srec->queryLanguage,
+                                                      request->nameSpace,
+                                                      request->classNames,
+                                                      srec->propertyList);
+            jint            jEselxRef = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
+            jobject         jEselx    = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jEselxRef);
 
             JMPIjvm::checkException(env);
 
@@ -6740,38 +6828,24 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
-            env->CallVoidMethod((jobject)pr.jProvider,
-                                id,
-                                jSel,
-                                jType,
-                                jRef,
-                                (jboolean)(prec==NULL));
+            CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
+                                                        request->nameSpace,
+                                                        request->classNames[0]);
+            jint           jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
 
             JMPIjvm::checkException(env);
 
-            //
-            //  Decrement count of current subscriptions for this provider
-            //
-            if (ph.GetProvider ().decrementSubscriptionsAndTestIfZero ())
-            {
-                //
-                //  If there are no current subscriptions after the decrement,
-                //  the last subscription has been deleted
-                //  Call the provider's disableIndications method
-                //
-                if (_subscriptionInitComplete)
-                {
-                    prec->enabled = false;
-                    if (prec->handler) delete prec->handler;
-                    prec->handler = NULL;
-                }
-            }
+            env->CallVoidMethod ((jobject)pr.jProvider,
+                                 id,
+                                 jEselx,
+                                 jType,
+                                 jcop,
+                                 (jboolean)fFreePrec);
+
+            JMPIjvm::checkException(env);
 
             STAT_PMS_PROVIDEREND;
-
-            delete eSelx;
-            delete qContext;
-            delete srec;
             break;
         }
 
@@ -6780,14 +6854,15 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
             jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
 
-            jint    jObj = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
-            jobject jSel = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jObj);
-
-            JMPIjvm::checkException(env);
-
-            jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &eSelx->classNames[0]);
-
-            jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
+            CMPI_SelectExp *eSelx     = newSelectExp (srec->qContext,
+                                                      prec->ctx,
+                                                      srec->query,
+                                                      srec->queryLanguage,
+                                                      request->nameSpace,
+                                                      request->classNames,
+                                                      srec->propertyList);
+            jint            jEselxRef = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
+            jobject         jEselx    = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jEselxRef);
 
             JMPIjvm::checkException(env);
 
@@ -6795,13 +6870,21 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
-            env->CallVoidMethod((jobject)pr.jProvider,
-                                id,
-                                joc,
-                                jSel,
-                                jType,
-                                jRef,
-                                (jboolean)(prec==NULL));
+            CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
+                                                        request->nameSpace,
+                                                        request->classNames[0]);
+            jint           jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+
+            JMPIjvm::checkException(env);
+
+            env->CallVoidMethod ((jobject)pr.jProvider,
+                                 id,
+                                 joc,
+                                 jEselx,
+                                 jType,
+                                 jcop,
+                                 (jboolean)fFreePrec);
 
             JMPIjvm::checkException(env);
 
@@ -6812,29 +6895,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
                JMPIjvm::checkException(env);
             }
 
-            //
-            //  Decrement count of current subscriptions for this provider
-            //
-            if (ph.GetProvider ().decrementSubscriptionsAndTestIfZero ())
-            {
-                //
-                //  If there are no current subscriptions after the decrement,
-                //  the last subscription has been deleted
-                //  Call the provider's disableIndications method
-                //
-                if (_subscriptionInitComplete)
-                {
-                    prec->enabled = false;
-                    if (prec->handler) delete prec->handler;
-                    prec->handler = NULL;
-                }
-            }
-
             STAT_PMS_PROVIDEREND;
-
-            delete eSelx;
-            delete qContext;
-            delete srec;
             break;
         }
 
@@ -6844,8 +6905,47 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             break;
         }
         }
+
+        //
+        //  Decrement count of current subscriptions for this provider
+        //
+        pr.decrementSubscriptionsAndTestIfZero ();
     }
     HandlerCatch(handler);
+
+    if (srec)
+    {
+       if (  srec->eSelx
+          && srec->eSelx->props
+          )
+       {
+          const char **props = srec->eSelx->props;
+
+          while (*props)
+          {
+             const char *prop = *props;
+
+             props++;
+
+             if (prop)
+             {
+                free ((void *)prop);
+             }
+          }
+
+          free ((void *)srec->eSelx->props);
+       }
+       delete srec->eSelx;
+       delete srec->qContext;
+    }
+    delete srec;
+
+    if (fFreePrec)
+    {
+       delete prec->ctx;
+       delete prec->handler;
+       delete prec;
+    }
 
     if (env) JMPIjvm::detachThread();
 
@@ -7023,36 +7123,35 @@ Message * JMPIProviderManager::handleSubscriptionInitCompleteRequest (const Mess
     //  provider's enableIndications method
     //
     Array <JMPIProvider *> enableProviders;
+
     enableProviders = providerManager.getIndicationProvidersToEnable ();
 
     Uint32 numProviders = enableProviders.size ();
+
+    DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSubscriptionInitCompleteRequest: numProviders = "<<numProviders<<PEGASUS_STD(endl));
+
+#if 0
     for (Uint32 i = 0; i < numProviders; i++)
     {
         try
         {
             CIMInstance provider;
-            provider = enableProviders [i]->getProviderInstance ();
+
+            provider = enableProviders[i]->getProviderInstance ();
+
+            DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSubscriptionInitCompleteRequest: name = "<<enableProviders[i]->getName ()<<PEGASUS_STD(endl));
 
             //
             //  Get cached or load new provider module
             //
-            JMPIProvider::OpProviderHolder ph = providerManager.getProvider
-                (enableProviders [i]->getModule ()->getFileName (),
-                 enableProviders [i]->getName ());
+            JMPIProvider::OpProviderHolder  ph   = providerManager.getProvider (enableProviders[i]->getModule ()->getFileName (),
+                                                                                enableProviders[i]->getName ());
+            indProvRecord                  *prec = NULL;
 
-            indProvRecord * prec = NULL;
-            provTab.lookup (enableProviders [i]->getName (), prec);
-            if (prec)
             {
-                prec->enabled = true;
-                CIMRequestMessage * request = 0;
-                CIMResponseMessage * response = 0;
-                prec->handler = new EnableIndicationsResponseHandler(
-                    request,
-                    response,
-                    provider,
-                    _indicationCallback,
-                    _responseChunkCallback);
+               AutoMutex lock (mutexProvTab);
+
+               provTab.lookup (enableProviders[i]->getName (), prec);
             }
         }
         catch (CIMException & e)
@@ -7071,6 +7170,7 @@ Message * JMPIProviderManager::handleSubscriptionInitCompleteRequest (const Mess
                 "Unknown error in handleSubscriptionInitCompleteRequest");
         }
     }
+#endif
 
     PEG_METHOD_EXIT ();
     return (response);

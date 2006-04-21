@@ -590,6 +590,8 @@ void ProviderAgent::_indicationCallback(
     // Send request back to the server to process
     _providerAgent->_writeResponse(message);
 
+    delete message;
+
     PEG_METHOD_EXIT();
 }
 
@@ -601,6 +603,8 @@ void ProviderAgent::_responseChunkCallback(
 
     // Send request back to the server to process
     _providerAgent->_writeResponse(response);
+
+    delete response;
 
     PEG_METHOD_EXIT();
 }

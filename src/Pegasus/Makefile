@@ -1,154 +1,108 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
-ROOT = ../..
+#//==============================================================================
+ROOT=$(PEGASUS_ROOT)
 
 include $(ROOT)/mak/config.mak
 
 DIRS = \
     Common \
-    General \
+    Common/tests \
     Query/QueryCommon \
     Client \
+    Client/tests \
     Config \
+    Config/tests \
     Repository \
+    Repository/tests \
     getoopt \
     WQL \
-	Handler \
-    RSServer
-
-ifeq ($(PEGASUS_ENABLE_CQL),true)
-    DIRS += CQL
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-    DIRS += \
-        WsmServer
-    TEST_DIRS += \
-        WsmServer/tests
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
-    DIRS += \
-        WebServer
-endif
-
-DIRS += \
+    WQL/tests \
+    CQL \
+    CQL/CQLCLI \
     Query/QueryExpression \
+    Query/QueryExpression/tests \
+    Query/QueryExpression/tests/Queries \
     Provider \
+    CQL/tests \
     Compiler \
+    Compiler/tests \
     Compiler/cmdline
 
-TEST_DIRS = \
-    Common/tests \
-    General/tests \
-    Client/tests \
-    Config/tests \
-    Repository/tests \
-    WQL/tests
-
-ifeq ($(PEGASUS_ENABLE_CQL),true)
-    TEST_DIRS += \
-        CQL/tests \
-        CQL/CQLCLI
-endif
-
-TEST_DIRS += \
-    Compiler/tests \
-    Query/QueryExpression/tests \
-    Query/QueryExpression/tests/Queries
-
-
 ifneq ($(OS),HPUX)
-    TEST_DIRS += \
+    DIRS += \
         Compiler/cmdline/tests
 endif
 
-ifndef PEGASUS_PAM_AUTHENTICATION
-    DIRS += Security/UserManager \
-	    ControlProviders/UserAuthProvider
-    TEST_DIRS += Security/UserManager/tests
-endif
-
-
 DIRS += \
     ExportClient \
+    ExportClient/tests \
     Server/ProviderRegistrationManager \
+    Server/ProviderRegistrationManager/tests \
     ExportServer \
+    ExportServer/tests \
+    Consumer/tests \
     Listener \
+    Listener/tests \
+    Security/UserManager \
+    Security/UserManager/tests \
     Security/Authentication \
+    Security/Authentication/tests \
     ControlProviders/ConfigSettingProvider \
+    ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
+    ControlProviders/ProviderRegistrationProvider/tests \
     ControlProviders/NamespaceProvider \
     HandlerService \
     IndicationService \
-    ManagedClient \
-    DynListener
-
-TEST_DIRS += \
-    ExportClient/tests \
-    Server/ProviderRegistrationManager/tests \
-    ExportServer/tests \
-    Listener/tests \
-    Security/Authentication/tests \
-    ControlProviders/ProviderRegistrationProvider/tests \
-    HandlerService/tests \
     IndicationService/tests \
-    DynListener/tests 
+    ManagedClient \
+    DynListener \
+    DynListener/tests
 
 ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
     DIRS += \
         Handler/SystemLogListenerDestination
-    TEST_DIRS += \
-        Handler/SystemLogListenerDestination/tests
 endif
 
 ifdef PEGASUS_ENABLE_EMAIL_HANDLER
     DIRS += \
         Handler/EmailListenerDestination
-    TEST_DIRS += \
-        Handler/EmailListenerDestination/tests
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-    DIRS += \
-        Handler/wsmanIndicationHandler
-    TEST_DIRS += \
-        Handler/wsmanIndicationHandler/tests/Destination
 endif
 
 DIRS += \
     ProviderManager2 \
-    ProviderManager2/Default
-
-TEST_DIRS += \
     ProviderManager2/tests \
-    ProviderManager2/Default/tests
+    ProviderManager2/Default \
+    ProviderManager2/Default/tests \
+    ProviderManager2/ProviderAgent
 
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
     DIRS += \
@@ -157,25 +111,36 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 endif
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+        $(error Error: Remote CMPI is not currently supported on Windows.)
+    endif
 
     DIRS += \
-        ProviderManager2/CMPIR/native \
         ProviderManager2/CMPIR \
-        ProviderManager2/CMPIR/tcpcomm \
-        ProviderManager2/CMPIR/tcpcommrem \
-        ProviderManager2/CMPIR/daemon \
-        ProviderManager2/CMPIR/tools
+        ProviderManager2/CMPIR/tcpcomm 
+
+    ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+        DIRS += \
+            ProviderManager2/CMPIR/native \
+            ProviderManager2/CMPIR/tcpcommrem \
+            ProviderManager2/CMPIR/daemon
+    endif
 endif
 
-ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
-    DIRS += \
-        ProviderManager2/JMPI
+ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
+    ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+        DIRS += \
+            ProviderManager2/JMPI
+    endif
+    ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+        DIRS += \
+            ProviderManager2/JMPI
+    endif
+    ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+        DIRS += \
+            ProviderManager2/JMPI
+    endif
 endif
-
-DIRS += \
-    ProviderManagerRouter \
-    ProviderManagerService \
-    ProviderManagerService/ProviderAgent
 
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC
     DIRS += \
@@ -184,23 +149,25 @@ endif
 
 ifndef PEGASUS_DISABLE_PERFINST
     DIRS += \
-        ControlProviders/Statistic
-    TEST_DIRS += \
+        ControlProviders/Statistic \
         ControlProviders/Statistic/test
 endif
 
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
+ifeq ($(PEGASUS_ENABLE_SLP),true)
     DIRS += \
-        ControlProviders/InteropProvider
-    TEST_DIRS += \
-        ControlProviders/InteropProvider/tests \
-        ControlProviders/InteropProvider/ServerProfileTests
+        ControlProviders/InteropProvider \
+        ControlProviders/InteropProvider/tests
+else
+    ifndef PEGASUS_DISABLE_PERFINST
+        DIRS += \
+            ControlProviders/InteropProvider \
+            ControlProviders/InteropProvider/tests
+    endif
 endif
 
-ifeq ($(PEGASUS_ENABLE_CQL),true)
+ifndef PEGASUS_DISABLE_CQL
     DIRS += \
-        ControlProviders/QueryCapabilitiesProvider
-    TEST_DIRS += \
+        ControlProviders/QueryCapabilitiesProvider \
         ControlProviders/QueryCapabilitiesProvider/tests
 endif
 
@@ -211,40 +178,12 @@ endif
 
 DIRS += \
     Server \
+    Server/tests \
     Handler/CIMxmlIndicationHandler \
-    Handler/FileURIHandler  \
+    Handler/snmpIndicationHandler \
+    Handler/snmpIndicationHandler/tests/testclient \
     msg/Server \
     msg/CLI \
     msg/Listener
-
-ifeq ($(PEGASUS_USE_EMANATE), true)
-    DIRS += \
-        Handler/snmpIndicationHandler
-endif
-
-ifeq ($(PEGASUS_USE_NET_SNMP), true)
-    DIRS += \
-        Handler/snmpIndicationHandler
-endif
-
-TEST_DIRS += \
-    Server/tests \
-    Server/tests/InterfaceRestriction \
-    Handler/CIMxmlIndicationHandler/tests/Destination \
-    Handler/FileURIHandler/tests
-
-ifeq ($(PEGASUS_USE_EMANATE), true)
-    TEST_DIRS += \
-        Handler/snmpIndicationHandler/tests/testclient \
-        Handler/snmpIndicationHandler/tests/SnmpHandlerException
-endif
-
-
-ifeq ($(PEGASUS_USE_NET_SNMP), true)
-    TEST_DIRS += \
-        Handler/snmpIndicationHandler/tests/testclient \
-        Handler/snmpIndicationHandler/tests/SnmpHandlerException
-endif
-
 
 include $(ROOT)/mak/recurse.mak

@@ -523,6 +523,28 @@ void ProviderAgentContainer::_startAgentProcess()
     //Out of provider support for OS400 goes here when needed.
 
 #else
+
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT
+    // Get and save the effective user name and the uid/gid for the user
+    // context of the agent process
+ 
+    String effectiveUserName = System::getEffectiveUserName();
+    PEGASUS_UID_T newUid = (PEGASUS_UID_T) -1;
+    PEGASUS_GID_T newGid = (PEGASUS_GID_T) -1;
+    if (_userName != effectiveUserName)
+    {
+        if (!System::lookupUserId(_userName.getCString(), newUid, newGid))
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(
+                CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "ProviderManager.OOPProviderManagerRouter."
+                        "USER_CONTEXT_CHANGE_FAILED",
+                    "Unable to change user context to \"$0\".", _userName));
+        }
+    }
+# endif
+
     pid_t pid = fork();
     if (pid < 0)
     {
@@ -558,11 +580,11 @@ void ProviderAgentContainer::_startAgentProcess()
             pipeToAgent->exportReadHandle(readHandle);
             pipeFromAgent->exportWriteHandle(writeHandle);
 
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT
             // Set the user context of the Provider Agent process
-            if (_userName != System::getEffectiveUserName())
+            if (_userName != effectiveUserName)
             {
-                if (!System::changeUserContext(_userName.getCString()))
+                if (!System::changeUserContext(newUid, newGid))
                 {
                     Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "System::changeUserContext() failed.  userName = %s.",
@@ -575,7 +597,7 @@ void ProviderAgentContainer::_startAgentProcess()
                     _exit(1);
                 }
             }
-#endif
+# endif
 
             execl(agentCommandPathCString, agentCommandPathCString,
                 readHandle, writeHandle,
@@ -1667,7 +1689,7 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
                     request->operationContext.get(IdentityContainer::NAME);
                 userName = ic.getUserName();
             }
-            catch (Exception& e)
+            catch (Exception&)
             {
                 // If no IdentityContainer is present, default to the CIM
                 // Server's user context

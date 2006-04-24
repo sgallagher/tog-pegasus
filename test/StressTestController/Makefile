@@ -30,10 +30,10 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-#PEGASUS_ZOS_PROGRAM_OBJECT = yes
-
 DIR = test/StressTestController
 include $(ROOT)/mak/config.mak
+
+LOCAL_DEFINES = -DSTRESSTEST_DEFAULTCFGDIR=\"$(ROOT)/$(DIR)/\"
 
 LIBRARIES = \
     pegcliutils \

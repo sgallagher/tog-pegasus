@@ -35,7 +35,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/ExceptionRep.h>
+#include <Pegasus/Common/Exception.h>
 #include "StressTestControllerException.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -59,25 +59,32 @@ const Uint32 StressTestControllerException::MIN_ID = DEFAULT_ID;
 
 /**
   
-   Exception identifier indicating a connection failure.
+    Exception identifier indicating "Syntax Error" with client option.
   
  */
 
-const Uint32 StressTestControllerException::CONNECT_FAIL = 1;
-
-/**
-  
-    Exception identifier indicating timed out waiting for response.
-  
- */
-const Uint32 StressTestControllerException::TIMED_OUT = 2;
+const Uint32 StressTestControllerException::INVALID_OPTION = 1;
 
 /**
   
-    Exception identifier indicating invalid input.
+    Exception identifier indicating "Syntax Error" with client option operator.
   
  */
-const Uint32 StressTestControllerException::INVALID_INPUT = 3;
+const Uint32 StressTestControllerException::INVALID_OPERATOR = 2;
+
+/**
+  
+    Exception identifier indicating "Missing closing square brace".
+  
+ */
+const Uint32 StressTestControllerException::MISSING_BRACE = 3;
+
+/**
+  
+    Exception identifier indicating "Missing value for client option".
+  
+ */
+const Uint32 StressTestControllerException::MISSING_VALUE = 4;
 
 /**
   
@@ -85,7 +92,8 @@ const Uint32 StressTestControllerException::INVALID_INPUT = 3;
     a new exception identifier and message are added.
   
  */
-const Uint32 StressTestControllerException::MAX_ID = StressTestControllerException::INVALID_INPUT;
+const Uint32 StressTestControllerException::MAX_ID = 
+    StressTestControllerException::MISSING_VALUE;
 
 /**
 
@@ -97,39 +105,25 @@ const Uint32 StressTestControllerException::MAX_ID = StressTestControllerExcepti
  */
 const char*  StressTestControllerException::_messageStrings [] =
 {
-    "Error in TestStressTestController command ",
-    "Failed to connect to CIM server: ",
-    "Timed out waiting for response ",
-    "Invalid input"
+    "Error in TestStressTestController command: ",
+    "Syntax Error Client option name: ",
+    "Syntax Error Client option operator: ",
+    "Missing closing square brace: ",
+    "Missing value for client option: "
 };
 
 /**
   
-    Constructs a StressTestControllerException with a message corresponding to the
-    specified exception ID.
+    Constructs a StressTestControllerException with a message corresponding to
+    the specified exception ID.
   
     @param  ID                the integer exception identifier
   
  */
-StressTestControllerException::StressTestControllerException (Uint32 ID) : CommandException 
-    (_messageStrings [(ID > MAX_ID) ? DEFAULT_ID : ID])
+StressTestControllerException::StressTestControllerException (
+    Uint32 ID) : CommandException 
+                     (_messageStrings [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
-}
-
-/**
-  
-    Constructs a StressTestControllerException with a message corresponding to the
-    specified ID, appended with the specified String.
-  
-    @param  ID                the integer exception identifier
-    @param  appendString      the string to append to the exception message
-  
- */
-StressTestControllerException::StressTestControllerException (Uint32 ID, const String& appendString) : 
-    CommandException (_messageStrings 
-        [(ID > MAX_ID) ? DEFAULT_ID : ID])
-{
-    _rep->message.append (appendString);
 }
 
 /**
@@ -139,27 +133,9 @@ StressTestControllerException::StressTestControllerException (Uint32 ID, const S
     @param  exceptionMessage  a string containing the exception message
   
  */
-StressTestControllerException::StressTestControllerException (const String& exceptionMessage) : 
-    CommandException (exceptionMessage)
+StressTestControllerException::StressTestControllerException (
+    const String& exceptionMessage) : CommandException (exceptionMessage)
 {
-}
-
-String ConfigFileSyntaxError::_formatMessage(
-    const String& file, Uint32 line)
-{
-    char buffer[32];
-    sprintf(buffer, "%d", line);
-
-//l10n
-    //String result = "Syntax error in configuration file: ";
-    MessageLoaderParms parms("Config.ConfigExceptions.CONFIG_FILE_SYNTAX_ERR","Syntax error in configuration file: ");
-    String result = MessageLoader::getMessage(parms);
-//l10n end
-    result.append(file);
-    result.append("( Line number# ");
-    result.append(buffer);
-    result.append(")");
-    return result;
 }
 
 PEGASUS_NAMESPACE_END

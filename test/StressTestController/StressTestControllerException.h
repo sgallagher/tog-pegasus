@@ -38,14 +38,14 @@
 
 #include <Clients/cliutils/CommandException.h>
 
+
 PEGASUS_NAMESPACE_BEGIN
 
 /** 
   
-    StressTestControllerException signals that an exception has occurred in executing the 
-    osinfo command.  
+    StressTestControllerException signals that an exception has occurred in 
+    executing the StressTestController command.  
   
-    @author  Hewlett-Packard Company
   
  */
 class StressTestControllerException : public CommandException 
@@ -53,24 +53,14 @@ class StressTestControllerException : public CommandException
 public:
     /**
       
-        Constructs an StressTestControllerException with a message corresponding to the
-        specified exception ID.
+        Constructs an StressTestControllerException with a message corresponding
+        to the specified exception ID.
       
         @param  ID                the integer exception identifier
       
      */
     StressTestControllerException (Uint32 ID);
 
-    /**
-      
-        Constructs an StressTestControllerException with a message corresponding to the
-        specified ID, appended with the specified String.
-      
-        @param  ID                the integer exception identifier
-        @param  appendString      the string to append to the exception message
-      
-     */
-    StressTestControllerException (Uint32 ID, const String& appendString);
 
     /**
       
@@ -106,33 +96,36 @@ public:
     static const Uint32 MIN_ID;
 
     /**
-      
-        Exception identifier indicating a connection failure.
-      
-     */
-    
-    static const Uint32 CONNECT_FAIL;
-    
-    /**
-      
-        Exception identifier indicating timed out waiting for response.
-      
-     */
-    static const Uint32 TIMED_OUT;
-    
-    /**
-      
-        Exception identifier indicating invalid input.
-      
-     */
-    static const Uint32 INVALID_INPUT;
-    
+
+        Exception identifier indicating "Syntax Error" with client option.
+
+    */
+
+    static const Uint32 INVALID_OPTION;
+
     /**
 
-        Maximum valid exception identifier.  This value must be updated when
-        a new exception identifier and message are added.
-      
-     */
+        Exception identifier indicating "Syntax Error" with client option 
+        operator.
+
+    */
+    static const Uint32 INVALID_OPERATOR;
+
+    /**
+
+        Exception identifier indicating "Missing closing square brace".
+
+    */
+    static const Uint32 MISSING_BRACE;
+
+    /**
+
+        Exception identifier indicating "Missing value for client option".
+
+    */
+    static const Uint32 MISSING_VALUE;
+
+
     static const Uint32 MAX_ID;
 
 private:
@@ -145,55 +138,6 @@ private:
       
      */
     static const char*  _messageStrings [];
-};
-
-/**
-ConfigFileSyntaxError Exception class
-*/
-class ConfigFileSyntaxError : public Exception
-{
-public:
-    ConfigFileSyntaxError(const String& file, Uint32 line)
-        : Exception(_formatMessage(file, line)) { }
-
-    static String _formatMessage(const String& file, Uint32 line);
-};
-
-/**
-InvalidPropertyValue Exception class
-*/
-class InvalidPropertyValue : public Exception
-{
-public:
-    InvalidPropertyValue(const String& name, const String& value)
-        : Exception(MessageLoaderParms("Config.ConfigExceptions.INVALID_PROPERTY_VALUE",
-                                                        "Invalid property value: $0=$1",
-                                                        name,
-                                                        value )) { }
-};
-
-/**
-InvalidClientPropertyValue Exception class
-*/
-class InvalidClientPropertyValue : public Exception
-{
-public:
-    InvalidClientPropertyValue(const String& name, const String& value)
-        : Exception(MessageLoaderParms("Config.ConfigExceptions.INVALID_PROPERTY_VALUE",
-                                                        "Invalid client property value: $0=$1",
-                                                        name,
-                                                        value )) { }
-};
-
-/**
-DuplicateOption Exception class
-*/
-class DuplicateOption : public Exception
-{
-public:
-    DuplicateOption(const String& name)
-        : Exception(MessageLoaderParms("Config.ConfigExceptions.DUPLICATE_OPTION",
-                                                               name)) { }
 };
 
 PEGASUS_NAMESPACE_END

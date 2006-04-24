@@ -42,9 +42,8 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Clients/cliutils/Command.h>
 #include <Clients/cliutils/CommandException.h>
-//#include "StressTestControllerException.h"
 
-struct tm getCurrentActualTime(void);
+struct tm getCurrentActualTime();
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,22 +53,22 @@ PEGASUS_NAMESPACE_BEGIN
 typedef HashTable<String, String, EqualFunc<String>, HashFunc<String> > Table;
 
 /**
-    This constant signifies that an operation option has not been recorded
+    This constant signifies that an operation option has not been recorded.
 */
-static const Uint32 OPERATION_TYPE_UNINITIALIZED             = 0;
+static const Uint32 OPERATION_TYPE_UNINITIALIZED = 0;
 
 /**
-    This constant represents a help operation
+    This constant represents a help operation.
 */
-static const Uint32 OPERATION_TYPE_HELP                      = 1;
+static const Uint32 OPERATION_TYPE_HELP = 1;
 
 /**
-    This constant represents a version display operation
+    This constant represents a version display operation.
 */
-static const Uint32 OPERATION_TYPE_VERSION                   = 2;
+static const Uint32 OPERATION_TYPE_VERSION = 2;
 
 
-static Boolean  verboseEnabled                               = false;
+static Boolean verboseEnabled = false;
 
 
 /**
@@ -119,7 +118,7 @@ public:
                  1                  if an error occurs in executing the command
 
      */
-    Uint32 execute (ostream& outPrintWriter, ostream& errPrintWriter);
+    Uint32 execute(ostream& outPrintWriter, ostream& errPrintWriter);
 
     /**
 
@@ -197,15 +196,16 @@ public:
        - Unused log files & pid files are removed here.
 
     */
-    void removeUnusedFiles(void);
+    void removeUnusedFiles();
 
     /**
-        Retrieves the stress Test log file path name
+        Retrieves the stress Test log file path name.
 
         @return StressTestLogFile  The log filename is returned.
  
      */
-    String getStressTestLogFile(){ return StressTestLogFile;}
+    String getStressTestLogFile(){ return _stressTestLogFile;}
+    String getStressClientLogFile(){ return _stressTestClientLogFile;}
 
     static char   FILENAME [];
 
@@ -220,43 +220,49 @@ public:
 
     // Environment variables:
     //
-    char* pegasusRoot;
-
     char* pegasusHome;
 
 private:
 
     /**
-        Parses each line in the stressController config file
+        Parses each line in the stressController config file.
 
         @return true   Parse was successful.
                 false  Parsing resulted in a failure or invalid config.
      */
-    Boolean parseLine(const String & string, int line,String & name, String & value,ostream& log_file);
+    Boolean _parseLine(
+        const String & string,
+        int line,
+        String & name,
+        String & value,
+        ostream& log_file);
 
     /**
-        Stores client details from config file
+        Stores client details from config file.
 
         @return true   Successfully retrieved and stored the details.
                 false  Un-successfull.
      */
-    Boolean storeClientDetails(String name, String value);
+    Boolean _storeClientDetails(String name, String value);
 
     /**
-        Validate StressTest configuration properties & clients
+        Validate StressTest configuration properties & clients.
 
         @return true   Successfully validated.
                 false  Un-successfull.
      */
-    Boolean validateConfiguration(String & var, const String & value,ostream& log_file);
+    Boolean _validateConfiguration(
+        String & var,
+        const String & value,
+        ostream& log_file);
     
     /**
-        parse and save all the options for each client 
+        parse and save all the options for each client. 
 
         @return 
  
      */
-    void getClientOptions(const Char16* p,ostream& log_file);
+    void _getClientOptions(const Char16* p,ostream& log_file);
 
     /**
         Checks if the actual tolerance level of the current tests
@@ -266,15 +272,18 @@ private:
                 false  Failed tolerance expectations.
  
      */
-    Boolean checkToleranceLevel(int act_clients,Uint64 nowMilliseconds,ostream& log_file);
+    Boolean _checkToleranceLevel(
+        int act_clients,
+        Uint64 nowMilliseconds,
+        ostream& log_file);
 
     /**
-        Retrieves and stores client details from client pid file
+        Retrieves and stores client details from client pid file.
 
         @return true   Successfully retrieved and stored the details.
                 false  Un-successfull.
      */
-    Boolean getClientPIDs(int clients,ostream& log_file);
+    Boolean _getClientPIDs(int clients,ostream& log_file);
 
 
     /**
@@ -316,7 +325,7 @@ private:
      */
     String _portNumberStr;
     Uint32 _portNumber;
-    Uint32   _port;  // JA not sure..if needed
+    Uint32 _port;  // JA not sure..if needed
 
     /**
         A Boolean indicating whether a port number was specified on the
@@ -466,44 +475,72 @@ private:
     /**
         A String containing the usage information for the command.
      */
-    String usage;
+    String _usage;
 
     /**
         The type of operation specified on the command line.
      */
-    Uint32        _operationType;
+    Uint32 _operationType;
 
+    /**
+        Property table that stores the properties
+     */
     Table* _propertyTable;
+
+    /**
+        Client table that stores the client specific properties
+     */
     Table* _clientTable;
+
+    /**
+        Client commands
+     */
     String* _clientCommands;
+
+    /**
+        Client specific durations
+     */
     Uint64* _clientDurations;
+
+    /**
+        Client specific delays
+     */
     Uint64* _clientDelays;
 
     /**
         The total number of clients for this test
      */
     Uint32 _clientCount;
+
+    /**
+        current client name 
+     */
     String _currClient;
+
+    /**
+        current client count 
+     */
     Uint32 _currClientCount;
+
     /**
       Stress Controller Log file.
     */
-    String StressTestLogFile;
+    String _stressTestLogFile;
 
     /**
       StressTest Client PID file
     */
-    String StressTestClientPIDFile;
+    String _stressTestClientPIDFile;
 
     /**
       StressTest Client Log file
     */
-    String StressTestClientLogFile;
+    String _stressTestClientLogFile;
 
     /**
       StressTest temporary Client PID file
     */
-    String tmpStressTestClientPIDFile;
+    String _tmpStressTestClientPIDFile;
 };
 
 PEGASUS_NAMESPACE_END

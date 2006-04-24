@@ -40,29 +40,28 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-char clientName[] = "WrapperStressClient";
-
 class TestWrapperStressClient : public TestStressTestClient
 {
 };
 
-Boolean _quit = false;
-Boolean _nextCheck = false;
+Boolean quit = false;
+Boolean nextCheck = false;
 String errorInfo;
+char thisClient[] = "WrapperStressClient";
 
 /**
-    Signal handler for SIGALRM.
-    @param   signum  the alarm identifier
+    Signal handler for SIGALARM.
+    @param signum - the alarm identifier
  */
 void endTest(int signum)
 {
-   cout<<"Recieved interupt signal SIGINT!\n"<<endl;
-  _quit = true;
+    PEGASUS_STD(cout)<<"Recieved interupt signal SIGINT!\n"<<PEGASUS_STD(endl);
+    quit = true;
 }
 
-///////////////////////////////////////////////////////////////
-//    MAIN
-///////////////////////////////////////////////////////////////
+/*///////////////////////////////////////////////////////////////
+    MAIN
+///////////////////////////////////////////////////////////////*/
 int main(int argc, char** argv)
 {
     OptionManager om;
@@ -71,18 +70,25 @@ int main(int argc, char** argv)
     Uint32 validArg = 0;
     Boolean verboseTest;
 
-    //Varriables needed to do loging and status checking
-    String clientid;
-    String pidfile;
-    String clientlog, stopClient;
+    /** Varriables needed for loging and status checking. */
+    String clientId;
+    String pidFile;
+    String clientLog, stopClient;
     char pid_str[15];
     int status = CLIENT_UNKNOWN;
-    Uint32 successCount=0;        //Number of times the client command succeeded.
-    Uint32 iteration=0;           //Number of iterations after which logErrorPercentage() is called.
-    Uint32 totalCount=0;          //Total number of times the client command was executed.
 
-    //Variables needed for Command operation
+    /** Number of times the client command succeeded. */
+    Uint32 successCount = 0;
+
+    /** Number of iterations after which logErrorPercentage() is called. */
+    Uint32 iteration = 0;
+
+    /** Total number of times the client command was executed. */
+    Uint32 totalCount = 0;
+
+    /** Variables needed for Command operation. */
     String command;
+
     String options;
     String help;
 
@@ -91,12 +97,13 @@ int main(int argc, char** argv)
         struct OptionRow *newOptionsTable = 0;
         Uint32 newOptionsCount;
 
-        struct OptionRow cOptionTable[] = {
-          {"clientname", "", true, Option::STRING, 0, 0, "clientname",
-                                                       "Client name" },
+        struct OptionRow cOptionTable[] = 
+        {
+            {"clientname", "", true, Option::STRING, 0, 0, "clientname",
+                "Client name" },
  
-          {"options", "", true, Option::STRING, 0, 0, "options",
-                             "Corresponding Client program's options" }
+            {"options", "", true, Option::STRING, 0, 0, "options",
+                "Corresponding Client program's options" }
         };
 
         Uint32 cOptionCount = sizeof(cOptionTable) / sizeof(cOptionTable[0]);
@@ -104,61 +111,74 @@ int main(int argc, char** argv)
 
         try
         {
-            //Generate new option table for this client using OptionManager
-            newOptionsTable = wc.generateClientOptions(cOptionTable,cOptionCount,newOptionsCount);
-            validArg = wc.GetOptions(om, argc, argv, newOptionsTable,newOptionsCount);
+            /* Generate new option table for this client using OptionManager */
+            newOptionsTable = wc.generateClientOptions(
+                                  cOptionTable,
+                                  cOptionCount,
+                                  newOptionsCount);
+            validArg = wc.GetOptions(
+                           om,
+                           argc,
+                           argv,
+                           newOptionsTable,
+                           newOptionsCount);
         }
         catch (Exception& e)
         {
-            cerr << argv[0] << ": " << e.getMessage() << endl;
+            PEGASUS_STD(cerr) << argv[0] << ": " << e.getMessage()
+                              << PEGASUS_STD(endl);
             exit(1);
         }
         catch (...)
         {
-            cerr << argv[0] << ": Error in Options operations " << endl;
+            PEGASUS_STD(cerr) << argv[0] << ": Error in Options operations "
+                              << PEGASUS_STD(endl);
             exit(1);
         }
 
         verboseTest = om.isTrue("verbose");
  
-        om.lookupValue("clientid", clientid);
+        om.lookupValue("clientid", clientId);
 
-        om.lookupValue("pidfile", pidfile);
+        om.lookupValue("pidfile", pidFile);
 
-        om.lookupValue("clientlog", clientlog);
+        om.lookupValue("clientlog", clientLog);
 
         om.lookupValue("clientname", command);
 
         om.lookupValue("options", options);
 
         om.lookupValue("help", help);
-    }// end of option Try block
+    } /** end of option Try block. */
     catch (Exception& e)
     {
-        cerr << argv[0] << ": " << e.getMessage() << endl;
+        PEGASUS_STD(cerr) << argv[0] << ": " << e.getMessage()
+                          << PEGASUS_STD(endl);
         exit(1);
     }
     catch (...)
     {
-        cerr << argv[0] << ": Unknown Error gathering options in Wrapper Client  " << endl;
+        PEGASUS_STD(cerr) << argv[0] 
+                          << ": Unknown Error gathering options "
+                          << "in Wrapper Client " << PEGASUS_STD(endl);
         exit(1);
     }
 
-    /** // Checking whether the user asked for HELP Info...
+    /** Checking whether the user asked for HELP Info...
     if (om.valueEquals("help", "true"))
     {
         String header = "Usage ";
         header.append(argv[0]);
-        header.append(" -parameters -clientname [clientname] -options [options] ");
-        header.append(" -clientid [clientid] -pidfile [pidfile] -clientlog [clientlog]");
+        header.append(" -parameters -clientName [clientName] 
+        header.append(" -options [options] -clientid [clientId] ");
+        header.append(" -pidfile [pidFile] -clientlog [clientLog]");
         String trailer = "Assumes localhost:5988 if host not specified";
         trailer.append("\nHost may be of the form name or name:port");
         trailer.append("\nPort 5988 assumed if port number missing.");
         om.printOptionsHelpTxt(header, trailer);
-
         exit(0);
     }
-	*/
+    */
 
     try
     {
@@ -166,51 +186,56 @@ int main(int argc, char** argv)
         {
             command.append(" " + options);
         }
-        if(verboseTest)
+        if (verboseTest)
         {
             errorInfo.append("client command :  ");
             errorInfo.append(command);
-            wc.errorLog(clientPid, clientlog, errorInfo);
+            wc.errorLog(clientPid, clientLog, errorInfo);
             errorInfo.clear();
         }
 
-        //Signal Handling - SIGINT
+        /* Signal Handling - SIGINT. */
         signal(SIGINT, endTest);
 
-        //Timer Start
+        /* Timer Start. */
         wc.startTime();
 
-        wc.logInfo(clientid, clientPid, status, pidfile);
+        wc.logInfo(clientId, clientPid, status, pidFile);
         sprintf(pid_str, "%d", clientPid);
 
         stopClient = String::EMPTY;
-        stopClient.append(FileSystem::extractFilePath(pidfile));
+        stopClient.append(FileSystem::extractFilePath(pidFile));
         stopClient.append("STOP_");
         stopClient.append(pid_str);
 
-        // This loop executes till the client gets stop signal from controller
-        while(!_quit)
+        /* This loop executes till the client gets stop signal from
+           controller.
+        */
+        while (!quit)
         {
-            if(FileSystem::exists(stopClient))
+            if (FileSystem::exists(stopClient))
             {
-                if(verboseTest)
+                if (verboseTest)
                 {
-                    String mes("Ending client: ");
-                    mes.append((Uint32)clientPid);
-                    wc.errorLog(clientPid, clientlog, mes);
+                    String mes("Ending client. ");
+                    wc.errorLog(clientPid, clientLog, mes);
                 }
                 break;
             }
-           
-            #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-                if (!verboseTest)
-                    freopen("nul","w",stdout);
-            #else 
-                if (!verboseTest)
-                    freopen("/dev/null","w",stdout);
-            #endif
 
-            int i = system (command.getCString()); 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+                if (!verboseTest)
+                {
+                    freopen("nul","w",stdout);
+                }
+#else
+                if (!verboseTest)
+                {
+                    freopen("/dev/null","w",stdout);
+                }
+#endif
+
+            int i = system(command.getCString()); 
 
             iteration++;
             totalCount++;
@@ -220,98 +245,100 @@ int main(int argc, char** argv)
                     if (status != CLIENT_PASS)
                     {
                         status = CLIENT_PASS;
-                        wc.logInfo(clientid, clientPid, status, pidfile);
+                        wc.logInfo(clientId, clientPid, status, pidFile);
                     }
                     successCount++;
                     break;
 
                 case 1:
                     status = CLIENT_UNKNOWN;
-                    wc.logInfo(clientid, clientPid, status, pidfile);
+                    wc.logInfo(clientId, clientPid, status, pidFile);
                     break;
 
                 default:
                     status = CLIENT_FAIL;
-                    wc.logInfo(clientid, clientPid, status, pidfile);
+                    wc.logInfo(clientId, clientPid, status, pidFile);
                     break;
             }
 
-            _nextCheck = wc.checkTime();
-            if (_nextCheck)
+            nextCheck = wc.checkTime();
+            if (nextCheck)
             {
-                wc.logInfo(clientid, clientPid, status, pidfile);
-                _nextCheck = false;
+                wc.logInfo(clientId, clientPid, status, pidFile);
+                nextCheck = false;
             }
 
-            /* If verbose is set log success percentage for every 100 iterations.
-               If verbose is not set log success percentage for every 10000 iterations
+            /* If verbose is set, log success percentage for every 100
+               iterations.  If verbose is not set, log success percentage
+               for every 1000 iterations.
             */
             if (verboseTest)
             {
-                if (iteration==100)
+                if (iteration == 100)
                 {
                     wc.logErrorPercentage(
                         successCount,
                         totalCount,
                         clientPid,
-                        clientlog, 
-                        clientName);
+                        clientLog, 
+                        thisClient);
                     iteration = 0;
                 }
             }
             else
             {
-                if (iteration==1000)
+                if (iteration == 1000)
                 {
                     wc.logErrorPercentage(
                         successCount,
                         totalCount,
                         clientPid,
-                        clientlog,
-                        clientName);
+                        clientLog,
+                        thisClient);
                     iteration = 0;
                 }
             }
-        }//end of while(!_quit)
-
-    }//end of command execution try block
+        } /** end of while(!quit). */
+    } /** end of command execution try block. */
     catch (Exception &exp)
     {
-        String exp_str("Exception in WrapperClient causing it to exit: ");
-        exp_str.append(exp.getMessage());
-        wc.errorLog(clientPid, clientlog, exp_str);
+        String expStr("Exception in WrapperClient causing it to exit: ");
+        expStr.append(exp.getMessage());
+        wc.errorLog(clientPid, clientLog, expStr);
 
         if (verboseTest)
         {
-            PEGASUS_STD(cerr) << exp_str.getCString() << PEGASUS_STD(endl);
+            PEGASUS_STD(cerr) << expStr.getCString() << PEGASUS_STD(endl);
         }
     }
     catch (...)
     {
-        String exp_str("General Exception in WrapperClient causing it to exit");
-        wc.errorLog(clientPid, clientlog, exp_str);
+        String expStr("General Exception in WrapperClient causing it to exit");
+        wc.errorLog(clientPid, clientLog, expStr);
 
         if (verboseTest)
         {
-            PEGASUS_STD(cerr) << exp_str.getCString() << PEGASUS_STD(endl);
+            PEGASUS_STD(cerr) << expStr.getCString() << PEGASUS_STD(endl);
         }
     }
 
-    // second delay before shutdown
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-           sleep(1);
+/** second delay before shutdown. */
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+    sleep(1);
 #else
-           Sleep(1000);
+    Sleep(1000);
 #endif
+
     if(FileSystem::exists(stopClient))
     {
-        // Remove STOP file here 
+        /** Remove STOP file here. */
         FileSystem::removeFile(stopClient);
     }
     if (verboseTest)
     {
-        errorInfo.append("++++ TestWrapperStressClient Terminated Normally +++++");
-        wc.errorLog(clientPid, clientlog, errorInfo);
+        errorInfo.append(
+            "++++ TestWrapperStressClient Terminated Normally +++++");
+        wc.errorLog(clientPid, clientLog, errorInfo);
         errorInfo.clear();
     }
     return 0;

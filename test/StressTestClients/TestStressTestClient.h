@@ -29,8 +29,8 @@
 //
 //==============================================================================
 //
-// Author:  Aruran (aruran.shanmug@in.ibm.com) & Melvin (msolomon@in.ibm.com), IBM
-//                                                         for PEP# 241
+// Author:  Aruran (aruran.shanmug@in.ibm.com) & Melvin (msolomon@in.ibm.com),
+//                                                       IBM for PEP# 241
 // Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -52,16 +52,16 @@
 #include <Pegasus/Common/TimeValue.h>
 #include <signal.h>
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-#include <windows.h> /* DWORD etc. */
-typedef DWORD pid_t;
-#include <process.h> /* getpid() and others */
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+ #include <windows.h> /* DWORD etc. */
+ typedef DWORD pid_t;
+ #include <process.h> /* getpid() and others. */
 #elif !defined(PEGASUS_OS_OS400)
-#include <unistd.h>
+ #include <unistd.h>
 #endif
 
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-#include <iostream.h>
+ #include <iostream.h>
 #endif
 
 #define SIXTYSECONDS 60
@@ -71,7 +71,7 @@ typedef DWORD pid_t;
 
 PEGASUS_NAMESPACE_BEGIN
 
-// StressTest Client Status types
+/** StressTest Client Status types. */
 enum CStatus
 {
     CLIENT_PASS,
@@ -79,38 +79,52 @@ enum CStatus
     CLIENT_UNKNOWN
 };
 
-/** The TestStressTestClient class holds the common functionality for all the 
-stress test clients.
-*/ 
-class PEGASUS_CLIENT_LINKAGE TestStressTestClient 
-{
-    
-public:
+#ifndef PEGASUS_STRESSTESTCLIENT_LINKAGE
+# ifdef PEGASUS_OS_TYPE_WINDOWS
+#  ifdef PEGASUS_STRESSTESTCLIENT_INTERNAL
+#   define PEGASUS_STRESSTESTCLIENT_LINKAGE PEGASUS_EXPORT
+#  else
+#   define PEGASUS_STRESSTESTCLIENT_LINKAGE PEGASUS_IMPORT
+#  endif
+# else
+#  define PEGASUS_STRESSTESTCLIENT_LINKAGE
+# endif
+#endif
 
+/** The TestStressTestClient class holds the common functionality for all the
+    stress test clients.
+*/
+class PEGASUS_STRESSTESTCLIENT_LINKAGE TestStressTestClient
+{
+public:
     /** Constructor. */
     TestStressTestClient();
 
-	/* This method is use to get all the options that are passed through command line. */
+    /* This method is use to get all the options that are passed through
+       command line.
+    */
+    int GetOptions(
+        OptionManager& om,
+        int& argc,
+        char** argv,
+        OptionRow* clientOptionsTable,
+        Uint32 clientOptionCount);
 
-    int GetOptions( OptionManager& om,                     
-                     int& argc,
-                     char** argv,
-                     OptionRow* clientOptionsTable,
-                     Uint32 clientOptionCount
-    );      
-
-    /** This method is used by clients to register client specific required options
-        to the option table. All these options are taken as mandatory one.
+    /** This method is used by clients to register client specific required
+        options to the option table. All these options are taken as mandatory
+        one.
     */
     OptionRow* generateClientOptions(
-        OptionRow* clientOptionsTable, Uint32 clientOptionCount,Uint32& totalOptionCount);
+        OptionRow* clientOptionsTable,
+        Uint32 clientOptionCount,
+        Uint32& totalOptionCount);
 
-    /** This method is used by the clients to connect to the server. If useSSL is 
-    true then an SSL connection will be atemped with the userName and passWord that
-    is passed in. If localConnection is true a connectLocal connection will be 
-    attempted. All parameters are required. 
+    /** This method is used by the clients to connect to the server. If useSSL
+        is true then an SSL connection will be atemped with the userName and
+        passWord that is passed in. If localConnection is true a connectLocal
+        connection will be attempted. All parameters are required. 
     */
-    void connectClient(            
+    void connectClient(
         CIMClient *client,
         String host,
         Uint32 portNumber,
@@ -120,33 +134,40 @@ public:
         Uint32 timeout,
         Boolean verboseTest);
 
-    /** This method is used by the clients to log information which are required for controller
-        reference. It logs the inofrmation with Client ID and status of the client
-        in the PID File log file.
+    /** This method is used by the clients to log information which are
+        required for controller reference. It logs the inofrmation with
+        Client ID and status of the client in the PID File log file.
     */
-    void logInfo(String clientid, pid_t clientPid, int clientStatus,
-                  String &pidfile);
+    void logInfo(
+        String clientId,
+        pid_t clientPid,
+        int clientStatus,
+        String &pidFile);
 
-    /** This method is used to take the client process start time.
-    */
+    /** This method is used to take the client process start time. */
     void startTime();
 
-    /** This method is used to check the time stamp for logging information about the 
-        success or failure.
+    /** This method is used to check the time stamp for logging information
+        about the success or failure.
     */
     Boolean checkTime();
 
-    /** This method is used to log the information about the client's success or failure percentage
-        at a specific interval of time.
+    /** This method is used to log the information about the client's success
+        or failure percentage at a specific interval of time.
     */
-    void logErrorPercentage( Uint32 successCount, Uint32 totalCount, pid_t clientPid,
-                             String &clientlog, char client[] );
+    void logErrorPercentage(
+        Uint32 successCount,
+        Uint32 totalCount,
+        pid_t clientPid,
+        String &clientLog,
+        char client[]);
 
-    /** This method is used to log the informations of client logs to the client log file
+    /** This method is used to log the informations of client logs to the
+        client log file.
     */
-    void errorLog( pid_t clientPid, String &clientlog, String &Message );
+    void errorLog(pid_t clientPid, String &clientLog, String &message);
 
-//Timer details
+    /** Timer details. */
     Uint64 startMilliseconds;
     Uint64 nowMilliseconds;
     Uint64 nextCheckupInMillisecs;
@@ -154,8 +175,4 @@ public:
     Uint32 optionCount;
 };
 PEGASUS_NAMESPACE_END
-
-#endif /* TestStressTestClient_h
- */
-
-
+#endif /* TestStressTestClient_h */

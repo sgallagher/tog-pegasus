@@ -83,6 +83,10 @@ repository:
 	@ $(ECHO) +++++ Registering MethodTestProvider ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" MethodTestProviderR.mof
 
+	@ $(ECHO) +++++ Loading CLITestProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" CLITestProvider.mof
+	@ $(ECHO) +++++ Registering CLITestProvider ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" CLITestProviderR.mof
 	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TST_Family.mof
 	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
@@ -153,6 +157,10 @@ repositoryServer:
 	@ $(ECHO) +++++ Registering MethodTestProvider ...
 	@ cimmof "-n$(INTEROPNS)" MethodTestProviderR.mof
 
+	@ $(ECHO) +++++ Loading CLITestProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmof "-n$(TESTPROVIDERNS)" CLITestProvider.mof
+	@ $(ECHO) +++++ Registering CLITestProvider ...
+	@ cimmof "-n$(INTEROPNS)" CLITestProviderR.mof
 	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
 	@ cimmof "-n$(TESTPROVIDERNS)" TST_Family.mof
 	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
@@ -208,6 +216,7 @@ unregister:
 unregisterproviders:
 	cimprovider -r -m IndicationStressTestProviderModule
 	cimprovider -r -m MethodTestProviderModule
+	cimprovider -r -m CLITestProviderModule
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m TestCMPIIndicationProviderModule
 	cimprovider -r -m TestCMPIMethodProviderModule

@@ -558,7 +558,7 @@ const void CIMError::setInstance(const CIMInstance& instance)
     }
 
     // Verify that the instance contains all of the required properties.
-
+    /* Temp block this.  KS 21 April 06
     for (Uint32 i = 0; i < _numRequiredProperties; i++)
     {
 	// Does inst have this property?
@@ -582,7 +582,7 @@ const void CIMError::setInstance(const CIMInstance& instance)
 		_requiredProperties[i]);
 	    throw CIMException(CIM_ERR_FAILED, buffer);
         }
-    }
+    }  */
     _inst = instance;
 }
 

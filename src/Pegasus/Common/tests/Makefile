@@ -37,8 +37,11 @@ DIRS = \
     AutoPtr \
     async_callback \
     AtomicInt \
+    Attribute \
+    AuthenticationInfo \
     Base64 \
     Buffer \
+    Cimom \
     ClassDecl \
     Compare \
     Config \
@@ -63,6 +66,7 @@ DIRS = \
     Object \
     ObjectNormalizer \
     OperationContext \
+    OptionManager \
     ParamValue \
     Parameter \
     Property \

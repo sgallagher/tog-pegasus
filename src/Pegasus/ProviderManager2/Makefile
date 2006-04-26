@@ -54,7 +54,6 @@ SOURCES = \
 	ProviderManagerModule.cpp \
 	\
 	ProviderManager.cpp \
-	ProviderRegistrar.cpp \
 	ProviderName.cpp \
 	ProviderType.cpp \
 	\

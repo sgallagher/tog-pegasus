@@ -1,0 +1,114 @@
+// ===================================================================
+// PG_RPMPackage
+// ===================================================================
+
+[Version("1.0"), Description(
+ "An instance of PG_RPMPackage represents an installed RPM package.")]
+
+class PG_RPMPackage : CIM_SoftwareElement {
+
+    // [Key] uint16 TargetOperatingSystem
+    // [Key] uint16 SoftwareElementState
+    // [Key] string SoftwareElementID
+    // [Key] string Version
+    // [Key] string Name
+    // uint16 OperationalStatus[]
+    // string StatusDescriptions[]
+    // datetime InstallDate
+    // string ElementName
+    // string Caption
+    // string Description
+
+};
+
+// ===================================================================
+// PG_RPMFileCheck
+// ===================================================================
+
+[Version("1.0"), Description(
+ "Each file that is installed by a RPM package has a PG_RPMFileCheck "
+ "instance associated with it.")]
+
+class PG_RPMFileCheck : CIM_FileSpecification {
+
+    // [Key] uint16 TargetOperatingSystem
+    // [Key] uint16 SoftwareElementState
+    // [Key] string SoftwareElementID
+    // [Key] string Version
+    // [Key] string CheckID
+    // [Key] string Name
+    // string FileName
+    // string MD5Checksum
+    // datetime CreateTimeStamp
+    // uint64 FileSize
+    // boolean CheckMode
+    // string ElementName
+    // string Caption
+    // string Description
+
+};
+
+// ===================================================================
+// PG_RPMAssociatedFile
+// ===================================================================
+
+[Association, Version("1.0"), Description(
+ "This association links a file installed by a RPM package, to the "
+ "package that installed it.")]
+
+class PG_RPMAssociatedFile : CIM_SoftwareElementChecks {
+
+    [Override("Check"), Description(
+     "The file installed by the RPM package.")]
+
+    PG_RPMFileCheck REF Check;
+
+    [Override("Element"), Description(
+     "The RPM package which installed the file.")]
+
+    PG_RPMPackage REF Element;
+         
+};
+
+// ===================================================================
+// PG_RPMProduct
+// ===================================================================
+
+[Version("1.0"), Description(
+ "For each RPM package installed, a PG_RPMProduct instances is returned.")]
+
+class PG_RPMProduct : CIM_Product {
+
+    // [Key] string Version
+    // [Key] string IdentifyingNumber
+    // [Key] string Vendor
+    // [Key] string Name
+    // string ElementName
+    // string Caption
+    // string Description
+
+};
+
+// ===================================================================
+// PG_RPMProductProductDependency
+// ===================================================================
+
+[Association, Version("1.0"), Description(
+ "Instances of this class express the RPM dependency tree amongst "
+ "installed RPM packages.")]
+
+class PG_RPMProductProductDependency : CIM_ProductProductDependency {
+
+    [Override("DependentProduct"), Description(
+     "A reference to the RPM package that has the dependency.")]
+
+    PG_RPMProduct REF DependentProduct;
+
+    // uint16 TypeOfDependency
+
+    [Override("RequiredProduct"), Description(
+     "The product that the DependentProduct depends on.")]
+
+    PG_RPMProduct REF RequiredProduct;
+
+};

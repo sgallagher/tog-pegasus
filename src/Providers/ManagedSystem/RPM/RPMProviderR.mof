@@ -1,0 +1,80 @@
+instance of PG_ProviderModule
+{
+	Name = "RPMModule";
+	Location = "RPMProvider";
+	Vendor = "Hewlett-Packard";
+	Version = "0.0";
+	InterfaceType = "C++Default";
+	InterfaceVersion = "2.1.0";
+};
+
+instance of PG_Provider
+{
+	ProviderModuleName = "RPMModule";
+	Name = "RPMProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+	ProviderModuleName = "RPMModule";
+	ProviderName = "RPMProvider";
+	CapabilityID = "1";
+	ClassName = "PG_RPMPackage";
+	Namespaces = {
+		"root/cimv2"
+	};
+	ProviderType = {
+		2	// Instance
+	};
+	SupportedProperties = NULL;	// All properties
+	SupportedMethods = NULL;	// All methods
+};
+
+instance of PG_ProviderCapabilities
+{
+	ProviderModuleName = "RPMModule";
+	ProviderName = "RPMProvider";
+	CapabilityID = "2";
+	ClassName = "PG_RPMFileCheck";
+	Namespaces = {
+		"root/cimv2"
+	};
+	ProviderType = {
+		2	// Instance
+	};
+	SupportedProperties = NULL;	// All properties
+	SupportedMethods = NULL;	// All methods
+};
+
+instance of PG_ProviderCapabilities
+{
+	ProviderModuleName = "RPMModule";
+	ProviderName = "RPMProvider";
+	CapabilityID = "3";
+	ClassName = "PG_RPMAssociatedFile";
+	Namespaces = {
+		"root/cimv2"
+	};
+	ProviderType = {
+		3	// Association
+	};
+	SupportedProperties = NULL;	// All properties
+	SupportedMethods = NULL;	// All methods
+};
+
+instance of PG_ProviderCapabilities
+{
+	ProviderModuleName = "RPMModule";
+	ProviderName = "RPMProvider";
+	CapabilityID = "4";
+	ClassName = "PG_RPMProduct";
+	Namespaces = {
+		"root/cimv2"
+	};
+	ProviderType = {
+		2	// Instance
+	};
+	SupportedProperties = NULL;	// All properties
+	SupportedMethods = NULL;	// All methods
+};
+

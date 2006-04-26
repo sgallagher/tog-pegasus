@@ -8,8 +8,6 @@
 #// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 #// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 #// EMC Corporation; VERITAS Software Corporation; The Open Group.
-#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
-#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
 #// Permission is hereby granted, free of charge, to any person obtaining a copy
 #// of this software and associated documentation files (the "Software"), to
@@ -29,58 +27,39 @@
 #//
 #//==============================================================================
 #//
-#// Author: <Author's Name> (<Authors EMAIL>)
+#// Author: Tim Potter <tpot@hp.com>
 #//
-#// Modified By:
-#//
-#//%/////////////////////////////////////////////////////////////////////////////
-#
-# Recurse the directories defined in DIRS
-#
+#//%////////////////////////////////////////////////////////////////////////////
 
-ROOT = ../../..
+ROOT = ../../../..
+
+DIR = Providers/ManagedSystem/RPM
 
 include $(ROOT)/mak/config.mak
 
-DIRS =  \
-        OperatingSystem \
-        OperatingSystem/tests \
-        OperatingSystem/tests/OSTestClient \
-        ComputerSystem \
-        ComputerSystem/tests \
-        Process \
-        Process/tests \
-        Processor \
-        Processor/tests \
-	IP \
-	IP/tests \
-	IP/testclient
+LIBRARY = RPMProvider
 
-ifeq ($(OS),HPUX)
-  DIRS += NTPProviderSecurity \
-	  NTPService \
-	  NTPService/tests \
-	  NTPService/testclient \
-	  DNSService \
-	  DNSService/tests \
-	  DNSService/tests/testclient \
-	  NISServerService \
-	  NISServerService/tests \
-	  NISServerService/testclient
-endif
+EXTRA_INCLUDES = 
 
-ifeq ($(PEGASUS_OS_TYPE),VMS)
-  DIRS += NTPProviderSecurity \
-          NTPService \
-          NTPService/tests \
-          NTPService/testclient \
-          DNSService \
-          DNSService/tests \
-          DNSService/tests/testclient
-endif
+SOURCES = \
+	RPMProvider.cpp \
+	RPMProviderMain.cpp \
+	RPMProviderUtils.cpp \
+	RPMWrapper.cpp
+
+LIBRARIES = \
+    pegprovider \
+    pegclient \
+    pegcommon
+
+DYNAMIC_LIBRARIES = \
+	-lpegcommon \
+	-lpegprovider
 
 ifeq ($(OS),linux)
-  DIRS += RPM
+  EXTRA_LIBRARIES += -lrpm
 endif
 
-include $(ROOT)/mak/recurse.mak
+include $(ROOT)/mak/dynamic-library.mak
+
+tests:

@@ -50,7 +50,7 @@
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#3452
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4183
+//              Aruran, IBM (aruran.shanmug@in.ibm.com) for Bug# 4183, 4937
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -314,15 +314,19 @@ void PrintHelp(const char* arg0)
     usage.append ("    -install [name] - installs pegasus as a Windows Service\n");
     usage.append ("                      [name] is optional and overrides the\n");
     usage.append ("                      default CIM Server Service Name\n");
+    usage.append ("                      by appending [name]\n");
     usage.append ("    -remove [name]  - removes pegasus as a Windows Service\n");
     usage.append ("                      [name] is optional and overrides the\n");
     usage.append ("                      default CIM Server Service Name\n");
+    usage.append ("                      by appending [name]\n");
     usage.append ("    -start [name]   - starts pegasus as a Windows Service\n");
     usage.append ("                      [name] is optional and overrides the\n");
     usage.append ("                      default CIM Server Service Name\n");
+    usage.append ("                      by appending [name]\n");
     usage.append ("    -stop [name]    - stops pegasus as a Windows Service\n");
     usage.append ("                      [name] is optional and overrides the\n");
-    usage.append ("                      default CIM Server Service Name\n\n");
+    usage.append ("                      default CIM Server Service Name\n");
+    usage.append ("                      by appending [name]\n\n");
 #endif
     usage.append ("  configProperty=value\n");
     usage.append ("                    - sets CIM Server configuration property\n");

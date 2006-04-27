@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,17 +28,25 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ..
+ROOT = $(PEGASUS_ROOT)
 
+DIR = test/StressTestClients
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-	wetest \
-	StressTestController\
-	StressTestController/tests\
-	StressTestClients\
-	StressTestClients/ModelWalkStressClient \
-	StressTestClients/WrapperStressClient
+ifdef PEGASUS_HAS_SSL
+   FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
+   SYS_INCLUDES += -I$(OPENSSL_HOME)/include
+endif
 
-include $(ROOT)/mak/recurse.mak
+LOCAL_DEFINES = -DPEGASUS_STRESSTESTCLIENT_INTERNAL -DPEGASUS_INTERNALONLY 
 
+LIBRARY = TestStressTestClient
+
+LIBRARIES = \
+    pegclient \
+    pegcommon
+
+SOURCES = \
+   TestStressTestClient.cpp
+
+include $(ROOT)/mak/library.mak

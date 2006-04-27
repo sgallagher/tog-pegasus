@@ -99,6 +99,7 @@ usage: FORCE
 	$(USAGE)"standardtests       - runs server extended tests"
 	$(USAGE)"testusage           - TestMakefile usage"
 	$(USAGE)"testusage2          - TestMakefile usage2"
+	$(USAGE)"stresstests         - Runs the default stresstests"
 	$(USAGE)
 	$(USAGE)"--------------------"
 	$(USAGE)"Quick start:"
@@ -223,7 +224,10 @@ testusage: FORCE
 testusage2: FORCE
 	@ $(MAKE) -f TestMakefile usage2
 
-
+stresstests:
+	@$(ECHO) "Running OpenPegasus StressTests"
+	@$(MAKE)  -f TestMakefile stresstests
+	@$(ECHO) "+++++ OpenPegasus StressTests complete"
 
 ##########################################################################
 #
@@ -296,5 +300,3 @@ config:
 
 rootbundle: 
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile
-
-

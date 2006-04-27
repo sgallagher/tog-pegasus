@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,17 +28,25 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ..
+ROOT = $(PEGASUS_ROOT)
 
+DIR = test/StressTestController
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-	wetest \
-	StressTestController\
-	StressTestController/tests\
-	StressTestClients\
-	StressTestClients/ModelWalkStressClient \
-	StressTestClients/WrapperStressClient
+LOCAL_DEFINES = -DSTRESSTEST_DEFAULTCFGDIR=\"$(ROOT)/$(DIR)/\"
 
-include $(ROOT)/mak/recurse.mak
+LIBRARIES = \
+    pegcliutils \
+    peggetoopt \
+    pegclient \
+    pegcommon
 
+
+PROGRAM = TestStressTestController
+SOURCES = StressTestControllerException.cpp \
+	StressTestControllerMain.cpp \
+	StressTestController.cpp
+
+include $(ROOT)/mak/program.mak
+
+poststarttests:

@@ -87,9 +87,9 @@ TestStressTestClient::TestStressTestClient()
     optionCount = sizeof(testOptionsTable) / sizeof(testOptionsTable[0]);
     optionsTable = testOptionsTable;
  }
-/*///////////////////////////////////////////////////////////////
+/**
     OPTION MANAGEMENT
-///////////////////////////////////////////////////////////////*/
+*/
 
 /** GetOptions function - This function sets up the options from 
     testOptionsTable which is initialized through constructor
@@ -113,26 +113,36 @@ int TestStressTestClient::GetOptions(
     int counter = 0;
     String argument = String::EMPTY;
 
-    /** om.registerOptions(newOptionsTable, (const)cOptionCount); */
+    
+    //
+    // om.registerOptions(newOptionsTable, (const)cOptionCount); 
+    //
     om.registerOptions(newOptionsTable, cOptionCount);
     argvv = argv;
 
-    /** Following section is introduced to ignore  options not
-        required by a client.
-    */
+    //
+    // Following section is introduced to ignore  options not
+    // required by a client.
+    //
     for (int i = 1; i < argc; i++)
     {
         argument = String::EMPTY;
         const char* arg = argv[i];
 
-        /** Check for - option. */
+        //
+        // Check for - option.
+        //
         if (*arg == '-')
         {
-            /** Look for the option. */
+            //
+            // Look for the option. 
+            //
             argument.append(arg + 1);
             const Option* option = om.lookupOption(argument);
 
-            /** Get the option argument if any. */
+            //
+            // Get the option argument if any. 
+            //
             if (option)
             {
                 argvv[++counter]=argv[i];
@@ -206,7 +216,9 @@ void TestStressTestClient::logInfo(
 
     Uint32 whileCount = 0;
 
-    /**  Get current time for time stamp */
+    //
+    //  Get current time for time stamp 
+    //
     nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
 
     sprintf(pid_str, "%d", clientPid);
@@ -312,7 +324,9 @@ void TestStressTestClient::logErrorPercentage(
     successPercentage = (successCount/totalCount)*100;
     errorPercentage = 100 - successPercentage;
 
-    /** loging details here  */
+    //
+    // loging details here 
+    //
     ofstream errorLog_File(clientLog.getCString(), ios::app);
     errorLog_File<<client<<" PID#"<<clientPid<<" ran "<<totalCount
                  <<" times with a "<<errorPercentage<<"% failure"<<"\n";
@@ -327,7 +341,9 @@ void TestStressTestClient::errorLog(
     String &clientLog,
     String &message)
 {
-    /** loging details here .*/
+    //
+    // loging details here .
+    //
     ofstream errorLog_File(clientLog.getCString(), ios::app);
     errorLog_File<<" PID#"<<clientPid<<"::"<<message<<"\n";
     errorLog_File.close();
@@ -336,7 +352,9 @@ void TestStressTestClient::errorLog(
 /** This method handles the SSLCertificate verification part. */
 static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 {
-    /** Add code to handle server certificate verification. */
+    //
+    // Add code to handle server certificate verification. 
+    //
     return true;
 }
 
@@ -357,7 +375,9 @@ void TestStressTestClient::connectClient(
 {
     if (useSSL)
     {
-        /** Get environment variables. */
+        //
+        // Get environment variables. 
+        //
         const char* pegasusHome = getenv("PEGASUS_HOME");
 
         String trustpath = FileSystem::getAbsolutePath(
@@ -375,9 +395,9 @@ void TestStressTestClient::connectClient(
             trustpath, verifyCertificate, randFile);
         if (verboseTest)
         {
-            PEGASUS_STD(cout) << "connecting to " << host << ":"
-                              << portNumber << " using SSL"
-                              << PEGASUS_STD(endl);
+            cout << "connecting to " << host << ":"
+                 << portNumber << " using SSL"
+                 << endl;
         }
         client->connect (host, portNumber, sslContext, userName, password);
     } /* useSSL. */
@@ -385,13 +405,13 @@ void TestStressTestClient::connectClient(
     {
         if (verboseTest)
         {
-            PEGASUS_STD(cout) << "Connecting to " << host << ":" << portNumber
-                              << PEGASUS_STD(endl);
+            cout << "Connecting to " << host << ":" << portNumber
+                 << endl;
         }
         client->connect (host, portNumber, userName, password);
     }
     if (verboseTest)
     {
-        PEGASUS_STD(cout) << "Client Connected" << PEGASUS_STD(endl);
+        cout << "Client Connected" << endl;
     }
 }

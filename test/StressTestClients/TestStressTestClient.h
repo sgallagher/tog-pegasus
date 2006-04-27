@@ -51,11 +51,14 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <signal.h>
+#include "Linkage.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
- #include <windows.h> /* DWORD etc. */
+ // DWORD etc.
+ #include <windows.h> 
  typedef DWORD pid_t;
- #include <process.h> /* getpid() and others. */
+ // getpid() and others.
+ #include <process.h>
 #elif !defined(PEGASUS_OS_OS400)
  #include <unistd.h>
 #endif
@@ -71,7 +74,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** StressTest Client Status types. */
+/** 
+    StressTest Client Status types.
+*/
 enum CStatus
 {
     CLIENT_PASS,
@@ -79,28 +84,19 @@ enum CStatus
     CLIENT_UNKNOWN
 };
 
-#ifndef PEGASUS_STRESSTESTCLIENT_LINKAGE
-# ifdef PEGASUS_OS_TYPE_WINDOWS
-#  ifdef PEGASUS_STRESSTESTCLIENT_INTERNAL
-#   define PEGASUS_STRESSTESTCLIENT_LINKAGE PEGASUS_EXPORT
-#  else
-#   define PEGASUS_STRESSTESTCLIENT_LINKAGE PEGASUS_IMPORT
-#  endif
-# else
-#  define PEGASUS_STRESSTESTCLIENT_LINKAGE
-# endif
-#endif
-
 /** The TestStressTestClient class holds the common functionality for all the
     stress test clients.
 */
 class PEGASUS_STRESSTESTCLIENT_LINKAGE TestStressTestClient
 {
 public:
-    /** Constructor. */
+    /** 
+        Constructor.
+    */
     TestStressTestClient();
 
-    /* This method is use to get all the options that are passed through
+    /**
+       This method is used to get all the options that are passed through
        command line.
     */
     int GetOptions(
@@ -110,7 +106,8 @@ public:
         OptionRow* clientOptionsTable,
         Uint32 clientOptionCount);
 
-    /** This method is used by clients to register client specific required
+    /** 
+        This method is used by clients to register client specific required
         options to the option table. All these options are taken as mandatory
         one.
     */
@@ -119,7 +116,8 @@ public:
         Uint32 clientOptionCount,
         Uint32& totalOptionCount);
 
-    /** This method is used by the clients to connect to the server. If useSSL
+    /** 
+        This method is used by the clients to connect to the server. If useSSL
         is true then an SSL connection will be atemped with the userName and
         passWord that is passed in. If localConnection is true a connectLocal
         connection will be attempted. All parameters are required. 
@@ -134,7 +132,8 @@ public:
         Uint32 timeout,
         Boolean verboseTest);
 
-    /** This method is used by the clients to log information which are
+    /** 
+        This method is used by the clients to log information which are
         required for controller reference. It logs the inofrmation with
         Client ID and status of the client in the PID File log file.
     */
@@ -144,15 +143,19 @@ public:
         int clientStatus,
         String &pidFile);
 
-    /** This method is used to take the client process start time. */
+    /** 
+        This method is used to take the client process start time. 
+    */
     void startTime();
 
-    /** This method is used to check the time stamp for logging information
+    /** 
+        This method is used to check the time stamp for logging information
         about the success or failure.
     */
     Boolean checkTime();
 
-    /** This method is used to log the information about the client's success
+    /** 
+        This method is used to log the information about the client's success
         or failure percentage at a specific interval of time.
     */
     void logErrorPercentage(
@@ -162,12 +165,15 @@ public:
         String &clientLog,
         char client[]);
 
-    /** This method is used to log the informations of client logs to the
+    /** 
+        This method is used to log the informations of client logs to the
         client log file.
     */
     void errorLog(pid_t clientPid, String &clientLog, String &message);
-
-    /** Timer details. */
+  
+    /**
+        Timer details. 
+    */
     Uint64 startMilliseconds;
     Uint64 nowMilliseconds;
     Uint64 nextCheckupInMillisecs;

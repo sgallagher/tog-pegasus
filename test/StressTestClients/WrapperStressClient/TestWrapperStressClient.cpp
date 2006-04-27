@@ -55,13 +55,13 @@ char thisClient[] = "WrapperStressClient";
  */
 void endTest(int signum)
 {
-    PEGASUS_STD(cout)<<"Recieved interupt signal SIGINT!\n"<<PEGASUS_STD(endl);
+    cout<<"Recieved interupt signal SIGINT!\n"<<endl;
     quit = true;
 }
 
-/*///////////////////////////////////////////////////////////////
+/**
     MAIN
-///////////////////////////////////////////////////////////////*/
+*/
 int main(int argc, char** argv)
 {
     OptionManager om;
@@ -70,23 +70,33 @@ int main(int argc, char** argv)
     Uint32 validArg = 0;
     Boolean verboseTest;
 
-    /** Varriables needed for loging and status checking. */
+    //
+    // Varriables needed for loging and status checking.
+    //
     String clientId;
     String pidFile;
     String clientLog, stopClient;
     char pid_str[15];
     int status = CLIENT_UNKNOWN;
 
-    /** Number of times the client command succeeded. */
+    //
+    // Number of times the client command succeeded.
+    //
     Uint32 successCount = 0;
 
-    /** Number of iterations after which logErrorPercentage() is called. */
+    //
+    // Number of iterations after which logErrorPercentage() is called.
+    //
     Uint32 iteration = 0;
 
-    /** Total number of times the client command was executed. */
+    //
+    // Total number of times the client command was executed.
+    //
     Uint32 totalCount = 0;
 
-    /** Variables needed for Command operation. */
+    //
+    // Variables needed for Command operation.
+    //
     String command;
 
     String options;
@@ -111,7 +121,9 @@ int main(int argc, char** argv)
 
         try
         {
-            /* Generate new option table for this client using OptionManager */
+            //
+            // Generate new option table for this client using OptionManager
+            //
             newOptionsTable = wc.generateClientOptions(
                                   cOptionTable,
                                   cOptionCount,
@@ -125,14 +137,12 @@ int main(int argc, char** argv)
         }
         catch (Exception& e)
         {
-            PEGASUS_STD(cerr) << argv[0] << ": " << e.getMessage()
-                              << PEGASUS_STD(endl);
+            cerr << argv[0] << ": " << e.getMessage() << endl;
             exit(1);
         }
         catch (...)
         {
-            PEGASUS_STD(cerr) << argv[0] << ": Error in Options operations "
-                              << PEGASUS_STD(endl);
+            cerr << argv[0] << ": Error in Options operations "<< endl;
             exit(1);
         }
 
@@ -152,15 +162,13 @@ int main(int argc, char** argv)
     } /** end of option Try block. */
     catch (Exception& e)
     {
-        PEGASUS_STD(cerr) << argv[0] << ": " << e.getMessage()
-                          << PEGASUS_STD(endl);
+        cerr << argv[0] << ": " << e.getMessage() <<endl;
         exit(1);
     }
     catch (...)
     {
-        PEGASUS_STD(cerr) << argv[0] 
-                          << ": Unknown Error gathering options "
-                          << "in Wrapper Client " << PEGASUS_STD(endl);
+        cerr << argv[0] << ": Unknown Error gathering options "
+             << "in Wrapper Client " << endl;
         exit(1);
     }
 
@@ -194,10 +202,14 @@ int main(int argc, char** argv)
             errorInfo.clear();
         }
 
-        /* Signal Handling - SIGINT. */
+        //
+        // Signal Handling - SIGINT.
+        //
         signal(SIGINT, endTest);
 
-        /* Timer Start. */
+        //
+        // Timer Start.
+        //
         wc.startTime();
 
         wc.logInfo(clientId, clientPid, status, pidFile);
@@ -208,9 +220,10 @@ int main(int argc, char** argv)
         stopClient.append("STOP_");
         stopClient.append(pid_str);
 
-        /* This loop executes till the client gets stop signal from
-           controller.
-        */
+        //
+        // This loop executes till the client gets stop signal from
+        // controller.
+        //
         while (!quit)
         {
             if (FileSystem::exists(stopClient))
@@ -223,17 +236,14 @@ int main(int argc, char** argv)
                 break;
             }
 
+                if (!verboseTest)
+                {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-                if (!verboseTest)
-                {
                     freopen("nul","w",stdout);
-                }
 #else
-                if (!verboseTest)
-                {
                     freopen("/dev/null","w",stdout);
-                }
 #endif
+                }
 
             int i = system(command.getCString()); 
 
@@ -268,10 +278,11 @@ int main(int argc, char** argv)
                 nextCheck = false;
             }
 
-            /* If verbose is set, log success percentage for every 100
-               iterations.  If verbose is not set, log success percentage
-               for every 1000 iterations.
-            */
+            //
+            // If verbose is set, log success percentage for every 100
+            // iterations.  If verbose is not set, log success percentage
+            // for every 1000 iterations.
+            //
             if (verboseTest)
             {
                 if (iteration == 100)
@@ -308,7 +319,7 @@ int main(int argc, char** argv)
 
         if (verboseTest)
         {
-            PEGASUS_STD(cerr) << expStr.getCString() << PEGASUS_STD(endl);
+            cerr << expStr.getCString() << endl;
         }
     }
     catch (...)
@@ -318,11 +329,13 @@ int main(int argc, char** argv)
 
         if (verboseTest)
         {
-            PEGASUS_STD(cerr) << expStr.getCString() << PEGASUS_STD(endl);
+            cerr << expStr.getCString() << endl;
         }
     }
 
-/** second delay before shutdown. */
+//
+// second delay before shutdown.
+//
 #ifndef PEGASUS_OS_TYPE_WINDOWS
     sleep(1);
 #else
@@ -331,7 +344,9 @@ int main(int argc, char** argv)
 
     if(FileSystem::exists(stopClient))
     {
-        /** Remove STOP file here. */
+        //
+        // Remove STOP file here.
+        //
         FileSystem::removeFile(stopClient);
     }
     if (verboseTest)

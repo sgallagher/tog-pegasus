@@ -207,8 +207,10 @@ public:
     String getStressTestLogFile(){ return _stressTestLogFile;}
     String getStressClientLogFile(){ return _stressTestClientLogFile;}
 
-    static char   FILENAME [];
-
+    /**
+      Stress Test directories and files.
+     */  
+    static char FILENAME[];
     static char TESTDIR[];
     static char STRESSTESTDIR[];
     static char LOGDIR[];
@@ -218,7 +220,8 @@ public:
     static char DEFAULT_LOGDIR[];
     static char DEFAULT_TMPDIR[];
 
-    // Environment variables:
+    //
+    // Environment variable:
     //
     char* pegasusHome;
 

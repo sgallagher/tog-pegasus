@@ -54,8 +54,10 @@
 //Windows
 //
 #ifdef PEGASUS_OS_TYPE_WINDOWS
- #include <windows.h>     /* for DWORD etc. */
- typedef DWORD pid_t;     /* getpid() and others */
+ // for DWORD etc.
+ #include <windows.h>  
+ // getpid() and others 
+ typedef DWORD pid_t;     
  #include <process.h>
 #elif !defined(PEGASUS_OS_OS400)
  #include <unistd.h>
@@ -84,6 +86,9 @@ static String convertUint64toString(Uint64 x);
 
 
 PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
 
 
 /**
@@ -139,6 +144,7 @@ enum CStatus{
 /**
   Temporary arrays to store client information
 */
+
 /**
   Client PID's
 */
@@ -357,8 +363,10 @@ StressTestControllerCommand::StressTestControllerCommand ()
     _password = String ();
     _passwordSpecified = false;
     _useSSL = false;
- 
+
+    //
     // initialize
+    //
     _clientCount = 0;
     _currClientCount = 0;
     
@@ -372,11 +380,14 @@ StressTestControllerCommand::StressTestControllerCommand ()
     //
     _propertyTable = new Table;
 
+    //
     // Client Information
+    //
     _clientCommands = 0;
     _clientDurations = 0;
     _clientDelays = 0;
 
+    //
     // Get environment variables:
     //
     pegasusHome = getenv("PEGASUS_HOME");
@@ -470,7 +481,9 @@ void StressTestControllerCommand::setCommand (Uint32 argc, char* argv [])
 
     ofstream log_file;
 
+    //
     // opens  the log file
+    //
     OpenAppend(log_file,_stressTestLogFile);
 
     if (!log_file)
@@ -504,7 +517,9 @@ void StressTestControllerCommand::setCommand (Uint32 argc, char* argv [])
     getOpts = getoopt ();
     getOpts.addFlagspec (GetOptString);
 
+    //
     // per PEP#167
+    //
     getOpts.addLongFlagspec(LONG_HELP,getoopt::NOARG);
     getOpts.addLongFlagspec(LONG_VERSION,getoopt::NOARG);
     getOpts.addLongFlagspec(LONG_VERBOSE,getoopt::NOARG);
@@ -771,9 +786,11 @@ Boolean StressTestControllerCommand::generateClientCommands(ostream& log_file)
     _clientDurations = new Uint64[_clientCount];
     _clientDelays = new Uint64[_clientCount]; 
 
+    //
     // Retrieve all the client options from the client table
     // and build commands for respective clients. 
     // Add appropriate options to command string  as required 
+    //
     for (Uint32 j=0; j< _clientCount; j++)
     {
         delay = 0;
@@ -812,7 +829,9 @@ Boolean StressTestControllerCommand::generateClientCommands(ostream& log_file)
             } 
             else if (String::equalNoCase(i.key(),NAME))
             {
+                //
                 // should be ignored - already saved using clientName
+                //
             } 
             else if (String::equalNoCase(i.key(),PORTNUMBER))
             {
@@ -879,12 +898,16 @@ Boolean StressTestControllerCommand::generateClientCommands(ostream& log_file)
                       ||(String::equalNoCase(i.key(),CLIENTWAIT))
                       ||(String::equalNoCase(i.key(),CLIENTDURATION)))
             {
+                //
                 // do nothing here 
                 //   will be utilized to run the clients later.
+                //
             } 
             else 
             { 
+                //
                 // Save all other options for the commands
+                //
                 client_command.append(" -");
                 client_command.append(i.key());
                 client_command.append(" ");
@@ -903,16 +926,21 @@ Boolean StressTestControllerCommand::generateClientCommands(ostream& log_file)
         // Acquire all the common properties listed in the property table 
         // from config file and include it as part of the client command 
         // as required.
+        //
         for (Table::Iterator k = _propertyTable->start(); k; k++)
         {
             String propertyValue = String::EMPTY;
+            //
             // Only include the common properties that are not already
             // listed for the clients.
+            //
             if (!_clientTable[j].lookup(k.key(), propertyValue))
             {
+                //
                 // Include options other than ToleranceLevel
                 // clientDuration,clientwait and Duration
                 // in the command string for the clients. 
+                //
                 if ((!String::equalNoCase(k.key(),TOLERANCELEVEL))
                      && (!String::equalNoCase(k.key(),CLIENTDURATION))
                      && (!String::equalNoCase(k.key(),CLIENTWAIT))
@@ -948,7 +976,9 @@ Boolean StressTestControllerCommand::generateClientCommands(ostream& log_file)
         //
         for (Table::Iterator k = _clientTable[j].start(); k; k++)
         {
+            //
             // Overwrite duration if client duration set
+            //
             if (String::equalNoCase(k.key(),CLIENTDURATION))
             {
                 duration = atof(k.value().getCString());
@@ -1105,7 +1135,9 @@ Uint32 StressTestControllerCommand::execute (
         return (RC_SUCCESS);
     }
 
-    // graceful shutdown when interrupted
+    //
+    // gracefully shutdown when interrupted
+    //
     signal(SIGABRT, endAllTests);
     signal(SIGINT, endAllTests);
 
@@ -1132,13 +1164,17 @@ Uint32 StressTestControllerCommand::execute (
         
     try
     {
+        //
         // Initializing the Boolean array's to false.
+        //
         for (Uint32 i=0;i<_clientCount;i++)
         {
             clientStopped[i] = false;
             clientDelayed[i] = false;
         }
+        //
         // Set up duration of the tests
+        //
         startMilliseconds   = TimeValue::getCurrentTime().toMilliseconds();
         nowMilliseconds     = startMilliseconds;
         timeoutMilliseconds = (Uint64)convertmin2millisecs(_duration);
@@ -1191,8 +1227,10 @@ Uint32 StressTestControllerCommand::execute (
             Sleep(RUN_DELAY * 1000);
 #endif
 
+            //
             // Quit if SIGINT, SIGABRT is caught
             // So the clients can be gracefully shutdown.
+            //
             if(Quit)
             {
                 log_file<<
@@ -1272,6 +1310,7 @@ Uint32 StressTestControllerCommand::execute (
                     //   - Additional required parameters are added to the 
                     //     commands.
                     //     like, -clientid, -pidfile, -clientlog
+                    //
                     for (int instanceID =0;instanceID<clientInstance[j];
                          instanceID++)
                     {
@@ -1333,7 +1372,9 @@ Uint32 StressTestControllerCommand::execute (
                                     "Command failed to Execute."<<endl;
                             }
                         }
+                        //
                         // Increment the actual number of clients
+                        //
                         ++actual_client;
                     } /* for(int instanceID =0;instanceID<clientInstance[j]...*/
                  
@@ -1387,7 +1428,9 @@ Uint32 StressTestControllerCommand::execute (
                  all the clients and then exit.
                 */
  
+                //
                 // Retreive all the client PIDs
+                //
                 int rc = _getClientPIDs(actual_client,log_file);
           
                 //
@@ -1479,7 +1522,9 @@ Uint32 StressTestControllerCommand::execute (
                 //
                 for (Uint32 clientID=0; clientID < _clientCount; clientID++)
                 {              
+                    //
                     // Get Current time
+                    //
                     nowMilliseconds = 
                         TimeValue::getCurrentTime().toMilliseconds();
 
@@ -1527,7 +1572,9 @@ Uint32 StressTestControllerCommand::execute (
                                     "%d",
                                     clientPIDs[clientID+instanceID]); 
                                 stopClientFile.append(str);
+                                //
                                 // Required for Windows
+                                //
                                 ofstream stop_file(
                                     stopClientFile.getCString(),
                                     ios::out);
@@ -1547,10 +1594,14 @@ Uint32 StressTestControllerCommand::execute (
                                         clientID + instanceID<<")"<<endl;
                                 }
 #endif
+                                //
                                 // Set the client as inactive.
+                                //
                                 clientActive[clientID + instanceID] = false;
                             }/* for (int instanceID =0;instanceID<clientInst..*/
+                            //
                             // indicate that the client was stopped. 
+                            //
                             clientStopped[clientID] = true;
                             // 
                             // If the Client has a Wait time
@@ -1570,7 +1621,9 @@ Uint32 StressTestControllerCommand::execute (
                         //
                         if (clientDelayed[clientID])
                         {
+                            //
                             // When waiting period is consumed.
+                            //
                             if (clientDelayMilliseconds[clientID]<= 
                                 nowMilliseconds)
                             {
@@ -1698,7 +1751,9 @@ Uint32 StressTestControllerCommand::execute (
                 clientPIDs[i]<<endl;
         }
         log_file<<"Stopping Client("<<i<<") with PID:"<<clientPIDs[i]<<endl;
+        //
         // Required for Windows
+        //
         String stopClientFile = String::EMPTY; 
         stopClientFile.append(pegasusHome);
         stopClientFile.append(DEFAULT_TMPDIR);
@@ -1855,7 +1910,9 @@ Boolean StressTestControllerCommand::getFileContent(
         {
             _currClient=name;
             _currClientCount=_clientCount;
+            //
             // save the client details in a table
+            //
             if (!_storeClientDetails(name,value))
             {
                 log_file<<StressTestControllerCommand::COMMAND_NAME<<
@@ -2096,7 +2153,9 @@ Boolean StressTestControllerCommand::_validateConfiguration(
     {
         vars=String::EMPTY;
         vars.append(DURATION);
+        //
         // converting to a double
+        //
         if (!IsAClient)
         {
             _duration = atof(value.getCString());
@@ -2155,7 +2214,9 @@ Boolean StressTestControllerCommand::_validateConfiguration(
            //
            if (instance <=0)
            {
+              //
               // Invalid Instance value 
+              //
               return false;
            }
            //
@@ -2182,7 +2243,9 @@ Boolean StressTestControllerCommand::_validateConfiguration(
 #endif
                    if (!FileSystem::exists(clientName))
                    {
+                       //
                        // Invalid client name
+                       //
                        IsValid = false; 
                    }
                    else 
@@ -2195,7 +2258,9 @@ Boolean StressTestControllerCommand::_validateConfiguration(
                else
                {
                
+                   //
                    // Invalid client name
+                   //
                    IsValid = false;
                } 
            } 
@@ -2455,20 +2520,26 @@ Boolean StressTestControllerCommand::_getClientPIDs(
             continue;
         }
 
+        //
         // Get the client ID
+        //
         String client = String::EMPTY;
         while (isalnum(*p) || *p == '_')
         {
             client.append(*p++);
         }
 
+        //
         // Skip whitespace after property name
+        //
         while (*p && isspace(*p))
         {
             p++;
         }
 
+        //
         // Expecting a colon 
+        //
         if (*p != ':')
         {
             ifs.close();
@@ -2483,7 +2554,9 @@ Boolean StressTestControllerCommand::_getClientPIDs(
         //
         p++;
 
+        //
         // Expecting a colon 
+        //
         if (*p != ':')
         {
             ifs.close();
@@ -2506,14 +2579,18 @@ Boolean StressTestControllerCommand::_getClientPIDs(
             p++;
         }
 
+        //
         // Get the client PID 
+        //
         String clntPID = String::EMPTY;
         while (isalnum(*p) || *p == '_')
         {
             clntPID.append(*p++);
         }
         
+        //
         // Skip whitespace after property name
+        //
         while (*p && isspace(*p))
         {
             p++;
@@ -2549,7 +2626,9 @@ Boolean StressTestControllerCommand::_getClientPIDs(
         }
         p++;
 
+        //
         // Skip whitespace after the colon if any 
+        //
         while (*p && isspace(*p))
         { 
             p++;
@@ -2561,7 +2640,9 @@ Boolean StressTestControllerCommand::_getClientPIDs(
             clntStatus.append(*p++);
         }
 
+        //
         // Skip whitespace after property name
+        //
         while (*p && isspace(*p))
         {
             p++;
@@ -2596,13 +2677,17 @@ Boolean StressTestControllerCommand::_getClientPIDs(
         // next character in line.
         //
         p++;
+        //
         // Skip whitespace after the colon if any 
+        //
         while (*p && isspace(*p))
         {
             p++;
         }
 
+        //
         // Get the client timestamp 
+        //
         String clntTmStmp = String::EMPTY;
         while (isalnum(*p))
         {
@@ -2754,7 +2839,6 @@ Boolean StressTestControllerCommand::_parseLine(
        }
        catch (...)
        {
-           // throw what was caught
            String msg = String(
                "Unknown exception caught when geting client options.");
            log_file<<StressTestControllerCommand::COMMAND_NAME <<
@@ -2968,7 +3052,9 @@ Boolean StressTestControllerCommand::_checkToleranceLevel(
             //
             if(clientStatus[i]== VALID_RESPONSE)
             {
+                //
                 //check with the last timestamp
+                //
                 lastUpdateinMilliSec = nowMilliseconds - clientTimeStamp[i];
                 //
                 // Assume failure if status update is
@@ -3018,12 +3104,16 @@ Boolean StressTestControllerCommand::_checkToleranceLevel(
                 }
                 ++failed_count; 
             } /* if (((clientStatus[i]== NO_RESPONSE) ... */
+            //
             // Save previous time stamp of client
+            //
             prev_clientTimeStamp[i] = clientTimeStamp[i];
             prev_clientStatus[i] = clientStatus[i];
         } /* if (clientActive[i]) */
     }
+    //
     // check actual tolerance
+    //
     if(count > 0)
     {
         double curr_tolerancePercent = getToleranceInPercent(
@@ -3046,7 +3136,9 @@ Boolean StressTestControllerCommand::_checkToleranceLevel(
         }
         return(withinTolerance);
     }
+    //
     // All process are stopped.
+    //
     return(withinTolerance = true);
 } /* _checkToleranceLevel */
 
@@ -3074,11 +3166,14 @@ void StressTestControllerCommand::getDefaultClients(ostream& log_file)
     {
         cout << "Populating default configuration for stress Tests." << endl; 
     }
+    //
     // Populating default client attributes
+    //
     for (Uint32 i=0;i<_clientCount; i++)
     {
         //
         // Adding the default instance value to each client table
+        //
         if (!_clientTable[i].insert(INSTANCE, DEFAULT_INSTANCE))
         {
             log_file <<  "Duplicate name already saved: "<<INSTANCE<<endl;
@@ -3178,7 +3273,9 @@ Boolean StressTestControllerCommand::generateRequiredFileNames(char *strTime)
 
     sprintf(pid_str, "%d", getpid());
    
+    //
     // Stress Controller Log file
+    //
     _stressTestLogFile.append(pegasusHome);
     _stressTestLogFile.append(TESTDIR);
     FileSystem::makeDirectory(_stressTestLogFile);
@@ -3191,7 +3288,9 @@ Boolean StressTestControllerCommand::generateRequiredFileNames(char *strTime)
     _stressTestLogFile.append(strTime);
     _stressTestLogFile.append("log");
 
+    //
     // StressClient PID  file
+    //
     _stressTestClientPIDFile.append(pegasusHome);
     _stressTestClientPIDFile.append(DEFAULT_TMPDIR);
     FileSystem::makeDirectory(_stressTestClientPIDFile);
@@ -3200,14 +3299,18 @@ Boolean StressTestControllerCommand::generateRequiredFileNames(char *strTime)
     _stressTestClientPIDFile.append(strTime);
     _stressTestClientPIDFile.append("pid");
 
+    //
     // StressClient Log  file
+    //
     _stressTestClientLogFile.append(pegasusHome);
     _stressTestClientLogFile.append(DEFAULT_LOGDIR);
     _stressTestClientLogFile.append(pid_str);
     _stressTestClientLogFile.append("_StressTestClients");
     _stressTestClientLogFile.append(".log");
  
+    //
     // Temporary StressClient PID/status  file
+    //
     _tmpStressTestClientPIDFile.append(pegasusHome);
     _tmpStressTestClientPIDFile.append(DEFAULT_TMPDIR);
     _tmpStressTestClientPIDFile.append(pid_str);
@@ -3215,13 +3318,17 @@ Boolean StressTestControllerCommand::generateRequiredFileNames(char *strTime)
     _tmpStressTestClientPIDFile.append("_Clients");
     _tmpStressTestClientPIDFile.append(".pid");
 
+    //
     // Translate slashed for appropriate OS
+    //
     FileSystem::translateSlashes(_stressTestClientPIDFile);
     FileSystem::translateSlashes(_stressTestClientLogFile);
     FileSystem::translateSlashes(_stressTestLogFile);
     FileSystem::translateSlashes(_tmpStressTestClientPIDFile);
 
+    //
     // open the file
+    //
     OpenAppend(log_file,_stressTestLogFile);
     Open(pid_file,_stressTestClientPIDFile);
     Open(clntlog_file,_stressTestClientLogFile);

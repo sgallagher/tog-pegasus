@@ -49,8 +49,10 @@
 // For Windows
 //
 #ifdef PEGASUS_OS_TYPE_WINDOWS
- #include <windows.h>     /* for DWORD etc. */
- typedef DWORD pid_t;     /* getpid() and others */
+ // for DWORD etc.
+ #include <windows.h>
+ // getpid() and others
+ typedef DWORD pid_t;
  #include <process.h>
 #elif !defined(PEGASUS_OS_OS400)
  #include <unistd.h>
@@ -64,7 +66,7 @@ static Boolean useDefaults = false;
 
 
 /**
- * Message resource name
+   Message resource name
  */
 
 static const char REQUIRED_ARGS_MISSING [] =
@@ -85,7 +87,9 @@ static const char ERR_USAGE_KEY [] =
                      "Clients.cimuser.CIMUserCommand..ERR_USAGE";
 
 
+//
 // exclude main from the Pegasus Namespace
+//
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -115,7 +119,9 @@ int main (int argc, char* argv [])
         exit (Command::RC_ERROR);
     }
 
+    //
     // open the log file
+    //
     OpenAppend(log_file,command.getStressTestLogFile());
 
     if (!log_file)
@@ -185,9 +191,10 @@ int main (int argc, char* argv [])
         exit (Command::RC_ERROR);
     }
 
-
+    //
     // For help or version options execute usage/version and 
     // exit
+    //
     if ((command.getOperationType() == OPERATION_TYPE_HELP)
        ||(command.getOperationType() == OPERATION_TYPE_VERSION))
     {
@@ -216,7 +223,9 @@ int main (int argc, char* argv [])
         //
         if (!FileSystem::exists(filename))
         {
+            //
             // Check for file in default directory as well
+            //
             fileName = String::EMPTY;
             fileName.append(StressTestControllerCommand::DEFAULT_CFGDIR);
             fileName.append(filename);
@@ -326,7 +335,6 @@ int main (int argc, char* argv [])
     }
     catch (...)
     {
-        // throw what was caught
         log_file<<StressTestControllerCommand::COMMAND_NAME<<
             "::Unknown exception caught when acquiring configuration."<<endl;
         cerr<<StressTestControllerCommand::COMMAND_NAME<<
@@ -375,7 +383,9 @@ int main (int argc, char* argv [])
     log_file << StressTestControllerCommand::COMMAND_NAME <<endl;
     log_file << "   Preparing to execute Clients on "<<strTime<<endl;
     
+    //
     // Begin to run stress Tests 
+    //
     rc = command.execute (cout, cerr);
     
     //
@@ -401,11 +411,11 @@ int main (int argc, char* argv [])
        cout << "::successfully completed on "<<strTime<<endl;
     }
     cout <<"IMPORTANT: ";
-    cout <<"Please check the Controller and the Client log file"
-         <<endl;
-    cout <<"           for individual errors which may or may not have caused"
-         <<endl;
-    cout <<"           a stress test failure. "<< endl;
+    cout <<"Please check the Controller log file for additional info and the" 
+         << endl;
+    cout <<"           Client log file for individual errors which may or may "
+         <<"not have "<< endl;
+    cout <<"           caused a stress test failure. "<< endl;
     cout <<" Log Directory:"<<endl;
     cout <<"     "<<
         FileSystem::extractFilePath(command.getStressTestLogFile())<<endl;

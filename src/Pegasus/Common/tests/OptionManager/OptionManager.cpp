@@ -55,7 +55,7 @@ void test01()
         inDomainString.append("blue");
         inDomainString.append("green");
 
-        Option oobj(String(), "blue" , false, Option::STRING, inDomainString);
+        Option oobj(String::EMPTY, "blue" , false, Option::STRING, inDomainString);
 
         Boolean caughtException = false;
 

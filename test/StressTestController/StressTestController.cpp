@@ -63,7 +63,7 @@
  #include <unistd.h>
 #endif
 
-//#define DEBUG
+//#define STRESSTEST_DEBUG
 
 #define SIXTYSECONDS 60
 #define MILLISECONDS 1000
@@ -1940,7 +1940,7 @@ Boolean StressTestControllerCommand::getFileContent(
                     //
                     // Duplicate property, ignore the new property value.
                     //
-#ifdef DEBUG
+#ifdef STRESSTEST_DEBUG
                     cout<< "Property Name:duplicate name already saved: "<<
                         name<<endl;
 #endif
@@ -2392,7 +2392,7 @@ void StressTestControllerCommand::_getClientOptions(
             throw StressTestControllerException(StressTestControllerException::MISSING_VALUE); 
         }
            
-#ifdef DEBUG
+#ifdef STRESSTEST_DEBUG
         cout<<"name="<<name<<endl;
         cout<<"Before validate config: value="<<value<<endl;
 #endif
@@ -2501,7 +2501,7 @@ Boolean StressTestControllerCommand::_getClientPIDs(
     while (GetLine(ifs, line))
     {
         ++lineNumber;
-#ifdef DEBUG
+#ifdef STRESSTEST_DEBUG
         log_file<<" Line number:"<<lineNumber<<endl;
         log_file<<"      "<<line<<endl;
 #endif
@@ -2922,7 +2922,7 @@ Boolean StressTestControllerCommand::_parseLine(
     {
         value.append(*p++);
     }
-#ifdef DEBUG
+#ifdef STRESSTEST_DEBUG
     cout<<"name="<<name<<endl;
     cout<<"value="<<value<<endl;
 #endif

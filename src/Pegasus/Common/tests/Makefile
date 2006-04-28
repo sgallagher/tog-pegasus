@@ -37,7 +37,6 @@ DIRS = \
     AutoPtr \
     async_callback \
     AtomicInt \
-    Attribute \
     AuthenticationInfo \
     Base64 \
     Buffer \
@@ -99,6 +98,11 @@ DIRS = \
 ifndef PEGASUS_DISABLE_PERFINST
 DIRS += \
 	StatisticalData
+endif
+
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+DIRS += \
+	Attribute
 endif
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

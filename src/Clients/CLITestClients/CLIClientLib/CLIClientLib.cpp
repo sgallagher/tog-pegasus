@@ -366,86 +366,91 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
     String tmp = value;
     if (value.find('{') == 0)
     {
-         // assume { at first character position indictates an
-         // array value
-         tmp.remove(0,1);  // remove open brace
-         Array<String> arr;
-         while (tmp.size() != 0)
-         {
-             String token;
-             _nextParamToken(tmp, token);
-             arr.append(token);
-             // Now remove token separators (comma, brace or whitespace)
-             while ((tmp.size() > 0) && ((tmp.find(",") == 0) || (tmp.find("}") == 0) || (tmp.find(" ") == 0)))
-                 tmp.remove(0,1);
-         }
-         CIMValue v(arr);
-         CIMParamValue pv(key, v);
-         return pv;
-     }
+        // assume brace at first character position indictates an
+        // array value
+        tmp.remove(0,1);  // remove open brace
+        Array<String> arr;
+        while (tmp.size() != 0)
+        {
+            String token;
+            _nextParamToken(tmp, token);
+            arr.append(token);
+            // Now remove token separators (comma, brace or whitespace)
+            while ((tmp.size() > 0) && 
+                   ((tmp.find(",") == 0) || (tmp.find("}") == 0) || 
+                    (tmp.find(" ") == 0)))
+                tmp.remove(0,1);
+        }
+        CIMValue v(arr);
+        CIMParamValue pv(key, v);
+        return pv;
+    }
 
-    //Check for References starting with '['. Check for start  & end
+    // Check for References starting with '[' and ending with ']'
     if(tmp.find('[') == 0)
     {
-         if(tmp.find(']') == tmp.size()-1)
-         {
-          	Array<CIMKeyBinding> keys;
-          	Array<String> arr;
-            String	className;
-           	tmp.remove(0,1);  // remove open bracket
+        if(tmp.find(']') == tmp.size()-1)
+        {
+            Array<CIMKeyBinding> keys;
+            Array<String> arr;
+            String className;
+            tmp.remove(0,1);  // remove open bracket
 
-        	//iterate over the input param to extract class name, param names and values.
-        	while(tmp.size() != 0)
-        	{
-            	String token,identifier,key;
+            // Iterate over the input param to extract class name, 
+            // key names and values.
+            while(tmp.size() != 0)
+            {
+                String token, identifier, key;
                 _nextParamToken(tmp, token);
-            	Uint32 dotIndex = 0, equalIndex = 0;
+                Uint32 dotIndex = 0, equalIndex = 0;
 
-              	//make sure that the token is of form class.key=value
-            	//get the class name and key1 from class.key = value.
-            	if((((dotIndex = token.find('.')) != PEG_NOT_FOUND))  &&
-            		 ((equalIndex = token.find('=')) != PEG_NOT_FOUND && dotIndex < equalIndex-1))
-            	{
-            			//extract class name, key1 and vlaue1
-                        className = token.subString(0,dotIndex);
-            		    identifier = token.subString(dotIndex +1, equalIndex -1  - dotIndex);
-            		    key = token.subString(equalIndex+1, token.size());
-            		    keys.append(CIMKeyBinding(identifier, key,CIMKeyBinding::STRING));
-            	}
+                // Get the class name and key1/value1 from class.key = value
+                if (((dotIndex = token.find('.')) != PEG_NOT_FOUND)  &&
+                     (((equalIndex = token.find('=')) != PEG_NOT_FOUND) && 
+                       dotIndex < equalIndex-1))
+                {
+                    //extract class name, key1 and value1
+                    className = token.subString(0, dotIndex);
+                    identifier = token.subString(dotIndex+1, 
+                                                 equalIndex-1-dotIndex);
+                    key = token.subString(equalIndex+1, token.size());
+                    keys.append(CIMKeyBinding(identifier, key,
+                                              CIMKeyBinding::STRING));
+                }
 
-                //get the simple key = value
-            	else if((equalIndex = token.find('=')) != PEG_NOT_FOUND)
-            	{
-            			identifier = token.subString(0, equalIndex);
-            			key = token.subString(equalIndex+1, token.size());
-            			keys.append(CIMKeyBinding(identifier, key,CIMKeyBinding::STRING));
+                // Get the simple keyX = valueX (where X>1)
+                else if((equalIndex = token.find('=')) != PEG_NOT_FOUND)
+                {
+                    identifier = token.subString(0, equalIndex);
+                    key = token.subString(equalIndex+1, token.size());
+                    keys.append(CIMKeyBinding(identifier, key,
+                                              CIMKeyBinding::STRING));
                 }
                 else
                 {
-                   	cout<<" Error in the reference param this could be a string param"<<endl;
-        			exit(1);
-
+                    cout << " Error in the reference param this could be a string param" << endl;
+                    exit(1);
                 }
-            	// Now remove token separators (comma, brace or whitespace)
-            	while((tmp.size() > 0) && ((tmp.find(",") == 0) || (tmp.find("]") == 0) || (tmp.find(" ") == 0)))
-                	tmp.remove(0,1);
-
-
+                // Now remove token separators (comma, bracket or whitespace)
+                while((tmp.size() > 0) && 
+                      ((tmp.find(",") == 0) || 
+                       (tmp.find("]") == 0) || 
+                       (tmp.find(" ") == 0)))
+                {
+                    tmp.remove(0,1);
+                }
             }
-            //Reference param specified is valid. Make CIM Object Path from the token.
-
-     			CIMName cimclassName(className);
-     			CIMObjectPath cop(String(),CIMNamespaceName(opts.nameSpace),cimclassName,keys);
-     			CIMValue v(cop);
-     			CIMParamValue pv(key, v, false);
-	 			return pv;
-
-
+            // Reference param specified is valid. 
+            // Make CIM Object Path from the token.
+            CIMName cimclassName(className);
+            CIMObjectPath cop(String::EMPTY,CIMNamespaceName(opts.nameSpace),cimclassName,keys);
+            CIMValue v(cop);
+            CIMParamValue pv(key, v, false);
+            return pv;
         }
         else
         {
-           cout <<"Treat this as String param " << input << endl;
-          // exit(1);
+            cout <<"Treat this as String param " << input << endl;
         }
     }
 
@@ -585,7 +590,7 @@ void outputFormatCIMValue(const OutputType format, const CIMValue& myValue)
         mofFormat(cout, x.getData(), 4);
     }
     else
-	{
+    {
         cout << " Format type error" << endl;
     }
 }
@@ -923,8 +928,8 @@ int getInstance(CIMClient& client, Options& opts)
     else
     {
         outputFormatInstance(opts.outputType, cimInstance);
-	}
-	return(0);
+    }
+    return(0);
 }
 
 /****
@@ -1954,7 +1959,7 @@ void GetOptions(
         {"clientCert", "", false, Option::STRING, 0, 0, "-cert",
                             "specifies a client certificate to present to the server.  This is optional and only has an effect on connections made over HTTPS using -s" },
 
-		{"clientKey", "", false, Option::STRING, 0, 0, "-key",
+        {"clientKey", "", false, Option::STRING, 0, 0, "-key",
                             "specifies a client private key.  This is optional and only has an effect on connections made over HTTPS using -s" },
 #endif
         {"User", "", false, Option::STRING, 0, 0, "u",

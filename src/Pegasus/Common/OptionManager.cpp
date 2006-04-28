@@ -595,6 +595,8 @@ Boolean Option::isValid(const String& value) const
 	{
 	    if (value == "true" || value == "false")
 		return true;
+            else
+                return false;
 	}
 
 	case STRING:
@@ -629,7 +631,7 @@ Boolean Option::isValid(const String& value) const
     }
 
     // Unreachable!
-    return true;
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

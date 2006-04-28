@@ -49,43 +49,124 @@ void test01()
 {
      OptionManager omobj;
 
-     String optionName;
-     String defaultValue;
-     Option::Type INTEGER;
-     Array<String> str;
-
     {
-        Option oobj(optionName, defaultValue, true, INTEGER);
+        Array<String> inDomainString;
+        inDomainString.append("red");
+        inDomainString.append("blue");
+        inDomainString.append("green");
+
+        Option oobj(String(), "blue" , false, Option::STRING, inDomainString);
+
+        Boolean caughtException = false;
+
+        try
+        {
+            Option oobjbad("BadOption", "blue" , false, Option::INTEGER);
+        }
+        catch(OMInvalidOptionValue &)
+        {
+            caughtException = true;
+        }
+        PEGASUS_TEST_ASSERT(caughtException == true);
+
+        /**
+            Added to cover the functions:
+            const String& getOptionName() const
+            void setOptionName(const String& optionName)
+        */
+        PEGASUS_TEST_ASSERT(oobj.getOptionName() == String::EMPTY);
+        oobj.setOptionName("favoriteColor");
+        PEGASUS_TEST_ASSERT(oobj.getOptionName() == "favoriteColor");
 
         /**
             Added to cover the function
-            const Array<String>& Option::getDomain() const
+            const String& getDefaultValue() const
+            void setDefaultValue(const String& defaultValue)
         */
-        str = oobj.getDomain();
-        PEGASUS_TEST_ASSERT(str != NULL);
+        PEGASUS_TEST_ASSERT(oobj.getDefaultValue() == "blue");
+        oobj.setDefaultValue("green");
+        PEGASUS_TEST_ASSERT(oobj.getDefaultValue() == "green");
+
+        /**
+            Added to cover the functions:
+            const String& getValue() const
+            void setValue(const String& value)
+            Boolean isResolved() const
+        */
+        PEGASUS_TEST_ASSERT(oobj.getValue() == "blue");
+        PEGASUS_TEST_ASSERT(oobj.isResolved() == false);
+        oobj.setValue("red");
+        PEGASUS_TEST_ASSERT(oobj.getValue() == "red");
+        PEGASUS_TEST_ASSERT(oobj.isResolved() == true);
+
+        /**
+            Added to cover the functions:
+            Boolean getRequired() const
+            void setRequired(Boolean required)
+        */
+        PEGASUS_TEST_ASSERT(oobj.getRequired() == false);
+        oobj.setRequired(true);
+        PEGASUS_TEST_ASSERT(oobj.getRequired() == true);
+
+        /**
+            Added to cover the functions:
+            const Array<String>& getDomain() const
+            void setDomain(const Array<String>& domain)
+        */
+        PEGASUS_TEST_ASSERT(oobj.getDomain().size() == 3);
+        PEGASUS_TEST_ASSERT(oobj.isValid("yellow") == false);
+        inDomainString.append("yellow");
+        PEGASUS_TEST_ASSERT(oobj.getDomain().size() == 3);
+        oobj.setDomain(inDomainString);
+        PEGASUS_TEST_ASSERT(oobj.getDomain().size() == 4);
+        PEGASUS_TEST_ASSERT(oobj.isValid("yellow") == true);
 
         /**
             Added to cover the function
-            void Option::setDomain(const Array<String>& domain)
+            const String& getCommandLineOptionName() const
+            void setCommandLineOptionName(const String& commandLineOptionName)
         */
-        oobj.setDomain(str);
-        PEGASUS_TEST_ASSERT(oobj.getDomain() != NULL);
+        PEGASUS_TEST_ASSERT(oobj.getCommandLineOptionName() == String::EMPTY);
+        oobj.setCommandLineOptionName("favColor");
+        PEGASUS_TEST_ASSERT(oobj.getCommandLineOptionName() == "favColor");
+
+        /**
+            Added to cover the function
+            const String& getOptionHelpMessage() const
+        */
+        PEGASUS_TEST_ASSERT(oobj.getOptionHelpMessage() == String::EMPTY);
 
         /**
             Added to cover the function
             Option& Option(const Option& x)
+            Type getType() const
         */
-        const Option oobj1 = oobj;
-        Option oobj2(oobj1);
-        PEGASUS_TEST_ASSERT(oobj2.getType() == oobj1.getType());
+        Option oobj1(oobj);
+        PEGASUS_TEST_ASSERT(oobj1.getType() == Option::STRING);
 
         /**
             Added to cover the function
-            Option& Option::operator=(const Option& x)
+            Boolean isValid(const String& value) const
+            void setType(Type type)
         */
-        Option oobj3(oobj2);
-        oobj3 = oobj1;
-        PEGASUS_TEST_ASSERT(oobj3.getType() == oobj1.getType());
+        
+        oobj1.setType(Option::BOOLEAN);
+        oobj1.setDomain(Array<String>());
+        PEGASUS_TEST_ASSERT(oobj1.isValid("true") == true);
+        PEGASUS_TEST_ASSERT(oobj1.isValid("false") == true);
+        PEGASUS_TEST_ASSERT(oobj1.isValid("5") == false);
+        oobj1.setType(Option::INTEGER);
+        PEGASUS_TEST_ASSERT(oobj1.isValid("7") == true);
+        PEGASUS_TEST_ASSERT(oobj1.isValid("7x") == false);
+        PEGASUS_TEST_ASSERT(oobj1.isValid("7.2") == false);
+
+        /**
+            Added to cover the function
+            Option& operator=(const Option& x)
+        */
+        Option oobj2(oobj);
+        oobj2 = oobj1;
+        PEGASUS_TEST_ASSERT(oobj2.getType() == Option::INTEGER);
    }
 
    {

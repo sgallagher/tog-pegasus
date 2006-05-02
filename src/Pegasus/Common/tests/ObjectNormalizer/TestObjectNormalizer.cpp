@@ -63,10 +63,13 @@ void Test001a(void)
 
     CIMClass cimClass;
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         false,
-        false);
+        false,
+        CIMNamespaceName(String("root")),
+        nullContext);
 
     normalizer.processClassObjectPath(CIMObjectPath());
 
@@ -147,10 +150,13 @@ void Test002a(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMObjectPath cimObjectPath;
 
@@ -192,10 +198,13 @@ void Test002b(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMObjectPath cimObjectPath;
 
@@ -239,10 +248,13 @@ void Test002c(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMObjectPath cimObjectPath;
 
@@ -288,10 +300,13 @@ void Test002d(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMObjectPath cimObjectPath;
 
@@ -341,10 +356,13 @@ void Test003a(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMObjectPath cimObjectPath;
 
@@ -382,10 +400,13 @@ void Test003b(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMObjectPath cimObjectPath;
 
@@ -428,10 +449,13 @@ void Test003c(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMObjectPath cimObjectPath;
 
@@ -475,10 +499,13 @@ void Test003d(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMObjectPath cimObjectPath;
 
@@ -531,10 +558,13 @@ void Test003e(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMObjectPath cimObjectPath;
 
@@ -586,10 +616,13 @@ void Test004a(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMInstance cimInstance(cimClass.getClassName());
 
@@ -635,10 +668,13 @@ void Test004b(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMInstance cimInstance(cimClass.getClassName());
 
@@ -694,10 +730,13 @@ void Test005a(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMInstance cimInstance(cimClass.getClassName());
 
@@ -756,10 +795,13 @@ void Test005b(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMInstance cimInstance(cimClass.getClassName());
 
@@ -818,10 +860,13 @@ void Test005c(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMInstance cimInstance(cimClass.getClassName());
 
@@ -887,10 +932,13 @@ void Test005d(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     CIMInstance cimInstance(cimClass.getClassName());
 
@@ -951,10 +999,13 @@ void Test100a(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     for(Uint32 i = 0, n = 100; i < n; i++)
     {
@@ -1001,10 +1052,13 @@ void Test101a(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     for(Uint32 i = 0, n = 1000; i < n; i++)
     {
@@ -1066,10 +1120,13 @@ void Test101b(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     for(Uint32 i = 0, n = 1000; i < n; i++)
     {
@@ -1131,10 +1188,13 @@ void Test101c(void)
             includeClassOrigin,
             CIMPropertyList());
 
+    AutoPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        CIMNamespaceName("test_namespace"),
+        nullContext);
 
     for(Uint32 i = 0, n = 1000; i < n; i++)
     {

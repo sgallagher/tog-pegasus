@@ -1221,7 +1221,15 @@ void XmlWriter::appendValueElement(
                 _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
-
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            case CIMTYPE_INSTANCE:
+            {
+                Array<CIMInstance> a;
+                value.get(a);
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
+                break;
+            }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
                 PEGASUS_ASSERT(false);
         }
@@ -1358,7 +1366,15 @@ void XmlWriter::appendValueElement(
                 _xmlWritter_appendValue(out, v);
                 break;
             }
-
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            case CIMTYPE_INSTANCE:
+            {
+                CIMInstance v;
+                value.get(v);
+                _xmlWritter_appendValue(out, v);
+                break;
+            }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
                 PEGASUS_ASSERT(false);
         }
@@ -2348,6 +2364,13 @@ void XmlWriter::appendReturnValueElement(
         out << STRLIT(" PARAMTYPE=\"string\"");
         out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
     }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    else if (type == CIMTYPE_INSTANCE)
+    {
+        out << STRLIT(" PARAMTYPE=\"string\"");
+        out << STRLIT(" EMBEDDEDOBJECT=\"instance\"");
+    }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     else
     {
         out << STRLIT(" PARAMTYPE=\"") << cimTypeToString (type);

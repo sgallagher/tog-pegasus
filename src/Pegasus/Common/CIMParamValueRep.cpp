@@ -91,6 +91,13 @@ void CIMParamValueRep::toXml(Buffer& out) const
         {
             out << STRLIT(" PARAMTYPE=\"string\" EMBEDDEDOBJECT=\"object\"");
         }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        else if (type == CIMTYPE_INSTANCE)
+        {
+            out << STRLIT(" PARAMTYPE=\"string\"");
+            out << STRLIT(" EMBEDDEDOBJECT=\"instance\"");
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         else
         {
             out << STRLIT(" PARAMTYPE=\"") << cimTypeToString (type);

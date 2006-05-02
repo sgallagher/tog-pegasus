@@ -167,7 +167,7 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc) 
    }
    else if (type ==CMPI_instance) 
 	{
-		v.set(*((CIMInstance*) data->inst->hdl));
+		v.set(*((CIMObject*) data->inst->hdl));
 	}
    else switch (type) {
       case CMPI_ref:      v.set(*((CIMObjectPath*)data->ref->hdl)); break;
@@ -288,6 +288,26 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
          data->value.ref=(CMPIObjectPath*)new CMPI_Object(new CIMObjectPath(ref));
       }
       break;
+   case CMPI_instance: {
+         CIMInstance inst;
+         if(v.getType() == CIMTYPE_OBJECT)
+         {
+           CIMObject tmpObj;
+           v.get(tmpObj);
+           inst = CIMInstance(tmpObj);
+         }
+         else
+         {
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+             v.get(inst);
+#else
+             return CMPI_RC_ERR_NOT_SUPPORTED;
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+         }
+         
+         data->value.inst=(CMPIInstance*)new CMPI_Object(new CIMInstance(inst));
+      }
+      break;
    case CMPI_dateTime: {
          CIMDateTime dt;
          v.get(dt);
@@ -321,6 +341,10 @@ CMPIType type2CMPIType(CIMType pt, int array) {
         CMPI_string,     // STRING,
         CMPI_dateTime,   // DATETIME,
         CMPI_ref,        // REFERENCE
+        CMPI_instance    // Embedded Object
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        , CMPI_instance  // Embedded Instance
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     };
     int t=types[pt];
     if (array) t|=CMPI_ARRAY;

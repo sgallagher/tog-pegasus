@@ -415,6 +415,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
   CMPIData data;
   CMPIString *argName = NULL;
   CMPIInstance *instance = NULL;
+  CMPIInstance *paramInst = NULL;
   unsigned int arg_cnt = 0, index = 0;
   int oper_rc = 1;
   char *result = NULL;
@@ -570,6 +571,35 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         CMReturnData (rslt, (CMPIValue *) & dateTime, CMPI_dateTime);
         CMReturnDone (rslt);
 	}
+    else if(strncmp("processEmbeddedInstance", methodName,
+      strlen ("processEmbeddedInstance"))== 0)
+    {
+        PROV_LOG("++++ Creating instance for processEmbeddedInstance");
+        instance = _createInstance();
+        PROV_LOG("++++ Getting inputInstance arg");
+        data = CMGetArg(in, "inputInstance", &rc);
+        PROV_LOG("++++ (%s)", strCMPIStatus (rc));
+
+        PROV_LOG("++++ Cloning inputInstance arg");
+        paramInst = data.value.inst->ft->clone(
+          data.value.inst, &rc);
+        PROV_LOG("++++ (%s)", strCMPIStatus (rc));
+
+        PROV_LOG("++++ Setting outputInstance arg");
+        rc = CMAddArg (out, "outputInstance",
+          (CMPIValue *) &paramInst, CMPI_instance);
+        PROV_LOG("++++ (%s)", strCMPIStatus (rc));
+
+        PROV_LOG(
+            "++++ Calling CMReturnData on processEmbeddedInstance operation");
+        CMReturnData (rslt, (CMPIValue *) &instance, CMPI_instance);
+
+        PROV_LOG(
+            "++++ Calling CMReturnDone on processEmbeddedInstance operation");
+        CMReturnDone (rslt);
+        paramInst->ft->release(paramInst);
+    }
+
       else
         {
           PROV_LOG ("++++ Could not find the %s operation", methodName);

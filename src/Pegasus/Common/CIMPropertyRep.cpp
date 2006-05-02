@@ -154,6 +154,14 @@ void CIMPropertyRep::resolve(
             (_value.getType() == CIMTYPE_STRING) &&
             (_qualifiers.find(CIMName("EmbeddedObject")) != PEG_NOT_FOUND) &&
             (inheritedProperty.getValue().isArray() == _value.isArray())
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            ) &&
+            !(
+            (inheritedProperty.getValue().getType() == CIMTYPE_INSTANCE) &&
+            (_value.getType() == CIMTYPE_STRING) &&
+            (_qualifiers.find(CIMName("EmbeddedInstance")) != PEG_NOT_FOUND) &&
+            (inheritedProperty.getValue().isArray() == _value.isArray())
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             ))
         {
             throw TypeMismatchException();
@@ -167,72 +175,99 @@ void CIMPropertyRep::resolve(
     CIMScope scope = CIMScope::PROPERTY;
 
     if (_value.getType() == CIMTYPE_REFERENCE)
-	scope = CIMScope::REFERENCE;
+        scope = CIMScope::REFERENCE;
 
     // Test the reference class name against the inherited property
-    if (_value.getType() == CIMTYPE_REFERENCE)
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    Boolean isEmbeddedInst = (_value.getType() == CIMTYPE_INSTANCE);
+    if (_value.getType() == CIMTYPE_REFERENCE || isEmbeddedInst)
     {
-        CIMName inheritedReferenceClassName = inheritedProperty.getReferenceClassName();
-        CIMName referenceClassName;
-        if(!_referenceClassName.isNull() && !_value.isNull())
+        CIMName inheritedClassName;
+        Array<CIMName> classNames;
+        if(isEmbeddedInst)
         {
-            CIMObjectPath valuePath;
-            _value.get(valuePath);
-            referenceClassName = valuePath.getClassName();
-            bool found = _referenceClassName.equal(referenceClassName);
-            while(!found)
+            Uint32 pos = inheritedProperty.findQualifier("EmbeddedInstance");
+            if(pos != PEG_NOT_FOUND)
             {
-                CIMClass referenceClass = declContext->lookupClass(nameSpace, referenceClassName);
-                if(referenceClass.isUninitialized())
-                {
-                    throw PEGASUS_CIM_EXCEPTION(
-                      CIM_ERR_NOT_FOUND, referenceClassName.getString());
-                }
-                referenceClassName = referenceClass.getSuperClassName();
-                if(referenceClassName.isNull())
-                    throw TypeMismatchException();
+                String qualStr;
+                inheritedProperty.getQualifier(pos).getValue().get(qualStr);
+                inheritedClassName = qualStr;
+            }
 
-                found = inheritedReferenceClassName.equal(referenceClassName);
+            if(_value.isArray())
+            {
+                Array<CIMInstance> embeddedInstances;
+                _value.get(embeddedInstances);
+                for(Uint32 i = 0, n = embeddedInstances.size(); i < n; ++i)
+                {
+                    classNames.append(embeddedInstances[i].getClassName());
+                }
+            }
+            else
+            {
+                CIMInstance embeddedInst;
+                _value.get(embeddedInst);
+                classNames.append(embeddedInst.getClassName());
             }
         }
-        else if(!_referenceClassName.isNull())
+        else
         {
-            referenceClassName = _referenceClassName;
-        }
-        else if(!_value.isNull())
-        {
-            CIMObjectPath valuePath;
-            _value.get(valuePath);
-            referenceClassName = valuePath.getClassName();
+           inheritedClassName = inheritedProperty.getReferenceClassName();
+           classNames.append(_referenceClassName);
         }
 
-        if(!referenceClassName.isNull())
+        // This algorithm is friendly to arrays of embedded instances. It
+        // remembers the class names that are found to be subclasses of the
+        // inherited class name retrieved from the inherited property. This
+        // ensures that any branch in the inheritance hierarchy will only be
+        // traversed once. This provides significant optimization given that
+        // most elements of an array of embedded instances will probably be of
+        // very closely related types.
+        Array<CIMName> successTree;
+        successTree.append(inheritedClassName);
+        for(Uint32 i = 0, n = classNames.size(); i < n; ++i)
         {
-            bool found = inheritedReferenceClassName.equal(referenceClassName);
-            while(!found)
+            Array<CIMName> traversalHistory;
+            CIMName currentName = classNames[i];
+            Boolean found = false;
+            while(!found && !currentName.isNull())
             {
-                CIMClass referenceClass = declContext->lookupClass(nameSpace, referenceClassName);
-                if(referenceClass.isUninitialized())
+                for(Uint32 j = 0, m = successTree.size(); j < m; ++j)
                 {
-                    throw PEGASUS_CIM_EXCEPTION(
-                        CIM_ERR_NOT_FOUND, referenceClassName.getString());
+                    if(currentName == successTree[j])
+                    {
+                        found = true;
+                        break;
+                    }
                 }
-                referenceClassName = referenceClass.getSuperClassName();
-                if(referenceClassName.isNull())
-                    throw TypeMismatchException();
 
-                found = inheritedReferenceClassName.equal(referenceClassName);
+                if(!found)
+                {
+                    traversalHistory.append(currentName);
+                    CIMClass currentClass = declContext->lookupClass(
+                            nameSpace, currentName);
+                    if(currentClass.isUninitialized())
+                    {
+                        throw PEGASUS_CIM_EXCEPTION(
+                                CIM_ERR_NOT_FOUND, currentName.getString());
+                    }
+                    currentName = currentClass.getSuperClassName();
+                }
             }
+
+            if(!found)
+            {
+                throw TypeMismatchException();
+            }
+
+            successTree.appendArray(traversalHistory);
         }
     }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
     _qualifiers.resolve(
-	declContext,
-	nameSpace,
-	scope,
-	isInstancePart,
-	inheritedProperty._rep->_qualifiers,
-	propagateQualifiers);
+        declContext, nameSpace, scope, isInstancePart,
+        inheritedProperty._rep->_qualifiers, propagateQualifiers);
 
     _classOrigin = inheritedProperty.getClassOrigin();
 }
@@ -248,15 +283,15 @@ void CIMPropertyRep::resolve(
     CIMScope scope = CIMScope::PROPERTY;
 
     if (_value.getType() == CIMTYPE_REFERENCE)
-	scope = CIMScope::REFERENCE;
+        scope = CIMScope::REFERENCE;
 
     _qualifiers.resolve(
-	declContext,
-	nameSpace,
-	scope,
-	isInstancePart,
-	dummy,
-	propagateQualifiers);
+        declContext,
+        nameSpace,
+        scope,
+        isInstancePart,
+        dummy,
+        propagateQualifiers);
 }
 
 static const char* _toString(Boolean x)
@@ -297,12 +332,53 @@ void CIMPropertyRep::toXml(Buffer& out) const
                 // but this method toXml() *is* const. However, in this case we really
                 // do want to add the EmbeddedObject qualifier, so we cast away the
                 // implied const-ness of _qualifiers.
-                ((CIMQualifierList)_qualifiers).add(CIMQualifier(CIMName("EmbeddedObject"), true));
+                CIMQualifierList * tmpQualifiers =
+                    const_cast<CIMQualifierList *>(&_qualifiers);
+                tmpQualifiers->add(
+                    CIMQualifier(CIMName("EmbeddedObject"), true));
             }
 #ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
         }
 #endif
     }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    // If the property array type is CIMInstance, then
+    //   encode the property in CIM-XML as a string array with the
+    //   EMBEDDEDOBJECT attribute (there is not currently a CIM-XML "instance"
+    //   datatype)
+    // else
+    //   output the real type
+    else if(_value.getType() == CIMTYPE_INSTANCE)
+    {
+      Array<CIMInstance> a;
+      _value.get(a);
+      out << " TYPE=\"string\"";
+      // add the EMBEDDEDOBJECT	attribute
+      if (a.size() > 0)
+      {
+        out << " EMBEDDEDOBJECT=\"instance\"";
+        // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined,
+        // then the EmbeddedInstance qualifier will be added
+#ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+        if (_qualifiers.find(CIMName("EmbeddedInstance")) == PEG_NOT_FOUND)
+        {
+          // Note that _qualifiers is not defined as const, and neither isadd(),
+          // but this method toXml() *is* const. However, in this case we really
+          // do want to add the EmbeddedObject qualifier, so we cast away the
+          // implied const-ness of _qualifiers.
+
+          // For now, we assume that all the embedded instances in the
+          // array are of the same type
+          CIMQualifierList * tmpQualifiers =
+              const_cast<CIMQualifierList *>(&_qualifiers);
+          tmpQualifiers->add(CIMQualifier(
+              CIMName("EmbeddedInstance"),
+              a[0].getClassName().getString()));
+        }
+#endif
+      }
+    }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     else
     {
         out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType ());
@@ -412,12 +488,39 @@ void CIMPropertyRep::toXml(Buffer& out) const
                 // but this method toXml() *is* const. However, in this case we really
                 // do want to add the EmbeddedObject qualifier, so we cast away the
                 // implied const-ness of _qualifiers.
-                ((CIMQualifierList)_qualifiers).add(CIMQualifier(CIMName("EmbeddedObject"), true));
+                CIMQualifierList * tmpQualifiers =
+                    const_cast<CIMQualifierList *>(&_qualifiers);
+                tmpQualifiers->add(
+                    CIMQualifier(CIMName("EmbeddedObject"), true));
             }
 #ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
         }
 #endif
     }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    else if	(_value.getType()	== CIMTYPE_INSTANCE)
+    {
+      CIMInstance	a;
+      _value.get(a);
+      out	<< " TYPE=\"string\"";
+      out	<< " EMBEDDEDOBJECT=\"instance\"";
+
+#ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+      if (_qualifiers.find(CIMName("EmbeddedObject"))	== PEG_NOT_FOUND)
+      {
+        // Note	that _qualifiers is	not	defined	as const,	and	neither	is add(),
+        // but this	method toXml() *is*	const. However,	in this	case we	really
+        // do	want to	add	the	EmbeddedObject qualifier,	so we	cast away	the
+        // implied const-ness	of _qualifiers.
+        CIMQualifierList * tmpQualifiers =
+            const_cast<CIMQualifierList *>(&_qualifiers);
+        tmpQualifiers->add(
+          CIMQualifier(CIMName("EmbeddedInstance"),
+          a.getClassName.getString()));
+      }
+#endif
+    }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     else
     {
         out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType());

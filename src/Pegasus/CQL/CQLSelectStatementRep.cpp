@@ -452,7 +452,12 @@ Boolean CQLSelectStatementRep::applyProjection(PropertyNode* node,
 
   // First check that it is an embedded object
   CIMValue nodeVal = nodeProp.getValue();
-  if (nodeVal.getType() != CIMTYPE_OBJECT)
+  CIMType nodeValType = nodeVal.getType();
+  if (nodeValType != CIMTYPE_OBJECT
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    && nodeValType != CIMTYPE_INSTANCE
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    )
   {
     PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"not emb");
     PEG_METHOD_EXIT();
@@ -490,6 +495,11 @@ Boolean CQLSelectStatementRep::applyProjection(PropertyNode* node,
   }
 
   CIMObject nodeObj;  // this starts uninitialized
+  CIMInstance nodeInst;
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+  if(nodeValType == CIMTYPE_OBJECT)
+  {
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
   nodeVal.get(nodeObj);
   if (nodeObj.isUninitialized())
   {
@@ -512,9 +522,25 @@ Boolean CQLSelectStatementRep::applyProjection(PropertyNode* node,
                              nodeProp.getName().getString());
     throw CQLRuntimeException(parms);
   }
+  nodeInst = CIMInstance(nodeObj);
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+  }
 
-  CIMInstance nodeInst(nodeObj);
-
+  else if(nodeValType == CIMTYPE_INSTANCE)
+  {
+    nodeVal.get(nodeInst);
+    if (nodeInst.isUninitialized())
+    {
+      // Not allowed to project on an uninitialized object
+      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"is uninitialized");
+      PEG_METHOD_EXIT();
+      MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROJ_UNINIT",
+                              "The embedded object property $0 is uninitialized.",
+                              nodeProp.getName().getString());
+      throw CQLRuntimeException(parms);
+    }
+  }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
   //
   // Do the projection.
   //
@@ -598,9 +624,18 @@ Boolean CQLSelectStatementRep::applyProjection(PropertyNode* node,
                  allowMissing);
 
   // Put the projected instance back into the property.
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+  if(nodeValType == CIMTYPE_INSTANCE)
+  {
+    nodeProp.setValue(nodeInst);
+  }
+  else
+#endif
+  {
   CIMObject newNodeObj(nodeInst);
   CIMValue newNodeVal(newNodeObj);
   nodeProp.setValue(newNodeVal);
+  }
 
   // Indicate to the caller whether the projected instance
   // is still a required property.  It is required if it is an endpoint

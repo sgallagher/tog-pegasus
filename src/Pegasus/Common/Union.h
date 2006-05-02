@@ -69,6 +69,9 @@ union Union
     char _dateTimeValue[sizeof(void*)];
     char _referenceValue[sizeof(void*)];
     char _objectValue[sizeof(void*)];
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT 
+    char _instanceValue[sizeof(void*)];
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT 
 
     char _booleanArray[sizeof(void*)];
     char _uint8Array[sizeof(void*)];
@@ -86,6 +89,9 @@ union Union
     char _dateTimeArray[sizeof(void*)];
     char _referenceArray[sizeof(void*)];
     char _objectArray[sizeof(void*)];
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT 
+    char _instanceArray[sizeof(void*)];
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT 
     void* _voidPtr;
 };
 

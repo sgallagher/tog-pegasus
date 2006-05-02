@@ -44,6 +44,7 @@
 
 #include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/CIMType.h>
 #include <string.h>
 
 PEGASUS_USING_STD;
@@ -52,20 +53,142 @@ PEGASUS_NAMESPACE_BEGIN
 #define DDD(X)	if (_cmpi_trace) X;
 extern int _cmpi_trace;
 
+CMPIStatus resolveEmbeddedInstanceTypes(
+    OperationResponseHandler * opRes,
+    CIMInstance & inst)
+{
+    try
+    {
+        CIMOperationRequestMessage * request =
+            dynamic_cast<CIMOperationRequestMessage *>(opRes->getRequest());
+        const NormalizerContextContainer * contextContainer =
+            dynamic_cast<const NormalizerContextContainer *>(
+                &(request->operationContext.get(
+                    NormalizerContextContainer::NAME)));
+        PEGASUS_ASSERT(contextContainer);
+        const CachedClassDefinitionContainer * classContainer =
+            dynamic_cast<const CachedClassDefinitionContainer *>(
+                &(request->operationContext.get(
+                    CachedClassDefinitionContainer::NAME)));
+        CIMClass classDef(classContainer->getClass());
+        for(unsigned int i = 0, n = inst.getPropertyCount(); i < n; ++i)
+        {
+            CIMConstProperty currentProp(inst.getProperty(i));
+            if(currentProp.getType() == CIMTYPE_OBJECT)
+            {
+                Uint32 propIndex = classDef.findProperty(
+                    currentProp.getName());
+                if(propIndex == PEG_NOT_FOUND)
+                {
+                    String message = 
+                        String("Could not find property ")
+                        + currentProp.getName().getString()
+                        + " in class definition";
+                    CMReturnWithString(CMPI_RC_ERR_FAILED,
+                        (CMPIString*)string2CMPIString(message));
+                }
+
+                CIMConstProperty propertyDef(
+                    classDef.getProperty(propIndex));
+
+                // Normalize the property: this will ensure that the property
+                // and any embedded instance/object properties are consistent
+                // with the relevant class definitions.
+                CIMProperty normalizedProperty(
+                    ObjectNormalizer::_processProperty(
+                        propertyDef,
+                        currentProp,
+                        false,
+                        false,
+                        contextContainer->getContext(),
+                        request->nameSpace));
+
+                // Remove the old property, add the new, and adjust the
+                // loop counters appropriately.
+                inst.removeProperty(propIndex);
+                inst.addProperty(normalizedProperty);
+                --i;
+                --n;
+            }
+        }
+    }
+    catch(Exception &)
+    {
+        // If the NormalizerContextContainer is not present, then the
+        // ObjectNormalizer must be enabled for this operation and the
+        // ObjectNormalizer will do the work in the above try block.
+    }
+
+    CMReturn(CMPI_RC_OK);
+}
+
 extern "C" {
 
    PEGASUS_STATIC CMPIStatus resultReturnData(const CMPIResult* eRes, const CMPIValue* data,  CMPIType type) {
       CMPIrc rc;
       if ((eRes->hdl == NULL) || (data == NULL))
 	     CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
-	try {
+    try {
       CIMValue v=value2CIMValue((CMPIValue*)data,type,&rc);
-      if (eRes->ft==CMPI_ResultMethOnStack_Ftab) {
+      if (eRes->ft==CMPI_ResultMethOnStack_Ftab)
+      {
          MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
-         if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
+         if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0)
+         {
             res->processing();
             ((CMPI_Result*)eRes)->flags|=RESULT_set;
          }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+          // If the CMPI type is CMPI_instance, then the CIM return type could
+          // be either an EmbeddedObject or EmbeddedInstance. We must find the
+          // method signature in the class definition to find out what the
+          // return type is.
+          if(type & CMPI_instance)
+          {
+              try 
+              {
+                  InvokeMethodResponseHandler * opRes =
+                    dynamic_cast<InvokeMethodResponseHandler *>(res);
+                  CIMInvokeMethodRequestMessage * request =
+                      dynamic_cast<CIMInvokeMethodRequestMessage *>(
+                          opRes->getRequest());
+
+                  PEGASUS_ASSERT(request != 0);
+
+                  const CachedClassDefinitionContainer * classContainer =
+                      dynamic_cast<const CachedClassDefinitionContainer *>(
+                          &(request->operationContext.get(
+                              CachedClassDefinitionContainer::NAME)));
+                  PEGASUS_ASSERT(classContainer != 0);
+
+                  CIMClass classDef(classContainer->getClass());
+                  Uint32 methodIndex = classDef.findMethod(
+                      request->methodName);
+                  if(methodIndex == PEG_NOT_FOUND)
+                  {
+                      String message(
+                          "Method not found in class definition");
+                      CMReturnWithString(CMPI_RC_ERR_FAILED,
+                          (CMPIString*)string2CMPIString(message));
+                  }
+
+                  CIMMethod methodDef(classDef.getMethod(methodIndex));
+                  if(methodDef.findQualifier(CIMName("EmbeddedInstance")) !=
+                      PEG_NOT_FOUND)
+                  {
+                      PEGASUS_ASSERT(v.getType() == CIMTYPE_OBJECT);
+                      CIMObject tmpObject;
+                      v.get(tmpObject);
+                      v = CIMValue(CIMInstance(tmpObject));
+                  }
+              }
+              catch(Exception & e)
+              {
+                  CMReturnWithString(CMPI_RC_ERR_FAILED,
+                      (CMPIString*)string2CMPIString(e.getMessage()));
+              }
+          }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
          res->deliver(v);
       }
       else {
@@ -76,12 +199,13 @@ extern "C" {
          }
          res->deliver(v);
       }
-	} catch (const CIMException &e)
-	{
-    	DDD(cout<<"### exception: resultReturnData - msg: "<<e.getMessage()<<endl);
-	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
-	}
-      CMReturn(CMPI_RC_OK);
+    }
+    catch (const CIMException &e)
+    {
+        DDD(cout<<"### exception: resultReturnData - msg: "<<e.getMessage()<<endl);
+        CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+    }
+    CMReturn(CMPI_RC_OK);
    }
 
    PEGASUS_STATIC CMPIStatus resultReturnInstance(const CMPIResult* eRes, const CMPIInstance* eInst) {
@@ -136,6 +260,32 @@ extern "C" {
          }
       }
 
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+      // CMPI does not differentiate between EmbeddedInstances and
+      // EmbeddedObjects, so any mismatches between the property type
+      // in the instance and the property type in the class definition
+      // must be resolved.
+      EnumerateInstancesResponseHandler * eiRes =
+          dynamic_cast<EnumerateInstancesResponseHandler *>(res);
+      GetInstanceResponseHandler * giRes = 0;
+      CMPIStatus status;
+      if(eiRes)
+      {
+          status = resolveEmbeddedInstanceTypes(eiRes, inst);
+      }
+      else
+      {
+          giRes = dynamic_cast<GetInstanceResponseHandler *>(res);
+          PEGASUS_ASSERT(giRes);
+          status = resolveEmbeddedInstanceTypes(giRes, inst);
+      }
+      
+      if(status.rc != CMPI_RC_OK)
+      {
+        return status;
+      }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+
       res->deliver(inst);
 	} catch (const CIMException &e)
 	{
@@ -165,6 +315,33 @@ extern "C" {
       CIMObjectPath iop=inst.buildPath(*cc);
       iop.setNameSpace(op.getNameSpace());
       inst.setPath(iop);
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+      // CMPI does not differentiate between EmbeddedInstances and
+      // EmbeddedObjects, so any mismatches between the property type
+      // in the instance and the property type in the class definition
+      // must be resolved.
+      EnumerateInstancesResponseHandler * eiRes =
+          dynamic_cast<EnumerateInstancesResponseHandler *>(res);
+      GetInstanceResponseHandler * giRes = 0;
+      CMPIStatus status;
+      if(eiRes)
+      {
+          status = resolveEmbeddedInstanceTypes(eiRes, inst);
+      }
+      else
+      {
+          giRes = dynamic_cast<GetInstanceResponseHandler *>(res);
+          PEGASUS_ASSERT(giRes);
+          status = resolveEmbeddedInstanceTypes(giRes, inst);
+      }
+      
+      if(status.rc != CMPI_RC_OK)
+      {
+        return status;
+      }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+
       res->deliver(inst);
 	} catch (const CIMException &e)
 	{

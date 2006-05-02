@@ -1,0 +1,227 @@
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [returnUint32]: 
+ ++++ Calling CMReturnData+Done on returnUint32 operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [returnString]: 
+ ++++ Calling CMReturnData+Done on returnString operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [TestCMPIBroker]: 
+ Calling CMGetArgAt
+ #0: Operation (uint32), value: 1
+ ++++ Calling CMGetArg
+ ++++ (CMPI_RC_OK)
+ ++++ #A CDGetType
+ ++++ CMPIArgs (CMPI_RC_OK)
+ ++++ Calling CMReturnData+Done
+ ++++ Calling CMAddArg
+ ++++ (CMPI_RC_OK)
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [TestCMPIBroker]: 
+ Calling CMGetArgAt
+ #0: Operation (uint32), value: 2
+ ++++ Calling CMGetArg
+ ++++ (CMPI_RC_OK)
+ ++++ #B CDToString
+ ++++  Operation:2
+ (CMPI_RC_OK)
+ ++++ Calling CMReturnData+Done
+ ++++ Calling CMAddArg
+ ++++ (CMPI_RC_OK)
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [TestCMPIBroker]: 
+ Calling CMGetArgAt
+ #0: Operation (uint32), value: 3
+ ++++ Calling CMGetArg
+ ++++ (CMPI_RC_OK)
+ ++++ #D CDIsOfType 
+ ++++ CMPIArgs = Yes
+ ++++ Calling CMReturnData+Done
+ ++++ Calling CMAddArg
+ ++++ (CMPI_RC_OK)
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [TestCMPIBroker]: 
+ Calling CMGetArgAt
+ #0: Operation (uint32), value: 4
+ ++++ Calling CMGetArg
+ ++++ (CMPI_RC_OK)
+ ++++ #A CMGetMessage
+ ++++ (CMPI_RC_OK)
+ ++++ [CIM_ERR_SUCCESS: Successful.]
+ ++++ Calling CMReturnData+Done
+ ++++ Calling CMAddArg
+ ++++ (CMPI_RC_OK)
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [TestCMPIBroker]: 
+ Calling CMGetArgAt
+ #0: Operation (uint32), value: 5
+ ++++ Calling CMGetArg
+ ++++ (CMPI_RC_OK)
+ ++++ #B CMLogMessage
+ ++++ (CMPI_RC_OK)
+ ++++ (CMPI_RC_ERR_INVALID_PARAMETER)
+ ++++ (CMPI_RC_ERR_INVALID_PARAMETER)
+ ++++ (CMPI_RC_OK)
+ ++++ Calling CMReturnData+Done
+ ++++ Calling CMAddArg
+ ++++ (CMPI_RC_OK)
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [TestCMPIBroker]: 
+ Calling CMGetArgAt
+ #0: Operation (uint32), value: 6
+ ++++ Calling CMGetArg
+ ++++ (CMPI_RC_OK)
+ ++++ #C CMLogTrace
+ ++++ (CMPI_RC_ERR_INVALID_PARAMETER)
+ ++++ (CMPI_RC_OK)
+ ++++ (CMPI_RC_OK)
+ ++++ Calling CMReturnData+Done
+ ++++ Calling CMAddArg
+ ++++ (CMPI_RC_OK)
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [returnInstance]: 
+ Calling CMNewObjectPath for TestCMPI_Method
+ ---- (rc:CMPI_RC_OK)
+ Calling CMNewInstance 
+ ---- (rc:CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is test/TestProvider:TestCMPI_Instance.ElementName="ObjPath" (rc:CMPI_RC_OK)
+ Calling CMNewObjectPath for TestCMPI_Instance
+ ---- (CMPI_RC_OK)
+ ---- Object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ Calling CMSetObjectPath with object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath"
+ ---- (CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ ++++ Calling CMReturnData+Done on returnInstance operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [returnDateTime]: 
+ ---- (rc:CMPI_RC_OK)
+ ---- (rc:CMPI_RC_OK)
+ ++++ Calling CMReturnData+Done on returnDateTime operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [noSuchFunction]: 
+ ++++ Could not find the noSuchFunction operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [TestCMPIBroker]: 
+ Calling CMGetArgAt
+ #0: Operation (string) value: Boom
+ ++++ Calling CMGetArg
+ ++++ (CMPI_RC_OK)
+ Unknown type of data [1600] for the Operation parameter.
+ ++++ Calling CMReturnData+Done
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [TestCMPIBroker]: 
+ Calling CMGetArgAt
+ #0: Operation (type: b0)
+ ++++ Calling CMGetArg
+ ++++ (CMPI_RC_OK)
+ Unknown type of data [B0] for the Operation parameter.
+ ++++ Calling CMReturnData+Done
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [returnInstance]: 
+ Calling CMNewObjectPath for TestCMPI_Method
+ ---- (rc:CMPI_RC_OK)
+ Calling CMNewInstance 
+ ---- (rc:CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is test/TestProvider:TestCMPI_Instance.ElementName="ObjPath" (rc:CMPI_RC_OK)
+ Calling CMNewObjectPath for TestCMPI_Instance
+ ---- (CMPI_RC_OK)
+ ---- Object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ Calling CMSetObjectPath with object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath"
+ ---- (CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ ++++ Calling CMReturnData+Done on returnInstance operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [processEmbeddedInstance]: 
+ Calling CMGetArgAt
+ #0: inputInstance (type: 1000)
+ ++++ Creating instance for processEmbeddedInstance
+ Calling CMNewObjectPath for TestCMPI_Method
+ ---- (rc:CMPI_RC_OK)
+ Calling CMNewInstance 
+ ---- (rc:CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is test/TestProvider:TestCMPI_Instance.ElementName="ObjPath" (rc:CMPI_RC_OK)
+ Calling CMNewObjectPath for TestCMPI_Instance
+ ---- (CMPI_RC_OK)
+ ---- Object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ Calling CMSetObjectPath with object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath"
+ ---- (CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ ++++ Getting inputInstance arg
+ ++++ (CMPI_RC_OK)
+ ++++ Cloning inputInstance arg
+ ++++ (CMPI_RC_OK)
+ ++++ Setting outputInstance arg
+ ++++ (CMPI_RC_OK)
+ ++++ Calling CMReturnData on processEmbeddedInstance operation
+ ++++ Calling CMReturnDone on processEmbeddedInstance operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited

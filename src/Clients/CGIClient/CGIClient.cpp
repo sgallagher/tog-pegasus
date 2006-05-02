@@ -3224,6 +3224,9 @@ static void InvokeMethod(const CGIQueryString& qs)
                                     break;
                                 }
                             case CIMTYPE_OBJECT:
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+                            case CIMTYPE_INSTANCE:
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                                 // No support for embedded objects in this
                                 // "test and demonstration tool". This case
                                 // eliminate the compiler warning msg.

@@ -29,69 +29,38 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
+// Author: Alex Dunfey (dunfey_alexander@emc.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _CMPI_Result_H_
-#define _CMPI_Result_H_
+#include "CIMOMHandleContext.h"
 
-#include <Pegasus/Provider/CMPI/cmpidt.h>
-#include <Pegasus/Provider/CMPI/cmpift.h>
-#include "CMPI_Ftabs.h"
-#include "CMPI_Object.h"
-#include "CMPI_Broker.h"
+PEGASUS_USING_PEGASUS;
 
-#include <Pegasus/Common/ResponseHandler.h>
-#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
-PEGASUS_NAMESPACE_BEGIN
+/**********************************************************
+ * Begin CIMOMHandleContext class
+ **********************************************************/
 
-#define RESULT_Instance   1
-#define RESULT_Object     2
-#define RESULT_ObjectPath 4
-#define RESULT_Value      8
-#define RESULT_Method     16
-#define RESULT_Indication 32
-#define RESULT_Response   64
-#define RESULT_set        128
-#define RESULT_done       256
+CIMClass CIMOMHandleContext::getClass(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& name)
+{
+    // Get the whole class definition
+    return handle.getClass(emptyContext, nameSpace, name, false, true, true,
+        CIMPropertyList());
+}
 
-typedef struct _CMPIResultRefFT : public CMPIResultFT {
-} CMPIResultRefFT;
-typedef struct _CMPIResultInstFT : public CMPIResultFT {
-} CMPIResultInstFT;
-typedef struct _CMPIResultDataFT : public CMPIResultFT {
-} CMPIResultDataFT;
-typedef struct _CMPIResultMethFT : public CMPIResultFT {
-} CMPIResultMethFT;
+Array<CIMName> CIMOMHandleContext::enumerateClassNames(
+    const CIMNamespaceName& nameSpace, const CIMName& className,
+    bool deepInheritance)
+{
+    return handle.enumerateClassNames(emptyContext, nameSpace, className,
+        deepInheritance);
+}
 
-struct CMPI_Result : CMPIResult {
-   CMPI_Object *next,*prev;
-   long flags;
-   CMPI_Broker *xBroker;
-};
+AutoPtr<NormalizerContext> CIMOMHandleContext::clone()
+{
+  AutoPtr<NormalizerContext> tmpPtr(new CIMOMHandleContext(handle));
+  return tmpPtr;
+}
 
-struct CMPI_ResultOnStack : CMPIResult {
-   CMPI_Object *next,*prev;
-   long flags;
-   CMPI_Broker *xBroker;
-   CMPI_ResultOnStack(const ExecQueryResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ObjectPathResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const InstanceResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const MethodResultResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ObjectResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ResponseHandler&,CMPI_Broker*);
-   ~CMPI_ResultOnStack();
-};
-
-CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
-
-CMPIStatus resolveEmbeddedInstanceTypes(
-    OperationResponseHandler * opRes,
-    CIMInstance & inst);
-
-PEGASUS_NAMESPACE_END
-
-#endif

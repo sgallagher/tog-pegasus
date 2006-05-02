@@ -38,8 +38,11 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "OperationResponseHandler.h"
+#include "CIMOMHandleContext.h"
 
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Provider/CIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -286,7 +289,6 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
             request->operationContext.get(CachedClassDefinitionContainer::NAME);
 
         cimClass = container.getClass();
-
     }
     catch(Exception &)
     {
@@ -294,11 +296,14 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
         // for this operation.
     }
 
-    _normalizer =
-        ObjectNormalizer(
-            cimClass,
-            request->includeQualifiers,
-            request->includeClassOrigin);
+    AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
+    ObjectNormalizer tmpNormalizer(
+        cimClass,
+        request->includeQualifiers,
+        request->includeClassOrigin,
+        request->nameSpace,
+        tmpContext);
+    _normalizer = tmpNormalizer;
     #endif
 }
 
@@ -409,12 +414,15 @@ EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
         // for this operation.
     }
 
-    _normalizer =
-        ObjectNormalizer(
-            cimClass,
-            request->includeQualifiers,
-            request->includeClassOrigin);
-    #endif
+    AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
+    ObjectNormalizer tmpNormalizer(
+        cimClass,
+        request->includeQualifiers,
+        request->includeClassOrigin,
+        request->nameSpace,
+        tmpContext);
+    _normalizer = tmpNormalizer;
+#endif
 }
 
 void EnumerateInstancesResponseHandler::deliver(const CIMInstance & cimInstance)
@@ -477,12 +485,15 @@ EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
         // for this operation.
     }
 
-    _normalizer =
-        ObjectNormalizer(
-            cimClass,
-            false,
-            false);
-    #endif
+    AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
+    ObjectNormalizer tmpNormalizer(
+        cimClass,
+        false,
+        false,
+        request->nameSpace,
+        tmpContext);
+    _normalizer = tmpNormalizer;
+#endif
 }
 
 void EnumerateInstanceNamesResponseHandler::deliver(const CIMObjectPath & cimObjectPath)

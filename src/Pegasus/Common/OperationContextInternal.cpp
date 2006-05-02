@@ -242,4 +242,68 @@ CIMClass CachedClassDefinitionContainer::getClass(void) const
     return(_cimClass);
 }
 
+//
+// NormalizerContextContainer
+//
+
+const String NormalizerContextContainer::NAME = "NormalizerContextContainer";
+
+NormalizerContextContainer::NormalizerContextContainer(
+    const OperationContext::Container & container)
+{
+    const NormalizerContextContainer * p =
+        dynamic_cast<const NormalizerContextContainer *>(&container);
+
+    if(p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+
+    *this = *p;
+}
+
+
+NormalizerContextContainer::NormalizerContextContainer(
+    AutoPtr<NormalizerContext> & context) : normalizerContext(context.get())
+{
+  context.release();
+}
+
+NormalizerContextContainer::~NormalizerContextContainer()
+{
+}
+
+NormalizerContextContainer & NormalizerContextContainer::operator=(
+  const NormalizerContextContainer & container)
+{
+    if(this == &container)
+    {
+        return(*this);
+    }
+
+    normalizerContext.reset(container.normalizerContext->clone().release());
+
+    return(*this);
+}
+
+String NormalizerContextContainer::getName() const
+{
+    return(NAME);
+}
+
+OperationContext::Container * NormalizerContextContainer::clone() const
+{
+    return(new NormalizerContextContainer(*this));
+}
+
+void NormalizerContextContainer::destroy()
+{
+    delete this;
+}
+
+NormalizerContext * NormalizerContextContainer::getContext() const
+{
+    return normalizerContext.get();
+}
+
 PEGASUS_NAMESPACE_END

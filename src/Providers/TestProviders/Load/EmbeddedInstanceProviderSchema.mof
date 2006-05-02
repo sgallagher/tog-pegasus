@@ -28,70 +28,68 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
-//%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _CMPI_Result_H_
-#define _CMPI_Result_H_
+#pragma locale("en_US")
 
-#include <Pegasus/Provider/CMPI/cmpidt.h>
-#include <Pegasus/Provider/CMPI/cmpift.h>
-#include "CMPI_Ftabs.h"
-#include "CMPI_Object.h"
-#include "CMPI_Broker.h"
+class PG_EmbeddedClass
+{
+   [Key, Description("Key 1")]
+   String key1;
 
-#include <Pegasus/Common/ResponseHandler.h>
-#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
-PEGASUS_NAMESPACE_BEGIN
+   [Key, Description("Key 2")]
+   String key2;
 
-#define RESULT_Instance   1
-#define RESULT_Object     2
-#define RESULT_ObjectPath 4
-#define RESULT_Value      8
-#define RESULT_Method     16
-#define RESULT_Indication 32
-#define RESULT_Response   64
-#define RESULT_set        128
-#define RESULT_done       256
+   [Description("Prop 1")]
+   uint8 prop01;
 
-typedef struct _CMPIResultRefFT : public CMPIResultFT {
-} CMPIResultRefFT;
-typedef struct _CMPIResultInstFT : public CMPIResultFT {
-} CMPIResultInstFT;
-typedef struct _CMPIResultDataFT : public CMPIResultFT {
-} CMPIResultDataFT;
-typedef struct _CMPIResultMethFT : public CMPIResultFT {
-} CMPIResultMethFT;
+   [Description("Prop 2")]
+   uint16 prop02;
 
-struct CMPI_Result : CMPIResult {
-   CMPI_Object *next,*prev;
-   long flags;
-   CMPI_Broker *xBroker;
+   [Description("Prop 3")]
+   uint32 prop03;
+
+   [Description("Prop 4")]
+   uint64 prop04;
+
+   [Description("Prop 5")]
+   sint8 prop05;
+
+   [Description("Prop 6")]
+   sint16 prop06;
+
+   [Description("Prop 7")]
+   sint32 prop07;
+
+   [Description("Prop 8")]
+   sint64 prop08;
+
+   [Description("Prop 9")]
+   real32 prop09;
+
+   [Description("Prop 10")]
+   real64 prop10;
+
+   [Description("Prop 11")]
+   datetime prop11;
 };
 
-struct CMPI_ResultOnStack : CMPIResult {
-   CMPI_Object *next,*prev;
-   long flags;
-   CMPI_Broker *xBroker;
-   CMPI_ResultOnStack(const ExecQueryResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ObjectPathResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const InstanceResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const MethodResultResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ObjectResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ResponseHandler&,CMPI_Broker*);
-   ~CMPI_ResultOnStack();
+class PG_EmbeddedError : CIM_Error
+{
+   [Key]
+   String errorKey;
+
+   [EmbeddedInstance("PG_EmbeddedClass")]
+   String EmbeddedInst;
+   
+   uint32 PropagateError(
+      [IN, EmbeddedInstance("CIM_Error")]
+      String error,
+      
+      [OUT, EmbeddedInstance("CIM_Error")]
+      String sameError);
 };
 
-CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
+class PG_InstMethodIndication : CIM_InstMethodCall
+{
 
-CMPIStatus resolveEmbeddedInstanceTypes(
-    OperationResponseHandler * opRes,
-    CIMInstance & inst);
-
-PEGASUS_NAMESPACE_END
-
-#endif
+};

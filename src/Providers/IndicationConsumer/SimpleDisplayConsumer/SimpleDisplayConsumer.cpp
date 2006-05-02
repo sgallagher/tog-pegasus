@@ -326,7 +326,23 @@ void SimpleDisplayConsumer::consumeIndication(
                         }
                         break;
                     }
-
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+                case CIMTYPE_INSTANCE :
+                  {
+                    CIMInstance propertyValueInstance;
+                    propertyValue.get(propertyValueInstance);
+                    CIMObject printableObject(propertyValueInstance);
+                    if (printOnConsole)
+                    {
+                      cout << printableObject.toString () << endl;
+                    }
+                    else
+                    {
+                      fprintf(_indicationLogHandle, "%s\n", (const char *) printableObject.toString().getCString());
+                    }
+                    break;
+                  }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                  case CIMTYPE_REFERENCE:
                      {
                          //

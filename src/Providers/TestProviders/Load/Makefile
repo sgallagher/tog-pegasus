@@ -51,6 +51,10 @@ include $(ROOT)/mak/configschema.mak
 
 TESTPROVIDERNS=test/TestProvider
 TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/test\#TestProvider
+
+EI_SCHEMA_DIR = $(ROOT)/Schemas/CIMPrelim291
+EI_DYNAMIC_TEST_NAMESPACE = test/EmbeddedInstance/Dynamic
+EI_STATIC_TEST_NAMESPACE = test/EmbeddedInstance/Static
 ##
 ## Clean the existing repository and load the test MOF with cimmofl.
 ##
@@ -133,6 +137,25 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 endif
 endif
 
+ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+	@ $(ECHO) +++++ EmbeddedInstanceTest provider class definitions into $(EI_DYNAMIC_TEST_NAMESPACE) and $(EI_STATIC_TEST_NAMESPACE) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(EI_DYNAMIC_TEST_NAMESPACE) $(EI_SCHEMA_DIR)/Core_Qualifiers.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" -aE CIMError.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Core.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Event.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Interop.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" -aE EmbeddedInstanceProviderSchema.mof
+
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(EI_STATIC_TEST_NAMESPACE) $(EI_SCHEMA_DIR)/Core_Qualifiers.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" -aE CIMError.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Core.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Event.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Interop.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" -aE EmbeddedInstanceProviderSchema.mof
+
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-nroot/PG_InterOp" EmbeddedInstanceProviderR.mof
+endif
+
 ##
 ## Load the test MOF with cimmof.  (Do not remove the existing repository.)
 ##
@@ -201,12 +224,33 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 endif
 endif
 
+ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+	@ $(ECHO) +++++ EmbeddedInstanceTest provider class definitions into $(EI_DYNAMIC_TEST_NAMESPACE) and $(EI_STATIC_TEST_NAMESPACE) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(EI_DYNAMIC_TEST_NAMESPACE) $(EI_SCHEMA_DIR)/Core_Qualifiers.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" -aE CIMError.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Core.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Event.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Interop.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" -aE EmbeddedInstanceProviderSchema.mof
+
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(EI_STATIC_TEST_NAMESPACE) $(EI_SCHEMA_DIR)/Core_Qualifiers.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" -aE CIMError.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Core.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Event.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" -aE $(EI_SCHEMA_DIR)/CIM_Interop.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" -aE EmbeddedInstanceProviderSchema.mof
+
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-nroot/PG_InterOp" EmbeddedInstanceProviderR.mof
+endif
+
 ##
 ##
 ##
 removerepository:
-	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
+	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS), $(EI_DYNAMIC_TEST_NAMESPACE), and $(EI_STATIC_TEST_NAMESPACE)
 	@ $(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
+	@ $(RMREPOSITORY) $(EI_DYNAMIC_TEST_NAMESPACE) 
+	@ $(RMREPOSITORY) $(EI_STATIC_TEST_NAMESPACE)
 
 
 unregister:
@@ -241,6 +285,10 @@ endif
 ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 	cimprovider -r -m UserContextCIMServerModule
 endif
+endif
+
+ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+	cimprovider -r -m EmbeddedInstanceProviderModule
 endif
 
 depend:

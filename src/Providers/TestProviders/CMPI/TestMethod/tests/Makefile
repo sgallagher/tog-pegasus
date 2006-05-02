@@ -50,6 +50,13 @@ include $(ROOT)/mak/program.mak
 include $(ROOT)/test/config.mak
 
 LOGFILES = TestCMPIMethod
+TEST_LOGFILES = TestCMPIMethod
+
+ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT),true)
+  TEST_LOGFILES = TestCMPIMethod_ei
+endif
+endif
 
 tests:
 
@@ -58,8 +65,8 @@ poststarttests:
 	@$(ECHO) $(PROGRAM) test
 	@$(PROGRAM) test
 	@$(ECHO) +++ $(PROGRAM) passed successfully +++
-	@$(DIFF) $(LOGFILES).loggood $(LOGFILES).log
-	@$(ECHO) +++ $(LOGFILES) passed successfully +++
+	@$(DIFF) $(TEST_LOGFILES).loggood $(LOGFILES).log
+	@$(ECHO) +++ $(TEST_LOGFILES).loggood passed successfully +++
 
 
 install:

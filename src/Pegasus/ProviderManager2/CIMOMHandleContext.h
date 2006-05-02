@@ -29,68 +29,47 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
+// Author: Alex Dunfey (dunfey_alexander@emc.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _CMPI_Result_H_
-#define _CMPI_Result_H_
+#ifndef Pegasus_CIMOMHandleContext_h
+#define Pegasus_CIMOMHandleContext_h
 
-#include <Pegasus/Provider/CMPI/cmpidt.h>
-#include <Pegasus/Provider/CMPI/cmpift.h>
-#include "CMPI_Ftabs.h"
-#include "CMPI_Object.h"
-#include "CMPI_Broker.h"
+#include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/ObjectNormalizer.h>
 
-#include <Pegasus/Common/ResponseHandler.h>
-#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
+#include <Pegasus/Provider/CIMOMHandle.h>
+
+#include <Pegasus/ProviderManager2/Linkage.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
-#define RESULT_Instance   1
-#define RESULT_Object     2
-#define RESULT_ObjectPath 4
-#define RESULT_Value      8
-#define RESULT_Method     16
-#define RESULT_Indication 32
-#define RESULT_Response   64
-#define RESULT_set        128
-#define RESULT_done       256
+class PEGASUS_PPM_LINKAGE CIMOMHandleContext : public NormalizerContext
+{
+public:
+    CIMOMHandleContext() {}
+    CIMOMHandleContext(CIMOMHandle & hndl) : handle(hndl) {}
+    virtual ~CIMOMHandleContext() {}
 
-typedef struct _CMPIResultRefFT : public CMPIResultFT {
-} CMPIResultRefFT;
-typedef struct _CMPIResultInstFT : public CMPIResultFT {
-} CMPIResultInstFT;
-typedef struct _CMPIResultDataFT : public CMPIResultFT {
-} CMPIResultDataFT;
-typedef struct _CMPIResultMethFT : public CMPIResultFT {
-} CMPIResultMethFT;
+    virtual CIMClass getClass(
+	      const CIMNamespaceName& nameSpace,
+	      const CIMName& name);
 
-struct CMPI_Result : CMPIResult {
-   CMPI_Object *next,*prev;
-   long flags;
-   CMPI_Broker *xBroker;
+    virtual Array<CIMName> enumerateClassNames(
+        const CIMNamespaceName& nameSpace, const CIMName& className,
+        bool deepInheritance);
+
+    virtual AutoPtr<NormalizerContext> clone();
+
+private:
+    CIMOMHandleContext(const CIMOMHandleContext &);
+    CIMOMHandleContext & operator=(const CIMOMHandleContext &);
+    CIMOMHandle handle;
+    OperationContext emptyContext;
 };
-
-struct CMPI_ResultOnStack : CMPIResult {
-   CMPI_Object *next,*prev;
-   long flags;
-   CMPI_Broker *xBroker;
-   CMPI_ResultOnStack(const ExecQueryResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ObjectPathResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const InstanceResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const MethodResultResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ObjectResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ResponseHandler&,CMPI_Broker*);
-   ~CMPI_ResultOnStack();
-};
-
-CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
-
-CMPIStatus resolveEmbeddedInstanceTypes(
-    OperationResponseHandler * opRes,
-    CIMInstance & inst);
 
 PEGASUS_NAMESPACE_END
 

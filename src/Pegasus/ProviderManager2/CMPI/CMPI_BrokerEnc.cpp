@@ -102,6 +102,9 @@ static String typeToString(CIMType t) {
 	   case CIMTYPE_DATETIME:  return "datetime";
        case CIMTYPE_REFERENCE: return "reference";
        case CIMTYPE_OBJECT:    return "object";
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+       case CIMTYPE_INSTANCE:    return "instance";
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
       default: return "???";
    }
 }

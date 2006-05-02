@@ -224,6 +224,9 @@ CIMKeyBinding::CIMKeyBinding(const CIMName& name, const CIMValue& value)
 //  case CIMTYPE_REAL32:
 //  case CIMTYPE_REAL64:
     case CIMTYPE_OBJECT:
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    case CIMTYPE_INSTANCE:
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         // From PEP 194: EmbeddedObjects cannot be keys.
         throw TypeMismatchException();
         break;
@@ -313,6 +316,9 @@ Boolean CIMKeyBinding::equal(CIMValue value)
 //      case CIMTYPE_REAL32:
 //      case CIMTYPE_REAL64:
         case CIMTYPE_OBJECT:
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        case CIMTYPE_INSTANCE:
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             // From PEP 194: EmbeddedObjects cannot be keys.
             return false;
             break;

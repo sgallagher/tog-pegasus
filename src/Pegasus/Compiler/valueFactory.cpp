@@ -416,6 +416,9 @@ build_array_value(CIMType type, unsigned int arrayDimension,
 //  Note that "object" (ie. CIMTYPE_OBJECT) is not a real CIM datatype, just a
 //  Pegasus internal representation of an embedded object, so it won't be found here.
   case CIMTYPE_OBJECT:
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+  case CIMTYPE_INSTANCE:
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     break;
   }  // end switch
   return 0;
@@ -465,7 +468,11 @@ valueFactory::createValue(CIMType type, int arrayDimension,
 //  PEP 194:
 //  Note that "object" (ie. CIMTYPE_OBJECT) is not a real CIM datatype, just a
 //  Pegasus internal representation of an embedded object, so it won't be found here.
-    case CIMTYPE_OBJECT: break;
+    case CIMTYPE_OBJECT:
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    case CIMTYPE_INSTANCE:
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        break;
     }
     return(new CIMValue((Uint32) 0));    // default
   } else { // an array type, either fixed or variable

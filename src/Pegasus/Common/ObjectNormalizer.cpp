@@ -36,10 +36,11 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/ObjectNormalizer.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-static CIMQualifier _processQualifier(
+CIMQualifier _processQualifier(
     CIMConstQualifier & referenceQualifier,
     CIMConstQualifier & cimQualifier)
 {
@@ -82,32 +83,46 @@ static CIMQualifier _processQualifier(
     return(normalizedQualifier);
 }
 
-static CIMProperty _processProperty(
+CIMProperty ObjectNormalizer::_processProperty(
     CIMConstProperty & referenceProperty,
-    CIMConstProperty & cimProperty,
+    CIMConstProperty & instProperty,
     Boolean includeQualifiers,
-    Boolean includeClassOrigin)
+    Boolean includeClassOrigin,
+    NormalizerContext * context,
+    const CIMNamespaceName & nameSpace)
 {
     // check name
-    if(!referenceProperty.getName().equal(cimProperty.getName()))
+    if(!referenceProperty.getName().equal(instProperty.getName()))
     {
         MessageLoaderParms message(
             "Common.ObjectNormalizer.INVALID_PROPERTY_NAME",
             "Invalid property name: $0",
-            cimProperty.getName().getString());
+            instProperty.getName().getString());
 
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
     // check type
-    if(referenceProperty.getType() != cimProperty.getType())
+    CIMType referencePropType = referenceProperty.getType();
+    CIMType instPropType = instProperty.getType();
+    if(referencePropType != instPropType)
     {
-        MessageLoaderParms message(
-            "Common.ObjectNormalizer.INVALID_PROPERTY_TYPE",
-            "Invalid property type: $0",
-            cimProperty.getName().getString());
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        // CMPI Providers cannot return a CIMTYPE_INSTANCE, so if the
+        // referenceProperty type is CIMTYPE_INSTANCE and the instProperty
+        // type is CIMTYPE_OBJECT, ignore the mismatch. The Normalizer
+        // will correct it.
+        if(referencePropType != CIMTYPE_INSTANCE ||
+            instPropType != CIMTYPE_OBJECT)
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        {
+            MessageLoaderParms message(
+                "Common.ObjectNormalizer.INVALID_PROPERTY_TYPE",
+                "Invalid property type: $0",
+                instProperty.getName().getString());
 
-        throw CIMException(CIM_ERR_FAILED, message);
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
     }
 
     // TODO: check array size?
@@ -123,9 +138,23 @@ static CIMProperty _processProperty(
     // TODO: check override (especially for references)?
 
     // update value
-    if(!cimProperty.getValue().isNull())
+    if(!instProperty.getValue().isNull())
     {
-        normalizedProperty.setValue(cimProperty.getValue());
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        // This happens ONLY when the referencePropType is CIMTYPE_INSTANCE
+        // and the cimPropType is CIMTYPE_OBJECT, otherwise an exception
+        // would have been thrown. Correct the mismatch here.
+        if(referencePropType != instPropType)
+        {
+            CIMObject tmpObject;
+            instProperty.getValue().get(tmpObject);
+            normalizedProperty.setValue(CIMInstance(tmpObject));
+        }
+        else
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        {
+            normalizedProperty.setValue(instProperty.getValue());
+        }
     }
 
     // update class origin
@@ -142,12 +171,12 @@ static CIMProperty _processProperty(
         {
             CIMConstQualifier referenceQualifier = referenceProperty.getQualifier(i);
 
-            Uint32 pos = cimProperty.findQualifier(referenceQualifier.getName());
+            Uint32 pos = instProperty.findQualifier(referenceQualifier.getName());
 
             // update value if qualifier is present in the specified property
             if(pos != PEG_NOT_FOUND)
             {
-                CIMConstQualifier cimQualifier = cimProperty.getQualifier(pos);
+                CIMConstQualifier cimQualifier = instProperty.getQualifier(pos);
 
                 CIMQualifier normalizedQualifier =
                     _processQualifier(
@@ -162,23 +191,135 @@ static CIMProperty _processProperty(
             }
         }
     }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+    else if(referenceProperty.getType() == CIMTYPE_INSTANCE)
+    {
+        Uin32 refPos = referenceProperty.findQualifier("EmbeddedInstance");
+        Uin32 cimPos = instProperty.findQualifier("EmbeddedInstance");
+        if(refPos != PEG_NOT_FOUND && cimPos == PEG_NOT_FOUND)
+        {
+            instProperty.addQualifier(refProperty.getQualifier(pos));
+        }
+    }
+#endif
+
+    // Check the type of the embedded instance against the class specified by
+    // the EmbeddedInstance qualifier. We can only do this if the context
+    // is non-zero.
+    if(context != 0)
+    {
+        if(referenceProperty.getType() == CIMTYPE_INSTANCE)
+        {
+            Uint32 pos = referenceProperty.findQualifier("EmbeddedInstance");
+
+            PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+
+            String qualClassStr;
+            referenceProperty.getQualifier(pos).getValue().get(
+                qualClassStr);
+            CIMName embedInstClassName(qualClassStr);
+            Array<CIMName> embeddedInstSubclasses =
+                context->enumerateClassNames(nameSpace, embedInstClassName,
+                    true);
+            embeddedInstSubclasses.append(embedInstClassName);
+
+            Array<CIMInstance> embeddedInstances;
+            if(referenceProperty.isArray())
+            {
+                instProperty.getValue().get(embeddedInstances);
+            }
+            else
+            {
+                CIMInstance embeddedInst;
+                instProperty.getValue().get(embeddedInst);
+                embeddedInstances.append(embeddedInst);
+            }
+
+            Array<CIMClass> embeddedClassDefs;
+            for(Uint32 i = 0, n = embeddedInstances.size(); i < n; ++i)
+            {
+                CIMInstance & currentInstance = embeddedInstances[i];
+                CIMName currentClassName = currentInstance.getClassName();
+                if(Contains(embeddedInstSubclasses, currentClassName))
+                {
+                    CIMClass embeddedClassDef;
+                    bool found = false;
+                    for(Uint32 j = 0, m = embeddedClassDefs.size(); j < m;
+                        ++j)
+                    {
+                        CIMClass & tmpClassDef = embeddedClassDefs[j];
+                        if(tmpClassDef.getClassName() == currentClassName)
+                        {
+                            embeddedClassDef = tmpClassDef;
+                            found = true;
+                        }
+                    }
+
+                    if(!found)
+                    {
+                        embeddedClassDef = context->getClass(nameSpace,
+                            currentClassName);
+                        embeddedClassDefs.append(embeddedClassDef);
+                    }
+
+                    AutoPtr<NormalizerContext> tmpContext(context->clone());
+                    ObjectNormalizer tmpNormalizer(embeddedClassDef,
+                        includeQualifiers, includeClassOrigin, nameSpace,
+                        tmpContext);
+                    if(currentInstance.getPath().getKeyBindings().size()==0)
+                    {
+                        currentInstance.setPath(
+                            currentInstance.buildPath(embeddedClassDef));
+                    }
+                    embeddedInstances[i] = tmpNormalizer.processInstance(currentInstance);
+                }
+                else
+                {
+                    MessageLoaderParms message(
+                        "Common.ObjectNormalizer.INVALID_EMBEDDED_INSTANCE_TYPE",
+                        "Found embedded instance of type $0: was expecting $1 for property $2",
+                        currentClassName.getString(),
+                        qualClassStr,
+                        instProperty.getName().getString());
+
+                    throw CIMException(CIM_ERR_FAILED, message);
+                }
+            }
+
+            if(referenceProperty.isArray())
+            {
+              normalizedProperty.setValue(CIMValue(embeddedInstances));
+            }
+            else
+            {
+              normalizedProperty.setValue(CIMValue(embeddedInstances[0]));
+            }
+        }
+    }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
     return(normalizedProperty);
 }
 
 ObjectNormalizer::ObjectNormalizer(void)
     : _includeQualifiers(false),
-    _includeClassOrigin(false)
+    _includeClassOrigin(false),
+    _context(0)
 {
 }
 
 ObjectNormalizer::ObjectNormalizer(
     const CIMClass & cimClass,
     Boolean includeQualifiers,
-    Boolean includeClassOrigin)
-    : _cimClass(cimClass),
+    Boolean includeClassOrigin,
+    const CIMNamespaceName & nameSpace,
+    AutoPtr<NormalizerContext> & context)
+  : _cimClass(cimClass),
     _includeQualifiers(includeQualifiers),
-    _includeClassOrigin(includeClassOrigin)
+    _includeClassOrigin(includeClassOrigin),
+    _context(context),
+    _nameSpace(nameSpace)
 {
     if(!_cimClass.isUninitialized())
     {
@@ -443,7 +584,9 @@ CIMInstance ObjectNormalizer::processInstance(const CIMInstance & cimInstance) c
                     referenceProperty,
                     cimProperty,
                     _includeQualifiers,
-                    _includeClassOrigin);
+                    _includeClassOrigin,
+                    _context.get(),
+                    _nameSpace);
 
             normalizedInstance.addProperty(normalizedProperty);
         }

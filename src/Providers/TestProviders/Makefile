@@ -62,6 +62,12 @@ DIRS = \
 	TestAggregationOutputProvider \
 	TestAggregationOutputProvider/testclient
 
+ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+DIRS += \
+	EmbeddedInstanceProvider \
+	EmbeddedInstanceProvider/testClient
+endif
+
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 DIRS += \
 	CMPI/TestUtilLib \

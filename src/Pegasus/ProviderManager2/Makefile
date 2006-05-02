@@ -41,6 +41,7 @@ LOCAL_DEFINES = -DPEGASUS_PPM_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_ENABLE_D
 LIBRARY = pegprovidermanager
 
 LIBRARIES = \
+    pegprovider \
     pegprm \
     pegwql \
     pegconfig \
@@ -60,7 +61,8 @@ SOURCES = \
 	SafeQueue.cpp \
 	Lockable.cpp \
 	OperationResponseHandler.cpp \
-	SimpleResponseHandler.cpp
+	SimpleResponseHandler.cpp \
+	CIMOMHandleContext.cpp
 
 
 include $(ROOT)/mak/library.mak

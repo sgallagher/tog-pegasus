@@ -67,6 +67,7 @@ CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     _authenticator(authenticator),
     _showOutput(showOutput)
 {
+    dataStore_prt=NULL;
 }
 
 CIMOperationRequestEncoder::~CIMOperationRequestEncoder()
@@ -881,8 +882,11 @@ void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
 	Uint32  contentLength;
 
     http_request->parse(startLine, headers, contentLength);
-    dataStore_prt->setRequestSize(contentLength);
-    dataStore_prt->setStartNetworkTime();
+    if(dataStore_prt)
+    {
+        dataStore_prt->setRequestSize(contentLength);
+        dataStore_prt->setStartNetworkTime();
+    }
     
     _outputQueue->enqueue(http_request);
 }

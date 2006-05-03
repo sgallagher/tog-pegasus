@@ -319,9 +319,6 @@ void EmbeddedInstanceProvider::createInstance(
     errorInstance->filter(false, false, propList);
     if(!errorInstance->identical(repositoryInstance))
     {
-      std::cout << "Repository Instance: " << std::endl
-        << CIMObject(repositoryInstance).toString() << std::endl << std::endl << std::endl
-        << "Local Instance: " << std::endl << CIMObject(*errorInstance).toString() << std::endl;
       throw Exception("Repository instance and local instance for embedded error not identical");
     }
     

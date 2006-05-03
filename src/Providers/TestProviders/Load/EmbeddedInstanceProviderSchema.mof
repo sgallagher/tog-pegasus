@@ -91,5 +91,6 @@ class PG_EmbeddedError : CIM_Error
 
 class PG_InstMethodIndication : CIM_InstMethodCall
 {
-
+  [EmbeddedInstance("CIM_Error")]
+  string Error[];
 };

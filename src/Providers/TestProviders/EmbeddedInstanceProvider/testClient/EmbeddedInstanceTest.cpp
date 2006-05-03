@@ -311,7 +311,7 @@ int createSubscription(CIMClient & client)
     filterInstance.addProperty(CIMProperty(CIMName("Name"), 
         String("Embedded Instance Test Filter")));
     filterInstance.addProperty(CIMProperty(CIMName("Query"), 
-        String("SELECT * FROM CIM_InstMethodCall")));
+        String("SELECT * FROM PG_InstMethodIndication")));
     filterInstance.addProperty(CIMProperty(CIMName("QueryLanguage"),
         String("CIM:CQL")));
     filterInstance.addProperty(CIMProperty(CIMName("SourceNamespace"),

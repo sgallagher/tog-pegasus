@@ -52,7 +52,7 @@ include $(ROOT)/mak/configschema.mak
 TESTPROVIDERNS=test/TestProvider
 TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/test\#TestProvider
 
-EI_SCHEMA_DIR = $(ROOT)/Schemas/CIMPrelim291
+EI_SCHEMA_DIR = $(ROOT)/Schemas/CIM2101
 EI_DYNAMIC_TEST_NAMESPACE = test/EmbeddedInstance/Dynamic
 EI_STATIC_TEST_NAMESPACE = test/EmbeddedInstance/Static
 ##

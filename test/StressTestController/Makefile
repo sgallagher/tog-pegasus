@@ -49,4 +49,6 @@ SOURCES = StressTestControllerException.cpp \
 
 include $(ROOT)/mak/program.mak
 
+tests:
+
 poststarttests:

@@ -242,13 +242,14 @@ void _unpack(const Buffer& in, Uint32& pos, CIMObject& x)
         }
     }
 }
-
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 void _unpack(const Buffer& in, Uint32& pos, CIMInstance& x)
 {
     CIMObject tmp;
     _unpack(in, pos, tmp);
     x = CIMInstance(tmp);
 }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 template<class T>
 struct UnpackArray
@@ -481,7 +482,7 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
                     Packer::packString(out, a[i].toString());
                 break;
             }
-
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 const Array<CIMInstance>& a = 
@@ -494,6 +495,7 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
                 }
                 break;
             }
+#endif PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
     }
     else
@@ -545,6 +547,7 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
                 Packer::packString(
                     out, CIMValueType<CIMObject>::ref(rep).toString());
                 break;
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 CIMObject tmp(CIMValueType<CIMInstance>::ref(rep));
@@ -552,6 +555,7 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
                     out, tmp.toString());
                 break;
             }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
     }
 }
@@ -650,9 +654,11 @@ void BinaryStreamer::_unpackValue(
             case CIMTYPE_OBJECT:
                 UnpackArray<CIMObject>::func(in, pos, arraySize, cimValue);
                 break;
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
                 UnpackArray<CIMInstance>::func(in, pos, arraySize, cimValue);
                 break;
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
 
         x = cimValue;
@@ -726,9 +732,11 @@ void BinaryStreamer::_unpackValue(
             case CIMTYPE_OBJECT:
                 UnpackScalar<CIMObject>::func(in, pos, cimValue);
                 break;
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
                 UnpackScalar<CIMInstance>::func(in, pos, cimValue);
                 break;
+#endif PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
 
         x = cimValue;
@@ -778,7 +786,7 @@ void BinaryStreamer::_unpackProperty(
         name, value, arraySize, referenceClassName, classOrigin, propagated);
 
     UnpackQualifiers<CIMProperty>::func(in, pos, cimProperty);
-
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     if(cimProperty.getType() == CIMTYPE_STRING)
     {
         CIMType realType = CIMTYPE_STRING;
@@ -813,7 +821,7 @@ void BinaryStreamer::_unpackProperty(
             cimProperty = tmpProperty;
         }
     }
-
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     x = cimProperty;
 }
 

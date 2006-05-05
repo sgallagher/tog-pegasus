@@ -243,6 +243,13 @@ void _unpack(const Buffer& in, Uint32& pos, CIMObject& x)
     }
 }
 
+void _unpack(const Buffer& in, Uint32& pos, CIMInstance& x)
+{
+    CIMObject tmp;
+    _unpack(in, pos, tmp);
+    x = CIMInstance(tmp);
+}
+
 template<class T>
 struct UnpackArray
 {
@@ -474,6 +481,19 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
                     Packer::packString(out, a[i].toString());
                 break;
             }
+
+            case CIMTYPE_INSTANCE:
+            {
+                const Array<CIMInstance>& a = 
+                    CIMValueType<CIMInstance>::aref(rep);
+ 
+                for (Uint32 i = 0; i < n; i++) 
+                {
+                    CIMObject tmp(a[i]);
+                    Packer::packString(out, tmp.toString());
+                }
+                break;
+            }
         }
     }
     else
@@ -525,6 +545,13 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
                 Packer::packString(
                     out, CIMValueType<CIMObject>::ref(rep).toString());
                 break;
+            case CIMTYPE_INSTANCE:
+            {
+                CIMObject tmp(CIMValueType<CIMInstance>::ref(rep));
+                Packer::packString(
+                    out, tmp.toString());
+                break;
+            }
         }
     }
 }
@@ -623,6 +650,9 @@ void BinaryStreamer::_unpackValue(
             case CIMTYPE_OBJECT:
                 UnpackArray<CIMObject>::func(in, pos, arraySize, cimValue);
                 break;
+            case CIMTYPE_INSTANCE:
+                UnpackArray<CIMInstance>::func(in, pos, arraySize, cimValue);
+                break;
         }
 
         x = cimValue;
@@ -696,6 +726,9 @@ void BinaryStreamer::_unpackValue(
             case CIMTYPE_OBJECT:
                 UnpackScalar<CIMObject>::func(in, pos, cimValue);
                 break;
+            case CIMTYPE_INSTANCE:
+                UnpackScalar<CIMInstance>::func(in, pos, cimValue);
+                break;
         }
 
         x = cimValue;
@@ -745,6 +778,41 @@ void BinaryStreamer::_unpackProperty(
         name, value, arraySize, referenceClassName, classOrigin, propagated);
 
     UnpackQualifiers<CIMProperty>::func(in, pos, cimProperty);
+
+    if(cimProperty.getType() == CIMTYPE_STRING)
+    {
+        CIMType realType = CIMTYPE_STRING;
+        if(cimProperty.findQualifier("EmbeddedInstance") != PEG_NOT_FOUND)
+        {
+            // Note that this condition should only happen for properties in
+            // class definitions, and only NULL values are recognized. We
+            // currently don't handle embedded instance types with default
+            // values in the class definition.
+            PEGASUS_ASSERT(value.isNull());
+            realType = CIMTYPE_INSTANCE;
+        }
+        else if(cimProperty.findQualifier("EmbeddedObject") != PEG_NOT_FOUND)
+        {
+            // Note that this condition should only happen for properties in
+            // class definitions, and only NULL values are recognized. We
+            // currently don't handle embedded object types with default
+            // values in the class definition.
+            PEGASUS_ASSERT(value.isNull());
+            realType = CIMTYPE_OBJECT;
+        }
+
+        if(realType != CIMTYPE_STRING)
+        {
+            CIMProperty tmpProperty(name, CIMValue(realType, value.isArray()),
+                arraySize, referenceClassName, classOrigin, propagated);
+            for(unsigned int i = 0, n = cimProperty.getQualifierCount();
+                i < n; ++i)
+            {
+                tmpProperty.addQualifier(cimProperty.getQualifier(i));
+            }
+            cimProperty = tmpProperty;
+        }
+    }
 
     x = cimProperty;
 }

@@ -495,7 +495,7 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
                 }
                 break;
             }
-#endif PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
     }
     else
@@ -736,7 +736,7 @@ void BinaryStreamer::_unpackValue(
             case CIMTYPE_INSTANCE:
                 UnpackScalar<CIMInstance>::func(in, pos, cimValue);
                 break;
-#endif PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
 
         x = cimValue;

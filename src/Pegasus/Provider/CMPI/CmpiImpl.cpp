@@ -1333,7 +1333,7 @@ CmpiString CmpiObjectPath::getNameSpace() const{
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIString *s=getEnc()->ft->getNameSpace(getEnc(),&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
-   return *new CmpiString(s);
+   return CmpiString(s);
 }
 
 void CmpiObjectPath::setNameSpace(const char* ns) {
@@ -1345,7 +1345,7 @@ CmpiString CmpiObjectPath::getHostname() const {
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIString *s=getEnc()->ft->getHostname(getEnc(),&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
-   return *new CmpiString(s);
+   return CmpiString(s);
 }
 
 void CmpiObjectPath::setHostname(const char* hn) {
@@ -1357,7 +1357,7 @@ CmpiString CmpiObjectPath::getClassName() const {
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIString *s=getEnc()->ft->getClassName(getEnc(),&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
-   return *new CmpiString(s);
+   return CmpiString(s);
 }
 
 void CmpiObjectPath::setClassName(const char* cn) {

@@ -1373,6 +1373,30 @@ public:
     Array <CIMInstance> capInstances;
 };
 
+class PEGASUS_COMMON_LINKAGE CIMNotifyProviderFailRequestMessage
+    : public CIMRequestMessage
+{
+public:
+    CIMNotifyProviderFailRequestMessage(
+        const String & messageId_,
+        const String & moduleName_,
+        const String & userName_,
+        const QueueIdStack& queueIds_)
+    : CIMRequestMessage(
+        CIM_NOTIFY_PROVIDER_FAIL_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+        moduleName(moduleName_),
+        userName(userName_)
+    {
+    }
+
+    virtual CIMResponseMessage* buildResponse() const;
+    
+    String moduleName;
+    String userName;
+};
+
 class PEGASUS_COMMON_LINKAGE CIMStopAllProvidersRequestMessage
     : public CIMRequestMessage
 {
@@ -2065,6 +2089,22 @@ public:
         messageId_, cimException_, queueIds_)
     {
     }
+};
+
+class PEGASUS_COMMON_LINKAGE CIMNotifyProviderFailResponseMessage
+    : public CIMResponseMessage
+{
+public:
+    CIMNotifyProviderFailResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_NOTIFY_PROVIDER_FAIL_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
+
+    Uint32 numSubscriptionsAffected;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMStopAllProvidersResponseMessage

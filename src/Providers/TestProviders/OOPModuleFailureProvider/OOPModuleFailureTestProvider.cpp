@@ -1,0 +1,402 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//         (carolann_graves@hp.com)
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/System.h>
+
+#include "OOPModuleFailureTestProvider.h"
+
+PEGASUS_USING_STD;
+
+PEGASUS_USING_PEGASUS;
+
+static IndicationResponseHandler * _handler = 0;
+static Boolean _enabled = false;
+static Uint32 _nextUID = 0;
+static Uint32 _numSubscriptions = 0;
+static CIMOMHandle _cimom;
+static String _providerName;
+
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider (
+    const String & providerName)
+{
+    _providerName = providerName;
+    if (String::equalNoCase (providerName, "OOPModuleInitFailureTestProvider"))
+    {
+        return (new OOPModuleFailureTestProvider ());
+    }
+    else if (String::equalNoCase
+        (providerName, "OOPModuleCreateFailureTestProvider"))
+    {
+        return (new OOPModuleFailureTestProvider ());
+    }
+    else if (String::equalNoCase
+        (providerName, "OOPModuleCreate2FailureTestProvider"))
+    {
+        return (new OOPModuleFailureTestProvider ());
+    }
+    else if (String::equalNoCase
+        (providerName, "OOPModuleEnableFailureTestProvider"))
+    {
+        return (new OOPModuleFailureTestProvider ());
+    }
+    else if (String::equalNoCase
+        (providerName, "OOPModuleModifyFailureTestProvider"))
+    {
+        return (new OOPModuleFailureTestProvider ());
+    }
+    else if (String::equalNoCase
+        (providerName, "OOPModuleInvokeFailureTestProvider"))
+    {
+        return (new OOPModuleFailureTestProvider ());
+    }
+    else if (String::equalNoCase
+        (providerName, "OOPModuleDeleteFailureTestProvider"))
+    {
+        return (new OOPModuleFailureTestProvider ());
+    }
+    else if (String::equalNoCase
+        (providerName, "OOPModuleDelete2FailureTestProvider"))
+    {
+        return (new OOPModuleFailureTestProvider ());
+    }
+    else if (String::equalNoCase
+        (providerName, "OOPModuleDisableFailureTestProvider"))
+    {
+        return (new OOPModuleFailureTestProvider ());
+    }
+    else if (String::equalNoCase
+        (providerName, "OOPModuleTermFailureTestProvider"))
+    {
+        return (new OOPModuleFailureTestProvider ());
+    }
+    return (0);
+}
+
+void _generateIndication (IndicationResponseHandler * handler)
+{
+    if (_enabled)
+    {
+        CIMInstance indicationInstance (CIMName ("FailureTestIndication"));
+
+        CIMObjectPath path;
+        path.setNameSpace ("test/testProvider");
+        path.setClassName ("FailureTestIndication");
+
+        indicationInstance.setPath (path);
+
+        char buffer [32];
+        sprintf (buffer, "%d", _nextUID++);
+        indicationInstance.addProperty
+            (CIMProperty ("IndicationIdentifier", String (buffer)));
+
+        CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+        indicationInstance.addProperty
+            (CIMProperty ("IndicationTime", currentDateTime));
+
+        Array <String> correlatedIndications;
+        indicationInstance.addProperty
+            (CIMProperty ("CorrelatedIndications", correlatedIndications));
+
+        indicationInstance.addProperty
+            (CIMProperty ("Description", String ("Failure Test Indication")));
+
+        indicationInstance.addProperty
+            (CIMProperty ("AlertingManagedElement",
+            System::getFullyQualifiedHostName ()));
+
+        indicationInstance.addProperty
+            (CIMProperty ("AlertingElementFormat", Uint16 (0)));
+
+        indicationInstance.addProperty
+            (CIMProperty ("AlertType", Uint16 (1)));
+
+        indicationInstance.addProperty
+            (CIMProperty ("OtherAlertType", String ("Test")));
+
+        indicationInstance.addProperty
+            (CIMProperty ("PerceivedSeverity", Uint16 (2)));
+
+        indicationInstance.addProperty
+            (CIMProperty ("ProbableCause", Uint16 (1)));
+
+        indicationInstance.addProperty
+            (CIMProperty ("ProbableCauseDescription", String ("Test")));
+
+        indicationInstance.addProperty
+            (CIMProperty ("Trending", Uint16 (4)));
+
+        Array <String> recommendedActions;
+        recommendedActions.append ("Test");
+        indicationInstance.addProperty
+            (CIMProperty ("RecommendedActions", recommendedActions));
+
+        indicationInstance.addProperty
+            (CIMProperty ("EventID", String ("Test")));
+
+        CIMDateTime eventTime = CIMDateTime::getCurrentDateTime ();
+        indicationInstance.addProperty
+            (CIMProperty ("EventTime", eventTime));
+
+        indicationInstance.addProperty
+            (CIMProperty ("SystemCreationClassName",
+            System::getSystemCreationClassName ()));
+
+        indicationInstance.addProperty
+            (CIMProperty ("SystemName",
+            System::getFullyQualifiedHostName ()));
+
+        indicationInstance.addProperty
+            (CIMProperty ("ProviderName", _providerName));
+
+        CIMIndication cimIndication (indicationInstance);
+
+        handler->deliver (cimIndication);
+    }
+}
+
+OOPModuleFailureTestProvider::OOPModuleFailureTestProvider ()
+{
+}
+
+OOPModuleFailureTestProvider::~OOPModuleFailureTestProvider ()
+{
+}
+
+void OOPModuleFailureTestProvider::initialize (CIMOMHandle & cimom)
+{
+    //
+    // save cimom handle
+    //
+    _cimom = cimom;
+
+    //
+    //  If I am the OOPModuleInitFailureTestProvider, fail (i.e. exit)
+    //
+    if (String::equalNoCase (_providerName, "OOPModuleInitFailureTestProvider"))
+    {
+        exit (-1);
+    }
+}
+
+void OOPModuleFailureTestProvider::terminate ()
+{
+    //
+    //  If I am the OOPModuleTermFailureTestProvider, and there are
+    //  subscriptions, fail (i.e. exit)
+    //
+    if (String::equalNoCase (_providerName, "OOPModuleTermFailureTestProvider"))
+    {
+        if (_numSubscriptions > 0)
+        {
+            exit (-1);
+        }
+    }
+
+    delete this;
+}
+
+void OOPModuleFailureTestProvider::enableIndications (
+    IndicationResponseHandler & handler)
+{
+    //
+    //  enableIndications should not be called if indications have already been
+    //  enabled
+    //
+    if (_enabled)
+    {
+        PEGASUS_ASSERT (false);
+    }
+
+    _enabled = true;
+    _handler = &handler;
+
+    //
+    //  If I am the OOPModuleEnableFailureTestProvider, fail (i.e. exit)
+    //
+    if (String::equalNoCase (_providerName,
+        "OOPModuleEnableFailureTestProvider"))
+    {
+        exit (-1);
+    }
+}
+
+void OOPModuleFailureTestProvider::disableIndications ()
+{
+    _enabled = false;
+    _handler->complete ();
+
+    //
+    //  If I am the OOPModuleDisableFailureTestProvider, fail (i.e. exit)
+    //
+    if (String::equalNoCase (_providerName,
+        "OOPModuleDisableFailureTestProvider"))
+    {
+        exit (-1);
+    }
+}
+
+void OOPModuleFailureTestProvider::createSubscription (
+    const OperationContext & context,
+    const CIMObjectPath & subscriptionName,
+    const Array <CIMObjectPath> & classNames,
+    const CIMPropertyList & propertyList,
+    const Uint16 repeatNotificationPolicy)
+{
+    _numSubscriptions++;
+
+    //
+    //  If I am the OOPModuleCreateFailureTestProvider, fail (i.e. exit)
+    //
+    if (String::equalNoCase (_providerName,
+        "OOPModuleCreateFailureTestProvider"))
+    {
+        exit (-1);
+    }
+
+    //
+    //  If I am the OOPModuleCreate2FailureTestProvider, and this subscription
+    //  is not my first, fail (i.e. exit)
+    //
+    else if (String::equalNoCase (_providerName,
+        "OOPModuleCreate2FailureTestProvider"))
+    {
+        if (_numSubscriptions > 1)
+        {
+            exit (-1);
+        }
+    }
+}
+
+void OOPModuleFailureTestProvider::modifySubscription (
+    const OperationContext & context,
+    const CIMObjectPath & subscriptionName,
+    const Array <CIMObjectPath> & classNames,
+    const CIMPropertyList & propertyList,
+    const Uint16 repeatNotificationPolicy)
+{
+    //
+    //  If I am the OOPModuleModifyFailureTestProvider, fail (i.e. exit)
+    //
+    if (String::equalNoCase (_providerName,
+        "OOPModuleModifyFailureTestProvider"))
+    {
+        exit (-1);
+    }
+}
+
+void OOPModuleFailureTestProvider::deleteSubscription (
+    const OperationContext & context,
+    const CIMObjectPath & subscriptionName,
+    const Array <CIMObjectPath> & classNames)
+{
+    _numSubscriptions--;
+
+    if (_numSubscriptions == 0)
+        _enabled = false;
+
+    //
+    //  If I am the OOPModuleDeleteFailureTestProvider, fail (i.e. exit)
+    //
+    if (String::equalNoCase (_providerName,
+        "OOPModuleDeleteFailureTestProvider"))
+    {
+        exit (-1);
+    }
+
+    //
+    //  If I am the OOPModuleDeleteFailureTestProvider, and there are
+    //  remaining subscriptions, fail (i.e. exit)
+    //
+    else if (String::equalNoCase (_providerName,
+        "OOPModuleDelete2FailureTestProvider"))
+    {
+        if (_numSubscriptions > 0)
+        {
+            exit (-1);
+        }
+    }
+}
+
+void OOPModuleFailureTestProvider::invokeMethod (
+    const OperationContext & context,
+    const CIMObjectPath & objectReference,
+    const CIMName & methodName,
+    const Array <CIMParamValue> & inParameters,
+    MethodResultResponseHandler & handler)
+{
+    Boolean sendIndication = false;
+    handler.processing ();
+
+    if (objectReference.getClassName ().equal ("FailureTestIndication") &&
+        _enabled)
+    {
+        if (methodName.equal ("SendTestIndication"))
+        {
+            sendIndication = true;
+            handler.deliver (CIMValue (0));
+        }
+    }
+    else
+    {
+         handler.deliver (CIMValue (1));
+         PEGASUS_STD (cout) << "Provider is not enabled." <<
+         PEGASUS_STD (endl);
+    }
+
+    handler.complete ();
+
+    if (sendIndication)
+    {
+        _generateIndication (_handler);
+    }
+
+    //
+    //  If I am the OOPModuleInvokeFailureTestProvider, fail (i.e. exit)
+    //
+    if (String::equalNoCase (_providerName,
+        "OOPModuleInvokeFailureTestProvider"))
+    {
+        if (methodName.equal ("Fail"))
+        {
+            exit (-1);
+        }
+    }
+}

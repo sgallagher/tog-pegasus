@@ -173,6 +173,16 @@ private:
     void _handleNotifyProviderEnableRequest (const Message * message);
 
     /**
+        Notifies the Indication Service that failure of a provider module that
+        included at least one indication provider has been detected.
+        The Indication Service retrieves the subscriptions served by providers
+        in the failed module.  The Indication Service returns in the response
+        the number of affected subscriptions, so the sender of the request
+        knows if any subscriptions were affected.
+     */
+    void _handleNotifyProviderFailRequest (Message * message);
+
+    /**
         Determines if it is legal to create an instance.
         Checks for existence of all key and required properties.  Checks that
         properties that MUST NOT exist (based on values of other properties),
@@ -1184,6 +1194,12 @@ private:
         Subscription classes.
      */
     Boolean _enableSubscriptionsForNonprivilegedUsers;
+
+    /**
+        Boolean indicating whether authentication is currently enabled in the
+        CIM Server.
+     */
+    Boolean _authenticationEnabled;
 
     /**
 	Gets the indication class specified by the subscription filter query.

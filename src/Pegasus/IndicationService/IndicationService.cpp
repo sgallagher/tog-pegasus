@@ -110,6 +110,7 @@ IndicationService::IndicationService (
       _cimRepository(repository)
 {
     _enableSubscriptionsForNonprivilegedUsers = false;
+    _authenticationEnabled = true;
 
     try
     {
@@ -126,6 +127,7 @@ IndicationService::IndicationService (
         }
         else
         {
+            _authenticationEnabled = false;
             // Authentication needs to be enabled to perform authorization
             // tests.
             _enableSubscriptionsForNonprivilegedUsers = true;
@@ -350,6 +352,17 @@ void IndicationService::handleEnqueue(Message* message)
          try
          {
              _handleNotifyProviderEnableRequest (message);
+         }
+         catch (...)
+         {
+             ;
+         }
+         break;
+
+      case CIM_NOTIFY_PROVIDER_FAIL_REQUEST_MESSAGE:
+         try
+         {
+             _handleNotifyProviderFailRequest (message);
          }
          catch (...)
          {
@@ -1410,7 +1423,7 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
     (const Message* message)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "IndicationService::_handleEnumerateInstancesNamesRequest");
+        "IndicationService::_handleEnumerateInstanceNamesRequest");
 
     CIMEnumerateInstanceNamesRequestMessage* request =
         (CIMEnumerateInstanceNamesRequestMessage*) message;
@@ -2879,12 +2892,12 @@ void IndicationService::_handleNotifyProviderTerminationRequest
         //
         //  Get list of affected subscriptions
         //
-        //  _subscriptionTable->getAndUpdateProviderSubscriptions also updates the
+        //  _subscriptionTable->reflectProviderDisable also updates the
         //  Active Subscriptions hash table, and implements each subscription's
         //  On Fatal Error policy, if necessary
         //
         providerSubscriptions.clear ();
-        providerSubscriptions = _subscriptionTable->getAndUpdateProviderSubscriptions
+        providerSubscriptions = _subscriptionTable->reflectProviderDisable
             (providers [i]);
 
         if (providerSubscriptions.size () > 0)
@@ -2956,8 +2969,8 @@ void IndicationService::_handleNotifyProviderEnableRequest
 
     CIMNotifyProviderEnableRequestMessage * request =
         (CIMNotifyProviderEnableRequestMessage *) message;
-        ProviderIdContainer pidc = request->operationContext.get
-            (ProviderIdContainer::NAME);
+    ProviderIdContainer pidc = request->operationContext.get
+        (ProviderIdContainer::NAME);
     CIMInstance providerModule = pidc.getModule();
     CIMInstance provider = pidc.getProvider();
     Array <CIMInstance> capabilities = request->capInstances;
@@ -3238,6 +3251,41 @@ void IndicationService::_handleNotifyProviderEnableRequest
     _enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
+}
+
+void IndicationService::_handleNotifyProviderFailRequest
+    (Message * message)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_handleNotifyProviderFailRequest");
+
+    CIMNotifyProviderFailRequestMessage * request =
+        dynamic_cast <CIMNotifyProviderFailRequestMessage *> (message);
+
+    String moduleName = request->moduleName;
+    String userName = request->userName;
+
+    //
+    //  Determine providers in module that were serving active subscriptions
+    //  and update the Active Subscriptions Table
+    //
+    Array <ActiveSubscriptionsTableEntry> providerModuleSubscriptions =
+        _subscriptionTable->reflectProviderModuleFailure
+            (moduleName, userName, _authenticationEnabled);
+
+    //
+    //  FUTURE: Attempt to recreate the subscription state
+    //
+
+    //
+    //  Send response
+    //
+    CIMResponseMessage * response = request->buildResponse ();
+    CIMNotifyProviderFailResponseMessage * failResponse =
+        (CIMNotifyProviderFailResponseMessage *) response;
+    failResponse->numSubscriptionsAffected =
+        providerModuleSubscriptions.size ();
+    _enqueueResponse (request, response);
 }
 
 Boolean IndicationService::_canCreate (
@@ -4446,7 +4494,7 @@ void IndicationService::_checkValue (
     Uint32 propPos = instance.findProperty (propertyName);
     if (propPos != PEG_NOT_FOUND)
     {
-	CIMValue propertyValue = (instance.getProperty(propPos)).getValue();
+        CIMValue propertyValue = (instance.getProperty(propPos)).getValue();
 
         if (!(propertyValue.isNull()))
         {
@@ -6366,6 +6414,15 @@ void IndicationService::_sendAsyncDeleteRequests
         return;
     }
 
+    //
+    //  Update subscription hash tables
+    //
+    _subscriptionTable->removeSubscription
+        (subscription,
+        indicationSubclasses,
+        nameSpace,
+        indicationProviders);
+
     CIMRequestMessage * aggRequest = 0;
 
     if (origRequest == 0)
@@ -6854,21 +6911,6 @@ void IndicationService::_handleDeleteResponseAggregation (
                 response->cimException.getMessage ());
         }
     }
-
-    //
-    //  Update subscription hash tables
-    //  Delete Instance, Modify Instance, or Delete Referencing or Expired
-    //  Subscription
-    //
-    CIMDeleteSubscriptionRequestMessage * request =
-        (CIMDeleteSubscriptionRequestMessage *)
-            operationAggregate->getRequest (0);
-
-    _subscriptionTable->removeSubscription
-        (request->subscriptionInstance,
-        operationAggregate->getIndicationSubclasses (),
-        request->nameSpace,
-        checkProviders);
 
     //
     //  For Delete Instance or Modify Instance request, send response

@@ -136,6 +136,8 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" UserContextCIMServerR.mof
 endif
 endif
+	@ $(ECHO) +++++ Loading OOPModuleFailureTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" FailureTestIndication.mof
 
 ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 	@ $(ECHO) +++++ EmbeddedInstanceTest provider class definitions into $(EI_DYNAMIC_TEST_NAMESPACE) and $(EI_STATIC_TEST_NAMESPACE) namespace ...
@@ -223,6 +225,8 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 	@ cimmof "-n$(INTEROPNS)" UserContextCIMServerR.mof
 endif
 endif
+	@ $(ECHO) +++++ Loading OOPModuleFailureTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmof "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" FailureTestIndication.mof
 
 ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 	@ $(ECHO) +++++ EmbeddedInstanceTest provider class definitions into $(EI_DYNAMIC_TEST_NAMESPACE) and $(EI_STATIC_TEST_NAMESPACE) namespace ...

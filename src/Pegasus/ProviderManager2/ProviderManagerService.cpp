@@ -55,7 +55,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/Constants.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
@@ -117,7 +116,8 @@ ProviderManagerService::ProviderManagerService(
     if (forceProviderProcesses)
     {
         _oopProviderManagerRouter = new OOPProviderManagerRouter(
-            indicationCallback, responseChunkCallback);
+            indicationCallback, responseChunkCallback,
+            providerModuleFailureCallback);
     }
     else
     {
@@ -126,7 +126,8 @@ ProviderManagerService::ProviderManagerService(
     }
 #else
     _oopProviderManagerRouter = new OOPProviderManagerRouter(
-        indicationCallback, responseChunkCallback);
+        indicationCallback, responseChunkCallback,
+        providerModuleFailureCallback);
 
     if (!forceProviderProcesses)
     {
@@ -657,7 +658,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             providerModule = pidc.getModule();
         }
 
-        Uint16 userContext = 0;
+        Uint16 userContext = PEGASUS_DEFAULT_PROV_USERCTXT;
         Uint32 pos = providerModule.findProperty(
             PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
         if (pos != PEG_NOT_FOUND)
@@ -778,6 +779,12 @@ ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
 }
 
 // Updates the providerModule instance and the ProviderRegistrationManager
+//
+// This method is used to update the provider module status when the module is
+// disabled or enabled.  If a Degraded status has been set (appended) to the
+// OperationalStatus, it is cleared (removed) when the module is disabled or
+// enabled.
+//
 void ProviderManagerService::_updateProviderModuleStatus(
     CIMInstance& providerModule,
     Uint16 fromStatus,
@@ -814,6 +821,15 @@ void ProviderManagerService::_updateProviderModuleStatus(
         if (operationalStatus[i-1] == fromStatus)
         {
             operationalStatus.remove(i-1);
+        }
+
+        //
+        //  If operationalStatus includes Degraded, it is removed when status is
+        //  updated
+        //
+        else if (operationalStatus [i-1] == CIM_MSE_OPSTATUS_VALUE_DEGRADED)
+        {
+            operationalStatus.remove (i-1);
         }
     }
 
@@ -936,6 +952,150 @@ static Boolean indicationThresholdReported = false;
     }
 #endif /* INDICATIONS_Q_STALL_THRESHOLD */
 
+}
+
+void ProviderManagerService::providerModuleFailureCallback
+    (const String & moduleName,
+     const String & userName,
+     Uint16 userContext)
+{
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
+        "ProviderManagerService::providerModuleFailureCallback");
+
+    if (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
+    {
+        Logger::put_l (
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "ProviderManager.OOPProviderManagerRouter."
+                "OOP_PROVIDER_MODULE_USER_CTXT_FAILURE_DETECTED", 
+            "A failure was detected in provider module $0 with"
+                " user context $1.",
+            moduleName, userName);
+    }
+    else  //  not requestor context
+    {
+        Logger::put_l (
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "ProviderManager.OOPProviderManagerRouter."
+                "OOP_PROVIDER_MODULE_FAILURE_DETECTED", 
+            "A failure was detected in provider module $0.",
+            moduleName);
+    }
+                
+    //
+    //  Create Notify Provider Fail request message
+    //
+    CIMNotifyProviderFailRequestMessage * request =
+        new CIMNotifyProviderFailRequestMessage
+            (XmlWriter::getNextMessageId (),
+            moduleName,
+            userName,
+            QueueIdStack ());
+
+    //
+    //  Send Notify Provider Fail request message to Indication Service
+    //
+    if (_indicationServiceQueueId == PEG_NOT_FOUND)
+    {
+        Array <Uint32> serviceIds;
+ 
+        providerManagerService->find_services
+            (PEGASUS_QUEUENAME_INDICATIONSERVICE, 0, 0, &serviceIds);
+        PEGASUS_ASSERT (serviceIds.size () != 0);
+
+        _indicationServiceQueueId = serviceIds [0];
+    }
+
+    request->queueIds = QueueIdStack
+        (_indicationServiceQueueId, providerManagerService->getQueueId ());
+
+    AsyncLegacyOperationStart * asyncRequest = new AsyncLegacyOperationStart
+        (providerManagerService->get_next_xid (),
+        0,
+        _indicationServiceQueueId,
+        request,
+        _indicationServiceQueueId);
+
+    AutoPtr <AsyncReply> asyncReply
+        (providerManagerService->SendWait (asyncRequest));
+
+    AutoPtr <CIMNotifyProviderFailResponseMessage> response
+        (reinterpret_cast <CIMNotifyProviderFailResponseMessage *>
+            ((dynamic_cast <AsyncLegacyOperationResult *>
+            (asyncReply.get ()))->get_result ()));
+
+    if (response->cimException.getCode () != CIM_ERR_SUCCESS)
+    {
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Unexpected exception in providerModuleFailureCallback: " +
+            response->cimException.getMessage ());
+    }
+    else
+    {
+        //
+        //  Successful response
+        //  Examine result to see if any subscriptions were affected
+        //
+        if (response->numSubscriptionsAffected > 0)
+        {
+            //
+            //  Subscriptions were affected
+            //
+
+            //
+            //  Update the provider module status to Degraded
+            //  First get the current provider module status
+            //
+            Array <Uint16> moduleStatus;
+            moduleStatus =
+                providerManagerService->_providerRegistrationManager->
+                getProviderModuleStatus (moduleName);
+
+            //
+            //  Examine the current status
+            //  If the current status does not already include Degraded,
+            //  append Degraded to the status
+            //  If the current status includes OK,
+            //  remove OK from the status
+            //
+            Boolean degradedStatus = false;
+            for (Uint32 i = 0; i < moduleStatus.size (); i++)
+            {
+                if (moduleStatus [i] == CIM_MSE_OPSTATUS_VALUE_DEGRADED)
+                {
+                    degradedStatus = true;
+                }
+                else if (moduleStatus [i] == CIM_MSE_OPSTATUS_VALUE_OK)
+                {
+                    moduleStatus.remove (i);
+                    i--;
+                }
+            }
+
+            if (!degradedStatus)
+            {
+                moduleStatus.append (CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+            }
+
+            //
+            //  Update the provider module status
+            //
+            providerManagerService->_providerRegistrationManager->
+                setProviderModuleStatus (moduleName, moduleStatus);
+
+            //
+            //  Log a warning message since subscriptions were affected
+            //
+            Logger::put_l (
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+                "ProviderManager.OOPProviderManagerRouter."
+                    "OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED", 
+                "The generation of indications by providers in module $0 "
+                "may be affected.  To ensure these providers are serving "
+                "active subscriptions, disable and then re-enable this "
+                "module using the cimprovider command.");
+        }
+    }
 }
 
 PEGASUS_NAMESPACE_END

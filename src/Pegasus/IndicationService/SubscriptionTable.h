@@ -289,8 +289,39 @@ public:
 
         @return   list of CIMInstance subscriptions
      */
-    Array <CIMInstance> getAndUpdateProviderSubscriptions (
+    Array <CIMInstance> reflectProviderDisable (
         const CIMInstance & provider);
+
+    /**
+        Retrieves a list of subscription table entries for subscriptions that
+        were being served by providers in the specified provider module, where
+        the subscription creator matches the specified provider module userName.
+        The Active Subscriptions table is updated to reflect the fact that these
+        subscriptions are no longer being served by the provider(s) in the
+        failed provider module.
+        This method is called when notification is received that the specified
+        provider module has failed.  In the Active Subscriptions table, any
+        provider in the specified provider module is removed from the list of
+        providers serving the subscription.
+        The returned list of Active Subscriptions table entries includes for
+        each subscription only those providers that are in the specified
+        (failed) provider module and therefore are no longer serving the
+        subscription.
+
+        @param    moduleName             the provider module name
+        @param    userName               the user name for the context in which
+                                           the provider module was invoked
+        @param    authenticationEnabled  indicates whether authentication is
+                                           currently enabled
+
+        @return   list of ActiveSubscriptionsTableEntry structs including the
+                  subscriptions served by providers in the specified provider
+                  module
+     */
+    Array <ActiveSubscriptionsTableEntry> reflectProviderModuleFailure (
+        const String & moduleName,
+        const String & userName,
+        Boolean authenticationEnabled);
 
     /**
         Determines if the specified provider is in the list of providers
@@ -429,6 +460,21 @@ private:
      */
     void _removeSubscriptionClassesEntry (
         const String & key);
+
+    /**
+        Updates the providers for an entry in the Active Subscriptions table.
+        The caller must first lock the _activeSubscriptionsTableLock for write
+        access.
+
+        @param   activeSubscriptionsKey  the key of the entry to update
+        @param   subscription            the subscription instance for the entry
+        @param   updatedProviderList     the updated list of providers for the
+                                           entry (may be empty)
+     */
+    void _updateSubscriptionProviders (
+        const CIMObjectPath & activeSubscriptionsKey,
+        const CIMInstance & subscription,
+        const Array <ProviderClassList> & updatedProviderList);
 
     /**
         Active Subscriptions information table.  Access to this table is

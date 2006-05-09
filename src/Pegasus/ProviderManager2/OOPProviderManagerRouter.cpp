@@ -128,8 +128,10 @@ public:
     ProviderAgentContainer(
         const String & moduleName,
         const String & userName,
+        Uint16 userContext,
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
+        PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback,
         Boolean subscriptionInitComplete);
 
     ~ProviderAgentContainer();
@@ -225,6 +227,12 @@ private:
     String _userName;
 
     /**
+        User Context setting of the provider module served by this Provider
+        Agent.
+     */
+    Uint16 _userContext;
+
+    /**
         Callback function to which all generated indications are sent for
         processing.
      */
@@ -234,6 +242,12 @@ private:
         Callback function to which response chunks are sent for processing.
      */
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T _responseChunkCallback;
+
+    /**
+        Callback function to be called upon detection of failure of a
+        provider module.
+     */
+    PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T _providerModuleFailCallback;
 
     /**
         Indicates whether the Provider Agent is active.
@@ -325,13 +339,17 @@ CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
 ProviderAgentContainer::ProviderAgentContainer(
     const String & moduleName,
     const String & userName,
+    Uint16 userContext,
     PEGASUS_INDICATION_CALLBACK_T indicationCallback,
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
+    PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback,
     Boolean subscriptionInitComplete)
     : _moduleName(moduleName),
       _userName(userName),
+      _userContext(userContext),
       _indicationCallback(indicationCallback),
       _responseChunkCallback(responseChunkCallback),
+      _providerModuleFailCallback(providerModuleFailCallback),
       _isInitialized(false),
       _subscriptionInitComplete(subscriptionInitComplete)
 {
@@ -520,7 +538,7 @@ void ProviderAgentContainer::_startAgentProcess()
     }
 #elif defined (PEGASUS_OS_OS400)
 
-    //Out of provider support for OS400 goes here when needed.
+    //Out of process provider support for OS400 goes here when needed.
 
 #else
 
@@ -903,24 +921,6 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
         // connection
         //
         {
-            //
-            //  If not a clean shutdown, log a warning message in case module
-            //  included indication providers
-            //
-            if (!cleanShutdown)
-            {
-                Logger::put_l(
-                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                    "ProviderManager.OOPProviderManagerRouter."
-                        "OOP_PROVIDER_MODULE_FAILURE_DETECTED", 
-                    "A failure was detected in provider module $0.  The"
-                        " generation of indications by providers in this module"
-                        " may be affected.  To ensure these providers are"
-                        " serving active subscriptions, disable and then"
-                        " re-enable this module using the cimprovider command.",
-                    _moduleName);
-            }
-
             AutoMutex tableLock(_outstandingRequestTableMutex);
 
             CIMResponseMessage* response =
@@ -938,6 +938,21 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
             }
 
             _outstandingRequestTable.clear();
+
+            //
+            //  If not a clean shutdown, call the provider module failure
+            //  callback
+            //
+            if (!cleanShutdown)
+            {
+                //
+                //  Call the provider module failure callback to
+                //  communicate the failure to the Provider Manager Service
+                //  Provider Manager Service will inform Indication Service  
+                //
+                _providerModuleFailCallback (_moduleName, _userName,
+                    _userContext);
+            }
         }
     }
     catch (...)
@@ -1389,13 +1404,15 @@ ProviderAgentContainer::_responseProcessor(void* arg)
 
 OOPProviderManagerRouter::OOPProviderManagerRouter(
     PEGASUS_INDICATION_CALLBACK_T indicationCallback,
-    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
+    PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "OOPProviderManagerRouter::OOPProviderManagerRouter");
 
     _indicationCallback = indicationCallback;
     _responseChunkCallback = responseChunkCallback;
+    _providerModuleFailCallback = providerModuleFailCallback;
     _subscriptionInitComplete = false;
 
     PEG_METHOD_EXIT();
@@ -1653,80 +1670,12 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
     }
     else
     {
-        // Retrieve the provider module name
-        String moduleName;
-        CIMValue nameValue = providerModule.getProperty(
-            providerModule.findProperty("Name")).getValue();
-        nameValue.get(moduleName);
-
-        // Retrieve the provider user context configuration
-        Uint16 userContext = 0;
-        Uint32 pos = providerModule.findProperty(
-            PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
-        if (pos != PEG_NOT_FOUND)
-        {
-            CIMValue userContextValue =
-                providerModule.getProperty(pos).getValue();
-            if (!userContextValue.isNull())
-            {
-                userContextValue.get(userContext);
-            }
-        }
-
-        if (userContext == 0)
-        {
-            userContext = PG_PROVMODULE_USERCTXT_PRIVILEGED;
-        }
-
-        String userName;
-
-        if (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
-        {
-            try
-            {
-                // User Name is in the OperationContext
-                IdentityContainer ic = (IdentityContainer)
-                    request->operationContext.get(IdentityContainer::NAME);
-                userName = ic.getUserName();
-            }
-            catch (Exception&)
-            {
-                // If no IdentityContainer is present, default to the CIM
-                // Server's user context
-            }
-
-            // If authentication is disabled, use the CIM Server's user context
-            if (!userName.size())
-            {
-                userName = System::getEffectiveUserName();
-            }
-        }
-        else if (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED)
-        {
-            // Retrieve the provider module name
-            providerModule.getProperty(providerModule.findProperty(
-                PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER)).getValue().
-                get(userName);
-        }
-        else if (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER)
-        {
-            userName = System::getEffectiveUserName();
-        }
-        else    // Privileged User
-        {
-            PEGASUS_ASSERT(userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED);
-            userName = System::getPrivilegedUserName();
-        }
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Module name = " + moduleName);
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "User context = %hd.", userContext);
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "User name = " + userName);
-
-        // Look up the Provider Agent for this module and user
-        ProviderAgentContainer* pa = _lookupProviderAgent(moduleName, userName);
+        //
+        // Look up the Provider Agent for this module instance and requesting
+        // user
+        //
+        ProviderAgentContainer* pa = _lookupProviderAgent(providerModule,
+            request);
         PEGASUS_ASSERT(pa != 0);
 
         //
@@ -1742,9 +1691,81 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
 }
 
 ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
-    const String& moduleName,
-    const String& userName)
+    const CIMInstance& providerModule,
+    CIMRequestMessage* request)
 {
+    // Retrieve the provider module name
+    String moduleName;
+    CIMValue nameValue = providerModule.getProperty(
+        providerModule.findProperty("Name")).getValue();
+    nameValue.get(moduleName);
+
+    // Retrieve the provider user context configuration
+    Uint16 userContext = 0;
+    Uint32 pos = providerModule.findProperty(
+        PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
+    if (pos != PEG_NOT_FOUND)
+    {
+        CIMValue userContextValue =
+            providerModule.getProperty(pos).getValue();
+        if (!userContextValue.isNull())
+        {
+            userContextValue.get(userContext);
+        }
+    }
+
+    if (userContext == 0)
+    {
+        userContext = PEGASUS_DEFAULT_PROV_USERCTXT;
+    }
+
+    String userName;
+
+    if (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
+    {
+        try
+        {
+            // User Name is in the OperationContext
+            IdentityContainer ic = (IdentityContainer)
+                request->operationContext.get(IdentityContainer::NAME);
+            userName = ic.getUserName();
+        }
+        catch (Exception&)
+        {
+            // If no IdentityContainer is present, default to the CIM
+            // Server's user context
+        }
+
+        // If authentication is disabled, use the CIM Server's user context
+        if (!userName.size())
+        {
+            userName = System::getEffectiveUserName();
+        }
+    }
+    else if (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED)
+    {
+        // Retrieve the provider module designated user property value
+        providerModule.getProperty(providerModule.findProperty(
+            PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER)).getValue().
+            get(userName);
+    }
+    else if (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER)
+    {
+        userName = System::getEffectiveUserName();
+    }
+    else    // Privileged User
+    {
+        PEGASUS_ASSERT(userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED);
+        userName = System::getPrivilegedUserName();
+    }
+
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Module name = " + moduleName);
+    Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "User context = %hd.", userContext);
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "User name = " + userName);
+
     ProviderAgentContainer* pa = 0;
     String key = moduleName + ":" + userName;
 
@@ -1752,7 +1773,9 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
     if (!_providerAgentTable.lookup(key, pa))
     {
         pa = new ProviderAgentContainer(
-            moduleName, userName, _indicationCallback, _responseChunkCallback,
+            moduleName, userName, userContext,
+            _indicationCallback, _responseChunkCallback,
+            _providerModuleFailCallback,
             _subscriptionInitComplete);
         _providerAgentTable.insert(key, pa);
     }

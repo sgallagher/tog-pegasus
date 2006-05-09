@@ -473,6 +473,17 @@ CIMResponseMessage* CIMNotifyProviderEnableRequestMessage::buildResponse() const
     return response.release();
 }
 
+CIMResponseMessage* CIMNotifyProviderFailRequestMessage::buildResponse() const
+{
+    AutoPtr<CIMNotifyProviderFailResponseMessage> response(
+        new CIMNotifyProviderFailResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
+    response->syncAttributes(this);
+    return response.release();
+}
+
 CIMResponseMessage* CIMStopAllProvidersRequestMessage::buildResponse() const
 {
     AutoPtr<CIMStopAllProvidersResponseMessage> response(

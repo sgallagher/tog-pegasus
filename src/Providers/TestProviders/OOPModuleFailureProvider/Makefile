@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#//
+#// 
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,75 +28,21 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-# Recurse the directories defined in DIRS
-# This makefile simply recurses all of the toplevel provider directories
+ROOT = ../../../..
 
-ROOT = ../../..
+DIR = Providers/TestProviders/OOPModuleFailureTestProvider
 
 include $(ROOT)/mak/config.mak
 
-#Directories to recurse
-DIRS = \
-	AlertIndicationProvider \
-	ClientProvider \
-	CLITestProvider \
-	CLITestProvider/tests \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	IndicationStressTestProvider/testconsumer \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	OOPModuleFailureProvider \
-	OOPModuleFailureProvider/testclient \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient \
-	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient
+LIBRARY = OOPModuleFailureTestProvider
 
-ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-DIRS += \
-	EmbeddedInstanceProvider \
-	EmbeddedInstanceProvider/testClient
-endif
+LIBRARIES = \
+	pegprovider \
+	pegcommon 
 
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-DIRS += \
-	CMPI/TestUtilLib \
-	CMPI/TestMethod \
-	CMPI/TestMethod/tests \
-	CMPI/TestFail_1 \
-	CMPI/TestFail_1/tests \
-	CMPI/TestFail_2 \
-	CMPI/TestFail_2/tests\
-	CMPI/TestFail_3 \
-	CMPI/TestFail_3/tests \
-	CMPI/TestFail_4 \
-	CMPI/TestFail_4/tests \
-	CMPI/TestProviderThreaded \
-	CMPI/TestProviderThreaded/tests
+SOURCES = \
+   OOPModuleFailureTestProvider.cpp
 
-ifndef PEGASUS_DISABLE_CQL
-DIRS += \
-	CMPI/TestIndications \
-	CMPI/TestIndications/tests
+include $(ROOT)/mak/library.mak
 
-ifdef PEGASUS_ENABLE_EXECQUERY
-DIRS += \
-	CMPI/TestExecQuery \
-	CMPI/TestExecQuery/tests
-endif
-endif
-endif
-
-include $(ROOT)/mak/recurse.mak
+tests:

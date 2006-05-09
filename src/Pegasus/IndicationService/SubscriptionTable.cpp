@@ -159,11 +159,11 @@ Array <CIMInstance> SubscriptionTable::getMatchingSubscriptions (
     return matchingSubscriptions;
 }
 
-Array <CIMInstance> SubscriptionTable::getAndUpdateProviderSubscriptions (
+Array <CIMInstance> SubscriptionTable::reflectProviderDisable (
     const CIMInstance & provider)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "SubscriptionTable::getAndUpdateProviderSubscriptions");
+        "SubscriptionTable::reflectProviderDisable");
 
     Array <CIMInstance> providerSubscriptions;
 
@@ -230,40 +230,9 @@ Array <CIMInstance> SubscriptionTable::getAndUpdateProviderSubscriptions (
                 if (providerIndex != PEG_NOT_FOUND)
                 {
                     tableValue.providers.remove (providerIndex);
-                    if (tableValue.providers.size () > 0)
-                    {
-                        //
-                        //  At least one provider is still serving the
-                        //  subscription
-                        //  Update entry in Active Subscriptions table
-                        //
-                        _removeActiveSubscriptionsEntry
-                            (activeSubscriptionsKey);
-                        _insertActiveSubscriptionsEntry
-                            (tableValue.subscription, tableValue.providers);
-                    }
-                    else
-                    {
-                        //
-                        //  If the terminated provider was the only provider
-                        //  serving the subscription, implement the
-                        //  subscription's On Fatal Error Policy
-                        //
-                        Boolean removedOrDisabled =
-                            _subscriptionRepository->reconcileFatalError
-                                (tableValue.subscription);
-                        _removeActiveSubscriptionsEntry
-                            (activeSubscriptionsKey);
-                        if (!removedOrDisabled)
-                        {
-                            //
-                            //  If subscription was not disabled or deleted
-                            //  Update entry in Active Subscriptions table
-                            //
-                            _insertActiveSubscriptionsEntry
-                                (tableValue.subscription, tableValue.providers);
-                        }
-                    }
+
+                    _updateSubscriptionProviders (activeSubscriptionsKey,
+                        tableValue.subscription, tableValue.providers);
                 }
                 else
                 {
@@ -291,6 +260,159 @@ Array <CIMInstance> SubscriptionTable::getAndUpdateProviderSubscriptions (
 
     PEG_METHOD_EXIT ();
     return providerSubscriptions;
+}
+
+Array <ActiveSubscriptionsTableEntry>
+SubscriptionTable::reflectProviderModuleFailure
+    (const String & moduleName,
+     const String & userName,
+     Boolean authenticationEnabled)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "SubscriptionTable::reflectProviderModuleFailure");
+
+    Array <ActiveSubscriptionsTableEntry> providerModuleSubscriptions;
+
+    //
+    //  Iterate through the subscription table to find subscriptions served by
+    //  a provider in the specified module, with the specified userName as the
+    //  subscription creator
+    //  NOTE: updating entries (remove and insert) while iterating through the
+    //  table is not allowed
+    //  The SubscriptionTable first iterates through the active subscriptions
+    //  table to find matching subscriptions served by a provider in the
+    //  specified module, then looks up and updates each affected subscription
+    //
+    {
+        //
+        //  Acquire and hold the write lock during the entire
+        //  lookup/remove/insert process, allowing competing threads to apply
+        //  their logic over a consistent view of the data.
+        //  Do not call any other methods that need 
+        //  _activeSubscriptionsTableLock.
+        //
+        WriteLock lock (_activeSubscriptionsTableLock);
+
+        for (ActiveSubscriptionsTable::Iterator i =
+            _activeSubscriptionsTable.start (); i; i++)
+        {
+            ActiveSubscriptionsTableEntry tableValue;
+            //
+            //  Get subscription creator
+            //
+            tableValue = i.value ();
+            String creator;
+            CIMValue creatorValue = tableValue.subscription.getProperty
+                (tableValue.subscription.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue();
+            creatorValue.get (creator);
+
+            Array <ProviderClassList> failedProviderList;
+            for (Uint32 j = 0; j < tableValue.providers.size (); j++)
+            {
+                //
+                //  Get provider module name
+                //
+                String providerModuleName;
+                CIMValue nameValue =
+                    tableValue.providers [j].providerModule.getProperty
+                    (tableValue.providers [j].providerModule.findProperty
+                    (_PROPERTY_NAME)).getValue ();
+                nameValue.get (providerModuleName);
+
+                //
+                //  Get module user context setting
+                //
+                Uint16 moduleContext = PEGASUS_DEFAULT_PROV_USERCTXT;
+                CIMValue contextValue = 
+                    tableValue.providers [j].providerModule.getProperty
+                    (tableValue.providers [j].providerModule.findProperty
+                    (PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT)).getValue ();
+                if (!contextValue.isNull ())
+                {
+                    contextValue.get (moduleContext);
+                }
+
+                //
+                //  If provider module name matches, 
+                //  add provider to the list of failed providers
+                //
+                if (providerModuleName == moduleName)
+                {
+                    //
+                    //  If authentication is enabled, and module was run as
+                    //  requestor, subscription creator must also match module
+                    //  user context name, to add provider to the list of
+                    //  failed providers
+                    //
+                    if ((moduleContext != PG_PROVMODULE_USERCTXT_REQUESTOR) ||
+                        (!authenticationEnabled) || (creator == userName))
+                    {
+                        //
+                        //  Add the provider to the list
+                        //
+                        failedProviderList.append
+                            (tableValue.providers [j]);
+                    }
+                }  //  if provider module name matches
+            }  //  for each subscription provider
+
+            //
+            //  If there were any failed providers, add the subscription
+            //  entry to the list of affected subscriptions
+            //
+            if (failedProviderList.size () > 0)
+            {
+                ActiveSubscriptionsTableEntry subscription;
+                subscription.subscription = tableValue.subscription;
+                subscription.providers = failedProviderList;
+                providerModuleSubscriptions.append (subscription);
+            }
+        }
+
+        //
+        //  Look up and update hash table entry for each affected subscription
+        //
+        for (Uint32 k = 0; k < providerModuleSubscriptions.size (); k++)
+        {
+            //
+            //  Update the entry in the active subscriptions hash table
+            //
+            CIMObjectPath activeSubscriptionsKey =
+                _generateActiveSubscriptionsKey
+                    (providerModuleSubscriptions [k].subscription.getPath ());
+            ActiveSubscriptionsTableEntry tableValue;
+            if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey,
+                tableValue))
+            {
+                Array <ProviderClassList> updatedProviderList;    
+                for (Uint32 l = 0; l < tableValue.providers.size (); l++)
+                {
+                    String providerModuleName;
+                    CIMValue nameValue =
+                        tableValue.providers [l].providerModule.getProperty
+                        (tableValue.providers [l].providerModule.findProperty
+                        (_PROPERTY_NAME)).getValue ();
+                    nameValue.get (providerModuleName);
+                    if (providerModuleName != moduleName)
+                    {
+                        //
+                        //  Provider is not in the failed module
+                        //  Append provider to list of providers still serving
+                        //  the subscription
+                        //
+                        updatedProviderList.append (tableValue.providers [l]);
+                    }
+                }
+
+                _updateSubscriptionProviders (activeSubscriptionsKey,
+                    tableValue.subscription, updatedProviderList);
+            }
+        }
+    }
+
+    PEG_METHOD_EXIT ();
+    return providerModuleSubscriptions;
 }
 
 CIMObjectPath SubscriptionTable::_generateActiveSubscriptionsKey (
@@ -490,6 +612,51 @@ void SubscriptionTable::_removeSubscriptionClassesEntry (
     PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3,
         "REMOVED _subscriptionClassesTable entry: " + key);
 #endif
+
+    PEG_METHOD_EXIT ();
+}
+
+void SubscriptionTable::_updateSubscriptionProviders
+    (const CIMObjectPath & activeSubscriptionsKey,
+     const CIMInstance & subscription,
+     const Array <ProviderClassList> & updatedProviderList)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "SubscriptionTable::_updateSubscriptionProviders");
+
+    if (updatedProviderList.size () > 0)
+    {
+        //
+        //  At least one provider is still serving the
+        //  subscription
+        //  Update entry in Active Subscriptions table
+        //
+        _removeActiveSubscriptionsEntry (activeSubscriptionsKey);
+        _insertActiveSubscriptionsEntry (subscription, updatedProviderList);
+    }
+    else
+    {
+        //
+        //  The disabled or failed provider(s) was (were) the only provider(s)
+        //  serving the subscription
+        //  Implement the subscription's On Fatal Error Policy
+        //
+        Boolean removedOrDisabled =
+            _subscriptionRepository->reconcileFatalError (subscription);
+        _removeActiveSubscriptionsEntry (activeSubscriptionsKey);
+        if (!removedOrDisabled)
+        {
+            //
+            //  If subscription was not disabled or deleted
+            //  Update entry in Active Subscriptions table
+            //  Note that in this case the updatedProviderList is
+            //  empty - no providers are serving the subscription
+            //  currently
+            //
+            _insertActiveSubscriptionsEntry (subscription,
+                updatedProviderList);
+        }
+    }
 
     PEG_METHOD_EXIT ();
 }

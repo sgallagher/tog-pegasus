@@ -464,6 +464,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 
 // Constants defining the operational status of a CIM_ManagedSystemElement
 #define CIM_MSE_OPSTATUS_VALUE_OK 2
+#define CIM_MSE_OPSTATUS_VALUE_DEGRADED 3
 #define CIM_MSE_OPSTATUS_VALUE_STOPPING 9
 #define CIM_MSE_OPSTATUS_VALUE_STOPPED 10
 
@@ -472,6 +473,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #define PG_PROVMODULE_USERCTXT_DESIGNATED 3
 #define PG_PROVMODULE_USERCTXT_PRIVILEGED 4
 #define PG_PROVMODULE_USERCTXT_CIMSERVER 5
+#define PEGASUS_DEFAULT_PROV_USERCTXT PG_PROVMODULE_USERCTXT_PRIVILEGED
 
 // Standard Pegasus Global Prefix.
 // This prefix is used as the basis for pegasus defined classes

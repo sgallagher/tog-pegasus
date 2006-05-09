@@ -55,7 +55,9 @@ public class JMPIQueryExp
    {
       if (elm instanceof CIMInstance)
       {
-         return _applyInstance (ciSelectExp, elm.cInst ());
+         CIMInstance ci = (CIMInstance)elm;
+
+         return _applyInstance (ciSelectExp, ci.cInst ());
       }
       else if (elm instanceof CIMClass)
       {

@@ -39,7 +39,7 @@ package org.pegasus.jmpi;
 
 public class CIMMethod {
 
-   int cInst;
+   private int cInst;
 
    private native int  _getType  (int p);
    private native void _finalize (int cInst);
@@ -47,6 +47,11 @@ public class CIMMethod {
    protected void finalize ()
    {
       _finalize(cInst);
+   }
+
+   protected int cInst ()
+   {
+      return cInst;
    }
 
    public CIMMethod (int p)

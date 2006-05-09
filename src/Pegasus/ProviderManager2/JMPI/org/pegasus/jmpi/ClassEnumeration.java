@@ -41,12 +41,17 @@ package org.pegasus.jmpi;
 import java.util.*;
 
 class ClassEnumeration implements Enumeration {
-   int cInst;
-   int cur,max;
+   private int cInst;
+   private int cur,max;
    
    private native int _getClass(int cInst, int pos);
    private native int _size(int cInst);
    
+   protected int cInst ()
+   {
+      return cInst;
+   }
+
    ClassEnumeration(int ci) {
       cInst=ci;
       max=_size(ci);

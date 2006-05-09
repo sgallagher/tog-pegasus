@@ -40,7 +40,8 @@ package org.pegasus.jmpi;
 
 public class CIMArgument
 {
-   int cInst;
+   private int cInst;
+
    private native int     _new();
    private native int     _newS(String name);
    private native int     _newSV(String name,int v);
@@ -63,7 +64,7 @@ public class CIMArgument
       cInst=ci;
    }
 
-   int cInst() {
+   protected int cInst() {
       return cInst;
    }
 
@@ -76,7 +77,7 @@ public class CIMArgument
    }
 
    public CIMArgument(String name, CIMValue cv) {
-      cInst=_newSV(name,cv.cInst);
+      cInst=_newSV(name,cv.cInst ());
    }
 
    public CIMValue getValue() {
@@ -96,7 +97,7 @@ public class CIMArgument
    }
 
    public void setType(CIMDataType dt) {
-       cInst=_setType(cInst,dt.cInst);
+       cInst=_setType(cInst,dt.cInst ());
    }
 
    public String toString() {
@@ -104,7 +105,7 @@ public class CIMArgument
    }
 
    public void setValue(CIMValue v) {
-      _setValue(cInst,v.cInst);
+      _setValue(cInst,v.cInst ());
    }
 
    public CIMQualifier getQualifier(String n) {

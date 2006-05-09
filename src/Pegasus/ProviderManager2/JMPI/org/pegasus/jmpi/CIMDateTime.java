@@ -45,7 +45,7 @@ import java.util.TimeZone;
  */
 public class CIMDateTime {
 
-   int cInst;
+   private int cInst;
 
    private native int     _datetime      (String n);
    private native int     _datetimeempty ();
@@ -61,6 +61,11 @@ public class CIMDateTime {
    protected void finalize()
    {
       _finalize(cInst);
+   }
+
+   protected int cInst ()
+   {
+      return cInst;
    }
 
    CIMDateTime (int ci)
@@ -98,12 +103,12 @@ public class CIMDateTime {
 
    public boolean after (CIMDateTime d)
    {
-      return _after(cInst, d.cInst);
+      return _after(cInst, d.cInst ());
    }
 
    public boolean before (CIMDateTime d)
    {
-      return _before(cInst, d.cInst);
+      return _before(cInst, d.cInst ());
    }
 
    private String getDateString (java.util.Date d)

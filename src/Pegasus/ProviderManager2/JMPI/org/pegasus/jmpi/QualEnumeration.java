@@ -41,12 +41,17 @@ package org.pegasus.jmpi;
 import java.util.*;
 
 class QualEnumeration implements Enumeration {
-   int cInst;
-   int cur,max;
+   private int cInst;
+   private int cur,max;
    
    private native int _getQualifierType(int cInst, int pos);
    private native int _size(int cInst);
    
+   protected int cInst ()
+   {
+      return cInst;
+   }
+
    QualEnumeration(int ci) {
       cInst=ci;
       max=_size(ci);

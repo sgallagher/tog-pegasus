@@ -36,10 +36,10 @@ package org.pegasus.jmpi;
 
 public class CIMObject
 {
-    int         cInst;
-    boolean     fIsClass;
-    CIMClass    cimClass;
-    CIMInstance cimInstance;
+    private int         cInst;
+    private boolean     fIsClass;
+    private CIMClass    cimClass;
+    private CIMInstance cimInstance;
 
     private native int  _newClass               (int cInst);
     private native int  _newInstance            (int cInst);
@@ -50,9 +50,14 @@ public class CIMObject
        _finalize (cInst);
     }
 
+    protected int cInst ()
+    {
+       return cInst;
+    }
+
     public CIMObject (CIMClass cc)
     {
-        cInst       = _newClass (cc.cInst);
+        cInst       = _newClass (cc.cInst ());
         fIsClass    = true;
         cimClass    = cc;
         cimInstance = null;
@@ -60,7 +65,7 @@ public class CIMObject
 
     public CIMObject (CIMInstance ci)
     {
-        cInst       = _newInstance (ci.cInst);
+        cInst       = _newInstance (ci.cInst ());
         fIsClass    = false;
         cimClass    = null;
         cimInstance = ci;

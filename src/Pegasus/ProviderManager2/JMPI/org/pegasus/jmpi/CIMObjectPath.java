@@ -41,7 +41,8 @@ import java.util.*;
 
 public class CIMObjectPath
 {
-   int cInst;
+   private int cInst;
+
    private native int    _new();
    private native int    _newCn(String cn);
    private native int    _newCnNs(String cn, String ns);
@@ -66,7 +67,7 @@ public class CIMObjectPath
       cInst=ci;
    }
    
-   int cInst() {
+   protected int cInst() {
       return cInst;
    }
    
@@ -134,7 +135,7 @@ public class CIMObjectPath
    }
    
    public void addKey(String key, CIMValue val) { 
-      _addKey(cInst,key,val.cInst);
+      _addKey(cInst,key,val.cInst ());
    }
    
    public String toString() {

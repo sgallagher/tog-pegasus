@@ -38,10 +38,9 @@ package org.pegasus.jmpi;
 
 public interface CIMElement
 {
-    public int    cInst     ();
-    public String getName   ();
-    public void   setName   (String     iname);
-    public String toString  ();
+    public    String getName   ();
+    public    void   setName   (String     iname);
+    public    String toString  ();
 
 ////public boolean equals   (Object     rhs);
 ////public boolean lessThan (CIMElement rhs);

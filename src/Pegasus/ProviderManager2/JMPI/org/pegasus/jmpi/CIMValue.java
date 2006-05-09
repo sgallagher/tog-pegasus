@@ -42,7 +42,7 @@ import java.math.BigInteger;
 
 public class CIMValue
 {
-   int cInst;
+   private int cInst;
 
    private native int     _byte          (short   v,    boolean unsigned);
    private native int     _short         (int     v,    boolean unsigned);
@@ -218,7 +218,7 @@ public class CIMValue
             int c[]=new int[size];
 
             for (int i=0; i<size; i++)
-               c[i]=((CIMObjectPath)v.elementAt (i)).cInst;
+               c[i]=((CIMObjectPath)v.elementAt (i)).cInst ();
 
             cInst = _copArray (c);
          }
@@ -227,7 +227,7 @@ public class CIMValue
              int c[]=new int[size];
 
              for (int i=0; i<size; i++)
-                c[i]=((CIMDateTime)v.elementAt (i)).cInst;
+                c[i]=((CIMDateTime)v.elementAt (i)).cInst ();
 
              cInst = _datetimeArray (c);
          }
@@ -236,7 +236,7 @@ public class CIMValue
              int c[]=new int[size];
 
              for (int i=0; i<size; i++)
-                c[i]=((CIMObject)v.elementAt (i)).cInst;
+                c[i]=((CIMObject)v.elementAt (i)).cInst ();
 
              cInst = _objectArray (c);
          }
@@ -303,11 +303,11 @@ public class CIMValue
       }
       else if (o instanceof CIMObjectPath)
       {
-         cInst = _cop(((CIMObjectPath)o).cInst);
+         cInst = _cop(((CIMObjectPath)o).cInst ());
       }
       else if (o instanceof CIMDateTime)
       {
-         cInst = _datetime(((CIMDateTime)o).cInst);
+         cInst = _datetime(((CIMDateTime)o).cInst ());
       }
       else if (o instanceof Character)
       {
@@ -315,7 +315,7 @@ public class CIMValue
       }
       else if (o instanceof CIMObject)
       {
-         cInst = _object(((CIMObject)o).cInst);
+         cInst = _object(((CIMObject)o).cInst ());
       }
 
       if (cInst==-1)
@@ -343,9 +343,7 @@ public class CIMValue
       if (nv == null)
          return;
 
-      cInst = nv.cInst;
-
-      nv.cInst = 0; // @TBD - memory leak?
+      cInst = nv.cInst ();
    }
 
    public Object getValue () throws CIMException
@@ -674,7 +672,7 @@ public class CIMValue
       return _toString (cInst);
    }
 
-   public int cInst ()
+   protected int cInst ()
    {
       return cInst;
    }

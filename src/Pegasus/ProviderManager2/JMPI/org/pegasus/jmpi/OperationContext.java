@@ -67,6 +67,11 @@ public class OperationContext
 
    private native Object _get (int cInst, String container, String key);
 
+   protected int cInst ()
+   {
+      return cInst;
+   }
+
    public OperationContext (int cInst)
    {
       this.cInst = cInst;

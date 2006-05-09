@@ -41,13 +41,18 @@ import java.util.*;
 
 class InstEnumeration implements Enumeration
 {
-   int cInst;
-   int cur;
-   int max;
+   private int cInst;
+   private int cur;
+   private int max;
    
    private native int _getInstance (int cInst, int pos);
    private native int _size        (int cInst);
    
+   protected int cInst ()
+   {
+      return cInst;
+   }
+
    InstEnumeration (int ci)
    {
       cInst = ci;

@@ -64,9 +64,10 @@ public class JMPISelectList
    {
       if (elm instanceof CIMInstance)
       {
-         int ciInst = 0;
+         CIMInstance ci     = (CIMInstance)elm;
+         int         ciInst = 0;
 
-         ciInst = _applyInstance (ciSelectExp, elm.cInst ());
+         ciInst = _applyInstance (ciSelectExp, ci.cInst ());
 
          if (ciInst != 0)
          {
@@ -75,9 +76,10 @@ public class JMPISelectList
       }
       else if (elm instanceof CIMClass)
       {
-         int ciClass = 0;
+         CIMClass cc      = (CIMClass)elm;
+         int      ciClass = 0;
 
-         ciClass = _applyClass (ciSelectExp, elm.cInst ());
+         ciClass = _applyClass (ciSelectExp, cc.cInst ());
 
          if (ciClass != 0)
          {

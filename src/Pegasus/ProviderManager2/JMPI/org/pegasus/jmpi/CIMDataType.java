@@ -91,7 +91,7 @@ public class CIMDataType
 
    public static final int  REFERENCE      = OTHER + 1;
 
-   int cInst;
+   private int cInst;
 
    private native int     _new             (int    type);
    private native int     _newAr           (int    type,
@@ -109,6 +109,11 @@ public class CIMDataType
    protected void finalize ()
    {
       _finalize (cInst);
+   }
+
+   protected int cInst ()
+   {
+      return cInst;
    }
 
    CIMDataType (int     ci,

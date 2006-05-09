@@ -39,7 +39,7 @@ package org.pegasus.jmpi;
 
 public class CIMProperty
 {
-    int cInst;
+    private int cInst;
 
     private native int     _getValue        (int p);
     private native String  _getName         (int v);
@@ -65,7 +65,7 @@ public class CIMProperty
        cInst = ci;
     }
 
-    int cInst () {
+    protected int cInst () {
        return cInst;
     }
 
@@ -76,10 +76,10 @@ public class CIMProperty
     public CIMProperty (String name, CIMValue cv) {
         cInst = -1;
 
-        if (cv.cInst == -1)
+        if (cv.cInst () == -1)
        	    return;
 
-        cInst = _property (name, cv.cInst);
+        cInst = _property (name, cv.cInst ());
     }
 
     public CIMValue getValue () {
@@ -118,10 +118,10 @@ public class CIMProperty
     }
 
     public void setType (CIMDataType dt) {
-        if (cInst == -1 || dt.cInst == -1)
+        if (cInst == -1 || dt.cInst () == -1)
             return;
 
-        cInst=_setType (cInst, dt.cInst);
+        cInst=_setType (cInst, dt.cInst ());
     }
 
     public String getRefClassName () {
@@ -139,27 +139,27 @@ public class CIMProperty
     }
 
     public void setValue (CIMValue v) {
-        if (cInst == -1 || v.cInst == -1)
+        if (cInst == -1 || v.cInst () == -1)
             return;
 
-        _setValue (cInst, v.cInst);
+        _setValue (cInst, v.cInst ());
     }
     
     public void addValue (CIMValue v) {
-        if (cInst == -1 || v.cInst == -1)
+        if (cInst == -1 || v.cInst () == -1)
             return;
 
         if (!_isArray (cInst))
            return;
 
-        _addValue (cInst, v.cInst);
+        _addValue (cInst, v.cInst ());
     }
 
     public void addQualifier (CIMQualifier q) {
-        if (cInst == -1 || q.cInst == -1)
+        if (cInst == -1 || q.cInst () == -1)
             return;
 
-        _addQualifier (cInst, q.cInst);
+        _addQualifier (cInst, q.cInst ());
     }
 
     public boolean isArray () {

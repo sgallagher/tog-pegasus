@@ -39,7 +39,7 @@ package org.pegasus.jmpi;
 
 public class CIMQualifierType
 {
-   int cInst;
+   private int cInst;
 
    private native int    _new      ();
    private native String _getName  (int    qt);
@@ -52,6 +52,11 @@ public class CIMQualifierType
    protected void finalize ()
    {
       _finalize(cInst);
+   }
+
+   protected int cInst ()
+   {
+      return cInst;
    }
 
    CIMQualifierType (int qt)
@@ -76,7 +81,7 @@ public class CIMQualifierType
 
    public void setValue (CIMValue v)
    {
-      _setValue(cInst,v.cInst);
+      _setValue(cInst,v.cInst ());
    }
 
    public void setDefaultValue (CIMValue v)

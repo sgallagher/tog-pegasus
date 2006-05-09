@@ -50,6 +50,11 @@ public class SelectExp
       _finalize (cInst);
    }
 
+   protected int cInst ()
+   {
+      return cInst;
+   }
+
    protected SelectExp (int ci)
    {
       cInst = ci;

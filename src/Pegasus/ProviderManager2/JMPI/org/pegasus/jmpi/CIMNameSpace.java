@@ -42,7 +42,7 @@ public class CIMNameSpace {
    static public final int DEFAULT_PORT=5988;
    static public final String DEFAULT_NAMESPACE="root/cimv2";
 
-   int cInst;
+   private int cInst;
 
    private native int    _new          ();
    private native int    _newHn        (String hn);
@@ -64,6 +64,11 @@ public class CIMNameSpace {
    protected void finalize ()
    {
       _finalize(cInst);
+   }
+
+   protected int cInst ()
+   {
+      return cInst;
    }
 
    public CIMNameSpace (String host)

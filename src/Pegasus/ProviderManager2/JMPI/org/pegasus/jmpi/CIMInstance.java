@@ -47,7 +47,7 @@ import java.util.*;
     to manipulate instances within a namespace.
  */
 public class CIMInstance implements CIMElement {
-    int cInst;
+    private int cInst;
     String name;
 
     private native int    _new();
@@ -73,7 +73,7 @@ public class CIMInstance implements CIMElement {
         cInst=ci;
     }
 
-    public int cInst () {
+    protected int cInst () {
         return cInst;
     }
 
@@ -121,13 +121,13 @@ public class CIMInstance implements CIMElement {
         {
            throw new CIMException (1, "Invalid CIMInstance");
         }
-        if (v.cInst == -1)
+        if (v.cInst () == -1)
         {
            throw new CIMException (1, "Invalid CIMValue");
         }
         /* Fix for 4019 */
 
-        _setProperty (cInst, n, v.cInst);
+        _setProperty (cInst, n, v.cInst ());
     }
 
     public void setProperty(Vector v) {

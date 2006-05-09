@@ -52,7 +52,8 @@ import java.util.Vector;
 
 public class CIMClass implements CIMElement
 {
-   int cInst;
+   private int cInst;
+
    private native int     _newInstance(int cInst);
    private native int     _filterProperties(int cInst, String[] pl, boolean iq, boolean ic, boolean lo);
    private native String  _getName(int cInst);
@@ -78,7 +79,7 @@ public class CIMClass implements CIMElement
       cInst=ci;
    }
 
-   public int cInst() {
+   protected int cInst() {
       return cInst;
    }
 
@@ -169,7 +170,7 @@ public class CIMClass implements CIMElement
    }
 
    public void addProperty(CIMProperty p) {
-      _addProperty(cInst,p.cInst);
+      _addProperty(cInst,p.cInst ());
    }
 
    public void setProperties(Vector v) {
@@ -214,11 +215,11 @@ public class CIMClass implements CIMElement
       if (!(o instanceof CIMClass))
          return(false);
       CIMClass clsToBeCompared=(CIMClass)o;
-      if (cInst < 1 || clsToBeCompared.cInst < 1) {
+      if (cInst < 1 || clsToBeCompared.cInst () < 1) {
          System.out.println("wrong cInst found!");
          return(false);
       }
-      boolean rv = _equals(cInst, clsToBeCompared.cInst);
+      boolean rv = _equals(cInst, clsToBeCompared.cInst ());
       return rv;
    }
 

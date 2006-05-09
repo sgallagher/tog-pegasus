@@ -1,4 +1,4 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/cimprovider.1,v 1.4 2004/12/08 09:40:38 a.arora Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/cimprovider.1,v 1.5 2006/05/09 11:59:09 mateus.baur Exp $
 .\" .TA c \" lowercase initial letter of .TH name
 .TH "cimprovider" "1" "" "" ""
 .SH "NAME"
@@ -146,11 +146,14 @@ Successful completion
 Error
 .PD
 .RE
-.SH "USAGE NOTE"
+.SH "USAGE NOTES"
 .PP 
 The 
 .B cimprovider 
-command requires that the CIM Server is running.
+command requires that the CIM Server is running. If an operation requires
+more than two minutes to be processed, the
+.B cimprovider 
+command prints a timeout message and returns an error value.
 .SH "EXAMPLES "
 .PP 
 Disable provider module "OperatingSystemProvider" and 

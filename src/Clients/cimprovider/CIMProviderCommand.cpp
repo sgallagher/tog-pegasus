@@ -69,6 +69,8 @@
 #include "OS400ConvertChar.h"
 #endif
 
+#define CIMPROVIDERCOMMAND_CLIENT_DEFAULTTIMEOUT 120000
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -1145,6 +1147,7 @@ Uint32 CIMProviderCommand::execute (
         // Construct the CIMClient and set to request server messages
         // in the default language of this client process.
         _client.reset(new CIMClient);//PEP101
+        _client->setTimeout(CIMPROVIDERCOMMAND_CLIENT_DEFAULTTIMEOUT);
         _client->setRequestDefaultLanguages(); //l10n
     }
     catch (Exception & e)

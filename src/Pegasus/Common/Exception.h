@@ -37,9 +37,12 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMStatusCode.h>
-#include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/ContentLanguageList.h>
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+# include <Pegasus/Common/MessageLoader.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 class ExceptionRep;

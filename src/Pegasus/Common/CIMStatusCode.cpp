@@ -37,6 +37,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/MessageLoader.h>
 #include "CIMStatusCode.h"
 
 PEGASUS_NAMESPACE_BEGIN

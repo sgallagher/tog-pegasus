@@ -1,4 +1,4 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/cimmof.1,v 1.6 2005/07/07 11:59:18 aruran.ms Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/cimmof.1,v 1.7 2006/05/09 12:00:52 mateus.baur Exp $
 .\" .TA c \" lowercase initial letter of .TH name
 .TH "cimmof" "1" "" "" ""
 .SH "NAME"
@@ -176,6 +176,14 @@ Error
 .PP 
 When an error occurs, an error message is written to stderr and an
 error value of 1 is returned.
+.SH "USAGE NOTES"
+.PP
+The
+.B cimmof
+command requires that the CIM Server is running.  If an operation requires
+more than two minutes to be processed, the
+.B cimmof
+command prints a timeout message and returns an error value.
 .SH "DIAGNOSTICS"
 .PP 
 .B "Error trying to create Repository in path localhost:5988: Cannot connect to: localhost:5988 Failed to set DefaultNamespacePath."

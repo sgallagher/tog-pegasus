@@ -67,6 +67,8 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Compiler/Linkage.h>
 
+#define CIMMOFCLIENT_TIMEOUT_DEFAULT 120000
+
 PEGASUS_NAMESPACE_BEGIN
 
 // Forward declarations;

@@ -3105,7 +3105,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             JMPIjvm::checkException(env);
 
-            jobjectArray jVec = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+            jobjectArray jAr = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                    id,
                                                                    joc,
                                                                    jcop,
@@ -3125,11 +3125,11 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
             }
 
             handler.processing();
-            if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+            if (jAr) {
+                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jciRet = env->GetObjectArrayElement(jAr,i);
 
                     JMPIjvm::checkException(env);
 
@@ -3466,7 +3466,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jAssociationName,
                                                                   jPathName,
@@ -3482,11 +3482,11 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
             STAT_PMS_PROVIDEREND;
 
             handler.processing();
-            if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+            if (jAr) {
+                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jciRet = env->GetObjectArrayElement(jAr,i);
 
                     JMPIjvm::checkException(env);
 
@@ -3564,7 +3564,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
                                                                   jAssociationName,
@@ -3588,11 +3588,11 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
             }
 
             handler.processing();
-            if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+            if (jAr) {
+                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jciRet = env->GetObjectArrayElement(jAr,i);
 
                     JMPIjvm::checkException(env);
 
@@ -3695,10 +3695,10 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
@@ -4055,7 +4055,7 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultRole  = "<<request->resultRole<<PEGASUS_STD(endl));
 #endif
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jAssociationName,
                                                                   jPathName,
@@ -4068,11 +4068,11 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             STAT_PMS_PROVIDEREND;
 
             handler.processing();
-            if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+            if (jAr) {
+                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jcopRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jcopRet = env->GetObjectArrayElement(jAr,i);
 
                     JMPIjvm::checkException(env);
 
@@ -4115,7 +4115,7 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultRole  = "<<request->resultRole<<PEGASUS_STD(endl));
 #endif
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
                                                                   jAssociationName,
@@ -4136,11 +4136,11 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             }
 
             handler.processing();
-            if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+            if (jAr) {
+                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jcopRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jcopRet = env->GetObjectArrayElement(jAr,i);
 
                     JMPIjvm::checkException(env);
 
@@ -4514,7 +4514,7 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jAssociationName,
                                                                   jPathName,
@@ -4528,11 +4528,11 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
             STAT_PMS_PROVIDEREND;
 
             handler.processing();
-            if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+            if (jAr) {
+                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jciRet = env->GetObjectArrayElement(jAr,i);
 
                     JMPIjvm::checkException(env);
 
@@ -4606,7 +4606,7 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
                                                                   jAssociationName,
@@ -4628,11 +4628,11 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
             }
 
             handler.processing();
-            if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+            if (jAr) {
+                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jciRet = env->GetObjectArrayElement(jAr,i);
 
                     JMPIjvm::checkException(env);
 
@@ -5068,7 +5068,7 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
 #endif
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jPathName,
                                                                   jAssociationName,
@@ -5079,11 +5079,11 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             STAT_PMS_PROVIDEREND;
 
             handler.processing();
-            if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+            if (jAr) {
+                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jcopRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jcopRet = env->GetObjectArrayElement(jAr,i);
 
                     JMPIjvm::checkException(env);
 
@@ -5124,7 +5124,7 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
 #endif
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
                                                                   jPathName,
@@ -5143,11 +5143,11 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             }
 
             handler.processing();
-            if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+            if (jAr) {
+                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jcopRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jcopRet = env->GetObjectArrayElement(jAr,i);
 
                     JMPIjvm::checkException(env);
 

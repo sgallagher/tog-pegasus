@@ -1926,11 +1926,14 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMInstance__1getKeyValuePairs
    CIMInstance *ci = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInst);
 
 //@HACK
-//printf("ci->getPropertyCount() = %d\n", ci->getPropertyCount());
+//cout << "ci->getPropertyCount() = " << ci->getPropertyCount() << endl;
    for (int i=0,s=ci->getPropertyCount(); i<s; i++) {
-//printf("%s %d\n",
-//     (const char *)ci->getProperty(i).getName ().getString ().getCString (),
-//     ci->getProperty(i).findQualifier(String("key")));
+//cout << ci->getProperty(i).getName ().getString ()
+//     << " "
+//     << ci->getProperty(i).getQualifierCount ()
+//     << " "
+//     << ci->getProperty(i).findQualifier(CIMName ("key"))
+//     << endl;
       if (ci->getProperty(i).findQualifier(String("key"))!=PEG_NOT_FOUND) {
          CIMProperty *cp  = new CIMProperty(ci->getProperty(i));
          jint         jCp = DEBUG_ConvertCToJava (CIMProperty*, jint, cp);
@@ -2073,6 +2076,104 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1filterProperties
    }
 
    return DEBUG_ConvertCToJava (CIMInstance*, jint, cf);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_CIMInstance
+ * Method:    _getObjectPath
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1getObjectPath
+  (JNIEnv *jEnv, jobject jThs, jint jciCi)
+{
+   CIMInstance   *ci     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciCi);
+   CIMObjectPath *copRet = NULL;
+
+   try
+   {
+      if (ci)
+      {
+         const CIMObjectPath& cop = ci->getPath ();
+
+         copRet = new CIMObjectPath (cop);
+      }
+   }
+   Catch (jEnv);
+
+   return DEBUG_ConvertCToJava (CIMObjectPath*, jint, copRet);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_CIMInstance
+ * Method:    _setObjectPath
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMInstance__1setObjectPath
+  (JNIEnv *jEnv, jobject jThs, jint jciCi, jint jciCop)
+{
+   CIMInstance   *ci  = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciCi);
+   CIMObjectPath *cop = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jciCop);
+
+   try
+   {
+      if (  ci
+         && cop
+         )
+      {
+         ci->setPath (*cop);
+      }
+   }
+   Catch (jEnv);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_CIMInstance
+ * Method:    _getPropertyCount
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1getPropertyCount
+  (JNIEnv *jEnv, jobject jThs, jint jciCi)
+{
+   CIMInstance *ci      = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciCi);
+   Uint32       ui32Ret = 0;
+
+   try
+   {
+      if (ci)
+      {
+         ui32Ret = ci->getPropertyCount ();
+      }
+   }
+   Catch (jEnv);
+
+   return ui32Ret;
+}
+
+/*
+ * Class:     org_pegasus_jmpi_CIMInstance
+ * Method:    _getProperty
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1getPropertyI
+  (JNIEnv *jEnv, jobject jThs, jint jciCi, jint ji)
+{
+   CIMInstance *ci    = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciCi);
+   CIMProperty *cpRet = NULL;
+
+   try
+   {
+      if (ci)
+      {
+         CIMProperty  cp;
+
+         cp = ci->getProperty (ji);
+
+         cpRet = new CIMProperty (cp);
+      }
+   }
+   Catch (jEnv);
+
+   return DEBUG_ConvertCToJava (CIMProperty*, jint, cpRet);
 }
 
 // -------------------------------------

@@ -259,6 +259,8 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinRepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_IndInit_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOPProvFail_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOPProvFail_TS2
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_INDSSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_G11N_TS1
@@ -367,6 +369,61 @@ run_IndInit_TS1:
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(IndInit_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(IndInit_TS1b_TEST_CMDS)"
+
+###############################################################################
+##  OOPProvFail Test Suite 1: OOP Provider Module Failure Tests
+##
+##  Configuration Options: forceProviderProcesses=true
+##  enableAuthentication=true, enableAuthentication=false
+##
+##  NOTE: Regardless of the setting of PEGASUS_DEFAULT_ENABLE_OOP, this test
+##  suite is always run with OOP enabled.  This test suite causes a provider to
+##  exit.  Running this test suite with OOP disabled would cause the cimserver
+##  to exit and the test suite to fail.
+##
+##  NOTE: The test is run once with authentication enabled, and once without
+##  authentication enabled.
+##
+###############################################################################
+OOPProvFail_TS1a_CONFIG_OPTIONS = forceProviderProcesses=true enableAuthentication=true
+OOPProvFail_TS1b_CONFIG_OPTIONS = forceProviderProcesses=true enableAuthentication=false
+OOPProvFail_TS1_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/OOPModuleFailureProvider/testclient@@OOPProvFail_TS1
+
+run_OOPProvFail_TS1:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(OOPProvFail_TS1a_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(OOPProvFail_TS1_TEST_CMDS)"
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(OOPProvFail_TS1b_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(OOPProvFail_TS1_TEST_CMDS)"
+
+###############################################################################
+##  OOPProvFail Test Suite 2: OOP Provider Module Failure on IndicationService 
+##                            Initialization Tests
+##
+##  Configuration Options: forceProviderProcesses=true
+##                         enableAuthentication=true
+##
+##  NOTE: Regardless of the setting of PEGASUS_DEFAULT_ENABLE_OOP, this test
+##  suite is always run with OOP enabled.  This test suite causes a provider to
+##  exit.  Running this test suite with OOP disabled would cause the cimserver
+##  to exit and the test suite to fail.
+##
+###############################################################################
+OOPProvFail_TS2_CONFIG_OPTIONS = forceProviderProcesses=true enableAuthentication=true
+OOPProvFail_TS2a_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/OOPModuleFailureProvider/testclient@@OOPProvFail_TS2a
+OOPProvFail_TS2b_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/OOPModuleFailureProvider/testclient@@OOPProvFail_TS2b
+
+run_OOPProvFail_TS2:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(OOPProvFail_TS2_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(OOPProvFail_TS2a_TEST_CMDS)"
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(OOPProvFail_TS2_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(OOPProvFail_TS2b_TEST_CMDS)"
 
 ###############################################################################
 ##  Indication SSL Test Suite 1: Indication Testing over HTTPS

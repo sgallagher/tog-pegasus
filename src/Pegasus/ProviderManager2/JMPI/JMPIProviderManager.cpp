@@ -3557,6 +3557,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
 #ifdef PEGASUS_DEBUG
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: assocName          = "<<assocPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: pathName           = "<<objectPath->toString ()<<PEGASUS_STD(endl));
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: resultClass        = "<<request->resultClass<<PEGASUS_STD(endl));
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: role               = "<<request->role<<PEGASUS_STD(endl));
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: resultRole         = "<<request->resultRole<<PEGASUS_STD(endl));

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,7 +32,7 @@
 // Author:      Adrian Duta
 //
 // Modified By: Adrian Schuur, schuur@de.ibm.com
-//              Mark Hamzy, hamzy@us.ibm.com
+//              Mark Hamzy,    hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 package org.pegasus.jmpi;
@@ -41,16 +41,16 @@ public class CIMQualifier
 {
    private int cInst;
 
-   private native int    _new      (String n);
-   private native String _getName  (int    cq);
-   private native Object _getValue (int    cq);
-   private native void   _setValue (int    cq,
-                                    int    v);
-   private native void   _finalize (int    cInst);
+   private native int    _new      (String name);
+   private native String _getName  (int    ci);
+   private native int    _getValue (int    ci);
+   private native void   _setValue (int    ci,
+                                    int    value);
+   private native void   _finalize (int    ci);
 
    protected void finalize ()
    {
-      _finalize(cInst);
+      _finalize (cInst);
    }
 
    protected int cInst ()
@@ -60,23 +60,23 @@ public class CIMQualifier
 
    CIMQualifier (int ci)
    {
-      cInst=ci;
+      cInst = ci;
    }
 
    public CIMQualifier (String iname)
    {
-      cInst=_new(iname);
+      cInst = _new (iname);
    }
 
    public CIMValue getValue ()
    {
-      Object oValue = _getValue(cInst);
+      int ciValue = _getValue (cInst);
 
-      if (oValue != null)
+      if (ciValue != 0)
       {
          try
          {
-             return new CIMValue (oValue);
+             return new CIMValue (ciValue);
          }
          catch (Exception e)
          {
@@ -91,12 +91,12 @@ public class CIMQualifier
 
    public void setValue (CIMValue value)
    {
-      _setValue(cInst,value.cInst ());
+      _setValue (cInst, value.cInst ());
    }
 
    public String getName ()
    {
-      return _getName(cInst);
+      return _getName (cInst);
    }
 
    static {

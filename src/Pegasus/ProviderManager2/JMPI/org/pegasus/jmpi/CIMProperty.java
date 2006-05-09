@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,7 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By: Adrian Duta
 //              Mark Hamzy, hamzy@us.ibm.com
@@ -39,41 +39,50 @@ package org.pegasus.jmpi;
 
 public class CIMProperty
 {
+    public static final int PEG_NOT_FOUND = -1;
+
     private int cInst;
 
-    private native int     _getValue        (int p);
-    private native String  _getName         (int v);
-    private native void    _setName         (int v,String n);
-    private native int     _property        (String name,int v);
+    private native int     _getValue        (int    ci);
+    private native String  _getName         (int    ci);
+    private native void    _setName         (int    ci,   String n);
+    private native int     _property        (String name, int    v);
     private native int     _new             ();
-    private native boolean _isReference     (int v);
-    private native String  _getRefClassName (int v);
-    private native int     _getType         (int v);
-    private native int     _setType         (int v, int t);
-    private native void    _setValue        (int p,int v);
-    private native boolean _isArray         (int p);
-    private native String  _getIdentifier   (int p);
-    private native void    _addValue        (int p,int v);
-    private native void    _addQualifier    (int p,int v);
-    private native void    _finalize        (int cp);
+    private native boolean _isReference     (int    ci);
+    private native String  _getRefClassName (int    ci);
+    private native int     _getType         (int    ci);
+    private native int     _setType         (int    ci,   int    t);
+    private native void    _setValue        (int    ci,   int    v);
+    private native boolean _isArray         (int    ci);
+    private native String  _getIdentifier   (int    ci);
+    private native void    _addValue        (int    ci,   int    v);
+    private native void    _addQualifier    (int    ci,   int    v);
+    private native void    _finalize        (int    ci);
+    private native int     _findQualifier   (int    ci,   String qualifier);
+    private native int     _getQualifier    (int    ci,   int    index);
 
-    protected void finalize () {
+    protected void finalize ()
+    {
        _finalize (cInst);
     }
 
-    CIMProperty (int ci) {
+    CIMProperty (int ci)
+    {
        cInst = ci;
     }
 
-    protected int cInst () {
+    protected int cInst ()
+    {
        return cInst;
     }
 
-    public CIMProperty () {
+    public CIMProperty ()
+    {
        cInst = _new ();
     }
 
-    public CIMProperty (String name, CIMValue cv) {
+    public CIMProperty (String name, CIMValue cv)
+    {
         cInst = -1;
 
         if (cv.cInst () == -1)
@@ -82,70 +91,80 @@ public class CIMProperty
         cInst = _property (name, cv.cInst ());
     }
 
-    public CIMValue getValue () {
+    public CIMValue getValue ()
+    {
         if (cInst == -1)
             return null;
 
         return new CIMValue (_getValue (cInst));
     }
 
-    public String getName () {
+    public String getName ()
+    {
         if (cInst == -1)
             return null;
 
         return _getName (cInst);
     }
 
-    public void setName (String n) {
+    public void setName (String n)
+    {
         if (cInst == -1)
             return;
 
         _setName (cInst, n);
     }
 
-    public boolean isReference () {
+    public boolean isReference ()
+    {
         if (cInst == -1)
             return false;
 
-       return _isReference (cInst);
+        return _isReference (cInst);
     }
 
-    public CIMDataType getType () {
+    public CIMDataType getType ()
+    {
         if (cInst == -1)
             return null;
 
-       return new CIMDataType (_getType (cInst), true);
+        return new CIMDataType (_getType (cInst), true);
     }
 
-    public void setType (CIMDataType dt) {
+    public void setType (CIMDataType dt)
+    {
         if (cInst == -1 || dt.cInst () == -1)
             return;
 
-        cInst=_setType (cInst, dt.cInst ());
+        cInst = _setType (cInst, dt.cInst ());
     }
 
-    public String getRefClassName () {
+    public String getRefClassName ()
+    {
         if (cInst == -1)
             return null;
 
         return _getRefClassName (cInst);
     }
 
-    public String toString () {
+    public String toString ()
+    {
         if (cInst == -1)
             return null;
 
         return getType().toString() + " " + getName () + "=" + getValue ().toString () + ";";
     }
 
-    public void setValue (CIMValue v) {
+    public void setValue (CIMValue v)
+    {
         if (cInst == -1 || v.cInst () == -1)
             return;
 
         _setValue (cInst, v.cInst ());
     }
-    
-    public void addValue (CIMValue v) {
+
+    public void addValue (CIMValue v)
+    {
         if (cInst == -1 || v.cInst () == -1)
             return;
 
@@ -155,27 +174,47 @@ public class CIMProperty
         _addValue (cInst, v.cInst ());
     }
 
-    public void addQualifier (CIMQualifier q) {
+    public void addQualifier (CIMQualifier q)
+    {
         if (cInst == -1 || q.cInst () == -1)
             return;
 
         _addQualifier (cInst, q.cInst ());
     }
 
-    public boolean isArray () {
+    public boolean isArray ()
+    {
         if (cInst == -1)
             return false;
 
         return _isArray (cInst);
     }
-    
-    public String getIdentifier () {
+
+    public String getIdentifier ()
+    {
         if (cInst == -1)
             return null;
 
         return _getIdentifier (cInst);
     }
-  
+
+    public int findQualifier (String qualifier)
+    {
+       return _findQualifier (cInst, qualifier);
+    }
+
+    public CIMQualifier getQualifier (int index)
+    {
+       int ciQualifier = _getQualifier (cInst, index);
+
+       if (ciQualifier != 0)
+       {
+          return new CIMQualifier (ciQualifier);
+       }
+
+       return null;
+    }
+
     static {
         System.loadLibrary("JMPIProviderManager");
     }

@@ -2935,6 +2935,52 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1finalize
    DEBUG_ConvertCleanup (jint, jP);
 }
 
+/*
+ * Class:     org_pegasus_jmpi_CIMProperty
+ * Method:    _findQualifier
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMProperty__1findQualifier
+  (JNIEnv *jEnv, jobject jThs, jint jP, jstring jQualifier)
+{
+   CIMProperty  *cp    = DEBUG_ConvertJavaToC (jint, CIMProperty*, jP);
+   const char   *str   = jEnv->GetStringUTFChars (jQualifier, NULL);
+   int           index = PEG_NOT_FOUND;
+
+   try
+   {
+      index = cp->findQualifier (CIMName (str));
+
+      jEnv->ReleaseStringUTFChars (jQualifier, str);
+   }
+   Catch (jEnv);
+
+   return index;
+}
+
+/*
+ * Class:     org_pegasus_jmpi_CIMProperty
+ * Method:    _getQualifier
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMProperty__1getQualifier
+  (JNIEnv *jEnv, jobject jThs, jint jP, jint jIndex)
+{
+   CIMProperty  *cp        = DEBUG_ConvertJavaToC (jint, CIMProperty*, jP);
+   CIMQualifier *cq        = NULL;
+   CIMQualifier  qualifier;
+
+   try
+   {
+      qualifier = cp->getQualifier ((Uint32)jIndex);
+      cq = new CIMQualifier (qualifier);
+   }
+   Catch (jEnv);
+
+   return DEBUG_ConvertCToJava (CIMQualifier *, jint, cq);
+}
+
+
 // -------------------------------------
 // ---
 // -     CIMQualifierType

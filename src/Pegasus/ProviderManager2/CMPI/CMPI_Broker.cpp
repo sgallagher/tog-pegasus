@@ -313,8 +313,18 @@ extern "C" {
          CM_ObjectPath(cop)->getNameSpace(),
          CM_ObjectPath(cop)->getClassName());
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         CMPI_Object *obj =
-             new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
+
+          // When running out of process the returned instances don't contain
+          // a name space. Create a writable copy of the array and add the
+          // namespace from the input parameters.
+          Array<CIMObjectPath> * aObj = new Array<CIMObjectPath>(en);
+          for (unsigned int index=0;index < aObj->size(); index++)
+          {
+            (*aObj)[index].setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+          }
+
+          CMPI_Object *obj = new CMPI_Object(new CMPI_OpEnumeration(aObj));
+
          return (CMPI_OpEnumeration *)obj->getHdl();
 
       }
@@ -408,8 +418,18 @@ extern "C" {
          role ? String(role) : String::EMPTY,
          resultRole ? String(resultRole) : String::EMPTY);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         CMPI_Object *obj =
-             new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
+
+         // When running out of process the returned instances don't contain
+         // a name space. Create a writable copy of the array and add the
+         // namespace from the input parameters.
+         Array<CIMObjectPath> * aObj = new Array<CIMObjectPath>(en);
+         for (unsigned int index=0;index < aObj->size(); index++)
+         {
+             (*aObj)[index].setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+         }
+
+         CMPI_Object *obj = new CMPI_Object(new CMPI_OpEnumeration(aObj));
+
          return (CMPI_OpEnumeration *)obj->getHdl();
       }
       catch (const CIMException &e) {
@@ -493,8 +513,18 @@ extern "C" {
          resultClass ? CIMName(resultClass) : CIMName(),
          role ? String(role) : String::EMPTY);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         CMPI_Object *obj =
-             new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
+
+         // When running out of process the returned instances don't contain
+         // a name space. Create a writable copy of the array and add the
+         // namespace from the input parameters.
+         Array<CIMObjectPath> * aObj = new Array<CIMObjectPath>(en);
+         for (unsigned int index=0;index < aObj->size(); index++)
+         {
+             (*aObj)[index].setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+         }
+
+         CMPI_Object *obj = new CMPI_Object(new CMPI_OpEnumeration(aObj));
+
          return (CMPI_OpEnumeration *)obj->getHdl();
       }
       catch (const CIMException &e) {

@@ -145,9 +145,10 @@ ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::alloc(Uint32 size)
     }
 
     // Test for Uint32 overflow in the memory allocation size
+    // throw a bad_alloc exception if overflow would occur.
     if (initialCapacity > (Uint32(0xffffffff)-sizeof(ArrayRep<T>))/sizeof(T))
     {
-        return 0;
+        throw PEGASUS_STD(bad_alloc)();
     }
 
     // Create object:

@@ -619,6 +619,18 @@ public:
 #define PEGASUS_CIM_EXCEPTION_L(CODE, MSG_PARMS) \
     TraceableCIMException(CODE, MSG_PARMS, String(__FILE__), __LINE__)
 
+/** Macro to prevent overflow of a signed int value when said value is 
+ *  doubled. If String/Array/Buffer size is greater than 0x3FFFFFFF, then
+ *  something is suspect, throw bad_alloc exception.
+ */
+#define PEGASUS_CHECK_CAPACITY_OVERFLOW(capacity) \
+    do \
+    { \
+        if (capacity > 0x3FFFFFFF) \
+            throw PEGASUS_STD(bad_alloc)(); \
+    } \
+    while (0)
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_InternalException_h */

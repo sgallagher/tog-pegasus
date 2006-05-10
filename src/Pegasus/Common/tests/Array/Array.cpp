@@ -189,7 +189,7 @@ void test06()
     {
         Array<Uint32> arr(0xffff0000);
     }
-    catch (const NullPointer&)
+    catch (const PEGASUS_STD(bad_alloc)&)
     {
         exceptionCaught = true;
     }
@@ -201,7 +201,7 @@ void test06()
     {
         Array<Uint32> arr(0xffff0000, 100);
     }
-    catch (const NullPointer&)
+    catch (const PEGASUS_STD(bad_alloc)&)
     {
         exceptionCaught = true;
     }
@@ -214,7 +214,7 @@ void test06()
         Uint32 myInt = 50;
         Array<Uint32> arr(&myInt, 0xffff0000);
     }
-    catch (const NullPointer&)
+    catch (const PEGASUS_STD(bad_alloc)&)
     {
         exceptionCaught = true;
     }
@@ -224,7 +224,16 @@ void test06()
     {
         Array<Uint32> arr(128);
         PEGASUS_TEST_ASSERT(arr.getCapacity() == 128);
-        arr.reserveCapacity(0xffff0000);
+        exceptionCaught = false;
+        try
+        {
+            arr.reserveCapacity(0xffff0000);
+        }
+        catch (const PEGASUS_STD(bad_alloc)&)
+        {
+            exceptionCaught = true;
+        }
+        PEGASUS_TEST_ASSERT(exceptionCaught);
         PEGASUS_TEST_ASSERT(arr.getCapacity() == 128);
     }
 }

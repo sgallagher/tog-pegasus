@@ -166,8 +166,8 @@ static Uint32 _roundUpToPow2(Uint32 x)
 {
 #ifndef PEGASUS_STRING_NO_THROW
 
-    if (x > 0x0FFFFFFF)
-        throw PEGASUS_STD(bad_alloc)();
+    // Check for potential overflow in x
+    PEGASUS_CHECK_CAPACITY_OVERFLOW(x);
 
 #endif
 
@@ -544,10 +544,9 @@ StringRep StringRep::_emptyRep;
 inline StringRep* StringRep::alloc(size_t cap)
 {
 #ifndef PEGASUS_STRING_NO_THROW
-
-    // Any string bigger than this is seriously suspect.
-    if (cap > 0x0FFFFFFF)
-        throw PEGASUS_STD(bad_alloc)();
+    
+    // Check for potential overflow in cap
+    PEGASUS_CHECK_CAPACITY_OVERFLOW(cap);
 
 #endif
 

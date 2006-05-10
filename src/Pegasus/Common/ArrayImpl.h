@@ -77,10 +77,8 @@ Array<PEGASUS_ARRAY_T>::Array(Uint32 size)
 {
     _rep = ArrayRep<PEGASUS_ARRAY_T>::alloc(size);
 
-    if (!_rep)
-    {
-        throw NullPointer();
-    }
+    // ArrayRep<PEGASUS_ARRAY_T>::alloc() throws a bad_alloc exception if
+    // storage could not be obtained.
 
     InitializeRaw(Array_data, size);
 }
@@ -92,10 +90,8 @@ Array<PEGASUS_ARRAY_T>::Array(Uint32 size, const PEGASUS_ARRAY_T& x)
 {
     _rep = ArrayRep<PEGASUS_ARRAY_T>::alloc(size);
 
-    if (!_rep)
-    {
-        throw NullPointer();
-    }
+    // ArrayRep<PEGASUS_ARRAY_T>::alloc() throws a bad_alloc exception if
+    // storage could not be obtained.
 
     PEGASUS_ARRAY_T* data = Array_data;
 
@@ -114,10 +110,8 @@ Array<PEGASUS_ARRAY_T>::Array(const PEGASUS_ARRAY_T* items, Uint32 size)
 {
     _rep = ArrayRep<PEGASUS_ARRAY_T>::alloc(size);
 
-    if (!_rep)
-    {
-        throw NullPointer();
-    }
+    // ArrayRep<PEGASUS_ARRAY_T>::alloc() throws a bad_alloc exception if
+    // storage could not be obtained.
 
     CopyToRaw(Array_data, items, size);
 }
@@ -176,8 +170,8 @@ void Array<PEGASUS_ARRAY_T>::reserveCapacity(Uint32 capacity)
         ArrayRep<PEGASUS_ARRAY_T>* rep = 
 	    ArrayRep<PEGASUS_ARRAY_T>::alloc(capacity);
 
-	if (!rep)
-	    return;
+        // ArrayRep<PEGASUS_ARRAY_T>::alloc() throws a bad_alloc exception if
+        // storage could not be obtained.
 
 	rep->size = Array_size;
 

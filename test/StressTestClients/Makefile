@@ -30,7 +30,7 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-DIR = test/StressTestClients
+DIR = ../test/StressTestClients
 include $(ROOT)/mak/config.mak
 
 ifdef PEGASUS_HAS_SSL

@@ -30,7 +30,7 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-DIR = test/StressTestClients/ModelWalkStressClient
+DIR = ../test/StressTestClients/ModelWalkStressClient
 
 include $(ROOT)/mak/config.mak
 

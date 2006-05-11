@@ -30,10 +30,10 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-DIR = test/StressTestController
+DIR = ../test/StressTestController
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DSTRESSTEST_DEFAULTCFGDIR=\"$(ROOT)/$(DIR)/\"
+LOCAL_DEFINES = -DSTRESSTEST_DEFAULTCFGDIR=\"$(ROOT)/test/StressTestController/\"
 
 LIBRARIES = \
     pegcliutils \

@@ -30,13 +30,13 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-DIR = test/StressTestController/tests
+DIR = ../test/StressTestController/tests
 
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/test.mak
 
 RESULTFILE =  $(TMP_DIR)/result
-MASTERRESULTFILE = $(ROOT)/$(DIR)/result.master
+MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 
 
 clean:

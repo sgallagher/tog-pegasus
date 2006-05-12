@@ -222,12 +222,12 @@ JMPIjvm::~JMPIjvm()
 
 int JMPIjvm::cacheIDs(JNIEnv *env)
 {
-   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): enter"<<PEGASUS_STD(endl));
-
    if (methodInitDone==1)
       return JNI_TRUE;
    if (methodInitDone==-1)
       return JNI_FALSE;
+
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): enter"<<PEGASUS_STD(endl));
 
    methodInitDone=-1;
 
@@ -3008,6 +3008,8 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMProperty__1setType
 
       delete cp;
 
+      DEBUG_ConvertCleanup (jint, jP);
+
       return DEBUG_ConvertCToJava (CIMProperty*, jint, np);
    }
    else
@@ -3267,7 +3269,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMMethod__1getType
 {
    CIMMethod *cm = DEBUG_ConvertJavaToC (jint, CIMMethod*, jM);
 
-   return DEBUG_ConvertCToJava (CIMType, jint, new CIMType (cm->getType()));
+   return DEBUG_ConvertCToJava (CIMType *, jint, new CIMType (cm->getType()));
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMMethod__1finalize
@@ -5159,7 +5161,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1finalize
 // -------------------------------------
 
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMObject__1newClass
-  (JNIEnv *jEnv, jobject jThs, jobject jCc)
+  (JNIEnv *jEnv, jobject jThs, jint jCc)
 {
    CIMClass *cCc = DEBUG_ConvertJavaToC (jint, CIMClass*, jCc);
 
@@ -5174,7 +5176,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMObject__1newClass
 }
 
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMObject__1newInstance
-  (JNIEnv *jEnv, jobject jThs, jobject jCi)
+  (JNIEnv *jEnv, jobject jThs, jint jCi)
 {
    CIMInstance *cCi = DEBUG_ConvertJavaToC (jint, CIMInstance*, jCi);
 
@@ -5369,7 +5371,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_SelectExp__1finalize
 
    delete eSelx;
 
-   DEBUG_ConvertCleanup (jint, eSelx);
+   DEBUG_ConvertCleanup (jint, jEselx);
 }
 
 /*

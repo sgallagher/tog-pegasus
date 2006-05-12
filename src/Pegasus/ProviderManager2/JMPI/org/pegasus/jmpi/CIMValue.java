@@ -90,20 +90,28 @@ public class CIMValue
 
    public CIMValue (Object o) throws CIMException
    {
-      cInst=-1;
+      cInst = calculateCInst (o);
+   }
 
-      /* Fix for 4019 */
+   public CIMValue (Object o, CIMDataType type) throws CIMException
+   {
+      cInst = calculateCInst (o);
+   }
+
+   private int calculateCInst (Object o) throws CIMException
+   {
+      int ciRet = 0;
+
       if (o == null)
-         return;
-      /* Fix for 4019 */
+         return 0;
 
       if (o instanceof Vector)
       {
          Vector v    = (Vector)o;
          Object o0   = v.elementAt (0);
-	 int    size = v.size ();
+         int    size = v.size ();
 
-	 if (o0 instanceof Number)
+         if (o0 instanceof Number)
          {
             if (o0 instanceof UnsignedInt8)
             {
@@ -112,8 +120,8 @@ public class CIMValue
                for (int i=0; i<size; i++)
                   u8[i]=((UnsignedInt8)v.elementAt(i)).shortValue ();
 
-               cInst = _byteArray (u8,true);
-	    }
+               ciRet = _byteArray (u8,true);
+            }
             else if (o0 instanceof Byte)
             {
                short[] s8=new short[size];
@@ -121,7 +129,7 @@ public class CIMValue
                for (int i=0; i<size; i++)
                   s8[i]=((Byte)v.elementAt (i)).shortValue ();
 
-               cInst = _byteArray (s8,false);
+               ciRet = _byteArray (s8,false);
             }
             else if (o0 instanceof UnsignedInt16)
             {
@@ -130,8 +138,8 @@ public class CIMValue
                for (int i=0; i<size; i++)
                   u16[i]=((UnsignedInt16)v.elementAt (i)).intValue ();
 
-               cInst = _shortArray (u16,true);
-	    }
+               ciRet = _shortArray (u16,true);
+            }
             else if (o0 instanceof Short)
             {
                int[] s16=new int[size];
@@ -139,8 +147,8 @@ public class CIMValue
                for (int i=0; i<size; i++)
                   s16[i]=((Short)v.elementAt (i)).intValue ();
 
-               cInst = _shortArray (s16,false);
-	    }
+               ciRet = _shortArray (s16,false);
+            }
             else if (o0 instanceof UnsignedInt32)
             {
                long[] u32=new long[size];
@@ -148,8 +156,8 @@ public class CIMValue
                for (int i=0; i<size; i++)
                   u32[i]=((UnsignedInt32)v.elementAt (i)).longValue ();
 
-               cInst = _intArray (u32,true);
-	    }
+               ciRet = _intArray (u32,true);
+            }
             else if (o0 instanceof Integer)
             {
                long[] s32=new long[size];
@@ -157,8 +165,8 @@ public class CIMValue
                for (int i=0; i<size; i++)
                   s32[i]=((Integer)v.elementAt (i)).longValue ();
 
-               cInst = _intArray (s32,false);
-	    }
+               ciRet = _intArray (s32,false);
+            }
             else if (o0 instanceof UnsignedInt64)
             {
                long u64[]=new long[size];
@@ -166,8 +174,8 @@ public class CIMValue
                for (int i=0; i<size; i++)
                   u64[i]=((UnsignedInt64)v.elementAt (i)).longValue ();
 
-               cInst = _longArray (u64,true);
-	    }
+               ciRet = _longArray (u64,true);
+            }
             else if (o0 instanceof Long)
             {
                long s64[]=new long[size];
@@ -175,8 +183,8 @@ public class CIMValue
                for (int i=0; i<size; i++)
                   s64[i]=((Long)v.elementAt (i)).longValue ();
 
-               cInst = _longArray (s64,false);
-	    }
+               ciRet = _longArray (s64,false);
+            }
             else if (o0 instanceof Float)
             {
                float f[]=new float[size];
@@ -184,8 +192,8 @@ public class CIMValue
                for (int i=0; i<size; i++)
                   f[i]=((Float)v.elementAt (i)).floatValue ();
 
-               cInst = _floatArray (f);
-	    }
+               ciRet = _floatArray (f);
+            }
             else if (o0 instanceof Double)
             {
                double d[]=new double[size];
@@ -193,9 +201,9 @@ public class CIMValue
                for (int i=0; i<size; i++)
                   d[i]=((Double)v.elementAt (i)).doubleValue ();
 
-               cInst = _doubleArray (d);
-	    }
-	 }
+               ciRet = _doubleArray (d);
+            }
+         }
          else if (o0 instanceof Boolean)
          {
             boolean b[]=new boolean[size];
@@ -203,15 +211,15 @@ public class CIMValue
             for (int i=0; i<size; i++)
                 b[i]=((Boolean)v.elementAt (i)).booleanValue ();
 
-            cInst = _booleanArray (b);
- 	 }
+            ciRet = _booleanArray (b);
+         }
          else if (o0 instanceof String)
          {
             String s[]=new String[size];
 
             v.copyInto(s);
 
-            cInst = _stringArray (s);
+            ciRet = _stringArray (s);
          }
          else if (o0 instanceof CIMObjectPath)
          {
@@ -220,7 +228,7 @@ public class CIMValue
             for (int i=0; i<size; i++)
                c[i]=((CIMObjectPath)v.elementAt (i)).cInst ();
 
-            cInst = _copArray (c);
+            ciRet = _copArray (c);
          }
          else if (o0 instanceof CIMDateTime)
          {
@@ -229,7 +237,7 @@ public class CIMValue
              for (int i=0; i<size; i++)
                 c[i]=((CIMDateTime)v.elementAt (i)).cInst ();
 
-             cInst = _datetimeArray (c);
+             ciRet = _datetimeArray (c);
          }
          else if (o0 instanceof CIMObject)
          {
@@ -238,7 +246,7 @@ public class CIMValue
              for (int i=0; i<size; i++)
                 c[i]=((CIMObject)v.elementAt (i)).cInst ();
 
-             cInst = _objectArray (c);
+             ciRet = _objectArray (c);
          }
          else if (o0 instanceof Character)
          {
@@ -247,78 +255,78 @@ public class CIMValue
              for (int i=0; i<size; i++)
                 c[i]=((Character)v.elementAt (i)).charValue ();
 
-             cInst = _char16Array (c);
+             ciRet = _char16Array (c);
          }
       }
       else if (o instanceof Number)
       {
           if (o instanceof UnsignedInt8)
           {
-             cInst = _byte(((UnsignedInt8)o).shortValue (),true);
+             ciRet = _byte(((UnsignedInt8)o).shortValue (),true);
           }
           else if (o instanceof Byte)
           {
-             cInst = _byte(((Byte)o).byteValue (),false);
+             ciRet = _byte(((Byte)o).byteValue (),false);
           }
           else if (o instanceof UnsignedInt16)
           {
-             cInst = _short(((UnsignedInt16)o).intValue (),true);
+             ciRet = _short(((UnsignedInt16)o).intValue (),true);
           }
           else if (o instanceof Short)
           {
-             cInst = _short(((Short)o).shortValue (),false);
+             ciRet = _short(((Short)o).shortValue (),false);
           }
           else if (o instanceof UnsignedInt32)
           {
-             cInst = _makeInt(((UnsignedInt32)o).longValue (),true);
+             ciRet = _makeInt(((UnsignedInt32)o).longValue (),true);
           }
           else if (o instanceof Integer)
           {
-             cInst = _makeInt(((Integer)o).intValue (),false);
+             ciRet = _makeInt(((Integer)o).intValue (),false);
           }
           else if (o instanceof UnsignedInt64)
           {
-             cInst = _long(((UnsignedInt64)o).longValue (),true);
+             ciRet = _long(((UnsignedInt64)o).longValue (),true);
           }
           else if (o instanceof Long)
           {
-             cInst = _long(((Long)o).longValue (),false);
+             ciRet = _long(((Long)o).longValue (),false);
           }
           else if (o instanceof Float)
           {
-             cInst = _float(((Float)o).floatValue ());
+             ciRet = _float(((Float)o).floatValue ());
           }
           else if (o instanceof Double)
           {
-             cInst = _double(((Double)o).doubleValue ());
+             ciRet = _double(((Double)o).doubleValue ());
           }
       }
       else if (o instanceof Boolean)
       {
-         cInst = _boolean(((Boolean)o).booleanValue ());
+         ciRet = _boolean(((Boolean)o).booleanValue ());
       }
       else if (o instanceof String)
       {
-         cInst = _string((String)o);
+         ciRet = _string((String)o);
       }
       else if (o instanceof CIMObjectPath)
       {
-         cInst = _cop(((CIMObjectPath)o).cInst ());
+         ciRet = _cop(((CIMObjectPath)o).cInst ());
       }
       else if (o instanceof CIMDateTime)
       {
-         cInst = _datetime(((CIMDateTime)o).cInst ());
+         ciRet = _datetime(((CIMDateTime)o).cInst ());
       }
       else if (o instanceof Character)
       {
-         cInst = _char16(((Character)o).charValue ());
+         ciRet = _char16(((Character)o).charValue ());
       }
       else if (o instanceof CIMObject)
       {
-         cInst = _object(((CIMObject)o).cInst ());
+         ciRet = _object(((CIMObject)o).cInst ());
       }
 
-      if (cInst==-1)
+      if (ciRet == 0)
       {
           if (o instanceof Vector)
           {
@@ -332,23 +340,13 @@ public class CIMValue
               throw new CIMException (1, "CIMValue: unsupported type: "+o.getClass());
           }
       }
-   }
 
-   public CIMValue (Object val, CIMDataType type) throws Exception
-   {
-      cInst = -1;
-
-      CIMValue nv = new CIMValue (val);
-
-      if (nv == null)
-         return;
-
-      cInst = nv.cInst ();
+      return ciRet;
    }
 
    public Object getValue () throws CIMException
    {
-      if (cInst == -1)
+      if (cInst == 0)
          return null;
 
       return getValue (true);
@@ -356,7 +354,7 @@ public class CIMValue
 
    public Object getValue (boolean toVector) throws CIMException
    {
-      if (cInst == -1)
+      if (cInst == 0)
          return null;
 
       Object resp = null;
@@ -656,7 +654,7 @@ public class CIMValue
 
    public boolean isArray ()
    {
-      if (cInst == -1)
+      if (cInst == 0)
          return false;
 
       return _isArray (cInst);
@@ -664,10 +662,8 @@ public class CIMValue
 
    public String toString ()
    {
-      /* Fix for 4019 */
-      if (cInst == -1)
+      if (cInst == 0)
          return null;
-      /* Fix for 4019 */
 
       return _toString (cInst);
    }

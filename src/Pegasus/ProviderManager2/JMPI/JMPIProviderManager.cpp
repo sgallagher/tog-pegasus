@@ -4080,7 +4080,7 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
                     JMPIjvm::checkException(env);
 
                     jint           jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRet);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -4148,7 +4148,7 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
                     JMPIjvm::checkException(env);
 
                     jint           jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRet);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 

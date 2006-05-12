@@ -45,6 +45,9 @@ static const size_t MIN_CAPACITY = 2048;
 
 static Uint32 _next_pow_2(Uint32 x)
 {
+    // Check for potential overflow in x.
+    PEGASUS_CHECK_CAPACITY_OVERFLOW(x);
+
     if (x < MIN_CAPACITY)
 	return MIN_CAPACITY;
 
@@ -132,7 +135,11 @@ void Buffer::_append_char_aux()
 	_rep->size = 0;
     }
     else
-	_rep = _reallocate(_rep, _rep->cap ? (2 * _rep->cap) : MIN_CAPACITY);
+    {
+        // Check for potential overflow.
+        PEGASUS_CHECK_CAPACITY_OVERFLOW(_rep->cap);
+        _rep = _reallocate(_rep, _rep->cap ? (2 * _rep->cap) : MIN_CAPACITY);
+    }
 }
 
 void Buffer::insert(size_t pos, const char* data, size_t size)

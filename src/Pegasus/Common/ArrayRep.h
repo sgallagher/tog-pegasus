@@ -1,36 +1,47 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ArrayRep_h
 #define Pegasus_ArrayRep_h
+
+#ifdef PEGASUS_OS_OS400
+#include <stdlib.h>
+#endif
 
 #include <new>
 #include <Pegasus/Common/Config.h>
@@ -44,8 +55,17 @@
 #define Array_capacity (Array_rep)->capacity
 #define Array_refs (Array_rep)->refs
 
+// The OS400 platform uses this aligment directive to ensure that 
+// ArrayRepBase is aligned an a 16 byte boundary.
+#ifdef PEGASUS_OS_OS400
+# define PEGASUS_ALIGN16 __align(16)
+#else
+# define PEGASUS_ALIGN16 /* not necessary on other platforms */
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
+PEGASUS_ALIGN16 
 struct PEGASUS_COMMON_LINKAGE ArrayRepBase
 {
     // We put this first to avoid gaps in this structure. Some compilers may
@@ -56,8 +76,8 @@ struct PEGASUS_COMMON_LINKAGE ArrayRepBase
 
     union
     {
-        Uint32 capacity;
-        Uint64 alignment;
+	Uint32 capacity;
+	Uint64 alignment;
     };
 
     // Called only only _empty_rep object. We set the reference count to
@@ -93,7 +113,7 @@ struct ArrayRep : public ArrayRepBase
         memory for the elements is unitialized and must be initialized by
         the caller.
     */
-    static ArrayRep<T>* alloc(Uint32 size);
+    static ArrayRep<T>* PEGASUS_STATIC_CDECL alloc(Uint32 size);
 
     static void ref(const ArrayRep<T>* rep);
 
@@ -101,13 +121,13 @@ struct ArrayRep : public ArrayRepBase
 };
 
 template<class T>
-ArrayRep<T>* ArrayRep<T>::alloc(Uint32 size)
+ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::alloc(Uint32 size)
 {
     // ATTN-MEB: throw out raising to next power of two (put this
     // logic in reserveCapacity().
 
     if (!size)
-        return (ArrayRep<T>*)&ArrayRepBase::_empty_rep;
+	return (ArrayRep<T>*)&ArrayRepBase::_empty_rep;
 
     // Calculate capacity (size rounded to the next power of two).
 
@@ -147,7 +167,7 @@ template<class T>
 inline void ArrayRep<T>::ref(const ArrayRep<T>* rep)
 {
     if ((void*)rep != (void*)&ArrayRepBase::_empty_rep)
-        ((ArrayRep<T>*)rep)->refs.inc();
+	((ArrayRep<T>*)rep)->refs.inc();
 }
 
 template<class T>
@@ -158,8 +178,8 @@ inline void ArrayRep<T>::unref(const ArrayRep<T>* rep_)
     if (rep != &ArrayRepBase::_empty_rep && rep->refs.decAndTestIfZero())
     {
         Destroy(rep->data(), rep->size);
-        rep->refs.~AtomicInt();
-        ::operator delete(rep);
+	rep->refs.~AtomicInt();
+	::operator delete(rep);
     }
 }
 

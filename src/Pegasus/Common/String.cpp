@@ -1,44 +1,54 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@austin.rr.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//     Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//     Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3297
+//     David Dillard, Symantec Corp. (david_dillard@symantec.com)
+//     Mike Brasher (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <cstring>
 #include "InternalException.h"
+#include "CommonUTF.h"
 #include "MessageLoader.h"
 #include "StringRep.h"
 
 #ifdef PEGASUS_HAS_ICU
-# include <unicode/ures.h>
-# include <unicode/ustring.h>
-# include <unicode/uchar.h>
+#include <unicode/ustring.h>
+#include <unicode/uchar.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -46,6 +56,8 @@ PEGASUS_NAMESPACE_BEGIN
 //==============================================================================
 //
 // Compile-time macros (undefined by default).
+//
+//     PEGASUS_STRING_NO_THROW -- suppresses throwing of exceptions
 //
 //     PEGASUS_STRING_NO_UTF8 -- don't generate slower UTF8 code.
 //
@@ -96,7 +108,7 @@ const Uint8 _toUpperTable[256] =
     0xF8,0xF9,0xFA,0xFB,0xFC,0xFD,0xFE,0xFF,
 };
 
-// Note: this table is much faster than the system tolower(). Please do not
+// Note: this table is much faster than the system tulower(). Please do not
 // change.
 
 const Uint8 _toLowerTable[256] =
@@ -152,8 +164,12 @@ inline Uint16 _toLower(Uint16 x)
 // Rounds x up to the nearest power of two (or just returns 8 if x < 8).
 static Uint32 _roundUpToPow2(Uint32 x)
 {
+#ifndef PEGASUS_STRING_NO_THROW
+
     // Check for potential overflow in x
     PEGASUS_CHECK_CAPACITY_OVERFLOW(x);
+
+#endif
 
     if (x < 8)
         return 8;
@@ -167,6 +183,42 @@ static Uint32 _roundUpToPow2(Uint32 x)
     x++;
 
     return x;
+}
+
+template<class P, class Q>
+static void _copy(P* p, const Q* q, size_t n)
+{
+    // The following employs loop unrolling for efficiency. Please do not
+    // eliminate.
+
+    while (n >= 8)
+    {
+        p[0] = q[0];
+        p[1] = q[1];
+        p[2] = q[2];
+        p[3] = q[3];
+        p[4] = q[4];
+        p[5] = q[5];
+        p[6] = q[6];
+        p[7] = q[7];
+        p += 8;
+        q += 8;
+        n -= 8;
+    }
+
+    while (n >= 4)
+    {
+        p[0] = q[0];
+        p[1] = q[1];
+        p[2] = q[2];
+        p[3] = q[3];
+        p += 4;
+        q += 4;
+        n -= 4;
+    }
+
+    while (n--)
+        *p++ = *q++;
 }
 
 static Uint16* _find(const Uint16* s, size_t n, Uint16 c)
@@ -230,7 +282,6 @@ static int _compare(const Uint16* s1, const Uint16* s2)
     return 0;
 }
 
-#ifdef PEGASUS_STRING_NO_UTF8
 static int _compareNoUTF8(const Uint16* s1, const char* s2)
 {
     Uint16 c1;
@@ -248,7 +299,6 @@ static int _compareNoUTF8(const Uint16* s1, const char* s2)
 
     return c1 - c2;
 }
-#endif
 
 static inline void _copy(Uint16* s1, const Uint16* s2, size_t n)
 {
@@ -262,64 +312,119 @@ void StringThrowOutOfBounds()
 
 inline void _checkNullPointer(const void* ptr)
 {
+#ifndef PEGASUS_STRING_NO_THROW
+
     if (!ptr)
         throw NullPointer();
+
+#endif
 }
 
-#define BADUTF8_MAX_CLEAR_CHAR 40
-#define BADUTF8_MAX_CHAR_TO_HEX 10
-
-static void _formatBadUTF8Chars(
-    char* buffer,
-    Uint32 index,
-    const char* q,
-    size_t n )
+static void _StringThrowBadUTF8(Uint32 index)
 {
-
-    char tmp[20];
-    const char* start;
-
-    size_t clearChar =
-        (( index < BADUTF8_MAX_CLEAR_CHAR ) ? index : BADUTF8_MAX_CLEAR_CHAR );
-    size_t charToHex =
-        ((n-index-1) < BADUTF8_MAX_CHAR_TO_HEX ?
-            (n-index-1) : BADUTF8_MAX_CHAR_TO_HEX );
-
-    if (index < BADUTF8_MAX_CLEAR_CHAR)
-    {
-        start = q;
-    } else
-    {
-        start = &(q[ index - BADUTF8_MAX_CLEAR_CHAR]);
-    }
-
-    // Intialize the buffer with the first character as '\0' to be able to use
-    // strnchat() and strcat()
-    buffer[0] = 0;
-    // Start the buffer with the valid UTF8 chars
-    strncat(buffer,start,clearChar);
-    for (size_t i = clearChar, j = 0; j <= charToHex; i++,j++ )
-    {
-        tmp[0] = 0;
-        sprintf(&(tmp[0])," 0x%02X",(Uint8)start[i]);
-        strncat(buffer,&(tmp[0]),5);
-    }
-
-}
-
-static void _StringThrowBadUTF8(Uint32 index, const char* q, size_t n)
-{
-    char buffer[1024];
-
-    _formatBadUTF8Chars(&(buffer[0]),index,q,n);
-
     MessageLoaderParms parms(
-        "Common.String.BAD_UTF8_LONG",
+        "Common.String.BAD_UTF8",
         "The byte sequence starting at index $0 "
-        "is not valid UTF-8 encoding: $1",
-        index,buffer);
-
+        "is not valid UTF-8 encoding.",
+        index);
     throw Exception(parms);
+}
+
+static size_t _copyFromUTF8(
+    Uint16* dest,
+    const char* src,
+    size_t n,
+    size_t& utf8_error_index)
+{
+    Uint16* p = dest;
+    const Uint8* q = (const Uint8*)src;
+
+    // Process leading 7-bit ASCII characters (to avoid UTF8 overhead later).
+    // Use loop-unrolling.
+
+    while (n >=8 && ((q[0]|q[1]|q[2]|q[3]|q[4]|q[5]|q[6]|q[7]) & 0x80) == 0)
+    {
+        p[0] = q[0];
+        p[1] = q[1];
+        p[2] = q[2];
+        p[3] = q[3];
+        p[4] = q[4];
+        p[5] = q[5];
+        p[6] = q[6];
+        p[7] = q[7];
+        p += 8;
+        q += 8;
+        n -= 8;
+    }
+
+    while (n >=4 && ((q[0]|q[1]|q[2]|q[3]) & 0x80) == 0)
+    {
+        p[0] = q[0];
+        p[1] = q[1];
+        p[2] = q[2];
+        p[3] = q[3];
+        p += 4;
+        q += 4;
+        n -= 4;
+    }
+
+    switch (n)
+    {
+        case 0:
+            return p - dest;
+        case 1:
+            if (q[0] < 128)
+            {
+                p[0] = q[0];
+                return p + 1 - dest;
+            }
+            break;
+        case 2:
+            if (((q[0]|q[1]) & 0x80) == 0)
+            {
+                p[0] = q[0];
+                p[1] = q[1];
+                return p + 2 - dest;
+            }
+            break;
+        case 3:
+            if (((q[0]|q[1]|q[2]) & 0x80) == 0)
+            {
+                p[0] = q[0];
+                p[1] = q[1];
+                p[2] = q[2];
+                return p + 3 - dest;
+            }
+            break;
+    }
+
+    // Process remaining characters.
+
+    while (n)
+    {
+        // Optimize for 7-bit ASCII case.
+
+        if (*q < 128)
+        {
+            *p++ = *q++;
+            n--;
+        }
+        else
+        {
+            Uint8 c = UTF_8_COUNT_TRAIL_BYTES(*q) + 1;
+
+            if (c > n || !isValid_U8(q, c) ||
+                UTF8toUTF16(&q, q + c, &p, p + n) != 0)
+            {
+                utf8_error_index = q - (const Uint8*)src;
+                return size_t(-1);
+            }
+
+            n -= c;
+        }
+    }
+
+    return p - dest;
 }
 
 // Note: dest must be at least three times src (plus an extra byte for
@@ -380,6 +485,17 @@ static inline size_t _copyToUTF8(char* dest, const Uint16* src, size_t n)
     return p - (Uint8*)dest;
 }
 
+static inline size_t _convert(
+    Uint16* p, const char* q, size_t n, size_t& utf8_error_index)
+{
+#ifdef PEGASUS_STRING_NO_UTF8
+    _copy(p, q, n);
+    return n;
+#else
+    return _copyFromUTF8(p, q, n, utf8_error_index);
+#endif
+}
+
 //==============================================================================
 //
 // class CString
@@ -427,8 +543,12 @@ StringRep StringRep::_emptyRep;
 
 inline StringRep* StringRep::alloc(size_t cap)
 {
+#ifndef PEGASUS_STRING_NO_THROW
+    
     // Check for potential overflow in cap
     PEGASUS_CHECK_CAPACITY_OVERFLOW(cap);
+
+#endif
 
     StringRep* rep = (StringRep*)::operator new(
         sizeof(StringRep) + cap * sizeof(Uint16));
@@ -478,11 +598,13 @@ StringRep* StringRep::create(const char* data, size_t size)
     size_t utf8_error_index;
     rep->size = _convert((Uint16*)rep->data, data, size, utf8_error_index);
 
+#ifndef PEGASUS_STRING_NO_THROW
     if (rep->size == size_t(-1))
     {
         StringRep::free(rep);
-        _StringThrowBadUTF8((Uint32)utf8_error_index, data,size);
+        _StringThrowBadUTF8(utf8_error_index);
     }
+#endif
 
     rep->data[rep->size] = '\0';
 
@@ -498,7 +620,7 @@ Uint32 StringRep::length(const Uint16* str)
     while (*end++)
         ;
 
-    return (Uint32)(end - str - 1);
+    return end - str - 1;
 }
 
 //==============================================================================
@@ -567,12 +689,14 @@ String::String(const String& s1, const char* s2)
     size_t utf8_error_index;
     size_t tmp = _convert((Uint16*)_rep->data + n1, s2, n2, utf8_error_index);
 
+#ifndef PEGASUS_STRING_NO_THROW
     if (tmp == size_t(-1))
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8((Uint32)utf8_error_index,s2,n2);
+        _StringThrowBadUTF8(utf8_error_index);
     }
+#endif
 
     _rep->size = n1 + tmp;
     _rep->data[_rep->size] = '\0';
@@ -587,12 +711,14 @@ String::String(const char* s1, const String& s2)
     size_t utf8_error_index;
     size_t tmp = _convert((Uint16*)_rep->data, s1, n1, utf8_error_index);
 
+#ifndef PEGASUS_STRING_NO_THROW
     if (tmp ==  size_t(-1))
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8((Uint32)utf8_error_index,s1,n1);
+        _StringThrowBadUTF8(utf8_error_index);
     }
+#endif
 
     _rep->size = n2 + tmp;
     _copy(_rep->data + n1, s2._rep->data, n2);
@@ -640,12 +766,14 @@ String& String::assign(const char* str, Uint32 n)
     size_t utf8_error_index;
     _rep->size = _convert(_rep->data, str, n, utf8_error_index);
 
+#ifndef PEGASUS_STRING_NO_THROW
     if (_rep->size ==  size_t(-1))
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8((Uint32)utf8_error_index,str,n);
+        _StringThrowBadUTF8(utf8_error_index);
     }
+#endif
 
     _rep->data[_rep->size] = 0;
 
@@ -690,7 +818,7 @@ CString String::getCString() const
     str[_rep->size] = '\0';
     return CString(str);
 #else
-    Uint32 n = (Uint32)(3 * _rep->size);
+    Uint32 n = 3 * _rep->size;
     char* str = (char*)operator new(n + 1);
     size_t size = _copyToUTF8(str, _rep->data, _rep->size);
     str[size] = '\0';
@@ -704,7 +832,7 @@ String& String::append(const Char16* str, Uint32 n)
 
     size_t oldSize = _rep->size;
     size_t newSize = oldSize + n;
-    _reserve(_rep, (Uint32)newSize);
+    _reserve(_rep, newSize);
     _copy(_rep->data + oldSize, (Uint16*)str, n);
     _rep->size = newSize;
     _rep->data[newSize] = '\0';
@@ -714,7 +842,7 @@ String& String::append(const Char16* str, Uint32 n)
 
 String& String::append(const String& str)
 {
-    return append((Char16*)(&(str._rep->data[0])), (Uint32)str._rep->size);
+    return append((Char16*)str._rep->data, str._rep->size);
 }
 
 String& String::append(const char* str, Uint32 size)
@@ -724,17 +852,19 @@ String& String::append(const char* str, Uint32 size)
     size_t oldSize = _rep->size;
     size_t cap = oldSize + size;
 
-    _reserve(_rep, (Uint32)cap);
+    _reserve(_rep, cap);
     size_t utf8_error_index;
     size_t tmp = _convert(
         (Uint16*)_rep->data + oldSize, str, size, utf8_error_index);
 
+#ifndef PEGASUS_STRING_NO_THROW
     if (tmp ==  size_t(-1))
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8((Uint32)utf8_error_index,str,size);
+        _StringThrowBadUTF8(utf8_error_index);
     }
+#endif
 
     _rep->size += tmp;
     _rep->data[_rep->size] = '\0';
@@ -745,7 +875,7 @@ String& String::append(const char* str, Uint32 size)
 void String::remove(Uint32 index, Uint32 n)
 {
     if (n == PEG_NOT_FOUND)
-        n = (Uint32)(_rep->size - index);
+        n = _rep->size - index;
 
     _checkBounds(index + n, _rep->size);
 
@@ -772,9 +902,9 @@ String String::subString(Uint32 index, Uint32 n) const
     if (index < _rep->size)
     {
         if (n == PEG_NOT_FOUND || n > _rep->size - index)
-            n = (Uint32)(_rep->size - index);
+            n = _rep->size - index;
 
-        return String((Char16*)(_rep->data + index), n);
+        return String((Char16*)_rep->data + index, n);
     }
 
     return String();
@@ -1006,10 +1136,7 @@ int String::compareNoCase(const String& str1, const String& str2)
     if (InitializeICU::initICUSuccessful())
     {
         return  u_strcasecmp(
-            (const UChar*)str1._rep->data,
-            (const UChar*)str2._rep->data,
-            U_FOLD_CASE_DEFAULT
-            );
+            str1._rep->data, str2._rep->data, U_FOLD_CASE_DEFAULT);
     }
 
 #endif /* PEGASUS_HAS_ICU */
@@ -1134,11 +1261,8 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
 
 Boolean String::equal(const String& s1, const String& s2)
 {
-    return (s1._rep == s2._rep) ||
-        ((s1._rep->size == s2._rep->size) &&
-         memcmp(s1._rep->data,
-                s2._rep->data,
-                s1._rep->size * sizeof(Uint16)) == 0);
+    return s1._rep->size == s2._rep->size && memcmp(s1._rep->data,
+        s2._rep->data, s1._rep->size * sizeof(Uint16)) == 0;
 }
 
 Boolean String::equal(const String& s1, const char* s2)
@@ -1167,6 +1291,14 @@ Boolean String::equal(const String& s1, const char* s2)
 
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 {
+#if defined(PEGASUS_OS_OS400)
+
+    CString cstr = str.getCString();
+    const char* utf8str = cstr;
+    os << utf8str;
+    return os;
+#else
+
 #if defined(PEGASUS_HAS_ICU)
 
     if (InitializeICU::initICUSuccessful())
@@ -1202,6 +1334,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     }
 
     return os;
+#endif // PEGASUS_OS_OS400
 }
 
 void StringAppendCharAux(StringRep*& _rep)
@@ -1222,29 +1355,6 @@ void StringAppendCharAux(StringRep*& _rep)
 
     StringRep::unref(_rep);
     _rep = tmp;
-}
-
-void AssignASCII(String& s, const char* str, Uint32 n)
-{
-    class StringLayout
-    {
-    public:
-        StringRep* rep;
-    };
-
-    StringLayout* that = reinterpret_cast<StringLayout*>(&s);
-
-    _checkNullPointer(str);
-
-    if (n > that->rep->cap || that->rep->refs.get() != 1)
-    {
-        StringRep::unref(that->rep);
-        that->rep = StringRep::alloc(n);
-    }
-
-    _copy(that->rep->data, str, n);
-    that->rep->size = n;
-    that->rep->data[that->rep->size] = 0;
 }
 
 PEGASUS_NAMESPACE_END
@@ -1373,6 +1483,50 @@ String optimizations:
             s.assignASCII7("hello world");
 
         This avoids slower UTF8 processing when not needed.
+
+================================================================================
+
+TO-DO:
+
+    (+) [DONE] Use PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
+    (+) [DONE] Submit BUG-2754 (Windows buffer limit).
+
+    (+) [DONE] Eliminate char versions of find() and append().
+
+    (+) [DONE] Remove PEGASUS_MAX_PRINTABLE_CHARACTER from Config.h
+
+    (+) [DONE] Change _next_pow_2() to _roundUpToPow2().
+
+    (+) [DONE] Change '99' to '2' in StringRep constructor (comment as well).
+
+    (+) [DONE] Comment StringRep allocation layout.
+
+    (+) [DONE] Conceal private inline functions.
+
+    (+) [DONE] Shorten inclusion of StringInline.h in String.h.
+
+    (+) [DONE] Change USE_INTERNAL_INLINE TO DISABLE_INTERNAL_INLINE or get
+        rid of altogether.
+
+    (+) [DONE] useCamelNotationOnAllFunctionNames.
+
+    (+) [DONE] Check for overlow condition in StringRep::alloc().
+
+    (+) [DONE] Remove tabs (used vim ":set expandtab" and ":retab").
+
+    (+) [DONE] Fix throw-related memory leak.
+
+    (+) [DONE] Look at PEP223 for coding security guidelines.
+
+    (+) [DONE] Use old AtomicInt for now (new AtomicInt part of bug #4250).
+
+    (+) [DONE] Removed appendASCII() and the ASCII form of the constructor.
+
+    (+) DOC++ String.h - will open new bug?
+
+    (+) Added PEGASUS_DISABLE_INTERNAL_INLINES macro (to permit suppression
+	on certain platforms).
 
 ================================================================================
 */

@@ -1036,10 +1036,23 @@ void HTTPConnection::_getContentLengthAndContentOffset()
             // reserve space for entire non-chunked message
             if (_contentLength > 0)
             {
-                Uint32 capacity = (Uint32)(_contentLength + _contentOffset + 1);
-                _incomingBuffer.reserveCapacity(capacity);
-                data = (char *)_incomingBuffer.getData();
-                data[capacity-1] = 0;
+                try
+                {
+                    Uint32 capacity = (Uint32)(_contentLength + 
+                        _contentOffset + 1);
+                    _incomingBuffer.reserveCapacity(capacity);
+                    data = (char *)_incomingBuffer.getData();
+                    data[capacity-1] = 0;
+                }
+                catch(const PEGASUS_STD(bad_alloc)&)
+                {
+                    _throwEventFailure(HTTP_STATUS_REQUEST_TOO_LARGE,
+                        "Error reserving space for non-chunked message");
+                }
+                catch(...)
+                {
+                    _throwEventFailure(httpStatusInternal, "unexpected exception");
+                }
             }
 
             break;

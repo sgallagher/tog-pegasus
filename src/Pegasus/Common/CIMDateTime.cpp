@@ -1193,18 +1193,13 @@ CIMDateTime::Field CIMDateTime::fieldcheck(const String & in_p, String & rep_fie
 
 
 /* This method does not change the value of object, it only converts the
-    representation form one time zone to the time zone specified.
-    @param cdt Time Stamp object that will be converted
-    @param utc uct-offset in minutes that represents the time zone  to be
-    converted to
-    Returns a copy of the calling object modified to represent the same
-    time in a different time zone.
+    representation to a specified time zone.
+    @param utc utc-offset in minutes that represents the time zone to be
+    converted to.
 */
 void CIMDateTime::setUtcOffSet(Sint32 utc)
 {
-    if(this->isInterval()){
-        return;
-    }
+    PEGASUS_ASSERT(!isInterval());
 
     MessageLoaderParms parmsOv("Common.CIMDateTime.UTC_OVERFLOW",
         "overflow has occurred during conversion to UTC");
@@ -1212,48 +1207,42 @@ void CIMDateTime::setUtcOffSet(Sint32 utc)
         "underflow has occurred during conversion to UTC");
 
     // convert CIMDateTime to microseconds.
-    Uint64 cdt_MicroSec = this->toMicroSeconds();
-    Uint32 offSet = abs(utc);
-    Uint64 offSet_hor = (offSet/60) * _ONE_HOUR;
-    Uint64 offSet_min = (offSet%60) * _ONE_MINUTE;
-    Uint64 cdt_MicroSecSum = 0;
-    String sgn_offset;
+    Uint64 origMicroseconds = toMicroSeconds();
+    Sint64 newUtcMicroseconds = utc * _ONE_MINUTE;
+    Uint64 newMicroseconds = origMicroseconds - newUtcMicroseconds;
 
-    //Add (if utc is - ) or subtract (if utc is +) utc to/from DateTime.
-    if (utc >= 0) {
-        if (cdt_MicroSec < (offSet_hor + offSet_min)) {
-            throw DateTimeOutOfRangeException(parmsOv);
-        }
-        cdt_MicroSecSum = cdt_MicroSec - (offSet_hor + offSet_min);
-        sgn_offset = "+";
-    }
-
-    else{
-        if (_TEN_THOUSAND_YEARS < (cdt_MicroSec + offSet_hor + offSet_min)) {
+    // Check for underflow or overflow
+    if (utc >= 0)
+    {
+        if (origMicroseconds < (Uint64)newUtcMicroseconds)
+        {
             throw DateTimeOutOfRangeException(parmsUn);
         }
-        cdt_MicroSecSum = cdt_MicroSec + (offSet_hor + offSet_min);
-        sgn_offset = "-";
+    }
+    else
+    {
+        if (_TEN_THOUSAND_YEARS < (origMicroseconds - newUtcMicroseconds))
+        {
+            throw DateTimeOutOfRangeException(parmsOv);
+        }
     }
 
+    // Create a new CIMDateTime with the recalculated microseconds value
+    // and use the specified UTC value.
+    CIMDateTime newDateTime = CIMDateTime(newMicroseconds, false);
 
-    //Create new DateTime from sum of old DateTime and UTC and set UCT of new Date time.
-    CIMDateTime ans = CIMDateTime(cdt_MicroSecSum, false);
+    char newUtcBuffer[5];
+    sprintf(newUtcBuffer, "%+04d", utc);
+    Boolean res = newDateTime._rep->set_utcOffSet(newUtcBuffer);
 
-    char utcBuff [5];
-    sprintf(utcBuff, "%03d", offSet);
-    String utc_str = sgn_offset.append(String(utcBuff));
-    Boolean res = ans._rep->set_utcOffSet(utc_str);
-
-    if (res) {
-        this->_rep->copy(ans._rep);   //  set_utcOffSet worked
-        return;
-    }
-    else{
+    if (!res)
+    {
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                       "CIMDateTime::setUTCOffSet() failed");
         throw InvalidDateTimeFormatException();
     }
+
+    this->_rep->copy(newDateTime._rep);
 }
 
 

@@ -82,6 +82,7 @@ public:
         const CIMConstInstance& instance);
 
     static void appendPropertyElement(
+        Boolean isDeclaration,
         Buffer& out,
         const CIMConstProperty& property);
 

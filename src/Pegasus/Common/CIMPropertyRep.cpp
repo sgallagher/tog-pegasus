@@ -538,7 +538,10 @@ void CIMPropertyRep::toXml(Buffer& out) const
 }
 
 /** toMof - returns the MOF for the CIM Property Object in the parameter.
-    The BNF for the property MOF is:
+    The MOF for property declaration in a class and value presentation in 
+    an instance are different.
+    
+    The BNF for the property Declaration MOF is:
     <pre>
     propertyDeclaration     = 	[ qualifierList ] dataType propertyName
 				[ array ] [ defaultValue ] ";"
@@ -549,8 +552,14 @@ void CIMPropertyRep::toXml(Buffer& out) const
     </pre>
     Format with qualifiers on one line and declaration on another. Start
     with newline but none at the end.
+ 
+    Note that instances have a different format that propertyDeclarations:
+    instanceDeclaration = [ qualifiersList ] INSTANCE OF className | alias
+         "["valueInitializer "]" ";"
+    valueInitializer = [ qualifierList ] [ propertyName | referenceName ] "="
+                       initializer ";"
 */
-void CIMPropertyRep::toMof(Buffer& out) const  //ATTNKS:
+void CIMPropertyRep::toMof(Boolean isDeclaration, Buffer& out) const
 {
     //Output the qualifier list
     if (_qualifiers.getCount())
@@ -558,21 +567,28 @@ void CIMPropertyRep::toMof(Buffer& out) const  //ATTNKS:
     _qualifiers.toMof(out);
 
     // Output the Type and name on a new line
-    out << '\n' << cimTypeToString(_value.getType ());
-    out.append(' ');
+    out << '\n'; 
+    if (isDeclaration)
+    {
+        out << cimTypeToString(_value.getType ());
+        out.append(' ');
+    }
     out << _name;
 
     // If array put the Array indicator "[]" and possible size after name.
-    if (_value.isArray())
+    if (isDeclaration)
     {
-	if (_arraySize)
-	{
-	    char buffer[32];
-	    int n = sprintf(buffer, "[%d]", _arraySize);
-	    out.append(buffer, n);
-	}
-	else
-	    out << STRLIT("[]");
+        if (_value.isArray())
+        {
+            if (_arraySize)
+            {
+                char buffer[32];
+                int n = sprintf(buffer, "[%d]", _arraySize);
+                out.append(buffer, n);
+            }
+            else
+                out << STRLIT("[]");
+        }
     }
 
     // If the property value is not Null, add value after "="
@@ -593,6 +609,9 @@ void CIMPropertyRep::toMof(Buffer& out) const  //ATTNKS:
 	    MofWriter::appendValueElement(out, _value);
 	}
     }
+    else if (!isDeclaration)
+            out << STRLIT(" = NULL");
+
     // Close the property MOF
     out.append(';');
 

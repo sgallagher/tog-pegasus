@@ -556,16 +556,16 @@ void CIMClassRep::toXml(Buffer& out) const
 
     out << STRLIT(">\n");
 
-    // Qualifiers:
+    // Append Class Qualifiers:
 
     _qualifiers.toXml(out);
 
-    // Parameters:
+    // Append Property definitions:
 
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
 	XmlWriter::appendPropertyElement(out, _properties[i]);
 
-    // Methods:
+    // Append Method definitions:
 
     for (Uint32 i = 0, n = _methods.size(); i < n; i++)
 	XmlWriter::appendMethodElement(out, _methods[i]);
@@ -613,9 +613,10 @@ void CIMClassRep::toMof(Buffer& out) const
 	// Generate MOF if this property not propagated
 	// Note that the test is required only because
 	// there is an error in getclass that does not
-	// test the localOnly flag.
+	// test the localOnly flag
+        // The inital "false" indicates to format as property declaration.
 	if (!_properties[i].getPropagated())
-	    MofWriter::appendPropertyElement(out, _properties[i]);
+	    MofWriter::appendPropertyElement(true, out, _properties[i]);
     }
 
     // Format the Methods:  for non-propagated methods

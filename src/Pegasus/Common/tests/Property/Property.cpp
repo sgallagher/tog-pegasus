@@ -80,8 +80,8 @@ void test01()
 
     // Test toMof
        Buffer mofOut;
-       MofWriter::appendPropertyElement(mofOut, p1);
-       MofWriter::appendPropertyElement(mofOut, p2);
+       MofWriter::appendPropertyElement(true, mofOut, p1);
+       MofWriter::appendPropertyElement(true, mofOut, p2);
 
     // Test toXml
        Buffer xmlOut;
@@ -200,7 +200,7 @@ void test02()
 	    XmlWriter::printPropertyElement(cp1, cout);
 
         Buffer mofOut;
-        MofWriter::appendPropertyElement(mofOut, cp1);
+        MofWriter::appendPropertyElement(true,mofOut, cp1);
         Buffer xmlOut;
         XmlWriter::appendPropertyElement(xmlOut, cp1);
 

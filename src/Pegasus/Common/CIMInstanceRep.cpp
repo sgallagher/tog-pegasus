@@ -256,7 +256,7 @@ void CIMInstanceRep::toXml(Buffer& out) const
 void CIMInstanceRep::toMof(Buffer& out) const
 {
     // Get and format the class qualifiers
-    out << STRLIT("\n//Instance of Class ") << _reference.getClassName();
+    out << STRLIT("\n//Instance of ") << _reference.getClassName();
     if (_qualifiers.getCount())
 	out.append('\n');
     _qualifiers.toMof(out);
@@ -265,7 +265,7 @@ void CIMInstanceRep::toMof(Buffer& out) const
     out.append('\n');
 
     // output class statement
-    out << STRLIT("instance of class ") << _reference.getClassName();
+    out << STRLIT("instance of ") << _reference.getClassName();
 
     out << STRLIT("\n{");
 
@@ -276,8 +276,10 @@ void CIMInstanceRep::toMof(Buffer& out) const
     	// Note that the test is required only because
     	// there is an error in getclass that does not
     	// test the localOnly flag.
+        // The false identifies this as value initializer, not
+        // property definition.
     	if (!_properties[i].getPropagated())
-    	    MofWriter::appendPropertyElement(out, _properties[i]);
+    	    MofWriter::appendPropertyElement(false,out, _properties[i]);
     }
 
     // Class closing element:

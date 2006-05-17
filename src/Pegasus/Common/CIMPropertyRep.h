@@ -158,7 +158,7 @@ public:
 
     void toXml(Buffer& out) const;
 
-    void toMof(Buffer& out) const;
+    void toMof(Boolean isInstance, Buffer& out) const;
 
     Boolean identical(const CIMPropertyRep* x) const;
 

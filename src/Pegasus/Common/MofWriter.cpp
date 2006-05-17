@@ -602,11 +602,12 @@ void MofWriter::appendInstanceElement(
 //------------------------------------------------------------------------------
 
 void MofWriter::appendPropertyElement(
+    Boolean isDeclaration,
     Buffer& out,
     const CIMConstProperty& property)
 {
     property._checkRep();
-    property._rep->toMof(out);
+    property._rep->toMof(isDeclaration, out);
 }
 
 //------------------------------------------------------------------------------

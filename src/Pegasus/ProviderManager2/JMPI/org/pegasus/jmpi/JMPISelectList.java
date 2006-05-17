@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,39 +29,68 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Mark Hamzy,    hamzy@us.ibm.com
 //
-// Modified By: Adrian Duta
+// Modified By: Mark Hamzy,    hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 package org.pegasus.jmpi;
 
-import java.util.*;
+import java.util.Enumeration;
 
-class QualEnumeration implements Enumeration {
-   private int cInst;
-   private int cur,max;
-   
-   private native int _getQualifierType(int cInst, int pos);
-   private native int _size(int cInst);
-   
-   protected int cInst ()
+public class JMPISelectList
+             extends SelectList
+{
+   private int ciSelectExp;
+
+   private native int _applyInstance (int ciSelectExp, int ciInstance);
+   private native int _applyClass    (int ciSelectExp, int ciClass);
+
+   JMPISelectList (int ciSelectExp)
    {
-      return cInst;
+      this.ciSelectExp = ciSelectExp;
    }
 
-   QualEnumeration(int ci) {
-      cInst=ci;
-      max=_size(ci);
-      cur=0;
+///public void addElement (AttributeExp ae)
+///{
+///}
+
+   public Enumeration elements ()
+   {
+      return null;
    }
-   public boolean hasMoreElements() {
-      return (cur<max);
+
+   public CIMElement apply (CIMElement elm)
+   {
+      if (elm instanceof CIMInstance)
+      {
+         CIMInstance ci     = (CIMInstance)elm;
+         int         ciInst = 0;
+
+         ciInst = _applyInstance (ciSelectExp, ci.cInst ());
+
+         if (ciInst != 0)
+         {
+            return new CIMInstance (ciInst);
+         }
+      }
+      else if (elm instanceof CIMClass)
+      {
+         CIMClass cc      = (CIMClass)elm;
+         int      ciClass = 0;
+
+         ciClass = _applyClass (ciSelectExp, cc.cInst ());
+
+         if (ciClass != 0)
+         {
+            return new CIMClass (ciClass);
+         }
+      }
+
+      return null;
    }
-   public Object nextElement() {
-      if (cur>=max) return null;
-      return new CIMQualifierType(_getQualifierType(cInst,cur++));
+
+   static {
+      System.loadLibrary("JMPIProviderManager");
    }
 }

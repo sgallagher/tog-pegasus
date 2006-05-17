@@ -89,6 +89,7 @@ PACKAGEDIR = org/pegasus/jmpi
    FromExp.class \
    NonJoinExp.class \
    SelectList.class \
+   JMPISelectList.class \
    QueryExp.class \
    JMPIQueryExp.class \
    WQLExp.class \

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
@@ -40,40 +42,40 @@ import java.math.BigInteger;
 
 public class CIMValue
 {
-   private long cInst;
+   private int cInst;
 
-   private native long    _byte          (short   v,    boolean unsigned);
-   private native long    _short         (int     v,    boolean unsigned);
-   private native long    _makeInt       (long    v,    boolean unsigned);
-   private native long    _long          (long    v,    boolean unsigned);
-   private native long    _string        (String  v);
-   private native long    _boolean       (boolean v);
-   private native long    _float         (float   v);
-   private native long    _double        (double  v);
-   private native long    _cop           (long    v);
-   private native long    _datetime      (long    v);
-   private native long    _char16        (char    v);
-   private native long    _object        (long    v);
+   private native int     _byte          (short   v,    boolean unsigned);
+   private native int     _short         (int     v,    boolean unsigned);
+   private native int     _makeInt       (long    v,    boolean unsigned);
+   private native int     _long          (long    v,    boolean unsigned);
+   private native int     _string        (String  v);
+   private native int     _boolean       (boolean v);
+   private native int     _float         (float   v);
+   private native int     _double        (double  v);
+   private native int     _cop           (int     v);
+   private native int     _datetime      (int     v);
+   private native int     _char16        (char    v);
+   private native int     _object        (int     v);
 
-   private native long    _byteArray     (short   v[],  boolean unsigned);
-   private native long    _shortArray    (int     v[],  boolean unsigned);
-   private native long    _intArray      (long    v[],  boolean unsigned);
-   private native long    _longArray     (long    v[],  boolean unsigned);
-   private native long    _stringArray   (String  v[]);
-   private native long    _booleanArray  (boolean v[]);
-   private native long    _floatArray    (float   v[]);
-   private native long    _doubleArray   (double  v[]);
-   private native long    _copArray      (long    v[]);
-   private native long    _datetimeArray (long    v[]);
-   private native long    _objectArray   (long    v[]);
-   private native long    _char16Array   (char    v[]);
+   private native int     _byteArray     (short   v[],  boolean unsigned);
+   private native int     _shortArray    (int     v[],  boolean unsigned);
+   private native int     _intArray      (long    v[],  boolean unsigned);
+   private native int     _longArray     (long    v[],  boolean unsigned);
+   private native int     _stringArray   (String  v[]);
+   private native int     _booleanArray  (boolean v[]);
+   private native int     _floatArray    (float   v[]);
+   private native int     _doubleArray   (double  v[]);
+   private native int     _copArray      (int     v[]);
+   private native int     _datetimeArray (int     v[]);
+   private native int     _objectArray   (int     v[]);
+   private native int     _char16Array   (char    v[]);
 
-   private native Object  _getValue      (long    v) throws CIMException;
-   private native int     _getType       (long    v);
-   private native boolean _isArray       (long    v);
-   private native String  _toString      (long    v);
+   private native Object  _getValue      (int     v) throws CIMException;
+   private native int     _getType       (int     v);
+   private native boolean _isArray       (int     v);
+   private native String  _toString      (int     v);
 
-   private native void    _finalize      (long    cv);
+   private native void    _finalize      (int     cv);
 
    protected void finalize ()
    {
@@ -81,7 +83,7 @@ public class CIMValue
    }
 
    // This constructor should be public as well.
-   public CIMValue (long v)
+   public CIMValue (int v)
    {
       cInst = v;
    }
@@ -91,16 +93,14 @@ public class CIMValue
       cInst = calculateCInst (o);
    }
 
-   public CIMValue (Object o, CIMDataType type)
-      throws CIMException
+   public CIMValue (Object o, CIMDataType type) throws CIMException
    {
       cInst = calculateCInst (o);
    }
 
-   private long calculateCInst (Object o)
-      throws CIMException
+   private int calculateCInst (Object o) throws CIMException
    {
-      long ciRet = 0;
+      int ciRet = 0;
 
       if (o == null)
          return 0;
@@ -223,7 +223,7 @@ public class CIMValue
          }
          else if (o0 instanceof CIMObjectPath)
          {
-            long c[]=new long[size];
+            int c[]=new int[size];
 
             for (int i=0; i<size; i++)
                c[i]=((CIMObjectPath)v.elementAt (i)).cInst ();
@@ -232,7 +232,7 @@ public class CIMValue
          }
          else if (o0 instanceof CIMDateTime)
          {
-             long c[]=new long[size];
+             int c[]=new int[size];
 
              for (int i=0; i<size; i++)
                 c[i]=((CIMDateTime)v.elementAt (i)).cInst ();
@@ -241,7 +241,7 @@ public class CIMValue
          }
          else if (o0 instanceof CIMObject)
          {
-             long c[]=new long[size];
+             int c[]=new int[size];
 
              for (int i=0; i<size; i++)
                 c[i]=((CIMObject)v.elementAt (i)).cInst ();
@@ -344,8 +344,7 @@ public class CIMValue
       return ciRet;
    }
 
-   public Object getValue ()
-      throws CIMException
+   public Object getValue () throws CIMException
    {
       if (cInst == 0)
          return null;
@@ -353,8 +352,7 @@ public class CIMValue
       return getValue (true);
    }
 
-   public Object getValue (boolean toVector)
-      throws CIMException
+   public Object getValue (boolean toVector) throws CIMException
    {
       if (cInst == 0)
          return null;
@@ -371,7 +369,9 @@ public class CIMValue
 
          int     type    = _getType (cInst);
          boolean isArray = _isArray (cInst);
+         {
 
+         }
          if (isArray)
          {
             switch (type)
@@ -668,7 +668,7 @@ public class CIMValue
       return _toString (cInst);
    }
 
-   protected long cInst ()
+   protected int cInst ()
    {
       return cInst;
    }
@@ -676,4 +676,4 @@ public class CIMValue
    static {
       System.loadLibrary ("JMPIProviderManager");
    }
-}
+};

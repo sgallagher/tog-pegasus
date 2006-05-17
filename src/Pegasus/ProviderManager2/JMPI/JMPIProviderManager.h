@@ -40,7 +40,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/ProviderManager2/ProviderRegistrarInitializer.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/Server/Linkage.h>
@@ -77,28 +76,50 @@ public:
     virtual Boolean hasActiveProviders();
     virtual void unloadIdleProviders();
 
-   struct indProvRecord {
-      indProvRecord() : enabled(false), count(1), handler(NULL), ctx(NULL) {}
-      Boolean enabled;
-      int count;
-      EnableIndicationsResponseHandler* handler;
-      OperationContext* ctx;
-   };
+    class indProvRecord
+    {
+    public:
+        indProvRecord ()
+        {
+           enabled   = false;
+           count     = 0;
+           ctx       = NULL;
+           handler   = NULL;
+        }
 
+        mutable Mutex                     mutex;
+        Boolean                           enabled;
+        int                               count;
+        OperationContext                 *ctx;
+        EnableIndicationsResponseHandler *handler;
+    };
 
-   struct indSelectRecord {
-      indSelectRecord() : eSelx(NULL) {}
-      CMPI_SelectExp *eSelx;
-	  CIMOMHandleQueryContext *qContext;
-   };
+    class indSelectRecord
+    {
+    public:
+        indSelectRecord ()
+        {
+            eSelx    = NULL;
+            qContext = NULL;
+        }
 
-   typedef HashTable<String,indProvRecord*,  EqualFunc<String>,HashFunc<String> > IndProvTab;
-   typedef HashTable<String,indSelectRecord*,EqualFunc<String>,HashFunc<String> > IndSelectTab;
-   typedef HashTable<String,ProviderName,EqualFunc<String>,HashFunc<String> > ProvRegistrar;
+        CMPI_SelectExp          *eSelx;
+	     CIMOMHandleQueryContext *qContext;
+        String                   query;
+        String                   queryLanguage;
+        CIMPropertyList          propertyList;
+    };
 
-   static IndProvTab provTab;
-   static IndSelectTab selxTab;
-   static ProvRegistrar provReg;
+    typedef HashTable<String, indProvRecord*,   EqualFunc<String>, HashFunc<String> > IndProvTab;
+    typedef HashTable<String, indSelectRecord*, EqualFunc<String>, HashFunc<String> > IndSelectTab;
+    typedef HashTable<String, ProviderName,     EqualFunc<String>, HashFunc<String> > ProvRegistrar;
+
+    static Mutex         mutexProvTab;
+    static IndProvTab    provTab;
+    static Mutex         mutexSelxTab;
+    static IndSelectTab  selxTab;
+    static Mutex         mutexProvReg;
+    static ProvRegistrar provReg;
 
 protected:
     JMPILocalProviderManager providerManager;

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,40 +28,33 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author:      Adrian Schuur, schuur@de.ibm.com 
-//
-// Modified By: Adrian Duta
-//
-//%/////////////////////////////////////////////////////////////////////////////
 
+instance of PG_ProviderModule
+{
+   Name             = "JMPI_IndicationProviderModule";
+   Location         = "JMPI_IndicationProvider.jar:org/pegasus/jmpi/tests/Indication/JMPI_IndicationProvider";
+   Vendor           = "OpenPegasus";
+   Version          = "2.0.0";
+   InterfaceType    = "JMPIExperimental";
+   InterfaceVersion = "0.0.1";
+};
 
-package org.pegasus.jmpi;
+instance of PG_Provider
+{
+   ProviderModuleName = "JMPI_IndicationProviderModule";
+   Name               = "JMPI_IndicationProvider";
+};
 
-import java.util.*;
-
-class QualEnumeration implements Enumeration {
-   private int cInst;
-   private int cur,max;
-   
-   private native int _getQualifierType(int cInst, int pos);
-   private native int _size(int cInst);
-   
-   protected int cInst ()
-   {
-      return cInst;
-   }
-
-   QualEnumeration(int ci) {
-      cInst=ci;
-      max=_size(ci);
-      cur=0;
-   }
-   public boolean hasMoreElements() {
-      return (cur<max);
-   }
-   public Object nextElement() {
-      if (cur>=max) return null;
-      return new CIMQualifierType(_getQualifierType(cInst,cur++));
-   }
-}
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName  = "JMPI_IndicationProviderModule";
+   ProviderName        = "JMPI_IndicationProvider";
+   CapabilityID        = "1";
+   ClassName           = "TestIndication";
+   Namespaces          = {"test/static"};
+   // ValueMap {"2",        "3",           "4" ,          "5" ,     "6" ,                 "7"},
+   // Values   {"Instance", "Association", "Indication" , "Method", "IndicationConsumer", "InstanceQuery"}]
+   ProviderType        = { 2, 4, 5 };
+   SupportedProperties = NULL;     // All properties
+   SupportedMethods    = NULL;     // All methods
+};

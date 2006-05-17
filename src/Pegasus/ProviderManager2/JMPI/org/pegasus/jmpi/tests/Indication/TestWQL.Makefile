@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,40 +28,23 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../..
-
-DIR = Pegasus/ProviderManager2
+ROOT = $(PEGASUS_ROOT)
+DIR  = Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/Indication
 
 include $(ROOT)/mak/config.mak
 
-EXTRA_INCLUDES = $(SYS_INCLUDES)
+PROGRAM            = TestWQL
+SOURCES            = TestWQL.cpp
+EXTRA_CXX_FLAGS    =
+LOCAL_DEFINES      =
+SYS_INCLUDES       =
+EXTRA_INCLUDES     =
+EXTRA_LINK_FLAGS   =
+LIBRARIES          = \
+	pegwql \
+	pegclient \
+	pegcommon
+LOCAL_CLEAN_TARGET =
 
-LOCAL_DEFINES = -DPEGASUS_PPM_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER
-
-LIBRARY = pegprovidermanager
-
-LIBRARIES = \
-    pegprm \
-    pegwql \
-    pegconfig \
-    pegcommon
-
-SOURCES = \
-	ProviderManagerService.cpp \
-	ProviderManagerRouter.cpp \
-	BasicProviderManagerRouter.cpp \
-	OOPProviderManagerRouter.cpp \
-	ProviderManagerModule.cpp \
-	\
-	ProviderManager.cpp \
-	ProviderRegistrar.cpp \
-	ProviderName.cpp \
-	ProviderType.cpp \
-	\
-	SafeQueue.cpp \
-	Lockable.cpp \
-	OperationResponseHandler.cpp \
-	SimpleResponseHandler.cpp
-
-
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/program.mak
+include $(ROOT)/mak/test.mak

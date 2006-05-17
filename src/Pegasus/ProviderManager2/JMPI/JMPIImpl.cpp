@@ -61,6 +61,7 @@
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProviderManager.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_SelectExp.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -221,12 +222,12 @@ JMPIjvm::~JMPIjvm()
 
 int JMPIjvm::cacheIDs(JNIEnv *env)
 {
-   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): enter"<<PEGASUS_STD(endl));
-
    if (methodInitDone==1)
       return JNI_TRUE;
    if (methodInitDone==-1)
       return JNI_FALSE;
+
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): enter"<<PEGASUS_STD(endl));
 
    methodInitDone=-1;
 
@@ -1402,36 +1403,52 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent
 {
    CIMOMHandle *ch  = DEBUG_ConvertJavaToC (jint, CIMOMHandle*, jCh);
    CIMInstance *ind = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInd);
-   const char  *str = jEnv->GetStringUTFChars(jName,NULL);
-   String       name(str);
+   const char  *str = jEnv->GetStringUTFChars (jName, NULL);
+   String       name (str);
 
-   jEnv->ReleaseStringUTFChars(jName,str);
+   jEnv->ReleaseStringUTFChars (jName, str);
 
-   str=jEnv->GetStringUTFChars(jNs,NULL);
+   str = jEnv->GetStringUTFChars (jNs, NULL);
 
-   String ns(str);
+   String ns (str);
 
-   jEnv->ReleaseStringUTFChars(jNs,str);
+   jEnv->ReleaseStringUTFChars (jNs, str);
 
-   CIMObjectPath ref(CIMObjectPath(ind->getPath()));
+   CIMObjectPath ref (ind->getPath ());
 
-   ref.setNameSpace(ns);
-   ind->setPath(ref);
+   ref.setNameSpace (ns);
+   DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() ref = "<<ref.toString ()<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() ind = "<<ind->getPath ().toString ()<<PEGASUS_STD(endl));
+   ind->setPath (ref);
+   DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() ind = "<<ind->getPath ().toString ()<<PEGASUS_STD(endl));
 
-   JMPIProviderManager::indProvRecord *prec;
-   OperationContext* context;
+   JMPIProviderManager::indProvRecord   *prec        = NULL;
+   String                                sPathString = ind->getPath ().toString ();
+   OperationContext                     *context     = NULL;
+   bool                                  fResult     = false;
 
-   if (JMPIProviderManager::provTab.lookup(name,prec)) {
-      if (prec->enabled) {
-         context=prec->ctx;
-         try {
-            prec->handler->deliver(*context, *ind);
+   {
+      AutoMutex lock (JMPIProviderManager::mutexProvTab);
+
+      fResult = JMPIProviderManager::provTab.lookup (name, prec);
+
+      DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() fResult = "<<fResult<<", name = "<<name<<PEGASUS_STD(endl));
+   }
+
+   if (fResult)
+   {
+      if (prec->enabled)
+      {
+         try
+         {
+            prec->handler->deliver (*prec->ctx, *ind);
          }
          Catch(jEnv);
       }
    }
-   else {
-      DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() "<<name<<" not found"<<PEGASUS_STD(endl));
+   else
+   {
+      DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() provider name \""<<name<<"\" not found"<<PEGASUS_STD(endl));
    }
 }
 
@@ -1908,7 +1925,15 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMInstance__1getKeyValuePairs
 
    CIMInstance *ci = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInst);
 
+//@HACK
+//cout << "ci->getPropertyCount() = " << ci->getPropertyCount() << endl;
    for (int i=0,s=ci->getPropertyCount(); i<s; i++) {
+//cout << ci->getProperty(i).getName ().getString ()
+//     << " "
+//     << ci->getProperty(i).getQualifierCount ()
+//     << " "
+//     << ci->getProperty(i).findQualifier(CIMName ("key"))
+//     << endl;
       if (ci->getProperty(i).findQualifier(String("key"))!=PEG_NOT_FOUND) {
          CIMProperty *cp  = new CIMProperty(ci->getProperty(i));
          jint         jCp = DEBUG_ConvertCToJava (CIMProperty*, jint, cp);
@@ -2051,6 +2076,104 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1filterProperties
    }
 
    return DEBUG_ConvertCToJava (CIMInstance*, jint, cf);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_CIMInstance
+ * Method:    _getObjectPath
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1getObjectPath
+  (JNIEnv *jEnv, jobject jThs, jint jciCi)
+{
+   CIMInstance   *ci     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciCi);
+   CIMObjectPath *copRet = NULL;
+
+   try
+   {
+      if (ci)
+      {
+         const CIMObjectPath& cop = ci->getPath ();
+
+         copRet = new CIMObjectPath (cop);
+      }
+   }
+   Catch (jEnv);
+
+   return DEBUG_ConvertCToJava (CIMObjectPath*, jint, copRet);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_CIMInstance
+ * Method:    _setObjectPath
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMInstance__1setObjectPath
+  (JNIEnv *jEnv, jobject jThs, jint jciCi, jint jciCop)
+{
+   CIMInstance   *ci  = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciCi);
+   CIMObjectPath *cop = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jciCop);
+
+   try
+   {
+      if (  ci
+         && cop
+         )
+      {
+         ci->setPath (*cop);
+      }
+   }
+   Catch (jEnv);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_CIMInstance
+ * Method:    _getPropertyCount
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1getPropertyCount
+  (JNIEnv *jEnv, jobject jThs, jint jciCi)
+{
+   CIMInstance *ci      = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciCi);
+   Uint32       ui32Ret = 0;
+
+   try
+   {
+      if (ci)
+      {
+         ui32Ret = ci->getPropertyCount ();
+      }
+   }
+   Catch (jEnv);
+
+   return ui32Ret;
+}
+
+/*
+ * Class:     org_pegasus_jmpi_CIMInstance
+ * Method:    _getProperty
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1getPropertyI
+  (JNIEnv *jEnv, jobject jThs, jint jciCi, jint ji)
+{
+   CIMInstance *ci    = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciCi);
+   CIMProperty *cpRet = NULL;
+
+   try
+   {
+      if (ci)
+      {
+         CIMProperty  cp;
+
+         cp = ci->getProperty (ji);
+
+         cpRet = new CIMProperty (cp);
+      }
+   }
+   Catch (jEnv);
+
+   return DEBUG_ConvertCToJava (CIMProperty*, jint, cpRet);
 }
 
 // -------------------------------------
@@ -2885,6 +3008,8 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMProperty__1setType
 
       delete cp;
 
+      DEBUG_ConvertCleanup (jint, jP);
+
       return DEBUG_ConvertCToJava (CIMProperty*, jint, np);
    }
    else
@@ -2912,6 +3037,52 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1finalize
 
    DEBUG_ConvertCleanup (jint, jP);
 }
+
+/*
+ * Class:     org_pegasus_jmpi_CIMProperty
+ * Method:    _findQualifier
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMProperty__1findQualifier
+  (JNIEnv *jEnv, jobject jThs, jint jP, jstring jQualifier)
+{
+   CIMProperty  *cp    = DEBUG_ConvertJavaToC (jint, CIMProperty*, jP);
+   const char   *str   = jEnv->GetStringUTFChars (jQualifier, NULL);
+   int           index = PEG_NOT_FOUND;
+
+   try
+   {
+      index = cp->findQualifier (CIMName (str));
+
+      jEnv->ReleaseStringUTFChars (jQualifier, str);
+   }
+   Catch (jEnv);
+
+   return index;
+}
+
+/*
+ * Class:     org_pegasus_jmpi_CIMProperty
+ * Method:    _getQualifier
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMProperty__1getQualifier
+  (JNIEnv *jEnv, jobject jThs, jint jP, jint jIndex)
+{
+   CIMProperty  *cp        = DEBUG_ConvertJavaToC (jint, CIMProperty*, jP);
+   CIMQualifier *cq        = NULL;
+   CIMQualifier  qualifier;
+
+   try
+   {
+      qualifier = cp->getQualifier ((Uint32)jIndex);
+      cq = new CIMQualifier (qualifier);
+   }
+   Catch (jEnv);
+
+   return DEBUG_ConvertCToJava (CIMQualifier *, jint, cq);
+}
+
 
 // -------------------------------------
 // ---
@@ -3098,7 +3269,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMMethod__1getType
 {
    CIMMethod *cm = DEBUG_ConvertJavaToC (jint, CIMMethod*, jM);
 
-   return DEBUG_ConvertCToJava (CIMType, jint, new CIMType (cm->getType()));
+   return DEBUG_ConvertCToJava (CIMType *, jint, new CIMType (cm->getType()));
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMMethod__1finalize
@@ -4983,8 +5154,14 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1finalize
    DEBUG_ConvertCleanup (jint, jCc);
 }
 
+// -------------------------------------
+// ---
+// -		CIMObject
+// ---
+// -------------------------------------
+
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMObject__1newClass
-  (JNIEnv *jEnv, jobject jThs, jobject jCc)
+  (JNIEnv *jEnv, jobject jThs, jint jCc)
 {
    CIMClass *cCc = DEBUG_ConvertJavaToC (jint, CIMClass*, jCc);
 
@@ -4999,7 +5176,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMObject__1newClass
 }
 
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMObject__1newInstance
-  (JNIEnv *jEnv, jobject jThs, jobject jCi)
+  (JNIEnv *jEnv, jobject jThs, jint jCi)
 {
    CIMInstance *cCi = DEBUG_ConvertJavaToC (jint, CIMInstance*, jCi);
 
@@ -5022,6 +5199,12 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMObject__1finalize
 
    DEBUG_ConvertCleanup (jint, jInst);
 }
+
+// -------------------------------------
+// ---
+// -		OperationContext
+// ---
+// -------------------------------------
 
 /*
  * Class:     OperationContext
@@ -5168,6 +5351,162 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_OperationContext__1get
    jEnv->ReleaseStringUTFChars (jKey, pszKey);
 
    return jRet;
+}
+
+// -------------------------------------
+// ---
+// -		SelectExp
+// ---
+// -------------------------------------
+
+/*
+ * Class:     org_pegasus_jmpi_SelectExp
+ * Method:    _finalize
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_pegasus_jmpi_SelectExp__1finalize
+  (JNIEnv *jEnv, jobject jThs, jint jEselx)
+{
+   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+
+   delete eSelx;
+
+   DEBUG_ConvertCleanup (jint, jEselx);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_SelectExp
+ * Method:    _newSelectExp
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_SelectExp__1newSelectExp
+  (JNIEnv *jEnv, jobject jThs, jstring jQuery)
+{
+   const char         *pszQuery = jEnv->GetStringUTFChars (jQuery, NULL);
+   CMPI_SelectExp     *eSelx    = NULL;
+   WQLSelectStatement *stmt     = NULL;
+   String              queryLanguage (CALL_SIGN_WQL);
+   String              query (pszQuery);
+
+   stmt  = new WQLSelectStatement (queryLanguage, query);
+   eSelx = new CMPI_SelectExp (stmt);
+
+   jEnv->ReleaseStringUTFChars (jQuery, pszQuery);
+
+   return DEBUG_ConvertCToJava (CMPI_SelectExp *, jint, eSelx);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_SelectExp
+ * Method:    _getSelectString
+ * Signature: (I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_SelectExp__1getSelectString
+  (JNIEnv *jEnv, jobject jThs, jint jEselx)
+{
+   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+
+   return (jstring)jEnv->NewStringUTF (eSelx->cond.getCString ());
+}
+
+// -------------------------------------
+// ---
+// -		JMPISelectList
+// ---
+// -------------------------------------
+
+/*
+ * Class:     org_pegasus_jmpi_JMPISelectList
+ * Method:    _applyInstance
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyInstance
+  (JNIEnv *jEnv, jobject jThs, jint jEselx, jint jciInstance)
+{
+   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+   CIMInstance    *ci    = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciInstance);
+   CIMInstance    *ciRet = 0;
+
+   if (  !eSelx
+      || !eSelx->wql_stmt
+      )
+   {
+      return 0;
+   }
+
+   ciRet = new CIMInstance (ci->clone ());
+
+   if (ciRet)
+   {
+      eSelx->wql_stmt->applyProjection (*ciRet, false);
+   }
+
+   return DEBUG_ConvertCToJava (CIMInstance *, jint, ciRet);
+}
+
+/*
+ * Class:     org_pegasus_jmpi_JMPISelectList
+ * Method:    _applyClass
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyClass
+  (JNIEnv *jEnv, jobject jThs, jint jEselx, jint jciClass)
+{
+   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+   CIMClass       *cc    = DEBUG_ConvertJavaToC (jint, CIMClass*, jciClass);
+   CIMClass       *ccRet = NULL;
+
+   if (  !eSelx
+      || !eSelx->wql_stmt
+      )
+   {
+      return 0;
+   }
+
+   if (cc)
+   {
+      CIMObject co (cc->clone ());
+
+      eSelx->wql_stmt->applyProjection (co, false);
+
+      ccRet = new CIMClass (co);
+
+      return DEBUG_ConvertCToJava (CIMClass *, jint, ccRet);
+   }
+
+   return 0;
+}
+
+// -------------------------------------
+// ---
+// -		JMPIQueryExp
+// ---
+// -------------------------------------
+
+/*
+ * Class:     org_pegasus_jmpi_JMPIQueryExp
+ * Method:    _applyInstance
+ * Signature: (II)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_JMPIQueryExp__1applyInstance
+  (JNIEnv *jEnv, jobject jThs, jint jEselx, jint jciInstance)
+{
+   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+   CIMInstance    *ci    = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciInstance);
+
+   if (  !eSelx
+      || !eSelx->wql_stmt
+      )
+   {
+      return 0;
+   }
+
+   if (eSelx->wql_stmt)
+   {
+      return eSelx->wql_stmt->evaluate (*ci);
+   }
+
+   return false;
 }
 
 } // extern "C"

@@ -33,7 +33,12 @@ ROOT = $(PEGASUS_ROOT)
 DIR = ../test/StressTestController
 include $(ROOT)/mak/config.mak
 
+
+ifeq ($(OS),VMS)
+LOCAL_DEFINES = -DSTRESSTEST_DEFAULTCFGDIR="""$(ROOT)/test/StressTestController/"""
+else
 LOCAL_DEFINES = -DSTRESSTEST_DEFAULTCFGDIR=\"$(ROOT)/test/StressTestController/\"
+endif
 
 LIBRARIES = \
     pegcliutils \

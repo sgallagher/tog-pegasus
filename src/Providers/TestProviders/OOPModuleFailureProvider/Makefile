@@ -30,7 +30,7 @@
 #//==============================================================================
 ROOT = ../../../..
 
-DIR = Providers/TestProviders/OOPModuleFailureTestProvider
+DIR = Providers/TestProviders/OOPModuleFailureProvider
 
 include $(ROOT)/mak/config.mak
 

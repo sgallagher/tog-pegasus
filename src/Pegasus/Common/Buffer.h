@@ -69,6 +69,11 @@ public:
 
     size_t capacity() const;
 
+    /**
+        Returns a pointer to a character buffer with the Buffer contents.
+        The character buffer is null-terminated even if the Buffer contents
+        do not include a null termination character.
+     */
     const char* getData() const;
 
     char get(size_t i) const;
@@ -137,6 +142,13 @@ inline size_t Buffer::capacity() const
 
 inline const char* Buffer::getData() const
 {
+    if (_rep->size == _rep->cap)
+    {
+        const_cast<Buffer*>(this)->_append_char_aux();
+    }
+
+    _rep->data[_rep->size] = '\0';
+
     return _rep->data;
 }
 

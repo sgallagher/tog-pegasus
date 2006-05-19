@@ -51,13 +51,16 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
-
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
 #ifdef PEGASUS_OS_OS400
 #include <Pegasus/Common/Logger.h>
 #endif
 #include "RepositoryUpgrade.h"
+
+#if defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
+# include <Pegasus/Config/ProductDirectoryStructure.h>
+#endif
 
 // Enables debug information.
 // #define REPUPGRADE_DEBUG 1
@@ -285,20 +288,25 @@ const char* RepositoryUpgrade::_ALL = "a";
 // Make the repository paths fixed for HPUX, if PEGASUS_USE_RELEASE_DIRS is set.
 // Also defines the directory path to store CIMXML file for a failed request.
 //
-#if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_HPUX)
+#ifdef PEGASUS_USE_RELEASE_DIRS
+# define REPUPGRADE_USE_RELEASE_DIRS true
+# ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
+    const String OLD_REPOSITORY_PATH = PEGASUS_PREV_REPOSITORY_DIR;
+    const String NEW_REPOSITORY_PATH = PEGASUS_REPOSITORY_DIR;
+    const String RepositoryUpgrade::_LOG_PATH  = PEGASUS_LOG_DIR"/upgrade";
+# elif defined(PEGASUS_OS_HPUX)
     const String OLD_REPOSITORY_PATH = "/var/opt/wbem/prev_repository";
     const String NEW_REPOSITORY_PATH = "/var/opt/wbem/repository";
     const String RepositoryUpgrade::_LOG_PATH  = "/var/opt/wbem/upgrade";
-#define REPUPGRADE_USE_RELEASE_DIRS true
-#elif defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_VMS)
+# elif defined(PEGASUS_OS_VMS)
     const String OLD_REPOSITORY_PATH = "/wbem_var/opt/wbem/prev_repository";
     const String NEW_REPOSITORY_PATH = "/wbem_var/opt/wbem/repository";
     const String RepositoryUpgrade::_LOG_PATH  = "/wbem_var/opt/wbem/upgrade";
-#elif defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_LINUX)
+# elif defined(PEGASUS_OS_LINUX)
     const String OLD_REPOSITORY_PATH = "/var/opt/tog-pegasus/prev_repository";
     const String NEW_REPOSITORY_PATH = "/var/opt/tog-pegasus/repository";
     const String RepositoryUpgrade::_LOG_PATH  = "/var/opt/tog-pegasus/log/upgrade";
-#define REPUPGRADE_USE_RELEASE_DIRS true
+# endif
 #else
     const String RepositoryUpgrade::_LOG_PATH
                                               = "./";

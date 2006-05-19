@@ -328,7 +328,37 @@ public:
 
 	Array<Uint16> getProviderModuleStatus(const String & providerModuleName);
 
-	Boolean setProviderModuleStatus(const String & providerModuleName, Array<Uint16> status);
+        /**
+            Updates the Provider Module Status.  The value of the
+            OperationalStatus property is updated in the Provider Module
+            instance in the repository, and in the provider registration table.
+            If any removeStatus values are specified, each one of the values
+            found in the current OperationalStatus property value is removed
+            from the array.  If any appendStatus values are specified, each one
+            of the values not found in the current OperationalStatus property
+            value is appended to the array.  The resulting OperationalStatus
+            property value is returned in the output outStatus parameter.
+
+            @param    providerModuleName String specifying name of the provider
+                      module whose status is to be updated
+
+            @param    removeStatus Array of Uint16 specifying values to be 
+                      removed from the status array (may be empty)
+
+            @param    appendStatus Array of Uint16 specifying values to be 
+                      appended to the status array (may be empty)
+
+            @param    outStatus OUTPUT Array of Uint16 returning the resulting
+                      status array after update
+
+            @return   True if provider module status is successfully updated; 
+                      False, otherwise
+        */
+        Boolean updateProviderModuleStatus(
+            const String& providerModuleName,
+            const Array<Uint16>& removeStatus,
+            const Array<Uint16>& appendStatus,
+            Array<Uint16>& outStatus);
 
 	/**
 	    Iterate through registration hash table, if AutoStart property
@@ -477,6 +507,22 @@ private:
         */
 	void _setStatus(const Array<Uint16> & status, CIMInstance & moduleInstance); 
 
+        /**
+            Gets the Provider Module Status.  The value of the OperationalStatus
+            property is retrieved from the Provider Module instance in the
+            provider registration table.
+
+            @param    providerModuleName String specifying name of the provider
+                      module whose status is to be retrieved
+
+            @exception CIMException(CIM_ERR_FAILED) if the specified provider
+                       module is not found.
+
+            @return   Array of Uint16 containing the OperationalStatus property
+                      value
+        */
+        Array<Uint16> _getProviderModuleStatus(
+            const String& providerModuleName);
 };
 
 class PEGASUS_PRM_LINKAGE WildCardNamespaceNames {

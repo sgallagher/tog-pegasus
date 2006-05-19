@@ -1719,53 +1719,48 @@ Array<Uint16> ProviderRegistrationManager::getProviderModuleStatus(
     const String & providerModuleName)
 {
     Array<Uint16> _providerModuleStatus;
-    Array<CIMInstance> instances;
-
-    //
-    // create the key by using providerModuleName and MODULE_KEY
-    //
-    String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
-
-    //
-    // Find the entry whose key's value is same as _moduleKey
-    // get provider module status from the value
-    //
-    ProviderRegistrationTable* _providerModule = 0;
 
     ReadLock lock(_registrationTableLock);
 
-    if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
-    {
-// l10n
-
-        // throw (CIMException(CIM_ERR_FAILED, MODULE_NOT_FOUND));
-
-        MessageLoaderParms mlp(MessageLoaderParms(MODULE_NOT_FOUND_KEY, MODULE_NOT_FOUND));
-
-        throw (CIMException(CIM_ERR_FAILED, mlp));
-    }
-
-    instances = _providerModule->getInstances();
-
-    //
-    //  ATTN-CAKG-P2-20020821: Check for null status?
-    //
-    instances[0].getProperty(instances[0].findProperty
-        (_PROPERTY_OPERATIONALSTATUS)).getValue().get(_providerModuleStatus);
+    _providerModuleStatus = _getProviderModuleStatus (providerModuleName);
 
     return (_providerModuleStatus);
 }
 
-Boolean ProviderRegistrationManager::setProviderModuleStatus(
-    const String & providerModuleName,
-    Array<Uint16> status)
+Boolean ProviderRegistrationManager::updateProviderModuleStatus(
+    const String& providerModuleName,
+    const Array<Uint16>& removeStatus,
+    const Array<Uint16>& appendStatus,
+    Array<Uint16>& outStatus)
 {
-    //
-    // create the key by using providerModuleName and MODULE_KEY
-    //
-    String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
-
     WriteLock lock(_registrationTableLock);
+
+    outStatus = _getProviderModuleStatus (providerModuleName);
+
+    //
+    //  Remove any status elements to be removed
+    //
+    for (Uint32 j = 0; j < removeStatus.size(); j++)
+    {
+        for (Uint32 i = outStatus.size(); i > 0; i--)
+        {
+            if (outStatus[i-1] == removeStatus[j])
+            {
+                outStatus.remove(i-1);
+            }
+        }
+    }
+
+    //
+    //  Append any status elements to be appended, if not already in the array
+    //
+    for (Uint32 k = 0; k < appendStatus.size(); k++)
+    {
+        if (!Contains (outStatus, appendStatus[k]))
+        {
+            outStatus.append(appendStatus[k]);
+        }
+    }
 
     //
     // find the instance from repository
@@ -1784,7 +1779,7 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
         //
         _repository->setProperty(
             PEGASUS_NAMESPACENAME_INTEROP,
-            reference, _PROPERTY_OPERATIONALSTATUS, status);
+            reference, _PROPERTY_OPERATIONALSTATUS, outStatus);
 
         //
         //  get instance from the repository
@@ -1800,8 +1795,8 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
         //
         // remove old entry from table
         //
+        String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
         ProviderRegistrationTable* _entry = 0;
-
         if (_registrationTable->table.lookup(_moduleKey, _entry))
         {
             delete _entry;
@@ -1814,6 +1809,12 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
         Array<CIMInstance> instances;
         instances.append(_instance);
         _addInstancesToTable(_moduleKey, instances);
+    }
+    catch (const Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Failed to update provider module status: " + e.getMessage());
+        return false;
     }
     catch (...)
     {
@@ -4062,6 +4063,37 @@ void ProviderRegistrationManager::_sendInitializeProviderMessage(
     }
 }
 
+Array<Uint16> ProviderRegistrationManager::_getProviderModuleStatus(
+    const String& providerModuleName)
+{
+    Array<Uint16> outStatus;
+
+    //
+    //  Create the key using providerModuleName and MODULE_KEY
+    //
+    String _moduleKey = _generateKey(providerModuleName, MODULE_KEY);
+
+    //
+    //  Look up the module in the provider registration table
+    //
+    ProviderRegistrationTable* _providerModule = 0;
+    if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
+    {
+        MessageLoaderParms mlp(MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+            MODULE_NOT_FOUND));
+        throw CIMException(CIM_ERR_FAILED, mlp);
+    }
+
+    //
+    //  Get the Operational Status from the module instance in the table
+    //
+    Array<CIMInstance> moduleInstances;
+    moduleInstances = _providerModule->getInstances();
+    moduleInstances[0].getProperty(moduleInstances[0].findProperty(
+        _PROPERTY_OPERATIONALSTATUS)).getValue().get(outStatus);
+
+    return outStatus;
+}
 
 Array<String> WildCardNamespaceNames::_nsstr;
 Array<Uint32> WildCardNamespaceNames::_nsl;

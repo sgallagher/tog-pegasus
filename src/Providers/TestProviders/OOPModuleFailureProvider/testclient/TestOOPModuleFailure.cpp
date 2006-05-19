@@ -741,10 +741,13 @@ Boolean _validateStatus (
             if (!statusValue.isNull ())
             {
                 statusValue.get (operationalStatus);
-                if ((operationalStatus.size () == 1) &&
-                    (operationalStatus [0] == expectedStatus))
+                for (Uint32 i = 0; i < operationalStatus.size (); i++)
                 {
-                    result = true;
+                    if (operationalStatus [i] == expectedStatus)
+                    {
+                        result = true;
+                        break;
+                    }
                 }
             }
         }

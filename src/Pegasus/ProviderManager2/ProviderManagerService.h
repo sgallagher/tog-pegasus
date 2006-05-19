@@ -107,8 +107,8 @@ private:
 
     void _updateProviderModuleStatus(
         CIMInstance& providerModule,
-        Uint16 fromStatus,
-        Uint16 toStatus);
+        const Array<Uint16>& removeStatus,
+        const Array<Uint16>& appendStatus);
 
     static ProviderManagerService* providerManagerService;
 

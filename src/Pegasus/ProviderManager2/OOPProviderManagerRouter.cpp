@@ -97,18 +97,25 @@ class OutstandingRequestEntry
 {
 public:
     OutstandingRequestEntry(
-        String messageId_,
+        String originalMessageId_,
         CIMRequestMessage* requestMessage_,
         CIMResponseMessage*& responseMessage_,
         Semaphore* responseReady_)
-        : messageId(messageId_),
+        : originalMessageId(originalMessageId_),
           requestMessage(requestMessage_),
           responseMessage(responseMessage_),
           responseReady(responseReady_)
     {
     }
 
-    String messageId;
+    /**
+        A unique value is substituted as the request messageId attribute to
+        allow responses to be definitively correllated with requests.
+        The original messageId value is stored here to avoid a race condition
+        between the processing of a response chunk and the resetting of the
+        original messageId in the request message.
+     */
+    String originalMessageId;
     CIMRequestMessage* requestMessage;
     CIMResponseMessage*& responseMessage;
     Semaphore* responseReady;
@@ -931,7 +938,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                  i != 0; i++)
             {
                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                    String("Completing messageId \"") + i.value()->messageId +
+                    String("Completing messageId \"") + i.key() +
                         "\" with a null response.");
                 i.value()->responseMessage = response;
                 i.value()->responseReady->signal();
@@ -1033,7 +1040,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
         //
         Semaphore waitSemaphore(0);
         OutstandingRequestEntry outstandingRequestEntry(
-            uniqueMessageId, request, response, &waitSemaphore);
+            originalMessageId, request, response, &waitSemaphore);
 
         //
         // Lock the Provider Agent Container while initializing the
@@ -1328,7 +1335,7 @@ void ProviderAgentContainer::_processResponses()
 
                 // Put the original message ID into the response
                 response->messageId =
-                    _outstandingRequestEntry->requestMessage->messageId;
+                    _outstandingRequestEntry->originalMessageId;
 
                 // Call the response chunk callback to process the chunk
                 _responseChunkCallback(

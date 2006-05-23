@@ -124,7 +124,7 @@ public:
     CIMRequestMessage(
         Uint32 type_, const String& messageId_, const QueueIdStack& queueIds_);
 
-    virtual CIMResponseMessage* buildResponse() = 0;
+    virtual CIMResponseMessage* buildResponse() const = 0;
 
 #ifdef PEGASUS_DEBUG
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
@@ -160,7 +160,7 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_);
 
-    void syncAttributes(CIMRequestMessage* request);
+    void syncAttributes(const CIMRequestMessage* request);
 
     QueueIdStack queueIds;
     CIMException cimException;
@@ -228,7 +228,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     Boolean localOnly;
     Boolean includeQualifiers;
@@ -266,7 +266,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMObjectPath instanceName;
     Boolean localOnly;
@@ -297,7 +297,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     String destinationPath;
     CIMInstance indicationInstance;
@@ -325,7 +325,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     String authType;
     String userName;
@@ -351,7 +351,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMObjectPath instanceName;
     String authType;
@@ -379,7 +379,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMClass newClass;
     String authType;
@@ -406,7 +406,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMInstance newInstance;
     String authType;
@@ -434,7 +434,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMClass modifiedClass;
     String authType;
@@ -465,7 +465,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMInstance modifiedInstance;
     Boolean includeQualifiers;
@@ -502,7 +502,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     Boolean deepInheritance;
     Boolean localOnly;
@@ -534,7 +534,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     Boolean deepInheritance;
     String authType;
@@ -570,7 +570,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     Boolean deepInheritance;
     Boolean localOnly;
@@ -623,7 +623,7 @@ public:
     }
 #endif
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     String authType;
     String userName;
@@ -652,7 +652,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     String queryLanguage;
     String query;
@@ -695,7 +695,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMObjectPath objectName;
     CIMName assocClass;
@@ -738,7 +738,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMObjectPath objectName;
     CIMName assocClass;
@@ -780,7 +780,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMObjectPath objectName;
     CIMName resultClass;
@@ -817,7 +817,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMObjectPath objectName;
     CIMName resultClass;
@@ -848,7 +848,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMObjectPath instanceName;
     CIMName propertyName;
@@ -880,7 +880,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMObjectPath instanceName;
     CIMName propertyName;
@@ -910,7 +910,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMName qualifierName;
     String authType;
@@ -938,7 +938,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMQualifierDecl qualifierDeclaration;
     String authType;
@@ -966,7 +966,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMName qualifierName;
     String authType;
@@ -992,7 +992,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     String authType;
     String userName;
@@ -1023,7 +1023,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMObjectPath instanceName;
     CIMName methodName;
@@ -1052,7 +1052,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMNamespaceName nameSpace;
     CIMInstance indicationInstance;
@@ -1090,7 +1090,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMName className;
     Array <CIMNamespaceName> newNamespaces;
@@ -1115,7 +1115,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     Array <CIMInstance> providers;
 };
@@ -1144,7 +1144,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMNamespaceName nameSpace;
     CIMInstance handlerInstance;
@@ -1184,7 +1184,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
@@ -1226,7 +1226,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
@@ -1262,7 +1262,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
@@ -1286,7 +1286,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage * buildResponse ();
+    virtual CIMResponseMessage* buildResponse() const;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMDisableModuleRequestMessage
@@ -1315,7 +1315,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMInstance providerModule;
     Array<CIMInstance> providers;
@@ -1345,7 +1345,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     CIMInstance providerModule;
     String authType;
@@ -1368,7 +1368,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
     
     Array <CIMInstance> capInstances;
 };
@@ -1387,7 +1387,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMInitializeProviderRequestMessage
@@ -1404,7 +1404,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 };
 
 // Used to pass initialization data to an Out-of-Process Provider Agent process
@@ -1430,7 +1430,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
 
     String pegasusHome;
     Array<Pair<String, String> > configProperties;
@@ -1458,7 +1458,7 @@ public:
     {
     }
 
-    virtual CIMResponseMessage* buildResponse();
+    virtual CIMResponseMessage* buildResponse() const;
     
     String propertyName;
     String newPropertyValue;

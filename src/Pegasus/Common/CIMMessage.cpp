@@ -46,7 +46,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-void CIMResponseMessage::syncAttributes(CIMRequestMessage* request)
+void CIMResponseMessage::syncAttributes(const CIMRequestMessage* request)
 {
     // Propagate request attributes to the response, as necessary
     setKey(request->getKey());
@@ -56,7 +56,7 @@ void CIMResponseMessage::syncAttributes(CIMRequestMessage* request)
     setCloseConnect(request->getCloseConnect());
 }
 
-CIMResponseMessage* CIMGetClassRequestMessage::buildResponse()
+CIMResponseMessage* CIMGetClassRequestMessage::buildResponse() const
 {
     AutoPtr<CIMGetClassResponseMessage> response(
         new CIMGetClassResponseMessage(
@@ -68,7 +68,7 @@ CIMResponseMessage* CIMGetClassRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMGetInstanceRequestMessage::buildResponse()
+CIMResponseMessage* CIMGetInstanceRequestMessage::buildResponse() const
 {
     AutoPtr<CIMGetInstanceResponseMessage> response(
         new CIMGetInstanceResponseMessage(
@@ -80,7 +80,7 @@ CIMResponseMessage* CIMGetInstanceRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMExportIndicationRequestMessage::buildResponse()
+CIMResponseMessage* CIMExportIndicationRequestMessage::buildResponse() const
 {
     AutoPtr<CIMExportIndicationResponseMessage> response(
         new CIMExportIndicationResponseMessage(
@@ -91,7 +91,7 @@ CIMResponseMessage* CIMExportIndicationRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMDeleteClassRequestMessage::buildResponse()
+CIMResponseMessage* CIMDeleteClassRequestMessage::buildResponse() const
 {
     AutoPtr<CIMDeleteClassResponseMessage> response(
         new CIMDeleteClassResponseMessage(
@@ -102,7 +102,7 @@ CIMResponseMessage* CIMDeleteClassRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMDeleteInstanceRequestMessage::buildResponse()
+CIMResponseMessage* CIMDeleteInstanceRequestMessage::buildResponse() const
 {
     AutoPtr<CIMDeleteInstanceResponseMessage> response(
         new CIMDeleteInstanceResponseMessage(
@@ -113,7 +113,7 @@ CIMResponseMessage* CIMDeleteInstanceRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMCreateClassRequestMessage::buildResponse()
+CIMResponseMessage* CIMCreateClassRequestMessage::buildResponse() const
 {
     AutoPtr<CIMCreateClassResponseMessage> response(
         new CIMCreateClassResponseMessage(
@@ -124,7 +124,7 @@ CIMResponseMessage* CIMCreateClassRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMCreateInstanceRequestMessage::buildResponse()
+CIMResponseMessage* CIMCreateInstanceRequestMessage::buildResponse() const
 {
     AutoPtr<CIMCreateInstanceResponseMessage> response(
         new CIMCreateInstanceResponseMessage(
@@ -136,7 +136,7 @@ CIMResponseMessage* CIMCreateInstanceRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMModifyClassRequestMessage::buildResponse()
+CIMResponseMessage* CIMModifyClassRequestMessage::buildResponse() const
 {
     AutoPtr<CIMModifyClassResponseMessage> response(
         new CIMModifyClassResponseMessage(
@@ -147,7 +147,7 @@ CIMResponseMessage* CIMModifyClassRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMModifyInstanceRequestMessage::buildResponse()
+CIMResponseMessage* CIMModifyInstanceRequestMessage::buildResponse() const
 {
     AutoPtr<CIMModifyInstanceResponseMessage> response(
         new CIMModifyInstanceResponseMessage(
@@ -158,7 +158,7 @@ CIMResponseMessage* CIMModifyInstanceRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMEnumerateClassesRequestMessage::buildResponse()
+CIMResponseMessage* CIMEnumerateClassesRequestMessage::buildResponse() const
 {
     AutoPtr<CIMEnumerateClassesResponseMessage> response(
         new CIMEnumerateClassesResponseMessage(
@@ -170,7 +170,7 @@ CIMResponseMessage* CIMEnumerateClassesRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMEnumerateClassNamesRequestMessage::buildResponse()
+CIMResponseMessage* CIMEnumerateClassNamesRequestMessage::buildResponse() const
 {
     AutoPtr<CIMEnumerateClassNamesResponseMessage> response(
         new CIMEnumerateClassNamesResponseMessage(
@@ -182,7 +182,7 @@ CIMResponseMessage* CIMEnumerateClassNamesRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMEnumerateInstancesRequestMessage::buildResponse()
+CIMResponseMessage* CIMEnumerateInstancesRequestMessage::buildResponse() const
 {
     AutoPtr<CIMEnumerateInstancesResponseMessage> response(
         new CIMEnumerateInstancesResponseMessage(
@@ -194,7 +194,7 @@ CIMResponseMessage* CIMEnumerateInstancesRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMEnumerateInstanceNamesRequestMessage::buildResponse()
+CIMResponseMessage* CIMEnumerateInstanceNamesRequestMessage::buildResponse() const
 {
     AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
         new CIMEnumerateInstanceNamesResponseMessage(
@@ -206,7 +206,7 @@ CIMResponseMessage* CIMEnumerateInstanceNamesRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMExecQueryRequestMessage::buildResponse()
+CIMResponseMessage* CIMExecQueryRequestMessage::buildResponse() const
 {
     AutoPtr<CIMExecQueryResponseMessage> response(
         new CIMExecQueryResponseMessage(
@@ -218,7 +218,7 @@ CIMResponseMessage* CIMExecQueryRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMAssociatorsRequestMessage::buildResponse()
+CIMResponseMessage* CIMAssociatorsRequestMessage::buildResponse() const
 {
     AutoPtr<CIMAssociatorsResponseMessage> response(
         new CIMAssociatorsResponseMessage(
@@ -230,7 +230,7 @@ CIMResponseMessage* CIMAssociatorsRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMAssociatorNamesRequestMessage::buildResponse()
+CIMResponseMessage* CIMAssociatorNamesRequestMessage::buildResponse() const
 {
     AutoPtr<CIMAssociatorNamesResponseMessage> response(
         new CIMAssociatorNamesResponseMessage(
@@ -242,7 +242,7 @@ CIMResponseMessage* CIMAssociatorNamesRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMReferencesRequestMessage::buildResponse()
+CIMResponseMessage* CIMReferencesRequestMessage::buildResponse() const
 {
     AutoPtr<CIMReferencesResponseMessage> response(
         new CIMReferencesResponseMessage(
@@ -254,7 +254,7 @@ CIMResponseMessage* CIMReferencesRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMReferenceNamesRequestMessage::buildResponse()
+CIMResponseMessage* CIMReferenceNamesRequestMessage::buildResponse() const
 {
     AutoPtr<CIMReferenceNamesResponseMessage> response(
         new CIMReferenceNamesResponseMessage(
@@ -266,7 +266,7 @@ CIMResponseMessage* CIMReferenceNamesRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMGetPropertyRequestMessage::buildResponse()
+CIMResponseMessage* CIMGetPropertyRequestMessage::buildResponse() const
 {
     AutoPtr<CIMGetPropertyResponseMessage> response(
         new CIMGetPropertyResponseMessage(
@@ -278,7 +278,7 @@ CIMResponseMessage* CIMGetPropertyRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMSetPropertyRequestMessage::buildResponse()
+CIMResponseMessage* CIMSetPropertyRequestMessage::buildResponse() const
 {
     AutoPtr<CIMSetPropertyResponseMessage> response(
         new CIMSetPropertyResponseMessage(
@@ -289,7 +289,7 @@ CIMResponseMessage* CIMSetPropertyRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMGetQualifierRequestMessage::buildResponse()
+CIMResponseMessage* CIMGetQualifierRequestMessage::buildResponse() const
 {
     AutoPtr<CIMGetQualifierResponseMessage> response(
         new CIMGetQualifierResponseMessage(
@@ -301,7 +301,7 @@ CIMResponseMessage* CIMGetQualifierRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMSetQualifierRequestMessage::buildResponse()
+CIMResponseMessage* CIMSetQualifierRequestMessage::buildResponse() const
 {
     AutoPtr<CIMSetQualifierResponseMessage> response(
         new CIMSetQualifierResponseMessage(
@@ -312,7 +312,7 @@ CIMResponseMessage* CIMSetQualifierRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMDeleteQualifierRequestMessage::buildResponse()
+CIMResponseMessage* CIMDeleteQualifierRequestMessage::buildResponse() const
 {
     AutoPtr<CIMDeleteQualifierResponseMessage> response(
         new CIMDeleteQualifierResponseMessage(
@@ -323,7 +323,7 @@ CIMResponseMessage* CIMDeleteQualifierRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMEnumerateQualifiersRequestMessage::buildResponse()
+CIMResponseMessage* CIMEnumerateQualifiersRequestMessage::buildResponse() const
 {
     AutoPtr<CIMEnumerateQualifiersResponseMessage> response(
         new CIMEnumerateQualifiersResponseMessage(
@@ -335,7 +335,7 @@ CIMResponseMessage* CIMEnumerateQualifiersRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMInvokeMethodRequestMessage::buildResponse()
+CIMResponseMessage* CIMInvokeMethodRequestMessage::buildResponse() const
 {
     AutoPtr<CIMInvokeMethodResponseMessage> response(
         new CIMInvokeMethodResponseMessage(
@@ -349,7 +349,7 @@ CIMResponseMessage* CIMInvokeMethodRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMProcessIndicationRequestMessage::buildResponse()
+CIMResponseMessage* CIMProcessIndicationRequestMessage::buildResponse() const
 {
     AutoPtr<CIMProcessIndicationResponseMessage> response(
         new CIMProcessIndicationResponseMessage(
@@ -360,7 +360,7 @@ CIMResponseMessage* CIMProcessIndicationRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMNotifyProviderRegistrationRequestMessage::buildResponse()
+CIMResponseMessage* CIMNotifyProviderRegistrationRequestMessage::buildResponse() const
 {
     AutoPtr<CIMNotifyProviderRegistrationResponseMessage> response(
         new CIMNotifyProviderRegistrationResponseMessage(
@@ -371,7 +371,7 @@ CIMResponseMessage* CIMNotifyProviderRegistrationRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMNotifyProviderTerminationRequestMessage::buildResponse()
+CIMResponseMessage* CIMNotifyProviderTerminationRequestMessage::buildResponse() const
 {
     AutoPtr<CIMNotifyProviderTerminationResponseMessage> response(
         new CIMNotifyProviderTerminationResponseMessage(
@@ -382,7 +382,7 @@ CIMResponseMessage* CIMNotifyProviderTerminationRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMHandleIndicationRequestMessage::buildResponse()
+CIMResponseMessage* CIMHandleIndicationRequestMessage::buildResponse() const
 {
     AutoPtr<CIMHandleIndicationResponseMessage> response(
         new CIMHandleIndicationResponseMessage(
@@ -393,7 +393,7 @@ CIMResponseMessage* CIMHandleIndicationRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMCreateSubscriptionRequestMessage::buildResponse()
+CIMResponseMessage* CIMCreateSubscriptionRequestMessage::buildResponse() const
 {
     AutoPtr<CIMCreateSubscriptionResponseMessage> response(
         new CIMCreateSubscriptionResponseMessage(
@@ -404,7 +404,7 @@ CIMResponseMessage* CIMCreateSubscriptionRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMModifySubscriptionRequestMessage::buildResponse()
+CIMResponseMessage* CIMModifySubscriptionRequestMessage::buildResponse() const
 {
     AutoPtr<CIMModifySubscriptionResponseMessage> response(
         new CIMModifySubscriptionResponseMessage(
@@ -415,7 +415,7 @@ CIMResponseMessage* CIMModifySubscriptionRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMDeleteSubscriptionRequestMessage::buildResponse()
+CIMResponseMessage* CIMDeleteSubscriptionRequestMessage::buildResponse() const
 {
     AutoPtr<CIMDeleteSubscriptionResponseMessage> response(
         new CIMDeleteSubscriptionResponseMessage(
@@ -426,8 +426,8 @@ CIMResponseMessage* CIMDeleteSubscriptionRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* 
-    CIMSubscriptionInitCompleteRequestMessage::buildResponse()
+CIMResponseMessage*
+    CIMSubscriptionInitCompleteRequestMessage::buildResponse() const
 {
     AutoPtr<CIMSubscriptionInitCompleteResponseMessage> response(
         new CIMSubscriptionInitCompleteResponseMessage(
@@ -438,7 +438,7 @@ CIMResponseMessage*
     return response.release();
 }
 
-CIMResponseMessage* CIMDisableModuleRequestMessage::buildResponse()
+CIMResponseMessage* CIMDisableModuleRequestMessage::buildResponse() const
 {
     AutoPtr<CIMDisableModuleResponseMessage> response(
         new CIMDisableModuleResponseMessage(
@@ -450,7 +450,7 @@ CIMResponseMessage* CIMDisableModuleRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMEnableModuleRequestMessage::buildResponse()
+CIMResponseMessage* CIMEnableModuleRequestMessage::buildResponse() const
 {
     AutoPtr<CIMEnableModuleResponseMessage> response(
         new CIMEnableModuleResponseMessage(
@@ -462,7 +462,7 @@ CIMResponseMessage* CIMEnableModuleRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMNotifyProviderEnableRequestMessage::buildResponse()
+CIMResponseMessage* CIMNotifyProviderEnableRequestMessage::buildResponse() const
 {
     AutoPtr<CIMNotifyProviderEnableResponseMessage> response(
         new CIMNotifyProviderEnableResponseMessage(
@@ -473,7 +473,7 @@ CIMResponseMessage* CIMNotifyProviderEnableRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMStopAllProvidersRequestMessage::buildResponse()
+CIMResponseMessage* CIMStopAllProvidersRequestMessage::buildResponse() const
 {
     AutoPtr<CIMStopAllProvidersResponseMessage> response(
         new CIMStopAllProvidersResponseMessage(
@@ -484,7 +484,7 @@ CIMResponseMessage* CIMStopAllProvidersRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMInitializeProviderRequestMessage::buildResponse()
+CIMResponseMessage* CIMInitializeProviderRequestMessage::buildResponse() const
 {
     AutoPtr<CIMInitializeProviderResponseMessage> response(
         new CIMInitializeProviderResponseMessage(
@@ -495,7 +495,7 @@ CIMResponseMessage* CIMInitializeProviderRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMInitializeProviderAgentRequestMessage::buildResponse()
+CIMResponseMessage* CIMInitializeProviderAgentRequestMessage::buildResponse() const
 {
     AutoPtr<CIMInitializeProviderAgentResponseMessage> response(
         new CIMInitializeProviderAgentResponseMessage(
@@ -506,7 +506,7 @@ CIMResponseMessage* CIMInitializeProviderAgentRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse()
+CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse() const
 {
     AutoPtr<CIMNotifyConfigChangeResponseMessage> response(
         new CIMNotifyConfigChangeResponseMessage(

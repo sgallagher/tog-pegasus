@@ -51,6 +51,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+typedef void (*PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T)(const String &,
+    const String &, Uint16);
+
 class ProviderAgentContainer;
 
 typedef HashTable<String, ProviderAgentContainer*, EqualFunc<String>,
@@ -62,7 +65,8 @@ class PEGASUS_PPM_LINKAGE OOPProviderManagerRouter
 public:
     OOPProviderManagerRouter(
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
-        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
+        PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback);
 
     virtual ~OOPProviderManagerRouter();
 
@@ -85,13 +89,12 @@ private:
 
     /**
         Return a pointer to the ProviderAgentContainer for the specified
-        moduleName and userName.  If no ProviderAgentContainer exists for
-        this moduleName/userName pair, one is created in an uninitialized
-        state.
+        module instance and requesting user.  If no appropriate
+        ProviderAgentContainer exists, one is created in an uninitialized state.
      */
     ProviderAgentContainer* _lookupProviderAgent(
-        const String& moduleName,
-        const String& userName);
+        const CIMInstance& providerModule,
+        CIMRequestMessage* request);
 
     /**
         Return an array of pointers to ProviderAgentContainers for the
@@ -120,6 +123,12 @@ private:
         Callback function to which all response chunks are sent for processing.
      */
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T _responseChunkCallback;
+
+    /**
+        Callback function to be called upon detection of failure of a
+        provider module.
+     */
+    PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T _providerModuleFailCallback;
 
     /**
         The _providerAgentTable contains a ProviderAgentContainer entry for

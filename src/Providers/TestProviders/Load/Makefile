@@ -128,6 +128,8 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" UserContextCIMServerR.mof
 endif
 endif
+	@ $(ECHO) +++++ Loading OOPModuleFailureTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" FailureTestIndication.mof
 
 ##
 ## Load the test MOF with cimmof.  (Do not remove the existing repository.)
@@ -192,6 +194,8 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 	@ cimmof "-n$(INTEROPNS)" UserContextCIMServerR.mof
 endif
 endif
+	@ $(ECHO) +++++ Loading OOPModuleFailureTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmof "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" FailureTestIndication.mof
 
 ##
 ##

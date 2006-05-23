@@ -79,6 +79,13 @@ public:
     static void responseChunkCallback(
         CIMRequestMessage* request, CIMResponseMessage* response);
 
+    /**
+        Callback function to be called upon detection of failure of a
+        provider module.
+     */
+    static void providerModuleFailureCallback (const String & moduleName,
+        const String & userName, Uint16);
+
 private:
     ProviderManagerService();
 
@@ -100,8 +107,8 @@ private:
 
     void _updateProviderModuleStatus(
         CIMInstance& providerModule,
-        Uint16 fromStatus,
-        Uint16 toStatus);
+        const Array<Uint16>& removeStatus,
+        const Array<Uint16>& appendStatus);
 
     static ProviderManagerService* providerManagerService;
 

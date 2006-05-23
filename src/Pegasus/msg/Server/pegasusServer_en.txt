@@ -1275,6 +1275,28 @@ not be valid."}
 
         ProviderManager.ProviderManagerService.DISABLE_PROVIDER_FAILED:string {"PGS04006: Failed to disable the provider."}
 
+        /**
+        * @note  PGS04007
+        *    Substitution {0} is the name of a provider module (a string)
+        *    Substitution {1} is the name of a system user (a string)
+        * @version 2.6
+        */
+        ProviderManager.ProviderManagerService.OOP_PROVIDER_MODULE_USER_CTXT_FAILURE_DETECTED:string {"PGS04007:  A failure was detected in provider module {0} with user context {1}."}
+
+        /**
+        * @note  PGS04008
+        *    Substitution {0} is the name of a provider module (a string)
+        * @version 2.6
+        */
+        ProviderManager.ProviderManagerService.OOP_PROVIDER_MODULE_FAILURE_DETECTED:string {"PGS04008:  A failure was detected in provider module {0}."}
+
+        /**
+        * @note  PGS04009
+        *    Substitution {0} is the name of a provider module (a string)
+        * @version 2.6
+        */
+        ProviderManager.ProviderManagerService.OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED:string {"PGS04009:  The generation of indications by providers in module {0} may be affected.  To ensure these providers are serving active subscriptions, disable and then re-enable this module using the cimprovider command."}
+
 
         // ==========================================================
         // Messages for ProviderModule
@@ -4394,6 +4416,7 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS13606
         *    Substitution {0} is a string ID for a provider module name
+        *    This message is no longer used as of version 2.6.0
         * @version 2.5.1
         */
         ProviderManager.OOPProviderManagerRouter.OOP_PROVIDER_MODULE_FAILURE_DETECTED:string {"PGS13606:  A failure was detected in provider module {0}.  The generation of indications by providers in this module may be affected.  To ensure these providers are serving active subscriptions, disable and then re-enable this module using the cimprovider command."}

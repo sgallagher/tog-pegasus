@@ -280,6 +280,11 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
             //_serializeCIMNotifyProviderEnableRequestMessage(
             //    out, (CIMNotifyProviderEnableRequestMessage*)cimMessage);
             break;
+        //case CIM_NOTIFY_PROVIDER_FAIL_REQUEST_MESSAGE:
+            // ATTN: No need to serialize this yet
+            //_serializeCIMNotifyProviderFailRequestMessage(
+            //    out, (CIMNotifyProviderFailRequestMessage*)cimMessage);
+            //break;
         case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
             _serializeCIMStopAllProvidersRequestMessage(
                 out, (CIMStopAllProvidersRequestMessage*)cimMessage);
@@ -469,6 +474,11 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
             //_serializeCIMNotifyProviderEnableResponseMessage(
             //    out, (CIMNotifyProviderEnableResponseMessage*)cimMessage);
             break;
+        //case CIM_NOTIFY_PROVIDER_FAIL_RESPONSE_MESSAGE:
+            // ATTN: No need to serialize this yet
+            //_serializeCIMNotifyProviderFailResponseMessage(
+            //    out, (CIMNotifyProviderFailResponseMessage*)cimMessage);
+            //break;
         case CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE:
             _serializeCIMStopAllProvidersResponseMessage(
                 out, (CIMStopAllProvidersResponseMessage*)cimMessage);

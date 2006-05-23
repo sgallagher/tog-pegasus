@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//                   (carolann_graves@hp.com)
+//               Ben Heilbronn, Hewlett-Packard Company (ben_heilbronn@hp.com)
+//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//               Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,47 +45,29 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
-#include <Pegasus/Server/ProviderRegistrationManager/\
-ProviderRegistrationManager.h>
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
 
-#include <Pegasus/IndicationService/ProviderClassList.h>
-#include <Pegasus/IndicationService/IndicationOperationAggregate.h>
-
-#ifdef PEGASUS_ENABLE_INDICATION_COUNT
-# include <Pegasus/IndicationService/ProviderIndicationCountTable.h>
-#endif
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-# include <Pegasus/IndicationService/IndicationServiceConfiguration.h>
-#endif
-
-#include <Pegasus/General/SubscriptionKey.h>
+#include "ProviderClassList.h"
+#include "IndicationOperationAggregate.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-// Holds information of control providers servicing the indications.
-struct ControlProvIndReg
-{
-    CIMName className;
-    CIMNamespaceName nameSpace;
-    CIMInstance providerModule;
-    CIMInstance provider;
-};
-
-typedef HashTable <String, ControlProvIndReg, EqualFunc <String>,
-    HashFunc <String> > ControlProvIndRegTable;
 
 class SubscriptionRepository;
 class SubscriptionTable;
 
 /**
+
     IndicationService class is the service that serves the
     Indication Subscription, Indication Filter, and Indication Handler
     classes, and processes indications.
+
+    @author  Hewlett-Packard Company
+
  */
 
 class PEGASUS_SERVER_LINKAGE IndicationService : public MessageQueueService
@@ -86,17 +78,17 @@ public:
         Constructs an IndicationSubscription instance and initializes instance
         variables.
      */
-    IndicationService(
-        CIMRepository* repository,
-        ProviderRegistrationManager* providerRegManager);
+    IndicationService (
+        CIMRepository * repository,
+        ProviderRegistrationManager * providerRegManager);
 
-    virtual ~IndicationService();
+    virtual ~IndicationService(void);
 
     void handleEnqueue(Message* message);
 
-    virtual void handleEnqueue();
+    virtual void handleEnqueue(void);
 
-    virtual void _handle_async_request(AsyncRequest* req);
+    virtual void _handle_async_request(AsyncRequest *req);
 
     /**
         Gets a String containing the Provider Name, for use in a log message to
@@ -106,14 +98,8 @@ public:
 
         @return  String containing the Provider Name
      */
-    static String getProviderLogString(CIMInstance& provider);
-
-    /**
-        Sends a Subscription Init Complete request to the Provider
-        Manager Service.
-     */
-    void sendSubscriptionInitComplete();
-
+    static String getProviderLogString
+        (CIMInstance & provider);
 
     AtomicInt dienow;
 
@@ -124,213 +110,25 @@ public:
 
     static Mutex _mutex;
 
-    /**
-        Sets property with name SystemName to sysname if existant. If
-        property does not exist on instance, adds it.
-        Should be used for instances of classes Filter, Handler only
-        Does not change the objectPath of the instance !!!
-
-        @param   instance              instance to set property on
-        @param   sysname               system name to set
-     */
-
-    static void _setOrAddSystemNameInHandlerFilter(
-        CIMInstance& instance,
-        const String& sysname);
-
-    /**
-        Sets key binding with name SystemName to string if existant. Should be
-        used with Handler and Filter object paths only
-
-        @param   objPath              object path to change keybinding on
-        @param   sysname              system name to set
-     */
-    static void _setSystemNameInHandlerFilter(
-        CIMObjectPath& objPath,
-        const String& sysname);
-
-    /**
-        Replace the value of SystemName in a String created from a Handler or
-        Filter reference
-      */
-    static void _setSystemNameInHandlerFilterReference(
-        String& reference,
-        const String& sysname);
-
-    /**
-        Sets key binding with name SystemName in the two keybinding references
-        Filter and Handler of a Subscription object path
-
-        @param   objPath              object path to change SystemNames on
-        @param   sysname              system name to set
-     */
-    static void _setSubscriptionSystemName(
-        CIMObjectPath& objPath,
-        const String& sysname);
-
-    /** Replaces value in all occurences of SystemName key with String sysname
-        used for Handler, Filter and Subscription object paths
-
-        @param   objPath              object path to change SystemNames on
-        @param   sysname              system name to set
-     */
-    static void _setSystemName(CIMObjectPath& objPath, const String& sysname);
-
-    /** Replaces value in all occurences of SystemName key and SystemName
-        property with String sysname
-
-        Used for Handler, Filter and Subscription object paths
-
-        @param   instance             instance to change
-        @param   sysname              system name to set
-     */
-    static void _setSystemName(CIMInstance& instance, const String& sysname);
-
-
 private:
 
-    void _initialize();
+    void _initialize (void);
 
-    /**
-        Reads active subscriptons from repository and sends create subscription
-        requests to the corresponding indication providers and initializes the
-        subscription repository and tables.
-        @param   timeoutSeconds        Timeout in seconds  to complete the
-                                           initialization of active
-                                           subscriptions. Timeout value 0
-                                           means no time limit.
+    void _terminate (void);
 
-        @return  True, if the initialization completed within timeout period.
-                 False, if the initialization can not completed within
-                     timeout period.
-    */
-    Boolean _initializeActiveSubscriptionsFromRepository(Uint32 timeoutSeconds);
+    void _handleGetInstanceRequest(const Message * message);
 
-    void _terminate();
+    void _handleEnumerateInstancesRequest(const Message * message);
 
-    void _handleGetInstanceRequest(const Message* message);
+    void _handleEnumerateInstanceNamesRequest(const Message * message);
 
-    void _handleEnumerateInstancesRequest(const Message* message);
+    void _handleCreateInstanceRequest(const Message * message);
 
-    void _handleEnumerateInstanceNamesRequest(const Message* message);
-
-    void _handleCreateInstanceRequest(const Message* message);
-
-    void _handleModifyInstanceRequest(const Message* message);
+    void _handleModifyInstanceRequest(const Message * message);
 
     void _handleDeleteInstanceRequest(const Message * message);
 
-    void _handleProcessIndicationRequest(Message* message);
-    void _handleProcessIndicationResponse(Message* message);
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-
-    void _handleInvokeMethodRequest(Message* message);
-    /**
-        Sends CIMIndicationServiceDisabledRequestMessage to provider manager
-        service so that provider manager's resets _subscriptionInitComplete
-        flag.
-    */
-    void _sendIndicationServiceDisabled();
-
-    /**
-        Clears Subscription Table entries after sending delete subscription
-        requests to appropriate indication providers. Subscription state will
-        remain enabled.
-        @param   timeoutSeconds        Timeout in seconds  to complete sending
-                                           the delete subscription requests to
-                                           all active indication providers.
-                                           Timeout value 0 means no time limit.
-
-        @return  True, if the operation is completed within timeout period.
-                 False, if the operation can not completed within
-                     timeout period.
-    */
-
-    Boolean _deleteActiveSubscriptions(Uint32 timeoutSeconds);
-
-    /**
-        Enables the indication service using method
-        _initializeActiveSubscriptionsFromRepository(). Sets the Service
-        EnabledState and HelathState properties appropriately.
-        @param   timeoutSeconds        Timeout in seconds  to complete the
-                                           initialization of active
-                                           subscriptions. Timeout value 0
-                                           means no time limit.
-
-        @return  _RETURNCODE_COMPLETEDWITHNOERROR, if the initialization
-                     completed within timeout period. Service HealthState
-                     is set to "OK" and EnabledState will be set to "Enabled".
-
-                 _RETURNCODE_TIMEOUT, if the initialization can not completed
-                     within timeout period. In this case, all active
-                     subscriptions might not have been initialized. Service
-                     HealthState is set to "Degraded/Warning" and EnabledState
-                     will be set to "Enabled".
-    */
-    Uint32 _enableIndicationService(Uint32 timeoutSeconds);
-
-    /**
-        Disables the indication service using _deleteActiveSubscriptions()
-        method. Sets the Service EnabledState and HelathState
-        properties appropriately.
-
-        @param   timeoutSeconds        Timeout in seconds to complete the
-                                           disabling of the service.
-        @param   cimException          Output parameter returned to calller
-                                           if there is an exception.
-
-        @return  _RETURNCODE_COMPLETEDWITHNOERROR, if the disable
-                     completed within timeout period. Service
-                     HealthState is set to "OK" and EnabledState
-                     will be set to "Disabled".
-
-                 _RETURNCODE_TIMEOUT, if the disable  cannot be completed
-                     within timeout period. In this case, all active
-                     subscriptions might not have been disabled. Service
-                     HealthState is set to "Degraded/Warning" and EnabledState
-                     will remain  "Enabled".
-    */
-    Uint32 _disableIndicationService(
-        Uint32 timeoutSeconds,
-        CIMException &cimException);
-
-    /**
-        Waits for async requets pending to complete. Returns true if there
-        are no async requests pending within timeout period.
-    */
-    Boolean _waitForAsyncRequestsComplete(
-        struct timeval* startTime,
-        Uint32 timeoutSeconds);
-    /**
-        Sends the CIMNotifySubscriptionNotActiveRequestMessage to Handler
-        service when subscription has been disabled/deleted/expired.
-
-        @param  subscriptionName          The subscription instance path
-    */
-    void _sendSubscriptionNotActiveMessagetoHandlerService(
-        const CIMObjectPath &subscriptionName);
-
-    /**
-        Sends the CIMNotifyListenerNotActiveRequestMessage to Handler
-        service when listener has been deleted.
-
-        @param  handlerName       handler/listener instance path
-    */
-    void _sendListenerNotActiveMessagetoHandlerService(
-        const CIMObjectPath &handlerName);
-#endif
-
-    Uint16  _getEnabledState();
-    void  _setEnabledState(Uint16 state);
-
-    /**
-        Handles the CIM requests when IndicationService is not enabled. Very
-        few requests are handled by IndicationService when not enabled.
-    */
-    void _handleCimRequestWithServiceNotEnabled(Message *message);
-
-    void _handleCimRequest(Message *message);
+    void _handleProcessIndicationRequest(const Message * message);
 
     /**
         Asynchronous callback function for _handleProcessIndicationRequest.
@@ -342,20 +140,20 @@ private:
         @param  destination          target queue of completion callback
         @param  userParameter        user parameter for callback processing
      */
-    static void _handleIndicationCallBack(
-        AsyncOpNode* operation,
-        MessageQueue* destination,
-        void* userParameter);
+    static void _handleIndicationCallBack (
+        AsyncOpNode * operation,
+        MessageQueue * destination,
+        void * userParameter);
 
     /**
-        Notifies the Indication Service that a change in provider registration
-        has occurred.  The Indication Service retrieves the subscriptions
-        affected by the registration change, sends the appropriate Create,
+	Notifies the Indication Service that a change in provider registration
+	has occurred.  The Indication Service retrieves the subscriptions
+	affected by the registration change, sends the appropriate Create,
         Modify, and/or Delete requests to the provider, and sends an alert to
         handler instances of subscriptions that are no longer served by the
         provider.
     */
-    void _handleNotifyProviderRegistrationRequest(const Message* message);
+    void _handleNotifyProviderRegistrationRequest(const Message * message);
 
     /**
         Notifies the Indication Service that a provider has been disabled.
@@ -363,7 +161,7 @@ private:
         disabled provider, and logs a message for each subscription that is no
         longer served by the provider.
      */
-    void _handleNotifyProviderTerminationRequest(const Message* message);
+    void _handleNotifyProviderTerminationRequest(const Message * message);
 
     /**
         Notifies the Indication Service that a provider has been enabled.
@@ -372,7 +170,7 @@ private:
         Indications requests to the provider, and logs a message for each
         subscription that is now served by the provider.
      */
-    void _handleNotifyProviderEnableRequest(const Message* message);
+    void _handleNotifyProviderEnableRequest (const Message * message);
 
     /**
         Notifies the Indication Service that failure of a provider module that
@@ -382,7 +180,7 @@ private:
         the number of affected subscriptions, so the sender of the request
         knows if any subscriptions were affected.
      */
-    void _handleNotifyProviderFailRequest(Message* message);
+    void _handleNotifyProviderFailRequest (Message * message);
 
     /**
         Determines if it is legal to create an instance.
@@ -401,9 +199,9 @@ private:
         @return  True, if the instance can be created;
                  Otherwise throws an exception
      */
-    Boolean _canCreate(
-        CIMInstance& instance,
-        const CIMNamespaceName& nameSpace);
+    Boolean _canCreate (
+        CIMInstance & instance,
+        const CIMNamespaceName & nameSpace);
 
     /**
         Validates the specified required property in the instance.
@@ -420,21 +218,19 @@ private:
         @param   instance              instance to be validated
         @param   propertyName          name of property to be validated
         @param   expectedType          expected CIMType of property value
-        @param   isKeyProperty         indicates whether the property is a key
-                                       property (used for selection of error
-                                       message)
-        @param   isArray               indicates whether the validated
-                                       property is array
+        @param   message               message to be used in exception
+	@param   isArray               indicates whether the validated
+				       property is array
 
         @exception   CIM_ERR_INVALID_PARAMETER  if required property is missing
                                                 or null
      */
-    void _checkRequiredProperty(
-        CIMInstance& instance,
-        const CIMName& propertyName,
+    void _checkRequiredProperty (
+        CIMInstance & instance,
+        const CIMName & propertyName,
         const CIMType expectedType,
-        Boolean isKeyProperty,
-        Boolean isArray = false);
+        const String & message,
+	const Boolean isArray = false);
 
     /**
         Validates the specified Uint16 (non-array) property and its
@@ -462,18 +258,20 @@ private:
         @param   otherPropertyName     name of Other___ property to be validated
         @param   defaultValue          default value for property
         @param   otherValue            "Other" value for property
+        @param   validValues           set of valid values for property
         @param   supportedValues       set of supported values for property
 
         @exception   CIM_ERR_INVALID_PARAMETER  if value of property or Other___
                                                 property is invalid
      */
-    void _checkPropertyWithOther(
-        CIMInstance& instance,
-        const CIMName& propertyName,
-        const CIMName& otherPropertyName,
+    void _checkPropertyWithOther (
+        CIMInstance & instance,
+        const CIMName & propertyName,
+        const CIMName & otherPropertyName,
         const Uint16 defaultValue,
         const Uint16 otherValue,
-        const Array<Uint16>& supportedValues);
+        const Array <Uint16> & validValues,
+        const Array <Uint16> & supportedValues);
 
     /**
         Validates the specified property in the instance.
@@ -502,25 +300,10 @@ private:
 
         @return  the value of the property
      */
-    String _checkPropertyWithDefault(
-        CIMInstance& instance,
-        const CIMName& propertyName,
-        const String& defaultValue);
-
-    /**
-        Validates the specified property in the instance.
-        If the property does not exist, it is added with the GUID value.
-        If the property exists, but its value is NULL, its value is set to
-        the GUID value.
-        This function is called by the _canCreate function, and is used to
-        set the name of the Handler instance.
-
-        @param   instance              instance to be validated
-        @param   propertyName          name of property to be validated
-    */
-    String _checkPropertyWithGuid(
-        CIMInstance& instance,
-        const CIMName& propertyName);
+    String _checkPropertyWithDefault (
+        CIMInstance & instance,
+        const CIMName & propertyName,
+        const String & defaultValue);
 
     /**
         Validates the specified property in the instance.
@@ -550,10 +333,10 @@ private:
 
         @return  the value of the property
      */
-    String _initOrValidateStringProperty(
-        CIMInstance& instance,
-        const CIMName& propertyName,
-        const String& defaultValue);
+    String _initOrValidateStringProperty (
+        CIMInstance & instance,
+        const CIMName & propertyName,
+        const String & defaultValue);
 
     /**
         Validates the specified property in the instance.
@@ -582,30 +365,44 @@ private:
                                                 null but is not of the correct
                                                 type
      */
-    void _checkProperty(
-        CIMInstance& instance,
-        const CIMName& propertyName,
+    void _checkProperty (
+        CIMInstance & instance,
+        const CIMName & propertyName,
         const CIMType expectedType,
         const Boolean isArray = false);
 
     /**
-        Validates value of the specified Uint16 property in the instance.
-        If the value of the property is not a valid value, or is not a
+        Validates that all properties in the instance are supported properties,
+        and throws an exception if an unknown, unsupported property is found.
+
+        @param   instance              instance to be validated
+
+        @exception   CIM_ERR_NOT_SUPPORTED      if instance includes an unknown,
+                                                unsupported property
+     */
+    void _checkSupportedProperties (
+        const CIMInstance & instance);
+
+    /**
+        Validates value of the specified Uint16 property in the instance. 
+        If the value of the property is not a valid value, or is not a 
         supported value, an exception is thrown.
 
         @param   instance              instance to be validated
         @param   propertyName          name of property to be validated
+        @param   validValues           set of valid values for property
         @param   supportedValues       set of supported values for property
-
-        @exception   CIM_ERR_NOT_SUPPORTED      if the property value is not
+                                                                              
+        @exception   CIM_ERR_NOT_SUPPORTED      if the property value is not 
                                                 supported
-                     CIM_ERR_INVALID_PARAMETER  if the property value is not
+                     CIM_ERR_INVALID_PARAMETER  if the property value is not 
                                                 valid
      */
-    void _checkValue(
-        const CIMInstance& instance,
-        const CIMName& propertyName,
-        const Array<Uint16>& supportedValues);
+    void _checkValue (
+        const CIMInstance & instance,
+        const CIMName & propertyName,
+        const Array <Uint16> & validValues,
+        const Array <Uint16> & supportedValues);
 
     /**
         Determines if the user is authorized to modify the instance, and if the
@@ -627,11 +424,11 @@ private:
         @return  True, if the instance can be modified;
                  Otherwise throws an exception
      */
-    Boolean _canModify(
-        const CIMModifyInstanceRequestMessage* request,
-        const CIMObjectPath& instanceReference,
-        const CIMInstance& instance,
-        CIMInstance& modifiedInstance);
+    Boolean _canModify (
+        const CIMModifyInstanceRequestMessage * request,
+        const CIMObjectPath & instanceReference,
+        const CIMInstance & instance,
+        CIMInstance & modifiedInstance);
 
     /**
         Determines if the user is authorized to delete the instance, and if it
@@ -653,10 +450,10 @@ private:
         @return  True, if the instance can be deleted;
                  Otherwise throws an exception
      */
-    Boolean _canDelete(
-        const CIMObjectPath& instanceReference,
-        const CIMNamespaceName& nameSpace,
-        const String& currentUser);
+    Boolean _canDelete (
+        const CIMObjectPath & instanceReference,
+        const CIMNamespaceName & nameSpace,
+        const String & currentUser);
 
     /**
         Retrieves list of enabled subscription instances in all namespaces,
@@ -677,12 +474,12 @@ private:
 
         @return   list of CIMInstance subscriptions
      */
-    Array<SubscriptionWithSrcNamespace> _getMatchingSubscriptions(
-        const CIMName& supportedClass,
-        const Array<CIMNamespaceName> nameSpaces,
-        const CIMPropertyList& supportedProperties,
+    Array <CIMInstance> _getMatchingSubscriptions (
+        const CIMName & supportedClass,
+        const Array <CIMNamespaceName> nameSpaces,
+        const CIMPropertyList & supportedProperties,
         const Boolean checkProvider = false,
-        const CIMInstance& provider = CIMInstance());
+        const CIMInstance & provider = CIMInstance ());
 
     /**
         Retrieves lists of enabled subscription instances in all namespaces
@@ -712,14 +509,14 @@ private:
         @param   formerSubscriptions  the list of previously supported
                                           subscriptions
      */
-    void _getModifiedSubscriptions(
-        const CIMName& supportedClass,
-        const Array<CIMNamespaceName>& newNameSpaces,
-        const Array<CIMNamespaceName>& oldNameSpaces,
-        const CIMPropertyList& newProperties,
-        const CIMPropertyList& oldProperties,
-        Array<SubscriptionWithSrcNamespace>& newSubscriptions,
-        Array<SubscriptionWithSrcNamespace>& formerSubscriptions);
+    void _getModifiedSubscriptions (
+        const CIMName & supportedClass,
+        const Array <CIMNamespaceName> & newNameSpaces,
+        const Array <CIMNamespaceName> & oldNameSpaces,
+        const CIMPropertyList & newProperties,
+        const CIMPropertyList & oldProperties,
+        Array <CIMInstance> & newSubscriptions,
+        Array <CIMInstance> & formerSubscriptions);
 
     /**
         Determines if all of the required properties in the specified list
@@ -731,9 +528,9 @@ private:
         @return   true, if all required properties are supported;
                   false otherwise
      */
-    Boolean _inPropertyList(
-        const CIMPropertyList& requiredProperties,
-        const CIMPropertyList& supportedProperties);
+    Boolean _inPropertyList (
+        const CIMPropertyList & requiredProperties,
+        const CIMPropertyList & supportedProperties);
 
     /**
         Builds a QueryExpression from the filter query string,
@@ -746,10 +543,9 @@ private:
 
         @return  QueryExpression representing the filter query
      */
-    QueryExpression _getQueryExpression(
-        const String& filterQuery,
-        const String& queryLanguage,
-        const CIMNamespaceName& ns) const;
+    QueryExpression _getQueryExpression (const String& filterQuery,
+                                         const String& queryLanguage,
+                                         const CIMNamespaceName ns) const;
 
     /**
         Extracts the indication class name from the specified query expression
@@ -761,26 +557,26 @@ private:
 
         @return  String containing the indication class name
      */
-    CIMName _getIndicationClassName(
-        const QueryExpression& queryExpression,
-        const CIMNamespaceName& nameSpaceName) const;
+    CIMName _getIndicationClassName (
+        const QueryExpression & queryExpression,
+        const CIMNamespaceName & nameSpaceName) const;
 
     /**
         Retrieves the list of indication providers that serve the specified
         indication subclasses.
 
-        @param   query                 the query
-        @param   queyLang              the query language
+        @param   queryExpression       the query expression
+        @param   nameSpace             the namespace name
         @param   indicationClassName   the indication class name
         @param   indicationSubclasses  the list of indication subclass names
 
         @return  list of ProviderClassList structs
      */
-    Array<ProviderClassList> _getIndicationProviders(
-        const String &query,
-        const String &queryLang,
-        const CIMName& indicationClassName,
-        const Array<NamespaceClassList>& indicationSubclasses) const;
+    Array <ProviderClassList> _getIndicationProviders (
+        const QueryExpression & queryExpression,
+        const CIMNamespaceName & nameSpace,
+        const CIMName & indicationClassName,
+        const Array <CIMName> & indicationSubclasses) const;
 
     /**
         Retrieves the list of required properties (all the properties
@@ -794,10 +590,10 @@ private:
         @return  CIMPropertyList of required properties for the filter query
                  expression
      */
-    CIMPropertyList _getPropertyList(
-        const QueryExpression& queryExpression,
-        const CIMNamespaceName& nameSpaceName,
-        const CIMName& indicationClassName) const;
+    CIMPropertyList _getPropertyList (
+        const QueryExpression & queryExpression,
+        const CIMNamespaceName & nameSpaceName,
+        const CIMName & indicationClassName) const;
 
     /**
         Checks if the property list includes all properties in the specified
@@ -815,11 +611,11 @@ private:
         @return  CIMPropertyList of properties referenced by the filter query
                  select statement
      */
-    CIMPropertyList _checkPropertyList(
-        const Array<CIMName>& propertyList,
-        const CIMNamespaceName& nameSpaceName,
-        const CIMName& indicationClassName,
-        Array<CIMName>& indicationClassProperties) const;
+    CIMPropertyList _checkPropertyList (
+        const Array <CIMName> & propertyList,
+        const CIMNamespaceName & nameSpaceName,
+        const CIMName & indicationClassName,
+        Array <CIMName> & indicationClassProperties) const;
 
     /**
         Extracts the condition (WHERE Clause) from the specified filter query
@@ -829,8 +625,8 @@ private:
 
         @return  String containing the filter query condition
      */
-    String _getCondition(
-        const String& filterQuery) const;
+    String _getCondition (
+        const String & filterQuery) const;
 
     /**
         Deletes subscriptions referencing the specified handler.  All namespaces
@@ -842,10 +638,10 @@ private:
                                            subscription instance
         @param   handler               the handler reference
      */
-    void _deleteReferencingSubscriptions(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& referenceProperty,
-        const CIMObjectPath& handler);
+    void _deleteReferencingSubscriptions (
+        const CIMNamespaceName & nameSpace,
+        const CIMName & referenceProperty,
+        const CIMObjectPath & handler);
 
     /**
         Determines if specified Subscription has expired
@@ -859,26 +655,16 @@ private:
         @return  True, if the Subscription has expired;
                  False otherwise
      */
-    Boolean _isExpired(
-        const CIMInstance& instance) const;
+    Boolean _isExpired (
+        const CIMInstance & instance) const;
 
     /**
         Deletes specified subscription
 
         @param   subscription          the subscription reference
      */
-    void _deleteExpiredSubscription(
-        CIMObjectPath& subscription);
-
-#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
-    /**
-        Deletes filter and handler of the specified subscription
-
-        @param   subscription instance
-     */
-     void _deleteFilterHandler(
-         CIMInstance &subscriptionInstance);
-#endif
+    void _deleteExpiredSubscription (
+        CIMObjectPath & subscription);
 
     /**
         Gets the Subscription Time Remaining property
@@ -900,9 +686,9 @@ private:
         @return  True, if the subscription has a non-null Duration;
                  False otherwise
      */
-    Boolean _getTimeRemaining(
-        const CIMInstance& instance,
-        Uint64& timeRemaining) const;
+    Boolean _getTimeRemaining (
+        const CIMInstance & instance,
+        Uint64 & timeRemaining) const;
 
     /**
         Sets the Subscription Time Remaining property
@@ -916,7 +702,8 @@ private:
 
         @param   instance              the subscription instance
      */
-    void _setTimeRemaining(CIMInstance& instance);
+    void _setTimeRemaining (
+        CIMInstance & instance);
 
     /**
         Gets the parameter values required to Create or Modify the subscription
@@ -931,19 +718,21 @@ private:
                                            classes
         @param   propertyList          Output list of properties required by the
                                            subscription
+        @param   sourceNameSpace       Output source namespace for filter query
         @param   condition             Output condition part of the filter query
         @param   query                 Output filter query
         @param   queryLanguage         Output query language in which the filter
                                            query is expressed
      */
-    void _getCreateParams(
-        const CIMInstance& subscriptionInstance,
-        Array<NamespaceClassList>& indicationSubclasses,
-        Array<ProviderClassList>& indicationProviders,
-        CIMPropertyList& propertyList,
-        String& condition,
-        String& query,
-        String& queryLanguage);
+    void _getCreateParams (
+        const CIMInstance & subscriptionInstance,
+        Array <CIMName> & indicationSubclasses,
+        Array <ProviderClassList> & indicationProviders,
+        CIMPropertyList & propertyList,
+        CIMNamespaceName & sourceNameSpace,
+        String & condition,
+        String & query,
+        String & queryLanguage);
 
     /**
         Gets the parameter values required to Create or Modify the subscription
@@ -954,18 +743,20 @@ private:
                                            class in filter query
         @param   propertyList          Output list of properties required by the
                                            subscription
+        @param   sourceNameSpace       Output source namespace for filter query
         @param   condition             Output condition part of the filter query
         @param   query                 Output filter query
         @param   queryLanguage         Output query language in which the filter
                                            query is expressed
      */
-    void _getCreateParams(
-        const CIMInstance& subscriptionInstance,
-        Array<NamespaceClassList>& indicationSubclasses,
-        CIMPropertyList& propertyList,
-        String& condition,
-        String& query,
-        String& queryLanguage);
+    void _getCreateParams (
+        const CIMInstance & subscriptionInstance,
+        Array <CIMName> & indicationSubclasses,
+        CIMPropertyList & propertyList,
+        CIMNamespaceName & sourceNameSpace,
+        String & condition,
+        String & query,
+        String & queryLanguage);
 
     /**
         Gets the parameter values required to Delete the subscription request.
@@ -973,12 +764,14 @@ private:
         @param   subscriptionInstance  Input subscription instance
         @param   indicationSubclasses  Output list of subclasses of indication
                                            class in filter query
+        @param   sourceNameSpace       Output source namespace for filter query
 
         @return  List of providers with associated classes to Delete
      */
-    Array<ProviderClassList> _getDeleteParams(
-        const CIMInstance& subscriptionInstance,
-        Array<NamespaceClassList>& indicationSubclasses);
+    Array <ProviderClassList> _getDeleteParams (
+        const CIMInstance & subscriptionInstance,
+        Array <CIMName> & indicationSubclasses,
+        CIMNamespaceName & sourceNameSpace);
 
     /**
         Sends Create subscription request for the specified subscription
@@ -986,16 +779,14 @@ private:
         and the responses are aggregated in the callback methods.  Create
         Subscription requests are sent to the indication providers using
         SendAsync in the following cases: (1) on creation of an enabled
-        subscription instance, (2) on modification of a subscription
-        instance, when the state changes to enabled and (3) on initialization,
-        for each enabled subscription retrieved from the repository if timeout
-        is specified. In cases (1) and (2), there is an original Create Instance
-        or Modify Instance request to which the Indication Service must respond.
-        In case (3), there is no original request and no response is required.
+        subscription instance, and (2) on modification of a subscription
+        instance, when the state changes to enabled.  In cases (1) and (2),
+        there is an original Create Instance or Modify Instance request to
+        which the Indication Service must respond.
 
         @param   indicationProviders   list of providers with associated classes
-                                       with the nameSpace name of the resource
-                                       being monitored, from the SourceNamespace
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1017,19 +808,20 @@ private:
         @param   authType              the authentication type
 
      */
-    void _sendAsyncCreateRequests(
-        const Array<ProviderClassList>& indicationProviders,
-        const CIMPropertyList& propertyList,
-        const String& condition,
-        const String& query,
-        const String& queryLanguage,
-        const CIMInstance& subscription,
-        const AcceptLanguageList& acceptLangs,
-        const ContentLanguageList& contentLangs,
+    void _sendAsyncCreateRequests (
+        const Array <ProviderClassList> & indicationProviders,
+        const CIMNamespaceName & nameSpace,
+        const CIMPropertyList & propertyList,
+        const String & condition,
+        const String & query,
+        const String & queryLanguage,
+        const CIMInstance & subscription,
+        const AcceptLanguageList & acceptLangs,
+        const ContentLanguageList & contentLangs,
         const CIMRequestMessage * origRequest,
-        const Array<NamespaceClassList>& indicationSubclasses,
-        const String& userName,
-        const String& authType = String::EMPTY);
+        const Array <CIMName> & indicationSubclasses,
+        const String & userName,
+        const String & authType = String::EMPTY);
 
     /**
         Sends Create subscription request for the specified subscription
@@ -1046,8 +838,8 @@ private:
         response is required.
 
         @param   indicationProviders   list of providers with associated classes
-                                       with the nameSpace name of the resource
-                                       being monitored, from the SourceNamespace
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1066,17 +858,18 @@ private:
 
         @return  List of providers that accepted subscription
      */
-    Array<ProviderClassList> _sendWaitCreateRequests(
-        const Array<ProviderClassList>& indicationProviders,
-        const CIMPropertyList& propertyList,
-        const String& condition,
-        const String& query,
-        const String& queryLanguage,
-        const CIMInstance& subscription,
-        const AcceptLanguageList& acceptLangs,
-        const ContentLanguageList& contentLangs,
-        const String& userName,
-        const String& authType = String::EMPTY);
+    Array <ProviderClassList> _sendWaitCreateRequests (
+        const Array <ProviderClassList> & indicationProviders,
+        const CIMNamespaceName & nameSpace,
+        const CIMPropertyList & propertyList,
+        const String & condition,
+        const String & query,
+        const String & queryLanguage,
+        const CIMInstance & subscription,
+        const AcceptLanguageList & acceptLangs,
+        const ContentLanguageList & contentLangs,
+        const String & userName,
+        const String & authType = String::EMPTY);
 
     /**
         Sends Modify subscription request for the specified subscription
@@ -1093,8 +886,8 @@ private:
         request to which the Indication Service must respond.
 
         @param   indicationProviders   list of providers with associated classes
-                                       with the nameSpace name of the resource
-                                       being monitored, from the SourceNamespace
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1111,17 +904,18 @@ private:
         @param   userName              the userName for authentication
         @param   authType              the authentication type
      */
-    void _sendWaitModifyRequests(
-        const Array<ProviderClassList>& indicationProviders,
-        const CIMPropertyList& propertyList,
-        const String& condition,
-        const String& query,
-        const String& queryLanguage,
-        const CIMInstance& subscription,
-        const AcceptLanguageList& acceptLangs,
-        const ContentLanguageList& contentLangs,
-        const String& userName,
-        const String& authType = String::EMPTY);
+    void _sendWaitModifyRequests (
+        const Array <ProviderClassList> & indicationProviders,
+        const CIMNamespaceName & nameSpace,
+        const CIMPropertyList & propertyList,
+        const String & condition,
+        const String & query,
+        const String & queryLanguage,
+        const CIMInstance & subscription,
+        const AcceptLanguageList & acceptLangs,
+        const ContentLanguageList & contentLangs,
+        const String & userName,
+        const String & authType = String::EMPTY);
 
     /**
         Sends Delete subscription request for the specified subscription
@@ -1131,16 +925,15 @@ private:
         SendAsync in the following cases: (1) on deletion of an enabled
         subscription instance, (2) on modification of a subscription instance,
         when the state changes to disabled, (3) on deletion of an expired
-        subscription, (4) on deletion of a subscription referencing a
-        deleted transient handler and (5) when indication service is disabled
-        dynamically. In cases (1) and (2), there is an original
+        subscription, and (4) on deletion of a subscription referencing a
+        deleted transient handler.  In cases (1) and (2), there is an original
         Delete Instance or Modify Instance request to which the Indication
-        Service must respond.  In cases (3), (4) and (5) , there is no
-        orginal request and no response is required.
+        Service must respond.  In cases (3) and (4), there is no orginal request
+        and no response is required.
 
         @param   indicationProviders   list of providers with associated classes
-                                       with the nameSpace name of the resource
-                                       being monitored, from the SourceNamespace
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1154,15 +947,16 @@ private:
         @param   userName              the userName for authentication
         @param   authType              the authentication type
      */
-    void _sendAsyncDeleteRequests(
-        const Array<ProviderClassList>& indicationProviders,
-        const CIMInstance& subscription,
-        const AcceptLanguageList& acceptLangs,
-        const ContentLanguageList& contentLangs,
+    void _sendAsyncDeleteRequests (
+        const Array <ProviderClassList> & indicationProviders,
+        const CIMNamespaceName & nameSpace,
+        const CIMInstance & subscription,
+        const AcceptLanguageList & acceptLangs,
+        const ContentLanguageList & contentLangs,
         const CIMRequestMessage * origRequest,
-        const Array<NamespaceClassList>& indicationSubclasses,
-        const String& userName,
-        const String& authType = String::EMPTY);
+        const Array <CIMName> & indicationSubclasses,
+        const String & userName,
+        const String & authType = String::EMPTY);
 
     /**
         Sends Delete subscription request for the specified subscription
@@ -1175,8 +969,8 @@ private:
         Service must respond.
 
         @param   indicationProviders   list of providers with associated classes
-                                       with the nameSpace name of the resource
-                                       being monitored, from the SourceNamespace
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
                                            instance for the specified
                                            subscription
@@ -1186,13 +980,14 @@ private:
         @param   userName              the userName for authentication
         @param   authType              the authentication type
      */
-    void _sendWaitDeleteRequests(
-        const Array<ProviderClassList>& indicationProviders,
-        const CIMInstance& subscription,
-        const AcceptLanguageList& acceptLangs,
-        const ContentLanguageList& contentLangs,
-        const String& userName,
-        const String& authType = String::EMPTY);
+    void _sendWaitDeleteRequests (
+        const Array <ProviderClassList> & indicationProviders,
+        const CIMNamespaceName & nameSpace,
+        const CIMInstance & subscription,
+        const AcceptLanguageList & acceptLangs,
+        const ContentLanguageList & contentLangs,
+        const String & userName,
+        const String & authType = String::EMPTY);
 
     /**
         Collects responses from providers for aggregation as they are received,
@@ -1205,7 +1000,7 @@ private:
         @param  destination          target queue of completion callback
         @param  userParameter        user parameter for callback processing
      */
-    static void _aggregationCallBack(
+    static void _aggregationCallBack (
         AsyncOpNode * operation,
         MessageQueue * destination,
         void * userParameter);
@@ -1217,7 +1012,7 @@ private:
 
         @param   operationAggregate    the operation aggregate instance
      */
-    void _handleOperationResponseAggregation(
+    void _handleOperationResponseAggregation (
         IndicationOperationAggregate * operationAggregate);
 
     /**
@@ -1228,7 +1023,7 @@ private:
 
         @param   operationAggregate    the operation aggregate instance
      */
-    void _handleCreateResponseAggregation(
+    void _handleCreateResponseAggregation (
         IndicationOperationAggregate * operationAggregate);
 
     /**
@@ -1237,7 +1032,7 @@ private:
 
         @param   operationAggregate    the operation aggregate instance
      */
-    void _handleModifyResponseAggregation(
+    void _handleModifyResponseAggregation (
         IndicationOperationAggregate * operationAggregate);
 
     /**
@@ -1248,7 +1043,7 @@ private:
 
         @param   operationAggregate    the operation aggregate instance
      */
-    void _handleDeleteResponseAggregation(
+    void _handleDeleteResponseAggregation (
         IndicationOperationAggregate * operationAggregate);
 
     /**
@@ -1260,19 +1055,18 @@ private:
 
         @return  the created alert instance
      */
-    CIMInstance _createAlertInstance(
-        const CIMName& alertClassName,
-        const Array<CIMInstance>& subscriptions);
+    CIMInstance _createAlertInstance (
+        const CIMName & alertClassName,
+        const Array <CIMInstance> & subscriptions);
 
 #if 0
-    /**
-        Asynchronous completion routine for _sendAlerts
-     */
+     /**
+	  Asynchronous completion routine for _sendAlerts
+      */
 
-    static void _sendAlertsCallBack(
-        AsyncOpNode* operation,
-        MessageQueue* callback_destination,
-        void* parameter);
+      static void _sendAlertsCallBack(AsyncOpNode *operation,
+				      MessageQueue *callback_destination,
+				      void *parameter);
 
     /**
         Sends specified alert to each unique handler instance for the
@@ -1282,10 +1076,16 @@ private:
                                            sent
         @param   alertInstance         the alert to be sent
      */
-    void _sendAlerts(
-        const Array<CIMInstance>& subscriptions,
-        /* const */ CIMInstance& alertInstance);
+    void _sendAlerts (
+        const Array <CIMInstance> & subscriptions,
+        /* const */ CIMInstance & alertInstance);
 #endif
+
+    /**
+        Sends a Subscription Init Complete request to the Provider
+        Manager Service.
+     */
+    void _sendSubscriptionInitComplete ();
 
     /**
         Gets the value of the Creator property from the specified Subscription
@@ -1299,9 +1099,20 @@ private:
                  False if Creator property was missing, null, or of an
                        incorrect type
      */
-    Boolean _getCreator(
-        const CIMInstance& instance,
-        String& creator) const;
+    Boolean _getCreator (
+        const CIMInstance & instance,
+        String & creator) const;
+
+    /**
+        Validates the specified SubscriptionState property value.
+
+        @param   state                 SubscriptionState property value
+
+        @return  True, if the SubscriptionState property value is valid;
+                 False otherwise
+     */
+    Boolean _validateState (
+        const Uint16 state) const;
 
     /**
         This function peforms an authorization test based on the
@@ -1314,8 +1125,8 @@ private:
                  False, if authentication is enabled and the
                        user is not privileged
      */
-    void _checkNonprivilegedAuthorization(
-        const String& userName);
+    void _checkNonprivilegedAuthorization (
+        const String & userName);
 
     /**
         Updates the propertyList, in preparation for calling the Repository.
@@ -1334,12 +1145,12 @@ private:
         @param   durationAdded         indicates whether Duration property was
                                        added to the list
      */
-    void _updatePropertyList(
-        CIMName& className,
-        CIMPropertyList& propertyList,
-        Boolean& setTimeRemaining,
-        Boolean& startTimeAdded,
-        Boolean& durationAdded);
+    void _updatePropertyList
+        (CIMName & className,
+         CIMPropertyList & propertyList,
+         Boolean & setTimeRemaining,
+         Boolean & startTimeAdded,
+         Boolean & durationAdded);
 
     /**
         Gets a String containing the comma-separated Subscription Filter Name
@@ -1350,172 +1161,12 @@ private:
         @return  String containing the comma-separated Subscription Filter Name
                  and Handler Name
      */
-    String _getSubscriptionLogString(CIMInstance& subscription);
+    String _getSubscriptionLogString
+        (CIMInstance & subscription);
 
-    /**
-        Retrieves list of enabled subscription instances based on the class
-        name and namespace of the generated indication. If the subscription
-        matches the class name and namespace of the generated indication
-        and the provider who generated this indication accepted this
-        subscription, the subscription is added to the initial subscriptions
-        list.
-        If the indication provider included subscriptions in the
-        SubscriptionInstanceNamesContainer, the subset of subscriptions
-        specified by the indication provider that also appear in the initial
-        subscriptions list is returned.
-        Any subscription included by the provider but not containing in the
-        initial subscriptions list is ignored.
+    SubscriptionRepository* _subscriptionRepository;
 
-        @param   providedSubscriptionNames   Subscriptions specified by the
-                                             indication provider
-        @param   className                   The generated indication class
-                                             name
-        @param   nameSpace                   The generated indication namespace
-        @param   indicationProvider          The provider which generated
-                                             the indication
-        @param   subscriptions               Output Array of subscription
-                                             instances
-        @param   subscriptionKeys            Output Array of keys associated
-                                             with the subscriptions
-    */
-    void _getRelevantSubscriptions(
-        const Array<CIMObjectPath> & providedSubscriptionNames,
-        const CIMName& className,
-        const CIMNamespaceName& nameSpace,
-        const CIMInstance& indicationProvider,
-        Array<CIMInstance>& subscriptions,
-        Array<SubscriptionKey>& subscriptionKeys);
-
-    /**
-        Evaluate if the specified subscription matches the indication based on:
-        1) Whether the properties (in WHERE clause) from filter query are
-           supported by the indication provider;
-        2) Whether the subscripton is expired;
-        3) Whether the filter criteria are met by the generated indication
-
-        @param   subscription              The subscription to be evaluated
-        @param   indication                The generated indication
-        @param   supportedPropertyList     The properties are supported by the
-                                           indication provider
-        @param   queryExpr                 The query expression of the evaluated
-                                           subscription which is used for
-                                           indication evaluation
-        @param   sourceNameSpace           The source namespace of the filter
-                                           instance
-
-        @return  True, if the subscription is met all above conditions;
-                 False otherwise
-    */
-    Boolean _subscriptionMatch(
-        const CIMInstance& subscription,
-        const CIMInstance& indication,
-        const CIMPropertyList& supportedPropertyList,
-        QueryExpression& queryExpr,
-        const CIMNamespaceName sourceNameSpace);
-
-    /**
-        Format the generated indication based on:
-        1) Use QueryExpression::applyProjection to remove properties not
-           listed in the SELECT clause;
-        2) Remove any properties that may be left on the indication
-           that are not in the indication class. These are properties
-           added by the provider incorrectly.
-
-        @param   formattedindication          The generated indication to
-                                              be formatted
-        @param   queryExpr,                   The query expression of the
-                                              matched subscription needs to be
-                                              used for indication projection
-        @param   ProviderSupportedProperties  The properties are supported by
-                                              the indication provider
-        @param   indicationClassProperties    The indication class properties
-
-        @return  True, if the indication is formatted;
-                 False otherwise
-    */
-    Boolean _formatIndication(
-        CIMInstance& formattedIndication,
-        QueryExpression& queryExpr,
-        const Array<CIMName>& providerSupportedProperties,
-        const Array<CIMName>& indicationClassProperties);
-
-    /**
-        Forward the formatted indication to the handler
-
-        @param   matchedSubscription    The matched subscription
-        @param   handlerInstance        The handler instance for the matched
-                                        subscription
-        @param   formattedIndication    The formatted indication
-        @param   namespaceName          The generated indication namespace
-        @param   operationContext       The operation context
-    */
-    void _forwardIndToHandler(
-        const CIMInstance& matchedSubscription,
-        const CIMInstance& handlerInstance,
-        const CIMInstance& formattedIndication,
-        const CIMNamespaceName& namespaceName,
-        const OperationContext& operationContext,
-        DeliveryStatusAggregator *deliveryStatusAggregator);
-
-    /**
-        Updates the subscription table with the information of the providers
-        those accepted the subscription. This method is called during indication
-        service initialization.
-
-        @param  subscription           The accepted subscription.
-        @param  acceptedProviders      Subscription accepted providers list.
-        @param  indicationSubclasses   The indication subclasses for the
-                                       subscription with the source namespace.
-
-    */
-    void _updateAcceptedSubscription(
-        CIMInstance &subscription,
-        const Array<ProviderClassList> &acceptedProviders,
-        const Array<NamespaceClassList> &indicationSubclasses);
-
-    Array<ProviderClassList> _getIndicationProvidersWithNamespaceClassList(
-        const Array<ProviderClassList> &providers);
-
-    void _addProviderToAcceptedProviderList(
-        Array<ProviderClassList> &acceptedProviders,
-        ProviderClassList &provider);
-
-    void _deliverWaitingIndications();
-    void _beginCreateSubscription(const CIMObjectPath &objPath);
-    void _cancelCreateSubscription(const CIMObjectPath &objPath);
-    void _commitCreateSubscription(const CIMObjectPath &objPath);
-
-
-    AutoPtr<SubscriptionRepository> _subscriptionRepository;
-
-    AutoPtr<SubscriptionTable> _subscriptionTable;
-
-#ifdef PEGASUS_ENABLE_INDICATION_COUNT
-    ProviderIndicationCountTable _providerIndicationCountTable;
-#endif
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-
-    /**
-        Holds the number of async requests pending with the service.
-    */
-    AtomicInt _asyncRequestsPending;
-
-    /**
-        Holds the number of threads  processing the indications.
-    */
-    AtomicInt _processIndicationThreads;
-
-    AutoPtr<IndicationServiceConfiguration> _indicationServiceConfiguration;
-#else
-    Uint32 _enabledState;
-#endif
-
-    /**
-        Indications waiting for completion of pending create subscription
-        requests.
-    */
-    List<Message, Mutex> _deliveryWaitIndications;
+    SubscriptionTable * _subscriptionTable;
 
     /**
         Handle to Provider Registration Manager
@@ -1538,11 +1189,6 @@ private:
     Uint32 _handlerService;
 
     /**
-        Integer representing queue ID for accessing Module Controller
-     */
-    Uint32 _moduleController;
-
-    /**
         Boolean indicating that the CIM Server has been configured to
         allow non-privileged users read and write access to the
         Subscription classes.
@@ -1556,23 +1202,23 @@ private:
     Boolean _authenticationEnabled;
 
     /**
-        Gets the indication class specified by the subscription filter query.
+	Gets the indication class specified by the subscription filter query.
 
-        @param instance     the subscription instance
+	@param instance     the subscription instance
 
-        @return CIMClass object for the indication class
+	@return CIMClass object for the indication class
     */
-    CIMClass _getIndicationClass(const CIMInstance& instance);
-
-    void _buildInternalControlProvidersRegistration();
-
-    Array<ProviderClassList> _getInternalIndProviders(
-        const Array<NamespaceClassList>& indicationSubclasses) const;
+    CIMClass _getIndicationClass(
+	const CIMInstance & instance);
 
     /**
         Arrays of valid and supported property values
 
         Notes:
+        Valid values are defined by the CIM Event Schema MOF
+        Supported values are a subset of the valid values
+        Some valid values, as defined in the MOF, are not currently supported
+            by the Pegasus IndicationService
 
         Supported Values
         SubscriptionState: Enabled, Disabled
@@ -1581,36 +1227,28 @@ private:
         PersistenceType: Permanent, Transient
         SNMPVersion: SNMPv1 Trap, SNMPv2C Trap
      */
-    Array<Uint16> _supportedStates;
-    Array<Uint16> _supportedRepeatPolicies;
-    Array<Uint16> _supportedErrorPolicies;
-    Array<Uint16> _supportedPersistenceTypes;
-    Array<Uint16> _supportedSNMPVersion;
+    Array <Uint16> _validStates;
+    Array <Uint16> _validRepeatPolicies;
+    Array <Uint16> _validErrorPolicies;
+    Array <Uint16> _validPersistenceTypes;
+    Array <Uint16> _validSNMPVersion;
+    Array <Uint16> _supportedStates;
+    Array <Uint16> _supportedRepeatPolicies;
+    Array <Uint16> _supportedErrorPolicies;
+    Array <Uint16> _supportedPersistenceTypes;
+    Array <Uint16> _supportedSNMPVersion;
 
-    ControlProvIndRegTable _controlProvIndRegTable;
-};
-
-// Use with AutoPtr to automatically decrement AtomicInt
-struct DecAtomicInt
-{
-    void operator()(AtomicInt* ptr)
-    {
-        if (ptr)
-        {
-            ptr->dec();
-        }
-    }
-};
-
-struct ExpectedResponseCountSetDone
-{
-    void operator()(DeliveryStatusAggregator* ptr)
-    {
-        if (ptr)
-        {
-            ptr->expectedResponseCountSetDone();
-        }
-    }
+    /**
+        Arrays of names of supported properties for each class
+     */
+    Array <CIMName> _supportedSubscriptionProperties;
+    Array <CIMName> _supportedFormattedSubscriptionProperties;
+    Array <CIMName> _supportedFilterProperties;
+    Array <CIMName> _supportedCIMXMLHandlerProperties;
+    Array <CIMName> _supportedCIMXMLListenerDestinationProperties;
+    Array <CIMName> _supportedSNMPHandlerProperties;
+    Array <CIMName> _supportedSyslogListenerDestinationProperties;
+    Array <CIMName> _supportedEmailListenerDestinationProperties;
 };
 
 PEGASUS_NAMESPACE_END

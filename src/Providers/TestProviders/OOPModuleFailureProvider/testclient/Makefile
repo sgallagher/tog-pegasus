@@ -28,67 +28,37 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-# Recurse the directories defined in DIRS
-# This makefile simply recurses all of the toplevel provider directories
-
-ROOT = ../../..
-
+ROOT = ../../../../..
+DIR = Providers/TestProviders/OOPModuleFailureProvider/testclient
 include $(ROOT)/mak/config.mak
 
-#Directories to recurse
-DIRS = \
-	AlertIndicationProvider \
-	ClientProvider \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	IndicationStressTestProvider/testconsumer \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	OOPModuleFailureProvider \
-	OOPModuleFailureProvider/testclient \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient \
-	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-DIRS += \
-	CMPI/TestUtilLib \
-	CMPI/TestMethod \
-	CMPI/TestMethod/tests \
-	CMPI/TestFail_1 \
-	CMPI/TestFail_1/tests \
-	CMPI/TestFail_2 \
-	CMPI/TestFail_2/tests\
-	CMPI/TestFail_3 \
-	CMPI/TestFail_3/tests \
-	CMPI/TestFail_4 \
-	CMPI/TestFail_4/tests \
-	CMPI/TestProviderThreaded \
-	CMPI/TestProviderThreaded/tests
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DINDICATION_DIR=\"$(DISPLAYCONSUMER_DIR)\"
 
-ifndef PEGASUS_DISABLE_CQL
-DIRS += \
-	CMPI/TestIndications \
-	CMPI/TestIndications/tests
+LIBRARIES = \
+    pegclient \
+    pegcommon
 
-ifdef PEGASUS_ENABLE_EXECQUERY
-DIRS += \
-	CMPI/TestExecQuery \
-	CMPI/TestExecQuery/tests
-endif
-endif
+PROGRAM = TestOOPModuleFailure
+
+SOURCES = TestOOPModuleFailure.cpp
+
+ifeq ($(OS),VMS)
+LOCAL_DEFINES = -DINDICATION_DIR="""$(DISPLAYCONSUMER_DIR)""" -DPEGASUS_INTERNALONLY
 endif
 
-include $(ROOT)/mak/recurse.mak
+include $(ROOT)/mak/program.mak
+
+tests:
+
+poststarttests:
+
+OOPProvFail_TS1:
+	@$(PROGRAM)
+
+OOPProvFail_TS2a:
+	@$(PROGRAM) inita
+
+OOPProvFail_TS2b:
+	@$(PROGRAM) initb

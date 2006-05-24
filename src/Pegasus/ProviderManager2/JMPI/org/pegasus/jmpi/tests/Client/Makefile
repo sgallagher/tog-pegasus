@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,31 +28,71 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-JAVAROOT = ../../../../..
-ROOT = ../../../../../../../../..
+ifndef PEGASUS_ROOT
+    $(error PEGASUS_ROOT environment variable undefined)
+endif
+ifndef PEGASUS_HOME
+    $(error PEGASUS_HOME environment variable undefined)
+endif
 
-include $(ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/mak/configschema.mak
+include $(PEGASUS_ROOT)/test/config.mak
 
 .SUFFIXES: .java .class .jar
 
 .java.class:
-	javac -classpath $(JAVAROOT) $*.java
+# Note: .. included in path to compile package helper classes if necessary
+	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar:.. $*.java
 
-PACKAGEDIR = org/pegasus/jmpi/tests/Client
+KNOWN_BUGS       = BugExistsExecQuery
 
-CLASSES = \
-   TestCIMClient.class
+PACKAGEDIR       = Client/
+JAR1             = Client.jar
+JAR1CLASSES      = \
+	TestCIMClient.class
+EXTRAJAR1CLASSES = \
+	Log.class
+JAR2             = JMPITestClient.jar
+JAR2CLASSES      = \
+	RunTest.class \
+	TestEntry.class
+EXTRAJAR2CLASSES = \
+        MyFilenameFilter.class
+JAR2MANIFEST     = JMPITestClient.manifest
+JAR3             = JMPITestInstanceProvider.jar
+JAR3CLASSES      = \
+	testDataType.class \
+	testExecQuery.class \
+	testIndications.class \
+	testPropertyProvider.class
+EXTRAJAR3CLASSES =
+JARS             = $(JAR1) $(JAR2) $(JAR3)
 
-PFXCLASSES=$(addprefix -C ../../../../.. org/pegasus/jmpi/tests/Client/,$(CLASSES))
+LOCAL_CLEAN_TARGET = \
+	$(JAR1CLASSES) $(EXTRAJAR1CLASSES) $(addprefix $(PEGASUS_HOME)/lib/,$(JAR1)) \
+	$(JAR2CLASSES) $(EXTRAJAR2CLASSES) $(addprefix $(PEGASUS_HOME)/lib/,$(JAR2)) \
+	$(JAR2CLASSES) $(EXTRAJAR2CLASSES) $(addprefix $(PEGASUS_HOME)/lib/,$(JAR2))
 
-all build: $(PEGASUS_HOME)/lib/Client.jar $(CLASSES)
+all build: 			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
 
 depend:
 
 clean:
-	$(RM) *.class
-	$(RM) $(PEGASUS_HOME)/lib/Client.jar
+	$(RM) $(LOCAL_CLEAN_TARGET)
 
-$(PEGASUS_HOME)/lib/Client.jar: $(CLASSES)
-	jar -cf $@ $(PFXCLASSES)
+repository:
 
+poststarttests:			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
+	java -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar:$(addprefix $(PEGASUS_HOME)/lib/,$(JAR2)):$(addprefix $(PEGASUS_HOME)/lib/,$(JAR3)) Client.RunTest $(KNOWN_BUGS)
+
+$(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES)
+	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
+
+$(PEGASUS_HOME)/lib/$(JAR2):	$(JAR2CLASSES) $(JAR2MANIFEST)
+	jar -cfm $@ $(JAR2MANIFEST) $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR2CLASSES))
+
+$(PEGASUS_HOME)/lib/$(JAR3):	$(JAR3CLASSES)
+	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR3CLASSES))
+
+#include $(ROOT)/test/configend.mak

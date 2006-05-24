@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#//
+#// 
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,7 +35,15 @@ ifndef PEGASUS_HOME
     $(error PEGASUS_HOME environment variable undefined)
 endif
 
-all clean depend build poststarttests messages tests repository:
-	$(MAKE) -C Providers $(MFLAGS) $@
-	$(MAKE) -C Client $(MFLAGS) $@
-	$(MAKE) -C Static $(MFLAGS) $@
+include $(PEGASUS_ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/test/config.mak
+
+XMLSCRIPTS = \
+	EnumerateInstanceNames50000 \
+	EnumerateInstanceNames50002
+
+ifndef SECURITY_ENABLED
+XMLSCRIPTS += EnumerateInstanceNames50001
+endif
+
+include $(ROOT)/test/configend.mak

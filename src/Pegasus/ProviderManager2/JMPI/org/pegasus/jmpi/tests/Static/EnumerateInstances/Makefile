@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#//
+#// 
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,7 +35,39 @@ ifndef PEGASUS_HOME
     $(error PEGASUS_HOME environment variable undefined)
 endif
 
-all clean depend build poststarttests messages tests repository:
-	$(MAKE) -C Providers $(MFLAGS) $@
-	$(MAKE) -C Client $(MFLAGS) $@
-	$(MAKE) -C Static $(MFLAGS) $@
+include $(PEGASUS_ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/test/config.mak
+
+XMLSCRIPTS = \
+	EnumerateInstances51003
+
+# Note: this is done because the server on windows returns 3 digits
+# for the exponent of a real32 or real64, while other platforms return 2.
+ifeq ($(OS_TYPE),windows)
+XMLSCRIPTS += \
+	EnumerateInstancesAlt51000 \
+	DeepLocalTFAlt51005 \
+	DeepLocalFFAlt51007 \
+	DeepLocalTFAlt51008
+else
+XMLSCRIPTS += \
+	EnumerateInstances51000 \
+	DeepLocalTF51005 \
+	DeepLocalFF51007 \
+	DeepLocalTF51008
+endif
+
+ifndef SECURITY_ENABLED
+XMLSCRIPTS += \
+	EnumerateInstances51001 \
+	EnumerateInstances51002 
+endif
+
+ATTN-WO-P3-2002/05/01: 
+	The DeepInheritance and LocalOnly flags have not been fully \
+implemented. The following tests should be run when these are fully enabled.
+
+XmlScriptDefects: DeepLocalFT51006 \
+	          DeepLocalTT51004
+
+include $(ROOT)/test/configend.mak

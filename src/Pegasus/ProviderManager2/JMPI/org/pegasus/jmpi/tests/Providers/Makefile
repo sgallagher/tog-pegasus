@@ -36,6 +36,7 @@ ifndef PEGASUS_HOME
 endif
 
 all clean depend build poststarttests messages tests repository:
-	$(MAKE) -C Providers $(MFLAGS) $@
-	$(MAKE) -C Client $(MFLAGS) $@
-	$(MAKE) -C Static $(MFLAGS) $@
+	$(MAKE) -C Associations $(MFLAGS) $@
+	$(MAKE) -C Indications $(MFLAGS) $@
+	$(MAKE) -C Instances $(MFLAGS) $@
+	$(MAKE) -C Properties $(MFLAGS) $@

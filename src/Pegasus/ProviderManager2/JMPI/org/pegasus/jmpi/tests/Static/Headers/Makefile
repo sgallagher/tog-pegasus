@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#//
+#// 
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,7 +35,39 @@ ifndef PEGASUS_HOME
     $(error PEGASUS_HOME environment variable undefined)
 endif
 
-all clean depend build poststarttests messages tests repository:
-	$(MAKE) -C Providers $(MFLAGS) $@
-	$(MAKE) -C Client $(MFLAGS) $@
-	$(MAKE) -C Static $(MFLAGS) $@
+include $(PEGASUS_ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/test/config.mak
+
+XMLSCRIPTS = \
+	BadCIMMethodValue01 \
+	BadCIMMethodValue02 \
+	BadCIMObjectValue01 \
+	BadCIMObjectValue02 \
+	BadCIMObjectValue03 \
+	BadCIMObjectValue04 \
+	BadCIMOperationValue01 \
+	BadCIMProtocolVersionValue01 \
+	ExtraCIMBatchTag01 \
+	ExtraCIMBatchTag02 \
+	MissingCIMBatchTag01 \
+	MissingCIMMethodTag01 \
+	MissingCIMMethodTag02 \
+	MissingCIMObjectTag01 \
+	MissingCIMObjectTag02 \
+	MissingCIMOperationTag01 \
+	MissingCIMOperationTag02 \
+	UnsupportedCIMProtocolVersionValue01 \
+	UnsupportedCIMVersionValue01 \
+	UnsupportedDTDVersionValue01 \
+	UnsupportedHTTPMethod01 \
+	MissingCIMMethodValue01 \
+	MissingCIMProtocolVersion01 \
+	MissingMessage01 \
+	BadCIMMethodValue03 \
+	BadCIMMethodValueEncoding01 \
+	BadCIMObjectValueEncoding01 \
+	BadCIMObjectValueEncoding02 \
+	BadCIMObjectValueEncoding03 \
+	GoodCIMObjectValueEncoding01
+
+include $(ROOT)/test/configend.mak

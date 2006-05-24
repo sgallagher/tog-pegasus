@@ -3097,21 +3097,19 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             CIMClass *pcls = new CIMClass (cls);
 
-            JMPIjvm::checkException(env);
-
             jint jcls = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
 
             jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcls);
 
             JMPIjvm::checkException(env);
 
-            jobjectArray jAr = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
-                                                                   id,
-                                                                   joc,
-                                                                   jcop,
-                                                                   jCc,
-                                                                   jquery,
-                                                                   jqueryLanguage);
+            jobject jVec = env->CallObjectMethod ((jobject)pr.jProvider,
+                                                  id,
+                                                  joc,
+                                                  jcop,
+                                                  jCc,
+                                                  jquery,
+                                                  jqueryLanguage);
 
             JMPIjvm::checkException(env);
 
@@ -3125,11 +3123,14 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
             }
 
             handler.processing();
-            if (jAr) {
-                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
+            if (jVec)
+            {
+                for (int i = 0, m = env->CallIntMethod (jVec, JMPIjvm::jv.VectorSize); i < m; i++)
+                {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->GetObjectArrayElement(jAr,i);
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+                    DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: jciRet = "<<jciRet<<PEGASUS_STD(endl));
 
                     JMPIjvm::checkException(env);
 
@@ -3141,6 +3142,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
                     handler.deliver(*ciRet);
                 }
             }
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: done!"<<PEGASUS_STD(endl));
             handler.complete();
             break;
         }
@@ -3189,12 +3191,12 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             jint jql = 0; // @BUG - how to convert?
 
-            jobjectArray jVec = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
-                                                                    id,
-                                                                    jcop,
-                                                                    jquery,
-                                                                    jql,
-                                                                    jCc);
+            jobject jVec = env->CallObjectMethod ((jobject)pr.jProvider,
+                                                  id,
+                                                  jcop,
+                                                  jquery,
+                                                  jql,
+                                                  jCc);
 
             JMPIjvm::checkException(env);
 
@@ -3202,10 +3204,10 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 

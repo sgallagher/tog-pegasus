@@ -61,7 +61,9 @@
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProviderManager.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPI_SelectExp.h>
+#include <Pegasus/WQL/WQLSelectStatement.h>
+#include <Pegasus/WQL/WQLParser.h>
+#define CALL_SIGN_WQL "WQL"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -5365,13 +5367,13 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_OperationContext__1get
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_SelectExp__1finalize
-  (JNIEnv *jEnv, jobject jThs, jint jEselx)
+  (JNIEnv *jEnv, jobject jThs, jint jWQLStmt)
 {
-   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+   WQLSelectStatement *wql_stmt = DEBUG_ConvertJavaToC (jint, WQLSelectStatement*, jWQLStmt);
 
-   delete eSelx;
+   delete wql_stmt;
 
-   DEBUG_ConvertCleanup (jint, jEselx);
+   DEBUG_ConvertCleanup (jint, jWQLStmt);
 }
 
 /*
@@ -5383,17 +5385,25 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_SelectExp__1newSelectExp
   (JNIEnv *jEnv, jobject jThs, jstring jQuery)
 {
    const char         *pszQuery = jEnv->GetStringUTFChars (jQuery, NULL);
-   CMPI_SelectExp     *eSelx    = NULL;
-   WQLSelectStatement *stmt     = NULL;
+   WQLSelectStatement *wql_stmt = NULL;
    String              queryLanguage (CALL_SIGN_WQL);
    String              query (pszQuery);
 
-   stmt  = new WQLSelectStatement (queryLanguage, query);
-   eSelx = new CMPI_SelectExp (stmt);
+   wql_stmt = new WQLSelectStatement (queryLanguage, query);
+   DDD(PEGASUS_STD(cout)<<"--- Java_org_pegasus_jmpi_SelectExp__1newSelectExp: wql_stmt = "<<PEGASUS_STD(hex)<<(int)wql_stmt<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
+   try
+   {
+      WQLParser::parse (query, *wql_stmt);
+   }
+   catch (const Exception &e)
+   {
+      cerr << "Java_org_pegasus_jmpi_SelectExp__1newSelectExp: Caught: " << e.getMessage () << endl;
+   }
 
    jEnv->ReleaseStringUTFChars (jQuery, pszQuery);
 
-   return DEBUG_ConvertCToJava (CMPI_SelectExp *, jint, eSelx);
+   return DEBUG_ConvertCToJava (WQLSelectStatement *, jint, wql_stmt);
 }
 
 /*
@@ -5402,11 +5412,30 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_SelectExp__1newSelectExp
  * Signature: (I)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_SelectExp__1getSelectString
-  (JNIEnv *jEnv, jobject jThs, jint jEselx)
+  (JNIEnv *jEnv, jobject jThs, jint jWQLStmt)
 {
-   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
+   WQLSelectStatement *wql_stmt = DEBUG_ConvertJavaToC (jint, WQLSelectStatement*, jWQLStmt);
+   String              cond;
 
-   return (jstring)jEnv->NewStringUTF (eSelx->cond.getCString ());
+   if (wql_stmt)
+   {
+      try
+      {
+         cond = wql_stmt->getQuery ();
+      }
+      catch (const Exception &e)
+      {
+         cerr << "Java_org_pegasus_jmpi_SelectExp__1getSelectString: Caught: " << e.getMessage () << endl;
+
+         cond = "";
+      }
+   }
+   else
+   {
+      cond = "";
+   }
+
+   return (jstring)jEnv->NewStringUTF (cond.getCString ());
 }
 
 // -------------------------------------
@@ -5421,14 +5450,14 @@ JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_SelectExp__1getSelectString
  * Signature: (II)I
  */
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyInstance
-  (JNIEnv *jEnv, jobject jThs, jint jEselx, jint jciInstance)
+  (JNIEnv *jEnv, jobject jThs, jint jWQLStmt, jint jciInstance)
 {
-   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
-   CIMInstance    *ci    = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciInstance);
-   CIMInstance    *ciRet = 0;
+   WQLSelectStatement *wql_stmt = DEBUG_ConvertJavaToC (jint, WQLSelectStatement*, jWQLStmt);
+   CIMInstance        *ci       = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciInstance);
+   CIMInstance        *ciRet    = 0;
 
-   if (  !eSelx
-      || !eSelx->wql_stmt
+   if (  !wql_stmt
+      || !ci
       )
    {
       return 0;
@@ -5438,7 +5467,16 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyInstance
 
    if (ciRet)
    {
-      eSelx->wql_stmt->applyProjection (*ciRet, false);
+      try
+      {
+         wql_stmt->applyProjection (*ciRet, false);
+      }
+      catch (const Exception &e)
+      {
+         cerr << "Java_org_pegasus_jmpi_JMPISelectList__1applyInstance: Caught: " << e.getMessage () << endl;
+
+         return 0;
+      }
    }
 
    return DEBUG_ConvertCToJava (CIMInstance *, jint, ciRet);
@@ -5450,15 +5488,13 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyInstance
  * Signature: (II)I
  */
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyClass
-  (JNIEnv *jEnv, jobject jThs, jint jEselx, jint jciClass)
+  (JNIEnv *jEnv, jobject jThs, jint jWQLStmt, jint jciClass)
 {
-   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
-   CIMClass       *cc    = DEBUG_ConvertJavaToC (jint, CIMClass*, jciClass);
-   CIMClass       *ccRet = NULL;
+   WQLSelectStatement *wql_stmt = DEBUG_ConvertJavaToC (jint, WQLSelectStatement*, jWQLStmt);
+   CIMClass           *cc       = DEBUG_ConvertJavaToC (jint, CIMClass*, jciClass);
+   CIMClass           *ccRet    = NULL;
 
-   if (  !eSelx
-      || !eSelx->wql_stmt
-      )
+   if (!wql_stmt)
    {
       return 0;
    }
@@ -5467,7 +5503,16 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyClass
    {
       CIMObject co (cc->clone ());
 
-      eSelx->wql_stmt->applyProjection (co, false);
+      try
+      {
+         wql_stmt->applyProjection (co, false);
+      }
+      catch (const Exception &e)
+      {
+         cerr << "Java_org_pegasus_jmpi_JMPISelectList__1applyClass: Caught: " << e.getMessage () << endl;
+
+         return 0;
+      }
 
       ccRet = new CIMClass (co);
 
@@ -5489,24 +5534,28 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyClass
  * Signature: (II)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_JMPIQueryExp__1applyInstance
-  (JNIEnv *jEnv, jobject jThs, jint jEselx, jint jciInstance)
+  (JNIEnv *jEnv, jobject jThs, jint jWQLStmt, jint jciInstance)
 {
-   CMPI_SelectExp *eSelx = DEBUG_ConvertJavaToC (jint, CMPI_SelectExp*, jEselx);
-   CIMInstance    *ci    = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciInstance);
+   WQLSelectStatement *wql_stmt = DEBUG_ConvertJavaToC (jint, WQLSelectStatement*, jWQLStmt);
+   CIMInstance        *ci       = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciInstance);
 
-   if (  !eSelx
-      || !eSelx->wql_stmt
+   if (  !wql_stmt
+      || !ci
       )
    {
       return 0;
    }
 
-   if (eSelx->wql_stmt)
+   try
    {
-      return eSelx->wql_stmt->evaluate (*ci);
+      return wql_stmt->evaluate (*ci);
    }
+   catch (const Exception &e)
+   {
+      cerr << "Java_org_pegasus_jmpi_JMPIQueryExp__1applyInstance: Caught: " << e.getMessage () << endl;
 
-   return false;
+      return false;
+   }
 }
 
 } // extern "C"

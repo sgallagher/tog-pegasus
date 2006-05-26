@@ -30,18 +30,36 @@
 #//==============================================================================
 prog=cimserver
 
-test -x $CIMSERVER_BIN || exit 5
+if [ ! -x $CIMSERVER_BIN ]; then
+    echo -n "tog-pegasus $1: $CIMSERVER_BIN not found or not executable.";
+    exit 1;
+fi;
+
+[ -e /etc/sysconfig/tog-pegasus ] && . /etc/sysconfig/tog-pegasus;
 
 . /lib/lsb/init-functions
 RETVAL=0
 
 case "$1" in
      start)
-	echo -n $"Starting up CIM server: "
-	$CIMSERVER_BIN
-	RETVAL=$?
+	if [ ! -e ${PEGASUS_SSL_CONF_FILE} ] || [ ! -e ${PEGASUS_SSL_CERT_FILE} ] || 
+	   [ ! -e ${PEGASUS_SSL_KEY_FILE} ]  || [ ! -e ${PEGASUS_SSL_TRUSTSTORE} ]; then
+	   if [ -x $PEGASUS_SCRIPT_DIR/genOpenPegasusSSLCerts ]; then
+	       echo -n "tog-pegasus: Generating cimserver SSL certificates...";
+	       $PEGASUS_SCRIPT_DIR/genOpenPegasusSSLCerts;
+	       if [ $? -eq 0 ]; then
+		   echo "SSL certificates generated";
+	       else
+		   echo "SSL certificates failed";
+	       fi;
+	       echo;
+	   fi;
+	fi;
+ 	echo -n $"Starting up CIM server: "
+	$CIMSERVER_BIN ${CIMSERVER_OPTIONS}
+ 	RETVAL=$?
 	[ "$RETVAL" -eq 0 ] && log_success_msg $"$prog start" || log_failure_msg $"$prog start"
-	echo
+	echo;
 	;;
 
      stop)
@@ -55,7 +73,7 @@ case "$1" in
 	pid=`pidofproc $CIMSERVER_BIN`
 	RETVAL=$?
 	if [ "$RETVAL" -eq 0 ]; then
-		echo "CIM server is running"
+		echo "CIM server ($pid) is running"
 	else
 		echo "CIM server is not running"
 	fi
@@ -69,11 +87,11 @@ case "$1" in
 	fi;
         ;;
      try-restart)
-	$0 stop && $0 start
+	$0 stop && $0 start;
 	;;
      restart|force-reload)
-	$0 stop
-	$0 start
+	$0 stop;
+	$0 start;
 	;;
      reload)
 	;;

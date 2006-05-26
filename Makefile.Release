@@ -685,6 +685,11 @@ endif
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)/etc/init.d
 	$(COPY) $(ROOT)/rpm/preamble-tog-pegasus.rc $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
 	@$(ECHO-E) "CIMSERVER_BIN=$(PEGASUS_SBIN_DIR)/cimserver" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "PEGASUS_SCRIPT_DIR=$(PEGASUS_SCRIPT_DIR)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_CONF_FILE=$(PEGASUS_PEM_DIR)/ssl.cnf" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_CERT_FILE=$(PEGASUS_SSL_CERT_FILE_PATH)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_KEY_FILE=$(PEGASUS_SSL_KEY_FILE_PATH)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_TRUSTSTORE=$(PEGASUS_SSL_CLIENT_TRUSTSTORE)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
 	$(CAT) $(ROOT)/rpm/commands-tog-pegasus.rc >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
 endif
 

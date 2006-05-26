@@ -318,6 +318,13 @@ int testClass(const String& className)
       if (i32a != i32b)
       {
         cout << "+++++ Error: property mismatch: Priority" << endl;
+        cout << "Process handle = " << handle << endl;
+        if (p.getDescription(sa))
+        {
+            cout << "Process description = " << sa << endl;
+        }
+        cout << "Priority expected = " << i32a << ", received = " << i32b <<
+            endl;
         return 1;
       }
     }
@@ -516,6 +523,13 @@ int testClass(const String& className)
       if (i32a != i32b)
       {
         cout << "+++++ Error: property mismatch: CPUTime" << endl;
+        cout << "Process handle = " << handle << endl;
+        if (p.getDescription(sa))
+        {
+            cout << "Process description = " << sa << endl;
+        }
+        cout << "CPUTime expected = " << i32a << ", received = " << i32b <<
+            endl;
         return 1;
       }
     }

@@ -602,7 +602,8 @@ Boolean OSTestClient::goodTotalVirtualMemorySize(const Uint64 &totalvmem,
 }
 
 /**
-   goodFreeVirtualMemorySize method for HP-UX implementation of HP-UX
+   goodFreeVirtualMemorySize method for HP-UX implementation of
+   OS Provider Test Client.
 
    Gets information from swapinfo -at command (the Free column)
   */  
@@ -648,7 +649,15 @@ Boolean OSTestClient::goodFreeVirtualMemory(const Uint64 &freevmem,
    // 2048, but with many client connections, went as high as 
    // 36,000+.  Thus chose 2^16 = 65536 (still helps weed out
    // garbage values).
-   return (delta < 65536 );   
+   Boolean isInRange = (delta < 65536);   
+
+   if (!isInRange)
+   {
+      cout << "FreeVirtualMemory received = " << Uint32(freevmem) <<
+          ", expected a value near " << Uint32(swapFree) << endl;
+   }
+
+   return isInRange;
 }
 
 /**
@@ -688,7 +697,15 @@ Boolean OSTestClient::goodFreePhysicalMemory(const Uint64 &freepmem,
       cout<<" Delta should be within 2048, is " << delta << endl;
 
    // arbitrary choice of valid delta
-   return ( delta <= 2048 );
+   Boolean isInRange = (delta <= 2048);   
+
+   if (!isInRange)
+   {
+      cout << "FreePhysicalMemory received = " << Uint32(freepmem) <<
+          ", expected a value near " << Uint32(psd.psd_free * psize) << endl;
+   }
+
+   return isInRange;
 }
 
 /**

@@ -557,6 +557,8 @@ int testClass(const String& className)
       if (i16a != i16b)
       {
         cout << "+++++ Error: property mismatch: LoadPercentage" << endl;
+        cout << "LoadPercentage expected = " << i16a << ", received = " <<
+            i16b << endl;
         return 1;
       }
     }

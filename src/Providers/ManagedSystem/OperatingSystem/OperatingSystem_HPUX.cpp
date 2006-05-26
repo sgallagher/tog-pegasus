@@ -84,7 +84,7 @@ static Boolean _getOSName(String& osName)
     struct utsname  unameInfo;
 
     // Call uname and check for any errors.
-    if (uname(&unameInfo) < 0)
+    if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
     {
        return false;
     }
@@ -149,7 +149,7 @@ Boolean OperatingSystem::getCaption(String& caption)
    struct utsname     unameInfo;
 
    // Call uname and check for any errors.
-   if (uname(&unameInfo) < 0)
+   if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
    {
        return false;
    }
@@ -224,7 +224,7 @@ Boolean OperatingSystem::getVersion(String& osVersion)
 
     // Call uname and check for any errors.
 
-    if (uname(&unameInfo) < 0)
+    if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
     {
        return false;
     }
@@ -355,7 +355,7 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32& numberOfLicensedUsers)
     struct utsname  unameInfo;
 
     // Call uname and check for any errors.
-    if (uname(&unameInfo) < 0)
+    if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
     {
        return false;
     }
@@ -769,7 +769,7 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
 
     struct utsname  unameInfo;
     // Call uname and check for any errors.
-    if (uname(&unameInfo) < 0)
+    if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
     {
        return false;
     }
@@ -829,7 +829,7 @@ Boolean OperatingSystem::getMaxProcsPerUser (Uint32& maxProcsPerUser)
     uint64_t           maxuprc = 0;
 
 // Call uname and check for any errors.
-    if (uname(&unameInfo) < 0)
+    if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
     {
        return false;
     }

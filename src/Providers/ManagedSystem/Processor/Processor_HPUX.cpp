@@ -396,7 +396,11 @@ Boolean Processor::getRole(String& s) const
 Boolean Processor::getFamily(Uint16& i) const
 {
   struct utsname u;
-  uname(&u);
+  if ((uname(&u) < 0) && (errno != EOVERFLOW))
+  {
+    return false;
+  }
+
   // check for PA-RISC
   if ( 0 == strncmp(u.machine,"9000",4) ) i=144;  // "PA-RISC Family"
   else if ( 0 == strncmp(u.machine,"ia64",4) ) i=1; // "Other"
@@ -417,7 +421,11 @@ Boolean Processor::getFamily(Uint16& i) const
 Boolean Processor::getOtherFamilyDescription(String& s) const
 {
   struct utsname u;
-  uname(&u);
+  if ((uname(&u) < 0) && (errno != EOVERFLOW))
+  {
+    return false;
+  }
+
   if ( 0 == strncmp(u.machine,"ia64",4) )
   {
     s = "Itanium(TM) Processor";

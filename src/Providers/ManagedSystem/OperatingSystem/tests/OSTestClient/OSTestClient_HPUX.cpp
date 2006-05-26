@@ -134,7 +134,7 @@ Boolean OSTestClient::goodName(const String &name, Boolean verbose)
       cout<<"Checking " << name << " against OS name"<<endl;
 
     // Call uname and check for any errors.
-    if (uname(&unameInfo) < 0)
+    if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
     {
        return false;  // if can't get data to validate, fail
     }
@@ -161,7 +161,7 @@ Boolean OSTestClient::goodCaption(const String &cap,
        cout<<"Checking Caption " << cap << endl;
 
    // Call uname and check for any errors.
-   if (uname(&unameInfo) < 0)
+   if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
    {
        return false;
    }
@@ -253,7 +253,7 @@ Boolean OSTestClient::goodVersion(const String &version, Boolean verbose)
      cout<<"Checking Version " << version << endl;
 
    // Call uname and check for any errors.
-   if (uname(&unameInfo) < 0)
+   if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
    {
       return false;
    }
@@ -396,7 +396,7 @@ Boolean OSTestClient::goodNumberOfLicensedUsers(const Uint32 &nlusers,
       cout<<"Checking NumberOfLicensedUsers " << nlusers << endl;
    
     // Call uname and check for any errors.
-    if (uname(&unameInfo) < 0)
+    if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
     {
        return false;
     }
@@ -901,7 +901,7 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
 
    struct utsname  unameInfo;
    // Call uname and check for any errors.
-   if (uname(&unameInfo) < 0)
+   if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
    {
       return false;
    }
@@ -975,7 +975,7 @@ Boolean OSTestClient::goodMaxProcessesPerUser (const Uint32& umaxproc,
       cout<<"Checking MaxProcsPerUser " << umaxproc << endl;
 
 // Call uname and check for any errors.
-    if (uname(&unameInfo) < 0)
+    if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
     {
         return false;
     }

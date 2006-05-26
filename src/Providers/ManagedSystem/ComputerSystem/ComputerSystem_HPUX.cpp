@@ -50,7 +50,6 @@
 #include <netinet/in.h>  // gethostbyname()
 #include <netdb.h>       // gethostbyname()
 #include <time.h>        // localtime_r()
-#include <sys/utsname.h> // uname()
 #include <sys/param.h>   // MAXHOSTNAMELEN
 #include <fstream>
 

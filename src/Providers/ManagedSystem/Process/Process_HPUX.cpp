@@ -875,7 +875,7 @@ String Process::getOSName(void) const
   struct utsname unameInfo;
 
   /* Call uname, handle errors */ 
-  if (uname(&unameInfo) < 0)
+  if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
   {
     throw CIMOperationFailedException(strerror(errno));
   }

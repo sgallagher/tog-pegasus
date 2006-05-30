@@ -36,6 +36,7 @@ include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
     TestStressTestClient \
+    pegclient \
     pegcommon
 
 PROGRAM = TestWrapperStressClient

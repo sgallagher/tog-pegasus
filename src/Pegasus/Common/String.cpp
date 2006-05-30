@@ -842,7 +842,7 @@ String& String::append(const Char16* str, Uint32 n)
 
 String& String::append(const String& str)
 {
-    return append((Char16*)str._rep->data, str._rep->size);
+    return append((Char16*)(&(str._rep->data[0])), str._rep->size);
 }
 
 String& String::append(const char* str, Uint32 size)
@@ -904,7 +904,7 @@ String String::subString(Uint32 index, Uint32 n) const
         if (n == PEG_NOT_FOUND || n > _rep->size - index)
             n = _rep->size - index;
 
-        return String((Char16*)_rep->data + index, n);
+        return String((Char16*)(_rep->data + index), n);
     }
 
     return String();

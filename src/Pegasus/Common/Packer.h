@@ -173,12 +173,12 @@ inline void Packer::packUint64(Buffer& out, Uint64 x)
 
 inline void Packer::packReal32(Buffer& out, Real32 x)
 {
-    packUint32(out, *((Uint32*)&x));
+    packUint32(out, *(reinterpret_cast<Uint32*>(&x)));
 }
 
 inline void Packer::packReal64(Buffer& out, Real64 x)
 {
-    packUint64(out, *((Uint64*)&x));
+    packUint64(out, *(reinterpret_cast<Uint64*>(&x)));
 }
 
 inline void Packer::packChar16(Buffer& out, Char16 x)

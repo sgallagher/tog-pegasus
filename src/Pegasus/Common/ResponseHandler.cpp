@@ -79,7 +79,7 @@ ResponseHandlerRep* _newRep(
 ResponseHandlerRep* _getRep(
     const ResponseHandler* object)
 {
-    ResponseHandlerRep* rep;
+    ResponseHandlerRep* rep = 0;
     Boolean found;
 
     AutoMutex lock(repTableMutex);
@@ -91,7 +91,7 @@ ResponseHandlerRep* _getRep(
 void _deleteRep(
     ResponseHandler* object)
 {
-    ResponseHandlerRep* rep;
+    ResponseHandlerRep* rep = 0;
     Boolean found;
 
     AutoMutex lock(repTableMutex);

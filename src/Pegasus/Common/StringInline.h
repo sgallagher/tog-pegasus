@@ -102,7 +102,7 @@ PEGASUS_STRING_INLINE Uint32 String::size() const
 
 PEGASUS_STRING_INLINE const Char16* String::getChar16Data() const 
 { 
-    return (Char16*)_rep->data; 
+    return (Char16*)&(_rep->data[0]); 
 }
 
 PEGASUS_STRING_INLINE Char16& String::operator[](Uint32 i) 
@@ -145,7 +145,7 @@ PEGASUS_STRING_INLINE String& String::assign(const char* str)
 
 PEGASUS_STRING_INLINE Uint32 String::find(const String& s) const
 {
-    return StringFindAux(_rep, (Char16*)s._rep->data, s._rep->size);
+    return StringFindAux(_rep, (Char16*)&(s._rep->data[0]), s._rep->size);
 }
 
 PEGASUS_STRING_INLINE String& String::append(const Char16& c)

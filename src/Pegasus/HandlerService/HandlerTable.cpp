@@ -1,159 +1,173 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Sushma Fernandes,
+//                 Hewlett-Packard Company (sushma_fernandes@hp.com)
+//              Yi Zhou Hewlett-Packard Company (yi_zhou@hp.com)
+//              Sean Keenan (sean.keenan@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP # 101
+//              Vageesh Umesh, IBM (vagumesh@in.ibm.com) for BUG#2543
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <cstdlib>
+//#include <dlfcn.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Tracer.h>
 #include "HandlerTable.h"
 
 PEGASUS_USING_STD;
-
 PEGASUS_NAMESPACE_BEGIN
 
 HandlerTable::HandlerTable()
 {
+
 }
 
 CIMHandler* HandlerTable::getHandler(
     const String& handlerId,
     CIMRepository* repository)
 {
-    CIMHandler* handler;
+    CIMHandler * handler;
     {
         ReadLock lock(_handlerTableLock);
         handler = _lookupHandler(handlerId);
-        if (handler)
+	if (handler)
         {
-            return handler;
+            return (handler);
         }
     }
 
     {
         WriteLock lock(_handlerTableLock);
-        handler = _lookupHandler(handlerId);
+	handler = _lookupHandler(handlerId);
         // Note: Lock handler table until handler initialize is done.
-        // This is ok for handler since the initialization is simple.
-        if (!handler)
+	// This is ok for handler since the initialization is simple.
+	if (!handler)
         {
             handler = _loadHandler(handlerId);
             handler->initialize(repository);
         }
 
-        return handler;
+        return (handler);
     }
 }
 
 CIMHandler* HandlerTable::_lookupHandler(const String& handlerId)
 {
-    for (Uint32 i = 0, n = _handlers.size(); i < n; ++i)
-    {
-        if (String::equal(_handlers[i].handlerId, handlerId))
-        {
-            return _handlers[i].handler;
-        }
-    }
+    for (Uint32 i = 0, n = _handlers.size(); i < n; i++)
+	if (String::equal(_handlers[i].handlerId, handlerId))
+	    return _handlers[i].handler;
 
     return 0;
 }
 
-typedef CIMHandler* (*CreateHandlerFunc)(const String&);
+typedef CIMHandler* (*CreateHandlerFunc)();
 
 CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 {
 #if defined (PEGASUS_OS_VMS)
-    String provDir =
-        ConfigManager::getInstance()->getCurrentValue("providerDir");
-    String fileName = ConfigManager::getHomedPath(provDir) + "/" +
-        FileSystem::buildLibraryFileName(handlerId);
+    String fileName = ConfigManager::getInstance()->
+                      getCurrentValue("providerDir") +
+            String("/") + FileSystem::buildLibraryFileName(handlerId) +
+            String(".exe");
+#elif defined(PEGASUS_OS_OS400)
+    Uint32 lastSlash = handlerId.reverseFind('/');
+    if (lastSlash == PEG_NOT_FOUND)
+      throw DynamicLoadFailed(handlerId);
+    String fileName = handlerId.subString(0, lastSlash);
+    String os400HandlerId = handlerId.subString(lastSlash + 1);
 #else
     String fileName = ConfigManager::getHomedPath((PEGASUS_DEST_LIB_DIR) +
         String("/") + FileSystem::buildLibraryFileName(handlerId));
 #endif
 
-    HandlerEntry entry(handlerId, fileName);
+    DynamicLibraryHandle libraryHandle =
+	System::loadDynamicLibrary(fileName.getCString());
 
-    if (!entry.handlerLibrary.load())
-    {
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-        throw DynamicLoadFailed(fileName);
+    if (!libraryHandle) {
+#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_VMS)
+	throw DynamicLoadFailed(fileName);
 #else
-        throw DynamicLoadFailed(entry.handlerLibrary.getLoadErrorMessage());
+        String errorMsg = System::dynamicLoadError();
+	throw DynamicLoadFailed(errorMsg);
 #endif
     }
 
     // Lookup the create handler symbol:
 
-    CreateHandlerFunc func = (CreateHandlerFunc)
-        entry.handlerLibrary.getSymbol("PegasusCreateHandler");
+    String functionName = "PegasusCreateHandler_";
+#ifndef PEGASUS_OS_OS400
+    functionName.append(handlerId);
+#else
+    functionName.append(os400HandlerId);
+#endif
+
+    CreateHandlerFunc func = (CreateHandlerFunc)System::loadDynamicSymbol(
+	libraryHandle, functionName.getCString());
+
 
     if (!func)
     {
-        throw DynamicLookupFailed("PegasusCreateHandler");
+	throw DynamicLookupFailed(functionName);
     }
 
     // Create the handler:
 
-    entry.handler = func(handlerId);
+    CIMHandler* handler = func();
 
-    //
-    //  ATTN: to support dynamically pluggable handlers, the entry.handler
-    //  returned from the PegasusCreateHandler_<handlerId> function would
-    //  need to be validated to be non-null
-    //
-    PEGASUS_ASSERT(entry.handler);
+    if (!handler)
+    {
+	throw CreateHandlerReturnedNull(
+	    fileName,
+	    functionName);
+    }
+    else
+    {
+	Entry entry;
+	entry.handlerId = handlerId;
+	entry.handler = handler;
+	_handlers.append(entry);
+    }
 
-    _handlers.append(entry);
-
-    return entry.handler;
+    return handler;
 }
 
 HandlerTable::~HandlerTable()
 {
-    for (Uint32 i = 0; i < _handlers.size(); i++)
+    for( Uint32 i = 0; i < _handlers.size(); i++ )
     {
-        //
-        //  Call handler's terminate() method
-        //
-        try
-        {
-            _handlers[i].handler->terminate();
-        }
-        catch (...)
-        {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "Unknown error caught from %s terminate() method",
-                (const char*)_handlers[i].handlerId.getCString()));
-        }
-
         delete _handlers[i].handler;
     }
 }

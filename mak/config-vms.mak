@@ -133,5 +133,6 @@ TMP_SINCLUDES = $(subst $(MYCOMMA),$(MYQUOTE)$(MYCOMMA),$(TTMP_SINCLUDES))
 
 EXTRA_VMSINCLUDES =$(subst -I,$(MYQUOTE)$(MYCOMMA)$(MYQUOTE),$(EXTRA_INCLUDES))
 
-VMSDIR = $(subst /,.,$(addprefix .,$(DIR)))
+TMP_VMSDIR = $(subst ../,,$(DIR))
+VMSDIR = $(subst /,.,$(addprefix .,$(TMP_VMSDIR)))
 

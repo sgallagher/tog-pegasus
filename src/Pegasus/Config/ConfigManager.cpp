@@ -758,7 +758,7 @@ void ConfigManager::_initPropertyTable()
     //
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        const char* fixedValue;
+        const char* fixedValue = 0;
 
         _properties[i].propertyOwner->initialize();
 

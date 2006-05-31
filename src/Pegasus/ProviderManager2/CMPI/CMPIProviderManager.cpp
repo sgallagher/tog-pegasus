@@ -88,7 +88,7 @@ class CMPIPropertyList {
    char **props;
    int pCount;
   public:
-   CMPIPropertyList(CIMPropertyList &propertyList) {
+   CMPIPropertyList(CIMPropertyList &propertyList) : props(0), pCount(0) {
       if (!propertyList.isNull()) {
         Array<CIMName> p=propertyList.getPropertyNameArray();
         pCount=p.size();
@@ -2497,7 +2497,7 @@ void CMPIProviderManager::_callEnableIndications
 
     try
     {
-        indProvRecord *provRec;
+        indProvRecord *provRec = 0;
         if (provTab.lookup (ph.GetProvider ().getName (), provRec))
         {
             provRec->enabled = true;
@@ -2587,7 +2587,7 @@ void CMPIProviderManager::_callDisableIndications
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
         "CMPIProviderManager::_callDisableIndications");
 
-    indProvRecord * provRec;
+    indProvRecord * provRec = 0;
     if (provTab.lookup (ph.GetProvider ().getName (), provRec))
     {
         provRec->enabled = false;

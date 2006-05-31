@@ -63,24 +63,24 @@ public:
     /** Retrieve an entry for an association class through direct
      * access via the from class name.
     */
-    Boolean getAssocClassEntry(const String& lowerCaseFromClassName,
+    Boolean getAssocClassEntry(const String& fromClassName,
                                Array< Array<String> >& entryList);
 
     /** Add a new entry to the association cache.
     */
-    Boolean addRecord(const String& lowerCaseFromClassName,
+    Boolean addRecord(const String& fromClassName,
                       Array<String> assocClassEntry);
 
     /** Remove an entry from the association cache specified by the given
      * association class name.
     */
-    Boolean removeEntry(const String& lowerCaseFromClassName);
+    Boolean removeEntry(const String& fromClassName);
 
    /** Remove an association record from the association cache specified by the given
     *  from class name and association name.
     */
-    Boolean removeRecord(const String& lowerCaseFromClassName,
-                         const String& lowerCaseAssocClassName);
+    Boolean removeRecord(const String& fromClassName,
+                         const String& assocClassName);
 
     /** Check if the cache is loaded with objects already.
     */
@@ -93,7 +93,7 @@ private:
     Boolean _isInitialized;
 
     typedef HashTable<String, Array< Array<String> >,
-       EqualFunc<String>, HashFunc<String> > AssocClassCacheHashTableType;
+       EqualNoCaseFunc, HashLowerCaseFunc > AssocClassCacheHashTableType;
 
     AssocClassCacheHashTableType *_assocClassCache;
 

@@ -86,10 +86,10 @@ void AssocClassCache::cleanupAssocClassCaches()
 /** Retrieve the list of entries for a from class through direct
  * access via the from class name.
 */
-Boolean AssocClassCache::getAssocClassEntry(const String& lowerCaseFromClassName,
+Boolean AssocClassCache::getAssocClassEntry(const String& fromClassName,
                                             Array< Array<String> >& entryList)
 {
-   return _assocClassCache->lookup(lowerCaseFromClassName,entryList);
+   return _assocClassCache->lookup(fromClassName,entryList);
 }
 
 /** Add a new record to the association cache.
@@ -97,50 +97,52 @@ Boolean AssocClassCache::getAssocClassEntry(const String& lowerCaseFromClassName
  * the new entry is appended to the old entry. Otherwise a new entry
  * is added to the cache.
 */
-Boolean AssocClassCache::addRecord(const String& lowerCaseFromClassName,
+Boolean AssocClassCache::addRecord(const String& fromClassName,
                                    Array<String> assocClassRecord)
 {
    Array< Array<String> > oldAssocClassEntryList;
 
-   if (_assocClassCache->lookup(lowerCaseFromClassName, oldAssocClassEntryList))
+   if (_assocClassCache->lookup(fromClassName, oldAssocClassEntryList))
    {
-      _assocClassCache->remove(lowerCaseFromClassName);
+      _assocClassCache->remove(fromClassName);
    }
 
    oldAssocClassEntryList.append(assocClassRecord);
 
-   return _assocClassCache->insert(lowerCaseFromClassName,oldAssocClassEntryList);
+   return _assocClassCache->insert(fromClassName,oldAssocClassEntryList);
 }
 
 /** Remove an entry from the association cache specified by the given
  *  from class name.
 */
-Boolean AssocClassCache::removeEntry(const String& lowerCaseFromClassName)
+Boolean AssocClassCache::removeEntry(const String& fromClassName)
 {
-   return _assocClassCache->remove(lowerCaseFromClassName);
+   return _assocClassCache->remove(fromClassName);
 }
 
 /** Remove an association record from the association cache specified by the given
  *  from class name and association name.
 */
-Boolean AssocClassCache::removeRecord(const String& lowerCaseFromClassName,
-                                      const String& lowerCaseAssocClassName)
+Boolean AssocClassCache::removeRecord(const String& fromClassName,
+                                      const String& assocClassName)
 {
    Array< Array<String> > oldAssocClassEntryList;
-   if (_assocClassCache->lookup(lowerCaseFromClassName, oldAssocClassEntryList))
+
+   if (_assocClassCache->lookup(fromClassName, oldAssocClassEntryList))
    {
       for (Uint16 idx=0; idx < oldAssocClassEntryList.size(); idx++ )
       {
          // The first entry in each record is the association class
          // name. Find the record for the association class and remove
          // it from the cache entry.
-         if (oldAssocClassEntryList[idx][ASSOC_CLASS_NAME_INDEX] == lowerCaseAssocClassName)
+         if (String::equalNoCase(oldAssocClassEntryList[idx][ASSOC_CLASS_NAME_INDEX],
+                                 assocClassName))
          {
-            _assocClassCache->remove(lowerCaseFromClassName);
+            _assocClassCache->remove(fromClassName);
             if (oldAssocClassEntryList.size() > 1)
             {
                oldAssocClassEntryList.remove(idx);
-               _assocClassCache->insert(lowerCaseFromClassName,oldAssocClassEntryList);
+               _assocClassCache->insert(fromClassName,oldAssocClassEntryList);
             }
             return true;
          }

@@ -218,10 +218,6 @@ void AssocClassTable::append(
     fields.append(toClassName.getString());
     fields.append(toPropertyName.getString());
 
-    for (Uint16 x=0; x<fields.size();x++)
-    {
-        fields[x].toLower();
-    }
 
     _PutRecord(os, fields);
 
@@ -263,10 +259,6 @@ void AssocClassTable::append(
     fields.append(toClassName.getString());
     fields.append(toPropertyName.getString());
 
-    for (Uint16 x=0; x<fields.size();x++)
-    {
-        fields[x].toLower();
-    }
 
     _PutRecord(os, fields);
 
@@ -428,11 +420,6 @@ Boolean AssocClassTable::_InitializeCache( AssocClassCache *cache,
         // For each line in the associations table:
         while (_GetRecord(is, fields))
         {
-            // The cache key is always expected to be in lowercase
-            // While new association records are added in lowercase,
-            // the following line is required for compatibility
-            // with old repositories.
-            fields[FROM_CLASS_NAME_INDEX].toLower();
             cache->addRecord(fields[FROM_CLASS_NAME_INDEX],
                              fields);
         }
@@ -483,7 +470,6 @@ Boolean AssocClassTable::getReferenceNames(
     for (Uint16 idx=0; idx < classList.size(); idx++)
     {
         String fromClassName = classList[idx].getString();
-        fromClassName.toLower();
         if (cache->getAssocClassEntry(fromClassName, records))
         {
             for (Uint16 rx=0; rx <records.size(); rx++)

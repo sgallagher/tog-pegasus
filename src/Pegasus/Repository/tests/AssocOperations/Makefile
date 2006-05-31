@@ -28,35 +28,31 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../..
-
+ROOT = ../../../../..
+DIR = Pegasus/Repository/tests/AssocOperations
 include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-#
-# The LoadRepository test is purposely not included in the list below
-# because all of the necessary files were never checked in.  If and
-# when someone checks in the rest of the files the test should be
-# enabled.
-#
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-DIRS = \
-    Inst \
-    Repository \
-    Repository2 \
-    RepositoryMix \
-    NameSpace \
-    NameSpaceManager \
-    AssocTable \
-    EnumerateClassNames \
-    InheritanceTree \
-    QualifierDeclRep \
-    ClassDeclRep \
-    SharedNameSpace \
-    SharedInheritanceTree \
-    CompareRepositories \
-    CompareXmlBin \
-    LoadClass \
-    CompareXmlCompressed \
-    AssocOperations
+PROGRAM = TestAssocOperations
+SOURCES = AssocOperations.cpp
 
-include ../../../../mak/recurse.mak
+include $(ROOT)/mak/program.mak
+
+tests: testxml testbin
+	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
+	@ $(ECHO) $(PROGRAM) +++++ passed all tests
+	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
+
+testxml:
+	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
+	$(PROGRAM) "XML"
+
+testbin:
+	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"	
+	$(PROGRAM) "BIN"
+
+
+poststarttests:
+

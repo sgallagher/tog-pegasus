@@ -1,65 +1,92 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//          Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//          Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//          Dave Rosckes (rosckes@us.ibm.com)
+//          Denise Eckstein (denise.eckstein@hp.com)
+//          Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//          Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
+//          Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//          Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//          Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2065
+//          David Dillard, Symantec Corp. (david_dillard@symantec.com)
+//          John Alex, IBM (johnalex@us.ibm.com) for Bug#3312
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Config.h"
 #include "Constants.h"
 #include <iostream>
+#include "Socket.h"
 
-#include "Network.h"
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#include <windows.h>
+#else
+# include <cctype>
+# include <cstdlib>
+# include <errno.h>
+# include <fcntl.h>
+# include <netdb.h>
+# include <netinet/in.h>
+# include <netinet/tcp.h>
+# include <arpa/inet.h>
+# include <sys/socket.h>
+# ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+# include <unistd.h>
+#  include <sys/un.h>
+# endif
+#endif
+
 #include "Socket.h"
 #include "TLS.h"
 #include "HTTPAcceptor.h"
 #include "HTTPConnection.h"
-#include "HostAddress.h"
 #include "Tracer.h"
-#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
-#ifdef PEGASUS_OS_PASE
-# include <as400_protos.h>
-# include <Pegasus/Common/PaseCcsid.h>
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#include "OS400ConvertChar.h"
 #endif
+
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
 
-static int _maxConnectionQueueLength = -1;
-
-Uint32 HTTPAcceptor::_socketWriteTimeout =
-    PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
-
-#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
-Mutex HTTPAcceptor::_socketWriteTimeoutMutex;
-#endif
+static int MAX_CONNECTION_QUEUE_LENGTH = -1;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -70,58 +97,57 @@ Mutex HTTPAcceptor::_socketWriteTimeoutMutex;
 class HTTPAcceptorRep
 {
 public:
-    HTTPAcceptorRep(Uint16 connectionType)
+    HTTPAcceptorRep(Boolean local)
     {
-        if (connectionType == HTTPAcceptor::LOCAL_CONNECTION)
+        if (local)
         {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-            address =
-                reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
+            address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
             address_size = sizeof(struct sockaddr_un);
 #else
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
 #endif
-        }
-#ifdef PEGASUS_ENABLE_IPV6
-        else if (connectionType == HTTPAcceptor::IPV6_CONNECTION)
-        {
-            address =
-                reinterpret_cast<struct sockaddr*>(new struct sockaddr_in6);
-            address_size = sizeof(struct sockaddr_in6);
-        }
-#endif
-        else if (connectionType == HTTPAcceptor::IPV4_CONNECTION)
-        {
-            address =
-                reinterpret_cast<struct sockaddr*>(new struct sockaddr_in);
-            address_size = sizeof(struct sockaddr_in);
         }
         else
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_in);
+            address_size = sizeof(struct sockaddr_in);
+        }
     }
-    }
-
     ~HTTPAcceptorRep()
     {
-        closeSocket();
         delete address;
     }
-
-    void closeSocket()
-    {
-        Socket::close(socket);
-    }
-
     struct sockaddr* address;
 
-    SocketLength address_size;
+    PEGASUS_SOCKLEN_T address_size;
     Mutex _connection_mut;
 
-    SocketHandle socket;
-    Array<HTTPConnection*> connections;
+    PEGASUS_SOCKET socket;
+    Array<HTTPConnection*> connections;   
+
+
 };
 
+//------------------------------------------------------------------------------
+//
+// _setTCPNoDelay()
+//
+//------------------------------------------------------------------------------
+
+inline void _setTCPNoDelay(PEGASUS_SOCKET socket)
+{
+    // This function disables "Nagle's Algorithm" also known as "the TCP delay
+    // algorithm", which causes read operations to obtain whatever data is
+    // already in the input queue and then wait a little longer to see if 
+    // more data arrives. This algorithm optimizes the case in which data is 
+    // sent in only one direction but severely impairs performance of round 
+    // trip servers. Disabling TCP delay is a standard technique for round 
+    // trip servers.
+
+   int opt = 1;
+   setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char*)&opt, sizeof(opt));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -131,474 +157,443 @@ public:
 
 HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
                            MessageQueue* outputMessageQueue,
-                           Uint16 connectionType,
+                           Boolean localConnection,
                            Uint32 portNumber,
                            SSLContext * sslcontext,
-                           ReadWriteSem* sslContextObjectLock,
-                           HostAddress *listenOn)
+                           Boolean exportConnection,
+                           ReadWriteSem* sslContextObjectLock)
    : Base(PEGASUS_QUEUENAME_HTTPACCEPTOR),  // ATTN: Need unique names?
      _monitor(monitor),
      _outputMessageQueue(outputMessageQueue),
      _rep(0),
      _entry_index(-1),
-     _connectionType(connectionType),
+     _localConnection(localConnection),
      _portNumber(portNumber),
      _sslcontext(sslcontext),
-    _sslContextObjectLock(sslContextObjectLock),
-    _listenAddress(listenOn)
+     _exportConnection(exportConnection),
+     _sslContextObjectLock(sslContextObjectLock)
 {
-   PEGASUS_ASSERT(!_sslcontext == !_sslContextObjectLock);
    Socket::initializeInterface();
 
    /*
-        Platforms interpret the value of _maxConnectionQueueLength
-        differently.  Some platforms interpret the value literally, while
-        others multiply a fudge factor. When the server is under stress from
-        multiple clients with multiple requests, toggling this number may
-        prevent clients from being dropped.  Instead of hard coding the
-        value, we allow an environment variable to be set which specifies a
-        number greater than the maximum concurrent client connections
-        possible.  If this environment var is not specified, then
-        _maxConnectionQueueLength = 15.
+        Platforms interpret the value of MAX_CONNECTION_QUEUE_LENGTH differently.  Some platforms interpret
+        the value literally, while others multiply a fudge factor. When the server is under
+        stress from multiple clients with multiple requests, toggling this number may prevent clients from
+        being dropped.  Instead of hard coding the value, we allow an environment variable to be set which
+        specifies a number greater than the maximum concurrent client connections possible.  If this environment
+        var is not specified, then MAX_CONNECTION_QUEUE_LENGTH = 15.
    */
 
-//To engage runtime backlog queue length: uncomment the following block AND
-//comment out the line _maxConnectionQueueLength = 15
+//To engage runtime backlog queue length: uncomment the following block AND comment out the line MAX_CONNECTION_QUEUE_LENGTH = 15
 
 /*
-    if (_maxConnectionQueueLength == -1)
-    {
-        const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
-        if (!env)
-        {
-            _maxConnectionQueueLength = 15;
-        }
-        else
-        {
-            char* end = NULL;
-            _maxConnectionQueueLength = strtol(env, &end, 10);
-            if (*end)
-                _maxConnectionQueueLength = 15;
-            cout << " _maxConnectionQueueLength = " <<
-                _maxConnectionQueueLength << endl;
-        }
-    }
-*/
-#ifdef PEGASUS_WMIMAPPER
-    //The WMI Mapper can be used as a proxy to multiple WMI Servers.
-    //If a client application simultaneously initiates connections
-    //to many Windows systems, many of these connections may be routed
-    //to a single WMI Mapper. A larger _maxConnectionQueueLength
-    //value is required to allow these connections to be initiated
-    //successfully.
-    _maxConnectionQueueLength = 40;
+   if(MAX_CONNECTION_QUEUE_LENGTH == -1){
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#pragma convert(37)
+    const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
+    EtoA(env);
+#pragma convert(0)
 #else
-    _maxConnectionQueueLength = 15;
+    const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
 #endif
+    if(!env){
+        MAX_CONNECTION_QUEUE_LENGTH = 15;
+    }else{
+        char *end = NULL;
+        MAX_CONNECTION_QUEUE_LENGTH = strtol(env, &end, 10);
+        if(*end)
+            MAX_CONNECTION_QUEUE_LENGTH = 15;
+        cout << " MAX_CONNECTION_QUEUE_LENGTH = " << MAX_CONNECTION_QUEUE_LENGTH << endl;
+    }
+   }
+*/
+   MAX_CONNECTION_QUEUE_LENGTH = 15;
+
 }
 
 HTTPAcceptor::~HTTPAcceptor()
 {
-    destroyConnections();
-    unbind();
-    // ATTN: Is this correct in a multi-HTTPAcceptor server?
-    Socket::uninitializeInterface();
+   destroyConnections();
+   unbind();
+   // ATTN: Is this correct in a multi-HTTPAcceptor server?
+   Socket::uninitializeInterface();
 }
 
 void HTTPAcceptor::handleEnqueue(Message *message)
 {
-    if (!message)
-       return;
+   if (! message)
+      return;
 
-    PEGASUS_ASSERT(_rep != 0);
-    switch (message->getType())
-    {
-        case SOCKET_MESSAGE:
+   PEGASUS_ASSERT(_rep != 0);
+   switch (message->getType())
+   {
+      case SOCKET_MESSAGE:
+      {
+          SocketMessage* socketMessage = (SocketMessage*)message;
+
+         // If this is a connection request:
+
+         if (socketMessage->socket == _rep->socket &&
+             socketMessage->events & SocketMessage::READ)
+         {
+             _acceptConnection();
+         }
+         else
+         {
+            // ATTN! this can't happen!
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+              "HTTPAcceptor::handleEnqueue: Invalid SOCKET_MESSAGE received.");
+         }
+
+         break;
+      }
+      case NAMEDPIPE_MESSAGE:
+      {
+          NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
+
+         // If this is a connection request:
+
+         /*if (socketMessage->socket == _rep->socket &&
+             socketMessage->events & SocketMessage::READ)
+         {
+             _acceptConnection();
+         }
+         else
+         {
+            // ATTN! this can't happen!
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+              "HTTPAcceptor::handleEnqueue: Invalid SOCKET_MESSAGE received.");
+         }  */  
+         //NOTE:: Need to work on duplication of the above code for namedPipes
+          
+         _acceptNamedPipeConnection(namedPipeMessage);
+                  
+         break;
+
+      }
+
+      case CLOSE_CONNECTION_MESSAGE:
+      {
+     CloseConnectionMessage* closeConnectionMessage
+        = (CloseConnectionMessage*)message;
+
+     AutoMutex autoMut(_rep->_connection_mut);
+
+     for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
+     {
+        HTTPConnection* connection = _rep->connections[i];
+        PEGASUS_SOCKET socket = connection->getSocket();
+
+        if (socket == closeConnectionMessage->socket)
         {
-            // If this is a connection request:
-            PEGASUS_ASSERT(((SocketMessage*)message)->socket == _rep->socket);
-
-            PEGASUS_ASSERT(
-                ((SocketMessage*)message)->events & SocketMessage::READ);
-
-            _acceptConnection();
-
-            break;
+           _monitor->unsolicitSocketMessages(socket);
+           _rep->connections.remove(i);
+               delete connection;
+           break;
         }
+     }
 
-       case CLOSE_CONNECTION_MESSAGE:
-       {
-           CloseConnectionMessage* closeConnectionMessage =
-               (CloseConnectionMessage*)message;
+     break;
+      }
 
-           AutoMutex autoMut(_rep->_connection_mut);
+      default:
+      // ATTN: need unexpected message error!
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "HTTPAcceptor::handleEnqueue: Invalid MESSAGE received.");
+      break;
+   };
 
-           for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-           {
-               HTTPConnection* connection = _rep->connections[i];
-               SocketHandle socket = connection->getSocket();
-
-               if (socket == closeConnectionMessage->socket)
-               {
-                   _monitor->unsolicitSocketMessages(socket);
-                   _rep->connections.remove(i);
-                   delete connection;
-                   break;
-               }
-           }
-
-           break;
-       }
-
-       default:
-           PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
-           break;
-    }
-
-    delete message;
+   delete message;
 }
 
 
 void HTTPAcceptor::handleEnqueue()
 {
-    Message* message = dequeue();
-    handleEnqueue(message);
+   Message* message = dequeue();
+
+   if (!message)
+   {
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "HTTPAcceptor::handleEnqueue(): No message on queue.");
+      return;
+   }
+
+   handleEnqueue(message);
+
 }
 
 void HTTPAcceptor::bind()
 {
-    if (_rep)
-    {
-        MessageLoaderParms parms("Common.HTTPAcceptor.ALREADY_BOUND",
-            "HTTPAcceptor already bound");
-        throw BindFailedException(parms);
-    }
+   if (_rep){
+    //l10n
+      //throw BindFailedException("HTTPAcceptor already bound");
 
-    _rep = new HTTPAcceptorRep(_connectionType);
+      MessageLoaderParms parms("Common.HTTPAcceptor.ALREADY_BOUND",
+                   "HTTPAcceptor already bound");
 
-    // bind address
-    _bind();
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "HTTPAcceptor::bind: HTTPAcceptor already bound.");
+      throw BindFailedException(parms);
+   }
+
+   _rep = new HTTPAcceptorRep(_localConnection);
+
+   // bind address
+   _bind();
+
+   return;
 }
 
-
 /**
-    _bind - creates a new server socket and bind socket to the port address.
-    If PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET is not defined, the port number is
-    ignored and a domain socket is bound.
+   _bind - creates a new server socket and bind socket to the port address.
+   If PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET is not defined, the port number is ignored and
+   a domain socket is bound.
 */
 void HTTPAcceptor::_bind()
 {
-#ifdef PEGASUS_OS_PASE
-    AutoPtr<PaseCcsid> ccsid;
-#endif
+    PEGASUS_STD(cout) << "in HTTPAcceptor::_bind at the begining" << PEGASUS_STD(endl);
 
-    PEGASUS_ASSERT(_rep != 0);
-    // Create address:
-    memset(_rep->address, 0, _rep->address_size);
+   PEGASUS_ASSERT(_rep != 0);
+   // Create address:
 
-    if (_connectionType == LOCAL_CONNECTION)
-    {
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-        //
-        // Make sure the local domain socket can be owned by the cimserver
-        // user.  Otherwise, the bind may fail with a vague "bind failed"
-        // error.
-        //
-#ifdef PEGASUS_OS_PASE
-        // PASE domain socket needs ccsid 819
-        int orig_ccsid;
-        orig_ccsid = _SETCCSID(-1);
-        if (orig_ccsid == -1)
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "HTTPAcceptor::_bind: Can not get current PASE CCSID.");
-            orig_ccsid = 1208;
-        }
-        ccsid.reset(new PaseCcsid(819, orig_ccsid));
-#endif
-        if (System::exists(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH))
-        {
-            if (!System::removeFile(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH))
-            {
-                throw CannotRemoveFile(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
-            }
-        }
+   memset(_rep->address, 0, sizeof(*_rep->address));
 
+ //the way this is now (not in ifdef) it will cause non-local connections to fail
+//#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET //this is not the right place for the block of code
+                                             // not sure right now where it should go
+   PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before calling _createNamedPipe() " << PEGASUS_STD(endl);
+       _createNamedPipe();
+       PEGASUS_STD(cout) << "in HTTPAcceptor::_bind after calling _createNamedPipe() " << PEGASUS_STD(endl);
+       return;
+ //#endif
+
+
+   if (_localConnection)
+   {
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET    
         reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =
-            AF_UNIX;
-        strcpy(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
-            PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+           AF_UNIX;
+       strcpy(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
+              PEGASUS_LOCAL_DOMAIN_SOCKET_PATH); 
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+       AtoE(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
+#endif
+       ::unlink(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #else
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+       PEGASUS_ASSERT(false);
 #endif
-    }
-#ifdef PEGASUS_ENABLE_IPV6
-    else if (_connectionType == IPV6_CONNECTION)
-    {
-        if(_listenAddress)
-        {
-            String hostAdd = _listenAddress->getHost();
-            CString ip = hostAdd.getCString();
+   }
+   else
+   {
+       reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_addr.s_addr =
+           INADDR_ANY;
+       reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_family =
+           AF_INET;
+       reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_port =
+           htons(_portNumber);
+   }
 
-            struct sockaddr_in6 in6addr;
-            memset(&in6addr, 0, sizeof(sockaddr_in6));
-            if(_listenAddress ->isHostAddLinkLocal())
-            {
-                HostAddress::convertTextToBinary(AF_INET6, 
-                (const char*)ip,
-                &in6addr.sin6_addr);
-                reinterpret_cast<struct sockaddr_in6*>(
-                    _rep->address)->sin6_addr = in6addr.sin6_addr;
-                reinterpret_cast<struct sockaddr_in6*>(
-                    _rep->address)->sin6_scope_id = 
-                        _listenAddress->getScopeID();
-            }
-            else
-            {
-                HostAddress::convertTextToBinary(AF_INET6, 
-                (const char*)ip,
-                &in6addr.sin6_addr);
-                reinterpret_cast<struct sockaddr_in6*>(
-                    _rep->address)->sin6_addr = in6addr.sin6_addr;
-            }
-        }
-        else
-        {
-        reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_addr =
-            in6addr_any;
-        }
-        reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_family =
-            AF_INET6;
-        reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_port =
-            htons(_portNumber);
-    }
-#endif
-    else if(_connectionType == IPV4_CONNECTION)
-    {
-        if(_listenAddress)
-        {
-            String hostAdd = _listenAddress->getHost();
-            CString ip = hostAdd.getCString();
-            struct sockaddr_in addrs;
-            HostAddress::convertTextToBinary(
-                AF_INET, 
-                (const char*)ip,
-                &addrs.sin_addr);
-            reinterpret_cast<struct sockaddr_in*>(
-                _rep->address)->sin_addr.s_addr = addrs.sin_addr.s_addr;
-        }
-        else
-        {
-            reinterpret_cast<struct sockaddr_in*>(
-            _rep->address)->sin_addr.s_addr = INADDR_ANY;
-        }
-        reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_family =
-            AF_INET;
-        reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_port =
-            htons(_portNumber);
-    }
-    else
-    {
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
-    }
+   // Create socket:
 
-    // Create socket:
+   if (_localConnection)
+   {
+       _rep->socket = socket(AF_UNIX, SOCK_STREAM, 0);
+   }
+   else
+   {
+       _rep->socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    if (_connectionType == LOCAL_CONNECTION)
-    {
-        _rep->socket = Socket::createSocket(AF_UNIX, SOCK_STREAM, 0);
-    }
-#ifdef PEGASUS_ENABLE_IPV6
-    else if (_connectionType == IPV6_CONNECTION)
-    {
-        _rep->socket = Socket::createSocket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
-    }
-#endif
-    else if (_connectionType == IPV4_CONNECTION)
-    {
-        _rep->socket = Socket::createSocket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    }
-    else
-    {
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
-    }
+       _setTCPNoDelay(_rep->socket);
+   }
 
-    if (_rep->socket < 0)
-    {
-        delete _rep;
-        _rep = 0;
-        MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_CREATE_SOCKET",
-            "Failed to create socket");
-        throw BindFailedException(parms);
-    }
+   if (_rep->socket < 0)
+   {
+      delete _rep;
+      _rep = 0;
+      //l10n
+      //throw BindFailedException("Failed to create socket");
+      MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_CREATE_SOCKET",
+                   "Failed to create socket");
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "HTTPAcceptor::_bind _rep->socket < 0");
+      throw BindFailedException(parms);
+   }
 
-    Socket::disableBlocking(_rep->socket);
 
 // set the close-on-exec bit for this file handle.
 // any unix that forks needs this bit set.
 #if !defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_OS_VMS)
-    int sock_flags;
-    if ((sock_flags = fcntl(_rep->socket, F_GETFD, 0)) < 0)
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "HTTPAcceptor::_bind: fcntl(F_GETFD) failed");
-    }
-    else
-    {
-        sock_flags |= FD_CLOEXEC;
-        if (fcntl(_rep->socket, F_SETFD, sock_flags) < 0)
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "HTTPAcceptor::_bind: fcntl(F_SETFD) failed");
-        }
-    }
+   int sock_flags;
+ if( (sock_flags = fcntl(_rep->socket, F_GETFD, 0)) < 0)
+   {
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                  "HTTPAcceptor::_bind: fcntl(F_GETFD) failed");
+   }
+   else
+   {
+      sock_flags |= FD_CLOEXEC;
+      if (fcntl(_rep->socket, F_SETFD, sock_flags) < 0)
+      {
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                  "HTTPAcceptor::_bind: fcntl(F_SETFD) failed");
+      }
+   }
 #endif
 
 
-    //
-    // Set the socket option SO_REUSEADDR to reuse the socket address so
-    // that we can rebind to a new socket using the same address when we
-    // need to resume the cimom as a result of a timeout during a Shutdown
-    // operation.
-    //
-    int opt=1;
-    if (setsockopt(_rep->socket, SOL_SOCKET, SO_REUSEADDR,
-            (char *)&opt, sizeof(opt)) < 0)
-    {
-        delete _rep;
-        _rep = 0;
-        MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SET_SOCKET_OPTION",
-            "Failed to set socket option");
-        throw BindFailedException(parms);
-    }
+   //
+   // Set the socket option SO_REUSEADDR to reuse the socket address so
+   // that we can rebind to a new socket using the same address when we
+   // need to resume the cimom as a result of a timeout during a Shutdown
+   // operation.
+   //
+   int opt=1;
+   if (setsockopt(_rep->socket, SOL_SOCKET, SO_REUSEADDR,
+          (char *)&opt, sizeof(opt)) < 0)
+   {
+      Socket::close(_rep->socket);
+      delete _rep;
+      _rep = 0;
+      //l10n
+      //throw BindFailedException("Failed to set socket option");
+      MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SET_SOCKET_OPTION",
+                   "Failed to set socket option");
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                   "HTTPAcceptor::_bind: Failed to set socket option.");
+      throw BindFailedException(parms);
+   }
 
 
-    //
-    // Bind socket to port:
-    //
-    if (::bind(_rep->socket, _rep->address, _rep->address_size) < 0)
-    {
-        MessageLoaderParms parms(
-            "Common.HTTPAcceptor.FAILED_BIND_SOCKET_DETAIL",
-            "Failed to bind socket on port $0: $1.",
-            _portNumber, PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS);
-
-        delete _rep;
-        _rep = 0;
-        throw BindFailedException(parms);
-    }
-
-
-    //
-    // Get the actual port value used if the caller specified a port value of 0.
-    //
-    if (_portNumber == 0)
-    {
-        sockaddr_in buf;
-        SocketLength bufSize = sizeof(buf);
-        if (getsockname(_rep->socket, reinterpret_cast<sockaddr *>(&buf),
-                &bufSize) == 0 )
-        {
-            _portNumber = ntohs(buf.sin_port);
-        }
-    }
+   //
+   // Bind socket to port:
+   //
+   if (::bind(_rep->socket, _rep->address, _rep->address_size) < 0)
+   {
+      Socket::close(_rep->socket);
+      delete _rep;
+      _rep = 0;
+      //l10n
+      //throw BindFailedException("Failed to bind socket");
+      MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
+                   "Failed to bind socket");
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor::_bind: Failed to bind socket.");
+      throw BindFailedException(parms);
+   }
 
 
-    //
-    // Change permissions on Linux local domain socket to allow writes by
-    // others.
-    //
-#if !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET) && \
-     (defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-      defined(PEGASUS_OS_ZOS) || \
-      defined(PEGASUS_OS_PASE))
-    if (_connectionType == LOCAL_CONNECTION)
-    {
-        if (::chmod(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH,
-                S_IRUSR | S_IWUSR | S_IXUSR |
-                S_IRGRP | S_IWGRP | S_IXGRP |
-                S_IROTH | S_IWOTH | S_IXOTH ) < 0 )
-        {
-            MessageLoaderParms parms(
-                "Common.HTTPAcceptor.FAILED_SET_LDS_FILE_OPTION",
-                "Failed to set permission on local domain socket $0: $1.",
-                PEGASUS_LOCAL_DOMAIN_SOCKET_PATH,
-                PEGASUS_SYSTEM_ERRORMSG_NLS );
+   //
+   // Get the actual port value used if the caller specified a port value of 0.
+   //
+   if ( _portNumber == 0 )
+   {
+      sockaddr_in buf;
+      PEGASUS_SOCKLEN_T bufSize = sizeof(buf);
+      if ( getsockname(_rep->socket, reinterpret_cast<sockaddr *>(&buf), &bufSize) == 0 )
+      {
+          _portNumber = ntohs(buf.sin_port);
+      }
+   }
 
-            delete _rep;
-            _rep = 0;
-            throw BindFailedException(parms);
-        }
-    }
+
+   //
+   //  Change permissions on Linux local domain socket to allow writes by others.
+   //
+#if !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET) && defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+   if (_localConnection)
+   {
+     if (::chmod( PEGASUS_LOCAL_DOMAIN_SOCKET_PATH,
+                  S_IRUSR | S_IWUSR | S_IXUSR |
+                  S_IRGRP | S_IWGRP | S_IXGRP |
+                  S_IROTH | S_IWOTH | S_IXOTH ) < 0 )
+     {
+       Socket::close(_rep->socket);
+       delete _rep;
+       _rep = 0;
+       //l10n
+       //throw BindFailedException("Failed to bind socket");
+       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
+                   "Failed to bind socket");
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+              "HTTPAcceptor::_bind: Failed to set domain socket permissions.");
+       throw BindFailedException(parms);
+     }
+   }
 #endif
 
-    // Set up listening on the given socket:
+   // Set up listening on the given socket:
 
-    //int const _maxConnectionQueueLength = 15;
+   //int const MAX_CONNECTION_QUEUE_LENGTH = 15;
 
-    if (::listen(_rep->socket, _maxConnectionQueueLength) < 0)
-    {
-        MessageLoaderParms parms(
-            "Common.HTTPAcceptor.FAILED_LISTEN_SOCKET",
-            "Failed to listen on socket $0: $1.",
-            (int)_rep->socket,PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS );
+   if (listen(_rep->socket, MAX_CONNECTION_QUEUE_LENGTH) < 0)
+   {
+      Socket::close(_rep->socket);
+      delete _rep;
+      _rep = 0;
+      //l10n
+      //throw BindFailedException("Failed to bind socket");
+      MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
+                   "Failed to bind socket");
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                  "HTTPAcceptor::_bind: Failed to bind socket(1).");
+      throw BindFailedException(parms);
+   }
 
-        delete _rep;
-        _rep = 0;
-        throw BindFailedException(parms);
-    }
+   // Register to receive SocketMessages on this socket:
 
-    // Register to receive SocketMessages on this socket:
-
-    if (-1 == ( _entry_index = _monitor->solicitSocketMessages(
-            _rep->socket,
-            getQueueId(),
-            MonitorEntry::TYPE_ACCEPTOR)))
-    {
-        delete _rep;
-        _rep = 0;
-        MessageLoaderParms parms(
-            "Common.HTTPAcceptor.FAILED_SOLICIT_SOCKET_MESSAGES",
-            "Failed to solicit socket messaeges");
-        throw BindFailedException(parms);
-    }
+   if ( -1 == ( _entry_index = _monitor->solicitSocketMessages(
+      _rep->socket,
+      SocketMessage::READ | SocketMessage::EXCEPTION,
+      getQueueId(),
+      Monitor::ACCEPTOR)))
+   {
+      Socket::close(_rep->socket);
+      delete _rep;
+      _rep = 0;
+      //l10n
+      //throw BindFailedException("Failed to solicit socket messaeges");
+      MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SOLICIT_SOCKET_MESSAGES",
+                   "Failed to solicit socket messaeges");
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                  "HTTPAcceptor::_bind: Failed to solicit socket messages(2).");
+      throw BindFailedException(parms);
+   }
 }
 
 /**
-    closeConnectionSocket - close the server listening socket to disallow
-    new client connections.
+   closeConnectionSocket - close the server listening socket to disallow
+   new client connections.
 */
 void HTTPAcceptor::closeConnectionSocket()
 {
-    if (_rep)
-    {
-        // unregister the socket
+   if (_rep)
+   {
+      // unregister the socket
 
-        // ATTN - comment out - see CIMServer::stopClientConnection()
-        //_monitor->unsolicitSocketMessages(_rep->socket);
+      // ATTN - comment out - see CIMServer::stopClientConnection()
+      //_monitor->unsolicitSocketMessages(_rep->socket);
 
-        // close the socket
-        _rep->closeSocket();
-        // Unlink Local Domain Socket Bug# 3312
-        if (_connectionType == LOCAL_CONNECTION)
-        {
+      // close the socket
+      Socket::close(_rep->socket);
+      // Unlink Local Domain Socket Bug# 3312
+      if (_localConnection)
+      {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
-                "HTTPAcceptor::closeConnectionSocket Unlinking local "
-                    "connection.");
-            ::unlink(
-                    reinterpret_cast<struct sockaddr_un*>
-                        (_rep->address)->sun_path);
+          PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor::closeConnectionSocket Unlinking local connection." );
+         ::unlink(
+             reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #else
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+         PEGASUS_ASSERT(false);
 #endif
-        }
-    }
-    else
-    {
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
-            "HTTPAcceptor::closeConnectionSocket failure _rep is null.");
-    }
+      }
+
+   }
+   else
+   {
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor::closeConnectionSocket failure _rep is null." );
+   }
 }
 
 /**
@@ -606,72 +601,33 @@ void HTTPAcceptor::closeConnectionSocket()
 */
 void HTTPAcceptor::reopenConnectionSocket()
 {
-    if (_rep)
-    {
-        _bind();
-    }
-    else
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "HTTPAcceptor::reopenConnectionSocket failure _rep is null.");
-    }
-}
-
-
-/**
-   reconnectConnectionSocket - creates a new server socket.
-*/
-void HTTPAcceptor::reconnectConnectionSocket()
-{
-    if (_rep)
-    {
-        // unregister the socket
-        _monitor->unsolicitSocketMessages(_rep->socket);
-        // close the socket
-        _rep->closeSocket();
-        // Unlink Local Domain Socket
-        if (_connectionType == LOCAL_CONNECTION)
-        {
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
-                "HTTPAcceptor::reconnectConnectionSocket Unlinking local "
-                    "connection." );
-            ::unlink(
-                    reinterpret_cast<struct sockaddr_un*>(
-                        _rep->address)->sun_path);
-#else
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
-#endif
-        }
-        // open the socket
-        _bind();
-    }
-    else
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "HTTPAcceptor::reconnectConnectionSocket failure _rep is null.");
-    }
+   if (_rep)
+   {
+      _bind();
+   }
+   else
+   {
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor::reopenConnectionSocket failure _rep is null." );
+   }
 }
 
 /**
-    getOutstandingRequestCount - returns the number of outstanding requests.
+   getOutstandingRequestCount - returns the number of outstanding requests.
 */
 Uint32 HTTPAcceptor::getOutstandingRequestCount() const
 {
-    Uint32 count = 0;
-    if (_rep)
-    {
-        AutoMutex autoMut(_rep->_connection_mut);
-        for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-        {
-            HTTPConnection* connection = _rep->connections[i];
-            if (connection->isResponsePending())
-            {
-                count++;
-            }
-        }
-    }
-    return count;
+   Uint32 count = 0;
+   if (_rep)
+   {
+      AutoMutex autoMut(_rep->_connection_mut);
+      if (_rep->connections.size() > 0)
+      {
+         HTTPConnection* connection = _rep->connections[0];
+         count = connection->getRequestCount();
+      }
+   }
+   return count;
 }
 
 
@@ -683,286 +639,218 @@ Uint32 HTTPAcceptor::getPortNumber() const
     return _portNumber;
 }
 
-void HTTPAcceptor::setSocketWriteTimeout(Uint32 socketWriteTimeout)
-{
-#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
-    AutoMutex lock(_socketWriteTimeoutMutex);
-#endif
-    _socketWriteTimeout = socketWriteTimeout;
-}
-
 void HTTPAcceptor::unbind()
 {
-    if (_rep)
-    {
-        _portNumber = 0;
-        _rep->closeSocket();
+   if (_rep)
+   {
+      _portNumber = 0;
+      Socket::close(_rep->socket);
 
-        if (_connectionType == LOCAL_CONNECTION)
-        {
+      if (_localConnection)
+      {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-            ::unlink(
-                    reinterpret_cast<struct sockaddr_un*>
-                    (_rep->address)->sun_path);
+         ::unlink(
+             reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #else
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+         PEGASUS_ASSERT(false);
 #endif
-        }
+      }
 
-        delete _rep;
-        _rep = 0;
-    }
-    else
-    {
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1,
-            "HTTPAcceptor::unbind failure _rep is null." );
-    }
+      delete _rep;
+      _rep = 0;
+   }
+   else
+   {
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+              "HTTPAcceptor::unbind failure _rep is null." );
+   }
 }
 
 void HTTPAcceptor::destroyConnections()
 {
-    if (_rep)
-    {
-        // For each connection created by this object:
+   if (_rep)
+   {
+     // For each connection created by this object:
 
-        AutoMutex autoMut(_rep->_connection_mut);
-        for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-        {
-            HTTPConnection* connection = _rep->connections[i];
-            SocketHandle socket = connection->getSocket();
+     AutoMutex autoMut(_rep->_connection_mut);
+     for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
+     {
+        HTTPConnection* connection = _rep->connections[i];
+        PEGASUS_SOCKET socket = connection->getSocket();
 
-            // Unsolicit SocketMessages:
+        // Unsolicit SocketMessages:
 
-            _monitor->unsolicitSocketMessages(socket);
+        _monitor->unsolicitSocketMessages(socket);
 
-            // Destroy the connection (causing it to close):
+        // Destroy the connection (causing it to close):
 
-            while (connection->refcount.get()) { }
-            delete connection;
-        }
+        while (connection->refcount.get()) { }
+        delete connection;
+     }
 
-        _rep->connections.clear();
-    }
+     _rep->connections.clear();
+   }
 }
 
 void HTTPAcceptor::_acceptConnection()
 {
-    // This function cannot be called on an invalid socket!
+   // This function cannot be called on an invalid socket!
 
-    PEGASUS_ASSERT(_rep != 0);
+   PEGASUS_ASSERT(_rep != 0);
 
-    // Accept the connection (populate the address):
+   if (!_rep)
+      return;
 
-    struct sockaddr* accept_address;
-    SocketLength address_size;
+   // Accept the connection (populate the address):
 
-    if (_connectionType == LOCAL_CONNECTION)
-    {
+   struct sockaddr* accept_address;
+   PEGASUS_SOCKLEN_T address_size;
+
+   if (_localConnection)
+   {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-        accept_address =
-            reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
-        address_size = sizeof(struct sockaddr_un);
+       accept_address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
+       address_size = sizeof(struct sockaddr_un);
 #else
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+       PEGASUS_ASSERT(false);
 #endif
-    }
-    else
-    {
-#ifdef PEGASUS_ENABLE_IPV6
-        accept_address =
-           reinterpret_cast<struct sockaddr*>
-           (new struct sockaddr_storage);
-        address_size = sizeof(struct sockaddr_storage);
-#else
-        accept_address =
-            reinterpret_cast<struct sockaddr*>(new struct sockaddr_in);
-        address_size = sizeof(struct sockaddr_in);
-#endif
-    }
+   }
+   else
+   {
+       accept_address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_in);
+       address_size = sizeof(struct sockaddr_in);
+   }
 
-    // It is not necessary to handle EINTR errors from this accept() call.
-    // An EINTR error should not occur on a non-blocking socket.  If the
-    // listen socket is blocking and EINTR occurs, the new socket connection
-    // is not accepted here.
+   PEGASUS_SOCKET socket = accept(_rep->socket, accept_address, &address_size);
 
-    // EAGAIN errors are also not handled here.  An EAGAIN error should not
-    // occur after select() indicates that the listen socket is available for
-    // reading.  If the accept() fails with an EAGAIN error code, a new
-    // connection is not accepted here.
+   delete accept_address;
 
-    SocketHandle socket = accept(_rep->socket, accept_address, &address_size);
+   if (socket < 0)
+   {
 
-    if (socket == PEGASUS_SOCKET_ERROR)
-    {
-        // the remote connection is invalid, destroy client address.
-        delete accept_address;
+       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+           "HTTPAcceptor - accept() failure.  errno: $0"
+           ,errno);
 
-        // TCPIP is down reconnect this acceptor
-        if (getSocketError() == PEGASUS_NETWORK_TCPIP_STOPPED)
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Socket has an IO error. TCP/IP down. Try to reconnect.");
-
-            reconnectConnectionSocket();
-
-            return;
-        }
-        PEG_TRACE((
-            TRC_DISCARDED_DATA,
-            Tracer::LEVEL1,
-            "HTTPAcceptor: accept() failed.  errno: %u",
-            errno));
-        return;
-    }
-
-    // Use an AutoPtr to ensure the socket handle is closed on exception
-    AutoPtr<SocketHandle, CloseSocketHandle> socketPtr(&socket);
-
-#ifndef PEGASUS_OS_TYPE_WINDOWS
-    // We need to ensure that the socket number is not higher than
-    // what fits into FD_SETSIZE, because we else won't be able to select on it
-    // and won't ever communicate correct on that socket.
-    if (socket >= FD_SETSIZE)
-    {
-        // the remote connection is invalid, destroy client address.
-        delete accept_address;
-
-        PEG_TRACE(
-            (TRC_DISCARDED_DATA,
-             Tracer::LEVEL1,
-             "HTTPAcceptor out of available sockets."
-                 "accept() returned too large socket number %u."
-                 "Closing connection to the new client.",
-             socket));
-
-        return;
-    }
-#endif
-
-    String ipAddress;
-
-    if (_connectionType == LOCAL_CONNECTION)
-    {
-        ipAddress = "localhost";
-    }
-    else
-    {
-#ifdef PEGASUS_ENABLE_IPV6
-        char ipBuffer[PEGASUS_INET6_ADDRSTR_LEN];
-        if (System::getNameInfo(accept_address,
-                address_size,
-                ipBuffer,
-                PEGASUS_INET6_ADDRSTR_LEN,
-                0,
-                0,
-                NI_NUMERICHOST))
-        {
-            delete accept_address;
-            return;
-        }
-        ipAddress = ipBuffer;
-#else
-        unsigned char* sa = reinterpret_cast<unsigned char*>(
-            &reinterpret_cast<struct sockaddr_in*>(
-                accept_address)->sin_addr.s_addr);
-        char ipBuffer[32];
-        sprintf(ipBuffer, "%u.%u.%u.%u", sa[0], sa[1], sa[2], sa[3]);
-        ipAddress = ipBuffer;
-#endif
-    }
-
-    delete accept_address;
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor: accept() failed");
+      return;
+   }
 
 // set the close on exec flag
 #if !defined(PEGASUS_OS_TYPE_WINDOWS) && !defined(PEGASUS_OS_VMS)
-    int sock_flags;
-    if ((sock_flags = fcntl(socket, F_GETFD, 0)) < 0)
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "HTTPAcceptor: fcntl(F_GETFD) failed");
-    }
-    else
-    {
-        sock_flags |= FD_CLOEXEC;
-        if (fcntl(socket, F_SETFD, sock_flags) < 0)
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "HTTPAcceptor: fcntl(F_SETFD) failed");
-        }
-    }
+   int sock_flags;
+ if( (sock_flags = fcntl(socket, F_GETFD, 0)) < 0)
+   {
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor: fcntl(F_GETFD) failed");
+   }
+   else
+   {
+      sock_flags |= FD_CLOEXEC;
+      if (fcntl(socket, F_SETFD, sock_flags) < 0)
+      {
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor: fcntl(F_SETFD) failed");
+      }
+   }
 #endif
 
 
-    PEG_TRACE((
-        TRC_HTTP,
-        Tracer::LEVEL3,
-        "HTTPAcceptor - accept() success.  Socket: %u",
-        socket));
+   PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 0,
+       "HTTPAcceptor - accept() success.  Socket: $1" ,socket));
 
-    SharedPtr<MP_Socket> mp_socket(new MP_Socket(
-        socket, _sslcontext, _sslContextObjectLock, ipAddress));
-    // mp_socket now has responsibility for closing the socket handle
-    socketPtr.release();
+   AutoPtr<MP_Socket> mp_socket(new MP_Socket(
+       socket, _sslcontext, _sslContextObjectLock, _exportConnection));
 
-    mp_socket->disableBlocking();
+   // Perform the SSL handshake, if applicable.  Make the socket non-blocking
+   // for this operation so we can send it back to the Monitor's select() loop
+   // if it takes a while.
 
-    {
-#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
-        AutoMutex lock(_socketWriteTimeoutMutex);
-#endif
-        mp_socket->setSocketWriteTimeout(_socketWriteTimeout);
-    }
+   mp_socket->disableBlocking();
+   Sint32 socketAcceptStatus = mp_socket->accept();
+   mp_socket->enableBlocking();
 
-    // Perform the SSL handshake, if applicable.
+   if (socketAcceptStatus < 0)
+   {
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor: SSL_accept() failed");
+       mp_socket->close();
+       return;
+   }
 
-    Sint32 socketAcceptStatus = mp_socket->accept();
+   // Create a new connection and add it to the connection list:
 
-    if (socketAcceptStatus < 0)
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "HTTPAcceptor: SSL_accept() failed");
-        return;
-    }
+   HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
+       this, static_cast<MessageQueue *>(_outputMessageQueue), _exportConnection);
 
-    // Create a new connection and add it to the connection list:
+   if (socketAcceptStatus == 0)
+   {
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+           "HTTPAcceptor: SSL_accept() pending");
+       connection->_acceptPending = true;
+   }
 
-    AutoPtr<HTTPConnection> connection(new HTTPConnection(
-        _monitor,
-        mp_socket,
-        ipAddress,
-        this,
-        _outputMessageQueue));
+   // Solicit events on this new connection's socket:
+   int index;
 
-    if (HTTPConnection::getIdleConnectionTimeout())
-    {
-        Time::gettimeofday(&connection->_idleStartTime);
-    }
+   if (-1 ==  (index = _monitor->solicitSocketMessages(
+      connection->getSocket(),
+      SocketMessage::READ | SocketMessage::EXCEPTION,
+      connection->getQueueId(), Monitor::CONNECTION)) )
+   {
+      // ATTN-DE-P2-2003100503::TODO::Need to enhance code to return
+      // an error message to Client application.
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+          "HTTPAcceptor::_acceptConnection: Attempt to allocate entry in _entries table failed.");
+      delete connection;
+      Socket::close(socket);
+      return;
+   }
 
-    if (socketAcceptStatus == 0)
-    {
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1,
-            "HTTPAcceptor: SSL_accept() pending");
-        connection->_acceptPending = true;
-        Time::gettimeofday(&connection->_acceptPendingStartTime);
-    }
+   // Save the socket for cleanup later:
+   connection->_entry_index = index;
+   AutoMutex autoMut(_rep->_connection_mut);
+   _rep->connections.append(connection);
+}
 
-    // Solicit events on this new connection's socket:
-    int index;
+void HTTPAcceptor::_createNamedPipe()
+{
+    PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() at the begining" << PEGASUS_STD(endl);
 
-    if (-1 ==  (index = _monitor->solicitSocketMessages(
-            connection->getSocket(),
-            connection->getQueueId(), MonitorEntry::TYPE_CONNECTION)) )
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "HTTPAcceptor::_acceptConnection: Attempt to allocate entry in "
-                "_entries table failed.");
-        return;
-    }
+    _namedPipeServer = new NamedPipeServer("\\\\.\\pipe\\MyNamedPipe");
+    PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() after calling the pipe server constructor" << PEGASUS_STD(endl);
+    
+   
 
-    connection->_entry_index = index;
-    AutoMutex autoMut(_rep->_connection_mut);
-    _rep->connections.append(connection.get());
-    connection.release();
+    // Register to receive Messages on Connection pipe:
+        
+   if ( -1 == ( _entry_index = _monitor->solicitPipeMessages(
+      *_namedPipeServer,
+      SocketMessage::READ | SocketMessage::EXCEPTION,
+      getQueueId(),
+      Monitor::ACCEPTOR)))
+   {
+       PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() _monitor->solicitSocketMessages failed" << PEGASUS_STD(endl);
+
+   }
+
+   PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() at the end" << PEGASUS_STD(endl);
+   return; 
+
+}
+
+void HTTPAcceptor::_acceptNamedPipeConnection(NamedPipeMessage* namedPipeMessage)
+{
+    cout <<"In HTTPAcceptor::_acceptNamedPipeConnection " << endl;
+
+    //Here we know this a namedPipe server because on the server calles HTTPAcceptor
+    NamedPipeServer* namedPipeServer = (NamedPipeServer *) (&namedPipeMessage->namedPipe);
+
+    NamedPipeServerEndPiont nPSEndPoint = namedPipeServer->accept();
+    cout << " In _acceptNamedPipeConnection -- after calling namedPipeServer->accept()" << endl; 
+
+
 }
 
 PEGASUS_NAMESPACE_END

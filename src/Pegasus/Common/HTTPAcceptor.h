@@ -1,31 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:  Jenny Yu (jenny_yu@hp.com)
+//               Nag Boranna (nagaraja.boranna@hp.com)
+//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,10 +44,14 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/Monitor.h>
-#include <Pegasus/Common/HostAddress.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/NamedPipe.h>
+
+#if defined(PEGASUS_HAS_SSL)
 #include <Pegasus/Common/SSLContext.h>
+#endif
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -50,109 +62,102 @@ class Monitor;
 */
 class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 {
-public:
-    // Connection types.
-    enum { LOCAL_CONNECTION, IPV4_CONNECTION, IPV6_CONNECTION };
+   public:
+      typedef MessageQueue Base;
+  
+      /** Constructor.
+	  @param monitor pointer to monitor object which this class uses to
+	  solicit SocketMessages on the server port (socket).
+	  @param outputMessageQueue output message queue for connections
+	  created by this acceptor.
+	  @param localConnection Boolean indicating whether this acceptor is
+	  only for local connections.  If true, the portNumber argument is
+	  ignored.
+	  @param portNumber Specifies which port number this acceptor is to
+	  listen on.  If this value is 0 then a port is automatically selected
+	  by bind().  In this case, the actual port number used can be retrieved
+	  using getPortNumber().
+	  @param sslcontext If null, this acceptor does not create SSL
+	  connections.  If non-null, the argument specifies an SSL context to
+	  use for connections established by this acceptor.
+          @param exportConnection Boolean indicating whether this acceptor is
+          is only for export connections. If true, client SSL certificate 
+          verification is enabled on the connection created by this acceptor.
+          Ignored when sslcontext is null.
+      */
+      HTTPAcceptor(Monitor* monitor,
+                   MessageQueue* outputMessageQueue,
+                   Boolean localConnection,
+                   Uint32 portNumber,
+                   SSLContext * sslcontext,
+                   Boolean exportConnection,
+                   ReadWriteSem* sslContextObjectLock=0);
 
-    typedef MessageQueue Base;
+      /** Destructor. */
+      ~HTTPAcceptor();
 
-    /** Constructor.
-        @param monitor pointer to monitor object which this class uses to
-        solicit SocketMessages on the server port (socket).
-        @param outputMessageQueue output message queue for connections
-        created by this acceptor.
-        @param connectionType indicating the type of connection for
-        this acceptor. connectionType can be any one of  LOCAL_CONNECTION,
-        IPV4_CONNECTION and IPV6_CONNECTION. If connectionType is
-        LOCAL_CONNECTION portNumber is ignored.
-        @param portNumber Specifies which port number this acceptor is to
-        listen on.  If this value is 0 then a port is automatically selected
-        by bind().  In this case, the actual port number used can be retrieved
-        using getPortNumber().
-        @param sslcontext If null, this acceptor does not create SSL
-        connections.  If non-null, the argument specifies an SSL context to
-        use for connections established by this acceptor.
-        @param listenOn If null, listening for connection is not restricted 
-        else it is restricted to listen on specified add in listenOn
-    */
-    HTTPAcceptor(
-        Monitor* monitor,
-        MessageQueue* outputMessageQueue,
-        Uint16 connectionType,
-        Uint32 portNumber,
-        SSLContext * sslcontext,
-        ReadWriteSem* sslContextObjectLock = 0,
-        HostAddress *listenOn = 0);
+      /** This method is called whenever a SocketMessage is enqueued
+	  on the input queue of the HTTPAcceptor object.
+      */ 
 
-    /** Destructor. */
-    ~HTTPAcceptor();
+      virtual void handleEnqueue(Message *);
+    
+      virtual void handleEnqueue();
 
-    /** This method is called whenever a SocketMessage is enqueued
-        on the input queue of the HTTPAcceptor object.
-    */
+      /** Bind the specified listen socket.
+          @exception throws BindFailedException if unable to bind (either
+          because the listen socket is invalid or the socket is in use).
+      */
+      void bind();
 
-    virtual void handleEnqueue(Message *);
+      /** Unbind from the given port.
+       */
+      void unbind();
 
-    virtual void handleEnqueue();
+      /** Close the connection socket.
+       */
+      void closeConnectionSocket();
 
-    /** Bind the specified listen socket.
-        @exception throws BindFailedException if unable to bind (either
-        because the listen socket is invalid or the socket is in use).
-    */
-    void bind();
+      /** Reopen the connection socket.
+       */
+      void reopenConnectionSocket();
 
-    /** Unbind from the given port.
-    */
-    void unbind();
+      /** Destroys all the connections created by this acceptor. */
+      void destroyConnections();
 
-    /** Close the connection socket.
-    */
-    void closeConnectionSocket();
+      /** Returns the number of outstanding requests
+       */
+      Uint32 getOutstandingRequestCount() const;
 
-    /** Reopen the connection socket.
-    */
-    void reopenConnectionSocket();
+      /** Returns the port number used for the connection.  If the number
+          is 0 that means that the socket is not bound.
+      */
+      Uint32 getPortNumber() const;
 
-    /** Destroys all the connections created by this acceptor. */
-    void destroyConnections();
+   private:
 
-    /** Close and Reopen the connection socket.
-    */
-    void reconnectConnectionSocket();
+      void _acceptConnection();
+      void _bind();
 
-    /** Returns the number of outstanding requests for connections created by
-        this Acceptor.
-    */
-    Uint32 getOutstandingRequestCount() const;
+      cimom *_meta_dispatcher;
+    
+      /*This method creates and connects to a named pipe*/
+      void _createNamedPipe();
+      NamedPipeServer* _namedPipeServer; 
+      void _acceptNamedPipeConnection(NamedPipeMessage* namedPipeMessage);
 
-    /** Returns the port number used for the connection.  If the number
-        is 0 that means that the socket is not bound.
-    */
-    Uint32 getPortNumber() const;
+      
+      Monitor* _monitor;
+      MessageQueue* _outputMessageQueue;
+      HTTPAcceptorRep* _rep;
 
-    static void setSocketWriteTimeout(Uint32 socketWriteTimeout);
+      int _entry_index;
 
-private:
-
-    void _acceptConnection();
-    void _bind();
-
-
-    Monitor* _monitor;
-    MessageQueue* _outputMessageQueue;
-    HTTPAcceptorRep* _rep;
-
-    int _entry_index;
-
-    Uint16 _connectionType;
-    Uint32 _portNumber;
-    SSLContext* _sslcontext;
-    ReadWriteSem*  _sslContextObjectLock;
-    static Uint32 _socketWriteTimeout;
-#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
-    static Mutex _socketWriteTimeoutMutex;
-#endif
-    HostAddress *_listenAddress;
+      Boolean _localConnection;
+      Uint32  _portNumber;
+      SSLContext * _sslcontext;
+      Boolean _exportConnection;
+      ReadWriteSem*  _sslContextObjectLock;
 };
 
 PEGASUS_NAMESPACE_END

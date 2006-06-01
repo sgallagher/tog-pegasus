@@ -1,31 +1,43 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097, #2541
+//         David Dillard, VERITAS Software Corp.  (david.dillard@veritas.com)
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,22 +48,45 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/TLS.h>
+#include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/SharedPtr.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Buffer.h>
-#include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Common/NamedPipe.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+class HTTPConnector;
+
+class MessageQueueService;
+
+struct HTTPConnectionRep;
+
+/** This message is sent from a connection to its owner (so that the
+    owner can do any necessary cleanup).
+*/
+class CloseConnectionMessage : public Message
+{
+public:
+
+    CloseConnectionMessage(PEGASUS_SOCKET socket_)
+        : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
+
+    PEGASUS_SOCKET socket;
+};
+
+/** This class represents an HTTP listener.
+*/
 class Monitor;
-class HTTPAcceptor;
 
 class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 {
@@ -61,25 +96,25 @@ public:
     /** Constructor. */
     HTTPConnection(
         Monitor* monitor,
-        SharedPtr<MP_Socket>& socket,
-        const String& ipAddress,
-        HTTPAcceptor * owningAcceptor,
-        MessageQueue * outputMessageQueue);
+        AutoPtr<MP_Socket>& socket,
+        MessageQueue * ownerMessageQueue,
+        MessageQueue * outputMessageQueue,
+        Boolean exportConnection);
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+
+    /** Constructor. Which takes named pipe */
+    HTTPConnection(
+        Monitor* monitor,
+        HANDLE namedPipe,
+        MessageQueue * ownerMessageQueue,
+        MessageQueue * outputMessageQueue,
+        Boolean exportConnection);
+
+#endif
 
     /** Destructor. */
     ~HTTPConnection();
-
-    virtual void enqueue(Message *);
-
-    /**
-        In this specialization of isActive a check is performed on the
-        non-blocking socket to see if it is active by reading 1 byte. Since the 
-        current thread is processing the request, its safe to try to read 1 byte
-        from the socket as there should be no data on the socket. If read 
-        returns a message of size zero, it is an indication that the client has 
-        closed the connection and the socket at the server end can be closed.
-    */
-    virtual Boolean isActive();
 
     /** This method is called whenever a SocketMessage is enqueued
         on the input queue of the HTTPConnection object.
@@ -89,45 +124,24 @@ public:
     virtual void handleEnqueue();
 
     /** Return socket this connection is using. */
-    SocketHandle getSocket() { return _socket->getSocket();}
+    PEGASUS_SOCKET getSocket() { return _socket->getSocket();}
 
     MP_Socket& getMPSocket() { return *_socket;}
 
-    /** Indicates whether this connection has an outstanding response.
+    /** Return the number of outstanding requests for all HTTPConnection
+        instances.
     */
-    Boolean isResponsePending();
+    Uint32 getRequestCount();
 
-    Boolean run();
+    Boolean run(Uint32 milliseconds);
 
-    HTTPAcceptor& getOwningAcceptor()
+    MessageQueue & get_owner(void)
     {
-        PEGASUS_ASSERT(_owningAcceptor);
-        return *_owningAcceptor;
+        return *_ownerMessageQueue;
     }
 
     // was the request for chunking ?
     Boolean isChunkRequested();
-
-    void setSocketWriteTimeout(Uint32 socketWriteTimeout);
-    static void setIdleConnectionTimeout(Uint32 idleConnectionTimeout);
-    static Uint32 getIdleConnectionTimeout();
-
-    Boolean closeConnectionOnTimeout(struct timeval* timeNow);
-
-    // This method is called in Client code to decide reconnection with 
-    // the Server and can also be used in the server code to check if the 
-    // connection is still alive and take appropriate action.
-    Boolean needsReconnect();
-
-    // This method is called in Server code when response encoders or
-    // HTTPAuthenticatorDelegator runs out-of-memory. This method calls 
-    // _handleWriteEvent() with a dummy HTTPMessage to maintain  response
-    // chunk sequence properly. Once all responses are  arrived, connection
-    // is closed. Param "respMsgIndex" indicates the response index and 
-    // isComplete indicates whether the response is complete or not.
-    void handleInternalServerError(
-        Uint32 respMsgIndex,
-        Boolean isComplete);
 
     // ATTN-RK-P1-20020521: This is a major hack, required to get the CIM
     // server and tests to run successfully.  The problem is that the
@@ -147,6 +161,9 @@ public:
     // list of content languages
     ContentLanguageList contentLanguages;
 
+    //retruns true is HTTPConnection is connected to a Named Pipe
+    Boolean isNamedPipeConnection();
+
 private:
 
     void _clearIncoming();
@@ -160,37 +177,44 @@ private:
 
     void _handleReadEvent();
 
-    Boolean _handleWriteEvent(HTTPMessage& httpMessage);
+    Boolean _handleWriteEvent(Message &message);
 
-    void _handleReadEventFailure(const String& httpStatusWithDetail,
-                                 const String& cimError = String());
+    void _handleReadEventFailure(String &httpStatusWithDetail,
+                                 String cimError = String());
     void _handleReadEventTransferEncoding();
     Boolean _isClient();
 
+    //This method is called from _handleWriteEvent to write to named pipes
+    //ATTN Uint32 messageLength is not needed
+    Boolean _writeToNamePipe(HTTPMessage &httpMessage, Uint32 messageLength);
+
     Monitor* _monitor;
 
-    SharedPtr<MP_Socket> _socket;
-    String _ipAddress;
-    HTTPAcceptor* _owningAcceptor;
+    AutoPtr<MP_Socket> _socket;
+    HANDLE _namedPipe;
+    Boolean _namedPipeConnection;
+    MessageQueue* _ownerMessageQueue;
     MessageQueue* _outputMessageQueue;
 
     Sint32 _contentOffset;
     Sint32 _contentLength;
     Buffer _incomingBuffer;
-    SharedPtr<AuthenticationInfo> _authInfo;
+    AutoPtr<AuthenticationInfo> _authInfo;
+    static AtomicInt _requestCount;
+    
 
     // _connectionRequestCount contains the number of
     // requests that have been received on this connection.
     Uint32 _connectionRequestCount;
 
-    /**
-        The _responsePending flag indicates whether the a request has been
-        received on the connection and is awaiting a response.  It is set to
-        true when a request is received on the connection and set to false
-        when a response is sent.  The connection object must not be destructed
-        while a response is pending, because the CIM Server must route the
-        response to the connection object when it becomes available.
-    */
+    // The _responsePending flag has been added to help
+    // isolate "client connection" problems. When the
+    // HTTPConnection object is created, this flag is
+    // initialized to false.  It is set to true when a
+    // request is received on the connection and set to
+    // false when a response is sent. If _responsePending
+    // is true when a close connection request is processed,
+    // a "DISCARDED_DATA" trace entry will be written.
     Boolean _responsePending;
 
     Mutex _connection_mut;
@@ -208,24 +232,12 @@ private:
     // completed.
     Boolean _acceptPending;
 
-    // The _httpMethodNotChecked flag is disabled after the first bytes of a
-    // request were read and validated to be one of the supported HTTP methods
-    // "POST" or "M-POST".
-    Boolean _httpMethodNotChecked;
-
-    // Holds time since the accept pending condition was detected.
-    struct timeval _acceptPendingStartTime;
-
     int _entry_index;
 
     // When used by the client, it is an offset (from start of http message)
     // representing last NON completely parsed chunk of a transfer encoding.
     // When used by the server, it is the message index that comes down
-    // from the providers/repository representing each message chunk.
-    // WARNING: Due to the duel use of this member variable, modifying code
-    // that uses this variable should be done very carefully. Accidental bugs
-    // introduced could easily break interoperability with wbem
-    // clients/servers that transfer and/or receive data via HTTP chunking.
+    // from the providers/repository representing each message chunk
     Uint32 _transferEncodingChunkOffset;
 
     // list of transfer encoding values from sender
@@ -236,21 +248,6 @@ private:
 
     // 2 digit prefix on http header if mpost was used
     String _mpostPrefix;
-
-    // Holds time since this connection is idle.
-    struct timeval _idleStartTime;
-
-    // Idle connection timeout in seconds specified by Config property
-    // idleConnectionTimeout.
-    static Uint32 _idleConnectionTimeoutSeconds;
-#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
-    static Mutex _idleConnectionTimeoutSecondsMutex;
-#endif
-    // When this flag is set to true, it indicates that internal error on this
-    // connection occured. Currently this flag is used by the Server code when
-    // out-of-memory error is occurs and connection is closed by the server
-    // once all responses are arrived.
-    Boolean _internalError;
 
     friend class Monitor;
     friend class HTTPAcceptor;

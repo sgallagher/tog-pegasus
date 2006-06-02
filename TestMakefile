@@ -390,6 +390,7 @@ OOPProvFail_TS1b_CONFIG_OPTIONS = forceProviderProcesses=true enableAuthenticati
 OOPProvFail_TS1_TEST_CMDS = \
 	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/OOPModuleFailureProvider/testclient@@OOPProvFail_TS1
 
+ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
 run_OOPProvFail_TS1:
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(OOPProvFail_TS1a_CONFIG_OPTIONS)" \
@@ -397,6 +398,10 @@ run_OOPProvFail_TS1:
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(OOPProvFail_TS1b_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(OOPProvFail_TS1_TEST_CMDS)"
+else
+run_OOPProvFail_TS1: FORCE
+	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping run_OOPProvFail_TS1"
+endif
 
 ###############################################################################
 ##  OOPProvFail Test Suite 2: OOP Provider Module Failure on IndicationService 
@@ -417,6 +422,7 @@ OOPProvFail_TS2a_TEST_CMDS = \
 OOPProvFail_TS2b_TEST_CMDS = \
 	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/OOPModuleFailureProvider/testclient@@OOPProvFail_TS2b
 
+ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
 run_OOPProvFail_TS2:
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(OOPProvFail_TS2_CONFIG_OPTIONS)" \
@@ -424,6 +430,10 @@ run_OOPProvFail_TS2:
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(OOPProvFail_TS2_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(OOPProvFail_TS2b_TEST_CMDS)"
+else
+run_OOPProvFail_TS2: FORCE
+	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping run_OOPProvFail_TS2"
+endif
 
 ###############################################################################
 ##  Indication SSL Test Suite 1: Indication Testing over HTTPS

@@ -1197,7 +1197,7 @@ CmpiData CmpiInstance::getProperty(const int pos, CmpiString *name) {
      else
        throw CmpiStatus(rc.rc,name->charPtr());
    }
-   if (name) *name=*(new CmpiString(s));
+   if (name) *name=CmpiString(s);
    return d;
 };
 
@@ -1386,7 +1386,7 @@ CmpiData CmpiObjectPath::getKey(const int pos, CmpiString *name) const{
    CMPIString *s;
    d._data=getEnc()->ft->getKeyAt(getEnc(),(int)pos,&s,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
-   if (name) *name=*(new CmpiString(s));
+   if (name) *name=CmpiString(s);
    return d;
 }
 
@@ -1710,7 +1710,7 @@ CmpiData CmpiArgs::getArg(const int pos, CmpiString *name) const {
      else
        throw CmpiStatus(rc.rc,name->charPtr());
    }
-   if (name) *name=*(new CmpiString(s));
+   if (name) *name=CmpiString(s);
    return d;
 }
 

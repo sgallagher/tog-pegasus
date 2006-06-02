@@ -283,7 +283,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
                myself->handleGetPropertyRequest(
                   op, (CIMGetPropertyRequestMessage *)legacy);
                break;
-            case CIM_SET_PROPERTY_REQUEST_MESSAGE: //20
+            case CIM_SET_PROPERTY_REQUEST_MESSAGE:
                myself->handleSetPropertyRequest(
                   op, (CIMSetPropertyRequestMessage *)legacy);
                break;
@@ -406,11 +406,9 @@ BinaryMessageHandler::handle_binary_message(void* parm)
                break;
 
             // unexpected requests
-            case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-            case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
             case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
             case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
-            case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE: // 30
+            case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
             case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
             case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
             case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
@@ -436,8 +434,6 @@ BinaryMessageHandler::handle_binary_message(void* parm)
                break;
 
             // unexpected replies
-            case CIM_ENABLE_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE:
-            case CIM_MODIFY_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE:
             case CIM_PROCESS_INDICATION_RESPONSE_MESSAGE:
             case CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE:
             case CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE:
@@ -453,7 +449,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
             case CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE:
             case CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE:
                break;
-            case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE: // 42
+            case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:
             default:
                PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
                   "Received Unexpected legacy response message.");

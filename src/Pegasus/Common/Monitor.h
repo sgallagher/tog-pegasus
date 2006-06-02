@@ -52,7 +52,9 @@
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/NamedPipe.h>
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+ #include <Pegasus/Common/NamedPipe.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -62,9 +64,12 @@ public:
   PEGASUS_SOCKET socket;
   Uint32 queueId;
   AtomicInt _status;
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
   NamedPipe namedPipe; //WW not sure if I need to change any of the construcotrs
   Boolean namedPipeConnection;
   Boolean pipeSet;
+#endif
 
   // This copy constructor is inecessary since AtomicInt does not support
   // copy construction.
@@ -72,12 +77,18 @@ public:
       socket(x.socket), 
       queueId(x.queueId), 
       _status(x._status.get()),
+ #ifdef PEGASUS_OS_TYPE_WINDOWS
       _type(x._type),
       namedPipeConnection(false),
       pipeSet(false)
+ #else
+      _type(x._type)
+ #endif
   {
   }
   int _type;
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 
   _MonitorEntry(PEGASUS_SOCKET sock, Uint32 q, int Type)
     : socket(sock), queueId(q), _status(EMPTY), _type(Type), namedPipeConnection(false), pipeSet(false)
@@ -92,6 +103,17 @@ public:
   {
       return namedPipeConnection;
   }
+#else
+  _MonitorEntry(PEGASUS_SOCKET sock, Uint32 q, int Type)
+    : socket(sock), queueId(q), _status(EMPTY), _type(Type)
+  {
+  }
+
+  _MonitorEntry() : socket(0), queueId(0), _status(EMPTY), _type(0)
+  {
+  }
+
+#endif
 
   Boolean operator ==(const void *key) const
   {
@@ -147,7 +169,7 @@ public:
   Uint32 events;
 };
 
-
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 /** This message occurs when there is activity on a NamedPipe. */
 class NamedPipeMessage : public Message
 {       //NOTE: this class is not really needed it is just used for clarity - 
@@ -169,7 +191,7 @@ public:
   NamedPipe namedPipe;
   Uint32 events;
 };
-
+#endif
 
 
 /** This class monitors system-level events and notifies its clients of these
@@ -269,6 +291,7 @@ public:
                 Uint32 queueId,
                 int type);
 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
   /**Solicit interest in NamedPipe Messages. Note that there may only
       be one solicitor per pipe.This method is the same as solicitSocketMessages
       but for Named Pipes 
@@ -285,6 +308,10 @@ public:
     Uint32 queueId,
     int type);
 
+//  void unsolicitPipeMessages(NamedPipe namedPipe);
+
+
+ #endif
 
   /** Unsolicit messages on the given socket.
 
@@ -313,10 +340,12 @@ private:
   AtomicInt _stopConnections;
   Semaphore _stopConnectionsSem;
   Uint32 _solicitSocketCount;  // tracks how many times solicitSocketCount() has been called
+  // Uint32 _solicitPipeCount; 
   friend class HTTPConnection;
   struct sockaddr_in _tickle_server_addr;
   struct sockaddr_in _tickle_client_addr;
   struct sockaddr_in _tickle_peer_addr;
+  // NOT SURE IF WE NEED TO HANDLE THis for pipes...??  JA
   PEGASUS_SOCKET _tickle_client_socket;
   PEGASUS_SOCKET _tickle_server_socket;
   PEGASUS_SOCKET _tickle_peer_socket;

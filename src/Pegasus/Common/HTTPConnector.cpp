@@ -289,8 +289,11 @@ HTTPConnection* HTTPConnector::connect(
 {
    PEGASUS_SOCKET socket;
 
+
    //WW this code should be inside of PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET below 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
+   PEGASUS_STD(cout) << "HTTPConnector::connect at connectLocal on windows section" << PEGASUS_STD(endl);
+
    if (host == String::EMPTY)  //connect request was made with CIMClient::connectLocal
    {
       //CIMClient::connectLocal [host == String::EMPTY] use NamedPipes on windows
@@ -319,6 +322,7 @@ HTTPConnection* HTTPConnector::connect(
 
 
 
+   PEGASUS_STD(cout) << "HTTPConnector::connect after connectLocal on windows section" << PEGASUS_STD(endl);
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET 
    if (host == String::EMPTY)  //connect request was made with CIMClient::connectLocal
@@ -484,18 +488,22 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 {
     NamedPipeClient client("\\\\.\\pipe\\MyNamedPipe");
     PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after client constuctor" << PEGASUS_STD(endl);
-    HANDLE handle = client.connect();
-    if(handle == 0)
+    NamedPipeClientEndPiont nPCEndPoint = client.connect();
+
+    // Will need to catch the exception from connect...
+     /*
+    //HANDLE handle = client.connect();
+    if(nPCEndPoint == 0)
     {
         cout << "NamedPipeClient::connect() failed" << endl;
 
         return(false);
     }
-
-
+    */
+        
     PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after client.connect()" << PEGASUS_STD(endl);
 
-    HTTPConnection* connection = new HTTPConnection(_monitor, handle,
+    HTTPConnection* connection = new HTTPConnection(_monitor, nPCEndPoint,
         this, static_cast<MessageQueueService *>(outputMessageQueue), false); 
 
     PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after creating HTTPConnection" << PEGASUS_STD(endl);
@@ -503,8 +511,8 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
     // Solicit events on this new connection's socket:
 
    if (-1 == (_entry_index = _monitor->solicitPipeMessages(
-      client,
-      SocketMessage::READ | SocketMessage::EXCEPTION,
+      connection->getNamedPipe(),
+      NamedPipeMessage::READ | NamedPipeMessage::EXCEPTION,
       connection->getQueueId(), Monitor::CONNECTOR))) 
    {
       //this is a failure block 

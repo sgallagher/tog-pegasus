@@ -46,6 +46,14 @@ public:
 
 };
 
+class PEGASUS_COMMON_LINKAGE NamedPipeClientEndPiont : public NamedPipe
+{
+public:
+    NamedPipeClientEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct);
+    ~NamedPipeClientEndPiont(void);
+
+};
+
 
 
 //class PEGASUS_COMMON_LINKAGE NamedPipeServer : public NamedPipe 
@@ -78,7 +86,7 @@ public:
     NamedPipeClient(const String & name);
     ~NamedPipeClient(void);
 
-    HANDLE connect(void) const;
+    NamedPipeClientEndPiont connect(void);
     void disconnect(HANDLE pipe) const;
     //OVERLAPPED getOverlap(void){ return _pipe.overlap;}
 

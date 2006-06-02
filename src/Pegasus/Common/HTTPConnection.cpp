@@ -273,7 +273,7 @@ HTTPConnection::HTTPConnection(
 
 HTTPConnection::HTTPConnection(
     Monitor* monitor,
-    HANDLE namedPipe,
+    NamedPipe namedPipe,
     MessageQueue* ownerMessageQueue,
     MessageQueue* outputMessageQueue,
     Boolean exportConnection)
@@ -1982,7 +1982,7 @@ Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messag
 {   
     PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe at the begining" << PEGASUS_STD(endl);
    
-   Boolean writeResult = NamedPipe::write(_namedPipe, String(httpMessage.message.getData()));
+   Boolean writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()));
    if(writeResult)
    {
        PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned successfully" << PEGASUS_STD(endl);

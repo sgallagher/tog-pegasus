@@ -47,7 +47,9 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/NamedPipe.h>
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+ #include <Pegasus/Common/NamedPipe.h>
+#endif
 
 #if defined(PEGASUS_HAS_SSL)
 #include <Pegasus/Common/SSLContext.h>
@@ -140,12 +142,13 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       void _bind();
 
       cimom *_meta_dispatcher;
-    
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
       /*This method creates and connects to a named pipe*/
       void _createNamedPipe();
-      NamedPipeServer* _namedPipeServer; 
-      void _acceptNamedPipeConnection(NamedPipeMessage* namedPipeMessage);
-
+     // NamedPipeServer* _namedPipeServer;
+      void _acceptNamedPipeConnection();
+#endif
       
       Monitor* _monitor;
       MessageQueue* _outputMessageQueue;

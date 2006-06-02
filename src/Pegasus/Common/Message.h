@@ -525,7 +525,7 @@ enum MessageType
     CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE,
 
     // Monitor-related messages:
-     NAMEDPIPE_MESSAGE,
+    NAMEDPIPE_MESSAGE,
 
     NUMBER_OF_MESSAGES
 };

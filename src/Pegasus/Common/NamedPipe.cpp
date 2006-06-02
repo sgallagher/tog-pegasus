@@ -421,7 +421,9 @@ NamedPipeClient::~NamedPipeClient(void)
     cout << "NamedPipeClient::~NamedPipeClient()" << endl;
 }
 
-HANDLE NamedPipeClient::connect(void) const
+//HANDLE NamedPipeClient::connect(void) const
+//HANDLE NamedPipeClient::connect(void)
+NamedPipeClientEndPiont NamedPipeClient::connect(void)
 {
     cout << "NamedPipeClient::connect() - " << _PRIMARY_PIPE_NAME(_name) << endl;
 
@@ -447,8 +449,7 @@ HANDLE NamedPipeClient::connect(void) const
     {
         cout << "NamedPipeClient::connect() - failed to call primary pipe" << endl;
         cout << "::CallNamedPipe() rc = " << ::GetLastError() << endl;
-
-        return(0);
+        throw(Exception("NamedPipeClient::connect() - failed to call primary pipe"));
     }
 
     cout << "NamedPipeClient::connect() - recv " << response.data() << endl;
@@ -457,16 +458,16 @@ HANDLE NamedPipeClient::connect(void) const
     {
         cout << "NamedPipeClient::connect() - incorrect response" << endl;
 
-        return(0);
+       throw(Exception("NamedPipeClient::connect() - Incorrect response"));
     }
 
     cout << "NamedPipeClient::connect() - connecting to " << _SECONDARY_PIPE_NAME(_name) << endl;
 
-    HANDLE pipe2 = INVALID_HANDLE_VALUE;
-
+    //HANDLE pipe2 = INVALID_HANDLE_VALUE;
+    PEGASUS_NAMEDPIPE* pipe2 = new PEGASUS_NAMEDPIPE;
     for( ; ; )
     {
-        pipe2 =
+        pipe2->hpipe =
             ::CreateFile(
                 _SECONDARY_PIPE_NAME(_name).getCString(),
                 GENERIC_READ | GENERIC_WRITE,
@@ -476,7 +477,7 @@ HANDLE NamedPipeClient::connect(void) const
                 0,
                 0);
 
-        if(pipe2 != INVALID_HANDLE_VALUE)
+        if(pipe2->hpipe != INVALID_HANDLE_VALUE)
         {
             break;
         }
@@ -486,7 +487,7 @@ HANDLE NamedPipeClient::connect(void) const
             cout << "NamedPipeClient::connect() - failed to connect to secondary pipe" << endl;
             cout << "::CreateFile() rc = " << ::GetLastError() << endl;
 
-            return(0);
+            throw(Exception("NamedPipeClient::connect() - failed to connect to secondary pipe"));
         }
 
         cout << "NamedPipeClient::connect() - pipe is busy. waiting..." << endl;
@@ -496,7 +497,7 @@ HANDLE NamedPipeClient::connect(void) const
             cout << "NamedPipeClient::connect() - timed out waiting for secondary pipe" << endl;
             cout << "::WaitNamedPipe() rc = " << ::GetLastError() << endl;
 
-            return(0);
+            throw(Exception("NamedPipeClient::connect() - timed out waiting for secondary pipe"));
         }
     }
 
@@ -504,7 +505,7 @@ HANDLE NamedPipeClient::connect(void) const
 
     rc =
         ::SetNamedPipeHandleState(
-            pipe2,
+            pipe2->hpipe,
             &dwMode,
             0,
             0);
@@ -514,14 +515,30 @@ HANDLE NamedPipeClient::connect(void) const
         cout << "NamedPipeClient::connect() - failed to set state for primary pipe" << endl;
         cout << "::SetNamedPipeState() rc = " << ::GetLastError() << endl;
 
-        ::CloseHandle(pipe2);
+        ::CloseHandle(pipe2->hpipe);
 
-        return(0);
+        throw(Exception("NamedPipeClient::connect() - failed to set state for primary pipe"));
+
     }
+
+    pipe2->overlap.hEvent = CreateEvent(NULL,    // default security attribute
+                                       FALSE,
+                                       FALSE,
+                                       NULL);   // unnamed event object
+
+    if (pipe2->overlap.hEvent  == NULL)
+    {
+         cout << " NamedPipeServer::connect failed to create event for secondary pipe." << endl;
+         cout << "CreateEvent failed with " << GetLastError() << "."<< endl;
+         throw(Exception("NamedPipeServer::connect failed to create event for secondary pipe."));
+
+    }
+
+
 
     // the caller is responsible for disconnecting the pipe
     // and closing the pipe
-    return(pipe2);
+    return(NamedPipeClientEndPiont(String("Operationpipe"), *pipe2));
 }
 
 void NamedPipeClient::disconnect(HANDLE pipe) const
@@ -568,6 +585,21 @@ NamedPipeServerEndPiont::NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE 
 
 }
 
+NamedPipeClientEndPiont::NamedPipeClientEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct)
+{
+    cout << "in NamedPipeServerEndPiont constructor " << endl;
+    _name = name;
+    _pipe = pipeStruct;
+
+}
+
+
+
 NamedPipeServerEndPiont::~NamedPipeServerEndPiont()
 {
 }
+
+NamedPipeClientEndPiont::~NamedPipeClientEndPiont()
+{
+}
+

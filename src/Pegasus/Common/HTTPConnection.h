@@ -61,8 +61,10 @@
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/HTTPMessage.h>
-#include <Pegasus/Common/NamedPipe.h>
 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+ #include <Pegasus/Common/NamedPipe.h>
+#endif
 PEGASUS_NAMESPACE_BEGIN
 
 class HTTPConnector;
@@ -106,7 +108,7 @@ public:
     /** Constructor. Which takes named pipe */
     HTTPConnection(
         Monitor* monitor,
-        HANDLE namedPipe,
+        NamedPipe namedPipe,
         MessageQueue * ownerMessageQueue,
         MessageQueue * outputMessageQueue,
         Boolean exportConnection);
@@ -125,6 +127,8 @@ public:
 
     /** Return socket this connection is using. */
     PEGASUS_SOCKET getSocket() { return _socket->getSocket();}
+
+    NamedPipe getNamedPipe(){ return _namedPipe; }
 
     MP_Socket& getMPSocket() { return *_socket;}
 
@@ -184,16 +188,20 @@ private:
     void _handleReadEventTransferEncoding();
     Boolean _isClient();
 
+
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
     //This method is called from _handleWriteEvent to write to named pipes
     //ATTN Uint32 messageLength is not needed
     Boolean _writeToNamePipe(HTTPMessage &httpMessage, Uint32 messageLength);
+    NamedPipe _namedPipe;
+    Boolean _namedPipeConnection;
+#endif
 
     Monitor* _monitor;
 
     AutoPtr<MP_Socket> _socket;
-    HANDLE _namedPipe;
-    Boolean _namedPipeConnection;
-    MessageQueue* _ownerMessageQueue;
+      MessageQueue* _ownerMessageQueue;
     MessageQueue* _outputMessageQueue;
 
     Sint32 _contentOffset;

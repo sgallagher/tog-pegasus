@@ -107,8 +107,11 @@ SOURCES1 = \
     Config.cpp \
     DeclContext.cpp \
     Dir.cpp \
-    DQueue.cpp \
-    NamedPipe.cpp
+    DQueue.cpp
+
+ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+  SOURCES1 += NamedPipe.cpp
+endif
 
 SOURCES2 = \
     DynamicLibrary.cpp \

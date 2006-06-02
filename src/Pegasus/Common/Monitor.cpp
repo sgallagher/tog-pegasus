@@ -80,11 +80,9 @@ PEGASUS_NAMESPACE_BEGIN
 static AtomicInt _connections(0);
 
 
-#define PIPE_INCREMENT 1
-
-static  int MaxPipes = PIPE_INCREMENT;
-
-static HANDLE* hEvents = new HANDLE[PIPE_INCREMENT]; //this number should be fixed
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+ #define PIPE_INCREMENT 1
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -456,19 +454,67 @@ Boolean Monitor::run(Uint32 milliseconds)
         because we have to traverse the entire array.
     */
     //Array<HANDLE> pipeEventArray;
-    int pipeEntrycount=0; 
-    PEGASUS_SOCKET maxSocketCurrentPass = 0;
+        PEGASUS_SOCKET maxSocketCurrentPass = 0;
     int indx;
+
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 
     //This array associates named pipe connections to their place in [indx]
     //in the entries array. The value in poition zero of the array is the
     //index of the fist named pipe connection in the entries array
     Array <Uint32> indexPipeCountAssociator;
+    int pipeEntryCount=0; 
+    int MaxPipes = PIPE_INCREMENT;
+    HANDLE* hEvents = new HANDLE[PIPE_INCREMENT]; 
+
+#endif
 
     for( indx = 0; indx < (int)entries.size(); indx++)
     {
-       if(!entries[indx].isNamedPipeConnection())
+
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+       if(entries[indx].isNamedPipeConnection())
        {
+           //entering this clause mean that a Named Pipe connection is at entries[indx]
+           //cout << "In Monitor::run in clause to to create array of for WaitformultipuleObjects" << endl;
+
+           cout << "In Monitor::run - pipe being added to array is " <<
+                   entries[indx].namedPipe.getName() << endl;
+           cout << " overlap event is "<<
+                (int) (entries[indx].namedPipe.getOverlap()).hEvent << endl;
+
+            entries[indx].pipeSet = false;
+           // We can Keep a counter in the Monitor class for the number of named pipes ...
+           //  Which can be used here to create the array size for hEvents..( obviously before this for loop.:-) )
+            if (pipeEntryCount >= MaxPipes)
+            {
+                 MaxPipes += PIPE_INCREMENT;
+                 HANDLE* temp_hEvents = new HANDLE[MaxPipes]; 
+                 for (Uint32 i =0;i<pipeEntryCount;i++)
+                 {
+                     temp_hEvents[i] = hEvents[i];
+                 }
+                 delete [] hEvents;
+                 hEvents = temp_hEvents;
+            }         
+
+           //pipeEventArray.append((entries[indx].namedPipe.getOverlap()).hEvent);
+           hEvents[pipeEntryCount] = entries[indx].namedPipe.getOverlap().hEvent;
+           pipeEntryCount++;
+
+           indexPipeCountAssociator.append(indx);
+           cout << "pipeEntrycount is " << pipeEntryCount << endl;
+           cout <<" this is the type " << entries[indx]._type <<
+               " this is index " << indx << endl;
+
+       }
+       else
+      
+#endif
+       {
+       
            if(maxSocketCurrentPass < entries[indx].socket)
             maxSocketCurrentPass = entries[indx].socket;
 
@@ -477,25 +523,9 @@ Boolean Monitor::run(Uint32 milliseconds)
                _idleEntries++;
                FD_SET(entries[indx].socket, &fdread);
            }
-       }
-       else
-       {   //entering this clause mean that a Named Pipe connection is at entries[indx]
-           //cout << "In Monitor::run in clause to to create array of for WaitformultipuleObjects" << endl;
-           cout << "In Monitor::run - pipe being added to array is " <<
-                   entries[indx].namedPipe.getName() << endl;
-           cout << " overlap event is "<<
-                (int) (entries[indx].namedPipe.getOverlap()).hEvent << endl;
-           //pipeEventArray.append((entries[indx].namedPipe.getOverlap()).hEvent);
-           hEvents[pipeEntrycount] = entries[indx].namedPipe.getOverlap().hEvent;
-           pipeEntrycount++;
-
-           indexPipeCountAssociator.append(indx);
-           cout << "pipeEntrycount is " << pipeEntrycount << endl;
-           cout <<" this is the type " << entries[indx]._type <<
-               " this is index " << indx << endl;
 
        }
-    }
+  }
 
     /*
         Add 1 then assign maxSocket accordingly. We add 1 to account for
@@ -512,9 +542,11 @@ Boolean Monitor::run(Uint32 milliseconds)
     //
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     //int events = select(0, &fdread, NULL, NULL, &tv);
-    DWORD dwWait=NULL;
-    int events;
+     int events = 0;
+        DWORD dwWait=NULL;
+    int pEvents = 0;
 
+        cout << "events after select" << events << endl;
     cout << "Calling WaitForMultipleObjects\n";
 
     //this should be in a try block
@@ -527,15 +559,19 @@ Boolean Monitor::run(Uint32 milliseconds)
     if(dwWait == WAIT_TIMEOUT)
         {
         cout << "Wait WAIT_TIMEOUT\n";
-           // Sleep(2000);
+
+                   // Sleep(2000);
             //continue; 
-             return false;
+             
+             //return false;  // I think we do nothing.... Mybe there is a socket connection... so 
+             // cant return.
         }
         else if (dwWait == WAIT_FAILED)
         {
             cout << "Wait Failed returned\n";
             cout << "failed with " << GetLastError() << "." << endl;
-            return false;
+            pEvents = -1;
+            //return false;
         }
         else
         {
@@ -543,7 +579,7 @@ Boolean Monitor::run(Uint32 milliseconds)
             cout << " WaitForMultiPleObject returned activity on server pipe: "<< 
                 pCount<< endl;
 
-            events = 1;
+            pEvents = 1;
 
             //this statment gets the pipe entry that was trigered
             entries[indexPipeCountAssociator[pCount]].pipeSet = true;
@@ -562,8 +598,7 @@ Boolean Monitor::run(Uint32 milliseconds)
         }
                 //
 
-
-
+    
    // Sleep(2000);
 
     //int events = 1;
@@ -572,7 +607,6 @@ Boolean Monitor::run(Uint32 milliseconds)
         cout << "in Monitor::run about to call handlePipeConnectionEvent" << endl;
         _handlePipeConnectionEvent(dwWait);
     }*/
-
 #else
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
@@ -582,12 +616,28 @@ Boolean Monitor::run(Uint32 milliseconds)
     entries.reset(_entries);
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
+    if(pEvents == -1)
+    {
+        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+          "Monitor::run - errorno = %d has occurred on select.",GetLastError() );
+       // The EBADF error indicates that one or more or the file
+       // descriptions was not valid. This could indicate that
+       // the entries structure has been corrupted or that
+       // we have a synchronization error.
+
+        // We need to generate an assert  here...
+       PEGASUS_ASSERT(GetLastError()!= EBADF);
+
+
+    }
+   
     if(events == SOCKET_ERROR)
 #else
     if(events == -1)
 #endif
     {
-       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+
+        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "Monitor::run - errorno = %d has occurred on select.", errno);
        // The EBADF error indicates that one or more or the file
        // descriptions was not valid. This could indicate that
@@ -596,7 +646,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
        PEGASUS_ASSERT(errno != EBADF);
     }
-    else if (events)
+    else if ((events)||(pEvents))
     {
 
        cout << "IN Monior::run 'else if (events)' clause - array size is " <<
@@ -609,10 +659,10 @@ Boolean Monitor::run(Uint32 milliseconds)
           // The Monitor should only look at entries in the table that are IDLE (i.e.,
           // owned by the Monitor).
           if(((entries[indx]._status.get() == _MonitorEntry::IDLE) &&
-             FD_ISSET(entries[indx].socket, &fdread)) ||
-             (entries[indx].isNamedPipeConnection() && entries[indx].pipeSet))
+             FD_ISSET(entries[indx].socket, &fdread)&& (events)) ||
+             (entries[indx].isNamedPipeConnection() && entries[indx].pipeSet && (pEvents)))
           {
-              cout << "IN Monior::run inside - for( int indx = 0-" << endl;
+              cout << "IN Monior::run inside - for int indx = " <<indx << endl;
              MessageQueue *q = MessageQueue::lookup(entries[indx].queueId);
              Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "Monitor::run indx = %d, queueId =  %d, q = %p",
@@ -703,6 +753,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                      "Non-connection entry, indx = %d, has been received.", indx);
 		   int events = 0;
            Message *msg;
+           cout << " In Monitor::run Just before checking if NamedPipeConnection" << "for Index "<<indx<< endl;
 
            if (entries[indx].isNamedPipeConnection())
            {
@@ -712,6 +763,7 @@ Boolean Monitor::run(Uint32 milliseconds)
            }
            else
            {
+               cout << " In Monitor::run ..its a socket message" << endl;
                events |= SocketMessage::READ;
 		       msg = new SocketMessage(entries[indx].socket, events);
            }

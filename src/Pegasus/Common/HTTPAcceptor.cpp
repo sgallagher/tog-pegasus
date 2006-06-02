@@ -101,11 +101,15 @@ public:
     {
         if (local)
         {
+#ifndef PEGASUS_OS_TYPE_WINDOWS
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+
             address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
             address_size = sizeof(struct sockaddr_un);
 #else
             PEGASUS_ASSERT(false);
+#endif
+
 #endif
         }
         else
@@ -124,7 +128,18 @@ public:
     Mutex _connection_mut;
 
     PEGASUS_SOCKET socket;
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    NamedPipeServer* namedPipeServer;
+#endif
     Array<HTTPConnection*> connections;   
+ /*
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+      // This method creates and connects to a named pipe
+    void createNamedPipe();
+    NamedPipeServer* namedPipeServer;
+    void _acceptNamedPipeConnection(NamedPipeMessage* namedPipeMessage);
+#endif
+*/
 
 
 };
@@ -247,32 +262,31 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 
          break;
       }
+ #ifdef PEGASUS_OS_TYPE_WINDOWS
       case NAMEDPIPE_MESSAGE:
       {
           NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
 
          // If this is a connection request:
 
-         /*if (socketMessage->socket == _rep->socket &&
-             socketMessage->events & SocketMessage::READ)
+         //if ((namedPipeMessage->namedPipe.getPipe() ==  *_rep->namedPipeServer.getPipe()) &&
+         //   (namedPipeMessage->events & NamedPipeMessage::READ))
          {
-             _acceptConnection();
+             _acceptNamedPipeConnection();
          }
-         else
+         /*else
          {
             // ATTN! this can't happen!
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-              "HTTPAcceptor::handleEnqueue: Invalid SOCKET_MESSAGE received.");
-         }  */  
-         //NOTE:: Need to work on duplication of the above code for namedPipes
-          
-         _acceptNamedPipeConnection(namedPipeMessage);
-                  
+              "HTTPAcceptor::handleEnqueue: Invalid NAMEDPIPE_MESSAGE received.");
+         } 
+         */
          break;
 
       }
-
-      case CLOSE_CONNECTION_MESSAGE:
+#endif
+     // may Need to close connection for Named Pipe too.....??
+     case CLOSE_CONNECTION_MESSAGE:
       {
      CloseConnectionMessage* closeConnectionMessage
         = (CloseConnectionMessage*)message;
@@ -352,25 +366,41 @@ void HTTPAcceptor::bind()
 void HTTPAcceptor::_bind()
 {
     PEGASUS_STD(cout) << "in HTTPAcceptor::_bind at the begining" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before ASSERT" << PEGASUS_STD(endl);
 
    PEGASUS_ASSERT(_rep != 0);
    // Create address:
 
+   PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before memset" << PEGASUS_STD(endl);
+
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+   if (!_localConnection)
+   {
+       memset(_rep->address, 0, sizeof(*_rep->address));
+   }
+#else
    memset(_rep->address, 0, sizeof(*_rep->address));
+#endif
 
- //the way this is now (not in ifdef) it will cause non-local connections to fail
-//#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET //this is not the right place for the block of code
-                                             // not sure right now where it should go
-   PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before calling _createNamedPipe() " << PEGASUS_STD(endl);
-       _createNamedPipe();
-       PEGASUS_STD(cout) << "in HTTPAcceptor::_bind after calling _createNamedPipe() " << PEGASUS_STD(endl);
-       return;
- //#endif
+   PEGASUS_STD(cout) << "in HTTPAcceptor::_bind After memset" << PEGASUS_STD(endl);
 
-
+   
    if (_localConnection)
    {
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET    
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+       PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before calling _createNamedPipe() " << PEGASUS_STD(endl);
+       // _rep->createNamedPipe();
+       _createNamedPipe();
+       PEGASUS_STD(cout) << "in HTTPAcceptor::_bind after calling _createNamedPipe() " << PEGASUS_STD(endl);
+// Not sure if we need to continue to bind non local domain sockets in windows.....
+       return;
+// #else
+#endif
+
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET 
+   
         reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =
            AF_UNIX;
        strcpy(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
@@ -558,6 +588,8 @@ void HTTPAcceptor::_bind()
                   "HTTPAcceptor::_bind: Failed to solicit socket messages(2).");
       throw BindFailedException(parms);
    }
+   PEGASUS_STD(cout) << "in HTTPAcceptor::_bind at the End" << PEGASUS_STD(endl);
+
 }
 
 /**
@@ -814,11 +846,12 @@ void HTTPAcceptor::_acceptConnection()
    _rep->connections.append(connection);
 }
 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 void HTTPAcceptor::_createNamedPipe()
 {
     PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() at the begining" << PEGASUS_STD(endl);
 
-    _namedPipeServer = new NamedPipeServer("\\\\.\\pipe\\MyNamedPipe");
+    _rep->namedPipeServer = new NamedPipeServer("\\\\.\\pipe\\MyNamedPipe");
     PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() after calling the pipe server constructor" << PEGASUS_STD(endl);
     
    
@@ -826,11 +859,22 @@ void HTTPAcceptor::_createNamedPipe()
     // Register to receive Messages on Connection pipe:
         
    if ( -1 == ( _entry_index = _monitor->solicitPipeMessages(
-      *_namedPipeServer,
-      SocketMessage::READ | SocketMessage::EXCEPTION,
+      *_rep->namedPipeServer,
+      NamedPipeMessage::READ | NamedPipeMessage::EXCEPTION,
       getQueueId(),
       Monitor::ACCEPTOR)))
    {
+       ::CloseHandle(_rep->namedPipeServer->getPipe());
+       delete _rep;
+       _rep = 0;
+       //l10n
+       //throw BindFailedException("Failed to solicit socket messaeges");
+       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SOLICIT_SOCKET_MESSAGES",
+                    "Failed to solicit socket messaeges");
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                   "HTTPAcceptor::_bind: Failed to solicit socket messages(2).");
+       throw BindFailedException(parms);
+
        PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() _monitor->solicitSocketMessages failed" << PEGASUS_STD(endl);
 
    }
@@ -839,18 +883,68 @@ void HTTPAcceptor::_createNamedPipe()
    return; 
 
 }
+#endif
 
-void HTTPAcceptor::_acceptNamedPipeConnection(NamedPipeMessage* namedPipeMessage)
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+void HTTPAcceptor::_acceptNamedPipeConnection()
 {
+    PEGASUS_ASSERT(_rep != 0);
+
+    if (!_rep)
+       return;
+
     cout <<"In HTTPAcceptor::_acceptNamedPipeConnection " << endl;
 
-    //Here we know this a namedPipe server because on the server calles HTTPAcceptor
-    NamedPipeServer* namedPipeServer = (NamedPipeServer *) (&namedPipeMessage->namedPipe);
+   // shouldnt we be using the private var....
+     //                 _namedPipeServer->accept()
 
-    NamedPipeServerEndPiont nPSEndPoint = namedPipeServer->accept();
-    cout << " In _acceptNamedPipeConnection -- after calling namedPipeServer->accept()" << endl; 
+    NamedPipeServerEndPiont nPSEndPoint = _rep->namedPipeServer->accept();
+    // Registerpe to receive Messages on Connection pipe:
+
+    cout << " In _acceptNamedPipeConnection -- after calling namedPipeServer->accept()" << endl;
+
+    HTTPConnection* connection = new HTTPConnection(_monitor, nPSEndPoint,
+        this, static_cast<MessageQueue *>(_outputMessageQueue), _exportConnection);
+
+    /*  NOT SURE WHAT TO DO HERE  ....
+    if (socketAcceptStatus == 0)
+    {
+        PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+            "HTTPAcceptor: SSL_accept() pending");
+        connection->_acceptPending = true;
+    }
+
+    */
+
+    // Solicit events on this new connection's socket:
+    int index;
+
+    if (-1 ==  (index = _monitor->solicitPipeMessages(
+       connection->getNamedPipe(),
+       NamedPipeMessage::READ | NamedPipeMessage::EXCEPTION,
+       connection->getQueueId(), Monitor::CONNECTION)) )
+    {
+       // ATTN-DE-P2-2003100503::TODO::Need to enhance code to return
+       // an error message to Client application.
+       Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "HTTPAcceptor::_acceptPipeConnection: Attempt to allocate entry in _entries table failed.");
+       delete connection;
+       //  May have to close the PIPE here...
+       //Socket::close(socket);
+       return;
+    }
+
+    // Save the socket for cleanup later:
+    connection->_entry_index = index;
+    AutoMutex autoMut(_rep->_connection_mut);
+    _rep->connections.append(connection);
+
+  PEGASUS_STD(cout)
+       << "in HTTPAcceptor::_acceptNamedPipeConnection() at the end" << PEGASUS_STD(endl);
 
 
 }
+#endif
 
 PEGASUS_NAMESPACE_END

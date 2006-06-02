@@ -269,18 +269,18 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 
          // If this is a connection request:
 
-         //if ((namedPipeMessage->namedPipe.getPipe() ==  *_rep->namedPipeServer.getPipe()) &&
-         //   (namedPipeMessage->events & NamedPipeMessage::READ))
+         if (((namedPipeMessage->namedPipe.getPipe()) == ( _rep->namedPipeServer->getPipe())) &&
+         (namedPipeMessage->events & NamedPipeMessage::READ))
          {
              _acceptNamedPipeConnection();
          }
-         /*else
+         else
          {
             // ATTN! this can't happen!
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
               "HTTPAcceptor::handleEnqueue: Invalid NAMEDPIPE_MESSAGE received.");
          } 
-         */
+         
          break;
 
       }

@@ -339,13 +339,13 @@ void CIMClientRep::connectLocal()
     _connectHost = String::EMPTY;
     _connectPortNumber = 0;
     _connect();
-#endif
- 
+/*#endif            /this needs to change when we figure out  PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+     /*
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     _connectSSLContext.reset();
     _connectHost = String::EMPTY;
     _connectPortNumber = 0;
-    _connect();
+    _connect();  */
 
 #else
 

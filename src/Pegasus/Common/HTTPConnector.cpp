@@ -292,7 +292,7 @@ HTTPConnection* HTTPConnector::connect(
 
    //WW this code should be inside of PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET below 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-   PEGASUS_STD(cout) << "HTTPConnector::connect at connectLocal on windows section" << PEGASUS_STD(endl);
+   PEGASUS_STD(cout) << "HTTPConnector::connect before connectLocal on windows section" << PEGASUS_STD(endl);
 
    if (host == String::EMPTY)  //connect request was made with CIMClient::connectLocal
    {
@@ -305,7 +305,7 @@ HTTPConnection* HTTPConnector::connect(
 
        if (pipeConnection->isNamedPipeConnection()) //this if/else is a small bit of error checking - it needs to be better
        {
-           PEGASUS_STD(cout) <<" named pipe HTTPConnetion has this as an owner" << 
+           PEGASUS_STD(cout) <<" named pipe HTTPConnetion has this as an owner - " << 
                pipeConnection->get_owner().getQueueName() << " it should be " <<
                 this->getQueueName() << PEGASUS_STD(endl);
        }
@@ -315,6 +315,8 @@ HTTPConnection* HTTPConnector::connect(
 
        PEGASUS_STD(cout) << "HTTPConnector::connect after call to _connectNamedPipe" << PEGASUS_STD(endl);
 
+       PEGASUS_STD(cout) << "HTTPConnector::connect check HTTPConnection retruned be _connectNamePipe " << endl;
+       PEGASUS_STD(cout) << "HTTPConnector::connect pipeConnection->getNamedPipe().getName() = " << pipeConnection->getNamedPipe().getName() << endl;
       return pipeConnection;
    }
 
@@ -490,24 +492,28 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
     PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after client constuctor" << PEGASUS_STD(endl);
     NamedPipeClientEndPiont nPCEndPoint = client.connect();
 
+    cout << "In HTTPConnector::_connectNamedPipe just creaed a pipe named - " << nPCEndPoint.getName() << endl;
+
+
     // Will need to catch the exception from connect...
-     /*
+     
     //HANDLE handle = client.connect();
-    if(nPCEndPoint == 0)
+   /* if(nPCEndPoint == 0)
     {
         cout << "NamedPipeClient::connect() failed" << endl;
 
         return(false);
-    }
-    */
+    } */
+   
         
-    PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after client.connect()" << PEGASUS_STD(endl);
+    //PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after client.connect()" << PEGASUS_STD(endl);
 
     HTTPConnection* connection = new HTTPConnection(_monitor, nPCEndPoint,
         this, static_cast<MessageQueueService *>(outputMessageQueue), false); 
 
     PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after creating HTTPConnection" << PEGASUS_STD(endl);
 
+    PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe pipe in HTTPConnection is - " << (connection->getNamedPipe()).getName() << endl;
     // Solicit events on this new connection's socket:
 
    if (-1 == (_entry_index = _monitor->solicitPipeMessages(

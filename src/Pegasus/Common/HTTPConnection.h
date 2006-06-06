@@ -129,6 +129,7 @@ public:
     PEGASUS_SOCKET getSocket() { return _socket->getSocket();}
 
     NamedPipe getNamedPipe(){ return _namedPipe; }
+    void setNamedPipeConnetion();
 
     MP_Socket& getMPSocket() { return *_socket;}
 

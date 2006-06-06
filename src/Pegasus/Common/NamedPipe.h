@@ -23,7 +23,7 @@ class PEGASUS_COMMON_LINKAGE NamedPipe
 {
 public:
     static bool read(HANDLE pipe, String & buffer);
-    static bool write(HANDLE pipe, String & buffer);
+    static bool write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap = NULL);
     String getName(void) {return _name;}
 
     HANDLE getPipe(void){ return _pipe.hpipe;}

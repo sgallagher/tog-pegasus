@@ -344,8 +344,7 @@ void HTTPConnection::handleEnqueue(Message *message)
         {
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                 "HTTPConnection::handleEnqueue - SOCKET_MESSAGE");
-             PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case HTTP_MESSAGE" << PEGASUS_STD(endl);
-             //need to check here to see if this is a named pipe connection
+             PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case SOCKET_MESSAGE" << PEGASUS_STD(endl);
             SocketMessage* socketMessage = (SocketMessage*)message;
             if (socketMessage->events & SocketMessage::READ)
                 _handleReadEvent();
@@ -356,10 +355,29 @@ void HTTPConnection::handleEnqueue(Message *message)
         {
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                 "HTTPConnection::handleEnqueue - HTTP_MESSAGE");
-            PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case HTTP_MESSAGE" << PEGASUS_STD(endl); 
+            PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case HTTP_MESSAGE" << PEGASUS_STD(endl);
+            if(_namedPipeConnection)
+            {
+               PEGASUS_STD(cout) << " this connection thinks it is a Pipe connection" << endl;
+            }
+            else
+                PEGASUS_STD(cout) << " this connection thinks it is not a Pipe connection" << endl;
+
             _handleWriteEvent(*message);
             break;
         }
+
+        case NAMEDPIPE_MESSAGE:
+        {
+        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "HTTPConnection::handleEnqueue - NAMEDPIPE_MESSAGE");
+         PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case NAMEDPIPE_MESSAGE" << PEGASUS_STD(endl);
+        NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
+        if (namedPipeMessage->events & NamedPipeMessage::READ)
+            _handleReadEvent();
+        break;
+        }
+
 
         default:
             // ATTN: need unexpected message error!
@@ -1735,6 +1753,12 @@ void HTTPConnection::_handleReadEvent()
     static const char func[] = "HTTPConnection::_handleReadEvent()";
     PEG_METHOD_ENTER(TRC_HTTP, func);
 
+    if (_namedPipeConnection)
+    {
+        PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() for a named pipe connection" << PEGASUS_STD(endl); 
+    }
+
+
     if (_acceptPending)
     {
         PEGASUS_ASSERT(!_isClient());
@@ -1788,7 +1812,18 @@ void HTTPConnection::_handleReadEvent()
         char buffer[httpTcpBufferSize+1];
         buffer[sizeof(buffer)-1] = 0;
 
-        Sint32 n = _socket->read(buffer, sizeof(buffer)-1);
+        Sint32 n;
+        if (_namedPipeConnection)  //this clause reads from the namedPipe
+        {
+            String pipeBuffer;
+            PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() for a named pipe connection" << PEGASUS_STD(endl); 
+            n = NamedPipe::read(_namedPipe.getPipe(), pipeBuffer);
+            //buffer = (char*) pipeBuffer.getChar16Data();
+        }
+        else  //this clause reads from the socket
+        {
+            n = _socket->read(buffer, sizeof(buffer)-1);
+        }
 
         if (n <= 0)
         {
@@ -1938,6 +1973,38 @@ Uint32 HTTPConnection::getRequestCount()
 
 Boolean HTTPConnection::run(Uint32 milliseconds)
 {
+    
+    cout << "In HTTPConnection::run at the begining" << endl;
+
+    if(_namedPipeConnection)
+    {
+        cout << "In HTTPConnection::run - if(_namedPipeConnection) " << endl;
+        //the following code may need to be put in it's own method
+        String buffer;
+        //NamedPipe::read(_namedPipe.getPipe(), buffer);
+       // cout << "In HTTPConnection::run - this is the message that was written to pipe" << endl;
+       // cout << buffer << endl;
+
+        Message *msg = new NamedPipeMessage(this->getNamedPipe(), 1); //'1' is a read event
+            try
+            {
+                handleEnqueue(msg);
+            }
+            catch(...)
+            {
+                cout << "IN HTTPConnection::run handleEnqueue(msg) FAILED " << endl; 
+                return true;
+            }
+       
+
+        return true;  //not sure in when the retrun value would be false for namedPipes
+
+        //Message* msg = new Message(NAMEDPIPE_MESSAGE); 
+
+    }
+    else
+        cout << "HTTPConnection::_namedPipeConnection equals false" << endl;
+
     Boolean handled_events = false;
     int events = 0;
     fd_set fdread; // , fdwrite;
@@ -1980,10 +2047,10 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 
 Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messageLength)
 {   
-    PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe at the begining" << PEGASUS_STD(endl);
-   
-   Boolean writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()));
-   if(writeResult)
+    PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe trying to write to pipe - " << _namedPipe.getName()  << PEGASUS_STD(endl);
+                  
+   Boolean writeResult;
+   if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()),&_namedPipe.getOverlap()))  
    {
        PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned successfully" << PEGASUS_STD(endl);
        return true;
@@ -1994,6 +2061,10 @@ Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messag
        return false;
 
    }
+}
+void HTTPConnection::setNamedPipeConnetion()
+{
+    _namedPipeConnection = true;
 }
 
 PEGASUS_NAMESPACE_END

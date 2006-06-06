@@ -1,6 +1,8 @@
 #pragma warning(disable:4530)
 
 #include "NamedPipe.h"
+#include <windows.h>
+
 
 #include <iostream>
 #include <Pegasus/Common/String.h>
@@ -32,6 +34,7 @@ static inline String _SECONDARY_PIPE_NAME(const String & name)
     return(name + "1");
 }
 
+//this method should retrun a Message
 bool NamedPipe::read(HANDLE pipe, String & buffer)
 {
     // clear buffer
@@ -72,7 +75,7 @@ bool NamedPipe::read(HANDLE pipe, String & buffer)
 }
 
 // ATTN: need to update function to read data larger than MAX_BUFFER_SIZE
-bool NamedPipe::write(HANDLE pipe, String & buffer)
+bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
 {
     DWORD size = 0;
 
@@ -82,13 +85,38 @@ bool NamedPipe::write(HANDLE pipe, String & buffer)
             /*(void *)*/buffer.getCString(),
             buffer.size(),
             &size,
-            0);
+            overlap);     //this should be the overlap
 
-    if((rc == FALSE) || (size != buffer.size()))
+    if(!rc)
     {
-        cout << "::WriteFile() failed (RC = " << hex << ::GetLastError() << ")" << endl;
 
-        return(false);
+
+
+        const char* lpMsgBuf;
+        LPVOID lpDisplayBuf;
+       DWORD dw = GetLastError(); 
+
+    FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_FROM_SYSTEM,
+        NULL,
+        dw,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPTSTR) &lpMsgBuf,
+        0, NULL );
+
+    lpDisplayBuf = LocalAlloc(LMEM_ZEROINIT, (strlen(lpMsgBuf)+90)*sizeof(TCHAR)); 
+    printf("failed with error %d: %s", dw, lpMsgBuf); 
+
+    //LocalFree(lpMsgBuf);
+    LocalFree(lpDisplayBuf);
+    ExitProcess(dw); 
+
+        //cout << "::WriteFile() failed (RC = " << hex << ::GetLastError() << ")" << endl;
+
+
+
+     //   return(false);
     }
 
     return(true);
@@ -203,6 +231,7 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
 
         ::DisconnectNamedPipe(_pipe.hpipe);
         fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+       // fconnected = _connectToNamedPipe( _pipe.hpipe, NULL);
         cout << "In NamePipeServer::accept() - Primary Pipe reconnecting after incorrect request: " << _pipe.hpipe << endl;
         if (fconnected)
         {
@@ -294,6 +323,7 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
          cout << "CreateEvent failed with " << GetLastError() << "."<< endl;
          throw 0;    
     }
+
 
     cout << " NamedPipeServer::accept - Creating Event "<< pipe2->overlap.hEvent << endl;
 
@@ -469,16 +499,17 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
     {
         pipe2->hpipe =
             ::CreateFile(
-                _SECONDARY_PIPE_NAME(_name).getCString(),
+                _SECONDARY_PIPE_NAME(_name).getCString(), //does this name need to be uniqe for each additiaonl client
                 GENERIC_READ | GENERIC_WRITE,
                 0,
                 0,
                 OPEN_EXISTING,
-                0,
+                FILE_FLAG_OVERLAPPED,
                 0);
 
         if(pipe2->hpipe != INVALID_HANDLE_VALUE)
         {
+            //throw(Exception("NamedPipeClient::connect() - failed to connect to secondary pipe - invalid handle"));
             break;
         }
 
@@ -538,7 +569,10 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
 
     // the caller is responsible for disconnecting the pipe
     // and closing the pipe
-    return(NamedPipeClientEndPiont(String("Operationpipe"), *pipe2));
+    NamedPipeClientEndPiont* nPCEPoint = new NamedPipeClientEndPiont(String("Operationpipe"), *pipe2);
+    cout << "just creaed a pipe named - " << nPCEPoint->getName() << endl;
+
+    return(*nPCEPoint);
 }
 
 void NamedPipeClient::disconnect(HANDLE pipe) const

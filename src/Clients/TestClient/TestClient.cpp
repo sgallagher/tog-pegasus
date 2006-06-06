@@ -911,7 +911,20 @@ static void TestAssociationOperations(CIMClient* client, Boolean
         CIMObjectPath o2("CIM_ManagedElement.name=\"karl\"");
 
         testRefandAssoc(client, globalNamespace, verboseTest, o1, CIMName(), CIMName());
-        testRefandAssoc(client, globalNamespace, verboseTest, o2, CIMName(), CIMName());
+        try
+        {
+            testRefandAssoc(client, globalNamespace, verboseTest, o2, CIMName(), CIMName());
+        }
+        catch(CIMException& e)
+        {
+            // This test will get a not supported exception in the case where
+            // the repository is not the default instance provider. We should not
+            // flag this as a test error.
+            if (e.getCode() == CIM_ERR_NOT_SUPPORTED)
+            {
+                cerr << "CIMException : " << e.getMessage() << endl;
+            }
+        }
     }
 
     // Now Test to see if the namespace and class exist before

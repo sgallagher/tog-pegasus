@@ -571,7 +571,7 @@ Boolean Monitor::run(Uint32 milliseconds)
             cout << "Wait Failed returned\n";
             cout << "failed with " << GetLastError() << "." << endl;
             pEvents = -1;
-            //return false;
+            return false;
         }
         else
         {
@@ -676,6 +676,8 @@ Boolean Monitor::run(Uint32 milliseconds)
                cout << "IN Monior::run right before entries[indx]._type == Monitor::CONNECTION" << endl;
                 if(entries[indx]._type == Monitor::CONNECTION)
                 {
+                    continue;
+
                    cout << "In Monitor::run Monitor::CONNECTION clause" << endl; 
                    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                      "entries[indx].type for indx = %d is Monitor::CONNECTION", indx);
@@ -703,6 +705,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                    dst->_entry_index, dst->_monitor->_entries[dst->_entry_index].queueId, dst);
                    try
                    {
+                       cout << "In Monitor::run about to call 'dst->run(1)' "  << endl;
                        dst->run(1);
                    }
                    catch (...)

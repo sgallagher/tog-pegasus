@@ -79,6 +79,7 @@
 #ifdef PEGASUS_OS_ZOS
 #  include <resolv.h>  // MAXHOSTNAMELEN
 #endif
+# include <netinet/tcp.h>
 
 PEGASUS_USING_STD;
 
@@ -338,7 +339,11 @@ HTTPConnection* HTTPConnector::connect(
    socket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
    if (socket == PEGASUS_INVALID_SOCKET)
       throw CannotCreateSocketException();
-
+   
+   // set TCP_NODELAY
+   int opt = 1;
+   setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char*)&opt, sizeof(opt));
+   
    // Conect the socket to the address:
    if (::connect(socket,
                  reinterpret_cast<sockaddr*>(&address),

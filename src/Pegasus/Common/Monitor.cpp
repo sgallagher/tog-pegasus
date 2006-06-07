@@ -72,6 +72,7 @@ CIMOM. PLEASE DO NOT SUPPRESS THIS WARNING; PLEASE FIX THE PROBLEM."
 # include <netdb.h>
 # include <arpa/inet.h>
 #endif
+# include <netinet/tcp.h>
 
 PEGASUS_USING_STD;
 
@@ -161,6 +162,10 @@ void Monitor::initializeTickler(){
 #endif
 	throw Exception(parms);
     }
+    
+    // set TCP_NODELAY
+    int opt = 1;
+    setsockopt(_tickle_server_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&opt, sizeof(opt));
 
     // initialize the address
     memset(&_tickle_server_addr, 0, sizeof(_tickle_server_addr));
@@ -239,6 +244,9 @@ void Monitor::initializeTickler(){
 #endif
 	throw Exception(parms);
     }
+    
+    // set TCP_NODELAY
+    setsockopt(_tickle_client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&opt, sizeof(opt));
 
     // setup the address of the client
     memset(&_tickle_client_addr, 0, sizeof(_tickle_client_addr));

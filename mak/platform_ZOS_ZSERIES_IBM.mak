@@ -36,8 +36,8 @@ ARCHITECTURE = zseries
 
 COMPILER = ibm
 
-#SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include -I$(ROOT)/src/StandardIncludes/zOS
-SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include
+SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include -I$(ROOT)/src/StandardIncludes/zOS
+#SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_OPEN_SOURCE=3 -D_ENHANCED_ASCII_EXT=0xFFFFFFFF
 
 ifdef PEGASUS_KERBEROS_AUTHENTICATION

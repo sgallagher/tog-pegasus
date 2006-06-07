@@ -275,6 +275,11 @@ private:
     CIMOperationRequestEncoder* _requestEncoder;
 
     //
+    // Contains the list of classes to be ignored in the InterOp namespace.
+    //
+    Array<CIMName> _interopIgnoreClasses;
+
+    //
     // Constant representing the name of the VERSION qualifier.
     //
     static const String 	_VERSION_QUALIFIER_NAME;

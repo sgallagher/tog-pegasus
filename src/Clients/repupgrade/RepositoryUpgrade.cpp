@@ -449,6 +449,13 @@ RepositoryUpgrade::RepositoryUpgrade ()
    _oldRepository = 0;
    _newRepository = 0;
 
+    // Construct the ignore class list.
+    _interopIgnoreClasses.append ( "PG_IndicationFilter" );
+    _interopIgnoreClasses.append ( "PG_IndicationHandler" );
+    _interopIgnoreClasses.append ( "PG_IndicationHandlerCIMXML" );
+    _interopIgnoreClasses.append ( "PG_IndicationHandlerSNMPMapper" );
+    _interopIgnoreClasses.append ( "PG_IndicationSubscription" ); 
+
 }
 
 RepositoryUpgrade::~RepositoryUpgrade ()
@@ -1189,6 +1196,33 @@ void RepositoryUpgrade::_processClasses(
 #endif
         if ( !Contains(newClasses, oldClasses[oldclasses]) )
         {
+
+            /** This check is required to ignore PG_Ind* classes
+                in the PG_InterOp namespace. These classes were
+                replaced with CIM_Ind* in CIM 2.7
+            */
+            if ( namespaceName == "root/PG_InterOp" &&
+                Contains( _interopIgnoreClasses, oldClasses[oldclasses] ) )
+            {
+#ifdef REPUPGRADE_DEBUG
+                cout << "Now ignoring: " << oldClasses[oldclasses] << endl;
+#endif
+                continue;
+            }
+
+            /** Ignore any "CIM_" classes in pegasus namespaces, except root/cimv2. 
+                Since they don't exist in 2.7 they must have been renamed or deleted.
+            */
+            if ( ( (namespaceName=="root/PG_InterOp") ||
+                   (namespaceName=="root/PG_Internal")) &&
+                   (oldClasses[oldclasses].getString().subString(0,4))=="CIM_")
+            {
+#ifdef REPUPGRADE_DEBUG
+                cout << "Now ignoring: " << oldClasses[oldclasses] << endl;
+#endif
+                continue;
+            }
+
 #ifdef REPUPGRADE_DEBUG
             cout << "Now appending to missing: "
                  << oldClasses[oldclasses] << endl;

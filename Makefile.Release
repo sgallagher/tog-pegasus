@@ -852,6 +852,16 @@ ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
 	@$(ECHO-E) "# define PEGASUS_REPOSITORY_DIR"  \
              "\""$(PEGASUS_REPOSITORY_DIR)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_PREV_REPOSITORY_DIR" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_PREV_REPOSITORY_DIR"  \
+             "\""$(PEGASUS_PREV_REPOSITORY_DIR)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_PREV_REPOSITORY_DIR" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_PREV_REPOSITORY_DIR"  \
+             "\""$(PEGASUS_PREV_REPOSITORY_DIR)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# undef PEGASUS_PROVIDER_LIB_DIR" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_PROVIDER_LIB_DIR"  \

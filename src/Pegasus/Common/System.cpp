@@ -185,13 +185,14 @@ char *System::extract_file_name(const char *fullpath, char *basename)
 char *System::extract_file_path(const char *fullpath, char *dirname)
 {
   char *p;
-  char buff[2048];
+  char buff[4096];
   if (fullpath == NULL)
     {
       dirname[0] = '\0';
       return dirname;
     }
-  strcpy(buff, fullpath);
+  strncpy(buff, fullpath, sizeof(buff)-1);
+  buff[sizeof(buff)-1] =  '\0';
   for(p = buff + strlen(buff); p >= buff; p--)
     {
       if (*p == '\\' || *p == '/')

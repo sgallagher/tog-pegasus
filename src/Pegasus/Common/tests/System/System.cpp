@@ -62,6 +62,62 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(System::strcasecmp("aa","AB") < 0);
     PEGASUS_TEST_ASSERT(System::strcasecmp("ab","AA") > 0);
 
+    char full_path_buff[4096];
+    char extracted_dir_name[10000];
+    char large_path[6000];
+    for( int i=0; i< 4096; i++ )
+    {
+        full_path_buff[i] = '/';
+    }
+    full_path_buff[sizeof(full_path_buff)-1]='\0';
+    System::extract_file_path( full_path_buff, extracted_dir_name );
+    PEGASUS_TEST_ASSERT(System::strcasecmp(full_path_buff,extracted_dir_name)
+        == 0);
+
+    for( int i=0; i< 6000; i++ )
+    {
+        large_path[i] = '/';
+    }
+    large_path[sizeof(large_path)-1]='\0';
+    System::extract_file_path( large_path, extracted_dir_name );
+    PEGASUS_TEST_ASSERT(System::strcasecmp(full_path_buff,extracted_dir_name)
+        == 0);
+
+    for( int i=0; i< 4096; i++ )
+    {
+        full_path_buff[i] = 'a';
+    }
+    full_path_buff[sizeof(full_path_buff)-1]='\0';
+    System::extract_file_path( full_path_buff, extracted_dir_name );
+    PEGASUS_TEST_ASSERT(System::strcasecmp(full_path_buff,extracted_dir_name)
+        == 0);
+
+    full_path_buff[0]='\0';
+    System::extract_file_path( full_path_buff, extracted_dir_name );
+    PEGASUS_TEST_ASSERT(System::strcasecmp(full_path_buff,extracted_dir_name)
+        == 0);
+
+    full_path_buff[0]='1';
+    full_path_buff[1]='\0';
+    System::extract_file_path( full_path_buff, extracted_dir_name );
+    PEGASUS_TEST_ASSERT(System::strcasecmp(full_path_buff,extracted_dir_name)
+        == 0);
+
+    strcpy( full_path_buff, "single_file" );
+    System::extract_file_path( full_path_buff, extracted_dir_name );
+    PEGASUS_TEST_ASSERT(System::strcasecmp(full_path_buff,extracted_dir_name)
+        == 0);
+
+    strcpy( full_path_buff, "/path1/path2/file1" );
+    System::extract_file_path( full_path_buff, extracted_dir_name );
+    PEGASUS_TEST_ASSERT(System::strcasecmp( "/path1/path2/", extracted_dir_name )
+        == 0);
+
+    strcpy( full_path_buff, "\\path1\\path2\\file1" );
+    System::extract_file_path( full_path_buff, extracted_dir_name );
+    PEGASUS_TEST_ASSERT(System::strcasecmp( "\\path1\\path2\\", extracted_dir_name )
+        == 0);
+
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

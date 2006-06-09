@@ -332,7 +332,7 @@ int JMPIjvm::initJVM ()
    } JVMOPTIONS;
    Array<std::string> JNIoptions;
    static JVMOPTIONS aEnvOptions[] = {
-      { "CLASSPATH",                           "-Djava.class.path = ", false },
+      { "CLASSPATH",                           "-Djava.class.path=", false },
       { "PEGASUS_JMPI_MAX_HEAP",               "-Xmx"              , false },
       { "PEGASUS_JMPI_INITIAL_HEAP",           "-Xms"              , false },
       { "PEGASUS_JMPI_JAVA_THREAD_STACK_SIZE", "-Xss"              , false },

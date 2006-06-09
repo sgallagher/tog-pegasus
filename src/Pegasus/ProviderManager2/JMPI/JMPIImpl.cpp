@@ -1180,6 +1180,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1invokeMethod
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1invokeMethod24
   (JNIEnv *jEnv, jobject jThs, jint jCh, jint jCop, jstring jMn,
         jobjectArray jIn, jobjectArray jOut)
+
 {
    JMPIjvm::cacheIDs(jEnv);
 
@@ -1194,28 +1195,34 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1invokeMethod24
    Array<CIMParamValue> in;
    Array<CIMParamValue> out;
 
-   for (int i=0,m=jEnv->GetArrayLength(jIn); i<m; i++) {
-       JMPIjvm::checkException(jEnv);
+   if (jIn)
+   {
+      for (int i=0,m=jEnv->GetArrayLength(jIn); i<m; i++) {
+          JMPIjvm::checkException(jEnv);
 
-       jobject jArg=jEnv->GetObjectArrayElement(jIn,i);
-       JMPIjvm::checkException(jEnv);
+          jobject jArg=jEnv->GetObjectArrayElement(jIn,i);
+          JMPIjvm::checkException(jEnv);
 
-       jint           jp = jEnv->CallIntMethod(jArg,JMPIjvm::jv.CIMArgumentCInst);
-       CIMParamValue *p  = DEBUG_ConvertJavaToC (jint, CIMParamValue*, jp);
+          jint           jp = jEnv->CallIntMethod(jArg,JMPIjvm::jv.CIMArgumentCInst);
+          CIMParamValue *p  = DEBUG_ConvertJavaToC (jint, CIMParamValue*, jp);
 
-       JMPIjvm::checkException(jEnv);
+          JMPIjvm::checkException(jEnv);
 
-       in.append(*p);
+          in.append(*p);
+      }
    }
    try {
       CIMValue *val=new CIMValue(ch->invokeMethod(ctx,cop->getNameSpace(),*cop,method,in,out));
 
-      for (int i=0,m=out.size(),o=jEnv->GetArrayLength(jOut); i<m && i<o; i++) {
-         CIMParamValue *parm  = new CIMParamValue (out[i]);
-         jint           jParm = DEBUG_ConvertCToJava (CIMParamValue*, jint, parm);
+      if (jOut)
+      {
+         for (int i=0,m=out.size(),o=jEnv->GetArrayLength(jOut); i<m && i<o; i++) {
+            CIMParamValue *parm  = new CIMParamValue (out[i]);
+            jint           jParm = DEBUG_ConvertCToJava (CIMParamValue*, jint, parm);
 
-         jEnv->SetObjectArrayElement(jOut,i,
-                                     jEnv->NewObject(JMPIjvm::jv.CIMArgumentClassRef,JMPIjvm::jv.CIMArgumentNewI,jParm));
+            jEnv->SetObjectArrayElement(jOut,i,
+                                        jEnv->NewObject(JMPIjvm::jv.CIMArgumentClassRef,JMPIjvm::jv.CIMArgumentNewI,jParm));
+         }
       }
       return DEBUG_ConvertCToJava (CIMValue*, jint, val);
    }
@@ -4823,30 +4830,36 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClient__1invokeMethod24
    Array<CIMParamValue> in;
    Array<CIMParamValue> out;
 
-   for (int i=0,m=jEnv->GetArrayLength(jIn); i<m; i++) {
-       JMPIjvm::checkException(jEnv);
+   if (jIn)
+   {
+      for (int i=0,m=jEnv->GetArrayLength(jIn); i<m; i++) {
+          JMPIjvm::checkException(jEnv);
 
-       jobject jArg=jEnv->GetObjectArrayElement(jIn,i);
-       JMPIjvm::checkException(jEnv);
+          jobject jArg=jEnv->GetObjectArrayElement(jIn,i);
+          JMPIjvm::checkException(jEnv);
 
-       jint           jp = jEnv->CallIntMethod(jArg,JMPIjvm::jv.CIMArgumentCInst);
-       CIMParamValue *p  = DEBUG_ConvertJavaToC (jint, CIMParamValue*, jp);
+          jint           jp = jEnv->CallIntMethod(jArg,JMPIjvm::jv.CIMArgumentCInst);
+          CIMParamValue *p  = DEBUG_ConvertJavaToC (jint, CIMParamValue*, jp);
 
-       JMPIjvm::checkException(jEnv);
+          JMPIjvm::checkException(jEnv);
 
-       in.append(*p);
+          in.append(*p);
+      }
    }
    try {
       checkNs(cop,jNs);
       CIMValue *val=new CIMValue(cCc->invokeMethod(cop->getNameSpace(),*cop,method,in,out));
 
-      for (int i=0,m=out.size(),o=jEnv->GetArrayLength(jOut); i<m && i<o; i++) {
-         CIMParamValue *parm  = new CIMParamValue (out[i]);
-         jint           jParm = DEBUG_ConvertCToJava (CIMParamValue*, jint, parm);
+      if (jOut)
+      {
+         for (int i=0,m=out.size(),o=jEnv->GetArrayLength(jOut); i<m && i<o; i++) {
+            CIMParamValue *parm  = new CIMParamValue (out[i]);
+            jint           jParm = DEBUG_ConvertCToJava (CIMParamValue*, jint, parm);
 
-         jEnv->SetObjectArrayElement(jOut,
-                                     i,
-                                     jEnv->NewObject(JMPIjvm::jv.CIMArgumentClassRef,JMPIjvm::jv.CIMArgumentNewI,jParm));
+            jEnv->SetObjectArrayElement(jOut,
+                                        i,
+                                        jEnv->NewObject(JMPIjvm::jv.CIMArgumentClassRef,JMPIjvm::jv.CIMArgumentNewI,jParm));
+         }
       }
       jCv = DEBUG_ConvertCToJava (CIMValue*, jint, val);
    }

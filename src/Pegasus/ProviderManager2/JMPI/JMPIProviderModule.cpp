@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,8 +32,9 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
-//      Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//		Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//     Mark Hamzy (hamzy@us.ibm.com)
+//     Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//     Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //     Mike Day, IBM (mdday@us.ibm.com)
 //     Adrian Schuur, IBM (schuur@de.ibm.com)
 //     Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
@@ -50,71 +51,85 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-JMPIProviderModule::JMPIProviderModule(const String & fileName,
-                                       const String & interfaceName)
-    : _fileName(fileName),
-    _interfaceName(interfaceName),
-    _ref_count(0),
-    _library(0)
+JMPIProviderModule::JMPIProviderModule (const String & fileName,
+                                        const String & interfaceName)
+    : _fileName (fileName),
+      _interfaceName (interfaceName),
+      _ref_count (0),
+      _library (0)
 {
-   Uint32 i=fileName.find(".jar:");
-   if (i==PEG_NOT_FOUND) {
-      String msg="Invalid Location format for Java providers: "+fileName;
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,msg);
+   Uint32 i = fileName.find (".jar:");
+
+   if (i == PEG_NOT_FOUND)
+   {
+      String msg = "Invalid Location format for Java providers: " + fileName;
+
+      throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED, msg);
    }
-   String jar=fileName.subString(0,i+4);
-   _className=fileName.subString(i+5);
 
-   if (jar[0]!='/')
-      _fileName=JMPIProviderManager::resolveFileName(jar);
-   else _fileName=jar;
+   String jar = fileName.subString (0, i + 4);
+
+   _className = fileName.subString (i + 5);
+
+   if (jar[0] != '/')
+      _fileName = JMPIProviderManager::resolveFileName (jar);
+   else
+      _fileName = jar;
 }
 
-JMPIProviderModule::~JMPIProviderModule(void)
+JMPIProviderModule::~JMPIProviderModule (void)
 {
 }
 
-ProviderVector JMPIProviderModule::load(const String & providerName)
+ProviderVector JMPIProviderModule::load (const String & providerName)
 {
-    ProviderVector  pv;
-    JvmVector      *jv  = NULL;
-    JNIEnv         *env = JMPIjvm::attachThread(&jv);
+   ProviderVector  pv  = { 0, 0 };
+   JvmVector      *jv  = NULL;
+   JNIEnv         *env = JMPIjvm::attachThread (&jv);
 
-    if (env)
-    {
-       pv.jProvider = JMPIjvm::getProvider (env,
-                                            _fileName,
-                                            _className,
-                                            providerName.getCString(),
-                                            &pv.jProviderClass);
-       JMPIjvm::detachThread ();
-    }
+   if (env)
+   {
+      pv.jProvider = JMPIjvm::getProvider (env,
+                                           _fileName,
+                                           _className,
+                                           providerName.getCString (),
+                                           &pv.jProviderClass);
+      JMPIjvm::detachThread ();
+   }
+   else
+   {
+      throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                     MessageLoaderParms ("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                         "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+   }
 
-    if (pv.jProvider == 0)
-    {
-        String s0 = "ProviderLoadFailure";
-        throw Exception(MessageLoaderParms("ProviderManager.JMPIProviderModule.CANNOT_LOAD_LIBRARY",
-            "$0 ($1:$2):Cannot load library",
-            s0,
-            _fileName,
-            providerName));
-    }
+   if (pv.jProvider == 0)
+   {
+      String s0 = "ProviderLoadFailure";
 
-    _ref_count++;
+      throw Exception (MessageLoaderParms ("ProviderManager.JMPIProviderModule.CANNOT_LOAD_LIBRARY",
+                                           "$0 ($1:$2):Cannot load library",
+                                           s0,
+                                           _fileName,
+                                           providerName));
+   }
 
-    return pv;
+   _ref_count++;
+
+   return pv;
 }
 
-void JMPIProviderModule::unloadModule(void)
+void JMPIProviderModule::unloadModule (void)
 {
-    if (_ref_count.decAndTestIfZero())
-    {
-        if(_library != 0)
-        {
-            System::unloadDynamicLibrary(_library);
-            _library = 0;
-        }
-    }
+   if (_ref_count.decAndTestIfZero ())
+   {
+      if (_library != 0)
+      {
+         System::unloadDynamicLibrary (_library);
+
+         _library = 0;
+      }
+   }
 }
 
 PEGASUS_NAMESPACE_END

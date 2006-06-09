@@ -40,6 +40,10 @@ INCLUDES = -I$(ROOT)/src $(EXTRA_INCLUDES)
 
 include $(ROOT)/mak/common.mak
 
+ifdef PEGASUS_EXTRA_LIBRARY_LINK_FLAGS
+    EXTRA_LINK_FLAGS += $(PEGASUS_EXTRA_LIBRARY_LINK_FLAGS)
+endif
+
 ################################################################################
 ##
 ## Build list of object names.

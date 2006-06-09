@@ -37,6 +37,9 @@ ifeq ($(PLATFORM_VERSION_SUPPORTED), yes)
 endif
 
 include $(ROOT)/mak/common.mak
+ifdef PEGASUS_EXTRA_PROGRAM_LINK_FLAGS
+    EXTRA_LINK_FLAGS += $(PEGASUS_EXTRA_PROGRAM_LINK_FLAGS)
+endif
 
 ifeq ($(OS_TYPE),windows)
 include $(ROOT)/mak/program-windows.mak

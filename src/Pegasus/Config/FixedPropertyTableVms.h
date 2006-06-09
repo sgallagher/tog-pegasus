@@ -64,7 +64,7 @@
 //
     {"tempLocalAuthDir",    PEGASUS_LOCAL_AUTH_DIR},
     {"logdir",              "/wbem_var/opt/wbem/logs"},
-    {"repositoryDir",       "/wbem_var/opt/wbem/repository"},
+    {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
     {"providerDir",         "/wbem_lib"},
 #endif
 

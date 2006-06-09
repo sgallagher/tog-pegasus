@@ -61,7 +61,7 @@
 //    {"sslTrustFilePath",      "/opt/freeware/cimom/pegasus/etc/client.pem"},
 //    {"passwordFilePath",    "/opt/freeware/cimom/pegasus/etc/cimserver.passwd"},
     {"messageDir",          "/opt/freeware/cimom/pegasus/msg"},
-    {"repositoryDir",       "/opt/freeware/cimom/pegasus/etc/repository"},
+    {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
     {"providerDir",         "/usr/lib:/usr/pegasus/provider/lib"},
 #endif
 

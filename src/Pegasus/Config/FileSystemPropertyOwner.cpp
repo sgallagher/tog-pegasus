@@ -64,11 +64,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && defined(PEGASUS_USE_RELEASE_DIRS)
-    {"repositoryDir", "/var/wbem/repository", IS_STATIC, 0, 0, IS_VISIBLE},
-#else
-    {"repositoryDir", "repository", IS_STATIC, 0, 0, IS_VISIBLE},
-#endif
+    {"repositoryDir", PEGASUS_REPOSITORY_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
 
 #ifdef PEGASUS_OS_OS400
     {"messageDir", "/QIBM/ProdData/OS400/CIM/msg", IS_STATIC, 0, 0, IS_VISIBLE},

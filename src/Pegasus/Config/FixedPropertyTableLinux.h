@@ -77,7 +77,7 @@
     {"sslTrustStore",       "/etc/opt/tog-pegasus/cimserver_trust"},
     {"exportSSLTrustStore", "/etc/opt/tog-pegasus/indication_trust"},
     {"crlStore",            "/etc/opt/tog-pegasus/crl"},
-    {"repositoryDir",       "/var/opt/tog-pegasus/repository"},
+    {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
 #if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
     {"providerDir",         "/opt/tog-pegasus/providers/lib:/usr/lib/cmpi"},
 #else
@@ -97,7 +97,7 @@
     {"sslTrustStore",       "/etc/opt/lsb-pegasus/cimserver_trust"},
     {"exportSSLTrustStore", "/etc/opt/lsb-pegasus/indication_trust"},
     {"crlStore",            "/etc/opt/lsb-pegasus/crl"},
-    {"repositoryDir",       "/var/opt/lsb-pegasus/repository"},
+    {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
 #if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
     {"providerDir",         "/opt/lsb-pegasus/providers:/usr/lib/cmpi"},
 #else

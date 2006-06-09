@@ -69,7 +69,7 @@
     {"sslTrustStore",       "/etc/opt/hp/sslshare/cimserver_trust"},
     {"exportSSLTrustStore", "/etc/opt/hp/sslshare/indication_trust"},
     {"crlStore",            "/etc/opt/hp/sslshare/crl"},
-    {"repositoryDir",       "/var/opt/wbem/repository"},
+    {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
     {"providerDir",         "/opt/wbem/providers/lib"},
     {"messageDir",         "/opt/wbem/share/locale/ICU_Messages"},
 #endif

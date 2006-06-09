@@ -189,10 +189,10 @@ public:
         return PEGASUS_PROCESS_NAME;
     }
 
-    //defined in ConfigFileDir.h
+    //defined in Constants.h
     virtual const char* getPIDFileName() const
     {
-        return CIMSERVER_START_FILE;
+        return PEGASUS_CIMSERVER_START_FILE;
     }
 
     int cimserver_run(int argc, char** argv, bool shutdownOption);

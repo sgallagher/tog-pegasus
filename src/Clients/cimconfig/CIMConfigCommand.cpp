@@ -1080,13 +1080,17 @@ Uint32 CIMConfigCommand::execute (
     else
         pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
 
-    String currentFile = FileSystem::getAbsolutePath(pegasusHome.getCString(), CURRENT_CONFIG_FILE);
-    String plannedFile = FileSystem::getAbsolutePath(pegasusHome.getCString(), PLANNED_CONFIG_FILE);
+    String currentFile = FileSystem::getAbsolutePath(
+        pegasusHome.getCString(), PEGASUS_CURRENT_CONFIG_FILE_PATH);
+    String plannedFile = FileSystem::getAbsolutePath(
+        pegasusHome.getCString(), PEGASUS_PLANNED_CONFIG_FILE_PATH);
 #else
     const char* env = getenv("PEGASUS_HOME");
 
-    String currentFile = FileSystem::getAbsolutePath(env, CURRENT_CONFIG_FILE);
-    String plannedFile = FileSystem::getAbsolutePath(env, PLANNED_CONFIG_FILE);
+    String currentFile =
+        FileSystem::getAbsolutePath(env, PEGASUS_CURRENT_CONFIG_FILE_PATH);
+    String plannedFile =
+        FileSystem::getAbsolutePath(env, PEGASUS_PLANNED_CONFIG_FILE_PATH);
 #endif
 
     try

@@ -49,6 +49,7 @@
 #include <Pegasus/Config/Linkage.h>
 #include <Pegasus/Config/ConfigExceptions.h>
 #include <Pegasus/Config/ConfigFile.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/AutoPtr.h>
 
 
@@ -60,8 +61,6 @@ PEGASUS_NAMESPACE_BEGIN
 ////////////////////////////////////////////////////////////////////////////////
 
 struct ConfigTable;
-
-#include "ConfigFileDir.h"
 
 /**
   This class provides methods to read/write config properties
@@ -80,8 +79,8 @@ public:
     @exception  FileNotReadable  if file is not readable.
     */
     ConfigFileHandler (
-        const String& currentFile = CURRENT_CONFIG_FILE,
-        const String& plannedFile = PLANNED_CONFIG_FILE,
+        const String& currentFile = PEGASUS_CURRENT_CONFIG_FILE_PATH,
+        const String& plannedFile = PEGASUS_PLANNED_CONFIG_FILE_PATH,
         const Boolean offLine = false);
 
 

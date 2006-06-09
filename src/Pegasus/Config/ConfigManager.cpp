@@ -57,6 +57,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Constants.h>
 
 #include "ConfigExceptions.h"
 #include "ConfigManager.h"

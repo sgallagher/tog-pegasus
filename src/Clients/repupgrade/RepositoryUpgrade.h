@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Sushma Fernandes, Hewlett-Packard Company
+//         (sushma_fernandes@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,8 +42,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 
 #include <Pegasus/Common/MessageQueue.h>
-
-#include <Pegasus/General/DynamicLibrary.h>
+#include <Pegasus/Common/DynamicLibrary.h>
 
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/CIMOperationRequestEncoder.h>
@@ -50,11 +56,6 @@
 #include "SSPModuleTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-#ifdef NS_INTEROP
-const CIMNamespaceName PEGASUS_NAMESPACE_PGINTEROP=
-    CIMNamespaceName ("root/PG_InterOp");
-#endif
 
 /**
 
@@ -104,7 +105,9 @@ public:
         Destructor.
     */
     ~RepositoryUpgrade ();
-
+#ifdef PEGASUS_OS_OS400
+    Uint32 invokeRepositoryUpgrade (Uint32 argc, char* argv[]);
+#endif
     /**
         Parses the command line, validates the options, and sets instance
         variables based on the option arguments.
@@ -152,6 +155,9 @@ public:
     virtual void handleEnqueue() {};
 
 private:
+#ifdef PEGASUS_OS_OS400
+    String logFileName;  // file to log upgrade messages / progress to
+#endif
     //
     // The type of operation specified on the command line.
     //
@@ -176,7 +182,12 @@ private:
     // The option character used to display help info.
     //
     static const char   _OPTION_HELP;
-
+#ifdef PEGASUS_OS_OS400
+    //
+    // The option character used to suppress output.
+    //
+    static const char   _OPTION_QUIET;
+#endif
     //
     // The option character used to display version info.
     //
@@ -213,23 +224,6 @@ private:
     // The constant representing a version display operation
     //
     static const Uint32 _OPTION_TYPE_VERSION;
-
-#ifdef NS_INTEROP
-    //
-    // The option character used for interop support.
-    //
-    static const char   _OPTION_INTEROP;
-
-    //
-    // The constant representing that interop option has been specified
-    //
-    static const Uint32 _OPTION_TYPE_INTEROP;
-
-    //
-    // Indicates whether root/PG_InterOp has to be changed to interop
-    //
-    Boolean _optionInterop;
-#endif
 
     //
     // Contains the old repository path.
@@ -288,17 +282,17 @@ private:
     //
     // Constant representing the name of the VERSION qualifier.
     //
-    static const String     _VERSION_QUALIFIER_NAME;
+    static const String 	_VERSION_QUALIFIER_NAME;
 
     //
     // Defines the file extension for a CIM/XML request file.
     //
-    static const String     _FILE_EXTENSION;
+    static const String 	_FILE_EXTENSION;
 
     //
     // Defines the path to store CIM/XML log file for a failed request.
     //
-    static const String     _LOG_PATH;
+    static const String 	_LOG_PATH;
 
     //
     // Count to keep track of failed instance creations. This count
@@ -364,8 +358,8 @@ private:
     // Compares the namespaces passed and returns namespaces that are present
     // in the old but not in the new repository.
     //
-    // @param oldNamespaces a list of namespaces in old repository
-    // @param newNamespaces a list of namespaces in new repository
+    // @param oldNamespaces	a list of namespaces in old repository
+    // @param newNamespaces	a list of namespaces in new repository
     //
     // @return                  a list of missing namespaces
     //
@@ -379,7 +373,7 @@ private:
     // that exist in the given namespaces will be created by the _addInstances
     // method.
     //
-    // @param namespaces    a list of namespaces to be added.
+    // @param namespaces 	a list of namespaces to be added.
     //
     void _addNamespaces(const Array<CIMNamespaceName>& namespaces);
 
@@ -388,31 +382,27 @@ private:
     // passes them to the _processNewClasses and _processExistingClasses
     // methods.
     //
-    // @param namespaceName namespace that is getting compared.
+    // @param namespaceName	namespace that is getting compared.
     //
-    // @param oldClasses    classes in the old repository.
+    // @param oldClasses	classes in the old repository.
     //
-    // @param newClasses    classes in the new repository.
+    // @param newClasses	classes in the new repository.
     //
-    void _processClasses( const CIMNamespaceName&   namespaceName,
-                          const Array<CIMName>&         oldClasses,
-                          Array<CIMName>&       newClasses);
-
-#ifdef NS_INTEROP
-    void _processInstance( CIMInstance&, Array<CIMName>);
-#endif
+    void _processClasses( const CIMNamespaceName& 	namespaceName,
+                          const Array<CIMName>&	        oldClasses,
+                          Array<CIMName>&		newClasses);
 
     //
     // Processes the new classes in the hierarchical order and passes them to
     // _addClassToRepository.
     //
-    // @param namespaceName namespace that is getting compared.
-    // @param oldClasses    classes in the old repository.
-    // @param newClasses    classes in the new repository.
+    // @param namespaceName	namespace that is getting compared.
+    // @param oldClasses	classes in the old repository.
+    // @param newClasses	classes in the new repository.
     //
-    void _processNewClasses( const CIMNamespaceName&    namespaceName,
-                             Array<CIMName>&            oldClasses,
-                             Array<CIMName>&        newClasses);
+    void _processNewClasses( const CIMNamespaceName& 	namespaceName,
+                             Array<CIMName>&	        oldClasses,
+                             Array<CIMName>&		newClasses);
 
 
     //
@@ -429,8 +419,8 @@ private:
     //    If the new Repository contains a class with a higher version number
     //    then no messages are displayed.
     //
-    //   @param namespaceName      namespacename
-    //   @param existingClasses    list of classes already existing in the new
+    //   @param namespaceName	   namespacename
+    //   @param existingClasses	   list of classes already existing in the new
     //                             repository
     //
     void _processExistingClasses (const CIMNamespaceName& namespaceName,
@@ -457,23 +447,6 @@ private:
                                   const Array<CIMName>    existingClasses);
 
     //
-    // Check if the class exists in the old repository.
-    //
-    // @param namespaceName     namespace to which the class belongs
-    //
-    // @param className         name of the class to be added.
-    //
-    // @param dependenClassName class on which className is dependent on.
-
-    // @return   true           if dependenClassName exists.
-    //
-    //           exception      if the dependentClassName does not exist.
-    CIMClass _checkIfDependentClassExists(
-        const CIMNamespaceName& namespaceName,
-        const CIMName&          className,
-        const CIMName&          dependentClassName);
-
-    //
     // Adds instances from the old repository into the new repository.
     // If an instance already exists in the new repository then it
     // is not imported from the old repository.
@@ -481,30 +454,25 @@ private:
     void _addInstances ();
 
     //
-    // Removes instances from the new repository when no loger used.
-    //
-    void _removeInstances();
-
-    //
     // Adds qualifiers from the old repository into the new repository.
     // If a qualifier already exists in the new repository then it
     // is not imported.
     //
-    // @param CIMNamespaceName      contains the Namespace name.
+    // @param CIMNamespaceName		contains the Namespace name.
     //
-    void _addQualifiers (const CIMNamespaceName &namespaceName);
+    void _addQualifiers (const CIMNamespaceName namespaceName);
 
     //
     // Logs a failed CIM/XML request in to an output file.
     //
-    // @param outputFile    output filename.
+    // @param outputFile   	output filename.
     //
     void _logRequestToFile ( const String& outputFile );
 
     //
     // Logs an error message to indicate an error while adding a class.
     //
-    // @param CIMNamespaceName  contains the Namespace name.
+    // @param CIMNamespaceName	contains the Namespace name.
     //
     // @param CIMClass          contains the class.
     //
@@ -522,7 +490,7 @@ private:
     //
     // Logs an error message to indicate an error while adding an instance.
     //
-    // @param CIMNamespaceName  contains the Namespace name.
+    // @param CIMNamespaceName	contains the Namespace name.
     //
     // @param CIMInstance       contains the instance.
     //
@@ -538,27 +506,9 @@ private:
            const String&           message);
 
     //
-    // Logs an error message to indicate an error while deleting an instance.
-    //
-    // @param CIMNamespaceName  contains the Namespace name.
-    //
-    // @param CIMObjectPath     contains the required instance object path.
-    //
-    // @param message           contains the error message if available
-    //                          otherwise set to String::EMPTY
-    //
-    // @exception               logs the request and propagates the
-    //                          error encountered during delete instance.
-    //
-    void _logDeleteInstanceError(
-        const CIMNamespaceName& namespaceName,
-        const CIMObjectPath& instanceName,
-        const String& message);
-
-    //
     // Logs an error message to indicate an error while adding an qualifier.
     //
-    // @param CIMNamespaceName  contains the Namespace name.
+    // @param CIMNamespaceName	contains the Namespace name.
     //
     // @param CIMQualifierDecl  contains the qualifier.
     //
@@ -572,62 +522,6 @@ private:
           const CIMNamespaceName& namespaceName,
           const CIMQualifierDecl& qualifier,
           const String&           message);
-
-    /**
-        Updates the Subscription instances in the repository. It calls
-        _updateFilterHandlerReferences() to update the SystemName key
-        in filter and hadler references.
-        @param   nameSpace     The current namespace being considered
-        @param   className     The name of the subscription, handler or filter
-                               class whose instances in the current namespace
-                               are to be checked and updated in case there
-                               is any inconsistency in system namecurrent
-                               namespace being considered
-    */
-    void _updateSubscriptionInstancesInRepository(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className);
-
-    /**
-        Updates the Handler, Filter and ObjectManager instances in the 
-        repository. It checks for the SystemName property value. If there
-        is any inconsistency with the current system name retrieved using
-        System::getFullyQualifiedSystemName() then the SystemName property
-        and keyBindings are updated to the current value.
-
-        @param   nameSpace     The current namespace being considered
-        @param   className     The name of the handler, filter or objectManager
-                               class whose instances in the current namespace
-                               are to be checked and updated in case there
-                               is any inconsistency in system namecurrent
-                               namespace being considered
-    */
-    void _updateSystemNameKeyPropertyOfInstancesForClass(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className);
-
-    /**
-        Updates the SytemName key property in Filter and Handler
-        references. It checks for the SystemName value in the
-        keyBindings of Filter and Handler references. If there is any
-        inconsistency with the current system name retrieved using
-        System::getFullyQualifiedSystemName() then the SystemName
-        keyBindings are updated to the current value.
-
-        @param   instance      The current subscription instance
-        @param   propertyName  The property of susbscription which needs to be
-                               updated for correct system name. Its value is
-                               either Filter or Handler
-    */
-    Boolean _updateFilterHandlerReference(
-        CIMInstance& instance,
-        const CIMName& propertyName);
-
-    /**
-        This function updates SystemName key property in subscription,
-        filter, handler and objectmanager instances to current System Name
-    */
-    void _updateSystemNameKeyProperty();
 
 #ifdef ENABLE_MODULE_PROCESSING
     //
@@ -710,6 +604,25 @@ private:
     Boolean _compareVersion( const String& oldVersion,
                             const String& newVersion );
 
+    //
+    //  Parses a version string into major, minor and update components.
+    //
+    //  @param  version    the version string to be parsed
+    //
+    //  @param  iMajor     major number to be returned
+    //
+    //  @param  iMinor     minor number to be returned
+    //
+    //  @param  iUpdate    update number to be returned
+    //
+    //  @return true       if the version number is valid
+    //
+    //          false      if the version number is invalid
+    //
+    Boolean _parseVersion(const String& version,
+                                 Sint32& iMajor,
+                                 Sint32& iMinor,
+                                 Sint32& iUpdate);
 };
 
 PEGASUS_NAMESPACE_END

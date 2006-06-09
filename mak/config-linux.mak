@@ -198,3 +198,13 @@ ifdef PEGASUS_LSB
     FLAGS += -DPEGASUS_OS_LSB
 endif
 
+ifndef PEGASUS_ARCH_LIB
+    ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_GNU)
+        PEGASUS_ARCH_LIB = lib64
+    else
+        PEGASUS_ARCH_LIB = lib
+    endif
+endif
+DEFINES += -DPEGASUS_ARCH_LIB=\"$(PEGASUS_ARCH_LIB)\"
+
+

@@ -71,8 +71,8 @@ CIMOM. PLEASE DO NOT SUPPRESS THIS WARNING; PLEASE FIX THE PROBLEM."
 # include <netinet/in.h>
 # include <netdb.h>
 # include <arpa/inet.h>
-#endif
 # include <netinet/tcp.h>
+#endif
 
 PEGASUS_USING_STD;
 

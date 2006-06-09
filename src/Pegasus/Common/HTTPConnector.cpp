@@ -61,6 +61,7 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
+# include <netinet/tcp.h>
 # ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 # include <unistd.h>
 #  include <sys/un.h>
@@ -79,7 +80,6 @@
 #ifdef PEGASUS_OS_ZOS
 #  include <resolv.h>  // MAXHOSTNAMELEN
 #endif
-# include <netinet/tcp.h>
 
 PEGASUS_USING_STD;
 

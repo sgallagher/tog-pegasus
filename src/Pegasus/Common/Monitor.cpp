@@ -481,27 +481,34 @@ Boolean Monitor::run(Uint32 milliseconds)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
        if(entries[indx].isNamedPipeConnection())
        {
+
            //entering this clause mean that a Named Pipe connection is at entries[indx]
            //cout << "In Monitor::run in clause to to create array of for WaitformultipuleObjects" << endl;
 
            cout << "In Monitor::run - pipe being added to array is " <<
                    entries[indx].namedPipe.getName() << endl;
-           cout << " overlap event is "<<
-                (int) (entries[indx].namedPipe.getOverlap()).hEvent << endl;
-
+          
             entries[indx].pipeSet = false;
+
            // We can Keep a counter in the Monitor class for the number of named pipes ...
            //  Which can be used here to create the array size for hEvents..( obviously before this for loop.:-) )
             if (pipeEntryCount >= MaxPipes)
             {
+                cout << "Monitor::run 'if (pipeEntryCount >= MaxPipes)' begining - pipeEntryCount=" <<
+                    pipeEntryCount << " MaxPipes=" << MaxPipes << endl;
                  MaxPipes += PIPE_INCREMENT;
-                 HANDLE* temp_hEvents = new HANDLE[MaxPipes]; 
+                 HANDLE* temp_hEvents = new HANDLE[MaxPipes];
+
                  for (Uint32 i =0;i<pipeEntryCount;i++)
                  {
                      temp_hEvents[i] = hEvents[i];
                  }
+
                  delete [] hEvents;
+
                  hEvents = temp_hEvents;
+                 cout << "Monitor::run 'if (pipeEntryCount >= MaxPipes)' ending"<< endl;
+
             }         
 
            //pipeEventArray.append((entries[indx].namedPipe.getOverlap()).hEvent);
@@ -663,7 +670,7 @@ Boolean Monitor::run(Uint32 milliseconds)
            events, _idleEntries);
        for( int indx = 0; indx < (int)entries.size(); indx++)
        {
-           cout << "Monitor::run at start of 'for( int indx = 0; indx ' - index = " << indx << endl; 
+           //cout << "Monitor::run at start of 'for( int indx = 0; indx ' - index = " << indx << endl; 
           // The Monitor should only look at entries in the table that are IDLE (i.e.,
           // owned by the Monitor).
           if(((entries[indx]._status.get() == _MonitorEntry::IDLE) &&
@@ -705,8 +712,6 @@ Boolean Monitor::run(Uint32 milliseconds)
                 if(entries[indx]._type == Monitor::CONNECTION)
                 {
                     cout << "In Monitor::run Monitor::CONNECTION clause" << endl; 
-
-                    continue;
 
                                       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                      "entries[indx].type for indx = %d is Monitor::CONNECTION", indx);

@@ -52,6 +52,10 @@
 #include <Pegasus/Common/Exception.h>
 #include "ArrayIterator.h"
 
+
+
+const static DWORD MAX_BUFFER_SIZE = 4096;  // 4 kilobytes
+
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # if defined(FD_SETSIZE) && FD_SETSIZE != 1024
 #  error "FD_SETSIZE was not set to 1024 prior to the last inclusion \
@@ -502,12 +506,15 @@ Boolean Monitor::run(Uint32 milliseconds)
 
            //pipeEventArray.append((entries[indx].namedPipe.getOverlap()).hEvent);
            hEvents[pipeEntryCount] = entries[indx].namedPipe.getOverlap().hEvent;
-           pipeEntryCount++;
-
+           
            indexPipeCountAssociator.append(indx);
-           cout << "pipeEntrycount is " << pipeEntryCount << endl;
-           cout <<" this is the type " << entries[indx]._type <<
-               " this is index " << indx << endl;
+    
+    pipeEntryCount++;
+
+
+
+           cout << "Monitor::run pipeEntrycount is " << pipeEntryCount <<
+           " this is the type " << entries[indx]._type << " this is index " << indx << endl; 
 
        }
        else
@@ -656,17 +663,38 @@ Boolean Monitor::run(Uint32 milliseconds)
            events, _idleEntries);
        for( int indx = 0; indx < (int)entries.size(); indx++)
        {
+           cout << "Monitor::run at start of 'for( int indx = 0; indx ' - index = " << indx << endl; 
           // The Monitor should only look at entries in the table that are IDLE (i.e.,
           // owned by the Monitor).
           if(((entries[indx]._status.get() == _MonitorEntry::IDLE) &&
              FD_ISSET(entries[indx].socket, &fdread)&& (events)) ||
              (entries[indx].isNamedPipeConnection() && entries[indx].pipeSet && (pEvents)))
           {
-              cout << "IN Monior::run inside - for int indx = " <<indx << endl;
-             MessageQueue *q = MessageQueue::lookup(entries[indx].queueId);
-             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+              MessageQueue *q;
+              cout << "IN Monior::run inside - for int indx = " <<indx <<
+                  "and queue ID is " << entries[indx].queueId << endl;
+              try{
+            
+                 q = MessageQueue::lookup(entries[indx].queueId);
+              }
+             catch (Exception e)
+             {
+                 cout << " this is what lookup gives - " << e.getMessage() << endl;
+                 exit(1);
+             }
+             catch(...)
+             {
+                 cout << "MessageQueue::lookup gives strange exception " << endl;
+                 exit(1);
+             }
+
+
+
+             cout << "Monitor::run after MessageQueue::lookup(entries[indx].queueId)" << endl;
+              Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "Monitor::run indx = %d, queueId =  %d, q = %p",
                   indx, entries[indx].queueId, q);
+             cout << "Monitor::run before PEGASUS_ASSerT(q !=0) " << endl;
              PEGASUS_ASSERT(q !=0);
 
              try
@@ -676,10 +704,11 @@ Boolean Monitor::run(Uint32 milliseconds)
                cout << "IN Monior::run right before entries[indx]._type == Monitor::CONNECTION" << endl;
                 if(entries[indx]._type == Monitor::CONNECTION)
                 {
+                    cout << "In Monitor::run Monitor::CONNECTION clause" << endl; 
+
                     continue;
 
-                   cout << "In Monitor::run Monitor::CONNECTION clause" << endl; 
-                   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                                      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                      "entries[indx].type for indx = %d is Monitor::CONNECTION", indx);
                    static_cast<HTTPConnection *>(q)->_entry_index = indx;
 
@@ -760,6 +789,45 @@ Boolean Monitor::run(Uint32 milliseconds)
 
            if (entries[indx].isNamedPipeConnection())
            {
+               if(!entries[indx].namedPipe.isConnectionPipe)
+               { /*if we enter this clasue it means that the named pipe that we are 
+                   looking at has recived a connection but is not the pipe we get connection requests over. 
+                   therefore we neew to change the _type to CONNECTION and wait for a CIM Operations request*/
+                   entries[indx]._type = Monitor::CONNECTION;
+
+
+                     /* This is a test  - this shows that the read file needs to be done
+     before we call wiatForMultipleObjects*/
+    /******************************************************
+    ********************************************************/
+   
+        string raw(MAX_BUFFER_SIZE, string::value_type(0));
+        DWORD size = 0;
+
+        BOOL rc = ::ReadFile(
+                entries[indx].namedPipe.getPipe(),
+                (void *)raw.data(),
+                raw.size(),
+                &size,
+                &entries[indx].namedPipe.getOverlap());
+        if(!rc)
+        {
+
+           cout << "ReadFile failed for : "  << GetLastError() << "."<< endl;
+
+        }
+
+  
+
+    /******************************************************
+    ********************************************************/
+
+
+
+
+                   continue;
+
+               }
                cout << " In Monitor::run about to create a Pipe message" << endl;
                events |= NamedPipeMessage::READ;
                msg = new NamedPipeMessage(entries[indx].namedPipe, events);

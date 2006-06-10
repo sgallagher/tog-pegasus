@@ -920,10 +920,13 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
     // Solicit events on this new connection's socket:
     int index;
 
+    cout << endl << connection->getNamedPipe().getName() << " has a this as a QueueID " <<
+         connection->getQueueId() << endl;
+
     if (-1 ==  (index = _monitor->solicitPipeMessages(
        connection->getNamedPipe(),
        NamedPipeMessage::READ | NamedPipeMessage::EXCEPTION,
-       connection->getQueueId(), Monitor::CONNECTION)) )
+       connection->getQueueId(), Monitor::ACCEPTOR)) )
     {
        // ATTN-DE-P2-2003100503::TODO::Need to enhance code to return
        // an error message to Client application.

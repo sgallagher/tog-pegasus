@@ -75,7 +75,7 @@ bool NamedPipe::read(HANDLE pipe, String & buffer)
 }
 
 // ATTN: need to update function to read data larger than MAX_BUFFER_SIZE
-bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
+bool NamedPipe::write(HANDLE pipe, String & buffer)
 {
     DWORD size = 0;
 
@@ -85,7 +85,7 @@ bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
             /*(void *)*/buffer.getCString(),
             buffer.size(),
             &size,
-            overlap);     //this should be the overlap
+            0);     //this should be the overlap
 
     if(!rc)
     {
@@ -132,6 +132,7 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
 
     _name = pipeName;
     Boolean ConnectFailed = false;
+    isConnectionPipe = true;
     _pipe.hpipe = 0;
 
     // create a primary named pipe to listen for connection requests
@@ -362,6 +363,11 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
         throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
     }
 
+
+   
+
+
+
     // the caller is responsible for disconnecting the pipe
     // and closing the pipe
 
@@ -441,6 +447,7 @@ Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
 
 NamedPipeClient::NamedPipeClient(const String & name) 
 {
+    isConnectionPipe = false;
     _name = (name);
     cout << "NamedPipeClient::NamedPipeClient()" << endl;
 
@@ -613,6 +620,7 @@ void NamedPipeClient::disconnect(HANDLE pipe) const
 
 NamedPipeServerEndPiont::NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct)
 {
+    isConnectionPipe = false;
     cout << "in NamedPipeServerEndPiont constructor " << endl;
     _name = name;
     _pipe = pipeStruct;
@@ -621,6 +629,7 @@ NamedPipeServerEndPiont::NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE 
 
 NamedPipeClientEndPiont::NamedPipeClientEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct)
 {
+    isConnectionPipe = false;
     cout << "in NamedPipeServerEndPiont constructor " << endl;
     _name = name;
     _pipe = pipeStruct;

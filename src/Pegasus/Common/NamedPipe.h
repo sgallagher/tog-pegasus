@@ -23,11 +23,13 @@ class PEGASUS_COMMON_LINKAGE NamedPipe
 {
 public:
     static bool read(HANDLE pipe, String & buffer);
-    static bool write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap = NULL);
+    static bool write(HANDLE pipe, String & buffer);
     String getName(void) {return _name;}
 
     HANDLE getPipe(void){ return _pipe.hpipe;}
     OVERLAPPED getOverlap(void){ return _pipe.overlap;}
+
+    Boolean isConnectionPipe;
   
 protected:
    String _name;

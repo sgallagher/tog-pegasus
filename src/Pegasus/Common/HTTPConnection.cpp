@@ -1755,7 +1755,7 @@ void HTTPConnection::_handleReadEvent()
 
     if (_namedPipeConnection)
     {
-        PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() for a named pipe connection" << PEGASUS_STD(endl); 
+        PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() for a named pipe connection at begin" << PEGASUS_STD(endl); 
     }
 
 
@@ -1816,9 +1816,27 @@ void HTTPConnection::_handleReadEvent()
         if (_namedPipeConnection)  //this clause reads from the namedPipe
         {
             String pipeBuffer;
-            PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() for a named pipe connection" << PEGASUS_STD(endl); 
-            n = NamedPipe::read(_namedPipe.getPipe(), pipeBuffer);
+            PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() about to read off the pipe" << PEGASUS_STD(endl); 
+            //need some kind of string copy here
+         
+
+            /*char temp_buff[strlen(_namedPipe.raw)+1];
+            temp_buf[sizeof(temp_buff)-1] = 0;
+
+            //there should be an easier way to do this - I just what to make a string (_namedPipe.raw)
+            //in to an array of char
+             for(Uint32 stringCount=0, stringCount > strlen(_namedPipe.raw), stringCount++)
+             {
+                 temp_buff[stringCount] = _namedPipe.raw[stringCount];
+
+             } */    
+            strcpy (buffer,_namedPipe.raw);
+            n = _namedPipe.bytesRead;
+            //n = NamedPipe::read(_namedPipe.getPipe(), pipeBuffer);
             //buffer = (char*) pipeBuffer.getChar16Data();
+
+        cout << buffer << endl;
+        exit(1);
         }
         else  //this clause reads from the socket
         {
@@ -2065,6 +2083,11 @@ Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messag
 void HTTPConnection::setNamedPipeConnetion()
 {
     _namedPipeConnection = true;
+}
+
+void HTTPConnection::setNamedPipe(NamedPipe namedPipe)
+{
+    _namedPipe = namedPipe;
 }
 
 PEGASUS_NAMESPACE_END

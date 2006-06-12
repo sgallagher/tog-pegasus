@@ -485,8 +485,7 @@ Boolean Monitor::run(Uint32 milliseconds)
            //entering this clause mean that a Named Pipe connection is at entries[indx]
            //cout << "In Monitor::run in clause to to create array of for WaitformultipuleObjects" << endl;
 
-           cout << "In Monitor::run - pipe being added to array is " <<
-                   entries[indx].namedPipe.getName() << endl;
+           //cout << "In Monitor::run - pipe being added to array is " << entries[indx].namedPipe.getName() << endl;
           
             entries[indx].pipeSet = false;
 
@@ -494,8 +493,8 @@ Boolean Monitor::run(Uint32 milliseconds)
            //  Which can be used here to create the array size for hEvents..( obviously before this for loop.:-) )
             if (pipeEntryCount >= MaxPipes)
             {
-                cout << "Monitor::run 'if (pipeEntryCount >= MaxPipes)' begining - pipeEntryCount=" <<
-                    pipeEntryCount << " MaxPipes=" << MaxPipes << endl;
+               // cout << "Monitor::run 'if (pipeEntryCount >= MaxPipes)' begining - pipeEntryCount=" <<
+                   // pipeEntryCount << " MaxPipes=" << MaxPipes << endl;
                  MaxPipes += PIPE_INCREMENT;
                  HANDLE* temp_hEvents = new HANDLE[MaxPipes];
 
@@ -507,7 +506,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                  delete [] hEvents;
 
                  hEvents = temp_hEvents;
-                 cout << "Monitor::run 'if (pipeEntryCount >= MaxPipes)' ending"<< endl;
+                // cout << "Monitor::run 'if (pipeEntryCount >= MaxPipes)' ending"<< endl;
 
             }         
 
@@ -737,6 +736,13 @@ Boolean Monitor::run(Uint32 milliseconds)
                    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                          "Monitor::_dispatch: entering run() for indx  = %d, queueId = %d, q = %p",
                    dst->_entry_index, dst->_monitor->_entries[dst->_entry_index].queueId, dst);
+
+                   /*In the case of named Pipes, the request has already been read from the pipe
+                   therefor this section passed the request data to the HTTPConnection
+                   NOTE: not sure if this would be better suited in a sparate private method
+                   */
+                   dst->setNamedPipe(entries[indx].namedPipe);
+
                    try
                    {
                        cout << "In Monitor::run about to call 'dst->run(1)' "  << endl;
@@ -806,15 +812,18 @@ Boolean Monitor::run(Uint32 milliseconds)
     /******************************************************
     ********************************************************/
    
-        string raw(MAX_BUFFER_SIZE, string::value_type(0));
-        DWORD size = 0;
+                DWORD size = 0;
 
         BOOL rc = ::ReadFile(
                 entries[indx].namedPipe.getPipe(),
-                (void *)raw.data(),
-                raw.size(),
+                &entries[indx].namedPipe.raw,
+                MAX_BUFFER_SIZE,
                 &size,
                 &entries[indx].namedPipe.getOverlap());
+
+        cout << "just called read on index " << indx << endl;
+
+         entries[indx].namedPipe.bytesRead = size; 
         if(!rc)
         {
 

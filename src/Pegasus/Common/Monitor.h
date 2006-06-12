@@ -69,6 +69,7 @@ public:
   NamedPipe namedPipe; //WW not sure if I need to change any of the construcotrs
   Boolean namedPipeConnection;
   Boolean pipeSet;
+
 #endif
 
   // This copy constructor is inecessary since AtomicInt does not support
@@ -77,13 +78,13 @@ public:
       socket(x.socket), 
       queueId(x.queueId), 
       _status(x._status.get()),
- #ifdef PEGASUS_OS_TYPE_WINDOWS
+#ifdef PEGASUS_OS_TYPE_WINDOWS
       _type(x._type),
       namedPipeConnection(false),
       pipeSet(false)
- #else
+#else
       _type(x._type)
- #endif
+#endif
   {
   }
   int _type;

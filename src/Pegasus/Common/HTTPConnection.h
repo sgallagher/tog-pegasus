@@ -166,8 +166,14 @@ public:
     // list of content languages
     ContentLanguageList contentLanguages;
 
+    /* WW***************************************************/
+    
     //retruns true is HTTPConnection is connected to a Named Pipe
     Boolean isNamedPipeConnection();
+    void setNamedPipe(NamedPipe namedPipe);
+
+    /**********************************************************/
+    
 
 private:
 

@@ -30,6 +30,8 @@ public:
     OVERLAPPED getOverlap(void){ return _pipe.overlap;}
 
     Boolean isConnectionPipe;
+    char raw[4096];
+    Uint32 bytesRead;
   
 protected:
    String _name;

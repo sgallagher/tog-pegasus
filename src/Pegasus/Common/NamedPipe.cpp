@@ -130,6 +130,8 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
 {
     cout << "Entering NamedPipeServer::NamedPipeServer()" << endl;
 
+   // string raw_tmp(MAX_BUFFER_SIZE, string::value_type(0));
+    //raw = raw_tmp;
     _name = pipeName;
     Boolean ConnectFailed = false;
     isConnectionPipe = true;
@@ -447,6 +449,8 @@ Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
 
 NamedPipeClient::NamedPipeClient(const String & name) 
 {
+    //string raw_tmp(MAX_BUFFER_SIZE, string::value_type(0));
+    //raw = raw_tmp;
     isConnectionPipe = false;
     _name = (name);
     cout << "NamedPipeClient::NamedPipeClient()" << endl;
@@ -620,6 +624,8 @@ void NamedPipeClient::disconnect(HANDLE pipe) const
 
 NamedPipeServerEndPiont::NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct)
 {
+    //string raw_tmp(MAX_BUFFER_SIZE, string::value_type(0));
+   // raw = raw_tmp;
     isConnectionPipe = false;
     cout << "in NamedPipeServerEndPiont constructor " << endl;
     _name = name;
@@ -629,6 +635,8 @@ NamedPipeServerEndPiont::NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE 
 
 NamedPipeClientEndPiont::NamedPipeClientEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct)
 {
+    //string raw_tmp(MAX_BUFFER_SIZE, string::value_type(0));
+    //raw = raw_tmp;
     isConnectionPipe = false;
     cout << "in NamedPipeServerEndPiont constructor " << endl;
     _name = name;

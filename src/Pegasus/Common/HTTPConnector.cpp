@@ -290,12 +290,16 @@ HTTPConnection* HTTPConnector::connect(
    PEGASUS_SOCKET socket;
 
 
-   //WW this code should be inside of PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET below 
+  PEGASUS_STD(cout) << "HTTPConnector::connect after connectLocal on windows section" << PEGASUS_STD(endl);
+
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET 
+   if (host == String::EMPTY)  //connect request was made with CIMClient::connectLocal
+   {
+      // Set up the domain socket for a local connection
+
 #ifdef PEGASUS_OS_TYPE_WINDOWS
    PEGASUS_STD(cout) << "HTTPConnector::connect before connectLocal on windows section" << PEGASUS_STD(endl);
 
-   if (host == String::EMPTY)  //connect request was made with CIMClient::connectLocal
-   {
       //CIMClient::connectLocal [host == String::EMPTY] use NamedPipes on windows
        PEGASUS_STD(cout) << "HTTPConnector::connect at connectLocal on windows section" << PEGASUS_STD(endl);
        HTTPConnection* pipeConnection = _connectNamedPipe(outputMessageQueue);
@@ -311,7 +315,7 @@ HTTPConnection* HTTPConnector::connect(
        }
        else
            PEGASUS_STD(cout) <<"HTTPConnection returned from _connectNamedPipe is not a pipe conection " << PEGASUS_STD(endl);
-              
+           // We may need to Assert here...  
 
        PEGASUS_STD(cout) << "HTTPConnector::connect after call to _connectNamedPipe" << PEGASUS_STD(endl);
 
@@ -320,17 +324,7 @@ HTTPConnection* HTTPConnector::connect(
       return pipeConnection;
    }
 
-#endif
-
-
-
-   PEGASUS_STD(cout) << "HTTPConnector::connect after connectLocal on windows section" << PEGASUS_STD(endl);
-
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET 
-   if (host == String::EMPTY)  //connect request was made with CIMClient::connectLocal
-   {
-      // Set up the domain socket for a local connection
-
+#else
       sockaddr_un address;
       address.sun_family = AF_UNIX;
       strcpy(address.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
@@ -357,6 +351,7 @@ HTTPConnection* HTTPConnector::connect(
          throw CannotConnectException(parms);
       }
    }
+#endif
    else
    {
 #endif

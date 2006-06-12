@@ -333,20 +333,11 @@ void CIMClientRep::connectLocal()
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
 
-// Temporary ..need to fix the DISABLE SOCKET
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    _connectSSLContext.reset();
-    _connectHost = String::EMPTY;
-    _connectPortNumber = 0;
-    _connect();
-/*#endif       WW  //this needs to change when we figure out  PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-     /*
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     _connectSSLContext.reset();
     _connectHost = String::EMPTY;
     _connectPortNumber = 0;
-    _connect();  */
-
+    _connect();  
 #else
 
     try

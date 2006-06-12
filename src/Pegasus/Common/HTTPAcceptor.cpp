@@ -265,12 +265,10 @@ void HTTPAcceptor::handleEnqueue(Message *message)
  #ifdef PEGASUS_OS_TYPE_WINDOWS
       case NAMEDPIPE_MESSAGE:
       {
-          NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
-
-         // If this is a connection request:
+         NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
 
          if (((namedPipeMessage->namedPipe.getPipe()) == ( _rep->namedPipeServer->getPipe())) &&
-         (namedPipeMessage->events & NamedPipeMessage::READ))
+             (namedPipeMessage->events & NamedPipeMessage::READ))
          {
              _acceptNamedPipeConnection();
          }
@@ -388,27 +386,29 @@ void HTTPAcceptor::_bind()
    
    if (_localConnection)
    {
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET 
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-       PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before calling _createNamedPipe() " << PEGASUS_STD(endl);
-       // _rep->createNamedPipe();
+       PEGASUS_STD(cout) 
+           << "in HTTPAcceptor::_bind before calling _createNamedPipe() " 
+           << PEGASUS_STD(endl);
+     // _rep->createNamedPipe();
        _createNamedPipe();
        PEGASUS_STD(cout) << "in HTTPAcceptor::_bind after calling _createNamedPipe() " << PEGASUS_STD(endl);
-// Not sure if we need to continue to bind non local domain sockets in windows.....
        return;
-// #else
-#endif
-
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET 
-   
-        reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =
+#else
+       reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =  
            AF_UNIX;
-       strcpy(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
-              PEGASUS_LOCAL_DOMAIN_SOCKET_PATH); 
+       strcpy(
+           reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
+           PEGASUS_LOCAL_DOMAIN_SOCKET_PATH); 
+
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
        AtoE(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #endif
        ::unlink(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
+#endif
+
 #else
        PEGASUS_ASSERT(false);
 #endif
@@ -424,7 +424,6 @@ void HTTPAcceptor::_bind()
    }
 
    // Create socket:
-
    if (_localConnection)
    {
        _rep->socket = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -610,13 +609,15 @@ void HTTPAcceptor::closeConnectionSocket()
       // Unlink Local Domain Socket Bug# 3312
       if (_localConnection)
       {
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+ #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
           PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
                         "HTTPAcceptor::closeConnectionSocket Unlinking local connection." );
          ::unlink(
              reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
-#else
+ #else
          PEGASUS_ASSERT(false);
+ #endif
 #endif
       }
 
@@ -681,8 +682,11 @@ void HTTPAcceptor::unbind()
       if (_localConnection)
       {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+
          ::unlink(
              reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
+#endif
 #else
          PEGASUS_ASSERT(false);
 #endif
@@ -740,11 +744,13 @@ void HTTPAcceptor::_acceptConnection()
 
    if (_localConnection)
    {
+#ifndef PEGASUS_OS_TYPE_WINDOWS
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
        accept_address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
        address_size = sizeof(struct sockaddr_un);
 #else
        PEGASUS_ASSERT(false);
+#endif
 #endif
    }
    else
@@ -849,12 +855,13 @@ void HTTPAcceptor::_acceptConnection()
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 void HTTPAcceptor::_createNamedPipe()
 {
-    PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() at the begining" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "Entering  HTTPAcceptor::_createNamedPipe()." << PEGASUS_STD(endl);
 
     _rep->namedPipeServer = new NamedPipeServer("\\\\.\\pipe\\MyNamedPipe");
     PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() after calling the pipe server constructor" << PEGASUS_STD(endl);
     
-   
+
+    cout << "Named pipe...in _createNamedPipe..." << _rep->namedPipeServer->getPipe() << endl;
 
     // Register to receive Messages on Connection pipe:
         
@@ -879,7 +886,7 @@ void HTTPAcceptor::_createNamedPipe()
 
    }
 
-   PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() at the end" << PEGASUS_STD(endl);
+   PEGASUS_STD(cout) << "Leaving  HTTPAcceptor::_createNamedPipe()." << PEGASUS_STD(endl);
    return; 
 
 }

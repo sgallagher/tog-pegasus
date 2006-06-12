@@ -1348,12 +1348,7 @@ MessageLoader::_useProcessLocale = false;
                 "src.Server.cimserver.LISTENING_ON_EXPORT_HTTPS_PORT",
                 "Listening on Export HTTPS port $0.", portNumberExportHttps);
         }
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-        cout << "Local Connection set" << endl;
-        _cimServer->addAcceptor(true, 0, false, false);
-#else
- #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
         _cimServer->addAcceptor(true, 0, false, false);
         //l10n
         //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
@@ -1361,7 +1356,6 @@ MessageLoader::_useProcessLocale = false;
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
               "src.Server.cimserver.LISTENING_ON_LOCAL",
               "Listening on local connection socket.");
- #endif
 #endif
 
 #if defined(PEGASUS_DEBUG)

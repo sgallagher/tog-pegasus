@@ -170,7 +170,8 @@ PEGASUS_DEST_LIB_DIR = bin
 PEGASUS_DISABLE_PROV_USERCTXT=1
 
 # Windows does not support local domain sockets or the equivalent Bug 2147
-PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=0
+#  No longer needed : Bug 4011
+#PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=0
 
 # l10n
 ifdef PEGASUS_HAS_MESSAGES

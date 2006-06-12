@@ -911,6 +911,7 @@ void Semaphore::time_wait(Uint32 milliseconds)
 {
    // Acquire mutex to enter critical section.
    pthread_mutex_lock (&_semaphore.mutex);
+   Boolean timedOut = false;
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || \
     defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
@@ -930,8 +931,6 @@ void Semaphore::time_wait(Uint32 milliseconds)
    waittime.tv_sec += (waittime.tv_nsec / 1000000);  // roll overflow into
    waittime.tv_nsec = (waittime.tv_nsec % 1000000);  // the "seconds" part
    waittime.tv_nsec = waittime.tv_nsec * 1000;  // convert to nanoseconds
-
-   Boolean timedOut = false;
 
    while ((_count == 0) && !timedOut)
    {

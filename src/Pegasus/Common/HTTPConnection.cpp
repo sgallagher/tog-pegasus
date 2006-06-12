@@ -290,6 +290,9 @@ HTTPConnection::HTTPConnection(
 {
     PEGASUS_STD(cout) << "In HTTPConnection::HTTPConnection that takes a named pipe" << PEGASUS_STD(endl);
 
+     //_socket->disableBlocking();       //not sure what this does
+    _authInfo.reset(new AuthenticationInfo(true));       //this is needed for code in HTTPAuthenticatorDelegator
+
     _responsePending = false;
     _connectionRequestCount = 0;
     _transferEncodingChunkOffset = 0;
@@ -1808,12 +1811,18 @@ void HTTPConnection::_handleReadEvent()
 
     for (;;)
     {
+        cout << "at begining of for loop in _handleReadEvent" << endl;
         // save one for null
         char buffer[httpTcpBufferSize+1];
         buffer[sizeof(buffer)-1] = 0;
 
         Sint32 n;
-        if (_namedPipeConnection)  //this clause reads from the namedPipe
+
+        //this is assuming the whole mesaage is read in one 'ReadFile'. For
+        //for namedPipes this loop will only exicute once. (bytesRead == 0) clause
+        //will casue it to breack on the second time through the loop
+
+        if (_namedPipeConnection && (bytesRead == 0))  //this clause reads from the namedPipe
         {
             String pipeBuffer;
             PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() about to read off the pipe" << PEGASUS_STD(endl); 
@@ -1829,24 +1838,37 @@ void HTTPConnection::_handleReadEvent()
              {
                  temp_buff[stringCount] = _namedPipe.raw[stringCount];
 
-             } */    
+             }  */ 
             strcpy (buffer,_namedPipe.raw);
-            n = _namedPipe.bytesRead;
+            n = strlen(_namedPipe.raw)+1;
             //n = NamedPipe::read(_namedPipe.getPipe(), pipeBuffer);
             //buffer = (char*) pipeBuffer.getChar16Data();
 
         cout << buffer << endl;
-        exit(1);
+        cout << "n=" << n << endl;
+       
         }
-        else  //this clause reads from the socket
+        else if (!_namedPipeConnection) //this clause reads from the socket
         {
             n = _socket->read(buffer, sizeof(buffer)-1);
         }
-
+        else
+        {
+            n=0;
+            cout << "in else clause n= " << n << endl;
+        }
+           
         if (n <= 0)
         {
-            if (_socket->isSecure())
+          cout << "at the start of 'if (n <= 0)' " << endl; 
+
+            if(!_namedPipeConnection) 
             {
+            
+            
+             if (_socket->isSecure())
+             {
+                cout << " in (_socket->isSecure())"  << endl;
                 // It is possible that SSL_read was not able to
                 // read the entire SSL record.  This could happen
                 // if the record was send in multiple packets
@@ -1861,7 +1883,9 @@ void HTTPConnection::_handleReadEvent()
                 // disconnect and partial read of an SSL record.
                 //
                 incompleteSecureReadOccurred = _socket->incompleteReadOccurred(n);
+             }
             }
+            cout << "this should breack out of the for loop" << endl;
             break;
         }
 
@@ -1870,12 +1894,18 @@ void HTTPConnection::_handleReadEvent()
             buffer[n] = 0;
             // important: always keep message buffer null terminated for easy
             // string parsing!
+
+            cout << "n=" << n << endl;
             Uint32 size = _incomingBuffer.size() + n;
             _incomingBuffer.reserveCapacity(size + 1);
             _incomingBuffer.append(buffer, n);
+            cout << "In HTTPConnection::_handleReadEvent after append(buffer, n) " << endl;
             // put a null on it. This is safe sice we have reserved an extra byte
             char *data = (char *)_incomingBuffer.getData();
             data[size] = 0;
+            //cout << _incomingBuffer.getData() << endl;
+            cout << "size of incoming buffer is " << _incomingBuffer.size() << endl;
+            
         }
 
         catch(...)
@@ -1890,6 +1920,9 @@ void HTTPConnection::_handleReadEvent()
         }
 
         bytesRead += n;
+        cout << "bytesRead = " << bytesRead << endl;
+           
+
 #if defined (PEGASUS_OS_VMS)
         if (n < sizeof(buffer))
         {
@@ -1901,11 +1934,13 @@ void HTTPConnection::_handleReadEvent()
         }
 #endif
     }
+    cout << "on out side of for loop" << endl;
 
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
         "Total bytesRead = %d; Bytes read this iteration = %d",
         _incomingBuffer.size(), bytesRead);
 
+    cout << "before check _contentOffset = " << _contentOffset << endl;
     try
     {
         if (_contentOffset == -1)
@@ -1915,6 +1950,7 @@ void HTTPConnection::_handleReadEvent()
     catch(Exception &e)
     {
         httpStatus = e.getMessage();
+        cout << httpStatus << " contentOffset cluase threw exception" << endl;
     }
 
     if (httpStatus.size() > 0)
@@ -1924,17 +1960,26 @@ void HTTPConnection::_handleReadEvent()
         return;
     }
 
+    cout << "_contentOffset = " << _contentOffset << endl;
+   
+
     // -- See if the end of the message was reached (some peers signal end of
     // -- the message by closing the connection; others use the content length
     // -- HTTP header and then there are those messages which have no bodies
     // -- at all).
+    cout << "_contentLength =" << _contentLength << "  _contentOffset=" << _contentOffset <<
+          "  _incomingBuffer.size()=" << _incomingBuffer.size() << endl;
+   
 
     if ((bytesRead == 0 && !incompleteSecureReadOccurred) ||
         (_contentLength != -1 && _contentOffset != -1 &&
         (Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset)))
     {
+        cout <<" in if bytesRead == 0 && !incompleteSecureReadOccurred" << endl; 
         HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
         message->authInfo = _authInfo.get();
+
+        cout << " After createing the HTTPMessgae" << endl;
 
         // add any content languages
         message->contentLanguages = contentLanguages;
@@ -1947,8 +1992,12 @@ void HTTPConnection::_handleReadEvent()
             _requestCount++;
             _connectionRequestCount++;
         }
+
+       
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "_requestCount = %d", _requestCount.get());
+        cout << "before  message->dest - _outputMessageQueue->getQueueId()=" << _outputMessageQueue->getQueueId() << endl;
+
         message->dest = _outputMessageQueue->getQueueId();
 //        SendForget(message);
 
@@ -1962,7 +2011,9 @@ void HTTPConnection::_handleReadEvent()
             _monitor->setState (_entry_index, _MonitorEntry::BUSY);
             _monitor->tickle();
         }
+        cout << "before enqueue(message) -  _outputMessageQueue= " << _outputMessageQueue->getQueueName() << endl;
         _outputMessageQueue->enqueue(message);
+        cout << "after enqueue(message) " << endl;
         _clearIncoming();
 
         if (bytesRead == 0)
@@ -2008,10 +2059,14 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
             {
                 handleEnqueue(msg);
             }
+            catch(Exception e)
+            {
+                cout << e.getMessage() << endl;
+            }
             catch(...)
             {
-                cout << "IN HTTPConnection::run handleEnqueue(msg) FAILED " << endl; 
-                return true;
+                cout << "IN HTTPConnection::run handleEnqueue(msg) threw exception " << endl; 
+                return false;
             }
        
 

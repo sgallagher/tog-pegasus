@@ -519,8 +519,8 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 
 
-           cout << "Monitor::run pipeEntrycount is " << pipeEntryCount <<
-           " this is the type " << entries[indx]._type << " this is index " << indx << endl; 
+          // cout << "Monitor::run pipeEntrycount is " << pipeEntryCount <<
+          // " this is the type " << entries[indx]._type << " this is index " << indx << endl; 
 
        }
        else
@@ -559,7 +559,7 @@ Boolean Monitor::run(Uint32 milliseconds)
         DWORD dwWait=NULL;
     int pEvents = 0;
 
-        cout << "events after select" << events << endl;
+ //       cout << "events after select" << events << endl;
     cout << "Calling WaitForMultipleObjects\n";
 
     //this should be in a try block
@@ -589,8 +589,8 @@ Boolean Monitor::run(Uint32 milliseconds)
         else
         {
             int pCount = dwWait - WAIT_OBJECT_0;  // determines which pipe
-            cout << " WaitForMultiPleObject returned activity on server pipe: "<< 
-                pCount<< endl;
+           // cout << " WaitForMultiPleObject returned activity on server pipe: "<< 
+           //     pCount<< endl;
 
             pEvents = 1;
 
@@ -599,12 +599,12 @@ Boolean Monitor::run(Uint32 milliseconds)
             
             if (pCount > 0) //this means activity on pipe is CIMOperation reques
             {
-                cout << "In Monitor::run got Operation request" << endl;
+       //         cout << "In Monitor::run got Operation request" << endl;
                 //entries[indx]._type = Monitor::CONNECTION;
             }
             else //this clause my not be needed in production but is used for testing
             {
-              cout << "In Monitor::run got Connection request" << endl;
+         //     cout << "In Monitor::run got Connection request" << endl;
               
             }
 
@@ -662,8 +662,8 @@ Boolean Monitor::run(Uint32 milliseconds)
     else if ((events)||(pEvents))
     {
 
-       cout << "IN Monior::run 'else if (events)' clause - array size is " <<
-            (int)entries.size() << endl;
+     //  cout << "IN Monior::run 'else if (events)' clause - array size is " <<
+     //       (int)entries.size() << endl;
        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "Monitor::run select event received events = %d, monitoring %d idle entries",
            events, _idleEntries);
@@ -741,7 +741,9 @@ Boolean Monitor::run(Uint32 milliseconds)
                    therefor this section passed the request data to the HTTPConnection
                    NOTE: not sure if this would be better suited in a sparate private method
                    */
-                   dst->setNamedPipe(entries[indx].namedPipe);
+                   dst->setNamedPipe(entries[indx].namedPipe); //this step shouldn't be needd
+                   cout << "In Monitor::run before dst->run number of bytes read is " <<
+                       entries[indx].namedPipe.bytesRead << endl;
 
                    try
                    {
@@ -812,18 +814,18 @@ Boolean Monitor::run(Uint32 milliseconds)
     /******************************************************
     ********************************************************/
    
-                DWORD size = 0;
+                //DWORD size = 0;
 
         BOOL rc = ::ReadFile(
                 entries[indx].namedPipe.getPipe(),
                 &entries[indx].namedPipe.raw,
                 MAX_BUFFER_SIZE,
-                &size,
+                &entries[indx].namedPipe.bytesRead,
                 &entries[indx].namedPipe.getOverlap());
 
         cout << "just called read on index " << indx << endl;
 
-         entries[indx].namedPipe.bytesRead = size; 
+         //&entries[indx].namedPipe.bytesRead = &size; 
         if(!rc)
         {
 

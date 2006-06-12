@@ -31,7 +31,8 @@ public:
 
     Boolean isConnectionPipe;
     char raw[4096];
-    Uint32 bytesRead;
+    //string raw;
+    DWORD bytesRead;
   
 protected:
    String _name;

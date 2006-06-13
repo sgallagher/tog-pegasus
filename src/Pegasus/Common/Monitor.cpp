@@ -742,8 +742,8 @@ Boolean Monitor::run(Uint32 milliseconds)
                    NOTE: not sure if this would be better suited in a sparate private method
                    */
                    dst->setNamedPipe(entries[indx].namedPipe); //this step shouldn't be needd
-                   cout << "In Monitor::run before dst->run number of bytes read is " <<
-                       entries[indx].namedPipe.bytesRead << endl;
+                   cout << "In Monitor::run after dst->setNamedPipe string read is " <<
+                       entries[indx].namedPipe.raw << endl;
 
                    try
                    {
@@ -809,7 +809,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                    entries[indx]._type = Monitor::CONNECTION;
 
 
-                     /* This is a test  - this shows that the read file needs to be done
+     /* This is a test  - this shows that the read file needs to be done
      before we call wiatForMultipleObjects*/
     /******************************************************
     ********************************************************/

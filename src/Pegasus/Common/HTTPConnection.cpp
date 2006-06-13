@@ -67,6 +67,8 @@
 #include "Buffer.h"
 #include "LanguageParser.h"
 
+DWORD MAX_BUFFER_SIZE = 4096;
+
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
 #endif
@@ -412,7 +414,14 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
     Sint32 totalBytesWritten = 0;
     Uint32 messageLength = buffer.size();
 
-    PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent at the begining" << PEGASUS_STD(endl);
+    if (_namedPipeConnection)
+    {
+        PEGASUS_STD(cout) << "HTTPConnection::_handleWriteEvent at the begining for a named pipe connection" <<
+             PEGASUS_STD(endl); 
+    }
+    else
+        PEGASUS_STD(cout) << "HTTPConnection::_handleWriteEvent - thinks it's not a named pipe" << endl;
+
 
 
     try
@@ -432,6 +441,26 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
         if (_isClient() == false)
         {
+            if (_namedPipeConnection)
+            {
+
+                PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent about to call _writeToNamePipe" << PEGASUS_STD(endl);
+
+
+                if(!_writeToNamePipe(httpMessage, messageLength))
+                {
+                    PEGASUS_STD(cout) << " HTTPConnection::_writeToNamePipe() failed" << PEGASUS_STD(endl);
+                    return false;
+                }
+                else
+                {
+                    PEGASUS_STD(cout) << " HTTPConnection::_writeToNamePipe() retruned successfully" << PEGASUS_STD(endl);
+                    return true;
+                }
+            }
+
+
+
             // for null termination
             buffer.reserveCapacity(messageLength + 1);
             messageStart = (char *) buffer.getData();
@@ -769,8 +798,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 _incomingBuffer.swap(buffer);
 
         } // if not a client
-#if !defined PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET || defined(PEGASUS_OS_TYPE_WINDOWS)
-
+#ifdef PEGASUS_OS_TYPE_WINDOWS
         else
         {    PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent about to call _writeToNamePipe" << PEGASUS_STD(endl);
 
@@ -783,6 +811,43 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             else
             {
                 PEGASUS_STD(cout) << " HTTPConnection::_writeToNamePipe() retruned successfully" << PEGASUS_STD(endl);
+                
+
+                /* This is a test  - this shows that the read file needs to be done
+     before we call wiatForMultipleObjects*/
+    /******************************************************
+    ********************************************************/
+   
+                //DWORD size = 0;
+
+        BOOL rc = ::ReadFile(
+                _namedPipe.getPipe(),
+                &_namedPipe.raw,
+                MAX_BUFFER_SIZE,
+                &_namedPipe.bytesRead,
+                &_namedPipe.getOverlap());
+
+        cout << "just called readFile " << endl;
+
+         //&entries[indx].namedPipe.bytesRead = &size; 
+        if(!rc)
+        {
+
+           cout << "ReadFile failed for : "  << GetLastError() << "."<< endl;
+
+        }
+
+        System::sleep (2);
+
+  
+
+    /******************************************************
+    ********************************************************/
+
+
+                
+                
+                
                 return true;
             }
         }
@@ -2126,11 +2191,14 @@ Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messag
    if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData())) )  
    {
        PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned successfully" << PEGASUS_STD(endl);
+       cout << " just wrote this to named pipe " << endl << httpMessage.message.getData() << endl << endl;
+
        return true;
    }
    else
    {
-       PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned unsuccessfully" << PEGASUS_STD(endl);
+      PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned unsuccessfully" << PEGASUS_STD(endl);
+       cout << " just wrote this to named pipe " << endl << httpMessage.message.getData() << endl << endl;
        return false;
 
    }

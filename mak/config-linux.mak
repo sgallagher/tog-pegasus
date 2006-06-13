@@ -1,39 +1,34 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 # Configuration options for Pegasus on all architectures running Linux
-# These options are also used by clang( which was designed as dropin
-# replacement for gcc). So some of the names are misleading like 
-# PEGASUS_PLATFORM_LINUX_GENERIC_GNU due to GNU appended, Better will
-# be PEGASUS_PLATFORM_LINUX_GENERIC and GNU and CLANG can add it. 
-# Changing this now(for 9236) will involve lot of work, Will take up 
-# this work later. 
-
 
 include $(ROOT)/mak/config-unix.mak
 
@@ -44,7 +39,7 @@ DEFINES += -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 #########################################################################
 ##
 ## Platform specific compile options controlled by environment variables
-## are set here.
+## are set here.  
 ##
 #########################################################################
 
@@ -66,24 +61,29 @@ endif
 
 OS = linux
 
-
-ifeq ($(findstring _CLANG, $(PEGASUS_PLATFORM)), _CLANG)
-    COMPILER = clang
-    CXX = clang++
-    CC = clang
-else
-    COMPILER = gnu
-    ifndef CXX
-        CXX = g++
-    endif
-endif
+COMPILER = gnu
 
 PLATFORM_VERSION_SUPPORTED = yes
 
+ifndef CXX
+CXX = g++
+endif
 
 SH = sh
 
 YACC = bison
+
+RM = rm -f
+
+DIFF = diff
+
+SORT = sort
+
+COPY = cp
+
+MOVE = mv
+
+MKDIRHIER = mkdir -p
 
 PEGASUS_SUPPORTS_DYNLIB = yes
 
@@ -93,52 +93,41 @@ LIB_SUFFIX = .so.$(MAJOR_VERSION_NUMBER)
 
 DEFINES += -DPEGASUS_USE_SYSLOGS
 
-SYS_LIBS = -ldl -lpthread -lcrypt
+DEFINES += -DPEGASUS_HAS_SIGNALS
 
-ifeq ($(COMPILER), clang)
-    FLAGS += -W -Wall -Wno-unused-parameter  -Wno-unused-value -D_GNU_SOURCE \
-        -DTHREAD_SAFE -D_REENTRANT -Werror=unused-variable -Wno-unused-function \
-        -Werror=switch
-else
-    FLAGS += -W -Wall -Wno-unused -Wunused-variable
-  # Starting with gcc 4.3 specific warnings can be reported as error
-  # Enabling a specific selection of warnings to turn into errors
-  ifeq ($(shell expr $(GCC_VERSION) '>=' 4.3), 1)
-    FLAGS += -Werror=unused-variable
-    FLAGS += -Werror=switch
+SYS_LIBS = -ldl -lpthread
+
+# PAM support
+ifdef PEGASUS_PAM_AUTHENTICATION
+   ifeq ($(HPUX_IA64_VERSION), yes)
+      SYS_LIBS += -L$(PAMLIB_HOME) -lpam
+   else
+      SYS_LIBS += -lpam
    endif
-    FLAGS += -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
+
+## The following flags need to be set or unset
+## to compile-in the code required for PAM authentication
+## and compile-out the code that uses the password file.
+
+ DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
+
 endif
 
+FLAGS += -fPIC -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 
-##==============================================================================
-##
-## The DYNAMIC_FLAGS variable defines linker flags that only apply to shared
-## libraries.
-##
-##==============================================================================
-DYNAMIC_FLAGS += -fPIC
-
-ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
   FLAGS += -g
 else
+  FLAGS += -s
   #
   # The -fno-enforce-eh-specs is not available in 2.9.5 and it probably
   # appeared in the 3.0 series of compilers.
   #
-  ifeq ($(COMPILER), gnu)
-   # disable the strict aliasing
-   ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
-     PEGASUS_EXTRA_CXX_FLAGS += -fno-enforce-eh-specs -fno-strict-aliasing
-   endif
+  ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
+    EXTRA_CXX_FLAGS += -fno-enforce-eh-specs
   endif
-      
   ifdef PEGASUS_OPTIMIZE_FOR_SIZE
-    ifeq ($(COMPILER), gnu)
-      FLAGS += -Os
-    else
-      FLAGS += -Oz
-    endif
+    FLAGS += -Os
   else
     FLAGS += -O2
   endif
@@ -156,28 +145,66 @@ ifndef PEGASUS_USE_MU_DEPEND
 PEGASUS_HAS_MAKEDEPEND = yes
 endif
 
-##==============================================================================
-##
-## Set the default visibility symbol to hidden for shared libraries. This
-## feature is only available in GCC 4.0 and later.
-##
-##==============================================================================
+# l10n
+ifdef PEGASUS_HAS_MESSAGES
+  DEFINES += -DPEGASUS_HAS_MESSAGES
+  ifdef ICU_ROOT
+        MSG_COMPILE = genrb
+        MSG_FLAGS =
+        MSG_SOURCE_EXT = .txt
+        MSG_COMPILE_EXT = .res
+        CNV_ROOT_CMD = cnv2rootbundle
 
-ifeq ($(COMPILER), gnu)
- ifeq ($(shell expr $(GCC_VERSION) '>=' 4.0), 1)
-    FLAGS += -fvisibility=hidden
- endif
+##################################
+##
+## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root resource bundle,
+## default is to uppercase the root resource bundle##
+##################################
+
+ifdef ICU_NO_UPPERCASE_ROOT
+  CNV_ROOT_FLAGS = 
 else
-    FLAGS +=-fvisibility=hidden	
+  CNV_ROOT_FLAGS = -u
+endif
+
+####################################
+##
+##   ICU_ROOT_BUNDLE_LANG if set, specifies the language that the root resource bundle will be generated from
+##   defaults to _en if not set.  if set, for any directory containing resource bundles,
+##   there must exist a file name: package(the value of ICU_ROOT_BUNDLE_LANG).txt or the make messages target will fail
+##
+####################################
+
+ifdef ICU_ROOT_BUNDLE_LANG
+  MSG_ROOT_SOURCE = $(ICU_ROOT_BUNDLE_LANG)
+else
+  MSG_ROOT_SOURCE = _en
+endif
+
+    SYS_INCLUDES += -I${ICU_ROOT}/source/common -I${ICU_ROOT}/source/i18n
+    DEFINES += -DPEGASUS_HAS_ICU
+    EXTRA_LIBRARIES += -L$(ICU_INSTALL)/lib -licuuc -licui18n -licudata
+  endif
+endif
+
+####################################
+##
+##   If PEGASUS_LSB is set, set the rest of the variables.
+##
+####################################
+
+ifdef PEGASUS_LSB
+    SYS_INCLUDES += -I/usr/include -I/usr/include/c++ -I/opt/lsbdev-base/include/c++ -I/opt/lsbdev-base/include/
+    FLAGS += -DPEGASUS_OS_LSB
 endif
 
 ifndef PEGASUS_ARCH_LIB
-  ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_GNU)
+    ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_GNU)
         PEGASUS_ARCH_LIB = lib64
-  endif
-  ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_CLANG)
-        PEGASUS_ARCH_LIB = lib64
-  endif
-  PEGASUS_ARCH_LIB = lib
+    else
+        PEGASUS_ARCH_LIB = lib
+    endif
 endif
 DEFINES += -DPEGASUS_ARCH_LIB=\"$(PEGASUS_ARCH_LIB)\"
+
+

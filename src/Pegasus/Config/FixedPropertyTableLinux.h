@@ -65,8 +65,8 @@
     {"crlStore",             PEGASUS_SSL_SERVER_CRL},
 #endif
     {"repositoryDir",        PEGASUS_REPOSITORY_DIR},
-    {"providerDir",          PEGASUS_PROVIDER_LIB_DIR":/usr/lib/cmpi"},
-#else
+    {"providerDir",          PEGASUS_PROVIDER_LIB_DIR ":/usr/" PEGASUS_ARCH_LIB "/cmpi"},
+#else /* PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS */
     {"traceFilePath",       "/var/opt/tog-pegasus/cache/trace/cimserver.trc"},
 #if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",              "/var/opt/tog-pegasus/log"},
@@ -84,8 +84,8 @@
     {"providerDir",         "/opt/tog-pegasus/providers/lib"},
 #endif
     {"messageDir",         "/opt/tog-pegasus/share/locale/ICU_Messages"},
-#endif
-#endif
+#endif /* PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS */
+#endif /*  defined(PEGASUS_USE_RELEASE_DIRS) && !defined(PEGASUS_OS_LSB) */
 #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_LSB)
     {"traceFilePath",       "/var/opt/lsb-pegasus/cache/cimserver.trc"},
 #if !defined(PEGASUS_USE_SYSLOGS)

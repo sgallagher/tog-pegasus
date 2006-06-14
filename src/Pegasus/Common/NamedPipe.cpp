@@ -1,6 +1,7 @@
 #pragma warning(disable:4530)
 
 #include "NamedPipe.h"
+#include "Monitor.h"
 #include <windows.h>
 
 
@@ -57,7 +58,10 @@ bool NamedPipe::read(HANDLE pipe, String & buffer)
         // only fail is ::ReadFile returns false and some error other than more data
         if((rc == FALSE) && (::GetLastError() != ERROR_MORE_DATA))
         {
-            cout << "::ReadFile() failed (RC = " << hex << ::GetLastError() << ")" << endl;
+            {
+                AutoMutex automut(Monitor::_cout_mut);
+                cout << "::ReadFile() failed (RC = " << hex << ::GetLastError() << ")" << endl;
+            }
 
             return(false);                                                       }
 
@@ -94,10 +98,10 @@ bool NamedPipe::write(HANDLE pipe, String & buffer)
 
         const char* lpMsgBuf;
         LPVOID lpDisplayBuf;
-       DWORD dw = GetLastError(); 
+       DWORD dw = GetLastError();
 
     FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
         FORMAT_MESSAGE_FROM_SYSTEM,
         NULL,
         dw,
@@ -105,12 +109,12 @@ bool NamedPipe::write(HANDLE pipe, String & buffer)
         (LPTSTR) &lpMsgBuf,
         0, NULL );
 
-    lpDisplayBuf = LocalAlloc(LMEM_ZEROINIT, (strlen(lpMsgBuf)+90)*sizeof(TCHAR)); 
-    printf("failed with error %d: %s", dw, lpMsgBuf); 
+    lpDisplayBuf = LocalAlloc(LMEM_ZEROINIT, (strlen(lpMsgBuf)+90)*sizeof(TCHAR));
+    printf("failed with error %d: %s", dw, lpMsgBuf);
 
     //LocalFree(lpMsgBuf);
     LocalFree(lpDisplayBuf);
-    ExitProcess(dw); 
+    ExitProcess(dw);
 
         //cout << "::WriteFile() failed (RC = " << hex << ::GetLastError() << ")" << endl;
 
@@ -126,10 +130,12 @@ bool NamedPipe::write(HANDLE pipe, String & buffer)
 // NamedPipeServer
 //
 
-NamedPipeServer::NamedPipeServer(const String & pipeName) 
+NamedPipeServer::NamedPipeServer(const String & pipeName)
 {
-    cout << "Entering NamedPipeServer::NamedPipeServer()" << endl;
-
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        cout << "Entering NamedPipeServer::NamedPipeServer()" << endl;
+    }
    // string raw_tmp(MAX_BUFFER_SIZE, string::value_type(0));
     //raw = raw_tmp;
     _name = pipeName;
@@ -141,7 +147,7 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
     _pipe.hpipe  =
         ::CreateNamedPipe(
             _PRIMARY_PIPE_NAME(_name).getCString(),
-            PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,   // read/write   
+            PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,   // read/write
             PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
             MAX_PIPE_INSTANCES,                   //  PIPE_UNLIMITED_INSTANCES, // max. instances??
             MAX_BUFFER_SIZE,
@@ -151,13 +157,19 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
 
     if(_pipe.hpipe == INVALID_HANDLE_VALUE)
     {
-        cout << "NamedPipeServer::NamedPipeServer() - failed to create primary pipe" << endl;
-        cout << "::CreateNamedPipe() rc = " << ::GetLastError() << endl;
+        {
+            AutoMutex automut(Monitor::_cout_mut);
+            cout << "NamedPipeServer::NamedPipeServer() - failed to create primary pipe" << endl;
+            cout << "::CreateNamedPipe() rc = " << ::GetLastError() << endl;
+        }
 
         throw 0;
     }
 
-    cout << "NamedPipeServer::NamedPipeServer() - primary pipe created" << _pipe.hpipe << endl;
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        cout << "NamedPipeServer::NamedPipeServer() - primary pipe created" << _pipe.hpipe << endl;
+    }
     _pipe.overlap.hEvent = CreateEvent(NULL,    // default security attribute
                                        FALSE,
                                        FALSE,
@@ -165,26 +177,39 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
 
     if (_pipe.overlap.hEvent == NULL)
     {
-         cout << " NamedPipeServer::NamedPipeServer() - Failed to create event." << endl;
-         cout << "CreateEvent failed with " << GetLastError() << "."<< endl;
-         throw Exception("CreateEvet failed in NamedPipeServer constructor");    
+         {
+             AutoMutex automut(Monitor::_cout_mut);
+             cout << " NamedPipeServer::NamedPipeServer() - Failed to create event." << endl;
+             cout << "CreateEvent failed with " << GetLastError() << "."<< endl;
+         }
+         throw Exception("CreateEvet failed in NamedPipeServer constructor");
     }
 
+    {
+     AutoMutex automut(Monitor::_cout_mut);
     cout << " NamedPipeServer::NamedPipeServer() - creating Event "<< (int) _pipe.overlap.hEvent << endl;
-
+    }
     Boolean fconnected = false;
 
     fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+    {
+     AutoMutex automut(Monitor::_cout_mut);
     cout << "Primary pipe in NamePipeServer::NamePipeServer : " << _pipe.hpipe << endl;
 
     cout << "Primiary pipe overlap.hEvent in NamePipeServer::NamePipeServer : " << _pipe.overlap.hEvent << endl;
+    }
     if (fconnected)
     {
-            cout << "NamedPipeServer::NamedPipeServer ConnectNamedPipe failed." << endl;
-
-            //SHOULD THROW AN EXCEPTION HERE           
+        {
+           AutoMutex automut(Monitor::_cout_mut);
+           cout << "NamedPipeServer::NamedPipeServer ConnectNamedPipe failed." << endl;
+        }
+            //SHOULD THROW AN EXCEPTION HERE
     }
+    {
+     AutoMutex automut(Monitor::_cout_mut);
     cout << "at the end of NamedPipeServer::NamedPipeServer" << endl;
+    }
 
 }
 
@@ -195,14 +220,16 @@ NamedPipeServer::~NamedPipeServer(void)
     //::CloseHandle(_pipe.hpipe);
 }
 
-NamedPipeServerEndPiont NamedPipeServer::accept(void) 
+NamedPipeServerEndPiont NamedPipeServer::accept(void)
 {
 
     Boolean fconnected = false;
     Boolean ConnectFailed = false;
 
+    {
+     AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeServer::accept()" << endl;
-
+    }
     // perform handshake
     String request(CONNECT_REQUEST);
     String response(CONNECT_RESPONSE);
@@ -210,14 +237,23 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
     // get request
     if(!NamedPipe::read(_pipe.hpipe, request))
     {
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "NamedPipeServer::accept() - read failed" << endl;
+        }
 
         ::DisconnectNamedPipe(_pipe.hpipe);
         fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "In NamePipeServer::accept() - Primary pipe reconnecting after failed read: " << _pipe.hpipe << endl;
+        }
         if (fconnected)
         {
+             {
+             AutoMutex automut(Monitor::_cout_mut);
              cout << "NamedPipeServer::accept Primary - Pipe Failed to reconnect." << endl;
+             }
             //should throw an exception here
              throw(Exception("NamedPipeServer::accept Primary - Pipe Failed to reconnect."));
             //return NULL;
@@ -226,19 +262,32 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
         throw(Exception("NamedPipeServer::accept Primary - Pipe Failed to reconnect."));
     }
 
+
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeServer::accept() - recv " << request << endl;
+    }
 
     if(request != CONNECT_REQUEST)
     {
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "NamedPipeServer::accept() - incorrect request type" << endl;
+        }
 
         ::DisconnectNamedPipe(_pipe.hpipe);
         fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
        // fconnected = _connectToNamedPipe( _pipe.hpipe, NULL);
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "In NamePipeServer::accept() - Primary Pipe reconnecting after incorrect request: " << _pipe.hpipe << endl;
+        }
         if (fconnected)
         {
+            {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "NamedPipeServer::accept() - Primary Pipe Failed to reconnect." << endl;
+            }
            //should throw an exception here
            // return NULL;
             throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
@@ -247,11 +296,17 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
         throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
     }
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeServer::accept() - Creating Secondary Pipe " << request << endl;
+    }
 
     PEGASUS_NAMEDPIPE* pipe2 = new PEGASUS_NAMEDPIPE;
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeServer::accept() - Creating Secondary Pipe " << request << endl;
+    }
 
     // create a secondary named pipe for processing requests
     pipe2->hpipe =
@@ -259,25 +314,38 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
             _SECONDARY_PIPE_NAME(_name).getCString(),
             PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,   // PIPE_ACCESS_DUPLEX |  FILE_FLAG_OVERLAPPED, // read/write   ??
             PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
-            PIPE_UNLIMITED_INSTANCES,            
+            PIPE_UNLIMITED_INSTANCES,
             MAX_BUFFER_SIZE,
             MAX_BUFFER_SIZE,
             MAX_TIMEOUT,
             0);   // NULL ??
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeServer::accept() - After creating secondary pipe" << endl;
+    }
 
     if(pipe2->hpipe == INVALID_HANDLE_VALUE)
     {
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "NamedPipeServer::accept() - failed to create secondary pipe" << endl;
         cout << "::CreateNamedPipe() rc = " << ::GetLastError() << endl;
+        }
 
         ::DisconnectNamedPipe(_pipe.hpipe);
         fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "In NamePipeServer::accept() - Primary Pipe reconnecting after failing to create secondary pipe. " << _pipe.hpipe << endl;
+        }
         if (fconnected)
         {
+
+            {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "NamedPipeServer::accept() - Primary Pipe Failed to reconnect." << endl;
+            }
            //should throw an exception here
            // return NULL;
            throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
@@ -288,22 +356,33 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
         //return NULL;
     }
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeServer::accept() - secondary pipe successfully created" << endl;
 
        // send response
     cout << "NamedPipeServer::accept() - send "  << response << endl;
+    }
 
     if(!NamedPipe::write(_pipe.hpipe, response))
     {
-        cout << "NamedPipeServer::accept() - write failed" << endl;
-
+        {
+        AutoMutex automut(Monitor::_cout_mut);
+         cout << "NamedPipeServer::accept() - write failed" << endl;
+        }
         ::DisconnectNamedPipe(_pipe.hpipe);
         ::CloseHandle(pipe2->hpipe);
         fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "In NamePipeServer::accept() - Primary Pipe reconnecting after write failure." << _pipe.hpipe << endl;
+        }
         if (fconnected)
         {
+            {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "NamedPipeServer::accept() - Primary Pipe Failed to reconnect." << endl;
+            }
            //should throw an exception here
            // return NULL;
            throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
@@ -313,8 +392,10 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
     }
 
 
-    cout << "NamedPipeServer::accept() - waiting for connection " << _SECONDARY_PIPE_NAME(_name) << endl;
-
+    {
+    AutoMutex automut(Monitor::_cout_mut);
+     cout << "NamedPipeServer::accept() - waiting for connection " << _SECONDARY_PIPE_NAME(_name) << endl;
+    }
     pipe2->overlap.hEvent = CreateEvent(NULL,    // default security attribute
                                        FALSE,
                                        FALSE,
@@ -322,27 +403,43 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
 
     if (pipe2->overlap.hEvent == NULL)
     {
+         {
+         AutoMutex automut(Monitor::_cout_mut);
          cout << " NamedPipeServer::accept failed to create event for secondary pipe." << endl;
          cout << "CreateEvent failed with " << GetLastError() << "."<< endl;
-         throw 0;    
+         }
+         throw 0;
     }
 
 
+    {AutoMutex automut(Monitor::_cout_mut);
     cout << " NamedPipeServer::accept - Creating Event "<< pipe2->overlap.hEvent << endl;
-
+    }
     fconnected = _connectToNamedPipe(pipe2->hpipe, &pipe2->overlap);
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "In NamePipeServer::accept() - Secondary Pipe connecting.... " << _pipe.hpipe << endl;
+    }
     if (fconnected)
     {
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "NamedPipeServer::accept() - Secondary Pipe Failed to reconnect." << endl;
+        }
        //should throw an exception here
         ::DisconnectNamedPipe(_pipe.hpipe);
         ::CloseHandle(pipe2->hpipe);
         fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "In NamePipeServer::accept() - Primary Pipe reconnecting after Secondary Pipe connection failure. " << _pipe.hpipe << endl;
+        }
         if (fconnected)
         {
+            {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "NamedPipeServer::accept() - Primary Pipe Failed to reconnect." << endl;
+            }
            //should throw an exception here
             //return NULL;
             throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
@@ -356,17 +453,23 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
     ::DisconnectNamedPipe(_pipe.hpipe);
 
     fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "In NamePipeServer::accept() - Primary Pipe reconnecting after disconnecting from prev. client. " << _pipe.hpipe << endl;
+    }
     if (fconnected)
     {
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "NamedPipeServer::accept() - Primary Pipe Failed to reconnect." << endl;
+        }
        //should throw an exception here
         //return NULL;
         throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
     }
 
 
-   
+
 
 
 
@@ -385,14 +488,17 @@ Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
 
     Boolean fconnected = false;
     Boolean ConnectFailed = false;
-    
+
     fconnected = ConnectNamedPipe(pipe, overlap);
     if (fconnected)
     {
+          {
+          AutoMutex automut(Monitor::_cout_mut);
           cout << "Main:: ConnectNamedPipe failed." << endl;
+          }
           ::CloseHandle(pipe);
           //::DisconnectNamedPipe(namedPipes[0].hpipe);
-          return fconnected;         
+          return fconnected;
      }
     switch (GetLastError())
     {
@@ -411,7 +517,10 @@ Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
      // JA  listening
     case ERROR_PIPE_LISTENING:
         {
+            {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "in NamedPipe::_connectToNamedPipe server in connected and listening" << endl;
+            }
             break;
         }
 
@@ -419,12 +528,15 @@ Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
 
        default:
        {
+          {
+          AutoMutex automut(Monitor::_cout_mut);
           cout << "ConnectNamedPipe failed with " << GetLastError() << "." << endl;
+          }
           //return -1;
           ConnectFailed = true;
           break;
        }
-    }          
+    }
 
     if (ConnectFailed)
     {
@@ -447,14 +559,16 @@ Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
 // NamedPipeClient
 //
 
-NamedPipeClient::NamedPipeClient(const String & name) 
+NamedPipeClient::NamedPipeClient(const String & name)
 {
     //string raw_tmp(MAX_BUFFER_SIZE, string::value_type(0));
     //raw = raw_tmp;
     isConnectionPipe = false;
     _name = (name);
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeClient::NamedPipeClient()" << endl;
-
+    }
 }
 
 NamedPipeClient::~NamedPipeClient(void)
@@ -466,16 +580,20 @@ NamedPipeClient::~NamedPipeClient(void)
 //HANDLE NamedPipeClient::connect(void)
 NamedPipeClientEndPiont NamedPipeClient::connect(void)
 {
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeClient::connect() - " << _PRIMARY_PIPE_NAME(_name) << endl;
-
+    }
     // perform handshake
     string request(CONNECT_REQUEST);
     string response(CONNECT_RESPONSE);
 
     DWORD size = 0;
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeClient::connect() - send " << request.data() << endl;
-
+    }
     BOOL rc =
         ::CallNamedPipe(
             _PRIMARY_PIPE_NAME(_name).getCString(),
@@ -488,22 +606,32 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
 
     if(rc == 0)
     {
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "NamedPipeClient::connect() - failed to call primary pipe" << endl;
         cout << "::CallNamedPipe() rc = " << ::GetLastError() << endl;
+        }
         throw(Exception("NamedPipeClient::connect() - failed to call primary pipe"));
     }
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeClient::connect() - recv " << response.data() << endl;
+    }
     if(strcmp(response.data(), CONNECT_RESPONSE))
    // if(response. != CONNECT_RESPONSE)
     {
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "NamedPipeClient::connect() - incorrect response" << endl;
-
+        }
        throw(Exception("NamedPipeClient::connect() - Incorrect response"));
     }
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeClient::connect() - connecting to " << _SECONDARY_PIPE_NAME(_name) << endl;
-
+    }
     //HANDLE pipe2 = INVALID_HANDLE_VALUE;
     PEGASUS_NAMEDPIPE* pipe2 = new PEGASUS_NAMEDPIPE;
     for( ; ; )
@@ -526,19 +654,25 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
 
         if(::GetLastError() != ERROR_PIPE_BUSY)
         {
+            {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "NamedPipeClient::connect() - failed to connect to secondary pipe" << endl;
             cout << "::CreateFile() rc = " << ::GetLastError() << endl;
-
+            }
             throw(Exception("NamedPipeClient::connect() - failed to connect to secondary pipe"));
         }
 
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "NamedPipeClient::connect() - pipe is busy. waiting..." << endl;
-
+        }
         if(::WaitNamedPipe(_SECONDARY_PIPE_NAME(_name).getCString(), MAX_TIMEOUT) == FALSE)
         {
+            {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "NamedPipeClient::connect() - timed out waiting for secondary pipe" << endl;
             cout << "::WaitNamedPipe() rc = " << ::GetLastError() << endl;
-
+            }
             throw(Exception("NamedPipeClient::connect() - timed out waiting for secondary pipe"));
         }
     }
@@ -554,9 +688,11 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
 
     if(rc == FALSE)
     {
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "NamedPipeClient::connect() - failed to set state for primary pipe" << endl;
         cout << "::SetNamedPipeState() rc = " << ::GetLastError() << endl;
-
+        }
         ::CloseHandle(pipe2->hpipe);
 
         throw(Exception("NamedPipeClient::connect() - failed to set state for primary pipe"));
@@ -570,8 +706,11 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
 
     if (pipe2->overlap.hEvent  == NULL)
     {
+         {
+         AutoMutex automut(Monitor::_cout_mut);
          cout << " NamedPipeServer::connect failed to create event for secondary pipe." << endl;
          cout << "CreateEvent failed with " << GetLastError() << "."<< endl;
+         }
          throw(Exception("NamedPipeServer::connect failed to create event for secondary pipe."));
 
     }
@@ -581,23 +720,29 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
     // the caller is responsible for disconnecting the pipe
     // and closing the pipe
     NamedPipeClientEndPiont* nPCEPoint = new NamedPipeClientEndPiont(String("Operationpipe"), *pipe2);
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "just creaed a pipe named - " << nPCEPoint->getName() << endl;
-
+    }
     return(*nPCEPoint);
 }
 
 void NamedPipeClient::disconnect(HANDLE pipe) const
 {
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeClient::disconnect() - " << _SECONDARY_PIPE_NAME(_name) << endl;
-
+    }
     // perform handshake
     string request(DISCONNECT_REQUEST);
     string response(DISCONNECT_RESPONSE);
 
     DWORD size = 0;
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeClient::disconnect() - send " << request.data() << endl;
-
+    }
     BOOL rc =
         ::TransactNamedPipe(
             pipe,
@@ -608,13 +753,17 @@ void NamedPipeClient::disconnect(HANDLE pipe) const
             &size,
             0);
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeClient::disconnect() - recv " << response.data() << endl;
-
+    }
     if(rc = FALSE)
     {
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "NamedPipeClient::disconnect() - failed to call primary pipe" << endl;
         cout << "::TransactNamedPipe() rc = " << ::GetLastError() << endl;
-
+        }
         //return(0);
     }
 
@@ -627,7 +776,10 @@ NamedPipeServerEndPiont::NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE 
     //string raw_tmp(MAX_BUFFER_SIZE, string::value_type(0));
    // raw = raw_tmp;
     isConnectionPipe = false;
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "in NamedPipeServerEndPiont constructor " << endl;
+    }
     _name = name;
     _pipe = pipeStruct;
 
@@ -638,7 +790,10 @@ NamedPipeClientEndPiont::NamedPipeClientEndPiont(String name, PEGASUS_NAMEDPIPE 
     //string raw_tmp(MAX_BUFFER_SIZE, string::value_type(0));
     //raw = raw_tmp;
     isConnectionPipe = false;
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "in NamedPipeServerEndPiont constructor " << endl;
+    }
     _name = name;
     _pipe = pipeStruct;
 

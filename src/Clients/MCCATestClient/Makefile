@@ -107,6 +107,7 @@ removerepository:
 	@$(RMREPOSITORY) "$(REPOSITORY_ROOT)/root#test#A"
 	@ $(ECHO) +++++ Removing existing repository named root/test/B
 	@$(RMREPOSITORY) "$(REPOSITORY_ROOT)/root#test#B"
+	@$(RM) removeclasses.log
 
 unregister: removeclasses
 	@ $(ECHO) +++++ Unregister MCCA_TestAssocClass provider ...

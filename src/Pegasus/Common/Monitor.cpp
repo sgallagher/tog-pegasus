@@ -82,7 +82,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static AtomicInt _connections(0);
-
+Mutex Monitor::_cout_mut;
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
  #define PIPE_INCREMENT 1
@@ -103,6 +103,10 @@ Monitor::Monitor()
      _tickle_server_socket(-1),
      _tickle_peer_socket(-1)
 {
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Entering: Monitor::Monitor(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
     int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
     Socket::initializeInterface();
     _entries.reserveCapacity(numberOfMonitorEntriesToAllocate);
@@ -118,10 +122,18 @@ Monitor::Monitor()
        _MonitorEntry entry(0, 0, 0);
        _entries.append(entry);
     }
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Exiting:  Monitor::Monitor(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
 }
 
 Monitor::~Monitor()
 {
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Entering: Monitor::~Monitor(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
 
     try{
@@ -147,9 +159,17 @@ Monitor::~Monitor()
     Socket::uninitializeInterface();
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "returning from monitor destructor");
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Exiting:  Monitor::~Monitor(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
 }
 
 void Monitor::initializeTickler(){
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Entering: Monitor::initializeTickler(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
     /*
        NOTE: On any errors trying to
              setup out tickle connection,
@@ -332,10 +352,18 @@ void Monitor::initializeTickler(){
     _MonitorEntry entry(_tickle_peer_socket, 1, INTERNAL);
     entry._status = _MonitorEntry::IDLE;
     _entries.append(entry);
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Exiting:  Monitor::initializeTickler(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
 }
 
 void Monitor::tickle(void)
 {
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Entering: Monitor::tickle(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
     static char _buffer[] =
     {
       '0','0'
@@ -345,6 +373,10 @@ void Monitor::tickle(void)
     Socket::disableBlocking(_tickle_client_socket);
     Socket::write(_tickle_client_socket,&_buffer, 2);
     Socket::enableBlocking(_tickle_client_socket);
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Exiting:  Monitor::tickle(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
 }
 
 void Monitor::setState( Uint32 index, _MonitorEntry::entry_status status )
@@ -355,6 +387,10 @@ void Monitor::setState( Uint32 index, _MonitorEntry::entry_status status )
 
 Boolean Monitor::run(Uint32 milliseconds)
 {
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Entering: Monitor::run(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
 
     Boolean handled_events = false;
     int i = 0;
@@ -864,6 +900,10 @@ Boolean Monitor::run(Uint32 milliseconds)
            entries.reset(_entries);
 		   entries[indx]._status = _MonitorEntry::IDLE;
 
+                   {
+                       AutoMutex automut(Monitor::_cout_mut);
+                       PEGASUS_STD(cout) << "Exiting:  Monitor::run(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+                   }
 		   return true;
 		}
 	     }
@@ -875,11 +915,19 @@ Boolean Monitor::run(Uint32 milliseconds)
        }
     }
 
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Exiting:  Monitor::run(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
     return(handled_events);
 }
 
 void Monitor::stopListeningForConnections(Boolean wait)
 {
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Entering: Monitor::stopListeningForConnections(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::stopListeningForConnections()");
     // set boolean then tickle the server to recognize _stopConnections
     _stopConnections = 1;
@@ -894,6 +942,10 @@ void Monitor::stopListeningForConnections(Boolean wait)
     }
 
     PEG_METHOD_EXIT();
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Exiting:  Monitor::stopListeningForConnections(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
 }
 
 
@@ -903,6 +955,10 @@ int  Monitor::solicitSocketMessages(
     Uint32 queueId,
     int type)
 {
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Entering: Monitor::solicitSocketMessages(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solicitSocketMessages");
    AutoMutex autoMut(_entry_mut);
    // Check to see if we need to dynamically grow the _entries array
@@ -929,6 +985,10 @@ int  Monitor::solicitSocketMessages(
             _entries[index]._type = type;
             _entries[index]._status = _MonitorEntry::IDLE;
 
+            {
+                AutoMutex automut(Monitor::_cout_mut);
+                PEGASUS_STD(cout) << "Exiting:  Monitor::solicitSocketMessages(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+            }
             return index;
          }
       }
@@ -938,12 +998,20 @@ int  Monitor::solicitSocketMessages(
    }
    _solicitSocketCount--;  // decrease the count, if we are here we didnt do anything meaningful
    PEG_METHOD_EXIT();
+   {
+       AutoMutex automut(Monitor::_cout_mut);
+       PEGASUS_STD(cout) << "Exiting:  Monitor::solicitSocketMessages(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+   }
    return -1;
 
 }
 
 void Monitor::unsolicitSocketMessages(PEGASUS_SOCKET socket)
 {
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Entering: Monitor::unsolicitSocketMessages(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
 
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessages");
     AutoMutex autoMut(_entry_mut);
@@ -977,11 +1045,19 @@ void Monitor::unsolicitSocketMessages(PEGASUS_SOCKET socket)
 	index--;
     }
     PEG_METHOD_EXIT();
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Exiting:  Monitor::unsolicitSocketMessages(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
 }
 
 // Note: this is no longer called with PEP 183.
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 {
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Entering: Monitor::_dispatch(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
         "Monitor::_dispatch: entering run() for indx  = %d, queueId = %d, q = %p",

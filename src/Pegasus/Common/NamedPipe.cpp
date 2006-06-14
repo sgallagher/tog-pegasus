@@ -79,7 +79,8 @@ bool NamedPipe::read(HANDLE pipe, String & buffer)
 }
 
 // ATTN: need to update function to read data larger than MAX_BUFFER_SIZE
-bool NamedPipe::write(HANDLE pipe, String & buffer)
+//bool NamedPipe::write(HANDLE pipe, String & buffer)
+bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
 {
     DWORD size = 0;
 
@@ -89,7 +90,7 @@ bool NamedPipe::write(HANDLE pipe, String & buffer)
             /*(void *)*/buffer.getCString(),
             buffer.size(),
             &size,
-            0);     //this should be the overlap
+            overlap);     //this should be the overlap
 
     if(!rc)
     {

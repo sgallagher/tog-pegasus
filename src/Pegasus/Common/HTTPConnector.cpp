@@ -514,7 +514,7 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
    if (-1 == (_entry_index = _monitor->solicitPipeMessages(
       connection->getNamedPipe(),
       NamedPipeMessage::READ | NamedPipeMessage::EXCEPTION,
-      connection->getQueueId(), Monitor::CONNECTION))) 
+      connection->getQueueId(), Monitor::CONNECTOR/*Monitor::CONNECTION*/))) 
    {
       //this is a failure block 
       PEGASUS_STD(cout) << "_monitor->solicitSocketMessages failed " << PEGASUS_STD(endl); 

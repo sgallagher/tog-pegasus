@@ -44,6 +44,9 @@ SOURCES = wildCardNamespaceNames.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+	@$(RMREPOSITORY) "$(TMP_DIR)/repository"
 	@$(PROGRAM)
+	@$(RMREPOSITORY) "$(TMP_DIR)/repository"
+
 
 poststarttests:

@@ -55,9 +55,16 @@ int main(int argc, char** argv)
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;
 
-    String repositoryRootPath =
-       ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
+    // Setup the repository path and create a repository
+    String repositoryRootPath;
+        const char* tmpDir = getenv ("PEGASUS_TMP");
 
+    if (tmpDir == NULL)
+        repositoryRootPath = ".";
+    else
+        repositoryRootPath = tmpDir;
+
+    repositoryRootPath.append("/repository");
     CIMRepository *_repository = new CIMRepository(repositoryRootPath);
 
     try {
@@ -81,7 +88,7 @@ int main(int argc, char** argv)
 
        const Array<String> ar=WildCardNamespaceNames::getArray();
        for (int i=0,m=ar.size(); i<m; i++ ) {
-	 if (verbose) cout<<argv[0]<<" --- "<<i<<" "<<ar[i]<<endl;
+           if (verbose) cout<<argv[0]<<" --- "<<i<<" "<<ar[i]<<endl;
        }
 
        Array<CIMNamespaceName> nss=_repository->enumerateNameSpaces();
@@ -92,10 +99,10 @@ int main(int argc, char** argv)
     }
 
     catch(Exception& e) {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	PEGASUS_STD (cout) << argv[0] << " +++++ modify instances failed"
+        PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+        PEGASUS_STD (cout) << argv[0] << " +++++ modify instances failed"
                            << PEGASUS_STD (endl);
-	exit(-1);
+        exit(-1);
     }
 
     PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests" << PEGASUS_STD(endl);

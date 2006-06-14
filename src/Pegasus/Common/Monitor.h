@@ -253,6 +253,7 @@ public:
       UNTYPED, ACCEPTOR, CONNECTOR, CONNECTION, INTERNAL
     };
 
+  static Mutex _cout_mut;
 
   /** Default constructor. */
   Monitor();

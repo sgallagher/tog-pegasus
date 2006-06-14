@@ -370,7 +370,8 @@ void _deleteFilterInstance
 
 void _invokeMethod
     (CIMClient & client,
-    const CIMName & methodName)
+    const CIMName & methodName,
+    const String & identifier)
 {
     //
     //  Remove previous indication log file, if there
@@ -398,6 +399,8 @@ void _invokeMethod
     //  Invoke method to send test indication or cause failure
     //
     Array <CIMParamValue> inParams;
+    CIMParamValue inValue (String ("identifier"), CIMValue (identifier), true);
+    inParams.append (inValue);
     Array <CIMParamValue> outParams;
     Array <CIMKeyBinding> keyBindings;
     Sint32 result;
@@ -430,7 +433,199 @@ void _renameLogFile (const String & indicationLogFileName)
     FileSystem::renameFile (indicationLogFileName, indicationLogFailedFileName);
 }
 
-Boolean _validateIndicationReceipt ()
+//
+//  Reads the contents of the indication log file, verifying if the
+//  indication contents are correct.  Returns 1 if correct.  Returns 0 if
+//  incorrect.  Returns -1 if result cannot yet be determined (writing of log
+//  file may not yet have been completed).
+//
+Sint16 _verifyIndication (
+    const String & indicationLogFileName,
+    const String & identifier)
+{
+    try
+    {
+        Buffer contents;
+        FileSystem::loadFileToMemory (contents, indicationLogFileName);
+        contents.append ('\0');
+        const char * theLog = contents.getData ();
+        String log (theLog);
+        Uint32 newline;
+        newline = log.find ('\n');
+        if (newline == PEG_NOT_FOUND)
+        {
+            cerr << "Expected newline" << endl;
+            return -1;
+        }
+        String header = log.subString (0, newline);
+        if (header [header.size () - 1] == '\r')
+        {
+            header = header.subString (0, newline - 1);
+        }
+        if (!String::equal (header,
+            "++++++++++++++ Received Indication +++++++++++++++++"))
+        {
+            cerr << "Expected Received Indication header" << endl;
+            return -1;
+        }
+        if (log.size () > (newline + 1))
+        {
+            log = log.subString (newline + 1);
+        }
+        else
+        {
+            cerr << "Expected additional contents after header" << endl;
+            return -1;
+        }
+        Uint32 numProperties = 4;
+
+        String propertyName;
+        String propertyValue;
+        for (Uint32 i = 0; i < numProperties; i++)
+        {
+            newline = log.find ('\n');
+            if (newline == PEG_NOT_FOUND)
+            {
+                cerr << "Expected newline" << endl;
+                return -1;
+            }
+            String line = log.subString (0, newline);
+            if (line [line.size () - 1] == '\r')
+            {
+                line = line.subString (0, newline - 1);
+            }
+            Uint32 eq = line.find (String (" = "));
+            if (eq == PEG_NOT_FOUND)
+            {
+                cerr << "Expected =" << endl;
+                return -1;
+            }
+            propertyName.clear ();
+            propertyValue.clear ();
+            propertyName = line.subString (0, eq);
+            if (line.size () > (eq + 3))
+            {
+                propertyValue = line.subString (eq + 3);
+            }
+            if (String::equalNoCase (propertyName,
+                "AlertType"))
+            {
+                if (!String::equal (propertyValue, String ("1")))
+                {
+                    //
+                    //  Unexpected property value
+                    //
+                    cerr << "Unexpected AlertType value: " << propertyValue <<
+                         endl;
+                    return 0;
+                }
+            }
+            else if (String::equalNoCase (propertyName, "PerceivedSeverity"))
+            {
+                if (!String::equal (propertyValue, String ("2")))
+                {
+                    //
+                    //  Unexpected property value
+                    //
+                    cerr << "Unexpected PerceivedSeverity value: " <<
+                         propertyValue << endl;
+                    return 0;
+                }
+            }
+            else if (String::equalNoCase (propertyName, "IndicationIdentifier"))
+            {
+                if (!String::equal (propertyValue, identifier))
+                {
+                    //
+                    //  Unexpected property value
+                    //
+                    cerr << "Unexpected IndicationIdentifier value: " <<
+                         propertyValue << endl;
+                    cerr << "Expected IndicationIdentifier value: " <<
+                         identifier << endl;
+                    return 0;
+                }
+            }
+            else if (String::equalNoCase (propertyName, "IndicationTime"))
+            {
+                //  Don't try to validate the value
+            }
+            else
+            {
+                //
+                //  Unexpected property name
+                //
+                cerr << "Unexpected property name: " << propertyName << endl;
+                return 0;
+            }
+            if (log.size () > (newline + 1))
+            {
+                log = log.subString (newline + 1);
+            }
+            else
+            {
+                cerr <<
+                     "Expected additional contents after indication properties"
+                     << endl;
+                return -1;
+            }
+        }
+
+        newline = log.find ('\n');
+        if (newline == PEG_NOT_FOUND)
+        {
+            cerr << "Expected newline" << endl;
+            return -1;
+        }
+        String footer = log.subString (0, newline);
+        if (footer [footer.size () - 1] == '\r')
+        {
+            footer = footer.subString (0, newline - 1);
+        }
+        if (!String::equal (footer,
+            "++++++++++++++++++++++++++++++++++++++++++++++++++++"))
+        {
+            cerr << "Expected footer" << endl;
+            return -1;
+        }
+        if (log.size () > newline + 1)
+        {
+            log = log.subString (newline + 1);
+            if (log [0] == '\r')
+            {
+                log = log.subString (1);
+            }
+            if ((log.size () != 1) || (log [0] != '\n'))
+            {
+                cerr << "Extra contents in log after indication" << endl;
+                return 0;
+            }
+        }
+        else
+        {
+            cerr << "Expected final return/newline" << endl;
+            return -1;
+        }
+
+        //
+        //  Successful verification
+        //
+        return 1;
+    }
+    catch (CannotOpenFile &)
+    {
+        cerr << "Could not open indication log file" << endl;
+        return -1;
+    }
+    catch (...)
+    {
+        cerr << "Unknown error validating indication log file" << endl;
+        return -1;
+    }
+}
+
+Boolean _validateIndicationReceipt (
+    const String & identifier)
 {
     String indicationLogFileName;
     indicationLogFileName = INDICATION_DIR;
@@ -454,169 +649,58 @@ Boolean _validateIndicationReceipt ()
             System::sleep (SLEEP_SEC);
         }
     }
+
     if (!fileExists)
     {
         return false;
     }
 
-    try
+    //
+    //  Once the file exists, allow time for the indication to be written
+    //
+    Boolean indicationVerified = false;
+    while (iteration < MAX_ITERATIONS)
     {
-        Buffer contents;
-        FileSystem::loadFileToMemory (contents, indicationLogFileName);
-        contents.append ('\0');
-        const char * theLog = contents.getData ();
-        String log (theLog);
-        Uint32 newline;
-        newline = log.find ('\n');
-        if (newline == PEG_NOT_FOUND)
-        {
-            _renameLogFile (indicationLogFileName);
-            return false;
-        }
-        String header = log.subString (0, newline);
-        if (header [header.size () - 1] == '\r')
-        {
-            header = header.subString (0, newline - 1);
-        }
-        if (!String::equal (header,
-            "++++++++++++++ Received Indication +++++++++++++++++"))
-        {
-            _renameLogFile (indicationLogFileName);
-            return false;
-        }
-        if (log.size () > (newline + 1))
-        {
-            log = log.subString (newline + 1);
-        }
-        else
-        {
-            _renameLogFile (indicationLogFileName);
-            return false;
-        }
-        Uint32 numProperties = 2;
-
-        String propertyName;
-        String propertyValue;
-        for (Uint32 i = 0; i < numProperties; i++)
-        {
-            newline = log.find ('\n');
-            if (newline == PEG_NOT_FOUND)
-            {
-                _renameLogFile (indicationLogFileName);
-                return false;
-            }
-            String line = log.subString (0, newline);
-            if (line [line.size () - 1] == '\r')
-            {
-                line = line.subString (0, newline - 1);
-            }
-            Uint32 eq = line.find (String (" = "));
-            if (eq == PEG_NOT_FOUND)
-            {
-                _renameLogFile (indicationLogFileName);
-                return false;
-            }
-            propertyName.clear ();
-            propertyValue.clear ();
-            propertyName = line.subString (0, eq);
-            if (line.size () > (eq + 3))
-            {
-                propertyValue = line.subString (eq + 3);
-            }
-            if (String::equalNoCase (propertyName,
-                "AlertType"))
-            {
-                if (!String::equal (propertyValue, String ("1")))
-                {
-                    //
-                    //  Unexpected property value
-                    //
-                    _renameLogFile (indicationLogFileName);
-                    return false;
-                }
-            }
-            else if (String::equalNoCase (propertyName, "PerceivedSeverity"))
-            {
-                if (!String::equal (propertyValue, String ("2")))
-                {
-                    //
-                    //  Unexpected property value
-                    //
-                    _renameLogFile (indicationLogFileName);
-                    return false;
-                }
-            }
-            else
-            {
-                //
-                //  Unexpected property name
-                //
-                _renameLogFile (indicationLogFileName);
-                return false;
-            }
-            if (log.size () > (newline + 1))
-            {
-                log = log.subString (newline + 1);
-            }
-            else
-            {
-                _renameLogFile (indicationLogFileName);
-                return false;
-            }
-        }
-
-        newline = log.find ('\n');
-        if (newline == PEG_NOT_FOUND)
-        {
-            _renameLogFile (indicationLogFileName);
-            return false;
-        }
-        String footer = log.subString (0, newline);
-        if (footer [footer.size () - 1] == '\r')
-        {
-            footer = footer.subString (0, newline - 1);
-        }
-        if (!String::equal (footer,
-            "++++++++++++++++++++++++++++++++++++++++++++++++++++"))
-        {
-            _renameLogFile (indicationLogFileName);
-            return false;
-        }
-        if (log.size () > newline + 1)
-        {
-            log = log.subString (newline + 1);
-            if (log [0] == '\r')
-            {
-                log = log.subString (1);
-            }
-            if ((log.size () != 1) || (log [0] != '\n'))
-            {
-                _renameLogFile (indicationLogFileName);
-                return false;
-            }
-        }
-        else
-        {
-            _renameLogFile (indicationLogFileName);
-            return false;
-        }
+        iteration++;
+        Sint16 verifyResult = _verifyIndication (indicationLogFileName,
+            identifier);
 
         //
-        //  Remove the indication log file on successful verification
+        //  Indication verified to be correct
         //
-        FileSystem::removeFile (indicationLogFileName);
-        return true;
+        if (verifyResult == 1)
+        {
+            //
+            //  Remove the indication log file on successful verification
+            //
+            indicationVerified = true;
+            FileSystem::removeFile (indicationLogFileName);
+            break;
+        }
+        //
+        //  Indication verified to be incorrect
+        //
+        else if (verifyResult == 0)
+        {
+            //
+            //  Rename the indication log file on unsuccessful verification
+            //
+            _renameLogFile (indicationLogFileName);
+            break;
+        }
+        //
+        //  Indication log file may not yet have been completely written
+        //
+        else  //  verifyResult == -1
+        {
+            //
+            //  Retry
+            //
+            System::sleep (SLEEP_SEC);
+        }
     }
-    catch (CannotOpenFile &)
-    {
-        _renameLogFile (indicationLogFileName);
-        return false;
-    }
-    catch (...)
-    {
-        _renameLogFile (indicationLogFileName);
-        return false;
-    }
+
+    return indicationVerified;
 }
 
 CIMInstance _getModuleInstance (
@@ -812,7 +896,8 @@ void _setup (CIMClient & client)
     //  Create Filters and Handler for subscriptions
     //
     _createFilterInstance (client, String ("OOPFilter01"), String
-        ("SELECT AlertType, PerceivedSeverity FROM FailureTestIndication"),
+        ("SELECT AlertType, PerceivedSeverity, "
+         "IndicationIdentifier, IndicationTime FROM FailureTestIndication"),
         "WQL");
 
     _createFilterInstance (client, String ("OOPFilter02"), String
@@ -935,7 +1020,8 @@ void _testScenario1 (
     //
     try
     {
-        _invokeMethod (client, String ("Fail"));
+        String identifier = "Scenario 1: " + providerName;
+        _invokeMethod (client, String ("Fail"), identifier);
         PEGASUS_TEST_ASSERT (false);
     }
     catch (const CIMException & e)
@@ -1080,9 +1166,9 @@ void _testScenario3 (
     //
     //  Invoke method to send test indication
     //
-    _invokeMethod (client, String ("SendTestIndication"));
-
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt ());
+    String identifier = "Scenario 3a: " + providerName;
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
 
     //
     //  Create a subscription that will cause provider failure
@@ -1117,9 +1203,9 @@ void _testScenario3 (
     //
     //  Invoke method to send test indication
     //
-    _invokeMethod (client, String ("SendTestIndication"));
-
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt ());
+    identifier = "Scenario 3b: " + providerName;
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
 
     //
     //  Delete the subscription
@@ -1190,7 +1276,9 @@ void _testScenario4 (
     //
     //  Invoke method to send test indication
     //
-    _invokeMethod (client, String ("SendTestIndication"));
+    String identifier = "Scenario 4a: " + providerName;
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
 
     //
     //  Cause provider failure
@@ -1203,7 +1291,8 @@ void _testScenario4 (
         //
         try
         {
-            _invokeMethod (client, String ("Fail"));
+            identifier = "Scenario 4b: " + providerName;
+            _invokeMethod (client, String ("Fail"), identifier);
             PEGASUS_TEST_ASSERT (false);
         }
         catch (const CIMException & e)
@@ -1250,7 +1339,9 @@ void _testScenario4 (
     //
     //  Invoke method to send test indication
     //
-    _invokeMethod (client, String ("SendTestIndication"));
+    identifier = "Scenario 4c: " + providerName;
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
 
     //
     //  Delete the subscription
@@ -1321,7 +1412,9 @@ void _testScenario5 (
     //
     //  Invoke method to send test indication
     //
-    _invokeMethod (client, String ("SendTestIndication"));
+    String identifier = "Scenario 5a: " + providerName;
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
 
     //
     //  Create a second subscription
@@ -1354,7 +1447,9 @@ void _testScenario5 (
     //
     //  Invoke method to send test indication
     //
-    _invokeMethod (client, String ("SendTestIndication"));
+    identifier = "Scenario 5b: " + providerName;
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
 
     //
     //  Delete the first subscription
@@ -1421,7 +1516,9 @@ void _testScenario6 (
     //
     //  Invoke method to send test indication
     //
-    _invokeMethod (client, String ("SendTestIndication"));
+    String identifier = "Scenario 6: " + providerName;
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
 
     //
     //  Delete the subscription to cause provider failure
@@ -1495,7 +1592,9 @@ void _testScenario7 (
     //
     //  Invoke method to send test indication
     //
-    _invokeMethod (client, String ("SendTestIndication"));
+    String identifier = "Scenario 7a: " + providerName;
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
 
     //
     //  Disable provider to cause provider failure
@@ -1526,7 +1625,9 @@ void _testScenario7 (
     //
     //  Invoke method to send test indication
     //
-    _invokeMethod (client, String ("SendTestIndication"));
+    identifier = "Scenario 7b: " + providerName;
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
 
     //
     //  Delete the subscription
@@ -1618,14 +1719,17 @@ void _testScenario8 (
     //
     //  Invoke method to send test indication
     //
-    _invokeMethod (client, String ("SendTestIndication"));
+    String identifier = "Scenario 8a: " + providerName;
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
 
     //
     //  Invoke method to cause provider failure
     //
     try
     {
-        _invokeMethod (client, String ("Fail"));
+        identifier = "Scenario 8b: " + providerName;
+        _invokeMethod (client, String ("Fail"), identifier);
         PEGASUS_TEST_ASSERT (false);
     }
     catch (const CIMException & e)
@@ -1653,7 +1757,9 @@ void _testScenario8 (
     //
     //  Invoke method to send test indication
     //
-    _invokeMethod (client, String ("SendTestIndication"));
+    identifier = "Scenario 8c: " + providerName;
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
 
     //
     //  Delete the subscription

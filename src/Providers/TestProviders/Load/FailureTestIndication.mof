@@ -31,7 +31,7 @@
 [Indication]
 class FailureTestIndication : CIM_AlertIndication
 {
-    [Static] uint32 SendTestIndication ();
+    [Static] uint32 SendTestIndication (string identifier);
     [Static] uint32 Fail ();
 };
 

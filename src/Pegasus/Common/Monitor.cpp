@@ -550,7 +550,29 @@ Boolean Monitor::run(Uint32 milliseconds)
            hEvents[pipeEntryCount] = entries[indx].namedPipe.getOverlap().hEvent;
            
            indexPipeCountAssociator.append(indx);
-    
+           /*
+           if(!entries[indx].namedPipe.isConnectionPipe)
+           { 
+               BOOL rc = ::ReadFile(
+                       entries[indx].namedPipe.getPipe(),
+                       &entries[indx].namedPipe.raw,
+                       MAX_BUFFER_SIZE,
+                       &entries[indx].namedPipe.bytesRead,
+                       &entries[indx].namedPipe.getOverlap());
+
+               cout << "just called read on index " << indx << endl;
+
+                //&entries[indx].namedPipe.bytesRead = &size; 
+               if(!rc)
+               {
+
+                  cout << "ReadFile failed for : "  << GetLastError() << "."<< endl;
+
+               }
+
+           }
+          */
+
     pipeEntryCount++;
 
 

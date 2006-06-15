@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -95,8 +95,8 @@ class bsd_socket_rep;
 ////////////////////////////////////////////////////////////////////////////////
 
 static Boolean _MakeAddress(
-   const char* hostname, 
-   int port, 
+   const char* hostname,
+   int port,
    sockaddr_in& address)
 {
    if (!hostname)
@@ -110,7 +110,7 @@ static Boolean _MakeAddress(
     return false;
     AtoE(ebcdicHost);
 #endif
-    
+
 ////////////////////////////////////////////////////////////////////////////////
 // This code used to check if the first character of "hostname" was alphabetic
 // to indicate hostname instead of IP address. But RFC 1123, section 2.1, relaxed
@@ -118,8 +118,8 @@ static Boolean _MakeAddress(
 // flow here to call inet_addr first to check for a valid IP address in dotted
 // decimal notation. If it's not a valid IP address, then try to validate
 // it as a hostname.
-// RFC 1123 states: The host SHOULD check the string syntactically for a 
-// dotted-decimal number before looking it up in the Domain Name System. 
+// RFC 1123 states: The host SHOULD check the string syntactically for a
+// dotted-decimal number before looking it up in the Domain Name System.
 // Hence the call to inet_addr() first.
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -184,7 +184,7 @@ static Boolean _MakeAddress(
       memcpy(&address.sin_addr, hostEntry->h_addr, hostEntry->h_length);
       address.sin_family = hostEntry->h_addrtype;
       address.sin_port = htons(port);
-   }     
+   }
    else    // else hostname *is* a dotted-decimal IP address
    {
       memset(&address, 0, sizeof(address));
@@ -243,12 +243,12 @@ void HTTPConnector::handleEnqueue(Message *message)
 
       case CLOSE_CONNECTION_MESSAGE:
       {
-     CloseConnectionMessage* closeConnectionMessage 
+     CloseConnectionMessage* closeConnectionMessage
         = (CloseConnectionMessage*)message;
 
      for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
      {
-        HTTPConnection* connection = _rep->connections[i];  
+        HTTPConnection* connection = _rep->connections[i];
         PEGASUS_SOCKET socket = connection->getSocket();
 
         if (socket == closeConnectionMessage->socket)
@@ -282,7 +282,7 @@ void HTTPConnector::handleEnqueue()
 }
 
 HTTPConnection* HTTPConnector::connect(
-   const String& host, 
+   const String& host,
    const Uint32 portNumber,
    SSLContext * sslContext,
    MessageQueue* outputMessageQueue)
@@ -290,18 +290,24 @@ HTTPConnection* HTTPConnector::connect(
    PEGASUS_SOCKET socket;
 
 
+  {
+  AutoMutex automut(Monitor::_cout_mut);
   PEGASUS_STD(cout) << "HTTPConnector::connect after connectLocal on windows section" << PEGASUS_STD(endl);
+  }
 
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET 
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
    if (host == String::EMPTY)  //connect request was made with CIMClient::connectLocal
    {
       // Set up the domain socket for a local connection
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
+   {
+   AutoMutex automut(Monitor::_cout_mut);
    PEGASUS_STD(cout) << "HTTPConnector::connect before connectLocal on windows section" << PEGASUS_STD(endl);
 
       //CIMClient::connectLocal [host == String::EMPTY] use NamedPipes on windows
        PEGASUS_STD(cout) << "HTTPConnector::connect at connectLocal on windows section" << PEGASUS_STD(endl);
+   }
        HTTPConnection* pipeConnection = _connectNamedPipe(outputMessageQueue);
 
        //error checking needed here
@@ -309,18 +315,25 @@ HTTPConnection* HTTPConnector::connect(
 
        if (pipeConnection->isNamedPipeConnection()) //this if/else is a small bit of error checking - it needs to be better
        {
-           PEGASUS_STD(cout) <<" named pipe HTTPConnetion has this as an owner - " << 
+           AutoMutex automut(Monitor::_cout_mut);
+           PEGASUS_STD(cout) <<" named pipe HTTPConnetion has this as an owner - " <<
                pipeConnection->get_owner().getQueueName() << " it should be " <<
                 this->getQueueName() << PEGASUS_STD(endl);
        }
        else
+           {
+           AutoMutex automut(Monitor::_cout_mut);
            PEGASUS_STD(cout) <<"HTTPConnection returned from _connectNamedPipe is not a pipe conection " << PEGASUS_STD(endl);
-           // We may need to Assert here...  
+           }
+           // We may need to Assert here...
 
+       {
+       AutoMutex automut(Monitor::_cout_mut);
        PEGASUS_STD(cout) << "HTTPConnector::connect after call to _connectNamedPipe" << PEGASUS_STD(endl);
 
        PEGASUS_STD(cout) << "HTTPConnector::connect check HTTPConnection retruned be _connectNamePipe " << endl;
        PEGASUS_STD(cout) << "HTTPConnector::connect pipeConnection->getNamedPipe().getName() = " << pipeConnection->getNamedPipe().getName() << endl;
+       }
       return pipeConnection;
    }
 
@@ -342,7 +355,7 @@ HTTPConnection* HTTPConnector::connect(
                     reinterpret_cast<sockaddr*>(&address),
                     sizeof(address)) < 0)
       {
-     
+
         //l10n
          //throw CannotConnectException("Cannot connect to local CIM server. Connection failed.");
          MessageLoaderParms parms("Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER",
@@ -409,7 +422,7 @@ HTTPConnection* HTTPConnector::connect(
       mp_socket->close();
       throw CannotConnectException(parms);
    }
-    
+
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
         this, static_cast<MessageQueueService *>(outputMessageQueue), false);
 
@@ -420,8 +433,9 @@ HTTPConnection* HTTPConnector::connect(
       SocketMessage::READ | SocketMessage::EXCEPTION,
       connection->getQueueId(), Monitor::CONNECTOR)))
    {
-      //this is a failure block 
-      PEGASUS_STD(cout) << "_monitor->solicitSocketMessages failed " << PEGASUS_STD(endl); 
+      //this is a failure block
+      AutoMutex automut(Monitor::_cout_mut);
+      PEGASUS_STD(cout) << "_monitor->solicitSocketMessages failed " << PEGASUS_STD(endl);
    }
 
    // Save the socket for cleanup later:
@@ -484,14 +498,20 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
  HTTPConnection* HTTPConnector::_connectNamedPipe(MessageQueue* outputMessageQueue)
 {
     NamedPipeClient client("\\\\.\\pipe\\MyNamedPipe");
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after client constuctor" << PEGASUS_STD(endl);
+    }
     NamedPipeClientEndPiont nPCEndPoint = client.connect();
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "In HTTPConnector::_connectNamedPipe just creaed a pipe named - " << nPCEndPoint.getName() << endl;
+    }
 
 
     // Will need to catch the exception from connect...
-     
+
     //HANDLE handle = client.connect();
    /* if(nPCEndPoint == 0)
     {
@@ -499,34 +519,42 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 
         return(false);
     } */
-   
-        
+
+
     //PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after client.connect()" << PEGASUS_STD(endl);
 
     HTTPConnection* connection = new HTTPConnection(_monitor, nPCEndPoint,
-        this, static_cast<MessageQueueService *>(outputMessageQueue), false); 
-
+        this, static_cast<MessageQueueService *>(outputMessageQueue), false);
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after creating HTTPConnection" << PEGASUS_STD(endl);
 
     PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe pipe in HTTPConnection is - " << (connection->getNamedPipe()).getName() << endl;
+    }
     // Solicit events on this new connection's socket:
 
    if (-1 == (_entry_index = _monitor->solicitPipeMessages(
       connection->getNamedPipe(),
       NamedPipeMessage::READ | NamedPipeMessage::EXCEPTION,
-      connection->getQueueId(), Monitor::CONNECTOR/*Monitor::CONNECTION*/))) 
+      connection->getQueueId(), Monitor::CONNECTOR/*Monitor::CONNECTION*/)))
    {
-      //this is a failure block 
-      PEGASUS_STD(cout) << "_monitor->solicitSocketMessages failed " << PEGASUS_STD(endl); 
+      //this is a failure block
+      AutoMutex automut(Monitor::_cout_mut);
+      PEGASUS_STD(cout) << "_monitor->solicitSocketMessages failed " << PEGASUS_STD(endl);
    }
+  {
+  AutoMutex automut(Monitor::_cout_mut);
   PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after solicitPipeMessages "<< PEGASUS_STD(endl);
+  }
 
    // Save the socket for cleanup later:
 
    _rep->connections.append(connection);
 
-
+   {
+   AutoMutex automut(Monitor::_cout_mut);
    PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipeabout to return HTTPConnetion" << PEGASUS_STD(endl);
+   }
 
 
     return connection;

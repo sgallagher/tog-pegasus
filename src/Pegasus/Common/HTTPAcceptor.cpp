@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -131,7 +131,7 @@ public:
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     NamedPipeServer* namedPipeServer;
 #endif
-    Array<HTTPConnection*> connections;   
+    Array<HTTPConnection*> connections;
  /*
 #ifdef PEGASUS_OS_TYPE_WINDOWS
       // This method creates and connects to a named pipe
@@ -154,10 +154,10 @@ inline void _setTCPNoDelay(PEGASUS_SOCKET socket)
 {
     // This function disables "Nagle's Algorithm" also known as "the TCP delay
     // algorithm", which causes read operations to obtain whatever data is
-    // already in the input queue and then wait a little longer to see if 
-    // more data arrives. This algorithm optimizes the case in which data is 
-    // sent in only one direction but severely impairs performance of round 
-    // trip servers. Disabling TCP delay is a standard technique for round 
+    // already in the input queue and then wait a little longer to see if
+    // more data arrives. This algorithm optimizes the case in which data is
+    // sent in only one direction but severely impairs performance of round
+    // trip servers. Disabling TCP delay is a standard technique for round
     // trip servers.
 
    int opt = 1;
@@ -277,8 +277,8 @@ void HTTPAcceptor::handleEnqueue(Message *message)
             // ATTN! this can't happen!
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
               "HTTPAcceptor::handleEnqueue: Invalid NAMEDPIPE_MESSAGE received.");
-         } 
-         
+         }
+
          break;
 
       }
@@ -363,13 +363,18 @@ void HTTPAcceptor::bind()
 */
 void HTTPAcceptor::_bind()
 {
-    PEGASUS_STD(cout) << "in HTTPAcceptor::_bind at the begining" << PEGASUS_STD(endl);
-    PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before ASSERT" << PEGASUS_STD(endl);
-
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "in HTTPAcceptor::_bind at the begining" << PEGASUS_STD(endl);
+        PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before ASSERT" << PEGASUS_STD(endl);
+    }
    PEGASUS_ASSERT(_rep != 0);
    // Create address:
 
-   PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before memset" << PEGASUS_STD(endl);
+   {
+       AutoMutex automut(Monitor::_cout_mut);
+       PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before memset" << PEGASUS_STD(endl);
+   }
 
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -381,27 +386,35 @@ void HTTPAcceptor::_bind()
    memset(_rep->address, 0, sizeof(*_rep->address));
 #endif
 
-   PEGASUS_STD(cout) << "in HTTPAcceptor::_bind After memset" << PEGASUS_STD(endl);
+   {
+       AutoMutex automut(Monitor::_cout_mut);
+       PEGASUS_STD(cout) << "in HTTPAcceptor::_bind After memset" << PEGASUS_STD(endl);
+   }
 
-   
    if (_localConnection)
    {
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET 
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-       PEGASUS_STD(cout) 
-           << "in HTTPAcceptor::_bind before calling _createNamedPipe() " 
+       {
+        AutoMutex automut(Monitor::_cout_mut);
+       PEGASUS_STD(cout)
+           << "in HTTPAcceptor::_bind before calling _createNamedPipe() "
            << PEGASUS_STD(endl);
+       }
      // _rep->createNamedPipe();
        _createNamedPipe();
+       {
+        AutoMutex automut(Monitor::_cout_mut);
        PEGASUS_STD(cout) << "in HTTPAcceptor::_bind after calling _createNamedPipe() " << PEGASUS_STD(endl);
+       }
        return;
 #else
-       reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =  
+       reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =
            AF_UNIX;
        strcpy(
            reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
-           PEGASUS_LOCAL_DOMAIN_SOCKET_PATH); 
+           PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
 
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
        AtoE(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
@@ -587,7 +600,10 @@ void HTTPAcceptor::_bind()
                   "HTTPAcceptor::_bind: Failed to solicit socket messages(2).");
       throw BindFailedException(parms);
    }
+   {
+    AutoMutex automut(Monitor::_cout_mut);
    PEGASUS_STD(cout) << "in HTTPAcceptor::_bind at the End" << PEGASUS_STD(endl);
+   }
 
 }
 
@@ -855,16 +871,23 @@ void HTTPAcceptor::_acceptConnection()
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 void HTTPAcceptor::_createNamedPipe()
 {
+    {
+     AutoMutex automut(Monitor::_cout_mut);
     PEGASUS_STD(cout) << "Entering  HTTPAcceptor::_createNamedPipe()." << PEGASUS_STD(endl);
+    }
 
     _rep->namedPipeServer = new NamedPipeServer("\\\\.\\pipe\\MyNamedPipe");
+    {
+     AutoMutex automut(Monitor::_cout_mut);
     PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() after calling the pipe server constructor" << PEGASUS_STD(endl);
-    
+    }
 
+    {
+     AutoMutex automut(Monitor::_cout_mut);
     cout << "Named pipe...in _createNamedPipe..." << _rep->namedPipeServer->getPipe() << endl;
-
+    }
     // Register to receive Messages on Connection pipe:
-        
+
    if ( -1 == ( _entry_index = _monitor->solicitPipeMessages(
       *_rep->namedPipeServer,
       NamedPipeMessage::READ | NamedPipeMessage::EXCEPTION,
@@ -881,13 +904,18 @@ void HTTPAcceptor::_createNamedPipe()
        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                    "HTTPAcceptor::_bind: Failed to solicit socket messages(2).");
        throw BindFailedException(parms);
-
+       {
+        AutoMutex automut(Monitor::_cout_mut); //added
        PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() _monitor->solicitSocketMessages failed" << PEGASUS_STD(endl);
+       }
 
    }
 
-   PEGASUS_STD(cout) << "Leaving  HTTPAcceptor::_createNamedPipe()." << PEGASUS_STD(endl);
-   return; 
+   {
+       AutoMutex automut(Monitor::_cout_mut);
+       PEGASUS_STD(cout) << "Leaving  HTTPAcceptor::_createNamedPipe()." << PEGASUS_STD(endl);
+   }
+   return;
 
 }
 #endif
@@ -900,17 +928,20 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
 
     if (!_rep)
        return;
-
-    cout <<"In HTTPAcceptor::_acceptNamedPipeConnection " << endl;
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        cout <<"In HTTPAcceptor::_acceptNamedPipeConnection " << endl;
+    }
 
    // shouldnt we be using the private var....
      //                 _namedPipeServer->accept()
 
     NamedPipeServerEndPiont nPSEndPoint = _rep->namedPipeServer->accept();
     // Registerpe to receive Messages on Connection pipe:
-
-    cout << " In _acceptNamedPipeConnection -- after calling namedPipeServer->accept()" << endl;
-
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        cout << " In _acceptNamedPipeConnection -- after calling namedPipeServer->accept()" << endl;
+    }
     HTTPConnection* connection = new HTTPConnection(_monitor, nPSEndPoint,
         this, static_cast<MessageQueue *>(_outputMessageQueue), _exportConnection);
 
@@ -927,9 +958,11 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
     // Solicit events on this new connection's socket:
     int index;
 
-    cout << endl << connection->getNamedPipe().getName() << " has a this as a QueueID " <<
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        cout << endl << connection->getNamedPipe().getName() << " has a this as a QueueID " <<
          connection->getQueueId() << endl;
-
+    }
     if (-1 ==  (index = _monitor->solicitPipeMessages(
        connection->getNamedPipe(),
        NamedPipeMessage::READ | NamedPipeMessage::EXCEPTION,
@@ -950,9 +983,11 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
     AutoMutex autoMut(_rep->_connection_mut);
     _rep->connections.append(connection);
 
-  PEGASUS_STD(cout)
+  {
+      AutoMutex automut(Monitor::_cout_mut);
+      PEGASUS_STD(cout)
        << "in HTTPAcceptor::_acceptNamedPipeConnection() at the end" << PEGASUS_STD(endl);
-
+  }
 
 }
 #endif

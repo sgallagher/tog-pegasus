@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -290,8 +290,10 @@ HTTPConnection::HTTPConnection(
     _connectionClosePending(false),
     _acceptPending(false)
 {
-    PEGASUS_STD(cout) << "In HTTPConnection::HTTPConnection that takes a named pipe" << PEGASUS_STD(endl);
-
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "In HTTPConnection::HTTPConnection that takes a named pipe" << PEGASUS_STD(endl);
+    }
      //_socket->disableBlocking();       //not sure what this does
     _authInfo.reset(new AuthenticationInfo(true));       //this is needed for code in HTTPAuthenticatorDelegator
 
@@ -334,7 +336,10 @@ void HTTPConnection::handleEnqueue(Message *message)
 
     if (_namedPipeConnection)
     {
-        PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue for a named pipe connection" << PEGASUS_STD(endl); 
+        {
+            AutoMutex automut(Monitor::_cout_mut);
+            PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue for a named pipe connection" << PEGASUS_STD(endl);
+        }
     }
 
     AutoMutex connectionLock(_connection_mut, false);
@@ -349,7 +354,10 @@ void HTTPConnection::handleEnqueue(Message *message)
         {
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                 "HTTPConnection::handleEnqueue - SOCKET_MESSAGE");
-             PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case SOCKET_MESSAGE" << PEGASUS_STD(endl);
+             {
+                 AutoMutex automut(Monitor::_cout_mut);
+                 PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case SOCKET_MESSAGE" << PEGASUS_STD(endl);
+             }
             SocketMessage* socketMessage = (SocketMessage*)message;
             if (socketMessage->events & SocketMessage::READ)
                 _handleReadEvent();
@@ -360,13 +368,22 @@ void HTTPConnection::handleEnqueue(Message *message)
         {
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                 "HTTPConnection::handleEnqueue - HTTP_MESSAGE");
-            PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case HTTP_MESSAGE" << PEGASUS_STD(endl);
+            {
+                AutoMutex automut(Monitor::_cout_mut);
+                PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case HTTP_MESSAGE" << PEGASUS_STD(endl);
+            }
             if(_namedPipeConnection)
             {
-               PEGASUS_STD(cout) << " this connection thinks it is a Pipe connection" << endl;
+               {
+                   AutoMutex automut(Monitor::_cout_mut);
+                   PEGASUS_STD(cout) << " this connection thinks it is a Pipe connection" << endl;
+               }
             }
             else
-                PEGASUS_STD(cout) << " this connection thinks it is not a Pipe connection" << endl;
+                {
+                    AutoMutex automut(Monitor::_cout_mut);
+                    PEGASUS_STD(cout) << " this connection thinks it is not a Pipe connection" << endl;
+                }
 
             _handleWriteEvent(*message);
             break;
@@ -376,7 +393,10 @@ void HTTPConnection::handleEnqueue(Message *message)
         {
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "HTTPConnection::handleEnqueue - NAMEDPIPE_MESSAGE");
-         PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case NAMEDPIPE_MESSAGE" << PEGASUS_STD(endl);
+        {
+            AutoMutex automut(Monitor::_cout_mut);
+            PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case NAMEDPIPE_MESSAGE" << PEGASUS_STD(endl);
+        }
         NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
         if (namedPipeMessage->events & NamedPipeMessage::READ)
             _handleReadEvent();
@@ -416,12 +436,17 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
     if (_namedPipeConnection)
     {
-        PEGASUS_STD(cout) << "HTTPConnection::_handleWriteEvent at the begining for a named pipe connection" <<
-             PEGASUS_STD(endl); 
+        {
+            AutoMutex automut(Monitor::_cout_mut);
+            PEGASUS_STD(cout) << "HTTPConnection::_handleWriteEvent at the begining for a named pipe connection" <<
+             PEGASUS_STD(endl);
+        }
     }
     else
-        PEGASUS_STD(cout) << "HTTPConnection::_handleWriteEvent - thinks it's not a named pipe" << endl;
-
+        {
+            AutoMutex automut(Monitor::_cout_mut);
+            PEGASUS_STD(cout) << "HTTPConnection::_handleWriteEvent - thinks it's not a named pipe" << endl;
+        }
 
 
     try
@@ -444,17 +469,26 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             if (_namedPipeConnection)
             {
 
-                PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent about to call _writeToNamePipe" << PEGASUS_STD(endl);
+                {
+                    AutoMutex automut(Monitor::_cout_mut);
+                    PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent about to call _writeToNamePipe" << PEGASUS_STD(endl);
+                }
 
 
                 if(!_writeToNamePipe(httpMessage, messageLength))
                 {
-                    PEGASUS_STD(cout) << " HTTPConnection::_writeToNamePipe() failed" << PEGASUS_STD(endl);
+                    {
+                        AutoMutex automut(Monitor::_cout_mut);
+                        PEGASUS_STD(cout) << " HTTPConnection::_writeToNamePipe() failed" << PEGASUS_STD(endl);
+                    }
                     return false;
                 }
                 else
                 {
-                    PEGASUS_STD(cout) << " HTTPConnection::_writeToNamePipe() retruned successfully" << PEGASUS_STD(endl);
+                    {
+                        AutoMutex automut(Monitor::_cout_mut);
+                        PEGASUS_STD(cout) << " HTTPConnection::_writeToNamePipe() retruned successfully" << PEGASUS_STD(endl);
+                    }
                     return true;
                 }
             }
@@ -800,24 +834,34 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         } // if not a client
 #ifdef PEGASUS_OS_TYPE_WINDOWS
         else
-        {    PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent about to call _writeToNamePipe" << PEGASUS_STD(endl);
+        {
+        	{
+        	AutoMutex automut(Monitor::_cout_mut);
+        	PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent about to call _writeToNamePipe" << PEGASUS_STD(endl);
+        	}
 
 
             if(!_writeToNamePipe(httpMessage, messageLength))
             {
+                {
+                AutoMutex automut(Monitor::_cout_mut);
                 PEGASUS_STD(cout) << " HTTPConnection::_writeToNamePipe() failed" << PEGASUS_STD(endl);
+                }
                 return false;
             }
             else
             {
+                {
+                AutoMutex automut(Monitor::_cout_mut);
                 PEGASUS_STD(cout) << " HTTPConnection::_writeToNamePipe() retruned successfully" << PEGASUS_STD(endl);
-                
+                }
+
 
                 /* This is a test  - this shows that the read file needs to be done
      before we call wiatForMultipleObjects*/
     /******************************************************
     ********************************************************
-   
+
                 //DWORD size = 0;
 
         BOOL rc = ::ReadFile(
@@ -829,7 +873,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
         cout << "just called readFile " << endl;
 
-         //&entries[indx].namedPipe.bytesRead = &size; 
+         //&entries[indx].namedPipe.bytesRead = &size;
         if(!rc)
         {
 
@@ -839,15 +883,15 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
         System::sleep (2);
 
-  
+
 
     ******************************************************
     ********************************************************/
 
 
-                
-                
-                
+
+
+
                 return true;
             }
         }
@@ -1536,13 +1580,13 @@ void HTTPConnection::_handleReadEventTransferEncoding()
 
         //
         // Also, if this is the last chunk, then we have to know if there
-        // is enough data in here to be able to verify that meta crlf for 
+        // is enough data in here to be able to verify that meta crlf for
         // the end of the whole chunked message is present.
-        // If chunkLengthParsed + chunkMetaLenght == reminderLength, it 
+        // If chunkLengthParsed + chunkMetaLenght == reminderLength, it
         // means that there is a space only for meta crlf of the last chunk.
-        // Therefore go back and re-read socket until you get enough data 
-        // for at least 2 crlfs.  One for the end of the last chunk or 
-        // the end of the optional trailer, and one for the end of whole 
+        // Therefore go back and re-read socket until you get enough data
+        // for at least 2 crlfs.  One for the end of the last chunk or
+        // the end of the optional trailer, and one for the end of whole
         // message.
 
         if (chunkLengthParsed + chunkMetaLength >= remainderLength)
@@ -1823,7 +1867,10 @@ void HTTPConnection::_handleReadEvent()
 
     if (_namedPipeConnection)
     {
-        PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() for a named pipe connection at begin" << PEGASUS_STD(endl); 
+        {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() for a named pipe connection at begin" << PEGASUS_STD(endl);
+        }
     }
 
 
@@ -1876,7 +1923,10 @@ void HTTPConnection::_handleReadEvent()
 
     for (;;)
     {
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "at begining of for loop in _handleReadEvent" << endl;
+        }
         // save one for null
         char buffer[httpTcpBufferSize+1];
         buffer[sizeof(buffer)-1] = 0;
@@ -1890,9 +1940,12 @@ void HTTPConnection::_handleReadEvent()
         if (_namedPipeConnection && (bytesRead == 0))  //this clause reads from the namedPipe
         {
             String pipeBuffer;
-            PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() about to read off the pipe" << PEGASUS_STD(endl); 
+            {
+            AutoMutex automut(Monitor::_cout_mut);
+            PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() about to read off the pipe" << PEGASUS_STD(endl);
+            }
             //need some kind of string copy here
-         
+
 
             /*char temp_buff[strlen(_namedPipe.raw)+1];
             temp_buf[sizeof(temp_buff)-1] = 0;
@@ -1903,15 +1956,17 @@ void HTTPConnection::_handleReadEvent()
              {
                  temp_buff[stringCount] = _namedPipe.raw[stringCount];
 
-             }  */ 
+             }  */
             strcpy (buffer,_namedPipe.raw);
             n = strlen(_namedPipe.raw)+1;
             //n = NamedPipe::read(_namedPipe.getPipe(), pipeBuffer);
             //buffer = (char*) pipeBuffer.getChar16Data();
-
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << buffer << endl;
         cout << "n=" << n << endl;
-       
+        }
+
         }
         else if (!_namedPipeConnection) //this clause reads from the socket
         {
@@ -1920,20 +1975,29 @@ void HTTPConnection::_handleReadEvent()
         else
         {
             n=0;
+            {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "in else clause n= " << n << endl;
+            }
         }
-           
+
         if (n <= 0)
         {
-          cout << "at the start of 'if (n <= 0)' " << endl; 
+          {
+          AutoMutex automut(Monitor::_cout_mut);
+          cout << "at the start of 'if (n <= 0)' " << endl;
+          }
 
-            if(!_namedPipeConnection) 
+            if(!_namedPipeConnection)
             {
-            
-            
+
+
              if (_socket->isSecure())
              {
+                {
+                AutoMutex automut(Monitor::_cout_mut);
                 cout << " in (_socket->isSecure())"  << endl;
+                }
                 // It is possible that SSL_read was not able to
                 // read the entire SSL record.  This could happen
                 // if the record was send in multiple packets
@@ -1950,7 +2014,10 @@ void HTTPConnection::_handleReadEvent()
                 incompleteSecureReadOccurred = _socket->incompleteReadOccurred(n);
              }
             }
+            {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "this should breack out of the for loop" << endl;
+            }
             break;
         }
 
@@ -1960,17 +2027,27 @@ void HTTPConnection::_handleReadEvent()
             // important: always keep message buffer null terminated for easy
             // string parsing!
 
+            {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "n=" << n << endl;
+            }
             Uint32 size = _incomingBuffer.size() + n;
             _incomingBuffer.reserveCapacity(size + 1);
             _incomingBuffer.append(buffer, n);
+            {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "In HTTPConnection::_handleReadEvent after append(buffer, n) " << endl;
+            }
             // put a null on it. This is safe sice we have reserved an extra byte
             char *data = (char *)_incomingBuffer.getData();
             data[size] = 0;
             //cout << _incomingBuffer.getData() << endl;
+            {
+
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "size of incoming buffer is " << _incomingBuffer.size() << endl;
-            
+            }
+
         }
 
         catch(...)
@@ -1985,8 +2062,11 @@ void HTTPConnection::_handleReadEvent()
         }
 
         bytesRead += n;
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "bytesRead = " << bytesRead << endl;
-           
+        }
+
 
 #if defined (PEGASUS_OS_VMS)
         if (n < sizeof(buffer))
@@ -1999,13 +2079,19 @@ void HTTPConnection::_handleReadEvent()
         }
 #endif
     }
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "on out side of for loop" << endl;
+    }
 
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
         "Total bytesRead = %d; Bytes read this iteration = %d",
         _incomingBuffer.size(), bytesRead);
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "before check _contentOffset = " << _contentOffset << endl;
+    }
     try
     {
         if (_contentOffset == -1)
@@ -2015,7 +2101,10 @@ void HTTPConnection::_handleReadEvent()
     catch(Exception &e)
     {
         httpStatus = e.getMessage();
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << httpStatus << " contentOffset cluase threw exception" << endl;
+        }
     }
 
     if (httpStatus.size() > 0)
@@ -2025,26 +2114,38 @@ void HTTPConnection::_handleReadEvent()
         return;
     }
 
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "_contentOffset = " << _contentOffset << endl;
-   
+    }
+
 
     // -- See if the end of the message was reached (some peers signal end of
     // -- the message by closing the connection; others use the content length
     // -- HTTP header and then there are those messages which have no bodies
     // -- at all).
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "_contentLength =" << _contentLength << "  _contentOffset=" << _contentOffset <<
           "  _incomingBuffer.size()=" << _incomingBuffer.size() << endl;
-   
+    }
+
 
     if ((bytesRead == 0 && !incompleteSecureReadOccurred) ||
         (_contentLength != -1 && _contentOffset != -1 &&
         (Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset)))
     {
-        cout <<" in if bytesRead == 0 && !incompleteSecureReadOccurred" << endl; 
+        {
+        AutoMutex automut(Monitor::_cout_mut);
+        cout <<" in if bytesRead == 0 && !incompleteSecureReadOccurred" << endl;
+        }
         HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
         message->authInfo = _authInfo.get();
 
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << " After createing the HTTPMessgae" << endl;
+        }
 
         // add any content languages
         message->contentLanguages = contentLanguages;
@@ -2058,10 +2159,13 @@ void HTTPConnection::_handleReadEvent()
             _connectionRequestCount++;
         }
 
-       
+
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "_requestCount = %d", _requestCount.get());
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "before  message->dest - _outputMessageQueue->getQueueId()=" << _outputMessageQueue->getQueueId() << endl;
+        }
 
         message->dest = _outputMessageQueue->getQueueId();
 //        SendForget(message);
@@ -2076,9 +2180,15 @@ void HTTPConnection::_handleReadEvent()
             _monitor->setState (_entry_index, _MonitorEntry::BUSY);
             _monitor->tickle();
         }
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "before enqueue(message) -  _outputMessageQueue= " << _outputMessageQueue->getQueueName() << endl;
+        }
         _outputMessageQueue->enqueue(message);
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "after enqueue(message) " << endl;
+        }
         _clearIncoming();
 
         if (bytesRead == 0)
@@ -2107,12 +2217,18 @@ Uint32 HTTPConnection::getRequestCount()
 
 Boolean HTTPConnection::run(Uint32 milliseconds)
 {
-    
+
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     cout << "In HTTPConnection::run at the begining" << endl;
+    }
 
     if(_namedPipeConnection)
     {
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "In HTTPConnection::run - if(_namedPipeConnection) " << endl;
+        }
         //the following code may need to be put in it's own method
         String buffer;
         //NamedPipe::read(_namedPipe.getPipe(), buffer);
@@ -2130,18 +2246,24 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
             }
             catch(...)
             {
-                cout << "IN HTTPConnection::run handleEnqueue(msg) threw exception " << endl; 
+                {
+                AutoMutex automut(Monitor::_cout_mut);
+                cout << "IN HTTPConnection::run handleEnqueue(msg) threw exception " << endl;
+                }
                 return false;
             }
-       
+
 
         return true;  //not sure in when the retrun value would be false for namedPipes
 
-        //Message* msg = new Message(NAMEDPIPE_MESSAGE); 
+        //Message* msg = new Message(NAMEDPIPE_MESSAGE);
 
     }
     else
+        {
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "HTTPConnection::_namedPipeConnection equals false" << endl;
+        }
 
     Boolean handled_events = false;
     int events = 0;
@@ -2184,27 +2306,36 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 }
 
 Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messageLength)
-{   
+{
+    {
+    AutoMutex automut(Monitor::_cout_mut);
     PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe trying to write to pipe - " << _namedPipe.getName()  << PEGASUS_STD(endl);
-                  
+    }
+
    Boolean writeResult;
 
    OVERLAPPED *overlap;
      overlap  = new OVERLAPPED;
-   
+
    if (_isClient())
    {
-       if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()),&_namedPipe.getOverlap())) 
+       if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()),&_namedPipe.getOverlap()))
        {
+           {
+           AutoMutex automut(Monitor::_cout_mut);
            PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned successfully" << PEGASUS_STD(endl);
            cout << " just wrote this to named pipe " << endl << httpMessage.message.getData() << endl << endl;
+           }
 
            return true;
        }
        else
        {
-          PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned unsuccessfully" << PEGASUS_STD(endl);
+          {
+           AutoMutex automut(Monitor::_cout_mut);
+           PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned unsuccessfully" << PEGASUS_STD(endl);
            cout << " just wrote this to named pipe " << endl << httpMessage.message.getData() << endl << endl;
+           }
            return false;
 
        }
@@ -2213,19 +2344,25 @@ Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messag
    }
    else
    {
-    
-   //if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()),overlap)) 
-      if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData())) )  
+
+   //if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()),overlap))
+      if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData())) )
       {
+          {
+          AutoMutex automut(Monitor::_cout_mut);
           PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned successfully" << PEGASUS_STD(endl);
           cout << " just wrote this to named pipe " << endl << httpMessage.message.getData() << endl << endl;
+          }
 
           return true;
        }
        else
        {
+          {
+          AutoMutex automut(Monitor::_cout_mut);
           PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned unsuccessfully" << PEGASUS_STD(endl);
           cout << " just wrote this to named pipe " << endl << httpMessage.message.getData() << endl << endl;
+          }
           return false;
        }
     }

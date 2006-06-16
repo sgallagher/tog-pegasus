@@ -110,7 +110,9 @@ extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider (
     return (0);
 }
 
-void _generateIndication (IndicationResponseHandler * handler)
+void _generateIndication (
+    IndicationResponseHandler * handler,
+    const String & identifier)
 {
     if (_enabled)
     {
@@ -122,10 +124,8 @@ void _generateIndication (IndicationResponseHandler * handler)
 
         indicationInstance.setPath (path);
 
-        char buffer [32];
-        sprintf (buffer, "%d", _nextUID++);
         indicationInstance.addProperty
-            (CIMProperty ("IndicationIdentifier", String (buffer)));
+            (CIMProperty ("IndicationIdentifier", identifier));
 
         CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
         indicationInstance.addProperty
@@ -363,6 +363,7 @@ void OOPModuleFailureTestProvider::invokeMethod (
     MethodResultResponseHandler & handler)
 {
     Boolean sendIndication = false;
+    String identifier;
     handler.processing ();
 
     if (objectReference.getClassName ().equal ("FailureTestIndication") &&
@@ -370,6 +371,11 @@ void OOPModuleFailureTestProvider::invokeMethod (
     {
         if (methodName.equal ("SendTestIndication"))
         {
+            if ((inParameters.size() > 0) && 
+                (inParameters[0].getParameterName () == "identifier"))
+            {
+                inParameters[0].getValue().get(identifier);
+            }
             sendIndication = true;
             handler.deliver (CIMValue (0));
         }
@@ -385,7 +391,7 @@ void OOPModuleFailureTestProvider::invokeMethod (
 
     if (sendIndication)
     {
-        _generateIndication (_handler);
+        _generateIndication (_handler, identifier);
     }
 
     //

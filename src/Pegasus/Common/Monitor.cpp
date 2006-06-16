@@ -816,6 +816,8 @@ Boolean Monitor::run(Uint32 milliseconds)
                    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                    "Monitor::_dispatch: exited run() for index %d", dst->_entry_index);
 
+                   entries[indx]._type = Monitor::ACCEPTOR;
+
                    // It is possible the entry status may not be set to busy.
                    // The following will fail in that case.
    		   // PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.get() == _MonitorEntry::BUSY);

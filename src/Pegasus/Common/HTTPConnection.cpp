@@ -2346,7 +2346,7 @@ Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messag
    {
 
    //if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()),overlap))
-      if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData())) )
+      if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()), &_namedPipe.getOverlap()) )
       {
           {
           AutoMutex automut(Monitor::_cout_mut);

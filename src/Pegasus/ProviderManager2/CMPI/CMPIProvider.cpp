@@ -297,19 +297,6 @@ Boolean CMPIProvider::tryTerminate(void)
 */ 
 void CMPIProvider::_terminate(Boolean terminating)
 {
-   {
-      WriteLock writeLock (broker.rwsemClassCache);
-
-      if (broker.clsCache) {
-         ClassCache::Iterator i=broker.clsCache->start();
-         for (; i; i++) {
-            delete i.value();
-         }
-         delete broker.clsCache;
-         broker.clsCache=NULL;
-      }
-   }
-
     const OperationContext opc;
     CMPIStatus rc={CMPI_RC_OK,NULL};
     CMPI_ContextOnStack eCtx(opc);
@@ -350,8 +337,23 @@ void CMPIProvider::_terminate(Boolean terminating)
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
 	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   
+
     if (noUnload == false) 
     {
+        // Cleanup the class cache
+        {
+           WriteLock writeLock (broker.rwsemClassCache);
+
+           if (broker.clsCache) {
+              ClassCache::Iterator i=broker.clsCache->start();
+              for (; i; i++) {
+                 delete i.value();
+              }
+              delete broker.clsCache;
+              broker.clsCache=NULL;
+           }
+        }
+
 	  // Check the thread list to make sure the thread has been de-allocated
 	  if (_threadWatchList.size() != 0)
 	  {

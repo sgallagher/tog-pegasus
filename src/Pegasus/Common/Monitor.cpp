@@ -639,6 +639,7 @@ Boolean Monitor::run(Uint32 milliseconds)
         }
         else if (dwWait == WAIT_FAILED)
         {
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "Wait Failed returned\n";
             cout << "failed with " << GetLastError() << "." << endl;
             pEvents = -1;
@@ -735,9 +736,7 @@ Boolean Monitor::run(Uint32 milliseconds)
              (entries[indx].isNamedPipeConnection() && entries[indx].pipeSet && (pEvents)))
           {
               MessageQueue *q;
-              cout << "IN Monior::run inside - for int indx = " <<indx <<
-                  "and queue ID is " << entries[indx].queueId << endl;
-              try{
+           try{
             
                  q = MessageQueue::lookup(entries[indx].queueId);
               }
@@ -754,7 +753,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 
 
-             cout << "Monitor::run after MessageQueue::lookup(entries[indx].queueId)" << endl;
+         
               Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "Monitor::run indx = %d, queueId =  %d, q = %p",
                   indx, entries[indx].queueId, q);
@@ -762,13 +761,19 @@ Boolean Monitor::run(Uint32 milliseconds)
              PEGASUS_ASSERT(q !=0);
 
              try
-             {
+             {    
+                 {
+                 AutoMutex automut(Monitor::_cout_mut);
                   cout <<" this is the type " << entries[indx]._type <<
                       "for index " << indx << endl;
                cout << "IN Monior::run right before entries[indx]._type == Monitor::CONNECTION" << endl;
-                if(entries[indx]._type == Monitor::CONNECTION)
+                 }
+               if(entries[indx]._type == Monitor::CONNECTION)
                 {
-                    cout << "In Monitor::run Monitor::CONNECTION clause" << endl; 
+                    {                    
+                    cout << "In Monitor::run Monitor::CONNECTION clause" << endl;
+                    AutoMutex automut(Monitor::_cout_mut);
+                    }
 
                                       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                      "entries[indx].type for indx = %d is Monitor::CONNECTION", indx);
@@ -800,12 +805,14 @@ Boolean Monitor::run(Uint32 milliseconds)
                    NOTE: not sure if this would be better suited in a sparate private method
                    */
                    dst->setNamedPipe(entries[indx].namedPipe); //this step shouldn't be needd
-                   cout << "In Monitor::run after dst->setNamedPipe string read is " <<
-                       entries[indx].namedPipe.raw << endl;
+                   //cout << "In Monitor::run after dst->setNamedPipe string read is " <<  entries[indx].namedPipe.raw << endl;
 
                    try
-                   {
+                   {   
+                       {
+                       AutoMutex automut(Monitor::_cout_mut);
                        cout << "In Monitor::run about to call 'dst->run(1)' "  << endl;
+                       }
                        dst->run(1);
                    }
                    catch (...)
@@ -853,13 +860,20 @@ Boolean Monitor::run(Uint32 milliseconds)
 		}
 		else
 		{
+            {
+            
+            AutoMutex automut(Monitor::_cout_mut);
             cout << "In Monitor::run else clause of CONNECTION if statments" << endl;
+            }
                    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                      "Non-connection entry, indx = %d, has been received.", indx);
 		   int events = 0;
            Message *msg;
+           {
+           
+           AutoMutex automut(Monitor::_cout_mut);
            cout << " In Monitor::run Just before checking if NamedPipeConnection" << "for Index "<<indx<< endl;
-
+           }
            if (entries[indx].isNamedPipeConnection())
            {
                if(!entries[indx].namedPipe.isConnectionPipe)
@@ -883,12 +897,16 @@ Boolean Monitor::run(Uint32 milliseconds)
                 &entries[indx].namedPipe.bytesRead,
                 &entries[indx].namedPipe.getOverlap());
 
-        cout << "just called read on index " << indx << endl;
+        {
+         AutoMutex automut(Monitor::_cout_mut);
+         cout << "just called read on index " << indx << endl; 
+        }
+        
 
          //&entries[indx].namedPipe.bytesRead = &size; 
         if(!rc)
         {
-
+            AutoMutex automut(Monitor::_cout_mut);
            cout << "ReadFile failed for : "  << GetLastError() << "."<< endl;
 
         }
@@ -904,13 +922,22 @@ Boolean Monitor::run(Uint32 milliseconds)
                    continue;
 
                }
-               cout << " In Monitor::run about to create a Pipe message" << endl;
+               {
+                   AutoMutex automut(Monitor::_cout_mut);
+                    cout << " In Monitor::run about to create a Pipe message" << endl;
+
+               }
+              
                events |= NamedPipeMessage::READ;
                msg = new NamedPipeMessage(entries[indx].namedPipe, events);
            }
            else
-           {
+           {  
+               {
+              
+               AutoMutex automut(Monitor::_cout_mut);
                cout << " In Monitor::run ..its a socket message" << endl;
+               }
                events |= SocketMessage::READ;
 		       msg = new SocketMessage(entries[indx].socket, events);
            }

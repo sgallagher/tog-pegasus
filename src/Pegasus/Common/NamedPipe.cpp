@@ -94,34 +94,46 @@ bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
 
     if(!rc)
     {
+        if (GetLastError() != 232)
+        {
+           const char* lpMsgBuf;
+           LPVOID lpDisplayBuf;
+           DWORD dw = GetLastError();
+
+           FormatMessage(
+              FORMAT_MESSAGE_ALLOCATE_BUFFER |
+              FORMAT_MESSAGE_FROM_SYSTEM,
+              NULL,
+              dw,
+              MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+              (LPTSTR) &lpMsgBuf,
+              0, NULL );
+
+          lpDisplayBuf = LocalAlloc(LMEM_ZEROINIT, (strlen(lpMsgBuf)+90)*sizeof(TCHAR));
+          printf("WriteFile in NamedPipe::write failed with error %d: %s", dw, lpMsgBuf);
+
+          //LocalFree(lpMsgBuf);
+          LocalFree(lpDisplayBuf);
+          //ExitProcess(dw);
+          return(false);
+       }
+       else
+       {
+           AutoMutex automut(Monitor::_cout_mut);
+           cout << "trying to write to connection that is closed" << endl;
+           /**************************************************
+            WW I think this is a hack - we shouldn't be writing to closed 
+            connections. Each client should have it's own pipe - that way when
+            that client ends it only closed it's connection
+            *********************************************/
+
+       }
+
+           //cout << "::WriteFile() failed (RC = " << hex << ::GetLastError() << ")" << endl;
 
 
 
-        const char* lpMsgBuf;
-        LPVOID lpDisplayBuf;
-       DWORD dw = GetLastError();
-
-    FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM,
-        NULL,
-        dw,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPTSTR) &lpMsgBuf,
-        0, NULL );
-
-    lpDisplayBuf = LocalAlloc(LMEM_ZEROINIT, (strlen(lpMsgBuf)+90)*sizeof(TCHAR));
-    printf("failed with error %d: %s", dw, lpMsgBuf);
-
-    //LocalFree(lpMsgBuf);
-    LocalFree(lpDisplayBuf);
-    ExitProcess(dw);
-
-        //cout << "::WriteFile() failed (RC = " << hex << ::GetLastError() << ")" << endl;
-
-
-
-     //   return(false);
+       
     }
 
     return(true);

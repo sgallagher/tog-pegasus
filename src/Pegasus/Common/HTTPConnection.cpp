@@ -2314,11 +2314,9 @@ Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messag
 
    Boolean writeResult;
 
-   OVERLAPPED *overlap;
-     overlap  = new OVERLAPPED;
 
-   if (_isClient())
-   {
+ //  if (_isClient())
+ //  {
        if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()),&_namedPipe.getOverlap()))
        {
            {
@@ -2341,8 +2339,8 @@ Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messag
        }
 
 
-   }
-   else
+ //  }
+ /*  else
    {
 
    //if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()),overlap))
@@ -2364,8 +2362,8 @@ Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messag
           cout << " just wrote this to named pipe " << endl << httpMessage.message.getData() << endl << endl;
           }
           return false;
-       }
-    }
+       }  
+   }*/
 }
 void HTTPConnection::setNamedPipeConnetion()
 {

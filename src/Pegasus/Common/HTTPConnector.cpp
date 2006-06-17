@@ -476,10 +476,40 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 
     PEGASUS_ASSERT(index != PEG_NOT_FOUND);
 
-    PEGASUS_SOCKET socket = currentConnection->getSocket();
-    _monitor->unsolicitSocketMessages(socket);
-    _rep->connections.remove(index);
-    delete currentConnection;
+    if (!currentConnection->isNamedPipeConnection())
+    {
+        {
+            AutoMutex automut(Monitor::_cout_mut);
+            cout << " in HTTPConnector::disconnect before currentConnection->getSocket " << endl;
+        }
+        PEGASUS_SOCKET socket = currentConnection->getSocket(); 
+        _monitor->unsolicitSocketMessages(socket);
+
+
+        /*  NOTE: These two commands can come out of this cluase after changes are
+        made to the HTTPConnection destrucotr. Both socket and pipe connections need
+        to do these commands
+        *********************************************************/
+        _rep->connections.remove(index);
+        delete currentConnection;
+
+        /*********************************************************/
+
+
+    }
+    else
+    {
+        {
+            AutoMutex automut(Monitor::_cout_mut);
+            cout << " in HTTPConnector::disconnect for namedPipe connections " << endl;
+        }
+        /*
+        JA will be addig function here to mimic the socket function above
+        unsolicit
+        */
+
+    }
+    
 }
 
 void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)

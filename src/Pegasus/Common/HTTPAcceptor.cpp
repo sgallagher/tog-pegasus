@@ -286,26 +286,43 @@ void HTTPAcceptor::handleEnqueue(Message *message)
      // may Need to close connection for Named Pipe too.....??
      case CLOSE_CONNECTION_MESSAGE:
       {
-     CloseConnectionMessage* closeConnectionMessage
-        = (CloseConnectionMessage*)message;
+        CloseConnectionMessage* closeConnectionMessage
+           = (CloseConnectionMessage*)message;
 
-     AutoMutex autoMut(_rep->_connection_mut);
+        AutoMutex autoMut(_rep->_connection_mut);
 
-     for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-     {
-        HTTPConnection* connection = _rep->connections[i];
-        PEGASUS_SOCKET socket = connection->getSocket();
-
-        if (socket == closeConnectionMessage->socket)
+        for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
         {
-           _monitor->unsolicitSocketMessages(socket);
-           _rep->connections.remove(i);
-               delete connection;
-           break;
-        }
-     }
+            HTTPConnection* connection = _rep->connections[i];
+            if(!connection->isNamedPipeConnection())
+            {
+        
+                PEGASUS_SOCKET socket = connection->getSocket();
 
-     break;
+                if (socket == closeConnectionMessage->socket)
+                {
+                    _monitor->unsolicitSocketMessages(socket);
+                    _rep->connections.remove(i);
+                    delete connection;
+                    break;
+                 }
+          }
+          else
+             {
+                 NamedPipe namedPipe = connection->getNamedPipe();
+                 //NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
+
+                 if (namedPipe.getPipe() == closeConnectionMessage->namedPipe.getPipe())
+                 {
+                     _monitor->unsolicitPipeMessages(namedPipe);
+                     _rep->connections.remove(i);
+                     delete connection;
+                     break;
+                 } 
+            }
+         }
+
+      break;
       }
 
       default:
@@ -728,13 +745,23 @@ void HTTPAcceptor::destroyConnections()
      for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
      {
         HTTPConnection* connection = _rep->connections[i];
-        PEGASUS_SOCKET socket = connection->getSocket();
+        if(!connection->isNamedPipeConnection())
+        {
 
-        // Unsolicit SocketMessages:
+            PEGASUS_SOCKET socket = connection->getSocket();
 
-        _monitor->unsolicitSocketMessages(socket);
+           // Unsolicit SocketMessages:
 
-        // Destroy the connection (causing it to close):
+           _monitor->unsolicitSocketMessages(socket);
+
+           // Destroy the connection (causing it to close):
+        }
+        else 
+        {
+            NamedPipe namedPipe = connection->getNamedPipe();
+            _monitor->unsolicitPipeMessages(namedPipe);
+             
+        }
 
         while (connection->refcount.get()) { }
         delete connection;

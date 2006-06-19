@@ -310,6 +310,7 @@ public:
     Uint32 queueId,
     int type);
 
+  void unsolicitPipeMessages(NamedPipe namedPipe);
 //  void unsolicitPipeMessages(NamedPipe namedPipe);
 
 

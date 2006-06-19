@@ -82,8 +82,11 @@ public:
 
     CloseConnectionMessage(PEGASUS_SOCKET socket_)
         : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
+    CloseConnectionMessage(NamedPipe namedPipe_)
+        : Message(CLOSE_CONNECTION_MESSAGE), namedPipe(namedPipe_) { }
 
     PEGASUS_SOCKET socket;
+    NamedPipe namedPipe;
 };
 
 /** This class represents an HTTP listener.

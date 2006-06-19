@@ -249,16 +249,36 @@ void HTTPConnector::handleEnqueue(Message *message)
      for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
      {
         HTTPConnection* connection = _rep->connections[i];
-        PEGASUS_SOCKET socket = connection->getSocket();
-
-        if (socket == closeConnectionMessage->socket)
+        if(!connection->isNamedPipeConnection())
         {
-           _monitor->unsolicitSocketMessages(socket);
-           _rep->connections.remove(i);
-           delete connection;
-           break;
+
+            PEGASUS_SOCKET socket = connection->getSocket();
+
+            if (socket == closeConnectionMessage->socket)
+            {
+                _monitor->unsolicitSocketMessages(socket);
+                _rep->connections.remove(i);
+                delete connection;
+                break;
+            }
         }
-     }
+     
+        else
+        {
+             NamedPipe namedPipe = connection->getNamedPipe();
+             //NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
+
+             if (namedPipe.getPipe() == closeConnectionMessage->namedPipe.getPipe())
+             {
+                 _monitor->unsolicitPipeMessages(namedPipe);
+                 _rep->connections.remove(i);
+                 delete connection;
+                 break;
+             } 
+         }
+
+
+       }// for loop
       }
 
       default:
@@ -484,42 +504,52 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
         }
         PEGASUS_SOCKET socket = currentConnection->getSocket(); 
         _monitor->unsolicitSocketMessages(socket);
-
-
-        /*  NOTE: These two commands can come out of this cluase after changes are
-        made to the HTTPConnection destrucotr. Both socket and pipe connections need
-        to do these commands
-        *********************************************************/
-        _rep->connections.remove(index);
-        delete currentConnection;
-
-        /*********************************************************/
-
-
     }
     else
     {
         {
             AutoMutex automut(Monitor::_cout_mut);
-            cout << " in HTTPConnector::disconnect for namedPipe connections " << endl;
+            cout << " in HTTPConnector::disconnect before currentConnection->getNamedPipe " << endl;
         }
-        /*
-        JA will be addig function here to mimic the socket function above
-        unsolicit
-        */
-
+        NamedPipe namedPipe = currentConnection->getNamedPipe();
+        
+        _monitor->unsolicitPipeMessages(namedPipe);
+        
     }
     
+    _rep->connections.remove(index);
+    delete currentConnection;
 }
 
 void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 {
-    PEGASUS_SOCKET socket = httpConnection->getSocket();
+    if (!httpConnection->isNamedPipeConnection())
+    {
+        {
+            AutoMutex automut(Monitor::_cout_mut);
+            cout << " in HTTPConnector::_deleteConnection before httpConnection->getSocket " << endl;
+        }
 
-    // Unsolicit SocketMessages:
 
-    _monitor->unsolicitSocketMessages(socket);
+        PEGASUS_SOCKET socket = httpConnection->getSocket(); 
 
+        // Unsolicit SocketMessages:
+
+        _monitor->unsolicitSocketMessages(socket);
+    }
+    else 
+    {
+        {
+            AutoMutex automut(Monitor::_cout_mut);
+            cout << " in HTTPConnector::_deleteConnection before httpConnection->getNamedPipe " << endl;
+        }
+
+
+        NamedPipe namedPipe = httpConnection->getNamedPipe();
+
+        _monitor->unsolicitPipeMessages(namedPipe);
+
+    }
     // Destroy the connection (causing it to close):
 
     delete httpConnection;

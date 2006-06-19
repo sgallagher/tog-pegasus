@@ -452,16 +452,36 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 					if (h._responsePending == true)
 					{
-						Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Monitor::run - "
+                        if (!entry.namedPipeConnection)
+                        {
+                            Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Monitor::run - "
 													"Ignoring connection delete request because "
 													"responses are still pending. "
 													"connection=0x%p, socket=%d\n",
 													(void *)&h, h.getSocket());
+                        } 
+                        else 
+                        {
+                            Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Monitor::run - "
+													"Ignoring connection delete request because "
+													"responses are still pending. "
+													"connection=0x%p, NamedPipe=%d\n",
+													(void *)&h, h.getNamedPipe().getPipe());
+                        }
 						continue;
 					}
 					h._connectionClosePending = false;
           MessageQueue &o = h.get_owner();
-          Message* message= new CloseConnectionMessage(entry.socket);
+          Message* message;
+          if (!entry.namedPipeConnection)
+          {
+              message= new CloseConnectionMessage(entry.socket);
+          }
+          else
+          {
+              message= new CloseConnectionMessage(entry.namedPipe);
+
+          }
           message->dest = o.getQueueId();
 
           // HTTPAcceptor is responsible for closing the connection.
@@ -1227,6 +1247,52 @@ int  Monitor::solicitPipeMessages(
    return -1;
 
 }
+
+void Monitor::unsolicitPipeMessages(NamedPipe namedPipe)
+{
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Entering: Monitor::unsolicitPipeMessages(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
+
+    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitPipeMessages");
+    AutoMutex autoMut(_entry_mut);
+
+    /*
+        Start at index = 1 because _entries[0] is the tickle entry which never needs
+        to be EMPTY;
+    */
+    unsigned int index;
+    for(index = 1; index < _entries.size(); index++)
+    {
+       if(_entries[index].namedPipe.getPipe() == namedPipe.getPipe())
+       {
+          _entries[index]._status = _MonitorEntry::EMPTY;
+          //_entries[index].namedPipe = PEGASUS_INVALID_SOCKET;
+          _solicitSocketCount--;
+          break;
+       }
+    }
+
+    /*
+	Dynamic Contraction:
+	To remove excess entries we will start from the end of the _entries array
+	and remove all entries with EMPTY status until we find the first NON EMPTY.
+	This prevents the positions, of the NON EMPTY entries, from being changed.
+    */
+    index = _entries.size() - 1;
+    while(_entries[index]._status.get() == _MonitorEntry::EMPTY){
+	if(_entries.size() > MAX_NUMBER_OF_MONITOR_ENTRIES)
+                _entries.remove(index);
+	index--;
+    }
+    PEG_METHOD_EXIT();
+    {
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Exiting:  Monitor::unsolicitPipeMessages(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
+    }
+}
+
 
 
 PEGASUS_NAMESPACE_END

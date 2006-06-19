@@ -108,15 +108,15 @@ public:
     void order(void);
 };
 
-#define PEGASUS_ARRAY_T term_el_WQL
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
 #define PEGASUS_ARRAY_T eval_el
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 #define PEGASUS_ARRAY_T stack_el
+# include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
+#define PEGASUS_ARRAY_T term_el_WQL
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 

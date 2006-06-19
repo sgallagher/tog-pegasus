@@ -2327,4 +2327,9 @@ void DefaultProviderManager::_callEnableIndications
     PEG_METHOD_EXIT ();
 }
 
+ProviderManager* DefaultProviderManager::createDefaultProviderManagerCallback()
+{
+    return new DefaultProviderManager();
+}
+
 PEGASUS_NAMESPACE_END

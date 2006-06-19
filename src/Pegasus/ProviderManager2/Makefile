@@ -38,6 +38,7 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_PPM_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER
 
+STATIC=1
 LIBRARY = pegprovidermanager
 
 LIBRARIES = \
@@ -45,6 +46,7 @@ LIBRARIES = \
     pegprm \
     pegwql \
     pegconfig \
+    pegclient \
     pegcommon
 
 SOURCES = \

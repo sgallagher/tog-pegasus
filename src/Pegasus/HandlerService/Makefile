@@ -42,6 +42,7 @@ LIBRARIES = \
     pegconfig \
     pegrepository
 
+STATIC=1
 LIBRARY = peghandlerservice
 
 SOURCES = \

@@ -34,4 +34,6 @@ LIBRARIES = \
     pegprovider \
     pegrepository \
     pegconfig \
+    pegquerycommon \
+    pegqueryexpression \
     pegcommon

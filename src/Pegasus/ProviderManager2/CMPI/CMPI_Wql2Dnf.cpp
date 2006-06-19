@@ -61,14 +61,6 @@ PEGASUS_NAMESPACE_BEGIN
 # include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-#define PEGASUS_ARRAY_T eval_el
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
-#define PEGASUS_ARRAY_T stack_el
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
 #define PEGASUS_ARRAY_T TableauRow_WQL
 # include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
@@ -177,64 +169,6 @@ CMPIType mapType(WQLOperand::Type typ) {
        return CMPI_null;
   }
   return CMPI_null;
-}
-
-//
-// Evaluation heap element methods
-//
-stack_el eval_el::getFirst() 
-{ 
-   return stack_el(opn1, is_terminal1);
-}
-
-stack_el eval_el::getSecond()
-{
-   return stack_el(opn2, is_terminal2);
-}
-
-void eval_el::setFirst(const stack_el s)
-{
-     opn1 = s.opn;
-     is_terminal1 = s.is_terminal;
-}
-
-void eval_el::setSecond(const stack_el s)
-{
-    opn2 = s.opn;
-    is_terminal2 = s.is_terminal;
-}
-
-void eval_el::assign_unary_to_first(const eval_el & assignee)
-{
-    opn1 = assignee.opn1;
-    is_terminal1 = assignee.is_terminal1;
-}
-
-void eval_el::assign_unary_to_second(const eval_el & assignee)
-{
-    opn2 = assignee.opn1;
-    is_terminal2 = assignee.is_terminal1;
-}
-
-// Ordering operators, so that op1 > op2 for all non-terminals
-// and terminals appear in the second operand first
-void eval_el::order(void)
-{
-    int k;
-    if ((!is_terminal1) && (!is_terminal2))
-        if ((k = opn2) > opn1)
-        {
-            opn2 = opn1;
-            opn1 =  k;
-        }
-    else if ((is_terminal1) && (!is_terminal2))
-        if ((k = opn2) > opn1)
-        {
-            opn2 = opn1;
-            opn1 =  k;
-            is_terminal1 = false;
-            is_terminal2 = true;
-        }
 }
 
 //

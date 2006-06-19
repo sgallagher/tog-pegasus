@@ -60,27 +60,15 @@
 # define LIBRARY_NAME_CMPIPM    "QSYS/QYCMCMPIPM"
 # define LIBRARY_NAME_JMPIPM    "QSYS/QYCMJMPIPM"
 #else
-# define LIBRARY_NAME_DEFAULTPM "DefaultProviderManager"
 # define LIBRARY_NAME_CMPIPM    "CMPIProviderManager"
 # define LIBRARY_NAME_JMPIPM    "JMPIProviderManager"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
 
-// BEGIN TEMP SECTION
 class ProviderManagerContainer
 {
 public:
-    ProviderManagerContainer()
-    : _manager(0)
-    {
-    }
-
-    ProviderManagerContainer(const ProviderManagerContainer & container)
-    : _manager(0)
-    {
-        *this = container;
-    }
 
     ProviderManagerContainer(
         const String& physicalName,
@@ -104,12 +92,12 @@ public:
         _logicalName = logicalName;
         _interfaceName = interfaceName;
 
-        _module = ProviderManagerModule(_physicalName);
-        Boolean moduleLoaded = _module.load();
+        _module.reset(new ProviderManagerModule(_physicalName));
+        Boolean moduleLoaded = _module->load();
 
         if (moduleLoaded)
         {
-            _manager = _module.getProviderManager(_logicalName);
+            _manager = _module->getProviderManager(_logicalName);
         }
         else
         {
@@ -144,28 +132,28 @@ public:
         _manager->setSubscriptionInitComplete (subscriptionInitComplete);
     }
 
+    ProviderManagerContainer(
+        const String& interfaceName,
+        PEGASUS_INDICATION_CALLBACK_T indicationCallback,
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
+        Boolean subscriptionInitComplete,
+	ProviderManager* manager)
+	: 
+	_interfaceName(interfaceName),
+	_manager(manager),
+	_module(0)
+    {
+        _manager->setIndicationCallback(indicationCallback);
+        _manager->setResponseChunkCallback(responseChunkCallback);
+        _manager->setSubscriptionInitComplete(subscriptionInitComplete);
+    }
+
     ~ProviderManagerContainer()
     {
         delete _manager;
-        _module.unload();
-    }
 
-    ProviderManagerContainer& operator=(
-        const ProviderManagerContainer & container)
-    {
-        if (this == &container)
-        {
-            return *this;
-        }
-
-        _logicalName = container._logicalName;
-        _physicalName = container._physicalName;
-        _interfaceName = container._interfaceName;
-
-        _module = container._module;
-        _manager = container._manager;
-
-        return *this;
+	if (_module.get())
+	    _module->unload();
     }
 
     ProviderManager* getProviderManager()
@@ -173,31 +161,24 @@ public:
         return _manager;
     }
 
-    const String& getPhysicalName() const
-    {
-        return _physicalName;
-    }
-
-    const String& getLogicalName() const
-    {
-        return _logicalName;
-    }
-
     const String& getInterfaceName() const
     {
         return _interfaceName;
     }
 
+
 private:
+
+    ProviderManagerContainer();
+    ProviderManagerContainer& operator=(const ProviderManagerContainer&);
+    ProviderManagerContainer(const ProviderManagerContainer&);
+
     String _physicalName;
     String _logicalName;
     String _interfaceName;
-
-    ProviderManagerModule _module;
     ProviderManager* _manager;
+    AutoPtr<ProviderManagerModule> _module;
 };
-// END TEMP SECTION
-
 
 PEGASUS_INDICATION_CALLBACK_T
     BasicProviderManagerRouter::_indicationCallback = 0;
@@ -205,9 +186,13 @@ PEGASUS_INDICATION_CALLBACK_T
 PEGASUS_RESPONSE_CHUNK_CALLBACK_T
     BasicProviderManagerRouter::_responseChunkCallback = 0;
 
+ProviderManager* 
+    (*BasicProviderManagerRouter::_createDefaultProviderManagerCallback)() = 0;
+
 BasicProviderManagerRouter::BasicProviderManagerRouter(
     PEGASUS_INDICATION_CALLBACK_T indicationCallback,
-    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
+    PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
+    ProviderManager* (*createDefaultProviderManagerCallback)())
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "BasicProviderManagerRouter::BasicProviderManagerRouter");
@@ -215,6 +200,8 @@ BasicProviderManagerRouter::BasicProviderManagerRouter(
     _indicationCallback = indicationCallback;
     _responseChunkCallback = responseChunkCallback;
     _subscriptionInitComplete = false;
+    _createDefaultProviderManagerCallback = 
+	createDefaultProviderManagerCallback;
 
     PEG_METHOD_EXIT();
 }
@@ -410,16 +397,21 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
         // another temporary solution for converting a generic file name into
         // a file name useable by each platform.
 
+	// The DefaultProviderManager is now statically linked rather than
+	// dynamically loaded. This code is no longer used but remains for
+	// reference purposes.
+
 #if defined(PEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER)
-        if (interfaceType == "C++Default")
+	if (interfaceType == "C++Default" && 
+	    _createDefaultProviderManagerCallback)
         {
+	    ProviderManager* pm = (*_createDefaultProviderManagerCallback)();
             ProviderManagerContainer* pmc = new ProviderManagerContainer(
-                LIBRARY_NAME_DEFAULTPM,
-                "DEFAULT",
                 "C++Default",
                 _indicationCallback,
                 _responseChunkCallback,
-                _subscriptionInitComplete);
+                _subscriptionInitComplete,
+		pm);
             _providerManagerTable.append(pmc);
             return pmc->getProviderManager();
         }

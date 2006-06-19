@@ -84,6 +84,13 @@ public:
     virtual Boolean hasActiveProviders();
     virtual void unloadIdleProviders();
 
+    // This function creates an instance of DefaultProviderManager. It is
+    // typically passed to either the ProviderManagerService constructor
+    // or the BasicProviderManagerRouter constructor as a way of decoupling
+    // the pegprovidermanager and DefaultProviderManager libraries (otherwise
+    // each library would contain a reference to the other).
+    static ProviderManager* createDefaultProviderManagerCallback();
+
 protected:
     Message * handleUnsupportedRequest(const Message * message);
 

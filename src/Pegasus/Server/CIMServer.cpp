@@ -76,6 +76,7 @@
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
+#include <Pegasus/ProviderManager2/Default/DefaultProviderManager.h>
 
 #ifdef PEGASUS_ENABLE_SLP
 #include <Pegasus/Client/CIMClient.h>
@@ -167,6 +168,7 @@ CIMServer::CIMServer(Monitor* monitor)
 void CIMServer::tickle_monitor(){
     _monitor->tickle();
 }
+
 void CIMServer::_init(void)
 {
 
@@ -225,7 +227,12 @@ void CIMServer::_init(void)
 
     // -- Create queue inter-connections:
 
-    _providerManager = new ProviderManagerService(_providerRegistrationManager,_repository);
+    _providerManager = new ProviderManagerService(
+	_providerRegistrationManager,
+	_repository,
+	DefaultProviderManager::createDefaultProviderManagerCallback);
+
+    // Create IndicationHandlerService:
 
     _handlerService = new IndicationHandlerService(_repository);
 

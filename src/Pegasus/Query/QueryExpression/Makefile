@@ -40,6 +40,7 @@ ifneq ($(OS), HPUX)
 EXTRA_INCLUDES = -Int_includes
 endif
 
+STATIC=1
 LIBRARY = pegqueryexpression
 
 LIBRARIES = \

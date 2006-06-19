@@ -38,6 +38,7 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
 
+STATIC=1
 LIBRARY = pegindicationservice
 
 LIBRARIES = \
@@ -58,6 +59,8 @@ SOURCES = \
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 SYS_LIBS = ws2_32.lib advapi32.lib
+endif
 
 include $(ROOT)/mak/library.mak

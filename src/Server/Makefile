@@ -70,6 +70,10 @@ LIBRARIES += \
     pegcommon \
     pegservice
 
+LIBRARIES += \
+    DefaultProviderManager \
+    pegprovidermanager
+
 ifndef PEGASUS_DISABLE_PERFINST
     LIBRARIES += \
        CIMOMStatDataProvider \

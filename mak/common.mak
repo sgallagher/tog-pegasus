@@ -34,9 +34,14 @@
 ##
 ################################################################################
 
-
-FULL_LIBRARIES = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), \
-    $(addsuffix $(LIB_SUFFIX), $(LIBRARIES)))
+ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+    _P1 = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), $(LIBRARIES))
+    _P2 = $(addsuffix ".*[1a]", $(_P1))
+    FULL_LIBRARIES=$(shell echo $(_P2))
+else
+    FULL_LIBRARIES = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), \
+        $(addsuffix $(LIB_SUFFIX), $(LIBRARIES)))
+endif
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 

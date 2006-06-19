@@ -37,10 +37,10 @@ include $(ROOT)/mak/config.mak
 LOCAL_DEFINES = -DPEGASUS_PROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
+    pegclient \
     pegcommon \
     pegquerycommon \
-    pegqueryexpression \
-    pegclient
+    pegqueryexpression
 
 LIBRARY = pegprovider
 
@@ -49,9 +49,9 @@ SOURCES = \
     CIMOMHandle.cpp \
     CIMOMHandleRep.cpp \
     InternalCIMOMHandleRep.cpp \
-    ClientCIMOMHandleRep.cpp \
     CIMProvider.cpp \
     CIMInstanceProvider.cpp \
+    ClientCIMOMHandleRep.cpp \
     CIMMethodProvider.cpp \
     CIMIndicationProvider.cpp \
     CIMIndicationConsumerProvider.cpp \

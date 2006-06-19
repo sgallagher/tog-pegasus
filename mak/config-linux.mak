@@ -95,7 +95,7 @@ DEFINES += -DPEGASUS_USE_SYSLOGS
 
 DEFINES += -DPEGASUS_HAS_SIGNALS
 
-SYS_LIBS = -ldl -lpthread
+SYS_LIBS = -ldl -lpthread -lcrypt
 
 # PAM support
 ifdef PEGASUS_PAM_AUTHENTICATION
@@ -113,7 +113,15 @@ ifdef PEGASUS_PAM_AUTHENTICATION
 
 endif
 
-FLAGS += -fPIC -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
+FLAGS += -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
+
+##==============================================================================
+##
+## The DYNAMIC_FLAGS variable defines linker flags that only apply to shared
+## libraries.
+##
+##==============================================================================
+DYNAMIC_FLAGS += -fPIC
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
   FLAGS += -g
@@ -217,5 +225,3 @@ ifndef PEGASUS_ARCH_LIB
     endif
 endif
 DEFINES += -DPEGASUS_ARCH_LIB=\"$(PEGASUS_ARCH_LIB)\"
-
-

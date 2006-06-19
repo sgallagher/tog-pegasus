@@ -69,7 +69,8 @@ class PEGASUS_PPM_LINKAGE ProviderManagerService : public MessageQueueService
 public:
     ProviderManagerService(
         ProviderRegistrationManager* providerRegistrationManager,
-        CIMRepository* repository);
+        CIMRepository* repository,
+	ProviderManager* (*createDefaultProviderManagerCallback)());
 
     virtual ~ProviderManagerService();
 

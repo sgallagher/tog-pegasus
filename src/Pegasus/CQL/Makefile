@@ -45,6 +45,7 @@ EXTRA_INCLUDES = -Int_includes
 endif
 endif
 
+STATIC=1
 LIBRARY = pegcql
 
 LIBRARIES = \

@@ -28,6 +28,25 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
+
+##==============================================================================
+##
+## Add dynamic flags if we are not building a static library.
+##
+##==============================================================================
+
+ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+  ifeq ($(STATIC),1)
+    BUILD_STATIC=1
+  endif
+endif
+
+ifndef BUILD_STATIC
+FLAGS += $(DYNAMIC_FLAGS)
+endif
+
+##==============================================================================
+
 ifeq ($(OS_TYPE),windows)
 include $(ROOT)/mak/objects-windows.mak
 endif

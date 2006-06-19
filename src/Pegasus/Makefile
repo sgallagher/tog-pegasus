@@ -99,8 +99,8 @@ endif
 
 DIRS += \
     ProviderManager2 \
-    ProviderManager2/tests \
     ProviderManager2/Default \
+    ProviderManager2/tests \
     ProviderManager2/Default/tests \
     ProviderManager2/ProviderAgent
 

@@ -793,3 +793,19 @@ ifdef PEGASUS_EXTRA_LINK_FLAGS
     EXTRA_LINK_FLAGS = $(PEGASUS_EXTRA_LINK_FLAGS)
 endif
 
+##==============================================================================
+##
+## By definining PEGASUS_USE_STATIC_LIBRARIES in the environment and STATIC
+## in the Makefile, a static library is produced rather than a shared one.
+## PEGASUS_USE_STATIC_LIBRARIES should be "true" or "false".
+##
+##==============================================================================
+
+ifdef PEGASUS_USE_STATIC_LIBRARIES
+  ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+  else
+    ifneq ($(PEGASUS_USE_STATIC_LIBRARIES),false)
+      $(error PEGASUS_USE_STATIC_LIBRARIES ($(PEGASUS_USE_STATIC_LIBRARIES)) invalid, must be true or false)
+    endif 
+  endif
+endif

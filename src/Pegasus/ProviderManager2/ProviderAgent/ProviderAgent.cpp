@@ -43,6 +43,7 @@
 #include <Pegasus/Common/CIMMessageDeserializer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/ProviderManager2/Default/DefaultProviderManager.h>
 
 #include "ProviderAgent.h"
 
@@ -89,10 +90,13 @@ ProviderAgent::ProviderAgent(
     const String& agentId,
     AnonymousPipe* pipeFromServer,
     AnonymousPipe* pipeToServer)
-  : _providerManagerRouter(_indicationCallback, _responseChunkCallback),
+  : _providerManagerRouter(_indicationCallback, _responseChunkCallback,
+	DefaultProviderManager::createDefaultProviderManagerCallback),
     _threadPool(0, "ProviderAgent", 0, 0, deallocateWait)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::ProviderAgent");
+
+    // Add the DefaultProviderManager to the router.
 
     _terminating = false;
     _agentId = agentId;

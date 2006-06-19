@@ -106,6 +106,7 @@ ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
 .PHONY: /Program Files/GnuWin32/include/zlib.h Files/GnuWin32/include/zconf.h
 endif
 
+STATIC=1
 LIBRARY = pegrepository
 
 SOURCES = \

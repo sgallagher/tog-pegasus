@@ -61,7 +61,6 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-FILE *CQL_in;
 int CQL_parse();
 
 Boolean cqlcli_verbose = false;

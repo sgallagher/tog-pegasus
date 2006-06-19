@@ -50,8 +50,7 @@ LIBRARIES = \
     pegprm \
     pegclient \
     pegquerycommon \
-    pegconfig \
-    pegwql
+    pegwql \
 
 ifndef PEGASUS_DISABLE_CQL
     LIBRARIES += \
@@ -59,6 +58,7 @@ ifndef PEGASUS_DISABLE_CQL
 endif
 
 LIBRARIES += \
+    pegquerycommon \
     pegcommon
 
 SOURCES = \

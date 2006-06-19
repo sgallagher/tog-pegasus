@@ -58,12 +58,15 @@ class PEGASUS_PPM_LINKAGE BasicProviderManagerRouter
 public:
     BasicProviderManagerRouter(
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
-        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
+        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
+	ProviderManager* (*createDefaultProviderManagerCallback)());
+
     virtual ~BasicProviderManagerRouter();
 
     virtual Message* processMessage(Message* message);
 
     virtual Boolean hasActiveProviders();
+
     virtual void unloadIdleProviders();
 
 private:
@@ -76,6 +79,7 @@ private:
 
     static PEGASUS_INDICATION_CALLBACK_T _indicationCallback;
     static PEGASUS_RESPONSE_CHUNK_CALLBACK_T _responseChunkCallback;
+    static ProviderManager* (*_createDefaultProviderManagerCallback)();
 };
 
 PEGASUS_NAMESPACE_END

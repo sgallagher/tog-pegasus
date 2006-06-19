@@ -56,9 +56,11 @@ LOCAL_DEFINES = -DPEGASUS_COMPILER_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = pegcompiler
 
 LIBRARIES = \
-    pegcommon \
+    pegclient \
+    pegconfig \
     pegrepository \
-    pegclient
+    pegconfig \
+    pegcommon
 
 PRE_DEPEND_INCLUDES = -I./depends
 

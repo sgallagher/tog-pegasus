@@ -44,6 +44,7 @@ ifneq ($(OS), HPUX)
   endif
 endif
 
+STATIC=1
 LIBRARY = pegwql
 
 LIBRARIES = \

@@ -833,7 +833,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
         } // if not a client
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-        else
+        else if (_namedPipeConnection)
         {
         	{
         	AutoMutex automut(Monitor::_cout_mut);

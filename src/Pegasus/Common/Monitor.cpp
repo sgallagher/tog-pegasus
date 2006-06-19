@@ -611,25 +611,37 @@ Boolean Monitor::run(Uint32 milliseconds)
     // a socket value.  The original code assumed that the number of sockets
     // and a socket value have the same type.  On Windows they do not.
     //
+
+    int events;
+    int pEvents;
+
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    //int events = select(0, &fdread, NULL, NULL, &tv);
-     int events = 0;
+   
+   // events = select(0, &fdread, NULL, NULL, &tv);
+   
+    //if (events == NULL)
+    //{  // This connection uses namedPipes 
+    
+        events = 0;
         DWORD dwWait=NULL;
-    int pEvents = 0;
+        pEvents = 0;
 
- //       cout << "events after select" << events << endl;
-    cout << "Calling WaitForMultipleObjects\n";
+      
+        cout << "Calling WaitForMultipleObjects\n";
 
-    //this should be in a try block
+        //this should be in a try block
 
-    dwWait = WaitForMultipleObjects(MaxPipes,    
+        dwWait = WaitForMultipleObjects(MaxPipes,    
                                    hEvents,      //ABB:- array of event objects
                                    FALSE,        // ABB:-does not wait for all
-                                   20000);        //ABB:- timeout value
+                                   2000);        //ABB:- timeout value   //WW this may need be shorter
 
     if(dwWait == WAIT_TIMEOUT)
         {
         cout << "Wait WAIT_TIMEOUT\n";
+
+        events = select(0, &fdread, NULL, NULL, &tv);
+
 
                    // Sleep(2000);
             //continue; 
@@ -639,17 +651,30 @@ Boolean Monitor::run(Uint32 milliseconds)
         }
         else if (dwWait == WAIT_FAILED)
         {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "Wait Failed returned\n";
-            cout << "failed with " << GetLastError() << "." << endl;
-            pEvents = -1;
-            return false;
+            if (GetLastError() == 6) //WW this may be too specific
+            {
+                AutoMutex automut(Monitor::_cout_mut);
+                cout << "Monitor::run about to call 'select since waitForMultipleObjects failed\n";
+                events = select(0, &fdread, NULL, NULL, &tv);
+
+            }
+            else
+            {
+                AutoMutex automut(Monitor::_cout_mut);
+                cout << "Wait Failed returned\n";
+                cout << "failed with " << GetLastError() << "." << endl;
+                pEvents = -1;
+                return false;
+            }
         }
         else
         {
             int pCount = dwWait - WAIT_OBJECT_0;  // determines which pipe
-           // cout << " WaitForMultiPleObject returned activity on server pipe: "<< 
-           //     pCount<< endl;
+            {
+               AutoMutex automut(Monitor::_cout_mut);
+               cout << " WaitForMultiPleObject returned activity on server pipe: "<< 
+                pCount<< endl;
+            }
 
             pEvents = 1;
 
@@ -679,8 +704,9 @@ Boolean Monitor::run(Uint32 milliseconds)
         cout << "in Monitor::run about to call handlePipeConnectionEvent" << endl;
         _handlePipeConnectionEvent(dwWait);
     }*/
+   // }
 #else
-    int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
+    events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
     autoEntryMutex.lock();
     // After enqueue a message and the autoEntryMutex has been released and locked again,
@@ -823,7 +849,10 @@ Boolean Monitor::run(Uint32 milliseconds)
                    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                    "Monitor::_dispatch: exited run() for index %d", dst->_entry_index);
 
-                   entries[indx]._type = Monitor::ACCEPTOR;
+                   if (entries[indx].isNamedPipeConnection())
+                   {
+                       entries[indx]._type = Monitor::ACCEPTOR;
+                   }
 
                    // It is possible the entry status may not be set to busy.
                    // The following will fail in that case.
@@ -879,7 +908,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                if(!entries[indx].namedPipe.isConnectionPipe)
                { /*if we enter this clasue it means that the named pipe that we are 
                    looking at has recived a connection but is not the pipe we get connection requests over. 
-                   therefore we neew to change the _type to CONNECTION and wait for a CIM Operations request*/
+                   therefore we need to change the _type to CONNECTION and wait for a CIM Operations request*/
                    entries[indx]._type = Monitor::CONNECTION;
 
 
@@ -899,7 +928,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
         {
          AutoMutex automut(Monitor::_cout_mut);
-         cout << "just called read on index " << indx << endl; 
+         cout << "Monitor::run just called read on index " << indx << endl; 
         }
         
 
@@ -933,8 +962,7 @@ Boolean Monitor::run(Uint32 milliseconds)
            }
            else
            {  
-               {
-              
+               {             
                AutoMutex automut(Monitor::_cout_mut);
                cout << " In Monitor::run ..its a socket message" << endl;
                }

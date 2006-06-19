@@ -52,9 +52,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CQL_LINKAGE CQLFactory;
-class PEGASUS_CQL_LINKAGE CQLExpressionRep;
-class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
+class CQLFactory;
+class CQLExpressionRep;
+class QueryContext;
 
 /**
     The enum is private, but the definition is public.

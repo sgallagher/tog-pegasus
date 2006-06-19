@@ -60,6 +60,8 @@ public:
 	const char* file,
 	size_t line,
 	const String& message);
+
+    virtual ~AssertionFailureException();
 };
 
 
@@ -91,9 +93,9 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //NullPointer() : Exception(MSG) { }
+    NullPointer();
 
-    NullPointer() : Exception(MessageLoaderParms(KEY, MSG)) { }    
+    virtual ~NullPointer();
 };
 
 // ATTN: P3  KS documentation Required
@@ -104,12 +106,9 @@ public:
     static const char MSG[];
     static const char KEY[];   
 
-    //UndeclaredQualifier(const String& qualifierName)
-	//: Exception(MSG + qualifierName) { }
+    UndeclaredQualifier(const String& qualifierName) ;
 
-// NOTE - MSG needs to have a $0 arg for all the substitution cases	
-  UndeclaredQualifier(const String& qualifierName) 
-	: Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }  	
+    virtual ~UndeclaredQualifier();
 };
 
 // ATTN: P3  KS documentation Required
@@ -120,16 +119,11 @@ public:
     static const char MSG[]; 
     static const char KEY[];     
 
-    //BadQualifierScope(const String& qualifierName, const String& scopeString)
-	//: Exception(MSG + qualifierName + String(" scope=") + scopeString) { }
+    BadQualifierScope(
+	const String& qualifierName, 
+	const String& scopeString);
 
-	
-	BadQualifierScope(const String& qualifierName, const String& scopeString)
-						 : Exception(MessageLoaderParms(KEY, 
-														MSG,
-														qualifierName,
-														scopeString)) { }	
-														
+    virtual ~BadQualifierScope();
 };
 
 // ATTN: P3  KS documentation Required
@@ -140,11 +134,9 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //BadQualifierOverride(const String& qualifierName)
-	//: Exception(MSG + qualifierName) { }
-	
-    BadQualifierOverride(const String& qualifierName)
-    : Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }	
+    BadQualifierOverride(const String& qualifierName);
+
+    virtual ~BadQualifierOverride();
 };
 
 class PEGASUS_COMMON_LINKAGE BadQualifierType : public Exception
@@ -154,11 +146,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //BadQualifierType(const String& qualifierName)
-	//: Exception(MSG + qualifierName) { }
-	
-    BadQualifierType(const String& qualifierName) 
-	: Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }		
+    BadQualifierType(const String& qualifierName);
+    virtual ~BadQualifierType();
 };
 
 // ATTN: P3  KS documentation Required
@@ -169,11 +158,9 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //ClassAlreadyResolved(const String& className)
-	//: Exception(MSG + className) { }
-	
-    ClassAlreadyResolved(const String& className) 
-	: Exception(MessageLoaderParms(KEY, MSG, className)) { }		
+    ClassAlreadyResolved(const String& className);
+
+    virtual ~ClassAlreadyResolved();
 };
 
 // ATTN: P3  KS documentation Required
@@ -184,11 +171,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //ClassNotResolved(const String& className)
-	//: Exception(MSG + className) { }
-	
-    ClassNotResolved(const String& className) 
-	: Exception(MessageLoaderParms(KEY, MSG, className)) { }		
+    ClassNotResolved(const String& className);
+    virtual ~ClassNotResolved();
 };
 
 // ATTN: P3  KS documentation Required
@@ -199,11 +183,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //InstanceAlreadyResolved()
-    // : Exception(MSG) { }
-     
-    InstanceAlreadyResolved() 
-	: Exception(MessageLoaderParms(KEY, MSG)) { }	     
+    InstanceAlreadyResolved();
+    virtual ~InstanceAlreadyResolved();
 };
 
 // ATTN: P3  KS documentation Required
@@ -214,11 +195,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //InstantiatedAbstractClass(const String& className)
-     //: Exception(MSG + className) { }
-     
-    InstantiatedAbstractClass(const String& className) 
-	: Exception(MessageLoaderParms(KEY, MSG, className)) { }	     
+    InstantiatedAbstractClass(const String& className);
+    virtual ~InstantiatedAbstractClass();
 };
 
 // ATTN: P3  KS documentation Required
@@ -229,11 +207,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //NoSuchProperty(const String& propertyName)
-	//: Exception(MSG + propertyName) { }
-	
-    NoSuchProperty(const String& propertyName) 
-	: Exception(MessageLoaderParms(KEY, MSG, propertyName)) { }	
+    NoSuchProperty(const String& propertyName);
+    virtual ~NoSuchProperty();
 };
 
 // ATTN: P3  KS documentation Required
@@ -244,10 +219,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-   // NoSuchFile(const String& fileName) : Exception(MSG + fileName) { }
-    
-    NoSuchFile(const String& fileName) 
-	: Exception(MessageLoaderParms(KEY, MSG, fileName)) { }    
+    NoSuchFile(const String& fileName);
+    virtual ~NoSuchFile();
 };
 
 // ATTN: P3  KS documentation Required
@@ -258,10 +231,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //FileNotReadable(const String& fileName) : Exception(MSG + fileName) { }
-    
-    FileNotReadable(const String& fileName) 
-	: Exception(MessageLoaderParms(KEY, MSG, fileName)) { }     
+    FileNotReadable(const String& fileName);
+    virtual ~FileNotReadable();
 };
 
 // ATTN: P3  KS documentation Required
@@ -272,10 +243,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //CannotRemoveDirectory(const String& path) : Exception(MSG + path) { }
-    
-    CannotRemoveDirectory(const String& path) 
-	: Exception(MessageLoaderParms(KEY, MSG, path)) { }     
+    CannotRemoveDirectory(const String& path);
+    virtual ~CannotRemoveDirectory();
 };
 
 // ATTN: P3  KS documentation Required
@@ -286,9 +255,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //CannotRemoveFile(const String& path) : Exception(MSG + path) { }
-    CannotRemoveFile(const String& path)  
-	: Exception(MessageLoaderParms(KEY, MSG, path)) { }         
+    CannotRemoveFile(const String& path);
+    virtual ~CannotRemoveFile();
 };
 
 // ATTN: P3  KS documentation Required
@@ -299,9 +267,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //CannotRenameFile(const String& path) : Exception(MSG + path) { }
-    CannotRenameFile(const String& path)  
-	: Exception(MessageLoaderParms(KEY, MSG, path)) { }      
+    CannotRenameFile(const String& path);
+    virtual ~CannotRenameFile();
 };
 
 // ATTN: P3  KS documentation Required
@@ -312,10 +279,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //NoSuchDirectory(const String& directoryName)
-	//: Exception(MSG + directoryName) { }
-    NoSuchDirectory(const String& directoryName)  
-	: Exception(MessageLoaderParms(KEY, MSG, directoryName)) { }  	
+    NoSuchDirectory(const String& directoryName);
+    virtual ~NoSuchDirectory();
 };
 
 // ATTN: P3  KS documentation Required
@@ -326,10 +291,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //CannotCreateDirectory(const String& path)
-	//: Exception(MSG + path) { }
-    CannotCreateDirectory(const String& path)  
-	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	
+    CannotCreateDirectory(const String& path);
+    virtual ~CannotCreateDirectory();
 };
 
 // ATTN: P3  KS documentation Required
@@ -340,10 +303,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //CannotOpenFile(const String& path)
-	//: Exception(MSG + path) { }
-    CannotOpenFile(const String& path)  
-	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	
+    CannotOpenFile(const String& path);
+    virtual ~CannotOpenFile();
 };
 
 // ATTN: P3  KS documentation Required
@@ -354,9 +315,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-   // NotImplemented(const String& method) : Exception(MSG + method) { }
-    NotImplemented(const String& method)  
-	: Exception(MessageLoaderParms(KEY, MSG, method)) { }      
+    NotImplemented(const String& method);
+    virtual ~NotImplemented();
 };
 
 class PEGASUS_COMMON_LINKAGE StackUnderflow : public Exception
@@ -366,9 +326,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //StackUnderflow() : Exception(MSG) { }
-    StackUnderflow()  
-	: Exception(MessageLoaderParms(KEY, MSG)) { }      
+    StackUnderflow();
+    virtual ~StackUnderflow();
 };
 
 class PEGASUS_COMMON_LINKAGE StackOverflow : public Exception
@@ -378,9 +337,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //StackOverflow() : Exception(MSG) { }
-    StackOverflow()  
-	: Exception(MessageLoaderParms(KEY, MSG)) { }       
+    StackOverflow();
+    virtual ~StackOverflow();
 };
 
 class PEGASUS_COMMON_LINKAGE QueueUnderflow : public Exception
@@ -390,9 +348,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //QueueUnderflow() : Exception(MSG) { }
-    QueueUnderflow()  
-	: Exception(MessageLoaderParms(KEY, MSG)) { }       
+    QueueUnderflow();
+    virtual ~QueueUnderflow();
 };
 
 class PEGASUS_COMMON_LINKAGE BadFormat : public Exception
@@ -402,9 +359,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //BadFormat() : Exception(MSG) { }
-    BadFormat()  
-	: Exception(MessageLoaderParms(KEY, MSG)) { }   
+    BadFormat();
+    virtual ~BadFormat();
 };
 
 class PEGASUS_COMMON_LINKAGE BadlyFormedCGIQueryString : public Exception
@@ -414,9 +370,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //BadlyFormedCGIQueryString() : Exception(MSG) { }
-    BadlyFormedCGIQueryString()  
-	: Exception(MessageLoaderParms(KEY, MSG)) { }       
+    BadlyFormedCGIQueryString();
+    virtual ~BadlyFormedCGIQueryString();
 };
 
 class PEGASUS_COMMON_LINKAGE DynamicLoadFailed : public Exception
@@ -426,11 +381,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //DynamicLoadFailed(const String& libraryName)
-	//: Exception(MSG + libraryName) { }
-	
-    DynamicLoadFailed(const String& libraryName)  
-	: Exception(MessageLoaderParms(KEY, MSG, libraryName)) { }  		
+    DynamicLoadFailed(const String& libraryName);
+    virtual ~DynamicLoadFailed();
 };
 
 class PEGASUS_COMMON_LINKAGE DynamicLookupFailed : public Exception
@@ -440,10 +392,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //DynamicLookupFailed(const String& symbolName)
-	//: Exception(MSG + symbolName) { }
-    DynamicLookupFailed(const String& symbolName)  
-	: Exception(MessageLoaderParms(KEY, MSG, symbolName)) { }  		
+    DynamicLookupFailed(const String& symbolName);
+    virtual ~DynamicLookupFailed();
 };
 
 class PEGASUS_COMMON_LINKAGE CannotOpenDirectory : public Exception
@@ -453,9 +403,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //CannotOpenDirectory(const String& path) : Exception(MSG + path) { }
-    CannotOpenDirectory(const String& path)  
-	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	    
+    CannotOpenDirectory(const String& path);
+    virtual ~CannotOpenDirectory();
 };
 
 class PEGASUS_COMMON_LINKAGE ParseError : public Exception
@@ -465,9 +414,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //ParseError(const String& message) : Exception(MSG + message) { }
-    ParseError(const String& message)  
-	: Exception(MessageLoaderParms(KEY, MSG, message)) { }  	    
+    ParseError(const String& message);
+    virtual ~ParseError();
 };
 
 class PEGASUS_COMMON_LINKAGE MissingNullTerminator : public Exception
@@ -477,9 +425,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //MissingNullTerminator() : Exception(MSG) { }
-    MissingNullTerminator()  
-	: Exception(MessageLoaderParms(KEY, MSG)) { }  	    
+    MissingNullTerminator();
+    virtual ~MissingNullTerminator();
 };
 
 //l10n start
@@ -491,11 +438,9 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //MalformedLanguageHeader(const String& error) : Exception(MSG + error) { }
-    MalformedLanguageHeader(const String& error)  
-	: Exception(MessageLoaderParms(KEY, MSG, error)) { }      
+    MalformedLanguageHeader(const String& error);
+    virtual ~MalformedLanguageHeader();
 };
-
 
 class PEGASUS_COMMON_LINKAGE InvalidAcceptLanguageHeader: public Exception
 {
@@ -504,9 +449,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //InvalidAcceptLanguageHeader(const String& error) : Exception(MSG + error) { }
-    InvalidAcceptLanguageHeader(const String& error)  
-	: Exception(MessageLoaderParms(KEY, MSG, error)) { }          
+    InvalidAcceptLanguageHeader(const String& error);
+    virtual ~InvalidAcceptLanguageHeader();
 };
 
 class PEGASUS_COMMON_LINKAGE InvalidContentLanguageHeader: public Exception
@@ -516,9 +460,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //InvalidContentLanguageHeader(const String& error) : Exception(MSG + error) { }
-    InvalidContentLanguageHeader(const String& error)  
-	: Exception(MessageLoaderParms(KEY, MSG, error)) { }       
+    InvalidContentLanguageHeader(const String& error);
+    virtual ~InvalidContentLanguageHeader();
 };
 
 //l10n end
@@ -530,9 +473,8 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //InvalidAuthHeader() : Exception(MSG) { }
-    InvalidAuthHeader()  
-	: Exception(MessageLoaderParms(KEY, MSG)) { }       
+    InvalidAuthHeader();
+    virtual ~InvalidAuthHeader();
 };
 
 class PEGASUS_COMMON_LINKAGE UnauthorizedAccess: public Exception
@@ -542,15 +484,15 @@ public:
     static const char MSG[];
     static const char KEY[];     
 
-    //UnauthorizedAccess() : Exception(MSG) { }
-    UnauthorizedAccess()  
-	: Exception(MessageLoaderParms(KEY, MSG)) { }       
+    UnauthorizedAccess();
+    virtual ~UnauthorizedAccess();
 };
 
 class PEGASUS_COMMON_LINKAGE IncompatibleTypesException : public Exception
 {
 public:
     IncompatibleTypesException();    
+    virtual ~IncompatibleTypesException();    
 };
 
 class PEGASUS_COMMON_LINKAGE InternalSystemError : public Exception
@@ -559,8 +501,8 @@ public:
 
     static const char MSG[];
 
-    InternalSystemError()
-        : Exception(MSG) { }
+    InternalSystemError();
+    virtual ~InternalSystemError();
 };
 
 

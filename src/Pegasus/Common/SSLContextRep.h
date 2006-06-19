@@ -63,7 +63,7 @@ public:
     X509_STORE* crlStore;
 };
 
-class PEGASUS_COMMON_LINKAGE SSLContextRep
+class SSLContextRep
 {
     /*
     SSL locking callback function. It is needed to perform locking on 

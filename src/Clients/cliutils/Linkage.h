@@ -38,14 +38,9 @@
 #include <Pegasus/Common/Config.h>
 
 #ifndef PEGASUS_CLIUTILS_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_CLIUTILS_INTERNAL
-#      define PEGASUS_CLIUTILS_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_CLIUTILS_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_CLIUTILS_LINKAGE
-#    define PEGASUS_CLIUTILS_LINKAGE
-#  endif
+#   ifdef PEGASUS_CLIUTILS_INTERNAL
+#       define PEGASUS_CLIUTILS_LINKAGE PEGASUS_EXPORT
+#   else
+#       define PEGASUS_CLIUTILS_LINKAGE PEGASUS_IMPORT
+#   endif
 #endif

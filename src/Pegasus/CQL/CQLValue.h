@@ -51,8 +51,8 @@
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 
 PEGASUS_NAMESPACE_BEGIN
-class PEGASUS_CQL_LINKAGE CQLFactory;
-class PEGASUS_CQL_LINKAGE CQLValueRep;
+class CQLFactory;
+class CQLValueRep;
 
 /** The CQLValue class encapulates a value
     that is a CQL value.  The possible CQLValue

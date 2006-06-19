@@ -53,7 +53,7 @@ class CIMConstInstance;
 class CIMClass;
 class CIMConstClass;
 
-class PEGASUS_COMMON_LINKAGE CIMInstanceRep : public CIMObjectRep
+class CIMInstanceRep : public CIMObjectRep
 {
 public:
 

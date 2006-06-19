@@ -50,7 +50,7 @@
 #include <Pegasus/Query/QueryCommon/QueryChainedIdentifierRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
-class PEGASUS_CQL_LINKAGE CQLFactory;
+class CQLFactory;
 /**
 CQLChainedIdentifier class is used for parsing (not resolving)
 the identifier portion of a CQL select statement.
@@ -70,7 +70,7 @@ The CQLChainedIdentifier class can parse and return each
 Note:  this must handle wildcard("*"), embedded objects, arrays, symbolic
 constants, etc.
    */
-class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep : public QueryChainedIdentifierRep
+class CQLChainedIdentifierRep : public QueryChainedIdentifierRep
 {
   public:
 

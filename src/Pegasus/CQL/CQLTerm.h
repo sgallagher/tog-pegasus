@@ -53,9 +53,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CQL_LINKAGE CQLFactory;
-class PEGASUS_CQL_LINKAGE CQLTermRep;
-class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
+class CQLFactory;
+class CQLTermRep;
+class QueryContext;
 
 /**
     enum of multiply, divide and string concatenation operators.

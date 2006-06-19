@@ -275,7 +275,7 @@ inline const Message* MessageQueue::find(Uint32 type, Uint32 key) const
     return ((MessageQueue*)this)->find(type, key);
 }
 
-class NoSuchMessageOnQueue : public Exception
+class PEGASUS_COMMON_LINKAGE NoSuchMessageOnQueue : public Exception
 {
 public:
     NoSuchMessageOnQueue() : Exception("No such message on this queue") { }

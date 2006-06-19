@@ -76,7 +76,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_INVALID_SOCKET -1
 #endif
 
-class PEGASUS_COMMON_LINKAGE Socket
+class Socket
 {
    public:
 

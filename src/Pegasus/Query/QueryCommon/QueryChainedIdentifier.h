@@ -52,8 +52,8 @@
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN 
-class PEGASUS_QUERYCOMMON_LINKAGE QueryChainedIdentifierRep;
-class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
+class QueryChainedIdentifierRep;
+class QueryContext;
 
 class PEGASUS_QUERYCOMMON_LINKAGE QueryChainedIdentifier
 {

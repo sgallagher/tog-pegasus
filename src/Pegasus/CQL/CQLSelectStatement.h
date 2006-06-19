@@ -54,7 +54,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CQL_LINKAGE CQLSelectStatementRep;
+class CQLSelectStatementRep;
 
 /**
 This class is derived from the SelectStatement base class.

@@ -54,7 +54,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_QUERYCOMMON_LINKAGE QueryIdentifierRep;
+class QueryIdentifierRep;
 
 class PEGASUS_QUERYCOMMON_LINKAGE QueryIdentifier
 {

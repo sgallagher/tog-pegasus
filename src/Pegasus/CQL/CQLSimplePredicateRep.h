@@ -51,9 +51,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CQL_LINKAGE CQLExpression;
-class PEGASUS_CQL_LINKAGE CQLFactory;
-class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
+class CQLExpression;
+class CQLFactory;
+class QueryContext;
 
 class CQLSimplePredicateRep
 {

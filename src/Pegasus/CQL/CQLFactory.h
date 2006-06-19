@@ -94,7 +94,7 @@ enum FactoryType { Identifier, ChainedIdentifier, Value, Function,
         set into the CQlPredicate and its type.
 */
 
-class PEGASUS_CQL_LINKAGE CQLFactory
+class CQLFactory
 {
   public:
   //CQLFactory();

@@ -56,7 +56,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_WQL_LINKAGE WQLSelectStatementRep: public SelectStatementRep
+class WQLSelectStatementRep: public SelectStatementRep
 {
 public:
 

@@ -39,13 +39,9 @@
 #include <Pegasus/Common/Config.h>
 
 #ifndef PEGASUS_BENCHMARK_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_BENCHMARK_INTERNAL
-#      define PEGASUS_BENCHMARK_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_BENCHMARK_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_BENCHMARK_LINKAGE /* empty */
-#  endif
+#   ifdef PEGASUS_BENCHMARK_INTERNAL
+#       define PEGASUS_BENCHMARK_LINKAGE PEGASUS_EXPORT
+#   else
+#       define PEGASUS_BENCHMARK_LINKAGE PEGASUS_IMPORT
+#   endif
 #endif

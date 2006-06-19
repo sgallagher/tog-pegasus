@@ -51,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct PropertyNode;
 
-class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
+class CQLSelectStatementRep : public SelectStatementRep
 {
   public:
 

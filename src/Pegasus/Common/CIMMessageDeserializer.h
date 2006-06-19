@@ -59,10 +59,12 @@ public:
 
 private:
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMRequestMessage* _deserializeCIMRequestMessage(
         XmlParser& parser,
         Uint32 type);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMResponseMessage* _deserializeCIMResponseMessage(
         XmlParser& parser,
         Uint32 type);
@@ -71,51 +73,63 @@ private:
     // Utility Methods
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _deserializeUserInfo(
         XmlParser& parser,
         String& authType,
         String& userName);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _deserializeQueueIdStack(
         XmlParser& parser,
         QueueIdStack& queueIdStack);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _deserializeOperationContext(
         XmlParser& parser,
         OperationContext& operationContext);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _deserializeContentLanguageList(
         XmlParser& parser,
         ContentLanguageList& contentLanguages);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _deserializeAcceptLanguageList(
         XmlParser& parser,
         AcceptLanguageList& acceptLanguages);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _deserializeCIMException(
         XmlParser& parser,
         CIMException& cimException);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _deserializeCIMPropertyList(
         XmlParser& parser,
         CIMPropertyList& propertyList);
 
+    PEGASUS_HIDDEN_LINKAGE
     static Boolean _deserializeCIMObjectPath(
         XmlParser& parser,
         CIMObjectPath& cimObjectPath);
 
+    PEGASUS_HIDDEN_LINKAGE
     static Boolean _deserializeCIMInstance(
         XmlParser& parser,
         CIMInstance& cimInstance);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _deserializeCIMNamespaceName(
         XmlParser& parser,
         CIMNamespaceName& cimNamespaceName);
 
+    PEGASUS_HIDDEN_LINKAGE
     static Boolean _deserializeCIMName(
         XmlParser& parser,
         CIMName& cimName);
 
+    PEGASUS_HIDDEN_LINKAGE
     static Boolean _deserializeCIMObject(
         XmlParser& parser,
         CIMObject& object);
@@ -130,51 +144,67 @@ private:
     // CIMOperationRequestMessages
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMGetInstanceRequestMessage*
         _deserializeCIMGetInstanceRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMDeleteInstanceRequestMessage*
         _deserializeCIMDeleteInstanceRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMCreateInstanceRequestMessage*
         _deserializeCIMCreateInstanceRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMModifyInstanceRequestMessage*
         _deserializeCIMModifyInstanceRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMEnumerateInstancesRequestMessage*
         _deserializeCIMEnumerateInstancesRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMEnumerateInstanceNamesRequestMessage*
         _deserializeCIMEnumerateInstanceNamesRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMExecQueryRequestMessage*
         _deserializeCIMExecQueryRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMAssociatorsRequestMessage*
         _deserializeCIMAssociatorsRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMAssociatorNamesRequestMessage*
         _deserializeCIMAssociatorNamesRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMReferencesRequestMessage*
         _deserializeCIMReferencesRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMReferenceNamesRequestMessage*
         _deserializeCIMReferenceNamesRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMGetPropertyRequestMessage*
         _deserializeCIMGetPropertyRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMSetPropertyRequestMessage*
         _deserializeCIMSetPropertyRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMInvokeMethodRequestMessage*
         _deserializeCIMInvokeMethodRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMInitializeProviderRequestMessage*
         _deserializeCIMInitializeProviderRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMInitializeProviderAgentRequestMessage*
         _deserializeCIMInitializeProviderAgentRequestMessage(XmlParser& parser);
 
@@ -185,9 +215,11 @@ private:
     static CIMCreateSubscriptionRequestMessage*
         _deserializeCIMCreateSubscriptionRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMModifySubscriptionRequestMessage*
         _deserializeCIMModifySubscriptionRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMDeleteSubscriptionRequestMessage*
         _deserializeCIMDeleteSubscriptionRequestMessage(XmlParser& parser);
 
@@ -195,24 +227,31 @@ private:
     // Generic CIMRequestMessages
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMExportIndicationRequestMessage*
         _deserializeCIMExportIndicationRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMProcessIndicationRequestMessage*
         _deserializeCIMProcessIndicationRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMDisableModuleRequestMessage*
         _deserializeCIMDisableModuleRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMEnableModuleRequestMessage*
         _deserializeCIMEnableModuleRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMStopAllProvidersRequestMessage*
         _deserializeCIMStopAllProvidersRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMNotifyConfigChangeRequestMessage*
         _deserializeCIMNotifyConfigChangeRequestMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMSubscriptionInitCompleteRequestMessage*
         _deserializeCIMSubscriptionInitCompleteRequestMessage
             (XmlParser& parser);
@@ -227,51 +266,67 @@ private:
     // CIM Operation Response Messages
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMGetInstanceResponseMessage*
         _deserializeCIMGetInstanceResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMDeleteInstanceResponseMessage*
         _deserializeCIMDeleteInstanceResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMCreateInstanceResponseMessage*
         _deserializeCIMCreateInstanceResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMModifyInstanceResponseMessage*
         _deserializeCIMModifyInstanceResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMEnumerateInstancesResponseMessage*
         _deserializeCIMEnumerateInstancesResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMEnumerateInstanceNamesResponseMessage*
         _deserializeCIMEnumerateInstanceNamesResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMExecQueryResponseMessage*
         _deserializeCIMExecQueryResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMAssociatorsResponseMessage*
         _deserializeCIMAssociatorsResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMAssociatorNamesResponseMessage*
         _deserializeCIMAssociatorNamesResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMReferencesResponseMessage*
         _deserializeCIMReferencesResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMReferenceNamesResponseMessage*
         _deserializeCIMReferenceNamesResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMGetPropertyResponseMessage*
         _deserializeCIMGetPropertyResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMSetPropertyResponseMessage*
         _deserializeCIMSetPropertyResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMInvokeMethodResponseMessage*
         _deserializeCIMInvokeMethodResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMInitializeProviderResponseMessage*
         _deserializeCIMInitializeProviderResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMInitializeProviderAgentResponseMessage*
         _deserializeCIMInitializeProviderAgentResponseMessage(
             XmlParser& parser);
@@ -280,12 +335,15 @@ private:
     // CIM Indication Response Messages
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMCreateSubscriptionResponseMessage*
         _deserializeCIMCreateSubscriptionResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMModifySubscriptionResponseMessage*
         _deserializeCIMModifySubscriptionResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMDeleteSubscriptionResponseMessage*
         _deserializeCIMDeleteSubscriptionResponseMessage(XmlParser& parser);
 
@@ -293,24 +351,31 @@ private:
     // Generic CIMResponseMessages
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMExportIndicationResponseMessage*
         _deserializeCIMExportIndicationResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMProcessIndicationResponseMessage*
         _deserializeCIMProcessIndicationResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMDisableModuleResponseMessage*
         _deserializeCIMDisableModuleResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMEnableModuleResponseMessage*
         _deserializeCIMEnableModuleResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMStopAllProvidersResponseMessage*
         _deserializeCIMStopAllProvidersResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMNotifyConfigChangeResponseMessage*
         _deserializeCIMNotifyConfigChangeResponseMessage(XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
     static CIMSubscriptionInitCompleteResponseMessage*
         _deserializeCIMSubscriptionInitCompleteResponseMessage
             (XmlParser& parser);

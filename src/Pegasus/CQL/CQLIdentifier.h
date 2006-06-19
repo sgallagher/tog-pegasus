@@ -52,7 +52,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CQL_LINKAGE CQLIdentifierRep;
+class CQLIdentifierRep;
 
 /**
   The CQLIdentifier class encapsulates

@@ -64,6 +64,10 @@ AssertionFailureException::AssertionFailureException(
     PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2, _rep->message);
 }
 
+AssertionFailureException::~AssertionFailureException()
+{
+}
+
 const char NullPointer::MSG[] = "null pointer";
 const char NullPointer::KEY[] = "Common.InternalException.NULL_POINTER";
 
@@ -191,12 +195,6 @@ const char UnauthorizedAccess::MSG[] = "Unauthorized access";
 const char UnauthorizedAccess::KEY[] = "Common.InternalException.UNAUTHORIZED_ACCESS";  
 
 const char InternalSystemError::MSG[] = "Unable to authenticate user";
-
-IncompatibleTypesException::IncompatibleTypesException()
-    : Exception("incompatible types")
-{
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -427,6 +425,630 @@ const ContentLanguageList& TraceableCIMException::getContentLanguages() const
     CIMExceptionRep* rep;
     rep = reinterpret_cast<CIMExceptionRep*>(_rep);
     return rep->contentLanguages;
+}
+
+//==============================================================================
+//
+// NullPointer
+//
+//==============================================================================
+
+NullPointer::NullPointer() : 
+    Exception(MessageLoaderParms(
+    NullPointer::KEY, 
+    NullPointer::MSG))
+{
+}    
+
+NullPointer::~NullPointer()
+{
+}
+
+//==============================================================================
+//
+// UndeclaredQualifier
+//
+//==============================================================================
+
+UndeclaredQualifier::UndeclaredQualifier(const String& qualifierName) : 
+    Exception(MessageLoaderParms(
+    UndeclaredQualifier::KEY, 
+    UndeclaredQualifier::MSG,
+    qualifierName)) 
+{
+}    
+
+UndeclaredQualifier::~UndeclaredQualifier()
+{
+}
+
+//==============================================================================
+//
+// BadQualifierScope
+//
+//==============================================================================
+
+BadQualifierScope::BadQualifierScope(
+    const String& qualifierName, 
+    const String& scopeString) : 
+    Exception(MessageLoaderParms(KEY, 
+	MSG,
+	qualifierName,
+	scopeString)) 
+{ 
+
+}
+
+BadQualifierScope::~BadQualifierScope()
+{
+}
+
+//==============================================================================
+//
+// BadQualifierOverride
+//
+//==============================================================================
+
+BadQualifierOverride::BadQualifierOverride(const String& qualifierName) : 
+    Exception(MessageLoaderParms(
+	BadQualifierOverride::KEY, 
+	BadQualifierOverride::MSG,
+	qualifierName)) 
+{
+}    
+
+BadQualifierOverride::~BadQualifierOverride()
+{
+}
+
+//==============================================================================
+//
+// BadQualifierType
+//
+//==============================================================================
+
+BadQualifierType::BadQualifierType(const String& qualifierName) : 
+    Exception(MessageLoaderParms(KEY, MSG, qualifierName))
+{ 
+
+}		
+
+BadQualifierType::~BadQualifierType()
+{
+
+}
+
+//==============================================================================
+//
+// ClassAlreadyResolved
+//
+//==============================================================================
+
+ClassAlreadyResolved::ClassAlreadyResolved(const String& className) : 
+    Exception(MessageLoaderParms(
+	ClassAlreadyResolved::KEY, 
+	ClassAlreadyResolved::MSG,
+	className)) 
+{
+}    
+
+ClassAlreadyResolved::~ClassAlreadyResolved()
+{
+}
+
+//==============================================================================
+//
+// ClassNotResolved
+//
+//==============================================================================
+
+ClassNotResolved::ClassNotResolved(const String& className) : 
+    Exception(MessageLoaderParms(
+	ClassNotResolved::KEY, 
+	ClassNotResolved::MSG,
+	className)) 
+{
+}
+
+ClassNotResolved::~ClassNotResolved()
+{
+}
+
+//==============================================================================
+//
+// InstanceAlreadyResolved
+//
+//==============================================================================
+
+InstanceAlreadyResolved::InstanceAlreadyResolved() :
+    Exception(MessageLoaderParms(
+	InstanceAlreadyResolved::KEY, 
+	InstanceAlreadyResolved::MSG))
+{
+}    
+
+InstanceAlreadyResolved::~InstanceAlreadyResolved()
+{
+}
+
+//==============================================================================
+//
+// InstantiatedAbstractClass
+//
+//==============================================================================
+
+InstantiatedAbstractClass::InstantiatedAbstractClass(const String& className) : 
+    Exception(MessageLoaderParms(
+    InstantiatedAbstractClass::KEY, 
+    InstantiatedAbstractClass::MSG,
+    className)) 
+{
+}    
+
+InstantiatedAbstractClass::~InstantiatedAbstractClass()
+{
+}
+
+//==============================================================================
+//
+// NoSuchProperty
+//
+//==============================================================================
+
+NoSuchProperty::NoSuchProperty(const String& propertyName) : 
+    Exception(MessageLoaderParms(
+    NoSuchProperty::KEY, 
+    NoSuchProperty::MSG,
+    propertyName)) 
+{
+}    
+
+NoSuchProperty::~NoSuchProperty()
+{
+}
+
+//==============================================================================
+//
+// NoSuchFile
+//
+//==============================================================================
+
+NoSuchFile::NoSuchFile(const String& fileName) : 
+    Exception(MessageLoaderParms(
+    NoSuchFile::KEY, 
+    NoSuchFile::MSG,
+    fileName)) 
+{
+}    
+
+NoSuchFile::~NoSuchFile()
+{
+}
+
+//==============================================================================
+//
+// FileNotReadable
+//
+//==============================================================================
+
+FileNotReadable::FileNotReadable(const String& fileName) : 
+    Exception(MessageLoaderParms(
+    FileNotReadable::KEY, 
+    FileNotReadable::MSG,
+    fileName)) 
+{
+}    
+
+FileNotReadable::~FileNotReadable()
+{
+}
+
+//==============================================================================
+//
+// CannotRemoveDirectory
+//
+//==============================================================================
+
+CannotRemoveDirectory::CannotRemoveDirectory(const String& arg) : 
+    Exception(MessageLoaderParms(
+    CannotRemoveDirectory::KEY, 
+    CannotRemoveDirectory::MSG,
+    arg)) 
+{
+}    
+
+CannotRemoveDirectory::~CannotRemoveDirectory()
+{
+}
+
+//==============================================================================
+//
+// CannotRemoveFile
+//
+//==============================================================================
+
+CannotRemoveFile::CannotRemoveFile(const String& path) : 
+    Exception(MessageLoaderParms(
+    CannotRemoveFile::KEY, 
+    CannotRemoveFile::MSG,
+    path)) 
+{
+}    
+
+CannotRemoveFile::~CannotRemoveFile()
+{
+}
+
+//==============================================================================
+//
+// CannotRenameFile
+//
+//==============================================================================
+
+CannotRenameFile::CannotRenameFile(const String& path) : 
+    Exception(MessageLoaderParms(
+    CannotRenameFile::KEY, 
+    CannotRenameFile::MSG,
+    path)) 
+{
+}    
+
+CannotRenameFile::~CannotRenameFile()
+{
+}
+
+//==============================================================================
+//
+// NoSuchDirectory
+//
+//==============================================================================
+
+NoSuchDirectory::NoSuchDirectory(const String& dirName) : 
+    Exception(MessageLoaderParms(
+    NoSuchDirectory::KEY, 
+    NoSuchDirectory::MSG,
+    dirName)) 
+{
+}    
+
+NoSuchDirectory::~NoSuchDirectory()
+{
+}
+
+//==============================================================================
+//
+// CannotCreateDirectory
+//
+//==============================================================================
+
+CannotCreateDirectory::CannotCreateDirectory(const String& path) : 
+    Exception(MessageLoaderParms(
+    CannotCreateDirectory::KEY, 
+    CannotCreateDirectory::MSG,
+    path)) 
+{
+}    
+
+CannotCreateDirectory::~CannotCreateDirectory()
+{
+}
+
+//==============================================================================
+//
+// CannotOpenFile
+//
+//==============================================================================
+
+CannotOpenFile::CannotOpenFile(const String& path) : 
+    Exception(MessageLoaderParms(
+    CannotOpenFile::KEY, 
+    CannotOpenFile::MSG,
+    path)) 
+{
+}    
+
+CannotOpenFile::~CannotOpenFile()
+{
+}
+
+//==============================================================================
+//
+// NotImplemented
+//
+//==============================================================================
+
+NotImplemented::NotImplemented(const String& method) : 
+    Exception(MessageLoaderParms(
+    NotImplemented::KEY, 
+    NotImplemented::MSG,
+    method)) 
+{
+}    
+
+NotImplemented::~NotImplemented()
+{
+}
+
+//==============================================================================
+//
+// StackUnderflow
+//
+//==============================================================================
+
+StackUnderflow::StackUnderflow() :
+    Exception(MessageLoaderParms(StackUnderflow::KEY, StackUnderflow::MSG))
+{
+}    
+
+StackUnderflow::~StackUnderflow()
+{
+}
+
+//==============================================================================
+//
+// StackOverflow
+//
+//==============================================================================
+
+StackOverflow::StackOverflow() : 
+    Exception(MessageLoaderParms(StackOverflow::KEY, StackOverflow::MSG))
+{
+}    
+
+StackOverflow::~StackOverflow()
+{
+}
+
+//==============================================================================
+//
+// QueueUnderflow
+//
+//==============================================================================
+
+QueueUnderflow::QueueUnderflow() : 
+    Exception(MessageLoaderParms(QueueUnderflow::KEY, QueueUnderflow::MSG))
+{
+}    
+
+QueueUnderflow::~QueueUnderflow()
+{
+}
+
+//==============================================================================
+//
+// BadFormat
+//
+//==============================================================================
+
+BadFormat::BadFormat() :
+    Exception(MessageLoaderParms(BadFormat::KEY, BadFormat::MSG))
+{
+}    
+
+BadFormat::~BadFormat()
+{
+}
+
+//==============================================================================
+//
+// BadlyFormedCGIQueryString
+//
+//==============================================================================
+
+BadlyFormedCGIQueryString::BadlyFormedCGIQueryString() :
+    Exception(MessageLoaderParms(BadFormat::KEY, BadFormat::MSG))
+{
+}    
+
+BadlyFormedCGIQueryString::~BadlyFormedCGIQueryString()
+{
+}
+
+//==============================================================================
+//
+// DynamicLoadFailed
+//
+//==============================================================================
+
+DynamicLoadFailed::DynamicLoadFailed(const String& path) : 
+    Exception(MessageLoaderParms(
+    DynamicLoadFailed::KEY, 
+    DynamicLoadFailed::MSG,
+    path)) 
+{
+}    
+
+DynamicLoadFailed::~DynamicLoadFailed()
+{
+}
+
+//==============================================================================
+//
+// DynamicLookupFailed
+//
+//==============================================================================
+
+DynamicLookupFailed::DynamicLookupFailed(const String& symbol) : 
+    Exception(MessageLoaderParms(
+	DynamicLookupFailed::KEY, 
+	DynamicLookupFailed::MSG,
+	symbol)) 
+{
+}    
+
+DynamicLookupFailed::~DynamicLookupFailed()
+{
+}
+
+//==============================================================================
+//
+// CannotOpenDirectory
+//
+//==============================================================================
+
+CannotOpenDirectory::CannotOpenDirectory(const String& path) : 
+    Exception(MessageLoaderParms(
+    CannotOpenDirectory::KEY, 
+    CannotOpenDirectory::MSG,
+    path)) 
+{
+}    
+
+CannotOpenDirectory::~CannotOpenDirectory()
+{
+}
+
+//==============================================================================
+//
+// ParseError
+//
+//==============================================================================
+
+ParseError::ParseError(const String& message) : 
+    Exception(MessageLoaderParms(
+    ParseError::KEY, 
+    ParseError::MSG,
+    message)) 
+{
+}    
+
+ParseError::~ParseError()
+{
+}
+
+//==============================================================================
+//
+// MissingNullTerminator
+//
+//==============================================================================
+
+MissingNullTerminator::MissingNullTerminator() : 
+    Exception(MessageLoaderParms(
+	MissingNullTerminator::KEY, 
+	MissingNullTerminator::MSG))
+{
+}    
+
+MissingNullTerminator::~MissingNullTerminator()
+{
+}
+
+//==============================================================================
+//
+// MalformedLanguageHeader
+//
+//==============================================================================
+
+MalformedLanguageHeader::MalformedLanguageHeader(const String& error) : 
+    Exception(MessageLoaderParms(
+    MalformedLanguageHeader::KEY, 
+    MalformedLanguageHeader::MSG,
+    error)) 
+{
+}    
+
+MalformedLanguageHeader::~MalformedLanguageHeader()
+{
+}
+
+//==============================================================================
+//
+// InvalidAcceptLanguageHeader
+//
+//==============================================================================
+
+InvalidAcceptLanguageHeader::InvalidAcceptLanguageHeader(const String& error) : 
+    Exception(MessageLoaderParms(
+	InvalidAcceptLanguageHeader::KEY, 
+	InvalidAcceptLanguageHeader::MSG,
+	error)) 
+{
+}    
+
+InvalidAcceptLanguageHeader::~InvalidAcceptLanguageHeader()
+{
+}
+
+//==============================================================================
+//
+// InvalidContentLanguageHeader
+//
+//==============================================================================
+
+InvalidContentLanguageHeader::InvalidContentLanguageHeader(const String& error):
+    Exception(MessageLoaderParms(
+	InvalidContentLanguageHeader::KEY, 
+	InvalidContentLanguageHeader::MSG,
+	error)) 
+{
+}    
+
+InvalidContentLanguageHeader::~InvalidContentLanguageHeader()
+{
+}
+
+//==============================================================================
+//
+// InvalidAuthHeader
+//
+//==============================================================================
+
+InvalidAuthHeader::InvalidAuthHeader() : 
+    Exception(MessageLoaderParms(
+    InvalidAuthHeader::KEY, 
+    InvalidAuthHeader::MSG)) 
+{
+}    
+
+InvalidAuthHeader::~InvalidAuthHeader()
+{
+}
+
+//==============================================================================
+//
+// UnauthorizedAccess
+//
+//==============================================================================
+
+UnauthorizedAccess::UnauthorizedAccess() : 
+    Exception(MessageLoaderParms(
+    UnauthorizedAccess::KEY, 
+    UnauthorizedAccess::MSG)) 
+{
+}    
+
+UnauthorizedAccess::~UnauthorizedAccess()
+{
+}
+
+//==============================================================================
+//
+// IncompatibleTypesException
+//
+//==============================================================================
+
+IncompatibleTypesException::IncompatibleTypesException() : 
+    Exception("incompatible types")
+{
+}
+
+IncompatibleTypesException::~IncompatibleTypesException()
+{
+}
+
+//==============================================================================
+//
+// InternalSystemError
+//
+//==============================================================================
+
+InternalSystemError::InternalSystemError() : 
+    Exception(InternalSystemError::MSG)
+{
+}    
+
+InternalSystemError::~InternalSystemError()
+{
 }
 
 PEGASUS_NAMESPACE_END

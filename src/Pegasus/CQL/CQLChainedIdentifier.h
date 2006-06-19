@@ -51,8 +51,8 @@
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN 
-class PEGASUS_CQL_LINKAGE CQLFactory;
-class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep;
+class CQLFactory;
+class CQLChainedIdentifierRep;
 
 /**  
 CQLChainedIdentifier class is used for parsing (not resolving)

@@ -51,9 +51,9 @@
 #include <Pegasus/CQL/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-class PEGASUS_CQL_LINKAGE CQLFactory;
+class CQLFactory;
 
-class PEGASUS_CQL_LINKAGE CQLValueRep
+class CQLValueRep
 {
   public:
 

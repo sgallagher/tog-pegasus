@@ -618,7 +618,7 @@ struct OptionRow
 */
 
 /** Exception class */
-class OMMissingCommandLineOptionArgument : public Exception
+class PEGASUS_COMMON_LINKAGE OMMissingCommandLineOptionArgument : public Exception
 {
 public:
 
@@ -632,7 +632,7 @@ public:
 };
 
 /** Exception class */
-class OMInvalidOptionValue : public Exception
+class PEGASUS_COMMON_LINKAGE OMInvalidOptionValue : public Exception
 {
 public:
 
@@ -647,7 +647,7 @@ public:
 };
 
 /** Exception class */
-class OMDuplicateOption : public Exception
+class PEGASUS_COMMON_LINKAGE OMDuplicateOption : public Exception
 {
 public:
 //l10n
@@ -660,7 +660,7 @@ public:
 };
 
 /** Exception class */
-class OMConfigFileSyntaxError : public Exception
+class PEGASUS_COMMON_LINKAGE OMConfigFileSyntaxError : public Exception
 {
 public:
 
@@ -671,7 +671,7 @@ public:
 };
 
 /** Exception class */
-class OMUnrecognizedConfigFileOption : public Exception
+class PEGASUS_COMMON_LINKAGE OMUnrecognizedConfigFileOption : public Exception
 {
 public:
 //l10n
@@ -684,7 +684,7 @@ public:
 };
 
 /** Exception class */
-class OMMissingRequiredOptionValue : public Exception
+class PEGASUS_COMMON_LINKAGE OMMissingRequiredOptionValue : public Exception
 {
 public:
 //l10n
@@ -697,7 +697,7 @@ public:
 };
 
 /** Exception class */
-class OMMBadCmdLineOption : public Exception
+class PEGASUS_COMMON_LINKAGE OMMBadCmdLineOption : public Exception
 {
 public:
 //l10n

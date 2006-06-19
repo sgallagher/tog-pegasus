@@ -48,12 +48,12 @@
 #include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_NAMESPACE_BEGIN
-class PEGASUS_CQL_LINKAGE CQLFactory;
-class PEGASUS_CQL_LINKAGE CQLExpression;
-class PEGASUS_CQL_LINKAGE CQLFunction;
-class PEGASUS_CQL_LINKAGE CQLFactorRep;
-class PEGASUS_CQL_LINKAGE CQLValue;
-class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
+class CQLFactory;
+class CQLExpression;
+class CQLFunction;
+class CQLFactorRep;
+class CQLValue;
+class QueryContext;
 
 /**  The CQLFactor could contain a CQLValue, CQLExpression or CQLFunction.
      This class evaluates the object to get a CQLValue.

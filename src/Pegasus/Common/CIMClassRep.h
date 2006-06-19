@@ -60,7 +60,7 @@ class CIMInstanceRep;
 
 // ATTN: KS P3 -document the CIMClass and CIMObjectRep  classes.
 
-class PEGASUS_COMMON_LINKAGE CIMClassRep : public CIMObjectRep
+class CIMClassRep : public CIMObjectRep
 {
 public:
 

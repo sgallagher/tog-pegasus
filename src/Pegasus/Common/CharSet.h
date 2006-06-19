@@ -66,7 +66,7 @@ PEGASUS_NAMESPACE_BEGIN
     The optimization is even faster than it looks. Recall that isalpha() incurs
     an extra branch and an extra AND operation, as explained above.
 */
-class PEGASUS_COMMON_LINKAGE CharSet
+class CharSet
 {
 public:
 

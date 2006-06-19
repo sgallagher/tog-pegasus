@@ -38,13 +38,9 @@
 #include <Pegasus/Common/Config.h>
 
 #ifndef PEGASUS_PRM_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_PRM_INTERNAL
-#      define PEGASUS_PRM_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_PRM_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_PRM_LINKAGE
-#  endif
+#   ifdef PEGASUS_PRM_INTERNAL
+#       define PEGASUS_PRM_LINKAGE PEGASUS_EXPORT
+#   else
+#       define PEGASUS_PRM_LINKAGE PEGASUS_IMPORT
+#   endif
 #endif

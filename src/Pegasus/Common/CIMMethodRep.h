@@ -57,7 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMConstMethod;
 class DeclContext;
 
-class PEGASUS_COMMON_LINKAGE CIMMethodRep : public Sharable
+class CIMMethodRep : public Sharable
 {
 public:
 

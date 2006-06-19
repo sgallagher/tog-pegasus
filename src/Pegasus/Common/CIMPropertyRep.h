@@ -58,7 +58,7 @@ class CIMProperty;
 class CIMConstProperty;
 class DeclContext;
 
-class PEGASUS_COMMON_LINKAGE CIMPropertyRep : public Sharable
+class CIMPropertyRep : public Sharable
 {
 public:
 

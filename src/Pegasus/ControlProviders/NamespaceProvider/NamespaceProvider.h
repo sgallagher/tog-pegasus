@@ -86,19 +86,10 @@ class PEGASUS_NAMESPACEPROVIDER_LINKAGE NamespaceProvider
 {
 public:
 
-    NamespaceProvider(CIMRepository* repository)
-    {
-	PEG_METHOD_ENTER(TRC_USER_MANAGER,"NamespaceProvider::NamespaceProvider");
-        _repository = repository;
-	PEG_METHOD_EXIT();
-    }
+    NamespaceProvider(CIMRepository* repository);
 
-    virtual ~NamespaceProvider()
-    {
-	PEG_METHOD_ENTER(TRC_USER_MANAGER,"NamespaceProvider::~NamespaceProvider");
-
-	PEG_METHOD_EXIT();
-    }
+    PEGASUS_HIDDEN_LINKAGE
+    virtual ~NamespaceProvider();
 
     /**
     Creates a new instance. This function is used to create new namespaces.
@@ -108,6 +99,7 @@ public:
     @param  CIMInstance
     @param  handler
     */
+    PEGASUS_HIDDEN_LINKAGE
     virtual void createInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
@@ -122,6 +114,7 @@ public:
     @param  InstanceName
     @param  handler
     */
+    PEGASUS_HIDDEN_LINKAGE
     virtual void deleteInstance(
 	const OperationContext & context,
         const CIMObjectPath& instanceName,
@@ -140,6 +133,7 @@ public:
     @param propertyList list containing the properties.
     @param handler enables providers to asynchronously return the results.
     */
+    PEGASUS_HIDDEN_LINKAGE
     virtual void getInstance(
 	const OperationContext & context,
         const CIMObjectPath& instanceName,
@@ -161,16 +155,14 @@ public:
                         operation must be limited.
     @param handler enables providers to asynchronously return the results.
     */
-    void modifyInstance(
+    PEGASUS_HIDDEN_LINKAGE
+    virtual void modifyInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
         const CIMInstance& modifiedIns,
 	const Boolean includeQualifiers,
         const CIMPropertyList& propertyList,
-	ResponseHandler & handler)
-    {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "");
-    }
+	ResponseHandler & handler);
 
     /**
     Enumerates all the config properties and values.
@@ -185,6 +177,7 @@ public:
     @param propertyList list containing the properties.
     @param handler enables providers to asynchronously return the results.
     */
+    PEGASUS_HIDDEN_LINKAGE
     virtual void enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & ref,
@@ -201,6 +194,7 @@ public:
     @param classReference the fully qualified object path of the instance.
     @param handler enables providers to asynchronously return the results.
     */
+    PEGASUS_HIDDEN_LINKAGE
     virtual void enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
@@ -209,19 +203,11 @@ public:
     /**
     Standard initialization function for the provider.
     */
-    void initialize(CIMOMHandle& cimomHandle)
-    {
-        // derefence repository pointer and save for later.
-	//ATTN: Cannot get repository here.
-	// _repository = cimomHandle.getRepository();
-    }
+    PEGASUS_HIDDEN_LINKAGE
+    virtual void initialize(CIMOMHandle& cimomHandle);
 
-    void terminate(void)
-    {
-	// delete self. this is necessary because the entry point for this object allocated it, and
-    	// the module is responsible for its memory management.
-	delete this;
-    }
+    PEGASUS_HIDDEN_LINKAGE
+    virtual void terminate(void);
 
 private:
 

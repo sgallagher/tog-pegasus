@@ -39,13 +39,9 @@
 #include <Pegasus/Common/Config.h>
 
 #ifndef PEGASUS_LISTENER_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_LISTENER_INTERNAL
-#      define PEGASUS_LISTENER_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_LISTENER_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_LISTENER_LINKAGE
-#  endif
+#   ifdef PEGASUS_LISTENER_INTERNAL
+#       define PEGASUS_LISTENER_LINKAGE PEGASUS_EXPORT
+#   else
+#       define PEGASUS_LISTENER_LINKAGE PEGASUS_IMPORT
+#   endif
 #endif

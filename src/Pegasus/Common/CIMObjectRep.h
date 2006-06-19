@@ -62,7 +62,7 @@ PEGASUS_NAMESPACE_BEGIN
 
     This class contains what is common to CIMClass and CIMInstance.
 */
-class PEGASUS_COMMON_LINKAGE CIMObjectRep : public Sharable
+class CIMObjectRep : public Sharable
 {
 public:
 

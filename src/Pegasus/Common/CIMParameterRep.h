@@ -54,7 +54,7 @@ class DeclContext;
 class CIMConstParameter;
 class CIMParameter;
 
-class PEGASUS_COMMON_LINKAGE CIMParameterRep : public Sharable
+class CIMParameterRep : public Sharable
 {
 public:
 

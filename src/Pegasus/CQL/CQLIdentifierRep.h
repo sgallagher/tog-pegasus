@@ -70,7 +70,7 @@ in any of these 3 formats:
 
 In the future, there may be support added for a set of indices (ranges).
   */
-class PEGASUS_CQL_LINKAGE CQLIdentifierRep: public QueryIdentifierRep
+class CQLIdentifierRep: public QueryIdentifierRep
 {
   public:
     CQLIdentifierRep();

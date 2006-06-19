@@ -49,11 +49,9 @@
 PEGASUS_NAMESPACE_BEGIN
 
 // Forward declares
-// class PEGASUS_CQL_LINKAGE String;
 class String;
 
-
-class PEGASUS_CQL_LINKAGE CQLUtilities
+class CQLUtilities
 {
 public:
   static Uint64 stringToUint64(const String &stringNum);

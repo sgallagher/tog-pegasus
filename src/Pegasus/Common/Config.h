@@ -111,9 +111,41 @@
 #include <cstdlib>
 #endif
 
-// used for Windows only
+#ifndef PEGASUS_IMPORT
+# define PEGASUS_IMPORT /* empty */
+#endif
+
 #ifndef PEGASUS_EXPORT
-#define PEGASUS_EXPORT /* empty */
+# define PEGASUS_EXPORT /* empty */
+#endif
+
+/*
+**==============================================================================
+**
+** PEGASUS_HIDDEN_LINKAGE
+**
+**     This macro suppresses the export of a symbol in contexts in which the
+**     default linkage would have otherwise exported the symbol. Consider the
+**     following example:
+**
+**         class PEGASUS_COMMON_LINKAGE MyClass
+**         {
+**         public:
+**         
+**             // Is exported (due to PEGASUS_COMMON_LINKAGE macro).
+**             void f();
+**
+**             // Is not exported (despite the PEGASUS_COMMON_LINKAGE macro).
+**             PEGASUS_HIDDEN_LINKAGE void g(); // not-exported.
+**         };
+**
+**     Notes: this macro has an empty expansion on many platforms since this
+**     feature is compiler specific.
+**
+**==============================================================================
+*/
+#ifndef PEGASUS_HIDDEN_LINKAGE
+# define PEGASUS_HIDDEN_LINKAGE /* empty */
 #endif
 
 #ifdef PEGASUS_HAVE_NAMESPACES

@@ -39,14 +39,9 @@
 #include <Pegasus/Common/Config.h>
 
 #ifndef PEGASUS_SECURITY_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_SECURITY_INTERNAL
-#      define PEGASUS_SECURITY_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_SECURITY_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_SECURITY_LINKAGE
-#    define PEGASUS_SECURITY_LINKAGE
-#  endif
+#   ifdef PEGASUS_SECURITY_INTERNAL
+#       define PEGASUS_SECURITY_LINKAGE PEGASUS_EXPORT
+#   else
+#       define PEGASUS_SECURITY_LINKAGE PEGASUS_IMPORT
+#   endif
 #endif

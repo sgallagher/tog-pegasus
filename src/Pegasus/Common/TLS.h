@@ -139,7 +139,7 @@ private:
 
 // offer a non ssl dummy class for use in MP_Socket
 
-class PEGASUS_COMMON_LINKAGE SSLSocket {};
+class SSLSocket {};
 
 #endif // end of PEGASUS_HAS_SSL
 

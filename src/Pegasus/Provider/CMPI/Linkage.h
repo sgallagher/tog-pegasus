@@ -37,18 +37,14 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef CMPI_STANDALONE
-#  define PEGASUS_CMPI_PROVIDER_LINKAGE /* empty */
+#   define PEGASUS_CMPI_PROVIDER_LINKAGE /* empty */
 #else
-#  include <Pegasus/Common/Config.h>
-#  ifndef PEGASUS_CMPI_PROVIDER_LINKAGE
-#    ifdef PEGASUS_OS_TYPE_WINDOWS
-#      ifdef PEGASUS_CMPI_PROVIDER_INTERNAL
-#        define PEGASUS_CMPI_PROVIDER_LINKAGE PEGASUS_EXPORT
-#      else
-#        define PEGASUS_CMPI_PROVIDER_LINKAGE PEGASUS_IMPORT
-#      endif
-#    else
-#      define PEGASUS_CMPI_PROVIDER_LINKAGE /* empty */
-#    endif
-#  endif
+#   include <Pegasus/Common/Config.h>
+#   ifndef PEGASUS_CMPI_PROVIDER_LINKAGE
+#       ifdef PEGASUS_CMPI_PROVIDER_INTERNAL
+#           define PEGASUS_CMPI_PROVIDER_LINKAGE PEGASUS_EXPORT
+#       else
+#           define PEGASUS_CMPI_PROVIDER_LINKAGE PEGASUS_IMPORT
+#       endif
+#   endif
 #endif

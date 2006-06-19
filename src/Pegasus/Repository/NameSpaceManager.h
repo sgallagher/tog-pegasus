@@ -258,7 +258,7 @@ private:
 /** This exception is thrown if one attempts to remove a namespace that still
     contains classes, instances, or qualifier.
 */
-class NonEmptyNameSpace : public Exception
+class PEGASUS_REPOSITORY_LINKAGE NonEmptyNameSpace : public Exception
 {
 public:
 	//l10n

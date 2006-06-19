@@ -40,13 +40,9 @@
 #include <Pegasus/Common/Config.h>
 
 #ifndef PEGASUS_CLI_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_CLI_INTERNAL
-#      define PEGASUS_CLI_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_CLI_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_CLI_LINKAGE
-#  endif
+#   ifdef PEGASUS_CLI_INTERNAL
+#       define PEGASUS_CLI_LINKAGE PEGASUS_EXPORT
+#   else
+#       define PEGASUS_CLI_LINKAGE PEGASUS_IMPORT
+#   endif
 #endif

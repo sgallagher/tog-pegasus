@@ -50,7 +50,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE CIMParamValueRep : public Sharable
+class CIMParamValueRep : public Sharable
 {
 public:
 

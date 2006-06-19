@@ -133,20 +133,24 @@ inline static   void CMSetStatusWithChars(const CMPIBroker *mb, CMPIStatus* st, 
         (st)->msg=(mb)->eft->newString((mb),(chars),NULL); }
 #endif
 
+/* Define CMPI_EXPORT */
 #ifndef DOC_ONLY
-  #ifdef CMPI_PLATFORM_WIN32_IX86_MSVC
-	#ifdef __cplusplus
-        #define CMPI_EXTERN_C extern "C" __declspec(dllexport)
-    #else
-        #define CMPI_EXTERN_C __declspec(dllexport)
-    #endif
-  #else
-	#ifdef __cplusplus
-        #define  CMPI_EXTERN_C extern "C"
-    #else
-        #define CMPI_EXTERN_C
-    #endif
-  #endif
+# if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+#   define CMPI_EXPORT __declspec(dllexport)
+# elif defined(CMPI_PLATFORM_LINUX_GENERIC_GNU) && (__GNUC__ >= 4)
+#   define CMPI_EXPORT __attribute__((visibility("default")))
+# else
+#   define CMPI_EXPORT /* empty */
+# endif
+#endif
+
+/* Define CMPI_EXTERN_C */
+#ifndef DOC_ONLY
+# ifdef __cplusplus
+#   define CMPI_EXTERN_C extern "C" CMPI_EXPORT
+# else
+#   define CMPI_EXTERN_C CMPI_EXPORT
+# endif
 #endif
 
 #ifdef CMPI_INLINE

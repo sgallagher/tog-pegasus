@@ -44,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 /** This class defines the internal representation of the ResponseHandler class.
 */
-class PEGASUS_COMMON_LINKAGE ResponseHandlerRep  
+class ResponseHandlerRep  
 {
 public:
 

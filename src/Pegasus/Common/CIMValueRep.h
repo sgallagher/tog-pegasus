@@ -50,7 +50,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMValueRep
+class PEGASUS_COMMON_LINKAGE CIMValueRep
 {
 public:
 

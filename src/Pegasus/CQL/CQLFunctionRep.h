@@ -50,10 +50,10 @@
 PEGASUS_NAMESPACE_BEGIN
 
 // Forward declares
-class PEGASUS_CQL_LINKAGE CIMNamespaceName;
-class PEGASUS_CQL_LINKAGE CQLFactory;
+class CIMNamespaceName;
+class CQLFactory;
 
-class PEGASUS_CQL_LINKAGE CQLFunctionRep
+class CQLFunctionRep
 {
   public:
 

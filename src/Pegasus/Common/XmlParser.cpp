@@ -106,10 +106,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define PEGASUS_ARRAY_T XmlEntry
-# include "ArrayImpl.h"
-#undef PEGASUS_ARRAY_T
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Static helper functions

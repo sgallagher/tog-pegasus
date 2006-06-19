@@ -52,7 +52,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep;
+class SelectStatementRep;
 
 /** This class is an abstract base class for the query language (e,g. WQL or
 CQL) select statement.

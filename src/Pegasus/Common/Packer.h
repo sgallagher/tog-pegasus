@@ -52,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
     <p>
     This class is for internal use only.
 */
-class PEGASUS_COMMON_LINKAGE Packer
+class Packer
 {
 public:
 

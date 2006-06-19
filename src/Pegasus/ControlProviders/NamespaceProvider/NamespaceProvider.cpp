@@ -116,7 +116,7 @@ static const CIMName NAMESPACE_CLASSNAME  = CIMName ("__Namespace");
 static const CIMName NAMESPACE_PROPERTYNAME  = CIMName ("Name");
 static const CIMNamespaceName ROOTNS  = CIMNamespaceName ("root");
 
-Boolean _isChild(
+static Boolean _isChild(
         CIMNamespaceName& parentNamespaceName,
 	CIMNamespaceName& namespaceName)
 
@@ -142,11 +142,10 @@ Boolean _isChild(
    return false;
 }
 
-void _getKeyValue (
+static void _getKeyValue (
         const CIMInstance& namespaceInstance,
 	CIMNamespaceName& childNamespaceName,
 	Boolean& isRelativeName)
-
 {
        //Validate key property
 
@@ -192,11 +191,10 @@ void _getKeyValue (
 
 }
 
-void _getKeyValue (
+static void _getKeyValue (
 	const CIMObjectPath&  instanceName,
 	CIMNamespaceName& childNamespaceName,
 	Boolean& isRelativeName)
-
 {
 
        Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
@@ -222,7 +220,7 @@ void _getKeyValue (
        }
 }
 
-void _generateFullNamespaceName(
+static void _generateFullNamespaceName(
         Array<CIMNamespaceName>& namespaceNames,
 	CIMNamespaceName& parentNamespaceName,
 	CIMNamespaceName& childNamespaceName,
@@ -256,6 +254,30 @@ void _generateFullNamespaceName(
 
 }
 
+NamespaceProvider::NamespaceProvider(CIMRepository* repository)
+{
+    PEG_METHOD_ENTER(TRC_USER_MANAGER,"NamespaceProvider::NamespaceProvider");
+    _repository = repository;
+    PEG_METHOD_EXIT();
+}
+
+NamespaceProvider::~NamespaceProvider()
+{
+    PEG_METHOD_ENTER(TRC_USER_MANAGER,"NamespaceProvider::~NamespaceProvider");
+
+    PEG_METHOD_EXIT();
+}
+
+void NamespaceProvider::modifyInstance(
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance& modifiedIns,
+    const Boolean includeQualifiers,
+    const CIMPropertyList& propertyList,
+    ResponseHandler & handler)
+{
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "");
+}
 
 void NamespaceProvider::createInstance(
 	const OperationContext & context,
@@ -722,7 +744,21 @@ void NamespaceProvider::enumerateInstanceNames(
 	handler.complete();
 
         PEG_METHOD_EXIT();
-    }
+}
+
+void NamespaceProvider::initialize(CIMOMHandle& cimomHandle)
+{
+    // derefence repository pointer and save for later.
+    //ATTN: Cannot get repository here.
+    // _repository = cimomHandle.getRepository();
+}
+
+void NamespaceProvider::terminate(void)
+{
+    // delete self. this is necessary because the entry point for this object allocated it, and
+    // the module is responsible for its memory management.
+    delete this;
+}
 
 PEGASUS_NAMESPACE_END
 

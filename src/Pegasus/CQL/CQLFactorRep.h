@@ -46,11 +46,11 @@
 #include <Pegasus/CQL/CQLFunction.h>
 
 PEGASUS_NAMESPACE_BEGIN
-class PEGASUS_CQL_LINKAGE CQLFactory;
-class PEGASUS_CQL_LINKAGE CQLValue;
-class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
+class CQLFactory;
+class CQLValue;
+class QueryContext;
 
-class PEGASUS_CQL_LINKAGE CQLFactorRep
+class CQLFactorRep
 {
  public:
 

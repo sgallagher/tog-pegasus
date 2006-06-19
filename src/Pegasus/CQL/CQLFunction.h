@@ -51,9 +51,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CQL_LINKAGE CQLFactory;
-class PEGASUS_CQL_LINKAGE CQLFunctionRep;
-//class PEGASUS_CQL_LINKAGE CQLPredicate;
+class CQLFactory;
+class CQLFunctionRep;
 
  /** The Enum is private, the definition is public.
       */
@@ -113,7 +112,7 @@ enum  FunctionOpType
   */
 
 
-class PEGASUS_CQL_LINKAGE CQLFunction
+class CQLFunction
 {
   public:
    

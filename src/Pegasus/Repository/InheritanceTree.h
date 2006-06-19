@@ -269,7 +269,7 @@ private:
     was not fully specified (when any class was passed as a superClassName
     argument to insert() but never as a className argument.
 */
-class InvalidInheritanceTree : public Exception
+class PEGASUS_REPOSITORY_LINKAGE InvalidInheritanceTree : public Exception
 {
 public:
 	//l10n start

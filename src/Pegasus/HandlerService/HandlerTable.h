@@ -48,7 +48,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CreateHandlerReturnedNull : public Exception
+class PEGASUS_HANDLER_SERVICE_LINKAGE 
+CreateHandlerReturnedNull : public Exception
 {
 public:
 

@@ -54,7 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 /** 
 MissingCommandLineOptionArgument Exception class 
 */
-class MissingCommandLineOptionArgument : public Exception
+class PEGASUS_CONFIG_LINKAGE MissingCommandLineOptionArgument : public Exception
 {
 public:
 //l10n
@@ -69,7 +69,7 @@ public:
 /** 
 UnrecognizedCommandLineOption Exception class 
 */
-class UnrecognizedCommandLineOption : public Exception
+class PEGASUS_CONFIG_LINKAGE UnrecognizedCommandLineOption : public Exception
 {
 public:
     //UnrecognizedCommandLineOption(const String& optionName)
@@ -85,7 +85,7 @@ public:
 /** 
 InvalidPropertyValue Exception class 
 */
-class InvalidPropertyValue : public Exception
+class PEGASUS_CONFIG_LINKAGE InvalidPropertyValue : public Exception
 {
 public:
 //l10n
@@ -102,7 +102,7 @@ public:
 /** 
 DuplicateOption Exception class 
 */
-class DuplicateOption : public Exception
+class PEGASUS_CONFIG_LINKAGE DuplicateOption : public Exception
 {
 public:
 //l10n
@@ -118,7 +118,7 @@ public:
 /** 
 ConfigFileSyntaxError Exception class 
 */
-class ConfigFileSyntaxError : public Exception
+class PEGASUS_CONFIG_LINKAGE ConfigFileSyntaxError : public Exception
 {
 public:
     ConfigFileSyntaxError(const String& file, Uint32 line)
@@ -131,7 +131,7 @@ public:
 /** 
 UnrecognizedConfigFileOption Exception class 
 */
-class UnrecognizedConfigFileOption : public Exception
+class PEGASUS_CONFIG_LINKAGE UnrecognizedConfigFileOption : public Exception
 {
 public:
 //l10n
@@ -147,7 +147,7 @@ public:
 /** 
 MissingRequiredOptionValue Exception class 
 */
-class MissingRequiredOptionValue : public Exception
+class PEGASUS_CONFIG_LINKAGE MissingRequiredOptionValue : public Exception
 {
 public:
 //l10n
@@ -163,7 +163,7 @@ public:
 /** 
 UnrecognizedConfigProperty Exception class 
 */
-class UnrecognizedConfigProperty : public Exception
+class PEGASUS_CONFIG_LINKAGE UnrecognizedConfigProperty : public Exception
 {
 public:
 //l10n
@@ -178,7 +178,7 @@ public:
 /** 
 NonDynamicConfigProperty Exception class 
 */
-class NonDynamicConfigProperty : public Exception
+class PEGASUS_CONFIG_LINKAGE NonDynamicConfigProperty : public Exception
 {
 public:
 //l10n

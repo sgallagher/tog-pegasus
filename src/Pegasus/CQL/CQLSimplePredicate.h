@@ -49,9 +49,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CQL_LINKAGE CQLExpression;
-class PEGASUS_CQL_LINKAGE CQLFactory;
-class PEGASUS_CQL_LINKAGE CQLSimplePredicateRep;
+class CQLExpression;
+class CQLFactory;
+class CQLSimplePredicateRep;
 
 enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, IS_NOT_NULL, ISA, LIKE, NOOP };
 

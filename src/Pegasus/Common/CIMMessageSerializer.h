@@ -74,10 +74,12 @@ public:
 
 private:
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMRequestMessage(
         Buffer& out,
         CIMRequestMessage* cimMessage);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMResponseMessage(
         Buffer& out,
         CIMResponseMessage* cimMessage);
@@ -86,51 +88,63 @@ private:
     // Utility Methods
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeUserInfo(
         Buffer& out,
         const String& authType,
         const String& userName);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeQueueIdStack(
         Buffer& out,
         const QueueIdStack& queueIdStack);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeOperationContext(
         Buffer& out,
         const OperationContext& operationContext);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeContentLanguageList(
         Buffer& out,
         const ContentLanguageList& contentLanguages);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeAcceptLanguageList(
         Buffer& out,
         const AcceptLanguageList& acceptLanguages);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMException(
         Buffer& out,
         const CIMException& cimException);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMPropertyList(
         Buffer& out,
         const CIMPropertyList& cimPropertyList);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMObjectPath(
         Buffer& out,
         const CIMObjectPath& cimObjectPath);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMInstance(
         Buffer& out,
         const CIMInstance& cimInstance);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMNamespaceName(
         Buffer& out,
         const CIMNamespaceName& cimNamespaceName);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMName(
         Buffer& out,
         const CIMName& cimName);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMObject(
         Buffer& out,
         const CIMObject& object);
@@ -145,58 +159,72 @@ private:
     // CIMOperationRequestMessages
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMGetInstanceRequestMessage(
         Buffer& out,
         CIMGetInstanceRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMDeleteInstanceRequestMessage(
         Buffer& out,
         CIMDeleteInstanceRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMCreateInstanceRequestMessage(
         Buffer& out,
         CIMCreateInstanceRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMModifyInstanceRequestMessage(
         Buffer& out,
         CIMModifyInstanceRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMEnumerateInstancesRequestMessage(
         Buffer& out,
         CIMEnumerateInstancesRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMEnumerateInstanceNamesRequestMessage(
         Buffer& out,
         CIMEnumerateInstanceNamesRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMExecQueryRequestMessage(
         Buffer& out,
         CIMExecQueryRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMAssociatorsRequestMessage(
         Buffer& out,
         CIMAssociatorsRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMAssociatorNamesRequestMessage(
         Buffer& out,
         CIMAssociatorNamesRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMReferencesRequestMessage(
         Buffer& out,
         CIMReferencesRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMReferenceNamesRequestMessage(
         Buffer& out,
         CIMReferenceNamesRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMGetPropertyRequestMessage(
         Buffer& out,
         CIMGetPropertyRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMSetPropertyRequestMessage(
         Buffer& out,
         CIMSetPropertyRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMInvokeMethodRequestMessage(
         Buffer& out,
         CIMInvokeMethodRequestMessage* message);
@@ -205,14 +233,17 @@ private:
     // CIMIndicationRequestMessages
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMCreateSubscriptionRequestMessage(
         Buffer& out,
         CIMCreateSubscriptionRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMModifySubscriptionRequestMessage(
         Buffer& out,
         CIMModifySubscriptionRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMDeleteSubscriptionRequestMessage(
         Buffer& out,
         CIMDeleteSubscriptionRequestMessage* message);
@@ -221,38 +252,47 @@ private:
     // Generic CIMRequestMessages
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMExportIndicationRequestMessage(
         Buffer& out,
         CIMExportIndicationRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMProcessIndicationRequestMessage(
         Buffer& out,
         CIMProcessIndicationRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMDisableModuleRequestMessage(
         Buffer& out,
         CIMDisableModuleRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMEnableModuleRequestMessage(
         Buffer& out,
         CIMEnableModuleRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMStopAllProvidersRequestMessage(
         Buffer& out,
         CIMStopAllProvidersRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMInitializeProviderRequestMessage(
         Buffer& out,
         CIMInitializeProviderRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMInitializeProviderAgentRequestMessage(
         Buffer& out,
         CIMInitializeProviderAgentRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMNotifyConfigChangeRequestMessage(
         Buffer& out,
         CIMNotifyConfigChangeRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMSubscriptionInitCompleteRequestMessage(
         Buffer& out,
         CIMSubscriptionInitCompleteRequestMessage* message);
@@ -268,58 +308,72 @@ private:
     // CIMOperationResponseMessages
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMGetInstanceResponseMessage(
         Buffer& out,
         CIMGetInstanceResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMDeleteInstanceResponseMessage(
         Buffer& out,
         CIMDeleteInstanceResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMCreateInstanceResponseMessage(
         Buffer& out,
         CIMCreateInstanceResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMModifyInstanceResponseMessage(
         Buffer& out,
         CIMModifyInstanceResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMEnumerateInstancesResponseMessage(
         Buffer& out,
         CIMEnumerateInstancesResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMEnumerateInstanceNamesResponseMessage(
         Buffer& out,
         CIMEnumerateInstanceNamesResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMExecQueryResponseMessage(
         Buffer& out,
         CIMExecQueryResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMAssociatorsResponseMessage(
         Buffer& out,
         CIMAssociatorsResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMAssociatorNamesResponseMessage(
         Buffer& out,
         CIMAssociatorNamesResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMReferencesResponseMessage(
         Buffer& out,
         CIMReferencesResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMReferenceNamesResponseMessage(
         Buffer& out,
         CIMReferenceNamesResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMGetPropertyResponseMessage(
         Buffer& out,
         CIMGetPropertyResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMSetPropertyResponseMessage(
         Buffer& out,
         CIMSetPropertyResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMInvokeMethodResponseMessage(
         Buffer& out,
         CIMInvokeMethodResponseMessage* message);
@@ -328,14 +382,17 @@ private:
     // CIMIndicationResponseMessages
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMCreateSubscriptionResponseMessage(
         Buffer& out,
         CIMCreateSubscriptionResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMModifySubscriptionResponseMessage(
         Buffer& out,
         CIMModifySubscriptionResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMDeleteSubscriptionResponseMessage(
         Buffer& out,
         CIMDeleteSubscriptionResponseMessage* message);
@@ -344,38 +401,47 @@ private:
     // Generic CIMResponseMessages
     //
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMExportIndicationResponseMessage(
         Buffer& out,
         CIMExportIndicationResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMProcessIndicationResponseMessage(
         Buffer& out,
         CIMProcessIndicationResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMDisableModuleResponseMessage(
         Buffer& out,
         CIMDisableModuleResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMEnableModuleResponseMessage(
         Buffer& out,
         CIMEnableModuleResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMStopAllProvidersResponseMessage(
         Buffer& out,
         CIMStopAllProvidersResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMInitializeProviderResponseMessage(
         Buffer& out,
         CIMInitializeProviderResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMInitializeProviderAgentResponseMessage(
         Buffer& out,
         CIMInitializeProviderAgentResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMNotifyConfigChangeResponseMessage(
         Buffer& out,
         CIMNotifyConfigChangeResponseMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMSubscriptionInitCompleteResponseMessage(
         Buffer& out,
         CIMSubscriptionInitCompleteResponseMessage* message);

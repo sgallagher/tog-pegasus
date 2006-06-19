@@ -57,7 +57,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-class PEGASUS_WQL_LINKAGE WQLSelectStatementRep;
+class WQLSelectStatementRep;
 
 /** This class represents a compiled WQL1 select statement.
 

@@ -198,6 +198,17 @@ ifdef PEGASUS_LSB
     FLAGS += -DPEGASUS_OS_LSB
 endif
 
+##==============================================================================
+##
+## Set the default visibility symbol to hidden for shared libraries. This 
+## feature is only available in GCC 4.0 and later.
+##
+##==============================================================================
+
+ifeq ($(shell expr $(GCC_VERSION) '>=' 4.0), 1)
+    FLAGS += -fvisibility=hidden 
+endif
+
 ifndef PEGASUS_ARCH_LIB
     ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_GNU)
         PEGASUS_ARCH_LIB = lib64

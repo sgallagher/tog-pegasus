@@ -40,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct StringRep
+struct PEGASUS_COMMON_LINKAGE StringRep
 {
     StringRep();
 

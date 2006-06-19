@@ -49,8 +49,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
-class PEGASUS_CQL_LINKAGE CQLFactory;
+class QueryContext;
+class CQLFactory;
 
 /**
    This object is populated by Bison.
@@ -94,7 +94,7 @@ variable is set to TRUE
     and then returned to the caller.
 
    */
-class PEGASUS_CQL_LINKAGE CQLPredicateRep
+class CQLPredicateRep
 {
   public:
     CQLPredicateRep();

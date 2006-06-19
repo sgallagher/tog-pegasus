@@ -81,4 +81,10 @@
 
 #define PEGASUS_SOCKLEN_T socklen_t
 
+#if (__GNUC__ >= 4)
+# define PEGASUS_EXPORT __attribute__ ((visibility("default")))
+# define PEGASUS_IMPORT __attribute__ ((visibility("default")))
+# define PEGASUS_HIDDEN_LINKAGE __attribute__((visibility("hidden")))
+#endif
+
 #endif /* Pegasus_Platform_LINUX_IX86_GNU_h */

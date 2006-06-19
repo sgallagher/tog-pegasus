@@ -57,7 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMConstQualifier;
 class CIMQualifier;
 
-class PEGASUS_COMMON_LINKAGE CIMQualifierRep : public Sharable
+class CIMQualifierRep : public Sharable
 {
 public:
 

@@ -61,9 +61,9 @@ enum BooleanOpType { AND, OR };
 #endif
 */
 
-class PEGASUS_CQL_LINKAGE CQLPredicateRep;
-class PEGASUS_CQL_LINKAGE CQLFactory;
-class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
+class CQLPredicateRep;
+class CQLFactory;
+class QueryContext;
 
 /**
     The CQLPredicate class contains an expression that produces a boolean

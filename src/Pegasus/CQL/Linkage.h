@@ -38,13 +38,9 @@
 #include <Pegasus/Common/Config.h>
 
 #ifndef PEGASUS_CQL_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_CQL_INTERNAL
-#      define PEGASUS_CQL_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_CQL_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_CQL_LINKAGE
-#  endif
+#   ifdef PEGASUS_CQL_INTERNAL
+#       define PEGASUS_CQL_LINKAGE PEGASUS_EXPORT
+#   else
+#       define PEGASUS_CQL_LINKAGE PEGASUS_IMPORT
+#   endif
 #endif

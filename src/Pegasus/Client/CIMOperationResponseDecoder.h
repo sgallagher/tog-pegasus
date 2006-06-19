@@ -62,7 +62,7 @@ class XmlParser;
     This message is sent from the response decoder to the CIMClient, indicating
     an error in issuing a CIM request.
 */
-class ClientExceptionMessage : public Message
+class PEGASUS_CLIENT_LINKAGE ClientExceptionMessage : public Message
 {
 public:
     ClientExceptionMessage(Exception* clientException_)

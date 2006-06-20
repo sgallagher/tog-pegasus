@@ -53,9 +53,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** Token used for tracing functions.
+*/
+struct TracerToken
+{
+    Uint32 component;
+    const char* method;
+};
+
 /** Tracer implements tracing of messages to a defined file
  */
-
 class PEGASUS_COMMON_LINKAGE Tracer
 {
 public:
@@ -73,285 +80,166 @@ public:
     static const Uint32 LEVEL3;
     static const Uint32 LEVEL4;
 
-    // PEGASUS_REMOVE_TRACE defines the compile time inclusion of the Trace
-    // interfaces. If defined the interfaces map to empty functions
+    /** Traces the specified number of bytes in a given buffer
+	@param    traceComponent  component being traced
+	@param    level      trace level of the trace message
+	@param    data            buffer to be traced
+	@param    size            number of bytes to be traced
+     */
+    static void traceBuffer(
+	const Uint32 traceComponent,
+	const Uint32 level,
+	const char*  data,
+	const Uint32 size);
 
-    #ifdef PEGASUS_REMOVE_TRACE
+    /** Traces the specified number of bytes in a given buffer
+	Overloaded to include the filename and the line number
+	of trace origin.
+	@param    fileName        filename of the trace originator
+	@param    lineNum         line number of the trace originator
+	@param    traceComponent  component being traced
+	@param    level      trace level of the trace message
+	@param    data            buffer to be traced
+	@param    size            size of the buffer
+     */
+    static void traceBuffer(
+	const char*  fileName,
+	const Uint32 lineNum,
+	const Uint32 traceComponent,
+	const Uint32 level,
+	const char*  data,
+	const Uint32 size);
 
-        inline static void traceBuffer(
-            const char*  fileName,
-            const Uint32 lineNum,
-            const Uint32 traceComponent,
-            const Uint32 traceLevel,
-            const char*  data,
-            const Uint32 size)
-        {
-            // empty function
-        }
-        inline static void traceBuffer(
-            const Uint32 traceComponent,
-            const Uint32 traceLevel,
-            const char* data,
-            const Uint32 size)
-        {
-            // empty function
-        }
+    /** Traces the given message
+	@param    traceComponent  component being traced
+	@param    level      trace level of the trace message
+	@param    *fmt            printf style format string
+	@param    ...             variable argument list
+     */
+    static void trace(
+	const Uint32 traceComponent,
+	const Uint32 level,
+	const char *fmt,
+	...);
 
-        inline static void trace(
-            const Uint32 traceComponent,
-            const Uint32 traceLevel,
-            const char *fmt,
-            ...)
-        {
-            // empty function
-        }
+    /** Traces the given message. Overloaded to include the filename and
+	the line number of trace origin.
+	@param    fileName        filename of the trace originator
+	@param    lineNum         line number of the trace originator
+	@param    traceComponent  component being traced
+	@param    level      trace level of the trace message
+	@param    *fmt            printf style format string
+	@param    ...             variable argument list
+     */
+    static void trace(
+	const char* fileName,
+	const Uint32 lineNum,
+	const Uint32 traceComponent,
+	const Uint32 level,
+	const char* fmt,
+	...);
 
-        inline static void trace(
-            const char*  fileName,
-            const Uint32 lineNum,
-            const Uint32 traceComponent,
-            const Uint32 traceLevel,
-            const char* fmt,
-            ...)
-        {
-            // empty function
-        }
+    /** Traces the given string.  Overloaded to include the filename
+	and line number of trace origin.
+	@param    fileName        filename of the trace originator
+	@param    lineNum         line number of the trace originator
+	@param    traceComponent  component being traced
+	@param    level      trace level of the trace message
+	@param    string     the string to be traced
+     */
+    static void trace(
+	const char*   fileName,
+	const Uint32  lineNum,
+	const Uint32  traceComponent,
+	const Uint32  level,
+	const String& string);
 
-        inline static void trace(
-            const char*   fileName,
-            const Uint32  lineNum,
-            const Uint32  traceComponent,
-            const Uint32  traceLevel,
-            const String& traceString)
-        {
-            // empty function
-        }
+    /** Traces the given string.
+	@param    fileName        filename of the trace originator
+	@param    lineNum         line number of the trace originator
+	@param    traceComponent  component being traced
+	@param    level      trace level of the trace message
+	@param    string     the string to be traced
+     */
+    static void trace(
+	const Uint32  traceComponent,
+	const Uint32  level,
+	const String& string);
 
-        inline static void traceCIMException(
-            const Uint32  traceComponent,
-            const Uint32  traceLevel,
-            CIMException  cimException)
-        {
-            // empty function
-        }
+    /** Traces the message in the given CIMException object.  The message
+	written to the trace file will include the source filename and
+	line number of the CIMException originator.
+	@param    traceComponent  component being traced
+	@param    level      trace level of the trace message
+	@param    CIMException    the CIMException to be traced.
+     */
+    static void traceCIMException(
+	const Uint32  traceComponent,
+	const Uint32  level,
+	CIMException  cimException);
 
-        static Uint32 setTraceFile(const char* traceFile)
-	{
-	    // empty function
-	    return 0;
-        }
+    /** Set the trace file to the given file
+	@param    traceFile       full path of the trace file
+	@return   0               if the filepath is valid
+		  1               if the traceFile is an empty string or
+				  if an error occurs while opening the file
+				  in append mode
+    */
+    static Uint32 setTraceFile(const char* traceFile);
 
-        static Uint32 setTraceLevel(const Uint32 traceLevel)
-	{
-	    // empty function
-	    return 0;
-        }
+    /** Set the trace level to the given level
+	@param    level      trace level to be set
+	@return   0               if trace level is valid
+		  1               if trace level is invalid
+    */
+    static Uint32 setTraceLevel(const Uint32 level);
 
-        static void setTraceComponents(
-	  const String& traceComponents)
-	{
-	      // empty function
-        }
-
-
-    #else
-        /** Traces the specified number of bytes in a given buffer
-            @param    traceComponent  component being traced
-            @param    traceLevel      trace level of the trace message
-            @param    data            buffer to be traced
-            @param    size            number of bytes to be traced
-         */
-        inline static void traceBuffer(
-            const Uint32 traceComponent,
-            const Uint32 traceLevel,
-            const char*  data,
-            const Uint32 size)
-        {
-            if (_traceOn)
-            {
-                _traceBuffer( traceComponent, traceLevel, data, size );
-            }
-        }
-
-        /** Traces the specified number of bytes in a given buffer
-	    Overloaded to include the filename and the line number
-	    of trace origin.
-            @param    fileName        filename of the trace originator
-            @param    lineNum         line number of the trace originator
-            @param    traceComponent  component being traced
-            @param    traceLevel      trace level of the trace message
-            @param    data            buffer to be traced
-            @param    size            size of the buffer
-         */
-        inline static void traceBuffer(
-            const char*  fileName,
-            const Uint32 lineNum,
-            const Uint32 traceComponent,
-            const Uint32 traceLevel,
-            const char*  data,
-            const Uint32 size)
-        {
-            if (_traceOn)
-            {
-                _traceBuffer( fileName, lineNum,
-                              traceComponent, traceLevel, data, size );
-            }
-        }
-
-
-        /** Traces the given message
-            @param    traceComponent  component being traced
-            @param    traceLevel      trace level of the trace message
-            @param    *fmt            printf style format string
-            @param    ...             variable argument list
-         */
-        inline static void trace(
-            const Uint32 traceComponent,
-            const Uint32 traceLevel,
-            const char *fmt,
-            ...)
-        {
-            if (_traceOn)
-            {
-                va_list argList;
-
-                va_start(argList,fmt);
-                _trace(traceComponent,traceLevel,fmt,argList);
-                va_end(argList);
-            }
-        }
-
-        /** Traces the given message. Overloaded to include the filename and
-	    the line number of trace origin.
-            @param    fileName        filename of the trace originator
-            @param    lineNum         line number of the trace originator
-            @param    traceComponent  component being traced
-            @param    traceLevel      trace level of the trace message
-            @param    *fmt            printf style format string
-            @param    ...             variable argument list
-         */
-        inline static void trace(
-            const char* fileName,
-            const Uint32 lineNum,
-            const Uint32 traceComponent,
-            const Uint32 traceLevel,
-            const char* fmt,
-            ...)
-        {
-            if (_traceOn)
-            {
-                va_list argList;
-
-                va_start(argList,fmt);
-                _trace(fileName,lineNum,traceComponent,traceLevel,fmt,argList);
-                va_end(argList);
-            }
-        }
-
-        /** Traces the given string.  Overloaded to include the filename
-            and line number of trace origin.
-            @param    fileName        filename of the trace originator
-            @param    lineNum         line number of the trace originator
-            @param    traceComponent  component being traced
-            @param    traceLevel      trace level of the trace message
-            @param    traceString     the string to be traced
-         */
-        inline static void trace(
-            const char*   fileName,
-            const Uint32  lineNum,
-            const Uint32  traceComponent,
-            const Uint32  traceLevel,
-            const String& traceString)
-        {
-            if (_traceOn)
-            {
-                _traceString( fileName, lineNum, traceComponent, traceLevel,
-                              traceString );
-            }
-        }
-
-        /** Traces the message in the given CIMException object.  The message
-            written to the trace file will include the source filename and
-            line number of the CIMException originator.
-            @param    traceComponent  component being traced
-            @param    traceLevel      trace level of the trace message
-            @param    CIMException    the CIMException to be traced.
-         */
-        inline static void traceCIMException(
-            const Uint32  traceComponent,
-            const Uint32  traceLevel,
-            CIMException  cimException)
-        {
-            if (_traceOn)
-            {
-                _traceCIMException( traceComponent, traceLevel, cimException );
-            }
-        }
-
-        /** Set the trace file to the given file
-            @param    traceFile       full path of the trace file
-            @return   0               if the filepath is valid
-                      1               if the traceFile is an empty string or
-                                      if an error occurs while opening the file
-				      in append mode
-        */
-        static Uint32 setTraceFile(const char* traceFile);
-
-        /** Set the trace level to the given level
-            @param    traceLevel      trace level to be set
-            @return   0               if trace level is valid
-                      1               if trace level is invalid
-        */
-        static Uint32 setTraceLevel(const Uint32 traceLevel);
-
-        /** Set components to be traced
-            @param    traceComponents list of components to be traced,
-		      components should be separated by ','
-        */
-        static void setTraceComponents(
-	   const String& traceComponents);
-
-    #endif
-
-    // End of PEGASUS_REMOVE_TRACE
+    /** Set components to be traced
+	@param    traceComponents list of components to be traced,
+		  components should be separated by ','
+    */
+    static void setTraceComponents(
+       const String& traceComponents);
 
     /** Traces method entry.
-        @param    fileName        filename of the trace originator
-        @param    lineNum         line number of the trace originator
+        @param    token           TracerToken 
         @param    traceComponent  component being traced
         @param    methodName      method being traced
      */
-    inline static void traceEnter(
-        const char* fileName,
-        const Uint32 lineNum,
-        const Uint32 traceComponent,
-        const char* methodName)
-    {
-        if (_traceOn)
-        {
-            _traceEnter( fileName, lineNum, traceComponent, "%s %s",
-                         _METHOD_ENTER_MSG, methodName);
-        }
-    }
+    static void traceEnter(
+	TracerToken& token,
+	Uint32 component, 
+	const char* method);
 
     /** Traces method exit.
+        @param    token           TracerToken containing component and method
+    */
+    static void traceExit(
+	TracerToken& token);
+
+    /** Traces method entry.
+        @param    token           TracerToken 
         @param    fileName        filename of the trace originator
         @param    lineNum         line number of the trace originator
         @param    traceComponent  component being traced
         @param    methodName      method being traced
      */
-    inline static void traceExit(
-        const char* fileName,
-        const Uint32 lineNum,
-        const Uint32 traceComponent,
-        const char* methodName)
-    {
-        if (_traceOn)
-        {
-            _traceExit( fileName, lineNum, traceComponent, "%s %s",
-                        _METHOD_EXIT_MSG, methodName);
-        }
-    }
+    static void traceEnter(
+	TracerToken& token,
+	const char* file,
+	size_t line,
+	Uint32 component, 
+	const char* method);
+
+    /** Traces method exit.
+        @param    token           TracerToken containing component and method
+        @param    fileName        filename of the trace originator
+        @param    lineNum         line number of the trace originator
+     */
+    static void traceExit(
+	TracerToken& token,
+	const char* file,
+	size_t line);
 
     /** Validates the File Path for the trace File
         @param    filePath full path of the file
@@ -383,6 +271,8 @@ public:
      */
     static void setModuleName(const String& moduleName);
 
+    /**
+    */
     static Boolean isTraceOn() { return _traceOn; }
 
 private:
@@ -415,28 +305,28 @@ private:
 
     // Checks if trace is enabled for the given component and trace level
     // @param    traceComponent  component being traced
-    // @param    traceLevel      level of the trace message
+    // @param    level      level of the trace message
     // @return   0               if the component and level are not enabled
     //           1               if the component and level are enabled
     static Boolean _isTraceEnabled(
 	const Uint32 traceComponent,
-	const Uint32 traceLevel);
+	const Uint32 level);
 
     // Traces the given message
     //  @param    traceComponent  component being traced
-    //  @param    traceLevel      level of the trace message
+    //  @param    level      level of the trace message
     //  @param    *fmt            printf style format string
     //  @param    argList         variable argument list
     static void _trace(
 	const Uint32 traceComponent,
-        const Uint32 traceLevel,
+        const Uint32 level,
 	const char* fmt,
 	va_list argList);
 
     // Traces the given message. Overloaded to include the file name and the
     // line number as one of the parameters.
     // @param    traceComponent  component being traced
-    // @param    traceLevel      level of the trace message
+    // @param    level      level of the trace message
     // @param    message         message header (file name:line number)
     // @param    *fmt            printf style format string
     // @param    argList         variable argument list
@@ -444,18 +334,18 @@ private:
 	const char* fileName,
 	const Uint32 lineNum,
 	const Uint32 traceComponent,
-        const Uint32 traceLevel,
+        const Uint32 level,
 	const char* fmt,
 	va_list argList);
 
     //  Traces the specified number of bytes in a given buffer
     //  @param    traceComponent  component being traced
-    //  @param    traceLevel      trace level of the trace message
+    //  @param    level      trace level of the trace message
     //  @param    data            buffer to be traced
     //  @param    size            number of bytes to be traced
     static void _traceBuffer(
 	const Uint32 traceComponent,
-        const Uint32 traceLevel,
+        const Uint32 level,
         const char*  data,
         const Uint32 size);
 
@@ -465,52 +355,52 @@ private:
     //  @param    fileName        filename of the trace originator
     //  @param    lineNum         line number of the trace originator
     //  @param    traceComponent  component being traced
-    //  @param    traceLevel      trace level of the trace message
+    //  @param    level      trace level of the trace message
     //  @param    data            buffer to be traced
     //  @param    size            size of the buffer
     static void _traceBuffer(
 	const char*  fileName,
 	const Uint32 lineNum,
 	const Uint32 traceComponent,
-        const Uint32 traceLevel,
+        const Uint32 level,
         const char*  data,
         const Uint32 size);
 
     //  Traces the given string.
     //  @param    traceComponent  component being traced
-    //  @param    traceLevel      trace level of the trace message
-    //  @param    traceString     the string to be traced
+    //  @param    level      trace level of the trace message
+    //  @param    string     the string to be traced
     //
     static void _traceString(
         const Uint32  traceComponent,
-        const Uint32  traceLevel,
-        const String& traceString);
+        const Uint32  level,
+        const String& string);
 
     //  Traces a given string.  Overloaded to include the filename
     //  and line number of trace origin.
     //  @param    fileName        filename of the trace originator
     //  @param    lineNum         line number of the trace originator
     //  @param    traceComponent  component being traced
-    //  @param    traceLevel      trace level of the trace message
-    //  @param    traceString     the string to be traced
+    //  @param    level      trace level of the trace message
+    //  @param    string     the string to be traced
     //
     static void _traceString(
         const char*   fileName,
         const Uint32  lineNum,
         const Uint32  traceComponent,
-        const Uint32  traceLevel,
-        const String& traceString);
+        const Uint32  level,
+        const String& string);
 
     //  Traces the message in the given CIMException object.  The message
     //  to be written to the trace file will include the source filename and
     //  line number of the CIMException originator.
     //  @param    traceComponent  component being traced
-    //  @param    traceLevel      trace level of the trace message
+    //  @param    level      trace level of the trace message
     //  @param    CIMException    the CIMException to be traced.
     //
     static void _traceCIMException(
         const Uint32  traceComponent,
-        const Uint32  traceLevel,
+        const Uint32  level,
         CIMException  cimException);
 
     // Called by all the trace interfaces to log message to the
@@ -564,60 +454,143 @@ private:
     static Tracer* _getInstance();
 };
 
-// Define the macros for method entry/exit, and tracing a given string
+//==============================================================================
+//
+// PEGASUS_REMOVE_TRACE defines the compile time inclusion of the Trace
+// interfaces. If defined the interfaces map to empty functions.
+//
+//==============================================================================
+
 #ifdef PEGASUS_REMOVE_TRACE
-#   define PEG_METHOD_ENTER(traceComponent,methodName)
-#   define PEG_METHOD_EXIT()
-#   define PEG_TRACE_STRING(traceComponent,traceLevel,traceString)
-#   define PEG_TRACE(VAR_ARGS)
+
+inline void Tracer::traceBuffer(
+    const char*  fileName,
+    const Uint32 lineNum,
+    const Uint32 traceComponent,
+    const Uint32 level,
+    const char*  data,
+    const Uint32 size)
+{
+    // empty function
+}
+
+inline void Tracer::traceBuffer(
+    const Uint32 traceComponent,
+    const Uint32 level,
+    const char* data,
+    const Uint32 size)
+{
+    // empty function
+}
+
+inline void Tracer::trace(
+    const Uint32 traceComponent,
+    const Uint32 level,
+    const char *fmt,
+    ...)
+{
+    // empty function
+}
+
+inline void Tracer::trace(
+    const char*  fileName,
+    const Uint32 lineNum,
+    const Uint32 traceComponent,
+    const Uint32 level,
+    const char* fmt,
+    ...)
+{
+    // empty function
+}
+
+inline void Tracer::trace(
+    const char*   fileName,
+    const Uint32  lineNum,
+    const Uint32  traceComponent,
+    const Uint32  level,
+    const String& string)
+{
+    // empty function
+}
+
+inline void Tracer::trace(
+    const Uint32  traceComponent,
+    const Uint32  level,
+    const String& string)
+{
+    // empty function
+}
+
+inline void Tracer::traceCIMException(
+    const Uint32  traceComponent,
+    const Uint32  level,
+    CIMException  cimException)
+{
+    // empty function
+}
+
+inline Uint32 Tracer::setTraceFile(const char* traceFile)
+{
+    // empty function
+    return 0;
+}
+
+#endif /* PEGASUS_REMOVE_TRACE */
+
+//==============================================================================
+//
+// Tracing macros
+//
+//==============================================================================
+
+// Defines a variable that bypasses inclusion of line and filename in output.
+// #define PEGASUS_NO_FILE_LINE_TRACE=1 to exclude file names and line numbers
+#ifdef PEGASUS_NO_FILE_LINE_TRACE
+# define PEGASUS_COMMA_FILE_LINE /* empty */
+# define PEGASUS_FILE_LINE_COMMA /* empty */
 #else
-    /** Macro for tracing method entry
-        @param    traceComponent  component being traced
-        @param    methodName      name of the method
-     */
-#   define PEG_METHOD_ENTER(traceComponent,methodName) \
-	static const char *PEG_METHOD_NAME = methodName; \
-	static const Uint32 PEG_TRACE_COMPONENT = traceComponent; \
-	if (Tracer::isTraceOn()) \
-	{ \
-	    Tracer::traceEnter( \
-		__FILE__,__LINE__,PEG_TRACE_COMPONENT,PEG_METHOD_NAME); \
-	} \
-
-    /** Macro for tracing method exit
-     */
-#   define PEG_METHOD_EXIT() \
-	do \
-	{ \
-	    if (Tracer::isTraceOn()) \
-		Tracer::traceExit( \
-		    __FILE__,__LINE__,PEG_TRACE_COMPONENT,PEG_METHOD_NAME); \
-	} \
-	while (0)
-
-    /** Macro for tracing a string
-        @param    traceComponent  component being traced
-        @param    traceLevel      trace level of the trace message
-        @param    traceString     the string to be traced
-     */
-#   define PEG_TRACE_STRING(traceComponent,traceLevel,traceString) \
-	do \
-	{ \
-	    if (Tracer::isTraceOn()) \
-		Tracer::trace( \
-		    __FILE__, __LINE__,traceComponent,traceLevel,traceString); \
-	} \
-	while (0)
-
-#   define PEG_TRACE(VAR_ARGS) \
-	do \
-	{ \
-	    if (Tracer::isTraceOn()) \
-		Tracer::trace VAR_ARGS; \
-	} \
-	while (0)
-
+# define PEGASUS_COMMA_FILE_LINE ,__FILE__,__LINE__
+# define PEGASUS_FILE_LINE_COMMA __FILE__,__LINE__,
 #endif
+
+#ifdef PEGASUS_REMOVE_TRACE
+
+# define PEG_METHOD_ENTER(comp,meth)
+# define PEG_METHOD_EXIT()
+# define PEG_TRACE_STRING(comp,level,string)
+# define PEG_TRACE(VAR_ARGS)
+
+#else /* PEGASUS_REMOVE_TRACE */
+
+# define PEG_METHOD_ENTER(comp, meth) \
+    TracerToken __tracerToken; \
+    Tracer::traceEnter(__tracerToken PEGASUS_COMMA_FILE_LINE, comp, meth);
+
+#  define PEG_METHOD_EXIT() \
+    Tracer::traceExit(__tracerToken PEGASUS_COMMA_FILE_LINE)
+
+// Macro for Trace String.  the do construct allows this to appear
+// as a single statement.
+# define PEG_TRACE_STRING(comp, level, string) \
+    do \
+    { \
+	    Tracer::trace(PEGASUS_FILE_LINE_COMMA comp, level, string); \
+    } \
+    while (0)
+
+// Macro for Trace variable number of arguments with format string. The trace test
+// is included becase of the possible cost of preparing the variable
+// number of arguments on each call.  The d construct allows this to be
+// treated as a single statement.
+# define PEG_TRACE(VAR_ARGS) \
+    do \
+    { \
+	if (Tracer::isTraceOn()) \
+	    Tracer::trace VAR_ARGS; \
+    } \
+    while (0)
+
+#endif /* !PEGASUS_REMOVE_TRACE */
 
 PEGASUS_NAMESPACE_END
 

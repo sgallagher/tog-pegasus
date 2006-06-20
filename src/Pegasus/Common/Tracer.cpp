@@ -639,7 +639,9 @@ Tracer* Tracer::_getInstance()
 }
 
 // PEGASUS_REMOVE_TRACE defines the compile time inclusion of the Trace
-// interfaces. If defined the interfaces map to empty functions
+// interfaces. This section defines the trace functions IF the remove
+// trace flag is NOT set.  If it is set, they are defined as empty functions
+// in the header file.
 
 #ifndef PEGASUS_REMOVE_TRACE
 
@@ -768,6 +770,149 @@ void Tracer::setTraceComponents(const String& traceComponents)
     return ;
 }
 
-#endif
+void Tracer::traceEnter(TracerToken& token, Uint32 traceComponent, const char* method)
+{
+    if (_traceOn)
+    {
+	token.component = traceComponent;
+	token.method = method;
+
+	//Tracer::traceEnter("unknown", 0, component, method);
+	_traceEnter( "unknown", 0, traceComponent, "%s %s",
+		     _METHOD_ENTER_MSG, method);
+    }
+}
+
+void Tracer::traceExit(TracerToken& token)
+{
+    if (_traceOn)
+
+        // KS Tracer::traceExit("unknown", 0, token.component, token.method);
+        _traceExit( "unknown",0, token.component, "%s %s",
+            _METHOD_EXIT_MSG, token.method);
+}
+
+void Tracer::traceEnter(
+    TracerToken& token, 
+    const char* file,
+    size_t line,
+    Uint32 traceComponent, 
+    const char* method)
+{
+    if (_traceOn)
+    {
+	token.component = traceComponent;
+	token.method = method;
+
+	//Tracer::traceEnter(file, line, component, method);
+	_traceEnter( file, line, traceComponent, "%s %s",
+		     _METHOD_ENTER_MSG, method);
+    }
+}
+
+void Tracer::traceExit(
+    TracerToken& token,
+    const char* file,
+    size_t line)
+{
+    if (_traceOn)
+	//Tracer::traceExit(file, line, token.component, token.method);
+        _traceExit( file, line, token.component, "%s %s",
+                _METHOD_EXIT_MSG, token.method);
+}
+
+void Tracer::traceBuffer(
+    const Uint32 traceComponent,
+    const Uint32 traceLevel,
+    const char*  data,
+    const Uint32 size)
+{
+    if (_traceOn)
+	_traceBuffer( traceComponent, traceLevel, data, size );
+}
+
+void Tracer::traceBuffer(
+    const char*  fileName,
+    const Uint32 lineNum,
+    const Uint32 traceComponent,
+    const Uint32 traceLevel,
+    const char*  data,
+    const Uint32 size)
+{
+    if (_traceOn)
+    {
+	_traceBuffer( fileName, lineNum,
+		      traceComponent, traceLevel, data, size );
+    }
+}
+
+void Tracer::trace(
+    const Uint32 traceComponent,
+    const Uint32 traceLevel,
+    const char *fmt,
+    ...)
+{
+    if (_traceOn)
+    {
+	va_list argList;
+
+	va_start(argList,fmt);
+	_trace(traceComponent,traceLevel,fmt,argList);
+	va_end(argList);
+    }
+}
+
+void Tracer::trace(
+    const char* fileName,
+    const Uint32 lineNum,
+    const Uint32 traceComponent,
+    const Uint32 traceLevel,
+    const char* fmt,
+    ...)
+{
+    if (_traceOn)
+    {
+	va_list argList;
+
+	va_start(argList,fmt);
+	_trace(fileName,lineNum,traceComponent,traceLevel,fmt,argList);
+	va_end(argList);
+    }
+}
+
+void Tracer::trace(
+    const char*   fileName,
+    const Uint32  lineNum,
+    const Uint32  traceComponent,
+    const Uint32  traceLevel,
+    const String& traceString)
+{
+    if (_traceOn)
+    {
+	_traceString( fileName, lineNum, traceComponent, traceLevel,
+		      traceString );
+    }
+}
+
+void Tracer::traceCIMException(
+    const Uint32  traceComponent,
+    const Uint32  traceLevel,
+    CIMException  cimException)
+{
+    if (_traceOn)
+    {
+	_traceCIMException( traceComponent, traceLevel, cimException );
+    }
+}
+
+void Tracer::trace(
+    const Uint32  traceComponent,
+    const Uint32  level,
+    const String& string)
+{
+    trace("unknown", 0, traceComponent, level, string);
+}
+
+#endif /* !PEGASUS_REMOVE_TRACE */
 
 PEGASUS_NAMESPACE_END

@@ -89,6 +89,13 @@ Uint32 compare(const char* fileName, const char* compareStr)
     file.read(readStr.get(),size+EOF_CHAR);
     (readStr.get())[size]='\0';
     retCode=strcmp(compareStr,readStr.get());
+
+    /* Diagnostic to determnine string differences
+    if (!retCode)
+        cout << "Compare Error: compareStr= \n\"" << compareStr 
+            << "\". readStr= \n\"" << readStr.get() << "\"" << endl;
+    */
+
     file.close();
     return retCode;
 }
@@ -190,7 +197,9 @@ Uint32 test5()
 {
     const char* METHOD_NAME = "test5";
     Tracer::setTraceComponents("Wrong Component Name");
-    Tracer::traceExit(__FILE__,__LINE__,TRC_CONFIG,METHOD_NAME);
+
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_EXIT();
     return(compare(FILE1,"Entering method test4"));
 }
 
@@ -235,7 +244,8 @@ Uint32 test7()
 {
     const char* METHOD_NAME = "test7";
     Tracer::setTraceLevel(100);
-    Tracer::traceExit(__FILE__,__LINE__,TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_EXIT();
     return(compare(FILE1,"Test Message for Level2 in test6"));
 }
 
@@ -255,7 +265,7 @@ Uint32 test8()
     const char* METHOD_NAME = "test8";
     Tracer::setTraceLevel(Tracer::LEVEL1);
     Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL1,"%s",
-	"Test Message for Level4");
+        "Test Message for Level4");
     return(compare(FILE1,"Test Message for Level2 in test6"));
 }
 
@@ -292,12 +302,15 @@ Uint32 test9()
 // return 0 if the test passed
 // return 1 if the test failed
 //
+// This test not required with change t0
+// use and test macros only.
 
 Uint32 test10()
 {
     const char* METHOD_NAME = "test10";
     Tracer::setTraceComponents("ALL");
-    Tracer::traceExit(__FILE__,__LINE__,Uint32(-1),METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_EXIT();
     return(compare(FILE2,"Test Message for Level3 in test9"));
 }
 
@@ -339,7 +352,8 @@ Uint32 test12()
     const char* METHOD_NAME = "test12";
     Tracer::setTraceComponents("ALL");
     Tracer::setTraceLevel(Tracer::LEVEL4);
-    Tracer::traceExit(__FILE__,__LINE__,TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_EXIT();
     return(compare(FILE2,"Exiting method test12"));
 }
 
@@ -666,11 +680,17 @@ int main(int argc, char** argv)
        cout << "Tracer test (test9) failed" << endl;
        exit(1);
     }
+    /*************************** 
+       Test 10 bypassed when tests changed to
+       use macros.  It did an invalid call which is
+       not possible with macros
+
     if (test10() != 0)
     {
        cout << "Tracer test (test10) failed" << endl;
        exit(1);
     }
+    ******************************/
     if (test11() != 0)
     {
        cout << "Tracer test (test11) failed" << endl;

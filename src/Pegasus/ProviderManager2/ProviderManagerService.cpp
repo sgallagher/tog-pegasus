@@ -94,7 +94,7 @@ ProviderManagerService::ProviderManagerService(void)
 ProviderManagerService::ProviderManagerService(
         ProviderRegistrationManager * providerRegistrationManager,
         CIMRepository * repository,
-	ProviderManager* (*createDefaultProviderManagerCallback)())
+        ProviderManager* (*createDefaultProviderManagerCallback)())
     : MessageQueueService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)
 {
     providerManagerService=this;
@@ -124,7 +124,7 @@ ProviderManagerService::ProviderManagerService(
     {
         _basicProviderManagerRouter = new BasicProviderManagerRouter(
             indicationCallback, responseChunkCallback, 
-	    createDefaultProviderManagerCallback);
+            createDefaultProviderManagerCallback);
     }
 #else
     _oopProviderManagerRouter = new OOPProviderManagerRouter(
@@ -134,7 +134,8 @@ ProviderManagerService::ProviderManagerService(
     if (!forceProviderProcesses)
     {
         _basicProviderManagerRouter = new BasicProviderManagerRouter(
-            indicationCallback, responseChunkCallback);
+            indicationCallback, responseChunkCallback,
+            createDefaultProviderManagerCallback);
     }
 #endif
 }

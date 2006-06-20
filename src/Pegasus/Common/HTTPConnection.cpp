@@ -317,8 +317,32 @@ Boolean HTTPConnection::isNamedPipeConnection()
 HTTPConnection::~HTTPConnection()
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::~HTTPConnection");
+    {
+            AutoMutex automut(Monitor::_cout_mut);
+            cout << " in HTTPConnection::~HTTPConnection() at begining" << endl;
+        }
 
-     _socket->close();
+      if (!_namedPipeConnection)
+      {
+          _socket->close();
+      }
+      else
+      {
+      
+         BOOL closeRes = CloseHandle(_namedPipe.getPipe());
+         if (closeRes == 0)
+         {
+              AutoMutex automut(Monitor::_cout_mut);
+              cout << "CloseHandle failed in HTTPConnection::~HTTPConnection() with " <<
+                  "error code " << GetLastError() << endl;
+         }
+      }
+
+      {
+         AutoMutex automut(Monitor::_cout_mut);
+         cout << " in HTTPConnection::~HTTPConnection() at end" << endl;
+      }
+
 
     PEG_METHOD_EXIT();
 }

@@ -40,6 +40,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Base64.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 #include "SecureBasicAuthenticator.h"
 #include "PAMBasicAuthenticator.h"
@@ -135,6 +136,30 @@ Boolean BasicAuthenticationHandler::authenticate(
     authInfo->setAuthenticatedUser(userName);
     authInfo->setAuthenticatedPassword(password);
 #else
+
+    //
+    // Reject access if the user is privileged and remote privileged user
+    // access is not enabled.
+    //
+    if (System::isPrivilegedUser(userName) &&
+        !String::equalNoCase(ConfigManager::getInstance()->getCurrentValue(
+            "enableRemotePrivilegedUserAccess"), "true"))
+    {
+        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL2,
+            "Authentication failed for user '%s' because "
+                "enableRemotePrivilegedUserAccess is not set to 'true'.",
+            userName.getCString());
+        Logger::put_l(
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            "Security.Authentication.BasicAuthenticationHandler."
+                "PRIVILEGED_ACCESS_DISABLED",
+            "Authentication failed for user '$0' because "
+                "enableRemotePrivilegedUserAccess is not set to 'true'.",
+            userName);
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
     authenticated = _basicAuthenticator->authenticate(userName, password);
 
     if (authenticated)

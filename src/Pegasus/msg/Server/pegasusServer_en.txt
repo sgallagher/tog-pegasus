@@ -5682,6 +5682,12 @@ ProviderManager.CMPI.CMPIProviderModule.CONFLICTING_CMPI_STYLE:string {"PGS16506
         */
         Security.Authentication.BasicAuthenticationHandler.BASIC_AUTHENTICATION_FAILED:string {"PGS17200: Authentication failed for user {0}."}
 
+        /**
+        * @note  PGS17201:
+        *    Substitution {0} is a user name (a string)
+        */
+        Security.Authentication.BasicAuthenticationHandler.PRIVILEGED_ACCESS_DISABLED:string {"PGS17201: Authentication failed for user '{0}' because enableRemotePrivilegedUserAccess is not set to 'true'."}
+
 // ==============================================================================
 // END OF RESOURCE BUNDLE
 // DO NOT ADD MESSAGES AFTER THE FOLLOWING '}'

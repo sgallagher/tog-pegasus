@@ -248,12 +248,12 @@ public:
 protected:
     static void remove_myself(Uint32);
 
-    Mutex _mut;
     Uint32 _queueId;
     char *_name;
     Uint32 _capabilities;
 
 private:
+    Mutex _mut;
     Uint32 _count;
     Message* _front;
     Message* _back;

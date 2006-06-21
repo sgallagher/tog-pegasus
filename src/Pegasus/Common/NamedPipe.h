@@ -27,7 +27,7 @@ public:
     String getName(void) {return _name;}
 
     HANDLE getPipe(void){ return _pipe.hpipe;}
-    OVERLAPPED getOverlap(void){ return _pipe.overlap;}
+    LPOVERLAPPED getOverlap(void){ return &_pipe.overlap;}
 
     Boolean isConnectionPipe;
     char raw[4096];

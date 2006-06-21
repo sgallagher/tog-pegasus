@@ -567,7 +567,7 @@ Boolean Monitor::run(Uint32 milliseconds)
             }         
 
            //pipeEventArray.append((entries[indx].namedPipe.getOverlap()).hEvent);
-           hEvents[pipeEntryCount] = entries[indx].namedPipe.getOverlap().hEvent;
+           hEvents[pipeEntryCount] = entries[indx].namedPipe.getOverlap()->hEvent;
            
            indexPipeCountAssociator.append(indx);
            /*
@@ -944,7 +944,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                 &entries[indx].namedPipe.raw,
                 MAX_BUFFER_SIZE,
                 &entries[indx].namedPipe.bytesRead,
-                &entries[indx].namedPipe.getOverlap());
+                entries[indx].namedPipe.getOverlap());
 
         {
          AutoMutex automut(Monitor::_cout_mut);

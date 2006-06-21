@@ -328,7 +328,7 @@ HTTPConnection::~HTTPConnection()
       }
       else
       {
-      
+
          BOOL closeRes = CloseHandle(_namedPipe.getPipe());
          if (closeRes == 0)
          {
@@ -1963,33 +1963,18 @@ void HTTPConnection::_handleReadEvent()
 
         if (_namedPipeConnection && (bytesRead == 0))  //this clause reads from the namedPipe
         {
-            String pipeBuffer;
             {
-            AutoMutex automut(Monitor::_cout_mut);
-            PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() about to read off the pipe" << PEGASUS_STD(endl);
+                AutoMutex automut(Monitor::_cout_mut);
+                PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() about to read off the pipe" << PEGASUS_STD(endl);
             }
             //need some kind of string copy here
-
-
-            /*char temp_buff[strlen(_namedPipe.raw)+1];
-            temp_buf[sizeof(temp_buff)-1] = 0;
-
-            //there should be an easier way to do this - I just what to make a string (_namedPipe.raw)
-            //in to an array of char
-             for(Uint32 stringCount=0, stringCount > strlen(_namedPipe.raw), stringCount++)
-             {
-                 temp_buff[stringCount] = _namedPipe.raw[stringCount];
-
-             }  */
-            strcpy (buffer,_namedPipe.raw);
+		    strcpy (buffer,_namedPipe.raw);
             n = strlen(_namedPipe.raw)+1;
-            //n = NamedPipe::read(_namedPipe.getPipe(), pipeBuffer);
-            //buffer = (char*) pipeBuffer.getChar16Data();
-        {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << buffer << endl;
-        cout << "n=" << n << endl;
-        }
+            {
+                AutoMutex automut(Monitor::_cout_mut);
+                cout << buffer << endl;
+                cout << "n=" << n << endl;
+            }
 
         }
         else if (!_namedPipeConnection) //this clause reads from the socket
@@ -2008,19 +1993,18 @@ void HTTPConnection::_handleReadEvent()
         if (n <= 0)
         {
           {
-          AutoMutex automut(Monitor::_cout_mut);
-          cout << "at the start of 'if (n <= 0)' " << endl;
+              AutoMutex automut(Monitor::_cout_mut);
+              cout << "at the start of 'if (n <= 0)' " << endl;
           }
 
-            if(!_namedPipeConnection)
-            {
-
+          if(!_namedPipeConnection)
+          {
 
              if (_socket->isSecure())
              {
                 {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << " in (_socket->isSecure())"  << endl;
+                    AutoMutex automut(Monitor::_cout_mut);
+                    cout << " in (_socket->isSecure())"  << endl;
                 }
                 // It is possible that SSL_read was not able to
                 // read the entire SSL record.  This could happen
@@ -2341,7 +2325,7 @@ Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messag
 
  //  if (_isClient())
  //  {
-       if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()),&_namedPipe.getOverlap()))
+       if(writeResult = NamedPipe::write(_namedPipe.getPipe(), String(httpMessage.message.getData()),_namedPipe.getOverlap()))
        {
            {
            AutoMutex automut(Monitor::_cout_mut);
@@ -2386,7 +2370,7 @@ Boolean HTTPConnection::_writeToNamePipe(HTTPMessage& httpMessage, Uint32 messag
           cout << " just wrote this to named pipe " << endl << httpMessage.message.getData() << endl << endl;
           }
           return false;
-       }  
+       }
    }*/
 }
 void HTTPConnection::setNamedPipeConnetion()

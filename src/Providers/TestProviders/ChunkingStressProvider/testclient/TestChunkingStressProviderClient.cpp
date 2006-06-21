@@ -65,7 +65,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static char * verbose = 0;
-static Boolean shutdown = false;
+static Boolean shutdownFlag = false;
 
 CIMObjectPath referenceObjName;
 
@@ -132,7 +132,7 @@ static void _testEnd(
     const String& cimop, const Uint32 uniqueID, 
     const Uint32 iterations, const double elapsedTime)
 {
-    if (shutdown)
+    if (shutdownFlag)
     {
         cout << "????? " << cimop << " thread " << uniqueID 
              << ": shutting down due to indicated failure on another thread" 
@@ -164,7 +164,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeEI(void *parm)
 
         _testStart("EI", uniqueID, duration, "Starting enumerateInstances");
         elapsedTime.reset();
-        while ((elapsedSeconds < duration) && !shutdown)
+        while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             iterations++; 
             elapsedTime.start();
@@ -189,7 +189,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeEI(void *parm)
             }
             else 
             {
-                shutdown = true;
+                shutdownFlag = true;
                 sprintf(exceptionMsg, 
                     "----- EI thread %d expected %d instances, received %d",
                     uniqueID,
@@ -227,7 +227,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeNI(void *parm)
 
         _testStart("NI", uniqueID, duration, "Starting enumerateInstanceNames");
         elapsedTime.reset();
-        while ((elapsedSeconds < duration) && !shutdown)
+        while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             iterations++; 
             elapsedTime.start();
@@ -252,7 +252,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeNI(void *parm)
             }
             else 
             {
-                shutdown = true;
+                shutdownFlag = true;
                 sprintf(exceptionMsg, 
                     "----- NI thread %d expected %d instancenames, received %d",
                     uniqueID,
@@ -290,7 +290,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeA(void *parm)
 
         _testStart("A ", uniqueID, duration, "Starting associators");
         elapsedTime.reset();
-        while ((elapsedSeconds < duration) && !shutdown)
+        while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             iterations++; 
             elapsedTime.start();
@@ -315,7 +315,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeA(void *parm)
             }
             else 
             {
-                shutdown = true;
+                shutdownFlag = true;
                 sprintf(exceptionMsg, 
                     "----- A  thread %d expected %d objects, received %d",
                     uniqueID,
@@ -353,7 +353,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeAN(void *parm)
 
         _testStart("AN", uniqueID, duration, "Starting associatorNames");
         elapsedTime.reset();
-        while ((elapsedSeconds < duration) && !shutdown)
+        while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             iterations++; 
             elapsedTime.start();
@@ -378,7 +378,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeAN(void *parm)
             }
             else 
             {
-                shutdown = true;
+                shutdownFlag = true;
                 sprintf(exceptionMsg, 
                     "----- AN thread %d expected %d objectnames, received %d",
                     uniqueID,
@@ -416,7 +416,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeR(void *parm)
 
         _testStart("R ", uniqueID, duration, "Starting references");
         elapsedTime.reset();
-        while ((elapsedSeconds < duration) && !shutdown)
+        while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             iterations++; 
             elapsedTime.start();
@@ -441,7 +441,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeR(void *parm)
             }
             else 
             {
-                shutdown = true;
+                shutdownFlag = true;
                 sprintf(exceptionMsg, 
                     "----- R  thread %d expected %d objects, received %d",
                     uniqueID,
@@ -479,7 +479,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeRN(void *parm)
 
         _testStart("RN", uniqueID, duration, "Starting referenceNames");
         elapsedTime.reset();
-        while ((elapsedSeconds < duration) && !shutdown)
+        while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             iterations++; 
             elapsedTime.start();
@@ -504,7 +504,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeRN(void *parm)
             }
             else 
             {
-                shutdown = true;
+                shutdownFlag = true;
                 sprintf(exceptionMsg, 
                     "----- RN thread %d expected %d objectnames, received %d",
                     uniqueID,
@@ -711,7 +711,7 @@ int main(int argc, char** argv)
         return(1);
     }
 
-    if (shutdown)
+    if (shutdownFlag)
         return(1);
 
     cout << argv[0] << " +++++ passed all tests" << endl;

@@ -535,6 +535,17 @@ inline Uint32 Tracer::setTraceFile(const char* traceFile)
     return 0;
 }
 
+inline Uint32 Tracer::setTraceLevel(const Uint32 level)
+{
+    // empty function
+    return 0;
+}
+
+inline void Tracer::setTraceComponents(const String& traceComponents)
+{
+    // empty function
+}
+
 #endif /* PEGASUS_REMOVE_TRACE */
 
 //==============================================================================

@@ -33,6 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 
@@ -40,6 +41,7 @@
 
 #include "TestChunkingStressProviderEIS.h"
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 TestChunkingStressProviderEIS::TestChunkingStressProviderEIS(void)

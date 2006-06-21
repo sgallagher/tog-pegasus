@@ -413,7 +413,18 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
                                                 CIMResponseMessage *&response)
 {
     static const char func[] = "CIMOperationRequestDispatcher::_enqueueResponse";
-    AutoMutex autoMut(_mut);
+    // Obtain the _enqueueResponseMutex mutex for this chunked request.
+    // This mutex is used to serialize chunked responses from all incoming
+    // provider threads. It is imperative that the sequencing done by the
+    // resequenceResponse() method and the writing of the chunked response
+    // to the connection socket (done as a synchronous enqueue at the end
+    // of this method) are atomic to ensure that the chunk that is marked
+    // as isComplete for the overall response is indeed the last chunk
+    // returned to the client. See PEP 140 for details.
+    // This mutex was moved into the OperationAggregate class as part of
+    // bug 5157 because we only need to serialize on a per-request basis.
+    // This prevents serializing independent requests on separate connections.
+    AutoMutex autoMut(poA->_enqueueResponseMutex);
     Boolean isComplete = false;
 
     try

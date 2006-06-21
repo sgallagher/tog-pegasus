@@ -159,6 +159,7 @@ private:
 */
 class PEGASUS_SERVER_LINKAGE OperationAggregate
 {
+    friend class CIMOperationRequestDispatcher;
 public:
     /* Operation Aggregate constructor.  Builds an aggregate
         object.
@@ -227,6 +228,7 @@ private:
 
     Array<CIMResponseMessage*> _responseList;
     Mutex _appendResponseMutex;
+    Mutex _enqueueResponseMutex;
     CIMRequestMessage* _request;
     Uint32 _totalIssued;
     Uint32 _magicNumber;

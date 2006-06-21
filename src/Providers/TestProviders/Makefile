@@ -48,6 +48,8 @@ DIRS = \
 	IndicationStressTestProvider/testconsumer \
 	InstanceProvider \
 	InstanceProvider/testclient \
+	ChunkingStressProvider \
+	ChunkingStressProvider/testclient \
 	MethodTestProvider \
 	MethodTestProvider/testclient \
 	MCCA_TestAssocProvider \

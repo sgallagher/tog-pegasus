@@ -197,12 +197,26 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                              boolean       localOnly)
         throws CIMException
    {
-      return new CIMClass(_getClass(cInst,
-                                    name.cInst (),
-                                    localOnly,
-                                    true,
-                                    true,
-                                    null));
+      int ciClass = 0;
+
+      if (cInst != 0)
+      {
+         ciClass = _getClass (cInst,
+                              name.cInst (),
+                              localOnly,
+                              true,
+                              true,
+                              null);
+      }
+
+      if (ciClass != 0)
+      {
+         return new CIMClass (ciClass);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public CIMClass getClass (CIMObjectPath name,
@@ -212,30 +226,50 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                              String[]      propertyList)
         throws CIMException
    {
-      return new CIMClass(_getClass(cInst,
-                                    name.cInst (),
-                                    localOnly,
-                                    includeQualifiers,
-                                    includeClassOrigin,
-                                    propertyList));
+      int ciClass = 0;
+
+      if (cInst != 0)
+      {
+         ciClass = _getClass (cInst,
+                              name.cInst (),
+                              localOnly,
+                              includeQualifiers,
+                              includeClassOrigin,
+                              propertyList);
+      }
+
+      if (ciClass != 0)
+      {
+         return new CIMClass (ciClass);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public void createClass (CIMObjectPath path,
                             CIMClass      cc)
         throws CIMException
    {
-      _createClass(cInst,
-                   path.cInst (),
-                   cc.cInst ());
+      if (cInst != 0)
+      {
+         _createClass (cInst,
+                       path.cInst (),
+                       cc.cInst ());
+      }
    }
 
    public void setClass (CIMObjectPath path,
                          CIMClass      cc)
         throws CIMException
    {
-      _setClass(cInst,
-                path.cInst (),
-                cc.cInst ());
+      if (cInst != 0)
+      {
+         _setClass (cInst,
+                    path.cInst (),
+                    cc.cInst ());
+      }
    }
 
    public void modifyClass (CIMObjectPath path,
@@ -249,8 +283,11 @@ public class CIMOMHandle implements ProviderCIMOMHandle
    public void deleteClass (CIMObjectPath cop)
         throws CIMException
    {
-      _deleteClass(cInst,
-                   cop.cInst());
+      if (cInst != 0)
+      {
+         _deleteClass (cInst,
+                       cop.cInst ());
+      }
    }
 
    public Enumeration enumClass (CIMObjectPath path,
@@ -258,12 +295,26 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                  boolean       localOnly)
         throws CIMException
    {
-      return new ClassEnumeration(_enumerateClasses(cInst,
-                                                    path.cInst (),
-                                                    deep,
-                                                    localOnly,
-                                                    true,
-                                                    true));
+      int ciEnumeration = 0;
+
+      if (cInst != 0)
+      {
+         ciEnumeration = _enumerateClasses (cInst,
+                                            path.cInst (),
+                                            deep,
+                                            localOnly,
+                                            true,
+                                            true);
+      }
+
+      if (ciEnumeration != 0)
+      {
+         return new ClassEnumeration (ciEnumeration);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public Enumeration enumerateClasses (CIMObjectPath name,
@@ -273,12 +324,26 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                         boolean       includeClassOrigin)
         throws CIMException
    {
-      return new ClassEnumeration(_enumerateClasses(cInst,
-                                                    name.cInst (),
-                                                    deep,
-                                                    localOnly,
-                                                    includeQualifier,
-                                                    includeClassOrigin));
+      int ciEnumeration = 0;
+
+      if (cInst != 0)
+      {
+         ciEnumeration = _enumerateClasses (cInst,
+                                            name.cInst (),
+                                            deep,
+                                            localOnly,
+                                            includeQualifier,
+                                            includeClassOrigin);
+      }
+
+      if (ciEnumeration != 0)
+      {
+         return new ClassEnumeration (ciEnumeration);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public Enumeration enumClass (CIMObjectPath path,
@@ -293,9 +358,23 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                            boolean       deepInheritance)
         throws CIMException
    {
-      return new PathEnumeration(_enumerateClassNames(cInst,
-                                                      path.cInst (),
-                                                      deepInheritance));
+      int ciEnumeration = 0;
+
+      if (cInst != 0)
+      {
+         ciEnumeration = _enumerateClassNames (cInst,
+                                               path.cInst (),
+                                               deepInheritance);
+      }
+
+      if (ciEnumeration != 0)
+      {
+         return new PathEnumeration (ciEnumeration);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public CIMInstance getInstance (CIMObjectPath path,
@@ -316,28 +395,59 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                    String[]      propertyList)
         throws CIMException
    {
-      return new CIMInstance(_getInstance(cInst,
-                                          path.cInst (),
-                                          localOnly,
-                                          includeQualifiers,
-                                          includeClassOrigin,
-                                          propertyList));
+      int ciInstance = 0;
+
+      if (cInst != 0)
+      {
+         ciInstance = _getInstance (cInst,
+                                    path.cInst (),
+                                    localOnly,
+                                    includeQualifiers,
+                                    includeClassOrigin,
+                                    propertyList);
+      }
+
+      if (ciInstance != 0)
+      {
+         return new CIMInstance (ciInstance);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public void deleteInstance (CIMObjectPath cop)
         throws CIMException
    {
-      _deleteInstance(cInst,
-                      cop.cInst());
+      if (cInst != 0)
+      {
+         _deleteInstance (cInst,
+                          cop.cInst());
+      }
    }
 
    public CIMObjectPath createInstance (CIMObjectPath path,
                                         CIMInstance   ci)
         throws CIMException
    {
-      return new CIMObjectPath(_createInstance(cInst,
-                                               path.cInst (),
-                                               ci.cInst ()));
+      int ciObjectPath = 0;
+
+      if (cInst != 0)
+      {
+         ciObjectPath = _createInstance (cInst,
+                                         path.cInst (),
+                                         ci.cInst ());
+      }
+
+      if (ciObjectPath != 0)
+      {
+         return new CIMObjectPath (ciObjectPath);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public void setInstance (CIMObjectPath path,
@@ -356,20 +466,37 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                String[]      propertyList)
         throws CIMException
    {
-      _modifyInstance(cInst,
-                      path.cInst (),
-                      modifiedInstance.cInst (),
-                      includeQualifiers,
-                      propertyList);
+      if (cInst != 0)
+      {
+         _modifyInstance (cInst,
+                          path.cInst (),
+                          modifiedInstance.cInst (),
+                          includeQualifiers,
+                          propertyList);
+      }
    }
 
    public Enumeration enumInstances (CIMObjectPath path,
                                      boolean       deep)
         throws CIMException
    {
-      return new PathEnumeration(_enumerateInstanceNames(cInst,
-                                                         path.cInst (),
-                                                         deep));
+      int ciEnumeration = 0;
+
+      if (cInst != 0)
+      {
+         ciEnumeration = _enumerateInstanceNames (cInst,
+                                                  path.cInst (),
+                                                  deep);
+      }
+
+      if (ciEnumeration != 0)
+      {
+         return new PathEnumeration (ciEnumeration);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public Enumeration enumerateInstanceNames (CIMObjectPath path)
@@ -400,13 +527,27 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                           String[]      propertyList)
         throws CIMException
    {
-      return new InstEnumeration(_enumerateInstances(cInst,
-                                                     path.cInst (),
-                                                     deepInheritance,
-                                                     localOnly,
-                                                     includeQualifiers,
-                                                     includeClassOrigin,
-                                                     propertyList));
+      int ciEnumeration = 0;
+
+      if (cInst != 0)
+      {
+         ciEnumeration = _enumerateInstances (cInst,
+                                              path.cInst (),
+                                              deepInheritance,
+                                              localOnly,
+                                              includeQualifiers,
+                                              includeClassOrigin,
+                                              propertyList);
+      }
+
+      if (ciEnumeration != 0)
+      {
+         return new InstEnumeration (ciEnumeration);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public Enumeration execQuery (CIMObjectPath path,
@@ -414,24 +555,47 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                  String        ql)
         throws CIMException
    {
-      return new InstEnumeration(_execQuery(cInst,
-                                            path.cInst (),
-                                            query,
-                                            ql));
+      int ciEnumeration = 0;
+
+      if (cInst != 0)
+      {
+         ciEnumeration = _execQuery (cInst,
+                                     path.cInst (),
+                                     query,
+                                     ql);
+      }
+
+      if (ciEnumeration != 0)
+      {
+         return new InstEnumeration (ciEnumeration);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public CIMValue getProperty (CIMObjectPath path,
                                 String        propertyName)
         throws CIMException
    {
-      int val = _getProperty(cInst,
-                             path.cInst (),
-                             propertyName);
+      int ciValue = 0;
 
-      if (val != 0)
-         return new CIMValue(val);
+      if (cInst != 0)
+      {
+         ciValue = _getProperty (cInst,
+                                 path.cInst (),
+                                 propertyName);
+      }
 
-      return null;
+      if (ciValue != 0)
+      {
+         return new CIMValue (ciValue);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public void setProperty (CIMObjectPath path,
@@ -439,10 +603,13 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                             CIMValue      newValue)
         throws CIMException
    {
-      _setProperty(cInst,
-                   path.cInst (),
-                   propertyName,
-                   newValue.cInst ());
+      if (cInst != 0)
+      {
+         _setProperty (cInst,
+                       path.cInst (),
+                       propertyName,
+                       newValue.cInst ());
+      }
    }
 
    public Enumeration associatorNames (CIMObjectPath path,
@@ -452,12 +619,26 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                        String        resultRole)
         throws CIMException
    {
-      return new PathEnumeration(_associatorNames(cInst,
-                                                  path.cInst (),
-                                                  assocClass,
-                                                  resultClass,
-                                                  role,
-                                                  resultRole));
+      int ciEnumeration = 0;
+
+      if (cInst != 0)
+      {
+         ciEnumeration = _associatorNames (cInst,
+                                           path.cInst (),
+                                           assocClass,
+                                           resultClass,
+                                           role,
+                                           resultRole);
+      }
+
+      if (ciEnumeration != 0)
+      {
+         return new PathEnumeration (ciEnumeration);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public Enumeration associators(CIMObjectPath path,
@@ -470,15 +651,29 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                   String[]      propertyList)
           throws CIMException
    {
-       return new InstEnumeration(_associators(cInst,
-                                               path.cInst (),
-                                               assocClass,
-                                               resultClass,
-                                               role,
-                                               resultRole,
-                                               includeQualifiers,
-                                               includeClassOrigin,
-                                               propertyList));
+      int ciEnumeration = 0;
+
+      if (cInst != 0)
+      {
+         ciEnumeration = _associators (cInst,
+                                       path.cInst (),
+                                       assocClass,
+                                       resultClass,
+                                       role,
+                                       resultRole,
+                                       includeQualifiers,
+                                       includeClassOrigin,
+                                       propertyList);
+      }
+
+      if (ciEnumeration != 0)
+      {
+         return new InstEnumeration (ciEnumeration);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public Enumeration referenceNames (CIMObjectPath path,
@@ -486,9 +681,24 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                       String        role)
         throws CIMException
    {
-      return new PathEnumeration(_referenceNames(cInst,
-                                                 path.cInst (),
-                                                 resultClass,role));
+      int ciEnumeration = 0;
+
+      if (cInst != 0)
+      {
+         ciEnumeration = _referenceNames (cInst,
+                                          path.cInst (),
+                                          resultClass,
+                                          role);
+      }
+
+      if (ciEnumeration != 0)
+      {
+         return new PathEnumeration (ciEnumeration);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public Enumeration references (CIMObjectPath path,
@@ -499,13 +709,27 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                   String[]      propertyList)
         throws CIMException
    {
-      return new InstEnumeration(_references(cInst,
-                                             path.cInst (),
-                                             resultClass,
-                                             role,
-                                             includeQualifiers,
-                                             includeClassOrigin,
-                                             propertyList));
+      int ciEnumeration = 0;
+
+      if (cInst != 0)
+      {
+         ciEnumeration = _references (cInst,
+                                      path.cInst (),
+                                      resultClass,
+                                      role,
+                                      includeQualifiers,
+                                      includeClassOrigin,
+                                      propertyList);
+      }
+
+      if (ciEnumeration != 0)
+      {
+         return new InstEnumeration (ciEnumeration);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public CIMValue invokeMethod (CIMObjectPath path,
@@ -514,11 +738,25 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                  Vector        outParams)
         throws CIMException
    {
-      return new CIMValue(_invokeMethod(cInst,
-                                        path.cInst (),
-                                        methodName,
-                                        inParams,
-                                        outParams));
+      int ciValue = 0;
+
+      if (cInst != 0)
+      {
+         ciValue = _invokeMethod (cInst,
+                                  path.cInst (),
+                                  methodName,
+                                  inParams,
+                                  outParams);
+      }
+
+      if (ciValue != 0)
+      {
+         return new CIMValue (ciValue);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public CIMValue invokeMethod (CIMObjectPath path,
@@ -535,10 +773,13 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                              CIMInstance ind)
         throws CIMException
    {
-      _deliverEvent (cInst,
-                     providerName,
-                     ns,
-                     ind.cInst ());
+      if (cInst != 0)
+      {
+         _deliverEvent (cInst,
+                        providerName,
+                        ns,
+                        ind.cInst ());
+      }
    }
 
    static {

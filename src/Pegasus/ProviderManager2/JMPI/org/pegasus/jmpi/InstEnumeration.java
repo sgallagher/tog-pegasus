@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,7 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By: Adrian Duta
 //              Mark Hamzy, hamzy@us.ibm.com
@@ -44,10 +44,10 @@ class InstEnumeration implements Enumeration
    private int cInst;
    private int cur;
    private int max;
-   
+
    private native int _getInstance (int cInst, int pos);
    private native int _size        (int cInst);
-   
+
    protected int cInst ()
    {
       return cInst;
@@ -56,7 +56,11 @@ class InstEnumeration implements Enumeration
    InstEnumeration (int ci)
    {
       cInst = ci;
-      max   = _size (ci);
+      max   = 0;
+      if (cInst != 0)
+      {
+         max = _size (cInst);
+      }
       cur   = 0;
    }
 
@@ -70,7 +74,21 @@ class InstEnumeration implements Enumeration
       if (cur >= max)
           return null;
 
-      return new CIMInstance (_getInstance (cInst, cur++));
+      int ciInstance = 0;
+
+      if (cInst != 0)
+      {
+         ciInstance = _getInstance (cInst, cur++);
+      }
+
+      if (ciInstance != 0)
+      {
+         return new CIMInstance (ciInstance);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    static {

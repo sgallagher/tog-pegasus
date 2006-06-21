@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -150,32 +150,74 @@ public class CIMDataType
 
    public boolean isArrayType ()
    {
-      return _isArray (cInst);
+      if (cInst != 0)
+      {
+         return _isArray (cInst);
+      }
+      else
+      {
+         return false;
+      }
    }
 
    public boolean isReferenceType ()
    {
-      return _isReference (cInst);
+      if (cInst != 0)
+      {
+         return _isReference (cInst);
+      }
+      else
+      {
+         return false;
+      }
    }
 
    public int getType ()
    {
-      return _getType (cInst);
+      if (cInst != 0)
+      {
+         return _getType (cInst);
+      }
+      else
+      {
+         return 0;
+      }
    }
 
    public int getSize ()
    {
-      return _getSize (cInst);
+      if (cInst != 0)
+      {
+         return _getSize (cInst);
+      }
+      else
+      {
+         return 0;
+      }
    }
 
    public String getRefClassName ()
    {
-      return _getRefClassName (cInst);
+      if (cInst != 0)
+      {
+         return _getRefClassName (cInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public String toString ()
    {
-      return _toString (cInst);
+      if (cInst != 0)
+      {
+         return _toString (cInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public static CIMDataType getPredefinedType (int type)

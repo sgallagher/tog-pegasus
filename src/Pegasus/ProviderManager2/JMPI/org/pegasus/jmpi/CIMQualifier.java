@@ -91,12 +91,22 @@ public class CIMQualifier
 
    public void setValue (CIMValue value)
    {
-      _setValue (cInst, value.cInst ());
+      if (cInst != 0)
+      {
+         _setValue (cInst, value.cInst ());
+      }
    }
 
    public String getName ()
    {
-      return _getName (cInst);
+      if (cInst != 0)
+      {
+         return _getName (cInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    static {

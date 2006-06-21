@@ -96,7 +96,16 @@ public class CIMProperty
         if (cInst == 0)
             return null;
 
-        return new CIMValue (_getValue (cInst));
+        int ciValue = _getValue (cInst);
+
+        if (ciValue != 0)
+        {
+           return new CIMValue (ciValue);
+        }
+        else
+        {
+           return null;
+        }
     }
 
     public String getName ()
@@ -128,7 +137,16 @@ public class CIMProperty
         if (cInst == 0)
             return null;
 
-        return new CIMDataType (_getType (cInst), true);
+        int ciDataType = _getType (cInst);
+
+        if (ciDataType != 0)
+        {
+           return new CIMDataType (ciDataType, true);
+        }
+        else
+        {
+           return null;
+        }
     }
 
     public void setType (CIMDataType dt)
@@ -200,6 +218,9 @@ public class CIMProperty
 
     public int findQualifier (String qualifier)
     {
+       if (cInst == 0)
+          return 0;
+
        return _findQualifier (cInst, qualifier);
     }
 

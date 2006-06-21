@@ -110,12 +110,48 @@ public class CIMInstance
                                          boolean includeQualifier,
                                          boolean includeClassOrigin)
     {
-        return new CIMInstance (_filterProperties (cInst, propertyList, includeQualifier, includeClassOrigin, false));
+       int ciInstance = 0;
+
+       if (cInst != 0)
+       {
+          ciInstance = _filterProperties (cInst,
+                                          propertyList,
+                                          includeQualifier,
+                                          includeClassOrigin,
+                                          false);
+       }
+
+       if (ciInstance != 0)
+       {
+          return new CIMInstance (ciInstance);
+       }
+       else
+       {
+          return null;
+       }
     }
 
     public CIMInstance localElements ()
     {
-        return new CIMInstance (_filterProperties (cInst, null, false, false, true));
+       int ciInstance = 0;
+
+       if (cInst != 0)
+       {
+          ciInstance = _filterProperties (cInst,
+                                          null,
+                                          false,
+                                          false,
+                                          true);
+       }
+
+       if (ciInstance != 0)
+       {
+          return new CIMInstance (ciInstance);
+       }
+       else
+       {
+          return null;
+       }
     }
 
     public void setName (String n)
@@ -291,12 +327,22 @@ public class CIMInstance
 
     public void setObjectPath (CIMObjectPath cop)
     {
-        _setObjectPath (cInst, cop.cInst ());
+       if (cInst != 0)
+       {
+          _setObjectPath (cInst, cop.cInst ());
+       }
     }
 
     public int getPropertyCount ()
     {
-        return _getPropertyCount (cInst);
+       if (cInst != 0)
+       {
+          return _getPropertyCount (cInst);
+       }
+       else
+       {
+          return 0;
+       }
     }
 
     public CIMProperty getProperty (int i)

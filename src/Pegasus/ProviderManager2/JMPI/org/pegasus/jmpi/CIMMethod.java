@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -61,8 +61,14 @@ public class CIMMethod {
 
    public int getType ()
    {
-      // to be implemented
-      return _getType(cInst);
+      if (cInst != 0)
+      {
+         return _getType (cInst);
+      }
+      else
+      {
+         return 0;
+      }
    }
 
    public String toString ()

@@ -157,10 +157,13 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
     {
         CIMOperationRequestMessage* cimOpReqMessage = 0;
         CIMValue genericValue;
+        String authType;
+        String userName;
         CIMNamespaceName nameSpace;
         CIMName className;
         Uint32 providerType;
 
+        _deserializeUserInfo(parser, authType, userName);
         _deserializeCIMNamespaceName(parser, nameSpace);
         _deserializeCIMName(parser, className);
 
@@ -237,6 +240,8 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
 
         XmlReader::expectEndTag(parser, "PGOPREQ");
 
+        cimOpReqMessage->authType = authType;
+        cimOpReqMessage->userName = userName;
         cimOpReqMessage->nameSpace = CIMNamespaceName(nameSpace);
         cimOpReqMessage->className = className;
         cimOpReqMessage->providerType = providerType;
@@ -245,6 +250,11 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
     }
     else if (XmlReader::testStartTag(parser, entry, "PGINDREQ"))
     {
+        String authType;
+        String userName;
+
+        _deserializeUserInfo(parser, authType, userName);
+
         CIMIndicationRequestMessage* cimIndReqMessage = 0;
         switch (type)
         {
@@ -261,6 +271,9 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         PEGASUS_ASSERT(cimIndReqMessage != 0);
 
         XmlReader::expectEndTag(parser, "PGINDREQ");
+
+        cimIndReqMessage->authType = authType;
+        cimIndReqMessage->userName = userName;
 
         message = cimIndReqMessage;
     }
@@ -981,15 +994,11 @@ CIMMessageDeserializer::_deserializeCIMGetInstanceRequestMessage(
     XmlParser& parser)
 {
     CIMValue genericValue;
-    String authType;
-    String userName;
     CIMObjectPath instanceName;
     Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMObjectPath(parser, instanceName);
 
@@ -1013,9 +1022,7 @@ CIMMessageDeserializer::_deserializeCIMGetInstanceRequestMessage(
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1027,11 +1034,7 @@ CIMDeleteInstanceRequestMessage*
 CIMMessageDeserializer::_deserializeCIMDeleteInstanceRequestMessage(
     XmlParser& parser)
 {
-    String authType;
-    String userName;
     CIMObjectPath instanceName;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMObjectPath(parser, instanceName);
 
@@ -1040,9 +1043,7 @@ CIMMessageDeserializer::_deserializeCIMDeleteInstanceRequestMessage(
             String::EMPTY,         // messageId
             CIMNamespaceName(),    // nameSpace
             instanceName,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1054,11 +1055,7 @@ CIMCreateInstanceRequestMessage*
 CIMMessageDeserializer::_deserializeCIMCreateInstanceRequestMessage(
     XmlParser& parser)
 {
-    String authType;
-    String userName;
     CIMInstance newInstance;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMInstance(parser, newInstance);
 
@@ -1067,9 +1064,7 @@ CIMMessageDeserializer::_deserializeCIMCreateInstanceRequestMessage(
             String::EMPTY,         // messageId
             CIMNamespaceName(),    // nameSpace
             newInstance,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1082,13 +1077,9 @@ CIMMessageDeserializer::_deserializeCIMModifyInstanceRequestMessage(
     XmlParser& parser)
 {
     CIMValue genericValue;
-    String authType;
-    String userName;
     CIMInstance modifiedInstance;
     Boolean includeQualifiers;
     CIMPropertyList propertyList;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMInstance(parser, modifiedInstance);
 
@@ -1104,9 +1095,7 @@ CIMMessageDeserializer::_deserializeCIMModifyInstanceRequestMessage(
             modifiedInstance,
             includeQualifiers,
             propertyList,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1119,16 +1108,12 @@ CIMMessageDeserializer::_deserializeCIMEnumerateInstancesRequestMessage(
     XmlParser& parser)
 {
     CIMValue genericValue;
-    String authType;
-    String userName;
     CIMObjectPath instanceName;
     Boolean deepInheritance;
     Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
     genericValue.get(deepInheritance);
@@ -1154,9 +1139,7 @@ CIMMessageDeserializer::_deserializeCIMEnumerateInstancesRequestMessage(
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1168,19 +1151,12 @@ CIMEnumerateInstanceNamesRequestMessage*
 CIMMessageDeserializer::_deserializeCIMEnumerateInstanceNamesRequestMessage(
     XmlParser& parser)
 {
-    String authType;
-    String userName;
-
-    _deserializeUserInfo(parser, authType, userName);
-
     CIMEnumerateInstanceNamesRequestMessage* message =
         new CIMEnumerateInstanceNamesRequestMessage(
             String::EMPTY,         // messageId
             CIMNamespaceName(),    // nameSpace
             CIMName(),             // className
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1193,12 +1169,8 @@ CIMMessageDeserializer::_deserializeCIMExecQueryRequestMessage(
     XmlParser& parser)
 {
     CIMValue genericValue;
-    String authType;
-    String userName;
     String queryLanguage;
     String query;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
     genericValue.get(queryLanguage);
@@ -1212,9 +1184,7 @@ CIMMessageDeserializer::_deserializeCIMExecQueryRequestMessage(
             CIMNamespaceName(),    // nameSpace
             queryLanguage,
             query,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1227,8 +1197,6 @@ CIMMessageDeserializer::_deserializeCIMAssociatorsRequestMessage(
     XmlParser& parser)
 {
     CIMValue genericValue;
-    String authType;
-    String userName;
     CIMObjectPath objectName;
     CIMName assocClass;
     CIMName resultClass;
@@ -1237,8 +1205,6 @@ CIMMessageDeserializer::_deserializeCIMAssociatorsRequestMessage(
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMObjectPath(parser, objectName);
     _deserializeCIMName(parser, assocClass);
@@ -1270,9 +1236,7 @@ CIMMessageDeserializer::_deserializeCIMAssociatorsRequestMessage(
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1285,15 +1249,11 @@ CIMMessageDeserializer::_deserializeCIMAssociatorNamesRequestMessage(
     XmlParser& parser)
 {
     CIMValue genericValue;
-    String authType;
-    String userName;
     CIMObjectPath objectName;
     CIMName assocClass;
     CIMName resultClass;
     String role;
     String resultRole;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMObjectPath(parser, objectName);
     _deserializeCIMName(parser, assocClass);
@@ -1314,9 +1274,7 @@ CIMMessageDeserializer::_deserializeCIMAssociatorNamesRequestMessage(
             resultClass,
             role,
             resultRole,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1329,16 +1287,12 @@ CIMMessageDeserializer::_deserializeCIMReferencesRequestMessage(
     XmlParser& parser)
 {
     CIMValue genericValue;
-    String authType;
-    String userName;
     CIMObjectPath objectName;
     CIMName resultClass;
     String role;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMObjectPath(parser, objectName);
     _deserializeCIMName(parser, resultClass);
@@ -1364,9 +1318,7 @@ CIMMessageDeserializer::_deserializeCIMReferencesRequestMessage(
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1379,13 +1331,9 @@ CIMMessageDeserializer::_deserializeCIMReferenceNamesRequestMessage(
     XmlParser& parser)
 {
     CIMValue genericValue;
-    String authType;
-    String userName;
     CIMObjectPath objectName;
     CIMName resultClass;
     String role;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMObjectPath(parser, objectName);
     _deserializeCIMName(parser, resultClass);
@@ -1400,9 +1348,7 @@ CIMMessageDeserializer::_deserializeCIMReferenceNamesRequestMessage(
             objectName,
             resultClass,
             role,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1414,12 +1360,8 @@ CIMGetPropertyRequestMessage*
 CIMMessageDeserializer::_deserializeCIMGetPropertyRequestMessage(
     XmlParser& parser)
 {
-    String authType;
-    String userName;
     CIMObjectPath instanceName;
     CIMName propertyName;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMObjectPath(parser, instanceName);
     _deserializeCIMName(parser, propertyName);
@@ -1430,9 +1372,7 @@ CIMMessageDeserializer::_deserializeCIMGetPropertyRequestMessage(
             CIMNamespaceName(),    // nameSpace
             instanceName,
             propertyName,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1444,12 +1384,8 @@ CIMSetPropertyRequestMessage*
 CIMMessageDeserializer::_deserializeCIMSetPropertyRequestMessage(
     XmlParser& parser)
 {
-    String authType;
-    String userName;
     CIMObjectPath instanceName;
     CIMParamValue newValue;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMObjectPath(parser, instanceName);
 
@@ -1462,9 +1398,7 @@ CIMMessageDeserializer::_deserializeCIMSetPropertyRequestMessage(
             instanceName,
             newValue.getParameterName(),
             newValue.getValue(),
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1478,13 +1412,9 @@ CIMMessageDeserializer::_deserializeCIMInvokeMethodRequestMessage(
 {
     XmlEntry entry;
     CIMParamValue genericParamValue;
-    String authType;
-    String userName;
     CIMObjectPath instanceName;
     CIMName methodName;
     Array<CIMParamValue> inParameters;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMObjectPath(parser, instanceName);
     _deserializeCIMName(parser, methodName);
@@ -1504,9 +1434,7 @@ CIMMessageDeserializer::_deserializeCIMInvokeMethodRequestMessage(
             instanceName,
             methodName,
             inParameters,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1528,16 +1456,12 @@ CIMMessageDeserializer::_deserializeCIMCreateSubscriptionRequestMessage(
     XmlEntry entry;
     CIMValue genericValue;
     CIMName genericName;
-    String authType;
-    String userName;
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
     Array<CIMName> classNames;
     CIMPropertyList propertyList;
     Uint16 repeatNotificationPolicy;
     String query;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMNamespaceName(parser, nameSpace);
     _deserializeCIMInstance(parser, subscriptionInstance);
@@ -1568,9 +1492,7 @@ CIMMessageDeserializer::_deserializeCIMCreateSubscriptionRequestMessage(
             propertyList,
             repeatNotificationPolicy,
             query,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1585,16 +1507,12 @@ CIMMessageDeserializer::_deserializeCIMModifySubscriptionRequestMessage(
     XmlEntry entry;
     CIMValue genericValue;
     CIMName genericName;
-    String authType;
-    String userName;
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
     Array<CIMName> classNames;
     CIMPropertyList propertyList;
     Uint16 repeatNotificationPolicy;
     String query;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMNamespaceName(parser, nameSpace);
     _deserializeCIMInstance(parser, subscriptionInstance);
@@ -1625,9 +1543,7 @@ CIMMessageDeserializer::_deserializeCIMModifySubscriptionRequestMessage(
             propertyList,
             repeatNotificationPolicy,
             query,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }
@@ -1641,13 +1557,9 @@ CIMMessageDeserializer::_deserializeCIMDeleteSubscriptionRequestMessage(
 {
     XmlEntry entry;
     CIMName genericName;
-    String authType;
-    String userName;
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
     Array<CIMName> classNames;
-
-    _deserializeUserInfo(parser, authType, userName);
 
     _deserializeCIMNamespaceName(parser, nameSpace);
     _deserializeCIMInstance(parser, subscriptionInstance);
@@ -1666,9 +1578,7 @@ CIMMessageDeserializer::_deserializeCIMDeleteSubscriptionRequestMessage(
             nameSpace,
             subscriptionInstance,
             classNames,
-            QueueIdStack(),        // queueIds
-            authType,
-            userName);
+            QueueIdStack());
 
     return(message);
 }

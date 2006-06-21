@@ -204,144 +204,107 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
        return;
    }
 
-   String userName = String::EMPTY;
-   String authType = String::EMPTY;
-   CIMNamespaceName nameSpace;
+   String userName = ((IdentityContainer)(req->operationContext.get(
+       IdentityContainer::NAME))).getUserName();
+   String authType = req->authType;
+   CIMNamespaceName nameSpace = req->nameSpace;
    String cimMethodName = String::EMPTY;
-
-   // Set the username and namespace.
-   nameSpace = req->nameSpace;
-   userName = ((IdentityContainer)(req->operationContext.get
-			(IdentityContainer::NAME))).getUserName();
 
    switch (req->getType())
    {
       case CIM_GET_CLASS_REQUEST_MESSAGE:
-	 authType = 
-	    ((CIMGetClassRequestMessage*)req.get())->authType;
 	 cimMethodName = "GetClass";
 	 break;
 
       case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-	 authType = 
-	    ((CIMGetInstanceRequestMessage*)req.get())->authType;
 	 cimMethodName = "GetInstance";
 	 break;
 
       case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-	 authType = 
-	    ((CIMDeleteClassRequestMessage*)req.get())->authType;
 	 cimMethodName = "DeleteClass";
 	 break;
 
       case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-	 authType = 
-	    ((CIMDeleteInstanceRequestMessage*)req.get())->authType;
 	 cimMethodName = "DeleteInstance";
 	 break;
 
       case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-	 authType = 
-	    ((CIMCreateClassRequestMessage*)req.get())->authType;
 	 cimMethodName = "CreateClass";
 	 break;
 
       case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-	 authType = 
-	    ((CIMCreateInstanceRequestMessage*)req.get())->authType;
 	 cimMethodName = "CreateInstance";
 	 break;
 
       case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-	 authType = 
-	    ((CIMModifyClassRequestMessage*)req.get())->authType;
 	 cimMethodName = "ModifyClass";
 	 break;
 
       case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-	 authType = 
-	    ((CIMModifyInstanceRequestMessage*)req.get())->authType;
 	 cimMethodName = "ModifyInstance";
 	 break;
 
       case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-	 authType = ((CIMEnumerateClassesRequestMessage*)req.get())->authType;
 	 cimMethodName = "EnumerateClasses";
 	 break;
 
       case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-	 authType = 
-	    ((CIMEnumerateClassNamesRequestMessage*)req.get())->authType;
 	 cimMethodName = "EnumerateClassNames";
 	 break;
 
       case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-	 authType = ((CIMEnumerateInstancesRequestMessage*)req.get())->authType;
 	 cimMethodName = "EnumerateInstances";
 	 break;
 
       case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-	 authType = ((CIMEnumerateInstanceNamesRequestMessage*)req.get())->authType;
 	 cimMethodName = "EnumerateInstanceNames";
 	 break;
 
       case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-	 authType = ((CIMExecQueryRequestMessage*)req.get())->authType;
 	 cimMethodName = "ExecQuery";
 	 break;
 
       case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-	 authType = ((CIMAssociatorsRequestMessage*)req.get())->authType;
 	 cimMethodName = "Associators";
 	 break;
 
       case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-	 authType = ((CIMAssociatorNamesRequestMessage*)req.get())->authType;
 	 cimMethodName = "AssociatorNames";
 	 break;
 
       case CIM_REFERENCES_REQUEST_MESSAGE:
-	 authType = ((CIMReferencesRequestMessage*)req.get())->authType;
 	 cimMethodName = "References";
 	 break;
 
       case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-	 authType = ((CIMReferenceNamesRequestMessage*)req.get())->authType;
 	 cimMethodName = "ReferenceNames";
 	 break;
 
       case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-	 authType = ((CIMGetPropertyRequestMessage*)req.get())->authType;
 	 cimMethodName = "GetProperty";
 	 break;
 
       case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-	 authType = ((CIMSetPropertyRequestMessage*)req.get())->authType;
 	 cimMethodName = "SetProperty";
 	 break;
 
       case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-	 authType = ((CIMGetQualifierRequestMessage*)req.get())->authType;
 	 cimMethodName = "GetQualifier";
 	 break;
 
       case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-	 authType = ((CIMSetQualifierRequestMessage*)req.get())->authType;
 	 cimMethodName = "SetQualifier";
 	 break;
 
       case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-	 authType = ((CIMDeleteQualifierRequestMessage*)req.get())->authType;
 	 cimMethodName = "DeleteQualifier";
 	 break;
 
       case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-	 authType = ((CIMEnumerateQualifiersRequestMessage*)req.get())->authType;
 	 cimMethodName = "EnumerateQualifiers";
 	 break;
 
       case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-	 authType = ((CIMInvokeMethodRequestMessage*)req.get())->authType;
 	 cimMethodName = "InvokeMethod";
 	 break;
 

@@ -559,11 +559,15 @@ CIMOperationRequestMessage::CIMOperationRequestMessage(
     Uint32 type_,
     const String& messageId_,
     const QueueIdStack& queueIds_,
+    const String& authType_,
+    const String& userName_,
     const CIMNamespaceName& nameSpace_,
     const CIMName& className_,
     Uint32 providerType_)
     : 
     CIMRequestMessage(type_, messageId_, queueIds_),
+    authType(authType_),
+    userName(userName_),
     nameSpace(nameSpace_),
     className(className_),
     providerType(providerType_)

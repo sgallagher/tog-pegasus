@@ -123,6 +123,8 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
     {
         XmlWriter::append(out, "<PGOPREQ>\n");
 
+        _serializeUserInfo(
+            out, cimOpReqMessage->authType, cimOpReqMessage->userName);
         _serializeCIMNamespaceName(out, cimOpReqMessage->nameSpace);
         _serializeCIMName(out, cimOpReqMessage->className);
 
@@ -217,6 +219,9 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
     else if (cimIndReqMessage)
     {
         XmlWriter::append(out, "<PGINDREQ>");
+
+        _serializeUserInfo(
+            out, cimIndReqMessage->authType, cimIndReqMessage->userName);
 
         switch (cimMessage->getType())
         {
@@ -881,8 +886,6 @@ void CIMMessageSerializer::_serializeCIMGetInstanceRequestMessage(
     Buffer& out,
     CIMGetInstanceRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMObjectPath(out, message->instanceName);
     XmlWriter::appendValueElement(out, message->localOnly);
     XmlWriter::appendValueElement(out, message->includeQualifiers);
@@ -897,8 +900,6 @@ void CIMMessageSerializer::_serializeCIMDeleteInstanceRequestMessage(
     Buffer& out,
     CIMDeleteInstanceRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMObjectPath(out, message->instanceName);
 }
 
@@ -909,8 +910,6 @@ void CIMMessageSerializer::_serializeCIMCreateInstanceRequestMessage(
     Buffer& out,
     CIMCreateInstanceRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMInstance(out, message->newInstance);
 }
 
@@ -921,8 +920,6 @@ void CIMMessageSerializer::_serializeCIMModifyInstanceRequestMessage(
     Buffer& out,
     CIMModifyInstanceRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMInstance(out, message->modifiedInstance);
     XmlWriter::appendValueElement(out, message->includeQualifiers);
     _serializeCIMPropertyList(out, message->propertyList);
@@ -935,8 +932,6 @@ void CIMMessageSerializer::_serializeCIMEnumerateInstancesRequestMessage(
     Buffer& out,
     CIMEnumerateInstancesRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     XmlWriter::appendValueElement(out, message->deepInheritance);
     XmlWriter::appendValueElement(out, message->localOnly);
     XmlWriter::appendValueElement(out, message->includeQualifiers);
@@ -951,8 +946,6 @@ void CIMMessageSerializer::_serializeCIMEnumerateInstanceNamesRequestMessage(
     Buffer& out,
     CIMEnumerateInstanceNamesRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     // No additional attributes to serialize!
 }
 
@@ -963,8 +956,6 @@ void CIMMessageSerializer::_serializeCIMExecQueryRequestMessage(
     Buffer& out,
     CIMExecQueryRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     XmlWriter::appendValueElement(out, message->queryLanguage);
     XmlWriter::appendValueElement(out, message->query);
 }
@@ -976,8 +967,6 @@ void CIMMessageSerializer::_serializeCIMAssociatorsRequestMessage(
     Buffer& out,
     CIMAssociatorsRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMObjectPath(out, message->objectName);
     _serializeCIMName(out, message->assocClass);
     _serializeCIMName(out, message->resultClass);
@@ -995,8 +984,6 @@ void CIMMessageSerializer::_serializeCIMAssociatorNamesRequestMessage(
     Buffer& out,
     CIMAssociatorNamesRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMObjectPath(out, message->objectName);
     _serializeCIMName(out, message->assocClass);
     _serializeCIMName(out, message->resultClass);
@@ -1011,8 +998,6 @@ void CIMMessageSerializer::_serializeCIMReferencesRequestMessage(
     Buffer& out,
     CIMReferencesRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMObjectPath(out, message->objectName);
     _serializeCIMName(out, message->resultClass);
     XmlWriter::appendValueElement(out, message->role);
@@ -1028,8 +1013,6 @@ void CIMMessageSerializer::_serializeCIMReferenceNamesRequestMessage(
     Buffer& out,
     CIMReferenceNamesRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMObjectPath(out, message->objectName);
     _serializeCIMName(out, message->resultClass);
     XmlWriter::appendValueElement(out, message->role);
@@ -1042,8 +1025,6 @@ void CIMMessageSerializer::_serializeCIMGetPropertyRequestMessage(
     Buffer& out,
     CIMGetPropertyRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMObjectPath(out, message->instanceName);
     _serializeCIMName(out, message->propertyName);
 }
@@ -1055,8 +1036,6 @@ void CIMMessageSerializer::_serializeCIMSetPropertyRequestMessage(
     Buffer& out,
     CIMSetPropertyRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMObjectPath(out, message->instanceName);
 
     // Use PARAMVALUE element so we can preserve the CIMType information
@@ -1073,8 +1052,6 @@ void CIMMessageSerializer::_serializeCIMInvokeMethodRequestMessage(
     Buffer& out,
     CIMInvokeMethodRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMObjectPath(out, message->instanceName);
     _serializeCIMName(out, message->methodName);
 
@@ -1101,8 +1078,6 @@ void CIMMessageSerializer::_serializeCIMCreateSubscriptionRequestMessage(
     Buffer& out,
     CIMCreateSubscriptionRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMNamespaceName(out, message->nameSpace);
 
     _serializeCIMInstance(out, message->subscriptionInstance);
@@ -1130,8 +1105,6 @@ void CIMMessageSerializer::_serializeCIMModifySubscriptionRequestMessage(
     Buffer& out,
     CIMModifySubscriptionRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMNamespaceName(out, message->nameSpace);
 
     _serializeCIMInstance(out, message->subscriptionInstance);
@@ -1159,8 +1132,6 @@ void CIMMessageSerializer::_serializeCIMDeleteSubscriptionRequestMessage(
     Buffer& out,
     CIMDeleteSubscriptionRequestMessage* message)
 {
-    _serializeUserInfo(out, message->authType, message->userName);
-
     _serializeCIMNamespaceName(out, message->nameSpace);
 
     _serializeCIMInstance(out, message->subscriptionInstance);

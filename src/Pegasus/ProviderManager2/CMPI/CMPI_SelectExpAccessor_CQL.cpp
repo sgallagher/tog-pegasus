@@ -56,7 +56,10 @@
 #include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/Query/QueryCommon/QueryChainedIdentifier.h>
-PEGASUS_NAMESPACE_BEGIN PEGASUS_USING_STD;
+
+PEGASUS_USING_STD;
+
+PEGASUS_NAMESPACE_BEGIN 
 
 CMPI_SelectExpAccessor_CQL::CMPI_SelectExpAccessor_CQL (CMPIAccessor * acc,
                                                         void *parm,

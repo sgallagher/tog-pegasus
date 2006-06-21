@@ -48,24 +48,6 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_DISABLE_CQL
-#define PEGASUS_ARRAY_T CMPI_term_el
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-#define PEGASUS_ARRAY_T CMPI_TableauRow
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-#endif
-
-#define PEGASUS_ARRAY_T term_el_WQL
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
-#define PEGASUS_ARRAY_T TableauRow_WQL
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
-
 //
 // Terminal element methods 
 //
@@ -82,6 +64,7 @@ void term_el_WQL::negate(void)
         default: break;
     }
 };
+
 /*
 String opnd2string(const WQLOperand &o) {
     switch (o.getType()) {
@@ -346,17 +329,17 @@ void CMPI_Wql2Dnf::compile(const WQLSelectStatement * wqs)
     _pushNOTDown();
     _factoring();
     
-    Array<stack_el> disj;
+    Array<CMPI_stack_el> disj;
     _gatherDisj(disj);
     if (disj.size() == 0)
         if (terminal_heap.size() > 0)
            // point to the remaining terminal element
-            disj.append(stack_el(0,true));
+            disj.append(CMPI_stack_el(0,true));
 
     for (Uint32 i=0, n =disj.size(); i< n; i++)
     {
         TableauRow_WQL tr;
-        Array<stack_el> conj;
+        Array<CMPI_stack_el> conj;
 
         if (!disj[i].is_terminal)
         {
@@ -532,7 +515,7 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
     WQLOperand dummy;
     dummy.clear();
-    Stack<stack_el> stack;
+    Stack<CMPI_stack_el> stack;
 
     // Counter for Operands
 
@@ -551,16 +534,16 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
             {
                 PEGASUS_ASSERT(stack.size() >= 2);
 
-                stack_el op1 = stack.top();
+                CMPI_stack_el op1 = stack.top();
                 stack.pop();
 
-                stack_el op2 = stack.top();
+                CMPI_stack_el op2 = stack.top();
 
                 // generate Eval expression
-                eval_heap.append(eval_el(0, op , op1.opn, op1.is_terminal,
+                eval_heap.append(CMPI_eval_el(0, op , op1.opn, op1.is_terminal,
                                  op2.opn , op2.is_terminal));
 
-                stack.top() = stack_el(eval_heap.size()-1, false);
+                stack.top() = CMPI_stack_el(eval_heap.size()-1, false);
 
                 break;
             }
@@ -571,13 +554,13 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
             {
                 PEGASUS_ASSERT(stack.size() >= 1);
 
-                stack_el op1 = stack.top();
+                CMPI_stack_el op1 = stack.top();
 
                 // generate Eval expression
-                eval_heap.append(eval_el(0, op , op1.opn, op1.is_terminal,
+                eval_heap.append(CMPI_eval_el(0, op , op1.opn, op1.is_terminal,
                                  -1, true));
 
-                stack.top() = stack_el(eval_heap.size()-1, false);
+                stack.top() = CMPI_stack_el(eval_heap.size()-1, false);
 
                 break;
             }
@@ -597,7 +580,7 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
                 terminal_heap.push(term_el_WQL(false, op, lhs, rhs));
 
-                stack.push(stack_el(terminal_heap.size()-1, true));
+                stack.push(CMPI_stack_el(terminal_heap.size()-1, true));
 
                 break;
             }
@@ -616,7 +599,7 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
                 terminal_heap.push(term_el_WQL(false, WQL_EQ, op, dummy));
 
-                stack.push(stack_el(terminal_heap.size()-1, true));
+                stack.push(CMPI_stack_el(terminal_heap.size()-1, true));
 
                 break;
             }
@@ -628,7 +611,7 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
                 terminal_heap.push(term_el_WQL(false, WQL_NE, op, dummy));
 
-                stack.push(stack_el(terminal_heap.size()-1, true));
+                stack.push(CMPI_stack_el(terminal_heap.size()-1, true));
 
                 break;
             }
@@ -751,7 +734,7 @@ void CMPI_Wql2Dnf::_factoring(void)
             if (_found != 0)
             {
                  //int u1,u1_t,u2,u2_t,u3,u3_t;
-                 stack_el s;
+                 CMPI_stack_el s;
 
                  if (_found == 1)
                      s = eval_heap[i].getSecond();
@@ -759,9 +742,9 @@ void CMPI_Wql2Dnf::_factoring(void)
                      s = eval_heap[i].getFirst();
 
                  // insert two new expression before entry i
-                 eval_el evl;
+                 CMPI_eval_el evl;
 
-                 evl = eval_el(false, WQL_OR, i+1, false, i, false);
+                 evl = CMPI_eval_el(false, WQL_OR, i+1, false, i, false);
                  if ((Uint32 )i < eval_heap.size()-1)
                      eval_heap.insert(i+1, evl);
                  else
@@ -814,17 +797,17 @@ void CMPI_Wql2Dnf::_factoring(void)
     }
 }
 
-void CMPI_Wql2Dnf::_gatherDisj(Array<stack_el>& stk)
+void CMPI_Wql2Dnf::_gatherDisj(Array<CMPI_stack_el>& stk)
 {
-    _gather(stk, stack_el(0,true), true);
+    _gather(stk, CMPI_stack_el(0,true), true);
 }
 
-void CMPI_Wql2Dnf::_gatherConj(Array<stack_el>& stk, stack_el sel)
+void CMPI_Wql2Dnf::_gatherConj(Array<CMPI_stack_el>& stk, CMPI_stack_el sel)
 {
     _gather(stk, sel, false);
 }
 
-void CMPI_Wql2Dnf::_gather(Array<stack_el>& stk, stack_el sel, Boolean or_flag)
+void CMPI_Wql2Dnf::_gather(Array<CMPI_stack_el>& stk, CMPI_stack_el sel, Boolean or_flag)
 {
     Uint32 i = 0;
 
@@ -842,7 +825,7 @@ void CMPI_Wql2Dnf::_gather(Array<stack_el>& stk, stack_el sel, Boolean or_flag)
     //if (i == 0) return;
 
     if (or_flag)
-        stk.append(stack_el(i-1,false));
+        stk.append(CMPI_stack_el(i-1,false));
     else
     {
        if (sel.is_terminal) return;
@@ -872,6 +855,73 @@ void CMPI_Wql2Dnf::_gather(Array<stack_el>& stk, stack_el sel, Boolean or_flag)
             }
         }
     }
+}
+
+//==============================================================================
+//
+// class CMPI_stack_el
+//
+//==============================================================================
+
+//==============================================================================
+//
+// class CMPI_eval_el
+//
+//==============================================================================
+
+CMPI_stack_el CMPI_eval_el::getFirst()
+{
+   return CMPI_stack_el(opn1, is_terminal1);
+}
+
+CMPI_stack_el CMPI_eval_el::getSecond()
+{
+   return CMPI_stack_el(opn2, is_terminal2);
+}
+
+void CMPI_eval_el::setFirst(const CMPI_stack_el s)
+{
+     opn1 = s.opn;
+     is_terminal1 = s.is_terminal;
+}
+
+void CMPI_eval_el::setSecond(const CMPI_stack_el s)
+{
+    opn2 = s.opn;
+    is_terminal2 = s.is_terminal;
+}
+
+void CMPI_eval_el::assign_unary_to_first(const CMPI_eval_el & assignee)
+{
+    opn1 = assignee.opn1;
+    is_terminal1 = assignee.is_terminal1;
+}
+
+void CMPI_eval_el::assign_unary_to_second(const CMPI_eval_el & assignee)
+{
+    opn2 = assignee.opn1;
+    is_terminal2 = assignee.is_terminal1;
+}
+
+// Ordering operators, so that op1 > op2 for all non-terminals
+// and terminals appear in the second operand first
+void CMPI_eval_el::order(void)
+{
+    int k;
+    if ((!is_terminal1) && (!is_terminal2))
+        if ((k = opn2) > opn1)
+        {
+            opn2 = opn1;
+            opn1 =  k;
+        }
+    else if ((is_terminal1) && (!is_terminal2))
+        if ((k = opn2) > opn1)
+        {
+            opn2 = opn1;
+            opn1 =  k;
+            is_terminal1 = false;
+            is_terminal2 = true;
+        }
 }
 
 PEGASUS_NAMESPACE_END

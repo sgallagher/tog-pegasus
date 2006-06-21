@@ -59,6 +59,7 @@ endif
 
 LIBRARIES += \
     pegquerycommon \
+    pegconfig \
     pegcommon
 
 SOURCES = \

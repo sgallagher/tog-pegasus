@@ -45,13 +45,12 @@
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Query/QueryCommon/SelectStatement.h>
-
-PEGASUS_NAMESPACE_BEGIN PEGASUS_USING_STD;
-
-#undef  PEGASUS_COMMON_LINKAGE
-#define PEGASUS_COMMON_LINKAGE
-
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Linkage.h>
+
+PEGASUS_USING_STD;
+
+PEGASUS_NAMESPACE_BEGIN 
 
 class CMPI_QueryOperand
 {
@@ -146,18 +145,8 @@ private:
 };
 
 
-#define PEGASUS_ARRAY_T CMPI_term_el
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
 typedef Array < CMPI_term_el > CMPI_TableauRow;
 
-#define PEGASUS_ARRAY_T CMPI_TableauRow
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
-
-#undef PEGASUS_COMMON_LINKAGE
 typedef Array < CMPI_TableauRow > CMPI_Tableau;
 
 

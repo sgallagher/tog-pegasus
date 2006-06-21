@@ -45,13 +45,11 @@
 #include <Pegasus/WQL/WQLOperand.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include "CMPI_Query2Dnf.h"
+#include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/Linkage.h> 
 
 PEGASUS_NAMESPACE_BEGIN
 
-#undef  PEGASUS_COMMON_LINKAGE
-#define PEGASUS_COMMON_LINKAGE
-
-#include <Pegasus/Common/Linkage.h> 
 
 class term_el_WQL
 {
@@ -68,21 +66,21 @@ public:
     //int toStrings(CMPIType &typ, CMPIPredOp &opr, String &o1, String &o2) const;
 };
 
-class stack_el
+class CMPI_stack_el
 {
 public:
-   stack_el() {}
-   stack_el(int o, Boolean i) : opn(o), is_terminal(i) {}
+   CMPI_stack_el() {}
+   CMPI_stack_el(int o, Boolean i) : opn(o), is_terminal(i) {}
    int   opn;     // either to terminals or eval_heap
    Boolean is_terminal;
 };
 
 
-class eval_el
+class CMPI_eval_el
 {
 public:
-    eval_el() {}
-    eval_el(Boolean m, WQLOperation o, int op1, Boolean i1, int op2, Boolean i2) :
+    CMPI_eval_el() {}
+    CMPI_eval_el(Boolean m, WQLOperation o, int op1, Boolean i1, int op2, Boolean i2) :
        mark(m), op(o), opn1(op1), is_terminal1(i1), opn2(op2), is_terminal2(i2) {}
     Boolean mark;
     WQLOperation op;
@@ -91,42 +89,24 @@ public:
     int opn2;
     Boolean is_terminal2; // if no, look in eval heap
 
-    stack_el getFirst();
+    CMPI_stack_el getFirst();
 
-    stack_el getSecond();
+    CMPI_stack_el getSecond();
 
-    void setFirst(const stack_el s);
+    void setFirst(const CMPI_stack_el s);
 
-    void setSecond(const stack_el s);
+    void setSecond(const CMPI_stack_el s);
 
-    void assign_unary_to_first(const eval_el & assignee);
+    void assign_unary_to_first(const CMPI_eval_el & assignee);
 
-    void assign_unary_to_second(const eval_el & assignee);
+    void assign_unary_to_second(const CMPI_eval_el & assignee);
 
     // Ordering operators, so that op1 > op2 for all non-terminals
     // and terminals appear in the second operand first
     void order(void);
 };
 
-#define PEGASUS_ARRAY_T eval_el
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
-#define PEGASUS_ARRAY_T stack_el
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
-#define PEGASUS_ARRAY_T term_el_WQL
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
 typedef Array<term_el_WQL> TableauRow_WQL;
-
-#define PEGASUS_ARRAY_T TableauRow_WQL
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
-#undef PEGASUS_COMMON_LINKAGE
 
 typedef Array<TableauRow_WQL> Tableau_WQL;
 
@@ -164,11 +144,11 @@ protected:
 
     void _factoring(void);
 
-    void _gatherDisj(Array<stack_el>& stk);
+    void _gatherDisj(Array<CMPI_stack_el>& stk);
 
-    void _gatherConj(Array<stack_el>& stk, stack_el sel);
+    void _gatherConj(Array<CMPI_stack_el>& stk, CMPI_stack_el sel);
 
-    void _gather(Array<stack_el>& stk, stack_el sel, Boolean or_flag);
+    void _gather(Array<CMPI_stack_el>& stk, CMPI_stack_el sel, Boolean or_flag);
     
     static inline void _ResolveProperty(
         WQLOperand& op,
@@ -201,7 +181,7 @@ protected:
 
     Stack<term_el_WQL> terminal_heap;
 
-    Array<eval_el> eval_heap;
+    Array<CMPI_eval_el> eval_heap;
 
     //friend WQLSelectStatement;
 };

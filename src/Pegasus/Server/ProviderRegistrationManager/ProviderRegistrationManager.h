@@ -155,54 +155,6 @@ static const CIMName _PROPERTY_INDICATIONDESTINATIONS = CIMName ("Destinations")
 static const CIMName _PROPERTY_AUTOSTART = CIMName ("AutoStart");
 
 /**
-   Registered instance provider 
-*/
-static const char INS_PROVIDER [] = "Instance";
-
-/**
-   Registered consumer provider 
-*/
-static const char CON_PROVIDER [] = "Consumer";
-
-/**
-   Registered Association provider 
-*/
-static const char ASSO_PROVIDER [] = "Association";
-
-/**
-   Registered Indication provider 
-*/
-static const char IND_PROVIDER [] = "Indication";
-
-/**
-   Registered Method provider 
-*/
-static const char INSTANCE_QUERY_PROVIDER [] = "InstanceQuery";
-
-/**
-   Registered Method provider 
-*/
-static const char MET_PROVIDER [] = "Method";
-
-/**
-   Registered module
-*/
-static const char MODULE_KEY [] = "Module";
-
-static const char MODULE_NOT_FOUND [] = " Can not find the provider module.";
-static const char MODULE_NOT_FOUND_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.MODULE_NOT_FOUND";
-static const char PROVIDER_NOT_FOUND [] = " Can not find the provider.";
-static const char PROVIDER_NOT_FOUND_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.PROVIDER_NOT_FOUND";
-static const char CAPABILITY_NOT_REGISTERED [] = " Provider capability has not been registered yet.";
-static const char CAPABILITY_NOT_REGISTERED_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.CAPABILITY_NOT_REGISTERED";
-//L10N TODO DONE
-static const char CONSUMER_NOT_REGISTERED [] = " Consumer capability has not been registered yet.";
-static const char CONSUMER_NOT_REGISTERED_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.CONSUMER_CAPABILITY_NOT_YET_REGISTERED";
-static const char PROVIDER_CANNOT_BE_LOAD [] = 
-" Can not initialize and load the provider.";
-static const char PROVIDER_CANNOT_BE_LOAD_KEY [] = 
-"Server.ProviderRegistrationManager.ProviderRegistrationManager.PROVIDER_CANNOT_BE_LOAD";
-/**
    Registered instance provider type
 */
 static const Uint16 _INSTANCE_PROVIDER    = 2;
@@ -226,20 +178,6 @@ static const Uint16 _METHOD_PROVIDER    = 5;
    Registered method provider type
 */
 static const Uint16 _INSTANCE_QUERY_PROVIDER    = 7;
-
-/**
-   Provider status
-*/
-static const Uint16 _PROVIDER_OK        = 2;
-
-static const Uint16 _PROVIDER_STOPPING   = 9;
-
-static const Uint16 _PROVIDER_STOPPED   = 10;
-
-/**
-   Module status
-*/
-static const Uint16 _MODULE_ERROR        = 6;
 
 class PEGASUS_PRM_LINKAGE ProviderRegistrationManager
 {

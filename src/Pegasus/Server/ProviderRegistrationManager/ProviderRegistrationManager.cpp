@@ -148,6 +148,74 @@ Boolean containsCIMInstance (
     return false;
 }
 
+/**
+   Registered instance provider 
+*/
+static const char INS_PROVIDER [] = "Instance";
+
+/**
+   Registered consumer provider 
+*/
+static const char CON_PROVIDER [] = "Consumer";
+
+/**
+   Registered Association provider 
+*/
+static const char ASSO_PROVIDER [] = "Association";
+
+/**
+   Registered Indication provider 
+*/
+static const char IND_PROVIDER [] = "Indication";
+
+/**
+   Registered Method provider 
+*/
+static const char INSTANCE_QUERY_PROVIDER [] = "InstanceQuery";
+
+/**
+   Registered Method provider 
+*/
+static const char MET_PROVIDER [] = "Method";
+
+/**
+   Registered module
+*/
+static const char MODULE_KEY [] = "Module";
+
+static const char MODULE_NOT_FOUND [] = " Can not find the provider module.";
+static const char MODULE_NOT_FOUND_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.MODULE_NOT_FOUND";
+static const char PROVIDER_NOT_FOUND [] = " Can not find the provider.";
+static const char PROVIDER_NOT_FOUND_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.PROVIDER_NOT_FOUND";
+static const char CAPABILITY_NOT_REGISTERED [] = " Provider capability has not been registered yet.";
+static const char CAPABILITY_NOT_REGISTERED_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.CAPABILITY_NOT_REGISTERED";
+//L10N TODO DONE
+static const char CONSUMER_NOT_REGISTERED [] = " Consumer capability has not been registered yet.";
+static const char CONSUMER_NOT_REGISTERED_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.CONSUMER_CAPABILITY_NOT_YET_REGISTERED";
+static const char PROVIDER_CANNOT_BE_LOAD [] = 
+" Can not initialize and load the provider.";
+static const char PROVIDER_CANNOT_BE_LOAD_KEY [] = 
+"Server.ProviderRegistrationManager.ProviderRegistrationManager.PROVIDER_CANNOT_BE_LOAD";
+static const char MODULE_NAME_NOT_FOUND_KEY[] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME";
+static const char MODULE_NAME_NOT_FOUND[] = "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.";
+static const char PROVIDER_NAME_NOT_FOUND_KEY[] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME";
+static const char PROVIDER_NAME_NOT_FOUND[] = "Missing ProviderName which is key in PG_ProviderCapabilities class.";
+
+/**
+   Provider status
+*/
+static const Uint16 _PROVIDER_OK        = 2;
+
+static const Uint16 _PROVIDER_STOPPING   = 9;
+
+static const Uint16 _PROVIDER_STOPPED   = 10;
+
+/**
+   Module status
+*/
+static const Uint16 _MODULE_ERROR        = 6;
+
+
 ProviderRegistrationManager::ProviderRegistrationManager(CIMRepository* repository)
     : _repository(repository)
 {
@@ -395,16 +463,10 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (providerCapability==0 && !_registrationTable->table.lookup(
                   capabilityKey, providerCapability))
         {
+            Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                CAPABILITY_NOT_REGISTERED);
             PEG_METHOD_EXIT();
-
-            // l10n
-
-            // throw PEGASUS_CIM_EXCEPTION(
-	    //     CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
-	    static MessageLoaderParms _parms(
-		CAPABILITY_NOT_REGISTERED_KEY, CAPABILITY_NOT_REGISTERED);
-
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, _parms);
+            return false;
         }
 
         Array<CIMInstance> instances = providerCapability->getInstances();
@@ -413,17 +475,10 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
 
         if (pos == PEG_NOT_FOUND)
         {
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PROVIDER_NAME_NOT_FOUND);
             PEG_METHOD_EXIT();
-
-                // l10n
-
-            // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            // "Missing ProviderName which is key in PG_ProviderCapabilities class.");
-
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                          MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME",
-                                                             "Missing ProviderName which is key in PG_ProviderCapabilities class."));
-
+            return false;
         }
 
         //
@@ -438,17 +493,10 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
             (CIMName (_PROPERTY_PROVIDERMODULENAME));
         if (pos2 == PEG_NOT_FOUND)
         {
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                MODULE_NAME_NOT_FOUND);
             PEG_METHOD_EXIT();
-
-            // l10n
-
-            // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            // "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
-
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                          MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME",
-                                                             "Missing ProviderModuleName which is key in PG_ProviderCapabilities class."));
-
+            return false;
         }
 
         instances[0].getProperty(pos2).getValue().get(providerModuleName);
@@ -468,16 +516,10 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         //
         if (!_registrationTable->table.lookup(_providerKey, _provider))
         {
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+              PROVIDER_NOT_FOUND);
             PEG_METHOD_EXIT();
-
-            // l10n
-
-            // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
-
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                          MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
-                                                             PROVIDER_NOT_FOUND));
-
+            return false;
         }
 
         Array<CIMInstance> providerInstances = _provider->getInstances();
@@ -488,15 +530,10 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         //
         if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
         {
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                MODULE_NOT_FOUND);
             PEG_METHOD_EXIT();
-
-            // l10n
-
-            // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
-
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                          MessageLoaderParms(MODULE_NOT_FOUND_KEY,
-                                                             MODULE_NOT_FOUND));
+            return false;
         }
 
         Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
@@ -560,11 +597,11 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
             // l10n
 
             // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            // "Missing ProviderName which is key in PG_ProviderCapabilities class.");
+            // PROVIDER_NAME_NOT_FOUND);
 
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                          MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME",
-                                                             "Missing ProviderName which is key in PG_ProviderCapabilities class."));
+                MessageLoaderParms(PROVIDER_NAME_NOT_FOUND_KEY,
+                    PROVIDER_NAME_NOT_FOUND));
             }
 
         instances[0].getProperty(pos).getValue().get(providerName);
@@ -581,11 +618,11 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
             // l10n
 
                 // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            // "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
+            // MODULE_NAME_NOT_FOUND);
 
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                          MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME",
-                                                             "Missing ProviderModuleName which is key in PG_ProviderCapabilities class."));
+                    MessageLoaderParms(MODULE_NAME_NOT_FOUND_KEY,
+                        MODULE_NAME_NOT_FOUND));
         }
 
         instances[0].getProperty(pos2).getValue().get(providerModuleName);
@@ -617,11 +654,11 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
                 // l10n
 
                         // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                // "Missing ProviderName which is key in PG_ProviderCapabilities class.");
+                // PROVIDER_NAME_NOT_FOUND);
 
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                              MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME",
-                                                                 "Missing ProviderName which is key in PG_ProviderCapabilities class."));
+                    MessageLoaderParms(PROVIDER_NAME_NOT_FOUND_KEY,
+                        PROVIDER_NAME_NOT_FOUND));
             }
 
             instances[0].getProperty(pos).getValue().get(providerName);
@@ -638,10 +675,10 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
                 // l10n
 
                         // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                // "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
+                // MODULE_NAME_NOT_FOUND);
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                              MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME",
-                                                                 "Missing ProviderModuleName which is key in PG_ProviderCapabilities class."));
+                    MessageLoaderParms(MODULE_NAME_NOT_FOUND_KEY,
+                        MODULE_NAME_NOT_FOUND));
             }
             instances[0].getProperty(pos2).getValue().get(providerModuleName);
         }
@@ -840,11 +877,11 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
             // l10n
 
             // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            // "Missing ProviderName which is key in PG_ProviderCapabilities class.");
+            // PROVIDER_NAME_NOT_FOUND);
 
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                          MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME",
-                                                             "Missing ProviderName which is key in PG_ProviderCapabilities class."));
+                MessageLoaderParms(PROVIDER_NAME_NOT_FOUND_KEY,
+                    PROVIDER_NAME_NOT_FOUND));
         }
         instances[i].getProperty(pos2).getValue().get(providerName);
 
@@ -860,11 +897,11 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
                 // l10n
 
             // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            // "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
+            // MODULE_NAME_NOT_FOUND);
 
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                          MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME",
-                                                             "Missing ProviderModuleName which is key in PG_ProviderCapabilities class."));
+                    MessageLoaderParms(MODULE_NAME_NOT_FOUND_KEY,
+                        MODULE_NAME_NOT_FOUND));
         }
         instances[i].getProperty(pos3).getValue().get(providerModuleName);
 

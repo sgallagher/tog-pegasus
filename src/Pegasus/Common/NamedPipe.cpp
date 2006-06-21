@@ -122,7 +122,7 @@ bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
            AutoMutex automut(Monitor::_cout_mut);
            cout << "trying to write to connection that is closed" << endl;
            /**************************************************
-            WW I think this is a hack - we shouldn't be writing to closed 
+            WW I think this is a hack - we shouldn't be writing to closed
             connections. Each client should have it's own pipe - that way when
             that client ends it only closed it's connection
             *********************************************/
@@ -133,7 +133,7 @@ bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
 
 
 
-       
+
     }
 
     return(true);
@@ -178,6 +178,8 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
 
         throw 0;
     }
+    _pipe.overlap.Offset = 0;
+    _pipe.overlap.OffsetHigh = 0;
 
     {
         AutoMutex automut(Monitor::_cout_mut);
@@ -316,6 +318,8 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
 
     PEGASUS_NAMEDPIPE* pipe2 = new PEGASUS_NAMEDPIPE;
 
+    pipe2->overlap.Offset = 0;
+    pipe2->overlap.OffsetHigh = 0;
     {
     AutoMutex automut(Monitor::_cout_mut);
     cout << "NamedPipeServer::accept() - Creating Secondary Pipe " << request << endl;
@@ -647,6 +651,8 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
     }
     //HANDLE pipe2 = INVALID_HANDLE_VALUE;
     PEGASUS_NAMEDPIPE* pipe2 = new PEGASUS_NAMEDPIPE;
+    pipe2->overlap.Offset = 0;
+    pipe2->overlap.OffsetHigh = 0;
     for( ; ; )
     {
         pipe2->hpipe =

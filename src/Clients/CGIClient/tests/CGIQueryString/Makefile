@@ -50,7 +50,7 @@ SOURCES = \
 include $(ROOT)/mak/program.mak
 
 ifeq ($(OS),VMS)
-TMPVMSOBJECTS = $(SOURCES:.cpp=$(OBJ),pegasus_vmshome:[$(OBJ_VMSDIRB).Clients.CGIClient]TestCGIQueryString.obj,)
+TMPVMSOBJECTS = $(SOURCES:.cpp=$(OBJ),pegasus_vmshome:[$(OBJ_VMSDIRB).Clients.CGIClient]CGIQueryString.obj,)
 
 SOURCES = \
         TestCGIQueryString.cpp

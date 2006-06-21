@@ -33,6 +33,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Sean Keenan, Hewlett-Packard Company
+//                  (sean.keenan@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -146,15 +148,13 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-CIMClient c;
-
 void errorExit(Exception& e)
 {
   cout << "Error: Failed" << endl << e.getMessage() << endl;
   exit(1);
 }
 
-int testClass(const String& className)
+int testClass(CIMClient &c, const String& className)
 {
   Array<CIMObjectPath> refs;
 
@@ -345,6 +345,14 @@ int main()
 {
   cout << "+++++ Testing ComputerSystem Provider" << endl;
   
+  // 
+  // This MUST be inside of main for OpenVMS because the OS has a problem
+  //  with initializing global variables 'in a timely manner' during
+  //  executable initialization.
+  // 
+
+  CIMClient c;
+
   // Connect
   try
   {
@@ -356,9 +364,9 @@ int main()
   }
 
   int rc;
-  if ((rc = testClass(CLASS_CIM_COMPUTER_SYSTEM)) != 0) return rc;
-  if ((rc = testClass(CLASS_CIM_UNITARY_COMPUTER_SYSTEM)) != 0) return rc;
-  if ((rc = testClass(CLASS_EXTENDED_COMPUTER_SYSTEM)) != 0) return rc;
+  if ((rc = testClass(c, CLASS_CIM_COMPUTER_SYSTEM)) != 0) return rc;
+  if ((rc = testClass(c, CLASS_CIM_UNITARY_COMPUTER_SYSTEM)) != 0) return rc;
+  if ((rc = testClass(c, CLASS_EXTENDED_COMPUTER_SYSTEM)) != 0) return rc;
   cout << "+++++ passed all tests" << endl;
   return 0;
 }

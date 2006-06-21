@@ -428,7 +428,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                              path.cInst (),
                              propertyName);
 
-      if (val != -1)
+      if (val != 0)
          return new CIMValue(val);
 
       return null;

@@ -122,7 +122,7 @@ public class CIMInstance
     {
         name = n;
 
-        if (cInst == -1)
+        if (cInst == 0)
             return;
 
         _setName (cInst, n);
@@ -142,11 +142,11 @@ public class CIMInstance
        throws CIMException
     {
         /* Fix for 4019 */
-        if (cInst == -1)
+        if (cInst == 0)
         {
            throw new CIMException (1, "Invalid CIMInstance");
         }
-        if (v.cInst () == -1)
+        if (v.cInst () == 0)
         {
            throw new CIMException (1, "Invalid CIMValue");
         }
@@ -157,7 +157,7 @@ public class CIMInstance
 
     public void setProperty(Vector v)
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return;
 
         _setProperties (cInst, v);
@@ -170,13 +170,13 @@ public class CIMInstance
       */
     public CIMProperty getProperty (String n)
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
-        int p = _getProperty (cInst, n);
+        int ciProperty = _getProperty (cInst, n);
 
-        if (p != -1)
-           return new CIMProperty (p);
+        if (ciProperty != 0)
+           return new CIMProperty (ciProperty);
 
         return null;
     }
@@ -187,7 +187,7 @@ public class CIMInstance
      */
     public Vector getKeyValuePairs ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
         return _getKeyValuePairs (cInst, new Vector ());
@@ -199,7 +199,7 @@ public class CIMInstance
      */
     public Vector getProperties ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
         return _getProperties (cInst, new Vector ());
@@ -211,7 +211,7 @@ public class CIMInstance
      */
     public String getClassName()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
         return _getClassName (cInst);
@@ -224,13 +224,13 @@ public class CIMInstance
      */
     public CIMQualifier getQualifier(String n)
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
-        int qInst = _getQualifier(cInst,n);
+        int ciQualifier = _getQualifier(cInst,n);
 
-        if (qInst != -1)
-            return new CIMQualifier(qInst);
+        if (ciQualifier != 0)
+            return new CIMQualifier(ciQualifier);
 
         return null;
     }
@@ -241,7 +241,7 @@ public class CIMInstance
      */
     public String toString ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
         Vector       v   = getProperties ();
@@ -260,14 +260,12 @@ public class CIMInstance
 
     public Object clone ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
         int ciNew = _clone (cInst);
 
-        if (  ciNew != -1
-           && ciNew != 0
-           )
+        if (ciNew != 0)
         {
             return new CIMInstance (ciNew);
         }

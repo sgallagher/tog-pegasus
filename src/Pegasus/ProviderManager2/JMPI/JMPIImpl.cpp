@@ -1010,7 +1010,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1getInstance
    }
    Catch (jEnv);
 
-   return -1;
+   return 0;
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deleteInstance
@@ -1176,7 +1176,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1getProperty
    }
    Catch (jEnv);
 
-   return -1;
+   return 0;
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1setProperty
@@ -1756,7 +1756,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClass__1getQualifier
 {
    CIMClass   *cls = DEBUG_ConvertJavaToC (jint, CIMClass*, jCls);
    const char *str = jEnv->GetStringUTFChars (jN,NULL);
-   jint        rv  = -1;
+   jint        rv  = 0;
    Uint32      pos = cls->findQualifier (String (str));
 
    if (pos!= PEG_NOT_FOUND)
@@ -1772,7 +1772,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClass__1getProperty
 {
    CIMClass   *cls = DEBUG_ConvertJavaToC (jint, CIMClass*, jCls);
    const char *str = jEnv->GetStringUTFChars (jN,NULL);
-   jint        rv  = -1;
+   jint        rv  = 0;
    Uint32      pos = cls->findProperty (CIMName (str));
 
    if (pos!= PEG_NOT_FOUND)
@@ -1924,7 +1924,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClass__1getMethod
 {
    CIMClass   *cls = DEBUG_ConvertJavaToC (jint, CIMClass*, jCls);
    const char *str = jEnv->GetStringUTFChars (jN,NULL);
-   jint        rv  = -1;
+   jint        rv  = 0;
    Uint32      pos = cls->findMethod (String (str));
 
    if (pos!= PEG_NOT_FOUND)
@@ -2155,7 +2155,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1getProperty
 {
    CIMInstance *ci  = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInst);
    const char  *str = jEnv->GetStringUTFChars (jN,NULL);
-   jint         rv  = -1;
+   jint         rv  = 0;
 
    try {
       Uint32 pos = ci->findProperty (CIMName (str));
@@ -2221,7 +2221,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1getQualifier
 {
    CIMInstance *ci  = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInst);
    const char  *str = jEnv->GetStringUTFChars (jN,NULL);
-   jint         rv  = -1;
+   jint         rv  = 0;
    Uint32       pos = ci->findQualifier (String (str));
 
    if (pos!= PEG_NOT_FOUND)
@@ -3003,7 +3003,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMProperty__1property
    CIMValue    *cv  = DEBUG_ConvertJavaToC (jint, CIMValue*, jV);
    const char  *str = jEnv->GetStringUTFChars (jN,NULL);
    CIMProperty *cp  = 0;
-   jint         jCp = -1;
+   jint         jCp = 0;
 
    try {
       if (cv->getType ()!= CIMTYPE_REFERENCE)

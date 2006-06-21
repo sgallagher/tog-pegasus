@@ -127,7 +127,7 @@ public class CIMClass implements CIMElement
      */
    public CIMQualifier getQualifier(String n) {
       int qInst=_getQualifier(cInst,n);
-      if (qInst!=-1)
+      if (qInst!=0)
          return new CIMQualifier(qInst);
       return null;
    }
@@ -164,7 +164,7 @@ public class CIMClass implements CIMElement
     */
    public CIMProperty getProperty(String n) {
    int qInst=_getProperty(cInst,n);
-   if (qInst!=-1)
+   if (qInst!=0)
       return new CIMProperty(qInst);
          return null;
    }

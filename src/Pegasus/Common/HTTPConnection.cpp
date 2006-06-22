@@ -1969,11 +1969,35 @@ void HTTPConnection::_handleReadEvent()
             }
             //need some kind of string copy here
 		    strcpy (buffer,_namedPipe.raw);
+            {
+               // CString cstr = buffer.getCString();
+                const char* p = &buffer[0];
+                for(int i=0; i<=strlen(buffer); i++, p++)
+                {
+                    if (*p =='\0')
+                    {
+                       AutoMutex automut(Monitor::_cout_mut);
+                       cout<<"FOUNFD  at  "<<i<<endl;
+                       cout << "number of charictors at time of \0 is " << i << endl;
+                       break;
+                    }
+                }
+            }
+            
+            {
+                AutoMutex automut(Monitor::_cout_mut);
+                // buffer.append('\0');
+                cout<<__LINE__<<"\t buffer size is "<<strlen(buffer)<<"\t************************************************************************"<<endl;
+                cout<<buffer<<endl;
+                cout<<__LINE__<<"\t************************************************************************"<<endl;
+            }
+            
+
             n = strlen(_namedPipe.raw)+1;
             {
                 AutoMutex automut(Monitor::_cout_mut);
-                cout << buffer << endl;
-                cout << "n=" << n << endl;
+                //cout << buffer << endl;
+                cout << " number of bytes read is =" << n << endl;
             }
 
         }

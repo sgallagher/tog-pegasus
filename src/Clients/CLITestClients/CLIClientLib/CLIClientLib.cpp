@@ -38,7 +38,7 @@
 //                  (david.dillard@veritas.com)
 //              Josephine Eskaline Joyce(jojustin@in.ibm.com) for Bug #1664
 //              Amit K Arora (amita@in.ibm.com) for Bug#2926
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4349, #4228
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4349, #4228, #5064
 //              Muni S Reddy, IBM (mreddy@in.ibm.com) for Bug#4069
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -174,22 +174,92 @@ void printPropertyList(CIMPropertyList& pl)
 static const char * version = "2.2";
 static const char * usage = "This command executes single CIM Operations.";
 
+static const char* optionText = "Valid options for this command are : ";
+static const char* commonOptions = "    -count, -d, -delay, -p, -l, -u, -o, -x,\
+ -v, --sum, --timeout, -r, --t ";
 
-// Note that the following is one long string.
-static const char * usageDetails = "Using CLI examples:\n \
-CLI enumerateinstancenames pg_computersystem  -- enumerateinstances of class\n \
-    or \n \
-CLI ei pg_computersystem    -- Same as above \n\n \
-CLI enumerateclassnames -- Enumerate class names from root/cimv2.\n \
-CLI ec -n root -- Enumerate classes from namespace root. \n \
-CLI ec -o xml   -- Enumerate classes with XML output starting at root\n \
-CLI enumerateclasses CIM_Computersystem -o xml\n    -- Enumerate classes in MOF starting with \
-CIM_Computersystem\n \
-CLI getclass CIM_door -a -u guest -p guest\n    -- Get class with authentication set and \
-    user = guest, password = guest.\n \
-CLI rn TST_Person.name=@MIKE@ -n root/sampleprovider -rc TST_Lineage. \n \
-CLI ec -o XML -- Enumerate classes and output XML rather than MOF. \n \
-CLI getqualifiers -- Get the qualifiers in mof output format\n";
+const char *examples[] = {
+"CLI ni -n test/TestProvider TEST_Person -- enumerateinstancenames of class \n",
+"    -n, classname \n",
+"CLI niall -n root/cimv2     \n        -- enumerateinstancenames of \
+all classes under the namespace root/cimv2 \n",
+"    -n, -di, classname \n",
+"CLI ei PG_ComputerSystem   -- enumerateinstances of class \n",
+"    -n, -di, -lo, -iq, -pl, classname, includeClassOrigin \n",
+"CLI nc -- Enumerate class names from root/cimv2. \n",
+"    -n, -di, classname \n",
+"CLI ec -n root/cimv2 -- Enumerate classes from namespace root/cimv2. \n",
+"    -n, -di, -lo, -iq, includeClassOrigin \n",
+"CLI gc CIM_door -u guest -p guest\n    -- Get class \
+user = guest and password = guest. \n",
+"    -n, -lo, -iq, -pl, className, includeClassOrigin \n",
+"CLI gi -n test/TestProvider TEST_Person    ---  getInstance of class \n",
+"    -n, -lo, -iq, -pl, includeClassOrigin \n",
+"CLI ci -n test/TestProvider TEST_Person Name=Michael -- createInstance of" 
+" class \n",
+"    -n \n",
+"CLI di -n test/TestProvider TEST_Person    ---  deleteInstance of class"
+" interactively \n",
+"    -n \n",
+"Operation Not supported.. \n",
+" \n",
+"Operation Not supported.. \n",
+" \n",
+"CLI dc -n test/TestProvider TEST_Person  \n     --- deletes the Class when"
+" there are no instance and sub-class for this class \n",
+"    -n \n",
+"Operation Not supported.. \n",
+" \n",
+"Operation Not supported.. \n",
+" \n",
+"CLI gq Association -- Get the qualifiers in mof output format \n",
+"    -n, qualifierName \n",
+"Operation Not supported.. \n",
+" \n",
+"CLI eq -n test/TestProvider  ---  enumerateQualifiers of namespace"
+"\n     test/TestProvider \n",
+"    -n \n",
+"CLI dq -n test/TestProvider ASSOCIATION  --- deleteQualifier Association in"
+" namespace test/TestProvider \n",
+"    -n, qualifierName \n",
+"CLI a TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineage \n  or"
+"\nCLI a TST_Person -n test/TestProvider -ac TST_Lineage \n",
+"    -n, -ac, -rc, -r, -rr, -iq, -pl, includeClassOrigin, -i \n",
+"CLI an TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineage \n or"
+"\nCLI an TST_Person -n test/TestProvider -ac TST_Lineage \n",
+"    -n, -ac, -rc, -r, -rr, -i \n",
+"CLI r TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage \n  or"
+"\nCLI r TST_Person -n test/TestProvider -rc TST_Lineage \n",
+"    -n, -rc, -r, -iq, -pl, includeClassOrigin, -i \n",
+"CLI rn TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage \n or"
+"\nCLI rn TST_Person -n test/TestProvider -rc TST_Lineage \n",
+"    -n, -rc, -r, -i \n",
+"CLI im Sample_MethodProviderClass.Name=\\\"mooo\\\" SayHello"
+"\n   -n root/SampleProvider -ip p1=fred \n",
+"    -n, -ip \n",
+"CLI xq \"select * from CIM_ComputerSystem\"   \n   ---- "
+"This command will work when the code is compiled with ExecQuery enabled \n",
+"    -n, queryLanguage, query \n",
+"CLI ns    ---  enumerate all Namespaces in repository \n",
+" No options Required \n",
+"CLI son   --- Switch On's the statistical information on CIMServer \n",
+" No options Required \n",
+"CLI soff  --- Switch OFF's the statistical information on CIMServer \n",
+" No options Required \n",
+"CLI ?     --- Displays help command \n",
+" No options Required"
+};
+
+void showExamples()
+{
+    Uint32 numExamples = sizeof(examples) / sizeof(char *);
+    cout << "Examples : " << endl;
+
+    for (Uint32 i=0; i < numExamples; i++)
+    {
+        cout << examples[i++] << endl;
+    }
+}
 
 void _displaySummary(Uint32 count, String& description, String item, Options& opts)
 {
@@ -1939,80 +2009,89 @@ void GetOptions(
         //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
     {
         {"count", "29346", false, Option::WHOLE_NUMBER, 0, 0, "count",
-                            "Expected count of objects returned if the summary set. Tests this count and display difference. Return nonzero if test fails  "},
+            "Expected count of objects returned if summary set. \n Tests this"
+            " count and display difference. Return nonzero if test fails  "},
 
         {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
-                            "More detailed debug messages "},
+            "More detailed debug messages "},
 
         {"delay", "0", false, Option::WHOLE_NUMBER, 0, 0, "delay",
-                            "Delay between connection and request "},
+            "Delay between connection and request "},
 
         {"Password", "", false, Option::STRING, 0, 0, "p",
-                                        "Defines password for authentication" },
+            "Defines password for authentication" },
 
         {"location", "", false, Option::STRING, 0, 0, "l",
-                            "specifies system and port (HostName:port). Port is optional" },
+            "specifies system and port (HostName:port). Port is optional" },
 #ifdef PEGASUS_HAS_SSL
         {"ssl", "false", false, Option::BOOLEAN, 0, 0, "s",
-                            "specifies to connect over HTTPS" },
+            "specifies to connect over HTTPS" },
 
         {"clientCert", "", false, Option::STRING, 0, 0, "-cert",
-                            "specifies a client certificate to present to the server.  This is optional and only has an effect on connections made over HTTPS using -s" },
+            "specifies a client certificate to present to the server. \n This is"
+            " optional and only has an effect on connections made over HTTPS"
+            " using -s" },
 
         {"clientKey", "", false, Option::STRING, 0, 0, "-key",
-                            "specifies a client private key.  This is optional and only has an effect on connections made over HTTPS using -s" },
+            "specifies a client private key. This is optional and only has an"
+            "\n  effect on connections made over HTTPS using -s" },
 #endif
         {"User", "", false, Option::STRING, 0, 0, "u",
-                                        "Defines User Name for authentication" },
+            "Defines User Name for authentication" },
 
         {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "n",
-                            "Specifies namespace to use for operation" },
+            "Specifies namespace to use for operation" },
 
         {"deepInheritance", "false", false, Option::BOOLEAN, 0, 0, "di",
-                            "If set deepInheritance parameter set true "},
+            "If set deepInheritance parameter set true "},
 
         {"localOnly", "true", false, Option::BOOLEAN, 0, 0, "lo",
-                            "DEPRECATED. This was used to set LocalOnly. However, default should be true and we cannot use True as default. See !lo "},
+            "DEPRECATED. This was used to set LocalOnly. However, \n default"
+            " should be true and we cannot use True as default. See !lo "},
 
         {"!localOnly", "false", false, Option::BOOLEAN, 0, 0, "!lo",
-                            "When set, sets LocalOnly = false on operations. DEPRECATED, ! confuses bash. Use -nlo "},
+            "When set, sets LocalOnly = false on operations.\n DEPRECATED,"
+            " ! confuses bash. Use -nlo "},
 
         {"notLocalOnly", "false", false, Option::BOOLEAN, 0, 0, "nlo",
-                            "When set, sets LocalOnly = false on operations "},
+            "When set, sets LocalOnly = false on operations "},
 
         {"includeQualifiers", "true", false, Option::BOOLEAN, 0, 0, "iq",
-                            "Deprecated. Sets includeQualifiers = True. However, default = true "},
+            "Deprecated. Sets includeQualifiers = True. However, default=true"},
 
         {"!includeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "!iq",
-                            "Sets includeQualifiers = false on operations. DEPRECATED, ! confuses bash. Use -niq"},
-
+            "Sets includeQualifiers = false on operations.\n DEPRECATED,"
+            " ! confuses bash. Use -niq"},
+        
         {"notIncludeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "niq",
-                            "Sets includeQualifiers = false on operations"},
+            "Sets includeQualifiers = false on operations"},
 
         // Uses a magic string as shown below to indicate never used.
         {"propertyList", "###!###", false, Option::STRING, 0, 0, "pl",
-                            "Defines a propertyNameList. Format is p1,p2,p3 (without spaces). Use \"\" for empty."},
+            "Defines a propertyNameList. Format is p1,p2,p3 (without"
+            " spaces).\n Use \"\" for empty."},
 
         {"assocClass", "", false, Option::STRING, 0, 0, "ac",
-                            "Defines a assocClass string for Associator calls"},
+            "Defines a assocClass string for Associator calls"},
 
         {"assocRole", "", false, Option::STRING, 0, 0, "ar",
-                            "Defines a role string for Associatiors AssocRole parameter"},
+            "Defines a role string for Associatiors AssocRole parameter"},
 
         {"role", "", false, Option::STRING, 0, 0, "r",
-                            "Defines a role string for reference role parameter"},
+            "Defines a role string for reference role parameter"},
 
         {"resultClass", "", false, Option::STRING, 0, 0, "rc",
-                            "Defines a resultClass string for References and Associatiors "},
+            "Defines a resultClass string for References and Associatiors "},
 
         {"resultRole", "", false, Option::STRING, 0, 0, "rr",
-                            "Defines a role string for associators operation resultRole parameter. "},
+            "Defines a role string for associators operation resultRole parameter. "},
 
         {"inputParameters", "", false, Option::STRING, 0, 0, "ip",
-                            "Defines an invokeMethod input parameter list. Format is p1=v1 p2=v2 .. pn=vn (parameters are seperated by spaces) "},
+            "Defines an invokeMethod input parameter list. Format is"
+            " p1=v1 p2=v2 .. pn=vn \n  (parameters are seperated by spaces)"},
 
         {"filter", "", false, Option::STRING, 0, 0, "f",
-                            "defines a filter to use for query. Single String input "},
+            "defines a filter to use for query. Single String input "},
 
         // This was never used.  Delete. KS
         //{"substitute", "", false, Option::STRING, 0, 0, "-s",
@@ -2021,46 +2100,48 @@ void GetOptions(
         // KS change the output formats to use the enum options function
         // Deprecate this function.
         {"outputformats", "mof", false, Option::STRING, 0,NUM_OUTPUTFORMATS, "o",
-                            "Output in xml, mof, txt"},
+            "Output in xml, mof, txt"},
 
         {"xmlOutput", "false", false, Option::BOOLEAN, 0,0, "x",
-                            "Output objects in xml instead of mof format"},
+            "Output objects in xml instead of mof format"},
 
         {"version", "false", false, Option::BOOLEAN, 0, 0, "-version",
-                            "Displays software Version "},
+            "Displays software Version "},
 
         {"verbose", "false", false, Option::BOOLEAN, 0, 0, "v",
-                            "Verbose Display. Includes Detailed Param Input display "},
-
+            "Verbose Display. Includes Detailed Param Input display "},
 
         {"summary", "false", false, Option::BOOLEAN, 0, 0, "-sum",
-                            "Displays only summary count for enumerations, associators, etc. "},
+            "Displays only summary count for enumerations, associators, etc. "},
 
         {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
-                            "Prints help usage message "},
+            "Prints help usage message "},
 
         {"full help", "false", false, Option::BOOLEAN, 0, 0, "-help",
-                            "Prints full help message with commands, options, examples "},
+            "Prints full help message with commands, options, examples "},
+
         {"help options", "false", false, Option::BOOLEAN, 0, 0, "ho",
-                            "Prints list of options "},
+            "Prints list of options "},
 
         {"help commands", "false", false, Option::BOOLEAN, 0, 0, "hc",
-                            "Prints CIM Operation command list "},
+            "Prints CIM Operation command list "},
 
         {"connecttimeout", "0", false, Option::WHOLE_NUMBER, 0, 0, "-timeout",
-                            "Set the connection timeout in seconds. "},
+            "Set the connection timeout in seconds. "},
 
         {"interactive", "false", false, Option::BOOLEAN, 0, 0, "i",
-                            "Interactively ask user to select instances.  Used with associator and reference operations "},
+            "Interactively ask user to select instances.\n  Used with associator"
+            " and reference operations "},
 
         {"trace", "0", false, Option::WHOLE_NUMBER, 0, 0, "trace",
-                            "Set Pegasus Common Components Trace. Sets the Trace level. 0 is off"},
+            "Set Pegasus Common Components Trace. Sets the Trace level."
+            " 0 is off"},
 
         {"repeat", "0", false, Option::WHOLE_NUMBER, 0, 0, "-r",
-                            "Number of times to repeat the function. Zero means one time "},
+            "Number of times to repeat the function. Zero means one time "},
 
         {"time", "false", false, Option::BOOLEAN, 0, 0, "-t",
-                            "Measure time for the operation and present results. "},
+            "Measure time for the operation and present results. "},
 
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -2115,11 +2196,13 @@ String formatLongString (const char * input, Uint32 pos, Uint32 length)
 
 void showUsage(const char* pgmName)
 {
-    cout << "Usage: " << pgmName << "<command> <CIMObject> <Options> *<extra parameters>" << endl
-        << "    -hc    for <command> set and <CimObject> for each command\n"
-        << "    -ho    for <Options> set\n"
-        << "    -h     for this summary\n"
-        << "    --help for full help" << endl;
+    cout << "Usage: " << pgmName << "<command> <CIMObject>"
+            " <Options> *<extra parameters>" << endl
+         << "    -hc    for <command> set and <CimObject> for each command\n"
+         << "    -ho    for <Options> set\n"
+         << "    -h xx  for <command> and <Example> for <xx> operation \n"
+         << "    -h     for this summary\n"
+         << "    --help for full help" << endl;
 }
 /* showCommands - Display the list of operation commands.
 */
@@ -2155,8 +2238,10 @@ void showOptions(const char* pgmName, OptionManager& om)
    options help to be defined with the OptionRow entries and presented from
    those entries.
 */
-void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp,
-                OptionManager& om)
+void printHelpMsg(
+    const char* pgmName,
+    const char* usage,
+    OptionManager& om)
 {
     showUsage(pgmName);
 
@@ -2168,12 +2253,12 @@ void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp,
 
     cout << endl;
 
-    cout << extraHelp << endl;
+    showExamples();
 }
 
 void printUsageMsg(const char* pgmName,OptionManager& om)
 {
-    printHelpMsg(pgmName, usage, usageDetails, om);
+    printHelpMsg(pgmName, usage, om);
 }
 
 int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
@@ -2214,15 +2299,40 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     if (om.isTrue("full help"))
     {
-        printHelpMsg(argv[0], usage, usageDetails, om);
+        printHelpMsg(argv[0], usage, om);
         exit(0);
     }
 
     if (om.isTrue("help"))
     {
+        if (argv[1])
+        {
+            for (Uint32 i=0; i<NUM_COMMANDS;i++)
+            {
+                if (strcmp(argv[1], CommandTable[i].ShortCut) == 0)
+                {
+                    String txtFormat = formatLongString(
+                        CommandTable[i].UsageText,28 ,75 - 28 );
+                    printf("\n%-5s %-21s",CommandTable[i].ShortCut,
+                        CommandTable[i].CommandName);
+                    cout << txtFormat << endl;
+                    cout << "Example : " << endl;
+                    cout << examples[i+i] <<endl;
+                    cout << optionText << endl << examples[i+i+1] << endl;
+                    cout << "Common Options are : " << endl;
+                    cout << commonOptions << endl;
+                    exit(0);
+                }
+            }
+            cout << "Command not found. Type CLI -hc to list valid commands."
+                 << endl;
+            exit(1);
+        }
+
         showUsage(argv[0]);
         exit(0);
     }
+
     if (om.isTrue("version"))
     {
         showVersion(argv[0], om);

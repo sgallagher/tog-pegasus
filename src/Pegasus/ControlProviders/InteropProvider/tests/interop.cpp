@@ -34,6 +34,7 @@
 // Modified By:
 //      David Dillard, VERITAS Software Corp.(david.dillard@veritas.com)
 //      Chip Vincent (cvincent@us.ibm.com)
+//      Aruran, IBM(aruran.shanmug@in.ibm.com) for Bug# 4846
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -2957,7 +2958,10 @@ int main(int argc, char** argv)
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl2, 0);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, pl2, 0);
 
+#ifndef PEGASUS_DISABLE_PERFINST
         it.testStatisticsEnable();
+#endif
+
 #ifdef PEGASUS_ENABLE_SLP
         it.testCommunicationClass();
 

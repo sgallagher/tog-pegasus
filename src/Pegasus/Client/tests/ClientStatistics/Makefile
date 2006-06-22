@@ -45,4 +45,7 @@ tests:
 
 
 poststarttests:
+ifndef PEGASUS_DISABLE_PERFINST
 	$(PROGRAM)
+endif
+

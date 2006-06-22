@@ -472,7 +472,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  undef PEGASUS_CIMSERVER_START_FILE
 #  define PEGASUS_CIMSERVER_START_FILE      "/wbem_var/opt/wbem/cimserver_start.conf"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
-#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/wbem_var/opt/wbem/client.pem"
+#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/wbem_etc/opt/hp/sslshare/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
 #  define PEGASUS_SSLCLIENT_RANDOMFILE      "/wbem_var/opt/wbem/ssl.rnd"
 #  undef PEGASUS_SSLSERVER_RANDOMFILE

@@ -337,7 +337,7 @@ Boolean OSTestClient::goodLocalDateTime(const CIMDateTime &ltime,
    catch(DateTimeOutOfRangeException &e)
    {
        cout << "Error : " << e.getMessage() << endl;
-       exit;
+       return false;
    }
    Uint64 delta = labs(raw_delta);
    
@@ -986,7 +986,7 @@ Boolean OSTestClient::goodMaxProcessesPerUser (const Uint32& umaxproc,
     FILE             * mtuneInfo;
     char               mline[80];
     struct utsname     unameInfo;
-    uint64_t           ret;
+    uint64_t           ret = (uint64_t) -1;
 
     if  (verbose)
       cout<<"Checking MaxProcsPerUser " << umaxproc << endl;
@@ -1045,7 +1045,7 @@ Boolean OSTestClient::goodMaxProcessesPerUser (const Uint32& umaxproc,
         }
     }    
     
-    if (ret != -1)
+    if (ret != (uint64_t) -1)
     {
         maxProcsPerUser = ret;
     }

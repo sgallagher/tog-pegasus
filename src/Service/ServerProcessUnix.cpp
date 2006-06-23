@@ -61,7 +61,8 @@ PEGASUS_USING_STD;
 Boolean handleSigUsr1 = false;
 Boolean graveError = false;
 
-pid_t server_pid;
+// the current pid is the server pid. After fork it is overwritten.
+pid_t server_pid = getpid();
 Uint32 parentPid = 0;
 
 void sigUsr1Handler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)

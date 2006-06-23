@@ -83,9 +83,9 @@ public class CIMProperty
 
     public CIMProperty (String name, CIMValue cv)
     {
-        cInst = -1;
+        cInst = 0;
 
-        if (cv.cInst () == -1)
+        if (cv.cInst () == 0)
        	    return;
 
         cInst = _property (name, cv.cInst ());
@@ -93,15 +93,24 @@ public class CIMProperty
 
     public CIMValue getValue ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
-        return new CIMValue (_getValue (cInst));
+        int ciValue = _getValue (cInst);
+
+        if (ciValue != 0)
+        {
+           return new CIMValue (ciValue);
+        }
+        else
+        {
+           return null;
+        }
     }
 
     public String getName ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
         return _getName (cInst);
@@ -109,7 +118,7 @@ public class CIMProperty
 
     public void setName (String n)
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return;
 
         _setName (cInst, n);
@@ -117,7 +126,7 @@ public class CIMProperty
 
     public boolean isReference ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return false;
 
         return _isReference (cInst);
@@ -125,15 +134,24 @@ public class CIMProperty
 
     public CIMDataType getType ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
-        return new CIMDataType (_getType (cInst), true);
+        int ciDataType = _getType (cInst);
+
+        if (ciDataType != 0)
+        {
+           return new CIMDataType (ciDataType, true);
+        }
+        else
+        {
+           return null;
+        }
     }
 
     public void setType (CIMDataType dt)
     {
-        if (cInst == -1 || dt.cInst () == -1)
+        if (cInst == 0 || dt.cInst () == 0)
             return;
 
         cInst = _setType (cInst, dt.cInst ());
@@ -141,7 +159,7 @@ public class CIMProperty
 
     public String getRefClassName ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
         return _getRefClassName (cInst);
@@ -149,7 +167,7 @@ public class CIMProperty
 
     public String toString ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
         return getType().toString() + " " + getName () + "=" + getValue ().toString () + ";";
@@ -157,7 +175,7 @@ public class CIMProperty
 
     public void setValue (CIMValue v)
     {
-        if (cInst == -1 || v.cInst () == -1)
+        if (cInst == 0 || v.cInst () == 0)
             return;
 
         _setValue (cInst, v.cInst ());
@@ -165,7 +183,7 @@ public class CIMProperty
 
     public void addValue (CIMValue v)
     {
-        if (cInst == -1 || v.cInst () == -1)
+        if (cInst == 0 || v.cInst () == 0)
             return;
 
         if (!_isArray (cInst))
@@ -176,7 +194,7 @@ public class CIMProperty
 
     public void addQualifier (CIMQualifier q)
     {
-        if (cInst == -1 || q.cInst () == -1)
+        if (cInst == 0 || q.cInst () == 0)
             return;
 
         _addQualifier (cInst, q.cInst ());
@@ -184,7 +202,7 @@ public class CIMProperty
 
     public boolean isArray ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return false;
 
         return _isArray (cInst);
@@ -192,7 +210,7 @@ public class CIMProperty
 
     public String getIdentifier ()
     {
-        if (cInst == -1)
+        if (cInst == 0)
             return null;
 
         return _getIdentifier (cInst);
@@ -200,6 +218,9 @@ public class CIMProperty
 
     public int findQualifier (String qualifier)
     {
+       if (cInst == 0)
+          return 0;
+
        return _findQualifier (cInst, qualifier);
     }
 

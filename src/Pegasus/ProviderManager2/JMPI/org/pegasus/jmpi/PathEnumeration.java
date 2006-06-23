@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,39 +29,63 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By: Adrian Duta
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 package org.pegasus.jmpi;
 
 import java.util.*;
 
-class PathEnumeration implements Enumeration {
+class PathEnumeration implements Enumeration
+{
    private int cInst;
-   private int cur,max;
-   
-   private native int _getObjectPath(int cInst, int pos);
-   private native int _size(int cInst);
-   
+   private int cur, max;
+
+   private native int _getObjectPath (int cInst, int pos);
+   private native int _size          (int cInst);
+
    protected int cInst ()
    {
       return cInst;
    }
 
-   PathEnumeration(int ci) {
-      cInst=ci;
-      max=_size(ci);
-      cur=0;
+   PathEnumeration (int ci)
+   {
+      cInst = ci;
+      max   = 0;
+      if (cInst != 0)
+      {
+         max = _size (cInst);
+      }
+      cur   = 0;
    }
-   public boolean hasMoreElements() {
-      return (cur<max);
+
+   public boolean hasMoreElements ()
+   {
+      return (cur < max);
    }
-   public Object nextElement() {
-      if (cur>=max) return null;
-      return new CIMObjectPath(_getObjectPath(cInst,cur++));
+
+   public Object nextElement ()
+   {
+      if (cur >= max)
+         return null;
+
+      int ciObjectPath = 0;
+
+      if (cInst != 0)
+      {
+         ciObjectPath = _getObjectPath (cInst, cur++);
+      }
+
+      if (ciObjectPath != 0)
+      {
+         return new CIMObjectPath (ciObjectPath);
+      }
+      else
+      {
+         return null;
+      }
    }
 }

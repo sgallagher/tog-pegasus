@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -84,22 +84,42 @@ public class CIMNameSpace {
 
    public String getNameSpace ()
    {
-      return _getNameSpace(cInst);
+      if (cInst != 0)
+      {
+         return _getNameSpace (cInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public String getHost ()
    {
-      return _getHost(cInst);
+      if (cInst != 0)
+      {
+         return _getHost (cInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public void setNameSpace (String ns)
    {
-      _setNameSpace(cInst,ns);
+      if (cInst != 0)
+      {
+         _setNameSpace (cInst, ns);
+      }
    }
 
    public void setHost (String host)
    {
-      _setHost(cInst,host);
+      if (cInst != 0)
+      {
+         _setHost (cInst, host);
+      }
    }
 
    public int getPortNumber ()

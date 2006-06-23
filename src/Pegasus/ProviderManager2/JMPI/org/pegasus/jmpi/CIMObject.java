@@ -77,7 +77,12 @@ public class CIMObject
         {
             cInst       = _newClass (inst);
             fIsClass    = true;
-            cimClass    = new CIMClass (inst);
+
+            if (inst != 0)
+            {
+               cimClass = new CIMClass (inst);
+            }
+
             cimInstance = null;
         }
         else
@@ -85,7 +90,11 @@ public class CIMObject
             cInst       = _newInstance (inst);
             fIsClass    = true;
             cimClass    = null;
-            cimInstance = new CIMInstance (inst);
+
+            if (inst != 0)
+            {
+               cimInstance = new CIMInstance (inst);
+            }
         }
     }
 

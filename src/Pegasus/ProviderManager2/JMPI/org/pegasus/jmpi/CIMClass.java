@@ -91,16 +91,66 @@ public class CIMClass implements CIMElement
        Returns a new instance appropriately initialized
      */
    public CIMInstance newInstance() {
-      return new CIMInstance(_newInstance(cInst));
+      int ciInst = 0;
+
+      if (cInst != 0)
+      {
+         ciInst = _newInstance (cInst);
+      }
+
+      if (ciInst != 0)
+      {
+         return new CIMInstance (ciInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public CIMClass filterProperties(String propertyList[],
         boolean includeQualifier, boolean includeClassOrigin) {
-      return new CIMClass(_filterProperties(cInst,propertyList,includeQualifier,includeClassOrigin,false));
+      int ciClass = 0;
+
+      if (cInst != 0)
+      {
+         ciClass = _filterProperties (cInst,
+                                      propertyList,
+                                      includeQualifier,
+                                      includeClassOrigin,
+                                      false);
+      }
+
+      if (ciClass != 0)
+      {
+         return new CIMClass (ciClass);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public CIMClass localElements() {
-      return new CIMClass(_filterProperties(cInst,null,false,false,true));
+      int ciClass = 0;
+
+      if (cInst != 0)
+      {
+         ciClass = _filterProperties (cInst,
+                                      null,
+                                      false,
+                                      false,
+                                      true);
+      }
+
+      if (ciClass != 0)
+      {
+         return new CIMClass (ciClass);
+      }
+      else
+      {
+         return null;
+      }
    }
 
     /**
@@ -110,7 +160,14 @@ public class CIMClass implements CIMElement
       @return String with class name.
     */
    public String getName() {
-      return _getName(cInst);
+      if (cInst != 0)
+      {
+         return _getName (cInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public void setName(String n) {
@@ -126,14 +183,32 @@ public class CIMClass implements CIMElement
    public Vector getQualifiers() {
      */
    public CIMQualifier getQualifier(String n) {
-      int qInst=_getQualifier(cInst,n);
-      if (qInst!=-1)
-         return new CIMQualifier(qInst);
-      return null;
+      int ciQualifier = 0;
+
+      if (cInst != 0)
+      {
+         ciQualifier = _getQualifier (cInst, n);
+      }
+      
+      if (ciQualifier != 0)
+      {
+         return new CIMQualifier (ciQualifier);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public Vector getQualifiers() {
-      return _getQualifiers(cInst,new Vector());
+      Vector ret = new Vector ();
+
+      if (cInst != 0)
+      {
+         _getQualifiers (cInst, ret);
+      }
+
+      return ret;
    }
        /**
        Checks whether this class has the specified qualifier
@@ -141,14 +216,28 @@ public class CIMClass implements CIMElement
        Returns true if qualifier defined
      */
    public boolean hasQualifier(String n) {
-      return _hasQualifier(cInst,n);
+      if (cInst != 0)
+      {
+         return _hasQualifier (cInst, n);
+      }
+      else
+      {
+         return false;
+      }
    }
 
     /**
        Gets the properties for this CIM class
      */
    public Vector getProperties() {
-      return _getProperties(cInst,new Vector());
+      Vector ret = new Vector ();
+
+      if (cInst != 0)
+      {
+         _getProperties (cInst, ret);
+      }
+
+      return ret;
    }
 
    public Vector getAllProperties() {
@@ -163,18 +252,35 @@ public class CIMClass implements CIMElement
 			 if the property does not exist
     */
    public CIMProperty getProperty(String n) {
-   int qInst=_getProperty(cInst,n);
-   if (qInst!=-1)
-      return new CIMProperty(qInst);
+      int ciProperty = 0;
+
+      if (cInst != 0)
+      {
+         ciProperty = _getProperty (cInst, n);
+      }
+
+      if (ciProperty != 0)
+      {
+         return new CIMProperty (ciProperty);
+      }
+      else
+      {
          return null;
+      }
    }
 
    public void addProperty(CIMProperty p) {
-      _addProperty(cInst,p.cInst ());
+      if (cInst != 0)
+      {
+         _addProperty (cInst, p.cInst ());
+      }
    }
 
    public void setProperties(Vector v) {
-       _setProperties(cInst,v);
+      if (cInst != 0)
+      {
+         _setProperties (cInst, v);
+      }
    }
 
     /**
@@ -182,8 +288,15 @@ public class CIMClass implements CIMElement
 
       @return String with parent class name.
     */
-   public String getSuperClass() {//to be implemented
-      return _getSuperClass(cInst);
+   public String getSuperClass() {
+      if (cInst != 0)
+      {
+         return _getSuperClass (cInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
     /**
@@ -191,15 +304,36 @@ public class CIMClass implements CIMElement
 
          @return  Vector containing the list of key properties
      */
-   public Vector getKeys() {//to be implemented
-      return _getKeys(cInst, new Vector());
+   public Vector getKeys() {
+      Vector ret = new Vector ();
+
+      if (cInst != 0)
+      {
+         return _getKeys (cInst, ret);
+      }
+
+      return ret;
    }
 
     /**
        getMethod  - // Returns the specified method
      */
-   public CIMMethod getMethod(String n) {//to be implemented
-      return new CIMMethod(_getMethod(cInst, n));
+   public CIMMethod getMethod(String n) {
+      int ciMethod = 0;
+
+      if (cInst != 0)
+      {
+         ciMethod = _getMethod (cInst, n);
+      }
+
+      if (ciMethod != 0)
+      {
+         return new CIMMethod (ciMethod);
+      }
+      else
+      {
+         return null;
+      }
    }
 
     /**
@@ -214,6 +348,8 @@ public class CIMClass implements CIMElement
    public boolean equals(Object o) {
       if (!(o instanceof CIMClass))
          return(false);
+      if (cInst == 0)
+         return false;
       CIMClass clsToBeCompared=(CIMClass)o;
       if (cInst < 1 || clsToBeCompared.cInst () < 1) {
          System.out.println("wrong cInst found!");

@@ -55,9 +55,6 @@
 #include <Pegasus/ProviderManager2/JMPI/JMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
-#include <Pegasus/ProviderManager2/CMPI/CMPI_SelectExp.h>
-
-
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -3097,21 +3094,19 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             CIMClass *pcls = new CIMClass (cls);
 
-            JMPIjvm::checkException(env);
-
             jint jcls = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
 
             jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcls);
 
             JMPIjvm::checkException(env);
 
-            jobjectArray jAr = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
-                                                                   id,
-                                                                   joc,
-                                                                   jcop,
-                                                                   jCc,
-                                                                   jquery,
-                                                                   jqueryLanguage);
+            jobject jVec = env->CallObjectMethod ((jobject)pr.jProvider,
+                                                  id,
+                                                  joc,
+                                                  jcop,
+                                                  jCc,
+                                                  jquery,
+                                                  jqueryLanguage);
 
             JMPIjvm::checkException(env);
 
@@ -3125,11 +3120,14 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
             }
 
             handler.processing();
-            if (jAr) {
-                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
+            if (jVec)
+            {
+                for (int i = 0, m = env->CallIntMethod (jVec, JMPIjvm::jv.VectorSize); i < m; i++)
+                {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->GetObjectArrayElement(jAr,i);
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+                    DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: jciRet = "<<jciRet<<PEGASUS_STD(endl));
 
                     JMPIjvm::checkException(env);
 
@@ -3141,6 +3139,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
                     handler.deliver(*ciRet);
                 }
             }
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: done!"<<PEGASUS_STD(endl));
             handler.complete();
             break;
         }
@@ -3189,12 +3188,12 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             jint jql = 0; // @BUG - how to convert?
 
-            jobjectArray jVec = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
-                                                                    id,
-                                                                    jcop,
-                                                                    jquery,
-                                                                    jql,
-                                                                    jCc);
+            jobject jVec = env->CallObjectMethod ((jobject)pr.jProvider,
+                                                  id,
+                                                  jcop,
+                                                  jquery,
+                                                  jql,
+                                                  jCc);
 
             JMPIjvm::checkException(env);
 
@@ -3202,10 +3201,10 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->GetArrayLength(jVec); i<m; i++) {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->GetObjectArrayElement(jVec,i);
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
@@ -6250,52 +6249,22 @@ int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstanc
     return 0;
 }
 
-CMPI_SelectExp *
-newSelectExp (CIMOMHandleQueryContext *qContext,
-              OperationContext        *ctx,
-              String&                  query,
-              String&                  queryLanguage,
-              CIMNamespaceName&        nameSpace,
-              Array<CIMName>&          classNames,
-              CIMPropertyList&         propertyList)
+WQLSelectStatement *
+newSelectExp (String& query,
+              String& queryLanguage)
 {
-   CMPI_SelectExp *eSelx = NULL;
+   WQLSelectStatement *stmt = new WQLSelectStatement (queryLanguage, query);
 
-   eSelx = new CMPI_SelectExp (*ctx,
-                               qContext,
-                               query,
-                               queryLanguage);
-
-   if (!eSelx)
+   try
    {
-      return eSelx;
+      WQLParser::parse (query, *stmt);
+   }
+   catch (const Exception &e)
+   {
+      cerr << "Error: newSelectExp caught: " << e.getMessage () << endl;
    }
 
-   for (Uint32 i = 0, n = classNames.size (); i < n; i++)
-   {
-       CIMObjectPath className (System::getHostName(),
-                                nameSpace,
-                                classNames[i]);
-
-       eSelx->classNames.append (className);
-   }
-
-   if (!propertyList.isNull ())
-   {
-      Array<CIMName> p      = propertyList.getPropertyNameArray ();
-      int            pCount = p.size ();
-
-      eSelx->props = (const char**)malloc ((1 + pCount) * sizeof (char*));
-
-      for (int i = 0; i < pCount; i++)
-      {
-         eSelx->props[i] = strdup (p[i].getString ().getCString ());
-      }
-
-      eSelx->props[pCount] = NULL;
-   }
-
-   return eSelx;
+   return stmt;
 }
 
 Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * message) throw()
@@ -6419,15 +6388,6 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
            CIMOMHandleQueryContext *qContext = new CIMOMHandleQueryContext (CIMNamespaceName (request->nameSpace.getString ()),
                                                                             *pr._cimom_handle);
-           CMPI_SelectExp          *eSelx    = newSelectExp (qContext,
-                                                             prec->ctx,
-                                                             srec->query,
-                                                             srec->queryLanguage,
-                                                             request->nameSpace,
-                                                             request->classNames,
-                                                             srec->propertyList);
-
-           srec->eSelx    = eSelx;
            srec->qContext = qContext;
 
            CIMObjectPath sPath (request->subscriptionInstance.getPath ().getClassName ().getString ());
@@ -6440,7 +6400,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
            selxTab.insert (sPath.toString (), srec);
 
-           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: For selxTab "<<sPath.toString ()<<", srec = "<<PEGASUS_STD(hex)<<(int)srec<<PEGASUS_STD(dec)<<", eSelx = "<<PEGASUS_STD(hex)<<(int)eSelx<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(int)qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: For selxTab "<<sPath.toString ()<<", srec = "<<PEGASUS_STD(hex)<<(int)srec<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(int)qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
         }
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.createSubscriptionRequest: " + pr.getName());
@@ -6529,15 +6489,10 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         {
         case METHOD_EVENTPROVIDER:
         {
-            CMPI_SelectExp *eSelx     = newSelectExp (srec->qContext,
-                                                      prec->ctx,
-                                                      srec->query,
-                                                      srec->queryLanguage,
-                                                      request->nameSpace,
-                                                      request->classNames,
-                                                      srec->propertyList);
-            jint            jEselxRef = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
-            jobject         jEselx    = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jEselxRef);
+            WQLSelectStatement *stmt       = newSelectExp (srec->query,
+                                                           srec->queryLanguage);
+            jint                jStmtRef   = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
 
             JMPIjvm::checkException(env);
 
@@ -6555,7 +6510,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
             env->CallVoidMethod ((jobject)pr.jProvider,
                                  id,
-                                 jEselx,
+                                 jSelectExp,
                                  jType,
                                  jcop,
                                  (jboolean)fNewPrec);
@@ -6571,15 +6526,10 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
             jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
 
-            CMPI_SelectExp *eSelx     = newSelectExp (srec->qContext,
-                                                      prec->ctx,
-                                                      srec->query,
-                                                      srec->queryLanguage,
-                                                      request->nameSpace,
-                                                      request->classNames,
-                                                      srec->propertyList);
-            jint            jEselxRef = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
-            jobject         jEselx    = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jEselxRef);
+            WQLSelectStatement *stmt       = newSelectExp (srec->query,
+                                                           srec->queryLanguage);
+            jint                jStmtRef   = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
 
             JMPIjvm::checkException(env);
 
@@ -6598,7 +6548,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             env->CallVoidMethod ((jobject)pr.jProvider,
                                  id,
                                  joc,
-                                 jEselx,
+                                 jSelectExp,
                                  jType,
                                  jcop,
                                  (jboolean)fNewPrec);
@@ -6724,7 +6674,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
            selxTab.lookup (sPathString, srec);
 
-           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: For selxTab "<<sPathString<<", srec = "<<PEGASUS_STD(hex)<<(int)srec<<PEGASUS_STD(dec)<<", eSelx = "<<PEGASUS_STD(hex)<<(int)srec->eSelx<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(int)srec->qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: For selxTab "<<sPathString<<", srec = "<<PEGASUS_STD(hex)<<(int)srec<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(int)srec->qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 
            selxTab.remove (sPathString);
         }
@@ -6815,15 +6765,10 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         {
         case METHOD_EVENTPROVIDER:
         {
-            CMPI_SelectExp *eSelx     = newSelectExp (srec->qContext,
-                                                      prec->ctx,
-                                                      srec->query,
-                                                      srec->queryLanguage,
-                                                      request->nameSpace,
-                                                      request->classNames,
-                                                      srec->propertyList);
-            jint            jEselxRef = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
-            jobject         jEselx    = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jEselxRef);
+            WQLSelectStatement *stmt       = newSelectExp (srec->query,
+                                                           srec->queryLanguage);
+            jint                jStmtRef   = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
 
             JMPIjvm::checkException(env);
 
@@ -6841,7 +6786,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
             env->CallVoidMethod ((jobject)pr.jProvider,
                                  id,
-                                 jEselx,
+                                 jSelectExp,
                                  jType,
                                  jcop,
                                  (jboolean)fFreePrec);
@@ -6857,15 +6802,10 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
             jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
 
-            CMPI_SelectExp *eSelx     = newSelectExp (srec->qContext,
-                                                      prec->ctx,
-                                                      srec->query,
-                                                      srec->queryLanguage,
-                                                      request->nameSpace,
-                                                      request->classNames,
-                                                      srec->propertyList);
-            jint            jEselxRef = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, eSelx);
-            jobject         jEselx    = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jEselxRef);
+            WQLSelectStatement *stmt       = newSelectExp (srec->query,
+                                                           srec->queryLanguage);
+            jint                jStmtRef   = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
 
             JMPIjvm::checkException(env);
 
@@ -6884,7 +6824,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             env->CallVoidMethod ((jobject)pr.jProvider,
                                  id,
                                  joc,
-                                 jEselx,
+                                 jSelectExp,
                                  jType,
                                  jcop,
                                  (jboolean)fFreePrec);
@@ -6918,27 +6858,6 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
     if (srec)
     {
-       if (  srec->eSelx
-          && srec->eSelx->props
-          )
-       {
-          const char **props = srec->eSelx->props;
-
-          while (*props)
-          {
-             const char *prop = *props;
-
-             props++;
-
-             if (prop)
-             {
-                free ((void *)prop);
-             }
-          }
-
-          free ((void *)srec->eSelx->props);
-       }
-       delete srec->eSelx;
        delete srec->qContext;
     }
     delete srec;

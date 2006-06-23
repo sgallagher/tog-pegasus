@@ -48,6 +48,8 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPILocalProviderManager.h>
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
+#include <Pegasus/WQL/WQLSelectStatement.h>
+#include <Pegasus/WQL/WQLParser.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -99,11 +101,9 @@ public:
     public:
         indSelectRecord ()
         {
-            eSelx    = NULL;
             qContext = NULL;
         }
 
-        CMPI_SelectExp          *eSelx;
 	     CIMOMHandleQueryContext *qContext;
         String                   query;
         String                   queryLanguage;

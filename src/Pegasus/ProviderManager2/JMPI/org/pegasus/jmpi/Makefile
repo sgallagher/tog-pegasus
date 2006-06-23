@@ -102,6 +102,7 @@ PACKAGEDIR = org/pegasus/jmpi
    \
    CIMNameSpace.class \
    CIMClient.class \
+   ClassEnumeration.class \
    InstEnumeration.class \
    PathEnumeration.class \
    QualEnumeration.class \

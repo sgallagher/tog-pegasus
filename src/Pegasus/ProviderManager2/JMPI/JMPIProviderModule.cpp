@@ -1,38 +1,50 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Chip Vincent (cvincent@us.ibm.com)
+//
+// Modified By:
+//     Mark Hamzy (hamzy@us.ibm.com)
+//     Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//     Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//     Mike Day, IBM (mdday@us.ibm.com)
+//     Adrian Schuur, IBM (schuur@de.ibm.com)
+//     Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "JMPIProviderModule.h"
 
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProviderManager.h>
@@ -42,7 +54,9 @@ PEGASUS_NAMESPACE_BEGIN
 JMPIProviderModule::JMPIProviderModule (const String & fileName,
                                         const String & interfaceName)
     : _fileName (fileName),
-      _interfaceName (interfaceName)
+      _interfaceName (interfaceName),
+      _ref_count (0),
+      _library (0)
 {
    Uint32 i = fileName.find (".jar:");
 
@@ -84,31 +98,38 @@ ProviderVector JMPIProviderModule::load (const String & providerName)
    }
    else
    {
-      throw PEGASUS_CIM_EXCEPTION_L(
-          CIM_ERR_FAILED,
-          MessageLoaderParms(
-              "ProviderManager.JMPI.INIT_JVM_FAILED",
-              "Could not initialize the JVM (Java Virtual Machine) "
-                  "runtime environment."));
+      throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                     MessageLoaderParms ("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                         "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
    }
 
    if (pv.jProvider == 0)
    {
       String s0 = "ProviderLoadFailure";
 
-      throw Exception(MessageLoaderParms(
-          "ProviderManager.JMPI.JMPIProviderModule.CANNOT_LOAD_LIBRARY",
-          "$0 ($1:$2): Cannot load library.",
-          s0,
-          _fileName,
-          providerName));
+      throw Exception (MessageLoaderParms ("ProviderManager.JMPIProviderModule.CANNOT_LOAD_LIBRARY",
+                                           "$0 ($1:$2):Cannot load library",
+                                           s0,
+                                           _fileName,
+                                           providerName));
    }
+
+   _ref_count++;
 
    return pv;
 }
 
 void JMPIProviderModule::unloadModule (void)
 {
+   if (_ref_count.decAndTestIfZero ())
+   {
+      if (_library != 0)
+      {
+         System::unloadDynamicLibrary (_library);
+
+         _library = 0;
+      }
+   }
 }
 
 PEGASUS_NAMESPACE_END

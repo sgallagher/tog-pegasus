@@ -69,7 +69,7 @@ PEGASUS_NAMESPACE_BEGIN
    } \
    catch(...)  { \
       JMPIjvm::cacheIDs(jEnv); \
-      jobject ev=jEnv->NewObject(JMPIjvm::jv.CIMExceptionClassRef,JMPIjvm::jv.CIMExceptionNewISt,(jint)1,"Exception: Unknown"); \
+      jobject ev=jEnv->NewObject(JMPIjvm::jv.CIMExceptionClassRef,JMPIjvm::jv.CIMExceptionNewISt,(jint)1,jEnv->NewStringUTF("Exception: Unknown")); \
       jEnv->Throw((jthrowable)ev); \
    }
 

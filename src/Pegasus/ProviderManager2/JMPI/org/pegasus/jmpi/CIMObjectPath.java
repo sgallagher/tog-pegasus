@@ -112,7 +112,12 @@ public class CIMObjectPath
    {
       cInst = _newCn (className);
       if (keyValuePairs != null)
-         _setKeys (cInst, keyValuePairs);
+      {
+         if (cInst != 0)
+         {
+            _setKeys (cInst, keyValuePairs);
+         }
+      }
    }
 
    public CIMObjectPath (CIMInstance ci)
@@ -141,62 +146,128 @@ public class CIMObjectPath
 
    public String getHost ()
    {
-      return _getHost (cInst);
+      if (cInst != 0)
+      {
+         return _getHost (cInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public void setHost (String hn)
    {
-      _setHost (cInst, hn);
+      if (cInst != 0)
+      {
+         _setHost (cInst, hn);
+      }
    }
 
    public String getNameSpace ()
    {
-      return _getNameSpace (cInst);
+      if (cInst != 0)
+      {
+         return _getNameSpace (cInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public void setNameSpace (String ns)
    {
-      _setNameSpace (cInst, ns);
+      if (cInst != 0)
+      {
+         _setNameSpace (cInst, ns);
+      }
    }
 
    public String getObjectName ()
    {
-      return _getObjectName (cInst);
+      if (cInst != 0)
+      {
+         return _getObjectName (cInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public void setObjectName (String objectName)
    {
-      _setObjectName (cInst, objectName);
+      if (cInst != 0)
+      {
+         _setObjectName (cInst, objectName);
+      }
    }
 
    public Vector getKeys ()
    {
-      return _getKeys (cInst, new Vector ());
+      Vector ret = new Vector ();
+
+      if (cInst != 0)
+      {
+         _getKeys (cInst, ret);
+      }
+
+      return ret;
    }
 
    public String getKeyValue (String keyName)
    {
-      return _getKeyValue (cInst, keyName);
+      if (cInst != 0)
+      {
+         return _getKeyValue (cInst, keyName);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public void setKeys (Vector keys)
    {
-      _setKeys (cInst, keys);
+      if (cInst != 0)
+      {
+         _setKeys (cInst, keys);
+      }
    }
 
    public void addKey (String key, CIMValue val)
    {
-      _addKey (cInst, key, val.cInst ());
+      if (cInst != 0)
+      {
+         _addKey (cInst, key, val.cInst ());
+      }
    }
 
    public String toString ()
    {
-      return _toString (cInst);
+      if (cInst != 0)
+      {
+         return _toString (cInst);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public static CIMObjectPath toCop (String copStr)
    {
-      return new CIMObjectPath (_set (copStr));
+      int ciObjectPath = _set (copStr);
+
+      if (ciObjectPath != 0)
+      {
+         return new CIMObjectPath (ciObjectPath);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    static {

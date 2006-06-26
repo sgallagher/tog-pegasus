@@ -53,6 +53,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 
+#include "Network.h"
 #include <iostream>
 #include <cctype>
 #include <cstdlib>

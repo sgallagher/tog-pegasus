@@ -53,15 +53,8 @@
 
 #include "HttpConstants.h"
 #include "WbemExecClient.h"
-
+#include <Pegasus/Common/Network.h>
 #include <iostream>
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <windows.h>
-#else
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <sys/socket.h>
-#endif
 
 PEGASUS_USING_STD;
 

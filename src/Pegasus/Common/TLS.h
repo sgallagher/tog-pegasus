@@ -75,7 +75,7 @@ class PEGASUS_COMMON_LINKAGE SSLSocket
 public:
 
     SSLSocket(
-        PEGASUS_SOCKET socket,
+        SocketHandle socket,
         SSLContext * sslcontext,
         ReadWriteSem * sslContextObjectLock,
         Boolean exportConnection = false);
@@ -98,7 +98,7 @@ public:
 
     static void uninitializeInterface();
 
-    PEGASUS_SOCKET getSocket() {return _socket;}
+    SocketHandle getSocket() {return _socket;}
 
     /**
         Accepts the connection, performing the necessary SSL handshake.
@@ -126,7 +126,7 @@ public:
 private:
 
     SSL * _SSLConnection;
-    PEGASUS_SOCKET _socket;
+    SocketHandle _socket;
     SSLContext * _SSLContext;
     ReadWriteSem * _sslContextObjectLock;
     Uint32 _sslReadErrno;
@@ -150,10 +150,10 @@ class SSLSocket {};
 class MP_Socket {
 
 public:
-    MP_Socket(PEGASUS_SOCKET socket);                          // "normal" socket
+    MP_Socket(SocketHandle socket);                          // "normal" socket
 
     MP_Socket(
-        PEGASUS_SOCKET socket,
+        SocketHandle socket,
         SSLContext * sslcontext,
         ReadWriteSem * sslContextObjectLock,
         Boolean exportConnection = false);             // secure socket
@@ -164,7 +164,7 @@ public:
 
     Boolean incompleteReadOccurred(Sint32 retCode);
 
-    PEGASUS_SOCKET getSocket();
+    SocketHandle getSocket();
 
     Sint32 read(void* ptr, Uint32 size);
 
@@ -193,7 +193,7 @@ public:
     Boolean isCertificateVerified();
 
     union {
-        PEGASUS_SOCKET _socket;
+        SocketHandle _socket;
         SSLSocket *_sslsock;
     };
 

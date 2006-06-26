@@ -1944,14 +1944,9 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
     FD_ZERO(&fdread);
     FD_SET(getSocket(), &fdread);
     events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    if(events == SOCKET_ERROR)
-#else
-    if(events == -1)
-#endif
-    {
+
+    if (events == PEGASUS_SOCKET_ERROR)
         return false;
-    }
 
     if (events)
     {

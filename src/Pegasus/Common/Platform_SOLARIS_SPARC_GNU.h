@@ -58,10 +58,4 @@
 
 // #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
 
-#if defined(SUNOS_5_6)
-# define PEGASUS_SOCKLEN_T int
-#else
-# define PEGASUS_SOCKLEN_T socklen_t
-#endif
-
 #endif /* Pegasus_Platform_SOLARIS_SPARC_GNU_h */

@@ -37,80 +37,71 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Socket.h"
+#include "Network.h"
+#include <cctype>
+#include <cstring>
+#include <Pegasus/Common/Sharable.h>
+
+//------------------------------------------------------------------------------
+//
+// PEGASUS_RETRY_SYSTEM_CALL()
+//
+//     This macro repeats the given system call until it returns something
+//     other than EINTR.
+//
+//------------------------------------------------------------------------------
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-#include <windows.h>
-# ifndef _WINSOCKAPI_
-#   include <winsock2.h>
-# endif
+#   define PEGASUS_RETRY_SYSTEM_CALL(EXPR, RESULT) RESULT = EXPR
 #else
-# include <cctype>
-#ifndef PEGASUS_OS_OS400
-#   include <unistd.h>
-#else
-#   include <unistd.cleinc>
-#endif
-#   include <string.h>  // added by rk for memcpy
-# include <cstdlib>
-# include <errno.h>
-# include <fcntl.h>
-# include <netdb.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <sys/socket.h>
-# include <errno.h>
+#   define PEGASUS_RETRY_SYSTEM_CALL(EXPR, RESULT) \
+        while (((RESULT = (EXPR)) == -1) && (errno == EINTR))
 #endif
 
-#include <Pegasus/Common/Sharable.h>
 PEGASUS_NAMESPACE_BEGIN
 
 static Uint32 _socketInterfaceRefCount = 0;
 
-Sint32 Socket::read(PEGASUS_SOCKET socket, void* ptr, Uint32 size)
+Sint32 Socket::read(SocketHandle socket, void* ptr, Uint32 size)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return ::recv(socket, (char*)ptr, size, 0);
 #else
-#if defined (__GNUC__) && !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_DARWIN) && !defined(PEGASUS_OS_LSB)
-    int ccode = TEMP_FAILURE_RETRY(::read(socket, (char*)ptr, size));
-    return ccode;
-#else
-    return ::read(socket, (char*)ptr, size);
-#endif
+    int status;
+    PEGASUS_RETRY_SYSTEM_CALL(::read(socket, (char*)ptr, size), status);
+    return status;
 #endif
 }
 
-Sint32 Socket::write(PEGASUS_SOCKET socket, const void* ptr, Uint32 size)
+Sint32 Socket::write(SocketHandle socket, const void* ptr, Uint32 size)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return ::send(socket, (const char*)ptr, size, 0);
 #else
-#if (__GNUC__) && !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_DARWIN) && !defined(PEGASUS_OS_LSB)
-    int ccode = TEMP_FAILURE_RETRY(::write(socket, (char*)ptr, size));
-    return ccode;
-#else
-    return ::write(socket, (char*)ptr, size);
-#endif
+    int status;
+    PEGASUS_RETRY_SYSTEM_CALL(::write(socket, (char*)ptr, size), status);
+    return status;
 #endif
 }
 
-void Socket::close(PEGASUS_SOCKET socket)
+void Socket::close(SocketHandle socket)
 {
-  if(-1 != socket)
-   {
-    #ifdef PEGASUS_OS_TYPE_WINDOWS
-    if(!closesocket(socket)) socket=-1;
-    #else
-    #if (__GNUC__) && !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_DARWIN) && !defined(PEGASUS_OS_LSB)
-       if(!TEMP_FAILURE_RETRY(::close(socket))) socket = -1;
-    #else
-       if(!::close(socket)) socket = -1;
-    #endif
-    #endif
-   }
+    if (socket != -1)
+    {
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+	if(!closesocket(socket)) 
+	    socket = -1;
+#else
+	int status;
+	PEGASUS_RETRY_SYSTEM_CALL(::close(socket), status);
+
+	if (status == 0)
+	    socket = -1;
+#endif
+    }
 }
 
-void Socket::enableBlocking(PEGASUS_SOCKET socket)
+void Socket::enableBlocking(SocketHandle socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     unsigned long flag = 0;
@@ -122,7 +113,7 @@ void Socket::enableBlocking(PEGASUS_SOCKET socket)
 #endif
 }
 
-void Socket::disableBlocking(PEGASUS_SOCKET socket)
+void Socket::disableBlocking(SocketHandle socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     unsigned long flag = 1;
@@ -141,8 +132,8 @@ void Socket::initializeInterface()
     {
         WSADATA tmp;
 
-    if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
-        WSACleanup();
+	if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
+	    WSACleanup();
     }
 
     _socketInterfaceRefCount++;
@@ -158,7 +149,6 @@ void Socket::uninitializeInterface()
         WSACleanup();
 #endif
 }
-
 
 PEGASUS_NAMESPACE_END
 

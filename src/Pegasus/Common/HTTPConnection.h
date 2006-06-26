@@ -76,10 +76,10 @@ class CloseConnectionMessage : public Message
 {
 public:
 
-    CloseConnectionMessage(PEGASUS_SOCKET socket_)
+    CloseConnectionMessage(SocketHandle socket_)
         : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
 
-    PEGASUS_SOCKET socket;
+    SocketHandle socket;
 };
 
 /** This class represents an HTTP listener.
@@ -111,7 +111,7 @@ public:
     virtual void handleEnqueue();
 
     /** Return socket this connection is using. */
-    PEGASUS_SOCKET getSocket() { return _socket->getSocket();}
+    SocketHandle getSocket() { return _socket->getSocket();}
 
     MP_Socket& getMPSocket() { return *_socket;}
 

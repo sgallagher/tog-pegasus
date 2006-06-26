@@ -60,6 +60,4 @@
 
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
 
-#define PEGASUS_SOCKLEN_T int
-
 #endif /* Pegasus_Platform_NSK_NONSTOP_NMCPLUS_h */

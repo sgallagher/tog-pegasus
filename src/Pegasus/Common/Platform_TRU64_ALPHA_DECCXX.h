@@ -65,6 +65,4 @@
 
 #define PEGASUS_SUPPORTS_DYNLIB
 
-#define PEGASUS_SOCKLEN_T int
-
 #endif /* Pegasus_Platform_TRU64_ALPHA_DECCXX_h */

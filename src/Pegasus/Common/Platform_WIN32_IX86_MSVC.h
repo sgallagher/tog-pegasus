@@ -71,9 +71,6 @@
 
 #define PEGASUS_DISABLE_INTERNAL_INLINES
 
-#define PEGASUS_SOCKET SOCKET
-#define PEGASUS_INVALID_SOCKET INVALID_SOCKET
-
 // Exclude rarely-used stuff from Windows headers
 // Note: this is also an easy way to avoid the often introduced 
 // winsock.h/winsock2.h mixing compiler error problems.
@@ -141,7 +138,5 @@ namespace std
     }
 }
 #endif /* _MSC_VER < 1300 */
-
-#define PEGASUS_SOCKLEN_T int
 
 #endif /* Pegasus_Platform_WIN32_IX86_MSVC_h */

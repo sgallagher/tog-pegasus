@@ -46,10 +46,7 @@
 
 #include "System.h"
 
-#include <windows.h>
-#ifndef _WINSOCKAPI_
-#include <winsock2.h>
-#endif
+#include "Network.h"
 #include <fcntl.h>
 #include <sys/types.h>
 #include <time.h>

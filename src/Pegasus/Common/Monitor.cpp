@@ -41,7 +41,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-
 #include <cstring>
 #include "Monitor.h"
 #include "MessageQueue.h"
@@ -79,6 +78,21 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static AtomicInt _connections(0);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _getError()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static inline int _getError()
+{
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    return WSAGetLastError()
+#else
+    return errno;
+#endif
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -155,11 +169,7 @@ void Monitor::initializeTickler(){
 	//handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CREATE",
 				 "Received error number $0 while creating the internal socket.",
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-				 errno);
-#else
-				 WSAGetLastError());
-#endif
+				 _getError());
 	throw Exception(parms);
     }
     
@@ -179,7 +189,7 @@ void Monitor::initializeTickler(){
     _tickle_server_addr.sin_family = PF_INET;
     _tickle_server_addr.sin_port = 0;
 
-    PEGASUS_SOCKLEN_T _addr_size = sizeof(_tickle_server_addr);
+    socklen_t _addr_size = sizeof(_tickle_server_addr);
 
     // bind server side to socket
     if((::bind(_tickle_server_socket,
@@ -192,11 +202,7 @@ void Monitor::initializeTickler(){
 #else
 	MessageLoaderParms parms("Common.Monitor.TICKLE_BIND",
 				 "Received error number $0 while binding the internal socket.",
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-				 errno);
-#else
-				 WSAGetLastError());
-#endif
+				 _getError());
 #endif
         throw Exception(parms);
     }
@@ -206,11 +212,7 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_LISTEN",
 			 "Received error number $0 while listening to the internal socket.",
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-				 errno);
-#else
-				 WSAGetLastError());
-#endif
+				 _getError());
 	throw Exception(parms);
     }
 
@@ -222,11 +224,7 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_SOCKNAME",
 			 "Received error number $0 while getting the internal socket name.",
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-				 errno);
-#else
-				 WSAGetLastError());
-#endif
+				 _getError());
 	throw Exception(parms);
     }
 
@@ -237,11 +235,7 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_CREATE",
 			 "Received error number $0 while creating the internal client socket.",
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-				 errno);
-#else
-				 WSAGetLastError());
-#endif
+				 _getError());
 	throw Exception(parms);
     }
     
@@ -267,11 +261,7 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_BIND",
 			 "Received error number $0 while binding the internal client socket.",
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-				 errno);
-#else
-				 WSAGetLastError());
-#endif
+				 _getError());
 	throw Exception(parms);
     }
 
@@ -282,17 +272,13 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_CONNECT",
 			 "Received error number $0 while connecting the internal client socket.",
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-				 errno);
-#else
-				 WSAGetLastError());
-#endif
+				 _getError());
 	throw Exception(parms);
     }
 
     /* set up the slave connection */
     memset(&_tickle_peer_addr, 0, sizeof(_tickle_peer_addr));
-    PEGASUS_SOCKLEN_T peer_size = sizeof(_tickle_peer_addr);
+    socklen_t peer_size = sizeof(_tickle_peer_addr);
     pegasus_sleep(1);
 
     // this call may fail, we will try a max of 20 times to establish this peer connection
@@ -319,11 +305,7 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_ACCEPT",
 			 "Received error number $0 while accepting the internal socket connection.",
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-				 errno);
-#else
-				 WSAGetLastError());
-#endif
+				 _getError());
 	throw Exception(parms);
     }
     // add the tickler to the list of entries to be monitored and set to IDLE because Monitor only
@@ -456,7 +438,7 @@ Boolean Monitor::run(Uint32 milliseconds)
         place to calculate the max file descriptor (maximum socket number)
         because we have to traverse the entire array.
     */
-    PEGASUS_SOCKET maxSocketCurrentPass = 0;
+    SocketHandle maxSocketCurrentPass = 0;
     for( int indx = 0; indx < (int)entries.size(); indx++)
     {
        if(maxSocketCurrentPass < entries[indx].socket)
@@ -491,11 +473,8 @@ Boolean Monitor::run(Uint32 milliseconds)
     // After enqueue a message and the autoEntryMutex has been released and locked again,
     // the array of _entries can be changed. The ArrayIterator has be reset with the original _entries
     entries.reset(_entries);
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    if(events == SOCKET_ERROR)
-#else
-    if(events == -1)
-#endif
+
+    if (events == PEGASUS_SOCKET_ERROR)
     {
        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "Monitor::run - errorno = %d has occurred on select.", errno);
@@ -646,7 +625,7 @@ void Monitor::stopListeningForConnections(Boolean wait)
 
 
 int  Monitor::solicitSocketMessages(
-    PEGASUS_SOCKET socket,
+    SocketHandle socket,
     Uint32 events,
     Uint32 queueId,
     int type)
@@ -690,7 +669,7 @@ int  Monitor::solicitSocketMessages(
 
 }
 
-void Monitor::unsolicitSocketMessages(PEGASUS_SOCKET socket)
+void Monitor::unsolicitSocketMessages(SocketHandle socket)
 {
 
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessages");

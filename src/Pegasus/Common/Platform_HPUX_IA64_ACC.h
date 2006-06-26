@@ -60,10 +60,4 @@
 
 #define PEGASUS_DISABLE_INTERNAL_INLINES
 
-#if defined(_XOPEN_SOURCE_EXTENDED)
-# define PEGASUS_SOCKLEN_T socklen_t
-#else
-# define PEGASUS_SOCKLEN_T int
-#endif
-
 #endif /* Pegasus_Platform_HPUX_IA64_ACC_h */

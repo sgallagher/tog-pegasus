@@ -43,11 +43,7 @@
 
 #ifdef PEGASUS_HAS_SSL
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-//Use the X509_NAME in wincrypt.h on Windows.  See X509.h for more info.
-#include <windows.h>
-#include <wincrypt.h>
-#endif
+#include "Network.h"
 
 #define OPENSSL_NO_KRB5 1
 #include <openssl/err.h>

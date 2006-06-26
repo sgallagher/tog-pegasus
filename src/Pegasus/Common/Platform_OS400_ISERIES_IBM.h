@@ -103,6 +103,4 @@
 #define PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #endif
 
-#define PEGASUS_SOCKLEN_T int
-
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

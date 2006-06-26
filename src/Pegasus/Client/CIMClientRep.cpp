@@ -55,12 +55,7 @@
 
 #include <iostream>
 #include <fstream>
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <windows.h>
-#else
-# include <netinet/in.h>
-# include <sys/socket.h>
-#endif
+#include <Pegasus/Common/Network.h>
 
 PEGASUS_USING_STD;
 

@@ -38,69 +38,43 @@
 #ifndef Pegasus_Socket_h
 #define Pegasus_Socket_h
 
+#include <cctype>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-#include <windows.h>
-# ifndef _WINSOCKAPI_
-#   include <winsock2.h>
-# endif
-#else
-# include <cctype>
-#ifndef PEGASUS_OS_OS400
-//#   include <unistd.h>
-#else
+#include <Pegasus/Common/Network.h>
+#include <Pegasus/Common/Linkage.h>
+
+#ifdef PEGASUS_OS_OS400
 #   include <Pegasus/Common/OS400ConvertChar.h>
-#   include <unistd.cleinc>
 #endif
+
 #ifdef PEGASUS_OS_ZOS
 #   include <string.h>  // added by rk for memcpy
 #endif
-# include <cstdlib>
-# include <errno.h>
-# include <fcntl.h>
-# include <netdb.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <sys/socket.h>
-#endif
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifndef PEGASUS_SOCKET
-#define PEGASUS_SOCKET int
-#endif
-
-#ifndef PEGASUS_INVALID_SOCKET
-#define PEGASUS_INVALID_SOCKET -1
-#endif
-
 class Socket
 {
-   public:
+public:
 
+    static Sint32 read(SocketHandle socket, void* ptr, Uint32 size);
 
-      static Sint32 read(PEGASUS_SOCKET socket, void* ptr, Uint32 size);
+    static Sint32 write(SocketHandle socket, const void* ptr, Uint32 size);
 
-      static Sint32 write(PEGASUS_SOCKET socket, const void* ptr, Uint32 size);
+    static void close(SocketHandle socket);
 
-      static void close(PEGASUS_SOCKET socket);
+    static void enableBlocking(SocketHandle socket);
 
-      static void enableBlocking(PEGASUS_SOCKET socket);
+    static void disableBlocking(SocketHandle socket);
 
-      static void disableBlocking(PEGASUS_SOCKET socket);
+    static void initializeInterface();
 
-      static void initializeInterface(void);
-      static void uninitializeInterface(void);
+    static void uninitializeInterface();
 
-
-   private:
-
-      Socket() { }
+private:
+    Socket();
 };
-
-
 
 PEGASUS_NAMESPACE_END
 

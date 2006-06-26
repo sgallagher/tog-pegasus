@@ -58,7 +58,7 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE _MonitorEntry
 {
 public:
-  PEGASUS_SOCKET socket;
+  SocketHandle socket;
   Uint32 queueId;
   AtomicInt _status;
 
@@ -73,7 +73,7 @@ public:
   }
   int _type;
 
-  _MonitorEntry(PEGASUS_SOCKET sock, Uint32 q, int Type)
+  _MonitorEntry(SocketHandle sock, Uint32 q, int Type)
     : socket(sock), queueId(q), _status(EMPTY), _type(Type)
   {
   }
@@ -127,12 +127,12 @@ public:
   enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
 
 
-  SocketMessage(PEGASUS_SOCKET socket_, Uint32 events_) :
+  SocketMessage(SocketHandle socket_, Uint32 events_) :
     Message(SOCKET_MESSAGE), socket(socket_), events(events_)
   {
   }
 
-  PEGASUS_SOCKET socket;
+  SocketHandle socket;
   Uint32 events;
 };
 
@@ -228,7 +228,7 @@ public:
       @return false if messages have already been solicited on this socket.
   */
   int solicitSocketMessages(
-                PEGASUS_SOCKET socket,
+                SocketHandle socket,
                 Uint32 events,
                 Uint32 queueId,
                 int type);
@@ -238,7 +238,7 @@ public:
   @param socket on which to unsolicit messages.
   @return false if no such solicitation has been made on the given socket.
   */
-  void unsolicitSocketMessages(PEGASUS_SOCKET);
+  void unsolicitSocketMessages(SocketHandle);
 
   /** dispatch a message to the cimom on an independent thread
       Note: The Monitor class uses the MessageQueueService ThreadPool.
@@ -264,9 +264,9 @@ private:
   struct sockaddr_in _tickle_server_addr;
   struct sockaddr_in _tickle_client_addr;
   struct sockaddr_in _tickle_peer_addr;
-  PEGASUS_SOCKET _tickle_client_socket;
-  PEGASUS_SOCKET _tickle_server_socket;
-  PEGASUS_SOCKET _tickle_peer_socket;
+  SocketHandle _tickle_client_socket;
+  SocketHandle _tickle_server_socket;
+  SocketHandle _tickle_peer_socket;
   Mutex _tickle_mutex;
 };
 

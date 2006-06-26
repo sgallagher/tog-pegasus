@@ -79,13 +79,11 @@
 #include <crypt.h>
 #endif
 
+#include "Network.h"
+
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#define _OPEN_SYS_SOCK_IPV6
-#include <sys/socket.h>
-#include <arpa/inet.h>
-//#include <__ftp.h>
-#define _OPEN_SYS_EXT
-#include <sys/ps.h>
+#   define _OPEN_SYS_EXT
+#   include <sys/ps.h>
 #endif
 
 #if defined(PEGASUS_USE_SYSLOGS)
@@ -97,7 +95,6 @@
 #include <cstdio>
 #include <time.h>
 #include <sys/time.h>
-#include <netdb.h>
 #include "System.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/InternalException.h>
@@ -107,7 +104,6 @@
 #endif
 
 #if defined(PEGASUS_OS_LSB)
-#include <netinet/in.h>
 #include <termios.h>
 #include <stdio.h>
 #include <stdlib.h>

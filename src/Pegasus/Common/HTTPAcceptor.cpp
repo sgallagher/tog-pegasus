@@ -50,24 +50,7 @@
 #include "Constants.h"
 #include <iostream>
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-#include <windows.h>
-#else
-# include <cctype>
-# include <cstdlib>
-# include <errno.h>
-# include <fcntl.h>
-# include <netdb.h>
-# include <netinet/in.h>
-# include <netinet/tcp.h>
-# include <arpa/inet.h>
-# include <sys/socket.h>
-# ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-# include <unistd.h>
-#  include <sys/un.h>
-# endif
-#endif
-
+#include "Network.h"
 #include "Socket.h"
 #include "TLS.h"
 #include "HTTPAcceptor.h"
@@ -119,10 +102,10 @@ public:
     }
     struct sockaddr* address;
 
-    PEGASUS_SOCKLEN_T address_size;
+    socklen_t address_size;
     Mutex _connection_mut;
 
-    PEGASUS_SOCKET socket;
+    SocketHandle socket;
     Array<HTTPConnection*> connections;
 };
 
@@ -132,7 +115,7 @@ public:
 //
 //------------------------------------------------------------------------------
 
-inline void _setTCPNoDelay(PEGASUS_SOCKET socket)
+inline void _setTCPNoDelay(SocketHandle socket)
 {
     // This function disables "Nagle's Algorithm" also known as "the TCP delay
     // algorithm", which causes read operations to obtain whatever data is
@@ -255,7 +238,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
      for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
      {
         HTTPConnection* connection = _rep->connections[i];
-        PEGASUS_SOCKET socket = connection->getSocket();
+        SocketHandle socket = connection->getSocket();
 
         if (socket == closeConnectionMessage->socket)
         {
@@ -450,7 +433,7 @@ void HTTPAcceptor::_bind()
    if ( _portNumber == 0 )
    {
       sockaddr_in buf;
-      PEGASUS_SOCKLEN_T bufSize = sizeof(buf);
+      socklen_t bufSize = sizeof(buf);
       if ( getsockname(_rep->socket, reinterpret_cast<sockaddr *>(&buf), &bufSize) == 0 )
       {
           _portNumber = ntohs(buf.sin_port);
@@ -638,7 +621,7 @@ void HTTPAcceptor::destroyConnections()
      for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
      {
         HTTPConnection* connection = _rep->connections[i];
-        PEGASUS_SOCKET socket = connection->getSocket();
+        SocketHandle socket = connection->getSocket();
 
         // Unsolicit SocketMessages:
 
@@ -666,7 +649,7 @@ void HTTPAcceptor::_acceptConnection()
    // Accept the connection (populate the address):
 
    struct sockaddr* accept_address;
-   PEGASUS_SOCKLEN_T address_size;
+   socklen_t address_size;
 
    if (_localConnection)
    {
@@ -683,7 +666,7 @@ void HTTPAcceptor::_acceptConnection()
        address_size = sizeof(struct sockaddr_in);
    }
 
-   PEGASUS_SOCKET socket = accept(_rep->socket, accept_address, &address_size);
+   SocketHandle socket = accept(_rep->socket, accept_address, &address_size);
 
    delete accept_address;
 

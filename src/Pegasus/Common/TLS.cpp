@@ -66,7 +66,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 
 SSLSocket::SSLSocket(
-    PEGASUS_SOCKET socket,
+    SocketHandle socket,
     SSLContext * sslcontext,
     ReadWriteSem * sslContextObjectLock,
     Boolean exportConnection)
@@ -459,11 +459,11 @@ Boolean SSLSocket::isCertificateVerified()
 
 
 
-MP_Socket::MP_Socket(PEGASUS_SOCKET socket)
+MP_Socket::MP_Socket(SocketHandle socket)
  : _socket(socket), _isSecure(false) {}
 
 MP_Socket::MP_Socket(
-    PEGASUS_SOCKET socket,
+    SocketHandle socket,
     SSLContext * sslcontext,
     ReadWriteSem * sslContextObjectLock,
     Boolean exportConnection)
@@ -502,7 +502,7 @@ Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
     return (retCode <=  0);
 }
 
-PEGASUS_SOCKET MP_Socket::getSocket()
+SocketHandle MP_Socket::getSocket()
 {
     if (_isSecure)
         return _sslsock->getSocket();
@@ -602,11 +602,11 @@ PEGASUS_NAMESPACE_END
 PEGASUS_NAMESPACE_BEGIN
 
 
-MP_Socket::MP_Socket(PEGASUS_SOCKET socket)
+MP_Socket::MP_Socket(SocketHandle socket)
  : _socket(socket), _isSecure(false) {}
 
 MP_Socket::MP_Socket(
-    PEGASUS_SOCKET socket,
+    SocketHandle socket,
     SSLContext * sslcontext,
     ReadWriteSem * sslContextObjectLock,
     Boolean exportConnection)
@@ -621,7 +621,7 @@ Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
    return (retCode <= 0);
 }
 
-PEGASUS_SOCKET MP_Socket::getSocket()
+SocketHandle MP_Socket::getSocket()
 {
     return _socket;
 }

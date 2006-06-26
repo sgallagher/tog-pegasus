@@ -61,7 +61,6 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
-# include <netinet/tcp.h>
 # ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 # include <unistd.h>
 #  include <sys/un.h>
@@ -248,7 +247,7 @@ void HTTPConnector::handleEnqueue(Message *message)
      for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
      {
         HTTPConnection* connection = _rep->connections[i];  
-        PEGASUS_SOCKET socket = connection->getSocket();
+        SocketHandle socket = connection->getSocket();
 
         if (socket == closeConnectionMessage->socket)
         {
@@ -286,7 +285,7 @@ HTTPConnection* HTTPConnector::connect(
    SSLContext * sslContext,
    MessageQueue* outputMessageQueue)
 {
-   PEGASUS_SOCKET socket;
+   SocketHandle socket;
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
    if (host == String::EMPTY)
@@ -432,7 +431,7 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 
     PEGASUS_ASSERT(index != PEG_NOT_FOUND);
 
-    PEGASUS_SOCKET socket = currentConnection->getSocket();
+    SocketHandle socket = currentConnection->getSocket();
     _monitor->unsolicitSocketMessages(socket);
     _rep->connections.remove(index);
     delete currentConnection;
@@ -440,7 +439,7 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 
 void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 {
-    PEGASUS_SOCKET socket = httpConnection->getSocket();
+    SocketHandle socket = httpConnection->getSocket();
 
     // Unsolicit SocketMessages:
 

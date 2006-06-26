@@ -53,13 +53,7 @@
 #include <cstring>
 #include "System.h"
 #include "Socket.h"
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <windows.h>
-#else
-# include <arpa/inet.h>
-#endif
-
+#include "Network.h"
 #include <Pegasus/Common/PegasusVersion.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)

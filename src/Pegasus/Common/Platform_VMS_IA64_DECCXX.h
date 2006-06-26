@@ -86,8 +86,6 @@
 
 #define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
 
-#define PEGASUS_SOCKLEN_T size_t
-
 // PEGASUS_DISABLE_INTERNAL_INLINES
 // Debug builds fail with undefined symbols. Perhaps this is
 // because debug (nooptimize) builds have the compiler inline

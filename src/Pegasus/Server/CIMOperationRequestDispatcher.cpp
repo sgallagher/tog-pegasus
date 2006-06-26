@@ -561,13 +561,6 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
                 CIMException(CIM_ERR_FAILED, String(failMsg));
     }
 
-    if (isComplete == true)
-    {
-        // also deletes the copied request attached to it
-        delete poA;
-        poA = 0;
-    }
-
     // after sending, the response has been deleted externally
     response = 0;
 
@@ -1796,6 +1789,12 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     // the ENTIRE response to the request.
 
     isComplete = service->_enqueueResponse(poA, response);
+    if (isComplete)
+    {
+        // also deletes the copied request attached to it
+        delete poA;
+        poA = 0;
+    }
 
     PEG_METHOD_EXIT();
 }

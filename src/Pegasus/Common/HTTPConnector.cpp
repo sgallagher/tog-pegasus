@@ -44,29 +44,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include "Network.h"
 #include "Config.h"
 #include <iostream>
 #include "Constants.h"
 #include "Socket.h"
 #include <Pegasus/Common/MessageLoader.h> //l10n
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <windows.h>
-#else
-# include <cctype>
-# include <cstdlib>
-# include <errno.h>
-# include <fcntl.h>
-# include <netdb.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <sys/socket.h>
-# ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-# include <unistd.h>
-#  include <sys/un.h>
-# endif
-#endif
-
 #include "Socket.h"
 #include "TLS.h"
 #include "HTTPConnector.h"

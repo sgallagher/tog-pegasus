@@ -40,6 +40,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include "Network.h"
 #include <Pegasus/Common/Config.h>
 #include <cstring>
 #include "Monitor.h"
@@ -50,28 +51,6 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Exception.h>
 #include "ArrayIterator.h"
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-# if defined(FD_SETSIZE) && FD_SETSIZE != 1024
-#  error "FD_SETSIZE was not set to 1024 prior to the last inclusion \
-of <winsock.h>. It may have been indirectly included (e.g., by including \
-<windows.h>). Find inclusion of that header which is visible to this \
-compilation unit and #define FD_SETZIE to 1024 prior to that inclusion; \
-otherwise, less than 64 clients (the default) will be able to connect to the \
-CIMOM. PLEASE DO NOT SUPPRESS THIS WARNING; PLEASE FIX THE PROBLEM."
-
-# endif
-# define FD_SETSIZE 1024
-# include <windows.h>
-#else
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <sys/time.h>
-# include <netinet/in.h>
-# include <netdb.h>
-# include <arpa/inet.h>
-# include <netinet/tcp.h>
-#endif
 
 PEGASUS_USING_STD;
 

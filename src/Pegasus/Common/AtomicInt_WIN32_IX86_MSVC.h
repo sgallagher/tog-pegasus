@@ -37,6 +37,7 @@
 #define _Pegasus_Common_AtomicInt_WIN32_IX86_MSVC_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Network.h>
 #include <windows.h>
 
 PEGASUS_NAMESPACE_BEGIN

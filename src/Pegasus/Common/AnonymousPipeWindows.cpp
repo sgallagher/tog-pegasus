@@ -40,6 +40,7 @@
 
 #include "AnonymousPipe.h"
 #include <Pegasus/Common/Signal.h>
+#include "Network.h"
 #include <windows.h>
 #include <stdio.h>
 

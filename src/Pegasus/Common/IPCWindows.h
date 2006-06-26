@@ -48,14 +48,7 @@
 // PLEASE DO NOT REMOVE THE DEFINITION OF FD_SETSIZE!
 //
 
-#ifndef FD_SETSIZE
-# define FD_SETSIZE 1024
-#endif
-
-#include <windows.h>
-#ifndef _WINSOCKAPI_
-#include <winsock2.h>
-#endif
+#include "Network.h"
 #include <winbase.h>
 #include <stdlib.h>
 #include <sys/types.h>

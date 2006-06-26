@@ -39,9 +39,9 @@
 #define Pegasus_Socket_h
 
 #include <cctype>
+#include <Pegasus/Common/Network.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/Network.h>
 #include <Pegasus/Common/Linkage.h>
 
 #ifdef PEGASUS_OS_OS400

@@ -47,6 +47,7 @@
 #define Pegasus_IPC_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Network.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/IPCTypes.h>

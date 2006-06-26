@@ -67,7 +67,7 @@ static AtomicInt _connections(0);
 static inline int _getError()
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    return WSAGetLastError()
+    return WSAGetLastError();
 #else
     return errno;
 #endif

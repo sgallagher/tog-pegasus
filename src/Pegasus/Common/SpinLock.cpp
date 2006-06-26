@@ -35,6 +35,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include "Network.h"
+
 #if defined(PEGASUS_OS_SOLARIS)
 # include <sys/types.h>
 # include <unistd.h>

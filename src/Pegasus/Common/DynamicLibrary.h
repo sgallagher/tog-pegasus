@@ -45,6 +45,7 @@
 #include <Pegasus/Common/Linkage.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
+#include <Pegasus/Common/Network.h>
 #include <windows.h>
 #endif
 

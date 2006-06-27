@@ -214,3 +214,5 @@ endif
         SYS_INCLUDES += -I$(ICU_ROOT)/source/common -I$(ICU_ROOT)/source/i18n
     endif
 endif
+
+PEGASUS_JAVA_CLASSPATH_DELIMITER = ;

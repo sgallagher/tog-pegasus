@@ -17,7 +17,7 @@ JMPIExpInstance_TestPropertyTypes
 </PROPERTY>
 <PROPERTY NAME="PropertyString" TYPE="string">
 <VALUE>
-JMPIExpInstance_TestPropertyTypes_Instance1
+JMPIExpInstanceProvider_Instance1
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="PropertyUint8" TYPE="uint8">

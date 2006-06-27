@@ -73,7 +73,7 @@ endif
 ifeq ($(COMPILER),acc)
   LINK_COMMAND = $(CXX) -b -Wl,+hlib$(LIBRARY)$(LIB_SUFFIX)
   ifeq ($(PEGASUS_PLATFORM), HPUX_IA64_ACC)
-    LINK_COMMAND += +DD64 -mt
+    LINK_COMMAND += +DD64 -mt -Wl,+rpathfirst
   else
     LINK_COMMAND += -Wl,-Bsymbolic
   endif

@@ -57,5 +57,5 @@ instance of PG_ProviderCapabilities
     Namespaces = { "test/TestProvider" };
     ProviderType = { 5 };
     SupportedProperties = NULL;
-    SupportedMethods = { "Test1", "Test2" };
+    SupportedMethods = { "getIdentity", "Test1", "Test2" };
 };

@@ -72,7 +72,13 @@ void MethodTestProvider::invokeMethod(
 
     handler.processing();
 
-    if (methodName.equal("test1"))
+    if (methodName.equal("getIdentity"))
+    {
+        IdentityContainer container(context.get(IdentityContainer::NAME));
+        String userName(container.getUserName());
+        handler.deliver(CIMValue(userName));
+    }
+    else if (methodName.equal("test1"))
     {
         CIMValue returnValue;
         Array<CIMParamValue> inParams;

@@ -118,6 +118,21 @@
 #   define PEGASUS_SOCKET_ERROR (-1)
 #endif
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// getSocketError()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static inline int getSocketError()
+{
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    return WSAGetLastError();
+#else
+    return errno;
+#endif
+}
+
 //------------------------------------------------------------------------------
 //
 // PEGASUS_INVALID_SOCKET

@@ -60,21 +60,6 @@ static AtomicInt _connections(0);
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// _getError()
-//
-////////////////////////////////////////////////////////////////////////////////
-
-static inline int _getError()
-{
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    return WSAGetLastError();
-#else
-    return errno;
-#endif
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
 // Monitor
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,7 +133,7 @@ void Monitor::initializeTickler(){
 	//handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CREATE",
 				 "Received error number $0 while creating the internal socket.",
-				 _getError());
+				 getSocketError());
 	throw Exception(parms);
     }
     
@@ -181,7 +166,7 @@ void Monitor::initializeTickler(){
 #else
 	MessageLoaderParms parms("Common.Monitor.TICKLE_BIND",
 				 "Received error number $0 while binding the internal socket.",
-				 _getError());
+				 getSocketError());
 #endif
         throw Exception(parms);
     }
@@ -191,7 +176,7 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_LISTEN",
 			 "Received error number $0 while listening to the internal socket.",
-				 _getError());
+				 getSocketError());
 	throw Exception(parms);
     }
 
@@ -203,7 +188,7 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_SOCKNAME",
 			 "Received error number $0 while getting the internal socket name.",
-				 _getError());
+				 getSocketError());
 	throw Exception(parms);
     }
 
@@ -214,7 +199,7 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_CREATE",
 			 "Received error number $0 while creating the internal client socket.",
-				 _getError());
+				 getSocketError());
 	throw Exception(parms);
     }
     
@@ -240,7 +225,7 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_BIND",
 			 "Received error number $0 while binding the internal client socket.",
-				 _getError());
+				 getSocketError());
 	throw Exception(parms);
     }
 
@@ -251,7 +236,7 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_CONNECT",
 			 "Received error number $0 while connecting the internal client socket.",
-				 _getError());
+				 getSocketError());
 	throw Exception(parms);
     }
 
@@ -284,7 +269,7 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_ACCEPT",
 			 "Received error number $0 while accepting the internal socket connection.",
-				 _getError());
+				 getSocketError());
 	throw Exception(parms);
     }
     // add the tickler to the list of entries to be monitored and set to IDLE because Monitor only

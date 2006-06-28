@@ -38,7 +38,7 @@ public:
             << " ! "
             << indicationInstance.getClassName ().getString ()
             << " ! "
-            << ui64Number
+            << (int)ui64Number
             << endl;
     }
 

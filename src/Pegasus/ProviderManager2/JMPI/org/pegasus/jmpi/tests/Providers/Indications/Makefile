@@ -43,7 +43,7 @@ include $(PEGASUS_ROOT)/test/config.mak
 
 .java.class:
 # Note: .. included in path to compile package helper classes if necessary
-	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar:.. $*.java
+	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER).. $*.java
 
 NAMESPACE        = root/SampleProvider
 PACKAGEDIR       = Indications/

@@ -168,7 +168,7 @@ void Monitor::initializeTickler(){
     _tickle_server_addr.sin_family = PF_INET;
     _tickle_server_addr.sin_port = 0;
 
-    socklen_t _addr_size = sizeof(_tickle_server_addr);
+    SocketLength _addr_size = sizeof(_tickle_server_addr);
 
     // bind server side to socket
     if((::bind(_tickle_server_socket,
@@ -257,7 +257,7 @@ void Monitor::initializeTickler(){
 
     /* set up the slave connection */
     memset(&_tickle_peer_addr, 0, sizeof(_tickle_peer_addr));
-    socklen_t peer_size = sizeof(_tickle_peer_addr);
+    SocketLength peer_size = sizeof(_tickle_peer_addr);
     pegasus_sleep(1);
 
     // this call may fail, we will try a max of 20 times to establish this peer connection

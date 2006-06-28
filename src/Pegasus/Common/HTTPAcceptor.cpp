@@ -102,7 +102,7 @@ public:
     }
     struct sockaddr* address;
 
-    socklen_t address_size;
+    SocketLength address_size;
     Mutex _connection_mut;
 
     SocketHandle socket;
@@ -433,7 +433,7 @@ void HTTPAcceptor::_bind()
    if ( _portNumber == 0 )
    {
       sockaddr_in buf;
-      socklen_t bufSize = sizeof(buf);
+      SocketLength bufSize = sizeof(buf);
       if ( getsockname(_rep->socket, reinterpret_cast<sockaddr *>(&buf), &bufSize) == 0 )
       {
           _portNumber = ntohs(buf.sin_port);
@@ -649,7 +649,7 @@ void HTTPAcceptor::_acceptConnection()
    // Accept the connection (populate the address):
 
    struct sockaddr* accept_address;
-   socklen_t address_size;
+   SocketLength address_size;
 
    if (_localConnection)
    {

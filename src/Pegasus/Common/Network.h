@@ -144,7 +144,7 @@ typedef int SocketHandle;
 
 //------------------------------------------------------------------------------
 //
-// socklen_t
+// SocketLength
 //
 //------------------------------------------------------------------------------
 
@@ -153,28 +153,22 @@ typedef int SocketHandle;
     defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU) || \
     defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-typedef int socklen_t;
-#endif
-
-#if defined(PEGASUS_PLATFORM_VMS_ALPHA_DECCXX) || \
+    typedef int SocketLength;
+#elif defined(PEGASUS_PLATFORM_VMS_ALPHA_DECCXX) || \
     defined(PEGASUS_PLATFORM_VMS_IA64_DECCXX) || \
     defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-typedef size_t socklen_t;
-#endif
-
-#if defined(PEGASUS_PLATFORM_HPUX_IA64_ACC) && \
+    typedef size_t SocketLength;
+#elif defined(PEGASUS_PLATFORM_HPUX_IA64_ACC) && \
     !defined(_XOPEN_SOURCE_EXTENDED)
-typedef int socklen_t;
-#endif
-
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) && \
+    typedef int SocketLength;
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) && \
     !defined(_XOPEN_SOURCE_EXTENDED)
-typedef int socklen_t;
-#endif
-
-#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) && \
+    typedef int SocketLength;
+#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) && \
     defined(SUNOS_5_6)
-typedef int socklen_t;
+    typedef int SocketLength;
+#else
+    typedef socklen_t SocketLength;
 #endif
 
 #endif  /* Pegasus_Network_h */

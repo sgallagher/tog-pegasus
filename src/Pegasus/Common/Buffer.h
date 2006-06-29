@@ -119,7 +119,7 @@ inline Buffer::Buffer() : _rep(&_empty_rep)
 
 inline Buffer::~Buffer()
 {
-    if (_rep != &_empty_rep)
+    if (_rep->cap != 0)
 	free(_rep);
 }
 
@@ -142,7 +142,7 @@ inline size_t Buffer::capacity() const
 
 inline const char* Buffer::getData() const
 {
-    if (_rep->size == _rep->cap)
+    if (_rep->cap == 0)
     {
         const_cast<Buffer*>(this)->_append_char_aux();
     }
@@ -205,7 +205,7 @@ inline void Buffer::append(const char* data, size_t size)
 
 inline void Buffer::clear()
 {
-    if (_rep != &_empty_rep)
+    if (_rep->cap != 0)
 	_rep->size = 0;
 }
 

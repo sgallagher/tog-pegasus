@@ -44,7 +44,7 @@
 //
 //==============================================================================
 
-#if defined(XPEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # define PEGASUS_RMUTEX_PTHREADS
 # include <pthread.h>
 #elif defined(PEGASUS_OS_TYPE_WINDOWS)

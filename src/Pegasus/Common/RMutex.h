@@ -59,9 +59,10 @@ public:
     */
     void lock();
 
-    /** Attempt to lock the mutex.
+    /** Try to lock the mutex.
+	@return true if lock acquired.
     */
-    void try_lock();
+    bool try_lock();
 
     /** Unlock the mutex.
     */

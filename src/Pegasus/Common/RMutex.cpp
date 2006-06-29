@@ -44,7 +44,7 @@
 //
 //==============================================================================
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(XPEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # define PEGASUS_RMUTEX_PTHREADS
 # include <pthread.h>
 #elif defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -99,10 +99,10 @@ void RMutex::lock()
     pthread_mutex_lock(&_rep->mutex);
 }
 
-void RMutex::try_lock()
+bool RMutex::try_lock()
 {
     // Note: no error can occur since this is a recursive mutex.
-    pthread_mutex_trylock(&_rep->mutex);
+    return pthread_mutex_trylock(&_rep->mutex) == 0;
 }
 
 void RMutex::unlock()
@@ -123,11 +123,11 @@ void RMutex::unlock()
 
 struct RMutexRep
 {
-    Mutex _mutex;
-    Condition _cond;
-    int _count;
-    PEGASUS_THREAD_TYPE _owner;
-    RMutexRep() : _cond(_mutex), _count(0), _owner(0) { }
+    Mutex mutex;
+    Condition cond;
+    int count;
+    PEGASUS_THREAD_TYPE owner;
+    RMutexRep() : cond(mutex), count(0), owner(0) { }
 };
 
 RMutex::RMutex()
@@ -148,49 +148,97 @@ RMutex::~RMutex()
 
 void RMutex::lock()
 {
-    _rep->_mutex.lock();
+    _rep->mutex.lock();
     {
-	// assert(_rep->_count >= 0);
+	// assert(_rep->count >= 0);
 
-	while (_rep->_count > 0 && _rep->_owner != pegasus_thread_self())
-	    _rep->_cond.unlocked_wait(pegasus_thread_self());
+	while (_rep->count > 0 && _rep->owner != pegasus_thread_self())
+	    _rep->cond.unlocked_wait(pegasus_thread_self());
 
-	_rep->_count++;
-	_rep->_owner = pegasus_thread_self();
+	_rep->count++;
+	_rep->owner = pegasus_thread_self();
     }
-    _rep->_mutex.unlock();
+    _rep->mutex.unlock();
 }
 
-void RMutex::try_lock()
+bool RMutex::try_lock()
 {
-    _rep->_mutex.try_lock();
+    _rep->mutex.try_lock();
     {
-	if (_rep->_count > 0 && _rep->_owner != pegasus_thread_self())
-	    throw(AlreadyLocked(_rep->_owner));
+	if (_rep->count > 0 && _rep->owner != pegasus_thread_self())
+	    return false;
 
-	_rep->_count++;
-	_rep->_owner = pegasus_thread_self();
+	_rep->count++;
+	_rep->owner = pegasus_thread_self();
     }
-    _rep->_mutex.unlock();
+    _rep->mutex.unlock();
+
+    return true;
 }
 
 void RMutex::unlock()
 {
-    _rep->_mutex.lock();
+    _rep->mutex.lock();
     {
-	// assert(_rep->_owner == pegasus_thread_self());
+	// assert(_rep->owner == pegasus_thread_self());
 
-	_rep->_count--;
+	_rep->count--;
 
-	if (_rep->_count == 0)
+	if (_rep->count == 0)
 	{
-	    _rep->_owner = 0;
-	    _rep->_cond.unlocked_signal(pegasus_thread_self());
+	    _rep->owner = 0;
+	    _rep->cond.unlocked_signal(pegasus_thread_self());
 	}
     }
-    _rep->_mutex.unlock();
+    _rep->mutex.unlock();
 }
 
 #endif /* PEGASUS_RMUTEX_GENERIC */
+
+//==============================================================================
+//
+// Implementation for PEGASUS_RMUTEX_WINDOWS
+//
+//==============================================================================
+
+#ifdef PEGASUS_RMUTEX_WINDOWS
+
+struct RMutexRep
+{
+    Handle handle;
+};
+
+RMutex::RMutex()
+{
+    RMutex* rep = ((RMutexRep*)_opaque);
+    rep->handle = CreateMutex(NULL, FALSE, NULL);
+}
+
+RMutex::~RMutex()
+{
+    RMutex* rep = ((RMutexRep*)_opaque);
+    CloseHandle(rep->handle);
+}
+
+void RMutex::lock()
+{
+    RMutex* rep = ((RMutexRep*)_opaque);
+    // Can return WAIT_FAILED but won't since this class guard for errors.
+    WaitForSingleObject(rep->handle, INFINITE);
+}
+
+bool RMutex::try_lock()
+{
+    RMutex* rep = ((RMutexRep*)_opaque);
+    return WaitForSingleObject(rep->handle, 0) == 0;
+}
+
+void RMutex::unlock()
+{
+    RMutex* rep = ((RMutexRep*)_opaque);
+    ReleaseMutex(rep->handle);
+}
+
+#endif /* PEGASUS_RMUTEX_WINDOWS */
 
 PEGASUS_NAMESPACE_END

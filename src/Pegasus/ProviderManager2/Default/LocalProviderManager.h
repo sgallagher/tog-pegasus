@@ -34,107 +34,91 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Jenny Yu, Hewlett-Packard Company(jenny_yu@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
+//              Dan Gorey, IBM djgorey@us.ibm.com
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_JMPILocalProviderManager_h
-#define Pegasus_JMPILocalProviderManager_h
+#ifndef Pegasus_LocalProviderManager_h
+#define Pegasus_LocalProviderManager_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>
 
-#include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
-//#include <Pegasus/ProviderManager2/JMPI/JMPIResolverModule.h>
-
 #include <Pegasus/ProviderManager2/Lockable.h>
+#include <Pegasus/ProviderManager2/Default/Provider.h>
+#include <Pegasus/ProviderManager2/Default/ProviderModule.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE JMPILocalProviderManager
+class PEGASUS_DEFPM_LINKAGE LocalProviderManager
 {
-
 public:
-    JMPILocalProviderManager(void);
-    virtual ~JMPILocalProviderManager(void);
+    LocalProviderManager();
+    virtual ~LocalProviderManager();
 
-public:
-    JMPIProvider::OpProviderHolder getProvider(const String & fileName, const String & providerName,
-         const String & interfaceName = String::EMPTY);
+    OpProviderHolder getProvider(
+        const String& moduleFileName,
+        const String& providerName);
 
-    void unloadProvider(const String & fileName, const String & providerName);
+    void unloadProvider(const String& providerName);
 
-    void shutdownAllProviders(void);
+    void shutdownAllProviders();
 
     Boolean hasActiveProviders();
     void unloadIdleProviders();
 
-    /**
-         Gets list of indication providers to be enabled.
-         Once IndicationService initialization has been completed, the
-         enableIndications() method must be called on each indication provider
-         that has current subscriptions.
+    Sint16 disableProvider(const String& providerName);
 
-         @return list of providers whose enableIndications() method must be
-                 called
+    /**
+        Get the list of indication providers to be enabled.
+        Once IndicationService initialization has been completed, the
+        enableIndications() method must be called on each indication provider
+        that has current subscriptions.
+
+        @return list of providers whose enableIndications() method must be
+                called
      */
-    Array <JMPIProvider *> getIndicationProvidersToEnable ();
+    Array<Provider*> getIndicationProvidersToEnable();
 
 private:
-    enum CTRL
-    {
-        INSERT_PROVIDER,
-        INSERT_MODULE,
-        REMOVE_PROVIDER,
-        REMOVE_MODULE,
-        LOOKUP_PROVIDER,
-        LOOKUP_MODULE,
-        GET_PROVIDER,
-        UNLOAD_PROVIDER,
-        UNLOAD_ALL_PROVIDERS,
-        UNLOAD_IDLE_PROVIDERS,
-        UNLOAD_IDLE_MODULES
-    };
 
-    typedef HashTable<String, JMPIProvider *,
-        EqualFunc<String>,  HashFunc<String> > ResolverTable;
+    Provider* _initProvider(
+        Provider* provider,
+        const String& moduleFileName);
 
-    typedef HashTable<String, JMPIProvider *,
+    void _unloadProvider(Provider* provider);
+
+    Provider* _lookupProvider(const String& providerName);
+
+    ProviderModule* _lookupModule(const String& moduleFileName);
+
+    typedef HashTable<String, Provider*,
         EqualFunc<String>,  HashFunc<String> > ProviderTable;
 
-    typedef HashTable<String, JMPIProviderModule *,
+    typedef HashTable<String, ProviderModule*,
         EqualFunc<String>, HashFunc<String> > ModuleTable;
 
-    typedef struct
-    {
-        const String *providerName;
-        const String *fileName;
-        const String *interfaceName;
-    } CTRL_STRINGS;
+    /**
+        The _providerTableMutex must be locked whenever accessing the
+        _providers table or the _modules table.  It is okay to lock a
+        Provider::_statusMutex while holding the _providerTableMutex,
+        but one should never lock the _providerTableMutex while holding
+        a Provider::_statusMutex.
+     */
+    Mutex _providerTableMutex;
 
-    friend class ProviderManagerService;
-
-    ResolverTable _resolvers;
     ProviderTable _providers;
     ModuleTable _modules;
     Uint32 _idle_timeout;
-
-    JMPIProvider *_getResolver(const String & fileName, const String & interfaceType);
-//    CMPIResolverModule *_loadResolver(const String & fileName);
-    Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
-
-    Mutex _providerTableMutex;
-
-    static int trace;
-protected:
-
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif
-

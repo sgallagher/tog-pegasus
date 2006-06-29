@@ -32,12 +32,42 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By:
-//
-//%/////////////////////////////////////////////////////////////////////////////
-
-#include "AsyncQueue.h"
+//              Steve Hills (steve.hills@ncr.com)
+//%////////////////////////////////////////////////////////////////////
 
 PEGASUS_NAMESPACE_BEGIN
 
+Thread::Thread( 
+	PEGASUS_THREAD_RETURN ( PEGASUS_THREAD_CDECL *start )( void* ),
+	void* parameter, 
+	Boolean detached )
+	:
+	_is_detached( detached ), 
+	_cancel_enabled( true ),
+	_cancelled( false ),
+	_start( start ), 
+	_cleanup(),
+	_tsd( true ),
+	_thread_parm( parameter ), 
+	_exit_code( 0 )
+{
+	_suspend_count.sem = NULL;
+	_suspend_count.owner = NULL;
+
+	_handle.thatt = NULL;
+	_handle.thid = 0;
+}
+
+Thread::~Thread()
+{
+	try 
+	{
+		join();
+		empty_tsd();
+	}
+	catch(...)
+	{
+	}
+}
 
 PEGASUS_NAMESPACE_END

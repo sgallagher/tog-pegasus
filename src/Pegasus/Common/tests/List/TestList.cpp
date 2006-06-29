@@ -1,37 +1,44 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Common/List.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/RMutex.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -50,7 +57,7 @@ public:
 
     static bool equal(const Person* person, const void* client_data)
     {
-    return *((String*)client_data) == person->name();
+	return *((String*)client_data) == person->name();
     }
 
 private:
@@ -60,61 +67,62 @@ private:
 };
 
 typedef List<Person,NullLock> PersonList;
+//typedef List<Person,RMutex> PersonList;
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     // Create list of persons:
 
     PersonList list;
-    PEGASUS_TEST_ASSERT(list.size() == 0);
+    assert(list.size() == 0);
     list.insert_back(new Person("John"));
-    PEGASUS_TEST_ASSERT(list.size() == 1);
+    assert(list.size() == 1);
     list.insert_back(new Person("Jane"));
-    PEGASUS_TEST_ASSERT(list.size() == 2);
+    assert(list.size() == 2);
     list.insert_back(new Person("Joe"));
-    PEGASUS_TEST_ASSERT(list.size() == 3);
+    assert(list.size() == 3);
     list.insert_back(new Person("Bob"));
-    PEGASUS_TEST_ASSERT(list.size() == 4);
+    assert(list.size() == 4);
 
     // Print all elements of the list:
 
     {
-    PersonList::AutoLock autoLock(list);
+	PersonList::AutoLock autoLock(list);
 
-    for (Person* p = list.front(); p; p = list.next_of(p))
-    {
-        // p->print();
-    }
+	for (Person* p = list.front(); p; p = list.next_of(p))
+	{
+	    // p->print();
+	}
     }
 
     // Find "John":
 
     {
-    const String JOHN = "John";
-    Person* john = list.find(Person::equal, &JOHN);
-    PEGASUS_TEST_ASSERT(john);
-    // john->print();
+	const String JOHN = "John";
+	Person* john = list.find(Person::equal, &JOHN);
+	assert(john);
+	// john->print();
     }
 
     // Remove "John" and "Jane":
     {
-    const String JOHN = "John";
-    Person* john = list.remove(Person::equal, &JOHN);
-    PEGASUS_TEST_ASSERT(john->name() == "John");
-    delete john;
-    PEGASUS_TEST_ASSERT(list.size() == 3);
+	const String JOHN = "John";
+	Person* john = list.remove(Person::equal, &JOHN);
+	assert(john->name() == "John");
+	delete john;
+	assert(list.size() == 3);
 
-    const String JANE = "Jane";
-    Person* jane = list.remove(Person::equal, &JANE);
-    PEGASUS_TEST_ASSERT(jane->name() == "Jane");
-    delete jane;
-    PEGASUS_TEST_ASSERT(list.size() == 2);
+	const String JANE = "Jane";
+	Person* jane = list.remove(Person::equal, &JANE);
+	assert(jane->name() == "Jane");
+	delete jane;
+	assert(list.size() == 2);
     }
 
     // Clear the list:
     {
-    list.clear();
-    PEGASUS_TEST_ASSERT(list.size() == 0);
+	list.clear();
+	assert(list.size() == 0);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

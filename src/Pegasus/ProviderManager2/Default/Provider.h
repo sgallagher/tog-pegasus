@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,100 +33,76 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
+//              Dan Gorey, IBM djgorey@us.ibm.com
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_JMPIProvider_h
-#define Pegasus_JMPIProvider_h
+#ifndef Pegasus_Provider_h
+#define Pegasus_Provider_h
 
-#include "JMPIImpl.h"
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
+
 #include <Pegasus/Provider/CIMOMHandle.h>
-#include <Pegasus/Provider/CIMInstanceProvider.h>
-#include <Pegasus/Provider/CIMAssociationProvider.h>
-#include <Pegasus/Provider/CIMMethodProvider.h>
 
-//#include <Pegasus/ProviderManager2/CMPI/CMPIResolverModule.h>
+#include <Pegasus/ProviderManager2/Default/ProviderModule.h>
+#include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class JMPIProviderModule;
-class CMPIResolverModule;
-
-struct ProviderVector {
-   jclass jProviderClass;
-   jobject jProvider;
-};
-
-// The JMPIProvider class represents the logical provider extracted from a
+// The Provider class represents the logical provider extracted from a
 // provider module. It is wrapped in a facade to stabalize the interface
 // and is directly tied to a module.
 
-class PEGASUS_SERVER_LINKAGE JMPIProvider :
-                       public virtual CIMProvider
+class PEGASUS_DEFPM_LINKAGE Provider : public ProviderFacade
 {
 public:
-
     enum Status
     {
-        UNKNOWN,
-        INITIALIZING,
-        INITIALIZED,
-        TERMINATING,
-        TERMINATED
+        UNINITIALIZED,
+        INITIALIZED
     };
 
 public:
+    typedef ProviderFacade Base;
 
+    Provider(const String & name,
+        ProviderModule *module,
+        CIMProvider *pr);
 
-    class pm_service_op_lock {
-    private:
-       pm_service_op_lock(void);
-    public:
-       pm_service_op_lock(JMPIProvider *provider) : _provider(provider)
-          { _provider->protect(); }
-       ~pm_service_op_lock(void)
-          { _provider->unprotect(); }
-       JMPIProvider * _provider;
-    };
-
- //  typedef JMPIProviderFacade Base;
-
-    JMPIProvider(const String & name,
-        JMPIProviderModule *module,
-        ProviderVector *mv);
-    JMPIProvider(JMPIProvider*);
-
-    virtual ~JMPIProvider(void);
+    virtual ~Provider(void);
 
     virtual void initialize(CIMOMHandle & cimom);
-
-    virtual Boolean tryTerminate(void);
     virtual void terminate(void);
-    virtual void _terminate(void);
+    virtual Boolean tryTerminate(void);
 
-    Status getStatus(void) const;
+    Status getStatus(void);
     String getName(void) const;
-    void setResolver(CMPIResolverModule *rm) { _rm=rm; }
 
-    JMPIProviderModule *getModule(void) const;
+    ProviderModule *getModule(void) const;
 
     Boolean operator == (const void *key) const;
-    Boolean operator == (const JMPIProvider & prov) const;
+    Boolean operator == (const Provider & prov) const;
 
-//    virtual void get_idle_timer(struct timeval *);
-//    virtual void update_idle_timer(void);
-//    virtual Boolean pending_operation(void);
-//    virtual Boolean unload_ok(void);
+    virtual void get_idle_timer(struct timeval *);
+    virtual void update_idle_timer(void);
+    virtual Boolean pending_operation(void);
+    virtual Boolean unload_ok(void);
 
-//   force provider manager to keep in memory
+    //   force provider manager to keep in memory
     virtual void protect(void);
-// allow provider manager to unload when idle
+    // allow provider manager to unload when idle
     virtual void unprotect(void);
+
+    void set(ProviderModule *module,
+            CIMProvider *base,
+            CIMOMHandle *cimomHandle);
+
+    void reset();
 
     /**
         Increments the count of current subscriptions for this provider, and
@@ -182,7 +158,7 @@ public:
         Gets the provider instance for the provider.
 
         Note: the provider instance is set only for an indication provider, and
-        only if a Create Subscription request has been processed for the
+        only if a Create Subscription request has been processed for the 
         provider.
 
         @return  the Provider CIMInstance for the provider
@@ -191,34 +167,17 @@ public:
 
 protected:
     Status _status;
-    JMPIProviderModule *_module;
-    ProviderVector miVector;
-    Boolean noUnload;
-    CIMClass *cachedClass;
-
+    ProviderModule *_module;
+    CIMProvider *getCIMProvider();
 private:
-    friend class JMPILocalProviderManager;
-    friend class JMPIProviderManager;
+    friend class LocalProviderManager;
     friend class ProviderManagerService;
-    class OpProviderHolder;
     friend class OpProviderHolder;
-    mutable Mutex _cimomMutex;
-    /* NOTE:  This is a C++ provider only handle which is currently
-    **        used for calls to ->getClass ().  getClass returns
-    **        immediately with data and is therefore safe to lock.
-    */
     CIMOMHandle *_cimom_handle;
-    /* NOTE:  This is the java provider's handle and is left
-    **        untouched.
-    */
-    CIMOMHandle *_java_cimom_handle;
-    void *jProviderClass,*jProvider;
     String _name;
     AtomicInt _no_unload;
-    CMPIResolverModule *_rm;
     Uint32 _quantum;
-    AtomicInt _current_operations;
-    mutable Mutex _statusMutex;
+    Mutex _statusMutex;
 
     /**
         Count of current subscriptions for this provider.  Access to this
@@ -228,7 +187,7 @@ private:
 
     /**
         A mutex to control access to the _currentSubscriptions member variable.
-        Before any access (test, increment, decrement or reset) of the
+        Before any access (test, increment, decrement or reset) of the 
         _currentSubscriptions member variable, the _currentSubscriptionsMutex is
         first locked.
      */
@@ -238,79 +197,84 @@ private:
         The Provider CIMInstance for the provider.
         The Provider CIMInstance is set only for indication providers, and only
         if a Create Subscription request has been processed for the provider.
-        The Provider CIMInstance is needed in order to construct the
+        The Provider CIMInstance is needed in order to construct the 
         EnableIndicationsResponseHandler to send to the indication provider
         when the provider's enableIndications() method is called.
-        The Provider CIMInstance is needed in the
+        The Provider CIMInstance is needed in the 
         EnableIndicationsResponseHandler in order to construct the Process
         Indication request when an indication is delivered by the provider.
         The Provider CIMInstance is needed in the Process Indication request
-        to enable the Indication Service to determine if the provider that
+        to enable the Indication Service to determine if the provider that 
         generated the indication accepted a matching subscription.
      */
     CIMInstance _providerInstance;
-//};
+};
 
 
 //
 // Used to encapsulate the incrementing/decrementing of the _current_operations
-// for a JMPIProvider so it won't be unloaded during operations.
+// for a Provider so it won't be unloaded during operations.
 //
 
-   class OpProviderHolder
-   {
-   private:
-       JMPIProvider* _provider;
+class OpProviderHolder
+{
+private:
+    Provider* _provider;
 
-   public:
-       OpProviderHolder(): _provider( NULL )
-       {
-       }
-       OpProviderHolder( const OpProviderHolder& p ): _provider( NULL )
-       {
-           SetProvider( p._provider );
-       }
-       OpProviderHolder( JMPIProvider* p ): _provider( NULL )
-       {
-           SetProvider( p );
-       }
-       ~OpProviderHolder()
-       {
-           UnSetProvider();
-       }
-       JMPIProvider& GetProvider()
-       {
-           return(*_provider);
-       }
+public:
+    OpProviderHolder(): _provider( NULL )
+    {
+    }
+    OpProviderHolder( const OpProviderHolder& p ): _provider( NULL )
+    {
+        SetProvider( p._provider );
+    }
+    OpProviderHolder( Provider* p ): _provider( NULL )
+    {
+        SetProvider( p );
+    }
+    ~OpProviderHolder()
+    {
+        UnSetProvider();
+    }
 
-       OpProviderHolder& operator=( const OpProviderHolder& x )
-       {
-           if(this == &x)
-               return(*this);
-           SetProvider( x._provider );
+    Provider& GetProvider()
+    {
+        return(*_provider);
+    }
 
-           return(*this);
-       }
+    CIMProvider* GetCIMProvider()
+    {
+        return _provider->getCIMProvider();
+    }
 
-       void SetProvider( JMPIProvider* p )
-       {
-           UnSetProvider();
-           if(p)
-           {
-               _provider = p;
-               _provider->_current_operations++;
-           }
-       }
+    OpProviderHolder& operator=( const OpProviderHolder& x )
+    {
+        if(this == &x)
+            return(*this);
+        SetProvider( x._provider );
 
-       void UnSetProvider()
-       {
-           if(_provider)
-           {
-               _provider->_current_operations--;
-               _provider = NULL;
-           }
-       }
-   };
+        return(*this);
+    }
+
+    void SetProvider( Provider* p )
+    {
+        UnSetProvider();
+        if(p)
+        {
+            _provider = p;
+            _provider->_current_operations++;
+        }
+    }
+
+    void UnSetProvider()
+    {
+        if(_provider)
+        {
+            _provider->_current_operations--;
+            _provider = NULL;
+        }
+    }
 };
 
 PEGASUS_NAMESPACE_END

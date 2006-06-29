@@ -29,15 +29,53 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "AsyncQueue.h"
+#ifndef Pegasus_RMutex_h
+#define Pegasus_RMutex_h
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** The RMutex class implements a recursive mutex. It is similar to the Mutex 
+    class except that it allows the same thread to lock the mutex multiple
+    times.
+*/
+class PEGASUS_COMMON_LINKAGE RMutex
+{
+public:
+
+    /** Default constructor.
+    */
+    RMutex();
+
+    /** Destructor.
+    */
+    ~RMutex();
+
+    /** Lock the mutex.
+    */
+    void lock();
+
+    /** Attempt to lock the mutex.
+    */
+    void try_lock();
+
+    /** Unlock the mutex.
+    */
+    void unlock();
+
+private:
+
+    RMutex(const RMutex&);
+    RMutex& operator=(const RMutex&);
+
+    Uint64 _opaque[8];
+    struct RMutexRep* _rep;
+};
 
 PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_RMutex_h */

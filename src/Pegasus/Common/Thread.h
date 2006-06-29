@@ -1,31 +1,43 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Day (mdday@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Markus Mueller
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2393
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,417 +46,569 @@
 
 #include <cstring>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/AtomicInt.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/List.h>
-#include <Pegasus/Common/Mutex.h>
-#include <Pegasus/Common/Semaphore.h>
-#include <Pegasus/Common/TSDKey.h>
-#include <Pegasus/Common/Threads.h>
-
-#if defined(PEGASUS_HAVE_PTHREADS)
-# include <signal.h>
-#endif
+#include <Pegasus/Common/RMutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE cleanup_handler : public Linkable
 {
-public:
-    cleanup_handler(void (*routine) (void *), void *arg):_routine(routine),
-        _arg(arg)
-    {
-    }
-    ~cleanup_handler()
-    {;
-    }
 
-private:
+   public:
+      cleanup_handler( void (*routine)(void *), void *arg  ) : _routine(routine), _arg(arg)  {}
+      ~cleanup_handler()  {; }
+      inline Boolean operator==(const void *key) const
+      {
+         if(key == (void *)_routine)
+            return true;
+         return false;
+      }
+      inline Boolean operator ==(const cleanup_handler & b) const
+      {
+         return(operator==((const void *)b._routine));
+      }
+   private:
+      void execute() { _routine(_arg); }
+      cleanup_handler();
+      void (*_routine)(void *);
 
-    void execute()
-    {
-        _routine(_arg);
-    }
-
-    cleanup_handler();
-
-    void (*_routine)(void*);
-    void *_arg;
-
-    friend class Thread;
+      void *_arg;
+      PEGASUS_CLEANUP_HANDLE _cleanup_buffer;
+      friend class Thread;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-enum TSD_Key
+
+class  PEGASUS_COMMON_LINKAGE thread_data : public Linkable
 {
-    TSD_ACCEPT_LANGUAGES,
-    TSD_SLEEP_SEM,
-    TSD_LAST_ACTIVITY_TIME,
-    TSD_WORK_FUNC,
-    TSD_WORK_PARM,
-    TSD_BLOCKING_SEM,
-    TSD_CIMOM_HANDLE_CONTENT_LANGUAGES,
-    TSD_RESERVED_1,
-    TSD_RESERVED_2,
-    TSD_RESERVED_3,
-    TSD_RESERVED_4,
-    TSD_RESERVED_5,
-    TSD_RESERVED_6,
-    TSD_RESERVED_7,
-    TSD_RESERVED_8,
-    // Add new TSD keys before this line.
-    TSD_COUNT
-};
 
-class thread_data
-{
-    /**
-     * This class is NOT build thread-safe.
-     * The Caller(user) of this class has to ensure there is no collision
-     * taking place.
-     *
-     * There is no mechanism in place to protect threads from manipulating
-     * the same thread-specific storage at one time.
-     * Make sure the possibility for a parallel access to the same
-     * threads-specific data from multiple threads cannot arise.
-     *
-     * In OpenPegasus this class is used in the ThreadPool
-     *        - on initialisation and creation of threads owned by ThreadPool
-     *        - on threads that are idle inside the ThreadPool
-     *        - on the ThreadPools main thread (the thread which the ThreadPool
-     *          runs in)
-     * In OpenPegasus this class is used in the
-     * ClientCIMOMHandleRep and InternalCIMOMHandleRep
-     *        - on the current active Thread which belongs to that CIMOMHandle
-     *
-     */
-public:
+   public:
+      static void default_delete(void *data);
 
-    static void default_delete(void *data)
-    {
-        if (data)
-            ::operator  delete(data);
-    }
+      thread_data( const char *key ) : _delete_func(NULL) , _data(NULL), _size(0)
+      {
+         PEGASUS_ASSERT(key != NULL);
+         size_t keysize = strlen(key);
+         _key.reset(new char[keysize + 1]);
+         memcpy(_key.get(), key, keysize);
+         _key.get()[keysize] = 0x00;
 
-    thread_data(TSD_Key key) : _delete_func(0), _data(0), _size(0), _key(key)
-    {
-    }
+      }
 
-    thread_data(TSD_Key key, size_t size) :
-        _delete_func(default_delete), _size(size), _key(key)
-    {
-        _data = ::operator  new(_size);
-    }
+      thread_data(const char *key, size_t size) : _delete_func(default_delete), _size(size)
+      {
+         PEGASUS_ASSERT(key != NULL);
+         size_t keysize = strlen(key);
+         _key.reset(new char[keysize + 1]);
+         memcpy(_key.get(), key, keysize);
+         _key.get()[keysize] = 0x00;
+         _data = ::operator new(_size);
 
-    thread_data(TSD_Key key, size_t size, void* data)
-        : _delete_func(default_delete), _size(size), _key(key)
-    {
-        _data = ::operator  new(_size);
-        memcpy(_data, data, size);
-    }
+      }
 
-    ~thread_data()
-    {
-        if (_data && _delete_func)
-            (*_delete_func)(_data);
-    }
+      thread_data(const char *key, size_t size, void *data) : _delete_func(default_delete), _size(size)
+      {
+         PEGASUS_ASSERT(key != NULL);
+         PEGASUS_ASSERT(data != NULL);
+         size_t keysize = strlen(key);
 
-    /**
-     * This function is used to put data in thread space.
-     *
-     * Be aware that there is NOTHING in place to stop
-     * other users of the thread to remove this data.
-     * Or change the data.
-     *
-     * You, the developer has to make sure that there are
-     * no situations in which this can arise (ie, have a
-     * lock for the function which manipulates the TSD.
-     *
-     * @exception NullPointer
-    */
-    void put_data(void (*del)(void *), size_t size, void* data)
-    {
-        if (_data && _delete_func)
-            (*_delete_func)(_data);
+         _key.reset(new char[keysize + 1]);
+         memcpy(_key.get(), key, keysize);
+         _key.get()[keysize] = 0x00;
+         _data = ::operator new(_size);
+         memcpy(_data, data, size);
+      }
 
-        _delete_func = del;
-        _data = data;
-        _size = size;
-    }
+      ~thread_data()
+      {
+         if( _data != NULL)
+            if(_delete_func != NULL)
+            {
+               _delete_func( _data );
+            }
+      }
 
-    size_t get_size()
-    {
-        return _size;
-    }
+      /**
+       * This function is used to put data in thread space.
+       *
+       * Be aware that there is NOTHING in place to stop
+       * other users of the thread to remove this data.
+       * Or change the data.
+       *
+       * You, the developer has to make sure that there are
+       * no situations in which this can arise (ie, have a
+       * lock for the function which manipulates the TSD.
+       *
+       * @exception NullPointer
+       */
+      void put_data(void (*del)(void *), size_t size, void *data )
+      {
+         if(_data != NULL)
+            if(_delete_func != NULL)
+               _delete_func(_data);
 
-    void* get_data()
-    {
-        return _data;
-    }
+         _delete_func = del;
+         _data = data;
+         _size = size;
+         return;
+      }
 
-    /**
-        This function is used to retrieve data from the
-        TSD, the thread specific data.
+      size_t get_size() { return _size; }
 
-        Be aware that there is NOTHING in place to stop
-        other users of the thread to change the data you
-        get from this function.
-
-        You, the developer has to make sure that there are
-        no situations in which this can arise (ie, have a
-        lock for the function which manipulates the TSD.
-     */
-    void get_data(void** data, size_t* size)
-    {
-        if (data == 0 || size == 0)
+      /**
+       * This function is used to retrieve data from the
+       * TSD, the thread specific data.
+       *
+       * Be aware that there is NOTHING in place to stop
+       * other users of the thread to change the data you
+       * get from this function.
+       *
+       * You, the developer has to make sure that there are
+       * no situations in which this can arise (ie, have a
+       * lock for the function which manipulates the TSD.
+       */
+      void get_data(void **data, size_t *size)
+      {
+         if(data == NULL || size == NULL)
             throw NullPointer();
 
-        *data = _data;
-        *size = _size;
-    }
+         *data = _data;
+         *size = _size;
+         return;
 
-    // @exception NullPointer
-    void copy_data(void** buf, size_t* size)
-    {
-        if ((buf == 0) || (size == 0))
+      }
+
+      // @exception NullPointer
+      void copy_data(void **buf, size_t *size)
+      {
+         if((buf == NULL) || (size == NULL))
             throw NullPointer();
+         *buf = ::operator new(_size);
+         *size = _size;
+         memcpy(*buf, _data, _size);
+         return;
+      }
 
-        *buf = ::operator new(_size);
-        *size = _size;
-        memcpy(*buf, _data, _size);
-    }
+      inline Boolean operator==(const void *key) const
+      {
+         if ( ! strcmp(_key.get(), reinterpret_cast<const char *>(key)))
+            return(true);
+         return(false);
+      }
 
+      inline Boolean operator==(const thread_data& b) const
+      {
+         return(operator==(b._key.get()));
+      }
 
-private:
+      static bool equal(const thread_data* node, const void* key)
+      {
+	 return ((thread_data*)node)->operator==(key);
+      }
 
-    thread_data();
-    thread_data(const thread_data& x);
-    thread_data& operator=(const thread_data& x);
+   private:
+      void (*_delete_func) (void *data);
+      thread_data();
+      void *_data;
+      size_t _size;
+      AutoArrayPtr<char> _key;
 
-    void (*_delete_func)(void*);
-    void* _data;
-    size_t _size;
-    TSD_Key _key;
+      friend class Thread;
 };
 
 
-enum ThreadStatus
-{
-    PEGASUS_THREAD_OK = 1,      /* No problems */
-    PEGASUS_THREAD_INSUFFICIENT_RESOURCES,      /* Can't allocate a thread.
-                                                   Not enough memory. Try
-                                                   again later */
-    PEGASUS_THREAD_SETUP_FAILURE,       /* Could not allocate into the thread
-                                           specific data storage. */
-    PEGASUS_THREAD_UNAVAILABLE  /* Service is being destroyed and no new
-                                   threads can be provided. */
+enum ThreadStatus { 
+	PEGASUS_THREAD_OK = 1, /* No problems */
+	PEGASUS_THREAD_INSUFFICIENT_RESOURCES, /* Can't allocate a thread. Not enough
+				        memory. Try again later */
+	PEGASUS_THREAD_SETUP_FAILURE, /* Could not allocate into the thread specific 
+                                 data storage. */
+	PEGASUS_THREAD_UNAVAILABLE  /* Service is being destroyed and no new threads can
+                               be provided. */ 
 };
 
 ///////////////////////////////////////////////////////////////////////////
 
 class PEGASUS_COMMON_LINKAGE Thread : public Linkable
 {
+   public:
+
+      Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
+              void *parameter, Boolean detached );
+
+      ~Thread();
+
+      /**
+          Start the thread.
+          @return PEGASUS_THREAD_OK if the thread is started successfully, 
+                  PEGASUS_THREAD_INSUFFICIENT_RESOURCES if the resources necessary 
+                  to start the thread are not currently available.  
+	          PEGASUS_THREAD_SETUP_FAILURE if the thread could not
+                  be create properly - check the 'errno' value for specific operating
+                  system return code.
+       */
+      ThreadStatus run();
+
+      // get the user parameter
+      inline void *get_parm() { return _thread_parm; }
+
+      // cancellation must be deferred (not asynchronous)
+      // for user-level threads the thread itself can decide
+      // when it should die.
+      void cancel();
+
+      // cancel if there is a pending cancellation request
+      void test_cancel();
+
+      Boolean is_cancelled();
+
+      // for user-level threads  - put the calling thread
+      // to sleep and jump to the thread scheduler.
+      // platforms with preemptive scheduling and native threads
+      // can define this to be a no-op.
+      // platforms without preemptive scheduling like NetWare
+      // or gnu portable threads will have an existing
+      // routine that can be mapped to this method
+
+      void thread_switch();
+
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+      // suspend this thread
+      void suspend();
+
+      // resume this thread
+      void resume();
+#endif
+
+      static void sleep(Uint32 msec);
+
+      // block the calling thread until this thread terminates
+      void join();
+      void thread_init();
+
+      // thread routine needs to call this function when
+      // it is ready to exit
+      void exit_self(PEGASUS_THREAD_RETURN return_code);
+
+      // stack of functions to be called when thread terminates
+      // will be called last in first out (LIFO)
+      // @exception IPCException
+      void cleanup_push(void (*routine) (void *), void *parm);
+
+      // @exception IPCException
+      void cleanup_pop(Boolean execute = true);
+
+      // create and initialize a tsd
+      // @exception IPCException
+      inline void create_tsd(const char *key, int size, void *buffer)
+      {
+        AutoPtr<thread_data> tsd(new thread_data(key, size, buffer));
+        _tsd.insert_front(tsd.get());
+        tsd.release();
+      }
+
+      // get the buffer associated with the key
+      // NOTE: this call leaves the tsd LOCKED !!!!
+      // @exception IPCException
+      inline void *reference_tsd(const char *key)
+      {
+         _tsd.lock();
+         thread_data *tsd = _tsd.find(thread_data::equal, key);
+         if(tsd != NULL)
+            return( (void *)(tsd->_data) );
+         else
+            return(NULL);
+      }
+
+      // @exception IPCException
+      inline void *try_reference_tsd(const char *key)
+      {
+         _tsd.try_lock();
+         thread_data *tsd = _tsd.find(thread_data::equal, key);
+         if(tsd != NULL)
+            return((void *)(tsd->_data) );
+         else
+            return(NULL);
+      }
+
+
+      // release the lock held on the tsd
+      // NOTE: assumes a corresponding and prior call to reference_tsd() !!!
+      // @exception IPCException
+      inline void dereference_tsd()
+      {
+         _tsd.unlock();
+      }
+
+      // delete the tsd associated with the key
+      // @exception IPCException
+      inline void delete_tsd(const char *key)
+      {
+         AutoPtr<thread_data> tsd(_tsd.remove(thread_data::equal, key));
+      }
+
+      // @exception IPCException
+      inline void empty_tsd()
+      {
+	 _tsd.clear();
+      }
+
+      // create or re-initialize tsd associated with the key
+      // if the tsd already exists, delete the existing buffer
+      // @exception IPCException
+      void put_tsd(const char *key, void (*delete_func)(void *), Uint32 size, void *value)
+      {
+         PEGASUS_ASSERT(key != NULL);
+         AutoPtr<thread_data> tsd;
+         tsd.reset(_tsd.remove(thread_data::equal, key));  // may throw an IPC exception
+         tsd.reset();
+         AutoPtr<thread_data> ntsd(new thread_data(key));
+         ntsd->put_data(delete_func, size, value);
+         try { _tsd.insert_front(ntsd.get()); }
+         catch(IPCException& e) { e = e; throw; }
+         ntsd.release();
+      }
+      inline PEGASUS_THREAD_RETURN get_exit() { return _exit_code; }
+      inline PEGASUS_THREAD_TYPE self() {return pegasus_thread_self(); }
+
+      PEGASUS_THREAD_HANDLE getThreadHandle() {return _handle;}
+
+      inline Boolean operator==(const void *key) const
+      {
+         if ( (void *)this == key)
+            return(true);
+         return(false);
+      }
+      inline Boolean operator==(const Thread & b) const
+      {
+         return(operator==((const void *)&b ));
+      }
+
+      void detach();
+
+      //
+      //  Gets the Thread object associated with the caller's thread.
+      //  Note: this may return NULL if no Thread object is associated
+      //  with the caller's thread.
+      //
+      static Thread * getCurrent();  // l10n
+
+      //
+      //  Sets the Thread object associated with the caller's thread.
+      //  Note: the Thread object must be placed on the heap.
+      //
+      static void setCurrent(Thread * thrd); // l10n
+
+      //
+      //  Gets the AcceptLanguageList object associated with the caller's
+      //  Thread.
+      //  Note: this may return NULL if no Thread object, or no
+      //  AcceptLanguageList object, is associated with the caller's thread.
+      //
+      static AcceptLanguageList * getLanguages(); //l10n
+
+      //
+      //  Sets the AcceptLanguageList object associated with the caller's
+      //  Thread.
+      //  Note: a Thread object must have been previously associated with
+      //  the caller's thread.
+      //  Note: the AcceptLanguageList object must be placed on the heap.
+      //
+      static void setLanguages(AcceptLanguageList *langs); //l10n
+
+      //
+      //  Removes the AcceptLanguageList object associated with the caller's
+      //  Thread.
+      //
+      static void clearLanguages(); //l10n
+
+   private:
+      Thread();
+
+      static Sint8 initializeKey();  // l10n
+
+      // @exception IPCException
+      inline void create_tsd(const char *key )
+      {
+         AutoPtr<thread_data> tsd(new thread_data(key));
+         _tsd.insert_front(tsd.get());
+         tsd.release();
+      }
+      PEGASUS_THREAD_HANDLE _handle;
+      Boolean _is_detached;
+      Boolean _cancel_enabled;
+      Boolean _cancelled;
+
+      PEGASUS_SEM_HANDLE _suspend_count;
+
+      // always pass this * as the void * parameter to the thread
+      // store the user parameter in _thread_parm
+
+      PEGASUS_THREAD_RETURN  ( PEGASUS_THREAD_CDECL *_start)(void *);
+      List<cleanup_handler, RMutex> _cleanup;
+      List<thread_data, RMutex> _tsd;
+
+      void *_thread_parm;
+      PEGASUS_THREAD_RETURN _exit_code;
+      static Boolean _signals_blocked;
+      static PEGASUS_THREAD_KEY_TYPE _platform_thread_key;  //l10n
+      static Boolean _key_initialized; // l10n
+      static Boolean _key_error; // l10n
+};
+
+
+class PEGASUS_COMMON_LINKAGE ThreadPool
+{
 public:
 
-    Thread(
-        ThreadReturnType(PEGASUS_THREAD_CDECL* start) (void*),
-        void* parameter,
-        Boolean detached);
+    /**
+        Constructs a new ThreadPool object.
+        @param initialSize The number of threads that are initially added to
+            the thread pool.
+        @param key A name for this thread pool that can be used to determine
+            equality of two thread pool objects.  Only the first 16 characters
+            of this value are used.
+        @param minThreads The minimum number of threads that should be
+            contained in this thread pool at any given time.
+        @param maxThreads The maximum number of threads that should be
+            contained in this thread pool at any given time.
+        @param deallocateWait The minimum time that a thread should be idle
+            before it is removed from the pool and cleaned up.
+     */
+    ThreadPool(
+        Sint16 initialSize,
+        const char* key,
+        Sint16 minThreads,
+        Sint16 maxThreads,
+        struct timeval& deallocateWait);
 
-     ~Thread();
+    /**
+        Destructs the ThreadPool object.
+     */
+    ~ThreadPool();
 
-      /** Start the thread.
-          @return PEGASUS_THREAD_OK if the thread is started successfully,
-          PEGASUS_THREAD_INSUFFICIENT_RESOURCES if the resources necessary
-          to start the thread are not currently available.
-          PEGASUS_THREAD_SETUP_FAILURE if the thread could not
-          be create properly - check the 'errno' value for specific operating
-          system return code.
-       */
-    ThreadStatus run();
+    /**
+        Allocate and start a thread to do a unit of work.
+        @param parm A generic parameter to pass to the thread
+        @param work A pointer to the function that is to be executed by
+                    the thread
+        @param blocking A pointer to an optional semaphore which, if
+                        specified, is signaled after the thread finishes
+                        executing the work function
+        @return PEGASUS_THREAD_OK if the thread is started successfully, 
+		PEGASUS_THREAD_INSUFFICIENT_RESOURCES  if the
+                resources necessary to start the thread are not currently
+                available.  PEGASUS_THREAD_SETUP_FAILURE if the thread
+                could not be setup properly. PEGASUS_THREAD_UNAVAILABLE
+                if this service is shutting down and no more threads can
+                be allocated.
+        @exception IPCException
+     */
+    ThreadStatus allocate_and_awaken(
+        void* parm,
+        PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL* work)(void *),
+        Semaphore* blocking = 0);
 
-    // get the user parameter
-    void *get_parm()
+    /**
+        Cleans up idle threads if they have been running longer than the
+        deallocate_wait configuration and more than the configured
+        minimum number of threads is running.
+        @return The number of threads that were cleaned up.
+        @exception IPCException
+     */
+    Uint32 cleanupIdleThreads();
+
+    void get_key(Sint8* buf, int bufsize);
+
+    inline Boolean operator==(const char* key) const
     {
-        return _thread_parm;
+        return (!strncmp(key, _key, 16));
     }
 
-    // cancellation must be deferred (not asynchronous)
-    // for user-level threads the thread itself can decide
-    // when it should die.
-    void cancel();
-
-    // for user-level threads - put the calling thread
-    // to sleep and jump to the thread scheduler.
-    // platforms with preemptive scheduling and native threads
-    // can define this to be a no-op.
-    // platforms without preemptive scheduling like NetWare
-    // or gnu portable threads will have an existing
-    // routine that can be mapped to this method
-
-    void thread_switch();
-
-    static void sleep(Uint32 msec);
-
-    // block the calling thread until this thread terminates
-    void join();
-
-    // thread routine needs to call this function when
-    // it is ready to exit
-    void exit_self(ThreadReturnType return_code);
-
-    // stack of functions to be called when thread terminates
-    // will be called last in first out (LIFO)
-    void cleanup_push(void (*routine) (void *), void* parm);
-
-    void cleanup_pop(Boolean execute = true);
-
-    // get the buffer associated with the key
-    // NOTE: this call leaves the tsd LOCKED !!!!
-    void* reference_tsd(TSD_Key key)
+    Boolean operator==(const void* p) const
     {
-        if (_tsd[key])
-            return _tsd[key]->get_data();
-         else
-            return 0;
+        return ((void *)this == p);
     }
 
-    // release the lock held on the tsd
-    // NOTE: assumes a corresponding and prior call to reference_tsd() !!!
-    void dereference_tsd()
+    Boolean operator==(const ThreadPool & p) const
     {
+        return operator==((const void *)&p);
     }
 
-    // delete the tsd associated with the key
-    void delete_tsd(TSD_Key key)
+    inline void setMinThreads(Sint16 min)
     {
-        thread_data* tsd;
-
-        tsd = _tsd[key];
-        _tsd[key] = 0;
-
-        if (tsd)
-            delete tsd;
+        _minThreads = min;
     }
 
-    void empty_tsd()
+    inline Sint16 getMinThreads() const
     {
-        thread_data* data[TSD_COUNT];
-
-        memcpy(data, _tsd, sizeof(_tsd));
-        memset(_tsd, 0, sizeof(_tsd));
-
-        for (size_t i = 0; i < TSD_COUNT; i++)
-        {
-            if (data[i])
-                delete data[i];
-        }
+        return _minThreads;
     }
 
-    // create or re-initialize tsd associated with the key
-    // if the tsd already exists, delete the existing buffer
-    void put_tsd(
-        TSD_Key key,
-        void (*delete_func)(void*),
-        Uint32 size,
-        void* value)
+    inline void setMaxThreads(Sint16 max)
     {
-        thread_data* tsd = new thread_data(key);
-        tsd->put_data(delete_func, size, value);
-
-        thread_data* old;
-
-        old = _tsd[key];
-        _tsd[key] = tsd;
-
-        if (old)
-            delete old;
+        _maxThreads = max;
     }
 
-    ThreadReturnType get_exit()
+    inline Sint16 getMaxThreads() const
     {
-        return _exit_code;
+        return _maxThreads;
     }
 
-    ThreadType self()
+    inline Uint32 runningCount()
     {
-        return Threads::self();
+        return _runningThreads.size();
     }
 
-    ThreadHandle getThreadHandle()
+    inline Uint32 idleCount()
     {
-        return _handle;
+        return _idleThreads.size();
     }
-
-    Boolean isDetached()
-    {
-        return _is_detached;
-    }
-
-    void detach();
-
-    //
-    // Gets the Thread object associated with the caller's thread.
-    // Note: this may return NULL if no Thread object is associated
-    // with the caller's thread.
-    //
-    static Thread *getCurrent();
-
-    //
-    // Sets the Thread object associated with the caller's thread.
-    // Note: the Thread object must be placed on the heap.
-    //
-    static void setCurrent(Thread* thrd);
-
-    //
-    // Gets the AcceptLanguageList object associated with the caller's
-    // Thread.
-    // Note: this may return NULL if no Thread object, or no
-    // AcceptLanguageList object, is associated with the caller's thread.
-    //
-    static AcceptLanguageList* getLanguages();
-
-    //
-    // Sets the AcceptLanguageList object associated with the caller's
-    // Thread.
-    // Note: a Thread object must have been previously associated with
-    // the caller's thread.
-    //
-    static void setLanguages(const AcceptLanguageList& langs);
-
-    //
-    // Removes the AcceptLanguageList object associated with the caller's
-    // Thread.
-    //
-    static void clearLanguages();
 
 private:
-    Thread();
 
-    static Sint8 initializeKey();
+    ThreadPool();    // Unimplemented
+    ThreadPool(const ThreadPool&);    // Unimplemented
+    ThreadPool& operator=(const ThreadPool&);    // Unimplemented
 
-    ThreadHandle _handle;
-    Boolean _is_detached;
-    Boolean _cancelled;
+    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _loop(void *);
 
-    // always pass this * as the void * parameter to the thread
-    // store the user parameter in _thread_parm
+    static Boolean _timeIntervalExpired(
+        struct timeval* start,
+        struct timeval* interval);
 
-    ThreadReturnType(PEGASUS_THREAD_CDECL* _start) (void *);
-    List<cleanup_handler, Mutex> _cleanup;
-    thread_data* _tsd[TSD_COUNT];
+    static void _deleteSemaphore(void* p);
 
-    void* _thread_parm;
-    ThreadReturnType _exit_code;
-    static Boolean _signals_blocked;
-    static TSDKeyType _platform_thread_key;
-    static Boolean _key_initialized;
-    static Boolean _key_error;
+    void _cleanupThread(Thread* thread);
+    Thread* _initializeThread();
+    void _addToIdleThreadsQueue(Thread* th);
+
+    Sint16 _maxThreads;
+    Sint16 _minThreads;
+    AtomicInt _currentThreads;
+    struct timeval _deallocateWait;
+    char _key[17];
+    List<Thread, RMutex> _idleThreads;
+    List<Thread, RMutex> _runningThreads;
+    AtomicInt _dying;
 };
+
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+# include "ThreadWindows_inline.h"
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# include "ThreadzOS_inline.h"
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+# include "ThreadUnix_inline.h"
+#elif defined(PEGASUS_OS_VMS)
+# include "ThreadVms_inline.h"
+#endif
 
 PEGASUS_NAMESPACE_END
 

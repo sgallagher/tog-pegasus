@@ -210,37 +210,37 @@ void RMutex::unlock()
 
 struct RMutexRep
 {
-    Handle handle;
+    HANDLE handle;
 };
 
 RMutex::RMutex()
 {
-    RMutex* rep = ((RMutexRep*)_opaque);
+    RMutexRep* rep = (RMutexRep*)_opaque;
     rep->handle = CreateMutex(NULL, FALSE, NULL);
 }
 
 RMutex::~RMutex()
 {
-    RMutex* rep = ((RMutexRep*)_opaque);
+    RMutexRep* rep = (RMutexRep*)_opaque;
     CloseHandle(rep->handle);
 }
 
 void RMutex::lock()
 {
-    RMutex* rep = ((RMutexRep*)_opaque);
+    RMutexRep* rep = (RMutexRep*)_opaque;
     // Can return WAIT_FAILED but won't since this class guard for errors.
     WaitForSingleObject(rep->handle, INFINITE);
 }
 
 bool RMutex::try_lock()
 {
-    RMutex* rep = ((RMutexRep*)_opaque);
+    RMutexRep* rep = (RMutexRep*)_opaque;
     return WaitForSingleObject(rep->handle, 0) == 0;
 }
 
 void RMutex::unlock()
 {
-    RMutex* rep = ((RMutexRep*)_opaque);
+    RMutexRep* rep = (RMutexRep*)_opaque;
     ReleaseMutex(rep->handle);
 }
 

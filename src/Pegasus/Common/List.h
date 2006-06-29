@@ -445,6 +445,10 @@ public:
     */
     void unlock() { _lock.unlock(); }
 
+    /** Get reference to lock type.
+    */
+    LockType& getLock() const { return ((This*)this)->_lock; }
+
     /** An instance of this class is used to lock this list on construction
 	and later unlock it on destruction.
     */
@@ -454,7 +458,7 @@ public:
 
 	/**
 	*/
-	AutoLock(const This& list) : _lock(((This*)&list)->_lock)
+	AutoLock(const This& list) : _lock(list.getLock())
 	{
 	    _lock.lock();
 	}

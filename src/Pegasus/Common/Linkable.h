@@ -4,11 +4,12 @@
 #include <Pegasus/Common/Config.h>
 #include <cstring>
 
+#define PEGASUS_LINKABLE_SANITY
+
 #define PEGASUS_LINKABLE_MAGIC 0xAABBCCDD
 
 PEGASUS_NAMESPACE_BEGIN
 
-//#define PEGASUS_LINKABLE_SANITY
 
 /** Non-virtual base class for anything that can be placed into a List.
 */

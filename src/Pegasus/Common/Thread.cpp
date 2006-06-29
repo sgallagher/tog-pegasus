@@ -120,7 +120,7 @@ void Thread::cleanup_pop(Boolean execute)
 void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code)
 {
     // execute the cleanup stack and then return
-   while( _cleanup.count() )
+   while( _cleanup.size() )
    {
        try
        {

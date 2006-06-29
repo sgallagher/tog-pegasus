@@ -47,7 +47,7 @@ Thread::Thread(
 	_cancelled( false ),
 	_start( start ), 
 	_cleanup(),
-	_tsd( true ),
+	_tsd( ),
 	_thread_parm( parameter ), 
 	_exit_code( 0 )
 {

@@ -4,7 +4,7 @@
 #include <Pegasus/Common/Config.h>
 #include <cstring>
 
-#define PEGASUS_LINKABLE_SANITY
+// #define PEGASUS_LINKABLE_SANITY
 
 #define PEGASUS_LINKABLE_MAGIC 0xAABBCCDD
 

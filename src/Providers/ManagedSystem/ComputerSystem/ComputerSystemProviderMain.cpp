@@ -39,7 +39,12 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/PegasusVersion.h>
+//
+// Required to build this provider from SDK
+//
+#if !defined (PEGASUS_OS_VMS)
+ #include <Pegasus/Common/PegasusVersion.h>
+#endif
 
 #include "ComputerSystemProvider.h"
 

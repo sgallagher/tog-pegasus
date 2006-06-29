@@ -37,7 +37,12 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/ProviderException.h>        
-#include <Pegasus/Common/PegasusVersion.h>
+//
+// Required to build this provider from SDK
+//
+#if !defined (PEGASUS_OS_VMS)
+ #include <Pegasus/Common/PegasusVersion.h>
+#endif
 #include "NISServerServiceProvider.h"
 
 extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)    

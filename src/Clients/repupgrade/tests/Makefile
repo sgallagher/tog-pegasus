@@ -30,9 +30,9 @@
 #//==============================================================================
 ROOT = ../../../..
 
-OLD_REPOSITORY_PATH = ./
-NEW_REPOSITORY_PATH = ./newRepository
-RESULTDIR           = ./newRepository/test\#repupgrade
+OLD_REPOSITORY_PATH = $(TMP_DIR)/
+NEW_REPOSITORY_PATH = $(TMP_DIR)/newRepository
+RESULTDIR           = $(TMP_DIR)/newRepository/test\#repupgrade
 TESTNAMESPACE       = test/repupgrade
 RESULTFILE 	    =  $(TMP_DIR)/result
 MASTERRESULTFILE    = $(ROOT)/src/$(DIR)/result.master
@@ -57,7 +57,7 @@ include $(ROOT)/mak/test.mak
 tests:
 ifndef PEGASUS_USE_RELEASE_DIRS
 	@$(RMREPOSITORY) $(OLD_REPOSITORY_PATH)repository/test#repupgrade
-	@$(RMREPOSITORY) ./newRepository
+	@$(RMREPOSITORY) $(NEW_REPOSITORY_PATH)
 	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTNAMESPACE)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-M$(REPOSITORY_MODE)" "-n$(TESTNAMESPACE)" $(ROOT)/src/Providers/TestProviders/Load/TST_Family.mof
 	@ $(MKDIRHIER) $(NEW_REPOSITORY_PATH)
@@ -68,6 +68,9 @@ ifndef PEGASUS_USE_RELEASE_DIRS
 	@$(STRIPCRS)
 	@$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++
+	@$(RMREPOSITORY) $(OLD_REPOSITORY_PATH)repository
+	@$(RMREPOSITORY) $(NEW_REPOSITORY_PATH)
+	@$(RM) $(RESULTFILE)
 endif
 
 tests_ignoreerror:

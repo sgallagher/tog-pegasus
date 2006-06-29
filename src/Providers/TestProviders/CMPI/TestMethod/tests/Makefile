@@ -67,6 +67,6 @@ poststarttests:
 	@$(ECHO) +++ $(PROGRAM) passed successfully +++
 	@$(DIFF) $(TEST_LOGFILES).loggood $(LOGFILES).log
 	@$(ECHO) +++ $(TEST_LOGFILES).loggood passed successfully +++
-
+	@$(RM) $(LOGFILES).log
 
 install:

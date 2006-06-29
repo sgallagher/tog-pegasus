@@ -189,7 +189,8 @@ protected:
 
 private:
     struct timeval _default_op_timeout;
-    static AtomicInt _xid;
+    static Mutex _xidMutex;
+    static Uint32 _xid;
     friend class cimom;
     friend class CIMServer;
 };

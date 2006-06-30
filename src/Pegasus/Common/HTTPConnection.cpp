@@ -792,12 +792,22 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             else bytesToWrite = _Min(bytesRemaining, bytesToWrite);
 
             // send non-chunked data
-            sendStart = messageStart + messageLength - bytesRemaining;
-            bytesWritten = _socket->write(sendStart, bytesToWrite);
-            if (bytesWritten < 0)
-                _socketWriteError();
-            totalBytesWritten += bytesWritten;
-            bytesRemaining -= bytesWritten;
+            // 
+            // Socket writes larger than 64K cause some platforms to return
+            //  errors. When the socket write can't send the full buffer at
+            //  one time, subtract the bytes sent and loop until the whole
+            //  buffer has gone.  Use httpTcpBufferSize for maximum send size.
+            // 
+            for (; bytesRemaining > 0; )
+            {
+              sendStart = messageStart + messageLength - bytesRemaining;
+              bytesToWrite = _Min(httpTcpBufferSize, bytesRemaining);
+              bytesWritten = _socket->write(sendStart, bytesToWrite);
+              if (bytesWritten < 0)
+                  _socketWriteError();
+              totalBytesWritten += bytesWritten;
+              bytesRemaining -= bytesWritten;
+            }
 
             if (isChunkResponse == true)
             {

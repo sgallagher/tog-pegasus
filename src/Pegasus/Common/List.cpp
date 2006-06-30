@@ -86,6 +86,7 @@ void ListRep::clear()
 	{
 	    PEGASUS_LIST_ASSERT(p->magic == PEGASUS_LINKABLE_MAGIC);
 	    Linkable* next = p->next;
+	    p->list = 0;
 	    _destructor(p);
 	    p = next;
 	}

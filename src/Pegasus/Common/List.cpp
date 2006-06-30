@@ -218,9 +218,6 @@ bool ListRep::contains(const Linkable* elem)
     PEGASUS_LIST_ASSERT(elem != 0);
     PEGASUS_LIST_ASSERT(elem->magic == PEGASUS_LINKABLE_MAGIC);
 
-    return elem && elem->list == this;
-
-#if 0
     for (const Linkable* p = _front; p; p = p->next)
     {
 	if (p == elem)
@@ -229,7 +226,6 @@ bool ListRep::contains(const Linkable* elem)
 
     // Not found!
     return false;
-#endif
 }
 
 Linkable* ListRep::remove_front()

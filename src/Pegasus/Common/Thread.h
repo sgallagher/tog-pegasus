@@ -52,7 +52,7 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/List.h>
-#include <Pegasus/Common/RMutex.h>
+#include <Pegasus/Common/RecursiveMutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -451,8 +451,8 @@ class PEGASUS_COMMON_LINKAGE Thread : public Linkable
       // store the user parameter in _thread_parm
 
       PEGASUS_THREAD_RETURN  ( PEGASUS_THREAD_CDECL *_start)(void *);
-      List<cleanup_handler, RMutex> _cleanup;
-      List<thread_data, RMutex> _tsd;
+      List<cleanup_handler, RecursiveMutex> _cleanup;
+      List<thread_data, RecursiveMutex> _tsd;
 
       void *_thread_parm;
       PEGASUS_THREAD_RETURN _exit_code;
@@ -594,8 +594,8 @@ private:
     AtomicInt _currentThreads;
     struct timeval _deallocateWait;
     char _key[17];
-    List<Thread, RMutex> _idleThreads;
-    List<Thread, RMutex> _runningThreads;
+    List<Thread, RecursiveMutex> _idleThreads;
+    List<Thread, RecursiveMutex> _runningThreads;
     AtomicInt _dying;
 };
 

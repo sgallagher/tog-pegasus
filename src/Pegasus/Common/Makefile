@@ -52,7 +52,7 @@ LIBRARY = pegcommon
 ##
 
 SOURCES1 = \
-    RMutex.cpp \
+    RecursiveMutex.cpp \
     List.cpp \
     AnonymousPipe.cpp \
     Array.cpp \

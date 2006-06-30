@@ -66,7 +66,7 @@ extern int _cmpi_trace;
 Semaphore CMPILocalProviderManager::_pollingSem(0);
 AtomicInt CMPILocalProviderManager::_stopPolling(0);
 Thread *CMPILocalProviderManager::_reaperThread = 0;
-List<CMPILocalProviderManager::cleanupThreadRecord,RMutex> CMPILocalProviderManager::_finishedThreadList;
+List<CMPILocalProviderManager::cleanupThreadRecord,RecursiveMutex> CMPILocalProviderManager::_finishedThreadList;
 Mutex CMPILocalProviderManager::_reaperMutex(0);
 
   CMPILocalProviderManager::CMPILocalProviderManager (void):

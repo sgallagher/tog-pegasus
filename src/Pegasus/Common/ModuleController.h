@@ -526,7 +526,7 @@ private:
     class _module_lock
     {
     public:
-        _module_lock(List<pegasus_module, RMutex> * list)
+        _module_lock(List<pegasus_module, RecursiveMutex> * list)
            :_list(list)
         {
            _list->lock();
@@ -539,13 +539,13 @@ private:
 
     private:
         _module_lock();
-        List<pegasus_module, RMutex> * _list;
+        List<pegasus_module, RecursiveMutex> * _list;
     };
 
 
 
     static void _async_handleEnqueue(AsyncOpNode *h, MessageQueue *q, void *parm);
-    List<pegasus_module, RMutex> _modules;
+    List<pegasus_module, RecursiveMutex> _modules;
     AsyncReply *_send_wait(Uint32, AsyncRequest *);
     AsyncReply *_send_wait(Uint32, const String &, AsyncRequest *);
 

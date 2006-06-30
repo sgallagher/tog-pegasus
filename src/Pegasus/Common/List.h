@@ -1,3 +1,38 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Mike Brasher (m.brasher@inovadevelopment.com)
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #ifndef _Pegasus_Common_List_h
 #define _Pegasus_Common_List_h
 
@@ -110,7 +145,7 @@ private:
 
         - NullLock - no locking at all.
         - Mutex - non-recursive mutex.
-        - RMutex - recursive mutex.
+        - RecursiveMutex - recursive mutex.
 
     Now we consider an example. So you want to create a list of Person 
     elements. First you must derive from the Linkable class as shown below.
@@ -132,14 +167,14 @@ private:
 	\code
 	List<Person, NullLink>; // Do no synchronization.
 	List<Person, Mutex>; // Use Mutex class to synchronize.
-	List<Person, RMutex>; // Use RMutex class to synchronize.
+	List<Person, RecursiveMutex>; // Use RecursiveMutex class to synchronize.
 	\endcode
 
     Finally, use the list. The following example adds three Person objects
     to the back of the list and removes one from the front.
 
 	\code
-	typedef List<Person, RMutex> PersonList;
+	typedef List<Person, RecursiveMutex> PersonList;
 	PersonList list;
 
 	list.insert_back(new Person("John"));

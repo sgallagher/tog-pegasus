@@ -49,7 +49,7 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/RMutex.h>
+#include <Pegasus/Common/RecursiveMutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -176,7 +176,7 @@ private:
     static AtomicInt _stop_polling;
     static AtomicInt _check_idle_flag;
 
-    static List<MessageQueueService, RMutex> _polling_list;
+    static List<MessageQueueService, RecursiveMutex> _polling_list;
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
 

@@ -1,13 +1,48 @@
-#include <cassert>
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Mike Brasher (m.brasher@inovadevelopment.com)
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #include "List.h"
+#include "PegasusAssert.h"
 
 #ifdef PEGASUS_LINKABLE_SANITY
-# define LIST_ASSERT(COND) assert(COND)
+# define PEGASUS_LIST_ASSERT(COND) PEGASUS_ASSERT(COND)
 #else
-# define LIST_ASSERT(COND) /* empty */
+# define PEGASUS_LIST_ASSERT(COND) /* empty */
 #endif
 
-#define PEGASUS_LIST_MAGIC 0x1234ABCD
+#define PEGASUS_LIST_MAGIC 0x6456FD0A
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -22,7 +57,7 @@ ListRep::ListRep(void (*destructor)(Linkable*)) :
 
 ListRep::~ListRep()
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
 
     clear();
 #ifdef PEGASUS_LINKABLE_SANITY
@@ -32,13 +67,13 @@ ListRep::~ListRep()
 
 void ListRep::clear()
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
 
     if (_destructor)
     {
 	for (Linkable* p = _front; p; )
 	{
-	    LIST_ASSERT(p->magic == PEGASUS_LINKABLE_MAGIC);
+	    PEGASUS_LIST_ASSERT(p->magic == PEGASUS_LINKABLE_MAGIC);
 	    Linkable* next = p->next;
 	    _destructor(p);
 	    p = next;
@@ -52,10 +87,10 @@ void ListRep::clear()
 
 void ListRep::insert_front(Linkable* elem)
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
-    LIST_ASSERT(elem != 0);
-    LIST_ASSERT(elem->magic == PEGASUS_LINKABLE_MAGIC);
-    LIST_ASSERT(elem->list == 0);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(elem != 0);
+    PEGASUS_LIST_ASSERT(elem->magic == PEGASUS_LINKABLE_MAGIC);
+    PEGASUS_LIST_ASSERT(elem->list == 0);
 
     elem->list = this;
     elem->next = _front;
@@ -72,10 +107,10 @@ void ListRep::insert_front(Linkable* elem)
 
 void ListRep::insert_back(Linkable* elem)
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
-    LIST_ASSERT(elem != 0);
-    LIST_ASSERT(elem->magic == PEGASUS_LINKABLE_MAGIC);
-    LIST_ASSERT(elem->list == 0);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(elem != 0);
+    PEGASUS_LIST_ASSERT(elem->magic == PEGASUS_LINKABLE_MAGIC);
+    PEGASUS_LIST_ASSERT(elem->list == 0);
 
     elem->list = this;
     elem->prev = _back;
@@ -94,12 +129,12 @@ void ListRep::insert_after(
     Linkable* pos, 
     Linkable* elem)
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
-    LIST_ASSERT(pos != 0);
-    LIST_ASSERT(elem != 0);
-    LIST_ASSERT(elem->magic == PEGASUS_LINKABLE_MAGIC);
-    LIST_ASSERT(pos->magic == PEGASUS_LINKABLE_MAGIC);
-    LIST_ASSERT(elem->list == 0);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(pos != 0);
+    PEGASUS_LIST_ASSERT(elem != 0);
+    PEGASUS_LIST_ASSERT(elem->magic == PEGASUS_LINKABLE_MAGIC);
+    PEGASUS_LIST_ASSERT(pos->magic == PEGASUS_LINKABLE_MAGIC);
+    PEGASUS_LIST_ASSERT(elem->list == 0);
 
     elem->list = this;
     elem->prev = pos;
@@ -120,12 +155,12 @@ void ListRep::insert_before(
     Linkable* pos, 
     Linkable* elem)
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
-    LIST_ASSERT(pos != 0);
-    LIST_ASSERT(elem != 0);
-    LIST_ASSERT(pos->magic == PEGASUS_LINKABLE_MAGIC);
-    LIST_ASSERT(elem->magic == PEGASUS_LINKABLE_MAGIC);
-    LIST_ASSERT(elem->list == 0);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(pos != 0);
+    PEGASUS_LIST_ASSERT(elem != 0);
+    PEGASUS_LIST_ASSERT(pos->magic == PEGASUS_LINKABLE_MAGIC);
+    PEGASUS_LIST_ASSERT(elem->magic == PEGASUS_LINKABLE_MAGIC);
+    PEGASUS_LIST_ASSERT(elem->list == 0);
 
     elem->list = this;
     elem->next = pos;
@@ -144,11 +179,11 @@ void ListRep::insert_before(
 
 void ListRep::remove(Linkable* pos)
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
-    LIST_ASSERT(pos != 0);
-    LIST_ASSERT(pos->magic == PEGASUS_LINKABLE_MAGIC);
-    LIST_ASSERT(pos->list == this);
-    LIST_ASSERT(_size != 0);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(pos != 0);
+    PEGASUS_LIST_ASSERT(pos->magic == PEGASUS_LINKABLE_MAGIC);
+    PEGASUS_LIST_ASSERT(pos->list == this);
+    PEGASUS_LIST_ASSERT(_size != 0);
 
     if (_size == 0)
 	return;
@@ -172,9 +207,9 @@ void ListRep::remove(Linkable* pos)
 
 bool ListRep::contains(const Linkable* elem)
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
-    LIST_ASSERT(elem != 0);
-    LIST_ASSERT(elem->magic == PEGASUS_LINKABLE_MAGIC);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(elem != 0);
+    PEGASUS_LIST_ASSERT(elem->magic == PEGASUS_LINKABLE_MAGIC);
 
     return elem && elem->list == this;
 
@@ -192,7 +227,7 @@ bool ListRep::contains(const Linkable* elem)
 
 Linkable* ListRep::remove_front()
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
 
     if (_size == 0)
 	return 0;
@@ -205,8 +240,8 @@ Linkable* ListRep::remove_front()
 
 Linkable* ListRep::remove_back()
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
-    LIST_ASSERT(_size > 0);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(_size > 0);
 
     Linkable* elem = _back;
     remove(elem);
@@ -216,14 +251,14 @@ Linkable* ListRep::remove_back()
 
 Linkable* ListRep::find(ListRep::Equal equal, const void* client_data)
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
-    LIST_ASSERT(equal != 0);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(equal != 0);
 
     for (Linkable* p = _front; p; p = p->next)
     {
 	if ((*equal)(p, client_data))
 	{
-	    LIST_ASSERT(p->magic == PEGASUS_LINKABLE_MAGIC);
+	    PEGASUS_LIST_ASSERT(p->magic == PEGASUS_LINKABLE_MAGIC);
 	    return p;
 	}
     }
@@ -234,14 +269,14 @@ Linkable* ListRep::find(ListRep::Equal equal, const void* client_data)
 
 Linkable* ListRep::remove(ListRep::Equal equal, const void* client_data)
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
-    LIST_ASSERT(equal != 0);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(equal != 0);
 
     Linkable* p = find(equal, client_data);
 
     if (p)
     {
-	LIST_ASSERT(p->magic == PEGASUS_LINKABLE_MAGIC);
+	PEGASUS_LIST_ASSERT(p->magic == PEGASUS_LINKABLE_MAGIC);
 	remove(p);
     }
 
@@ -250,8 +285,8 @@ Linkable* ListRep::remove(ListRep::Equal equal, const void* client_data)
 
 void ListRep::apply(ListRep::Apply apply, const void* client_data)
 {
-    LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
-    LIST_ASSERT(apply != 0);
+    PEGASUS_LIST_ASSERT(_magic == PEGASUS_LIST_MAGIC);
+    PEGASUS_LIST_ASSERT(apply != 0);
 
     for (Linkable* p = _front; p; p = p->next)
 	(*apply)(p, client_data);

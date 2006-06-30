@@ -174,7 +174,8 @@ private:
     AtomicInt _count;
     AtomicInt _disallow;
     AtomicInt _capacity;
-    List<ElemType,NullLock> _rep;
+    typedef List<ElemType,NullLock> Rep;
+    Rep _rep;
 };
 
 template<class ElemType> 

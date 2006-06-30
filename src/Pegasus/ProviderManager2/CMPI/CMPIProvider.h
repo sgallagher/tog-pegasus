@@ -48,7 +48,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/List.h>
-#include <Pegasus/Common/RMutex.h>
+#include <Pegasus/Common/RecursiveMutex.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
@@ -345,8 +345,8 @@ private:
 	/*
  		List of threads which are monitored and cleaned.
  	*/
-    List<Thread,RMutex> _threadWatchList;
-    List<Thread,RMutex> _cleanedThreads;
+    List<Thread,RecursiveMutex> _threadWatchList;
+    List<Thread,RecursiveMutex> _cleanedThreads;
 
 
     /**

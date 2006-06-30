@@ -29,31 +29,33 @@
 //
 //==============================================================================
 //
+// Author: Mike Brasher (m.brasher@inovadevelopment.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_RMutex_h
-#define Pegasus_RMutex_h
+#ifndef Pegasus_RecursiveMutex_h
+#define Pegasus_RecursiveMutex_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** The RMutex class implements a recursive mutex. It is similar to the Mutex 
+/** The RecursiveMutex class implements a recursive mutex. It is similar to the Mutex 
     class except that it allows the same thread to lock the mutex multiple
     times.
 */
-class PEGASUS_COMMON_LINKAGE RMutex
+class PEGASUS_COMMON_LINKAGE RecursiveMutex
 {
 public:
 
     /** Default constructor.
     */
-    RMutex();
+    RecursiveMutex();
 
     /** Destructor.
     */
-    ~RMutex();
+    ~RecursiveMutex();
 
     /** Lock the mutex.
     */
@@ -70,13 +72,13 @@ public:
 
 private:
 
-    RMutex(const RMutex&);
-    RMutex& operator=(const RMutex&);
+    RecursiveMutex(const RecursiveMutex&);
+    RecursiveMutex& operator=(const RecursiveMutex&);
 
     Uint64 _opaque[8];
-    struct RMutexRep* _rep;
+    struct RecursiveMutexRep* _rep;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_RMutex_h */
+#endif /* Pegasus_RecursiveMutex_h */

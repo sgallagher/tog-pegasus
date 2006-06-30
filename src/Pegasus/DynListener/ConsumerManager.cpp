@@ -47,7 +47,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/List.h>
-#include <Pegasus/Common/RMutex.h>
+#include <Pegasus/Common/RecursiveMutex.h>
 
 #include "ConsumerManager.h"
 
@@ -886,7 +886,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void
 
     DynamicConsumer* myself = static_cast<DynamicConsumer*>(param);
     String name = myself->getName();
-    List<IndicationDispatchEvent,RMutex> tmpEventQueue;
+    List<IndicationDispatchEvent,RecursiveMutex> tmpEventQueue;
 
     PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "_worker_routine::entering loop for " + name);
 

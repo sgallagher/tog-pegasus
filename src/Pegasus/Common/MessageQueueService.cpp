@@ -55,7 +55,7 @@ static struct timeval deallocateWait = {300, 0};
 
 ThreadPool *MessageQueueService::_thread_pool = 0;
 
-List<MessageQueueService, RMutex> MessageQueueService::_polling_list;
+List<MessageQueueService, RecursiveMutex> MessageQueueService::_polling_list;
 
 Thread* MessageQueueService::_polling_thread = 0;
 
@@ -112,8 +112,8 @@ MessageQueueService::kill_idle_threads(void *parm)
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(void *parm)
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);
-   List<MessageQueueService, RMutex> *list = 
-       reinterpret_cast<List<MessageQueueService, RMutex>*>(myself->get_parm());
+   List<MessageQueueService, RecursiveMutex> *list = 
+       reinterpret_cast<List<MessageQueueService, RecursiveMutex>*>(myself->get_parm());
 
    while (_stop_polling.get()  == 0)
    {

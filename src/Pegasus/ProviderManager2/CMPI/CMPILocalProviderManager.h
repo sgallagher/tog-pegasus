@@ -156,7 +156,7 @@ private:
    static Semaphore _pollingSem;
    static AtomicInt _stopPolling;
    static Mutex _reaperMutex;
-   static List<cleanupThreadRecord,RMutex> _finishedThreadList;
+   static List<cleanupThreadRecord,RecursiveMutex> _finishedThreadList;
 
 protected:
 

@@ -29,10 +29,12 @@
 //
 //==============================================================================
 //
+// Author: Mike Brasher (m.brasher@inovadevelopment.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <new>
-#include "RMutex.h"
+#include "RecursiveMutex.h"
 
 //==============================================================================
 //
@@ -67,17 +69,17 @@ PEGASUS_NAMESPACE_BEGIN
 
 #if defined(PEGASUS_RMUTEX_PTHREADS)
 
-struct RMutexRep
+struct RecursiveMutexRep
 {
     pthread_mutex_t mutex;
 };
 
-RMutex::RMutex()
+RecursiveMutex::RecursiveMutex()
 {
-    if (sizeof(RMutexRep) <= sizeof(_opaque))
-	_rep = (RMutexRep*)_opaque;
+    if (sizeof(RecursiveMutexRep) <= sizeof(_opaque))
+	_rep = (RecursiveMutexRep*)_opaque;
     else
-	_rep = new RMutexRep;
+	_rep = new RecursiveMutexRep;
 
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
@@ -92,7 +94,7 @@ RMutex::RMutex()
     pthread_mutexattr_destroy(&attr);
 }
 
-RMutex::~RMutex()
+RecursiveMutex::~RecursiveMutex()
 {
     pthread_mutex_destroy(&_rep->mutex);
 
@@ -100,19 +102,19 @@ RMutex::~RMutex()
 	delete _rep;
 }
 
-void RMutex::lock()
+void RecursiveMutex::lock()
 {
     // Note: no error can occur since this is a recursive mutex.
     pthread_mutex_lock(&_rep->mutex);
 }
 
-bool RMutex::try_lock()
+bool RecursiveMutex::try_lock()
 {
     // Note: no error can occur since this is a recursive mutex.
     return pthread_mutex_trylock(&_rep->mutex) == 0;
 }
 
-void RMutex::unlock()
+void RecursiveMutex::unlock()
 {
     // Note: no error can occur since this is a recursive mutex.
     pthread_mutex_unlock(&_rep->mutex);
@@ -128,32 +130,32 @@ void RMutex::unlock()
 
 #ifdef PEGASUS_RMUTEX_GENERIC
 
-struct RMutexRep
+struct RecursiveMutexRep
 {
     Mutex mutex;
     Condition cond;
     int count;
     PEGASUS_THREAD_TYPE owner;
-    RMutexRep() : cond(mutex), count(0), owner(0) { }
+    RecursiveMutexRep() : cond(mutex), count(0), owner(0) { }
 };
 
-RMutex::RMutex()
+RecursiveMutex::RecursiveMutex()
 {
-    if (sizeof(RMutexRep) <= sizeof(_opaque))
-	_rep = new((RMutexRep*)_opaque) RMutexRep;
+    if (sizeof(RecursiveMutexRep) <= sizeof(_opaque))
+	_rep = new((RecursiveMutexRep*)_opaque) RecursiveMutexRep;
     else
-	_rep = new RMutexRep;
+	_rep = new RecursiveMutexRep;
 }
 
-RMutex::~RMutex()
+RecursiveMutex::~RecursiveMutex()
 {
     if ((void*)_rep != (void*)_opaque)
 	delete _rep;
     else
-	((RMutexRep*)_opaque)->~RMutexRep();
+	((RecursiveMutexRep*)_opaque)->~RecursiveMutexRep();
 }
 
-void RMutex::lock()
+void RecursiveMutex::lock()
 {
     _rep->mutex.lock();
     {
@@ -168,7 +170,7 @@ void RMutex::lock()
     _rep->mutex.unlock();
 }
 
-bool RMutex::try_lock()
+bool RecursiveMutex::try_lock()
 {
     _rep->mutex.try_lock();
     {
@@ -183,7 +185,7 @@ bool RMutex::try_lock()
     return true;
 }
 
-void RMutex::unlock()
+void RecursiveMutex::unlock()
 {
     _rep->mutex.lock();
     {
@@ -210,39 +212,39 @@ void RMutex::unlock()
 
 #ifdef PEGASUS_RMUTEX_WINDOWS
 
-struct RMutexRep
+struct RecursiveMutexRep
 {
     HANDLE handle;
 };
 
-RMutex::RMutex()
+RecursiveMutex::RecursiveMutex()
 {
-    RMutexRep* rep = (RMutexRep*)_opaque;
+    RecursiveMutexRep* rep = (RecursiveMutexRep*)_opaque;
     rep->handle = CreateMutex(NULL, FALSE, NULL);
 }
 
-RMutex::~RMutex()
+RecursiveMutex::~RecursiveMutex()
 {
-    RMutexRep* rep = (RMutexRep*)_opaque;
+    RecursiveMutexRep* rep = (RecursiveMutexRep*)_opaque;
     CloseHandle(rep->handle);
 }
 
-void RMutex::lock()
+void RecursiveMutex::lock()
 {
-    RMutexRep* rep = (RMutexRep*)_opaque;
+    RecursiveMutexRep* rep = (RecursiveMutexRep*)_opaque;
     // Can return WAIT_FAILED but won't since this class guard for errors.
     WaitForSingleObject(rep->handle, INFINITE);
 }
 
-bool RMutex::try_lock()
+bool RecursiveMutex::try_lock()
 {
-    RMutexRep* rep = (RMutexRep*)_opaque;
+    RecursiveMutexRep* rep = (RecursiveMutexRep*)_opaque;
     return WaitForSingleObject(rep->handle, 0) == 0;
 }
 
-void RMutex::unlock()
+void RecursiveMutex::unlock()
 {
-    RMutexRep* rep = (RMutexRep*)_opaque;
+    RecursiveMutexRep* rep = (RecursiveMutexRep*)_opaque;
     ReleaseMutex(rep->handle);
 }
 

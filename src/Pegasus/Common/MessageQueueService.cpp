@@ -55,7 +55,8 @@ static struct timeval deallocateWait = {300, 0};
 
 ThreadPool *MessageQueueService::_thread_pool = 0;
 
-List<MessageQueueService, RecursiveMutex> MessageQueueService::_polling_list;
+MessageQueueService::PollingList* MessageQueueService::_polling_list;
+Mutex MessageQueueService::_polling_list_mutex;
 
 Thread* MessageQueueService::_polling_thread = 0;
 
@@ -280,7 +281,7 @@ MessageQueueService::MessageQueueService(
       throw BindFailedException(parms);
    }
 
-   _polling_list.insert_back(this);
+   _get_polling_list()->insert_back(this);
 
 }
 
@@ -298,8 +299,8 @@ MessageQueueService::~MessageQueueService()
    // ATTN: added to prevent assertion in List in which the list does not
    // contain this element.
 
-   if (_polling_list.contains(this))
-       _polling_list.remove(this);
+   if (_get_polling_list()->contains(this))
+       _get_polling_list()->remove(this);
 
    // ATTN: The code for closing the _incoming queue
    // is not working correctly. In OpenPegasus 2.5,
@@ -708,7 +709,7 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
    {
       _polling_thread = new Thread(
           polling_routine,
-          reinterpret_cast<void *>(&_polling_list),
+          reinterpret_cast<void *>(_get_polling_list()),
           false);
       ThreadStatus tr = PEGASUS_THREAD_OK;
       while ( (tr =_polling_thread->run()) != PEGASUS_THREAD_OK)
@@ -1269,6 +1270,18 @@ Uint32 MessageQueueService::get_next_xid()
 {
    AutoMutex autoMut(_xidMutex);
    return ++_xid;
+}
+
+MessageQueueService::PollingList* MessageQueueService::_get_polling_list()
+{
+    _polling_list_mutex.lock();
+
+    if (!_polling_list)
+	_polling_list = new PollingList;
+
+    _polling_list_mutex.unlock();
+
+    return _polling_list;
 }
 
 PEGASUS_NAMESPACE_END

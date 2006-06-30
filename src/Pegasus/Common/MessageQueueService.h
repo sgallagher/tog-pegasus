@@ -47,6 +47,7 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/Cimom.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/RecursiveMutex.h>
@@ -56,6 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
 extern const Uint32 CIMOM_Q_ID;
 
 class message_module;
+
 
 class PEGASUS_COMMON_LINKAGE MessageQueueService : 
     public Linkable, public MessageQueue
@@ -176,7 +178,11 @@ private:
     static AtomicInt _stop_polling;
     static AtomicInt _check_idle_flag;
 
-    static List<MessageQueueService, RecursiveMutex> _polling_list;
+    typedef List<MessageQueueService, RecursiveMutex> PollingList;
+    static PollingList* _polling_list;
+    static Mutex _polling_list_mutex;
+
+    PollingList* _get_polling_list();
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
 

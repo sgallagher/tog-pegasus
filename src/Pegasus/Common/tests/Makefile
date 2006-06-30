@@ -93,7 +93,9 @@ DIRS = \
     XmlPrint \
     XmlReader \
     List \
-    AsyncQueue
+    AsyncQueue \
+    IDFactory
+    
 
 ifndef PEGASUS_DISABLE_PERFINST
 DIRS += \

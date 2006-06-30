@@ -58,6 +58,7 @@
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/CIMOperationType.h>
 #include <Pegasus/Common/Linkable.h>
+#include <Pegasus/Common/IDFactory.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -254,12 +255,7 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 
       const Message* getPrevious() const { return _prev; }
 
-      static Uint32 getNextKey()
-      {
-          AutoMutex autoMut(_mut);
-          Uint32 ret = _nextKey++;
-          return ret;
-      }
+      static Uint32 getNextKey() { return _keyFactory.getNext(); }
 
       static CIMOperationType convertMessageTypetoCIMOpType(Uint32 type);
 
@@ -365,10 +361,7 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       MessageQueue* _owner;
       Boolean _isComplete;
       Uint32 _index;
-      static Uint32 _nextKey;
-      static Mutex _mut;
-
-
+      static IDFactory _keyFactory;
 
       friend class cimom;
       friend class MessageQueue;

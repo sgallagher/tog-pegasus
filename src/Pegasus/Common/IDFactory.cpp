@@ -35,24 +35,20 @@
 #include <new>
 #include "IDFactory.h"
 
-#define PEGASUS_IDFACTORY_MAGIC 0x94E91236
-
 PEGASUS_NAMESPACE_BEGIN
 
 IDFactory::IDFactory()
 {
-    _magic = PEGASUS_IDFACTORY_MAGIC;
     _next = 1;
 }
 
 IDFactory::~IDFactory()
 {
-    _magic = 0xDDDDDDDD;
 }
 
 Uint32 IDFactory::getNext()
 {
-    PEGASUS_DEBUG_ASSERT(_magic == PEGASUS_IDFACTORY_MAGIC);
+    PEGASUS_DEBUG_ASSERT(_magic);
 
     _mutex.lock();
     Uint32 tmp = _next++;

@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/Stack.h>
+#include <Pegasus/Common/Magic.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -56,7 +57,7 @@ public:
 
 public:
 
-    Uint32 _magic;
+    Magic<0x94E91236> _magic;
     Uint32 _next;
     Mutex _mutex;
 };

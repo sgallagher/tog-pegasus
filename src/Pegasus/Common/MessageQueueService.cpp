@@ -297,7 +297,9 @@ MessageQueueService::~MessageQueueService()
 
    // ATTN: added to prevent assertion in List in which the list does not
    // contain this element.
-   _polling_list.remove(this);
+
+   if (_polling_list.contains(this))
+       _polling_list.remove(this);
 
    // ATTN: The code for closing the _incoming queue
    // is not working correctly. In OpenPegasus 2.5,

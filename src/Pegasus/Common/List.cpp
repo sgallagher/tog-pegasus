@@ -71,8 +71,8 @@ void ListRep::clear()
 
     if (_destructor)
     {
-	// Reset _front, _back, and _size so that if this is called back,
-	// there will be nothing to delete.
+	// Reset _front, _back, and _size in case the destructor calls
+	// a method of List.
 
 	Linkable* front = _front;
 	Linkable* back = _back;

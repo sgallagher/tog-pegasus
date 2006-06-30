@@ -110,7 +110,8 @@ SOURCES1 = \
     Dir.cpp \
     List.cpp \
     AsyncQueue.cpp \
-    IDFactory.cpp
+    IDFactory.cpp \
+    Magic.cpp
 
 SOURCES2 = \
     DynamicLibrary.cpp \

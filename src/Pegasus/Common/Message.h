@@ -255,7 +255,7 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 
       const Message* getPrevious() const { return _prev; }
 
-      static Uint32 getNextKey();
+      static Uint32 getNextKey() { return _keyFactory.getID(); }
 
       static CIMOperationType convertMessageTypetoCIMOpType(Uint32 type);
 

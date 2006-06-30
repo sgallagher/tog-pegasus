@@ -47,8 +47,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 cimom *MessageQueueService::_meta_dispatcher = 0;
 AtomicInt MessageQueueService::_service_count(0);
-Mutex MessageQueueService::_xidMutex;
-Uint32 MessageQueueService::_xid = 1;
+IDFactory MessageQueueService::_xidFactory(1);
 Mutex MessageQueueService::_meta_dispatcher_mutex;
 
 static struct timeval deallocateWait = {300, 0};
@@ -1268,8 +1267,7 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
 
 Uint32 MessageQueueService::get_next_xid()
 {
-   AutoMutex autoMut(_xidMutex);
-   return ++_xid;
+    return _xidFactory.getID();
 }
 
 MessageQueueService::PollingList* MessageQueueService::_get_polling_list()

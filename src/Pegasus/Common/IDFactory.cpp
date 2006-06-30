@@ -37,9 +37,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-IDFactory::IDFactory()
+IDFactory::IDFactory(Uint32 firstID) : _firstID(firstID), _nextID(_firstID)
 {
-    _next = 1;
 }
 
 IDFactory::~IDFactory()
@@ -47,15 +46,47 @@ IDFactory::~IDFactory()
     PEGASUS_DEBUG_ASSERT(_magic);
 }
 
-Uint32 IDFactory::getNext()
+Uint32 IDFactory::getID() const
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
-    _mutex.lock();
-    Uint32 tmp = _next++;
-    _mutex.unlock();
+    IDFactory* self = (IDFactory*)this;
 
-    return tmp;
+    Uint32 id;
+
+    self->_mutex.lock();
+    {
+	if (_pool.isEmpty())
+	{
+	    if (self->_nextID < _firstID)
+		self->_nextID = _firstID;
+
+	    id = self->_nextID++;
+	}
+	else
+	{
+	    id = _pool.top();
+	    self->_pool.pop();
+	}
+    }
+    self->_mutex.unlock();
+
+    return id;
+}
+
+void IDFactory::putID(Uint32 id)
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+    PEGASUS_DEBUG_ASSERT(id >= _firstID);
+
+    if (id < _firstID)
+	return;
+
+    _mutex.lock();
+    {
+	_pool.push(id);
+    }
+    _mutex.unlock();
 }
 
 PEGASUS_NAMESPACE_END

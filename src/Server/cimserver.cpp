@@ -51,6 +51,7 @@
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Aruran, IBM (aruran.shanmug@in.ibm.com) for Bug# 4183, 4937
+//              Thilo Boehm, IBM (tboehm@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -124,6 +125,10 @@
 #if defined(PEGASUS_OS_OS400)
 #  include "vfyptrs.cinc"
 #  include "OS400ConvertChar.h"
+#endif
+
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) 
+#include <Service/ARM_zOS.h>
 #endif
 
 #if defined(PEGASUS_OS_TYPE_UNIX)
@@ -1480,6 +1485,21 @@ MessageLoader::_useProcessLocale = false;
         }
 #endif
 
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+
+        // ARM is a z/OS internal restart facility. 
+        // This is a z/OS specific change. 
+
+        // Instatiating the automatic restart manager for zOS
+        ARM_zOS automaticRestartManager;
+
+        // register to zOS ARM
+        automaticRestartManager.Register();
+
+#endif
+
+
+
         //
         // Loop to call CIMServer's runForever() method until CIMServer
         // has been shutdown
@@ -1494,6 +1514,15 @@ MessageLoader::_useProcessLocale = false;
         //
         // normal termination
         //
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+
+        // ARM is a z/OS internal restart facility. 
+        // This is a z/OS specific change. 
+
+        // register to zOS ARM
+        automaticRestartManager.DeRegister();
+
+#endif
 
         // Put server shutdown message to the logger
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,

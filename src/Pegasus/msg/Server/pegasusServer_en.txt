@@ -50,7 +50,7 @@
         *        Do not translate the following strings in this file:
         *         'CGI', 'CIM', 'CIMOM', 'CIMMOF', 'CQL', 'DTD', 'HTTP', 'HTTPS', 'MOF', 'PEGASUS_HOME',
         *         'root/cimv2', 'SNMP', 'SSL', 'URL', 'URI', 'UTF-8', 'XML',
-        *         'NT', 'Windows NT', 'OS/400',
+        *         'NT', 'Windows NT', 'OS/400', 'z/OS'
         */
 
 
@@ -4194,6 +4194,25 @@ CIM server listening on HTTPS port {0}."}
 
         // End OS/400 messages
 
+
+        // Start z/OS messages starting with message prefix PGS12500
+
+        /**
+        * @note PSG12532:
+        *    Substitution {0} is the ARM element name.
+        *    Do not translate CIM and ARM since it is the name of a product.
+        */
+        Common.ARM_zOS.ARM_READY:string {"PSG12532I: The CIM server successfully registered to ARM using element name {0}."}
+
+        /**
+        * @note PSG12533:
+        *    Substitution {0} is the ARM element name.
+        *    Substitution {1} and {2} are hexadecimal numbers.
+        *    Do not translate CIM and ARM since it is the name of a product.
+        */
+        Common.ARM_zOS.ARM_FAIL:string {"PSG12533W: The CIM server failed to register with ARM using element name {0}: return code 0x{1}, reason code 0x{2}."}
+
+        // End z/OS messages
 
         // ==========================================================
         // End of messages from platform-specific source files

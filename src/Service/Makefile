@@ -45,6 +45,13 @@ LIBRARIES = \
 SOURCES = \
 	ServerProcess.cpp
 	
+
+SOURCES_ZOS = ARM_zOS.cpp AutoRestartMgr_ZOS_ZSERIES_IBM.s
+
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+   SOURCES += $(SOURCES_ZOS)
+endif
+
 EXTRA_INCLUDES = $(SYS_INCLUDES)
        
 include $(ROOT)/mak/library.mak

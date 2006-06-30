@@ -108,8 +108,8 @@ SOURCES1 = \
     Config.cpp \
     DeclContext.cpp \
     Dir.cpp \
-    AsyncQueue.cpp \
-    List.cpp
+    List.cpp \
+    AsyncQueue.cpp
 
 SOURCES2 = \
     DynamicLibrary.cpp \

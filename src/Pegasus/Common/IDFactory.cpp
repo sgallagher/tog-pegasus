@@ -39,44 +39,57 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-IDFactory::IDFactory() : _next(1), _magic(PEGASUS_IDFACTORY_MAGIC)
+IDFactory::IDFactory()
 {
-    new (_mutex) Mutex();
+    IDFactoryRep* rep = (IDFactoryRep*)_rep;
+    PEGASUS_ASSERT(rep->magic != PEGASUS_IDFACTORY_MAGIC);
+
+    new (rep) IDFactoryRep();
+    rep->magic = PEGASUS_IDFACTORY_MAGIC;
+    rep->next = 1;
 }
 
 IDFactory::~IDFactory()
 {
-    _magic = 0xDDDDDDDD;
+    IDFactoryRep* rep = (IDFactoryRep*)_rep;
+    rep->magic = 0xDDDDDDDD;
     // Note: never destructor mutex!
 }
 
 Uint32 IDFactory::getNext()
 {
-    if (_magic != PEGASUS_IDFACTORY_MAGIC)
+    IDFactoryRep* rep = (IDFactoryRep*)_rep;
+
+    if (rep->magic != PEGASUS_IDFACTORY_MAGIC)
     {
 	fprintf(stderr, 
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n"
-	    "WARNING: IDFactory::getNext(): using destructed IDFactory\n");
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "*** WARNING: IDFactory::getNext(): using destructed object ***\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n"
+	    "**************************************************************\n");
     }
 
-    ((Mutex*)_mutex)->lock();
-    Uint32 tmp = _next++;
-    ((Mutex*)_mutex)->unlock();
+    rep->mutex.lock();
+    Uint32 tmp = rep->next++;
+    rep->mutex.unlock();
+
     return tmp;
 }
 

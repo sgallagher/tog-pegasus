@@ -37,9 +37,19 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/Stack.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+struct IDFactoryRep
+{
+    Uint32 magic;
+    Uint32 next;
+    Mutex mutex;
+};
+
+/** Experimental class.
+*/
 class PEGASUS_COMMON_LINKAGE IDFactory
 {
 public:
@@ -55,11 +65,8 @@ public:
     union
     {
 	double _alignment;
-	char _mutex[sizeof(Mutex)];
+	char _rep[sizeof(IDFactoryRep)];
     };
-
-    Uint32 _next;
-    Uint32 _magic;
 };
 
 PEGASUS_NAMESPACE_END

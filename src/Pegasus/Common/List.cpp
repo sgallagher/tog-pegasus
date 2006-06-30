@@ -71,17 +71,24 @@ void ListRep::clear()
 
     if (_destructor)
     {
-	for (Linkable* p = _front; p; )
+	// Reset _front, _back, and _size so that if this is called back,
+	// there will be nothing to delete.
+
+	Linkable* front = _front;
+	Linkable* back = _back;
+	size_t size= _size;
+
+	_front = 0;
+	_back = 0;
+	_size = 0;
+
+	for (Linkable* p = front; p; )
 	{
 	    PEGASUS_LIST_ASSERT(p->magic == PEGASUS_LINKABLE_MAGIC);
 	    Linkable* next = p->next;
 	    _destructor(p);
 	    p = next;
 	}
-
-	_front = 0;
-	_back = 0;
-	_size = 0;
     }
 }
 

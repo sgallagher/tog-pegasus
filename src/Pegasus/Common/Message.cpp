@@ -542,26 +542,4 @@ QueueIdStack::QueueIdStack(const QueueIdStack& x, int) : _size(x._size)
     pop();
 }
 
-struct NextID
-{
-    NextID()
-    {
-    }
-
-public:
-
-    union
-    {
-	double _alignment;
-	char _mutex[sizeof(Mutex)];
-    };
-
-    Uint32 _next;
-};
-
-Uint32 Message::getNextKey()
-{
-    return _keyFactory.getNext();
-}
-
 PEGASUS_NAMESPACE_END

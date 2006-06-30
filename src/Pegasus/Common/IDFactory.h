@@ -40,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class IDFactory
+class PEGASUS_COMMON_LINKAGE IDFactory
 {
 public:
 

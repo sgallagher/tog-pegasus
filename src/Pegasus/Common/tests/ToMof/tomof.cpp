@@ -53,7 +53,7 @@ char * verbose;
 
 // Local function to compare created buffer and a result char array
 
-bool resultTest(Buffer& buffer, char * result)
+bool resultTest(Buffer& buffer, const char * result)
 {
     buffer.append('\0');
     if (strcmp(buffer.getData(), result) == 0)
@@ -74,7 +74,7 @@ bool resultTest(Buffer& buffer, char * result)
     }
 }
 template<class T>
-void test01(const T& x, char* result)
+void test01(const T& x, const char* result)
 {
     CIMValue v(x);
     CIMValue v2(v);
@@ -108,7 +108,7 @@ void test03()
         Buffer tmp;
         // Test the mof creation for a class declaration
         MofWriter::appendPropertyElement(true, tmp, p1);
-        char * declCompare = "\nstring message = \"Hi There\";";
+        const char * declCompare = "\nstring message = \"Hi There\";";
         if (verbose)
             cout << "Property MOF = " << tmp.getData() << "\n out \n" << declCompare << endl;
 
@@ -118,7 +118,7 @@ void test03()
         Buffer tmp1;
         MofWriter::appendPropertyElement(false, tmp1, p1);
         tmp1.append('\0');
-        char * instanceCompare = "\nmessage = \"Hi There\";";
+        const char * instanceCompare = "\nmessage = \"Hi There\";";
 
         PEGASUS_TEST_ASSERT(resultTest(tmp1,instanceCompare));
     }
@@ -129,14 +129,14 @@ void test03()
         Buffer tmp;
         // Test the mof creation for a class declaration
         MofWriter::appendPropertyElement(true, tmp, p1);
-        char * declCompare = "\nboolean message = TRUE;";
+        const char * declCompare = "\nboolean message = TRUE;";
 
         PEGASUS_TEST_ASSERT(resultTest(tmp,declCompare));
 
         // Test the mof creation for instance definition
         Buffer tmp1;
         MofWriter::appendPropertyElement(false, tmp1, p1);
-        char * instanceCompare = "\nmessage = TRUE;";
+        const char * instanceCompare = "\nmessage = TRUE;";
 
         PEGASUS_TEST_ASSERT(resultTest(tmp1,instanceCompare));
     }
@@ -147,7 +147,7 @@ void test03()
         Buffer tmp;
         // Test the mof creation for a class declaration
         MofWriter::appendPropertyElement(true, tmp, p1);
-        char * declCompare = "\nuint32 message = 9999;";
+        const char * declCompare = "\nuint32 message = 9999;";
 
 
         PEGASUS_TEST_ASSERT(resultTest(tmp,declCompare));
@@ -155,7 +155,7 @@ void test03()
         // Test the mof creation for instance definition
         Buffer tmp1;
         MofWriter::appendPropertyElement(false, tmp1, p1);
-        char * instanceCompare = "\nmessage = 9999;";
+        const char * instanceCompare = "\nmessage = 9999;";
 
         PEGASUS_TEST_ASSERT(resultTest(tmp1,instanceCompare));
     }

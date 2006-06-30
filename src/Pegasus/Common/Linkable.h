@@ -38,13 +38,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/Magic.h>
 #include <cstring>
-
-#ifdef PEGASUS_DEBUG
-# define PEGASUS_LINKABLE_SANITY
-#endif
-
-#define PEGASUS_LINKABLE_MAGIC 0xEB1C2781
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,30 +49,23 @@ struct Linkable
 {
     Linkable() : next(0), prev(0), list(0)
     {
-#ifdef PEGASUS_LINKABLE_SANITY
-	magic = PEGASUS_LINKABLE_MAGIC;
-#endif
     }
 
     ~Linkable() 
-    { 
-#ifdef PEGASUS_LINKABLE_SANITY
-	PEGASUS_ASSERT(magic == PEGASUS_LINKABLE_MAGIC);
+    {
+	PEGASUS_DEBUG_ASSERT(magic);
 	memset(this, 0xDD, sizeof(Linkable)); 
-#endif
     }
 
     // ATTN: consider making private and fixing all places that have
     // copy constructors.
     Linkable(const Linkable&) : next(0), prev(0), list(0)
     {
-#ifdef PEGASUS_LINKABLE_SANITY
-	magic = PEGASUS_LINKABLE_MAGIC;
-#endif
     }
 
-    // Magic number (only used when PEGASUS_LINKABLE_SANITY defined).
-    Uint32 magic;
+#ifdef PEGASUS_DEBUG
+    Magic<0xEB1C2781> magic;
+#endif
     Linkable* next;
     Linkable* prev;
     // Backpointer to list that contains this element.

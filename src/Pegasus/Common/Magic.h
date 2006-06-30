@@ -49,9 +49,28 @@ class Magic
 {
 public:
 
-    Magic() : _magic(MAGIC_NUMBER) { }
-    ~Magic() { _magic = 0xFFFFFFFF; };
-    operator int() const { return _magic == MAGIC_NUMBER; }
+    Magic() 
+    {
+#ifdef PEGASUS_DEBUG
+	_magic = MAGIC_NUMBER;
+#endif
+    }
+
+    ~Magic() 
+    { 
+#ifdef PEGASUS_DEBUG
+	_magic = 0xDDDDDDDD; 
+#endif
+    }
+
+    operator bool() const 
+    { 
+#ifdef PEGASUS_DEBUG
+	return _magic == MAGIC_NUMBER; 
+#else
+	return true;
+#endif
+    }
 
 private:
     Uint32 _magic;

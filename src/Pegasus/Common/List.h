@@ -39,6 +39,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Linkable.h>
+#include <Pegasus/Common/Magic.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -121,7 +122,7 @@ private:
     ListRep(const ListRep& x) { }
     ListRep& operator=(const ListRep& x) { return *this; }
 
-    Uint32 _magic;
+    Magic<0x6456FD0A> _magic;
     Linkable* _front;
     Linkable* _back;
     size_t _size;

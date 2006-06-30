@@ -44,6 +44,7 @@ IDFactory::IDFactory()
 
 IDFactory::~IDFactory()
 {
+    PEGASUS_DEBUG_ASSERT(_magic);
 }
 
 Uint32 IDFactory::getNext()

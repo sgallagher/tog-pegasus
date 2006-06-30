@@ -41,12 +41,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct IDFactoryRep
-{
-    Uint32 magic;
-    Uint32 next;
-    Mutex mutex;
-};
 
 /** Experimental class.
 */
@@ -62,11 +56,9 @@ public:
 
 public:
 
-    union
-    {
-	double _alignment;
-	char _rep[sizeof(IDFactoryRep)];
-    };
+    Uint32 _magic;
+    Uint32 _next;
+    Mutex _mutex;
 };
 
 PEGASUS_NAMESPACE_END

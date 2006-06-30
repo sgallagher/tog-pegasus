@@ -317,6 +317,8 @@ cimom::~cimom()
    if (_routed_queue_shutdown.get() == 0 )
       _routed_ops.shutdown_queue();
    _routing_thread.join();
+
+   _modules.clear();
 }
 
 void cimom::_make_response(Message *req, Uint32 code)

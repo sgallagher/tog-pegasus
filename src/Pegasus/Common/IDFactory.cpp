@@ -41,30 +41,22 @@ PEGASUS_NAMESPACE_BEGIN
 
 IDFactory::IDFactory()
 {
-    IDFactoryRep* rep = (IDFactoryRep*)_rep;
-    PEGASUS_ASSERT(rep->magic != PEGASUS_IDFACTORY_MAGIC);
-
-    new (rep) IDFactoryRep();
-    rep->magic = PEGASUS_IDFACTORY_MAGIC;
-    rep->next = 1;
+    _magic = PEGASUS_IDFACTORY_MAGIC;
+    _next = 1;
 }
 
 IDFactory::~IDFactory()
 {
-    IDFactoryRep* rep = (IDFactoryRep*)_rep;
-    rep->magic = 0xDDDDDDDD;
-    // Note: never destructor mutex!
+    _magic = 0xDDDDDDDD;
 }
 
 Uint32 IDFactory::getNext()
 {
-    IDFactoryRep* rep = (IDFactoryRep*)_rep;
+    PEGASUS_DEBUG_ASSERT(_magic == PEGASUS_IDFACTORY_MAGIC);
 
-    PEGASUS_ASSERT(rep->magic == PEGASUS_IDFACTORY_MAGIC);
-
-    rep->mutex.lock();
-    Uint32 tmp = rep->next++;
-    rep->mutex.unlock();
+    _mutex.lock();
+    Uint32 tmp = _next++;
+    _mutex.unlock();
 
     return tmp;
 }

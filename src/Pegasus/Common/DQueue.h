@@ -1179,13 +1179,16 @@ template<class L> L *AsyncDQueue<L>::remove_wait(const void *key)
             unlock();
             throw ListClosed();
         }
+
         _node->unlocked_wait(pegasus_thread_self());
+
         if(_disallow->get() > 0)
-       {
-          unlock();
-          throw ListClosed();
-       }
-       ret = _remove_no_lock(key);
+        {
+            unlock();
+            throw ListClosed();
+        }
+
+	ret = _remove_no_lock(key);
     }
     if(ret != 0)
     {
@@ -1277,7 +1280,6 @@ template<class L> Uint32 AsyncDQueue<L>::size()
 {
     return _actual_count->get();
 }
-
 
 PEGASUS_NAMESPACE_END
 

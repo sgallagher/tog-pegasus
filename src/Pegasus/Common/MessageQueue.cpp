@@ -72,7 +72,7 @@ Uint32 MessageQueue::getNextQueueId()
 void MessageQueue::putQueueId(Uint32 queueId)
 {
     if (queueId != CIMOM_Q_ID)
-	return _qidFactory.putID(queueId);
+	_qidFactory.putID(queueId);
 }
 
 MessageQueue::MessageQueue(

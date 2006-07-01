@@ -44,50 +44,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-ModuleController::callback_handle * ModuleController::callback_handle::_head;
-const int ModuleController::callback_handle::BLOCK_SIZE = 20;
-Mutex ModuleController::callback_handle::_alloc_mut;
-
-
-void * ModuleController::callback_handle::operator new(size_t size)
-{
-   if( size != sizeof(callback_handle))
-      return ::operator new(size);
-   AutoMutex autoMut(_alloc_mut);
-   callback_handle *node = _head;
-   if(node)
-      _head = reinterpret_cast<callback_handle *>(node->_parm);
-   else
-   {
-      callback_handle *block =
-	 reinterpret_cast<callback_handle *>(::operator new(BLOCK_SIZE * sizeof(callback_handle)));
-      int i;
-      for(i = 1; i < BLOCK_SIZE - 1; ++i)
-	 block[i]._parm = & block[i + 1];
-      block[BLOCK_SIZE - 1]._parm = NULL;
-      node = block;
-      _head = &block[1];
-   }
-   return node;
-}
-
-
-void ModuleController::callback_handle::operator delete(void *dead, size_t size)
-{
-   if(dead == 0)
-      return;
-   if(size != sizeof(callback_handle))
-   {
-      ::operator delete(dead);
-      return;
-   }
-   callback_handle *node = reinterpret_cast<callback_handle *>(dead);
-   AutoMutex autoMut(_alloc_mut);
-   node->_parm = _head;
-   _head = node;
-}
-
-
 pegasus_module::module_rep::module_rep(ModuleController *controller,
 				       const String & name,
 				       void *module_address,

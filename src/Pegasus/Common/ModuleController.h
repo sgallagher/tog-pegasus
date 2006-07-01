@@ -314,14 +314,6 @@ public:
 
     class callback_handle
     {
-        public:
-        static void * operator new(size_t );
-        static void operator delete(void *, size_t);
-    private:
-        static callback_handle *_head;
-        static const int BLOCK_SIZE;
-        static Mutex _alloc_mut;
-
     public:
         callback_handle(pegasus_module * module, void *parm)
            : _module(module), _parm(parm)

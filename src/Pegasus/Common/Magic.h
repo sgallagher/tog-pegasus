@@ -35,8 +35,6 @@
 #define Pegasus_Magic_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Mutex.h>
-#include <Pegasus/Common/Stack.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

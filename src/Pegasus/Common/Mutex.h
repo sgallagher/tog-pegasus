@@ -49,6 +49,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/IPCTypes.h>
+#include <Pegasus/Common/Magic.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -108,6 +109,8 @@ private:
     Mutex(const Mutex& _mutex);
 
     friend class Condition;
+
+    Magic<0x57D11485> _magic;
 };
 
 PEGASUS_NAMESPACE_END

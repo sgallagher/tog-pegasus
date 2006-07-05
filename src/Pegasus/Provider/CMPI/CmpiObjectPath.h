@@ -90,6 +90,18 @@ public:
    */
    CmpiObjectPath(CMPIObjectPath* c);
 
+   /** Constructor - Creates an ObjectPath object from a CmpiData constainer
+   @param data defining data container
+   @return The new ObjectPath object
+    */
+   CmpiObjectPath(const CmpiData& data);
+
+   /** Constructor - Creates an ObjectPath object from an existing ObjectPath
+   @param cop defining ObjectPath
+   @return The new ObjectPath object
+    */
+   CmpiObjectPath(const CmpiObjectPath& cop);
+
    /** Gets the encapsulated CMPIObjectPath.
    */
    CMPIObjectPath *getEnc() const;

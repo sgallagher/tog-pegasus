@@ -94,6 +94,19 @@ public:
    */
    CmpiInstance(const CmpiObjectPath& op);
 
+   /** Constructor - Creates an Instance object from an existing Instance.
+   @param ci defining instance
+   @return The new Instance object
+   */
+   CmpiInstance(const CmpiInstance& ci);
+
+   /** Constructor - Creates an Instance object from either an existing 
+   Instance or ObjectPath.
+   @param data defining data container
+   @return The new Instance object
+   */
+   CmpiInstance(const CmpiData& data);
+
    /** instanceIsA - Tests whether this CIM Instance is of type &lt;className&gt;.
    @param className CIM classname to be tested for.
    @return True or False

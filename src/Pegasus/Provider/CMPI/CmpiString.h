@@ -93,6 +93,13 @@ public:
    */
    CmpiString(const CmpiString& s);
 
+   /** Constructor - Creates a String object from an existing 
+   String object.
+   @param data defining data container
+   @return The new String object
+   */
+   CmpiString(const CmpiData& data);
+
    /** charPtr - get pointer to char* representation
    */
    const char* charPtr() const;

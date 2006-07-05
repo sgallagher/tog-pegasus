@@ -41,9 +41,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** The RecursiveMutex class implements a recursive mutex. It is similar to the Mutex 
-    class except that it allows the same thread to lock the mutex multiple
-    times.
+/** The RecursiveMutex class implements a recursive mutex. It is similar to 
+    the Mutex class except that it allows the same thread to lock the mutex 
+    multiple times.
 */
 class PEGASUS_COMMON_LINKAGE RecursiveMutex
 {

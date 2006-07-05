@@ -72,11 +72,11 @@
 
 //------------------------------------------------------------------------------
 //
-// PEGASUS_OS_TYPE_UNIX network system header files.
+// PEGASUS_OS_TYPE_UNIX or PEGASUS_OS_VMS network system header files.
 //
 //------------------------------------------------------------------------------
 
-#ifdef PEGASUS_OS_TYPE_UNIX
+#if defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS)
 #   ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #       define _OPEN_SYS_SOCK_IPV6
 #   endif

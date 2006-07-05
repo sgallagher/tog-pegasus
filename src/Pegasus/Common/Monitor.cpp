@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -459,8 +459,8 @@ Boolean Monitor::run(Uint32 milliseconds)
 													"responses are still pending. "
 													"connection=0x%p, socket=%d\n",
 													(void *)&h, h.getSocket());
-                        } 
-                        else 
+                        }
+                        else
                         {
                             Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Monitor::run - "
 													"Ignoring connection delete request because "
@@ -524,9 +524,9 @@ Boolean Monitor::run(Uint32 milliseconds)
     //in the entries array. The value in poition zero of the array is the
     //index of the fist named pipe connection in the entries array
     Array <Uint32> indexPipeCountAssociator;
-    int pipeEntryCount=0; 
+    int pipeEntryCount=0;
     int MaxPipes = PIPE_INCREMENT;
-    HANDLE* hEvents = new HANDLE[PIPE_INCREMENT]; 
+    HANDLE* hEvents = new HANDLE[PIPE_INCREMENT];
 
 #endif
 
@@ -542,7 +542,7 @@ Boolean Monitor::run(Uint32 milliseconds)
            //cout << "In Monitor::run in clause to to create array of for WaitformultipuleObjects" << endl;
 
            //cout << "In Monitor::run - pipe being added to array is " << entries[indx].namedPipe.getName() << endl;
-          
+
             entries[indx].pipeSet = false;
 
            // We can Keep a counter in the Monitor class for the number of named pipes ...
@@ -564,15 +564,15 @@ Boolean Monitor::run(Uint32 milliseconds)
                  hEvents = temp_hEvents;
                 // cout << "Monitor::run 'if (pipeEntryCount >= MaxPipes)' ending"<< endl;
 
-            }         
+            }
 
            //pipeEventArray.append((entries[indx].namedPipe.getOverlap()).hEvent);
            hEvents[pipeEntryCount] = entries[indx].namedPipe.getOverlap()->hEvent;
-           
+
            indexPipeCountAssociator.append(indx);
            /*
            if(!entries[indx].namedPipe.isConnectionPipe)
-           { 
+           {
                BOOL rc = ::ReadFile(
                        entries[indx].namedPipe.getPipe(),
                        &entries[indx].namedPipe.raw,
@@ -582,7 +582,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
                cout << "just called read on index " << indx << endl;
 
-                //&entries[indx].namedPipe.bytesRead = &size; 
+                //&entries[indx].namedPipe.bytesRead = &size;
                if(!rc)
                {
 
@@ -598,14 +598,14 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 
           // cout << "Monitor::run pipeEntrycount is " << pipeEntryCount <<
-          // " this is the type " << entries[indx]._type << " this is index " << indx << endl; 
+          // " this is the type " << entries[indx]._type << " this is index " << indx << endl;
 
        }
        else
-      
+
 #endif
        {
-       
+
            if(maxSocketCurrentPass < entries[indx].socket)
             maxSocketCurrentPass = entries[indx].socket;
 
@@ -636,22 +636,22 @@ Boolean Monitor::run(Uint32 milliseconds)
     int pEvents;
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-   
+
    // events = select(0, &fdread, NULL, NULL, &tv);
-   
+
     //if (events == NULL)
-    //{  // This connection uses namedPipes 
-    
+    //{  // This connection uses namedPipes
+
         events = 0;
         DWORD dwWait=NULL;
         pEvents = 0;
 
-      
+
         cout << "Calling WaitForMultipleObjects\n";
 
         //this should be in a try block
 
-        dwWait = WaitForMultipleObjects(MaxPipes,    
+        dwWait = WaitForMultipleObjects(MaxPipes,
                                    hEvents,      //ABB:- array of event objects
                                    FALSE,        // ABB:-does not wait for all
                                    2000);        //ABB:- timeout value   //WW this may need be shorter
@@ -664,9 +664,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 
                    // Sleep(2000);
-            //continue; 
-             
-             //return false;  // I think we do nothing.... Mybe there is a socket connection... so 
+            //continue;
+
+             //return false;  // I think we do nothing.... Mybe there is a socket connection... so
              // cant return.
         }
         else if (dwWait == WAIT_FAILED)
@@ -692,7 +692,7 @@ Boolean Monitor::run(Uint32 milliseconds)
             int pCount = dwWait - WAIT_OBJECT_0;  // determines which pipe
             {
                AutoMutex automut(Monitor::_cout_mut);
-               cout << " WaitForMultiPleObject returned activity on server pipe: "<< 
+               cout << " WaitForMultiPleObject returned activity on server pipe: "<<
                 pCount<< endl;
             }
 
@@ -700,7 +700,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
             //this statment gets the pipe entry that was trigered
             entries[indexPipeCountAssociator[pCount]].pipeSet = true;
-            
+
             if (pCount > 0) //this means activity on pipe is CIMOperation reques
             {
        //         cout << "In Monitor::run got Operation request" << endl;
@@ -709,13 +709,13 @@ Boolean Monitor::run(Uint32 milliseconds)
             else //this clause my not be needed in production but is used for testing
             {
          //     cout << "In Monitor::run got Connection request" << endl;
-              
+
             }
 
         }
                 //
 
-    
+
    // Sleep(2000);
 
     //int events = 1;
@@ -748,7 +748,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 
     }
-   
+
     if(events == SOCKET_ERROR)
 #else
     if(events == -1)
@@ -774,7 +774,7 @@ Boolean Monitor::run(Uint32 milliseconds)
            events, _idleEntries);
        for( int indx = 0; indx < (int)entries.size(); indx++)
        {
-           //cout << "Monitor::run at start of 'for( int indx = 0; indx ' - index = " << indx << endl; 
+           //cout << "Monitor::run at start of 'for( int indx = 0; indx ' - index = " << indx << endl;
           // The Monitor should only look at entries in the table that are IDLE (i.e.,
           // owned by the Monitor).
           if(((entries[indx]._status.get() == _MonitorEntry::IDLE) &&
@@ -783,7 +783,7 @@ Boolean Monitor::run(Uint32 milliseconds)
           {
               MessageQueue *q;
            try{
-            
+
                  q = MessageQueue::lookup(entries[indx].queueId);
               }
              catch (Exception e)
@@ -799,7 +799,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 
 
-         
+
               Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "Monitor::run indx = %d, queueId =  %d, q = %p",
                   indx, entries[indx].queueId, q);
@@ -807,7 +807,7 @@ Boolean Monitor::run(Uint32 milliseconds)
              PEGASUS_ASSERT(q !=0);
 
              try
-             {    
+             {
                  {
                  AutoMutex automut(Monitor::_cout_mut);
                   cout <<" this is the type " << entries[indx]._type <<
@@ -816,7 +816,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                  }
                if(entries[indx]._type == Monitor::CONNECTION)
                 {
-                    {                    
+                    {
                     cout << "In Monitor::run Monitor::CONNECTION clause" << endl;
                     AutoMutex automut(Monitor::_cout_mut);
                     }
@@ -854,7 +854,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                    //cout << "In Monitor::run after dst->setNamedPipe string read is " <<  entries[indx].namedPipe.raw << endl;
 
                    try
-                   {   
+                   {
                        {
                        AutoMutex automut(Monitor::_cout_mut);
                        cout << "In Monitor::run about to call 'dst->run(1)' "  << endl;
@@ -898,7 +898,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 			// set ourself to BUSY,
                         // read the data
                         // and set ourself back to IDLE
-            cout << " in - entries[indx]._type == Monitor::INTERNAL- " << endl; 
+            cout << " in - entries[indx]._type == Monitor::INTERNAL- " << endl;
 
 		   	entries[indx]._status = _MonitorEntry::BUSY;
 			static char buffer[2];
@@ -910,7 +910,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 		else
 		{
             {
-            
+
             AutoMutex automut(Monitor::_cout_mut);
             cout << "In Monitor::run else clause of CONNECTION if statments" << endl;
             }
@@ -919,15 +919,15 @@ Boolean Monitor::run(Uint32 milliseconds)
 		   int events = 0;
            Message *msg;
            {
-           
+
            AutoMutex automut(Monitor::_cout_mut);
            cout << " In Monitor::run Just before checking if NamedPipeConnection" << "for Index "<<indx<< endl;
            }
            if (entries[indx].isNamedPipeConnection())
            {
                if(!entries[indx].namedPipe.isConnectionPipe)
-               { /*if we enter this clasue it means that the named pipe that we are 
-                   looking at has recived a connection but is not the pipe we get connection requests over. 
+               { /*if we enter this clasue it means that the named pipe that we are
+                   looking at has recived a connection but is not the pipe we get connection requests over.
                    therefore we need to change the _type to CONNECTION and wait for a CIM Operations request*/
                    entries[indx]._type = Monitor::CONNECTION;
 
@@ -936,9 +936,8 @@ Boolean Monitor::run(Uint32 milliseconds)
      before we call wiatForMultipleObjects*/
     /******************************************************
     ********************************************************/
-   
-                //DWORD size = 0;
-
+        //memset is to clear the 'entries[indx].namedPipe.raw', which avoids junk characters.
+        memset(entries[indx].namedPipe.raw,'\0',4096);
         BOOL rc = ::ReadFile(
                 entries[indx].namedPipe.getPipe(),
                 &entries[indx].namedPipe.raw,
@@ -948,11 +947,11 @@ Boolean Monitor::run(Uint32 milliseconds)
 
         {
          AutoMutex automut(Monitor::_cout_mut);
-         cout << "Monitor::run just called read on index " << indx << endl; 
+         cout << "Monitor::run just called read on index " << indx << endl;
         }
-        
 
-         //&entries[indx].namedPipe.bytesRead = &size; 
+
+         //&entries[indx].namedPipe.bytesRead = &size;
         if(!rc)
         {
             AutoMutex automut(Monitor::_cout_mut);
@@ -960,7 +959,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
         }
 
-  
+
 
     /******************************************************
     ********************************************************/
@@ -976,13 +975,13 @@ Boolean Monitor::run(Uint32 milliseconds)
                     cout << " In Monitor::run about to create a Pipe message" << endl;
 
                }
-              
+
                events |= NamedPipeMessage::READ;
                msg = new NamedPipeMessage(entries[indx].namedPipe, events);
            }
            else
-           {  
-               {             
+           {
+               {
                AutoMutex automut(Monitor::_cout_mut);
                cout << " In Monitor::run ..its a socket message" << endl;
                }
@@ -1206,7 +1205,7 @@ int  Monitor::solicitPipeMessages(
    PEGASUS_STD(cout) << "In Monitor::solicitPipeMessages at the begining" << PEGASUS_STD(endl);
 
 
-   
+
    _solicitSocketCount++;  // bump the count
    int size = (int)_entries.size();
    if((int)_solicitSocketCount >= (size-1)){

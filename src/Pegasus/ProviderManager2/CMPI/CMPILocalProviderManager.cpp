@@ -462,10 +462,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(voi
 			rec = _finishedThreadList.remove_first();
 			DDD(cerr << "Reaping the thread " << rec->thread << " from " << rec->provider->getName() << endl);
 			rec->thread->join();
-			// Delete the thread, and 
-			delete rec->thread;
-			// remove the thread for the CMPIProvider  
+			// remove the thread for the CMPIProvider, ...
 	 		rec->provider->threadDelete(rec->thread);
+			// ... and then delete the thread.
+			delete rec->thread;
 			delete rec;
 		}
     }

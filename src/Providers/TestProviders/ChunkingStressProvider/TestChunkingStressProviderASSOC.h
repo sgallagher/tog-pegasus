@@ -39,6 +39,7 @@
 #define Pegasus_TestChunkingStressProviderASSOC_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -96,6 +97,7 @@ public:
 
 protected:
     CIMOMHandle _cimom;
+    Mutex _CIMOMHandle_mut;
 
 };
 

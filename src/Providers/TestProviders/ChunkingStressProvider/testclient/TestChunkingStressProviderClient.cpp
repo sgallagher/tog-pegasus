@@ -37,22 +37,15 @@
 
 #include <cstdio>
 
-//#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Thread.h>
-//#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-//#include <Pegasus/Common/CIMName.h>
-//#include <Pegasus/Common/OptionManager.h>
-//#include <Pegasus/Common/System.h>
-//#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AutoPtr.h>
 
 #include <Pegasus/Client/CIMClient.h>
-//#include <Pegasus/Common/XmlWriter.h>
 
 #define EXPECTED_INSTANCES 4004
 #define EXPECTED_INSTANCENAMES 4004
@@ -109,10 +102,6 @@ void _usage ()
         << "          7 threads will loop making references calls\n"
         << "          7 threads will loop making referenceNames calls\n"
         << "          No threads will make any associator calls\n"
-        << endl
-        << "       WARNING: At the present time, if you specify more than one\n"
-        << "       thread for all the associator/reference calls you will get\n"
-        << "       a recursive CIMOMHandle error for all but one of them.\n"
         << endl << endl;
 }
 
@@ -550,15 +539,6 @@ void _beginTest(const Uint32 duration, const char* thdCountStr)
     Uint32 ei_count, ni_count, a_count, an_count, r_count, rn_count;
     sscanf(thdCountStr, "%1u%1u%1u%1u%1u%1u", 
            &ei_count, &ni_count, &a_count, &an_count, &r_count, &rn_count);
-
-    //TODO: Remove this restriction from ASSOC provider.
-    if (a_count+an_count+r_count+rn_count > 1)
-    {
-        cout << "WARNING: At the present time, if you specify more than "
-             << "one thread for all the associator/reference calls you will "
-             << "get a recursive CIMOMHandle error for all but one of them." 
-             << endl;
-    }
 
     totalThdCount = ei_count+ni_count+a_count+an_count+r_count+rn_count;
 

@@ -74,10 +74,12 @@ void TestChunkingStressProviderASSOC::associators(
 
     handler.processing();
 
+    AutoMutex autoMut(_CIMOMHandle_mut);
     Array<CIMInstance> cimObjects =
         _cimom.enumerateInstances(
             context, NAMESPACE, CLASSNAME,
             true, true, false, false, CIMPropertyList());
+    autoMut.unlock();
         
     for (Uint32 i = 0, n = cimObjects.size(); i < n; i++)
     {
@@ -102,9 +104,11 @@ void TestChunkingStressProviderASSOC::associatorNames(
 
     handler.processing();
 
+    AutoMutex autoMut(_CIMOMHandle_mut);
     Array<CIMObjectPath> cimObjectNames =
         _cimom.enumerateInstanceNames(
             context, NAMESPACE, CLASSNAME);
+    autoMut.unlock();
         
     for (Uint32 i = 0, n = cimObjectNames.size(); i < n; i++)
     {

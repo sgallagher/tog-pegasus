@@ -71,7 +71,3 @@ Usage:
           7 threads will loop making referenceNames calls
           No threads will make any associator calls
 
-       WARNING: At the present time, if you specify more than one
-       thread for all the associator/reference calls you will get
-       a recursive CIMOMHandle error for all but one of them.
-

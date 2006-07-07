@@ -767,31 +767,6 @@ CmpiArray::CmpiArray(CMPICount max, CMPIType type) {
 CmpiArray::CmpiArray() {
 }
 
-CmpiArray::CmpiArray(const CmpiArray& array) {
-   this->enc=array.getEnc ();
-}
-
-CmpiArray::CmpiArray(const CmpiData& data) {
-   bool fFoundAcceptableInput = false;
-
-   try
-   {
-      CmpiArray ar = data.operator CmpiArray ();
-
-      fFoundAcceptableInput = true;
-
-      this->enc=ar.getEnc ();
-   }
-   catch (...)
-   {
-   }
-
-   if (!fFoundAcceptableInput)
-   {
-      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-   }
-}
-
  void CmpiArray::operator=(int x) {
  }
 
@@ -1164,48 +1139,6 @@ CmpiCharData::CmpiCharData(CMPIChar16 d) {
 //--
 //---------------------------------------------------
 
-CmpiInstance::CmpiInstance(const CmpiData& data) {
-   bool fFoundAcceptableInput = false;
-
-   // CmpiInstance already has constructors that take either a CmpiInstance
-   // or a CmpiObjectPath.  So mimic that here.
-   try
-   {
-      CmpiInstance ci = data.operator CmpiInstance ();
-
-      fFoundAcceptableInput = true;
-
-      this->enc=ci.getEnc ();
-   }
-   catch (...)
-   {
-   }
-   if (!fFoundAcceptableInput)
-   {
-      try
-      {
-         CmpiObjectPath cop = data.operator CmpiObjectPath ();
-
-         fFoundAcceptableInput = true;
-
-         this->enc=makeInstance(CmpiProviderBase::getBroker(),cop);
-      }
-      catch (...)
-      {
-      }
-   }
-
-   if (!fFoundAcceptableInput)
-   {
-      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-   }
-}
-
-CmpiInstance::CmpiInstance(const CmpiInstance& ci)
-     : CmpiObject (ci) {
-   this->enc=ci.getEnc ();
-}
-
 CmpiInstance::CmpiInstance(const CMPIInstance* newEnc) {
    this->enc=(void*)newEnc;
 }
@@ -1342,32 +1275,6 @@ CmpiStatus::CmpiStatus(const CMPIStatus stat) {
 //	CmpiObjectPath member functions
 //--
 //---------------------------------------------------
-
-CmpiObjectPath::CmpiObjectPath(const CmpiData& data) {
-   bool fFoundAcceptableInput = false;
-
-   try
-   {
-      CmpiObjectPath cop = data.operator CmpiObjectPath ();
-
-      fFoundAcceptableInput = true;
-
-      this->enc=cop.getEnc ();
-   }
-   catch (...)
-   {
-   }
-
-   if (!fFoundAcceptableInput)
-   {
-      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-   }
-}
-
-CmpiObjectPath::CmpiObjectPath(const CmpiObjectPath& cop)
-     : CmpiObject (cop) {
-   this->enc=cop.getEnc ();
-}
 
 CmpiObjectPath::CmpiObjectPath(const char *ns, const char *cls) {
    enc=makeObjectPath(CmpiProviderBase::getBroker(),ns,cls);
@@ -1727,27 +1634,6 @@ CmpiString::CmpiString(CMPIString* c) {
    enc=c;
 }
 
-CmpiString::CmpiString(const CmpiData& data) {
-   bool fFoundAcceptableInput = false;
-
-   try
-   {
-      CmpiString s = data.operator CmpiString ();
-
-      fFoundAcceptableInput = true;
-
-      this->enc=s.getEnc ();
-   }
-   catch (...)
-   {
-   }
-
-   if (!fFoundAcceptableInput)
-   {
-      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-   }
-}
-
 CMPIString *CmpiString::getEnc() const {
    return (CMPIString*)enc;
 }
@@ -2001,27 +1887,6 @@ CmpiDateTime::CmpiDateTime(const CmpiDateTime& original)
    enc=makeDateTime(CmpiProviderBase::getBroker(),
                     ((CmpiDateTime&)original).getDateTime(),
                     ((CmpiDateTime&)original).isInterval());
-}
-
-CmpiDateTime::CmpiDateTime(const CmpiData& data) {
-   bool fFoundAcceptableInput = false;
-
-   try
-   {
-      CmpiDateTime dt = data.operator CmpiDateTime ();
-
-      fFoundAcceptableInput = true;
-
-      this->enc=dt.getEnc ();
-   }
-   catch (...)
-   {
-   }
-
-   if (!fFoundAcceptableInput)
-   {
-      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-   }
 }
 
 CmpiDateTime::CmpiDateTime(const char* utcTime) {

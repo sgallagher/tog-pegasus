@@ -71,13 +71,6 @@ public:
 
    CmpiDateTime(const CmpiDateTime& original);
 
-   /** Constructor - Creates a DateTime object from an existing 
-   Data object.
-   @param data defining data container
-   @return The new DateTime object
-   */
-   CmpiDateTime(const CmpiData& data);
-
    /** Constructor - Initialize time and date according to &lt;utcTime&gt;.
    @param utcTime Date/Time definition in UTC format
    */

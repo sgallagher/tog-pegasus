@@ -146,8 +146,6 @@ class CmpiArray : public CmpiObject {
 public:
    CmpiArray(CMPICount max, CMPIType type);
    CmpiArray();
-   CmpiArray(const CmpiArray& array);
-   CmpiArray(const CmpiData& data);
    CMPICount size() const;
    CmpiArrayIdx operator[](int idx) const;
 };

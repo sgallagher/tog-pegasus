@@ -151,7 +151,7 @@ Boolean BasicAuthenticationHandler::authenticate(
         Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL2,
             "Authentication failed for user '%s' because "
                 "enableRemotePrivilegedUserAccess is not set to 'true'.",
-            userName.getCString());
+            (const char*)userName.getCString());
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
             "Security.Authentication.BasicAuthenticationHandler."

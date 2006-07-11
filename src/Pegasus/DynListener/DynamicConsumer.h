@@ -42,10 +42,10 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/DQueue.h>
+#include <Pegasus/Common/List.h>
+#include <Pegasus/Common/RecursiveMutex.h>
 #include <Pegasus/DynListener/Linkage.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
-
 #include "DynamicConsumerFacade.h"
 #include "ConsumerModule.h"
 
@@ -57,7 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
  *  of the CIMIndicationConsumer interface.  Additionally, we need to store the number of retries in order to resend
  *  indications if the consumer fails.
  */ 
-class PEGASUS_DYNLISTENER_LINKAGE IndicationDispatchEvent
+class PEGASUS_DYNLISTENER_LINKAGE IndicationDispatchEvent : public Linkable
 {
 public:
     
@@ -167,7 +167,7 @@ private:
     friend class ConsumerManager;
 
     //indication queue
-    DQueue<IndicationDispatchEvent> _eventqueue;
+    List<IndicationDispatchEvent,RecursiveMutex> _eventqueue;
 
     //this mutex controls the state of the consumer to ensure it is not initializing, terminating, etc at the same time
     //ATTN: Do we need this?  The ConsumerManager will be controlling the status of the consumers.

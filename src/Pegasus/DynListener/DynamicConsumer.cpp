@@ -58,7 +58,7 @@ DynamicConsumer::DynamicConsumer(): Base(0)
 DynamicConsumer::DynamicConsumer(const String& name): 
 Base(0),
 _module(0),
-_eventqueue(true),
+_eventqueue(),
 _name(name),
 _initialized(false),
 _dieNow(0),
@@ -75,7 +75,7 @@ DynamicConsumer::DynamicConsumer(const String & name,
                                  CIMIndicationConsumerProvider* consumerRef) :
 Base(consumerRef),
 _module(consumerModule),
-_eventqueue(true),
+_eventqueue(),
 _name(name),
 _initialized(false),
 _dieNow(0),
@@ -92,7 +92,7 @@ DynamicConsumer::~DynamicConsumer(void)
     IndicationDispatchEvent* event;
     while (_eventqueue.size())
     {
-        event = _eventqueue.remove_first();
+        event = _eventqueue.remove_front();
         delete event;
     }
 
@@ -264,7 +264,7 @@ void DynamicConsumer::reset()
     IndicationDispatchEvent* event = 0;
     for (Uint32 i = 0; i < _eventqueue.size(); i++)
     {
-        event = _eventqueue.remove_first();
+        event = _eventqueue.remove_front();
         delete event;
     }
 
@@ -285,7 +285,7 @@ void DynamicConsumer::enqueueEvent(IndicationDispatchEvent* event)
     {
         PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "enqueueEvent before " + _name);
         // Our event queue is first in first out.
-        _eventqueue.insert_last(event);
+        _eventqueue.insert_back(event);
         _check_queue->signal();
 
         PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "enqueueEvent after " + _name);
@@ -412,7 +412,7 @@ void DynamicConsumer::_loadOutstandingIndications(Array<IndicationDispatchEvent>
                                             indications[i].getURL(),
                                             indications[i].getIndicationInstance());
 		
-        _eventqueue.insert_last(event);
+        _eventqueue.insert_back(event);
     }
 
     //signal the worker thread so it falls into the queue processing code
@@ -441,12 +441,12 @@ Array<IndicationDispatchEvent> DynamicConsumer::_retrieveOutstandingIndications(
     try
     {
         _eventqueue.try_lock();
-        temp = _eventqueue.next(temp);
+        temp = _eventqueue.front();
         while (temp)
         {
             PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "retrieving");
 			indications.append(*temp);
-            temp = _eventqueue.next(temp);
+            temp = _eventqueue.next_of(temp);
         }
         _eventqueue.unlock();
 
@@ -479,7 +479,8 @@ _lastAttemptTime(CIMDateTime())
 {
 }
 
-IndicationDispatchEvent::IndicationDispatchEvent(const IndicationDispatchEvent &event)
+IndicationDispatchEvent::IndicationDispatchEvent(
+    const IndicationDispatchEvent &event) : Linkable(event)
 {
     _context = event._context;
     _url = event._url;

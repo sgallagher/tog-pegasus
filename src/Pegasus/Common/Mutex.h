@@ -49,6 +49,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/IPCTypes.h>
+#include <Pegasus/Common/Magic.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -65,7 +66,7 @@ public:
     // exception if process already holds the lock
     // @exception Deadlock
     // @exception WaitFailed
-    void lock(PEGASUS_THREAD_TYPE caller);
+    void lock(PEGASUS_THREAD_TYPE caller = pegasus_thread_self());
 
     // try to gain the lock - lock succeeds immediately if the
     // mutex is not already locked. throws an exception and returns
@@ -73,7 +74,7 @@ public:
     // @exception Deadlock
     // @exception AlreadyLocked
     // @exception WaitFailed
-    void try_lock(PEGASUS_THREAD_TYPE caller);
+    void try_lock(PEGASUS_THREAD_TYPE caller = pegasus_thread_self());
 
     // wait for milliseconds and throw an exception then return if the wait
     // expires without gaining the lock. Otherwise return without throwing an
@@ -81,7 +82,9 @@ public:
     // @exception Deadlock
     // @exception TimeOut
     // @exception WaitFailed
-    void timed_lock( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller);
+    void timed_lock( 
+	Uint32 milliseconds, 
+	PEGASUS_THREAD_TYPE caller = pegasus_thread_self());
 
     // unlock the semaphore
     // @exception Permission
@@ -106,6 +109,8 @@ private:
     Mutex(const Mutex& _mutex);
 
     friend class Condition;
+
+    Magic<0x57D11485> _magic;
 };
 
 PEGASUS_NAMESPACE_END

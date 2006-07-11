@@ -47,6 +47,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/List.h>
+#include <Pegasus/Common/RecursiveMutex.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
@@ -222,8 +224,6 @@ public:
 
     CMPIProviderModule *getModule(void) const;
 
-    // << Mon Oct 14 15:42:24 2002 mdd >> for use with DQueue template
-    // to allow conversion from using Array<>
     Boolean operator == (const void *key) const;
     Boolean operator == (const CMPIProvider & prov) const;
 
@@ -345,8 +345,8 @@ private:
 	/*
  		List of threads which are monitored and cleaned.
  	*/
-    DQueue<Thread> _threadWatchList;
-    DQueue<Thread> _cleanedThreads;
+    List<Thread,RecursiveMutex> _threadWatchList;
+    List<Thread,RecursiveMutex> _cleanedThreads;
 
 
     /**

@@ -48,6 +48,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+IDFactory Message::_keyFactory;
+
 Uint32 message_mask::type_legacy =            0x00000000;
 Uint32 message_mask::type_CIMOperation =      0x00000001;
 Uint32 message_mask::type_CIMAsyncOperation = 0x00000002;
@@ -69,10 +71,6 @@ Uint32 message_mask::ha_reply =               0x00400000;
 Uint32 message_mask::ha_synchronous =         0x00800000;
 Uint32 message_mask::ha_async =               0x01000000;
 Uint32 message_mask::ha_wait =                0x02000000;
-
-Uint32 Message::_nextKey = 0;
-Mutex Message::_mut;
-
 
 Message::~Message() 
 { 

@@ -48,14 +48,15 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/List.h>
+#include <Pegasus/Common/RecursiveMutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE cleanup_handler
+class PEGASUS_COMMON_LINKAGE cleanup_handler : public Linkable
 {
 
    public:
@@ -78,14 +79,13 @@ class PEGASUS_COMMON_LINKAGE cleanup_handler
 
       void *_arg;
       PEGASUS_CLEANUP_HANDLE _cleanup_buffer;
-      friend class DQueue<class cleanup_handler>;
       friend class Thread;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 
-class  PEGASUS_COMMON_LINKAGE thread_data
+class  PEGASUS_COMMON_LINKAGE thread_data : public Linkable
 {
 
    public:
@@ -207,6 +207,11 @@ class  PEGASUS_COMMON_LINKAGE thread_data
          return(operator==(b._key.get()));
       }
 
+      static bool equal(const thread_data* node, const void* key)
+      {
+	 return ((thread_data*)node)->operator==(key);
+      }
+
    private:
       void (*_delete_func) (void *data);
       thread_data();
@@ -214,7 +219,6 @@ class  PEGASUS_COMMON_LINKAGE thread_data
       size_t _size;
       AutoArrayPtr<char> _key;
 
-      friend class DQueue<thread_data>;
       friend class Thread;
 };
 
@@ -231,7 +235,7 @@ enum ThreadStatus {
 
 ///////////////////////////////////////////////////////////////////////////
 
-class PEGASUS_COMMON_LINKAGE Thread
+class PEGASUS_COMMON_LINKAGE Thread : public Linkable
 {
    public:
 
@@ -305,7 +309,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       inline void create_tsd(const char *key, int size, void *buffer)
       {
         AutoPtr<thread_data> tsd(new thread_data(key, size, buffer));
-        _tsd.insert_first(tsd.get());
+        _tsd.insert_front(tsd.get());
         tsd.release();
       }
 
@@ -315,7 +319,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       inline void *reference_tsd(const char *key)
       {
          _tsd.lock();
-         thread_data *tsd = _tsd.reference(key);
+         thread_data *tsd = _tsd.find(thread_data::equal, key);
          if(tsd != NULL)
             return( (void *)(tsd->_data) );
          else
@@ -326,7 +330,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       inline void *try_reference_tsd(const char *key)
       {
          _tsd.try_lock();
-         thread_data *tsd = _tsd.reference(key);
+         thread_data *tsd = _tsd.find(thread_data::equal, key);
          if(tsd != NULL)
             return((void *)(tsd->_data) );
          else
@@ -346,35 +350,13 @@ class PEGASUS_COMMON_LINKAGE Thread
       // @exception IPCException
       inline void delete_tsd(const char *key)
       {
-         AutoPtr<thread_data> tsd(_tsd.remove(key));
-      }
-
-      // Note: Caller must delete the thread_data object returned (if not null)
-      // @exception IPCException
-      inline void *remove_tsd(const char *key)
-      {
-         return(_tsd.remove((const void *)key));
+         AutoPtr<thread_data> tsd(_tsd.remove(thread_data::equal, key));
       }
 
       // @exception IPCException
       inline void empty_tsd()
       {
-         try
-         {
-            _tsd.try_lock();
-         }
-         catch(IPCException&)
-         {
-            return;
-         }
-
-         AutoPtr<thread_data> tsd(_tsd.next(0));
-         while(tsd.get())
-         {
-            _tsd.remove_no_lock(tsd.get());
-            tsd.reset(_tsd.next(0));
-         }
-         _tsd.unlock();
+	 _tsd.clear();
       }
 
       // create or re-initialize tsd associated with the key
@@ -384,11 +366,11 @@ class PEGASUS_COMMON_LINKAGE Thread
       {
          PEGASUS_ASSERT(key != NULL);
          AutoPtr<thread_data> tsd;
-         tsd.reset(_tsd.remove((const void *)key));  // may throw an IPC exception
+         tsd.reset(_tsd.remove(thread_data::equal, key));  // may throw an IPC exception
          tsd.reset();
          AutoPtr<thread_data> ntsd(new thread_data(key));
          ntsd->put_data(delete_func, size, value);
-         try { _tsd.insert_first(ntsd.get()); }
+         try { _tsd.insert_front(ntsd.get()); }
          catch(IPCException& e) { e = e; throw; }
          ntsd.release();
       }
@@ -455,7 +437,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       inline void create_tsd(const char *key )
       {
          AutoPtr<thread_data> tsd(new thread_data(key));
-         _tsd.insert_first(tsd.get());
+         _tsd.insert_front(tsd.get());
          tsd.release();
       }
       PEGASUS_THREAD_HANDLE _handle;
@@ -469,8 +451,8 @@ class PEGASUS_COMMON_LINKAGE Thread
       // store the user parameter in _thread_parm
 
       PEGASUS_THREAD_RETURN  ( PEGASUS_THREAD_CDECL *_start)(void *);
-      DQueue<class cleanup_handler> _cleanup;
-      DQueue<class thread_data> _tsd;
+      List<cleanup_handler, RecursiveMutex> _cleanup;
+      List<thread_data, RecursiveMutex> _tsd;
 
       void *_thread_parm;
       PEGASUS_THREAD_RETURN _exit_code;
@@ -581,12 +563,12 @@ public:
 
     inline Uint32 runningCount()
     {
-        return _runningThreads.count();
+        return _runningThreads.size();
     }
 
     inline Uint32 idleCount()
     {
-        return _idleThreads.count();
+        return _idleThreads.size();
     }
 
 private:
@@ -612,8 +594,8 @@ private:
     AtomicInt _currentThreads;
     struct timeval _deallocateWait;
     char _key[17];
-    DQueue<Thread> _idleThreads;
-    DQueue<Thread> _runningThreads;
+    List<Thread, RecursiveMutex> _idleThreads;
+    List<Thread, RecursiveMutex> _runningThreads;
     AtomicInt _dying;
 };
 

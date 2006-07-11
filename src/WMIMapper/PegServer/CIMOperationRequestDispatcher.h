@@ -49,7 +49,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>

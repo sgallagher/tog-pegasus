@@ -45,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
 BinaryMessageHandler::BinaryMessageHandler(MessageQueueService *output_q)
    : Base(PEGASUS_QUEUENAME_BINARY_HANDLER),
      _outputQueue(output_q),
-     _msg_q(true, 0)
+     _msg_q()
 {
 
 }
@@ -109,7 +109,7 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest * request)
       request->op->processing();
       try
       {
-	 _msg_q.insert_last(request->op);
+	 _msg_q.enqueue(request->op);
       }
       catch(ListFull & )
       {
@@ -180,7 +180,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
    AsyncOpNode *op;
    try
    {
-      op = myself->_msg_q.remove_first();
+      op = myself->_msg_q.dequeue();
    }
    catch(...)
    {
@@ -202,15 +202,15 @@ BinaryMessageHandler::handle_binary_message(void* parm)
    try
    {
       // if there is a response, dispatch the response
-      if(op->_response.count())
+      if(op->_response.size())
       {
-         msg = static_cast<AsyncMessage *>(op->_response.next(0));
+         msg = static_cast<AsyncMessage *>(op->_response.front());
          legacy = static_cast<AsyncLegacyOperationResult*>(msg)->get_result();
       }
       else
       {
          // there is no response so there has to be a request
-         if(op->_request.count() == 0)
+         if(op->_request.size() == 0)
          {
             PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL2,
                "Received OpNode with no messages.");
@@ -218,7 +218,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
             return(0);
          }
          // dispatch the request
-         msg = static_cast<AsyncMessage *>(op->_request.next(0));
+         msg = static_cast<AsyncMessage *>(op->_request.front());
          legacy = static_cast<AsyncLegacyOperationStart *>(msg)->get_action();
       }
       if(msg && legacy)

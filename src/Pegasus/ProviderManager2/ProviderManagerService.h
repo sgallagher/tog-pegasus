@@ -52,10 +52,11 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/List.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
-#include <Pegasus/ProviderManager2/SafeQueue.h>
 #include <Pegasus/ProviderManager2/ProviderManagerRouter.h>
 
 #include <Pegasus/ProviderManager2/Linkage.h>
@@ -115,8 +116,8 @@ private:
 
     CIMRepository* _repository;
 
-    SafeQueue<AsyncOpNode *> _incomingQueue;
-    SafeQueue<AsyncOpNode *> _outgoingQueue;
+    List<AsyncOpNode,Mutex> _incomingQueue;
+    List<AsyncOpNode,Mutex> _outgoingQueue;
 
     ProviderManagerRouter* _basicProviderManagerRouter;
     ProviderManagerRouter* _oopProviderManagerRouter;

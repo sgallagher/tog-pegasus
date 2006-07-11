@@ -42,9 +42,10 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Tracer.h>
-#include "Stack.h"
 #include "MessageQueue.h"
 #include "MessageQueueService.h"
+#include "IDFactory.h"
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -61,37 +62,17 @@ void MessageQueue::remove_myself(Uint32 qid)
     _queueTable.remove(qid);
 }
 
-static Stack<Uint32> _qid_stack;
-static Uint32 _qid_next = CIMOM_Q_ID + 1;
-static Mutex _qid_mutex;
+static IDFactory _qidFactory(CIMOM_Q_ID + 1);
 
 Uint32 MessageQueue::getNextQueueId()
 {
-    // If _qid_stack is empty, return _qid_next (and then increment _qid_next).
-    // Else return the top of the stack.
-
-    AutoMutex autoMutex(_qid_mutex);
-
-    if (_qid_stack.isEmpty())
-        return _qid_next++;
-
-    Uint32 queueId = _qid_stack.top();
-    _qid_stack.pop();
-    return queueId;
+    return _qidFactory.getID();
 }
 
 void MessageQueue::putQueueId(Uint32 queueId)
 {
-    // Put the queueId on the top of the stack.
-
-    AutoMutex autoMutex(_qid_mutex);
-    // Ignore an attempt to return the well-known queue id (CIMOM_Q_ID).
-    // This id is reserved for the CIMOM queue.
-
-    if (queueId == CIMOM_Q_ID)
-        return;
-
-    _qid_stack.push(queueId);
+    if (queueId != CIMOM_Q_ID)
+	_qidFactory.putID(queueId);
 }
 
 MessageQueue::MessageQueue(

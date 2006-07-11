@@ -71,6 +71,7 @@ Mutex::Mutex(const Mutex & mutex)
 
 Mutex::~Mutex()
 {
+  PEGASUS_DEBUG_ASSERT(_magic);
   if (0 == pthread_mutex_destroy(&_mutex.mut))
     pthread_mutexattr_destroy(&_mutex.mutatt);
 }
@@ -80,6 +81,7 @@ Mutex::~Mutex()
 
 void Mutex::lock(PEGASUS_THREAD_TYPE caller)
 {
+  PEGASUS_DEBUG_ASSERT(_magic);
   int errorcode;
   if (0 == (errorcode = pthread_mutex_lock(&(_mutex.mut))))
   {
@@ -102,6 +104,7 @@ void Mutex::lock(PEGASUS_THREAD_TYPE caller)
 
 void Mutex::try_lock(PEGASUS_THREAD_TYPE caller)
 {
+  PEGASUS_DEBUG_ASSERT(_magic);
   int errorcode;
   if (0 == (errorcode = pthread_mutex_trylock(&_mutex.mut)))
   {
@@ -141,6 +144,7 @@ void Mutex::try_lock(PEGASUS_THREAD_TYPE caller)
 
 void Mutex::timed_lock(Uint32 milliseconds, PEGASUS_THREAD_TYPE caller)
 {
+  PEGASUS_DEBUG_ASSERT(_magic);
 
   struct timeval now,
     finish,
@@ -186,6 +190,7 @@ void Mutex::timed_lock(Uint32 milliseconds, PEGASUS_THREAD_TYPE caller)
 
 void Mutex::unlock()
 {
+  PEGASUS_DEBUG_ASSERT(_magic);
   PEGASUS_THREAD_TYPE m_owner = _mutex.owner;
   _mutex.owner = 0;
   if (0 != pthread_mutex_unlock(&_mutex.mut))

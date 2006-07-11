@@ -68,6 +68,8 @@ Mutex::Mutex(const Mutex & mutex)
 
 Mutex::~Mutex()
 {
+   PEGASUS_DEBUG_ASSERT(_magic);
+
    WaitForSingleObject(_mutex.mut, INFINITE);
    CloseHandle(_mutex.mut);
 }

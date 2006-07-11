@@ -36,7 +36,7 @@
 #define Pegasus_BinaryMessageHandler_h
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/AsyncOpNode.h>
-#include <Pegasus/Common/DQueue.h>
+#include <Pegasus/Common/AsyncQueue.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/CIMMessage.h>
@@ -274,7 +274,7 @@ class PEGASUS_SERVER_LINKAGE BinaryMessageHandler : public MessageQueueService
       MessageQueueService* _outputQueue;
 
       // Flag to indicate whether or not the CIMServer is shutting down.
-      AsyncDQueue<AsyncOpNode> _msg_q;
+      AsyncQueue<AsyncOpNode> _msg_q;
       
 };
 

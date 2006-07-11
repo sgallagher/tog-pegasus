@@ -61,7 +61,7 @@ CMPIProvider::CMPIProvider(const String & name,
 		   CMPIProviderModule *module,
 		   ProviderVector *mv)
    : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
-     _no_unload(0), _rm(0), _threadWatchList(true), _cleanedThreads(true)
+     _no_unload(0), _rm(0), _threadWatchList(), _cleanedThreads()
 
 {
    _current_operations = 1;
@@ -74,7 +74,7 @@ CMPIProvider::CMPIProvider(const String & name,
 
 CMPIProvider::CMPIProvider(CMPIProvider *pr)
   : _status(UNINITIALIZED), _module(pr->_module), _cimom_handle(0), _name(pr->_name),
-    _no_unload(0), _rm(0), _threadWatchList(true), _cleanedThreads(true)
+    _no_unload(0), _rm(0), _threadWatchList(), _cleanedThreads()
 {
    _current_operations = 1;
    _currentSubscriptions = 0;
@@ -364,9 +364,9 @@ void CMPIProvider::_terminate(Boolean terminating)
 		// Walk through the list and terminate the threads. After they are 
 		// terminated, put them back on the watch list, call the cleanup function
 		// and wait until the cleanup is completed.
-		while (_threadWatchList.count() > 0) {
+		while (_threadWatchList.size() > 0) {
 				// Remove the thread from the watch list and kill it.
-                Thread *t = _threadWatchList.remove_first();
+                Thread *t = _threadWatchList.remove_front();
 
 		// If this a non-production build, DO NOT do the cancellation. This is 
 		// done so that the provider developer will notice incorrect behaviour
@@ -397,7 +397,7 @@ void CMPIProvider::_terminate(Boolean terminating)
 				//t->cancel();
 #endif
 				//  and perform the normal  cleanup procedure
-				_threadWatchList.insert_last(t);
+				_threadWatchList.insert_back(t);
 				removeThreadFromWatch(t);	
 		}
 		// Wait until all of the threads have been cleaned.
@@ -457,9 +457,9 @@ Boolean
 CMPIProvider::isThreadOwner(Thread *t)  
 {
 	PEGASUS_ASSERT ( t != NULL );
-	if  ( _cleanedThreads.exists(t) )
+	if  ( _cleanedThreads.contains(t) )
 		return true;
-	if  ( !_threadWatchList.exists(t) )
+	if  ( !_threadWatchList.contains(t) )
 		return true;
 
 	return false;
@@ -473,8 +473,8 @@ CMPIProvider::isThreadOwner(Thread *t)
 void
 CMPIProvider::threadDelete(Thread *t)
 {
-	PEGASUS_ASSERT ( _cleanedThreads.exists(t) );
-	PEGASUS_ASSERT ( !_threadWatchList.exists(t) );
+	PEGASUS_ASSERT ( _cleanedThreads.contains(t) );
+	PEGASUS_ASSERT ( !_threadWatchList.contains(t) );
 	_cleanedThreads.remove( t );
 }
 
@@ -497,18 +497,18 @@ CMPIProvider::removeThreadFromWatch(Thread *t)
 {
 	PEGASUS_ASSERT( t != 0 );
 
-	PEGASUS_ASSERT (_threadWatchList.exists (t));
-	PEGASUS_ASSERT (!_cleanedThreads.exists (t));
+	PEGASUS_ASSERT (_threadWatchList.contains (t));
+	PEGASUS_ASSERT (!_cleanedThreads.contains (t));
 
+	// and remove it from the watched list
+	_threadWatchList.remove(t);
+ 
 	// Add the thread to the CMPIProvider's list.
 	// We use this list to keep track of threads that are 
 	// being cleaned (this way 'waitUntilThreadsDone' can stall until the
 	// threads are truly deleted). 
-	_cleanedThreads.insert_last (t);
+	_cleanedThreads.insert_back(t);
 
-	// and remove it from the watched list
-    _threadWatchList.remove(t);
- 
 	CMPILocalProviderManager::cleanupThread(t, this);
 }
 
@@ -524,7 +524,7 @@ CMPIProvider::addThreadToWatch(Thread *t)
 {
 	PEGASUS_ASSERT( t != 0 );
 
-    _threadWatchList.insert_last(t);
+    _threadWatchList.insert_back(t);
 }
 Boolean CMPIProvider::operator == (const void *key) const 
 {

@@ -97,8 +97,8 @@ Thread::Thread(
       _cancelled(false),
       _suspend_count(),
       _start(start),
-      _cleanup(true),
-      _tsd(true),
+      _cleanup(),
+      _tsd(),
       _thread_parm(parameter),
       _exit_code(0)
 {

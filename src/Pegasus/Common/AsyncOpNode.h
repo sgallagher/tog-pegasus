@@ -44,9 +44,10 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/internal_dq.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Linkable.h>
+#include <Pegasus/Common/List.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -88,7 +89,7 @@ PEGASUS_NAMESPACE_BEGIN
 class Cimom;
 class Thread;
 
-class PEGASUS_COMMON_LINKAGE AsyncOpNode
+class PEGASUS_COMMON_LINKAGE AsyncOpNode : public Linkable
 {
 
 //     public:
@@ -165,8 +166,8 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
    private:
       Semaphore _client_sem;
       Mutex _mut;
-      unlocked_dq<Message> _request;
-      unlocked_dq<Message> _response;
+      List<Message,NullLock> _request;
+      List<Message,NullLock> _response;
 
       Uint32 _state;
       Uint32 _flags;
@@ -183,9 +184,9 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       struct timeval _timeout_interval;
 
       AsyncOpNode *_parent;
-      unlocked_dq<AsyncOpNode> _children;
+      List<AsyncOpNode,NullLock> _children;
 
-      void _reset(unlocked_dq<AsyncOpNode> *dst_q);
+      void _reset(List<AsyncOpNode,NullLock> *dst_q);
 
       // the lifetime member is for cache management by the cimom
       void _set_lifetime(struct timeval *lifetime) ;
@@ -286,10 +287,9 @@ inline  void AsyncOpNode::put_request(const Message *request)
 {
    AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
-   if( false == _request.exists(reinterpret_cast<void *>(const_cast<Message *>(request))) )
-   _request.insert_last( const_cast<Message *>(request) ) ;
 
-//   _request = const_cast<Message *>(request);
+   if (!_request.contains(request))
+       _request.insert_back((Message*)request);
 }
 
 inline Message * AsyncOpNode::get_request(void)
@@ -297,7 +297,7 @@ inline Message * AsyncOpNode::get_request(void)
    Message *ret;
    AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
-   ret = _request.remove_first() ;
+   ret = _request.remove_front() ;
 
    return ret;
 }
@@ -306,8 +306,9 @@ inline void AsyncOpNode::put_response(const Message *response)
 {
    AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
-   if (false == _response.exists(reinterpret_cast<void *>(const_cast<Message *>(response))))
-   _response.insert_last( const_cast<Message *>(response) );
+
+   if (!_response.contains(response))
+       _response.insert_back((Message*)response);
 }
 
 inline Message * AsyncOpNode::get_response(void)
@@ -316,7 +317,7 @@ inline Message * AsyncOpNode::get_response(void)
 
    AutoMutex autoMut(_mut);
 //   gettimeofday(&_updated, NULL);
-   ret = _response.remove_first();
+   ret = _response.remove_front();
 //   ret = _response;
 
    return ret;
@@ -441,7 +442,7 @@ inline Boolean AsyncOpNode::_is_child(void)
 
 inline Uint32 AsyncOpNode::_is_parent(void)
 {
-   return _children.count();
+   return _children.size();
 }
 
 inline Boolean AsyncOpNode::_is_my_child(const AsyncOpNode & caller) const
@@ -469,7 +470,7 @@ inline void AsyncOpNode::_adopt_child(AsyncOpNode *child)
    if(true == child->_is_child())
       throw Permission(pegasus_thread_self());
    child->_parent = this;
-   _children.insert_last(child);
+   _children.insert_back(child);
 }
 
 inline void AsyncOpNode::_disown_child(AsyncOpNode *child)

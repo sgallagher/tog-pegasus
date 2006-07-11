@@ -225,3 +225,13 @@ ifndef PEGASUS_ARCH_LIB
     endif
 endif
 DEFINES += -DPEGASUS_ARCH_LIB=\"$(PEGASUS_ARCH_LIB)\"
+
+##==============================================================================
+##
+## If AR note defined, use "ar".
+##
+##==============================================================================
+
+ifndef AR
+  AR=ar
+endif

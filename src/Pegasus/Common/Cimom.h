@@ -42,7 +42,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/DQueue.h>
+#include <Pegasus/Common/AsyncQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AsyncOpNode.h>
@@ -52,6 +52,8 @@
 //#include <Pegasus/Server/CIMOperationResponseEncoder.h>
 //#include <Pegasus/Server/CIMOperationRequestDecoder.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/List.h>
+#include <Pegasus/Common/RecursiveMutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -71,7 +73,7 @@ class PEGASUS_COMMON_LINKAGE module_capabilities
 
 class cimom;
 
-class PEGASUS_COMMON_LINKAGE message_module
+class PEGASUS_COMMON_LINKAGE message_module : public Linkable
 {
    public:
       message_module()
@@ -148,12 +150,9 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
    private:
       struct timeval _default_op_timeout;
       struct timeval _last_module_change;
-      DQueue<message_module> _modules;
+      List<message_module, RecursiveMutex> _modules;
 
-      DQueue<AsyncOpNode> _recycle;
-
-      AsyncDQueue<AsyncOpNode> _routed_ops;
-      DQueue<AsyncOpNode> _internal_ops;
+      AsyncQueue<AsyncOpNode> _routed_ops;
 
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _routing_proc(void *);
 

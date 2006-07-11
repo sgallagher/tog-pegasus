@@ -200,7 +200,7 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
     {
         request->op->processing();
 
-        _incomingQueue.enqueue(request->op);
+        _incomingQueue.insert_back(request->op);
         ThreadStatus rtn = PEGASUS_THREAD_OK;
         while (( rtn =_thread_pool->allocate_and_awaken(
                      (void *)this, ProviderManagerService::handleCimOperation)) != PEGASUS_THREAD_OK)
@@ -257,9 +257,9 @@ ProviderManagerService::handleCimOperation(void* arg)
             return(PEGASUS_THREAD_RETURN(1));
         }
 
-        AsyncOpNode* op = service->_incomingQueue.dequeue();
+        AsyncOpNode* op = service->_incomingQueue.remove_front();
 
-        if ((op == 0) || (op->_request.count() == 0))
+        if ((op == 0) || (op->_request.size() == 0))
         {
             // ATTN: This may dereference a null pointer!
             MessageQueue* queue = MessageQueue::lookup(op->_source_queue);
@@ -273,7 +273,7 @@ ProviderManagerService::handleCimOperation(void* arg)
         }
 
         AsyncRequest* request =
-            static_cast<AsyncRequest*>(op->_request.next(0));
+            static_cast<AsyncRequest*>(op->_request.front());
 
         if ((request == 0) ||
             (request->getType() != async_messages::ASYNC_LEGACY_OP_START))
@@ -337,7 +337,7 @@ void ProviderManagerService::handleCimRequest(
     PEGASUS_ASSERT(request != 0);
 
     // get request from op node
-    AsyncRequest * async = static_cast<AsyncRequest *>(op->_request.next(0));
+    AsyncRequest * async = static_cast<AsyncRequest *>(op->_request.front());
     PEGASUS_ASSERT(async != 0);
 
     Message * response = 0;

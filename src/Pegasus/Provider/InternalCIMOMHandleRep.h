@@ -42,7 +42,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/DQueue.h>
+#include <Pegasus/Common/AsyncQueue.h>
 #include <Pegasus/Common/MessageQueueService.h>
 
 #ifdef PEGASUS_OS_OS400
@@ -71,7 +71,7 @@ private:
     Uint32 _return_qid;
 
     Mutex _mutex;
-    AsyncDQueue<Message> _response;
+    AsyncQueue<Message> _response;
 
 };
 

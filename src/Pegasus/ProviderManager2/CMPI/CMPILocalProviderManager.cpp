@@ -66,7 +66,7 @@ extern int _cmpi_trace;
 Semaphore CMPILocalProviderManager::_pollingSem(0);
 AtomicInt CMPILocalProviderManager::_stopPolling(0);
 Thread *CMPILocalProviderManager::_reaperThread = 0;
-DQueue <CMPILocalProviderManager::cleanupThreadRecord> CMPILocalProviderManager::_finishedThreadList(true);
+List<CMPILocalProviderManager::cleanupThreadRecord,RecursiveMutex> CMPILocalProviderManager::_finishedThreadList;
 Mutex CMPILocalProviderManager::_reaperMutex(0);
 
   CMPILocalProviderManager::CMPILocalProviderManager (void):
@@ -459,12 +459,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(voi
 		while (_finishedThreadList.size() >0 )
 		{
 		    // Pull of the the threads from the global list.
-			rec = _finishedThreadList.remove_first();
+			rec = _finishedThreadList.remove_front();
 			DDD(cerr << "Reaping the thread " << rec->thread << " from " << rec->provider->getName() << endl);
 			rec->thread->join();
-			// remove the thread for the CMPIProvider, ...
+
+			// Remove the thread for the CMPIProvider.
 	 		rec->provider->threadDelete(rec->thread);
-			// ... and then delete the thread.
+
+			// Delete the thread.
 			delete rec->thread;
 			delete rec;
 		}
@@ -496,7 +498,7 @@ CMPILocalProviderManager::cleanupThread(Thread *t, CMPIProvider *p)
 
     // Put the Thread and the CMPIProvider on the global list.
 	cleanupThreadRecord *record = new cleanupThreadRecord(t, p);
-	_finishedThreadList.insert_last (record);
+	_finishedThreadList.insert_back(record);
 
   	if (_reaperThread == 0)
     {

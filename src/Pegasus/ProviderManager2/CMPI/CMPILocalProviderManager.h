@@ -45,7 +45,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/HashTable.h>
 
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
@@ -145,7 +144,8 @@ private:
    * The data structures for holding the thread and the CMPIProvider
    */
 
-   struct cleanupThreadRecord {
+   struct cleanupThreadRecord : public Linkable 
+   {
 		cleanupThreadRecord(): thread(0), provider(0) {}
 		cleanupThreadRecord(Thread *t, CMPIProvider *p): thread(t), provider(p) { }
 		Thread *thread;
@@ -156,7 +156,7 @@ private:
    static Semaphore _pollingSem;
    static AtomicInt _stopPolling;
    static Mutex _reaperMutex;
-   static DQueue<cleanupThreadRecord> _finishedThreadList;
+   static List<cleanupThreadRecord,RecursiveMutex> _finishedThreadList;
 
 protected:
 

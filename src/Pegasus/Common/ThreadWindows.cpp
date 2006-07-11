@@ -46,8 +46,8 @@ Thread::Thread(
 	_cancel_enabled( true ),
 	_cancelled( false ),
 	_start( start ), 
-	_cleanup( true ),
-	_tsd( true ),
+	_cleanup(),
+	_tsd( ),
 	_thread_parm( parameter ), 
 	_exit_code( 0 )
 {

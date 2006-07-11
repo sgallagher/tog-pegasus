@@ -70,7 +70,7 @@ _cancel_enabled(true),
 _cancelled(false),
 _suspend_count(),
 _start(start),
-_cleanup(true),
+_cleanup(),
 _tsd(true),
 _thread_parm(parameter),
 _exit_code(0)

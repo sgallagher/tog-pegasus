@@ -50,6 +50,8 @@
 // exception if process already holds the lock
 inline void Mutex::lock(PEGASUS_THREAD_TYPE caller)
 {
+    PEGASUS_DEBUG_ASSERT(_magic);
+
     if(_mutex.owner == caller)
         throw( Deadlock( _mutex.owner ) );
 
@@ -64,6 +66,8 @@ inline void Mutex::lock(PEGASUS_THREAD_TYPE caller)
 // immediately if the mutex is currently locked.
 inline void Mutex::try_lock(PEGASUS_THREAD_TYPE caller)
 {
+    PEGASUS_DEBUG_ASSERT(_magic);
+
     if(_mutex.owner == caller)
         throw( Deadlock( _mutex.owner ) );
 
@@ -81,6 +85,8 @@ inline void Mutex::try_lock(PEGASUS_THREAD_TYPE caller)
 
 inline void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
 {
+    PEGASUS_DEBUG_ASSERT(_magic);
+
     if(_mutex.owner == caller)
         throw( Deadlock( _mutex.owner ) );
 
@@ -95,6 +101,8 @@ inline void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
 // unlock the mutex
 inline void Mutex::unlock()
 {
+    PEGASUS_DEBUG_ASSERT(_magic);
+
     PEGASUS_THREAD_TYPE m_owner = _mutex.owner;
     _mutex.owner = 0;
     ReleaseMutex(_mutex.mut);

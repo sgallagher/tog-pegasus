@@ -480,13 +480,13 @@ Condition::~Condition()
    {
    AutoMutex autoMut(_condition._spin);
 
-   while(NULL != (lingerers = static_cast<cond_waiter *>(_condition._waiters.remove_last())))
+   while(NULL != (lingerers = static_cast<cond_waiter *>(_condition._waiters.remove_back())))
    {
       lingerers->signalled.signal();
    }
    } // mutex unlocks here
 
-   while( _condition._waiters.count())   {
+   while( _condition._waiters.size())   {
       pegasus_yield();
    }
    if(_destroy_mut == true)
@@ -519,13 +519,13 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 
    // lock the internal list
    _condition._spin.lock(caller);
-   if (_condition._waiters.count() > 0)
+   if (_condition._waiters.size() > 0)
    {
-      cond_waiter *waiters = static_cast<cond_waiter *>(_condition._waiters.next(0));
+      cond_waiter *waiters = static_cast<cond_waiter *>(_condition._waiters.front());
       while( waiters != 0)
       {
          waiters->signalled.signal();
-         waiters = static_cast<cond_waiter *>(_condition._waiters.next(waiters));
+         waiters = static_cast<cond_waiter *>(_condition._waiters.next_of(waiters));
       }
    }
    _condition._spin.unlock();
@@ -577,7 +577,7 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
       native_cleanup_push(extricate_condition, this);
       // lock the internal list
       _condition._spin.lock(caller);
-      _condition._waiters.insert_first(waiter);
+      _condition._waiters.insert_front(waiter);
       // unlock the condition mutex
       _cond_mutex->unlock();
       _condition._spin.unlock();

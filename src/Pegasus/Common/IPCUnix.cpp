@@ -95,6 +95,8 @@ Mutex::Mutex(const Mutex& mutex)
 
 Mutex::~Mutex()
 {
+   PEGASUS_DEBUG_ASSERT(_magic);
+
 //   while( EBUSY == pthread_mutex_destroy(&_mutex.mut))
    //  {
 //      pegasus_yield();
@@ -112,6 +114,7 @@ Mutex::~Mutex()
 // exception if process already holds the lock
  void Mutex::lock(PEGASUS_THREAD_TYPE caller)
 {
+   PEGASUS_DEBUG_ASSERT(_magic);
    int errorcode;
    if( 0 == (errorcode = pthread_mutex_lock(&(_mutex.mut))))
    {
@@ -129,6 +132,7 @@ Mutex::~Mutex()
 // immediately if the mutex is currently locked.
  void Mutex::try_lock(PEGASUS_THREAD_TYPE caller)
 {
+   PEGASUS_DEBUG_ASSERT(_magic);
    int errorcode ;
    if(0 == (errorcode = pthread_mutex_trylock(&_mutex.mut)))
    {
@@ -162,6 +166,7 @@ Mutex::~Mutex()
 
  void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
 {
+   PEGASUS_DEBUG_ASSERT(_magic);
 
    struct timeval now, finish, remaining;
    int errorcode;
@@ -200,6 +205,7 @@ Mutex::~Mutex()
 // unlock the mutex
  void Mutex::unlock()
 {
+   PEGASUS_DEBUG_ASSERT(_magic);
    PEGASUS_THREAD_TYPE m_owner = _mutex.owner;
    _mutex.owner = 0;
    if(0 != pthread_mutex_unlock(&_mutex.mut))

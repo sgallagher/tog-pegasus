@@ -85,8 +85,6 @@ public:
 
     ProviderModule *getModule(void) const;
 
-    // << Mon Oct 14 15:42:24 2002 mdd >> for use with DQueue template
-    // to allow conversion from using Array<>
     Boolean operator == (const void *key) const;
     Boolean operator == (const Provider & prov) const;
 

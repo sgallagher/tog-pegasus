@@ -57,6 +57,8 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/CIMOperationType.h>
+#include <Pegasus/Common/Linkable.h>
+#include <Pegasus/Common/IDFactory.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -125,7 +127,7 @@ enum HttpMethod
     The Message class also provides previous and next pointers which are
     used to place the messages on a queue by the MessageQueue class.
 */
-class PEGASUS_COMMON_LINKAGE Message
+class PEGASUS_COMMON_LINKAGE Message : public Linkable
 {
    public:
 
@@ -253,12 +255,7 @@ class PEGASUS_COMMON_LINKAGE Message
 
       const Message* getPrevious() const { return _prev; }
 
-      static Uint32 getNextKey()
-      {
-          AutoMutex autoMut(_mut);
-          Uint32 ret = _nextKey++;
-          return ret;
-      }
+      static Uint32 getNextKey() { return _keyFactory.getID(); }
 
       static CIMOperationType convertMessageTypetoCIMOpType(Uint32 type);
 
@@ -268,8 +265,6 @@ class PEGASUS_COMMON_LINKAGE Message
 	  Boolean printHeader = true) const;
 #endif
 
-      // << Thu Dec 27 10:46:04 2001 mdd >> for use with DQueue container
-      // as used by AsyncOpNode
       Boolean operator == (const void *msg )
       {
 	 if (reinterpret_cast<void *>(this) == msg )
@@ -366,10 +361,7 @@ class PEGASUS_COMMON_LINKAGE Message
       MessageQueue* _owner;
       Boolean _isComplete;
       Uint32 _index;
-      static Uint32 _nextKey;
-      static Mutex _mut;
-
-
+      static IDFactory _keyFactory;
 
       friend class cimom;
       friend class MessageQueue;

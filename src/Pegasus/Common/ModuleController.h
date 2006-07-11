@@ -53,6 +53,7 @@
 #include <Pegasus/Common/peg_authorization.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/List.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -60,7 +61,7 @@ PEGASUS_NAMESPACE_BEGIN
 class ModuleController;
 
 
-class PEGASUS_COMMON_LINKAGE pegasus_module
+class PEGASUS_COMMON_LINKAGE pegasus_module : public Linkable
 {
 private:
     class module_rep : public pegasus_auth_handle
@@ -313,14 +314,6 @@ public:
 
     class callback_handle
     {
-        public:
-        static void * operator new(size_t );
-        static void operator delete(void *, size_t);
-    private:
-        static callback_handle *_head;
-        static const int BLOCK_SIZE;
-        static Mutex _alloc_mut;
-
     public:
         callback_handle(pegasus_module * module, void *parm)
            : _module(module), _parm(parm)
@@ -525,7 +518,7 @@ private:
     class _module_lock
     {
     public:
-        _module_lock(DQueue<pegasus_module> * list)
+        _module_lock(List<pegasus_module, RecursiveMutex> * list)
            :_list(list)
         {
            _list->lock();
@@ -538,13 +531,13 @@ private:
 
     private:
         _module_lock();
-        DQueue<pegasus_module> * _list;
+        List<pegasus_module, RecursiveMutex> * _list;
     };
 
 
 
     static void _async_handleEnqueue(AsyncOpNode *h, MessageQueue *q, void *parm);
-    DQueue<pegasus_module> _modules;
+    List<pegasus_module, RecursiveMutex> _modules;
     AsyncReply *_send_wait(Uint32, AsyncRequest *);
     AsyncReply *_send_wait(Uint32, const String &, AsyncRequest *);
 

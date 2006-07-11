@@ -1,4 +1,4 @@
-//%2006////////////////////////////////////////////////////////////////////////
+//%2006/////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -122,7 +122,7 @@ Boolean cimom::route_async(AsyncOpNode *op)
    if( _routed_queue_shutdown.get() > 0 )
       return false;
    
-   _routed_ops.insert_last_wait(op);
+   _routed_ops.enqueue_wait(op);
    
    return true;
 
@@ -149,9 +149,9 @@ void cimom::_shutdown_routed_queue()
 		   | ASYNC_OPFLAGS_SIMPLE_STATUS);
    msg->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    msg->op->_op_dest = _global_this;
-   msg->op->_request.insert_first(msg.get());
+   msg->op->_request.insert_front(msg.get());
 
-   _routed_ops.insert_last_wait(msg->op);
+   _routed_ops.enqueue_wait(msg->op);
    _routing_thread.join();
    msg.release();
    
@@ -169,7 +169,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
    {
       try 
       {
-	 op = dispatcher->_routed_ops.remove_first_wait();
+	 op = dispatcher->_routed_ops.dequeue_wait();
       }
       catch(ListClosed & )
       {
@@ -236,7 +236,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 		  // unless the message is a start or resume
 		  // just handle it from here.  
 		  op->lock();
-		  AsyncRequest *request = static_cast<AsyncRequest *>(op->_request.next(0));
+		  AsyncRequest *request = 
+		      static_cast<AsyncRequest *>(op->_request.front());
 		  op->unlock();		  
 		  code = request->getType();
 		  
@@ -276,10 +277,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
 cimom::cimom()
    : MessageQueue(PEGASUS_QUEUENAME_METADISPATCHER, true, CIMOM_Q_ID ),
-     _modules(true),
-     _recycle(true),
-     _routed_ops(true, 0), 
-     _internal_ops(true),
+     _modules(),
+     _routed_ops(0), 
      _routing_thread( _routing_proc, this, false),
      _die(0), _routed_queue_shutdown(0)
 {
@@ -319,13 +318,7 @@ cimom::~cimom()
       _routed_ops.shutdown_queue();
    _routing_thread.join();
 
-   while (_modules.count())
-   {
-      delete _modules.remove_first();
-   }
-   _modules.empty_list();
-   
-   return;
+   _modules.clear();
 }
 
 void cimom::_make_response(Message *req, Uint32 code)
@@ -389,8 +382,8 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
   {
      op->unlock();
      haveLock = false;
-     if ( (reply != 0) && (false == op->_response.exists(reinterpret_cast<void *>(reply))) )
-	 op->_response.insert_last(reply);
+     if ((reply != 0) && (false == op->_response.contains(reply)))
+	 op->_response.insert_back(reply);
      _complete_op_node(op, state, flag, (reply ? reply->result : 0 ));
      return;
   }
@@ -423,8 +416,8 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
    }
    else
    {
-      if ( (reply != 0) && (false == op->_response.exists(reinterpret_cast<void *>(reply))) )
-	 op->_response.insert_last(reply);
+      if ( (reply != 0) && (false == op->_response.contains(reply)))
+	 op->_response.insert_back(reply);
    }
    
    if (haveLock)
@@ -513,7 +506,7 @@ void cimom::_handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queu
    // ATTN: optimization << Tue Feb 19 11:33:21 2002 mdd >>
    // do away with the lock/unlock 
    op->lock();
-   Message *msg = op->_request.next(0);
+   Message *msg = op->_request.front();
    op->unlock();
    
    if ( msg == 0 )
@@ -581,7 +574,7 @@ void cimom::register_module(RegisterCimService *msg)
       {
 	 try
 	 {
-	    _modules.insert_first(new_mod.get());
+	    _modules.insert_front(new_mod.get());
 	 }
 	 catch(IPCException&)
 	 {
@@ -615,15 +608,15 @@ void cimom::deregister_module(Uint32 quid)
 
    _modules.lock();
 
-   message_module *temp = _modules.next(0);
+   message_module *temp = _modules.front();
    while( temp != 0 )
    {
       if (temp->_q_id == quid)
       {
-	 _modules.remove_no_lock(temp);
+	 _modules.remove(temp);
 	 break;
       }
-      temp = _modules.next(temp);
+      temp = _modules.next_of(temp);
    }
    _modules.unlock();
 }
@@ -634,7 +627,7 @@ void cimom::update_module(UpdateCimService *msg )
    Uint32 result = async_results::MODULE_NOT_FOUND;
 
    _modules.lock();
-   message_module *temp = _modules.next(0);
+   message_module *temp = _modules.front();
    while( temp != 0 )
    {
       if(temp->_q_id == msg->queue )
@@ -645,7 +638,7 @@ void cimom::update_module(UpdateCimService *msg )
 	 result = async_results::OK;
 	 break;
       }
-      temp = _modules.next(temp);
+      temp = _modules.next_of(temp);
    }
    _modules.unlock();
 
@@ -705,7 +698,7 @@ void cimom::ioctl(AsyncIoctl *msg)
 	    AsyncOpNode *operation;
 	    try 
 	    {
-	       operation = service->_routed_ops.remove_first();
+	       operation = service->_routed_ops.dequeue();
 	    }
 	    catch(IPCException & )
 	    {
@@ -719,7 +712,7 @@ void cimom::ioctl(AsyncIoctl *msg)
 	       break;
 	 } // message processing loop
 
-	 // shutdown the AsyncDQueue
+	 // shutdown the AsyncQueue
 	 service->_routed_ops.shutdown_queue();
 	 // exit the thread ! 
 	 _die++;
@@ -761,14 +754,14 @@ void cimom::find_service_q(FindServiceQueue  *msg)
    Array<Uint32> found;
 
    _modules.lock();
-   message_module *ret = _modules.next( 0 );
+   message_module *ret = _modules.front();
    while( ret != 0 )
    {
       if( msg->name.size() > 0 )
       {
 	 if( msg->name != ret->_name )
 	 {
-	    ret = _modules.next(ret);
+	    ret = _modules.next_of(ret);
 	    continue;
 	 }
       }
@@ -777,7 +770,7 @@ void cimom::find_service_q(FindServiceQueue  *msg)
       {
 	 if (! msg->capabilities & ret->_capabilities)
 	 {
-	    ret = _modules.next(ret);
+	    ret = _modules.next_of(ret);
 	    continue;
 	 }
       }
@@ -785,7 +778,7 @@ void cimom::find_service_q(FindServiceQueue  *msg)
       {
 	 if ( ! msg->mask & ret->_mask )
 	 {
-	    ret = _modules.next(ret);
+	    ret = _modules.next_of(ret);
 	    continue;
 	 }
       }
@@ -793,7 +786,7 @@ void cimom::find_service_q(FindServiceQueue  *msg)
       // if we get to here, we "found" this service
 
       found.append(ret->_q_id);
-      ret = _modules.next(ret);
+      ret = _modules.next_of(ret);
    }
    _modules.unlock();
 
@@ -822,7 +815,7 @@ void cimom::enumerate_service(EnumerateService *msg)
 
    AutoPtr<EnumerateServiceResponse> reply;
    _modules.lock();
-   message_module *ret = _modules.next( 0 );
+   message_module *ret = _modules.front();
 
    while( ret != 0 )
    {
@@ -840,7 +833,7 @@ void cimom::enumerate_service(EnumerateService *msg)
 					      ret->_q_id));
 	 break;
       }
-      ret = _modules.next(ret);
+      ret = _modules.next_of(ret);
    }
    _modules.unlock();
 
@@ -868,12 +861,12 @@ void cimom::enumerate_service(EnumerateService *msg)
 Uint32 cimom::get_module_q(const String & name)
 {
    _modules.lock();
-   message_module *ret = _modules.next( 0 );
+   message_module *ret = _modules.front();
    while( ret != 0 )
    {
       if (ret->_name == name)
 	 break;
-      ret = _modules.next(ret);
+      ret = _modules.next_of(ret);
    }
 
    _modules.unlock();
@@ -897,7 +890,7 @@ Boolean cimom::moduleChange(struct timeval last)
 
 Uint32 cimom::getModuleCount()
 {
-   return _modules.count();
+   return _modules.size();
 }
 
 Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count)
@@ -908,13 +901,13 @@ Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count)
 
    message_module *temp = 0;
    _modules.lock();
-   temp = _modules.next(temp);
+   temp = _modules.front();
    while( temp != 0 && count > 0 )
    {
       *ids = temp->_q_id;
       ids++;
       count--;
-      temp = _modules.next(temp);
+      temp = _modules.next_of(temp);
    }
    _modules.unlock();
 
@@ -925,7 +918,7 @@ Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count)
       count--;
    }
 
-   return _modules.count();
+   return _modules.size();
 }
 
 AsyncOpNode *cimom::get_cached_op()
@@ -970,7 +963,7 @@ void cimom::_registered_module_in_service(RegisteredModule *msg)
    Uint32 result = async_results::MODULE_NOT_FOUND;
    
    _modules.lock();
-   message_module *ret = _modules.next( 0 );
+   message_module *ret = _modules.front();
    while( ret != 0 )
    {
       if (ret->_q_id == msg->resp)
@@ -992,7 +985,7 @@ void cimom::_registered_module_in_service(RegisteredModule *msg)
 	 }
 	 break;
       }
-      ret = _modules.next(ret);
+      ret = _modules.next_of(ret);
    }
    _modules.unlock();
    _make_response(msg, result);
@@ -1003,7 +996,7 @@ void cimom::_deregistered_module_in_service(DeRegisteredModule *msg)
    Uint32 result = async_results::MODULE_NOT_FOUND;
    
    _modules.lock();
-   message_module *ret = _modules.next( 0 );
+   message_module *ret = _modules.front();
    while( ret != 0 )
    {
       if (ret->_q_id == msg->resp)
@@ -1019,7 +1012,7 @@ void cimom::_deregistered_module_in_service(DeRegisteredModule *msg)
 	    }
 	 }
       }
-      ret = _modules.next(ret);
+      ret = _modules.next_of(ret);
    }
    _modules.unlock();
    _make_response(msg, result);
@@ -1031,7 +1024,7 @@ void cimom::_find_module_in_service(FindModuleInService *msg)
    Uint32 q_id = 0;
    
    _modules.lock();
-   message_module *ret = _modules.next( 0 );
+   message_module *ret = _modules.front();
    while( ret != 0 )
    {
       if ( ret->get_capabilities() & module_capabilities::module_controller)
@@ -1048,7 +1041,7 @@ void cimom::_find_module_in_service(FindModuleInService *msg)
 	    }
 	 }
       }
-      ret = _modules.next(ret);
+      ret = _modules.next_of(ret);
    }
    _modules.unlock();
 

@@ -152,7 +152,11 @@ test_async_queue::async_handleEnqueue (AsyncOpNode * op,
   test_async_queue *myself = static_cast < test_async_queue * >(q);
 
   async_start *rq = static_cast < async_start * >(op->get_request ());
+  assert(rq != 0);
+
   async_complete *rp = static_cast < async_complete * >(op->get_response ());
+  assert(rp != 0);
+
   if ((rq->getType () == async_messages::ASYNC_OP_START) &&
       (rp->getType () == async_messages::ASYNC_OP_RESULT))
     {

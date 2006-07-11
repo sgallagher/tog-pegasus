@@ -46,6 +46,8 @@
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/List.h>
+#include <Pegasus/Common/RecursiveMutex.h>
 
 #include "ConsumerManager.h"
 
@@ -884,7 +886,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void
 
     DynamicConsumer* myself = static_cast<DynamicConsumer*>(param);
     String name = myself->getName();
-    DQueue<IndicationDispatchEvent> tmpEventQueue(true);
+    List<IndicationDispatchEvent,RecursiveMutex> tmpEventQueue;
 
     PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "_worker_routine::entering loop for " + name);
 
@@ -909,7 +911,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void
             }
 
             //create a temporary queue to store failed indications
-            tmpEventQueue.empty_list();
+            tmpEventQueue.clear();
 
             //continue processing events until the queue is empty
             //make sure to check for the shutdown signal before every iteration
@@ -931,7 +933,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void
 
                 //pop next indication off the queue
                 IndicationDispatchEvent* event = 0;
-                event = myself->_eventqueue.remove_first();  //what exceptions/errors can this throw?
+                event = myself->_eventqueue.remove_front();  //what exceptions/errors can this throw?
 
                 if (!event)
                 {
@@ -989,7 +991,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void
                         } else
                         {
                             PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "_worker_routine::placing failed indication back in queue");
-                            tmpEventQueue.insert_last(event);
+                            tmpEventQueue.insert_back(event);
                         }
 
                     } else
@@ -1021,9 +1023,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void
             myself->_eventqueue.try_lock();
             while (tmpEventQueue.size())
             {
-                //there is no = operator for DQueue so we must do it manually
-                tmpEvent = tmpEventQueue.remove_first();
-                myself->_eventqueue.insert_last_no_lock(tmpEvent);
+                tmpEvent = tmpEventQueue.remove_front();
+                myself->_eventqueue.insert_back(tmpEvent);
                 
             }
             myself->_eventqueue.unlock();

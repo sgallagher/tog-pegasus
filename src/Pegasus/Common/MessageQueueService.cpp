@@ -47,14 +47,15 @@ PEGASUS_NAMESPACE_BEGIN
 
 cimom *MessageQueueService::_meta_dispatcher = 0;
 AtomicInt MessageQueueService::_service_count(0);
-AtomicInt MessageQueueService::_xid(1);
+IDFactory MessageQueueService::_xidFactory(1);
 Mutex MessageQueueService::_meta_dispatcher_mutex;
 
 static struct timeval deallocateWait = {300, 0};
 
 ThreadPool *MessageQueueService::_thread_pool = 0;
 
-DQueue<MessageQueueService> MessageQueueService::_polling_list(true);
+MessageQueueService::PollingList* MessageQueueService::_polling_list;
+Mutex MessageQueueService::_polling_list_mutex;
 
 Thread* MessageQueueService::_polling_thread = 0;
 
@@ -111,7 +112,9 @@ MessageQueueService::kill_idle_threads(void *parm)
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(void *parm)
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);
-   DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
+   List<MessageQueueService, RecursiveMutex> *list = 
+       reinterpret_cast<List<MessageQueueService, RecursiveMutex>*>(myself->get_parm());
+
    while (_stop_polling.get()  == 0)
    {
       _polling_sem.wait();
@@ -131,7 +134,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       // (e.g., MessageQueueServer::~MessageQueueService).
 
       list->lock();
-      MessageQueueService *service = list->next(0);
+      MessageQueueService *service = list->front();
       ThreadStatus rtn = PEGASUS_THREAD_OK;
       while (service != NULL)
       {
@@ -181,7 +184,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
           }
           if (service != NULL) 
           {
-             service = list->next(service);
+             service = list->next_of(service);
           }
       }
       list->unlock();
@@ -225,7 +228,7 @@ MessageQueueService::MessageQueueService(
      _mask(mask),
      _die(0),
      _threads(0),
-     _incoming(true, 0),
+     _incoming(0),
      _incoming_queue_shutdown(0)
 {
 
@@ -277,7 +280,7 @@ MessageQueueService::MessageQueueService(
       throw BindFailedException(parms);
    }
 
-   _polling_list.insert_last(this);
+   _get_polling_list()->insert_back(this);
 
 }
 
@@ -292,7 +295,11 @@ MessageQueueService::~MessageQueueService()
    // prior to processing, avoids synchronization issues
    // with the _polling_routine.
 
-   _polling_list.remove(this);
+   // ATTN: added to prevent assertion in List in which the list does not
+   // contain this element.
+
+   if (_get_polling_list()->contains(this))
+       _get_polling_list()->remove(this);
 
    // ATTN: The code for closing the _incoming queue
    // is not working correctly. In OpenPegasus 2.5,
@@ -337,7 +344,7 @@ MessageQueueService::~MessageQueueService()
   while (_incoming.count())
   {
     try { 
-      delete _incoming.remove_first();
+      delete _incoming.dequeue();
     } catch (const ListClosed &e)
     {
       // If the list is closed, there is nothing we can do. 
@@ -368,9 +375,9 @@ void MessageQueueService::_shutdown_incoming_queue()
    msg->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
 
    msg->op->_op_dest = this;
-   msg->op->_request.insert_first(msg);
+   msg->op->_request.insert_front(msg);
    try {
-     _incoming.insert_last_wait(msg->op);
+     _incoming.enqueue_wait(msg->op);
      _polling_sem.signal();
    } catch (const ListClosed &) 
    { 
@@ -420,7 +427,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
         {
             try
             {
-                operation = service->_incoming.remove_first();
+                operation = service->_incoming.dequeue();
             }
             catch (ListClosed &)
             {
@@ -540,7 +547,7 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation)
 // << Tue Feb 19 14:10:38 2002 mdd >>
       operation->lock();
 
-      Message *rq = operation->_request.next(0);
+      Message *rq = operation->_request.front();
 
 // optimization <<< Thu Mar  7 21:04:05 2002 mdd >>>
 // move this to the bottom of the loop when the majority of
@@ -549,7 +556,7 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation)
       // divert legacy messages to handleEnqueue
       if ((rq != 0) && (!(rq->getMask() & message_mask::ha_async)))
       {
-         rq = operation->_request.remove_first() ;
+         rq = operation->_request.remove_front() ;
          operation->unlock();
          // delete the op node
          operation->release();
@@ -701,7 +708,7 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
    {
       _polling_thread = new Thread(
           polling_routine,
-          reinterpret_cast<void *>(&_polling_list),
+          reinterpret_cast<void *>(_get_polling_list()),
           false);
       ThreadStatus tr = PEGASUS_THREAD_OK;
       while ( (tr =_polling_thread->run()) != PEGASUS_THREAD_OK)
@@ -716,14 +723,14 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
 // ATTN optimization remove the message checking altogether in the base
 // << Mon Feb 18 14:02:20 2002 mdd >>
    op->lock();
-   Message *rq = op->_request.next(0);
-   Message *rp = op->_response.next(0);
+   Message *rq = op->_request.front();
+   Message *rp = op->_response.front();
    op->unlock();
 
    if ((rq != 0 && (true == messageOK(rq))) ||
        (rp != 0 && (true == messageOK(rp))) && _die.get() == 0)
    {
-      _incoming.insert_last_wait(op);
+      _incoming.enqueue_wait(op);
       _polling_sem.signal();
       return true;
    }
@@ -788,7 +795,7 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
             AsyncOpNode *operation;
             try
             {
-               operation = service->_incoming.remove_first();
+               operation = service->_incoming.dequeue();
             }
             catch(IPCException &)
             {
@@ -803,7 +810,7 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
                break;
          } // message processing loop
 
-         // shutdown the AsyncDQueue
+         // shutdown the AsyncQueue
          service->_incoming.shutdown_queue();
          return;
       }
@@ -1003,7 +1010,7 @@ Boolean MessageQueueService::SendAsync(
    }
    else
    {
-      op->_request.insert_first(msg);
+      op->_request.insert_front(msg);
       (static_cast<AsyncMessage *>(msg))->op = op;
    }
    return _meta_dispatcher->route_async(op);
@@ -1023,7 +1030,7 @@ Boolean MessageQueueService::SendForget(Message *msg)
    if (op == 0)
    {
       op = get_op();
-      op->_request.insert_first(msg);
+      op->_request.insert_front(msg);
       if (mask & message_mask::ha_async)
       {
          (static_cast<AsyncMessage *>(msg))->op = op;
@@ -1056,7 +1063,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
    if (request->op == 0)
    {
       request->op = get_op();
-      request->op->_request.insert_first(request);
+      request->op->_request.insert_front(request);
       destroy_op = true;
    }
 
@@ -1072,7 +1079,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
    request->op->_client_sem.wait();
 
    request->op->lock();
-   AsyncReply * rpl = static_cast<AsyncReply *>(request->op->_response.remove_first());
+   AsyncReply * rpl = static_cast<AsyncReply *>(request->op->_response.remove_front());
    rpl->op = 0;
    request->op->unlock();
 
@@ -1260,13 +1267,19 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
 
 Uint32 MessageQueueService::get_next_xid()
 {
-   static Mutex _monitor;
-   Uint32 value;
-   AutoMutex autoMut(_monitor);
-   _xid++;
-   value =  _xid.get();
-   return value;
+    return _xidFactory.getID();
+}
 
+MessageQueueService::PollingList* MessageQueueService::_get_polling_list()
+{
+    _polling_list_mutex.lock();
+
+    if (!_polling_list)
+	_polling_list = new PollingList;
+
+    _polling_list_mutex.unlock();
+
+    return _polling_list;
 }
 
 PEGASUS_NAMESPACE_END

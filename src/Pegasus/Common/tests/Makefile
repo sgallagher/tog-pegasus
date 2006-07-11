@@ -46,7 +46,6 @@ DIRS = \
     Config \
     DateTime \
     Dir \
-    DQueue \
     DynLib \
     DynLoad \
     DynamicLibrary \
@@ -72,7 +71,6 @@ DIRS = \
     Qualifier \
     QualifierDecl \
     QualifierList \
-    Queue \
     Reference \
     Resolve \
     Scope \
@@ -93,7 +91,11 @@ DIRS = \
     XmlDump \
     XmlParser \
     XmlPrint \
-    XmlReader
+    XmlReader \
+    List \
+    AsyncQueue \
+    IDFactory
+    
 
 ifndef PEGASUS_DISABLE_PERFINST
 DIRS += \

@@ -75,6 +75,7 @@
 #include "Buffer.h"
 #include "StrLit.h"
 #include "LanguageParser.h"
+#include "IDFactory.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -3417,18 +3418,12 @@ void XmlWriter::indentedPrint(
 //
 //------------------------------------------------------------------------------
 
+static IDFactory _messageIDFactory(1000);
+
 String XmlWriter::getNextMessageId()
 {
-    // ATTN: make thread-safe:
-    static Uint32 messageId = 1000;
-
-    messageId++;
-
-    if (messageId < 1000)
-	messageId = 1001;
-
     char buffer[16];
-    sprintf(buffer, "%d", messageId);
+    sprintf(buffer, "%u", _messageIDFactory.getID());
     return buffer;
 }
 

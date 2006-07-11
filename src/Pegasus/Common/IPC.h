@@ -57,7 +57,7 @@
 #define PEG_SEM_READ 1
 #define PEG_SEM_WRITE 2
 
-#include <Pegasus/Common/internal_dq.h>
+#include <Pegasus/Common/List.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -506,7 +506,8 @@ private:
 
 // typedef PEGASUS_SEMAPHORE_TYPE PEGASUS_COND_TYPE;
 
-class PEGASUS_COMMON_LINKAGE cond_waiter {
+class PEGASUS_COMMON_LINKAGE cond_waiter : public Linkable
+{
 public:
     cond_waiter( PEGASUS_THREAD_TYPE caller, Sint32 time = -1)
         : waiter(caller), signalled(0) { }
@@ -536,9 +537,9 @@ private:
 };
 
 typedef struct peg_condition{
-    internal_dq  _waiters;
+    List<cond_waiter, NullLock> _waiters;
     Mutex _spin;
-    peg_condition() : _waiters(true), _spin()  { }
+    peg_condition() : _waiters(), _spin()  { }
 } PEGASUS_COND_TYPE;
 
 #endif

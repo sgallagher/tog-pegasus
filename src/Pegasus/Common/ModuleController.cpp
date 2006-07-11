@@ -44,50 +44,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-ModuleController::callback_handle * ModuleController::callback_handle::_head;
-const int ModuleController::callback_handle::BLOCK_SIZE = 20;
-Mutex ModuleController::callback_handle::_alloc_mut;
-
-
-void * ModuleController::callback_handle::operator new(size_t size)
-{
-   if( size != sizeof(callback_handle))
-      return ::operator new(size);
-   AutoMutex autoMut(_alloc_mut);
-   callback_handle *node = _head;
-   if(node)
-      _head = reinterpret_cast<callback_handle *>(node->_parm);
-   else
-   {
-      callback_handle *block =
-	 reinterpret_cast<callback_handle *>(::operator new(BLOCK_SIZE * sizeof(callback_handle)));
-      int i;
-      for(i = 1; i < BLOCK_SIZE - 1; ++i)
-	 block[i]._parm = & block[i + 1];
-      block[BLOCK_SIZE - 1]._parm = NULL;
-      node = block;
-      _head = &block[1];
-   }
-   return node;
-}
-
-
-void ModuleController::callback_handle::operator delete(void *dead, size_t size)
-{
-   if(dead == 0)
-      return;
-   if(size != sizeof(callback_handle))
-   {
-      ::operator delete(dead);
-      return;
-   }
-   callback_handle *node = reinterpret_cast<callback_handle *>(dead);
-   AutoMutex autoMut(_alloc_mut);
-   node->_parm = _head;
-   _head = node;
-}
-
-
 pegasus_module::module_rep::module_rep(ModuleController *controller,
 				       const String & name,
 				       void *module_address,
@@ -193,7 +149,7 @@ pegasus_module::pegasus_module(ModuleController *controller,
                          ModuleController::ASYNC_THREAD_EXEC;
 }
 
-pegasus_module::pegasus_module(const pegasus_module & mod)
+pegasus_module::pegasus_module(const pegasus_module & mod) : Linkable()
 {
    mod._rep->reference();
    _rep.reset(mod._rep.get());
@@ -343,7 +299,7 @@ ModuleController::ModuleController(const char *name )
    :Base(name, MessageQueue::getNextQueueId(),
 	 module_capabilities::module_controller |
 	 module_capabilities::async),
-    _modules(true)
+    _modules()
 {
 
 }
@@ -373,11 +329,11 @@ ModuleController::~ModuleController()
 
    try
    {
-      module = _modules.remove_first();
+      module = _modules.remove_front();
       while(module)
       {
 	 delete module;
-	 module = _modules.remove_first();
+	 module = _modules.remove_front();
       }
 
    }
@@ -422,7 +378,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
    // see if the module already exists in this controller.
    _module_lock lock(&(controller->_modules));
 
-   module = controller->_modules.next(0);
+   module = controller->_modules.front();
    while(module != NULL )
    {
       if(module->get_name() == module_name )
@@ -434,7 +390,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
 	 						  module_name);
 	 throw AlreadyExistsException(parms);
       }
-      module = controller->_modules.next(module);
+      module = controller->_modules.next_of(module);
    }
 
    }
@@ -474,7 +430,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
 			       async_callback,
 			       shutdown_notify);
 
-   controller->_modules.insert_last(module);
+   controller->_modules.insert_back(module);
 
    if(instance != NULL)
       *instance = module;
@@ -500,15 +456,15 @@ Boolean ModuleController::deregister_module(const String & module_name)
    pegasus_module *module;
 
    _module_lock lock(&_modules);
-   module = _modules.next(0);
+   module = _modules.front();
    while(module != NULL )
    {
       if( module->get_name() == module_name)
       {
-	 _modules.remove_no_lock(module);
+	 _modules.remove(module);
 	 return true;
       }
-      module = _modules.next(module);
+      module = _modules.next_of(module);
    }
    return false;
 }
@@ -524,14 +480,14 @@ Boolean ModuleController::verify_handle(pegasus_module *handle)
 
    _module_lock lock(&_modules);
 
-   module = _modules.next(0);
+   module = _modules.front();
    while(module != NULL)
    {
       if ( module == handle)
       {
 	 return true;
       }
-      module = _modules.next(module);
+      module = _modules.next_of(module);
    }
    return false;
 }
@@ -583,7 +539,7 @@ pegasus_module * ModuleController::get_module_reference(const pegasus_module & m
 
    pegasus_module *module, *ref = NULL;
    _module_lock lock(&_modules);
-   module = _modules.next(0);
+   module = _modules.front();
    while(module != NULL)
    {
       if(module->get_name() == module_name)
@@ -591,7 +547,7 @@ pegasus_module * ModuleController::get_module_reference(const pegasus_module & m
 	 ref = new pegasus_module(*module);
 	 break;
       }
-      module = _modules.next(module);
+      module = _modules.next_of(module);
    }
    return ref;
 }
@@ -901,7 +857,7 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
 
       {
 	 _module_lock lock(&_modules);
-	 target = _modules.next(0);
+	 target = _modules.front();
 	 while(target != NULL)
 	 {
 	    if(target->get_name() == static_cast<AsyncModuleOperationStart *>(rq)->_target_module)
@@ -909,7 +865,7 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
 	       break;
 	    }
 
-	    target = _modules.next(target);
+	    target = _modules.next_of(target);
 	 }
       }
 

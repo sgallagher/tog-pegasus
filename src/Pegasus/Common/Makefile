@@ -52,6 +52,7 @@ LIBRARY = pegcommon
 ##
 
 SOURCES1 = \
+    RecursiveMutex.cpp \
     AnonymousPipe.cpp \
     Array.cpp \
     AsyncOpNode.cpp \
@@ -107,7 +108,10 @@ SOURCES1 = \
     Config.cpp \
     DeclContext.cpp \
     Dir.cpp \
-    DQueue.cpp
+    List.cpp \
+    AsyncQueue.cpp \
+    IDFactory.cpp \
+    Magic.cpp
 
 SOURCES2 = \
     DynamicLibrary.cpp \
@@ -138,7 +142,6 @@ SOURCES2 = \
     Packer.cpp \
     Pair.cpp \
     QueryExpressionRep.cpp \
-    Queue.cpp \
     Resolver.cpp \
     ResponseHandler.cpp \
     ResponseHandlerRep.cpp \

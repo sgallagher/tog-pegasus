@@ -63,7 +63,7 @@ InternalCIMOMHandleMessageQueue::InternalCIMOMHandleMessageQueue(void)
     : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT),
     _output_qid(0),
     _return_qid(0),
-    _response(true, 1)
+    _response(0)
 {
     // output queue is the binary message handler
     MessageQueue* out = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);
@@ -85,7 +85,7 @@ InternalCIMOMHandleMessageQueue::~InternalCIMOMHandleMessageQueue(void)
 
         for(Uint32 i = 0, n = _response.count(); i < n; i++)
         {
-            Message* message = _response.remove_first();
+            Message* message = _response.dequeue();
 
             delete message;
         }
@@ -150,7 +150,7 @@ void InternalCIMOMHandleMessageQueue::handleEnqueue(void)
     case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
     case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
     case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
-        _response.insert_last(message);
+        _response.enqueue(message);
 
         break;
     default:
@@ -194,7 +194,7 @@ CIMResponseMessage* InternalCIMOMHandleMessageQueue::sendRequest(CIMRequestMessa
 
     // wait for response
     CIMResponseMessage* response =
-        dynamic_cast<CIMResponseMessage *>(_response.remove_first_wait());
+        dynamic_cast<CIMResponseMessage *>(_response.dequeue_wait());
 
     PEG_METHOD_EXIT();
     return(response);

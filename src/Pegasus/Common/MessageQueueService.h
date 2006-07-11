@@ -47,8 +47,11 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/Cimom.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/RecursiveMutex.h>
+#include <Pegasus/Common/IDFactory.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -56,7 +59,9 @@ extern const Uint32 CIMOM_Q_ID;
 
 class message_module;
 
-class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
+
+class PEGASUS_COMMON_LINKAGE MessageQueueService : 
+    public Linkable, public MessageQueue
 {
 public:
 
@@ -168,13 +173,17 @@ protected:
     static Mutex _meta_dispatcher_mutex;
 
 private:
-    AsyncDQueue<AsyncOpNode> _incoming;
+    AsyncQueue<AsyncOpNode> _incoming;
     static Thread* _polling_thread;
     static Semaphore _polling_sem;
     static AtomicInt _stop_polling;
     static AtomicInt _check_idle_flag;
 
-    static DQueue<MessageQueueService> _polling_list;
+    typedef List<MessageQueueService, RecursiveMutex> PollingList;
+    static PollingList* _polling_list;
+    static Mutex _polling_list_mutex;
+
+    PollingList* _get_polling_list();
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
 
@@ -187,7 +196,7 @@ protected:
 
 private:
     struct timeval _default_op_timeout;
-    static AtomicInt _xid;
+    static IDFactory _xidFactory;
     friend class cimom;
     friend class CIMServer;
 };

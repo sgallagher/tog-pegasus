@@ -48,7 +48,6 @@
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Common/Socket.h>
-#include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>

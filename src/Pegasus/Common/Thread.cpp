@@ -92,7 +92,7 @@ Boolean Thread::_key_error = false;
 void Thread::cleanup_push( void (*routine)(void *), void *parm)
 {
     AutoPtr<cleanup_handler> cu(new cleanup_handler(routine, parm));
-    _cleanup.insert_first(cu.get());
+    _cleanup.insert_front(cu.get());
     cu.release();
     return;
 }
@@ -102,7 +102,7 @@ void Thread::cleanup_pop(Boolean execute)
     AutoPtr<cleanup_handler> cu;
     try
     {
-        cu.reset(_cleanup.remove_first());
+        cu.reset(_cleanup.remove_front());
     }
     catch(IPCException&)
     {
@@ -120,7 +120,7 @@ void Thread::cleanup_pop(Boolean execute)
 void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code)
 {
     // execute the cleanup stack and then return
-   while( _cleanup.count() )
+   while( _cleanup.size() )
    {
        try
        {
@@ -265,8 +265,8 @@ ThreadPool::ThreadPool(
     : _maxThreads(maxThreads),
       _minThreads(minThreads),
       _currentThreads(0),
-      _idleThreads(true),
-      _runningThreads(true),
+      _idleThreads(),
+      _runningThreads(),
       _dying(0)
 {
     _deallocateWait.tv_sec = deallocateWait.tv_sec;
@@ -306,7 +306,7 @@ ThreadPool::~ThreadPool()
 		"Cleaning up %d idle threads. ", _currentThreads.get());
         while (_currentThreads.get() > 0)
         {
-            Thread* thread = _idleThreads.remove_first();
+            Thread* thread = _idleThreads.remove_front();
             if (thread != 0)
             {
                 _cleanupThread(thread);
@@ -455,10 +455,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
                     blocking_sem->signal();
                 }
 
-                Boolean removed = pool->_runningThreads.remove((void *)myself);
-                PEGASUS_ASSERT(removed);
-
-                pool->_idleThreads.insert_first(myself);
+                pool->_runningThreads.remove(myself);
+                pool->_idleThreads.insert_front(myself);
             }
             catch (...)
             {
@@ -509,7 +507,7 @@ ThreadStatus ThreadPool::allocate_and_awaken(
         gettimeofday(&start, NULL);
         Thread* th = 0;
 
-        th = _idleThreads.remove_first();
+        th = _idleThreads.remove_front();
 
         if (th == 0)
         {
@@ -530,7 +528,7 @@ ThreadStatus ThreadPool::allocate_and_awaken(
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "ThreadPool::allocate_and_awaken: Insufficient resources: "
                     " pool = %s, running threads = %d, idle threads = %d",
-                _key, _runningThreads.count(), _idleThreads.count());
+                _key, _runningThreads.size(), _idleThreads.size());
             return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
         }
 
@@ -550,7 +548,7 @@ ThreadStatus ThreadPool::allocate_and_awaken(
             th->put_tsd("blocking sem", NULL, sizeof(Semaphore *), blocking);
 
         // put the thread on the running list
-        _runningThreads.insert_first(th);
+        _runningThreads.insert_front(th);
 
         // signal the thread's sleep semaphore to awaken it
         Semaphore* sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
@@ -581,7 +579,7 @@ Uint32 ThreadPool::cleanupIdleThreads()
 
     Uint32 numThreadsCleanedUp = 0;
 
-    Uint32 numIdleThreads = _idleThreads.count();
+    Uint32 numIdleThreads = _idleThreads.size();
     for (Uint32 i = 0; i < numIdleThreads; i++)
     {
         // Do not dip below the minimum thread count
@@ -590,7 +588,7 @@ Uint32 ThreadPool::cleanupIdleThreads()
             break;
         }
 
-        Thread* thread = _idleThreads.remove_last();
+        Thread* thread = _idleThreads.remove_back();
 
         // If there are no more threads in the _idleThreads queue, we're done.
         if (thread == 0)
@@ -608,7 +606,7 @@ Uint32 ThreadPool::cleanupIdleThreads()
         catch (...)
         {
             PEGASUS_ASSERT(false);
-            _idleThreads.insert_last(thread);
+            _idleThreads.insert_back(thread);
             break;
         }
 
@@ -624,7 +622,7 @@ Uint32 ThreadPool::cleanupIdleThreads()
         }
         else
         {
-            _idleThreads.insert_first(thread);
+            _idleThreads.insert_front(thread);
         }
     }
 
@@ -732,12 +730,12 @@ void ThreadPool::_addToIdleThreadsQueue(Thread* th)
 
     try
     {
-        _idleThreads.insert_first(th);
+        _idleThreads.insert_front(th);
     }
     catch (...)
     {
         Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "ThreadPool::_addToIdleThreadsQueue: _idleThreads.insert_first "
+            "ThreadPool::_addToIdleThreadsQueue: _idleThreads.insert_front "
                 "failed.");
     }
 }

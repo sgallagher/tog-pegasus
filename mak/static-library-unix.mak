@@ -40,7 +40,7 @@ DIR_TARGETS = $(LIB_DIR)/target $(OBJ_DIR)/target
 FULL_LIB=$(LIB_DIR)/lib$(LIBRARY).a
 
 $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(ERROR)
-	ar r $(FULL_LIB) $(OBJECTS)
+	$(AR) r $(FULL_LIB) $(OBJECTS)
 
 clean-lib: $(ERROR)
 	rm -f $(FULL_LIB)

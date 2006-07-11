@@ -27,22 +27,20 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ROOT = ../../../../..
-DIR = Pegasus/Common/tests/DQueue
+DIR = Pegasus/Common/tests/List
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = TestDQueue
-SOURCES = DQueue.cpp
+PROGRAM = TestList
+SOURCES = TestList.cpp
 
 include $(ROOT)/mak/program.mak
 
 tests:
-	@$(RM) $(TMP_DIR)/dq_memory_trace
 	$(PROGRAM)
-	@$(RM) $(TMP_DIR)/dq_memory_trace
 
 poststarttests:

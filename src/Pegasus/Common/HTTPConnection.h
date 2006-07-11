@@ -203,7 +203,7 @@ private:
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     //This method is called from _handleWriteEvent to write to named pipes
     //ATTN Uint32 messageLength is not needed
-    Boolean _writeToNamePipe(HTTPMessage &httpMessage, Uint32 messageLength);
+    Boolean _writeToNamePipe(String message, Uint32 messageLength);
     NamedPipe _namedPipe;
     Boolean _namedPipeConnection;
 #endif

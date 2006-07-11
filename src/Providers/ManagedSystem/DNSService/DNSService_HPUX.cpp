@@ -109,38 +109,11 @@ static Boolean getUtilGetHostName(String& systemName)
 //
 // PARAMETERS:
 //
-// RETURN: true if file exists with appropriate contents, otherwise false.
+// RETURN: true.
 //------------------------------------------------------------------------------
 Boolean DNSFileOk() 
 {
-    FILE *fp;
-    char buffer[512];
-    String strBuffer;
-    int count = 0;
-    Boolean ok = false;
-    
-    if((fp = fopen(DNS_FILE_CONFIG.getCString(), "r")) == NULL)
-        return ok;
-    
-    while(!feof(fp)) {
-        memset(buffer, 0, sizeof(buffer));
-        fscanf(fp, "%511s", buffer);
-	strBuffer.assign(buffer);
-
-        // Verify if keys exist
-        if(String::equalNoCase(strBuffer, DNS_ROLE_DOMAIN) || 
-           String::equalNoCase(strBuffer, DNS_ROLE_SEARCH) ||
-           String::equalNoCase(strBuffer, DNS_ROLE_NAMESERVER) )
-	     count++;
-
-        if (count >= 2)
-	{
-	    ok = true;
-	    break;
-	}
-    }
-    fclose(fp);
-    return ok;
+    return true;
 }            
 
 //==============================================================================
@@ -323,10 +296,10 @@ DNSService::getDNSInfo()
 #endif
 
     FILE *fp;
-    int i, ind = 0;
+    int i, count = 0, ind = 0;
     char *ptr;
     char buffer[512];
-    Boolean ok = true;
+    Boolean ok = false;
     String strBuffer;
 
     // Open file DNS Configuration File
@@ -335,8 +308,35 @@ DNSService::getDNSInfo()
         throw CIMOperationFailedException
 		    ("DNSService: can't open configuration file.");
     }
-    
+
+    // Check configuration file contents.
+    while(!feof(fp)) 
+    {
+        memset(buffer, 0, sizeof(buffer));
+        fscanf(fp, "%511s", buffer);
+        strBuffer.assign(buffer);
+
+        // Verify if keys exist
+        if(String::equalNoCase(strBuffer, DNS_ROLE_DOMAIN) ||
+           String::equalNoCase(strBuffer, DNS_ROLE_SEARCH) ||
+           String::equalNoCase(strBuffer, DNS_ROLE_NAMESERVER) )
+             count++;
+
+        if (count >= 2)
+        {
+            ok = true;
+            break;
+        }
+    }
+    if(!ok)
+    {
+        fclose(fp);
+        throw CIMOperationFailedException
+                  ("DNSService: configuration file is corrupt.");
+    }
+
     // Clear all attributes
+    rewind(fp);
     dnsName.clear();
     dnsSearchList.clear();
     dnsAddresses.clear();

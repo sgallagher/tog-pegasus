@@ -72,8 +72,18 @@ inline void Zeros(T* items, Uint32 size)
 template<class T>
 inline void Destroy(T* items, Uint32 size)
 {
+#ifdef PEGASUS_OS_HPUX
+    // Empirical evidence shows that the memory allocator on HP-UX performs
+    // better when deallocating more recently allocated memory first (LIFO).
+    // Since most arrays are built up by appending elements to the end, it is
+    // advantageous to destruct the elements in reverse order.
+    items += size-1;
+    while (size--)
+        (items--)->~T();
+#else
     while (size--)
         items++->~T();
+#endif
 }
 
 template<class T>

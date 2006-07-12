@@ -104,9 +104,6 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode : public Linkable
       AsyncOpNode(void);
       ~AsyncOpNode(void);
 
-      Boolean  operator == (const void *key) const;
-      Boolean operator == (const AsyncOpNode & node) const;
-
       void get_timeout_interval(struct timeval *buffer);
       void set_timeout_interval(const struct timeval *interval);
 
@@ -231,19 +228,6 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode : public Linkable
       void print_to_buffer(char **buf);
       String print_to_string(void);
 };
-
-
-inline Boolean AsyncOpNode::operator == (const void *key) const
-{
-   if (key == (void *)this)
-      return true;
-   return false;
-}
-
-inline Boolean AsyncOpNode::operator == (const AsyncOpNode & node) const
-{
-   return AsyncOpNode::operator==((const void *)&node);
-}
 
 
 inline void AsyncOpNode::get_timeout_interval(struct timeval *buffer)

@@ -62,16 +62,7 @@ class PEGASUS_COMMON_LINKAGE cleanup_handler : public Linkable
    public:
       cleanup_handler( void (*routine)(void *), void *arg  ) : _routine(routine), _arg(arg)  {}
       ~cleanup_handler()  {; }
-      inline Boolean operator==(const void *key) const
-      {
-         if(key == (void *)_routine)
-            return true;
-         return false;
-      }
-      inline Boolean operator ==(const cleanup_handler & b) const
-      {
-         return(operator==((const void *)b._routine));
-      }
+
    private:
       void execute() { _routine(_arg); }
       cleanup_handler();
@@ -379,17 +370,6 @@ class PEGASUS_COMMON_LINKAGE Thread : public Linkable
 
       PEGASUS_THREAD_HANDLE getThreadHandle() {return _handle;}
 
-      inline Boolean operator==(const void *key) const
-      {
-         if ( (void *)this == key)
-            return(true);
-         return(false);
-      }
-      inline Boolean operator==(const Thread & b) const
-      {
-         return(operator==((const void *)&b ));
-      }
-
       void detach();
 
       //
@@ -525,21 +505,6 @@ public:
     Uint32 cleanupIdleThreads();
 
     void get_key(Sint8* buf, int bufsize);
-
-    inline Boolean operator==(const char* key) const
-    {
-        return (!strncmp(key, _key, 16));
-    }
-
-    Boolean operator==(const void* p) const
-    {
-        return ((void *)this == p);
-    }
-
-    Boolean operator==(const ThreadPool & p) const
-    {
-        return operator==((const void *)&p);
-    }
 
     inline void setMinThreads(Sint16 min)
     {

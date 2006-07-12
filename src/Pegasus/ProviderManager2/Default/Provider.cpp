@@ -196,20 +196,6 @@ void Provider::terminate(void)
     _provider = 0;
 }
 
-Boolean Provider::operator == (const void *key) const
-{
-   if( (void *)this == key)
-      return true;
-   return false;
-}
-
-Boolean Provider::operator == (const Provider &prov) const
-{
-   if(String::equalNoCase(_name, prov._name))
-      return true;
-   return false;
-}
-
 void Provider::get_idle_timer(struct timeval *t)
 {
    if(t && _cimom_handle)

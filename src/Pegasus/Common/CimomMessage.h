@@ -132,27 +132,9 @@ class PEGASUS_COMMON_LINKAGE AsyncMessage : public Message
 		   AsyncOpNode *operation);
            
       virtual ~AsyncMessage(void);
-      
-      Boolean operator ==(const void *key);
-      Boolean operator ==(const AsyncMessage& msg);
-      
+
       AsyncOpNode *op;
-//      Thread *_myself;
-//      MessageQueue *_service;
 };
-
-
-inline Boolean AsyncMessage::operator ==(const void *key)
-{
-   if( key == reinterpret_cast<void *>(this))
-      return true;
-   return false;
-}
-
-inline Boolean AsyncMessage::operator ==(const AsyncMessage& msg)
-{
-   return this->operator==(reinterpret_cast<void *>(const_cast<AsyncMessage *>(&msg)));
-}
 
 
 class PEGASUS_COMMON_LINKAGE AsyncRequest : public AsyncMessage

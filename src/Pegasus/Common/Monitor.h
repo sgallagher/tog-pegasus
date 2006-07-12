@@ -81,21 +81,6 @@ public:
   {
   }
 
-  Boolean operator ==(const void *key) const
-  {
-    if(key != 0 &&
-       (socket == (reinterpret_cast<_MonitorEntry *>(const_cast<void *>(key)))->socket))
-      return true;
-    return false;
-  }
-
-  Boolean operator ==(const _MonitorEntry & key) const
-  {
-    if(key.socket == socket)
-      return true;
-    return false;
-  }
-
   _MonitorEntry & operator =(const _MonitorEntry & entry)
   {
     if( this != &entry )

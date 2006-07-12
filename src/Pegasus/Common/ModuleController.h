@@ -78,21 +78,6 @@ private:
 
         ~module_rep();
 
-        Boolean operator==(const module_rep *rep) const
-        {
-            return(rep == this);
-        }
-
-        Boolean operator==(const module_rep &rep) const
-        {
-            return(rep == *this);
-        }
-
-        Boolean operator==(void *rep) const
-        {
-            return(reinterpret_cast<const void *>(this) == rep);
-        }
-
         void reference()
         {
             _reference_count++;
@@ -201,9 +186,7 @@ public:
     virtual Boolean authorized(Uint32 operation);
     virtual Boolean authorized();
 
-    Boolean operator == (const pegasus_module & mod) const;
     Boolean operator == (const String &  mod) const;
-    Boolean operator == (const void *mod) const;
 
     const String & get_name() const;
 

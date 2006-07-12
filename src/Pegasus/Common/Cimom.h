@@ -89,8 +89,6 @@ class PEGASUS_COMMON_LINKAGE message_module : public Linkable
 
       Boolean operator == (const message_module *mm) const;
       Boolean operator == (const String & name ) const ;
-      Boolean operator == (const message_module & mm ) const ;
-      Boolean operator == (const void *) const;
       Boolean operator == (Uint32) const;
       const String & get_name() const ;
       Uint32 get_capabilities() const ;

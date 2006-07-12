@@ -85,9 +85,6 @@ public:
 
     ProviderModule *getModule(void) const;
 
-    Boolean operator == (const void *key) const;
-    Boolean operator == (const Provider & prov) const;
-
     virtual void get_idle_timer(struct timeval *);
     virtual void update_idle_timer(void);
     virtual Boolean pending_operation(void);

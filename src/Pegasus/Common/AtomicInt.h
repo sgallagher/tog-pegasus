@@ -84,11 +84,11 @@ private:
     // Note: These methods are intentionally hidden (and should not be called).
     // The implementation is much easier without having to implement these for
     // every platform.
-    AtomicIntTemplate(const AtomicIntTemplate&) { }
-    AtomicIntTemplate& operator=(const AtomicIntTemplate&) { return *this; }
-    Boolean operator==(Uint32) const { return false; }
-    void operator++() { }
-    void operator--() { }
+    AtomicIntTemplate(const AtomicIntTemplate&);
+    AtomicIntTemplate& operator=(const AtomicIntTemplate&);
+    Boolean operator==(Uint32) const;
+    void operator++();
+    void operator--();
 
     typedef AtomicIntTemplate<ATOMIC_TYPE> This;
 

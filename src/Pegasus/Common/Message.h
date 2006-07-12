@@ -265,13 +265,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 	  Boolean printHeader = true) const;
 #endif
 
-      Boolean operator == (const void *msg )
-      {
-	 if (reinterpret_cast<void *>(this) == msg )
-	    return true;
-	 return false;
-      }
-
       Message *get_async(void)
       {
 	 Message *ret = _async;

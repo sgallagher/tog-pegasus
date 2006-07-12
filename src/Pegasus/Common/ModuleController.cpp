@@ -185,25 +185,9 @@ pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
    return *this;
 }
 
-Boolean pegasus_module::operator== (const pegasus_module & mod) const
-{
-   if( mod._rep.get() == _rep.get() )
-      return true;
-   return false;
-
-}
-
 Boolean pegasus_module::operator == (const String &  mod) const
 {
    if(_rep->get_name() == mod)
-      return true;
-   return false;
-}
-
-
-Boolean pegasus_module::operator == (const void *mod) const
-{
-   if ( (reinterpret_cast<const pegasus_module *>(mod))->_rep.get() == _rep.get())
       return true;
    return false;
 }

@@ -526,19 +526,6 @@ CMPIProvider::addThreadToWatch(Thread *t)
 
     _threadWatchList.insert_back(t);
 }
-Boolean CMPIProvider::operator == (const void *key) const 
-{
-   if( (void *)this == key)
-      return true;
-   return false;
-}
-
-Boolean CMPIProvider::operator == (const CMPIProvider &prov) const
-{
-   if(String::equalNoCase(_name, prov._name))
-      return true;
-   return false;
-}
 
 void CMPIProvider::get_idle_timer(struct timeval *t)
 {

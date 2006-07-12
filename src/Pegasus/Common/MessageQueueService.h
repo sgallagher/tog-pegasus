@@ -114,18 +114,6 @@ public:
     static AsyncOpNode *get_op();
     void return_op(AsyncOpNode *op);
 
-    Boolean operator ==(const MessageQueueService & svce) const
-    {
-        return operator==((const void *)&svce);
-    }
-
-    Boolean operator ==(const void *svce) const
-    {
-        if((const void *)this == svce)
-            return true;
-        return false;
-    }
-
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL polling_routine(void *);
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL kill_idle_threads(void *);
     static ThreadPool *get_thread_pool();

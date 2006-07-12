@@ -91,25 +91,6 @@ Boolean message_module::operator == (const String & name ) const
 
 }
 
-Boolean message_module::operator == (const message_module & mm) const
-{
-   if(this == &mm)
-      return true;
-   if( _name == mm._name )
-      if ( _capabilities == mm._capabilities)
-	 if(_mask == mm._mask)
-	    if(_q_id == mm._q_id)
-	       return true;
-
-   return false;
-
-}
-
-Boolean message_module::operator == (const void *key) const
-{
-   return operator == ( (*(reinterpret_cast<const message_module *>(key) ) ) );
-}
-
 AtomicInt cimom::_xid(0);
 
 Boolean cimom::route_async(AsyncOpNode *op)

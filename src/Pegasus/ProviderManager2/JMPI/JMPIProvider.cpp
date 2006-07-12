@@ -190,19 +190,6 @@ void JMPIProvider::terminate(void)
 {
 }
 
-Boolean JMPIProvider::operator == (const void *key) const
-{
-   if( (void *)this == key)
-      return true;
-   return false;
-}
-
-Boolean JMPIProvider::operator == (const JMPIProvider &prov) const
-{
-   if(String::equalNoCase(_name, prov._name))
-      return true;
-   return false;
-}
 /*
 void JMPIProvider::get_idle_timer(struct timeval *t)
 {

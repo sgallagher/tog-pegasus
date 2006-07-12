@@ -517,18 +517,6 @@ public:
        signalled.signal();
     }
 
-    inline Boolean operator==(const void *key) const
-    {
-        if((PEGASUS_THREAD_TYPE)key == waiter)
-            return true;
-        return false;
-      }
-      
-    inline Boolean operator ==(const cond_waiter & b ) const
-    {
-        return (operator ==(b.waiter)) ;
-    }
-
 private:
       cond_waiter();
       PEGASUS_THREAD_TYPE waiter;

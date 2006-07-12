@@ -2,22 +2,24 @@
 <html><head>
 
 
+
+
 <link rel="stylesheet" href="PEP_251_Draft_251_Readme_Version_1_2_files/info1margins.css">
 
-  <meta name="GENERATOR" content="Microsoft FrontPage 6.0">
+  <meta name="GENERATOR" content="Microsoft FrontPage 5.0">
   <meta name="ProgId" content="FrontPage.Editor.Document">
   <meta http-equiv="Content-Type" content="text/html; charset=windows-1252"><title>OpenPegasus</title>
 
-			<script language="javascript" src="PEP_251_Draft_251_Readme_Version_1_2_files/js.js"></script></head><body>
+			<script language="javascript" src="PEP_251_Draft_251_Readme_Version_1_2_files/js.htm"></script></head><body>
 <p align="center"><b><font size="4">Pegasus Enhancement Proposal (PEP)</font></b></p>
-<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>PEP #:</b> 251<br>
+<p style="margin-top: 0pt; margin-bottom: 0pt;"><b></b><br>
 </p>
 <p style="margin-top: 0pt; margin-bottom: 0pt;">&nbsp;</p>
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Title: </b>OpenPegasus 
-Release 2.5.1 Readme file</p>
+Release 2.5.1 and subsequent 2.5 minor releases Readme file</p>
 <p style="margin-top: 0pt; margin-bottom: 0pt;">&nbsp;</p>
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Version: </b><span style="color: rgb(0, 0, 0);">
-1.<br>
+1.3<br>
 </span></p>
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Created:</b> 20th March 2006</p>
 <p style="margin-top: 0pt; margin-bottom: 0pt;">&nbsp;</p>
@@ -54,13 +56,18 @@ Release 2.5.1 Readme file</p>
       <td style="vertical-align: top;" align="center">1.2</td>
       <td style="vertical-align: top;" align="center">March 26th 2006</td>
       <td style="vertical-align: top;" align="center">Martin Kirk</td>
-      <td style="vertical-align: top;">Draft for Steering Committee approval.</td>
+      <td style="vertical-align: top;">Draft for Steering Committee approval. 
+      Approved</td>
     </tr>
     <tr>
-      <td style="vertical-align: top; color: rgb(0, 0, 0);" align="center">&nbsp;</td>
-      <td style="vertical-align: top; color: rgb(0, 0, 0);">&nbsp;</td>
-      <td style="vertical-align: top; color: rgb(0, 0, 0);">&nbsp;</td>
-      <td style="vertical-align: top; color: rgb(0, 0, 0);">&nbsp;</td>
+      <td style="vertical-align: top; color: rgb(0, 0, 0);" align="center">1.3</td>
+      <td style="vertical-align: top; color: rgb(0, 0, 0);">
+      <p align="center">July 12th 2006</td>
+      <td style="vertical-align: top; color: rgb(0, 0, 0);">
+      <p align="center">Karl Schopmeyer</td>
+      <td style="vertical-align: top; color: rgb(0, 0, 0);">Update to Reflect 
+      that it applies to subsequent 2.5 minor releases. <font color="#FF0000">
+      (Note Approved)</font></td>
     </tr>
     <tr>
       <td style="vertical-align: top;" align="center">&nbsp;</td>
@@ -72,7 +79,7 @@ Release 2.5.1 Readme file</p>
 </table>
 <hr>
 <p><b>Abstract:</b>&nbsp; Installation, build, operation information on
-the OpenPegasus Version 2.5.1 Release. Note that if this readme
+the OpenPegasus Version 2.5.1 Release and subsequent minor releases. Note that if this readme
 conflicts with the documentation in the release notes or interface
 definition documents for a particular release, those documents should
 be considered authoritative. This is a simplified overview to act as an
@@ -85,9 +92,9 @@ Services Broker for the DMTF CIM/WBEM Standards
 DMTF CIM objects written in C++
 and hosted by The Open Group </p>
 <p align="left">
-<b>STATUS:</b> Revised March 2006 for&nbsp; Pegasus release version
-2.5.1&nbsp;
-- Draft<br>
+<b>STATUS:</b> Revised July 2006 for&nbsp; Pegasus release version 2.5.1 and 
+subsequent releases&nbsp; - Draft<font color="#FF0000"> (Change to Architecture 
+Team Approved)</font><br>
 </p>
 <a href="#Overview">Overview</a>
 <blockquote style="margin-top: 0pt; margin-bottom: 0pt;"> 
@@ -164,7 +171,7 @@ development group.&nbsp; The results of the nightly tests can be found
 here: <a href="http://cvs.opengroup.org/cgi-bin/pegasus-build-status.cgi">Nightly
 test status</a> .&nbsp; The Release notes provides additional details
 regarding the platforms.&nbsp;
-PEP 249 is the Release Notes PEP for 2.5.1.<br>
+PEP 249 is the Release Notes PEP for 2.5.x.<br>
 </p>
 <h4><a name="cmnd">Commands</a></h4>
 <p></p>The manpages for each of the commands can be found in the Pegasus source
@@ -344,7 +351,8 @@ platforms, enter "make listplatforms" from the root of the Pegasus
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This will run the unit tests, create the repository by compiling 
 		in</div>
 	<div>
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the MOF for the default CIM Schema (2.9 for Pegasus 2.5.1), 
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the MOF for the default CIM Schema (2.9 for Pegasus 2.5.1 
+        and 2.5.2), 
 		compile</div>
 	<div>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; in the MOF for all Pegasus test cases, do any other configuration</div>

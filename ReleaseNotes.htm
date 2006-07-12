@@ -2,6 +2,7 @@
 <html xmlns:v="urn:schemas-microsoft-com:vml"><head>
 
 
+
   <style>
 st1\:*{behavior:url(#ieooui) }
   </style>
@@ -997,9 +998,17 @@ ul
 
 			
 
-			<script language="javascript" src="ReleaseNotes_files/js_002.js"></script>
+			
 
-<script language="javascript" src="ReleaseNotes_files/js.js"></script></head><body lang="EN-US" link="blue" vlink="blue">
+			
+
+			<script language="javascript" src="ReleaseNotes251_files/js.js"></script>
+
+<script language="javascript" src="ReleaseNotes251_files/js"></script>
+
+<script language="javascript" src="ReleaseNotes251_files/js_002.htm"></script>
+
+<script language="javascript" src="ReleaseNotes251_files/js.htm"></script></head><body lang="EN-US" link="blue" vlink="blue">
 <div class="Section1">
 <div class="MsoNormal" style="text-align: center;" align="center"><span style="color: black;">
 <hr align="center" color="#009900" noshade="noshade" size="2" width="100%"></span></div>
@@ -1007,11 +1016,10 @@ ul
 Enhancement Proposal (PEP)<o:p></o:p></span></b></p>
 <p class="MsoNormal" style="margin-bottom: 0pt; margin-top: 0pt;"><span style="color: black;"><br>
 <br>
-<b>PEP #:</b> 249<br>
 </span></p>
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Title: </b>Release
-Notes for OpenPegasus 2.5.1</p>
-<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Version: </b>1.0</p>
+Notes for OpenPegasus 2.5.1 and Subsequent 2.5 minor releases</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Version: </b>1.7</p>
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Created:</b> <st1:date year="2004" day="23" month="3">1 March 2006</st1:date></p>
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Authors: </b>Karl Schopmeyer<br>
 </p>
@@ -1091,13 +1099,23 @@ Submission</font><o:p><font size="2">
       <td style="padding: 0.75pt;"><font face="Arial">Remove references to 
       status "experimental" for certain features</font></td>
     </tr>
-    <tr style="">
+    <tr>
       <td style="padding: 0.75pt;" align="center"><font face="Arial">1.6</font></td>
       <td style="padding: 0.75pt;" align="center"><font face="Arial">28 March 
       2006</font></td>
       <td style="padding: 0.75pt;" align="center"><font face="Arial">Karl 
       Schopmeyer</font></td>
-      <td style="padding: 0.75pt;"><font face="Arial">Typos</font></td>
+      <td style="padding: 0.75pt;"><font face="Arial">Typos - Approved by 
+      architecture group</font></td>
+    </tr>
+    <tr style="">
+      <td style="padding: 0.75pt;" align="center"><font face="Arial">1.7</font></td>
+      <td style="padding: 0.75pt;" align="center"><font face="Arial">12 July 
+      2006</font></td>
+      <td style="padding: 0.75pt;" align="center"><font face="Arial">Karl 
+      Schopmeyer</font></td>
+      <td style="padding: 0.75pt;"><font face="Arial">Update to reflect Pegasus 
+      2.5.2 release</font></td>
     </tr>
   </tbody>
 </table>
@@ -1105,7 +1123,7 @@ Submission</font><o:p><font size="2">
 <div class="MsoNormal" style="text-align: center;" align="center"><span style="color: black;">
 <hr align="center" color="#009900" noshade="noshade" size="2" width="100%"></span></div>
 <p><b>Abstract:</b> This document defines the release notes for the 2.5.1
-version of the Pegasus CIM Server. <span class="norm1"><span style="font-size: 9pt;"><a href="http://www.openpegasus.org/pp/protected/doc_edit.tpl?grid=632&amp;file=Pegasus2_3_1ReleaseNotes.html&amp;tag=35" target="_self"><br>
+and subsequent 2.5 minor releases of the Pegasus CIM Server. <span class="norm1"><span style="font-size: 9pt;"><a href="http://www.openpegasus.org/pp/protected/doc_edit.tpl?grid=632&amp;file=Pegasus2_3_1ReleaseNotes.html&amp;tag=35" target="_self"><br>
 </a></span></span></p>
 <div class="MsoNormal" style="text-align: center;" align="center"><span style="color: black;">
 <hr align="center" color="#009900" noshade="noshade" size="2" width="100%"></span></div>
@@ -1137,7 +1155,7 @@ of this Release</span></h2>
   <li>Source release in both ZIP and TAR formats. These can be
 downloaded from the <span class="SpellE">OpenPegasus</span> Web
 site at <a href="http://www.openpegasus.org/page.tpl?CALLER=index.tpl&amp;ggid=392">www.openpegasus.org.</a></li>
-  <li>OpenPegasus 2.5.1 binaries are available for Red Hat Enterprise
+  <li>OpenPegasus 2.5.x binaries are available for Red Hat Enterprise
 Linux 3.0 and 4.2 and SUSE LINUX Enterprise Server 9.0. A Source RPM is
 also available that can be used to build binaries for most
 LSB-compliant RPM-based Linux distributions and versions.</li>
@@ -1162,7 +1180,8 @@ the status of the various features found in Pegasus using a simple color coded
 key (white, red, yellow, green).&nbsp; Pegasus 2.5.1 is a minor release, extending Pegasus 2.5.0 in selected 
 areas primarily for bug fixes.&nbsp; However, there were some signification 
 changes in the feature status for selected functions in 2.5.1 (moving selected 
-functions closer to production-capable status).<p>The following paragraphs list the functionality in this release.&nbsp;&nbsp; In many cases these features&nbsp; and interfaces
+functions closer to production-capable status). Pegasus 2.5.2 is a minor release 
+providing changes that have been defined through pegasus bugs.<p>The following paragraphs list the functionality in this release.&nbsp;&nbsp; In many cases these features&nbsp; and interfaces
 are conditionally compiled with special environment variables. <span style="color: rgb(51, 102, 255);"><span style="text-decoration: underline;">
 <a style="color: blue; text-decoration: underline;" href="http://www.openpegasus.org/pp/uploads/40/10083/PEP237_RecommendedReleaseOptions.htm">PEP 237</a></span><a href="http://www.openpegasus.org/pp/protected/doc.tpl?CALLER=index.tpl&amp;gdid=8502" style="color: blue; text-decoration: underline;">&nbsp;</a></span>
 provides more detailed information on how to enable
@@ -2086,7 +2105,8 @@ statistics</li>
   <li class="MsoNormal" style="color: black;">Port to OpenVMS.</li>
 </ol>
 <p>For release 2.5.1, a number of additional changes were made( See PEP 239 for 
-more details):.</p>
+more details) Note: there was no PEP controlling Pegasus 2.5.2 changes, simply 
+approved bugs:.</p>
 <ol style="margin-top: 0in;" start="1" type="1">
   <li>Significant performance improvements ( better than 10 to 1 for operations 
   and 3 to 1 for indications). (bug 4225)</li>
@@ -2122,12 +2142,20 @@ is defined in PEP 239
 and&nbsp; is available through the following link:&nbsp; <a href="http://cvs.rdg.opengroup.org/bugzilla/">OpenPegasus bugzilla
 database</a>.&nbsp; Note that bugs committed for Pegasus 2.5.1 have been marked 
 with the keyword <font face="Courier New"><b>2.5.1_APPROVED</b></font> so that 
-all bug fixes for this release can be found with the following bug search.&nbsp; 
-Note that since this was a minor release all of the fixes were documented as 
-bugs so that even the changes listed in the previous section are listed as bugs.</p>
+all bug fixes for this release can be found with the following bug search. 
+changes between Pegasus 2.5.1 and 2.5.2 are documented in bugs with the keyword
+<b>2.5.2_APPROVED</b>. These are a minor release all of the fixes were documented as 
+bugs so that even the changes listed in the previous section are listed as bugs. 
+The following links provide a list of the bugs for each version</p>
 <p>
+&nbsp;&nbsp;&nbsp; - Changes for Pegasus 2.5.1 release (bugs Tagged 
+2.5.1_APPROVED)&nbsp;
 <a href="http://cvs.rdg.opengroup.org/bugzilla/buglist.cgi?keywords=2.5.1_APPROVEDhttp://cvs.rdg.opengroup.org/bugzilla/buglist.cgi?keywords=2.5.1_APPROVED">
-http://cvs.rdg.opengroup.org/bugzilla/buglist.cgi?keywords=2.5.1_APPROVED</a><br>
+http://cvs.rdg.opengroup.org/bugzilla/buglist.cgi?keywords=2.5.1_APPROVED</a></p>
+<p>
+&nbsp;&nbsp;&nbsp; - Changes for Pegasus 2.5.2 release (bugs Tagged 
+2.5.2_APPROVED)<a href="http://cvs.rdg.opengroup.org/bugzilla/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&long_desc_type=substring&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&">
+</a>&nbsp;<a href="http://cvs.rdg.opengroup.org/bugzilla/buglist.cgi?keywords=2.5.2_APPROVEDhttp://cvs.rdg.opengroup.org/bugzilla/buglist.cgi?keywords=2.5.1_APPROVED">http://cvs.rdg.opengroup.org/bugzilla/buglist.cgi?keywords=2.5.2_APPROVED</a><br>
 </p>
 <h2><a name="Pegasus Release Control and Version Definition Documentation">Pegasus
 Release Control and Version Definition Documentation</a></h2>
@@ -2142,17 +2170,17 @@ Pegasus release.</p>
   <a href="http://www.openpegasus.org/pp/uploads/40/8568/PEP209_ExternalInterface2.5.htm">PEP 209</a> - OpenPegaus 2.5 External Interfaces.<br>
   </li>
   <li>
-  <a href="http://www.openpegasus.org/pp/uploads/40/10083/PEP237_RecommendedReleaseOptions.htm">PEP&nbsp; 237</a> - OpenPegaus 2.5.1 Build and Configuration
+  <a href="http://www.openpegasus.org/pp/uploads/40/10083/PEP237_RecommendedReleaseOptions.htm">PEP&nbsp; 237</a> - OpenPegasus&nbsp; Build and Configuration
 Option&nbsp; for Selected
 Platforms</li>
-  <li>PEP 249 - Pegasus 2.5.1 Release Notes (This document located in the PEP 
+  <li>PEP 249 - Pegasus Release Notes (This document located in the PEP 
   repository and the Pegasus source tree root directory)</li>
   <li>
-  <a href="http://www.openpegasus.org/pp/uploads/40/9825/PEP242_RuntimePackaging2.5.1.htm">PEP 242</a> -&nbsp; Pegasus 2.5.1 Runtime Packaging Definition<br>
+  <a href="http://www.openpegasus.org/pp/uploads/40/9825/PEP242_RuntimePackaging2.5.1.htm">PEP 242</a> -&nbsp; Pegasus&nbsp; Runtime Packaging Definition<br>
   </li>
   <li>
-  <a href="http://www.openpegasus.org/pp/uploads/40/9820/PEP243_SDKFile2.5.1.htm">PEP 243</a>&nbsp; - OpenPegasus 2.5.1 SDK Packaging Definition</li>
-  <li>PEP 251&nbsp; - Pegasus readme.txt for 2.5.1 (Located in PEP repository 
+  <a href="http://www.openpegasus.org/pp/uploads/40/9820/PEP243_SDKFile2.5.1.htm">PEP 243</a>&nbsp; - OpenPegasus&nbsp; SDK Packaging Definition</li>
+  <li>PEP 251&nbsp; - Pegasus readme.txt for&nbsp; (Located in PEP repository 
   and also in the Pegasus
 source
 tree root directory).</li>
@@ -2220,5 +2248,8 @@ the design and implementation of these features.</li>
 <p>&nbsp;</p>
 </div>
 <script language="javascript">postamble();</script>
+<script language="javascript">postamble();</script>
+<script language="javascript">postamble();</script>
+
 <script language="javascript">postamble();</script>
 </body></html>

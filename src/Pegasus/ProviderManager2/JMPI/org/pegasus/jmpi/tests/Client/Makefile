@@ -48,31 +48,25 @@ include $(PEGASUS_ROOT)/test/config.mak
 KNOWN_BUGS       = BugExistsExecQuery
 
 PACKAGEDIR       = Client/
-JAR1             = Client.jar
+JAR1             = JMPITestClient.jar
 JAR1CLASSES      = \
-	TestCIMClient.class
-EXTRAJAR1CLASSES = \
-	Log.class
-JAR2             = JMPITestClient.jar
-JAR2CLASSES      = \
 	RunTest.class \
 	TestEntry.class
-EXTRAJAR2CLASSES = \
+EXTRAJAR1CLASSES = \
         MyFilenameFilter.class
-JAR2MANIFEST     = JMPITestClient.manifest
-JAR3             = JMPITestInstanceProvider.jar
-JAR3CLASSES      = \
+JAR1MANIFEST     = JMPITestClient.manifest
+JAR2             = JMPITestInstanceProvider.jar
+JAR2CLASSES      = \
 	testDataType.class \
 	testExecQuery.class \
 	testIndications.class \
 	testPropertyProvider.class \
 	testCIMClient.class
-EXTRAJAR3CLASSES =
-JARS             = $(JAR1) $(JAR2) $(JAR3)
+EXTRAJAR2CLASSES =
+JARS             = $(JAR1) $(JAR2)
 
 LOCAL_CLEAN_TARGET = \
 	$(JAR1CLASSES) $(EXTRAJAR1CLASSES) $(addprefix $(PEGASUS_HOME)/lib/,$(JAR1)) \
-	$(JAR2CLASSES) $(EXTRAJAR2CLASSES) $(addprefix $(PEGASUS_HOME)/lib/,$(JAR2)) \
 	$(JAR2CLASSES) $(EXTRAJAR2CLASSES) $(addprefix $(PEGASUS_HOME)/lib/,$(JAR2))
 
 all build: 			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
@@ -87,13 +81,10 @@ repository:
 poststarttests:			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
 	java -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR2))$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR3)) Client.RunTest $(KNOWN_BUGS)
 
-$(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES)
-	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
+$(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES) $(JAR1MANIFEST)
+	jar -cfm $@ $(JAR1MANIFEST) $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
 
-$(PEGASUS_HOME)/lib/$(JAR2):	$(JAR2CLASSES) $(JAR2MANIFEST)
-	jar -cfm $@ $(JAR2MANIFEST) $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR2CLASSES))
-
-$(PEGASUS_HOME)/lib/$(JAR3):	$(JAR3CLASSES)
-	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR3CLASSES))
+$(PEGASUS_HOME)/lib/$(JAR2):	$(JAR2CLASSES)
+	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR2CLASSES))
 
 #include $(ROOT)/test/configend.mak

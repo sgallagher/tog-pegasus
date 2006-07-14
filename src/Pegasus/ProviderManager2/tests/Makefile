@@ -31,7 +31,6 @@
 include $(PEGASUS_ROOT)/mak/config.mak
 
 DIRS = \
-    Lockable \
 	ProviderManager \
 	ProviderManagerModule \
 	ProviderManagerService \

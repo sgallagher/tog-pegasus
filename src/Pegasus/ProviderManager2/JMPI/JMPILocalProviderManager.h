@@ -49,8 +49,6 @@
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
 //#include <Pegasus/ProviderManager2/JMPI/JMPIResolverModule.h>
 
-#include <Pegasus/ProviderManager2/Lockable.h>
-
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN

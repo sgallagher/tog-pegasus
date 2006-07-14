@@ -60,7 +60,6 @@ SOURCES = \
 	ProviderName.cpp \
 	ProviderType.cpp \
 	\
-	Lockable.cpp \
 	OperationResponseHandler.cpp \
 	SimpleResponseHandler.cpp \
 	CIMOMHandleContext.cpp

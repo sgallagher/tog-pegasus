@@ -50,8 +50,6 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIResolverModule.h>
 
-#include <Pegasus/ProviderManager2/Lockable.h>
-
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN

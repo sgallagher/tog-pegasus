@@ -49,7 +49,6 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>
 
-#include <Pegasus/ProviderManager2/Lockable.h>
 #include <Pegasus/ProviderManager2/Default/Provider.h>
 #include <Pegasus/ProviderManager2/Default/ProviderModule.h>
 

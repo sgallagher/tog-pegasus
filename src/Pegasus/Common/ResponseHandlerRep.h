@@ -72,14 +72,9 @@ protected:
 
 private:
 
-    // This method is declared and made private so that the compiler does
-    // not implicitly define a default operator =.
-    ResponseHandlerRep& operator=(const ResponseHandlerRep& x)
-    {
-	//PEGASUS_ASSERT(0);
-	return *this;
-    }
-
+    // The assignment operator is declared as private so the compiler does
+    // not implicitly define it.
+    ResponseHandlerRep& operator=(const ResponseHandlerRep& x);
 };
 
 PEGASUS_NAMESPACE_END

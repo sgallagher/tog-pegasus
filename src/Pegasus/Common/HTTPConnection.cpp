@@ -2179,7 +2179,8 @@ void HTTPConnection::_handleReadEvent()
     String httpStatus;
     Sint32 bytesRead = 0;
     Boolean incompleteSecureReadOccurred = false;
-//    int readCount= 0;
+    int readCount= 0;
+    Boolean moreInPipe=false; //WW This is part of the hack described below
    // HANDLE* hEvents = new HANDLE[PIPE_COUNT]; 
 
     for (;;)
@@ -2192,6 +2193,7 @@ void HTTPConnection::_handleReadEvent()
         char buffer[httpTcpBufferSize+1];
         buffer[sizeof(buffer)-1] = 0;
 
+        
         Sint32 n;
 
         //this is assuming the whole mesaage is read in one 'ReadFile'. For
@@ -2201,13 +2203,76 @@ void HTTPConnection::_handleReadEvent()
         //if (_namedPipeConnection && (bytesRead == 0))  //this clause reads from the namedPipe
 //        #ifdef PEGASUS_OS_TYPE_WINDOWS
 
-        if (_namedPipeConnection && (bytesRead == 0))  //this clause reads from the namedPipe
+        if (_namedPipeConnection)  //this clause reads from the namedPipe
         {
             {
                 AutoMutex automut(Monitor::_cout_mut);
                 PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() about to read off the pipe" << PEGASUS_STD(endl);
             }
+            {
+            AutoMutex automut(Monitor::_cout_mut);
+          cout << "ReadCount = " << readCount << endl;
+          }
+          if (moreInPipe)
+          {
+            Sleep(1000);
 
+            memset(_namedPipe.raw,'\0',MAX_BUFFER_SIZE);
+
+            BOOL rc = ::ReadFile(
+                  _namedPipe.getPipe(),
+                  &_namedPipe.raw,
+                  MAX_BUFFER_SIZE,
+                  &_namedPipe.bytesRead,
+                  _namedPipe.getOverlap());
+
+
+            {
+              AutoMutex automut(Monitor::_cout_mut);
+              cout << "just called read #" << readCount << endl;
+            }
+             if(!rc)
+             {
+
+                 {
+                   AutoMutex automut(Monitor::_cout_mut);
+                   cout << "ReadFile failed for : "  << GetLastError() << "."<< endl;
+                 }
+             }
+            n = strlen(_namedPipe.raw);
+          }
+          else if (readCount==0) //this should only be ture on the first pass where moreInPipe is false and readCount is 0
+          {
+
+               n = strlen(_namedPipe.raw);
+
+
+          }
+          /*this clasue should be exciuted on the last time through the loop.
+          That means something has been read (readCount != 0) and there in nothing
+          else else in the pipe (mornInPipe==flase ) */
+          else   
+              n=0;
+
+          readCount++;
+
+          /**************WW
+          This is a hack. It assumes that if the number a char read in (n) is 
+          equal to the MAX_BUFFER_SIZE there must be more in the pipe that needs
+          to be read. This is not ture if the message in the buffer is exactly the same 
+          size as the MAX_BUFFER_SIZE
+          *****************/         
+          if (n==MAX_BUFFER_SIZE)
+          {
+              moreInPipe = true;
+          }
+          else
+              moreInPipe = false;
+          
+          {
+            AutoMutex automut(Monitor::_cout_mut);
+          cout << "Just incremented ReadCount = " << readCount << endl;
+          }
 
                         //need some kind of string copy here
 		    strcpy (buffer,_namedPipe.raw);
@@ -2234,7 +2299,6 @@ void HTTPConnection::_handleReadEvent()
                 cout<<__LINE__<<"\t************************************************************************"<<endl;
             }*/            
 
-            n = strlen(_namedPipe.raw);
            /*{
                 AutoMutex automut(Monitor::_cout_mut);
                 //cout << buffer << endl;
@@ -2246,14 +2310,14 @@ void HTTPConnection::_handleReadEvent()
         {
             n = _socket->read(buffer, sizeof(buffer)-1);
         }
-        else
+    /*    else
         {
             n=0;
             {
             AutoMutex automut(Monitor::_cout_mut);
             cout << "in else clause n= " << n << endl;
             }
-        }
+        }  */
 
 
         if (n <= 0)

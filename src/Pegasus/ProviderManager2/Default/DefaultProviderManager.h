@@ -51,7 +51,6 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Pair.h>
-#include <Pegasus/Common/Triad.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>

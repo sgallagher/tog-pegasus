@@ -161,7 +161,6 @@ SOURCES2 = \
     TLS.cpp \
     TraceFileHandler.cpp \
     Tracer.cpp \
-    Triad.cpp \
     Thread.cpp \
     Union.cpp \
     XmlParser.cpp \

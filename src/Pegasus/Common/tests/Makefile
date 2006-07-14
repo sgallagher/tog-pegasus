@@ -87,7 +87,6 @@ DIRS = \
     Tracer \
     ValidateClass \
     Value \
-    WebClient \
     XmlDump \
     XmlParser \
     XmlPrint \

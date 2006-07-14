@@ -62,15 +62,15 @@ public:
     Sharable() : _ref(1) { }
 
     virtual ~Sharable();
-    Uint32 getRef() const { return _ref.get(); }
 
     friend void Inc(Sharable* sharable); 
 
     friend void Dec(Sharable* sharable);
 
 private:
-    Sharable(const Sharable &s) : _ref(1) {PEGASUS_DEBUG_ASSERT(0);} 
-    // we should never copy a counter, so we make this private - dte
+    Sharable(const Sharable &s);
+    Sharable& operator=(const Sharable &s);
+
     AtomicInt _ref;
 };
 
@@ -79,14 +79,10 @@ inline void Inc(Sharable* x)
     if (x)
     {
 	// A sharable object should never be incremented from zero.
-	// If so, there is a double delete being cause by impropoer use
-	// of sharable assignment or copy constructors somewhere
-	// << Wed Nov  6 12:46:52 2002 mdd >>
-	PEGASUS_DEBUG_ASSERT(((Sharable*)x)->_ref.get());
+	PEGASUS_DEBUG_ASSERT(x->_ref.get());
 	x->_ref++;
     }
 }
-
 
 inline void Dec(Sharable* x)
 {

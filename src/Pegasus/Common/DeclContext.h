@@ -76,16 +76,6 @@ public:
 typedef Pair<CIMNamespaceName, CIMClass> CPair;
 typedef Pair<CIMNamespaceName, CIMQualifierDecl> QPair;
 
-inline int operator==(const QPair& x, const QPair& y)
-{
-    return 0;
-}
-
-inline int operator==(const CPair& x, const CPair& y)
-{
-    return 0;
-}
-
 class PEGASUS_COMMON_LINKAGE SimpleDeclContext : public DeclContext
 {
 public:

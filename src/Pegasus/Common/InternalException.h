@@ -341,17 +341,6 @@ public:
     virtual ~StackOverflow();
 };
 
-class PEGASUS_COMMON_LINKAGE QueueUnderflow : public Exception
-{
-public:
-
-    static const char MSG[];
-    static const char KEY[];     
-
-    QueueUnderflow();
-    virtual ~QueueUnderflow();
-};
-
 class PEGASUS_COMMON_LINKAGE BadFormat : public Exception
 {
 public:

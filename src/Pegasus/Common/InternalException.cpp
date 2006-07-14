@@ -147,9 +147,6 @@ const char StackUnderflow::KEY[] = "Common.InternalException.STACK_UNDERFLOW";
 const char StackOverflow::MSG[] = "stack overflow";
 const char StackOverflow::KEY[] = "Common.InternalException.STACK_OVERFLOW"; 
 
-const char QueueUnderflow::MSG[] = "queue Underflow";
-const char QueueUnderflow::KEY[] = "Common.InternalException.QUEUE UNDERFLOW"; 
-
 const char BadFormat::MSG[] = "bad format passed to Formatter::format()";
 const char BadFormat::KEY[] = "Common.InternalException.BAD_FORMAT";
 
@@ -796,21 +793,6 @@ StackOverflow::StackOverflow() :
 }    
 
 StackOverflow::~StackOverflow()
-{
-}
-
-//==============================================================================
-//
-// QueueUnderflow
-//
-//==============================================================================
-
-QueueUnderflow::QueueUnderflow() : 
-    Exception(MessageLoaderParms(QueueUnderflow::KEY, QueueUnderflow::MSG))
-{
-}    
-
-QueueUnderflow::~QueueUnderflow()
 {
 }
 

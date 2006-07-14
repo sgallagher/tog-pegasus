@@ -43,5 +43,6 @@ PROGRAM = TestDynamicLibrary
 include $(PEGASUS_ROOT)/mak/program.mak
 
 tests:
+	$(PROGRAM)
 
 poststarttests:

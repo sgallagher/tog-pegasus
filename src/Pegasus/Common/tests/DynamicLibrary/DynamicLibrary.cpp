@@ -32,114 +32,81 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:	Sean Keenan (sean.keenan@hp.com)
+//             	Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/DynamicLibrary.h>
-
-PEGASUS_USING_PEGASUS;
+#include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/PegasusAssert.h>
 
 #include <iostream>
 
+PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-static const String VALID_FILE_NAME = "DynLib.dll";
-static const String INVALID_FILE_NAME = "BADDynLib.dll";
-#elif defined(PEGASUS_OS_DARWIN)
-static const String VALID_FILE_NAME = "libDynLib.dylib";
-static const String INVALID_FILE_NAME = "libBADDynLib.dylib";
-#elif defined(PEGASUS_OS_VMS)
-static const String VALID_FILE_NAME = "/wbem_opt/wbem/providers/lib/libTestDynLib.exe";
-static const String INVALID_FILE_NAME = "/wbem_opt/wbem/providers/lib/libBADTestDynLib.exe";
+static const String VALID_LIBRARY_NAME = "TestDynLib";
+static const String INVALID_LIBRARY_NAME = "BADDynLib";
+
+String getLibraryFileName(const String& libraryName)
+{
+#if defined(PEGASUS_OS_VMS)
+    return String("/wbem_opt/wbem/providers/lib/lib") + fileName + ".exe";
 #else
-static const String VALID_FILE_NAME = "libDynLib.so";
-static const String INVALID_FILE_NAME = "libBADDynLib.so";
+    return FileSystem::buildLibraryFileName(libraryName);
 #endif
+}
 
 // load a valid module, export a symbol, call it, and unload module
-void Test1(void)
+void Test1()
 {
-    DynamicLibrary library(VALID_FILE_NAME);
+    DynamicLibrary library(getLibraryFileName(VALID_LIBRARY_NAME));
 
     library.load();
-
-    if(!library.isLoaded())
-    {
-        cout << "failed to load " << library.getFileName() << endl;
-
-        throw 0;
-    }
+    PEGASUS_TEST_ASSERT(library.isLoaded());
 
     Uint32 (* callme)(void) = (Uint32 (*)(void))library.getSymbol("callme");
-
-    if(callme == 0)
-    {
-        library.unload();
-
-        cout << "failed to export callme() from " << library.getFileName() << endl;
-
-        throw 0;
-    }
-
-    cout << "callme() returned << " << hex << callme() << endl;
+    PEGASUS_TEST_ASSERT(callme);
+    PEGASUS_TEST_ASSERT(callme() == 0xdeadbeef);
 
     library.unload();
-
-    if(library.isLoaded())
-    {
-        cout << "failed to unload " << library.getFileName() << endl;
-
-        throw 0;
-    }
+    PEGASUS_TEST_ASSERT(!library.isLoaded());
 }
 
 // load valid module, assignment
-void Test2(void)
+void Test2()
 {
-    DynamicLibrary library(VALID_FILE_NAME);
+    DynamicLibrary library(getLibraryFileName(VALID_LIBRARY_NAME));
+    PEGASUS_TEST_ASSERT(!library.isLoaded());
 
     library.load();
+    PEGASUS_TEST_ASSERT(library.isLoaded());
 
     {
         DynamicLibrary library2(library);
-
-        if(library2.isLoaded() != library.isLoaded())
-        {
-            cout << "failed to preserve module state in copy " << library.getFileName() << endl;
-        }
+        PEGASUS_TEST_ASSERT(library2.isLoaded());
     }
 
     {
         DynamicLibrary library2;
 
         library2 = library;
-
-        if(library2.isLoaded() != library.isLoaded())
-        {
-            cout << "failed to preserve module state in assignment " << library.getFileName() << endl;
-        }
+        PEGASUS_TEST_ASSERT(library2.isLoaded());
     }
 
     library.unload();
+    PEGASUS_TEST_ASSERT(!library.isLoaded());
 }
 
 // load an invalid module
-void Test3(void)
+void Test3()
 {
-    DynamicLibrary library(INVALID_FILE_NAME);
+    DynamicLibrary library(getLibraryFileName(INVALID_LIBRARY_NAME));
+    PEGASUS_TEST_ASSERT(!library.isLoaded());
 
     library.load();
-
-    if(library.isLoaded())
-    {
-        library.unload();
-
-        cout << "failed by loading " << library.getFileName() << endl;
-
-        throw 0;
-    }
+    PEGASUS_TEST_ASSERT(!library.isLoaded());
 }
 
 int main(int argc, char** argv)

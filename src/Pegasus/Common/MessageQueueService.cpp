@@ -650,7 +650,6 @@ Boolean MessageQueueService::_enqueueResponse(
 
       AsyncLegacyOperationResult *async_result =
          new AsyncLegacyOperationResult(
-            async->getKey(),
             async->getRouting(),
             op,
             response);
@@ -750,7 +749,6 @@ void MessageQueueService::handle_heartbeat_request(AsyncRequest *req)
 
    AsyncReply *reply = new AsyncReply(
       async_messages::HEARTBEAT,
-      req->getKey(),
       req->getRouting(),
       0,
       req->op,

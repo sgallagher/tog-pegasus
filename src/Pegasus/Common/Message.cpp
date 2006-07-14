@@ -48,8 +48,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-IDFactory Message::_keyFactory;
-
 Uint32 message_mask::type_legacy =            0x00000000;
 Uint32 message_mask::type_CIMOperation =      0x00000001;
 Uint32 message_mask::type_CIMAsyncOperation = 0x00000002;
@@ -86,7 +84,6 @@ void Message::print(ostream& os, Boolean printHeader) const
     }
 
     os << "    messageType: " << MessageTypeToString(_type) << endl;
-    os << "    key: " << _key << endl;
 
     // << Tue Jul  1 11:10:35 2003 mdd >> pep_88 
     os << "    routing code: " << _routing_code << endl;

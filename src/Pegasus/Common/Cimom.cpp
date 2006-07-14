@@ -323,7 +323,6 @@ void cimom::_make_response(Message *req, Uint32 code)
    if ( ! ((static_cast<AsyncRequest *>(req))->op->_flags & ASYNC_OPFLAGS_SIMPLE_STATUS) )
    {
       reply.reset(new AsyncReply(async_messages::REPLY,
-			     req->getKey(),
 			     req->getRouting(),
 			     0,
 			     (static_cast<AsyncRequest *>(req))->op, 
@@ -567,7 +566,6 @@ void cimom::register_module(RegisterCimService *msg)
    }
 
    AutoPtr<AsyncReply> reply(new AsyncReply(async_messages::REPLY,
-				      msg->getKey(),
 				      msg->getRouting(),
 				      0,
 				      msg->op,
@@ -624,7 +622,6 @@ void cimom::update_module(UpdateCimService *msg )
    _modules.unlock();
 
    AutoPtr<AsyncReply> reply(new AsyncReply(async_messages::REPLY,
-				      msg->getKey(),
 				      msg->getRouting(),
 				      0,
 				      msg->op,
@@ -653,7 +650,6 @@ void cimom::ioctl(AsyncIoctl *msg)
 	 
 	 // respond to this message.
 	 AutoPtr<AsyncReply> reply(new AsyncReply( async_messages::REPLY,
-					     msg->getKey(),
 					     msg->getRouting(),
 					     0,
 					     msg->op,
@@ -704,7 +700,6 @@ void cimom::ioctl(AsyncIoctl *msg)
       {
 	 Uint32 result = _ioctl(msg->ctl, msg->intp, msg->voidp);
 	 AutoPtr<AsyncReply> reply(new AsyncReply( async_messages::REPLY,
-					     msg->getKey(),
 					     msg->getRouting(),
 					     0,
 					     msg->op,
@@ -772,8 +767,7 @@ void cimom::find_service_q(FindServiceQueue  *msg)
    _modules.unlock();
 
    AutoPtr<FindServiceQueueResult> reply(
-      new FindServiceQueueResult( msg->getKey(),
-				  msg->getRouting(),
+      new FindServiceQueueResult( msg->getRouting(),
 				  msg->op,
 				  async_results::OK,
 				  msg->resp,
@@ -802,7 +796,7 @@ void cimom::enumerate_service(EnumerateService *msg)
    {
       if( ret->_q_id == msg->qid )
       {
-	 reply.reset(new EnumerateServiceResponse(msg->getKey(),
+	 reply.reset(new EnumerateServiceResponse(
 					      msg->getRouting(),
 					      msg->op,
 					      async_results::OK,
@@ -820,7 +814,7 @@ void cimom::enumerate_service(EnumerateService *msg)
 
    if(reply.get() == 0 )
    {
-      reply.reset(new EnumerateServiceResponse(msg->getKey(),
+      reply.reset(new EnumerateServiceResponse(
 					   msg->getRouting(),
 					   msg->op,
 					   async_results::MODULE_NOT_FOUND,
@@ -1028,7 +1022,6 @@ void cimom::_find_module_in_service(FindModuleInService *msg)
 
    FindModuleInServiceResponse *response = 
       new FindModuleInServiceResponse(msg->getRouting(), 
-				      msg->getKey(),
 				      msg->op, 
 				      result,
 				      msg->resp,

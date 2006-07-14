@@ -152,9 +152,8 @@ void MessageQueue::enqueue(Message* message)
                       String("Queue name: ") + getQueueName() ) ;
     Tracer::trace   ( TRC_MESSAGEQUEUESERVICE,
                       Tracer::LEVEL3,
-                      "Message: [%s, %d]",
-                      MessageTypeToString(message->getType()),
-                      message->getKey() );
+                      "Message: [%s]",
+                      MessageTypeToString(message->getType()));
 
     {
     AutoMutex autoMut(_mut);
@@ -275,22 +274,6 @@ Message* MessageQueue::findByType(Uint32 type)
     return 0;
 }
 
-Message* MessageQueue::findByKey(Uint32 key)
-{
-    AutoMutex autoMut(_mut);
-
-    for (Message* m = front(); m; m = m->getNext())
-    {
-       if (m->getKey() == key)
-       {
-          return m;
-       }
-
-    }
-
-    return 0;
-}
-
 #ifdef PEGASUS_DEBUG
 void MessageQueue::print(ostream& os) const
 {
@@ -300,21 +283,6 @@ void MessageQueue::print(ostream& os) const
         m->print(os);
 }
 #endif
-
-Message* MessageQueue::find(Uint32 type, Uint32 key)
-{
-    AutoMutex autoMut(_mut);
-
-    for (Message* m = front(); m; m = m->getNext())
-    {
-        if (m->getType() == type && m->getKey() == key)
-        {
-            return m;
-        }
-    }
-
-    return 0;
-}
 
 const char* MessageQueue::getQueueName() const
 {

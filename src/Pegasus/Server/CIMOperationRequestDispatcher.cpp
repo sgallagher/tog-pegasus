@@ -1937,7 +1937,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     if (response)
     {
         AsyncLegacyOperationResult *asyncResponse =
-            new AsyncLegacyOperationResult(request->getKey(),
+            new AsyncLegacyOperationResult(
                 request->getRouting(), op, response);
 
         // By setting this to complete, this allows ONLY the callback to run

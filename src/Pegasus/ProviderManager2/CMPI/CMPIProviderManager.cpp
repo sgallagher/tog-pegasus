@@ -294,7 +294,6 @@ void CMPIProviderManager::unloadIdleProviders()
         request->queueIds.copyAndPop() \
         respType \
     PEGASUS_ASSERT(response != 0); \
-    response->setKey(request->getKey()); \
     response->setHttpMethod(request->getHttpMethod()); \
     type1##ResponseHandler handler(request, response, _responseChunkCallback);
 
@@ -2492,9 +2491,6 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
 
     PEGASUS_ASSERT(response != 0);
 
-    // preserve message key
-    response->setKey(request->getKey());
-
     //
     //  Set HTTP method in response from request
     //
@@ -2526,9 +2522,6 @@ Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message
 
     PEGASUS_ASSERT(response != 0);
 
-    // preserve message key
-    response->setKey(request->getKey());
-
     //  Set HTTP method in response from request
     response->setHttpMethod (request->getHttpMethod ());
 
@@ -2553,9 +2546,6 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * mes
         request->queueIds.copyAndPop());
 
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
 
     //  Set HTTP method in response from request
     response->setHttpMethod (request->getHttpMethod ());

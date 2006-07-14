@@ -867,7 +867,6 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
       if(module_result == NULL)
       {
 	 module_result = new AsyncReply(async_messages::REPLY,
-					static_cast<AsyncModuleOperationStart *>(rq)->_act->getKey(),
 					static_cast<AsyncModuleOperationStart *>(rq)->_act->getRouting(),
 					message_mask::ha_async | message_mask::ha_reply,
 					rq->op,
@@ -877,8 +876,7 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
       }
 
       AsyncModuleOperationResult *result =
-	 new AsyncModuleOperationResult(rq->getKey(),
-					rq->getRouting(),
+	 new AsyncModuleOperationResult(rq->getRouting(),
 					rq->op,
 					async_results::OK,
 					static_cast<AsyncModuleOperationStart *>(rq)->resp,

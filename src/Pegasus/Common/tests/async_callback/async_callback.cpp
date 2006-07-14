@@ -44,7 +44,8 @@ PEGASUS_USING_PEGASUS;
 
 static char *verbose;
 
-async_start::async_start (AsyncOpNode * op, Uint32 start_q, Uint32 completion_q, Message * op_data):Base (getNextKey (),
+async_start::async_start (AsyncOpNode * op, Uint32 start_q, Uint32 completion_q, Message * op_data):Base (
+      1,  // Dummy routing value
       op,
       start_q, completion_q, false, op_data)
 {
@@ -53,8 +54,7 @@ async_start::async_start (AsyncOpNode * op, Uint32 start_q, Uint32 completion_q,
 
 async_complete::async_complete (const async_start & start,
                                 Uint32 result, Message * result_data):
-Base (start.getKey (),
-      start.getRouting (), start.op, result, start.resp, false),
+Base (start.getRouting (), start.op, result, start.resp, false),
 _result_data (result_data)
 {
   start.op->put_response (this);
@@ -190,7 +190,6 @@ test_async_queue::_handle_stop (CimServiceStop * stop)
 {
   try { 
   AsyncReply *resp = new AsyncReply (async_messages::REPLY,
-                                     stop->getKey (),
                                      stop->getRouting (),
                                      0,
                                      stop->op,

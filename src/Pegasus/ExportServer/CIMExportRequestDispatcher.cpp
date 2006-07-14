@@ -109,7 +109,6 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
                 (CIMExportIndicationRequestMessage*) legacy);
             AsyncLegacyOperationResult *async_result =
                 new AsyncLegacyOperationResult(
-                    req->getKey(),
                     req->getRouting(),
                     req->op,
                     legacy_response);
@@ -291,7 +290,7 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
             (static_cast<AsyncLegacyOperationResult *>(
                 asyncReply))->get_result());
     response->dest = request->queueIds.top();
-    response->synch_response(request);
+    response->setRouting(request->getRouting());
 
     delete asyncReply;    // Recipient deletes request
     op->release();

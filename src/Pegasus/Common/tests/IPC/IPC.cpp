@@ -117,7 +117,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deq(void * parm)
     Thread* my_thread = (Thread *)parm;
   
     parmdef * Parm = (parmdef *)my_thread->get_parm();
-    Uint32 type, key;
+    Uint32 type;
 
     int first = Parm->first;
     int second = Parm->second;
@@ -129,7 +129,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deq(void * parm)
 
     Message * message;
     type = 0;
-    key = 0;
 
     while (type != MY_CANCEL_TYPE)
     {
@@ -141,11 +140,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deq(void * parm)
             message = mq->dequeue();
         }
 
-        key = message->getKey();
         type = message->getType();
         delete message;
-        if (type == 19)
-            PEGASUS_TEST_ASSERT(key == 10946);
     }
 
     if (verbose)

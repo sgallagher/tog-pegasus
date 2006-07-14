@@ -146,31 +146,6 @@ public:
     */
     virtual const Message* findByType(Uint32 type) const;
 
-    /** Find the message with the given key.
-    @parameter key key of message to be found.
-    @return pointer to message if found; null otherwise.
-    @exception IPCException Thrown if an IPC error occurs.
-    */
-    virtual Message* findByKey(Uint32 key);
-
-    /** Const version of findByKey().
-    @exception IPCException Thrown if an IPC error occurs.
-    */
-    virtual const Message* findByKey(Uint32 key) const;
-
-    /** Finds the messages with the given type and key.
-    @param type type of message to be found.
-    @param type key of message to be found.
-    @return pointer to message if found; null otherwise.
-    @exception IPCException Thrown if an IPC error occurs.
-    */
-    virtual Message* find(Uint32 type, Uint32 key);
-
-    /** Const version of find().
-    @exception IPCException Thrown if an IPC error occurs.
-    */
-    virtual const Message* find(Uint32 type, Uint32 key) const;
-
     /** Returns pointer to front message. */
     Message* front() throw() { return _front; }
 
@@ -263,16 +238,6 @@ private:
 inline const Message* MessageQueue::findByType(Uint32 type) const
 {
     return ((MessageQueue*)this)->findByType(type);
-}
-
-inline const Message* MessageQueue::findByKey(Uint32 key) const
-{
-    return ((MessageQueue*)this)->findByKey(key);
-}
-
-inline const Message* MessageQueue::find(Uint32 type, Uint32 key) const
-{
-    return ((MessageQueue*)this)->find(type, key);
 }
 
 class PEGASUS_COMMON_LINKAGE NoSuchMessageOnQueue : public Exception

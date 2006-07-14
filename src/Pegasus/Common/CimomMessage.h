@@ -126,7 +126,6 @@ class PEGASUS_COMMON_LINKAGE AsyncMessage : public Message
    public:
       AsyncMessage(Uint32 type, 
 		   Uint32 destination,
-		   Uint32 key, 
 		   Uint32 routing,
 		   Uint32 mask,
 		   AsyncOpNode *operation);
@@ -141,7 +140,6 @@ class PEGASUS_COMMON_LINKAGE AsyncRequest : public AsyncMessage
 {
    public:
       AsyncRequest(Uint32 type, 
-		   Uint32 key, 
 		   Uint32 routing,
 		   Uint32 mask,
 		   AsyncOpNode *operation,
@@ -160,7 +158,6 @@ class PEGASUS_COMMON_LINKAGE AsyncReply : public AsyncMessage
 {
    public:
       AsyncReply(Uint32 type, 
-		 Uint32 key, 
 		 Uint32 routing, 
 		 Uint32 mask,
 		 AsyncOpNode *operation,
@@ -292,7 +289,6 @@ class PEGASUS_COMMON_LINKAGE FindModuleInServiceResponse : public AsyncReply
 {
    public:
       FindModuleInServiceResponse(Uint32 routing, 
-				  Uint32 key,
 				  AsyncOpNode *operation,
 				  Uint32 result_code, 
 				  Uint32 destination, 
@@ -447,8 +443,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOperationStart : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE AsyncOperationResult : public AsyncReply
 {
    public:
-      AsyncOperationResult(Uint32 key, 
-			   Uint32 routing, 
+      AsyncOperationResult(Uint32 routing, 
 			   AsyncOpNode *operation,
 			   Uint32 result_code, 
 			   Uint32 destination,
@@ -491,8 +486,7 @@ class PEGASUS_COMMON_LINKAGE AsyncModuleOperationStart : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE AsyncModuleOperationResult : public AsyncReply
 {
    public:
-      AsyncModuleOperationResult(Uint32 key, 
-				 Uint32 routing, 
+      AsyncModuleOperationResult(Uint32 routing, 
 				 AsyncOpNode *operation,
 				 Uint32 result_code, 
 				 Uint32 destination,
@@ -545,8 +539,7 @@ class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationStart : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationResult : public AsyncReply
 {
    public:
-      AsyncLegacyOperationResult(Uint32 key, 
-				 Uint32 routing, 
+      AsyncLegacyOperationResult(Uint32 routing, 
 				 AsyncOpNode *operation,
 				 Message *result);
       
@@ -589,8 +582,7 @@ class PEGASUS_COMMON_LINKAGE FindServiceQueue : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE FindServiceQueueResult : public AsyncReply
 {
    public:
-      FindServiceQueueResult(Uint32 key, 
-			     Uint32 routing, 
+      FindServiceQueueResult(Uint32 routing, 
 			     AsyncOpNode *operation, 
 			     Uint32 result_code, 
 			     Uint32 destination, 
@@ -627,8 +619,7 @@ class PEGASUS_COMMON_LINKAGE EnumerateService : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE EnumerateServiceResponse : public AsyncReply
 {
    public:
-      EnumerateServiceResponse(Uint32 key, 
-			       Uint32 routing, 
+      EnumerateServiceResponse(Uint32 routing, 
 			       AsyncOpNode *operation, 
 			       Uint32 result_code, 
 			       Uint32 response, 

@@ -274,9 +274,6 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message)
 
 	response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
-    // preserve message key
-    response->setKey(request->getKey());
-
     return response.release();
 }
 
@@ -356,9 +353,6 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 
 	response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
-    // preserve message key
-    response->setKey(request->getKey());
-
     return response.release();
 }
 
@@ -431,8 +425,6 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
     STAT_PMS_PROVIDEREND
 
 	response->operationContext.set(ContentLanguageListContainer(contentLangs));
-    // preserve message key
-    response->setKey(request->getKey());
 
     return response.release();
 }
@@ -522,9 +514,6 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 
 	response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
-    // preserve message key
-    response->setKey(request->getKey());
-
     return response.release();
 }
 
@@ -598,9 +587,6 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 
     STAT_PMS_PROVIDEREND
 
-    // preserve message key
-    response->setKey(request->getKey());
-
     return response.release();
 }
 
@@ -665,9 +651,6 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
 
     STAT_PMS_PROVIDEREND
 
-    // preserve message key
-    response->setKey(request->getKey());
-
     return response.release();
 }
 
@@ -699,9 +682,6 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message)
     //    cimObjects);
 
     STAT_PMS_PROVIDEREND
-
-    // preserve message key
-    response->setKey(request->getKey());
 
     return response.release();
 }
@@ -785,9 +765,6 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message)
 
     response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
-    // preserve message key
-    response->setKey(request->getKey());
-
     return response.release();
 }
 
@@ -863,9 +840,6 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
     STAT_PMS_PROVIDEREND
 
     response->operationContext.set(ContentLanguageListContainer(contentLangs));
-
-    // preserve message key
-    response->setKey(request->getKey());
 
     return response.release();
 }
@@ -946,8 +920,6 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message)
     STAT_PMS_PROVIDEREND
 
     response->operationContext.set(ContentLanguageListContainer(contentLangs));
-    // preserve message key
-    response->setKey(request->getKey());
 
     return response.release();
 }
@@ -1022,9 +994,6 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
     STAT_PMS_PROVIDEREND
 
     response->operationContext.set(ContentLanguageListContainer(contentLangs));
-
-    // preserve message key
-    response->setKey(request->getKey());
 
     return response.release();
 }
@@ -1109,9 +1078,6 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message)
 
     response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
-    // preserve message key
-    response->setKey(request->getKey());
-
     return response.release();
 }
 
@@ -1176,9 +1142,6 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message)
             request->queueIds.copyAndPop()));
 
     STAT_PMS_PROVIDEREND
-
-    // preserve message key
-    response->setKey(request->getKey());
 
     return response.release();
 }
@@ -1271,9 +1234,6 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message)
     STAT_PMS_PROVIDEREND
 
 	response->operationContext.set(ContentLanguageListContainer(contentLangs));
-
-    // preserve message key
-    response->setKey(request->getKey());
 
     return response.release();
 }

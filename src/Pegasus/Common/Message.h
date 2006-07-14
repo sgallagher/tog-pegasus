@@ -119,10 +119,8 @@ enum HttpMethod
 /** The Message class and derived classes are used to pass messages between
     modules. Messages are passed between modules using the message queues
     (see MessageQueue class). Derived classes may add their own fields.
-    This base class defines two common fields: type, which is the type of
-    the message, and key which is a key value whose meaning is defined by
-    the derived class. The MessageQueue class provides methods for finding
-    messages by both type and key.
+    This base class defines a common type field, which is the type of
+    the message.
 
     The Message class also provides previous and next pointers which are
     used to place the messages on a queue by the MessageQueue class.
@@ -134,12 +132,10 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       Message(
 	 Uint32 type,
 	 Uint32 destination = 0,
-	 Uint32 key = getNextKey(),
 	 Uint32 routing_code = 0,
 	 Uint32 mask = message_mask::type_legacy)
 	 :
 	 _type(type),
-	 _key(key),
 	 _routing_code(routing_code),
 	 _mask(mask),
          _httpMethod (HTTP_METHOD__POST),
@@ -160,7 +156,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 	 if (this != &msg)
 	 {
 	    _type = msg._type;
-	    _key = msg._key;
 	    _routing_code = msg._routing_code;
 	    _mask = msg._mask;
 	    _last_thread_id = msg._last_thread_id;
@@ -185,10 +180,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       Uint32 getType() const { return _type; }
 
       void setType(Uint32 type) { _type = type; }
-
-      Uint32 getKey() const { return _key; }
-
-      void setKey(Uint32 key) { _key = key; }
 
       Uint32 getRouting() const { return _routing_code; }
       void setRouting(Uint32 routing) { _routing_code = routing; }
@@ -255,8 +246,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 
       const Message* getPrevious() const { return _prev; }
 
-      static Uint32 getNextKey() { return _keyFactory.getID(); }
-
       static CIMOperationType convertMessageTypetoCIMOpType(Uint32 type);
 
 #ifdef PEGASUS_DEBUG
@@ -290,15 +279,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 	 return false;
       }
       
-      // << Tue Jul  1 13:41:02 2003 mdd >> pep_88 - 
-      // assist in synchronizing responses with requests
-
-      void synch_response(Message *req)
-      {
-	 _key = req->_key;
-	 _routing_code = req->_routing_code;
-      }
-      
 			// set the message index indicating what piece (or sequence) this is
 			// message indexes start at zero
 			void setIndex(Uint32 index) { _index = index; }
@@ -322,7 +302,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 
    private:
       Uint32 _type;
-      Uint32 _key;
       Uint32 _routing_code;
       Uint32 _mask;
       HttpMethod _httpMethod;
@@ -354,7 +333,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       MessageQueue* _owner;
       Boolean _isComplete;
       Uint32 _index;
-      static IDFactory _keyFactory;
 
       friend class cimom;
       friend class MessageQueue;

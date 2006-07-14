@@ -586,7 +586,6 @@ void ProviderManagerService::handleCimRequest(
 
     AsyncLegacyOperationResult * async_result =
         new AsyncLegacyOperationResult(
-        async->getKey(),
         async->getRouting(),
         op,
         response);
@@ -616,7 +615,7 @@ void ProviderManagerService::responseChunkCallback(
         PEGASUS_ASSERT(op);
         PEGASUS_ASSERT(!response->_async);
         response->_async = new AsyncLegacyOperationResult(
-            requestAsync->getKey(), requestAsync->getRouting(), op, response);
+            requestAsync->getRouting(), op, response);
 
         // set the destination
         op->_op_dest = op->_callback_response_q;

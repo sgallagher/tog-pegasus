@@ -34,10 +34,6 @@ DIR = Providers/sample/CMPI/FilesAndDirectories_CXX
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-    CXX = cc
-    FLAGS += -W"c,SSCOMM"
-endif
 
 LOCAL_DEFINES = -DSIMULATED
 

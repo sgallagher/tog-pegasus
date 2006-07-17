@@ -70,16 +70,7 @@ cimmofClient::init(String &location, compilerCommonDefs::operationType ot)
   _client = new CIMClient();
   _client->setTimeout(CIMMOFCLIENT_TIMEOUT_DEFAULT);
   _client->setRequestDefaultLanguages();  //l10n
-
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_OS_VMS)
   _client->connectLocal();
-#else
-  String hostname = "localhost";  //defaults
-  Uint32 portno = 5988;
-  // ATTN:
-  //   get host name and port from command line data via parser object
-  _client->connect(hostname, portno, String::EMPTY, String::EMPTY);
-#endif
 }
 
 void

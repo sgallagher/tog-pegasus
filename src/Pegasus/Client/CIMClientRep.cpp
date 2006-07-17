@@ -184,6 +184,7 @@ void CIMClientRep::_connect()
     _responseDecoder->setDataStorePointer(&perfDataStore);
 
     _connected = true;
+    _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
 }
 
 void CIMClientRep::_disconnect()

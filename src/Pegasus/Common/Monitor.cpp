@@ -272,6 +272,10 @@ void Monitor::initializeTickler(){
 				 getSocketError());
 	throw Exception(parms);
     }
+
+    Socket::disableBlocking(_tickle_peer_socket);
+    Socket::disableBlocking(_tickle_client_socket);
+
     // add the tickler to the list of entries to be monitored and set to IDLE because Monitor only
     // checks entries with IDLE state for events
     _MonitorEntry entry(_tickle_peer_socket, 1, INTERNAL);
@@ -287,9 +291,7 @@ void Monitor::tickle(void)
     };
 
     AutoMutex autoMutex(_tickle_mutex);
-    Socket::disableBlocking(_tickle_client_socket);
     Socket::write(_tickle_client_socket,&_buffer, 2);
-    Socket::enableBlocking(_tickle_client_socket);
 }
 
 void Monitor::setState( Uint32 index, _MonitorEntry::entry_status status )
@@ -534,9 +536,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 		   	entries[indx]._status = _MonitorEntry::BUSY;
 			static char buffer[2];
-      			Socket::disableBlocking(entries[indx].socket);
       			Sint32 amt = Socket::read(entries[indx].socket,&buffer, 2);
-      			Socket::enableBlocking(entries[indx].socket);
 			entries[indx]._status = _MonitorEntry::IDLE;
 		}
 		else

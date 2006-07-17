@@ -130,6 +130,8 @@ public:
     // was the request for chunking ?
     Boolean isChunkRequested();
 
+    void setSocketWriteTimeout(Uint32 socketWriteTimeout);
+
     // ATTN-RK-P1-20020521: This is a major hack, required to get the CIM
     // server and tests to run successfully.  The problem is that the
     // HTTPAcceptor is deleting an HTTPConnection before all the threads

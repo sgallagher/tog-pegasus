@@ -104,6 +104,8 @@ public:
     virtual void setTimeout(Uint32 timeoutMilliseconds)
     {
         _timeoutMilliseconds = timeoutMilliseconds;
+        if ((_connected) && (_httpConnection != 0)) 
+            _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
     }
 
     // l10n start

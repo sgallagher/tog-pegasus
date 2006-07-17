@@ -41,6 +41,7 @@
 #ifndef Pegasus_DefaultPropertyTable_h
 #define Pegasus_DefaultPropertyTable_h
 
+    {"socketWriteTimeout", "20", IS_STATIC, 0, 0, IS_VISIBLE},
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #include "DefaultPropertyTableLinux.h"
 #elif PEGASUS_PLATFORM_HPUX_ACC

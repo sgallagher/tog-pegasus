@@ -86,7 +86,9 @@ public:
 
     Sint32 read(void* ptr, Uint32 size);
 
-    Sint32 write(const void* ptr, Uint32 size);
+    Sint32 timedWrite(const void* ptr,
+                      Uint32 size,
+                      Uint32 socketWriteTimeout);
 
     void close();
 
@@ -192,6 +194,8 @@ public:
 
     Boolean isCertificateVerified();
 
+    void setSocketWriteTimeout(Uint32 socketWriteTimeout);
+
     union {
         SocketHandle _socket;
         SSLSocket *_sslsock;
@@ -199,6 +203,7 @@ public:
 
 private:
     Boolean   _isSecure;
+    Uint32    _socketWriteTimeout;
 };
 
 

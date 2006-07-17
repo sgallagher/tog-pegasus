@@ -584,6 +584,11 @@ Uint32 HTTPAcceptor::getPortNumber() const
     return _portNumber;
 }
 
+void HTTPAcceptor::setSocketWriteTimeout(Uint32 socketWriteTimeout)
+{
+    _socketWriteTimeout = socketWriteTimeout;
+}
+
 void HTTPAcceptor::unbind()
 {
    if (_rep)
@@ -707,6 +712,8 @@ void HTTPAcceptor::_acceptConnection()
 
    AutoPtr<MP_Socket> mp_socket(new MP_Socket(
        socket, _sslcontext, _sslContextObjectLock, _exportConnection));
+
+   mp_socket->setSocketWriteTimeout(_socketWriteTimeout);
 
    // Perform the SSL handshake, if applicable.  Make the socket non-blocking
    // for this operation so we can send it back to the Monitor's select() loop

@@ -62,6 +62,11 @@ public:
 
     static Sint32 write(SocketHandle socket, const void* ptr, Uint32 size);
 
+    static Sint32 timedWrite(SocketHandle socket,
+                             const void* ptr,
+                             Uint32 size,
+                             Uint32 socketWriteTimeout);
+
     static void close(SocketHandle socket);
 
     static void enableBlocking(SocketHandle socket);

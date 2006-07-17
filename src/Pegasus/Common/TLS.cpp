@@ -189,17 +189,79 @@ Sint32 SSLSocket::read(void* ptr, Uint32 size)
     return rc;
 }
 
-Sint32 SSLSocket::write( const void* ptr, Uint32 size)
+Sint32 SSLSocket::timedWrite( const void* ptr,
+                              Uint32 size,
+                              Uint32 socketWriteTimeout)
 {
-    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::write()");
-    Sint32 rc;
+    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::timedWrite()");
+    Sint32 bytesWritten = 0;
+    Sint32 totalBytesWritten = 0;
+    Boolean socketTimedOut = false;
+    Uint32 selreturn = 0;
 
+  while (1)
+  {
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (w) ");
-    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, SSL_state_string_long(_SSLConnection) );
-    rc = SSL_write(_SSLConnection, (char *)ptr, size);
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
+                     SSL_state_string_long(_SSLConnection) );
+    bytesWritten = SSL_write(_SSLConnection, (char *)ptr, size);
 
+    // Some data written this cycle ?
+    // Add it to the total amount of written data.
+    if (bytesWritten > 0)
+    {
+        totalBytesWritten += bytesWritten;
+        socketTimedOut = false;
+    }
+
+    // All data written ? return amount of data written
+    if ((Uint32)bytesWritten == size)
+    {
+        return totalBytesWritten;
+    }
+    // If data has been written partially, we resume writing data
+    // this also accounts for the case of a signal interrupt
+    // (i.e. errno = EINTR)
+    if (bytesWritten > 0)
+    {
+        size -= bytesWritten;
+        ptr = (void *)((char *)ptr + bytesWritten);
+        continue;
+    }
+    // Something went wrong, SSL return with everything not > 0 is an error
+    if (bytesWritten <= 0)
+    {
+        // if we already waited for the socket to get ready, bail out
+        if( socketTimedOut ) return bytesWritten;
+
+        // just interrupted by a signal, try again
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+        if (WSAGetLastError() == WSAEINTR) continue;
+#else        
+        if (errno == EINTR) continue;
+#endif
+
+        // socket not ready ...
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+        if (WSAGetLastError() == WSAEWOULDBLOCK)
+#else        
+        if (errno == EAGAIN || errno == EWOULDBLOCK)
+#endif
+        {
+            fd_set fdwrite;
+            // max. timeout seconds waiting for the socket to get ready
+            struct timeval tv = {socketWriteTimeout , 0 };
+            FD_ZERO(&fdwrite);
+            FD_SET(_socket, &fdwrite);
+            selreturn = select(FD_SETSIZE, NULL, &fdwrite, NULL, &tv);
+            if (selreturn == 0) socketTimedOut = true; // ran out of time
+            continue;            
+        }
+        return bytesWritten;
+    }
+  }
     PEG_METHOD_EXIT();
-    return rc;
+    return bytesWritten;
 }
 
 void SSLSocket::close()
@@ -460,7 +522,7 @@ Boolean SSLSocket::isCertificateVerified()
 
 
 MP_Socket::MP_Socket(SocketHandle socket)
- : _socket(socket), _isSecure(false) {}
+ : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
 
 MP_Socket::MP_Socket(
     SocketHandle socket,
@@ -480,6 +542,8 @@ MP_Socket::MP_Socket(
         _isSecure = false;
         _socket = socket;
     }
+     // 20 seconds are the default for client timeouts
+    _socketWriteTimeout = 20;
     PEG_METHOD_EXIT();
 }
 
@@ -521,9 +585,9 @@ Sint32 MP_Socket::read(void * ptr, Uint32 size)
 Sint32 MP_Socket::write(const void * ptr, Uint32 size)
 {
     if (_isSecure)
-        return _sslsock->write(ptr,size);
+        return _sslsock->timedWrite(ptr,size,_socketWriteTimeout);
     else
-        return Socket::write(_socket,ptr,size);
+        return Socket::timedWrite(_socket,ptr,size,_socketWriteTimeout);
 }
 
 void MP_Socket::close()
@@ -595,6 +659,11 @@ Boolean MP_Socket::isCertificateVerified()
     return false;
 }
 
+void MP_Socket::setSocketWriteTimeout(Uint32 socketWriteTimeout)
+{
+    _socketWriteTimeout = socketWriteTimeout;
+}
+
 PEGASUS_NAMESPACE_END
 
 #else
@@ -633,7 +702,7 @@ Sint32 MP_Socket::read(void * ptr, Uint32 size)
 
 Sint32 MP_Socket::write(const void * ptr, Uint32 size)
 {
-    return Socket::write(_socket,ptr,size);
+    return Socket::timedWrite(_socket,ptr,size,_socketWriteTimeout);
 }
 
 void MP_Socket::close()
@@ -666,6 +735,12 @@ return Array<SSLCertificateInfo*>();
 }
 
 Boolean MP_Socket::isCertificateVerified() { return false; }
+
+void MP_Socket::setSocketWriteTimeout(Uint32 socketWriteTimeout)
+{
+    _socketWriteTimeout = socketWriteTimeout;
+}
+
 
 PEGASUS_NAMESPACE_END
 

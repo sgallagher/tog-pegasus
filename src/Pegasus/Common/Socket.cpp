@@ -84,6 +84,71 @@ Sint32 Socket::write(SocketHandle socket, const void* ptr, Uint32 size)
 #endif
 }
 
+Sint32 Socket::timedWrite(SocketHandle socket, 
+                          const void* ptr, 
+                          Uint32 size, 
+                          Uint32 socketWriteTimeout)
+{
+    Sint32 bytesWritten = 0;
+    Sint32 totalBytesWritten = 0;
+    Boolean socketTimedOut = false;
+    int selreturn = 0;
+    while (1)
+    {
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+        PEGASUS_RETRY_SYSTEM_CALL(
+            ::send(socket, (const char*)ptr, size, 0), bytesWritten);
+#else
+        PEGASUS_RETRY_SYSTEM_CALL(
+            ::write(socket, (char*)ptr, size), bytesWritten);
+#endif
+        // Some data written this cycle ? 
+        // Add it to the total amount of written data.
+        if (bytesWritten > 0)
+        {
+            totalBytesWritten += bytesWritten;
+            socketTimedOut = false;
+        }
+
+        // All data written ? return amount of data written
+        if ((Uint32)bytesWritten == size)
+        {
+            return totalBytesWritten;
+        }
+        // If data has been written partially, we resume writing data
+        // this also accounts for the case of a signal interrupt
+        // (i.e. errno = EINTR)
+        if (bytesWritten > 0)
+        {
+            size -= bytesWritten;
+            ptr = (void *)((char *)ptr + bytesWritten);
+            continue;
+        }
+        // Something went wrong
+        if (bytesWritten == PEGASUS_SOCKET_ERROR)
+        {
+            // if we already waited for the socket to get ready, bail out
+            if( socketTimedOut ) return bytesWritten;
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+            if (WSAGetLastError() == WSAEWOULDBLOCK)
+#else
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+#endif
+            {
+                fd_set fdwrite;
+                 // max. timeout seconds waiting for the socket to get ready
+                struct timeval tv = { socketWriteTimeout, 0 };
+                FD_ZERO(&fdwrite);
+                FD_SET(socket, &fdwrite);
+                selreturn = select(FD_SETSIZE, NULL, &fdwrite, NULL, &tv);
+                if (selreturn == 0) socketTimedOut = true; // ran out of time
+                continue;            
+            }
+            return bytesWritten;
+        }
+    }
+}
+
 void Socket::close(SocketHandle socket)
 {
     if (socket != -1)

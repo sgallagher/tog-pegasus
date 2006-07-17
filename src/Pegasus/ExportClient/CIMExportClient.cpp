@@ -136,6 +136,8 @@ void CIMExportClient::_connect()
 
     _connected = true;
 
+    _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+
     PEG_METHOD_EXIT();
 }
 

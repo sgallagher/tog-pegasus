@@ -130,6 +130,8 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       */
       Uint32 getPortNumber() const;
 
+      void setSocketWriteTimeout(Uint32 socketWriteTimeout);
+
    private:
 
       void _acceptConnection();
@@ -149,6 +151,7 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       SSLContext * _sslcontext;
       Boolean _exportConnection;
       ReadWriteSem*  _sslContextObjectLock;
+      Uint32  _socketWriteTimeout;
 };
 
 PEGASUS_NAMESPACE_END

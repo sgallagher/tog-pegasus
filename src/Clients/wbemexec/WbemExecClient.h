@@ -49,6 +49,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
+#include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
@@ -87,14 +88,16 @@ public:
     */
     Uint32 getTimeout() const
     {
-	return _timeoutMilliseconds;
+	  return _timeoutMilliseconds;
     }
 
     /** Sets the timeout in milliseconds for the WbemExecClient.
     */
     void setTimeout(Uint32 timeoutMilliseconds)
     {
-	_timeoutMilliseconds = timeoutMilliseconds;
+	  _timeoutMilliseconds = timeoutMilliseconds;
+      if ((_connected) && (_httpConnection != 0)) 
+        _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
     }
 
     /** connect - Creates an HTTP connection with the server

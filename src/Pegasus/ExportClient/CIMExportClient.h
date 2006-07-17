@@ -51,6 +51,7 @@
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/Exception.h>
@@ -101,6 +102,9 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
       void setTimeout(Uint32 timeoutMilliseconds)
       {
          _timeoutMilliseconds = timeoutMilliseconds;
+         if ((_connected) && (_httpConnection != 0)) 
+           _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+
       }
 
       /** Creates an HTTP connection with the server

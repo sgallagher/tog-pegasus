@@ -146,6 +146,7 @@ void WbemExecClient::_connect(
 
     _connected = true;
     _isRemote  = true;
+    _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
 }
 
 void WbemExecClient::connect(

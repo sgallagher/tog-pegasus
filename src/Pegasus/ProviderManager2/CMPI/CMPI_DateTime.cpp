@@ -36,6 +36,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#define _ISOC99_SOURCE
+#include <stdio.h>
+#endif
+
 #include "CMPI_Version.h"
 
 #include "CMPI_DateTime.h"

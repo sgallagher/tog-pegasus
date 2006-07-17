@@ -51,11 +51,18 @@
 // longlong
 //#define _LONG_LONG 1
 
-#include <limits.h>
 
+#define _UNIX03_SOURCE
+
+//#include <limits.h>
+
+#ifdef __cplusplus
 #include <cstddef>
+#endif
 
 #include <stdarg.h>
+
+#define _ISOC99_SOURCE
 #include <stdio.h>
 
 #define PEGASUS_OS_TYPE_UNIX
@@ -97,16 +104,9 @@
 //#define snprintf(sptr,len,form,data) sprintf(sptr,form,data)
 
 #define ZOS_SECURITY_NAME "CIMServer Security"
-inline int snprintf(char *sptr, size_t len, const char* form, ...)
-{
-    int returnvalue;
-    va_list arguments;
-    va_start(arguments, form);
-    returnvalue = vsprintf(sptr, form, arguments);
-    va_end(arguments);
-    return returnvalue;
-}
 
 #define ZOS_DEFAULT_PEGASUS_REPOSITORY "/var/wbem"
+
+#define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
 
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

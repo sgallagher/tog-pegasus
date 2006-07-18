@@ -47,7 +47,7 @@
 //==============================================================================
 
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_OS_HPUX)
+    defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # define PEGASUS_RMUTEX_PTHREADS
 # include <pthread.h>
 #elif defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -84,7 +84,7 @@ RecursiveMutex::RecursiveMutex()
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
 
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 #else
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);

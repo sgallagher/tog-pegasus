@@ -59,6 +59,8 @@ DIRS = \
     L10N \
     L10N/msg \
     Logger \
+    MessageQueue \
+    MessageQueueService \
     MessageSerializer \
     Method \
     Object \

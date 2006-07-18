@@ -50,9 +50,18 @@ class Alarm : public Message
 {
 public:
 
-    Alarm(Uint32 key) : Message(MESSAGE_ALARM, key) { }
+    Alarm(Uint32 key) : Message(MESSAGE_ALARM), _key(key) { }
 
     virtual ~Alarm();
+
+    Uint32 getKey() const
+    {
+        return _key;
+    }
+
+private:
+
+    Uint32 _key;
 };
 
 Alarm::~Alarm()
@@ -74,11 +83,11 @@ Uint32 Sum(const MessageQueue& q)
 
 void TestMessageQueue1()
 {
-    MessageQueue q;
+    MessageQueue q("Test1");
 
     Uint32 sum = 0;
 
-    for (Uint32 i = 1; i <= 5; i++)
+    for (Uint32 i = 1; i <= 4; i++)
     {
 	q.enqueue(new Alarm(i));
 	sum += i;
@@ -86,39 +95,32 @@ void TestMessageQueue1()
 
     PEGASUS_TEST_ASSERT(Sum(q) == sum);
 
-    // Test removing from the middle:
-    Message* m = q.findByKey(3);
-    PEGASUS_TEST_ASSERT(m != 0);
-    q.remove(m);
-    PEGASUS_TEST_ASSERT(Sum(q) == sum - 3);
-    PEGASUS_TEST_ASSERT(q.getCount() == 4);
-
     // Test removing from the front:
     q.remove(q.front());
-    PEGASUS_TEST_ASSERT(Sum(q) == sum - 3 - 1);
+    PEGASUS_TEST_ASSERT(Sum(q) == sum - 1);
     PEGASUS_TEST_ASSERT(q.getCount() == 3);
 
     // Test removing from the front:
     q.remove(q.back());
-    PEGASUS_TEST_ASSERT(Sum(q) == sum - 3 - 1 - 5);
+    PEGASUS_TEST_ASSERT(Sum(q) == sum - 1 - 4);
     PEGASUS_TEST_ASSERT(q.getCount() == 2);
 
     // Test dequeue:
-    m = q.dequeue();
-    PEGASUS_TEST_ASSERT(m->getKey() == 2);
-    PEGASUS_TEST_ASSERT(Sum(q) == sum - 3 - 1 - 5 - 2);
+    Message* m = q.dequeue();
+    PEGASUS_TEST_ASSERT(((const Alarm*)m)->getKey() == 2);
+    PEGASUS_TEST_ASSERT(Sum(q) == sum - 1 - 4 - 2);
     PEGASUS_TEST_ASSERT(q.getCount() == 1);
 
     // Test dequeue:
     m = q.dequeue();
-    PEGASUS_TEST_ASSERT(m->getKey() == 4);
-    PEGASUS_TEST_ASSERT(Sum(q) == sum - 3 - 1 - 5 - 2 - 4);
+    PEGASUS_TEST_ASSERT(((const Alarm*)m)->getKey() == 3);
+    PEGASUS_TEST_ASSERT(Sum(q) == sum - 1 - 4 - 2 - 3);
     PEGASUS_TEST_ASSERT(q.getCount() == 0);
 }
 
 void TestMessageQueue2()
 {
-    MessageQueue q;
+    MessageQueue q("Test2");
 
     Uint32 sum = 0;
 
@@ -137,7 +139,7 @@ void TestMessageQueue2()
 
 void TestMessageQueue3()
 {
-    MessageQueue q;
+    MessageQueue q("Test3");
 
     Uint32 sum = 0;
 
@@ -162,10 +164,14 @@ void TestMessageQueue4()
    
    MessageQueue *found = MessageQueue::lookup("a queue");
    PEGASUS_TEST_ASSERT(found);
-//   cout << found->getQueueName() << endl;
+   PEGASUS_TEST_ASSERT(!strcmp(found->getQueueName(), "a queue"));
+
    found = MessageQueue::lookup("another q");
    PEGASUS_TEST_ASSERT(found);
-//   cout << found->getQueueName() << endl;
+   PEGASUS_TEST_ASSERT(!strcmp(found->getQueueName(), "another q"));
+
+   found = MessageQueue::lookup("no q");
+   PEGASUS_TEST_ASSERT(!found);
 }
 
 

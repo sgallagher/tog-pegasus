@@ -52,7 +52,11 @@ static const String INVALID_LIBRARY_NAME = "BADDynLib";
 String getLibraryFileName(const String& libraryName)
 {
 #if defined(PEGASUS_OS_VMS)
-    return String("/wbem_opt/wbem/providers/lib/lib") + fileName + ".exe";
+# if defined(PEGASUS_USE_RELEASE_DIRS)
+    return String("/wbem_opt/wbem/providers/lib/lib") + libraryName + ".exe";
+# else
+    return FileSystem::buildLibraryFileName(libraryName) + ".exe";
+# endif
 #else
     return FileSystem::buildLibraryFileName(libraryName);
 #endif

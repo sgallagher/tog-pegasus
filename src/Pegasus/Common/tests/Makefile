@@ -63,6 +63,7 @@ DIRS = \
     MessageQueueService \
     MessageSerializer \
     Method \
+    ModuleController \
     Object \
     ObjectNormalizer \
     OperationContext \

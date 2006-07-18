@@ -41,6 +41,7 @@ SOURCES = ModuleController.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(PROGRAM)
+	@ $(ECHO) The ModuleController test is disabled
+#	$(PROGRAM)
 
 poststarttests:

@@ -50,6 +50,7 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+static char * verbose;
 
 #define SERVICE_NAME "peg_test_service"
 #define CONTROLLER_NAME "peg_test_module_controller"
@@ -65,9 +66,8 @@ class test_request : public AsyncRequest
 		   AsyncOpNode *op, 
 		   Uint32 destination, 
 		   Uint32 response,
-		   char *message)
+		   const char *message)
 	 : Base(0x04100000,
-		Message::getNextKey(), 
 		routing,
 		0, 
 		op, 
@@ -76,13 +76,10 @@ class test_request : public AsyncRequest
 		true),
 	   greeting(message) 
       {   
-	 
       }
       
-      virtual ~test_request(void) 
+      virtual ~test_request() 
       {
-
-
       }
       
       String greeting;
@@ -95,14 +92,12 @@ class test_response : public AsyncReply
       typedef AsyncReply Base;
       
 
-      test_response(Uint32 key, 
-		    Uint32 routing,
+      test_response(Uint32 routing,
 		    AsyncOpNode *op, 
 		    Uint32 result,
 		    Uint32 destination, 
-		    char *message)
+		    const char *message)
 	 : Base(0x04200000,
-		key, 
 		routing, 
 		0, 
 		op, 
@@ -114,7 +109,7 @@ class test_response : public AsyncReply
 	 
       }
       
-      virtual ~test_response(void)
+      virtual ~test_response()
       {
 	 
       }
@@ -126,19 +121,19 @@ class test_response : public AsyncReply
 class test_module 
 {
    public:
-      test_module(char *name, char *controller_name);
-      ~test_module(void);
+      test_module(const char *name, const char *controller_name);
+      ~test_module();
       
       static Message *receive_msg(Message *msg, void *parm);
       static void async_callback(Uint32 msg_id, Message *msg, void *parm);
       static void shutdown_notify(Uint32 code, void *parm);
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL thread_func(void *);
-      ModuleController *get_controller(void);
-      pegasus_module *get_mod_handle(void);
-      ModuleController::client_handle *get_client_handle(void);
+      ModuleController *get_controller();
+      pegasus_module *get_mod_handle();
+      ModuleController::client_handle *get_client_handle();
 
    private:
-      test_module(void);
+      test_module();
       test_module(const test_module &);
       test_module & operator =(const test_module &);
       ModuleController *_controller;
@@ -154,7 +149,7 @@ class test_module
 };
 
 
-test_module::test_module(char *name, char *controller_name)
+test_module::test_module(const char *name, const char *controller_name)
    : _controller(0), _module_handle(0), _client_handle(0),
      _msg_rx(0), _msg_tx(0), _thread_ex(0), _name(name), 
      _controller_name(controller_name), _id(peg_credential_types::MODULE)
@@ -164,7 +159,7 @@ test_module::test_module(char *name, char *controller_name)
    
 }
 
-test_module::~test_module(void)
+test_module::~test_module()
 {
    if(_controller)
    {
@@ -190,7 +185,7 @@ Message *test_module::receive_msg(Message *msg, void *parm)
       cout << "received msg from peer " << endl;
       
       myself->_msg_rx++;
-      return new test_response(msg->getKey(),
+      return new test_response(
 			   msg->getRouting(),
 			   static_cast<AsyncRequest *>(msg)->op, 
 			   async_results::OK,  
@@ -229,7 +224,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_module::thread_func(void *parm)
 }
 
 
-ModuleController *test_module::get_controller(void)
+ModuleController *test_module::get_controller()
 {
    if(_controller == NULL)
    {
@@ -253,7 +248,7 @@ ModuleController *test_module::get_controller(void)
    return _controller;
 }
 
-pegasus_module *test_module::get_mod_handle(void)
+pegasus_module *test_module::get_mod_handle()
 {
    if(_controller == NULL)
    {
@@ -278,7 +273,7 @@ pegasus_module *test_module::get_mod_handle(void)
 }
 
 
-ModuleController::client_handle *test_module::get_client_handle(void)
+ModuleController::client_handle *test_module::get_client_handle()
 {
    if(_client_handle == NULL)
    {
@@ -306,15 +301,15 @@ class test_service : public MessageQueueService
    public:
       typedef MessageQueueService Base;
 
-      test_service(char *name);
+      test_service(const char *name);
 
-      virtual ~test_service(void) ;
+      virtual ~test_service();
 
       virtual void _handle_incoming_operation(AsyncOpNode *operation);
       virtual Boolean messageOK(const Message *msg);
       void handle_test_request(AsyncRequest *msg);
       virtual void _handle_async_request(AsyncRequest *req);
-      virtual void handleEnqueue(void)
+      virtual void handleEnqueue()
       {
       }
       virtual void handleEnqueue(Message *msg)
@@ -323,26 +318,24 @@ class test_service : public MessageQueueService
       
       
    private:
-      test_service(void);
+      test_service();
       test_service(const test_service &);
       test_service & operator =(const test_service &);
 };
 
 
-test_service::test_service(char *name)
-      	 : Base(name, MessageQueue::getNextQueueId(), 0, 
+test_service::test_service(const char *name)
+      	 : Base(name, 0, 
 		message_mask::type_cimom | 
 		message_mask::type_service | 
 		message_mask::ha_request | 
 		message_mask::ha_reply | 
  		message_mask::ha_async ) 
 {
-   
 }
 
-test_service::~test_service(void)
+test_service::~test_service()
 {
-
 }
 
 void test_service::_handle_incoming_operation(AsyncOpNode *operation)
@@ -350,6 +343,7 @@ void test_service::_handle_incoming_operation(AsyncOpNode *operation)
    if ( operation != 0 )
    {
       Message *rq = operation->get_request();
+      operation->put_request(rq); // Need to leave the request in the op node
 
       PEGASUS_TEST_ASSERT(rq != 0 );
       if ( rq && (rq->getMask() & message_mask::ha_async))
@@ -380,7 +374,7 @@ void test_service::handle_test_request(AsyncRequest *msg)
    if( msg->getType() == 0x04100000 )
    {
       test_response *resp = 
-	 new test_response(msg->getKey(),
+	 new test_response(
 			   msg->getRouting(),
 			   msg->op, 
 			   async_results::OK,  
@@ -407,17 +401,20 @@ void test_service::_handle_async_request(AsyncRequest *req)
 
 typedef struct _test_module_parms 
 {
-      _test_module_parms(char *controller, char *peer, char *me)
+      _test_module_parms(
+          const char *controller,
+          const char *peer,
+          const char *me)
       {
 	 _controller = strdup(controller);
 	 _peer = strdup(peer);
 	 _me = strdup(me);
       }
       
-      char *_controller;
-      char *_peer;
-      char *_me;
-      ~_test_module_parms(void)
+      const char *_controller;
+      const char *_peer;
+      const char *_me;
+      ~_test_module_parms()
       {
 	 delete _controller;
 	 delete _peer;
@@ -456,9 +453,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    
    pegasus_sleep(1);
    
-   test_request *req = 
+   test_request *req;
+   Boolean success;
+
+   req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       MessageQueueService::get_op(), 
+		       0, //MessageQueueService::get_op(), 
 		       svc_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -476,7 +476,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       MessageQueueService::get_op(), 
+		       0, //MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -494,12 +494,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       MessageQueueService::get_op(), 
+		       0, //MessageQueueService::get_op(), 
 		       svc_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
 
-   Boolean success = my_module->get_controller()->ModuleSendAsync( (*my_module->get_mod_handle()),
+   success = my_module->get_controller()->ModuleSendAsync( (*my_module->get_mod_handle()),
 								   0, 
 								   svc_qid,
 								   req,
@@ -511,7 +511,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    pegasus_sleep(1);
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       MessageQueueService::get_op(), 
+		       0, //MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -532,7 +532,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       MessageQueueService::get_op(), 
+		       0, //MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -550,7 +550,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       MessageQueueService::get_op(), 
+		       0, //MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -569,10 +569,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
 
 
-
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       MessageQueueService::get_op(), 
+		       0, //MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -588,7 +587,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       MessageQueueService::get_op(), 
+		       0, //MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -603,11 +602,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
 
 
-
-
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       MessageQueueService::get_op(), 
+		       0, //MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -623,7 +620,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       MessageQueueService::get_op(), 
+		       0, //MessageQueueService::get_op(), 
 		       peer_qid, 
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -641,10 +638,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    cout << "module deleted" << endl;
    
    return 0;
-   
 }
-
-
 
 
 ModuleController internal_controller(CONTROLLER_NAME);
@@ -652,6 +646,7 @@ test_service internal_service(SERVICE_NAME);
 
 int main(int argc, char **argv)
 {
+   verbose = getenv("PEGASUS_TEST_VERBOSE");
 
    cout << "module controller at " << internal_controller.getQueueId() << endl;
    cout << "service at " << internal_service.getQueueId() << endl;

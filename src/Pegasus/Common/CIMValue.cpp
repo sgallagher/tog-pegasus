@@ -1243,17 +1243,10 @@ void CIMValue::get(CIMInstance& x) const
 
     if (!_rep->isNull)
     {
-        if (_rep->refs.get() != 1)
-        {
-            // We have to make our own unique copy since we are about to
-            // return an object to the caller that he can modify; thereby,
-            // changing the one we refer to as well.
-
-            CIMInstance tmp = CIMValueType<CIMInstance>::ref(_rep);
-            ((CIMValue*)this)->set(tmp);
-        }
-        
-        x = CIMValueType<CIMInstance>::ref(_rep);
+        // We have to clone our own unique copy since we are about to
+        // return an object to the caller that he can modify; thereby,
+        // changing the one we refer to as well.
+        x = CIMValueType<CIMInstance>::ref(_rep).clone();
     }
 }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
@@ -1418,16 +1411,15 @@ void CIMValue::get(Array<CIMInstance>& x) const
 
     if (!_rep->isNull)
     {
-        if (_rep->refs.get() != 1)
-        {
-            // We have to make our own unique copy since we are about to
-            // return an object to the caller that he can modify; thereby,
-            // changing the one we refer to as well.
-            Array<CIMInstance> tmp = CIMValueType<CIMInstance>::aref(_rep);
-            ((CIMValue*)this)->set(tmp);
-        }
+        x.clear();
 
-        x = CIMValueType<CIMInstance>::aref(_rep);
+        // We have to clone our own unique copy since we are about to
+        // return an object to the caller that he can modify; thereby,
+        // changing the one we refer to as well.
+        for (Uint32 i = 0, n = CIMValueType<CIMInstance>::arraySize(_rep); i < n; i++)
+        {
+            x.append(CIMValueType<CIMInstance>::aref(_rep)[i].clone());
+        }
     }
 }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT

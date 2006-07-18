@@ -339,6 +339,180 @@ void test03( Array<T1>& arrObj1, Array<T1>& arrObj2, T2 obj, T3 val1, T3 val2)
     PEGASUS_TEST_ASSERT( 12 == arrObj1.size() );
 }
 
+template<class EmbeddedType>
+void testEmbeddedValue(const CIMInstance & instance)
+{
+    CIMInstance instance1 = instance.clone();
+    // Specific test to verify the cloning of CIMObjects/CIMInstances when set
+    // and gotten from a CIMValue.
+    CIMValue v1;
+    // Create CIMValue v1 of type CIMTYPE_OBJECT/CIMTYPE_INSTANCE
+    v1.set(EmbeddedType(instance1));
+    // Change the "count" property of instance1, and then verify
+    // that the CIMValue v1, that was set from instance1, is
+    // not affected (ie. tests clone() on CIMValue::set() ).
+    Uint32 propIx = instance1.findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    CIMValue v2 = instance1.getProperty(propIx).getValue();
+    Uint32 propCount;
+    v2.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+    instance1.removeProperty(propIx);
+    instance1.addProperty(CIMProperty(CIMName ("count"), Uint32(65))
+	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
+	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
+    EmbeddedType object2;
+    v1.get(object2);
+    CIMInstance instance1a(object2);
+    propIx = instance1a.findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    CIMValue v3 = instance1a.getProperty(propIx).getValue();
+    v3.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+    // Now change the "count" property of instance1a, which was obtained
+    // from a get of CIMValue v1. Again, the underlying CIMValue should
+    // not be affected (ie. tests clone() on CIMValue::get() ).
+    instance1a.removeProperty(propIx);
+    instance1a.addProperty(CIMProperty(CIMName ("count"), Uint32(65))
+	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
+	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
+    EmbeddedType object3;
+    v1.get(object3);
+    CIMInstance instance1b(object3);
+    propIx = instance1b.findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    CIMValue v4 = instance1b.getProperty(propIx).getValue();
+    v4.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+
+    // Specific test for setting value as a null CIMObject/CIMInstance
+    // (see bug 3373).
+    // Confirm that CIMValue() with an uninitialized CIMObject/CIMInstance will
+    // throw exception.
+    Boolean caught_exception = false;
+    try
+    {
+        EmbeddedType obj = EmbeddedType();
+        CIMValue y(obj);
+    }
+    catch(UninitializedObjectException&)
+    {
+        caught_exception = true;
+    }
+    PEGASUS_TEST_ASSERT (caught_exception == true);
+    // Confirm that set() with an uninitialized CIMObject/CIMInstance will
+    // throw exception.
+    caught_exception = false;
+    try
+    {
+        CIMValue y;
+        y.set(EmbeddedType());
+    }
+    catch(UninitializedObjectException&)
+    {
+        caught_exception = true;
+    }
+    PEGASUS_TEST_ASSERT (caught_exception == true);
+}
+
+template<class EmbeddedType>
+void testEmbeddedValueArray(const CIMInstance & startInstance,
+                            const CIMNamespaceName & NAMESPACE,
+                            SimpleDeclContext * context)
+{
+    CIMInstance instance1(startInstance.clone());
+    // Test an array of CIMObjects that are CIMInstances
+    CIMInstance instance2(CIMName ("MyClass"));
+    instance2.addQualifier(CIMQualifier(CIMName ("classcounter"), true));
+    instance2.addProperty(CIMProperty(CIMName ("message"), String("Adios")));
+    Resolver::resolveInstance (instance2, context, NAMESPACE, true);
+
+    CIMInstance instance3(CIMName ("MyClass"));
+    instance3.addQualifier(CIMQualifier(CIMName ("classcounter"), false));
+    instance3.addProperty(CIMProperty(CIMName ("message"), String("Au Revoir")));
+    Resolver::resolveInstance (instance3, context, NAMESPACE, true);
+
+    Array<EmbeddedType> arr16;
+    arr16.append(EmbeddedType(instance1));
+    arr16.append(EmbeddedType(instance2));
+    arr16.append(EmbeddedType(instance3));
+    test02(arr16);
+
+    // Specific test to verify the cloning of CIMObjects when set as and 
+    // gotten from a CIMValue.
+    CIMValue v1array;
+    // Create CIMValue v1 of type CIMTYPE_OBJECT (ie. CIMObject)
+    v1array.set(arr16);
+    // Change the "count" property of arr16[1], and then verify
+    // that the CIMValue v1array, that was set from arr16, is
+    // not affected (ie. tests clone() on CIMValue::set() ).
+    Uint32 propIx = arr16[1].findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    CIMValue v2 = arr16[1].getProperty(propIx).getValue();
+    Uint32 propCount;
+    v2.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+    arr16[1].removeProperty(propIx);
+    arr16[1].addProperty(CIMProperty(CIMName ("count"), Uint32(65))
+	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
+	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
+    Array<EmbeddedType> object2array;
+    v1array.get(object2array);
+    CIMInstance instance2a(object2array[1]);
+    propIx = instance2a.findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    CIMValue v3 = instance2a.getProperty(propIx).getValue();
+    v3.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+    // Now change the "count" property of instance2a, which was obtained
+    // from a get of CIMValue v1array. Again, the underlying CIMValue should
+    // not be affected (ie. tests clone() on CIMValue::get() ).
+    instance2a.removeProperty(propIx);
+    instance2a.addProperty(CIMProperty(CIMName ("count"), Uint32(65))
+       .addQualifier(CIMQualifier(CIMName ("counter"), true))
+       .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+       .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
+    Array<EmbeddedType> object3array;
+    v1array.get(object3array);
+    CIMInstance instance2b(object3array[1]);
+    propIx = instance2b.findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    CIMValue v4 = instance2b.getProperty(propIx).getValue();
+    v4.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+
+    // Specific test for setting value as a null CIMObject() (see bug 3373).
+    // Confirm that CIMValue() with an uninitialized CIMObject in the input
+    // array will throw exception.
+    arr16.append(EmbeddedType());
+    bool caught_exception = false;
+    try
+    {
+        CIMValue y(arr16);
+    }
+    catch(UninitializedObjectException&)
+    {
+        caught_exception = true;
+    }
+    PEGASUS_TEST_ASSERT (caught_exception == true);
+    // Confirm that set() with an uninitialized CIMObject in the input
+    // array will throw exception.
+    caught_exception = false;
+    try
+    {
+        CIMValue y;
+        y.set(arr16);
+    }
+    catch(UninitializedObjectException&)
+    {
+        caught_exception = true;
+    }
+    PEGASUS_TEST_ASSERT (caught_exception == true);
+}
+
 int main(int argc, char** argv)
 {
 #ifdef IO
@@ -419,75 +593,10 @@ int main(int argc, char** argv)
 
     test01(CIMObject(instance1));
 
-    // Specific test to verify the cloning of CIMObjects when set as and 
-    // gotten from a CIMValue.
-    CIMValue v1;
-    // Create CIMValue v1 of type CIMTYPE_OBJECT (ie. CIMObject)
-    v1.set(CIMObject(instance1));
-    // Change the "count" property of instance1, and then verify
-    // that the CIMValue v1, that was set from instance1, is
-    // not affected (ie. tests clone() on CIMValue::set() ).
-    Uint32 propIx = instance1.findProperty(CIMName("count"));
-    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
-    CIMValue v2 = instance1.getProperty(propIx).getValue();
-    Uint32 propCount;
-    v2.get(propCount);
-    PEGASUS_TEST_ASSERT(propCount == 55);
-    instance1.removeProperty(propIx);
-    instance1.addProperty(CIMProperty(CIMName ("count"), Uint32(65))
-	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
-	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
-	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
-    CIMObject object2;
-    v1.get(object2);
-    CIMInstance instance1a(object2);
-    propIx = instance1a.findProperty(CIMName("count"));
-    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
-    CIMValue v3 = instance1a.getProperty(propIx).getValue();
-    v3.get(propCount);
-    PEGASUS_TEST_ASSERT(propCount == 55);
-    // Now change the "count" property of instance1a, which was obtained
-    // from a get of CIMValue v1. Again, the underlying CIMValue should
-    // not be affected (ie. tests clone() on CIMValue::get() ).
-    instance1a.removeProperty(propIx);
-    instance1a.addProperty(CIMProperty(CIMName ("count"), Uint32(65))
-	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
-	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
-	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
-    CIMObject object3;
-    v1.get(object3);
-    CIMInstance instance1b(object3);
-    propIx = instance1b.findProperty(CIMName("count"));
-    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
-    CIMValue v4 = instance1b.getProperty(propIx).getValue();
-    v4.get(propCount);
-    PEGASUS_TEST_ASSERT(propCount == 55);
-
-    // Specific test for setting value as a null CIMObject() (see bug 3373).
-    // Confirm that CIMValue() with an uninitialized CIMObject will throw exception.
-    Boolean caught_exception = false;
-    try
-    {
-        CIMObject obj = CIMObject();
-        CIMValue y(obj);
-    }
-    catch(UninitializedObjectException&)
-    {
-        caught_exception = true;
-    }
-    PEGASUS_TEST_ASSERT (caught_exception == true);
-    // Confirm that set() with an uninitialized CIMObject will throw exception.
-    caught_exception = false;
-    try
-    {
-        CIMValue y;
-        y.set(CIMObject());
-    }
-    catch(UninitializedObjectException&)
-    {
-        caught_exception = true;
-    }
-    PEGASUS_TEST_ASSERT (caught_exception == true);
+    testEmbeddedValue<CIMObject>(instance1);
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    testEmbeddedValue<CIMInstance>(instance1);
+#endif
 
     // Test CIMValue arrays
 
@@ -581,94 +690,10 @@ int main(int argc, char** argv)
     arr15.append(CIMObjectPath("//host3:99/root/test/static:Class3.keyX=\"keyXValue\",keyY=\"keyYValue\""));
     test02(arr15);
 
-
-    // Test an array of CIMObjects that are CIMInstances
-    CIMInstance instance2(CIMName ("MyClass"));
-    instance2.addQualifier(CIMQualifier(CIMName ("classcounter"), true));
-    instance2.addProperty(CIMProperty(CIMName ("message"), String("Adios")));
-    Resolver::resolveInstance (instance2, context, NAMESPACE, true);
-
-    CIMInstance instance3(CIMName ("MyClass"));
-    instance3.addQualifier(CIMQualifier(CIMName ("classcounter"), false));
-    instance3.addProperty(CIMProperty(CIMName ("message"), String("Au Revoir")));
-    Resolver::resolveInstance (instance3, context, NAMESPACE, true);
-
-    Array<CIMObject> arr16;
-    arr16.append(CIMObject(instance1));
-    arr16.append(CIMObject(instance2));
-    arr16.append(CIMObject(instance3));
-    test02(arr16);
-
-    // Specific test to verify the cloning of CIMObjects when set as and 
-    // gotten from a CIMValue.
-    CIMValue v1array;
-    // Create CIMValue v1 of type CIMTYPE_OBJECT (ie. CIMObject)
-    v1array.set(arr16);
-    // Change the "count" property of arr16[1], and then verify
-    // that the CIMValue v1array, that was set from arr16, is
-    // not affected (ie. tests clone() on CIMValue::set() ).
-    propIx = arr16[1].findProperty(CIMName("count"));
-    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
-    v2 = arr16[1].getProperty(propIx).getValue();
-    v2.get(propCount);
-    PEGASUS_TEST_ASSERT(propCount == 55);
-    arr16[1].removeProperty(propIx);
-    arr16[1].addProperty(CIMProperty(CIMName ("count"), Uint32(65))
-	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
-	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
-	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
-    Array<CIMObject> object2array;
-    v1array.get(object2array);
-    CIMInstance instance2a(object2array[1]);
-    propIx = instance2a.findProperty(CIMName("count"));
-    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
-    v3 = instance2a.getProperty(propIx).getValue();
-    v3.get(propCount);
-    PEGASUS_TEST_ASSERT(propCount == 55);
-    // Now change the "count" property of instance2a, which was obtained
-    // from a get of CIMValue v1array. Again, the underlying CIMValue should
-    // not be affected (ie. tests clone() on CIMValue::get() ).
-    instance2a.removeProperty(propIx);
-    instance2a.addProperty(CIMProperty(CIMName ("count"), Uint32(65))
-       .addQualifier(CIMQualifier(CIMName ("counter"), true))
-       .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
-       .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
-    Array<CIMObject> object3array;
-    v1array.get(object3array);
-    CIMInstance instance2b(object3array[1]);
-    propIx = instance2b.findProperty(CIMName("count"));
-    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
-    v4 = instance2b.getProperty(propIx).getValue();
-    v4.get(propCount);
-    PEGASUS_TEST_ASSERT(propCount == 55);
-
-    // Specific test for setting value as a null CIMObject() (see bug 3373).
-    // Confirm that CIMValue() with an uninitialized CIMObject in the input
-    // array will throw exception.
-    arr16.append(CIMObject());
-    caught_exception = false;
-    try
-    {
-        CIMValue y(arr16);
-    }
-    catch(UninitializedObjectException&)
-    {
-        caught_exception = true;
-    }
-    PEGASUS_TEST_ASSERT (caught_exception == true);
-    // Confirm that set() with an uninitialized CIMObject in the input
-    // array will throw exception.
-    caught_exception = false;
-    try
-    {
-        CIMValue y;
-        y.set(arr16);
-    }
-    catch(UninitializedObjectException&)
-    {
-        caught_exception = true;
-    }
-    PEGASUS_TEST_ASSERT (caught_exception == true);
+    testEmbeddedValueArray<CIMObject>(instance1, NAMESPACE, context);
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    testEmbeddedValueArray<CIMInstance>(instance1, NAMESPACE, context);
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
     // Calling remaining  Array tests..
     CIMDateTime D1("19991224120000.000000+100");

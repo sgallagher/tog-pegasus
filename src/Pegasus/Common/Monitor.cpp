@@ -631,7 +631,7 @@ Boolean Monitor::run(Uint32 milliseconds)
         dwWait = WaitForMultipleObjects(MaxPipes,
                                    hEvents,      //ABB:- array of event objects
                                    FALSE,        // ABB:-does not wait for all
-                                   4000);        //ABB:- timeout value   //WW this will need to be shorter when all the couts are gone
+                                   milliseconds);        //ABB:- timeout value   //WW this will need to be shorter when all the couts are gone
 
     if(dwWait == WAIT_TIMEOUT)
         {

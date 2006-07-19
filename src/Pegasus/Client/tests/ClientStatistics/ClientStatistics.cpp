@@ -48,38 +48,67 @@ class CliStat : public ClientOpPerformanceDataHandler
 {
 public:
 
-    virtual void handleClientOpPerformanceData (const ClientOpPerformanceData & item){
-            if (!(0 <= item.operationType) || !(39 >= item.operationType)){
-               cerr << "operation type is out of expected range	in ClientOpPerformanceData " << endl;
-               cerr << "error in Pegasus/Client/test/ClientStatistics" << endl;
-               exit(1);            }
+    virtual void handleClientOpPerformanceData (const ClientOpPerformanceData & item)
+    {
+        Boolean flagError = false;
+        if (!(0 <= item.operationType) || !(39 >= item.operationType))
+        {
+            cerr << "Error: operation type " << item.operationType 
+                << " is out of expected range in ClientOpPerformanceData " << endl;
+            flagError = true;
+        }
 
-            if (item.roundTripTime == 0){
-               cerr << "roundTripTime is incorrect in ClientOpPerformanceData " << endl;
-               cerr << "error in Pegasus/Client/test/ClientStatistics" << endl;
-               exit(1);
-            }
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+        if (item.roundTripTime == 0)
+        {
+            cerr << "Error: roundTripTime is zero in ClientOpPerformanceData " << endl;
+            flagError = true;
+        }
+#endif
+        // If the roundTripTime value is *very* large, then it is suspect.
+        // 0xF0000000 represents 4026 seconds, or over 1 hour.
+        if (item.roundTripTime > (Uint64)0xF0000000)
+        {
+            cerr << "Error: roundTripTime is suspiciously large in ClientOpPerformanceData " << endl;
+            flagError = true;
+        }
 
-            if (item.requestSize == 0){
-                cerr << "requestSize is incorrect in ClientOpPerformanceData " << endl;
-                cerr << "error in Pegasus/Client/test/ClientStatistics" << endl;
-                exit(1);
-            }
+        if (item.requestSize == 0)
+        {
+            cerr << "Error: requestSize is zero in ClientOpPerformanceData " << endl;
+            flagError = true;
+        }
 
-            if (item.responseSize == 0){
-                cerr << "responseSize is incorrect in ClientOpPerformanceData " << endl;
-                cerr << "error in Pegasus/Client/test/ClientStatistics" << endl;
-                exit(1);
-            }
+        if (item.responseSize == 0)
+        {
+            cerr << "Error: responseSize is zero in ClientOpPerformanceData " << endl;
+            flagError = true;
+        }
 
-            if (item.serverTimeKnown) {
-                if (item.serverTime == 0){
-                   cerr << "serverTime is incorrect in ClientOpPerformanceData " << endl;
-                   cerr << "error in Pegasus/Client/test/ClientStatistics" << endl;
-                   exit(1);
-                }
+        if (item.serverTimeKnown)
+        {
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+            if (item.serverTime == 0)
+            {
+                cerr << "Error: serverTime is zero in ClientOpPerformanceData " << endl;
+                flagError = true;
             }
-   }
+#endif
+            // If the serverTime value is *very* large, then it is suspect.
+            // 0xF0000000 represents 4026 seconds, or over 1 hour.
+            if (item.serverTime > (Uint64)0xF0000000)
+            {
+                cerr << "Error: serverTime is suspiciously large in ClientOpPerformanceData " << endl;
+                flagError = true;
+            }
+        }
+
+        if (flagError)
+        {
+            cerr << "----- error(s) in Pegasus/Client/test/ClientStatistics" << endl;
+            exit(1);
+        }
+    }
 };
 
 
@@ -87,81 +116,86 @@ public:
 
 int main(int argc, char** argv)
 {
-    cout << "++++++testing Client Performance Statistics " << endl;
+    cout << "+++++ testing Client Performance Statistics " << endl;
     const String interopNameSpace = "root/PG_Interop";
     const String nameSpace = "root/cimv2";
-    try{
+    try
+    {
 // connecting to server
-	   CIMClient client;
-	   client.connect("localhost", 5988, String::EMPTY, String::EMPTY);
+        CIMClient client;
+        client.connect("localhost", 5988, String::EMPTY, String::EMPTY);
 
 // the value CIM_ObjectManager::GatherStatisticalData must be set to true.
 // the following code does this
-   String className = "CIM_ObjectManager";
-   CIMName cN = CIMName(className);
-  Boolean loc = true;
-   String gath = "GatherStatisticalData";
-   CIMName gst = CIMName(gath);
-   CIMValue val = CIMValue(loc);
-   Array<CIMObjectPath> instanceNames;
-   /* EnumerateInstances and
-   */
-   try
-   {
-      instanceNames = client.enumerateInstanceNames(interopNameSpace, cN);
-   }
-   catch (Exception& e)
-   { cerr << "Exception : " << e.getMessage() << endl;
-      exit(1);
-   }
-   catch(...) {
-       cout << "enumerateInstancesNames in Client/tests/ClientStatistics has thrown an exception" << endl;
-       exit(1);
-   }
-   // assert that we received  one name
-   PEGASUS_TEST_ASSERT(instanceNames.size() == 1);
-   /* ModifyInstance
-   */
-   CIMName gathStatName ("GatherStatisticalData");
+        String className = "CIM_ObjectManager";
+        CIMName cN = CIMName(className);
+        Boolean loc = true;
+        String gath = "GatherStatisticalData";
+        CIMName gst = CIMName(gath);
+        CIMValue val = CIMValue(loc);
+        Array<CIMObjectPath> instanceNames;
+        /* EnumerateInstances and
+        */
+        try
+        {
+            instanceNames = client.enumerateInstanceNames(interopNameSpace, cN);
+        }
+        catch (Exception& e)
+        {
+            cerr << "Exception : " << e.getMessage() << endl;
+            exit(1);
+        }
+        catch (...)
+        {
+            cout << "enumerateInstancesNames in Client/tests/ClientStatistics has thrown an exception" << endl;
+            exit(1);
+        }
+        // assert that we received  one name
+        PEGASUS_TEST_ASSERT(instanceNames.size() == 1);
+        /* ModifyInstance
+        */
+        CIMName gathStatName ("GatherStatisticalData");
 
-   // variables used with gatherstatistics setting.
-   CIMInstance instObjectManager;
-   Uint32 prop_num;
-   Array<CIMName> plA;
-   plA.append(gathStatName);
-   CIMPropertyList statPropertyList(plA);
-   try {
-        // Create property list that represents correct request
-        // get instance.  Get only the gatherstatitistics property
-        instObjectManager  = client.getInstance(interopNameSpace, instanceNames[0], true, false, false, statPropertyList);
-        instObjectManager.setPath(instanceNames[0]);         // set correct path into instance
+        // variables used with gatherstatistics setting.
+        CIMInstance instObjectManager;
+        Uint32 prop_num;
+        Array<CIMName> plA;
+        plA.append(gathStatName);
+        CIMPropertyList statPropertyList(plA);
+        try
+        {
+            // Create property list that represents correct request
+            // get instance.  Get only the gatherstatitistics property
+            instObjectManager  = client.getInstance(interopNameSpace, instanceNames[0], true, false, false, statPropertyList);
+            instObjectManager.setPath(instanceNames[0]);         // set correct path into instance
 
-        prop_num = instObjectManager.findProperty(gathStatName);
-        PEGASUS_TEST_ASSERT(prop_num != PEG_NOT_FOUND);
+            prop_num = instObjectManager.findProperty(gathStatName);
+            PEGASUS_TEST_ASSERT(prop_num != PEG_NOT_FOUND);
 
-        instObjectManager.getProperty(prop_num).setValue(CIMValue(true));
+            instObjectManager.getProperty(prop_num).setValue(CIMValue(true));
 
-        client.modifyInstance(interopNameSpace, instObjectManager, false,statPropertyList);
-	}
-   catch (Exception& e)
-   {
-      cerr << "Exception : " << e.getMessage() << endl;
-      exit(1);
-   }
+            client.modifyInstance(interopNameSpace, instObjectManager, false,statPropertyList);
+        }
+        catch (Exception& e)
+        {
+            cerr << "Exception : " << e.getMessage() << endl;
+            exit(1);
+        }
 
 //registering class that has the callback method
- CliStat stat = CliStat();
-         client.registerClientOpPerformanceDataHandler(stat);
-         String classN = "PG_ComputerSystem";
-         Array<CIMObjectPath> instance = client.enumerateInstanceNames(nameSpace,
-                                                                   classN);
-         instObjectManager.getProperty(prop_num).setValue(CIMValue(false));
-         client.modifyInstance(interopNameSpace, instObjectManager, false,statPropertyList);
+        CliStat stat = CliStat();
+        client.registerClientOpPerformanceDataHandler(stat);
+        String classN = "PG_ComputerSystem";
+        Array<CIMObjectPath> instance = client.enumerateInstanceNames(nameSpace,
+            classN);
+        instObjectManager.getProperty(prop_num).setValue(CIMValue(false));
+        client.modifyInstance(interopNameSpace, instObjectManager, false,statPropertyList);
     }
 
-    catch(Exception& e){
-	   PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	   exit(1);
+    catch (Exception& e)
+    {
+        PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+        exit(1);
     }
 
     PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);

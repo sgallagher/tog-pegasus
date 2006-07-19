@@ -259,12 +259,10 @@ ifdef PEGASUS_HAS_SSL
 endif
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
-ifdef PEGASUS_ENABLE_CBA_TESTS
 	@$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
             cleanupCBATestCertificates
 	@$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
             setupCBATestCertificates
-endif
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile ConfigureUsers
@@ -284,9 +282,7 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_INDSSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_G11N_TS1
-ifdef PEGASUS_ENABLE_CBA_TESTS
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runCBATestSuites
-endif
 
 #####################
 #

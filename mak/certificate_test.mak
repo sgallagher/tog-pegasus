@@ -571,11 +571,11 @@ deleteCBATestCertificate:
 ###############################################################################
 deleteCBATestCertificates: FORCE
 	$(foreach i, $(PEGASUS_REG_CERT_NAME_SYMBOLS), \
-            $(MAKE) -f TestMakefile deleteCBATestCertificate -i \
-                TEST_NAME_SYM=$(i);)
+            $(MAKESH) $(MAKE) -f TestMakefile deleteCBATestCertificate -i \
+                TEST_NAME_SYM=$(i) $(NL))
 	$(foreach i, $(PEGASUS_NOT_REG_CERT_NAME_SYMBOLS), \
-            $(MAKE) -f TestMakefile deleteCBATestCertificateFiles \
-                TEST_NAME_SYM=$(i);)
+            $(MAKESH) $(MAKE) -f TestMakefile deleteCBATestCertificateFiles \
+                TEST_NAME_SYM=$(i) $(NL))
 
 ###############################################################################
 #  The cleanupCBATestCerticate option can be used to configure the 
@@ -636,16 +636,17 @@ displayCBATestCertificate: FORCE
 ###############################################################################
 displayCBATestCertificates: FORCE
 	@$(foreach i, $(PEGASUS_CERT_NAME_SYMBOLS), \
-            $(MAKE) -f TestMakefile displayCBATestCertificate \
-                TEST_CERT_NAME=$($(i));)
+            $(MAKESH) $(MAKE) -f TestMakefile displayCBATestCertificate \
+                TEST_CERT_NAME=$($(i)) $(NL))
 
 registerInvalidCBATestCertificates:
 	-$(CIMSERVER_STOP_SERVICE)
 	$(foreach i, $(PEGASUS_NOT_VALIDATED_REG_CERT_NAME_SYMBOLS), \
-            $(MAKE) -f TestMakefile registerInvalidCBATestCertificate \
+            $(MAKESH) $(MAKE) -f TestMakefile \
+                registerInvalidCBATestCertificate \
                 TEST_NAME_SYM=$(i) \
                 TEST_CERT_EXPIRED=$($(i)_EXPIRED) \
-                TEST_CERT_IN_TS=$($(i)_IN_TS);)
+                TEST_CERT_IN_TS=$($(i)_IN_TS) $(NL))
 
 ###############################################################################
 # The registerInvalidCBATestCertificate option is used to register an invalid
@@ -810,9 +811,9 @@ registerValidCBATestCertificates: FORCE
 
 internal_RegisterValidCBATestCertificates:
 	$(foreach i, $(PEGASUS_VALIDATED_REG_CERT_NAME_SYMBOLS), \
-            $(MAKE) -f TestMakefile registerCBATestCertificate \
+            $(MAKESH) $(MAKE) -f TestMakefile registerCBATestCertificate \
                 TEST_CERT_NAME=$($(i)) \
-                TEST_CERT_USER=$($(i)_USER_NAME);) 
+                TEST_CERT_USER=$($(i)_USER_NAME) $(NL)) 
 
 ###############################################################################
 #  The createCBATestCertificates option creates the certificate files and 
@@ -824,27 +825,33 @@ internal_RegisterValidCBATestCertificates:
 createCBATestCertificates:
 ifeq ($(OPENSSL_SET_SERIAL_SUPPORTED),true)
 	$(foreach i, $(PEGASUS_SCERT_NAME_SYMBOLS), \
-            $(MAKE) -f TestMakefile createSelfSignedCBATestCertificate \
+            $(MAKESH) $(MAKE) -f TestMakefile \
+                createSelfSignedCBATestCertificate \
                 TEST_NAME_SYM=$(i) \
-                TEST_CERT_SET_SERIAL="-set_serial $($(i)_SERIAL_NO)";)
+                TEST_CERT_SET_SERIAL="-set_serial $($(i)_SERIAL_NO)" $(NL))
 	$(foreach i, $(PEGASUS_RACERT_NAME_SYMBOLS), \
-            $(MAKE) -f TestMakefile createSelfSignedCACBATestCertificate \
+            $(MAKESH) $(MAKE) -f TestMakefile \
+                createSelfSignedCACBATestCertificate \
                 TEST_NAME_SYM=$(i) \
-                TEST_CERT_SET_SERIAL="-set_serial $($(i)_SERIAL_NO)";)
+                TEST_CERT_SET_SERIAL="-set_serial $($(i)_SERIAL_NO)" $(NL))
 	$(foreach i, $(PEGASUS_ECERT_NAME_SYMBOLS), \
-            $(MAKE) -f TestMakefile createCASignedCBATestCertificate \
+            $(MAKESH) $(MAKE) -f TestMakefile \
+                createCASignedCBATestCertificate \
                 TEST_NAME_SYM=$(i) \
-                TEST_CERT_SET_SERIAL="-set_serial $($(i)_SERIAL_NO)";)
+                TEST_CERT_SET_SERIAL="-set_serial $($(i)_SERIAL_NO)" $(NL))
 else
 	$(foreach i, $(PEGASUS_SCERT_NAME_SYMBOLS), \
-            $(MAKE) -f TestMakefile createSelfSignedCBATestCertificate \
-                TEST_NAME_SYM=$(i);)
+            $(MAKESH) $(MAKE) -f TestMakefile \
+                createSelfSignedCBATestCertificate \
+                TEST_NAME_SYM=$(i) $(NL))
 	$(foreach i, $(PEGASUS_RACERT_NAME_SYMBOLS), \
-            $(MAKE) -f TestMakefile createSelfSignedCACBATestCertificate \
-                TEST_NAME_SYM=$(i);)
+            $(MAKESH) $(MAKE) -f TestMakefile \
+                createSelfSignedCACBATestCertificate \
+                TEST_NAME_SYM=$(i) $(NL))
 	$(foreach i, $(PEGASUS_ECERT_NAME_SYMBOLS), \
-            $(MAKE) -f TestMakefile createCASignedCBATestCertificate \
-                TEST_NAME_SYM=$(i);)
+            $(MAKESH) $(MAKE) -f TestMakefile \
+                createCASignedCBATestCertificate \
+                TEST_NAME_SYM=$(i) $(NL))
 endif
 
 ###############################################################################

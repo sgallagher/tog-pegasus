@@ -67,7 +67,7 @@
 #include "Buffer.h"
 #include "LanguageParser.h"
 
-DWORD MAX_BUFFER_SIZE = 4096;
+//DWORD MAX_BUFFER_SIZE = 4096;
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
@@ -2217,12 +2217,12 @@ void HTTPConnection::_handleReadEvent()
           {
             Sleep(1000);
 
-            memset(_namedPipe.raw,'\0',MAX_BUFFER_SIZE);
+            memset(_namedPipe.raw,'\0',NAMEDPIPE_MAX_BUFFER_SIZE);
 
             BOOL rc = ::ReadFile(
                   _namedPipe.getPipe(),
                   &_namedPipe.raw,
-                  MAX_BUFFER_SIZE,
+                  NAMEDPIPE_MAX_BUFFER_SIZE,
                   &_namedPipe.bytesRead,
                   _namedPipe.getOverlap());
 
@@ -2262,7 +2262,7 @@ void HTTPConnection::_handleReadEvent()
           to be read. This is not ture if the message in the buffer is exactly the same 
           size as the MAX_BUFFER_SIZE
           *****************/         
-          if (n==MAX_BUFFER_SIZE)
+          if (n==NAMEDPIPE_MAX_BUFFER_SIZE)
           {
               moreInPipe = true;
           }

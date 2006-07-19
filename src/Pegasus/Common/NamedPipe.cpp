@@ -14,7 +14,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-const static DWORD MAX_BUFFER_SIZE = 4096;  // 4 kilobytes
+//const static DWORD MAX_BUFFER_SIZE = 4096;  // 4 kilobytes
 const static DWORD MAX_TIMEOUT = 30000;     // 30 seconds
 
 const static char* CONNECT_REQUEST = "<connect-request>";
@@ -45,7 +45,7 @@ bool NamedPipe::read(HANDLE pipe, String & buffer)
     for( ; ; )
     {
         // read all data in pipe
-        string raw(MAX_BUFFER_SIZE, string::value_type(0));
+        string raw(NAMEDPIPE_MAX_BUFFER_SIZE, string::value_type(0));
         DWORD size = 0;
 
         BOOL rc = ::ReadFile(
@@ -163,8 +163,8 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
             PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,   // read/write
             PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
             MAX_PIPE_INSTANCES,                   //  PIPE_UNLIMITED_INSTANCES, // max. instances??
-            MAX_BUFFER_SIZE,
-            MAX_BUFFER_SIZE,
+            NAMEDPIPE_MAX_BUFFER_SIZE,
+            NAMEDPIPE_MAX_BUFFER_SIZE,
             MAX_TIMEOUT,
             0);   // NULL ??
 
@@ -332,8 +332,8 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
             PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,   // PIPE_ACCESS_DUPLEX |  FILE_FLAG_OVERLAPPED, // read/write   ??
             PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
             PIPE_UNLIMITED_INSTANCES,
-            MAX_BUFFER_SIZE,
-            MAX_BUFFER_SIZE,
+            NAMEDPIPE_MAX_BUFFER_SIZE,
+            NAMEDPIPE_MAX_BUFFER_SIZE,
             MAX_TIMEOUT,
             0);   // NULL ??
 

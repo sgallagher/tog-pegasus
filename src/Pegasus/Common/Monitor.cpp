@@ -54,7 +54,7 @@
 
 
 
-const static DWORD MAX_BUFFER_SIZE = 4096;  // 4 kilobytes
+//const static DWORD MAX_BUFFER_SIZE = 4096;  // 4 kilobytes
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # if defined(FD_SETSIZE) && FD_SETSIZE != 1024
@@ -949,7 +949,7 @@ Boolean Monitor::run(Uint32 milliseconds)
         BOOL rc = ::ReadFile(
                 entries[indx].namedPipe.getPipe(),
                 &entries[indx].namedPipe.raw,
-                MAX_BUFFER_SIZE,
+                NAMEDPIPE_MAX_BUFFER_SIZE,
                 &entries[indx].namedPipe.bytesRead,
                 entries[indx].namedPipe.getOverlap());
 

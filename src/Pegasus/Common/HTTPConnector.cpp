@@ -549,6 +549,7 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 
         _monitor->unsolicitPipeMessages(namedPipe);
 
+       //namedPipe.disconnect(namedPipe.getPipe()); 
     }
     // Destroy the connection (causing it to close):
 

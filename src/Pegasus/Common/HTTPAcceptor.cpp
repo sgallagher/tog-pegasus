@@ -761,6 +761,9 @@ void HTTPAcceptor::destroyConnections()
             NamedPipe namedPipe = connection->getNamedPipe();
             _monitor->unsolicitPipeMessages(namedPipe);
              
+            ::FlushFileBuffers(namedPipe.getPipe());
+            ::DisconnectNamedPipe(namedPipe.getPipe());
+            ::CloseHandle(namedPipe.getPipe());
         }
 
         while (connection->refcount.get()) { }

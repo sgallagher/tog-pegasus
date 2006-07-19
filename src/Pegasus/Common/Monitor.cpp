@@ -417,7 +417,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                         entries[indx]._status.get() == _MonitorEntry::DYING )
                    {
                        // remove the entry
-		       entries[indx]._status = _MonitorEntry::EMPTY;
+		               entries[indx]._status = _MonitorEntry::EMPTY;
                    }
                    else
                    {
@@ -433,9 +433,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 
     for( int indx = 0; indx < (int)entries.size(); indx++)
     {
-			 const _MonitorEntry &entry = entries[indx];
+        const _MonitorEntry &entry = entries[indx];
        if ((entry._status.get() == _MonitorEntry::DYING) &&
-					 (entry._type == Monitor::CONNECTION))
+           (entry._type == Monitor::CONNECTION))
        {
           MessageQueue *q = MessageQueue::lookup(entry.queueId);
           PEGASUS_ASSERT(q != 0);
@@ -628,10 +628,11 @@ Boolean Monitor::run(Uint32 milliseconds)
 
         //this should be in a try block
 
-        dwWait = WaitForMultipleObjects(MaxPipes,
-                                   hEvents,      //ABB:- array of event objects
-                                   FALSE,        // ABB:-does not wait for all
-                                   milliseconds);        //ABB:- timeout value   //WW this will need to be shorter when all the couts are gone
+    dwWait = WaitForMultipleObjects(
+                 MaxPipes,    
+                 hEvents,               //ABB:- array of event objects
+                 FALSE,                 // ABB:-does not wait for all
+                 milliseconds);        //ABB:- timeout value   //WW this may need be shorter
 
     if(dwWait == WAIT_TIMEOUT)
         {
@@ -705,32 +706,7 @@ Boolean Monitor::run(Uint32 milliseconds)
             //this statment gets the pipe entry that was trigered
             entries[indexPipeCountAssociator[pCount]].pipeSet = true;
 
-/*            if (pCount > 0) //this means activity on pipe is CIMOperation reques
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "In ::run got Operation request" << endl;
-                entries[indx]._type = Monitor::CONNECTION;
-            }
-            else //this clause my not be needed in production but is used for testing
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-              cout << "In Monitor::run got Connection request" << endl;
-
-            }*/
-
         }
-                //
-
-
-   // Sleep(2000);
-
-    //int events = 1;
-    /*if (dwWait)
-    {
-        cout << "in Monitor::run about to call handlePipeConnectionEvent" << endl;
-        _handlePipeConnectionEvent(dwWait);
-    }*/
-   // }
 #else
     events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
@@ -1314,8 +1290,11 @@ void Monitor::unsolicitPipeMessages(NamedPipe namedPipe)
     */
     index = _entries.size() - 1;
     while(_entries[index]._status.get() == _MonitorEntry::EMPTY){
-	if(_entries.size() > MAX_NUMBER_OF_MONITOR_ENTRIES)
-                _entries.remove(index);
+        if((_entries[index].namedPipe.getPipe() == namedPipe.getPipe()) ||
+            (_entries.size() > MAX_NUMBER_OF_MONITOR_ENTRIES))
+        {
+            _entries.remove(index);
+        }
 	index--;
     }
     PEG_METHOD_EXIT();

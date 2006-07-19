@@ -10,6 +10,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 #define MAX_PIPE_INSTANCES  1
+const DWORD NAMEDPIPE_MAX_BUFFER_SIZE = 4096; //8192; 
 
 typedef struct
 {
@@ -22,6 +23,7 @@ typedef struct
 class PEGASUS_COMMON_LINKAGE NamedPipe
 {
 public:
+    //void disconnect(HANDLE pipe) const;
     static bool read(HANDLE pipe, String & buffer);
     static bool write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap = NULL);
     String getName(void) {return _name;}
@@ -30,7 +32,7 @@ public:
     LPOVERLAPPED getOverlap(void){ return &_pipe.overlap;}
 
     Boolean isConnectionPipe;
-    char raw[4096];
+    char raw[NAMEDPIPE_MAX_BUFFER_SIZE];
     //string raw;
     DWORD bytesRead;
   

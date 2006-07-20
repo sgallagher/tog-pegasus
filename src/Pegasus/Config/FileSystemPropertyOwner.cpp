@@ -89,7 +89,9 @@ Checks if the given directory is existing and writable
 */
 Boolean isDirValid(const String& dirName)
 {
-    if (FileSystem::isDirectory(dirName) && FileSystem::canWrite(dirName))
+    String directoryName(ConfigManager::getHomedPath(dirName));
+    if (FileSystem::isDirectory(directoryName) && 
+        FileSystem::canWrite(directoryName))
     {
         return true;
     }

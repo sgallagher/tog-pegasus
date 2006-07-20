@@ -34,7 +34,7 @@ DIR = Providers/sample/AssociationProvider/testclient
 
 include $(ROOT)/mak/config.mak
 
-PROGRAM = AssociationTestClient
+PROGRAM = TestAssociationTestClient
 
 POSTSTARTTESTS =
 ifeq ($(OS),HPUX)

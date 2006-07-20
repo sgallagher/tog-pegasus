@@ -39,7 +39,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = AuthorizationHandler
+PROGRAM = TestAuthorizationHandler
 
 SOURCES = AuthorizationHandler.cpp
 

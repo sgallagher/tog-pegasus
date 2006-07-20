@@ -38,7 +38,7 @@ LIBRARIES = \
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = testCIMOMStatData
+PROGRAM = TestCIMOMStatData
 SOURCES = CIMOMStatData.cpp
 
 include $(ROOT)/mak/program.mak

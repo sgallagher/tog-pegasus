@@ -38,7 +38,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = UserManagerTest
+PROGRAM = TestUserManager
 
 SOURCES = UserManager.cpp
 

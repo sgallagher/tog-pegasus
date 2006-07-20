@@ -44,7 +44,7 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY 
 
-PROGRAM = RT_Sample_Subscription
+PROGRAM = TestRT_Sample_Subscription
 
 SOURCES = RT_Sample_Subscription.cpp
 

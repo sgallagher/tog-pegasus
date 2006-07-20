@@ -38,7 +38,7 @@ include $(ROOT)/mak/config.mak
 
 include ../../libraries.mak
 
-PROGRAM = IPTestClient
+PROGRAM = TestIPTestClient
 SOURCES = IPTestClient.cpp
 
 include $(ROOT)/mak/program.mak

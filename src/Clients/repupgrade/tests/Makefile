@@ -47,7 +47,7 @@ LIBRARIES = \
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = upgradetest
+PROGRAM = TestUpgrade
 
 SOURCES = UpgradeTest.cpp
 

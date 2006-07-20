@@ -46,7 +46,7 @@ DIR = Providers/ManagedSystem/Processor/tests
 
 include $(ROOT)/mak/config.mak
 
-PROGRAM = ProcessorProviderTestClient
+PROGRAM = TestProcessorProviderTestClient
 
 POSTSTARTTESTS =
 ifeq ($(OS),HPUX)

@@ -42,7 +42,7 @@ LIBRARIES = \
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = CIMOMHandleTestProviderClient
+PROGRAM = TestCIMOMHandleTestProviderClient
 
 SOURCES = CIMOMHandleTestProviderClient.cpp
 

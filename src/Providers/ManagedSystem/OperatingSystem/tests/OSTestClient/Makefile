@@ -40,7 +40,7 @@ LIBRARIES = \
     pegclient \
     pegcommon
 
-PROGRAM = OSTestClient
+PROGRAM = TestOSTestClient
 SOURCES = OSTestClient.cpp
 
 include $(ROOT)/mak/program.mak

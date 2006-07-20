@@ -37,7 +37,7 @@ include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/test.mak
 
 QueryExpression.query.res: QueryExpression.query
-	@ testQueryExpression QueryExpression.query -className QExpr_TestPropertyTypes > $(TMP_DIR)/QueryExpression.query.res || cd .
+	@ TestQueryExpression QueryExpression.query -className QExpr_TestPropertyTypes > $(TMP_DIR)/QueryExpression.query.res || cd .
 	@ $(DIFF) QueryExpression.query.resgood $(TMP_DIR)/QueryExpression.query.res
 	@ $(RM) $(TMP_DIR)/QueryExpression.query.res
 	@ $(ECHO) +++ QueryExpression.query passed successfully +++

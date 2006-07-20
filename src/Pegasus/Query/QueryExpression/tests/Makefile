@@ -54,7 +54,7 @@ LIBRARIES = \
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 #SYS_LIBS += -lfl
 
-PROGRAM = testQueryExpression
+PROGRAM = TestQueryExpression
 
 SOURCES = QueryExpression.cpp 
 

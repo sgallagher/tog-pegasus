@@ -40,7 +40,7 @@ LIBRARIES = \
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY 
 
-PROGRAM = testCIMQueryCap
+PROGRAM = TestCIMQueryCap
 SOURCES = TestCIMQueryCap.cpp
 
 include $(ROOT)/mak/program.mak

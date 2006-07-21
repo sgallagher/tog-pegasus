@@ -70,7 +70,7 @@ public:
     */
     void putID(Uint32 id);
 
-public:
+private:
 
     Magic<0x94E91236> _magic;
     Stack<Uint32> _pool;

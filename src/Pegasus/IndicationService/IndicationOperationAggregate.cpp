@@ -54,38 +54,25 @@ IndicationOperationAggregate::IndicationOperationAggregate(
     const Array<CIMName>& indicationSubclasses)
 :   _origRequest(origRequest),
     _indicationSubclasses(indicationSubclasses),
-    _numberIssued(0),
-    _magicNumber(_theMagicNumber)
-{}
+    _numberIssued(0)
+{
+}
 
 IndicationOperationAggregate::~IndicationOperationAggregate()
 {
-    _magicNumber = 0;
     delete _origRequest;
 
-    Uint32 numberRequests = getNumberRequests();
+    Uint32 numberRequests = _requestList.size();
     for (Uint32 i = 0; i < numberRequests; i++)
     {
-        //
-        //  Since deleteRequest also removes the element from the array,
-        //  delete first element of the array each time
-        //
-        _deleteRequest (0);
+        delete _requestList[i];
     }
-    Uint32 numberResponses = getNumberResponses();
+
+    Uint32 numberResponses = _responseList.size();
     for (Uint32 j = 0; j < numberResponses; j++)
     {
-        //
-        //  Since deleteResponse also removes the element from the array,
-        //  delete first element of the array each time
-        //
-        _deleteResponse (0);
+        delete _responseList[j];
     }
-}
-
-Boolean IndicationOperationAggregate::isValid() const
-{
-    return (_magicNumber == _theMagicNumber);
 }
 
 CIMRequestMessage* IndicationOperationAggregate::getOrigRequest() const
@@ -102,30 +89,6 @@ Uint32 IndicationOperationAggregate::getOrigType() const
     else
     {
         return _origRequest->getType();
-    }
-}
-
-String IndicationOperationAggregate::getOrigMessageId() const
-{
-    if (_origRequest == 0)
-    {
-        return String::EMPTY;
-    }
-    else
-    {
-        return _origRequest->messageId;
-    }
-}
-
-Uint32 IndicationOperationAggregate::getOrigDest() const
-{
-    if (_origRequest == 0)
-    {
-        return 0;
-    }
-    else
-    {
-        return _origRequest->queueIds.top();
     }
 }
 
@@ -146,16 +109,6 @@ Boolean IndicationOperationAggregate::requiresResponse() const
 Array<CIMName>& IndicationOperationAggregate::getIndicationSubclasses()
 {
     return _indicationSubclasses;
-}
-
-void IndicationOperationAggregate::setPath(const CIMObjectPath& path)
-{
-    _path = path;
-}
-
-const CIMObjectPath& IndicationOperationAggregate::getPath()
-{
-    return _path;
 }
 
 Uint32 IndicationOperationAggregate::getNumberIssued() const
@@ -268,19 +221,5 @@ ProviderClassList IndicationOperationAggregate::findProvider(
     PEGASUS_ASSERT(false);
     return provider;
 }
-
-void IndicationOperationAggregate::_deleteRequest (Uint32 pos)
-{
-    delete _requestList[pos];
-    _requestList.remove(pos);
-}
-
-void IndicationOperationAggregate::_deleteResponse (Uint32 pos)
-{
-    delete _responseList[pos];
-    _responseList.remove(pos);
-}
-
-const Uint32 IndicationOperationAggregate::_theMagicNumber = 98765;
 
 PEGASUS_NAMESPACE_END

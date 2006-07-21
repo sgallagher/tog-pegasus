@@ -46,6 +46,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Magic.h>
 #include <Pegasus/Server/Linkage.h>
 
 #include "ProviderClassList.h"
@@ -81,15 +82,6 @@ public:
     ~IndicationOperationAggregate();
 
     /**
-        Determines if the instance is valid, based on the magic number set
-        in the constructor.
-
-        @return  TRUE, if valid
-                 FALSE, otherwise
-    */
-    Boolean isValid() const;
-
-    /**
         Gets the original request, if any,  received by the IndicationService
         for this aggregation.  The original request may be Create Instance,
         Modify Instance, or Delete Instance.  In the cases of Deletion of an
@@ -110,24 +102,6 @@ public:
     Uint32 getOrigType() const;
 
     /**
-        Gets the message ID of the original request, if any, received by the
-        IndicationService.
-
-        @return  the message ID, if there is a request
-                 String::EMPTY, otherwise
-    */
-    String getOrigMessageId() const;
-
-    /**
-        Gets the destination of the original request, if any, received by the
-        IndicationService.
-
-        @return  the destination, if there is a request
-                 0, otherwise
-    */
-    Uint32 getOrigDest() const;
-
-    /**
         Determines if the original request requires a response, based on the
         type of the original request.  Create Instance, Modify Instance, and
         Delete Instance requests require a response.
@@ -143,23 +117,6 @@ public:
         @return  the list of indication subclasses
     */
     Array<CIMName>& getIndicationSubclasses();
-
-    /**
-        Stores the object path of the created instance in the operation
-        aggregate object, if original request was to create a subscription
-        instance.
-
-        @param   path                  the object path of the created instance
-    */
-    void setPath(const CIMObjectPath& path);
-
-    /**
-        Gets the object path of the created instance, if original request was
-        to create a subscription instance.
-
-        @return  CIMObjectPath of the created instance
-    */
-    const CIMObjectPath& getPath();
 
     /**
         Gets the number of requests to be issued for this aggregation.
@@ -272,38 +229,14 @@ private:
     IndicationOperationAggregate& operator==(
         const IndicationOperationAggregate& x);
 
-    /**
-        Deletes the request at the specified position in the list for this
-        aggregation.
-
-        Note: Only the destructor uses this method.
-
-        @param   pos                   the position in the list of the request
-                                           to be deleted
-    */
-    void _deleteRequest (Uint32 pos);
-
-    /**
-        Deletes the response at the specified position in the list for this
-        aggregation.
-
-        Note: Only the destructor uses this method.
-
-        @param   pos                   the position in the list of the response
-                                           to be deleted
-    */
-    void _deleteResponse (Uint32 pos);
-
     CIMRequestMessage* _origRequest;
     Array<CIMName> _indicationSubclasses;
-    CIMObjectPath _path;
     Uint32 _numberIssued;
     Array<CIMRequestMessage*> _requestList;
     Mutex _appendRequestMutex;
     Array<CIMResponseMessage*> _responseList;
     Mutex _appendResponseMutex;
-    Uint32 _magicNumber;
-    static const Uint32 _theMagicNumber;
+    Magic<0x872FB41C> _magic;
 };
 
 PEGASUS_NAMESPACE_END

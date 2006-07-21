@@ -6636,7 +6636,6 @@ void IndicationService::_aggregationCallBack (
     IndicationOperationAggregate * operationAggregate =
         reinterpret_cast <IndicationOperationAggregate *> (userParameter);
     PEGASUS_ASSERT (operationAggregate != 0);
-    PEGASUS_ASSERT (operationAggregate->isValid ());
 
     CIMResponseMessage * response = 0;
     Uint32 msgType = asyncReply->getType ();

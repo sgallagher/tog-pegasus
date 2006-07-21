@@ -148,15 +148,11 @@ public:
         // set it in the CIMClient object.
         //
         _origTimeout = client->getTimeout();
-        try
+        if(context.contains(TimeoutContainer::NAME))
         {
             TimeoutContainer t_cntr = (TimeoutContainer)
                 context.get(TimeoutContainer::NAME);
             client->setTimeout(t_cntr.getTimeOut());
-        }
-        catch (...)
-        {
-            // No TimeoutContainer in OperationContext; just use the default
         }
 
         //
@@ -164,13 +160,13 @@ public:
         // OperationContext, set it in the CIMClient object.
         //
         _origAcceptLanguages = client->getRequestAcceptLanguages();
-        try
+        if(context.contains(AcceptLanguageListContainer::NAME))
         {
             AcceptLanguageListContainer al_cntr = (AcceptLanguageListContainer)
                 context.get(AcceptLanguageListContainer::NAME);
             _client->setRequestAcceptLanguages(al_cntr.getLanguages());
         }
-        catch (Exception &)
+        else
         {
             // No AcceptLanguageListContainer in OperationContext; try
             // getting the AcceptLanguageList from the current thread
@@ -186,17 +182,12 @@ public:
         // OperationContext, set it in the CIMClient object.
         //
         _origContentLanguages = client->getRequestContentLanguages();
-        try
+        if(context.contains(ContentLanguageListContainer::NAME))
         {
             ContentLanguageListContainer cl_cntr =
                 (ContentLanguageListContainer)context.get(
                     ContentLanguageListContainer::NAME);
             _client->setRequestContentLanguages(cl_cntr.getLanguages());
-        }
-        catch (Exception &)
-        {
-            // No ContentLanguageListContainer in OperationContext; just
-            // use the default
         }
     }
 

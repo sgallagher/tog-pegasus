@@ -864,10 +864,11 @@ void ProviderManagerService::_updateProviderModuleStatus(
 void ProviderManagerService::indicationCallback(
     CIMProcessIndicationRequestMessage* request)
 {
-    try
+    if(request->operationContext.contains(AcceptLanguageListContainer::NAME))
     {
         AcceptLanguageListContainer cntr = request->operationContext.get(AcceptLanguageListContainer::NAME);
-    }catch(const Exception &)
+    }
+    else
     {
         request->operationContext.insert(AcceptLanguageListContainer(AcceptLanguageList()));
     }

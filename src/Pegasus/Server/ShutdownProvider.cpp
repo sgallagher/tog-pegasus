@@ -82,12 +82,12 @@ void ShutdownProvider::invokeMethod(
 
     // Get user name
     String userName;
-    try
+    if(context.contains(IdentityContainer::NAME))
     {
         IdentityContainer container = context.get(IdentityContainer::NAME);
         userName = container.getUserName();
     }
-    catch (...)
+    else
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);

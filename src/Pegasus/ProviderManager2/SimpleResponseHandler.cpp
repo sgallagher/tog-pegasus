@@ -91,32 +91,26 @@ void SimpleResponseHandler::clear(void)
 
 ContentLanguageList SimpleResponseHandler::getLanguages(void)
 {
-	Logger::put(
+    Logger::put(
         Logger::STANDARD_LOG,
         System::CIMSERVER,
         Logger::TRACE,
         "SimpleResponseHandler: getLanguages()");
 
-	ContentLanguageList langs;
+    ContentLanguageList langs;
 
-    try
-	{
-		// Try to get the ContentLanguageList out of the
-                // OperationContext in the base ResponseHandler.
-		OperationContext context = getContext();
+    // Try to get the ContentLanguageList out of the
+    // OperationContext in the base ResponseHandler.
+    OperationContext context = getContext();
 
-        ContentLanguageListContainer cntr = context.get(
-            ContentLanguageListContainer::NAME);
-
+    if(context.contains(ContentLanguageListContainer::NAME))
+    {
+        ContentLanguageListContainer cntr =
+            context.get(ContentLanguageListContainer::NAME);
         langs = cntr.getLanguages();
-	}
-	catch (const Exception &)
-	{
-		// The content language container must not exist.
-		// Return the empty ContentLanguageList.
-	}
+    }
 
-	return(langs);
+    return langs;
 }
 
 void SimpleResponseHandler::send(Boolean isComplete)

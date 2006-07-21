@@ -231,25 +231,25 @@ static OperationContext _filterOperationContext(const OperationContext& context)
     EtoA(os400UserName);
     temp.insert(IdentityContainer(String(os400UserName)));
     #else
-    try
+	if(context.contains(IdentityContainer::NAME))
     {
         // propagate the identity container if it exists (get() with throw
         // an exception if it does not)
         temp.insert(context.get(IdentityContainer::NAME));
     }
-    catch(Exception &)
+	else
     {
         temp.insert(IdentityContainer(String::EMPTY));
     }
     #endif
 
-    try
+	if(context.contains(AcceptLanguageListContainer::NAME))
     {
         // propagate the accept languages container if it exists (get() with throw
         // an exception if it does not exist)
         temp.insert(context.get(AcceptLanguageListContainer::NAME));
     }
-    catch(Exception &)
+	else
     {
         // If the container is not found then try to use the
         // AcceptLanguageList from the current thread
@@ -265,18 +265,18 @@ static OperationContext _filterOperationContext(const OperationContext& context)
         }
     }
 
-    try
+	if(context.contains(ContentLanguageListContainer::NAME))
     {
         // propagate the accept languages container if it exists (get() with throw
         // an exception if it does not)
         temp.insert(context.get(ContentLanguageListContainer::NAME));
     }
-    catch(Exception &)
+	else
     {
         temp.insert(ContentLanguageListContainer(ContentLanguageList()));
     }
 
-    return(temp);
+    return temp;
 }
 
 InternalCIMOMHandleRep::InternalCIMOMHandleRep()
@@ -384,7 +384,7 @@ CIMResponseMessage* InternalCIMOMHandleRep::do_request(CIMRequestMessage* reques
         throw e;
     }
 
-    try
+	if(response->operationContext.contains(ContentLanguageListContainer::NAME))
     {
         // If the response has a Content-Language then save it into thread-specific storage
         ContentLanguageListContainer container =
@@ -405,12 +405,9 @@ CIMResponseMessage* InternalCIMOMHandleRep::do_request(CIMRequestMessage* reques
             }
         }
     }
-    catch(Exception &)
-    {
-    }
 
     PEG_METHOD_EXIT();
-    return(response);
+    return response;
 }
 
 

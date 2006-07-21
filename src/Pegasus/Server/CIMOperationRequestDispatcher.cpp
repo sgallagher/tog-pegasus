@@ -5874,20 +5874,20 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
    exception=true;
 #else
-   if (QuerySupportRouter::routeHandleExecQueryRequest(this,request)==false) {
-      try {
-         SubscriptionFilterConditionContainer sub_cntr = request->operationContext.get(SubscriptionFilterConditionContainer::NAME);
-         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, sub_cntr.getQueryLanguage());
-      } catch (Exception)
-      {
-         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, request->queryLanguage);
-      }
-      catch (...)
-      {
-         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,"Caught unhandled exception (...)");
-      }
-      exception=true;
-   }
+    if (QuerySupportRouter::routeHandleExecQueryRequest(this,request)==false)
+    {
+        if(request->operationContext.contains(SubscriptionFilterConditionContainer::NAME))
+        {
+            SubscriptionFilterConditionContainer sub_cntr = request->operationContext.get(SubscriptionFilterConditionContainer::NAME);
+            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, sub_cntr.getQueryLanguage());
+        }
+        else
+        {
+            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, request->queryLanguage);
+        }
+        
+        exception = true;
+    }
 #endif
 
    if (exception) {

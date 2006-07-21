@@ -57,10 +57,11 @@ CMPIStatus resolveEmbeddedInstanceTypes(
     OperationResponseHandler * opRes,
     CIMInstance & inst)
 {
-    try
+    CIMOperationRequestMessage * request =
+        dynamic_cast<CIMOperationRequestMessage *>(opRes->getRequest());
+    if(request->operationContext.contains(NormalizerContextContainer::NAME) &&
+        request->operationContext.contains(CachedClassDefinitionContainer::NAME))
     {
-        CIMOperationRequestMessage * request =
-            dynamic_cast<CIMOperationRequestMessage *>(opRes->getRequest());
         const NormalizerContextContainer * contextContainer =
             dynamic_cast<const NormalizerContextContainer *>(
                 &(request->operationContext.get(
@@ -112,12 +113,12 @@ CMPIStatus resolveEmbeddedInstanceTypes(
             }
         }
     }
-    catch(Exception &)
-    {
+    //else
+    //{
         // If the NormalizerContextContainer is not present, then the
         // ObjectNormalizer must be enabled for this operation and the
         // ObjectNormalizer will do the work in the above try block.
-    }
+    //}
 
     CMReturn(CMPI_RC_OK);
 }

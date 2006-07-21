@@ -283,17 +283,13 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
     // operation.
     CIMClass cimClass;
 
-    try
+    if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
     {
         CachedClassDefinitionContainer container =
-            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+            request->operationContext.get(
+                CachedClassDefinitionContainer::NAME);
 
         cimClass = container.getClass();
-    }
-    catch(Exception &)
-    {
-        // Do nothing. Container is missing, which implies normalization is disabled
-        // for this operation.
     }
 
     AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
@@ -401,17 +397,12 @@ EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
     // operation.
     CIMClass cimClass;
 
-    try
+    if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
     {
         CachedClassDefinitionContainer container =
-            request->operationContext.get(CachedClassDefinitionContainer::NAME);
-
+            request->operationContext.get(
+                CachedClassDefinitionContainer::NAME);
         cimClass = container.getClass();
-    }
-    catch(Exception &)
-    {
-        // Do nothing. Container is missing, which implies normalization is disabled
-        // for this operation.
     }
 
     AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
@@ -472,17 +463,13 @@ EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
     // operation.
     CIMClass cimClass;
 
-    try
+    if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
     {
         CachedClassDefinitionContainer container =
-            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+            request->operationContext.get(
+                CachedClassDefinitionContainer::NAME);
 
         cimClass = container.getClass();
-    }
-    catch(Exception &)
-    {
-        // Do nothing. Container is missing, which implies normalization is disabled
-        // for this operation.
     }
 
     AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
@@ -1008,14 +995,14 @@ void EnableIndicationsResponseHandler::deliver(const OperationContext & context,
     //  Get list of subscription instance names from context
     Array<CIMObjectPath> subscriptionInstanceNames;
 
-    try
+    if(context.contains(SubscriptionInstanceNamesContainer::NAME))
     {
         SubscriptionInstanceNamesContainer container =
             context.get(SubscriptionInstanceNamesContainer::NAME);
 
         subscriptionInstanceNames = container.getInstanceNames();
     }
-    catch(Exception &)
+    else
     {
         subscriptionInstanceNames.clear();
     }
@@ -1023,7 +1010,7 @@ void EnableIndicationsResponseHandler::deliver(const OperationContext & context,
     // l10n
     ContentLanguageList contentLangs;
 
-    try
+    if(context.contains(ContentLanguageListContainer::NAME))
     {
         // Get the Content-Language for this indication.  The provider
         // does not have to add specify a language for the indication.
@@ -1032,7 +1019,7 @@ void EnableIndicationsResponseHandler::deliver(const OperationContext & context,
 
         contentLangs = langContainer.getLanguages();
     }
-    catch(Exception &)
+    else
     {
         // The provider did not explicitly set a Content-Language for
         // the indication.  Fall back to the lang set in this object.
@@ -1053,11 +1040,11 @@ void EnableIndicationsResponseHandler::deliver(const OperationContext & context,
 
     request->operationContext = context;
 
-    try
+    if(request->operationContext.contains(ContentLanguageListContainer::NAME))
     {
         request->operationContext.set(ContentLanguageListContainer(contentLangs));
     }
-    catch(Exception &)
+    else
     {
         request->operationContext.insert(ContentLanguageListContainer(contentLangs));
     }

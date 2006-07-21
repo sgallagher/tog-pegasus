@@ -389,10 +389,11 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         // to add a NormalizerContextContainer. The presence of an
         // ObjectNormalizer is determined by the presence of the
         // CachedClassDefinitionContainer
-        try {
+        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        {
             request->operationContext.get(CachedClassDefinitionContainer::NAME);
         }
-        catch(Exception &)
+        else
 #endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
         {
             // If a mechanism is needed to correct mismatches between the
@@ -537,10 +538,11 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         // to add a NormalizerContextContainer. The presence of an
         // ObjectNormalizer is determined by the presence of the
         // CachedClassDefinitionContainer
-        try {
+        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        {
             request->operationContext.get(CachedClassDefinitionContainer::NAME);
         }
-        catch(Exception &)
+        else
 #endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
         {
             // If a mechanism is needed to correct mismatches between the
@@ -1284,10 +1286,11 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         // to add a NormalizerContextContainer. The presence of an
         // ObjectNormalizer is determined by the presence of the
         // CachedClassDefinitionContainer
-        try {
+        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        {
             request->operationContext.get(CachedClassDefinitionContainer::NAME);
         }
-        catch(Exception &)
+        else
 #endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
         {
             // If a mechanism is needed to correct mismatches between the
@@ -1571,10 +1574,11 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         // to add a NormalizerContextContainer. The presence of an
         // ObjectNormalizer is determined by the presence of the
         // CachedClassDefinitionContainer
-        try {
+        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        {
             request->operationContext.get(CachedClassDefinitionContainer::NAME);
         }
-        catch(Exception &)
+        else
 #endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
         {
             // If a mechanism is needed to correct mismatches between the
@@ -1853,11 +1857,12 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         // to add a NormalizerContextContainer. The presence of an
         // ObjectNormalizer is determined by the presence of the
         // CachedClassDefinitionContainer
-        try {
+        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        {
             request->operationContext.get(CachedClassDefinitionContainer::NAME);
             externalNormalizationEnabled = true;
         }
-        catch(Exception &)
+        else
 #endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
         {
             // If a mechanism is needed to correct mismatches between the

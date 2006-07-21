@@ -1085,7 +1085,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
             // Get the provider module from the ProviderIdContainer to see if
             // we can optimize out the transmission of this instance to the
             // Provider Agent.  (See the _providerModuleCache description.)
-            try
+            if(request->operationContext.contains(ProviderIdContainer::NAME))
             {
                 ProviderIdContainer pidc = request->operationContext.get(
                     ProviderIdContainer::NAME);
@@ -1109,10 +1109,6 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                         pidc.isRemoteNameSpace(), pidc.getRemoteInfo()));
                     doProviderModuleOptimization = true;
                 }
-            }
-            catch (...)
-            {
-                // No ProviderIdContainer to optimize
             }
 
             //
@@ -1730,18 +1726,18 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
 
     if (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
     {
-        try
+        if(request->operationContext.contains(IdentityContainer::NAME))
         {
             // User Name is in the OperationContext
             IdentityContainer ic = (IdentityContainer)
                 request->operationContext.get(IdentityContainer::NAME);
             userName = ic.getUserName();
         }
-        catch (Exception&)
-        {
-            // If no IdentityContainer is present, default to the CIM
-            // Server's user context
-        }
+        //else
+        //{
+        //    If no IdentityContainer is present, default to the CIM
+        //    Server's user context
+        //}
 
         // If authentication is disabled, use the CIM Server's user context
         if (!userName.size())

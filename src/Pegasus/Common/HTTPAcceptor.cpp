@@ -380,18 +380,21 @@ void HTTPAcceptor::bind()
 */
 void HTTPAcceptor::_bind()
 {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
         AutoMutex automut(Monitor::_cout_mut);
         PEGASUS_STD(cout) << "in HTTPAcceptor::_bind at the begining" << PEGASUS_STD(endl);
         PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before ASSERT" << PEGASUS_STD(endl);
     }
+#endif
    PEGASUS_ASSERT(_rep != 0);
    // Create address:
-
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
    {
        AutoMutex automut(Monitor::_cout_mut);
        PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before memset" << PEGASUS_STD(endl);
    }
+#endif
 
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -403,28 +406,34 @@ void HTTPAcceptor::_bind()
    memset(_rep->address, 0, sizeof(*_rep->address));
 #endif
 
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
    {
        AutoMutex automut(Monitor::_cout_mut);
        PEGASUS_STD(cout) << "in HTTPAcceptor::_bind After memset" << PEGASUS_STD(endl);
    }
+#endif
 
    if (_localConnection)
    {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
        {
         AutoMutex automut(Monitor::_cout_mut);
        PEGASUS_STD(cout)
            << "in HTTPAcceptor::_bind before calling _createNamedPipe() "
            << PEGASUS_STD(endl);
        }
+#endif
      // _rep->createNamedPipe();
        _createNamedPipe();
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
        {
         AutoMutex automut(Monitor::_cout_mut);
        PEGASUS_STD(cout) << "in HTTPAcceptor::_bind after calling _createNamedPipe() " << PEGASUS_STD(endl);
        }
+#endif
        return;
 #else
        reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =
@@ -617,10 +626,12 @@ void HTTPAcceptor::_bind()
                   "HTTPAcceptor::_bind: Failed to solicit socket messages(2).");
       throw BindFailedException(parms);
    }
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
    {
     AutoMutex automut(Monitor::_cout_mut);
    PEGASUS_STD(cout) << "in HTTPAcceptor::_bind at the End" << PEGASUS_STD(endl);
    }
+#endif
 
 }
 
@@ -901,12 +912,14 @@ void HTTPAcceptor::_acceptConnection()
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 void HTTPAcceptor::_createNamedPipe()
 {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
      AutoMutex automut(Monitor::_cout_mut);
     PEGASUS_STD(cout) << "Entering  HTTPAcceptor::_createNamedPipe()." << PEGASUS_STD(endl);
     }
-
+#endif
     _rep->namedPipeServer = new NamedPipeServer("\\\\.\\pipe\\MyNamedPipe");
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
      AutoMutex automut(Monitor::_cout_mut);
     PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() after calling the pipe server constructor" << PEGASUS_STD(endl);
@@ -916,6 +929,7 @@ void HTTPAcceptor::_createNamedPipe()
      AutoMutex automut(Monitor::_cout_mut);
     cout << "Named pipe...in _createNamedPipe..." << _rep->namedPipeServer->getPipe() << endl;
     }
+#endif
     // Register to receive Messages on Connection pipe:
 
    if ( -1 == ( _entry_index = _monitor->solicitPipeMessages(
@@ -932,19 +946,21 @@ void HTTPAcceptor::_createNamedPipe()
        MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SOLICIT_SOCKET_MESSAGES",
                     "Failed to solicit socket messaeges");
        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                   "HTTPAcceptor::_bind: Failed to solicit socket messages(2).");
+                   "HTTPAcceptor::_bind: Failed to solicit pipe messages(2).");
        throw BindFailedException(parms);
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
        {
         AutoMutex automut(Monitor::_cout_mut); //added
        PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() _monitor->solicitSocketMessages failed" << PEGASUS_STD(endl);
        }
-
+#endif
    }
-
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
    {
        AutoMutex automut(Monitor::_cout_mut);
        PEGASUS_STD(cout) << "Leaving  HTTPAcceptor::_createNamedPipe()." << PEGASUS_STD(endl);
    }
+#endif
    return;
 
 }
@@ -959,8 +975,10 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
     if (!_rep)
        return;
     {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
         AutoMutex automut(Monitor::_cout_mut);
         cout <<"In HTTPAcceptor::_acceptNamedPipeConnection " << endl;
+#endif
     }
 
    // shouldnt we be using the private var....
@@ -968,10 +986,12 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
 
     NamedPipeServerEndPiont nPSEndPoint = _rep->namedPipeServer->accept();
     // Registerpe to receive Messages on Connection pipe:
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
         AutoMutex automut(Monitor::_cout_mut);
         cout << " In _acceptNamedPipeConnection -- after calling namedPipeServer->accept()" << endl;
     }
+#endif
     HTTPConnection* connection = new HTTPConnection(_monitor, nPSEndPoint,
         this, static_cast<MessageQueue *>(_outputMessageQueue), _exportConnection);
 
@@ -987,12 +1007,13 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
 
     // Solicit events on this new connection's socket:
     int index;
-
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
         AutoMutex automut(Monitor::_cout_mut);
         cout << endl << connection->getNamedPipe().getName() << " has a this as a QueueID " <<
          connection->getQueueId() << endl;
     }
+#endif
     if (-1 ==  (index = _monitor->solicitPipeMessages(
        connection->getNamedPipe(),
        NamedPipeMessage::READ | NamedPipeMessage::EXCEPTION,
@@ -1012,13 +1033,13 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
     connection->_entry_index = index;
     AutoMutex autoMut(_rep->_connection_mut);
     _rep->connections.append(connection);
-
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
   {
       AutoMutex automut(Monitor::_cout_mut);
       PEGASUS_STD(cout)
        << "in HTTPAcceptor::_acceptNamedPipeConnection() at the end" << PEGASUS_STD(endl);
   }
-
+#endif
 }
 #endif
 

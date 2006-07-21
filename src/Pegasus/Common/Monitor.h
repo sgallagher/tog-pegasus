@@ -186,7 +186,7 @@ public:
   {
       namedPipe = namedPipe_;
       events = events_; 
-      cout << "in NamedPipeMessage class constructor" << endl;
+      //cout << "in NamedPipeMessage class constructor" << endl;
   }
 
   NamedPipe namedPipe;

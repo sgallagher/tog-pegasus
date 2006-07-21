@@ -309,11 +309,12 @@ HTTPConnection* HTTPConnector::connect(
 {
    PEGASUS_SOCKET socket;
 
-
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
   {
   AutoMutex automut(Monitor::_cout_mut);
   PEGASUS_STD(cout) << "HTTPConnector::connect after connectLocal on windows section" << PEGASUS_STD(endl);
   }
+#endif
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
    if (host == String::EMPTY)  //connect request was made with CIMClient::connectLocal
@@ -322,11 +323,13 @@ HTTPConnection* HTTPConnector::connect(
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
    {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
    AutoMutex automut(Monitor::_cout_mut);
    PEGASUS_STD(cout) << "HTTPConnector::connect before connectLocal on windows section" << PEGASUS_STD(endl);
 
       //CIMClient::connectLocal [host == String::EMPTY] use NamedPipes on windows
        PEGASUS_STD(cout) << "HTTPConnector::connect at connectLocal on windows section" << PEGASUS_STD(endl);
+#endif
    }
        HTTPConnection* pipeConnection = _connectNamedPipe(outputMessageQueue);
 
@@ -335,18 +338,23 @@ HTTPConnection* HTTPConnector::connect(
 
        if (pipeConnection->isNamedPipeConnection()) //this if/else is a small bit of error checking - it needs to be better
        {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
            AutoMutex automut(Monitor::_cout_mut);
            PEGASUS_STD(cout) <<" named pipe HTTPConnetion has this as an owner - " <<
                pipeConnection->get_owner().getQueueName() << " it should be " <<
                 this->getQueueName() << PEGASUS_STD(endl);
+#endif
        }
        else
            {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
            AutoMutex automut(Monitor::_cout_mut);
            PEGASUS_STD(cout) <<"HTTPConnection returned from _connectNamedPipe is not a pipe conection " << PEGASUS_STD(endl);
+#endif
            }
            // We may need to Assert here...
 
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
        {
        AutoMutex automut(Monitor::_cout_mut);
        PEGASUS_STD(cout) << "HTTPConnector::connect after call to _connectNamedPipe" << PEGASUS_STD(endl);
@@ -354,6 +362,7 @@ HTTPConnection* HTTPConnector::connect(
        PEGASUS_STD(cout) << "HTTPConnector::connect check HTTPConnection retruned be _connectNamePipe " << endl;
        PEGASUS_STD(cout) << "HTTPConnector::connect pipeConnection->getNamedPipe().getName() = " << pipeConnection->getNamedPipe().getName() << endl;
        }
+#endif
       return pipeConnection;
    }
 
@@ -453,9 +462,11 @@ HTTPConnection* HTTPConnector::connect(
       SocketMessage::READ | SocketMessage::EXCEPTION,
       connection->getQueueId(), Monitor::CONNECTOR)))
    {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
       //this is a failure block
       AutoMutex automut(Monitor::_cout_mut);
       PEGASUS_STD(cout) << "_monitor->solicitSocketMessages failed " << PEGASUS_STD(endl);
+#endif
    }
 
    // Save the socket for cleanup later:
@@ -498,23 +509,34 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 
     if (!currentConnection->isNamedPipeConnection())
     {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
         {
             AutoMutex automut(Monitor::_cout_mut);
             cout << " in HTTPConnector::disconnect before currentConnection->getSocket " << endl;
         }
+#endif
         PEGASUS_SOCKET socket = currentConnection->getSocket(); 
         _monitor->unsolicitSocketMessages(socket);
     }
     else
     {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
         {
             AutoMutex automut(Monitor::_cout_mut);
             cout << " in HTTPConnector::disconnect before currentConnection->getNamedPipe " << endl;
         }
+#endif
         NamedPipe namedPipe = currentConnection->getNamedPipe();
         
         _monitor->unsolicitPipeMessages(namedPipe);
         
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+        {
+            AutoMutex automut(Monitor::_cout_mut);
+            cout << " in HTTPConnector::disconnecting named pipe handle: " << namedPipe.getPipe() << endl;
+        }
+#endif
+       //namedPipe.disconnect(namedPipe.getPipe()); 
     }
     
     _rep->connections.remove(index);
@@ -525,11 +547,12 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 {
     if (!httpConnection->isNamedPipeConnection())
     {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
         {
             AutoMutex automut(Monitor::_cout_mut);
             cout << " in HTTPConnector::_deleteConnection before httpConnection->getSocket " << endl;
         }
-
+#endif
 
         PEGASUS_SOCKET socket = httpConnection->getSocket(); 
 
@@ -539,16 +562,24 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
     }
     else 
     {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
         {
             AutoMutex automut(Monitor::_cout_mut);
             cout << " in HTTPConnector::_deleteConnection before httpConnection->getNamedPipe " << endl;
         }
+#endif
 
 
         NamedPipe namedPipe = httpConnection->getNamedPipe();
 
         _monitor->unsolicitPipeMessages(namedPipe);
 
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+        {
+            AutoMutex automut(Monitor::_cout_mut);
+            cout << " in HTTPConnector::disconnecting named pipe handle: " << namedPipe.getPipe() << endl;
+        }
+#endif
        //namedPipe.disconnect(namedPipe.getPipe()); 
     }
     // Destroy the connection (causing it to close):
@@ -559,16 +590,20 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
  HTTPConnection* HTTPConnector::_connectNamedPipe(MessageQueue* outputMessageQueue)
 {
     NamedPipeClient client("\\\\.\\pipe\\MyNamedPipe");
-    {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG    
+ {
     AutoMutex automut(Monitor::_cout_mut);
     PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after client constuctor" << PEGASUS_STD(endl);
-    }
+ }
+#endif
     NamedPipeClientEndPiont nPCEndPoint = client.connect();
 
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
     AutoMutex automut(Monitor::_cout_mut);
     cout << "In HTTPConnector::_connectNamedPipe just creaed a pipe named - " << nPCEndPoint.getName() << endl;
     }
+#endif
 
 
     // Will need to catch the exception from connect...
@@ -586,12 +621,15 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 
     HTTPConnection* connection = new HTTPConnection(_monitor, nPCEndPoint,
         this, static_cast<MessageQueueService *>(outputMessageQueue), false);
+    
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG   
     {
     AutoMutex automut(Monitor::_cout_mut);
     PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after creating HTTPConnection" << PEGASUS_STD(endl);
 
     PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe pipe in HTTPConnection is - " << (connection->getNamedPipe()).getName() << endl;
     }
+#endif
     // Solicit events on this new connection's socket:
 
    if (-1 == (_entry_index = _monitor->solicitPipeMessages(
@@ -600,23 +638,28 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
       connection->getQueueId(), Monitor::CONNECTOR/*Monitor::CONNECTION*/)))
    {
       //this is a failure block
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
       AutoMutex automut(Monitor::_cout_mut);
       PEGASUS_STD(cout) << "_monitor->solicitSocketMessages failed " << PEGASUS_STD(endl);
+#endif
    }
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
   {
   AutoMutex automut(Monitor::_cout_mut);
   PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after solicitPipeMessages "<< PEGASUS_STD(endl);
   }
+#endif
 
    // Save the socket for cleanup later:
 
    _rep->connections.append(connection);
 
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
    {
    AutoMutex automut(Monitor::_cout_mut);
    PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipeabout to return HTTPConnetion" << PEGASUS_STD(endl);
    }
-
+#endif
 
     return connection;
 

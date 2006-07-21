@@ -129,6 +129,14 @@ public:
     const Container& get(const String& containerName) const;
 
     /**
+        Tests if the specified Container object is in the OperationContext.
+        @param containerName The name of the Container type to retrieve.
+        @return "true" if the container is present in the OperationContext,
+        "false" if it is not present.
+    */
+    Boolean contains(const String& containerName) const;
+
+    /**
         Replaces an OperationContext Container with the specified Container
         object of the same type.
         @param container The Container to set in the OperationContext.

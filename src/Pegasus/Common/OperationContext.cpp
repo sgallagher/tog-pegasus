@@ -115,6 +115,21 @@ const OperationContext::Container & OperationContext::get(
     throw Exception(_exception);
 }
 
+Boolean OperationContext::contains(
+    const String& containerName) const
+{
+    Uint32 size = _rep->containers.size();
+    Container** data = (Container**)_rep->containers.getData();
+
+    for (; size--; data++)
+    {
+        if (data[0]->getName() == containerName)
+            return true;
+    }
+
+    return false;
+}
+
 void OperationContext::set(const OperationContext::Container & container)
 {
     for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)

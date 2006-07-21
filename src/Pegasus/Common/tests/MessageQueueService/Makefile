@@ -41,6 +41,7 @@ SOURCES = MessageQueueService.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(PROGRAM)
+	@ $(ECHO) The MessageQueueService test is disabled
+#	$(PROGRAM)
 
 poststarttests:

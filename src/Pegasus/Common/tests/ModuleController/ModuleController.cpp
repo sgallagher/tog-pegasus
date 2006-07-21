@@ -277,18 +277,16 @@ ModuleController::client_handle *test_module::get_client_handle()
 {
    if(_client_handle == NULL)
    {
-      CString temp = _controller_name.getCString();
-      if( temp )
+      if (_controller_name.size())
       {
 	 try 
 	 {
-	    _controller = &(ModuleController::get_client_handle(temp, _id, &_client_handle));
+	    _controller = &(ModuleController::get_client_handle(
+                _controller_name.getCString(), _id, &_client_handle));
 	 }
 	 catch(IncompatibleTypesException &)
 	 {
-	    ;
 	 }
-	 delete temp;
       }
    }
    
@@ -411,9 +409,9 @@ typedef struct _test_module_parms
 	 _me = strdup(me);
       }
       
-      const char *_controller;
-      const char *_peer;
-      const char *_me;
+      char *_controller;
+      char *_peer;
+      char *_me;
       ~_test_module_parms()
       {
 	 delete _controller;

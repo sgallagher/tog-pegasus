@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -53,6 +53,7 @@
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include "CIMNameUnchecked.h"
 #include "StrLit.h"
+#include "CIMInstanceRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -124,7 +125,7 @@ void CIMClassRep::addProperty(const CIMProperty& x)
         						 "property \"$0\"",
         						 x.getName().getString());
         throw AlreadyExistsException(parms);
-            
+
     }
 
     // Reject addition of a reference property without a referenceClassName
@@ -155,7 +156,7 @@ void CIMClassRep::addMethod(const CIMMethod& x)
         						 "method \"$0\"",
         						 x.getName().getString());
         throw AlreadyExistsException(parms);
-            
+
     }
 
     // Add the method:
@@ -214,25 +215,25 @@ void CIMClassRep::resolve(
 
     if (!_superClassName.isNull())
 	{
-		//cout << "KSTEST Class Resolve with Super class " << getClassName() 
+		//cout << "KSTEST Class Resolve with Super class " << getClassName()
 		//<< " superClass " << _superClassName << endl;
 		//----------------------------------------------------------------------
 		// First check to see if the super-class really exists and the subclassing legal:
 		//----------------------------------------------------------------------
 		CIMConstClass superClass
 			= context->lookupClass(nameSpace, _superClassName);
-	
+
 		if (superClass.isUninitialized())
 			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,
                           _superClassName.getString());
-                       
-	
+
+
 #if 0
 		if (!superClass._rep->_resolved)
 			throw ClassNotResolved(_superClassName);
 #endif
 		// If subclass is abstract but superclass not, throw CIM Exception
-	
+
 		/* ATTN:KS-24 Mar 2002 P1 - Test this and confirm that rule is correct
 		if isAbstract() && !superclass.isAbstract()
 			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,_superClassName);
@@ -244,7 +245,7 @@ void CIMClassRep::resolve(
 		// Iterate all the properties of *this* class. Resolve each one and
 		// set the class-origin:
 		//----------------------------------------------------------------------
-	
+
                 Boolean isAssociationClass = isAssociation();
 
 		for (Uint32 i = 0, n = _properties.size(); i < n; i++)
@@ -260,16 +261,16 @@ void CIMClassRep::resolve(
                             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
                             			MessageLoaderParms("Common.CIMClassRep.NON_ASSOCIATION_CLASS_CONTAINS_REFERENCE_PROPERTY",
                             							   "Non-assocation class contains reference property"));
-                            							   
+
 
             }
-						
+
 
 			Uint32 index = superClass.findProperty(property.getName());
-	
+
 			if (index == PEG_NOT_FOUND)
 			{
-                            Resolver::resolveProperty (property, context, 
+                            Resolver::resolveProperty (property, context,
                                 nameSpace, false, true);
                             if (property.getClassOrigin().isNull())
                             {
@@ -281,7 +282,7 @@ void CIMClassRep::resolve(
 			{
 				CIMConstProperty superClassProperty =
 				superClass.getProperty(index);
-                            Resolver::resolveProperty (property, context, 
+                            Resolver::resolveProperty (property, context,
                                 nameSpace, false, superClassProperty, true);
                             if (property.getClassOrigin().isNull())
                             {
@@ -290,22 +291,22 @@ void CIMClassRep::resolve(
                             }
 			}
 		}
-	
+
 		//----------------------------------------------------------------------
 		// Now prepend all properties inherited from the super-class (that
 		// are not overriden by this sub-class).
 		//----------------------------------------------------------------------
-	
+
 		// Iterate super-class properties:
-	
+
 		for (Uint32 i = 0, m = 0, n = superClass.getPropertyCount(); i < n; i++)
 		{
 			CIMConstProperty superClassProperty = superClass.getProperty(i);
-	
+
 			// Find the property in *this* class; if not found, then clone and
 			// insert it (setting the propagated flag). Otherwise, change
 			// the class-origin and propagated flag accordingly.
-	
+
 			Uint32 index = PEG_NOT_FOUND;
 			/*	 ATTN: KS move to simpler version of the find
 			for (Uint32 j = m, n = _properties.size(); j < n; j++)
@@ -319,19 +320,19 @@ void CIMClassRep::resolve(
 			}
 			*/
 			index = findProperty(superClassProperty.getName());
-	
+
 			// If property exists in super class but not in this one, then
 			// clone and insert it. Otherwise, the properties class
 			// origin was set above.
-	
+
 			CIMProperty superproperty = superClassProperty.clone();
-	
+
 			if (index == PEG_NOT_FOUND)
 			{
 				superproperty.setPropagated(true);
 				_properties.insert(m++, superproperty);
-			} 
-			else 
+			}
+			else
 			{
 				// Property Qualifiers must propagate if allowed
 				// If property exists in the superclass and in the subclass,
@@ -341,25 +342,25 @@ void CIMClassRep::resolve(
 				// property's qualifier list.
 				CIMProperty subproperty = _properties[index];
 				for (Uint32 i = 0, n = superproperty.getQualifierCount();
-					i < n; i++) 
+					i < n; i++)
 				{
 					Uint32 index = PEG_NOT_FOUND;
-					CIMQualifier superClassQualifier = 
+					CIMQualifier superClassQualifier =
 											superproperty.getQualifier(i);
 					const CIMName name = superClassQualifier.getName();
 					/* ATTN KS This is replacement find function.
 					if((Uint32 j = subproperty.findQualifier(q.getName()) == PEG_NOT_FOUND)
 					{
 						subproperty.addQualifier(superClassQualifier);
-						
+
 					}
 					*/
 					for (Uint32 j = 0, m = subproperty.getQualifierCount();
 						 j < m;
-						 j++) 
+						 j++)
 					{
 						CIMConstQualifier q = subproperty.getQualifier(j);
-						if (name.equal(q.getName())) 
+						if (name.equal(q.getName()))
 						{
 							index = j;
 							break;
@@ -378,43 +379,43 @@ void CIMClassRep::resolve(
 				} // end iteration over superclass property's qualifiers
 			}
 		}
-	
+
 		//----------------------------------------------------------------------
 		// Iterate all the methods of *this* class. Resolve each one and
 		// set the class-origin:
 		//----------------------------------------------------------------------
-	
+
 		for (Uint32 i = 0, n = _methods.size(); i < n; i++)
 		{
 			CIMMethod& method = _methods[i];
 			Uint32 index = superClass.findMethod(method.getName());
-	
+
 			if (index == PEG_NOT_FOUND)
 			{
-                            Resolver::resolveMethod (method, context, 
+                            Resolver::resolveMethod (method, context,
                                 nameSpace);
 			}
 			else
 			{
 				CIMConstMethod superClassMethod = superClass.getMethod(index);
-                            Resolver::resolveMethod (method, context, 
+                            Resolver::resolveMethod (method, context,
                                 nameSpace, superClassMethod);
 			}
 		}
-	
+
 		//----------------------------------------------------------------------
 		// Now prepend all methods inherited from the super-class (that
 		// are not overriden by this sub-class).
 		//----------------------------------------------------------------------
-	
+
 		for (Uint32 i = 0, m = 0, n = superClass.getMethodCount(); i < n; i++)
 		{
 			CIMConstMethod superClassMethod = superClass.getMethod(i);
-	
+
 			// Find the method in *this* class; if not found, then clone and
 			// insert it (setting the propagated flag). Otherwise, change
 			// the class-origin and propagated flag accordingly.
-	
+
 			Uint32 index = PEG_NOT_FOUND;
 			/**********************	 KS move to simpler version
 			for (Uint32 j = m, n = _methods.size(); j < n; j++)
@@ -426,11 +427,11 @@ void CIMClassRep::resolve(
 					break;
 				}
 			}
-	
+
 			// If method exists in super class but not in this one, then
 			// clone and insert it. Otherwise, the method's class origin
 			// has already been set above.
-	
+
 			if (index == PEG_NOT_FOUND)
 			{
 				CIMMethod method = superClassMethod.clone();
@@ -445,7 +446,7 @@ void CIMClassRep::resolve(
 				_methods.insert(m++, method);
 			}
 		}
-	
+
 		//----------------------------------------------------------------------
 		// Validate the qualifiers of this class:
 		//----------------------------------------------------------------------
@@ -467,31 +468,31 @@ void CIMClassRep::resolve(
 
 		for (Uint32 i = 0, n = _properties.size(); i < n; i++)
                 {
-                    Resolver::resolveProperty (_properties[i], context, 
+                    Resolver::resolveProperty (_properties[i], context,
                         nameSpace, false, true);
                     _properties[i].setClassOrigin(getClassName());
                     _properties[i].setPropagated(false);
                 }
-	
+
 		//----------------------------------------------------------------------
 		// Resolve each method:
 		//----------------------------------------------------------------------
-	
+
 		for (Uint32 i = 0, n = _methods.size(); i < n; i++)
                     Resolver::resolveMethod (_methods[i], context, nameSpace);
-	
+
 		//----------------------------------------------------------------------
 		// Resolve the qualifiers:
 		//----------------------------------------------------------------------
-	
+
 		CIMQualifierList dummy;
-	
+
 		_qualifiers.resolve(
 			context,
 			nameSpace,
 			isAssociation() ? CIMScope::ASSOCIATION : CIMScope::CLASS,
 			false,
-			dummy, 
+			dummy,
 			true);
     }
 
@@ -503,43 +504,58 @@ CIMInstance CIMClassRep::buildInstance(Boolean includeQualifiers,
     const CIMPropertyList& propertyList) const
 {
 
-    // Create the new instance
-    CIMInstance newInstance(_reference.getClassName());
+    // Create the new instance representation
+    CIMInstanceRep* newInstanceRep = new CIMInstanceRep(
+        CIMObjectPath(String::EMPTY,
+                      CIMNamespaceName(),
+                      _reference.getClassName()));
 
     // Copy qualifiers if required
     if (includeQualifiers)
     {
         for (Uint32 i = 0 ; i < getQualifierCount() ; i++)
         {
-            newInstance.addQualifier(getQualifier(i).clone());
+            newInstanceRep->_qualifiers.add(getQualifier(i).clone());
         }
     }
+
+    newInstanceRep->_properties.reserveCapacity(_properties.size());
 
     // Copy Properties
     for (Uint32 i = 0 ; i < _properties.size() ; i++)
     {
-        CIMConstProperty p = getProperty(i);
-        CIMName name = p.getName();
+        CIMConstProperty cp = getProperty(i);
+        CIMName name = cp.getName();
         Array<CIMName> pl = propertyList.getPropertyNameArray();
         if (propertyList.isNull() || Contains(pl, name))
         {
-            CIMProperty p = getProperty(i).clone();
-            if (!includeQualifiers && p.getQualifierCount() != 0)
+            CIMProperty p;
+
+            if (includeQualifiers)
             {
-                for (Uint32 j = 0 ; j < getQualifierCount() ; j++)
-                {
-                    p.removeQualifier(i - 1);
-                }
+                p = getProperty(i).clone();
             }
+            else
+            {
+                p = CIMProperty(cp.getName(),
+                                cp.getValue(),
+                                cp.getArraySize(),
+                                cp.getReferenceClassName(),
+                                cp.getClassOrigin());
+            }
+
+            // Delete class origin attribute if required
             if (!includeClassOrigin)
             {
                 p.setClassOrigin(CIMName());
             }
-            newInstance.addProperty(p);
 
-            // Delete class origin attribute if required
+            newInstanceRep->_properties.append(p);
         }
     }
+
+    // Create new CIMInstance from CIMInstanceRep
+    CIMInstance newInstance(newInstanceRep);
 
     return(newInstance);
 }
@@ -580,7 +596,7 @@ void CIMClassRep::toXml(Buffer& out) const
     classDeclaration 	=    [ qualifierList ]
 			     CLASS className [ alias ] [ superClass ]
 			     "{" *classFeature "}" ";"
-			
+
     superClass 		=    :" className
 
     classFeature 	=    propertyDeclaration | methodDeclaration

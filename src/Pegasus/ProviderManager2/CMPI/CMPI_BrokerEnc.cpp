@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -198,7 +198,7 @@ static inline CIMNamespaceName NameSpaceName(const char *ns) {
     if (ns==NULL) return n;
     try  {
        n = CIMNamespaceName(ns);
-    } catch (...) 
+    } catch (...)
     {
          // n won't be assigned to anything yet, so it is safe
          // to send it off.
@@ -233,41 +233,20 @@ extern "C" {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	    return NULL;
 	  }
-		 
+
    //   cout<<"--- mbEncNewInstance() "<<cop->getClassName()<<"-"<<cop->getNameSpace()<<endl;
       CIMClass *cls=mbGetClass(mb,*cop);
       CIMInstance *ci=NULL;
 
       if (cls) {
-         ci=new CIMInstance(cop->getClassName());
          const CMPIContext *ctx=CMPI_ThreadContext::getContext();
          CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,rc).value.uint32;
-         if ((flgs & CMPI_FLAG_IncludeQualifiers)!=0) {
-            for (int i=0,m=cls->getQualifierCount(); i<m; i++)
-               ci->addQualifier(cls->getQualifier(i).clone());
-   //          for (int i=0,m=cls->getPropertyCount(); i<m; i++)
-   //             ci->addProperty(cls->getProperty(i).clone());
-            for (int i=0,m=cls->getPropertyCount(); i<m; i++) {
-               CIMConstProperty p=cls->getProperty(i);
-               CIMProperty np(p.getName(),p.getValue(),
-                              p.getArraySize(),p.getReferenceClassName(),
-                              p.getClassOrigin());
-               for (int q=0,qm=p.getQualifierCount(); q<qm; q++) {
-                  np.addQualifier(p.getQualifier(q).clone());
-               }
-               ci->addProperty(np);
-            }
-         }
-         else {
-            for (int i=0,m=cls->getPropertyCount(); i<m; i++) {
-               CIMConstProperty p=cls->getProperty(i);
-               ci->addProperty(CIMProperty(
-                  p.getName(),p.getValue(),
-                  p.getArraySize(),p.getReferenceClassName(),
-                  p.getClassOrigin())); //,
-                  //p.getPropagated()));
-            }
-         }
+         CIMInstance newInst = cls->buildInstance(
+             Boolean(flgs & CMPI_FLAG_IncludeQualifiers),
+             false,
+             CIMPropertyList());
+
+         ci = new CIMInstance(newInst);
       }
       else {
          if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
@@ -294,7 +273,7 @@ extern "C" {
       CIMNamespaceName nameSpace;
 	  if (ns)	nameSpace =NameSpaceName(ns);
 		else
-				nameSpace=NameSpaceName("");	
+				nameSpace=NameSpaceName("");
       CIMObjectPath *cop=new CIMObjectPath(host,nameSpace,className,keyBindings);
       CMPIObjectPath *nePath=reinterpret_cast<CMPIObjectPath*>(new CMPI_Object(cop));
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
@@ -396,8 +375,8 @@ extern "C" {
 	  else if (obj->getFtab()==(void*)CMPI_String_Ftab) {
 		str=String((const char*)obj->getHdl());
 	  }
-	  else if (obj->getFtab()==(void*)CMPI_Args_Ftab || 
-			  obj->getFtab()==(void*)CMPI_ArgsOnStack_Ftab) 
+	  else if (obj->getFtab()==(void*)CMPI_Args_Ftab ||
+			  obj->getFtab()==(void*)CMPI_ArgsOnStack_Ftab)
 			  {
 			      const Array<CIMParamValue>* arg=(Array<CIMParamValue>*)obj->getHdl();
 				  for (int i=0,m=arg->size(); i < m; i++) {
@@ -416,7 +395,7 @@ extern "C" {
    }
 
    static CMPIBoolean mbEncClassPathIsA(const CMPIBroker *mb, const CMPIObjectPath *eCp, const char *type, CMPIStatus *rc) {
-	
+
 	  if ((eCp==NULL) || (type==NULL)) {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	    return false;
@@ -425,9 +404,9 @@ extern "C" {
 		{
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_INVALID_CLASS);
 	   return 0;
-		}	
+		}
       CIMObjectPath* cop=(CIMObjectPath*)eCp->hdl;
-	
+
       const CIMName tcn(type);
 
       if (tcn==cop->getClassName()) return 1;
@@ -461,7 +440,7 @@ extern "C" {
 
       Ftab = obj->getFtab();
 
-      if (((Ftab==(void*)CMPI_Instance_Ftab) || (Ftab==(void*)CMPI_InstanceOnStack_Ftab)) && 
+      if (((Ftab==(void*)CMPI_Instance_Ftab) || (Ftab==(void*)CMPI_InstanceOnStack_Ftab)) &&
             strncmp(type,CMPIInstance_str, CMPIInstance_str_l)==0) return 1;
       if (((Ftab==(void*)CMPI_ObjectPath_Ftab) || (Ftab==(void*)CMPI_ObjectPathOnStack_Ftab)) &&
             strncmp(type,CMPIObjectPath_str, CMPIObjectPath_str_l)==0) return 1;
@@ -501,8 +480,8 @@ extern "C" {
       if (Ftab==(void*)CMPI_Broker_Ftab &&
             strncmp(type,CMPIBroker_str, CMPIBroker_str_l)==0) return 1;
 
-      if (((Ftab==(void*)CMPI_ObjEnumeration_Ftab) || 
-		  (Ftab==(void*)CMPI_InstEnumeration_Ftab) || 
+      if (((Ftab==(void*)CMPI_ObjEnumeration_Ftab) ||
+		  (Ftab==(void*)CMPI_InstEnumeration_Ftab) ||
           (Ftab==(void*)CMPI_OpEnumeration_Ftab)) &&
             strncmp(type,CMPIEnumeration_str, CMPIEnumeration_str_l)==0) return 1;
 
@@ -566,8 +545,8 @@ extern "C" {
       if (Ftab==(void*)CMPI_Broker_Ftab)
             return mb->eft->newString(mb,CMPIBroker_str,rc);
 
-      if ((Ftab==(void*)CMPI_ObjEnumeration_Ftab) || 
-		  (Ftab==(void*)CMPI_InstEnumeration_Ftab) || 
+      if ((Ftab==(void*)CMPI_ObjEnumeration_Ftab) ||
+		  (Ftab==(void*)CMPI_InstEnumeration_Ftab) ||
           (Ftab==(void*)CMPI_OpEnumeration_Ftab))
             return mb->eft->newString(mb,CMPIEnumeration_str,rc);
 
@@ -619,7 +598,7 @@ extern "C" {
 #endif
 
 #if defined(CMPI_VER_100)
-  CMPIStatus mbEncLogMessage 
+  CMPIStatus mbEncLogMessage
        (const CMPIBroker*,int severity ,const char *id,const char *text,
 	const CMPIString *string) {
 
@@ -638,10 +617,10 @@ extern "C" {
 		}
 	  else
 	    {
-           logString.append( text );     
+           logString.append( text );
 		}
     // There are no notion in CMPI spec about what 'severity' means.
-	// So we are going to try to map 
+	// So we are going to try to map
 	if (severity <= 1)
 			logSeverity = Logger::INFORMATION;
 	else if (severity == 2)
@@ -651,7 +630,7 @@ extern "C" {
 	else if (severity == 4)
 			logSeverity = Logger::FATAL;
 
-	Logger::put(Logger::STANDARD_LOG, id, logSeverity, logString); 
+	Logger::put(Logger::STANDARD_LOG, id, logSeverity, logString);
     CMReturn ( CMPI_RC_OK);
   }
 
@@ -678,7 +657,7 @@ extern "C" {
 	// Next is figuring if 'component' maps to the Pegasus types;
 	{
 		Uint32 i =0;
-		Uint32 m =sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]); 
+		Uint32 m =sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
 		for (; i < m; i++)
 		{
 			if (System::strcasecmp(component, TRACE_COMPONENT_LIST[i]) == 0)
@@ -687,7 +666,7 @@ extern "C" {
 					break;
 			}
 		}
-		// if not found, just use TRC_PROVIDERMANAGER and put the 
+		// if not found, just use TRC_PROVIDERMANAGER and put the
 		// 'component' in the traceString.
     	if ((m = i) && (traceComponent == TRC_PROVIDERMANAGER))
 		{
@@ -704,7 +683,7 @@ extern "C" {
          traceString.append( text );
 	   }
 
-	Tracer::trace(traceComponent, traceLevel, traceString.getCString()); 
+	Tracer::trace(traceComponent, traceLevel, traceString.getCString());
     CMReturn ( CMPI_RC_OK);
   }
 #endif
@@ -827,7 +806,7 @@ extern "C" {
           if (st)
             CMSetStatus (st, CMPI_RC_ERR_INVALID_QUERY);
         }
-	
+
         if (exception)
           {
             delete selectStatement;
@@ -841,21 +820,21 @@ extern "C" {
 	      {
 		Array < CQLChainedIdentifier > select_Array =
 		  selectStatement->getSelectChainedIdentifiers ();
-		
+
 		// Special check. Remove it when useShortNames is not neccessary
 		if ((select_Array.size() == 1) && (useShortNames) && (select_Array[0].getLastIdentifier().getName().getString() == String::EMPTY))
 
 		  {
 		    *projection= NULL;
-		    
+
 		  }
 		else {
 		  *projection =
 		    mbEncNewArray (mb, select_Array.size (), CMPI_string, NULL);
-		  
+
 		  CQLIdentifier identifier;
 		  String name;
-		  
+
 		  for (Uint32 i = 0; i < select_Array.size (); i++)
 		    {
 		      if (useShortNames)
@@ -875,10 +854,10 @@ extern "C" {
 			reinterpret_cast < CMPIString * >(new CMPI_Object (name));
 		      CMPIValue value;
 		      value.string = str_data;
-		      
+
 		      rc = CMSetArrayElementAt (*projection, i,
 						&value, CMPI_string);
-		      
+
 		      if (rc.rc != CMPI_RC_OK)
 			{
 			  if (st)

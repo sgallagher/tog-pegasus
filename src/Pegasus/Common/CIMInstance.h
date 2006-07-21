@@ -347,6 +347,7 @@ private:
     friend class XmlWriter;
     friend class MofWriter;
     friend class BinaryStreamer;
+    friend class CIMClassRep;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -97,6 +97,7 @@ private:
     }
 
     friend class CIMInstance;
+    friend class CIMClassRep;
 };
 
 PEGASUS_NAMESPACE_END

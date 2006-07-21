@@ -35,7 +35,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.10 2006/01/31 14:50:42 karl Exp $
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.11 2006/07/21 18:33:38 a.dunfey Exp $
  *
  *  Copyright (c) 2001 - 2003  IBM
  *  Copyright (c) 2000 - 2003 Michael Day
@@ -91,9 +91,9 @@
 #define slp_safe_free(a)  if(a != NULL) {free(a);}
 
 #ifdef SLP_LIB_IMPORT
-#define SLP_STORAGE_DECL DLL_IMPORT
+#define SLP_STORAGE_DECL PEGASUS_IMPORT
 #else
-#define SLP_STORAGE_DECL DLL_EXPORT
+#define SLP_STORAGE_DECL PEGASUS_EXPORT
 #endif
 
 #ifdef	__cplusplus

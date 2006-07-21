@@ -37,6 +37,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/DynamicLibrary.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/PegasusAssert.h>
@@ -55,7 +56,13 @@ String getLibraryFileName(const String& libraryName)
 # if defined(PEGASUS_USE_RELEASE_DIRS)
     return String("/wbem_opt/wbem/providers/lib/lib") + libraryName + ".exe";
 # else
-    return FileSystem::buildLibraryFileName(libraryName) + ".exe";
+    String provDir = ConfigManager::getInstance()->getCurrentValue("providerDir");
+    const char* tmp = getenv("PEGASUS_HOME");
+    if (tmp)
+    {
+        ConfigManager::setPegasusHome(tmp);
+    }
+    return ConfigManager::getHomedPath(provDir) + "/" + FileSystem::buildLibraryFileName(libraryName) + ".exe";
 # endif
 #else
     return FileSystem::buildLibraryFileName(libraryName);

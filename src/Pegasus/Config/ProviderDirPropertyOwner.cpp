@@ -66,6 +66,8 @@ static struct ConfigPropertyRow properties[] =
     {"providerDir", "lib;bin", IS_STATIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     {"providerDir", "lib:provider", IS_STATIC, 0, 0, IS_VISIBLE},
+#elif defined(PEGASUS_OS_VMS)
+    {"providerDir", "bin", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
     {"providerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif

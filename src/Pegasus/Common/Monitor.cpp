@@ -945,7 +945,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 
 
-        memset(entries[indx].namedPipe.raw,'\0',4096);
+        memset(entries[indx].namedPipe.raw,'\0',NAMEDPIPE_MAX_BUFFER_SIZE);
         BOOL rc = ::ReadFile(
                 entries[indx].namedPipe.getPipe(),
                 &entries[indx].namedPipe.raw,

@@ -82,7 +82,6 @@ void BinaryMessageHandler::handleEnqueue(Message * message)
 		    "Converting legacy message to AsyncLegacyOperationStart");
    op = this->get_op();
    asyncRequest = new AsyncLegacyOperationStart(
-      get_next_xid(),
       op,
       this->getQueueId(),
       message,

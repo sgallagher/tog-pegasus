@@ -2319,7 +2319,6 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
                 AsyncLegacyOperationStart *async_req =
                     new AsyncLegacyOperationStart(
-                    get_next_xid(),
                     op,
                     _handlerService,
                     handler_request,
@@ -6151,8 +6150,7 @@ void IndicationService::_sendAsyncCreateRequests
         AsyncOpNode * op = this->get_op ();
 
         AsyncLegacyOperationStart * async_req =
-            new AsyncLegacyOperationStart
-                (get_next_xid (),
+            new AsyncLegacyOperationStart(
                 op,
                 _providerManager,
                 request,
@@ -6246,8 +6244,7 @@ Array <ProviderClassList> IndicationService::_sendWaitCreateRequests
         AsyncOpNode * op = this->get_op ();
 
         AsyncLegacyOperationStart * asyncRequest =
-            new AsyncLegacyOperationStart
-                (get_next_xid (),
+            new AsyncLegacyOperationStart(
                 op,
                 _providerManager,
                 request,
@@ -6359,8 +6356,7 @@ void IndicationService::_sendWaitModifyRequests
         AsyncOpNode * op = this->get_op ();
 
         AsyncLegacyOperationStart * asyncRequest =
-            new AsyncLegacyOperationStart
-                (get_next_xid (),
+            new AsyncLegacyOperationStart(
                 op,
                 _providerManager,
                 request,
@@ -6518,8 +6514,7 @@ void IndicationService::_sendAsyncDeleteRequests
         AsyncOpNode * op = this->get_op ();
 
         AsyncLegacyOperationStart * async_req =
-            new AsyncLegacyOperationStart
-                (get_next_xid (),
+            new AsyncLegacyOperationStart(
                 op,
                 _providerManager,
                 request,
@@ -6586,8 +6581,7 @@ void IndicationService::_sendWaitDeleteRequests
         AsyncOpNode * op = this->get_op ();
 
         AsyncLegacyOperationStart * asyncRequest =
-            new AsyncLegacyOperationStart
-                (get_next_xid (),
+            new AsyncLegacyOperationStart(
                 op,
                 _providerManager,
                 request,
@@ -7090,7 +7084,6 @@ void IndicationService::_sendAlerts (
 
             AsyncLegacyOperationStart *async_req =
                 new AsyncLegacyOperationStart(
-                    get_next_xid(),
                     op,
                     _handlerService,
                     handler_request,
@@ -7127,8 +7120,7 @@ void IndicationService::_sendSubscriptionInitComplete ()
     AsyncOpNode * op = this->get_op ();
 
     AsyncLegacyOperationStart * asyncRequest =
-        new AsyncLegacyOperationStart
-            (get_next_xid (),
+        new AsyncLegacyOperationStart(
             op,
             _providerManager,
             request,

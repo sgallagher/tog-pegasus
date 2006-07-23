@@ -49,7 +49,6 @@ PEGASUS_NAMESPACE_BEGIN
 void CIMResponseMessage::syncAttributes(const CIMRequestMessage* request)
 {
     // Propagate request attributes to the response, as necessary
-    setRouting(request->getRouting());
     setMask(request->getMask());
     setHttpMethod(request->getHttpMethod());
     setCloseConnect(request->getCloseConnect());

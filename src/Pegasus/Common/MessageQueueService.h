@@ -51,7 +51,6 @@
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/RecursiveMutex.h>
-#include <Pegasus/Common/IDFactory.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -110,7 +109,6 @@ public:
             Uint32 mask,
             Array<Uint32> *results);
     void enumerate_service(Uint32 queue, message_module *result);
-    Uint32 get_next_xid();
     static AsyncOpNode *get_op();
     void return_op(AsyncOpNode *op);
 
@@ -184,7 +182,6 @@ protected:
 
 private:
     struct timeval _default_op_timeout;
-    static IDFactory _xidFactory;
     friend class cimom;
     friend class CIMServer;
 };

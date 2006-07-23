@@ -88,7 +88,6 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest *req)
                 (CIMHandleIndicationRequestMessage*) legacy.get())); //PEP 101
             legacy.release();
             AutoPtr<AsyncLegacyOperationResult> async_result(new AsyncLegacyOperationResult(
-                    req->getRouting(),
                     req->op,
                     legacy_response.get())); //PEP 101
             legacy_response.release();
@@ -299,7 +298,6 @@ IndicationHandlerService::_handleIndication(
 
                 AutoPtr<AsyncLegacyOperationStart> asyncRequest(
 		    new AsyncLegacyOperationStart(
-                    get_next_xid(),
                     op.get(),
                     exportServer[0],
                     exportmessage.get(),

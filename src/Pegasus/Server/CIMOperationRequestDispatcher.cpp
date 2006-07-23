@@ -1880,7 +1880,6 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
 
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart(
-            get_next_xid(),
             op,
             serviceIds[0],
             request,
@@ -1938,7 +1937,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     {
         AsyncLegacyOperationResult *asyncResponse =
             new AsyncLegacyOperationResult(
-                request->getRouting(), op, response);
+                op, response);
 
         // By setting this to complete, this allows ONLY the callback to run
         // without going through the typical async request apparatus
@@ -1952,7 +1951,6 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     {
         AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart(
-                get_next_xid(),
                 op,
                 serviceIds[0],
                 request,
@@ -1975,7 +1973,6 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     {
        AsyncModuleOperationStart * moduleControllerRequest =
            new AsyncModuleOperationStart(
-               get_next_xid(),
                op,
                serviceIds[0],
                this->getQueueId(),
@@ -2031,7 +2028,6 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
     {
         AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart(
-                get_next_xid(),
                 op,
                 serviceIds[0],
                 request,
@@ -2063,7 +2059,6 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
     {
        AsyncModuleOperationStart * moduleControllerRequest =
            new AsyncModuleOperationStart(
-               get_next_xid(),
                op,
                serviceIds[0],
                this->getQueueId(),

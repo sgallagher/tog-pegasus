@@ -382,7 +382,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
    // now reserve this module name with the meta dispatcher
 
    Uint32 result = 0 ;
-   AutoPtr<RegisteredModule> request(new RegisteredModule(controller->get_next_xid(),
+   AutoPtr<RegisteredModule> request(new RegisteredModule(
 			   0,
 			   true,
 			   controller->getQueueId(),
@@ -425,7 +425,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
 
 Boolean ModuleController::deregister_module(const String & module_name)
 {
-   AutoPtr<DeRegisteredModule> request(new DeRegisteredModule(get_next_xid(),
+   AutoPtr<DeRegisteredModule> request(new DeRegisteredModule(
 			     0,
 			     true,
 			     getQueueId(),
@@ -500,7 +500,7 @@ Uint32 ModuleController::find_module_in_service(const pegasus_module & handle,
 
    Uint32 result = 0 ;
 
-   AutoPtr<FindModuleInService> request(new FindModuleInService(get_next_xid(),
+   AutoPtr<FindModuleInService> request(new FindModuleInService(
 			      0,
 			      true,
 			      _meta_dispatcher->getQueueId(),
@@ -561,7 +561,7 @@ AsyncReply *ModuleController::_send_wait(Uint32 destination_q,
 					 const String & destination_module,
 					 AsyncRequest *message)
 {
-   AutoPtr<AsyncModuleOperationStart> request(new AsyncModuleOperationStart(get_next_xid(),
+   AutoPtr<AsyncModuleOperationStart> request(new AsyncModuleOperationStart(
 				    0,
 				    destination_q,
 				    getQueueId(),
@@ -616,15 +616,12 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
    op->release();
    myself->return_op(op);
 
-   Uint32 routing=0;
-
    // get rid of the module wrapper
    if( request && request->getType() == async_messages::ASYNC_MODULE_OP_START )
    {
       (static_cast<AsyncMessage *>(request))->op = NULL;
       AsyncModuleOperationStart *rq = static_cast<AsyncModuleOperationStart *>(request);
       request = rq->get_action();
-      request->setRouting(routing = rq->getRouting());
       delete rq;
    }
 
@@ -634,13 +631,12 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
       (static_cast<AsyncMessage *>(response))->op = NULL;
       AsyncModuleOperationResult *rp = static_cast<AsyncModuleOperationResult *>(response);
       response = rp->get_result();
-      response->setRouting(routing = rp->getRouting());
       delete rp;
    }
 
    callback_handle *cb = reinterpret_cast<callback_handle *>(parm);
 
-   cb->_module->_send_async_callback(routing, response, cb->_parm);
+   cb->_module->_send_async_callback(0, response, cb->_parm);
    delete cb;
 
    return;
@@ -669,7 +665,6 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
    callback_handle *cb = new callback_handle(const_cast<pegasus_module *>(&handle),
 					     callback_parm);
 
-   message->setRouting(msg_handle);
    message->resp = getQueueId();
    message->block = false;
    message->dest = destination_q;
@@ -694,7 +689,7 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
 
    AsyncOpNode *op = get_op();
    AsyncModuleOperationStart *request =
-      new AsyncModuleOperationStart(msg_handle,
+      new AsyncModuleOperationStart(
 				    op,
 				    destination_q,
 				    getQueueId(),
@@ -724,7 +719,7 @@ Boolean ModuleController::_send_forget(Uint32 destination_q,
    AsyncOpNode *op = get_op();
    message->dest = destination_q;
    AsyncModuleOperationStart *request =
-      new AsyncModuleOperationStart(0,
+      new AsyncModuleOperationStart(
 				    op,
 				    destination_q,
 				    getQueueId(),
@@ -867,7 +862,6 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
       if(module_result == NULL)
       {
 	 module_result = new AsyncReply(async_messages::REPLY,
-					static_cast<AsyncModuleOperationStart *>(rq)->_act->getRouting(),
 					message_mask::ha_async | message_mask::ha_reply,
 					rq->op,
 					async_results::CIM_NAK,
@@ -876,7 +870,7 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
       }
 
       AsyncModuleOperationResult *result =
-	 new AsyncModuleOperationResult(rq->getRouting(),
+	 new AsyncModuleOperationResult(
 					rq->op,
 					async_results::OK,
 					static_cast<AsyncModuleOperationStart *>(rq)->resp,

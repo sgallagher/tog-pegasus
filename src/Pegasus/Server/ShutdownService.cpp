@@ -339,7 +339,7 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
     // are asynchronous and their receipt is guaranteed to be undeterministic and possibly
     // out of sequence (which is something we do not want).
 
-    CimServiceStop stop_message (_mqs->get_next_xid(),
+    CimServiceStop stop_message(
 						      NULL, 
 						      _queueId, 
 						      _controller->getQueueId(),
@@ -348,7 +348,7 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
      AutoPtr <AsyncReply> StopAsyncReply 
 	(_controller->ClientSendWait ( *_client_handle,  _queueId, &stop_message));
 
-    CimServiceStart start_message (_mqs->get_next_xid(),
+    CimServiceStart start_message(
 							 NULL, 
 							 _queueId, 
 							 _controller->getQueueId(),
@@ -357,7 +357,7 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
      AutoPtr <AsyncReply> StartAsyncReply 
 	(_controller->ClientSendWait ( *_client_handle,  _queueId, &start_message));
 
-    AsyncIoctl close_request (_mqs->get_next_xid(),
+    AsyncIoctl close_request(
 					       NULL,
 					       _queueId,
 					       _controller->getQueueId(),
@@ -404,7 +404,6 @@ void ShutdownService::_shutdownProviders()
     //
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart (
-            _service->get_next_xid(),
             NULL,
             _queueId,
             stopRequest,

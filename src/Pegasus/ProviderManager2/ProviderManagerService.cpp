@@ -179,7 +179,6 @@ void ProviderManagerService::handleEnqueue(Message * message)
     else
     {
         asyncRequest = new AsyncLegacyOperationStart(
-            get_next_xid(),
             0,
             this->getQueueId(),
             message,
@@ -586,7 +585,6 @@ void ProviderManagerService::handleCimRequest(
 
     AsyncLegacyOperationResult * async_result =
         new AsyncLegacyOperationResult(
-        async->getRouting(),
         op,
         response);
 
@@ -615,7 +613,7 @@ void ProviderManagerService::responseChunkCallback(
         PEGASUS_ASSERT(op);
         PEGASUS_ASSERT(!response->_async);
         response->_async = new AsyncLegacyOperationResult(
-            requestAsync->getRouting(), op, response);
+            op, response);
 
         // set the destination
         op->_op_dest = op->_callback_response_q;
@@ -889,7 +887,6 @@ void ProviderManagerService::indicationCallback(
 
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart(
-        providerManagerService->get_next_xid(),
         0,
         _indicationServiceQueueId,
         request,
@@ -1020,8 +1017,7 @@ void ProviderManagerService::providerModuleFailureCallback
     request->queueIds = QueueIdStack
         (_indicationServiceQueueId, providerManagerService->getQueueId ());
 
-    AsyncLegacyOperationStart * asyncRequest = new AsyncLegacyOperationStart
-        (providerManagerService->get_next_xid (),
+    AsyncLegacyOperationStart * asyncRequest = new AsyncLegacyOperationStart(
         0,
         _indicationServiceQueueId,
         request,

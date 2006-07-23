@@ -67,14 +67,12 @@ public:
     typedef AsyncRequest Base;
 
     TestRequestMessage(
-        Uint32 routing,
         AsyncOpNode *op,
         Uint32 destination,
         Uint32 response,
         const char *message)
     : Base(
         0x04100000,
-        routing,
         0,
         op,
         destination,
@@ -98,14 +96,12 @@ public:
     typedef AsyncReply Base;
 
     TestResponseMessage(
-        Uint32 routing,
         AsyncOpNode *op,
         Uint32 result,
         Uint32 destination,
         const char *message)
     : Base(
         0x04200000,
-        routing,
         0,
         op,
         result,
@@ -303,7 +299,6 @@ void MessageQueueServer::handleLegacyOpStart(AsyncLegacyOperationStart *req)
     AsyncReply *resp =
         new AsyncReply(
             async_messages::REPLY,
-            req->getRouting(),
             0,
             req->op,
             async_results::OK,
@@ -326,7 +321,6 @@ void MessageQueueServer::handleTestRequestMessage(AsyncRequest *msg)
     if (msg->getType() == 0x04100000)
     {
         TestResponseMessage *resp = new TestResponseMessage(
-            msg->getRouting(),
             msg->op,
             async_results::OK,
             msg->dest,
@@ -340,7 +334,6 @@ void MessageQueueServer::handleCimServiceStop(CimServiceStop *req)
     AsyncReply *resp =
         new AsyncReply(
             async_messages::REPLY,
-            req->getRouting(),
             0,
             req->op,
             async_results::CIM_SERVICE_STOPPED,
@@ -383,7 +376,6 @@ void MessageQueueClient::sendTestRequestMessage(
 {
     TestRequestMessage *req =
         new TestRequestMessage(
-            Base::get_next_xid(),
             0,
             qid,
             _queueId,
@@ -498,7 +490,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
     Message *legacy = new Message(0x11100011);
 
     AsyncLegacyOperationStart *req = new AsyncLegacyOperationStart(
-        q_client->get_next_xid(),
         0,
         services[0],
         legacy,
@@ -515,7 +506,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
     legacy = new Message(0x11100011);
 
     req = new AsyncLegacyOperationStart(
-        q_client->get_next_xid(),
         0,
         services[0],
         legacy,
@@ -544,7 +534,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
     }
 
     CimServiceStop *stop = new CimServiceStop(
-        q_client->get_next_xid(),
         0,
         services[0],
         q_client->get_qid(),

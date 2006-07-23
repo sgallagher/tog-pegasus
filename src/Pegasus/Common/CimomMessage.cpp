@@ -102,23 +102,21 @@ const Uint32 async_messages::ASYNC_MODULE_OP_RESULT  =  ASYNC_ASYNC_MODULE_OP_RE
 
 AsyncMessage::AsyncMessage(Uint32 type, 
 			   Uint32 destination,
-			   Uint32 routing,
 			   Uint32 mask,
 			   AsyncOpNode *operation)
-   : Message(type, destination, routing, mask | message_mask::ha_async),
+   : Message(type, destination, mask | message_mask::ha_async),
      op(operation)
 {  
    
 }
 
 AsyncRequest::AsyncRequest(Uint32 type, 
-			   Uint32 routing,
 			   Uint32 mask,
 			   AsyncOpNode *operation,
 			   Uint32 destination,
 			   Uint32 response,
 			   Boolean blocking) 
-   : AsyncMessage(type, destination, routing, mask | message_mask::ha_request, operation),
+   : AsyncMessage(type, destination, mask | message_mask::ha_request, operation),
      resp(response),
      block(blocking) 
 {  
@@ -127,13 +125,12 @@ AsyncRequest::AsyncRequest(Uint32 type,
 }
 
 AsyncReply::AsyncReply(Uint32 type, 
-		       Uint32 routing, 
 		       Uint32 mask,
 		       AsyncOpNode *operation,
 		       Uint32 result_code,
 		       Uint32 destination,
 		       Boolean blocking) 
-   : AsyncMessage(type, destination, routing, mask | message_mask::ha_reply, operation),
+   : AsyncMessage(type, destination, mask | message_mask::ha_reply, operation),
      result(result_code),
      block(blocking) 
 {  
@@ -144,7 +141,7 @@ AsyncReply::AsyncReply(Uint32 type,
 
 
 
-RegisterCimService::RegisterCimService(Uint32 routing, 
+RegisterCimService::RegisterCimService(
 				       AsyncOpNode *operation,
 				       Boolean blocking,
 				       String service_name,
@@ -152,7 +149,7 @@ RegisterCimService::RegisterCimService(Uint32 routing,
 				       Uint32 service_mask,
 				       Uint32 service_queue)
    : AsyncRequest( async_messages::REGISTER_CIM_SERVICE,
-		   routing, 0, operation, CIMOM_Q_ID,
+		   0, operation, CIMOM_Q_ID,
 		   service_queue, blocking),
      name(service_name),
      capabilities(service_capabilities),
@@ -163,12 +160,12 @@ RegisterCimService::RegisterCimService(Uint32 routing,
 }
       
 
-DeRegisterCimService::DeRegisterCimService(Uint32 routing, 
+DeRegisterCimService::DeRegisterCimService(
 					   AsyncOpNode *operation,
 					   Boolean blocking, 
 					   Uint32 service_queue)
    : AsyncRequest( async_messages::DEREGISTER_CIM_SERVICE,
-		   routing, 0, operation, CIMOM_Q_ID, 
+		   0, operation, CIMOM_Q_ID, 
 		   service_queue, blocking),
      queue(service_queue) 
 {   
@@ -177,14 +174,14 @@ DeRegisterCimService::DeRegisterCimService(Uint32 routing,
 
 
 
-UpdateCimService::UpdateCimService(Uint32 routing, 
+UpdateCimService::UpdateCimService(
 				   AsyncOpNode *operation,
 				   Boolean blocking, 
 				   Uint32 service_queue, 
 				   Uint32 service_capabilities, 
 				   Uint32 service_mask) 
    : AsyncRequest( async_messages::UPDATE_CIM_SERVICE, 
-		   routing, 0, operation, CIMOM_Q_ID, 
+		   0, operation, CIMOM_Q_ID, 
 		   service_queue, blocking),
      queue(service_queue),
      capabilities(service_capabilities),
@@ -193,13 +190,12 @@ UpdateCimService::UpdateCimService(Uint32 routing,
    
 }
 
-RegisteredModule::RegisteredModule(Uint32 routing, 
+RegisteredModule::RegisteredModule(
 				   AsyncOpNode *operation,
 				   Boolean blocking, 
 				   Uint32 service_queue, 
 				   String new_module)
    : AsyncRequest( async_messages::REGISTERED_MODULE, 
-		   routing, 
 		   0, 
 		   operation, 
 		   CIMOM_Q_ID, 
@@ -210,13 +206,12 @@ RegisteredModule::RegisteredModule(Uint32 routing,
 
 }
 
-DeRegisteredModule::DeRegisteredModule(Uint32 routing, 
+DeRegisteredModule::DeRegisteredModule(
 				     AsyncOpNode *operation,
 				     Boolean blocking, 
 				     Uint32 service_queue, 
 				     String removed_module)
    : AsyncRequest( async_messages::DEREGISTERED_MODULE, 
-		   routing, 
 		   0, 
 		   operation, 
 		   CIMOM_Q_ID, 
@@ -228,13 +223,12 @@ DeRegisteredModule::DeRegisteredModule(Uint32 routing,
 }
 
 
-FindModuleInService::FindModuleInService(Uint32 routing, 
+FindModuleInService::FindModuleInService(
 					 AsyncOpNode *operation, 
 					 Boolean blocking,
 					 Uint32 response_queue,
 					 String module)
    : AsyncRequest(async_messages::FIND_MODULE_IN_SERVICE, 
-		  routing, 
 		  0, 
 		  operation, 
 		  CIMOM_Q_ID,
@@ -245,7 +239,7 @@ FindModuleInService::FindModuleInService(Uint32 routing,
 
 }
 
-FindModuleInServiceResponse::FindModuleInServiceResponse(Uint32 routing,
+FindModuleInServiceResponse::FindModuleInServiceResponse(
 							 AsyncOpNode *operation,
 							 Uint32 result_code, 
 							 Uint32 destination, 
@@ -253,7 +247,6 @@ FindModuleInServiceResponse::FindModuleInServiceResponse(Uint32 routing,
 							 Uint32 module_service_queue)
 
    : AsyncReply(async_messages::FIND_MODULE_IN_SERVICE_RESPONSE,
-		routing, 
 		0, 
 		operation, 
 		result_code,
@@ -264,7 +257,7 @@ FindModuleInServiceResponse::FindModuleInServiceResponse(Uint32 routing,
 
 }
 
-AsyncIoctl::AsyncIoctl(Uint32 routing, 
+AsyncIoctl::AsyncIoctl(
 		       AsyncOpNode *operation, 
 		       Uint32 destination, 
 		       Uint32 response,
@@ -273,7 +266,7 @@ AsyncIoctl::AsyncIoctl(Uint32 routing,
 		       Uint32 int_param,
 		       void *p_param)
    : AsyncRequest( async_messages::IOCTL, 
-		   routing, 0, operation, 
+		   0, operation, 
 		   destination, response, blocking),
      ctl(code), 
      intp(int_param),
@@ -283,13 +276,12 @@ AsyncIoctl::AsyncIoctl(Uint32 routing,
 }
 
 
-CimServiceStart::CimServiceStart(Uint32 routing, 
+CimServiceStart::CimServiceStart(
 				 AsyncOpNode *operation, 
 				 Uint32 destination, 
 				 Uint32 response, 
 				 Boolean blocking)
    : AsyncRequest(async_messages::CIMSERVICE_START,
-		  routing, 
 		  0, operation, destination, 
 		  response, blocking) 
 {  
@@ -297,13 +289,12 @@ CimServiceStart::CimServiceStart(Uint32 routing,
 }
 
 
-CimServiceStop::CimServiceStop(Uint32 routing, 
+CimServiceStop::CimServiceStop(
 			       AsyncOpNode *operation, 
 			       Uint32 destination, 
 			       Uint32 response, 
 			       Boolean blocking)
    : AsyncRequest(async_messages::CIMSERVICE_STOP,
-		  routing, 
 		  0, operation, destination, 
 		  response, blocking) 
 {  
@@ -312,13 +303,12 @@ CimServiceStop::CimServiceStop(Uint32 routing,
 
 
 
-CimServicePause::CimServicePause(Uint32 routing, 
+CimServicePause::CimServicePause(
 				 AsyncOpNode *operation, 
 				 Uint32 destination, 
 				 Uint32 response, 
 				 Boolean blocking)
    : AsyncRequest(async_messages::CIMSERVICE_PAUSE,
-		  routing, 
 		  0, operation, destination, 
 		  response, blocking) 
 {  
@@ -326,27 +316,26 @@ CimServicePause::CimServicePause(Uint32 routing,
 }
 
 
-CimServiceResume::CimServiceResume(Uint32 routing, 
+CimServiceResume::CimServiceResume(
 				   AsyncOpNode *operation, 
 				   Uint32 destination, 
 				   Uint32 response, 
 				   Boolean blocking)
    : AsyncRequest(async_messages::CIMSERVICE_RESUME,
-		  routing, 
 		  0, operation, destination, 
 		  response, blocking) 
 {  
 	 
 }
 
-AsyncOperationStart::AsyncOperationStart(Uint32 routing, 
+AsyncOperationStart::AsyncOperationStart(
 					 AsyncOpNode *operation, 
 					 Uint32 destination, 
 					 Uint32 response, 
 					 Boolean blocking, 
 					 Message *action)
    : AsyncRequest(async_messages::ASYNC_OP_START, 
-		  routing, 0,
+		  0,
 		  operation, 
 		  destination, response, blocking),
      _act(action) 
@@ -365,13 +354,13 @@ Message * AsyncOperationStart::get_action(void)
 }
 
 
-AsyncOperationResult::AsyncOperationResult(Uint32 routing, 
+AsyncOperationResult::AsyncOperationResult(
 					   AsyncOpNode *operation,
 					   Uint32 result_code, 
 					   Uint32 destination,
 					   Uint32 blocking)
    : AsyncReply(async_messages::ASYNC_OP_RESULT, 
-		routing, 0,
+		0,
 		operation, result_code, destination, 
 		blocking) 
 {   
@@ -379,7 +368,7 @@ AsyncOperationResult::AsyncOperationResult(Uint32 routing,
 }
 
 
-AsyncModuleOperationStart::AsyncModuleOperationStart(Uint32 routing, 
+AsyncModuleOperationStart::AsyncModuleOperationStart(
 						     AsyncOpNode *operation, 
 						     Uint32 destination, 
 						     Uint32 response, 
@@ -387,7 +376,7 @@ AsyncModuleOperationStart::AsyncModuleOperationStart(Uint32 routing,
 						     String target_module,
 						     Message *action)
    : AsyncRequest(async_messages::ASYNC_MODULE_OP_START, 
-		  routing, 0,
+		  0,
 		  operation, 
 		  destination, response, blocking),
      _target_module(target_module),
@@ -407,7 +396,7 @@ Message * AsyncModuleOperationStart::get_action(void)
    
 }
 
-AsyncModuleOperationResult::AsyncModuleOperationResult(Uint32 routing, 
+AsyncModuleOperationResult::AsyncModuleOperationResult(
 						       AsyncOpNode *operation,
 						       Uint32 result_code, 
 						       Uint32 destination,
@@ -415,7 +404,7 @@ AsyncModuleOperationResult::AsyncModuleOperationResult(Uint32 routing,
 						       String target_module,
 						       Message *result)
    : AsyncReply(async_messages::ASYNC_MODULE_OP_RESULT, 
-		routing, 0,
+		0,
 		operation, result_code, destination, 
 		blocking),
      _target_module(target_module),
@@ -433,13 +422,13 @@ Message * AsyncModuleOperationResult::get_result(void)
 }
 
 
-AsyncLegacyOperationStart::AsyncLegacyOperationStart(Uint32 routing, 
+AsyncLegacyOperationStart::AsyncLegacyOperationStart(
 						     AsyncOpNode *operation, 
 						     Uint32 destination, 
 						     Message *action,
 						     Uint32 action_destination)
    : AsyncRequest(async_messages::ASYNC_LEGACY_OP_START, 
-		  routing, 0,
+		  0,
 		  operation, destination, CIMOM_Q_ID, false),
      _act(action) , _legacy_destination(action_destination)
 {  
@@ -456,11 +445,11 @@ Message * AsyncLegacyOperationStart::get_action(void)
    
 }
 
-AsyncLegacyOperationResult::AsyncLegacyOperationResult(Uint32 routing, 
+AsyncLegacyOperationResult::AsyncLegacyOperationResult(
 						       AsyncOpNode *operation,
 						       Message *result)
    : AsyncReply(async_messages::ASYNC_LEGACY_OP_RESULT, 
-		routing, 0, operation, 
+		0, operation, 
 		0, CIMOM_Q_ID, false),
      _res(result)
 {   
@@ -475,7 +464,7 @@ Message *AsyncLegacyOperationResult::get_result(void)
    return ret;
 }
 
-FindServiceQueue::FindServiceQueue(Uint32 routing, 
+FindServiceQueue::FindServiceQueue(
 				   AsyncOpNode *operation, 
 				   Uint32 response,
 				   Boolean blocking, 
@@ -483,7 +472,7 @@ FindServiceQueue::FindServiceQueue(Uint32 routing,
 				   Uint32 service_capabilities, 
 				   Uint32 service_mask)
    : AsyncRequest(async_messages::FIND_SERVICE_Q, 
-		  routing, 0, operation, 
+		  0, operation, 
 		  CIMOM_Q_ID, 
 		  response, 
 		  blocking),
@@ -495,27 +484,27 @@ FindServiceQueue::FindServiceQueue(Uint32 routing,
 }
 
  
-FindServiceQueueResult::FindServiceQueueResult(Uint32 routing, 
+FindServiceQueueResult::FindServiceQueueResult(
 					       AsyncOpNode *operation, 
 					       Uint32 result_code, 
 					       Uint32 destination, 
 					       Boolean blocking, 
 					       Array<Uint32> queue_ids)
    : AsyncReply(async_messages::FIND_SERVICE_Q_RESULT, 
-		routing, 0, operation, 
+		0, operation, 
 		result_code, destination, blocking),
      qids(queue_ids) 
 {  
 	 
 }
 
-EnumerateService::EnumerateService(Uint32 routing, 
+EnumerateService::EnumerateService(
 				   AsyncOpNode *operation, 
 				   Uint32 response, 
 				   Boolean blocking, 
 				   Uint32 queue_id)
    : AsyncRequest(async_messages::ENUMERATE_SERVICE, 
-		  routing, 0, 
+		  0, 
 		  operation, 
 		  CIMOM_Q_ID, 
 		  response, 
@@ -525,7 +514,7 @@ EnumerateService::EnumerateService(Uint32 routing,
 	 
 }
 
-EnumerateServiceResponse::EnumerateServiceResponse(Uint32 routing, 
+EnumerateServiceResponse::EnumerateServiceResponse(
 						   AsyncOpNode *operation, 
 						   Uint32 result_code, 
 						   Uint32 response, 
@@ -535,7 +524,7 @@ EnumerateServiceResponse::EnumerateServiceResponse(Uint32 routing,
 						   Uint32 service_mask, 
 						   Uint32 service_qid)
    : AsyncReply(async_messages::ENUMERATE_SERVICE_RESULT, 
-		routing, 0,
+		0,
 		operation,
 		result_code,
 		response, 

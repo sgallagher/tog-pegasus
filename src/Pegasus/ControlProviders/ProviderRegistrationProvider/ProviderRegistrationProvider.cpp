@@ -1200,7 +1200,6 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart (
-            _service->get_next_xid(),
             NULL,
             _queueId,
             disable_req,
@@ -1239,7 +1238,6 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart (
-            _service->get_next_xid(),
             NULL,
             _queueId,
             enable_req,
@@ -1350,8 +1348,7 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
         termination_req->operationContext.set(AcceptLanguageListContainer(al));
 
         // create request envelope
-        AsyncLegacyOperationStart asyncRequest
-            (_service->get_next_xid(),
+        AsyncLegacyOperationStart asyncRequest(
             NULL,
             _queueId,
             termination_req,
@@ -1751,7 +1748,6 @@ void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
 	// create request envelope
         AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart (
-                _service->get_next_xid(),
                 NULL,
                 _queueId,
                 enable_req,

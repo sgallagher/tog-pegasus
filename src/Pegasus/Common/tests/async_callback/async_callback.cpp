@@ -45,7 +45,6 @@ PEGASUS_USING_PEGASUS;
 static char *verbose;
 
 async_start::async_start (AsyncOpNode * op, Uint32 start_q, Uint32 completion_q, Message * op_data):Base (
-      1,  // Dummy routing value
       op,
       start_q, completion_q, false, op_data)
 {
@@ -54,7 +53,7 @@ async_start::async_start (AsyncOpNode * op, Uint32 start_q, Uint32 completion_q,
 
 async_complete::async_complete (const async_start & start,
                                 Uint32 result, Message * result_data):
-Base (start.getRouting (), start.op, result, start.resp, false),
+Base (start.op, result, start.resp, false),
 _result_data (result_data)
 {
   start.op->put_response (this);
@@ -190,7 +189,6 @@ test_async_queue::_handle_stop (CimServiceStop * stop)
 {
   try { 
   AsyncReply *resp = new AsyncReply (async_messages::REPLY,
-                                     stop->getRouting (),
                                      0,
                                      stop->op,
                                      async_results::CIM_SERVICE_STOPPED,
@@ -279,7 +277,6 @@ client_func (void *parm)
             AsyncOpNode *op = client->get_op();
             AsyncOperationStart *async_rq =
                 new AsyncOperationStart(
-                    client->get_next_xid(),
                     op,
                     services[0],
                     client->getQueueId(),
@@ -380,7 +377,6 @@ client_func (void *parm)
     try
     {
         CimServiceStop *stop = new CimServiceStop(
-            client->get_next_xid (),
             0,
             services[0],
             client->getQueueId (),

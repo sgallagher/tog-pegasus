@@ -126,7 +126,6 @@ class PEGASUS_COMMON_LINKAGE AsyncMessage : public Message
    public:
       AsyncMessage(Uint32 type, 
 		   Uint32 destination,
-		   Uint32 routing,
 		   Uint32 mask,
 		   AsyncOpNode *operation);
            
@@ -140,7 +139,6 @@ class PEGASUS_COMMON_LINKAGE AsyncRequest : public AsyncMessage
 {
    public:
       AsyncRequest(Uint32 type, 
-		   Uint32 routing,
 		   Uint32 mask,
 		   AsyncOpNode *operation,
 		   Uint32 destination,
@@ -158,7 +156,6 @@ class PEGASUS_COMMON_LINKAGE AsyncReply : public AsyncMessage
 {
    public:
       AsyncReply(Uint32 type, 
-		 Uint32 routing, 
 		 Uint32 mask,
 		 AsyncOpNode *operation,
 		 Uint32 result_code,
@@ -177,7 +174,7 @@ class PEGASUS_COMMON_LINKAGE AsyncReply : public AsyncMessage
 class PEGASUS_COMMON_LINKAGE RegisterCimService : public AsyncRequest
 {
    public: 
-      RegisterCimService(Uint32 routing, 
+      RegisterCimService(
 			 AsyncOpNode *operation,
 			 Boolean blocking,
 			 String service_name,
@@ -199,7 +196,7 @@ class PEGASUS_COMMON_LINKAGE RegisterCimService : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE DeRegisterCimService : public AsyncRequest
 {
    public:
-      DeRegisterCimService(Uint32 routing, 
+      DeRegisterCimService(
 			   AsyncOpNode *operation,
 			   Boolean blocking, 
 			   Uint32 service_queue);
@@ -216,7 +213,7 @@ class PEGASUS_COMMON_LINKAGE DeRegisterCimService : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE UpdateCimService : public AsyncRequest
 {
    public:
-      UpdateCimService(Uint32 routing, 
+      UpdateCimService(
 		       AsyncOpNode *operation,
 		       Boolean blocking, 
 		       Uint32 service_queue, 
@@ -237,7 +234,7 @@ class PEGASUS_COMMON_LINKAGE UpdateCimService : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE RegisteredModule : public AsyncRequest
 {
    public:
-      RegisteredModule(Uint32 routing, 
+      RegisteredModule(
 		       AsyncOpNode *operation,
 		       Boolean blocking, 
 		       Uint32 service_queue,
@@ -255,7 +252,7 @@ class PEGASUS_COMMON_LINKAGE RegisteredModule : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE DeRegisteredModule : public AsyncRequest
 {
    public:
-      DeRegisteredModule(Uint32 routing, 
+      DeRegisteredModule(
 		       AsyncOpNode *operation,
 		       Boolean blocking, 
 		       Uint32 service_queue,
@@ -272,7 +269,7 @@ class PEGASUS_COMMON_LINKAGE DeRegisteredModule : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE FindModuleInService : public AsyncRequest
 {
    public:
-      FindModuleInService(Uint32 routing, 
+      FindModuleInService(
 			  AsyncOpNode *operation, 
 			  Boolean blocking, 
 			  Uint32 response_queue,
@@ -288,7 +285,7 @@ class PEGASUS_COMMON_LINKAGE FindModuleInService : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE FindModuleInServiceResponse : public AsyncReply
 {
    public:
-      FindModuleInServiceResponse(Uint32 routing, 
+      FindModuleInServiceResponse(
 				  AsyncOpNode *operation,
 				  Uint32 result_code, 
 				  Uint32 destination, 
@@ -305,7 +302,7 @@ class PEGASUS_COMMON_LINKAGE FindModuleInServiceResponse : public AsyncReply
 class PEGASUS_COMMON_LINKAGE AsyncIoctl : public AsyncRequest
 {
    public:
-      AsyncIoctl(Uint32 routing, 
+      AsyncIoctl(
 		 AsyncOpNode *operation, 
 		 Uint32 destination, 
 		 Uint32 response,
@@ -339,7 +336,7 @@ class PEGASUS_COMMON_LINKAGE AsyncIoctl : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE CimServiceStart : public AsyncRequest
 {
    public:
-      CimServiceStart(Uint32 routing, 
+      CimServiceStart(
 		      AsyncOpNode *operation, 
 		      Uint32 destination, 
 		      Uint32 response, 
@@ -355,7 +352,7 @@ class PEGASUS_COMMON_LINKAGE CimServiceStart : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE CimServiceStop : public AsyncRequest
 {
    public:
-      CimServiceStop(Uint32 routing, 
+      CimServiceStop(
 		     AsyncOpNode *operation, 
 		     Uint32 destination, 
 		     Uint32 response, 
@@ -370,7 +367,7 @@ class PEGASUS_COMMON_LINKAGE CimServiceStop : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE CimServicePause : public AsyncRequest
 {
    public:
-      CimServicePause(Uint32 routing, 
+      CimServicePause(
 		      AsyncOpNode *operation, 
 		      Uint32 destination, 
 		      Uint32 response, 
@@ -386,7 +383,7 @@ class PEGASUS_COMMON_LINKAGE CimServicePause : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE CimServiceResume : public AsyncRequest
 {
    public:
-      CimServiceResume(Uint32 routing, 
+      CimServiceResume(
 		       AsyncOpNode *operation, 
 		       Uint32 destination, 
 		       Uint32 response, 
@@ -402,7 +399,7 @@ class PEGASUS_COMMON_LINKAGE CimServiceResume : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE CimProvidersStop : public AsyncRequest
 {
    public:
-      CimProvidersStop(Uint32 routing, 
+      CimProvidersStop(
 		       AsyncOpNode *operation, 
 		       Uint32 destination, 
 		       Uint32 response, 
@@ -417,7 +414,7 @@ class PEGASUS_COMMON_LINKAGE CimProvidersStop : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE AsyncOperationStart : public AsyncRequest
 {
    public:
-      AsyncOperationStart(Uint32 routing, 
+      AsyncOperationStart(
 			  AsyncOpNode *operation, 
 			  Uint32 destination, 
 			  Uint32 response, 
@@ -443,7 +440,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOperationStart : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE AsyncOperationResult : public AsyncReply
 {
    public:
-      AsyncOperationResult(Uint32 routing, 
+      AsyncOperationResult(
 			   AsyncOpNode *operation,
 			   Uint32 result_code, 
 			   Uint32 destination,
@@ -460,7 +457,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOperationResult : public AsyncReply
 class PEGASUS_COMMON_LINKAGE AsyncModuleOperationStart : public AsyncRequest
 {
    public:
-      AsyncModuleOperationStart(Uint32 routing, 
+      AsyncModuleOperationStart(
 				AsyncOpNode *operation,
 				Uint32 destination, 
 				Uint32 response, 
@@ -486,7 +483,7 @@ class PEGASUS_COMMON_LINKAGE AsyncModuleOperationStart : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE AsyncModuleOperationResult : public AsyncReply
 {
    public:
-      AsyncModuleOperationResult(Uint32 routing, 
+      AsyncModuleOperationResult(
 				 AsyncOpNode *operation,
 				 Uint32 result_code, 
 				 Uint32 destination,
@@ -514,7 +511,7 @@ class PEGASUS_COMMON_LINKAGE AsyncModuleOperationResult : public AsyncReply
 class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationStart : public AsyncRequest
 {
    public:
-      AsyncLegacyOperationStart(Uint32 routing, 
+      AsyncLegacyOperationStart(
 				AsyncOpNode *operation, 
 				Uint32 destination, 
 				Message *action, 
@@ -539,7 +536,7 @@ class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationStart : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationResult : public AsyncReply
 {
    public:
-      AsyncLegacyOperationResult(Uint32 routing, 
+      AsyncLegacyOperationResult(
 				 AsyncOpNode *operation,
 				 Message *result);
       
@@ -561,7 +558,7 @@ class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationResult : public AsyncReply
 class PEGASUS_COMMON_LINKAGE FindServiceQueue : public AsyncRequest
 {
    public:
-      FindServiceQueue(Uint32 routing, 
+      FindServiceQueue(
 		       AsyncOpNode *operation, 
 		       Uint32 response,
 		       Boolean blocking, 
@@ -582,7 +579,7 @@ class PEGASUS_COMMON_LINKAGE FindServiceQueue : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE FindServiceQueueResult : public AsyncReply
 {
    public:
-      FindServiceQueueResult(Uint32 routing, 
+      FindServiceQueueResult(
 			     AsyncOpNode *operation, 
 			     Uint32 result_code, 
 			     Uint32 destination, 
@@ -601,7 +598,7 @@ class PEGASUS_COMMON_LINKAGE FindServiceQueueResult : public AsyncReply
 class PEGASUS_COMMON_LINKAGE EnumerateService : public AsyncRequest
 {
    public:
-      EnumerateService(Uint32 routing, 
+      EnumerateService(
 		       AsyncOpNode *operation, 
 		       Uint32 response, 
 		       Boolean blocking, 
@@ -619,7 +616,7 @@ class PEGASUS_COMMON_LINKAGE EnumerateService : public AsyncRequest
 class PEGASUS_COMMON_LINKAGE EnumerateServiceResponse : public AsyncReply
 {
    public:
-      EnumerateServiceResponse(Uint32 routing, 
+      EnumerateServiceResponse(
 			       AsyncOpNode *operation, 
 			       Uint32 result_code, 
 			       Uint32 response, 

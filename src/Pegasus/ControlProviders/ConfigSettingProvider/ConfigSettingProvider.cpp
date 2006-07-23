@@ -652,7 +652,6 @@ void ConfigSettingProvider::_sendNotifyConfigChangeMessage(
 
         // create request envelope
         AsyncLegacyOperationStart asyncRequest(
-            service->get_next_xid(),
             NULL,
             service->getQueueId(),
             notify_req,

@@ -58,7 +58,6 @@
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/CIMOperationType.h>
 #include <Pegasus/Common/Linkable.h>
-#include <Pegasus/Common/IDFactory.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -132,11 +131,9 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       Message(
 	 Uint32 type,
 	 Uint32 destination = 0,
-	 Uint32 routing_code = 0,
 	 Uint32 mask = message_mask::type_legacy)
 	 :
 	 _type(type),
-	 _routing_code(routing_code),
 	 _mask(mask),
          _httpMethod (HTTP_METHOD__POST),
          _close_connect(false),
@@ -156,7 +153,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 	 if (this != &msg)
 	 {
 	    _type = msg._type;
-	    _routing_code = msg._routing_code;
 	    _mask = msg._mask;
 	    _last_thread_id = msg._last_thread_id;
 	    _next = _prev = _async = 0;
@@ -180,9 +176,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       Uint32 getType() const { return _type; }
 
       void setType(Uint32 type) { _type = type; }
-
-      Uint32 getRouting() const { return _routing_code; }
-      void setRouting(Uint32 routing) { _routing_code = routing; }
 
       Uint32 getMask() const { return _mask; }
 
@@ -302,7 +295,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 
    private:
       Uint32 _type;
-      Uint32 _routing_code;
       Uint32 _mask;
       HttpMethod _httpMethod;
 // Needed for performance measurement

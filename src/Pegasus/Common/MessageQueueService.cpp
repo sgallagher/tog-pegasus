@@ -47,7 +47,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 cimom *MessageQueueService::_meta_dispatcher = 0;
 AtomicInt MessageQueueService::_service_count(0);
-IDFactory MessageQueueService::_xidFactory(1);
 Mutex MessageQueueService::_meta_dispatcher_mutex;
 
 static struct timeval deallocateWait = {300, 0};
@@ -359,7 +358,6 @@ void MessageQueueService::_shutdown_incoming_queue()
       return;
 
    AsyncIoctl *msg = new AsyncIoctl(
-      get_next_xid(),
       0,
       _queueId,
       _queueId,
@@ -650,7 +648,6 @@ Boolean MessageQueueService::_enqueueResponse(
 
       AsyncLegacyOperationResult *async_result =
          new AsyncLegacyOperationResult(
-            async->getRouting(),
             op,
             response);
       _completeAsyncResponse(
@@ -749,7 +746,6 @@ void MessageQueueService::handle_heartbeat_request(AsyncRequest *req)
 
    AsyncReply *reply = new AsyncReply(
       async_messages::HEARTBEAT,
-      req->getRouting(),
       0,
       req->op,
       async_results::OK,
@@ -1000,7 +996,6 @@ Boolean MessageQueueService::SendAsync(
    if (!(msg->getMask() & message_mask::ha_async))
    {
       AsyncLegacyOperationStart *wrapper = new AsyncLegacyOperationStart(
-         get_next_xid(),
          op,
          destination,
          msg,
@@ -1100,7 +1095,6 @@ Boolean MessageQueueService::register_service(
     Uint32 mask)
 {
    RegisterCimService *msg = new RegisterCimService(
-      get_next_xid(),
       0,
       true,
       name,
@@ -1135,7 +1129,6 @@ Boolean MessageQueueService::register_service(
 Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
 {
    UpdateCimService *msg = new UpdateCimService(
-      get_next_xid(),
       0,
       true,
       _queueId,
@@ -1185,7 +1178,6 @@ void MessageQueueService::find_services(
    results->clear();
 
    FindServiceQueue *req = new FindServiceQueue(
-      get_next_xid(),
       0,
       _queueId,
       true,
@@ -1223,7 +1215,6 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
    }
 
    EnumerateService *req = new EnumerateService(
-      get_next_xid(),
       0,
       _queueId,
       true,
@@ -1261,11 +1252,6 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
    delete req;
 
    return;
-}
-
-Uint32 MessageQueueService::get_next_xid()
-{
-    return _xidFactory.getID();
 }
 
 MessageQueueService::PollingList* MessageQueueService::_get_polling_list()

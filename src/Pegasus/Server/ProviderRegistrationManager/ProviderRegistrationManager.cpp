@@ -4004,8 +4004,7 @@ void ProviderRegistrationManager::_sendMessageToSubscription(
         Uint32 _queueId = _service->getQueueId();
 
         // create request envelope
-        AsyncLegacyOperationStart asyncRequest
-            (_service->get_next_xid(),
+        AsyncLegacyOperationStart asyncRequest(
             NULL,
             _queueId,
             notify_req,
@@ -4078,7 +4077,6 @@ void ProviderRegistrationManager::_sendInitializeProviderMessage(
 
         // create request envelope
         AsyncLegacyOperationStart asyncRequest(
-            service->get_next_xid(),
             NULL,
             service->getQueueId(),
             notify_req,

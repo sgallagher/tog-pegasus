@@ -51,7 +51,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static const char* tmpDir;
+char * tmpDir = 0;
 
 void _Test01()
 {
@@ -298,21 +298,23 @@ void _Test02()
 
 int main(int argc, char** argv)
 {
-    tmpDir = getenv ("PEGASUS_TMP");
-    if (tmpDir == NULL)
+    const char * envTmpDir = getenv ("PEGASUS_TMP");
+    if (envTmpDir == 0 || strlen(envTmpDir) == 0)
     {
-        tmpDir = ".";
-    }
+        tmpDir = strdup(".");
+    } else tmpDir = strdup(envTmpDir);
 
     try
     {
 	_Test01();
 	_Test02();
+        free(tmpDir);
     }
 
     catch (Exception& e)
     {
 	cerr << "Error: " << e.getMessage() << endl;
+        free(tmpDir);
 	exit(1);
     }
 

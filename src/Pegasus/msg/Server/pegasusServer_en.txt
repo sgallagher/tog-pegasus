@@ -3581,6 +3581,11 @@ CIM server listening on HTTPS port {0}."}
         */
         HandlerService.IndicationHandlerService.INVALID_TARGETHOST:string {"PGS10401: The value of the TargetHost property is not valid."}
 
+        /**
+        * @note  PGS10405:
+        */
+        HandlerService.IndicationHandlerService.INDICATION_DELIVERY_FAILED:string {"PGS10405: Failed to deliver an indication. Reason: "}
+
 
         // ==========================================================
         // Messages for snmpIndicationHandler

@@ -102,7 +102,7 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService
 
       String _parseDestination(String dest);
 
-      void _loadHandler(
+      Boolean _loadHandler(
           CIMHandleIndicationRequestMessage* request,
           CIMException & cimException);
 

@@ -237,6 +237,7 @@ IndicationHandlerService::_handleIndication(
     PEG_METHOD_ENTER (TRC_IND_HANDLE,
                       "IndicationHandlerService::_handleIndication");
 
+    Boolean handleIndicationSuccess = true;
     CIMException cimException =
         PEGASUS_CIM_EXCEPTION(CIM_ERR_SUCCESS, String::EMPTY);
 
@@ -258,6 +259,7 @@ IndicationHandlerService::_handleIndication(
             cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                 MessageLoaderParms("HandlerService.IndicationHandlerService."
                 "CIMXML_HANDLER_WITHOUT_DESTINATION", "CIMXml Handler missing Destination property"));
+            handleIndicationSuccess = false;
         }
         else
         {
@@ -269,6 +271,7 @@ IndicationHandlerService::_handleIndication(
                 cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                     MessageLoaderParms("HandlerService.IndicationHandlerService."
                     "INVALID_DESTINATION", "invalid destination"));
+                handleIndicationSuccess = false;
             }
 //compared index 10 is not :
             else if (destination.subString(0, 10) == String("localhost/"))
@@ -329,10 +332,11 @@ IndicationHandlerService::_handleIndication(
 
                 op->release();
                 this->return_op(op.release());
+                
             }
 	    else
 	    {
-                _loadHandler(request, cimException);
+                handleIndicationSuccess = _loadHandler(request, cimException);
 	    }
         }
     }
@@ -345,6 +349,7 @@ IndicationHandlerService::_handleIndication(
             cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                 MessageLoaderParms("HandlerService.IndicationHandlerService."
                 "SNMP_HANDLER_WITHOUT_TARGETHOST", "Snmp Handler missing Targethost property"));
+            handleIndicationSuccess = false;
         }
         else
         {
@@ -356,17 +361,30 @@ IndicationHandlerService::_handleIndication(
                 cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                 MessageLoaderParms("HandlerService.IndicationHandlerService."
                     "INVALID_TARGETHOST", "invalid targethost"));
+                handleIndicationSuccess = false;
             }
 	    else
             {
-                _loadHandler(request, cimException);
+                handleIndicationSuccess = _loadHandler(request, cimException);
             }
         }
     }
     else if ((className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG)) ||
 	     (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)))
     {
-        _loadHandler(request, cimException);
+        handleIndicationSuccess = _loadHandler(request, cimException);
+    }
+
+    // no success to handle indication
+    // somewhere an exception message was build
+    // time to write the error message to the log
+    if (!handleIndicationSuccess)
+    {
+        Logger::put(Logger::ERROR_LOG, "HandlerService" , Logger::WARNING,
+            MessageLoaderParms("HandlerService.IndicationHandlerService."
+                               "INDICATION_DELIVERY_FAILED",
+                               "Failed to deliver an indication. Reason: "
+                              ).toString()+ cimException.getMessage());
     }
 
     CIMHandleIndicationResponseMessage* response =
@@ -374,12 +392,12 @@ IndicationHandlerService::_handleIndication(
             request->messageId,
             cimException,
             request->queueIds.copyAndPop());
-
+        
     delete request;
     return response;
 }
 
-void IndicationHandlerService::_loadHandler(
+Boolean IndicationHandlerService::_loadHandler(
     CIMHandleIndicationRequestMessage* request,
     CIMException & cimException)
 {
@@ -409,6 +427,7 @@ void IndicationHandlerService::_loadHandler(
                 MessageLoaderParms("HandlerService."
                 "IndicationHandlerService.FAILED_TO_LOAD",
                 "Failed to load Handler"));
+            return false;
         }
 
     }
@@ -416,12 +435,15 @@ void IndicationHandlerService::_loadHandler(
     {
         cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+        return false;
     }
     catch (...)
     {
         cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Exception: Unknown");
+        return false;
     }
+    return true;
 }
 
 CIMHandler* IndicationHandlerService::_lookupHandlerForClass(

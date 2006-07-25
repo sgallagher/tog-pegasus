@@ -1160,9 +1160,7 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
     // make sure we get only dirs that start with [0-9]
     if (*dir->d_name < '0' || *dir->d_name > '9')
     {
-	if (procDir) closedir(procDir);
-        pthread_mutex_unlock( &proc_mutex );
-	return false;
+        continue;
     }
 
     if ( find_by_pid )

@@ -52,6 +52,9 @@ POSTSTARTTESTS =
 ifeq ($(OS),HPUX)
   POSTSTARTTESTS = $(PROGRAM)
 endif
+ifeq ($(OS),linux)
+  POSTSTARTTESTS = $(PROGRAM)
+endif
 
 EXTRA_INCLUDES =
 

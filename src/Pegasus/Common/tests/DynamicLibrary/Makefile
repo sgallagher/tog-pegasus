@@ -36,12 +36,6 @@ include $(PEGASUS_ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-ifeq ($(PEGASUS_OS_TYPE),VMS)
-LIBRARIES = \
-       pegconfig \
-       pegcommon
-endif
-
 SOURCES = DynamicLibrary.cpp
 
 PROGRAM = TestDynamicLibrary

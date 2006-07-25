@@ -56,17 +56,14 @@ String getLibraryFileName(const String& libraryName)
 # if defined(PEGASUS_USE_RELEASE_DIRS)
     return String("/wbem_opt/wbem/providers/lib/lib") + libraryName + ".exe";
 # else
-    String provDir = ConfigManager::getInstance()->getCurrentValue("providerDir");
     const char* tmp = getenv("PEGASUS_HOME");
     if (tmp)
     {
-        ConfigManager::setPegasusHome(tmp);
+      return tmp + String("/bin/") + FileSystem::buildLibraryFileName(libraryName) + ".exe";
     }
-    return ConfigManager::getHomedPath(provDir) + "/" + FileSystem::buildLibraryFileName(libraryName) + ".exe";
 # endif
-#else
-    return FileSystem::buildLibraryFileName(libraryName);
 #endif
+    return FileSystem::buildLibraryFileName(libraryName);
 }
 
 // load a valid module, export a symbol, call it, and unload module

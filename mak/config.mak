@@ -484,6 +484,8 @@ ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             $(error PEGASUS_EMBEDDED_INSTANCE_SUPPORT ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT)) invalid, must be true or false)
         endif
     endif
+else
+    DEFINES += -DPEGASUS_EMBEDDED_INSTANCE_SUPPORT
 endif
 
 # Allow ExecQuery functionality to be enabled

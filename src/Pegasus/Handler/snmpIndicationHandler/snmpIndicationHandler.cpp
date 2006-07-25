@@ -209,9 +209,7 @@ void snmpIndicationHandler::handleIndication(
 
         if ((targetHostPos != PEG_NOT_FOUND) &&
             (targetHostFormatPos != PEG_NOT_FOUND) && 
-            (snmpVersionPos != PEG_NOT_FOUND) && 
-            (indicationClass.findQualifier(CIMName ("MappingStrings")) != 
-                PEG_NOT_FOUND))
+            (snmpVersionPos != PEG_NOT_FOUND))
         {
     	    // properties from the handler instance
             String targetHost;

@@ -324,11 +324,13 @@ HTTPConnection* HTTPConnector::connect(
 #ifdef PEGASUS_OS_TYPE_WINDOWS
    {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
    AutoMutex automut(Monitor::_cout_mut);
    PEGASUS_STD(cout) << "HTTPConnector::connect before connectLocal on windows section" << PEGASUS_STD(endl);
 
       //CIMClient::connectLocal [host == String::EMPTY] use NamedPipes on windows
        PEGASUS_STD(cout) << "HTTPConnector::connect at connectLocal on windows section" << PEGASUS_STD(endl);
+}
 #endif
    }
        HTTPConnection* pipeConnection = _connectNamedPipe(outputMessageQueue);
@@ -339,29 +341,34 @@ HTTPConnection* HTTPConnector::connect(
        if (pipeConnection->isNamedPipeConnection()) //this if/else is a small bit of error checking - it needs to be better
        {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
+
            AutoMutex automut(Monitor::_cout_mut);
            PEGASUS_STD(cout) <<" named pipe HTTPConnetion has this as an owner - " <<
                pipeConnection->get_owner().getQueueName() << " it should be " <<
                 this->getQueueName() << PEGASUS_STD(endl);
+}
 #endif
        }
        else
            {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
            AutoMutex automut(Monitor::_cout_mut);
            PEGASUS_STD(cout) <<"HTTPConnection returned from _connectNamedPipe is not a pipe conection " << PEGASUS_STD(endl);
+}
 #endif
            }
            // We may need to Assert here...
 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-       {
+{
        AutoMutex automut(Monitor::_cout_mut);
        PEGASUS_STD(cout) << "HTTPConnector::connect after call to _connectNamedPipe" << PEGASUS_STD(endl);
 
        PEGASUS_STD(cout) << "HTTPConnector::connect check HTTPConnection retruned be _connectNamePipe " << endl;
        PEGASUS_STD(cout) << "HTTPConnector::connect pipeConnection->getNamedPipe().getName() = " << pipeConnection->getNamedPipe().getName() << endl;
-       }
+}
 #endif
       return pipeConnection;
    }
@@ -463,9 +470,12 @@ HTTPConnection* HTTPConnector::connect(
       connection->getQueueId(), Monitor::CONNECTOR)))
    {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
+
       //this is a failure block
       AutoMutex automut(Monitor::_cout_mut);
       PEGASUS_STD(cout) << "_monitor->solicitSocketMessages failed " << PEGASUS_STD(endl);
+}
 #endif
    }
 
@@ -639,8 +649,10 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
    {
       //this is a failure block
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
       AutoMutex automut(Monitor::_cout_mut);
       PEGASUS_STD(cout) << "_monitor->solicitSocketMessages failed " << PEGASUS_STD(endl);
+}
 #endif
    }
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG

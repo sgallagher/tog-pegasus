@@ -322,7 +322,7 @@ HTTPConnection::~HTTPConnection()
     {
             AutoMutex automut(Monitor::_cout_mut);
             cout << " in HTTPConnection::~HTTPConnection() at begining" << endl;
-        }
+    }
 #endif
 
       if (!_namedPipeConnection)
@@ -389,7 +389,7 @@ void HTTPConnection::handleEnqueue(Message *message)
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
              {
                  AutoMutex automut(Monitor::_cout_mut);
-                 //PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case SOCKET_MESSAGE" << PEGASUS_STD(endl);
+                 PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case SOCKET_MESSAGE" << PEGASUS_STD(endl);
              }
 #endif
             SocketMessage* socketMessage = (SocketMessage*)message;
@@ -406,6 +406,7 @@ void HTTPConnection::handleEnqueue(Message *message)
             {
                 AutoMutex automut(Monitor::_cout_mut);
                 PEGASUS_STD(cout) << "In HTTPConnection::handleEnqueue case HTTP_MESSAGE" << PEGASUS_STD(endl);
+            }
             
             if(_namedPipeConnection)
             {
@@ -419,7 +420,7 @@ void HTTPConnection::handleEnqueue(Message *message)
                     AutoMutex automut(Monitor::_cout_mut);
                     PEGASUS_STD(cout) << " this connection thinks it is not a Pipe connection" << endl;
                 }
-            }
+            
 #endif
 
             _handleWriteEvent(*message);
@@ -1262,8 +1263,10 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
     {
         httpStatus = e.getMessage();
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            AutoMutex automut(Monitor::_cout_mut);
+{
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "got exception in HTTPConnection - " << e.getMessage() << endl;
+}
 #endif
         exit (1);
     }
@@ -1273,8 +1276,10 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         String message("Unknown internal error");
         Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, message);
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            AutoMutex automut(Monitor::_cout_mut);
+{
+        AutoMutex automut(Monitor::_cout_mut);
         cout << "Unknown internal error " << __FILE__ <<  __LINE__ << endl;
+}
 #endif
         exit(1);
     }
@@ -1781,10 +1786,12 @@ void HTTPConnection::_handleReadEventTransferEncoding()
         if (_transferEncodingChunkOffset >= messageLength)
         {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
             AutoMutex automut(Monitor::_cout_mut);
          cout << "in HTTPConnection::_hanleReadEventTransferEncoding getting out of loop becasuse" <<
              " _transferEncodingChunkOffset(" << _transferEncodingChunkOffset << ") >= messageLength(" <<
              messageLength << endl;
+}
 #endif
             break;
         }
@@ -1811,10 +1818,12 @@ void HTTPConnection::_handleReadEventTransferEncoding()
         if (! *chunkLineEnd)
         {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
             AutoMutex automut(Monitor::_cout_mut);
 
         cout << "HTTPConnection::_hadleReadEventTransferEncoding getting out of loop becasue" <<
             "  '! *chunkLineEnd' is TRUE" << endl;
+}
 #endif
         break;
         }
@@ -2251,14 +2260,11 @@ void HTTPConnection::_handleReadEvent()
         if (_namedPipeConnection)  //this clause reads from the namedPipe
         {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
+{
                 AutoMutex automut(Monitor::_cout_mut);
                 PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() about to read off the pipe" << PEGASUS_STD(endl);
-            }
-            {
-            AutoMutex automut(Monitor::_cout_mut);
-          cout << "ReadCount = " << readCount << endl;
-          }
+                cout << "ReadCount = " << readCount << endl;
+}
 #endif
           if (moreInPipe)
           {
@@ -2333,9 +2339,11 @@ void HTTPConnection::_handleReadEvent()
                     if (*p =='\0')
                     {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
                        AutoMutex automut(Monitor::_cout_mut);
                        cout<<"FOUNFD  at  "<<i<<endl;
                        cout << "number of charictors at time of \0 is " << i << endl;
+}
 #endif
                        break;
                     }

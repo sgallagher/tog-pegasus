@@ -668,8 +668,10 @@ Boolean Monitor::run(Uint32 milliseconds)
 #endif
                 events = select(0, &fdread, NULL, NULL, &tv);
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
             AutoMutex automut(Monitor::_cout_mut);
            cout << "Monitor::run after the select in TIMEOUT clause events = " << events << endl;
+}
 #endif
        
 
@@ -684,8 +686,10 @@ Boolean Monitor::run(Uint32 milliseconds)
             if (GetLastError() == 6) //WW this may be too specific
             {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
                 AutoMutex automut(Monitor::_cout_mut);
                 cout << "Monitor::run about to call 'select since waitForMultipleObjects failed\n";
+}
 #endif
                 /********* NOTE
                 this time (tv) combined with the waitForMulitpleObjects timeout is 
@@ -697,9 +701,11 @@ Boolean Monitor::run(Uint32 milliseconds)
             else
             {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
                 AutoMutex automut(Monitor::_cout_mut);
                 cout << "Wait Failed returned\n";
                 cout << "failed with " << GetLastError() << "." << endl;
+}
 #endif
                 pEvents = -1;
                 return false;
@@ -729,9 +735,10 @@ Boolean Monitor::run(Uint32 milliseconds)
                {                
                    this->setState(indexPipeCountAssociator[pCount], _MonitorEntry::IDLE); 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
             AutoMutex automut(Monitor::_cout_mut);
-
-                   cout << "setting state of index " << indexPipeCountAssociator[pCount]  << " to IDLE" << endl; 
+            cout << "setting state of index " << indexPipeCountAssociator[pCount]  << " to IDLE" << endl; 
+}
 #endif
                }
         
@@ -821,16 +828,20 @@ Boolean Monitor::run(Uint32 milliseconds)
              catch (Exception e)
              {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
                  AutoMutex automut(Monitor::_cout_mut);
                  cout << " this is what lookup gives - " << e.getMessage() << endl;
+}
 #endif
                  exit(1);
              }
              catch(...)
              {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
                  AutoMutex automut(Monitor::_cout_mut);
                  cout << "MessageQueue::lookup gives strange exception " << endl;
+}
 #endif
                  exit(1);
              }
@@ -859,10 +870,10 @@ Boolean Monitor::run(Uint32 milliseconds)
                 {
                     
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                    {
-                    cout << "In Monitor::run Monitor::CONNECTION clause" << endl;
-                    AutoMutex automut(Monitor::_cout_mut);
-                    }
+{
+                     AutoMutex automut(Monitor::_cout_mut);
+                     cout << "In Monitor::run Monitor::CONNECTION clause" << endl;
+}
 #endif
 
                                       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
@@ -951,9 +962,10 @@ Boolean Monitor::run(Uint32 milliseconds)
                         // read the data
                         // and set ourself back to IDLE
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
             AutoMutex automut(Monitor::_cout_mut);
-
             cout << endl << " in - entries[indx]._type == Monitor::INTERNAL- " << endl << endl;
+}
 #endif
             if (!entries[indx].isNamedPipeConnection())
             {
@@ -1019,8 +1031,10 @@ Boolean Monitor::run(Uint32 milliseconds)
         if(!rc)
         {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
            AutoMutex automut(Monitor::_cout_mut);
            cout << "ReadFile failed for : "  << GetLastError() << "."<< endl;
+}
 #endif
         }
 
@@ -1293,8 +1307,10 @@ int  Monitor::solicitPipeMessages(
    // We always want the _entries array to 2 bigger than the
    // current connections requested
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG 
+{
    AutoMutex automut(Monitor::_cout_mut);
    PEGASUS_STD(cout) << "In Monitor::solicitPipeMessages at the begining" << PEGASUS_STD(endl);
+}
 #endif
 
 
@@ -1321,9 +1337,12 @@ int  Monitor::solicitPipeMessages(
             _entries[index]._type = type;
             _entries[index]._status = _MonitorEntry::IDLE;
   #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG 
+  {
             AutoMutex automut(Monitor::_cout_mut);
             PEGASUS_STD(cout) << "In Monitor::solicitPipeMessages after seting up  _entries[index] index = " << index << PEGASUS_STD(endl);
+  }
   #endif
+  
             return index;
          }
       }

@@ -974,12 +974,14 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
 
     if (!_rep)
        return;
-    {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+    {
+
         AutoMutex automut(Monitor::_cout_mut);
         cout <<"In HTTPAcceptor::_acceptNamedPipeConnection " << endl;
-#endif
     }
+#endif
+    
 
    // shouldnt we be using the private var....
      //                 _namedPipeServer->accept()

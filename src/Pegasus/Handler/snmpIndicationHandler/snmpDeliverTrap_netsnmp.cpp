@@ -213,7 +213,7 @@ void snmpDeliverTrap_netsnmp::_createSession(
         exceptionStr = _MSG_SESSION_OPEN_FAILED;
 
         // Get library, system errno
-        snmp_sess_error(&snmpSession, &libErr, &sysErr, &errStr);
+        snmp_error(&snmpSession, &libErr, &sysErr, &errStr);
 
         exceptionStr.append(errStr);
 

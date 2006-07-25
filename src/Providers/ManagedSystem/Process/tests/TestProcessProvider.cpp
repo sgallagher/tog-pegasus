@@ -315,7 +315,14 @@ int testClass(const String& className)
     {
       if (processTestVerbose) cout << "    Priority" << endl;
       inst.getProperty(inst.findProperty("Priority")).getValue().get(i32b);
+#ifdef PEGASUS_OS_HPUX
+      // Empirical evidence has shown that the priority of a process may
+      // change by as much as 24 between the times it is retrieved by the
+      // provider and by the test client.
+      if (abs((int)i32a - (int)i32b) > 24)
+#else
       if (i32a != i32b)
+#endif
       {
         cout << "+++++ Error: property mismatch: Priority" << endl;
         cout << "Process handle = " << handle << endl;

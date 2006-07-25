@@ -641,15 +641,13 @@ Boolean OSTestClient::goodFreeVirtualMemory(const Uint64 &freevmem,
 
    if (verbose)
    {
-      printf (" Delta should be within 65536, is %lld\n", delta); 
+      printf (" Delta should be within 131072, is %lld\n", delta); 
       fflush(stdout);
    }
 
-   // arbitrary choice of valid delta - typically ran within 
-   // 2048, but with many client connections, went as high as 
-   // 36,000+.  Thus chose 2^16 = 65536 (still helps weed out
-   // garbage values).
-   Boolean isInRange = (delta < 65536);   
+   // Empirical results have shown a delta as high as 104788, so use a
+   // maximum delta of 2^17 = 131072.
+   Boolean isInRange = (delta < 131072);   
 
    if (!isInRange)
    {
@@ -694,10 +692,11 @@ Boolean OSTestClient::goodFreePhysicalMemory(const Uint64 &freepmem,
    Uint32 delta = abs(raw_delta);
 
    if (verbose)
-      cout<<" Delta should be within 2048, is " << delta << endl;
+      cout<<" Delta should be within 32768, is " << delta << endl;
 
-   // arbitrary choice of valid delta
-   Boolean isInRange = (delta <= 2048);   
+   // Empirical results have shown a delta as high as 18988, so use a
+   // maximum delta of 32768.
+   Boolean isInRange = (delta <= 32768);
 
    if (!isInRange)
    {

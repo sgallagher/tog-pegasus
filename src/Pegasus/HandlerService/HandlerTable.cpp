@@ -98,10 +98,9 @@ typedef CIMHandler* (*CreateHandlerFunc)();
 CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 {
 #if defined (PEGASUS_OS_VMS)
-    String fileName = ConfigManager::getInstance()->
-                      getCurrentValue("providerDir") +
-            String("/") + FileSystem::buildLibraryFileName(handlerId) +
-            String(".exe");
+    String provDir = ConfigManager::getInstance()->getCurrentValue("providerDir");
+    String fileName = ConfigManager::getHomedPath(provDir) + "/" + 
+                       FileSystem::buildLibraryFileName(handlerId) + ".exe";
 #elif defined(PEGASUS_OS_OS400)
     Uint32 lastSlash = handlerId.reverseFind('/');
     if (lastSlash == PEG_NOT_FOUND)

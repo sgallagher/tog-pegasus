@@ -320,20 +320,6 @@ public:
                     const String & destination_module,
                     AsyncRequest *message);
 
-    // @exception Permission
-    // @exception Deadlock
-    // @exception IPCException
-    void blocking_thread_exec(const pegasus_module & handle,
-                    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
-                    void *parm);
-
-    // @exception Permission
-    // @exception Deadlock
-    // @exception IPCException
-    void async_thread_exec(const pegasus_module & handle,
-                    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
-                    void *parm);
-
     Boolean verify_handle(pegasus_module *);
 
     static ModuleController* getModuleController();
@@ -387,20 +373,6 @@ public:
                 const String & destination_module,
                 AsyncRequest *message);
 
-    // @exception Permission
-    // @exception Deadlock
-    // @exception IPCException
-    void client_blocking_thread_exec(
-                PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
-                void *parm);
-
-    // @exception Permission
-    // @exception Deadlock
-    // @exception IPCException
-    void client_async_thread_exec(
-                PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
-                void *parm);
-
 protected:
     // ATTN-RK-P2-20010322:  These methods are pure virtual in superclass
     virtual void handleEnqueue() {}
@@ -440,14 +412,6 @@ private:
 
     // @exception IPCException
     Boolean _send_forget(Uint32, const String &, AsyncRequest *);
-
-    void _blocking_thread_exec(
-                PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
-                void *parm);
-
-    void _async_thread_exec(
-                PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
-                void *parm);
 };
 
 PEGASUS_NAMESPACE_END

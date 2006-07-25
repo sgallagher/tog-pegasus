@@ -50,7 +50,6 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
-#include <Pegasus/Common/peg_authorization.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/List.h>
@@ -64,11 +63,9 @@ class ModuleController;
 class PEGASUS_COMMON_LINKAGE pegasus_module : public Linkable
 {
 private:
-    class module_rep : public pegasus_auth_handle
+    class module_rep
     {
     public:
-        typedef pegasus_auth_handle Base;
-
         module_rep(ModuleController *controller,
                const String & name,
                void *module_address,
@@ -118,10 +115,6 @@ private:
         {
             _thread_safety.unlock();
         }
-
-        Boolean authorized();
-        Boolean authorized(Uint32);
-        Boolean authorized(Uint32, Uint32);
 
     private:
         module_rep();
@@ -183,9 +176,6 @@ public:
 
     virtual ~pegasus_module();
 
-    virtual Boolean authorized(Uint32 operation);
-    virtual Boolean authorized();
-
     Boolean operator == (const String &  mod) const;
 
     const String & get_name() const;
@@ -206,7 +196,6 @@ private:
     void _send_async_callback(Uint32 msg_handle, Message *msg, void *);
     void _send_shutdown_notify();
     Boolean _shutdown();
-    PEGASUS_STD(bitset<32>) _allowed_operations;
 
     void reference()
     {
@@ -226,74 +215,6 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 {
 public:
     typedef MessageQueueService Base;
-
-    static const Uint32 GET_CLIENT_HANDLE;
-    static const Uint32 REGISTER_MODULE;
-    static const Uint32 DEREGISTER_MODULE;
-    static const Uint32 FIND_SERVICE;
-    static const Uint32 FIND_MODULE_IN_SERVICE;
-    static const Uint32 GET_MODULE_REFERENCE;
-    static const Uint32 MODULE_SEND_WAIT;
-    static const Uint32 MODULE_SEND_WAIT_MODULE;
-    static const Uint32 MODULE_SEND_ASYNC;
-    static const Uint32 MODULE_SEND_ASYNC_MODULE;
-    static const Uint32 BLOCKING_THREAD_EXEC;
-    static const Uint32 ASYNC_THREAD_EXEC;
-    static const Uint32 CLIENT_SEND_WAIT;
-    static const Uint32 CLIENT_SEND_WAIT_MODULE;
-    static const Uint32 CLIENT_SEND_ASYNC;
-    static const Uint32 CLIENT_SEND_ASYNC_MODULE;
-    static const Uint32 CLIENT_BLOCKING_THREAD_EXEC;
-    static const Uint32 CLIENT_ASYNC_THREAD_EXEC;
-    static const Uint32 CLIENT_SEND_FORGET;
-    static const Uint32 CLIENT_SEND_FORGET_MODULE;
-    static const Uint32 MODULE_SEND_FORGET;
-    static const Uint32 MODULE_SEND_FORGET_MODULE;
-
-// ATTN-DME-P2-20020406 Removed private declaration.  client_handle is
-//          currently used in Pegasus/Provider/CIMOMHandle.cpp
-
-//   private:
-    class client_handle : public pegasus_auth_handle
-    {
-    public:
-        typedef pegasus_auth_handle Base;
-
-        client_handle(const pegasus_identity & id)
-           :Base(id) ,
-        allowed_operations( GET_CLIENT_HANDLE |
-                    FIND_SERVICE |
-                    FIND_MODULE_IN_SERVICE |
-                    GET_MODULE_REFERENCE |
-                    CLIENT_SEND_WAIT |
-                    CLIENT_SEND_WAIT_MODULE |
-                    CLIENT_SEND_ASYNC |
-                    CLIENT_SEND_ASYNC_MODULE |
-                    CLIENT_BLOCKING_THREAD_EXEC |
-                    CLIENT_ASYNC_THREAD_EXEC),
-        reference_count(1)
-        {
-        }
-
-        ~client_handle()
-        {
-        }
-
-        client_handle & operator=(const client_handle & handle)
-        {
-            if (this == &handle)
-                return *this;
-           reference_count++;
-           return *this;
-        }
-
-
-        virtual Boolean authorized(Uint32, Uint32);
-        virtual Boolean authorized(Uint32 operation);
-        virtual Boolean authorized();
-        PEGASUS_STD(bitset<32>) allowed_operations;
-        AtomicInt reference_count;
-    };
 
     class callback_handle
     {
@@ -415,29 +336,19 @@ public:
 
     Boolean verify_handle(pegasus_module *);
 
-    // @exception IncompatibleTypesException
-    static ModuleController & get_client_handle(const pegasus_identity & id,
-                    client_handle **handle);
-
-    // @exception IncompatibleTypesException
-    static ModuleController & get_client_handle(const char *controller,
-                    const pegasus_identity & id,
-                    client_handle **handle);
-
-
-    void return_client_handle(client_handle *handle);
+    static ModuleController* getModuleController();
 
     // send a message to another service
     // @exception Permission
     // @exception IPCException
-    AsyncReply *ClientSendWait(const client_handle & handle,
+    AsyncReply *ClientSendWait(
                     Uint32 destination_q, AsyncRequest *request);
 
     // send a message to another module via another service
     // @exception Permission
     // @exception Deadlock
     // @exception IPCException
-    AsyncReply *ClientSendWait(const client_handle & handle,
+    AsyncReply *ClientSendWait(
                  Uint32 destination_q,
                  String & destination_module,
                  AsyncRequest *message);
@@ -445,7 +356,7 @@ public:
     // send an async message to another service
     // @exception Permission
     // @exception IPCException
-    Boolean ClientSendAsync(const client_handle & handle,
+    Boolean ClientSendAsync(
                 Uint32 msg_handle,
                 Uint32 destination_q,
                 AsyncRequest *message,
@@ -455,7 +366,7 @@ public:
     // send an async message to another module via another service
     // @exception Permission
     // @exception IPCException
-    Boolean ClientSendAsync(const client_handle & handle,
+    Boolean ClientSendAsync(
                 Uint32 msg_handle,
                 Uint32 destination_q,
                 const String & destination_module,
@@ -465,13 +376,13 @@ public:
 
     // @exception Permission
     // @exception IPCException
-    Boolean ClientSendForget(const client_handle & handle,
+    Boolean ClientSendForget(
                 Uint32 destination_q,
                 AsyncRequest *message);
 
     // @exception Permission
     // @exception IPCException
-    Boolean ClientSendForget(const client_handle & handle,
+    Boolean ClientSendForget(
                 Uint32 destination_q,
                 const String & destination_module,
                 AsyncRequest *message);
@@ -479,14 +390,14 @@ public:
     // @exception Permission
     // @exception Deadlock
     // @exception IPCException
-    void client_blocking_thread_exec(const client_handle & handle,
+    void client_blocking_thread_exec(
                 PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
                 void *parm);
 
     // @exception Permission
     // @exception Deadlock
     // @exception IPCException
-    void client_async_thread_exec(const client_handle & handle,
+    void client_async_thread_exec(
                 PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
                 void *parm);
 

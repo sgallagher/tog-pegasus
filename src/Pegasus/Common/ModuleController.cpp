@@ -50,8 +50,7 @@ pegasus_module::module_rep::module_rep(ModuleController *controller,
 				       Message * (*receive_message)(Message *, void *),
 				       void (*async_callback)(Uint32, Message *, void *),
 				       void (*shutdown_notify)(Uint32 code, void *))
-   : Base ( pegasus_internal_identity(peg_credential_types::MODULE) ),
-     _thread_safety(),
+   : _thread_safety(),
      _controller(controller),
      _name(name),
      _reference_count(1),
@@ -110,22 +109,6 @@ void pegasus_module::module_rep::_send_shutdown_notify()
 }
 
 
-Boolean pegasus_module::module_rep::authorized()
-{
-   return true;
-}
-
-Boolean pegasus_module::module_rep::authorized(Uint32 operation)
-{
-   return true;
-}
-
-Boolean pegasus_module::module_rep::authorized(Uint32 index, Uint32 operation)
-{
-   return true;
-}
-
-
 pegasus_module::pegasus_module(ModuleController *controller,
 			       const String &id,
  			       void *module_address,
@@ -135,18 +118,6 @@ pegasus_module::pegasus_module(ModuleController *controller,
              _rep(new module_rep(controller, id, module_address,
                           receive_message, async_callback, shutdown_notify))
 {
-      _allowed_operations = ModuleController::GET_CLIENT_HANDLE |
-                         ModuleController::REGISTER_MODULE |
-                         ModuleController::DEREGISTER_MODULE |
-                         ModuleController::FIND_SERVICE |
-                         ModuleController::FIND_MODULE_IN_SERVICE |
-                         ModuleController::GET_MODULE_REFERENCE |
-                         ModuleController::MODULE_SEND_WAIT |
-                         ModuleController::MODULE_SEND_WAIT_MODULE |
-                         ModuleController::MODULE_SEND_ASYNC |
-                         ModuleController::MODULE_SEND_ASYNC_MODULE |
-                         ModuleController::BLOCKING_THREAD_EXEC |
-                         ModuleController::ASYNC_THREAD_EXEC;
 }
 
 pegasus_module::pegasus_module(const pegasus_module & mod) : Linkable()
@@ -162,17 +133,6 @@ pegasus_module::~pegasus_module()
    if( 0 == _rep->reference_count())
         _rep.reset();
 }
-
-Boolean pegasus_module::authorized(Uint32 operation)
-{
-   return true;
-}
-
-Boolean pegasus_module::authorized()
-{
-   return true;
-}
-
 
 pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
 {
@@ -233,48 +193,6 @@ Boolean pegasus_module::_shutdown()
 }
 
 
-
-const Uint32 ModuleController::GET_CLIENT_HANDLE =          0x00000001;
-const Uint32 ModuleController::REGISTER_MODULE =            0x00000002;
-const Uint32 ModuleController::DEREGISTER_MODULE =          0x00000004;
-const Uint32 ModuleController::FIND_SERVICE =               0x00000008;
-const Uint32 ModuleController::FIND_MODULE_IN_SERVICE =     0x00000010;
-const Uint32 ModuleController::GET_MODULE_REFERENCE =       0x00000020;
-const Uint32 ModuleController::MODULE_SEND_WAIT =           0x00000040;
-const Uint32 ModuleController::MODULE_SEND_WAIT_MODULE =    0x00000040;
-const Uint32 ModuleController::MODULE_SEND_ASYNC =          0x00000080;
-const Uint32 ModuleController::MODULE_SEND_ASYNC_MODULE =   0x00000080;
-const Uint32 ModuleController::BLOCKING_THREAD_EXEC =       0x00000100;
-const Uint32 ModuleController::ASYNC_THREAD_EXEC =          0x00000200;
-const Uint32 ModuleController::CLIENT_SEND_WAIT =           0x00000400;
-const Uint32 ModuleController::CLIENT_SEND_WAIT_MODULE =    0x00000400;
-const Uint32 ModuleController::CLIENT_SEND_ASYNC =          0x00000800;
-const Uint32 ModuleController::CLIENT_SEND_ASYNC_MODULE =   0x00000800;
-const Uint32 ModuleController::CLIENT_BLOCKING_THREAD_EXEC =0x00001000;
-const Uint32 ModuleController::CLIENT_ASYNC_THREAD_EXEC =   0x00001000;
-const Uint32 ModuleController::CLIENT_SEND_FORGET =         0x00002000;
-const Uint32 ModuleController::CLIENT_SEND_FORGET_MODULE =  0x00002000;
-const Uint32 ModuleController::MODULE_SEND_FORGET =         0x00004000;
-const Uint32 ModuleController::MODULE_SEND_FORGET_MODULE =  0x00004000;
-
-
-Boolean ModuleController::client_handle::authorized()
-{
-   return true;
-}
-
-Boolean ModuleController::client_handle::authorized(Uint32 operation)
-{
-   return true;
-}
-
-
-Boolean ModuleController::client_handle::authorized(Uint32 index, Uint32 operation)
-{
-   return true;
-}
-
-
 // NOTE: "destroy" is defined in <memory> on HP-UX and must not be redefined
 static struct timeval createTime = {0, 50000};
 static struct timeval destroyTime = {15, 0};
@@ -285,7 +203,6 @@ ModuleController::ModuleController(const char *name )
 	 module_capabilities::async),
     _modules()
 {
-
 }
 
 // ModuleController::ModuleController(const char *name ,
@@ -303,7 +220,6 @@ ModuleController::ModuleController(const char *name )
 // 		 create_thread,
 // 		 destroy_thread)
 // {
-
 // }
 
 ModuleController::~ModuleController()
@@ -889,90 +805,50 @@ void ModuleController::_handle_async_callback(AsyncOpNode *op)
 
 }
 
-ModuleController & ModuleController::get_client_handle(const pegasus_identity & id,
-						       client_handle **handle)
+ModuleController* ModuleController::getModuleController()
 {
-   return get_client_handle(PEGASUS_QUEUENAME_CONTROLSERVICE,
-			    id,
-			    handle);
-}
+   MessageQueue *messageQueue =
+      MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE);
+   PEGASUS_ASSERT(messageQueue != 0);
+   PEGASUS_ASSERT(messageQueue->isAsync());
 
+   MessageQueueService* service =
+      dynamic_cast<MessageQueueService*>(messageQueue);
+   PEGASUS_ASSERT(service != 0);
+   PEGASUS_ASSERT(
+      service->get_capabilities() & module_capabilities::module_controller);
 
-// called by a non-module client to get the interface and authorization to use the controller
-
-ModuleController & ModuleController::get_client_handle(const char *controller,
-						       const pegasus_identity & id,
-						       client_handle **handle)
-{
-
-   if(handle == NULL)
-      throw NullPointer();
-
-   Array<Uint32> services;
-   MessageQueue *message_queue = MessageQueue::lookup(controller);
-
-   if ((message_queue == NULL) || ( false == message_queue->isAsync() ))
-   {
-      throw IncompatibleTypesException();
-   }
-
-   MessageQueueService *service = static_cast<MessageQueueService *>(message_queue);
-   if( (service == NULL) ||  ! ( service->get_capabilities() & module_capabilities::module_controller ))
-   {
-      throw IncompatibleTypesException();
-   }
-
-   ModuleController *_controller = static_cast<ModuleController *>(service);
-   if(true == const_cast<pegasus_identity &>(id).authenticate())
-      *handle = new client_handle(id);
-   else
-      *handle = NULL;
-
-   return *_controller;
-}
-
-
-void ModuleController::return_client_handle(client_handle *handle)
-{
-   if( true == handle->reference_count.decAndTestIfZero())
-      delete handle;
+   return static_cast<ModuleController*>(service);
 }
 
 
 // send a message to another service
-AsyncReply *ModuleController::ClientSendWait(const client_handle & handle,
+AsyncReply *ModuleController::ClientSendWait(
 					     Uint32 destination_q,
 					     AsyncRequest *request)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_WAIT))
-      throw Permission(pegasus_thread_self());
    return _send_wait(destination_q, request);
 }
 
 
 // send a message to another module via another service
-AsyncReply *ModuleController::ClientSendWait(const client_handle & handle,
+AsyncReply *ModuleController::ClientSendWait(
 					     Uint32 destination_q,
 					     String & destination_module,
 					     AsyncRequest *request)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_WAIT_MODULE))
-      throw Permission(pegasus_thread_self());
    return _send_wait(destination_q, destination_module, request);
 }
 
 
 // send an async message to another service
-Boolean ModuleController::ClientSendAsync(const client_handle & handle,
+Boolean ModuleController::ClientSendAsync(
 					  Uint32 msg_handle,
 					  Uint32 destination_q,
 					  AsyncRequest *message,
 					  void (*async_callback)(Uint32, Message *, void *) ,
 					  void *callback_parm)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_ASYNC))
-      throw Permission(pegasus_thread_self());
-
    pegasus_module *temp = new pegasus_module(this,
 					     String(PEGASUS_MODULENAME_TEMP),
 					     this,
@@ -988,7 +864,7 @@ Boolean ModuleController::ClientSendAsync(const client_handle & handle,
 
 
 // send an async message to another module via another service
-Boolean ModuleController::ClientSendAsync(const client_handle & handle,
+Boolean ModuleController::ClientSendAsync(
 					  Uint32 msg_handle,
 					  Uint32 destination_q,
 					  const String & destination_module,
@@ -996,9 +872,6 @@ Boolean ModuleController::ClientSendAsync(const client_handle & handle,
 					  void (*async_callback)(Uint32, Message *, void *),
 					  void *callback_parm)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_ASYNC_MODULE))
-      throw Permission(pegasus_thread_self());
-
    pegasus_module *temp = new pegasus_module(this,
 					     String(PEGASUS_MODULENAME_TEMP),
 					     this,
@@ -1015,47 +888,33 @@ Boolean ModuleController::ClientSendAsync(const client_handle & handle,
 
 
 
-Boolean ModuleController::ClientSendForget(const client_handle & handle,
+Boolean ModuleController::ClientSendForget(
 					   Uint32 destination_q,
 					   AsyncRequest *message)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_FORGET))
-      throw Permission(pegasus_thread_self());
-
    return _send_forget(destination_q, message);
 }
 
 
-Boolean ModuleController::ClientSendForget(const client_handle & handle,
+Boolean ModuleController::ClientSendForget(
 					   Uint32 destination_q,
 					   const String & destination_module,
 					   AsyncRequest *message)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_FORGET_MODULE))
-      throw Permission(pegasus_thread_self());
-
    return _send_forget(destination_q, destination_module, message);
 }
 
 void ModuleController::client_blocking_thread_exec(
-   const client_handle & handle,
    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
    void *parm)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_BLOCKING_THREAD_EXEC))
-      throw Permission(pegasus_thread_self());
    _blocking_thread_exec(thread_func, parm);
-
 }
 
 void ModuleController::client_async_thread_exec(
-   const client_handle & handle,
    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
    void *parm)
 {
-
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_ASYNC_THREAD_EXEC))
-      throw Permission(pegasus_thread_self());
    _async_thread_exec(thread_func, parm);
 }
 

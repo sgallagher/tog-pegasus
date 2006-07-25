@@ -116,9 +116,7 @@ public:
 
 protected:
 
-    static pegasus_internal_identity        _id;
     static ModuleController *               _controller;
-    static ModuleController::client_handle *_client_handle;
 
 private:
 

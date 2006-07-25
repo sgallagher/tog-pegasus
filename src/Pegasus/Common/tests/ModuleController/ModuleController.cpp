@@ -128,7 +128,6 @@ class test_module
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL thread_func(void *);
       ModuleController *get_controller();
       pegasus_module *get_mod_handle();
-      ModuleController::client_handle *get_client_handle();
 
    private:
       test_module();
@@ -136,25 +135,19 @@ class test_module
       test_module & operator =(const test_module &);
       ModuleController *_controller;
       pegasus_module *_module_handle;
-      ModuleController::client_handle *_client_handle;
       AtomicInt _msg_rx;
       AtomicInt _msg_tx;
       AtomicInt _thread_ex;
       String _name;
       String _controller_name;
-      pegasus_internal_identity _id;
-      
 };
 
 
 test_module::test_module(const char *name, const char *controller_name)
-   : _controller(0), _module_handle(0), _client_handle(0),
+   : _controller(0), _module_handle(0),
      _msg_rx(0), _msg_tx(0), _thread_ex(0), _name(name), 
-     _controller_name(controller_name), _id(peg_credential_types::MODULE)
+     _controller_name(controller_name)
 {
-
-      
-   
 }
 
 test_module::~test_module()
@@ -169,8 +162,6 @@ test_module::~test_module()
       {
 	 ;
       }
-      if(_client_handle)
-	 _controller->return_client_handle(_client_handle);
    }
 }
 
@@ -267,27 +258,6 @@ pegasus_module *test_module::get_mod_handle()
       
    }
    return _module_handle;
-}
-
-
-ModuleController::client_handle *test_module::get_client_handle()
-{
-   if(_client_handle == NULL)
-   {
-      if (_controller_name.size())
-      {
-	 try 
-	 {
-	    _controller = &(ModuleController::get_client_handle(
-                _controller_name.getCString(), _id, &_client_handle));
-	 }
-	 catch(IncompatibleTypesException &)
-	 {
-	 }
-      }
-   }
-   
-   return _client_handle;
 }
 
 
@@ -426,7 +396,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    test_module *my_module = new test_module(parms->_me, parms->_controller);
    my_module->get_controller();
    my_module->get_mod_handle();
-   my_module->get_client_handle();
    
    Uint32 svc_qid = 
       my_module->get_controller()->find_service(*(my_module->get_mod_handle()), SERVICE_NAME);
@@ -531,7 +500,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
 
-   success = my_module->get_controller()->ClientSendAsync( (*my_module->get_client_handle()),
+   success = my_module->get_controller()->ClientSendAsync(
 							   0, 
 							   svc_qid,
 							   req,
@@ -549,7 +518,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
    
-   success = my_module->get_controller()->ClientSendAsync( (*my_module->get_client_handle()),
+   success = my_module->get_controller()->ClientSendAsync(
 							   0, 
 							   peer_qid,
 							   String(parms->_peer),
@@ -603,7 +572,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
    
-   success = my_module->get_controller()->ClientSendForget( (*my_module->get_client_handle()),
+   success = my_module->get_controller()->ClientSendForget(
 							    svc_qid,
 							    req);
    
@@ -619,7 +588,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
    
-   success = my_module->get_controller()->ClientSendForget( (*my_module->get_client_handle()),
+   success = my_module->get_controller()->ClientSendForget(
 							    peer_qid,
 							    String(parms->_peer),
 							    req);

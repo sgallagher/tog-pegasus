@@ -168,7 +168,6 @@ SOURCES2 = \
     XmlStreamer.cpp \
     XmlWriter.cpp \
     MofWriter.cpp \
-    peg_authorization.cpp \
     CommonUTF.cpp
 
 SOURCES_SLP = Attribute.cpp \

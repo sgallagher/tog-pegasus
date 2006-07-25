@@ -3984,15 +3984,7 @@ MessageQueueService * ProviderRegistrationManager::_getIndicationService()
 void ProviderRegistrationManager::_sendMessageToSubscription(
     CIMNotifyProviderRegistrationRequestMessage * notify_req)
 {
-    pegasus_internal_identity _id = peg_credential_types::MODULE;
-    ModuleController * _controller;
-    ModuleController::client_handle *_client_handle;
-
-    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
-    if((_client_handle == NULL))
-    {
-        throw UninitializedObjectException();
-    }
+    ModuleController* controller = ModuleController::getModuleController();
 
     //
     // get indication server queueId
@@ -4010,9 +4002,8 @@ void ProviderRegistrationManager::_sendMessageToSubscription(
             notify_req,
             _queueId);
 
-        AutoPtr <AsyncReply> asyncReply
-            (_controller->ClientSendWait (* _client_handle, _queueId,
-            &asyncRequest));
+        AutoPtr<AsyncReply> asyncReply(
+            controller->ClientSendWait(_queueId, &asyncRequest));
 
         AutoPtr <CIMNotifyProviderRegistrationResponseMessage> response
             (reinterpret_cast <CIMNotifyProviderRegistrationResponseMessage *>
@@ -4050,15 +4041,7 @@ void ProviderRegistrationManager::_sendInitializeProviderMessage(
     const CIMInstance & provider,
     const CIMInstance & providerModule)
 {
-    pegasus_internal_identity _id = peg_credential_types::MODULE;
-    ModuleController * _controller;
-    ModuleController::client_handle *_client_handle;
-
-    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
-    if(_client_handle == NULL)
-    {
-        throw UninitializedObjectException();
-    }
+    ModuleController* controller = ModuleController::getModuleController();
 
     MessageQueue * queue = MessageQueue::lookup(
 	PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
@@ -4083,9 +4066,7 @@ void ProviderRegistrationManager::_sendInitializeProviderMessage(
             service->getQueueId());
 
         AutoPtr<AsyncReply> asyncReply(
-            _controller->ClientSendWait(*_client_handle,
-            service->getQueueId(),
-            &asyncRequest));
+            controller->ClientSendWait(service->getQueueId(), &asyncRequest));
 
 	AutoPtr<CIMInitializeProviderResponseMessage> response(
 	    reinterpret_cast<CIMInitializeProviderResponseMessage *>(

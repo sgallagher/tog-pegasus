@@ -70,18 +70,14 @@ static const CIMName _START_PROVIDER   = CIMName ("Start");
 
 ProviderRegistrationProvider::ProviderRegistrationProvider(
     ProviderRegistrationManager * providerRegistrationManager)	
-    :_id(peg_credential_types::PROVIDER)
 {
     _providerRegistrationManager = providerRegistrationManager;
 
-    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
-    if(_client_handle == NULL)
-        throw UninitializedObjectException();
+    _controller = ModuleController::getModuleController();
 }
 
 ProviderRegistrationProvider::~ProviderRegistrationProvider(void)	
 {
-    delete _client_handle;
 }
 
 void ProviderRegistrationProvider::initialize(CIMOMHandle & cimom)
@@ -1205,9 +1201,8 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
             disable_req,
             _queueId);
 
-    AsyncReply * asyncReply = _controller->ClientSendWait(*_client_handle,
-							  _queueId,
-							  asyncRequest);
+    AsyncReply * asyncReply =
+        _controller->ClientSendWait(_queueId, asyncRequest);
     CIMDisableModuleResponseMessage * response =
 	reinterpret_cast<CIMDisableModuleResponseMessage *>(
              (dynamic_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
@@ -1243,9 +1238,8 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
             enable_req,
             _queueId);
 
-    AsyncReply * asyncReply = _controller->ClientSendWait(*_client_handle,
-							  _queueId,
-							  asyncRequest);
+    AsyncReply * asyncReply =
+        _controller->ClientSendWait(_queueId, asyncRequest);
     CIMEnableModuleResponseMessage * response =
 	reinterpret_cast<CIMEnableModuleResponseMessage *>(
              (dynamic_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
@@ -1354,9 +1348,8 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
             termination_req,
             _queueId);
 
-        AutoPtr <AsyncReply> asyncReply
-            (_controller->ClientSendWait (* _client_handle, _queueId,
-            &asyncRequest));
+        AutoPtr <AsyncReply> asyncReply(
+            _controller->ClientSendWait(_queueId, &asyncRequest));
         
         AutoPtr <CIMNotifyProviderTerminationResponseMessage> response
             (reinterpret_cast <CIMNotifyProviderTerminationResponseMessage *>
@@ -1754,9 +1747,7 @@ void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
                 _queueId);
 	    
 	AsyncReply * asyncReply = 
-	    _controller->ClientSendWait(*_client_handle,
-                      			_queueId,
-                      			asyncRequest);
+	    _controller->ClientSendWait(_queueId, asyncRequest);
 
         CIMNotifyProviderEnableResponseMessage * response =
 	    reinterpret_cast<CIMNotifyProviderEnableResponseMessage *>(

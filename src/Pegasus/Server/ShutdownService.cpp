@@ -77,9 +77,7 @@ Initialize all other class variables
 */
 CIMServer*                       ShutdownService::_cimserver = 0;
 Uint32                           ShutdownService::_shutdownTimeout = 0;
-pegasus_internal_identity        ShutdownService::_id = 0;
 ModuleController*                ShutdownService::_controller = 0;
-ModuleController::client_handle* ShutdownService::_client_handle = 0;
 
 /** Constructor. */
 ShutdownService::ShutdownService(CIMServer* cimserver)
@@ -87,19 +85,9 @@ ShutdownService::ShutdownService(CIMServer* cimserver)
     _cimserver = cimserver;
 
     //
-    // get client identify
-    //
-    _id = peg_credential_types::MODULE;
-
-
-    //
     // get module controller
     //
-    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
-    if((_client_handle == NULL))
-    {
-        throw UninitializedObjectException();
-    }
+    _controller = ModuleController::getModuleController();
 }
 /**
  Terminates the shutdown service
@@ -345,8 +333,8 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
 						      _controller->getQueueId(),
 						      true);
     
-     AutoPtr <AsyncReply> StopAsyncReply 
-	(_controller->ClientSendWait ( *_client_handle,  _queueId, &stop_message));
+    AutoPtr<AsyncReply> StopAsyncReply(
+        _controller->ClientSendWait(_queueId, &stop_message));
 
     CimServiceStart start_message(
 							 NULL, 
@@ -354,8 +342,8 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
 							 _controller->getQueueId(),
 							 true);
 
-     AutoPtr <AsyncReply> StartAsyncReply 
-	(_controller->ClientSendWait ( *_client_handle,  _queueId, &start_message));
+    AutoPtr <AsyncReply> StartAsyncReply(
+        _controller->ClientSendWait(_queueId, &start_message));
 
     AsyncIoctl close_request(
 					       NULL,
@@ -366,8 +354,8 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
 					       0, 
 					       0);
 
-     AutoPtr <AsyncReply> CloseAsyncReply 
-	(_controller->ClientSendWait ( *_client_handle,  _queueId, &close_request));
+    AutoPtr <AsyncReply> CloseAsyncReply(
+        _controller->ClientSendWait(_queueId, &close_request));
 
     return;
 }
@@ -413,7 +401,7 @@ void ShutdownService::_shutdownProviders()
    // as the response might be received _after_ the provider or this service has 
    // been deleted. 
 
-    AsyncReply * asyncReply = _controller->ClientSendWait(*_client_handle,
+    AsyncReply * asyncReply = _controller->ClientSendWait(
 							  _queueId,
 							  asyncRequest);
     CIMStopAllProvidersResponseMessage * response =

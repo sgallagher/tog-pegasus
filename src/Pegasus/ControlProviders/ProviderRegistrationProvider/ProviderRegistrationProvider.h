@@ -144,9 +144,7 @@ ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & ha
 
 protected:
 
-    pegasus_internal_identity _id;
     ModuleController * _controller;
-    ModuleController::client_handle *_client_handle;
 
     ProviderRegistrationManager* _providerRegistrationManager;
 

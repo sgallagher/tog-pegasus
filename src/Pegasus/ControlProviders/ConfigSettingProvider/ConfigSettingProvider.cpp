@@ -623,16 +623,7 @@ void ConfigSettingProvider::_sendNotifyConfigChangeMessage(
     PEG_METHOD_ENTER(TRC_CONFIG,
         "ConfigSettingProvider::_sendNotifyConfigChangeMessage");
 
-    pegasus_internal_identity _id = peg_credential_types::PROVIDER;
-    ModuleController * _controller;
-    ModuleController::client_handle *_client_handle;
-
-    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
-    if(_client_handle == NULL)
-    {
-        PEG_METHOD_EXIT();
-        throw UninitializedObjectException();      
-    }
+    ModuleController* controller = ModuleController::getModuleController();
 
     MessageQueue * queue = MessageQueue::lookup(
         PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
@@ -658,9 +649,7 @@ void ConfigSettingProvider::_sendNotifyConfigChangeMessage(
             service->getQueueId());
 
         AutoPtr<AsyncReply> asyncReply( 
-            _controller->ClientSendWait(*_client_handle,
-            service->getQueueId(),
-            &asyncRequest));
+            controller->ClientSendWait(service->getQueueId(), &asyncRequest));
 
         AutoPtr<CIMNotifyConfigChangeResponseMessage> response(
             reinterpret_cast<CIMNotifyConfigChangeResponseMessage *>(

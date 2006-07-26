@@ -217,7 +217,8 @@ Sint32 SSLSocket::timedWrite( const void* ptr,
     // All data written ? return amount of data written
     if ((Uint32)bytesWritten == size)
     {
-        return totalBytesWritten;
+        // exit the while loop
+        break;
     }
     // If data has been written partially, we resume writing data
     // this also accounts for the case of a signal interrupt
@@ -232,7 +233,12 @@ Sint32 SSLSocket::timedWrite( const void* ptr,
     if (bytesWritten <= 0)
     {
         // if we already waited for the socket to get ready, bail out
-        if( socketTimedOut ) return bytesWritten;
+        if( socketTimedOut )
+        {
+            // bytesWritten contains the error indication
+            PEG_METHOD_EXIT();
+            return bytesWritten;
+        }
 
         // just interrupted by a signal, try again
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -257,11 +263,13 @@ Sint32 SSLSocket::timedWrite( const void* ptr,
             if (selreturn == 0) socketTimedOut = true; // ran out of time
             continue;            
         }
+        // bytesWritten contains the error indication
+        PEG_METHOD_EXIT();
         return bytesWritten;
     }
   }
     PEG_METHOD_EXIT();
-    return bytesWritten;
+    return totalBytesWritten;
 }
 
 void SSLSocket::close()

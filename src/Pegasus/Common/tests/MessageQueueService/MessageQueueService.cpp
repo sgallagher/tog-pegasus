@@ -225,8 +225,7 @@ void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation)
 {
     if (operation != 0)
     {
-        Message *rq = operation->get_request();
-        operation->put_request(rq); // Need to leave the request in the op node
+        Message* rq = operation->getRequest();
 
         PEGASUS_TEST_ASSERT(rq != 0);
         if (rq->getMask() & message_mask::ha_async)

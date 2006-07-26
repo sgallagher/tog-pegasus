@@ -201,15 +201,15 @@ BinaryMessageHandler::handle_binary_message(void* parm)
    try
    {
       // if there is a response, dispatch the response
-      if(op->_response.size())
+      if (op->_response.get() != 0)
       {
-         msg = static_cast<AsyncMessage *>(op->_response.front());
+         msg = static_cast<AsyncMessage *>(op->_response.get());
          legacy = static_cast<AsyncLegacyOperationResult*>(msg)->get_result();
       }
       else
       {
          // there is no response so there has to be a request
-         if(op->_request.size() == 0)
+         if (op->_request.get() == 0)
          {
             PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL2,
                "Received OpNode with no messages.");
@@ -217,7 +217,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
             return(0);
          }
          // dispatch the request
-         msg = static_cast<AsyncMessage *>(op->_request.front());
+         msg = static_cast<AsyncMessage *>(op->_request.get());
          legacy = static_cast<AsyncLegacyOperationStart *>(msg)->get_action();
       }
       if(msg && legacy)
@@ -486,7 +486,8 @@ BinaryMessageHandler::_handleRequest(AsyncOpNode *op, Message *msg)
    PEG_METHOD_ENTER(TRC_BINARY_MSG_HANDLER,
       "BinaryMessageHandler::_handleRequest(AsyncOpNode *, Message *)");
 
-   AsyncRequest *async_request = static_cast<AsyncRequest *>(op->get_request());
+   AsyncRequest *async_request =
+      static_cast<AsyncRequest *>(op->removeRequest());
    
    msg->_async = 0;
    try 
@@ -514,9 +515,13 @@ BinaryMessageHandler::_handleResponse(AsyncOpNode *op, Message *msg)
 {
    PEG_METHOD_ENTER(TRC_BINARY_MSG_HANDLER,
 		    "BinaryMessageHandler::_handleResponse(AsyncOpNode *, Message *)");
-   AsyncReply *async_reply = static_cast<AsyncReply *>(op->get_response());
+
+   if (op->_response.get() != 0)
+   {
+      AsyncReply* asyncReply = static_cast<AsyncReply *>(op->removeResponse());
+      delete asyncReply;
+   }
    msg->_async = 0;
-   delete async_reply;
    
    MessageQueue *dest = MessageQueue::lookup(((CIMRequestMessage *)msg)->queueIds.top());
    if(dest == 0)

@@ -128,7 +128,7 @@ void cimom::_shutdown_routed_queue()
 		   | ASYNC_OPFLAGS_SIMPLE_STATUS);
    msg->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    msg->op->_op_dest = _global_this;
-   msg->op->_request.insert_front(msg.get());
+   msg->op->_request.reset(msg.get());
 
    _routed_ops.enqueue_wait(msg->op);
    _routing_thread.join();
@@ -216,7 +216,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 		  // just handle it from here.  
 		  op->lock();
 		  AsyncRequest *request = 
-		      static_cast<AsyncRequest *>(op->_request.front());
+		      static_cast<AsyncRequest *>(op->_request.get());
 		  op->unlock();		  
 		  code = request->getType();
 		  
@@ -353,8 +353,10 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
   {
      op->unlock();
      haveLock = false;
-     if ((reply != 0) && (false == op->_response.contains(reply)))
-	 op->_response.insert_back(reply);
+     if (reply != 0)
+     {
+         op->_response.reset(reply);
+     }
      _complete_op_node(op, state, flag, (reply ? reply->result : 0 ));
      return;
   }
@@ -376,7 +378,6 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
    
    op->_state |= (state | ASYNC_OPSTATE_COMPLETE);
    op->_flags |= flag;
-   gettimeofday(&(op->_updated), NULL);
    if ( op->_flags & ASYNC_OPFLAGS_SIMPLE_STATUS )
    { 
       PEGASUS_ASSERT(reply != 0 );
@@ -387,8 +388,10 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
    }
    else
    {
-      if ( (reply != 0) && (false == op->_response.contains(reply)))
-	 op->_response.insert_back(reply);
+      if (reply != 0)
+      {
+         op->_response.reset(reply);
+      }
    }
    
    if (haveLock)
@@ -474,11 +477,7 @@ void cimom::_handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queu
    if(op == 0)
       return;
 
-   // ATTN: optimization << Tue Feb 19 11:33:21 2002 mdd >>
-   // do away with the lock/unlock 
-   op->lock();
-   Message *msg = op->_request.front();
-   op->unlock();
+   Message* msg = op->getRequest();
    
    if ( msg == 0 )
       return;
@@ -894,7 +893,7 @@ AsyncOpNode *cimom::get_cached_op()
 
 void cimom::cache_op(AsyncOpNode *op)
 {
-   PEGASUS_ASSERT(op->read_state() & ASYNC_OPSTATE_RELEASED );
+   PEGASUS_ASSERT(op->_state & ASYNC_OPSTATE_RELEASED);
    delete op;
 }
 

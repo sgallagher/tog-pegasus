@@ -1725,8 +1725,9 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     CIMOperationRequestDispatcher *service =
         static_cast<CIMOperationRequestDispatcher *>(q);
 
-    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
-    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+    AsyncRequest *asyncRequest =
+        static_cast<AsyncRequest *>(op->removeRequest());
+    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->removeResponse());
 
     OperationAggregate* poA = reinterpret_cast<OperationAggregate*>(userParameter);
     PEGASUS_ASSERT(asyncRequest != 0);
@@ -1765,7 +1766,7 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     if (isComplete == false)
     {
         // put back the async request because there are more chunks to come.
-        op->put_request(asyncRequest);
+        op->setRequest(asyncRequest);
         delete asyncReply;
     }
     else
@@ -1805,8 +1806,9 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
     CIMOperationRequestDispatcher *service =
         static_cast<CIMOperationRequestDispatcher *>(q);
 
-    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
-    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+    AsyncRequest *asyncRequest =
+        static_cast<AsyncRequest *>(op->removeRequest());
+    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->removeResponse());
 
     CIMResponseMessage *response = 0;
 
@@ -1942,8 +1944,6 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
         // By setting this to complete, this allows ONLY the callback to run
         // without going through the typical async request apparatus
         op->complete();
-        // add the response for async handler
-        op->put_response(asyncResponse);
     }
 
     // If ControlProviderName empty, forward to service.

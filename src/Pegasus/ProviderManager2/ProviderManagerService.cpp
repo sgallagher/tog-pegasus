@@ -257,22 +257,11 @@ ProviderManagerService::handleCimOperation(void* arg)
         }
 
         AsyncOpNode* op = service->_incomingQueue.remove_front();
-
-        if ((op == 0) || (op->_request.size() == 0))
-        {
-            // ATTN: This may dereference a null pointer!
-            MessageQueue* queue = MessageQueue::lookup(op->_source_queue);
-
-            PEGASUS_ASSERT(queue != 0);
-
-            PEG_METHOD_EXIT();
-
-            // no request in op node
-            return(PEGASUS_THREAD_RETURN(1));
-        }
+        PEGASUS_ASSERT(op != 0);
+        PEGASUS_ASSERT(op->_request.get() != 0);
 
         AsyncRequest* request =
-            static_cast<AsyncRequest*>(op->_request.front());
+            static_cast<AsyncRequest*>(op->_request.get());
 
         if ((request == 0) ||
             (request->getType() != async_messages::ASYNC_LEGACY_OP_START))
@@ -336,7 +325,7 @@ void ProviderManagerService::handleCimRequest(
     PEGASUS_ASSERT(request != 0);
 
     // get request from op node
-    AsyncRequest * async = static_cast<AsyncRequest *>(op->_request.front());
+    AsyncRequest * async = static_cast<AsyncRequest *>(op->_request.get());
     PEGASUS_ASSERT(async != 0);
 
     Message * response = 0;

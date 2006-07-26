@@ -2399,7 +2399,7 @@ void IndicationService::_handleIndicationCallBack (
     CIMInstance * subscription =
         reinterpret_cast <CIMInstance *> (userParameter);
     AsyncReply * asyncReply =
-        static_cast <AsyncReply *> (operation->get_response ());
+        static_cast<AsyncReply *>(operation->removeResponse());
     CIMHandleIndicationResponseMessage * handlerResponse =
         reinterpret_cast <CIMHandleIndicationResponseMessage *>
         ((static_cast <AsyncLegacyOperationResult *>
@@ -6624,8 +6624,8 @@ void IndicationService::_aggregationCallBack (
     IndicationService * service = static_cast <IndicationService *> (q);
 
     AsyncRequest * asyncRequest =
-        static_cast <AsyncRequest *> (op->get_request ());
-    AsyncReply * asyncReply = static_cast <AsyncReply *> (op->get_response ());
+        static_cast<AsyncRequest *>(op->removeRequest());
+    AsyncReply * asyncReply = static_cast<AsyncReply *>(op->removeResponse());
 
     IndicationOperationAggregate * operationAggregate =
         reinterpret_cast <IndicationOperationAggregate *> (userParameter);

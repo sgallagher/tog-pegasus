@@ -373,7 +373,7 @@ void MessageQueueService::_shutdown_incoming_queue()
    msg->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
 
    msg->op->_op_dest = this;
-   msg->op->_request.insert_front(msg);
+   msg->op->_request.reset(msg);
    try {
      _incoming.enqueue_wait(msg->op);
      _polling_sem.signal();
@@ -474,7 +474,7 @@ void MessageQueueService::_handle_async_callback(AsyncOpNode *op)
    if (op->_flags & ASYNC_OPFLAGS_SAFE_CALLBACK)
    {
 
-      Message *msg = op->get_request();
+      Message *msg = op->removeRequest();
       if (msg && (msg->getMask() & message_mask::ha_async))
       {
          if (msg->getType() == async_messages::ASYNC_LEGACY_OP_START)
@@ -501,7 +501,7 @@ void MessageQueueService::_handle_async_callback(AsyncOpNode *op)
          delete msg;
       }
 
-      msg = op->get_response();
+      msg = op->removeResponse();
       if (msg && (msg->getMask() & message_mask::ha_async))
       {
          if (msg->getType() == async_messages::ASYNC_LEGACY_OP_RESULT)
@@ -545,7 +545,7 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation)
 // << Tue Feb 19 14:10:38 2002 mdd >>
       operation->lock();
 
-      Message *rq = operation->_request.front();
+      Message *rq = operation->_request.get();
 
 // optimization <<< Thu Mar  7 21:04:05 2002 mdd >>>
 // move this to the bottom of the loop when the majority of
@@ -554,7 +554,7 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation)
       // divert legacy messages to handleEnqueue
       if ((rq != 0) && (!(rq->getMask() & message_mask::ha_async)))
       {
-         rq = operation->_request.remove_front() ;
+         operation->_request.release();
          operation->unlock();
          // delete the op node
          operation->release();
@@ -719,8 +719,8 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
 // ATTN optimization remove the message checking altogether in the base
 // << Mon Feb 18 14:02:20 2002 mdd >>
    op->lock();
-   Message *rq = op->_request.front();
-   Message *rp = op->_response.front();
+   Message *rq = op->_request.get();
+   Message *rp = op->_response.get();
    op->unlock();
 
    if ((rq != 0 && (true == messageOK(rq))) ||
@@ -913,7 +913,7 @@ AsyncOpNode *MessageQueueService::get_op()
 
 void MessageQueueService::return_op(AsyncOpNode *op)
 {
-   PEGASUS_ASSERT(op->read_state() & ASYNC_OPSTATE_RELEASED);
+   PEGASUS_ASSERT(op->_state & ASYNC_OPSTATE_RELEASED);
    delete op;
 }
 
@@ -1003,7 +1003,7 @@ Boolean MessageQueueService::SendAsync(
    }
    else
    {
-      op->_request.insert_front(msg);
+      op->_request.reset(msg);
       (static_cast<AsyncMessage *>(msg))->op = op;
    }
    return _meta_dispatcher->route_async(op);
@@ -1023,7 +1023,7 @@ Boolean MessageQueueService::SendForget(Message *msg)
    if (op == 0)
    {
       op = get_op();
-      op->_request.insert_front(msg);
+      op->_request.reset(msg);
       if (mask & message_mask::ha_async)
       {
          (static_cast<AsyncMessage *>(msg))->op = op;
@@ -1056,7 +1056,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
    if (request->op == 0)
    {
       request->op = get_op();
-      request->op->_request.insert_front(request);
+      request->op->_request.reset(request);
       destroy_op = true;
    }
 
@@ -1071,15 +1071,13 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
 
    request->op->_client_sem.wait();
 
-   request->op->lock();
-   AsyncReply * rpl = static_cast<AsyncReply *>(request->op->_response.remove_front());
+   AsyncReply* rpl = static_cast<AsyncReply *>(request->op->removeResponse());
    rpl->op = 0;
-   request->op->unlock();
 
    if (destroy_op == true)
    {
       request->op->lock();
-      request->op->_request.remove(request);
+      request->op->_request.release();
       request->op->_state |= ASYNC_OPSTATE_RELEASED;
       request->op->unlock();
       return_op(request->op);

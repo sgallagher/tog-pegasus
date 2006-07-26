@@ -121,7 +121,7 @@ AsyncRequest::AsyncRequest(Uint32 type,
      block(blocking) 
 {  
    if( op != 0 )
-      op->put_request(this);
+      op->setRequest(this);
 }
 
 AsyncReply::AsyncReply(Uint32 type, 
@@ -135,7 +135,7 @@ AsyncReply::AsyncReply(Uint32 type,
      block(blocking) 
 {  
    if( op != 0 )
-      op->put_response(this);
+      op->setResponse(this);
 }
 
 

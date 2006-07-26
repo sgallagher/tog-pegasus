@@ -56,7 +56,6 @@ async_complete::async_complete (const async_start & start,
 Base (start.op, result, start.resp, false),
 _result_data (result_data)
 {
-  start.op->put_response (this);
 }
 
 
@@ -137,7 +136,7 @@ test_async_queue::_handle_async_callback (AsyncOpNode * op)
 {
   PEGASUS_TEST_ASSERT (_role == CLIENT);
 
-  PEGASUS_TEST_ASSERT (op->read_state () & ASYNC_OPSTATE_COMPLETE);
+  PEGASUS_TEST_ASSERT (op->getState() & ASYNC_OPSTATE_COMPLETE);
 
   Base::_handle_async_callback (op);
 }
@@ -150,10 +149,10 @@ test_async_queue::async_handleEnqueue (AsyncOpNode * op,
   // I am static, get a pointer to my object 
   test_async_queue *myself = static_cast < test_async_queue * >(q);
 
-  async_start *rq = static_cast < async_start * >(op->get_request ());
+  async_start *rq = static_cast < async_start * >(op->removeRequest());
   assert(rq != 0);
 
-  async_complete *rp = static_cast < async_complete * >(op->get_response ());
+  async_complete *rp = static_cast < async_complete * >(op->removeResponse());
   assert(rp != 0);
 
   if ((rq->getType () == async_messages::ASYNC_OP_START) &&

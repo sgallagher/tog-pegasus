@@ -520,8 +520,8 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
 {
 
    ModuleController *myself = static_cast<ModuleController *>(q);
-   Message *request = op->get_request();
-   Message *response = op->get_response();
+   Message *request = op->removeRequest();
+   Message *response = op->removeResponse();
 
    if( request && (! (request->getMask() & message_mask::ha_async)))
       throw TypeMismatchException();
@@ -574,7 +574,7 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
    if (message->op == NULL)
    {
       message->op = get_op();
-      message->op->put_request(message);
+      message->op->setRequest(message);
    }
 
 

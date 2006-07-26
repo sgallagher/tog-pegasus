@@ -66,7 +66,7 @@ DIRS = \
 	TestAggregationOutputProvider \
 	TestAggregationOutputProvider/testclient
 
-ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 DIRS += \
 	EmbeddedInstanceProvider \
 	EmbeddedInstanceProvider/testClient

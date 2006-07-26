@@ -52,10 +52,8 @@ include $(ROOT)/test/config.mak
 LOGFILES = TestCMPIMethod
 TEST_LOGFILES = TestCMPIMethod
 
-ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT),true)
+ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
   TEST_LOGFILES = TestCMPIMethod_ei
-endif
 endif
 
 tests:

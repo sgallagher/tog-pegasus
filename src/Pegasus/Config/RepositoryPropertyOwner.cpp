@@ -69,7 +69,11 @@ static struct ConfigPropertyRow properties[] =
 #else
     {"repositoryIsDefaultInstanceProvider", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
     {"enableBinaryRepository", "false", IS_STATIC, 0, 0, IS_VISIBLE}  // PEP 164
+#else
+    {"enableBinaryRepository", "true", IS_STATIC, 0, 0, IS_VISIBLE}  // PEP 164 - default on
+#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

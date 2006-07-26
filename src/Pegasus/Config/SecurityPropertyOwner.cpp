@@ -134,7 +134,11 @@ static struct ConfigPropertyRow properties[] =
     {"enableSubscriptionsForNonprivilegedUsers", "true", IS_STATIC, 0, 0, IS_HIDDEN},
 # endif
 #endif
+#ifdef PEGASUS_OS_ZOS
+    {"enableRemotePrivilegedUserAccess", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+#else
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     {"authorizedUserGroups", "", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif

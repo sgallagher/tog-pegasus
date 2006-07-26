@@ -3579,7 +3579,7 @@ CIM server listening on HTTPS port {0}."}
         * @note  PGS10404:
         *    do not translate "TargetHost" since it is the name of a CIM property
         */
-        HandlerService.IndicationHandlerService.INVALID_TARGETHOST:string {"PGS10401: The value of the TargetHost property is not valid."}
+        HandlerService.IndicationHandlerService.INVALID_TARGETHOST:string {"PGS10404: The value of the TargetHost property is not valid."}
 
         /**
         * @note  PGS10405:

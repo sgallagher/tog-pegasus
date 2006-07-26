@@ -38,6 +38,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/AsyncQueue.h>  
 #include <Pegasus/Common/Thread.h>
 #include <iostream>
@@ -48,6 +49,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_NAMESPACE_BEGIN
 
 const Uint32 ITERATIONS = 100000;
+Boolean verbose = false;
 
 struct Message : public Linkable
 {
@@ -59,22 +61,27 @@ typedef AsyncQueue<Message> Queue;
 
 static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _reader(void* self_)
 {
-    //printf("==== _reader()\n");
     Thread* self = (Thread*)self_;
     Queue* queue = (Queue*)self->get_parm();
 
     for (Uint32 i = 0; i < ITERATIONS; i++)
     {
 	Message* message = queue->dequeue_wait();
-	assert(message);
-
-	if (((i + 1) % 1000) == 0)
-	    printf("iterations: %05u\n", message->x);
-
-	pegasus_yield();
+	PEGASUS_TEST_ASSERT(message);
+    if (verbose)
+    {
+        if (((i + 1) % 1000) == 0)
+            printf("iterations: %05u\n", message->x);
+        }
+// special dish of the day for Sun Solaris
+// reports say that running as root causes
+// the thread not being scheduled-out
+// until this is resolved the yield()
+// will stay here just for Solaris
+#ifdef PEGASUS_OS_SOLARIS
+	    pegasus_yield();
+#endif
     }
-
-    //data->self->join();
 
     self->exit_self((PEGASUS_THREAD_RETURN)1);
     return(0);
@@ -82,15 +89,20 @@ static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _reader(void* self_)
 
 static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _writer(void* self_)
 {
-    //printf("==== _reader()\n");
     Thread* self = (Thread*)self_;
     Queue* queue = (Queue*)self->get_parm();
 
     for (Uint32 i = 0; i < ITERATIONS; i++)
     {
-	queue->enqueue(new Message(i));
-	//printf("write: %u\n", i);
-	pegasus_yield();
+        queue->enqueue(new Message(i));
+// special dish of the day for Sun Solaris
+// reports say that running as root causes
+// the thread not being scheduled-out
+// until this is resolved the yield()
+// will stay here just for Solaris
+#ifdef PEGASUS_OS_SOLARIS
+        pegasus_yield();
+#endif
     }
 
     self->exit_self((PEGASUS_THREAD_RETURN)1);
@@ -116,6 +128,7 @@ PEGASUS_NAMESPACE_END
 
 int main(int argc, char **argv)
 {
+    verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
     try
     {
         testAsyncQueue();

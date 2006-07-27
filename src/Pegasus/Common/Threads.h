@@ -1,62 +1,55 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+// Author: Mike Brasher (m.brasher@inovadevelopment.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Threads_h
 #define Pegasus_Threads_h
 
-#include <cstring>
-#include <cstdio>
-#include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 
-// ATTN: can we consolidate these someplace?
-
-#ifdef PEGASUS_OS_ZOS
-# include <sched.h>
-#endif
 #if defined(PEGASUS_HAVE_PTHREADS)
+# if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+# define _MULTI_THREADED // Is this really necessary?
+# endif
 # include <pthread.h>
 # include <errno.h>
 # include <sys/time.h>
 #elif defined(PEGASUS_HAVE_WINDOWS_THREADS)
 # include <windows.h>
-# include <process.h>
 #else
 # error "<Pegasus/Common/Threads.h>: not implemented"
-#endif
-
-#if defined(PEGASUS_OS_SOLARIS)
-# include <string.h>
-# include <stdio.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -67,7 +60,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //==============================================================================
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # define PEGASUS_THREAD_CDECL __stdcall
 #else
 # define PEGASUS_THREAD_CDECL /* empty */
@@ -75,61 +68,55 @@ PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
 //
-// ThreadId
+// ThreadCleanupType
 //
 //==============================================================================
 
-struct ThreadId
+struct ThreadCleanupBuffer
 {
-    // The character representation of a uint64 requires 22 bytes including the
-    // null terminator.
-    char buffer[22];
+    void (*__routine)(void*);
+    void* __arg;
+    int __canceltype;
+    struct ThreadCleanupBuffer* __prev;
 };
 
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+typedef void* ThreadCleanupType;
+#elif defined(PEGASUS_PLATFORM_HPUX_ACC)
+typedef __pthread_cleanup_handler_t ThreadCleanupType;
+#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+typedef ThreadCleanupBuffer ThreadCleanupType;
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+typedef ThreadCleanupBuffer ThreadCleanupType;
+#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
+typedef _cleanup_t ThreadCleanupType;
+#elif defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
+typedef void* ThreadCleanupType;
+#elif defined(PEGASUS_DARWIN_PPC_GNU)
+typedef void* ThreadCleanupType;
+#elif defined(PEGASUS_OS_VMS)
+typedef void* ThreadCleanupType;
+#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+typedef void* ThreadCleanupType;
+#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+typedef struct _pthread_cleanup_buffer ThreadCleanupType;
+#else
+# error "<Pegasus/Common/Threads.h>: unsupported platform"
+#endif
+
 //==============================================================================
 //
-// ThreadType
+// Thread-related type definitions
 //
 //==============================================================================
 
 #if defined(PEGASUS_HAVE_PTHREADS)
-struct ThreadType
-{
-    ThreadType()
-    {
-        memset(&thread, 0, sizeof(thread));
-    }
-
-    ThreadType(pthread_t thread_) : thread(thread_)
-    {
-    }
-
-    pthread_t thread;
-};
-#endif /* PEGASUS_HAVE_PTHREADS */
-
-#if defined(PEGASUS_HAVE_WINDOWS_THREADS)
-struct ThreadType
-{
-    ThreadType() : handle(NULL)
-    {
-    }
-
-    HANDLE handle;
-};
-#endif /* PEGASUS_HAVE_WINDOWS_THREADS */
-
-//==============================================================================
-//
-// ThreadReturnType
-//
-//==============================================================================
-
-#if defined(PEGASUS_HAVE_PTHREADS)
+typedef pthread_t ThreadType;
 typedef void* ThreadReturnType;
 #endif
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
+typedef HANDLE ThreadType;
 typedef unsigned ThreadReturnType;
 #endif
 
@@ -143,11 +130,13 @@ typedef unsigned ThreadReturnType;
 struct ThreadHandle
 {
     ThreadType thid;
+    pthread_attr_t thatt;
 };
 #elif defined(PEGASUS_HAVE_WINDOWS_THREADS)
 struct ThreadHandle
 {
     ThreadType thid;
+    void * thatt;
 };
 #endif
 
@@ -161,29 +150,21 @@ class PEGASUS_COMMON_LINKAGE Threads
 {
 public:
 
-    enum Type { DETACHED, JOINABLE };
-
-    static int create(
-        ThreadType& thread,
-        Type type,
-        void* (*start)(void*),
-        void* arg);
-
     static ThreadType self();
 
     static bool equal(ThreadType x, ThreadType y);
 
     static void exit(ThreadReturnType rc);
 
+    static void cancel(ThreadType th, ThreadReturnType rc);
+
     static void yield();
 
     static void sleep(int msec);
 
-    static ThreadId id(const ThreadType& x = Threads::self());
+    static void cleanup_push(void (*func)(void*), void* arg);
 
-    static bool null(const ThreadType& x = Threads::self());
-
-    static void clear(ThreadType& x);
+    static void cleanup_pop(int execute);
 };
 
 //==============================================================================
@@ -194,58 +175,52 @@ public:
 
 #if defined(PEGASUS_HAVE_PTHREADS)
 
-inline bool Threads::equal(ThreadType x, ThreadType y)
-{
-    return pthread_equal(x.thread, y.thread);
+inline ThreadType Threads::self() 
+{ 
+    return pthread_self(); 
+}
+
+inline bool Threads::equal(ThreadType x, ThreadType y) 
+{ 
+    return pthread_equal(x, y);
 }
 
 inline void Threads::exit(ThreadReturnType rc)
 {
-    // NOTE: pthread_exit exhibits unusual behavior on RHEL 3 U2, as
-    // documented in Bugzilla 3836.  Where feasible, it may be advantageous
-    // to avoid using this function.
     pthread_exit(rc);
+}
+
+inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
+{
+    pthread_cancel(th);
 }
 
 inline void Threads::yield()
 {
-#ifdef PEGASUS_OS_LINUX
-    pthread_yield();
-#else
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || \
+    defined(PEGASUS_PLATFORM_HPUX_ACC) || \
+    defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) || \
+    defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX) || \
+    defined(PEGASUS_OS_VMS)
     sched_yield();
-#endif
-}
-
-inline ThreadId Threads::id(const ThreadType& x)
-{
-    ThreadId tid = { { 0 } };
-
-#if defined(PEGASUS_OS_ZOS)
-    const char* s = x.thread.__;
-    sprintf(tid.buffer, "%X%X%X%X%X%X%X%X",
-        s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
 #else
-    sprintf(tid.buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
-        Uint64(x.thread));
-#endif
-
-    return tid;
-}
-
-inline bool Threads::null(const ThreadType& x)
-{
-#if defined(PEGASUS_OS_ZOS)
-    Uint64 tmp;
-    memcpy(&tmp, x.thread.__, sizeof(Uint64));
-    return tmp == 0;
-#else
-    return x.thread == 0;
+    pthread_yield();
 #endif
 }
 
-inline void Threads::clear(ThreadType& x)
+inline void Threads::cleanup_push(void (*func)(void*), void* arg)
 {
-    memset(&x, 0, sizeof(x));
+    // ATTN: it is doubtful whether cleanup handlers ever really worked.
+    //       They are only used in two places and not used in many other
+    //       places where mutexes are obtained. Further, they are only
+    //       implemented correctly on one or two platforms. For now, we
+    //       will defer their implementation until we can find a way to
+    //       implement them on all platforms (using thread local storage).
+}
+
+inline void Threads::cleanup_pop(int execute)
+{
+    // ATTN: not implemented.
 }
 
 #endif /* defined(PEGASUS_HAVE_PTHREADS) */
@@ -258,16 +233,14 @@ inline void Threads::clear(ThreadType& x)
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
 
-inline ThreadType Threads::self()
+inline ThreadType Threads::self() 
 {
-    ThreadType tt;
-    tt.handle = GetCurrentThread();
-    return tt;
+    return ThreadType(GetCurrentThreadId()); 
 }
 
-inline bool Threads::equal(ThreadType x, ThreadType y)
+inline bool Threads::equal(ThreadType x, ThreadType y) 
 {
-    return x.handle == y.handle;
+    return x == y;
 }
 
 inline void Threads::exit(ThreadReturnType rc)
@@ -275,31 +248,25 @@ inline void Threads::exit(ThreadReturnType rc)
     _endthreadex(rc);
 }
 
+inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
+{
+    TerminateThread(th, rc);
+}
+
 inline void Threads::yield()
 {
     Sleep(0);
 }
 
-inline ThreadId Threads::id(const ThreadType& x)
+inline void Threads::cleanup_push(void (*func)(void*), void* arg)
 {
-    ThreadId tmp;
-
-    sprintf(tmp.buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
-        Uint64(x.handle));
-
-    return tmp;
+    // ATTN: Not implemented on Windows.
 }
 
-inline bool Threads::null(const ThreadType& x)
+inline void Threads::cleanup_pop(int execute)
 {
-    return x.handle == NULL;
+    // ATTN: Not implemented on Windows.
 }
-
-inline void Threads::clear(ThreadType& x)
-{
-    x.handle = NULL;
-}
-
 #endif /* defined(PEGASUS_HAVE_WINDOWS_THREADS) */
 
 PEGASUS_NAMESPACE_END

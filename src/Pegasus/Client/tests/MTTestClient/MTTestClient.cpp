@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author : Sushma Fernandes, Hewlett-Packard Company
 //              (sushma_fernandes@hp.com)
@@ -194,7 +196,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL test_client(void *parm)
             String certpath = FileSystem::getAbsolutePath(
                                pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-            String randFile;
+            String randFile = String::EMPTY;
 
             randFile = FileSystem::getAbsolutePath(
                         pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
@@ -249,13 +251,15 @@ ThreadReturnType PEGASUS_THREAD_CDECL test_client(void *parm)
          PEGASUS_STD(cout) << endl <<
              "++++++++ Completed Disconnect +++++++++ " << endl;
 #endif
+        myHandle->exit_self((ThreadReturnType)1);
+        return(0);
     }
     catch(const Exception& e)
     {
+        myHandle->exit_self((ThreadReturnType)1);
         PEGASUS_STD(cout) << "Error: " << e.getMessage() << endl;
+        return(0);
     }
-
-    return ThreadReturnType(0);
 }
 
 /**
@@ -304,31 +308,33 @@ MTTestClient::MTTestClient ()
 
 String MTTestClient::_promptForPassword( ostream& outPrintWriter )
 {
-    //
-    // Password is not set, prompt for non-blank password
-    //
-    String pw;
-    Uint32 retries = 1;
-    do
+  //
+  // Password is not set, prompt for non-blank password
+  //
+  String pw = String::EMPTY;
+  Uint32 retries = 1;
+  do
     {
-        pw = System::getPassword(PASSWORD_PROMPT);
+      pw = System::getPassword( PASSWORD_PROMPT );
 
-        if (pw == String::EMPTY)
+      if ( pw == String::EMPTY || pw == "" )
         {
-            if( retries < MAX_PW_RETRIES )
+          if( retries < MAX_PW_RETRIES )
             {
-                retries++;
+              retries++;
+
             }
-            else
+          else
             {
-                break;
+              break;
             }
-            outPrintWriter << PASSWORD_BLANK << endl;
-            continue;
+          outPrintWriter << PASSWORD_BLANK << endl;
+          pw = String::EMPTY;
+          continue;
         }
     }
-    while (pw == String::EMPTY);
-    return pw;
+  while ( pw == String::EMPTY );
+  return( pw );
 }
 
 /**
@@ -377,7 +383,8 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        throw CommandFormatException(getOpts.getErrorStrings()[0]);
+        CommandFormatException e (getOpts.getErrorStrings () [0]);
+        throw e;
     }
 
     //
@@ -387,11 +394,15 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
     {
         if (getOpts [i].getType () == Optarg::LONGFLAG)
         {
-            throw UnexpectedArgumentException(getOpts[i].Value());
+            UnexpectedArgumentException e (
+                         getOpts [i].Value ());
+            throw e;
         }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
-            throw UnexpectedArgumentException(getOpts[i].Value());
+            UnexpectedArgumentException e (
+                         getOpts [i].Value ());
+            throw e;
         }
         else /* getOpts [i].getType () == FLAG */
         {
@@ -406,7 +417,8 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one hostname option was found
                         //
-                        throw DuplicateOptionException(_OPTION_HOSTNAME);
+                        DuplicateOptionException e (_OPTION_HOSTNAME);
+                        throw e;
                     }
                     _hostName = getOpts [i].Value ();
                     _hostNameSet = true;
@@ -420,7 +432,8 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one portNumber option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PORTNUMBER);
+                        DuplicateOptionException e (_OPTION_PORTNUMBER);
+                        throw e;
                     }
 
                     _portNumberStr = getOpts [i].Value ();
@@ -431,9 +444,9 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        throw InvalidOptionArgumentException(
-                            _portNumberStr,
+                        InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
+                        throw e;
                     }
                     _portNumberSet = true;
                     break;
@@ -457,7 +470,8 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one timeout option was found
                         //
-                        throw DuplicateOptionException(_OPTION_TIMEOUT);
+                        DuplicateOptionException e (_OPTION_TIMEOUT);
+                        throw e;
                     }
 
                     timeoutStr = getOpts [i].Value ();
@@ -468,9 +482,9 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        throw InvalidOptionArgumentException(
-                            timeoutStr,
+                        InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);
+                        throw e;
                     }
                     break;
                 }
@@ -482,7 +496,8 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one username option was found
                         //
-                        throw DuplicateOptionException(_OPTION_USERNAME);
+                        DuplicateOptionException e (_OPTION_USERNAME);
+                        throw e;
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
@@ -496,7 +511,8 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one password option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PASSWORD);
+                        DuplicateOptionException e (_OPTION_PASSWORD);
+                        throw e;
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
@@ -527,9 +543,9 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
             //
             //  Portnumber out of valid range
             //
-            throw InvalidOptionArgumentException(
-                _portNumberStr,
+            InvalidOptionArgumentException e (_portNumberStr,
                 _OPTION_PORTNUMBER);
+            throw e;
         }
     }
 
@@ -548,7 +564,9 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
             //
             //  Timeout out of valid range
             //
-            throw InvalidOptionArgumentException(timeoutStr, _OPTION_TIMEOUT);
+            InvalidOptionArgumentException e (timeoutStr,
+                _OPTION_TIMEOUT);
+            throw e;
         }
     }
 }

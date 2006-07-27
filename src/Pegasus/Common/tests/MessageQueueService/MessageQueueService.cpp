@@ -1,36 +1,45 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Day (mdday@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <sys/types.h>
+#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+# include <unistd.h>
+#endif
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
@@ -40,6 +49,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/AsyncQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AsyncOpNode.h>
@@ -62,10 +72,12 @@ public:
         Uint32 response,
         const char *message)
     : Base(
-        CIM_DELETE_CLASS_REQUEST_MESSAGE,
+        0x04100000,
         0,
         op,
-        destination),
+        destination,
+        response,
+        true),
       greeting(message)
     {
     }
@@ -89,10 +101,12 @@ public:
         Uint32 destination,
         const char *message)
     : Base(
-        CIM_DELETE_CLASS_RESPONSE_MESSAGE,
+        0x04200000,
         0,
         op,
-        result),
+        result,
+        destination,
+        true),
       greeting(message)
     {
     }
@@ -110,7 +124,13 @@ class MessageQueueServer : public MessageQueueService
 public:
     typedef MessageQueueService Base;
     MessageQueueServer(const char *name)
-    : Base(name),
+    : Base(
+        name, MessageQueue::getNextQueueId(), 0,
+        message_mask::type_cimom |
+            message_mask::type_service |
+            message_mask::ha_request |
+            message_mask::ha_reply |
+            message_mask::ha_async),
       dienow(0)
     {
     }
@@ -120,6 +140,8 @@ public:
     }
 
     virtual void _handle_incoming_operation(AsyncOpNode *operation);
+
+    virtual Boolean messageOK(const Message *msg);
 
     virtual void handleEnqueue()
     {
@@ -148,14 +170,23 @@ class MessageQueueClient : public MessageQueueService
       typedef MessageQueueService Base;
 
       MessageQueueClient(const char *name)
-         : Base(name),
+         : Base(name, MessageQueue::getNextQueueId(), 0,
+                message_mask::type_cimom |
+                message_mask::type_service |
+                message_mask::ha_request |
+                message_mask::ha_reply |
+                message_mask::ha_async),
            client_xid(1)
       {
+         _client_capabilities = Base::_capabilities;
+         _client_mask = Base::_mask;
       }
 
       virtual ~MessageQueueClient()
       {
       }
+
+      virtual Boolean messageOK(const Message *msg);
 
       virtual void handleEnqueue()
       {
@@ -172,13 +203,17 @@ class MessageQueueClient : public MessageQueueService
       void sendTestRequestMessage(const char *greeting, Uint32 qid);
       Uint32 get_qid();
 
+      Uint32 _client_capabilities;
+      Uint32 _client_mask;
+
       virtual void _handle_async_request(AsyncRequest *req);
       AtomicInt client_xid;
 };
 
 AtomicInt msg_count;
 AtomicInt client_count;
-AtomicInt legacyCount;
+
+Array<Uint32> services;
 
 
 Uint32 MessageQueueClient::get_qid()
@@ -193,21 +228,20 @@ void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation)
         Message* rq = operation->getRequest();
 
         PEGASUS_TEST_ASSERT(rq != 0);
-        if (rq->getMask() & MessageMask::ha_async)
+        if (rq->getMask() & message_mask::ha_async)
         {
             _handle_async_request(static_cast<AsyncRequest *>(rq));
         }
         else
         {
-            if (rq->getType() == CIM_CREATE_CLASS_REQUEST_MESSAGE)
+            if (rq->getType() == 0x11100011)
             {
-                legacyCount++;
                 if (verbose)
                 {
                     cout << " caught a hacked legacy message " << endl;
                 }
             }
-            _complete_op_node(operation);
+            delete rq;
         }
     }
 
@@ -216,22 +250,40 @@ void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation)
 
 void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 {
-    if (req->getType() == CIM_DELETE_CLASS_REQUEST_MESSAGE)
+    if (req->getType() == 0x04100000)
     {
+        req->op->processing();
         handleTestRequestMessage(req);
     }
-    else if (req->getType() == ASYNC_CIMSERVICE_STOP)
+    else if (req->getType() == async_messages::CIMSERVICE_STOP)
     {
+        req->op->processing();
         handleCimServiceStop(static_cast<CimServiceStop *>(req));
     }
-    else if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
+    else if (req->getType() == async_messages::ASYNC_LEGACY_OP_START)
     {
+        req->op->processing();
         handleLegacyOpStart(static_cast<AsyncLegacyOperationStart *>(req));
     }
     else
     {
         Base::_handle_async_request(req);
     }
+}
+
+Boolean MessageQueueServer::messageOK(const Message *msg)
+{
+    if (msg->getType() == 0x04100000 ||
+        msg->getType() == async_messages::CIMSERVICE_STOP ||
+        msg->getType() == async_messages::CIMSERVICE_PAUSE ||
+        msg->getType() == async_messages::ASYNC_LEGACY_OP_START ||
+        msg->getType() == async_messages::CIMSERVICE_RESUME ||
+        msg->getType() == 0x11100011)
+    {
+        return true;
+    }
+
+    return false;
 }
 
 void MessageQueueServer::handleLegacyOpStart(AsyncLegacyOperationStart *req)
@@ -245,11 +297,13 @@ void MessageQueueServer::handleLegacyOpStart(AsyncLegacyOperationStart *req)
 
     AsyncReply *resp =
         new AsyncReply(
-            ASYNC_REPLY,
+            async_messages::REPLY,
             0,
             req->op,
-            async_results::OK);
-    _completeAsyncResponse(req, resp);
+            async_results::OK,
+            req->resp,
+            req->block);
+    _completeAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0);
 
     if (verbose)
     {
@@ -263,14 +317,14 @@ void MessageQueueServer::handleLegacyOpStart(AsyncLegacyOperationStart *req)
 
 void MessageQueueServer::handleTestRequestMessage(AsyncRequest *msg)
 {
-    if (msg->getType() == CIM_DELETE_CLASS_REQUEST_MESSAGE)
+    if (msg->getType() == 0x04100000)
     {
         TestResponseMessage *resp = new TestResponseMessage(
             msg->op,
             async_results::OK,
             msg->dest,
             "i am a test response");
-       _completeAsyncResponse(msg, resp);
+       _completeAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
    }
 }
 
@@ -278,12 +332,13 @@ void MessageQueueServer::handleCimServiceStop(CimServiceStop *req)
 {
     AsyncReply *resp =
         new AsyncReply(
-            ASYNC_REPLY,
+            async_messages::REPLY,
             0,
             req->op,
-            async_results::CIM_SERVICE_STOPPED);
-
-    _completeAsyncResponse(req, resp);
+            async_results::CIM_SERVICE_STOPPED,
+            req->resp,
+            req->block);
+    _completeAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0);
 
     if (verbose)
     {
@@ -298,6 +353,21 @@ void MessageQueueClient::_handle_async_request(AsyncRequest *req)
 {
     Base::_handle_async_request(req);
 }
+
+
+Boolean MessageQueueClient::messageOK(const Message *msg)
+{
+   if(msg->getMask() & message_mask::ha_async)
+   {
+      if (msg->getType() == 0x04200000 ||
+          msg->getType() == async_messages::CIMSERVICE_STOP ||
+          msg->getType() == async_messages::CIMSERVICE_PAUSE ||
+          msg->getType() == async_messages::CIMSERVICE_RESUME)
+      return true;
+   }
+   return false;
+}
+
 
 void MessageQueueClient::sendTestRequestMessage(
     const char *greeting,
@@ -327,7 +397,7 @@ void MessageQueueClient::sendTestRequestMessage(
 ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm);
 ThreadReturnType PEGASUS_THREAD_CDECL server_func(void *parm);
 
-int main(int, char **argv)
+int main(int argc, char **argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
@@ -379,12 +449,11 @@ int main(int, char **argv)
 ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 {
     Thread* my_handle = reinterpret_cast<Thread *>(parm);
-    AtomicInt * count = reinterpret_cast<AtomicInt *>(my_handle->get_parm());
-    PEGASUS_TEST_ASSERT(0 != count);
+    AtomicInt& count = *(reinterpret_cast<AtomicInt *>(my_handle->get_parm()));
 
     char name_buf[128];
 
-    sprintf(name_buf, "test client %s", Threads::id().buffer);
+    sprintf(name_buf, "test client %ld", Threads::self());
 
     MessageQueueClient *q_client = new MessageQueueClient(name_buf);
 
@@ -392,24 +461,20 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
     while (client_count.get() < 3)
         Threads::yield();
 
-    MessageQueue *serverQueue = 0;
-    Array<Uint32> services;
-
-    while (serverQueue == 0)
+    while (services.size() == 0)
     {
-        serverQueue = MessageQueue::lookup("test server");
+        q_client->find_services(String("test server"), 0, 0, &services);
         Threads::yield();
     }
 
     if (verbose)
     {
-        cout << "found server at " << serverQueue->getQueueId() << endl;
+        cout << "found server at " << services[0] << endl;
     }
 
     while (msg_count.get() < 1500)
     {
-        q_client->sendTestRequestMessage("i am the test client" ,
-            serverQueue->getQueueId());
+        q_client->sendTestRequestMessage("i am the test client" , services[0]);
     }
     // now that we have sent and received all of our responses, tell
     // the server thread to stop
@@ -421,12 +486,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
         cout << " sending LEGACY to test server" << endl;
     }
 
-    Message *legacy = new Message(CIM_CREATE_CLASS_REQUEST_MESSAGE);
+    Message *legacy = new Message(0x11100011);
 
     AsyncLegacyOperationStart *req = new AsyncLegacyOperationStart(
         0,
-        serverQueue->getQueueId(),
-        legacy);
+        services[0],
+        legacy,
+        q_client->getQueueId());
     reply = q_client->SendWait(req);
     delete req;
     delete reply;
@@ -436,29 +502,30 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
         cout << "trying SendForget " << endl;
     }
 
-    legacy = new Message(CIM_CREATE_CLASS_REQUEST_MESSAGE);
+    legacy = new Message(0x11100011);
 
     req = new AsyncLegacyOperationStart(
         0,
-        serverQueue->getQueueId(),
-        legacy);
+        services[0],
+        legacy,
+        q_client->getQueueId());
 
     q_client->SendForget(req);
 
-    legacy = new Message(CIM_CREATE_CLASS_REQUEST_MESSAGE);
-    legacy->dest = serverQueue->getQueueId();
+    legacy = new Message(0x11100011);
+    legacy->dest = services[0];
 
     q_client->SendForget(legacy);
 
-    // Wait untill all legacy messages are processed.
-    while (legacyCount.get() < 3)
-    {
-        Threads::yield();
-    }
+    MessageQueueService * server =
+        static_cast<MessageQueueService *>(MessageQueue::lookup(services[0]));
 
-    MessageQueueService * server = static_cast<MessageQueueService *>(
-        MessageQueue::lookup(serverQueue->getQueueId()));
-    PEGASUS_TEST_ASSERT(0 != server);
+#if 0
+    legacy = new Message(0x11100011);
+
+    // ATTN: handleEnqueue() is not implemented
+    server->enqueue(legacy);
+#endif
 
     if (verbose)
     {
@@ -467,7 +534,9 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 
     CimServiceStop *stop = new CimServiceStop(
         0,
-        serverQueue->getQueueId());
+        services[0],
+        q_client->get_qid(),
+        true);
 
     reply = q_client->SendWait(stop);
     delete stop;
@@ -477,6 +546,15 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
     {
         cout << "deregistering client qid " << q_client->getQueueId() << endl;
     }
+
+    q_client->deregister_service();
+
+    if (verbose)
+    {
+        cout << "closing service queue" << endl;
+    }
+
+    q_client->_shutdown_incoming_queue();
 
     if (verbose)
     {
@@ -490,18 +568,36 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
         cout << " exiting " << endl;
     }
 
-    return ThreadReturnType(0);
+    my_handle->exit_self((ThreadReturnType) 1);
+    return(0);
 }
 
 
 ThreadReturnType PEGASUS_THREAD_CDECL server_func(void *parm)
 {
+    Thread *my_handle = reinterpret_cast<Thread *>(parm);
+
     MessageQueueServer *q_server = new MessageQueueServer("test server") ;
 
     while (q_server->dienow.get()  < 3)
     {
         Threads::yield();
     }
+
+    if (verbose)
+    {
+        cout << "deregistering server qid " << q_server->getQueueId() << endl;
+    }
+
+    q_server->deregister_service();
+
+    if (verbose)
+    {
+        cout << "closing server queue" << endl;
+    }
+
+    q_server->_shutdown_incoming_queue();
+
 
     if (verbose)
     {
@@ -515,5 +611,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL server_func(void *parm)
         cout << "exiting server " << endl;
     }
 
-    return ThreadReturnType(0);
+    my_handle->exit_self((ThreadReturnType) 1);
+    return(0);
 }

@@ -1,31 +1,48 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//         (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         Warren Otsuka (warren_otsuka@hp.com)
+//         Sushma Fernandes, Hewlett-Packard Company
+//         (sushma_fernandes@hp.com)
+//         David Eger (dteger@us.ibm.com)
+//         Amit K Arora (amita@in.ibm.com) for PEP-101
+//         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//         Amit K Arora (amita@in.ibm.com) for Bug#2333, #2351
+//         David Dillard, VERITAS Software Corp.
+//             (david.dillard@veritas.com)
+//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756, #3424, Bug#3032
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,15 +70,7 @@
 #include "HttpConstants.h"
 #include "XMLProcess.h"
 #include "WbemExecCommand.h"
-#ifdef PEGASUS_WMIMAPPER
-#include <WMIMapper/wbemexec/WMIWbemExecClient.h>
-#else
 #include "WbemExecClient.h"
-#endif
-
-#ifdef PEGASUS_OS_ZOS
-#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
-#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -95,12 +104,10 @@ const char   WbemExecCommand::_OPTION_HTTPVERSION  = 'v';
  */
 const char   WbemExecCommand::_OPTION_HTTPMETHOD   = 'm';
 
-#ifdef PEGASUS_HAS_SSL
 /**
     The option character used to specify SSL usage.
  */
 const char   WbemExecCommand::_OPTION_SSL          = 's';
-#endif
 
 /**
     The option character used to specify the timeout value.
@@ -144,17 +151,31 @@ const char   WbemExecCommand::_DEBUG_OPTION1       = '1';
 */
 const char   WbemExecCommand::_DEBUG_OPTION2       = '2';
 
+static const char PASSWORD_PROMPT []  =
+                     "Please enter your password: ";
+
+static const char PASSWORD_BLANK []  =
+                     "Password cannot be blank. Please re-enter your password.";
+
 static const char   LONG_HELP []  = "help";
 
 static const char   LONG_VERSION []  = "version";
 
 static const char MSG_PATH []               = "pegasus/pegasusCLI";
+static const char REQUIRED_ARGS_MISSING []        =
+                        "Required arguments missing.";
+
+static const char REQUIRED_ARGS_MISSING_KEY []        = "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
+
+static const char ERR_OPTION_NOT_SUPPORTED [] =
+                        "Invalid option. Use '--help' to obtain command syntax.";
+
+static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = "Clients.CIMConfig.CIMConfigCommand.ERR_OPTION_NOT_SUPPORTED";
 
 static const char ERR_USAGE [] =
-    "Use '--help' to obtain command syntax.";
+                        "Incorrect usage. Use '--help' to obtain command syntax.";
 
-static const char ERR_USAGE_KEY [] =
-    "Clients.CIMConfig.CIMConfigCommand.ERR_USAGE";
+static const char ERR_USAGE_KEY [] = "Clients.CIMConfig.CIMConfigCommand.ERR_USAGE";
 
 /**
     This constant signifies that an operation option has not been recorded
@@ -206,7 +227,7 @@ WbemExecCommand::WbemExecCommand ()
 
     _useHTTP11           = true;
     _useMPost            = true;
-    _timeout             = PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS;
+    _timeout             = WbemExecClient::DEFAULT_TIMEOUT_MILLISECONDS;
     _debugOutput1        = false;
     _debugOutput2        = false;
     _userName            = String ();
@@ -237,42 +258,27 @@ WbemExecCommand::WbemExecCommand ()
     usage.append (_OPTION_USERNAME);
     usage.append (" username ]\n                [ -");
     usage.append (_OPTION_PASSWORD);
-    usage.append (" password ] [ ");
-#ifdef PEGASUS_HAS_SSL
-    usage.append ("-");
+    usage.append (" password ] [ -");
     usage.append (_OPTION_SSL);
-    usage.append (" ] [ ");
-#endif
-    usage.append ("--");
+    usage.append (" ] [ --");
     usage.append (LONG_HELP);
     usage.append (" ] [ --");
     usage.append (LONG_VERSION);
     usage.append (" ]\n                [ inputfilepath ]\n");
 
     usage.append("Options : \n");
-    usage.append(
-        "    -h         - Connect to CIM Server on specified hostname\n");
+    usage.append("    -h         - Connect to CIM Server on specified hostname\n");
     usage.append("    --help     - Display this help message\n");
-    usage.append(
-        "    -m         - Use the specified HTTP method for the request\n");
-    usage.append(
-        "    -p         - Connect to CIM Server on specified portnumber\n");
-#ifdef PEGASUS_HAS_SSL
-    usage.append("    -s         - Use SSL protocol between 'wbemexec' client"
-                    " and the CIM Server\n");
-#endif
-    usage.append(
-        "    -t         - Specify response timeout value in milliseconds\n");
-    usage.append("    -u         - Authorize the operation using the"
-                    " specified username\n");
-    usage.append("    -v         - Use the specified HTTP version for the"
-                    " request\n");
+    usage.append("    -m         - Use the specified HTTP method for the request\n");
+    usage.append("    -p         - Connect to CIM Server on specified portnumber\n");
+    usage.append("    -s         - Use SSL protocol between 'wbemexec' client and the CIM Server\n");
+    usage.append("    -t         - Specify response timeout value in milliseconds\n");
+    usage.append("    -u         - Authorize the operation using the specified username\n");
+    usage.append("    -v         - Use the specified HTTP version for the request\n");
     usage.append("    --version  - Display CIM Server version number\n");
-    usage.append("    -w         - Authorize the operation using the"
-                    " specified password\n");
+    usage.append("    -w         - Authorize the operation using the specified password\n");
 
-    usage.append("\nUsage note: The wbemexec command requires that the"
-                    " CIM Server is running.\n");
+    usage.append("\nUsage note: The wbemexec command requires that the CIM Server is running.\n");
 
     setUsage (usage);
 }
@@ -315,46 +321,42 @@ WbemExecCommand::WbemExecCommand ()
 #endif
 
     if( _useSSL )
+      {
+    if( connectToLocal )
     {
-#ifdef PEGASUS_HAS_SSL
-        if( connectToLocal )
-        {
-            client.connectLocal();
-        }
-        else
-        {
-            //
-            // Get environment variables:
-            //
-            const char* pegasusHome = getenv("PEGASUS_HOME");
-
-            String certpath = FileSystem::getAbsolutePath(
-                    pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-
-            String randFile;
-
-#ifdef PEGASUS_SSL_RANDOMFILE
-            randFile = FileSystem::getAbsolutePath(
-                    pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
-#endif
-            SSLContext sslcontext(certpath, verifyCertificate, randFile);
-            client.connect(host, portNumber, &sslcontext, _userName, _password);
-        }
-#else
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
-#endif
+        client.connectLocal();
     }
     else
     {
-        if( connectToLocal )
-        {
-            client.connectLocal();
-        }
-        else
-        {
-            client.connect(host, portNumber, _userName, _password );
-        }
+        //
+        // Get environment variables:
+        //
+        const char* pegasusHome = getenv("PEGASUS_HOME");
+
+        String certpath = FileSystem::getAbsolutePath(
+                pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+
+        String randFile = String::EMPTY;
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+        randFile = FileSystem::getAbsolutePath(
+                pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+#endif
+        AutoPtr<SSLContext> sslcontext(new SSLContext(certpath, verifyCertificate, randFile));
+        client.connect(host, portNumber, sslcontext,  _userName, _password );
     }
+      }
+    else
+      {
+    if( connectToLocal )
+      {
+        client.connectLocal();
+      }
+    else
+      {
+        client.connect(host, portNumber, _userName, _password );
+      }
+      }
 }
 
 /**
@@ -368,53 +370,17 @@ void WbemExecCommand::_printContent(
     //
     //  Get HTTP header
     //
+    const char* message = responseMessage.getData ();
+
     if (contentOffset < responseMessage.size())
-    {
+      {
         //
         //  Print XML response to the ostream
         //
+        ((Buffer&) responseMessage).append ('\0');
         const char* content = responseMessage.getData () + contentOffset;
-
-#if defined(PEGASUS_DEBUG) && defined(PEGASUS_ENABLE_PROTOCOL_WSMAN)
-        //
-        // The response contains a unique Message ID. To allow
-        // predictable message IDs for static comparison tests, replace the
-        // response message Id with 0.
-        //
-        AutoArrayPtr<char> contentCopy;
-
-        if (const char* uuidStart = strstr(content, "<wsa:MessageID>"))
-        {
-            if (const char* uuidEnd = strstr(uuidStart, "</wsa:MessageID>"))
-            {
-                contentCopy.reset((
-                    strcpy(new char [strlen(content)+1],content)));
-
-                // The message ID starts after the last ':' char. (See,
-                // DSP0226 R5.4.4-1.). Position to the last ':' char.
-                const char* colonPos = uuidEnd;
-                for ( ; colonPos >= uuidStart && *colonPos != ':'; colonPos--)
-                {
-                }
-
-                char* beginPtr = contentCopy.get() + (colonPos+1 - content);
-                char* endPtr   = contentCopy.get() + (uuidEnd - content);
-
-                // Replace the response messageID with 0.
-                for (; beginPtr < endPtr; beginPtr++)
-                {
-                    if (*beginPtr != '-')
-                    {
-                        *beginPtr = '0';
-                    }
-                }
-
-                content = contentCopy.get();
-            }
-        }
-#endif
         XmlWriter::indentedPrint (oStream, content, 0);
-    }
+      }
 }
 
 /**
@@ -441,16 +407,17 @@ void WbemExecCommand::_handleResponse( Buffer           responseMessage,
     Uint32                       contentLength;
     Uint32                       contentOffset       = 0;
     HTTPMessage                  httpMessage(responseMessage, 0);
+    Boolean                      needsAuthentication = false;
 
     httpMessage.parse(startLine, headers, contentLength);
     if( contentLength > 0 )
-    {
-        contentOffset = responseMessage.size() - contentLength;
-    }
+      {
+    contentOffset = responseMessage.size() - contentLength;
+      }
     else
-    {
+      {
         contentOffset = responseMessage.size();
-    }
+      }
 
     String httpVersion;
     Uint32 statusCode;
@@ -459,32 +426,33 @@ void WbemExecCommand::_handleResponse( Buffer           responseMessage,
     Boolean parsableMessage = HTTPMessage::parseStatusLine(
         startLine, httpVersion, statusCode, reasonPhrase);
     if (!parsableMessage || (statusCode != HTTP_STATUSCODE_OK))
-    {
-        // Received an HTTP error response
-        // Output the HTTP error message and exit
-        for (Uint32 i = 0; i < contentOffset; i++)
-        {
-            oStream << responseMessage[i];
-        }
-        oStream.flush();
-        if( contentLength > 0 )
-        {
-            _printContent( oStream, responseMessage, contentOffset );
-        }
-        exit( 1 );
-    }
+      {
+
+    // Received an HTTP error response
+    // Output the HTTP error message and exit
+    for (Uint32 i = 0; i < contentOffset; i++)
+      {
+        oStream << responseMessage[i];
+      }
+    oStream.flush();
+    if( contentLength > 0 )
+      {
+        _printContent( oStream, responseMessage, contentOffset );
+      }
+    exit( 1 );
+      }
 
     //
     // Received a valid HTTP response from the server.
     //
     if (_debugOutput2)
-    {
+      {
         for (Uint32 i = 0; i < contentOffset; i++)
-        {
-            oStream << responseMessage[i];
-        }
+          {
+                oStream << responseMessage[i];
+          }
         oStream.flush();
-    }
+      }
     _printContent( oStream, responseMessage, contentOffset );
 }
 
@@ -514,11 +482,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     Buffer                    message;
     Buffer                    httpHeaders;
     Buffer                    httpResponse;
-#ifdef PEGASUS_WMIMAPPER
-    WMIWbemExecClient client;
-#else
     WbemExecClient client;
-#endif
 
     client.setTimeout( _timeout );
 
@@ -565,6 +529,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         //  Check that input file exists
         //
         if (!FileSystem::exists (_inputFilePath))
+
         {
             throw WbemExecException(WbemExecException::INPUT_FILE_NONEXISTENT);
         }
@@ -581,7 +546,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         //  Check that file is not empty
         //
         FileSystem::getFileSize (_inputFilePath, size);
-        if (size == 0)
+        if (size <= 0)
         {
             throw WbemExecException(WbemExecException::NO_INPUT);
         }
@@ -592,6 +557,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         try
         {
             FileSystem::loadFileToMemory (content, _inputFilePath);
+            content.append ('\0');
         }
         catch (const CannotOpenFile&)
         {
@@ -612,8 +578,9 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         {
             content << line << '\n';
         }
+        content.append ('\0');
 
-        if (content.size () == 0)
+        if (content.size () <= 1)
         {
             //
             //  No input
@@ -638,7 +605,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         //  Encapsulate XML request in an HTTP request
         //
 
-        String hostName;
+        String hostName = String::EMPTY;
         if (_hostNameSet && _hostName.size())
         {
             hostName = _hostName + String(":") + _portNumberStr;
@@ -728,9 +695,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_HTTPMETHOD);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-#ifdef PEGASUS_HAS_SSL
     GetOptString.append (_OPTION_SSL);
-#endif
     GetOptString.append (_OPTION_TIMEOUT);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_USERNAME);
@@ -847,7 +812,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         throw InvalidOptionArgumentException(_portNumberStr,
                             _OPTION_PORTNUMBER);
                     }
-                    _portNumberSet = true;
+            _portNumberSet = true;
                     break;
                 }
 
@@ -864,13 +829,11 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     break;
                 }
 
-#ifdef PEGASUS_HAS_SSL
                 case _OPTION_SSL:
                 {
-                    _useSSL = true;
+            _useSSL = true;
                     break;
                 }
-#endif
 
                 case _OPTION_HTTPMETHOD:
                 {
@@ -939,6 +902,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
 
                 case _OPTION_DEBUG:
                 {
+                    //
+                    //
                     String debugOptionStr;
 
                     debugOptionStr = getOpts [i].Value ();
@@ -980,10 +945,6 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         }
     }
 
-    if (!_userNameSet)
-    {
-        _userName = System::getEffectiveUserName();
-    }
 /*
     //
     // Some more validations
@@ -1099,7 +1060,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     }
     else
     {
-        if (_timeout == 0)
+        if (_timeout <= 0)
         {
             //
             //  Timeout out of valid range
@@ -1152,12 +1113,14 @@ Uint32 WbemExecCommand::execute (ostream& outPrintWriter,
             e.getMessage() << endl;
         return (RC_ERROR);
     }
+#if !defined(PEGASUS_OS_LSB)
     catch (const exception& e)
     {
         errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " <<
             e.what() << endl;
         return (RC_ERROR);
     }
+#endif
     catch (...)
     {
         errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " <<
@@ -1190,25 +1153,30 @@ int main (int argc, char* argv [])
     int                rc;
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 
-#ifdef PEGASUS_OS_ZOS
-    // for z/OS set stdout and stderr to EBCDIC
-    setEBCDICEncoding(STDOUT_FILENO);
-    setEBCDICEncoding(STDERR_FILENO);
-#endif
-
     try
     {
         command.setCommand (argc, argv);
     }
     catch (const CommandFormatException& cfe)
     {
-        cerr << WbemExecCommand::COMMAND_NAME << ": " << cfe.getMessage()
-            << endl;
+        String msg(cfe.getMessage());
 
-        MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
-        parms.msg_src_path = MSG_PATH;
-        cerr << WbemExecCommand::COMMAND_NAME <<
-            ": " << MessageLoader::getMessage(parms) << endl;
+        cerr << WbemExecCommand::COMMAND_NAME << ": " << msg <<  endl;
+
+        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
+         {
+           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,ERR_OPTION_NOT_SUPPORTED);
+              parms.msg_src_path = MSG_PATH;
+           cerr << WbemExecCommand::COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
+        else
+         {
+           MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
+              parms.msg_src_path = MSG_PATH;
+           cerr << WbemExecCommand::COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
 
         exit (Command::RC_ERROR);
     }

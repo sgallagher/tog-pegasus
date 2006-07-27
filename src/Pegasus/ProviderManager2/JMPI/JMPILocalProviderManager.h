@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//              Jenny Yu, Hewlett-Packard Company(jenny_yu@hp.com)
+//              Mike Day, IBM (mdday@us.ibm.com)
+//              Adrian Schuur, schuur@de.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,11 +46,13 @@
 #include <Pegasus/Common/HashTable.h>
 
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
-#include <Pegasus/ProviderManager2/JMPI/Linkage.h>
+//#include <Pegasus/ProviderManager2/JMPI/JMPIResolverModule.h>
+
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_JMPIPM_LINKAGE JMPILocalProviderManager
+class PEGASUS_SERVER_LINKAGE JMPILocalProviderManager
 {
 
 public:
@@ -49,10 +60,8 @@ public:
     virtual ~JMPILocalProviderManager(void);
 
 public:
-    JMPIProvider::OpProviderHolder getProvider(
-        const String & fileName,
-        const String & providerName,
-        const String & interfaceName = String::EMPTY);
+    JMPIProvider::OpProviderHolder getProvider(const String & fileName, const String & providerName,
+         const String & interfaceName = String::EMPTY);
 
     void unloadProvider(const String & fileName, const String & providerName);
 
@@ -104,14 +113,15 @@ private:
         const String *interfaceName;
     } CTRL_STRINGS;
 
+    friend class ProviderManagerService;
+
     ResolverTable _resolvers;
     ProviderTable _providers;
     ModuleTable _modules;
     Uint32 _idle_timeout;
 
-    JMPIProvider *_getResolver(
-        const String & fileName,
-        const String & interfaceType);
+    JMPIProvider *_getResolver(const String & fileName, const String & interfaceType);
+//    CMPIResolverModule *_loadResolver(const String & fileName);
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
 
     Mutex _providerTableMutex;

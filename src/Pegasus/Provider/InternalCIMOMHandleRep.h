@@ -1,39 +1,55 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
+//      Mike Day, IBM (mdday@us.ibm.com)
+//      Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/Semaphore.h>
+#include <Pegasus/Common/AsyncQueue.h>
 #include <Pegasus/Common/MessageQueueService.h>
+
+#ifdef PEGASUS_OS_OS400
+#include <qycmutilu2.H>
+#include "OS400ConvertChar.h"
+#include "CIMOMHandleOS400UserState.h"
+#include "CIMOMHandleOS400SystemState.h"
+#endif
 
 #include "CIMOMHandleRep.h"
 
@@ -54,8 +70,7 @@ private:
     Uint32 _return_qid;
 
     Mutex _mutex;
-    Semaphore _responseReady;
-    Message* _response;
+    AsyncQueue<Message> _response;
 
 };
 
@@ -68,6 +83,9 @@ class InternalCIMOMHandleRep : public CIMOMHandleRep
 {
 public:
     InternalCIMOMHandleRep();
+    #ifdef PEGASUS_OS_OS400
+    InternalCIMOMHandleRep(Uint32 os400key);
+    #endif
     virtual ~InternalCIMOMHandleRep();
 
     virtual CIMClass getClass(
@@ -109,24 +127,26 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-    virtual CIMResponseData getInstance(
+    virtual CIMInstance getInstance(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
+        Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual CIMResponseData enumerateInstances(
+    virtual Array<CIMInstance> enumerateInstances(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance,
+        Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual CIMResponseData enumerateInstanceNames(
+    virtual Array<CIMObjectPath> enumerateInstanceNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
@@ -148,13 +168,13 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
 
-    virtual CIMResponseData execQuery(
+    virtual Array<CIMObject> execQuery(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const String& queryLanguage,
         const String& query);
 
-    virtual CIMResponseData associators(
+    virtual Array<CIMObject> associators(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -166,7 +186,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual CIMResponseData associatorNames(
+    virtual Array<CIMObjectPath> associatorNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -175,7 +195,7 @@ public:
         const String& role,
         const String& resultRole);
 
-    virtual CIMResponseData references(
+    virtual Array<CIMObject> references(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -185,7 +205,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual CIMResponseData referenceNames(
+    virtual Array<CIMObjectPath> referenceNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -218,6 +238,10 @@ public:
     virtual void allowProviderUnload();  // Overload for OS/400
     virtual OperationContext getResponseContext();
 
+    #ifdef PEGASUS_OS_OS400
+    virtual void setOS400ProfileHandle(const char* profileHandle);
+    #endif
+
 private:
     InternalCIMOMHandleRep(const InternalCIMOMHandleRep& rep);
     InternalCIMOMHandleRep& operator=(const InternalCIMOMHandleRep& rep);
@@ -225,6 +249,11 @@ private:
     CIMResponseMessage* do_request(CIMRequestMessage* request);
 
 private:
+    #ifdef PEGASUS_OS_OS400
+    char os400PH[12];
+    CIMOMHandleOS400UserState _chOS400;
+    #endif
+
     InternalCIMOMHandleMessageQueue _queue;
 
 };

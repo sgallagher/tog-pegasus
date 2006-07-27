@@ -1,34 +1,44 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM, (vijayeli@in.ibm.com) bug#3495
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3496
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include "CMPI_Version.h"
 
@@ -36,580 +46,287 @@
 #include "CMPI_Broker.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
-#include "CMPISCMOUtilities.h"
 
-#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Mutex.h>
 #include <string.h>
 #include <new>
-#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C"
-{
+extern int _cmpi_trace;
 
-    static CMPIStatus instRelease(CMPIInstance* eInst)
-    {
-        SCMOInstance* inst=(SCMOInstance*)eInst->hdl;
-        if (inst)
-        {
-            delete inst;
-            (reinterpret_cast<CMPI_Object*>(eInst))->unlinkAndDelete();
-            CMReturn(CMPI_RC_OK);
-        }
-        else
-        {
-            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
-        }
-    }
+extern "C" {
 
-    static CMPIStatus instReleaseNop(CMPIInstance* eInst)
-    {
-        CMReturn(CMPI_RC_OK);
-    }
+   static CMPIStatus instRelease(CMPIInstance* eInst) {
+      CIMInstance* inst=(CIMInstance*)eInst->hdl;
+      if (inst) {
+         delete inst;
+         (reinterpret_cast<CMPI_Object*>(eInst))->unlinkAndDelete();
+      }
+      CMReturn(CMPI_RC_OK);
+   }
 
-    static CMPIInstance* instClone(const CMPIInstance* eInst, CMPIStatus* rc)
-    {
-        PEG_METHOD_ENTER(
-            TRC_CMPIPROVIDERINTERFACE,
-            "CMPI_Instance:instClone()");
-        SCMOInstance* inst=(SCMOInstance*)eInst->hdl;
-        if (!inst)
-        {
-            CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
-        try
-        {
-            AutoPtr<SCMOInstance> cInst(new SCMOInstance(inst->clone()));
-            AutoPtr<CMPI_Object> obj(
-                new CMPI_Object(cInst.get(),CMPI_Object::ObjectTypeInstance));
+   static CMPIStatus instReleaseNop(CMPIInstance* eInst) {
+      CMReturn(CMPI_RC_OK);
+   }
+
+   static CMPIInstance* instClone(const CMPIInstance* eInst, CMPIStatus* rc) {
+      if (!eInst->hdl)  {
+        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return NULL;
+      }
+      CIMInstance* inst=(CIMInstance*)eInst->hdl;
+      try {
+            AutoPtr<CIMInstance> cInst(new CIMInstance(inst->clone()));
+            AutoPtr<CMPI_Object> obj(new CMPI_Object(cInst.get()));
             cInst.release();
             obj->unlink();
-            CMPIInstance* cmpiInstance =
-                reinterpret_cast<CMPIInstance *>(obj.release());
-            CMSetStatus(rc,CMPI_RC_OK);
-            PEG_METHOD_EXIT();
-            return cmpiInstance;
-        }
-        catch (const PEGASUS_STD(bad_alloc)&)
-        {
-            CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
-    }
+            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+            return reinterpret_cast<CMPIInstance *>(obj.release());
+      } catch(const PEGASUS_STD(bad_alloc)&) {
+          if (rc) CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
+          return NULL;
+      }
+   }
 
-    static CMPIData instGetPropertyAt(
-        const CMPIInstance* eInst, CMPICount pos, CMPIString** name,
-        CMPIStatus* rc)
-    {
-        CMPIData data={0,CMPI_badValue,{0}};
+   static CMPIData instGetPropertyAt(const CMPIInstance* eInst, CMPICount pos, CMPIString** name,
+                              CMPIStatus* rc) {
+      CIMInstance* inst=(CIMInstance*)eInst->hdl;
+      CMPIData data={0,CMPI_nullValue,{0}};
 
-        SCMOInstance* inst=(SCMOInstance*)eInst->hdl;
-        if (!inst)
-        {
-            CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
-            return data;
-        }
-
-        const SCMBUnion* value = 0;
-        Boolean isArray = 0;
-        Uint32 size = 0;
-        CIMType type = (CIMType)0;
-        const char* pName=0;
-
-        SCMO_RC src = inst->getPropertyAt((Uint32)pos,
-                                          &pName,
-                                          type,
-                                          &value,
-                                          isArray,
-                                          size);
-        switch(src)
-        {
-            case SCMO_OK:
-            {
-                CMPIType ct=type2CMPIType(type, isArray);
-                CMPISCMOUtilities::scmoValue2CMPIData(value, ct, &data, size);
-                if ((ct&~CMPI_ARRAY) == CMPI_string)
-                {
-                    // We always receive strings as an array of pointers
-                    // with at least one element, which needs to be released
-                    // after it was converted to CMPIData
-                    free((void*)value);
-                }
-                break;
-            }
-            case SCMO_INDEX_OUT_OF_BOUND:
-            {
-                CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
-                CMPIData rdata={0,CMPI_nullValue|CMPI_notFound,{0}};
-                return rdata;
-            }
-
-            case SCMO_NULL_VALUE:
-            {
-                // A NullValue does not indicate an error, but simply that
-                // no value has been set for the property.
-                data.type = type2CMPIType(type, isArray);
-                data.state = CMPI_nullValue;
-                data.value.uint64 = 0;
-                break;
-            }
-
-            default:
-            {
-                // Other return codes should not appear here, but are possible
-                // code wise (i.e. SCMO_NOT_FOUND etc.)
-                PEG_TRACE((
-                    TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL2,
-                    "Unexpected RC from SCMOInstance.instGetPropertyAt: %d",
-                    src));
-                CMSetStatus(rc, CMPI_RC_ERR_FAILED);
-                return data;
-            }
-            break;
-        }
-
-
-        // Returning the property name as CMPI String
-        if (name)
-        {
-            *name=string2CMPIString(pName);
-        }
-
-        CMSetStatus(rc,CMPI_RC_OK);
+      if (!inst)  {
+        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
         return data;
-    }
+      }
 
-    static CMPIData instGetProperty(const CMPIInstance* eInst,
-        const char *name, CMPIStatus* rc)
-    {
-        CMPIData data={0,CMPI_badValue,{0}};
+      if (pos>inst->getPropertyCount()) {
+      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+         CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
+         return data;
+      }
+      const CIMProperty& p=inst->getProperty(pos);
+      const CIMValue& v=p.getValue();
+      CIMType pType=p.getType();
+      CMPIType t=type2CMPIType(pType,p.isArray());
 
-        SCMOInstance* inst=(SCMOInstance*)eInst->hdl;
-        if (!inst)
-        {
-            CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
-            return data;
-        }
+      value2CMPIData(v,t,&data);
 
-        if (!name)
-        {
-            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-            return data;
-        }
+      if (name) {
+         String str=p.getName().getString();
+         *name=(CMPIString*)string2CMPIString(str);
+      }
 
-        const SCMBUnion* value = 0;
-        Boolean isArray = 0;
-        Uint32 size = 0;
-        CIMType type = (CIMType)0;
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return data;
+   }
 
-        SCMO_RC src = inst->getProperty(name, type, &value, isArray, size);
-        if (src != SCMO_OK)
-        {
-            switch(src)
-            {
-            case SCMO_NOT_FOUND:
-                {
-                    data.state = CMPI_nullValue | CMPI_notFound;
-                    CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
-                    return data;
-                }
-                break;
+   static CMPIData instGetProperty(const CMPIInstance* eInst, const char *name, CMPIStatus* rc)   {
 
-            case SCMO_NULL_VALUE:
-                {
-                    // A NullValue does not indicate an error, but simply that
-                    // no value has been set for the property.
-                    data.type = type2CMPIType(type, isArray);
-                    data.value.uint64 = 0;
-                    data.state = CMPI_nullValue;
-                    CMSetStatus(rc, CMPI_RC_OK);
-                    return data;
-                }
-                break;
+      CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
 
-            default:
-                {
-                    PEG_TRACE((
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Unexpected RC from SCMOInstance.instGetPropertyAt: %d",
-                        src));
-                    CMSetStatus(rc, CMPI_RC_ERR_FAILED);
-                    return data;
-                }
-                break;
-            }
-        }
-        else
-        {
-            CMPIType ct=type2CMPIType(type, isArray);
-            CMPISCMOUtilities::scmoValue2CMPIData(value, ct, &data, size);
-            if ((ct&~CMPI_ARRAY) == CMPI_string)
-            {
-                // We always receive strings as an array of pointers
-                // with at least one element, which needs to be released
-                // after it was converted to CMPIData
-                free((void*)value);
-            }
-        }
-
-
-        CMSetStatus(rc,CMPI_RC_OK);
+      if (!eInst->hdl)  {
+        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
         return data;
-    }
+      }
+      CIMInstance* inst=(CIMInstance*)eInst->hdl;
+      Uint32 pos=inst->findProperty(String(name));
+
+      if (pos!=PEG_NOT_FOUND) {
+         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         return instGetPropertyAt(eInst,pos,NULL,rc);
+      }
+      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+      return data;
+   }
 
 
-    static CMPICount instGetPropertyCount(const CMPIInstance* eInst,
-        CMPIStatus* rc)
-    {
-        SCMOInstance* inst=(SCMOInstance*)eInst->hdl;
-        if (!inst)
-        {
-            CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
-            return 0;
-        }
-        CMSetStatus(rc,CMPI_RC_OK);
-        return inst->getPropertyCount();
-    }
+   static CMPICount instGetPropertyCount(const CMPIInstance* eInst, CMPIStatus* rc) {
+      CIMInstance* inst=(CIMInstance*)eInst->hdl;
+      if (!inst)  {
+        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return 0;
+      }
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      return inst->getPropertyCount();
+   }
 
-    static CMPIStatus instSetPropertyWithOrigin(
-        const CMPIInstance* eInst,
-        const char* name,
-        const CMPIValue* data,
-        const CMPIType type,
-        const char* origin)
-    {
-        PEG_METHOD_ENTER(
-            TRC_CMPIPROVIDERINTERFACE,
-            "CMPI_Instance:instSetPropertyWithOrigin()");
+   static CMPIStatus instSetProperty(const CMPIInstance* eInst, const char *name,
+                           const CMPIValue* data, CMPIType type) {
+      CIMInstance *inst=(CIMInstance*)eInst->hdl;
+      if (!inst)  {
+        CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+      }
+      char **list=(char**)(reinterpret_cast<const CMPI_Object*>(eInst))->priv;
+      CMPIrc rc;
 
-        SCMOInstance *inst=(SCMOInstance*)eInst->hdl;
-        if (!inst)
-        {
-            PEG_METHOD_EXIT();
-            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
-        }
+      if (list) {
+         while (*list) {
+            if (System::strcasecmp(name,*list)==0) goto ok;
+            list++;
+         }
+         CMReturn(CMPI_RC_OK);
+      }
 
-        CMPIStatus cmpiRC = {CMPI_RC_OK,0};
-        SCMO_RC rc;
+   ok:
+      CIMValue v=value2CIMValue(data,type,&rc);
+      CIMNameUnchecked sName(name);
+      Uint32 pos;
+      int count=0;
 
-        if (!(type&CMPI_ARRAY))
-        {
-            CIMType cimType=type2CIMType(type);
-            Boolean nullValue =  false;
-            SCMBUnion scmoData = value2SCMOValue(data, type, nullValue);
-
-            rc = inst->setPropertyWithOrigin(name,
-                                             cimType,
-                                             nullValue ? 0 : &scmoData,
-                                             false,  // isArray
-                                             0,      // arraySize
-                                             origin);
-        }
-        else
-        {
-            //Get the type of the elements in the array
-            CMPIType aType=type&~CMPI_ARRAY;
-            CIMType cimType=type2CIMType(aType);
-
-            if( data == NULL || data->array == NULL )
-            {
-                // In this case just set a NULL Value
-                rc = inst->setPropertyWithOrigin(name,cimType,0,true,0,origin);
+      if ((pos=inst->findProperty(sName))!=PEG_NOT_FOUND) {
+         CIMProperty cp=inst->getProperty(pos);
+         try {
+            cp.setValue(v);
+         }
+         catch (const TypeMismatchException &) {
+	     if (_cmpi_trace) {
+           cerr<<"-+- TypeMisMatch exception for: "<<name<<endl;
+           if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL) {
+               cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
+               abort();
+             }
+		    }
+            CMReturn(CMPI_RC_ERR_TYPE_MISMATCH);
+         }
+         catch (const Exception &e) {
+		    if (_cmpi_trace) {
+              cerr<<"-+- "<<e.getMessage()<<" exception for: "<<name<<endl;
+              if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL) {
+                 cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
+                 abort();
+               }
             }
-            else
-            {
-                // When data is not NULL and data->array is also set
-                CMPI_Array* ar = (CMPI_Array*)data->array->hdl;
-                CMPIData* arrData = (CMPIData*)ar->hdl;
+            CMReturnWithString(CMPI_RC_ERR_FAILED,
+            reinterpret_cast<CMPIString*>(new CMPI_Object(e.getMessage())));
+         }
+      }
+      else {
+         if (type==CMPI_ref) {
+         CIMObjectPath *ref=(CIMObjectPath*)(data->ref->hdl);
+         inst->addProperty(CIMProperty(sName,v,count,ref->getClassName()));
+         }
 
-                Uint32 arraySize = arrData->value.uint32;
+         else inst->addProperty(CIMProperty(sName,v,count));
+      }
+      CMReturn(CMPI_RC_OK);
+   }
 
-                // Convert the array of CMPIData to an array of SCMBUnion
-                SCMBUnion * scmbArray = 0;
-                SCMBUnion scmbArrayBuf[8];
-                if (arraySize > 8)
-                {
-                    scmbArray=(SCMBUnion *)malloc(arraySize*sizeof(SCMBUnion));
-                }
-                else
-                {
-                    scmbArray=&(scmbArrayBuf[0]);
-                }
-                Boolean nullValue = false;
-                for (unsigned int x=0; x<arraySize; x++)
-                {
-                    // Note:  First element is the array status information,
-                    //        therefore cmpi array starts at index 1!!!
-                    scmbArray[x] = value2SCMOValue(
-                        &(arrData[x+1].value),
-                        arrData[x+1].type,
-                        nullValue);
-                }
-
-                rc = inst->setPropertyWithOrigin(
-                    name,
-                    cimType,
-                    scmbArray,
-                    true,          // isArray
-                    arraySize,
-                    origin);
-                if (arraySize > 8)
-                {
-                    free(scmbArray);
-                }
+   static CMPIObjectPath* instGetObjectPath(const CMPIInstance* eInst,
+                                            CMPIStatus* rc) {
+      CIMInstance* inst=(CIMInstance*)eInst->hdl;
+      if (!inst)  {
+        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return NULL;
+      }
+      const CIMObjectPath &clsRef=inst->getPath();
+      AutoPtr<CIMObjectPath> objPath(NULL);
+      AutoPtr<CMPI_Object> obj(NULL);
+      try {
+            if (clsRef.getKeyBindings().size()==0) {
+              CIMClass *cc=mbGetClass(CMPI_ThreadContext::getBroker(),clsRef);
+              const CIMObjectPath &ref=inst->buildPath(
+                      *(reinterpret_cast<const CIMConstClass*>(cc)));
+              objPath.reset(new CIMObjectPath(ref));
             }
-        }
+            else 
+              objPath.reset(new CIMObjectPath(clsRef));
+            obj.reset(new CMPI_Object(objPath.get()));
+            objPath.release();
+            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+            return reinterpret_cast<CMPIObjectPath*> (obj.release()); 
+      } catch(const PEGASUS_STD(bad_alloc)&) {
+          if (rc) CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
+          return NULL;
+      }
+   }
 
-        if (rc != SCMO_OK)
-        {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL3,
-                "Property %s not set on created instance. SCMO_RC=%d",
-                name,
-                rc));
+   static CMPIStatus instSetObjectPath( CMPIInstance* eInst, const CMPIObjectPath *obj)
+   {
+      CIMInstance* inst=(CIMInstance*)eInst->hdl;
+      if ((inst==NULL) || (obj==NULL))  {
+        CMReturn ( CMPI_RC_ERR_INVALID_PARAMETER);
+      }
+     CIMObjectPath &ref = *(CIMObjectPath*)(obj->hdl);
+	try {
+    	inst->setPath(ref); 
+     } catch (const TypeMismatchException &e) {
+	   CMReturnWithString(CMPI_RC_ERR_FAILED,
+            reinterpret_cast<CMPIString*>(new CMPI_Object(e.getMessage())));
+	}
+    CMReturn ( CMPI_RC_OK);
+   }
 
-            switch (rc)
-            {
-                case SCMO_NOT_SAME_ORIGIN:
-                    cmpiRC.rc = CMPI_RC_ERR_INVALID_PARAMETER;
-                    break;
-                case SCMO_NOT_FOUND:
-                {
-                    // Logical would be to return an error here, but previous
-                    // impl. returned OK since CMPI spec. is not specific about
-                    // this. Should become CMPI_RC_ERR_NO_SUCH_PROPERTY in
-                    // CMPI 2.1 or 3.0
-                    cmpiRC.rc = CMPI_RC_OK;
+   static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,
+               const char** propertyList, const char **keys){
+      if (!eInst->hdl)  {
+        CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+      }
 
-                    // Writing a message to log since provider tries to set a 
-                    // non-existing property
-                    Logger::put_l(
-                        Logger::ERROR_LOG,
-                        System::CIMSERVER,
-                        Logger::WARNING,
-                        MessageLoaderParms(
-                            "ProviderManager.CMPI.CMPI_Instance."
-                                "NO_SUCH_PROPERTY",
-                            "Property $0 not set on the created instance of "
-                                "class $1",
-                            name,
-                            inst->getClassName()));
-                    break;
-                }
-                case SCMO_WRONG_TYPE:
-                case SCMO_NOT_AN_ARRAY:
-                case SCMO_IS_AN_ARRAY:
-                    cmpiRC.rc = CMPI_RC_ERR_INVALID_DATA_TYPE;
-                    break;
-                default:
-                    cmpiRC.rc = CMPI_RC_ERR_FAILED;
-                    break;
-        }
-        }
+      CMPI_Object *inst=reinterpret_cast<CMPI_Object*>(eInst);
+      char **list=(char**)inst->priv;    // Thank you Warren !
+      int i,s;
 
-        PEG_METHOD_EXIT();
-        return(cmpiRC);
-    }
+      if (inst->priv) {
+         while (*list) {
+            free (*list);
+            list++;
+         }
+         free(inst->priv);
+      }
+      inst->priv=NULL;
 
-    static CMPIStatus instSetProperty(const CMPIInstance* eInst,
-        const char *name, const CMPIValue* data, CMPIType type)
-    {
-        return instSetPropertyWithOrigin(eInst, name, data, type, NULL);
-    }
+      if (propertyList==NULL) CMReturn(CMPI_RC_OK);
+      if (keys==NULL) CMReturn(CMPI_RC_ERR_FAILED);
 
-    static CMPIObjectPath* instGetObjectPath(const CMPIInstance* eInst,
-        CMPIStatus* rc)
-    {
-        PEG_METHOD_ENTER(
-            TRC_CMPIPROVIDERINTERFACE,
-            "CMPI_Instance:instGetObjectPath()");
+      for (s=0,i=0; propertyList[i]; i++,s++);
+      for (i=0; keys[i]; i++,s++);
+      list = new char*[s+2];
+      for (s=0,i=0; propertyList[i]; i++,s++) list[s]=strdup(propertyList[i]);
+      for (i=0; keys[i]; i++,s++) list[s]=strdup(keys[i]);
+      list[s]=NULL;
+      inst->priv=(void*)list;
 
-        SCMOInstance* inst=(SCMOInstance*)eInst->hdl;
-        if (!inst)
-        {
-            CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
+      CMReturn(CMPI_RC_OK);
+   }
 
-        try
-        {
-            // Generate keys from instance
-            inst->buildKeyBindingsFromProperties();
-
-            // Since we make no difference between ObjectPath and Instance,
-            // we simply clone using the ObjectPathOnly option.
-            SCMOInstance* cInst = new SCMOInstance(inst->clone(true));
-
-            CMPIObjectPath* cmpiObjPath =
-                reinterpret_cast<CMPIObjectPath *>
-                (new CMPI_Object(cInst,CMPI_Object::ObjectTypeObjectPath));
-            CMSetStatus(rc,CMPI_RC_OK);
-            PEG_METHOD_EXIT();
-            return cmpiObjPath;
-        }
-        catch (const PEGASUS_STD(bad_alloc)&)
-        {
-            CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
-    }
-
-    static CMPIStatus instSetObjectPath(
-        CMPIInstance* eInst,
-        const CMPIObjectPath *obj)
-    {
-        PEG_METHOD_ENTER(
-            TRC_CMPIPROVIDERINTERFACE,
-            "CMPI_Instance:instSetObjectPath()");
-
-        SCMOInstance* prevInst=(SCMOInstance*)eInst->hdl;
-        if (prevInst==NULL)
-        {
-            PEG_METHOD_EXIT();
-            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
-        }
-        if (obj==NULL)
-        {
-            PEG_METHOD_EXIT();
-            CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
-        }
-
-        SCMOInstance* ref = (SCMOInstance*)(obj->hdl);
-        if (ref->isSame(*prevInst))
-        {
-            // Since we represent CMPIObjectPath as well as CMPIInstance
-            // through SCMOInstance, in this case both point to the same
-            // physical SCMB and the objectPath is already set.
-            // So this path is a nop.
-            PEG_METHOD_EXIT();
-            CMReturn(CMPI_RC_OK);
-        }
-        else
-        {
-            // It is not possible to have an instance or objectPath in
-            // this implementation without a classname or namespace.
-            const char* nsRef = ref->getNameSpace();
-            Uint32 clsRefL;
-            const char* clsRef = ref->getClassName_l(clsRefL);
-            Uint32 clsPrevInstL;
-            const char* clsPrevInst = prevInst->getClassName_l(clsPrevInstL);
-
-            if (System::strncasecmp(clsRef,clsRefL,clsPrevInst,clsPrevInstL))
-            {
-                // Set the new namespace
-                prevInst->setNameSpace(nsRef);
-
-                // Remove the previous key properties
-                prevInst->clearKeyBindings();
-
-                // Copy the key properties from the given ObjectPath
-                CMPIrc rc = CMPISCMOUtilities::copySCMOKeyProperties(
-                    ref,            // source
-                    prevInst);      // target
-                if (rc != CMPI_RC_OK)
-                {
-                    PEG_TRACE_CSTRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Failed to copy key bindings");
-                    PEG_METHOD_EXIT();
-                    CMReturn(CMPI_RC_ERR_FAILED);
-                }
-            }
-            else
-            {
-                // Uurrgh, changing class on an existing
-                // CMPIInstance is a prohibited change.
-                // Simply returning an error
-                PEG_TRACE_CSTRING(
-                    TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL1,
-                    "Cannot set objectpath because it would change classname"
-                    "or namespace of instance");
-                PEG_METHOD_EXIT();
-                CMReturnWithString(
-                    CMPI_RC_ERR_FAILED,
-                    string2CMPIString("Incompatible ObjectPath"));
-            }
-        }
-
-        PEG_METHOD_EXIT();
-        CMReturn(CMPI_RC_OK);
-    }
-
-
-    static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,
-        const char** propertyList, const char **keys)
-    {
-        PEG_METHOD_ENTER(
-            TRC_CMPIPROVIDERINTERFACE,
-            "CMPI_Instance:instSetPropertyFilter()");
-
-        SCMOInstance* inst=(SCMOInstance*)eInst->hdl;
-
-        PEG_METHOD_EXIT();
-        if (inst==NULL)
-        {
-            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
-        }
-        //Property filtering is done by the CIMOM infrastructure.
-        CMReturn(CMPI_RC_OK);
-    }
-
-    static CMPIStatus instSetPropertyFilterIgnore(CMPIInstance* eInst,
-        const char** propertyList, const char **keys)
-    {
-        /* We ignore it.  */
-        CMReturn ( CMPI_RC_OK);
-    }
-
+   static CMPIStatus instSetPropertyFilterIgnore(CMPIInstance* eInst,
+               const char** propertyList, const char **keys){
+    /* We ignore it.  */
+     CMReturn ( CMPI_RC_OK);
+   }
 
 }
 
 static CMPIInstanceFT instance_FT={
-    CMPICurrentVersion,
-    instRelease,
-    instClone,
-    instGetProperty,
-    instGetPropertyAt,
-    instGetPropertyCount,
-    instSetProperty,
-    instGetObjectPath,
-    instSetPropertyFilter,
+     CMPICurrentVersion,
+     instRelease,
+     instClone,
+     instGetProperty,
+     instGetPropertyAt,
+     instGetPropertyCount,
+     instSetProperty,
+     instGetObjectPath,
+     instSetPropertyFilter,
 #if defined(CMPI_VER_100)
-    instSetObjectPath,
-#endif
-#if defined(CMPI_VER_200)
-    instSetPropertyWithOrigin,
+     instSetObjectPath,
 #endif
 };
 
 static CMPIInstanceFT instanceOnStack_FT={
-    CMPICurrentVersion,
-    instReleaseNop,
-    instClone,
-    instGetProperty,
-    instGetPropertyAt,
-    instGetPropertyCount,
-    instSetProperty,
-    instGetObjectPath,
-    instSetPropertyFilterIgnore,
+     CMPICurrentVersion,
+     instReleaseNop,
+     instClone,
+     instGetProperty,
+     instGetPropertyAt,
+     instGetPropertyCount,
+     instSetProperty,
+     instGetObjectPath,
+     instSetPropertyFilterIgnore,
 #if defined(CMPI_VER_100)
-    instSetObjectPath,
-#endif
-#if defined(CMPI_VER_200)
-    instSetPropertyWithOrigin,
+     instSetObjectPath,
 #endif
 };
 
@@ -617,36 +334,10 @@ CMPIInstanceFT *CMPI_Instance_Ftab=&instance_FT;
 CMPIInstanceFT *CMPI_InstanceOnStack_Ftab=&instanceOnStack_FT;
 
 
-CMPI_InstanceOnStack::CMPI_InstanceOnStack(const SCMOInstance* ci)
-{
-    PEG_METHOD_ENTER(
-        TRC_CMPIPROVIDERINTERFACE,
-        "CMPI_InstanceOnStack::CMPI_InstanceOnStack()");
-
-    hdl=(void*)ci;
-    ft=CMPI_InstanceOnStack_Ftab;
-    PEG_METHOD_EXIT();
-}
-
-CMPI_InstanceOnStack::CMPI_InstanceOnStack(const SCMOInstance& ci)
-{
-    PEG_METHOD_ENTER(
-        TRC_CMPIPROVIDERINTERFACE,
-        "CMPI_InstanceOnStack::CMPI_InstanceOnStack()");
-
-    hdl=(void*) new SCMOInstance(ci);
-    ft=CMPI_InstanceOnStack_Ftab;
-    PEG_METHOD_EXIT();
-}
-
-CMPI_InstanceOnStack::~CMPI_InstanceOnStack()
-{
-    if (hdl)
-    {
-        delete((SCMOInstance*)hdl);
-    }
-}
+CMPI_InstanceOnStack::CMPI_InstanceOnStack(const CIMInstance& ci) {
+      hdl=(void*)&ci;
+      ft=CMPI_InstanceOnStack_Ftab;
+   }
 
 
 PEGASUS_NAMESPACE_END
-

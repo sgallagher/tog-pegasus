@@ -1,33 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Condition.h>
 #include <Pegasus/Common/Thread.h>
@@ -43,6 +50,8 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
+const Uint32 MY_CANCEL_TYPE=1000;
 
 Boolean verbose = false;
 
@@ -80,7 +89,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL fibonacci(void * parm)
     int count = Parm->count;
     Condition * condstart = Parm->cond_start;
     MessageQueue * mq = Parm->mq;
-
+    
     condstart->signal();
 
     int add_to_type = 0;
@@ -99,32 +108,35 @@ ThreadReturnType PEGASUS_THREAD_CDECL fibonacci(void * parm)
     if (!add_to_type)
         Parm->th->thread_switch();
 
-    return ThreadReturnType(0);
+    my_thread->exit_self(0);
+    return NULL;
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
 {
     Thread* my_thread = (Thread *)parm;
-
+  
     parmdef * Parm = (parmdef *)my_thread->get_parm();
-    MessageType type;
+    Uint32 type;
 
     int first = Parm->first;
     int second = Parm->second;
     int count = Parm->count;
     Condition * condstart = Parm->cond_start;
     MessageQueue * mq = Parm->mq;
-
+    
     condstart->signal();
 
     Message * message;
     type = 0;
 
-    while (type != CLOSE_CONNECTION_MESSAGE)
+    while (type != MY_CANCEL_TYPE)
     {
         message = mq->dequeue();
-        while (!message)
-        {
+        while (!message) {
+#if defined PEGASUS_OS_SOLARIS && defined SUNOS_5_6
+	    Threads::sleep(1);
+#endif
             message = mq->dequeue();
         }
 
@@ -133,19 +145,17 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
     }
 
     if (verbose)
-    {
 #if defined (PEGASUS_OS_VMS)
-        //
-        // Threads::self returns long-long-unsigned.
-        //
-        printf("Received Cancel Message, %llu about to end\n", Threads::self());
+      // 
+      // Threads::self returns long-long-unsigned.
+      // 
+      printf("Received Cancel Message, %llu about to end\n", Threads::self());
 #else
         cout << "Received Cancel Message, " << Threads::self() <<
             " about to end\n";
 #endif
-    }
-
-    return ThreadReturnType(0);
+    my_thread->exit_self(0);
+    return NULL;
 }
 
 // Test Thread, MessageQueue, and Condition
@@ -194,11 +204,11 @@ int test01()
 
     // Tell one of the dequeueing tasks to finish
     Message * message;
-    message = new Message(CLOSE_CONNECTION_MESSAGE, 0);
+    message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);
-
+    
     // Tell the other dequeueing task to finish
-    message = new Message(CLOSE_CONNECTION_MESSAGE, 0);
+    message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);
 
     // Finish the dequeueing tasks
@@ -229,7 +239,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL atomicIncrement(void * parm)
     Boolean zero = atom->decAndTestIfZero();
     PEGASUS_TEST_ASSERT(zero == false);
 
-    return ThreadReturnType(0);
+    my_thread->exit_self(0);
+    return 0;
 }
 
 // Test Thread and AtomicInt
@@ -272,14 +283,14 @@ int main(int argc, char** argv)
         test01();
     }
     if (verbose)
-        cout << "+++++ passed test 1" << endl;
+        cout << "+++++ passed test 1" << endl; 
 
     for (Uint32 loop=0; loop<10; loop++)
     {
         test02();
     }
     if (verbose)
-        cout << "+++++ passed test 2" << endl;
+        cout << "+++++ passed test 2" << endl; 
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

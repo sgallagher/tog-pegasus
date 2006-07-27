@@ -107,6 +107,16 @@ public:
 
     int cimserver_initialize(void);
 
+    // Currently (07/27/06) this function is only used by
+    // pegasus/src/Pegasus/DynListener/Service/cimlistener.cpp
+    // in the cimlistener it is used to wait for a signal
+    // to shutdown
+
+    // if PEGASUS_HAS_SIGNALS is defined this function waits in a sigwait
+    // for either a SIGHUP or a SIGTERM and does not return before
+    
+    // if PEGASUS_HAS_SIGNALS is NOT defined this function is a noop function
+    // returning immediately with -1
     int cimserver_wait(void);
 
     String getHome(void);

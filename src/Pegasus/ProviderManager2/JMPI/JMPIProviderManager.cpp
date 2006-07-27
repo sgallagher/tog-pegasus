@@ -47,6 +47,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/FileSystem.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
@@ -7131,21 +7132,14 @@ ProviderName JMPIProviderManager::_resolveProviderName(
 
 String JMPIProviderManager::resolveFileName(String fileName)
 {
-    String name;
-    #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    name = fileName; // + String(".dll");
-    #elif defined(PEGASUS_OS_HPUX) && defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-    name = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    name.append(String("/") + fileName); // + String(".sl"));
-    #elif defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-    name = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    name.append(String("/") + fileName); // + String(".so"));
-    #elif defined(PEGASUS_OS_OS400)
-    name = filrName;
-    #else
-    name = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    name.append(String("/") + fileName); // + String(".so"));
-    #endif
+    String name = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    // physfilename = everything up to the delimiter pointing at class start
+    // in case there is no delimiter anymore, it takes the entire filename
+    String physfilename = fileName.subString(0, fileName.find(":"));
+    // look in all(multiple) homed pathes for the physical file
+    name = FileSystem::getAbsoluteFileName(name, physfilename);
+    // construct back the fully specified jar:<classname> provider name
+    name = FileSystem::extractFilePath(name) + fileName;
     return name;
 }
 

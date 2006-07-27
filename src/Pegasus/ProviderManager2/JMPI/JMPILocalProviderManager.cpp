@@ -282,6 +282,35 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                   {
                       provider->initialize(*(provider->_cimom_handle));
                   }
+                  catch(CIMException &cimExcept)
+                  {
+                      PEG_TRACE_STRING(
+                          TRC_PROVIDERMANAGER,
+                          Tracer::LEVEL4,
+                          "Calling provider->initialize caused exception:"
+                          +cimExcept.getMessage()
+                          );
+                      DDD(PEGASUS_STD(cout)
+                          <<"--- JMPILocalProviderManager::_provider_ctrl:"
+                            " Exception caught calling initialize!"
+                            <<PEGASUS_STD(endl));
+                      throw;
+                  }                      
+                  catch(Exception &except)
+                  {
+                      PEG_TRACE_STRING(
+                          TRC_PROVIDERMANAGER,
+                          Tracer::LEVEL4,
+                          "Calling provider->initialize caused exception:"
+                          +except.getMessage()
+                          );
+                      DDD(PEGASUS_STD(cout)
+                          <<"--- JMPILocalProviderManager::_provider_ctrl:"
+                            " Exception caught calling initialize!"
+                            <<PEGASUS_STD(endl));
+                      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                                                  except.getMessage());
+                  }
                   catch(...)
                   {
                       PEG_TRACE_STRING(TRC_PROVIDERMANAGER,

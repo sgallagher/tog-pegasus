@@ -360,6 +360,23 @@ int JMPIjvm::initJVM ()
 
       DDD(PEGASUS_STD(cerr) << "--- JMPIjvm::initJVM(): No CLASSPATH environment variable found" << PEGASUS_STD(endl));
 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+      throw PEGASUS_CIM_EXCEPTION_L(
+                 CIM_ERR_FAILED,
+                 MessageLoaderParms(
+                     "ProviderManager2.JMPI.GET_CLASSPATH_FAILED.PEGASUS_OS_ZOS",
+                     "Could not get CLASSPATH from environment."
+                     " Either CLASSPATH is longer than 255 characters"
+                     " or not set at all.")
+                 );
+#else
+      throw PEGASUS_CIM_EXCEPTION_L(
+                 CIM_ERR_FAILED,
+                 MessageLoaderParms(
+                     "ProviderManager2.JMPI.GET_CLASSPATH_FAILED.STANDARD",
+                     "Could not get CLASSPATH from environment.")
+                 );
+#endif
       return -1;
    }
 
@@ -492,12 +509,13 @@ int JMPIjvm::initJVM ()
 JNIEnv* JMPIjvm::attachThread(JvmVector **jvp)
 {
    JNIEnv* env = NULL;
+   int rc;
 
    if (jvm == NULL)
    {
-      initJVM ();
+      rc = initJVM ();
 
-      if (jvm == NULL)
+      if ((jvm == NULL) || (rc != 0))
          return NULL;
    }
 

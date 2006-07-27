@@ -113,6 +113,7 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/Signal.h>
 #include <Pegasus/DynListener/DynamicListener.h>
 #include <Pegasus/DynListener/DynamicListenerConfig.h>
 #include <Service/ServerProcess.h>
@@ -642,8 +643,31 @@ int CIMListenerProcess::cimserver_run(
         //gracefully exit
         //Uncomment the following line when signals are implemented on all platforms.
         //The workaround is to use a file.
-        //cimserver_kill(1);
+#ifdef PEGASUS_HAS_SIGNALS
+        FILE *pid_file;
+        pid_t pid = 0;
 
+        // open the file containing the CIMServer process ID
+        pid_file = fopen(getPIDFileName(), "r");
+        if (!pid_file) 
+        {
+            return (-1);
+        }
+
+        // get the pid from the file
+        fscanf(pid_file, "%d\n", &pid);
+
+        fclose(pid_file);
+
+        if (pid == 0)
+        {
+           System::removeFile(getPIDFileName());
+           return (-1);
+        }
+
+        kill(pid, PEGASUS_SIGTERM);
+        //cimserver_kill(1);
+#else
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) \
     || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_SOLARIS) \
     || defined(PEGASUS_OS_VMS)
@@ -668,6 +692,9 @@ int CIMListenerProcess::cimserver_run(
             return(0);
         }
 #endif
+
+#endif //PEGASUS_HAS_SIGNALS
+
 
 #ifdef PEGASUS_OS_OS400
     //l10n
@@ -981,6 +1008,8 @@ MessageLoader::_useProcessLocale = false;
 
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
 
+// if signals are defined, do not use old file creation mechanism
+#ifndef PEGASUS_HAS_SIGNALS
 #if defined(PEGASUS_DEBUG)
         printf("Blocking until shutdown signal\n");
 #endif
@@ -999,20 +1028,22 @@ MessageLoader::_useProcessLocale = false;
 #endif
         FileSystem::removeFile(LISTENER_STOP_FILE);
         _cimListener->stop();
+#else // defined(PEGASUS_HAS_SIGNALS)
 
-
-        //Uncomment this block of code when signals are implemented on all platforms.
         //Temporary workaround is to use a file, as specified above.
         //wait until signalled to terminate
-        /*int sig = _cimListenerProcess->cimserver_wait();
+        int sig = _cimListenerProcess->cimserver_wait();
+#if defined(PEGASUS_DEBUG)
         printf("Returned from sigwait %d\n", sig);
-
-        if (sig == SIGUSR1)
+#endif
+        if ((sig == PEGASUS_SIGTERM) || (sig == PEGASUS_SIGHUP))
         {
+#if defined(PEGASUS_DEBUG)
             printf("Graceful shutdown\n");
+#endif            
             _cimListener->stop();
         }
-        */
+#endif
 #else
         //ATTN: Implement cimserver_wait for windows so we don't have to loop here
         //The listener is stopped in the cimserver_stop method by the service control manager

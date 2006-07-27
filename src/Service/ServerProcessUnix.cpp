@@ -86,7 +86,32 @@ ServerProcess::~ServerProcess() {}
 void ServerProcess::cimserver_set_process(void* p) {}
 void ServerProcess::cimserver_exitRC(int rc) {}
 int ServerProcess::cimserver_initialize(void) { return 1; }
+
+// for all OSes supporting signals provide a cimserver_wait function
+// that waits to be awakened by signal PEGASUS_SIGTERM or PEGASUS_SIGHUP
+#ifdef PEGASUS_HAS_SIGNALS
+int ServerProcess::cimserver_wait(void)
+{
+    int sig = -1;
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, PEGASUS_SIGTERM);
+    sigaddset(&set, PEGASUS_SIGHUP);
+    errno = 0;
+    do
+    {
+#if defined(PEGASUS_OS_ZOS) || defined(PEGASUS_OS_SOLARIS)
+        sig = sigwait(&set);
+#else // else for platforms = LINUX, HPUX, AIX
+        sigwait(&set, &sig);
+#endif
+    } while (errno == EINTR);
+    return sig;
+}
+#else
 int ServerProcess::cimserver_wait(void) { return 1; }
+#endif
+
 String ServerProcess::getHome(void) { return String::EMPTY; }
 
 // daemon_init , RW Stevens, "Advance UNIX Programming"
@@ -129,7 +154,11 @@ int ServerProcess::cimserver_fork(void)
   }
   
   setsid();
-  umask(0);
+  umask(S_IRWXG | S_IRWXO );
+
+  // spawned daemon process doesn't need the old signal handlers of its parent
+  getSigHandle()->deactivate(PEGASUS_SIGUSR1);
+  getSigHandle()->deactivate(SIGTERM);
 
   // get the pid of the cimserver process
   server_pid = getpid();

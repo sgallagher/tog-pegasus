@@ -339,9 +339,6 @@ private:
     AcceptLanguageList requestAcceptLanguages;
     ContentLanguageList requestContentLanguages;
     ContentLanguageList responseContentLanguages;
-
-    // mszer : Additions Stage1 PEP#139
-    void compareObjectPathtoCurrentConnection(const CIMObjectPath& obj);
 };
 
 PEGASUS_NAMESPACE_END

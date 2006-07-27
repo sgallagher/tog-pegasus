@@ -489,8 +489,6 @@ CIMInstance CIMClientRep::getInstance(
     const CIMPropertyList& propertyList
 )
 {
-    compareObjectPathtoCurrentConnection(instanceName);
-
     AutoPtr<CIMRequestMessage> request(new CIMGetInstanceRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -535,7 +533,6 @@ void CIMClientRep::deleteInstance(
     const CIMObjectPath& instanceName
 )
 {
-    compareObjectPathtoCurrentConnection(instanceName);
     AutoPtr<CIMRequestMessage> request(new CIMDeleteInstanceRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -574,7 +571,6 @@ CIMObjectPath CIMClientRep::createInstance(
     const CIMInstance& newInstance
 )
 {
-    compareObjectPathtoCurrentConnection(newInstance.getPath());
     AutoPtr<CIMRequestMessage> request(new CIMCreateInstanceRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -617,7 +613,6 @@ void CIMClientRep::modifyInstance(
     const CIMPropertyList& propertyList
 )
 {
-    compareObjectPathtoCurrentConnection(modifiedInstance.getPath());
     AutoPtr<CIMRequestMessage> request(new CIMModifyInstanceRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -780,7 +775,6 @@ Array<CIMObject> CIMClientRep::associators(
     const CIMPropertyList& propertyList
 )
 {
-    compareObjectPathtoCurrentConnection(objectName);
     AutoPtr<CIMRequestMessage> request(new CIMAssociatorsRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -813,7 +807,6 @@ Array<CIMObjectPath> CIMClientRep::associatorNames(
     const String& resultRole
 )
 {
-    compareObjectPathtoCurrentConnection(objectName);
     AutoPtr<CIMRequestMessage> request(new CIMAssociatorNamesRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -844,7 +837,6 @@ Array<CIMObject> CIMClientRep::references(
     const CIMPropertyList& propertyList
 )
 {
-    compareObjectPathtoCurrentConnection(objectName);
     AutoPtr<CIMRequestMessage> request(new CIMReferencesRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -873,7 +865,6 @@ Array<CIMObjectPath> CIMClientRep::referenceNames(
     const String& role
 )
 {
-    compareObjectPathtoCurrentConnection(objectName);
     AutoPtr<CIMRequestMessage> request(new CIMReferenceNamesRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -898,7 +889,6 @@ CIMValue CIMClientRep::getProperty(
     const CIMName& propertyName
 )
 {
-    compareObjectPathtoCurrentConnection(instanceName);
     AutoPtr<CIMRequestMessage> request(new CIMGetPropertyRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -923,7 +913,6 @@ void CIMClientRep::setProperty(
     const CIMValue& newValue
 )
 {
-    compareObjectPathtoCurrentConnection(instanceName);
     AutoPtr<CIMRequestMessage> request(new CIMSetPropertyRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -1034,7 +1023,6 @@ CIMValue CIMClientRep::invokeMethod(
     // solved with PEP#139 Stage1 as other CIMOMs contained in the object path
     // will cause a TypeMisMatchException
 
-    compareObjectPathtoCurrentConnection(instanceName);
     AutoPtr<CIMRequestMessage> request(new CIMInvokeMethodRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -1310,44 +1298,6 @@ String CIMClientRep::_getLocalHostName()
     }
 
     return hostname;
-}
-
-void CIMClientRep::compareObjectPathtoCurrentConnection(const CIMObjectPath& obj)
-{
-
-    String ObjHost = obj.getHost();
-    // test if a host is given at all, if not everything is fine and we leave it at that
-    if (ObjHost==String::EMPTY)
-    {
-        return;
-    }
-
-    MessageLoaderParms typeMismatchMessage;
-    // splitting the port from hostname as we have to compare both separate
-        int i = ObjHost.find(":");
-        String ObjPort = String::EMPTY;
-        // only if there is a ":" we should split a port address from hostname string
-        if (i > 0)
-        {
-            ObjPort = ObjHost.subString(i+1);
-            ObjHost.remove(i);
-
-            // lets see who we are really connected to
-            // should stand in UInt32 _connectPortNumber and String _connectHost;
-
-            // comparing the stuff
-            // first the easy part, comparing the ports
-            Uint32 objectport = strtoul((const char*) ObjPort.getCString(), NULL, 0);
-
-        // if port in object path does not equal port of connection throw a TypeMismatch Exception
-        if (objectport != _connectPortNumber)
-        {
-            typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_PORTMISMATCH",
-                                                     "Failed validation of CIM object path: port of CIMClient connection($0) and port of object path($1) not equal",
-                                                     _connectPortNumber, objectport);
-            throw TypeMismatchException(typeMismatchMessage);
-        }
-    }
 }
 
 

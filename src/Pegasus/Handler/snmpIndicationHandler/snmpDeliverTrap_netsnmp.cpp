@@ -538,7 +538,7 @@ void snmpDeliverTrap_netsnmp::_packTrapInfoIntoPdu(
             strcat(numericEntOid, oidSubIdentifiers[i]);
         }
 
-        if (oidSubIdentifiers[oidSubIdentifiers.size()-2] != "0")
+        if (strcmp(oidSubIdentifiers[oidSubIdentifiers.size()-2], "0") != 0)
         {
             strcat(numericEntOid, ".");
             strcat(numericEntOid, 

@@ -206,20 +206,11 @@ void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
 
 int ReadWriteSem::read_count() const
 {
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    PEGASUS_ASSERT(_readers.get() == _rwlock.rwlock.__rw_readers);
-#endif
     return (_readers.get());
 }
 
 int ReadWriteSem::write_count() const
 {
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    if (_rwlock.rwlock.__rw_writer != NULL)
-    {
-        PEGASUS_ASSERT(_writers.get() == 1);
-    }
-#endif
     return (_writers.get());
 }
 

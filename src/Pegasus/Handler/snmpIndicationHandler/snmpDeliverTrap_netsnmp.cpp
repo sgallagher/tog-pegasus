@@ -258,15 +258,9 @@ void snmpDeliverTrap_netsnmp::_createSession(
             communityName = securityName;
         }
 
-        if (snmpSession.peername)
-        {
-            free(snmpSession.peername);
-        }
+        free(snmpSession.peername);
 
-        if (sessionPtr->community)
-        {
-            free(sessionPtr->community);
-        }
+        free(sessionPtr->community);
 
         CString communityNameCStr = communityName.getCString();
         size_t communityNameLen = strlen(communityNameCStr);

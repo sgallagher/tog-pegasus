@@ -34,168 +34,59 @@
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for PEP101 and Bug#1090
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ModuleController.h"
-#include <Pegasus/Common/MessageLoader.h> //l10n
-#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/InternalException.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-pegasus_module::module_rep::module_rep(ModuleController *controller,
-				       const String & name,
-				       void *module_address,
-				       Message * (*receive_message)(Message *, void *),
-				       void (*async_callback)(Uint32, Message *, void *),
-				       void (*shutdown_notify)(Uint32 code, void *))
-   : _thread_safety(),
-     _controller(controller),
-     _name(name),
-     _reference_count(1),
-     _shutting_down(0),
-     _module_address(module_address)
-
+RegisteredModuleHandle::RegisteredModuleHandle(
+    const String& name,
+    void* module_address,
+    Message* (*receive_message)(Message *, void *),
+    void (*async_callback)(Uint32, Message *, void *))
+    : _name(name),
+      _module_address(module_address),
+      _module_receive_message(receive_message),
+      _async_callback(async_callback)
 {
-   if(receive_message != NULL)
-      _receive_message = receive_message;
-   else
-      _receive_message = default_receive_message;
-   if(async_callback != NULL)
-      _async_callback = async_callback;
-   else
-      _async_callback = default_async_callback;
-   if(shutdown_notify != NULL)
-      _shutdown_notify = shutdown_notify;
-   else
-      _shutdown_notify = default_shutdown_notify;
+    PEGASUS_ASSERT(_module_receive_message != 0);
 }
 
-
-pegasus_module::module_rep::~module_rep()
-{
-   _send_shutdown_notify();
-}
-
-Message * pegasus_module::module_rep::module_receive_message(Message *msg)
-{
-   Message * ret;
-   // ATTN: This Mutex serializes requests to this Module (Control Provider)
-   //AutoMutex autoMut(_thread_safety);
-   ret = _receive_message(msg, _module_address);
-   return ret;
-}
-
-void pegasus_module::module_rep::_send_async_callback(Uint32 msg_handle, Message *msg, void *parm)
-{
-   AutoMutex autoMut(_thread_safety);
-   _async_callback(msg_handle, msg, parm);
-}
-
-void pegasus_module::module_rep::_send_shutdown_notify()
-{
-   AutoMutex autoMut(_thread_safety);
-   if(_reference_count.get() == 0 )
-   {
-      if( _shutting_down.get() == 0 )
-      {
-	 _shutting_down++;
-	 _shutdown_notify(_reference_count.get(), _module_address);
-	 _async_callback = closed_async_callback;
-	 _receive_message = closed_receive_message;
-      }
-   }
-}
-
-
-pegasus_module::pegasus_module(ModuleController *controller,
-			       const String &id,
- 			       void *module_address,
-			       Message * (*receive_message)(Message *, void *),
-			       void (*async_callback)(Uint32, Message *, void *),
-                   void (*shutdown_notify)(Uint32 code, void *)) :
-             _rep(new module_rep(controller, id, module_address,
-                          receive_message, async_callback, shutdown_notify))
+RegisteredModuleHandle::~RegisteredModuleHandle()
 {
 }
 
-pegasus_module::pegasus_module(const pegasus_module & mod) : Linkable()
+const String & RegisteredModuleHandle::get_name() const
 {
-   mod._rep->reference();
-   _rep.reset(mod._rep.get());
+    return _name;
 }
 
-pegasus_module::~pegasus_module()
+Message* RegisteredModuleHandle::_receive_message(Message *msg)
 {
-   _rep->dereference();
-   _send_shutdown_notify();
-   if( 0 == _rep->reference_count())
-        _rep.reset();
+    return _module_receive_message(msg, _module_address);
 }
 
-pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
+void RegisteredModuleHandle::_send_async_callback(
+    Uint32 msg_handle,
+    Message* msg,
+    void* parm)
 {
-   if( this != &mod)
-   {
-      if ( _rep->reference_count() == 0 )
-	              _rep.reset();
-      _rep.reset(mod._rep.get());
-   }
-   return *this;
+    // ATTN: Assert this condition?
+    if (_async_callback == 0)
+    {
+        throw NotImplemented("Module Async Receive");
+    }
+
+    _async_callback(msg_handle, msg, parm);
 }
 
-Boolean pegasus_module::operator == (const String &  mod) const
-{
-   if(_rep->get_name() == mod)
-      return true;
-   return false;
-}
-
-const String & pegasus_module::get_name() const
-{
-   return _rep->get_name();
-}
-
-
-Boolean pegasus_module::query_interface(const String & class_id,
-					void **object_ptr) const
-{
-   PEGASUS_ASSERT(object_ptr != NULL);
-   if( class_id == _rep->get_name())
-   {
-      *object_ptr = _rep->get_module_address();
-      return true;
-   }
-   *object_ptr = NULL;
-   return false;
-}
-
-Message * pegasus_module::_receive_message(Message *msg)
-{
-   return _rep->module_receive_message(msg);
-}
-
-void pegasus_module::_send_async_callback(Uint32 msg_handle, Message *msg, void *parm)
-{
-   _rep->_send_async_callback(msg_handle, msg, parm);
-}
-
-void pegasus_module::_send_shutdown_notify()
-{
-   _rep->_send_shutdown_notify();
-}
-
-Boolean pegasus_module::_shutdown()
-{
-   _send_shutdown_notify();
-   return true;
-}
-
-
-// NOTE: "destroy" is defined in <memory> on HP-UX and must not be redefined
-static struct timeval createTime = {0, 50000};
-static struct timeval destroyTime = {15, 0};
 
 ModuleController::ModuleController(const char *name )
    :Base(name, MessageQueue::getNextQueueId(),
@@ -205,27 +96,10 @@ ModuleController::ModuleController(const char *name )
 {
 }
 
-// ModuleController::ModuleController(const char *name ,
-// 				   Sint16 min_threads,
-// 				   Sint16 max_threads,
-// 				   struct timeval & create_thread,
-// 				   struct timeval & destroy_thread)
-//    :Base(name, MessageQueue::getNextQueueId(),
-// 	 module_capabilities::module_controller |
-// 	 module_capabilities::async),
-//    _modules(true),
-//     _thread_pool(min_threads + 1,
-// 		 name, min_threads,
-// 		 max_threads,
-// 		 create_thread,
-// 		 destroy_thread)
-// {
-// }
-
 ModuleController::~ModuleController()
 {
 
-   pegasus_module *module;
+   RegisteredModuleHandle *module;
 
    try
    {
@@ -243,18 +117,16 @@ ModuleController::~ModuleController()
 }
 
 // called by a module to register itself, returns a handle to the controller
-ModuleController & ModuleController::register_module(const String & controller_name,
-						     const String & module_name,
-						     void *module_address,
-						     Message * (*receive_message)(Message *, void *),
-						     void (*async_callback)(Uint32, Message *, void *),
-						     void (*shutdown_notify)(Uint32, void *),
-						     pegasus_module **instance)
+ModuleController & ModuleController::register_module(
+    const String & controller_name,
+    const String & module_name,
+    void *module_address,
+    Message * (*receive_message)(Message *, void *),
+    void (*async_callback)(Uint32, Message *, void *),
+    RegisteredModuleHandle** instance)
 {
-
-   pegasus_module *module ;
+   RegisteredModuleHandle *module;
    ModuleController *controller;
-
 
    Array<Uint32> services;
 
@@ -283,8 +155,6 @@ ModuleController & ModuleController::register_module(const String & controller_n
    {
       if(module->get_name() == module_name )
       {
-	 //l10n
-	 //throw AlreadyExistsException("module \"" + module_name + "\"");
 	 MessageLoaderParms parms("Common.ModuleController.MODULE",
 	 						  "module \"$0\"",
 	 						  module_name);
@@ -312,23 +182,19 @@ ModuleController & ModuleController::register_module(const String & controller_n
 
    request.reset();
    response.reset();
-   if ( result == async_results::MODULE_ALREADY_REGISTERED){
-   	//l10n
-      //throw AlreadyExistsException("module \"" + module_name + "\"");
+   if ( result == async_results::MODULE_ALREADY_REGISTERED)
+   {
       MessageLoaderParms parms("Common.ModuleController.MODULE",
-	 						  "module \"$0\"",
-	 						  module_name);
-	 throw AlreadyExistsException(parms);
-
+         "module \"$0\"", module_name);
+      throw AlreadyExistsException(parms);
    }
 
    // the module does not exist, go ahead and create it.
-   module = new pegasus_module(controller,
+   module = new RegisteredModuleHandle(
 			       module_name,
 			       module_address,
 			       receive_message,
-			       async_callback,
-			       shutdown_notify);
+			       async_callback);
 
    controller->_modules.insert_back(module);
 
@@ -353,7 +219,7 @@ Boolean ModuleController::deregister_module(const String & module_name)
    request.reset();
    response.reset();
 
-   pegasus_module *module;
+   RegisteredModuleHandle *module;
 
    _module_lock lock(&_modules);
    module = _modules.front();
@@ -369,13 +235,11 @@ Boolean ModuleController::deregister_module(const String & module_name)
    return false;
 }
 
-Boolean ModuleController::verify_handle(pegasus_module *handle)
+Boolean ModuleController::verify_handle(RegisteredModuleHandle *handle)
 {
-   pegasus_module *module;
+   RegisteredModuleHandle *module;
 
-   // ATTN change to use authorization and the pegasus_id class
-   // << Fri Apr  5 12:43:19 2002 mdd >>
-   if( handle->_rep->_module_address == (void *)this)
+   if (handle->_module_address == (void *)this)
       return true;
 
    _module_lock lock(&_modules);
@@ -393,11 +257,12 @@ Boolean ModuleController::verify_handle(pegasus_module *handle)
 }
 
 // given a name, find a service's queue id
-Uint32 ModuleController::find_service(const pegasus_module & handle,
-				      const String & name)
+Uint32 ModuleController::find_service(
+    const RegisteredModuleHandle & handle,
+    const String & name)
 {
 
-   if ( false == verify_handle(const_cast<pegasus_module *>(&handle)) )
+   if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
       throw Permission(pegasus_thread_self());
    Array<Uint32> services;
    Base::find_services(name, 0, 0, &services);
@@ -408,10 +273,11 @@ Uint32 ModuleController::find_service(const pegasus_module & handle,
 // returns the queue ID of the service hosting the named module,
 // zero otherwise
 
-Uint32 ModuleController::find_module_in_service(const pegasus_module & handle,
-						const String & name)
+Uint32 ModuleController::find_module_in_service(
+    const RegisteredModuleHandle & handle,
+    const String & name)
 {
-   if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
+   if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
       throw(Permission(pegasus_thread_self()));
 
    Uint32 result = 0 ;
@@ -431,28 +297,6 @@ Uint32 ModuleController::find_module_in_service(const pegasus_module & handle,
 }
 
 
-pegasus_module * ModuleController::get_module_reference(const pegasus_module & my_handle,
-							const String & module_name)
-{
-   if ( false == verify_handle(const_cast<pegasus_module *>(&my_handle)))
-      throw(Permission(pegasus_thread_self()));
-
-   pegasus_module *module, *ref = NULL;
-   _module_lock lock(&_modules);
-   module = _modules.front();
-   while(module != NULL)
-   {
-      if(module->get_name() == module_name)
-      {
-	 ref = new pegasus_module(*module);
-	 break;
-      }
-      module = _modules.next_of(module);
-   }
-   return ref;
-}
-
-
 AsyncReply *ModuleController::_send_wait(Uint32 destination_q,
 					 AsyncRequest *request)
 {
@@ -463,11 +307,12 @@ AsyncReply *ModuleController::_send_wait(Uint32 destination_q,
 
 
 // sendwait to another service
-AsyncReply * ModuleController::ModuleSendWait(const pegasus_module & handle,
-					      Uint32 destination_q,
-					      AsyncRequest *request)
+AsyncReply * ModuleController::ModuleSendWait(
+    const RegisteredModuleHandle & handle,
+    Uint32 destination_q,
+    AsyncRequest *request)
 {
-   if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
+   if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
       throw(Permission(pegasus_thread_self()));
 
    return _send_wait(destination_q, request);
@@ -503,12 +348,13 @@ AsyncReply *ModuleController::_send_wait(Uint32 destination_q,
 
 // sendwait to another module controlled by another service.
 // throws Deadlock() if destination_q is this->queue_id
-AsyncReply * ModuleController::ModuleSendWait(const pegasus_module & handle,
-					      Uint32 destination_q,
-					      const String & destination_module,
-					      AsyncRequest *message)
+AsyncReply * ModuleController::ModuleSendWait(
+    const RegisteredModuleHandle & handle,
+    Uint32 destination_q,
+    const String & destination_module,
+    AsyncRequest *message)
 {
-   if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
+   if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
       throw(Permission(pegasus_thread_self()));
 
    return _send_wait(destination_q, destination_module, message);
@@ -560,15 +406,16 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
 
 
 // send an async message to a service asynchronously
-Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
-					  Uint32 msg_handle,
-					  Uint32 destination_q,
-					  AsyncRequest *message,
-					  void *callback_parm)
+Boolean ModuleController::ModuleSendAsync(
+    const RegisteredModuleHandle & handle,
+    Uint32 msg_handle,
+    Uint32 destination_q,
+    AsyncRequest *message,
+    void *callback_parm)
 {
    //printf("verifying handle %p, controller at %p \n", &handle, this);
 
-   if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
+   if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
       throw(Permission(pegasus_thread_self()));
 
    if (message->op == NULL)
@@ -578,8 +425,9 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
    }
 
 
-   callback_handle *cb = new callback_handle(const_cast<pegasus_module *>(&handle),
-					     callback_parm);
+   callback_handle *cb = new callback_handle(
+       const_cast<RegisteredModuleHandle *>(&handle),
+       callback_parm);
 
    message->resp = getQueueId();
    message->block = false;
@@ -592,7 +440,7 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
 }
 
 // send a message to a module within another service asynchronously
-Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
+Boolean ModuleController::ModuleSendAsync(const RegisteredModuleHandle& handle,
 					  Uint32 msg_handle,
 					  Uint32 destination_q,
 					  const String & destination_module,
@@ -600,7 +448,7 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
 					  void *callback_parm)
 {
 
-   if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
+   if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
       throw(Permission(pegasus_thread_self()));
 
    AsyncOpNode *op = get_op();
@@ -613,7 +461,9 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
 				    destination_module,
 				    message);
    request->dest = destination_q;
-   callback_handle *cb = new callback_handle(const_cast<pegasus_module *>(&handle), callback_parm);
+   callback_handle *cb = new callback_handle(
+       const_cast<RegisteredModuleHandle *>(&handle),
+       callback_parm);
    return SendAsync(op,
 		    destination_q,
 		    _async_handleEnqueue,
@@ -647,22 +497,24 @@ Boolean ModuleController::_send_forget(Uint32 destination_q,
 
 
 
-Boolean ModuleController::ModuleSendForget(const pegasus_module & handle,
-					   Uint32 destination_q,
-					   AsyncRequest *message)
+Boolean ModuleController::ModuleSendForget(
+    const RegisteredModuleHandle & handle,
+    Uint32 destination_q,
+    AsyncRequest *message)
 {
-   if(false == verify_handle(const_cast<pegasus_module *>( &handle)))
+   if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
       throw(Permission(pegasus_thread_self()));
 
    return _send_forget(destination_q, message);
 }
 
-Boolean ModuleController::ModuleSendForget(const pegasus_module & handle,
-					   Uint32 destination_q,
-					   const String & destination_module,
-					   AsyncRequest *message)
+Boolean ModuleController::ModuleSendForget(
+    const RegisteredModuleHandle & handle,
+    Uint32 destination_q,
+    const String & destination_module,
+    AsyncRequest *message)
 {
-   if(false == verify_handle(const_cast<pegasus_module *>( &handle)))
+   if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
       throw(Permission(pegasus_thread_self()));
    return _send_forget(destination_q,
 		       destination_module,
@@ -676,7 +528,7 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
    if( rq->getType() == async_messages::ASYNC_MODULE_OP_START)
    {
       // find the target module
-      pegasus_module *target;
+      RegisteredModuleHandle *target;
       Message *module_result = NULL;
 
       {
@@ -778,12 +630,11 @@ Boolean ModuleController::ClientSendAsync(
 					  void (*async_callback)(Uint32, Message *, void *) ,
 					  void *callback_parm)
 {
-   pegasus_module *temp = new pegasus_module(this,
+   RegisteredModuleHandle *temp = new RegisteredModuleHandle(
 					     String(PEGASUS_MODULENAME_TEMP),
 					     this,
 					     0,
-					     async_callback,
-					     0);
+					     async_callback);
    return ModuleSendAsync( *temp,
 			   msg_handle,
 			   destination_q,
@@ -801,12 +652,11 @@ Boolean ModuleController::ClientSendAsync(
 					  void (*async_callback)(Uint32, Message *, void *),
 					  void *callback_parm)
 {
-   pegasus_module *temp = new pegasus_module(this,
+   RegisteredModuleHandle *temp = new RegisteredModuleHandle(
 					     String(PEGASUS_MODULENAME_TEMP),
 					     this,
 					     0,
-					     async_callback,
-					     0);
+					     async_callback);
    return ModuleSendAsync(*temp,
 			  msg_handle,
 			  destination_q,

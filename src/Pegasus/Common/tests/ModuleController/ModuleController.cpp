@@ -124,17 +124,16 @@ class test_module
       
       static Message *receive_msg(Message *msg, void *parm);
       static void async_callback(Uint32 msg_id, Message *msg, void *parm);
-      static void shutdown_notify(Uint32 code, void *parm);
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL thread_func(void *);
       ModuleController *get_controller();
-      pegasus_module *get_mod_handle();
+      RegisteredModuleHandle *get_mod_handle();
 
    private:
       test_module();
       test_module(const test_module &);
       test_module & operator =(const test_module &);
       ModuleController *_controller;
-      pegasus_module *_module_handle;
+      RegisteredModuleHandle *_module_handle;
       AtomicInt _msg_rx;
       AtomicInt _msg_tx;
       AtomicInt _thread_ex;
@@ -197,12 +196,6 @@ void test_module::async_callback(Uint32 id, Message *msg, void *parm)
    }
 }
 
-void test_module::shutdown_notify(Uint32 code, void *parm)
-{
-   test_module *myself = reinterpret_cast<test_module *>(parm);
-   cout << "module received shutdown notification" << endl;
-}
-
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_module::thread_func(void *parm)
 {
    test_module *myself = reinterpret_cast<test_module *>(parm);
@@ -224,7 +217,6 @@ ModuleController *test_module::get_controller()
 							   this,
 							   receive_msg,
 							   async_callback,
-							   shutdown_notify,
 							   &_module_handle));
       }
       catch(AlreadyExistsException &)
@@ -236,7 +228,7 @@ ModuleController *test_module::get_controller()
    return _controller;
 }
 
-pegasus_module *test_module::get_mod_handle()
+RegisteredModuleHandle *test_module::get_mod_handle()
 {
    if(_controller == NULL)
    {
@@ -248,7 +240,6 @@ pegasus_module *test_module::get_mod_handle()
 							   this,
 							   receive_msg,
 							   async_callback,
-							   shutdown_notify,
 							   &_module_handle));
       }
       catch(AlreadyExistsException &)

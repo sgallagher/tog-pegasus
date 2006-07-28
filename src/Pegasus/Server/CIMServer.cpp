@@ -250,7 +250,7 @@ void CIMServer::_init(void)
                                       PEGASUS_MODULENAME_CONFIGPROVIDER,
                                       configProvider,
                                       controlProviderReceiveMessageCallback,
-                                      0, 0);
+                                      0);
 
     // Create the User/Authorization control provider
     ProviderMessageFacade * userAuthProvider =
@@ -260,7 +260,7 @@ void CIMServer::_init(void)
                                       PEGASUS_MODULENAME_USERAUTHPROVIDER,
                                       userAuthProvider,
                                       controlProviderReceiveMessageCallback,
-                                      0, 0);
+                                      0);
 
     // Create the Provider Registration control provider
     ProviderMessageFacade * provRegProvider = new ProviderMessageFacade(
@@ -271,7 +271,7 @@ void CIMServer::_init(void)
                                       PEGASUS_MODULENAME_PROVREGPROVIDER,
                                       provRegProvider,
                                       controlProviderReceiveMessageCallback,
-                                      0, 0);
+                                      0);
 
      // Create the Shutdown control provider
      ProviderMessageFacade * shutdownProvider =
@@ -281,7 +281,7 @@ void CIMServer::_init(void)
                                        PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
                                        shutdownProvider,
                                        controlProviderReceiveMessageCallback,
-                                       0, 0);
+                                       0);
 
      // Create the namespace control provider
      ProviderMessageFacade * namespaceProvider =
@@ -291,7 +291,7 @@ void CIMServer::_init(void)
                                        PEGASUS_MODULENAME_NAMESPACEPROVIDER,
                                        namespaceProvider,
                                        controlProviderReceiveMessageCallback,
-                                       0, 0);
+                                       0);
 
      //
      // Create a SSLContextManager object
@@ -311,7 +311,7 @@ void CIMServer::_init(void)
                                           PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
                                           certificateProvider,
                                           controlProviderReceiveMessageCallback,
-                                          0, 0);
+                                          0);
 #endif
 
 #ifndef PEGASUS_DISABLE_PERFINST
@@ -322,7 +322,7 @@ void CIMServer::_init(void)
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,                                       cimomstatdataProvider,
                                        controlProviderReceiveMessageCallback,
-                                       0, 0);
+                                       0);
 #endif
 
 #ifndef PEGASUS_DISABLE_CQL
@@ -335,7 +335,7 @@ void CIMServer::_init(void)
                                        PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
                                        cimquerycapprovider,
                                        controlProviderReceiveMessageCallback,
-                                       0, 0);
+                                       0);
 #endif
 
 
@@ -349,7 +349,7 @@ void CIMServer::_init(void)
                                        PEGASUS_MODULENAME_INTEROPPROVIDER,
                                        interopProvider,
                                        controlProviderReceiveMessageCallback,
-                                       0, 0);
+                                       0);
 #endif
 
     _cimOperationRequestDispatcher

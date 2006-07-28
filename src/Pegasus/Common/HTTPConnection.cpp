@@ -174,6 +174,26 @@ static void _throwEventFailure(const String &status, const String &detail,
 #define _throwEventFailure(status, detail) \
   _throwEventFailure(status, String(detail), func, __FILE__, __LINE__)
 
+static inline int _getSocketError()
+{
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    return WSAGetLastError();
+#else
+    return errno;
+#endif
+}
+
+#define _socketWriteError()                                                   \
+    do                                                                        \
+    {                                                                         \
+        Tracer::trace(__FILE__, __LINE__, TRC_DISCARDED_DATA, Tracer::LEVEL2, \
+            "Socket write failed with error %d; could not write response "    \
+                "to client.  (Client may have timed out.)",                   \
+            _getSocketError());                                               \
+        throw Exception("socket write error");                                \
+    }                                                                         \
+    while (0)
+
 static inline Uint32 _Min(Uint32 x, Uint32 y)
 {
     return x < y ? x : y;
@@ -709,7 +729,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         //Thread t(sigabrt_generator, NULL, false);
         //t.run();
 
-        static const char errorSocket[] = "socket write error";
         char *sendStart = messageStart;
         Sint32 bytesWritten = 0;
 
@@ -723,7 +742,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
             bytesWritten = _socket->write(sendStart, bytesToWrite);
             if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
+                _socketWriteError();
             totalBytesWritten += bytesWritten;
             bytesRemaining -= bytesWritten;
 
@@ -738,7 +757,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             bytesWritten = _socket->write(sendStart, bytesToWrite);
 
             if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
+                _socketWriteError();
             totalBytesWritten += bytesWritten;
             // the trailer is outside the header buffer, so dont include in
             // tracking variables
@@ -748,7 +767,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             sendStart = messageStart + headerLength - bytesToWrite;
             bytesWritten = _socket->write(sendStart, bytesToWrite);
             if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
+                _socketWriteError();
             totalBytesWritten += bytesWritten;
             bytesRemaining -= bytesWritten;
 
@@ -772,7 +791,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 Sint32 chunkBytesToWrite = strlen(sendStart);
                 bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
                 if (bytesWritten < 0)
-                    _throwEventFailure(httpStatusInternal, errorSocket);
+                    _socketWriteError();
                 totalBytesWritten += bytesWritten;
             }
 
@@ -784,7 +803,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             sendStart = messageStart + messageLength - bytesRemaining;
             bytesWritten = _socket->write(sendStart, bytesToWrite);
             if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
+                _socketWriteError();
             totalBytesWritten += bytesWritten;
             bytesRemaining -= bytesWritten;
 
@@ -837,7 +856,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 Sint32 chunkBytesToWrite = (Sint32) trailer.size();
                 bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
                 if (bytesWritten < 0)
-                    _throwEventFailure(httpStatusInternal, errorSocket);
+                    _socketWriteError();
                 totalBytesWritten += bytesWritten;
             } // isChunkResponse == true
 

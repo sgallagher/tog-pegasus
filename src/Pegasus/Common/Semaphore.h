@@ -81,7 +81,7 @@ struct SemaphoreRep
     Uint32 waiters;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
-    pthread_t owner;
+    ThreadType owner;
 };
 #endif /* PEGASUS_USE_PTHREAD_SEMAPHORE */
 
@@ -89,7 +89,7 @@ struct SemaphoreRep
 struct SemaphoreRep
 {
     sem_t sem;
-    pthread_t owner;
+    ThreadType owner;
 };
 #endif /* defined(PEGASUS_USE_POSIX_SEMAPHORE) */
 

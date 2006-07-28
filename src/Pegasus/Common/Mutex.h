@@ -63,15 +63,20 @@ PEGASUS_NAMESPACE_BEGIN
 //==============================================================================
 
 #if defined(PEGASUS_HAVE_PTHREADS)
+typedef pthread_mutex_t MutexType;
 struct MutexRep
 {
     pthread_mutex_t mutex;
     pthread_mutexattr_t attr;
-    pthread_t owner;
+    ThreadType owner;
 };
+inline void mutex_lock(MutexType* mutex) { pthread_mutex_lock(mutex); }
+inline void mutex_unlock(MutexType* mutex) { pthread_mutex_unlock(mutex); }
+# define PEGASUS_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
 #endif
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
+typedef HANDLE MutexType;
 struct MutexRep
 {
     HANDLE handle;

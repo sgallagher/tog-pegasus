@@ -294,7 +294,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
      // 
       printf ("Exception while trying to put local storage: %llu\n", myself);
 #else
-      cout << "Exception while trying to put local storage: " << myself << endl;
+      cout << "Exception while trying to put local storage: " 
+          << myself.id() << endl;
 #endif
       abort();
       }
@@ -370,7 +371,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       // 
       printf ("Exception while trying to delete local storage: %llu\n", myself);
 #else
-	 cout << "Exception while trying to delete local storage: " << myself << endl;
+	 cout << "Exception while trying to delete local storage: " 
+             << myself.id() << endl;
 #endif
 	 abort();
       }

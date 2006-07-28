@@ -175,7 +175,7 @@ void Tracer::_trace(
 #else
                "[%d:%u:%s:%u]: ",
                System::getPID(),
-               Uint32(Threads::self()),
+               Uint32(Threads::self().id()),
 #endif
                fileName,
                lineNum);
@@ -357,7 +357,7 @@ void Tracer::_traceEnter(
            message,
            "[%d:%u:%s:%u]: ",
            System::getPID(),
-           Uint32(Threads::self()),
+           Uint32(Threads::self().id()),
            fileName,
            lineNum);
 #endif
@@ -408,7 +408,7 @@ void Tracer::_traceExit(
            message,
            "[%d:%u:%s:%u]: ",
            System::getPID(),
-           Uint32(Threads::self()),
+           Uint32(Threads::self().id()),
            fileName,
            lineNum);
 #endif
@@ -490,7 +490,7 @@ void Tracer::_trace(
                 Threads::self());
 #else
         sprintf(tmpBuffer, "[%u:%u]: ", System::getPID(),
-                Uint32(Threads::self()));
+                Uint32(Threads::self().id()));
 #endif
         msgHeader = new char [ strlen(timeStamp) + strlen(TRACE_COMPONENT_LIST[traceComponent]) +
                                strlen(tmpBuffer) + 1  + 5 ];

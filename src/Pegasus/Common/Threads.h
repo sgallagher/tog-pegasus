@@ -36,6 +36,7 @@
 #ifndef Pegasus_Threads_h
 #define Pegasus_Threads_h
 
+#include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 
@@ -68,50 +69,66 @@ PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
 //
-// ThreadCleanupType
-//
-//==============================================================================
-
-struct ThreadCleanupBuffer
-{
-    void (*__routine)(void*);
-    void* __arg;
-    int __canceltype;
-    struct ThreadCleanupBuffer* __prev;
-};
-
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-typedef void* ThreadCleanupType;
-#elif defined(PEGASUS_PLATFORM_HPUX_ACC)
-typedef __pthread_cleanup_handler_t ThreadCleanupType;
-#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-typedef ThreadCleanupBuffer ThreadCleanupType;
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-typedef ThreadCleanupBuffer ThreadCleanupType;
-#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
-typedef _cleanup_t ThreadCleanupType;
-#elif defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
-typedef void* ThreadCleanupType;
-#elif defined(PEGASUS_DARWIN_PPC_GNU)
-typedef void* ThreadCleanupType;
-#elif defined(PEGASUS_OS_VMS)
-typedef void* ThreadCleanupType;
-#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-typedef void* ThreadCleanupType;
-#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-typedef struct _pthread_cleanup_buffer ThreadCleanupType;
-#else
-# error "<Pegasus/Common/Threads.h>: unsupported platform"
-#endif
-
-//==============================================================================
-//
 // Thread-related type definitions
 //
 //==============================================================================
 
 #if defined(PEGASUS_HAVE_PTHREADS)
-typedef pthread_t ThreadType;
+
+struct ThreadType
+{
+public:
+
+    ThreadType()
+    {
+        clear();
+    }
+
+    ThreadType(const ThreadType& x) : _thread(x._thread), _id(x._id) 
+    {
+    }
+
+    ThreadType(pthread_t thread, Uint32 id) : _thread(thread), _id(id) 
+    {
+    }
+
+    ThreadType& operator=(const ThreadType& x)
+    {
+        if (&x != this)
+        {
+            _id = x._id;
+            _thread = x._thread;
+        }
+        return *this;
+    }
+
+    void clear()
+    {
+        memset(this, 0, sizeof(*this));
+    }
+
+    pthread_t thread() const 
+    { 
+        return _thread; 
+    }
+
+    Uint32 id() const 
+    { 
+        return _id; 
+    }
+
+    void print() const
+    {
+        printf("ThreadType(%lu, %lu)\n", _thread, (unsigned long)_id);
+    }
+
+private:
+    pthread_t _thread;
+
+    // And id of zero indicates a null object. 1 indicates the main thread.
+    Uint32 _id;
+};
+
 typedef void* ThreadReturnType;
 #endif
 
@@ -150,6 +167,14 @@ class PEGASUS_COMMON_LINKAGE Threads
 {
 public:
 
+    enum Type { DETACHED, JOINABLE };
+
+    static int create(
+        ThreadType& thread, 
+        Type type,
+        void* (*start)(void*), 
+        void* arg);
+
     static ThreadType self();
 
     static bool equal(ThreadType x, ThreadType y);
@@ -162,7 +187,7 @@ public:
 
     static void sleep(int msec);
 
-    static void cleanup_push(void (*func)(void*), void* arg);
+    static void cleanup_push(void (*start)(void*), void* arg);
 
     static void cleanup_pop(int execute);
 };
@@ -175,14 +200,9 @@ public:
 
 #if defined(PEGASUS_HAVE_PTHREADS)
 
-inline ThreadType Threads::self() 
-{ 
-    return pthread_self(); 
-}
-
 inline bool Threads::equal(ThreadType x, ThreadType y) 
 { 
-    return pthread_equal(x, y);
+    return pthread_equal(x.thread(), y.thread());
 }
 
 inline void Threads::exit(ThreadReturnType rc)
@@ -192,7 +212,7 @@ inline void Threads::exit(ThreadReturnType rc)
 
 inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
 {
-    pthread_cancel(th);
+    pthread_cancel(th.thread());
 }
 
 inline void Threads::yield()
@@ -267,6 +287,7 @@ inline void Threads::cleanup_pop(int execute)
 {
     // ATTN: Not implemented on Windows.
 }
+
 #endif /* defined(PEGASUS_HAVE_WINDOWS_THREADS) */
 
 PEGASUS_NAMESPACE_END

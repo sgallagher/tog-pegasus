@@ -71,7 +71,6 @@ class PEGASUS_COMMON_LINKAGE cleanup_handler : public Linkable
       void (*_routine)(void *);
 
       void *_arg;
-      ThreadCleanupType _cleanup_buffer;
       friend class Thread;
 };
 

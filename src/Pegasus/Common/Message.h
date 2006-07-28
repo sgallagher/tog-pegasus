@@ -262,7 +262,7 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       // << Tue Jul  1 11:02:49 2003 mdd >> pep_88 and helper for i18n and l10n
       Boolean thread_changed(void)
       {
-	 if(_last_thread_id != Threads::self())
+	 if (!Threads::equal(_last_thread_id, Threads::self()))
 	 {
 	    _last_thread_id = Threads::self();
 	    return true;

@@ -112,7 +112,7 @@ Thread::Thread(
     }
 #endif
 
-    _handle.thid = 0;
+    _handle.thid.clear();
 }
 
 Thread::~Thread()

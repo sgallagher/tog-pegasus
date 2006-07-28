@@ -98,19 +98,10 @@ inline ThreadStatus Thread::run()
     zosParmDef * zosParm = (zosParmDef *)malloc(sizeof(zosParmDef));
     zosParm->_start = _start;
     zosParm->realParm = (void *) this;
-    if (_is_detached)
-    {
-        pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
-    }
-#if defined SUNOS_5_7
-    pthread_attr_setschedpolicy(&_handle.thatt, SCHED_RR);
-#else
-    pthread_attr_setschedpolicy(&_handle.thatt, SCHED_OTHER);
-#endif
 
-    int rc;
-    rc = pthread_create((pthread_t *)&_handle.thid,
-                        &_handle.thatt, &_linkage, zosParm);
+    Threads::Type type = _is_detached ? Threads::DETACHED : Threads::JOINABLE;
+    int rc = Threads::create(_handle.thid, type, &_linkage, zosParm);
+
    /* On Sun Solaris, the manpage states that 'ENOMEM' is the error
       code returned when there is no insufficient memory, but the 
       POSIX standard mentions EAGAIN as the proper return code, so
@@ -131,26 +122,9 @@ inline ThreadStatus Thread::run()
 #else // PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 inline ThreadStatus Thread::run()
 {
-    if (_is_detached)
-    {
-        pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
-    }
-#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU	
-#if defined SUNOS_5_7
-    pthread_attr_setschedpolicy(&_handle.thatt, SCHED_RR);
-#else
-    pthread_attr_setschedpolicy(&_handle.thatt, SCHED_OTHER);
-#endif
-#endif // PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
+    Threads::Type type = _is_detached ? Threads::DETACHED : Threads::JOINABLE;
+    int rc = Threads::create(_handle.thid, type, _start, this);
 
-#ifdef PEGASUS_OS_OS400
-    // Initialize the pegasusValue to 1, see IPCOs400.h.
-    _handle.thid.pegasusValue = 1;  
-#endif
-
-    int rc;
-    rc = pthread_create((pthread_t *)&_handle.thid,
-                        &_handle.thatt, _start, this);
    /* On Linux distributions released prior 2005, the 
       implementation of Native POSIX Thread Library 
       returns ENOMEM instead of EAGAIN when there are no 
@@ -160,12 +134,12 @@ inline ThreadStatus Thread::run()
     */
     if ((rc == EAGAIN) || (rc == ENOMEM))
     {
-        _handle.thid = 0;
+        _handle.thid.clear();
         return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
     }
     else if (rc != 0)
     {
-        _handle.thid = 0;
+        _handle.thid.clear();
 	return PEGASUS_THREAD_SETUP_FAILURE;
     }
     return PEGASUS_THREAD_OK;
@@ -176,7 +150,7 @@ inline ThreadStatus Thread::run()
 inline void Thread::cancel()
 {
    _cancelled = true;
-   pthread_cancel(_handle.thid);
+   pthread_cancel(_handle.thid.thread());
 }
 
 inline void Thread::test_cancel()
@@ -197,12 +171,12 @@ inline void Thread::thread_switch()
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 inline void Thread::suspend()
 {
-    pthread_kill(_handle.thid,SIGSTOP);
+    pthread_kill(_handle.thid.thread(),SIGSTOP);
 }
 
 inline void Thread::resume()
 {
-    pthread_kill(_handle.thid,SIGCONT);
+    pthread_kill(_handle.thid.thread(),SIGCONT);
 }
 #endif
 
@@ -214,9 +188,9 @@ inline void Thread::sleep(Uint32 msec)
 
 inline void Thread::join(void) 
 { 
-   if((! _is_detached) && (_handle.thid != 0))
-      pthread_join(_handle.thid, &_exit_code) ; 
-   _handle.thid = 0;
+   if((! _is_detached) && (_handle.thid.id() != 0))
+      pthread_join(_handle.thid.thread(), &_exit_code) ; 
+   _handle.thid.clear();
 }
 
 inline void Thread::thread_init(void)
@@ -242,7 +216,7 @@ inline void Thread::exit_self(void *return_code)
 inline void Thread::detach(void)
 {
    _is_detached = true;
-   pthread_detach(_handle.thid);
+   pthread_detach(_handle.thid.thread());
 }
 
 #endif // ThreadUnix_inline_h

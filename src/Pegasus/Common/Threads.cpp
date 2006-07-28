@@ -34,6 +34,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Threads.h"
+#include "IDFactory.h"
+#include "TSDKey.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -109,5 +111,114 @@ void Threads::sleep(int msec)
 
 #endif
 }
+
+//==============================================================================
+//
+// Thread id TSD:
+//
+//==============================================================================
+
+static MutexType _mutex = PEGASUS_MUTEX_INITIALIZER;
+static int _initialized;
+static TSDKeyType _key;
+
+static void _init_id_tsd()
+{
+    mutex_lock(&_mutex);
+
+    if (_initialized == 0)
+    {
+        TSDKey::create(&_key);
+        _initialized = 1;
+    }
+
+    mutex_unlock(&_mutex);
+}
+
+static inline void _set_id_tsd(Uint32 id)
+{
+    if (_initialized == 0)
+        _init_id_tsd();
+
+    TSDKey::set_thread_specific(_key, (void*)(long)id);
+}
+
+static inline Uint32 _get_id_tsd()
+{
+    if (_initialized == 0)
+        _init_id_tsd();
+
+    void* ptr = TSDKey::get_thread_specific(_key);
+
+    if (!ptr)
+    {
+        // Main thread's id is 1!
+        return 1;
+    }
+
+    return (Uint32)(long)ptr;
+}
+
+//==============================================================================
+//
+// PEGASUS_HAVE_PTHREADS
+//
+//==============================================================================
+
+static IDFactory _thread_ids(2); /* 1 reserved for main thread */
+
+#if defined(PEGASUS_HAVE_PTHREADS)
+
+int Threads::create(
+    ThreadType& thread, 
+    Type type,
+    void* (*start)(void*), 
+    void* arg)
+{
+    // Initialize thread attributes:
+
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+
+    if (type == DETACHED)
+        pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+# if defined SUNOS_5_7
+    pthread_attr_setschedpolicy(&attr, SCHED_RR);
+# else
+    pthread_attr_setschedpolicy(&attr, SCHED_OTHER);
+# endif
+#endif // PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
+
+    // Create thread:
+
+    pthread_t thr;
+    int rc = pthread_create(&thr, &attr, start, arg);
+
+    if (rc != 0)
+    {
+        thread = ThreadType();
+        return rc;
+    }
+
+    // Assign thread id (and put into thread specific storage).
+
+    Uint32 id = _thread_ids.getID();
+    _set_id_tsd(id);
+
+    // Return:
+
+    thread = ThreadType(thr, id);
+    return 0;
+}
+
+ThreadType Threads::self() 
+{
+    return ThreadType(pthread_self(), _get_id_tsd());
+}
+
+#endif /* PEGASUS_HAVE_PTHREADS */
 
 PEGASUS_NAMESPACE_END

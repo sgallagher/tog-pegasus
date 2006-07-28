@@ -298,7 +298,7 @@ void HTTPConnection::handleEnqueue(Message *message)
     }
 
     AutoMutex connectionLock(_connection_mut, false);
-    if (Threads::self() != _connection_mut.get_owner())
+    if (!Threads::equal(Threads::self(), _connection_mut.get_owner()))
     {
         connectionLock.lock();
     }

@@ -33,8 +33,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Time.h>
+#include <Pegasus/Common/IPCExceptions.h>
 #include "Semaphore.h"
-#include "IPCExceptions.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -44,7 +45,9 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //==============================================================================
 
-#define SEM_VALUE_MAX 0x0000FFFF
+#ifndef SEM_VALUE_MAX
+# define SEM_VALUE_MAX 0x0000FFFF
+#endif
 
 #if defined(PEGASUS_USE_PTHREAD_SEMAPHORE)
 

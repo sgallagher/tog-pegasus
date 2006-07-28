@@ -39,6 +39,7 @@
 
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/Mutex.h>
 
 #include <dl.h>
 

@@ -39,7 +39,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-BufferRep Buffer::_empty_rep = { 0, 0, {0} };
+//
+// Note: _empty_rep is the only BufferRep object that may have a zero capacity.
+// So "_rep->cap == 0" implies "_rep == _empty_rep". But some platforms produce
+// more than one instance of _empty_rep (strangely). Therefore, it is safer to 
+// use the former test rather than the latter.
+//
+BufferRep Buffer::_empty_rep = 
+{ 
+    0, /* size */
+    0, /* cap (zero implies it is the _empty_rep) */
+    {0} /* data[0] */
+};
 
 static const size_t MIN_CAPACITY = 2048;
 
@@ -64,7 +75,12 @@ static Uint32 _next_pow_2(Uint32 x)
 
 static inline BufferRep* _allocate(size_t cap)
 {
-    BufferRep* rep = (BufferRep*)malloc(sizeof(BufferRep) + cap);
+    if (cap < MIN_CAPACITY)
+	cap = MIN_CAPACITY;
+
+    // Allocate an extra byte for null-termination performed by getData().
+    BufferRep* rep = (BufferRep*)malloc(sizeof(BufferRep) + cap + 1);
+
     if (!rep)
     {
         throw PEGASUS_STD(bad_alloc)();
@@ -75,7 +91,9 @@ static inline BufferRep* _allocate(size_t cap)
 
 static inline BufferRep* _reallocate(BufferRep* rep, size_t cap)
 {
-    rep = (BufferRep*)realloc(rep, sizeof(BufferRep) + cap);
+    // Allocate an extra byte for null-termination performed by getData().
+    rep = (BufferRep*)realloc(rep, sizeof(BufferRep) + cap + 1);
+
     if (!rep)
     {
         throw PEGASUS_STD(bad_alloc)();
@@ -104,7 +122,7 @@ Buffer& Buffer::operator=(const Buffer& x)
     {
 	if (x._rep->size > _rep->cap)
 	{
-	    if (_rep != &_empty_rep)
+	    if (_rep->cap != 0)
 		free(_rep);
 
 	    _rep = _allocate(x._rep->cap);
@@ -118,7 +136,7 @@ Buffer& Buffer::operator=(const Buffer& x)
 
 void Buffer::_reserve_aux(size_t cap)
 {
-    if (_rep == &_empty_rep)
+    if (_rep->cap == 0)
     {
 	_rep = _allocate(cap);
 	_rep->size = 0;
@@ -129,7 +147,7 @@ void Buffer::_reserve_aux(size_t cap)
 
 void Buffer::_append_char_aux()
 {
-    if (_rep == &_empty_rep)
+    if (_rep->cap == 0)
     {
 	_rep = _allocate(MIN_CAPACITY);
 	_rep->size = 0;
@@ -159,7 +177,7 @@ void Buffer::insert(size_t pos, const char* data, size_t size)
 	memcpy(rep->data + pos, data, size);
 	memcpy(rep->data + pos + size, _rep->data + pos, rem);
 
-	if (_rep != &_empty_rep)
+	if (_rep->cap != 0)
 	    free(_rep);
 
 	_rep = rep;

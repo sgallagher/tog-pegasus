@@ -74,67 +74,7 @@ _tsd(),
 _thread_parm(parameter),
 _exit_code(0)
 {
-  pthread_attr_init(&_handle.thatt);
-  size_t stacksize;
-
-  // 
-  // This code uses a, 'hidden' (non-documented), VMS only, logical 
-  //  name (environment variable), PEGASUS_VMS_THREAD_STACK_MULTIPLIER,
-  //  to allow in the field adjustment of the thread stack size.
-  //
-  // We only check for the logical name once to not have an
-  //  impact on performance.
-  // 
-  // Note:  This code may have problems in a multithreaded environment
-  //  with the setting of doneOnce to true.
-  // 
-  // Current code in Cimserver and the clients do some serial thread
-  //  creations first so this is not a problem now.
-  // 
-  if (!doneOnce)
-  {
-    // 
-    // Test for the logical name.
-    // 
-    const char *env = getenv("PEGASUS_VMS_THREAD_STACK_MULTIPLIER");
-    if (env)
-    {
-      // 
-      // The logical is defined, convert it to a number and
-      //  test it's validity.
-      // 
-      char *end = NULL;
-      stackMul = strtol(env, &end, 10);
-      if (*end)
-      {
-        // 
-        // Not valid, set to the default multiplier
-        // 
-        stackMul = 2;
-      }
-    }
-    // 
-    // Don't come through here again.
-    // 
-    doneOnce = true;
-  }
-
-  // 
-  // Get the system default thread stack size
-  // 
-  if (pthread_attr_getstacksize(&_handle.thatt, &stacksize) == 0)
-  {
-    // 
-    // Replace it with the VMS default thread stack size.
-    // 
-    int rc = pthread_attr_setstacksize(&_handle.thatt, stacksize * stackMul);
-    // 
-    // Make sure it succeeded
-    // 
-    PEGASUS_ASSERT(rc == 0);
-  }
-
-  _handle.thid = 0;
+    _handle.thid.clear();
 }
 
 Thread::~Thread()
@@ -142,8 +82,6 @@ Thread::~Thread()
   try
   {
     join();
-    pthread_attr_destroy(&_handle.thatt);
-
     empty_tsd();
   }
   catch(...)

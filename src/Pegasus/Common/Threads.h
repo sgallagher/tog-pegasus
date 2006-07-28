@@ -147,13 +147,11 @@ typedef unsigned ThreadReturnType;
 struct ThreadHandle
 {
     ThreadType thid;
-    pthread_attr_t thatt;
 };
 #elif defined(PEGASUS_HAVE_WINDOWS_THREADS)
 struct ThreadHandle
 {
     ThreadType thid;
-    void * thatt;
 };
 #endif
 

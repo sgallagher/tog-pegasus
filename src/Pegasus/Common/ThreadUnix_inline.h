@@ -108,13 +108,13 @@ inline ThreadStatus Thread::run()
       we checking for both. */ 
     if ((rc == EAGAIN) || (rc==ENOMEM))
     {
-        _handle.thid = 0;
+        _handle.thid.clear();
         return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
     }
     else if (rc != 0)
     {
 	// The error code can be retrieved from  'errno'.
-        _handle.thid = 0;
+        _handle.thid.clear();
 	return PEGASUS_THREAD_SETUP_FAILURE;
     }
     return PEGASUS_THREAD_OK;

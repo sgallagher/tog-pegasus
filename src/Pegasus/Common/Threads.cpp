@@ -161,6 +161,58 @@ static inline Uint32 _get_id_tsd()
 
 //==============================================================================
 //
+// _get_stack_multiplier()
+//
+//==============================================================================
+
+static inline int _get_stack_multiplier()
+{
+#if defined(PEGASUS_OS_VMS)
+
+    static int _multiplier = 0;
+    static MutexType _multiplier_mutex = PEGASUS_MUTEX_INITIALIZER;
+
+    // 
+    // This code uses a, 'hidden' (non-documented), VMS only, logical 
+    //  name (environment variable), PEGASUS_VMS_THREAD_STACK_MULTIPLIER,
+    //  to allow in the field adjustment of the thread stack size.
+    //
+    // We only check for the logical name once to not have an
+    //  impact on performance.
+    // 
+    // Note:  This code may have problems in a multithreaded environment
+    //  with the setting of doneOnce to true.
+    // 
+    // Current code in Cimserver and the clients do some serial thread
+    //  creations first so this is not a problem now.
+    // 
+
+    if (_multiplier == 0)
+    {
+        mutex_lock(&_multiplier_mutex);
+
+        if (_multiplier == 0)
+        {
+            const char *env = getenv("PEGASUS_VMS_THREAD_STACK_MULTIPLIER");
+
+            if (env)
+                _multiplier = atoi(env);
+
+            if (_multiplier == 0)
+                _multiplier = 2;
+        }
+
+        mutex_unlock(&_multiplier_mutex);
+    }
+
+    return _multiplier;
+#else
+    return 2;
+#endif
+}
+
+//==============================================================================
+//
 // PEGASUS_HAVE_PTHREADS
 //
 //==============================================================================
@@ -180,15 +232,34 @@ int Threads::create(
     pthread_attr_t attr;
     pthread_attr_init(&attr);
 
+    // Detached:
+
     if (type == DETACHED)
     {
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
         int ds = 1;
-        pthread_attr_setdetachstate(&_handle.thatt, &ds);
+        pthread_attr_setdetachstate(&attr, &ds);
 #else
         pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 #endif
     }
+
+    // Stack size:
+
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_OS_VMS)
+    {
+        size_t stacksize;
+
+        if (pthread_attr_getstacksize(&attr, &stacksize) == 0)
+        {
+            int m = _get_stack_multiplier();
+            int rc = pthread_attr_setstacksize(&attr, stacksize * m);
+            PEGASUS_ASSERT(rc == 0);
+        }
+    }
+#endif
+
+    // Scheduling policy:
 
 #if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU) || \
     defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
@@ -214,6 +285,10 @@ int Threads::create(
 
     Uint32 id = _thread_ids.getID();
     _set_id_tsd(id);
+
+    // Destroy attributes now.
+
+    pthread_attr_destroy(&attr);
 
     // Return:
 

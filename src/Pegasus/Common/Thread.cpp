@@ -134,7 +134,7 @@ void Thread::exit_self(ThreadReturnType exit_code)
    }
    _exit_code = exit_code;
    Threads::exit(exit_code);
-   _handle.thid = 0;
+   _handle.thid.clear();
 }
 
 

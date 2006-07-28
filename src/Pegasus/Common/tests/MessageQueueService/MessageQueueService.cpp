@@ -453,7 +453,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 
     char name_buf[128];
 
-    sprintf(name_buf, "test client %ld", Threads::self());
+    sprintf(name_buf, "test client %ld", Threads::self().id());
 
     MessageQueueClient *q_client = new MessageQueueClient(name_buf);
 

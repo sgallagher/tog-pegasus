@@ -51,8 +51,7 @@ Thread::Thread(
 	_thread_parm( parameter ), 
 	_exit_code( 0 )
 {
-	_handle.thatt = NULL;
-	_handle.thid = 0;
+	_handle.thid.clear();
 }
 
 Thread::~Thread()

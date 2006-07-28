@@ -105,7 +105,7 @@ public:
         return *this;
     }
 
-    pthread_t handle() const 
+    pthread_t tt_handle() const 
     {
         return _thread; 
     }
@@ -203,7 +203,7 @@ public:
 
 inline bool Threads::equal(ThreadType x, ThreadType y) 
 { 
-    return pthread_equal(x.handle(), y.handle());
+    return pthread_equal(x.tt_handle(), y.tt_handle());
 }
 
 inline void Threads::exit(ThreadReturnType rc)
@@ -213,7 +213,7 @@ inline void Threads::exit(ThreadReturnType rc)
 
 inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
 {
-    pthread_cancel(th.handle());
+    pthread_cancel(th.tt_handle());
 }
 
 inline void Threads::yield()

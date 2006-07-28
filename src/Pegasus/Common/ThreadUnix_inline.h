@@ -150,7 +150,7 @@ inline ThreadStatus Thread::run()
 inline void Thread::cancel()
 {
    _cancelled = true;
-   pthread_cancel(_handle.thid.handle());
+   pthread_cancel(_handle.thid.tt_handle());
 }
 
 inline void Thread::test_cancel()
@@ -171,12 +171,12 @@ inline void Thread::thread_switch()
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 inline void Thread::suspend()
 {
-    pthread_kill(_handle.thid.handle(),SIGSTOP);
+    pthread_kill(_handle.thid.tt_handle(),SIGSTOP);
 }
 
 inline void Thread::resume()
 {
-    pthread_kill(_handle.thid.handle(),SIGCONT);
+    pthread_kill(_handle.thid.tt_handle(),SIGCONT);
 }
 #endif
 
@@ -189,7 +189,7 @@ inline void Thread::sleep(Uint32 msec)
 inline void Thread::join(void) 
 { 
    if((! _is_detached) && (Threads::id(_handle.thid) != 0))
-      pthread_join(_handle.thid.handle(), &_exit_code) ; 
+      pthread_join(_handle.thid.tt_handle(), &_exit_code) ; 
    Threads::clear(_handle.thid);
 }
 
@@ -216,7 +216,7 @@ inline void Thread::exit_self(void *return_code)
 inline void Thread::detach(void)
 {
    _is_detached = true;
-   pthread_detach(_handle.thid.handle());
+   pthread_detach(_handle.thid.tt_handle());
 }
 
 #endif // ThreadUnix_inline_h

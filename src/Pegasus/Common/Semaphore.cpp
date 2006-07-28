@@ -39,7 +39,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const int PEGASUS_SEM_VALUE_MAX = 0x0000ffff;
+static const Uint32 PEGASUS_SEM_VALUE_MAX = 0x0000ffff;
 
 //==============================================================================
 //

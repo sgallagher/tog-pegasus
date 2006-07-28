@@ -41,14 +41,8 @@
 
 inline ThreadStatus Thread::run()
 {
-    if (_is_detached)
-    {
-        pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
-    }
-
-    int rc;
-    rc = pthread_create((pthread_t *)&_handle.thid,
-                        &_handle.thatt, _start, this);
+    Threads::Type type = _is_detached ? Threads::DETACHED : Threads::JOINABLE;
+    int rc = Threads::create(_handle.thid, type, _start, this);
 
     /* On VMS the return code when there is inssuficient resources to create
     a thread is ENOMEM. The POSIX standard defines that it should be EAGAIN,
@@ -59,12 +53,12 @@ inline ThreadStatus Thread::run()
     */
     if ((rc == EAGAIN) || (rc==ENOMEM))
     {
-        _handle.thid = 0;
+        _handle.thid.clear();
         return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
     }
     else if (rc != 0)
     {
-        _handle.thid = 0;
+        _handle.thid.clear();
 	return PEGASUS_THREAD_SETUP_FAILURE;
     }
     return PEGASUS_THREAD_OK;
@@ -74,7 +68,7 @@ inline ThreadStatus Thread::run()
 inline void Thread::cancel()
 {
    _cancelled = true;
-   pthread_cancel(_handle.thid);
+   pthread_cancel(_handle.thid.thread());
 }
 
 inline void Thread::test_cancel()
@@ -99,9 +93,9 @@ inline void Thread::sleep(Uint32 msec)
 
 inline void Thread::join(void) 
 { 
-   if((! _is_detached) && (_handle.thid != 0))
-      pthread_join(_handle.thid, &_exit_code) ; 
-   _handle.thid = 0;
+   if((! _is_detached) && (_handle.thid.id() != 0))
+      pthread_join(_handle.thid.thread(), &_exit_code) ; 
+   _handle.thid.clear();
 }
 
 inline void Thread::thread_init(void)
@@ -114,7 +108,7 @@ inline void Thread::thread_init(void)
 inline void Thread::detach(void)
 {
    _is_detached = true;
-   pthread_detach(_handle.thid);
+   pthread_detach(_handle.thid.thread());
 }
 
 #endif // ThreadVms_inline_h

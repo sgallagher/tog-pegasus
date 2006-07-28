@@ -3469,6 +3469,7 @@ void ProviderRegistrationManager::_deleteInstance(
                 // module name, remove the instance;
                 //
                 instances = i.value()->getInstances();
+                Uint32 initialSize = instances.size();
 
                 for (Uint32 j = 0; j < instances.size(); j++)
                 {
@@ -3480,22 +3481,26 @@ void ProviderRegistrationManager::_deleteInstance(
                         instances[j].getProperty(pos).getValue().get(_providerModuleName);
                         if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
                         {
-                            //
-                            //  Remove old entry
-                            //
-                            delete i.value();
-                            String theKey = i.key();
-                            _registrationTable->table.remove(i.key());
-                            if (instances.size() > 1)
-                            {
-                                //
-                                //  Insert updated entry
-                                //
-                                instances.remove(j);
-                                _addInstancesToTable (theKey, instances);
-                                j = j - 1;
-                            }
+                            instances.remove(j);
+                            j = j - 1;
                         }
+                    }
+                }
+
+                if (instances.size() != initialSize)
+                {
+                    //
+                    //  Remove old entry
+                    //
+                    delete i.value();
+                    String theKey = i.key();
+                    _registrationTable->table.remove(i.key());
+                    if (instances.size() > 0)
+                    {
+                        //
+                        //  Insert updated entry
+                        //
+                        _addInstancesToTable (theKey, instances);
                     }
                 }
             }

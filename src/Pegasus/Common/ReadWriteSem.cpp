@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 ReadWriteSem::ReadWriteSem():_readers(0), _writers(0)
 {
     pthread_rwlock_init(&_rwlock.rwlock, NULL);
-    _rwlock.owner = 0;
+    _rwlock.owner.clear();
 }
 
 ReadWriteSem::~ReadWriteSem()
@@ -187,7 +187,7 @@ void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
     if (mode == PEG_SEM_WRITE)
     {
         owner = _rwlock.owner;
-        _rwlock.owner = 0;
+        _rwlock.owner.clear();
     }
     if (0 != pthread_rwlock_unlock(&_rwlock.rwlock))
     {
@@ -200,7 +200,7 @@ void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
         _writers--;
 }
 
-int ReadWriteSem::read_count() const const
+int ReadWriteSem::read_count() const
 {
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     PEGASUS_ASSERT(_readers.get() == _rwlock.rwlock.__rw_readers);
@@ -208,7 +208,7 @@ int ReadWriteSem::read_count() const const
     return (_readers.get());
 }
 
-int ReadWriteSem::write_count() const const
+int ReadWriteSem::write_count() const
 {
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     if (_rwlock.rwlock.__rw_writer != NULL)

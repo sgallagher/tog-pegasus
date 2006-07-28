@@ -88,7 +88,7 @@ PEGASUS_NAMESPACE_BEGIN
 struct ReadWriteSemRep
 {
     pthread_rwlock_t rwlock;
-    pthread_t owner;
+    ThreadType owner;
 };
 #endif /* PEGASUS_USE_POSIX_RWLOCK */
 

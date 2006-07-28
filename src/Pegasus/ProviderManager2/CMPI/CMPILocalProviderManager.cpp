@@ -42,6 +42,7 @@
 #include "CMPI_Version.h"
 
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
@@ -325,7 +326,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
             try
             {
               struct timeval now;
-              gettimeofday (&now, NULL);
+              Time::gettimeofday (&now);
               ProviderTable::Iterator i = myself->_providers.start ();
 
               for (; i != 0; i++)
@@ -697,14 +698,14 @@ CMPILocalProviderManager::unloadIdleProviders (void)
 
   if (first.tv_sec == 0)
     {
-      gettimeofday (&first, NULL);
+      Time::gettimeofday (&first);
     }
-  gettimeofday (&now, NULL);
+  Time::gettimeofday (&now);
 
   if (((now.tv_sec - first.tv_sec) > IDLE_LIMIT) &&
       ((now.tv_sec - last.tv_sec) > IDLE_LIMIT))
     {
-      gettimeofday (&last, NULL);
+      Time::gettimeofday (&last);
       PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                         "Checking for Idle providers to unload.");
       try

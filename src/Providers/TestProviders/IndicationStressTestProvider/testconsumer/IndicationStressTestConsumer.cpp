@@ -31,6 +31,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/AtomicInt.h>
 #include <cstring>
 #include "IndicationStressTestConsumer.h"
 

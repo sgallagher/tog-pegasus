@@ -186,7 +186,7 @@ public:
 
     static void cleanup_pop(int execute);
 
-    static Uint32 id(const ThreadType& x);
+    static Uint32 id(const ThreadType& x = Threads::self());
 
     static void clear(ThreadType& x);
 };

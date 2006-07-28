@@ -32,6 +32,7 @@
 #define Pegasus_DynamicIndicationProvider_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/AtomicInt.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>

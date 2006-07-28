@@ -45,6 +45,7 @@
 #include "CMPI_SelectExp.h"
 
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/Common/Thread.h>
@@ -273,7 +274,7 @@ extern "C" {
       now.tv_usec=timebuffer.millitm*1000;
    #else
       struct timeval now;
-      gettimeofday(&now, NULL);
+      Time::gettimeofday(&now);
    #endif
 
       if (next.tv_nsec>1000000000) {

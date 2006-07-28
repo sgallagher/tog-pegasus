@@ -39,6 +39,7 @@
 #include "DynamicConsumerFacade.h"
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -316,7 +317,7 @@ void DynamicConsumer::getIdleTimer(struct timeval *tv)
         memcpy(tv, &_idleTime, sizeof(struct timeval));
     } catch (...)
     {
-        gettimeofday(tv, NULL);
+        Time::gettimeofday(tv);
     }
 }
 
@@ -325,7 +326,7 @@ void DynamicConsumer::updateIdleTimer()
     try
     {
         AutoMutex lock(_idleTimeMutex);
-        gettimeofday(&_idleTime, NULL);
+        Time::gettimeofday(&_idleTime);
 
     } catch (...)
     {
@@ -365,7 +366,7 @@ Boolean DynamicConsumer::isIdle()
     }
 
     struct timeval now;
-    gettimeofday(&now, NULL);
+    Time::gettimeofday(&now);
 
     struct timeval timeout = {0,0};
     getIdleTimer(&timeout);

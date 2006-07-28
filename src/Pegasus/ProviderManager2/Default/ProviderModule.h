@@ -43,6 +43,7 @@
 #define Pegasus_ProviderModule_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/AtomicInt.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 

@@ -46,10 +46,7 @@
     {"home",                ""},
     {"daemon",              "false"},
     {"slp",                 "false"},
-    {"enableIndicationService", "true"},
-    {"sslClientVerificationMode", "disabled"},
     {"httpAuthType",        "Basic"},
-    {"repositoryIsDefaultInstanceProvider", "false"},
 #endif
 
 #ifdef PEGASUS_USE_RELEASE_DIRS
@@ -65,8 +62,11 @@
     {"tempLocalAuthDir",    PEGASUS_LOCAL_AUTH_DIR},
     {"logdir",              "/wbem_var/opt/wbem/logs"},
     {"repositoryDir",       "/wbem_var/opt/wbem/repository"},
-    {"providerDir",         "/wbem_lib"},
+#else
+    {"traceFilePath",       "trace/cimserver.trc"},
+    {"logdir",              "logs"},
 #endif
+    {"providerDir",         "/wbem_provider"},
 
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)
     {"bogus", "MyBogusValue"}      // Remove this line if others are added

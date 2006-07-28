@@ -72,12 +72,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
 //
-// Thread-related type definitions
+// ThreadType
 //
 //==============================================================================
 
 #if defined(PEGASUS_HAVE_PTHREADS)
-
 struct ThreadType
 {
 public:
@@ -117,22 +116,31 @@ public:
 
 private:
     pthread_t _thread;
-
-    // And id of zero indicates a null object. 1 indicates the main thread.
+    // An id of zero indicates a null object. 1 indicates the main thread.
     Uint32 _id;
     friend class Threads;
 };
-
-typedef void* ThreadReturnType;
-#endif
+#endif /* PEGASUS_HAVE_PTHREADS */
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
 struct ThreadType
 {
     ThreadType() : handle(NULL) { }
-
     HANDLE handle;
 };
+#endif /* PEGASUS_HAVE_WINDOWS_THREADS */
+
+//==============================================================================
+//
+// ThreadReturnType
+//
+//==============================================================================
+
+#if defined(PEGASUS_HAVE_PTHREADS)
+typedef void* ThreadReturnType;
+#endif
+
+#if defined(PEGASUS_HAVE_WINDOWS_THREADS)
 typedef unsigned ThreadReturnType;
 #endif
 

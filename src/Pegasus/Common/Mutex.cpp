@@ -29,19 +29,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Markus Mueller
-//              Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
-//              David Eger (dteger@us.ibm.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518
-//
-// Reworked By: Mike Brasher (m.brasher@inovadevelopment.com)
+// Author: Mike Brasher (m.brasher@inovadevelopment.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +56,6 @@ Mutex::Mutex()
     pthread_mutexattr_settype(&_rep.attr, PTHREAD_MUTEX_RECURSIVE);
 
     pthread_mutex_init(&_rep.mutex, &_rep.attr);
-    Threads::clear(_rep.owner);
 }
 
 Mutex::~Mutex()
@@ -79,46 +66,44 @@ Mutex::~Mutex()
         pthread_mutexattr_destroy(&_rep.attr);
 }
 
-void Mutex::lock(ThreadType caller)
+void Mutex::lock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
     switch (pthread_mutex_lock(&_rep.mutex))
     {
         case 0:
-            _rep.owner = caller;
             break;
 
         case EDEADLK:
-            throw Deadlock(_rep.owner);
+            throw Deadlock(ThreadType());
 
         default:
-            throw WaitFailed(_rep.owner);
+            throw WaitFailed(ThreadType());
     }
 }
 
-void Mutex::try_lock(ThreadType caller)
+void Mutex::try_lock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
     switch (pthread_mutex_trylock(&_rep.mutex))
     {
         case 0:
-            _rep.owner = caller;
             break;
 
         case EBUSY:
-            throw AlreadyLocked(_rep.owner);
+            throw AlreadyLocked(ThreadType());
 
         case EDEADLK:
-            throw Deadlock(_rep.owner);
+            throw Deadlock(ThreadType());
 
         default:
-            throw WaitFailed(_rep.owner);
+            throw WaitFailed(ThreadType());
     }
 }
 
-void Mutex::timed_lock(Uint32 milliseconds, ThreadType caller)
+void Mutex::timed_lock(Uint32 milliseconds)
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
@@ -166,14 +151,8 @@ void Mutex::unlock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
-    ThreadType owner = _rep.owner;
-    Threads::clear(_rep.owner);
-
     if (pthread_mutex_unlock(&_rep.mutex) != 0)
-    {
-        _rep.owner = owner;
-        throw Permission(_rep.owner);
-    }
+        throw Permission(ThreadType());
 }
 
 #endif /* PEGASUS_HAVE_PTHREADS */
@@ -189,7 +168,7 @@ void Mutex::unlock()
 Mutex::Mutex()
 {
     _rep.handle = CreateMutex(NULL, FALSE, NULL);
-    Threads::clear(_rep.owner);
+    Threads::clear(ThreadType());
     _rep.count = 0;
 }
 
@@ -201,48 +180,45 @@ Mutex::~Mutex()
     CloseHandle(_rep.handle);
 }
 
-void Mutex::lock(ThreadType caller)
+void Mutex::lock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
     DWORD rc = WaitForSingleObject(_rep.handle, INFINITE);
 
     if (rc == WAIT_FAILED)
-        throw WaitFailed(_rep.owner);
+        throw WaitFailed(ThreadType());
 
-    _rep.owner = caller;
     _rep.count++;
 }
 
-void Mutex::try_lock(ThreadType caller)
+void Mutex::try_lock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
     DWORD rc = WaitForSingleObject(_rep.handle, 0);
 
     if (rc == WAIT_TIMEOUT)
-        throw AlreadyLocked(_rep.owner);
+        throw AlreadyLocked(ThreadType());
 
     if (rc == WAIT_FAILED)
-        throw WaitFailed(_rep.owner);
+        throw WaitFailed(ThreadType());
 
-    _rep.owner = caller;
     _rep.count++;
 }
 
-void Mutex::timed_lock(Uint32 milliseconds , ThreadType caller)
+void Mutex::timed_lock(Uint32 milliseconds)
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
     DWORD rc = WaitForSingleObject(_rep.handle, milliseconds);
 
     if (rc == WAIT_TIMEOUT)
-        throw TimeOut(_rep.owner);
+        throw TimeOut(ThreadType());
 
     if (rc == WAIT_FAILED)
-        throw WaitFailed(_rep.owner);
+        throw WaitFailed(ThreadType());
 
-    _rep.owner = caller;
     _rep.count++;
 }
 
@@ -250,7 +226,7 @@ void Mutex::unlock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
-    Threads::clear(_rep.owner);
+    Threads::clear(ThreadType());
     _rep.count--;
     ReleaseMutex(_rep.handle);
 }

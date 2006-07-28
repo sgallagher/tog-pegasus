@@ -183,7 +183,7 @@ inline Uint32 AsyncOpNode::getState()
 
 inline void AsyncOpNode::lock()
 {
-    _mut.lock(Threads::self());
+    _mut.lock();
 }
 
 inline void AsyncOpNode::unlock()

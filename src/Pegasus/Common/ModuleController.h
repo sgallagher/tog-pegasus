@@ -107,7 +107,7 @@ private:
 
         void lock()
         {
-            _thread_safety.lock(Threads::self());
+            _thread_safety.lock();
         }
 
         void unlock()

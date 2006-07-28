@@ -131,7 +131,7 @@ void ReadWriteSem::try_wait(Uint32 mode, ThreadType caller)
 void ReadWriteSem::timed_wait(Uint32 mode,
                               ThreadType caller, int milliseconds)
 {
-    int errorcode = 0, timeout;
+    int errorcode = 0, timeout = 0;
     struct timeval now, finish, remaining;
     Uint32 usec;
 

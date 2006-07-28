@@ -29,19 +29,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Markus Mueller
-//              Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
-//              David Eger (dteger@us.ibm.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518
-//
-// Reworked By: Mike Brasher (m.brasher@inovadevelopment.com)
+// Author: Mike Brasher (m.brasher@inovadevelopment.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +56,6 @@ struct MutexRep
 {
     pthread_mutex_t mutex;
     pthread_mutexattr_t attr;
-    ThreadType owner;
 };
 inline void mutex_lock(MutexType* mutex) { pthread_mutex_lock(mutex); }
 inline void mutex_unlock(MutexType* mutex) { pthread_mutex_unlock(mutex); }
@@ -80,7 +67,6 @@ typedef HANDLE MutexType;
 struct MutexRep
 {
     MutexType handle;
-    ThreadType owner;
     size_t count;
 };
 inline void mutex_lock(MutexType* m) { WaitForSingleObject(*m, INFINITE); }
@@ -102,17 +88,13 @@ public:
 
     ~Mutex();
 
-    void lock(ThreadType caller = Threads::self());
+    void lock();
 
-    void try_lock(ThreadType caller = Threads::self());
+    void try_lock();
 
-    void timed_lock(Uint32 milliseconds, ThreadType caller = Threads::self());
+    void timed_lock(Uint32 milliseconds);
 
     void unlock();
-
-    ThreadType get_owner() { return _rep.owner; }
-
-    void set_owner(ThreadType caller) { _rep.owner = caller; }
 
 private:
     Mutex(const Mutex&);
@@ -158,7 +140,7 @@ public:
     void lock()
     {
         if (_locked)
-            throw AlreadyLocked(Threads::self());
+            throw AlreadyLocked(ThreadType());
 
         _mutex.lock();
         _locked = true;
@@ -167,7 +149,7 @@ public:
     void unlock()
     {
         if (!_locked)
-            throw Permission(Threads::self());
+            throw Permission(ThreadType());
 
         _mutex.unlock();
         _locked = false;

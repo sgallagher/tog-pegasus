@@ -1839,7 +1839,7 @@ void CIMProviderCommand::_printList(Array<String> & moduleNames,
         // characters appear one per line.
         // Use printf instead.
         // 
-        printf("%s\n", output.getCString());
+        printf("%s\n", (const char *)output.getCString());
 #else
         outPrintWriter << output << endl;
 #endif
@@ -1970,7 +1970,7 @@ void CIMProviderCommand::_printList(Array<String> & moduleNames,
             // characters appear one per line.
             // Use printf instead.
             // 
-            printf("%s\n", output.getCString());
+            printf("%s\n", (const char *)output.getCString());
 #else
             outPrintWriter << output << endl;
 #endif
@@ -1987,7 +1987,7 @@ void CIMProviderCommand::_printList(Array<String> & moduleNames,
             // characters appear one per line.
             // Use printf instead.
             // 
-            printf("%s\n", moduleNames[i].getCString());
+            printf("%s\n", (const char *)moduleNames[i].getCString());
 #else
             outPrintWriter << moduleNames[i] << endl;
 #endif

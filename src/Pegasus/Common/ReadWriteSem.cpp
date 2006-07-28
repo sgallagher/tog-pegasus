@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 ReadWriteSem::ReadWriteSem():_readers(0), _writers(0)
 {
     pthread_rwlock_init(&_rwlock.rwlock, NULL);
-    _rwlock.owner.clear();
+    Threads::clear(_rwlock.owner);
 }
 
 ReadWriteSem::~ReadWriteSem()
@@ -187,7 +187,7 @@ void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
     if (mode == PEG_SEM_WRITE)
     {
         owner = _rwlock.owner;
-        _rwlock.owner.clear();
+        Threads::clear(_rwlock.owner);
     }
     if (0 != pthread_rwlock_unlock(&_rwlock.rwlock))
     {

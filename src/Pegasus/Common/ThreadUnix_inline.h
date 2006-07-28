@@ -108,13 +108,13 @@ inline ThreadStatus Thread::run()
       we checking for both. */ 
     if ((rc == EAGAIN) || (rc==ENOMEM))
     {
-        _handle.thid.clear();
+        Threads::clear(_handle.thid);
         return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
     }
     else if (rc != 0)
     {
 	// The error code can be retrieved from  'errno'.
-        _handle.thid.clear();
+        Threads::clear(_handle.thid);
 	return PEGASUS_THREAD_SETUP_FAILURE;
     }
     return PEGASUS_THREAD_OK;
@@ -134,12 +134,12 @@ inline ThreadStatus Thread::run()
     */
     if ((rc == EAGAIN) || (rc == ENOMEM))
     {
-        _handle.thid.clear();
+        Threads::clear(_handle.thid);
         return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
     }
     else if (rc != 0)
     {
-        _handle.thid.clear();
+        Threads::clear(_handle.thid);
 	return PEGASUS_THREAD_SETUP_FAILURE;
     }
     return PEGASUS_THREAD_OK;
@@ -150,7 +150,7 @@ inline ThreadStatus Thread::run()
 inline void Thread::cancel()
 {
    _cancelled = true;
-   pthread_cancel(_handle.thid.thread());
+   pthread_cancel(_handle.thid.handle());
 }
 
 inline void Thread::test_cancel()
@@ -171,12 +171,12 @@ inline void Thread::thread_switch()
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 inline void Thread::suspend()
 {
-    pthread_kill(_handle.thid.thread(),SIGSTOP);
+    pthread_kill(_handle.thid.handle(),SIGSTOP);
 }
 
 inline void Thread::resume()
 {
-    pthread_kill(_handle.thid.thread(),SIGCONT);
+    pthread_kill(_handle.thid.handle(),SIGCONT);
 }
 #endif
 
@@ -188,9 +188,9 @@ inline void Thread::sleep(Uint32 msec)
 
 inline void Thread::join(void) 
 { 
-   if((! _is_detached) && (_handle.thid.id() != 0))
-      pthread_join(_handle.thid.thread(), &_exit_code) ; 
-   _handle.thid.clear();
+   if((! _is_detached) && (Threads::id(_handle.thid) != 0))
+      pthread_join(_handle.thid.handle(), &_exit_code) ; 
+   Threads::clear(_handle.thid);
 }
 
 inline void Thread::thread_init(void)
@@ -216,7 +216,7 @@ inline void Thread::exit_self(void *return_code)
 inline void Thread::detach(void)
 {
    _is_detached = true;
-   pthread_detach(_handle.thid.thread());
+   pthread_detach(_handle.thid.handle());
 }
 
 #endif // ThreadUnix_inline_h

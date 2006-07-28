@@ -39,7 +39,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const int SEM_VALUE_MAX = 0x0000ffff;
+static const int PEGASUS_SEM_VALUE_MAX = 0x0000ffff;
 
 //==============================================================================
 //
@@ -54,8 +54,8 @@ Semaphore::Semaphore(Uint32 initial)
     pthread_mutex_init (&_rep.mutex, NULL);
     pthread_cond_init (&_rep.cond, NULL);
 
-    if (initial > SEM_VALUE_MAX)
-         _count = SEM_VALUE_MAX - 1;
+    if (initial > PEGASUS_SEM_VALUE_MAX)
+         _count = PEGASUS_SEM_VALUE_MAX - 1;
     else
          _count = initial;
 
@@ -243,8 +243,8 @@ int Semaphore::count() const
 
 Semaphore::Semaphore(Uint32 initial)
 {
-   if(initial > SEM_VALUE_MAX)
-      initial = SEM_VALUE_MAX - 1;
+   if(initial > PEGASUS_SEM_VALUE_MAX)
+      initial = PEGASUS_SEM_VALUE_MAX - 1;
    sem_init(&_rep.sem,0,initial);
    _rep.owner = Threads::self();
 }
@@ -357,11 +357,11 @@ int Semaphore::count() const
 
 Semaphore::Semaphore(Uint32 initial) 
 {
-   if(initial > SEM_VALUE_MAX)
-      initial = SEM_VALUE_MAX - 1;
+   if(initial > PEGASUS_SEM_VALUE_MAX)
+      initial = PEGASUS_SEM_VALUE_MAX - 1;
    _count = initial;
    _rep.owner = Threads::self();
-   _rep.sem = CreateSemaphore(NULL, initial, SEM_VALUE_MAX, NULL);
+   _rep.sem = CreateSemaphore(NULL, initial, PEGASUS_SEM_VALUE_MAX, NULL);
 }
 
 Semaphore::~Semaphore()

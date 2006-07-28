@@ -68,7 +68,7 @@ Mutex::Mutex()
     pthread_mutexattr_settype(&_rep.attr, PTHREAD_MUTEX_RECURSIVE);
 
     pthread_mutex_init(&_rep.mutex, &_rep.attr);
-    _rep.owner.clear();
+    Threads::clear(_rep.owner);
 }
 
 Mutex::~Mutex()
@@ -167,7 +167,7 @@ void Mutex::unlock()
     PEGASUS_DEBUG_ASSERT(_magic);
 
     ThreadType owner = _rep.owner;
-    _rep.owner.clear();
+    Threads::clear(_rep.owner);
 
     if (pthread_mutex_unlock(&_rep.mutex) != 0)
     {

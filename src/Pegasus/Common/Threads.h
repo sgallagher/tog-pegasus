@@ -201,7 +201,7 @@ public:
 
 inline bool Threads::equal(ThreadType x, ThreadType y) 
 { 
-    return pthread_equal(x.thread(), y.thread());
+    return pthread_equal(x.handle(), y.handle());
 }
 
 inline void Threads::exit(ThreadReturnType rc)
@@ -211,7 +211,7 @@ inline void Threads::exit(ThreadReturnType rc)
 
 inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
 {
-    pthread_cancel(th.thread());
+    pthread_cancel(th.handle());
 }
 
 inline void Threads::yield()

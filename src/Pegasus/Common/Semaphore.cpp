@@ -39,15 +39,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+static const int SEM_VALUE_MAX = 0x0000ffff;
+
 //==============================================================================
 //
 // PEGASUS_USE_PTHREAD_SEMAPHORE
 //
 //==============================================================================
-
-#ifndef SEM_VALUE_MAX
-# define SEM_VALUE_MAX 0x0000FFFF
-#endif
 
 #if defined(PEGASUS_USE_PTHREAD_SEMAPHORE)
 
@@ -357,14 +355,12 @@ int Semaphore::count() const
 
 #if defined(PEGASUS_USE_WINDOWS_SEMAPHORE)
 
-static const int SEM_VALUE_MAX = 0x0000ffff;
-
 Semaphore::Semaphore(Uint32 initial) 
 {
    if(initial > SEM_VALUE_MAX)
       initial = SEM_VALUE_MAX - 1;
    _count = initial;
-   _rep.owner = (ThreadType)GetCurrentThreadId();
+   _rep.owner = Threads::self();
    _rep.sem = CreateSemaphore(NULL, initial, SEM_VALUE_MAX, NULL);
 }
 
@@ -381,7 +377,7 @@ void Semaphore::wait(Boolean ignoreInterrupt)
     if(errorcode != WAIT_FAILED)
         _count--;
     else
-        throw(WaitFailed((ThreadType)GetCurrentThreadId()));
+        throw(WaitFailed(Threads::self()));
 }
 
 // wait succeeds immediately if semaphore has a non-zero count,
@@ -391,7 +387,7 @@ void Semaphore::try_wait()
 {
     DWORD errorcode = WaitForSingleObject(_rep.sem, 0);
     if(errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
-        throw(WaitFailed((ThreadType)GetCurrentThreadId()));
+        throw(WaitFailed(Threads::self()));
     _count--;
 }
 
@@ -402,7 +398,7 @@ void Semaphore::time_wait(Uint32 milliseconds)
 {
     DWORD errorcode = WaitForSingleObject(_rep.sem, milliseconds);
     if (errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
-        throw(TimeOut((ThreadType)GetCurrentThreadId()));
+        throw(TimeOut(Threads::self()));
     _count--;
 }
 

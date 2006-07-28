@@ -603,7 +603,7 @@ void cimom::update_module(UpdateCimService *msg )
       {
 	 temp->_capabilities = msg->capabilities;
 	 temp->_mask = msg->mask;
-	 gettimeofday(&(temp->_heartbeat), NULL);
+	 Time::gettimeofday(&(temp->_heartbeat));
 	 result = async_results::OK;
 	 break;
       }

@@ -37,6 +37,10 @@
 #include "IDFactory.h"
 #include "TSDKey.h"
 
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+# include <sys/timeb.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 void Threads::sleep(int msec)
@@ -66,7 +70,7 @@ void Threads::sleep(int msec)
 
 #elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
-    if (ms == 0)
+    if (msec == 0)
     {         
         Sleep(0);
         return;
@@ -74,9 +78,9 @@ void Threads::sleep(int msec)
 
     struct _timeb end, now;
     _ftime( &end );
-    end.time += (ms / 1000);
-    ms -= (ms / 1000);
-    end.millitm += ms;
+    end.time += (msec / 1000);
+    msec -= (msec / 1000);
+    end.millitm += msec;
 
     do
     {

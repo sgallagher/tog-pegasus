@@ -51,7 +51,7 @@
 #ifdef PEGASUS_SPINLOCK_USE_PTHREADS
 # include <pthread.h>
 #else
-# include <Mutex.h>
+# include "Mutex.h"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

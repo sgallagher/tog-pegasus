@@ -189,8 +189,8 @@ void Mutex::unlock()
 Mutex::Mutex()
 {
     _rep.handle = CreateMutex(NULL, FALSE, NULL);
-    _rep.owner = ThreadType(0);
-    _rep.count.clear();
+    Threads::clear(_rep.owner);
+    _rep.count = 0;
 }
 
 Mutex::~Mutex()
@@ -250,7 +250,7 @@ void Mutex::unlock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
-    _rep.owner.clear();
+    Threads::clear(_rep.owner);
     _rep.count--;
     ReleaseMutex(_rep.handle);
 }

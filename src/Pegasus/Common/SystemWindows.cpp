@@ -1,31 +1,46 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Bapu Patil (bapu_patil@hp.com)
+//
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1428
+//              Seema Gupta (gseema@in.ibm.com) for Bug#1617
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +59,6 @@
 #include <windows.h>
 #include <process.h>
 #include <lm.h>
-#include <Pegasus/Common/Tracer.h>
 
 #define SECURITY_WIN32
 #include <security.h>
@@ -79,16 +93,6 @@ void System::getCurrentTimeUsec(Uint32& seconds, Uint32& microseconds)
     largeInt.QuadPart -= 0x19db1ded53e8000;
     seconds = long(largeInt.QuadPart / (10000 * 1000));
     microseconds = long((largeInt.QuadPart % (10000 * 1000)) / 10);
-}
-
-Uint64 System::getCurrentTimeUsec()
-{
-    FILETIME ft;
-    GetSystemTimeAsFileTime(&ft);
-    ULARGE_INTEGER largeInt = { ft.dwLowDateTime, ft.dwHighDateTime };
-    largeInt.QuadPart -= 0x19db1ded53e8000;
-
-    return Uint64(largeInt.QuadPart / 10);
 }
 
 String System::getCurrentASCIITime()
@@ -170,11 +174,62 @@ Boolean System::removeFile(const char* path)
 
 Boolean System::renameFile(const char* oldPath, const char* newPath)
 {
-    if (exists(oldPath))
-    {
-        removeFile(newPath);
-    }
     return rename(oldPath, newPath) == 0;
+}
+
+DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
+{
+    return DynamicLibraryHandle(LoadLibrary(fileName));
+}
+
+void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
+{
+    FreeLibrary(HINSTANCE(libraryHandle));
+}
+
+String System::dynamicLoadError(void) {
+return String();
+}
+
+DynamicSymbolHandle System::loadDynamicSymbol(
+    DynamicLibraryHandle libraryHandle,
+    const char* symbolName)
+{
+    return DynamicSymbolHandle(GetProcAddress(
+    (HINSTANCE)libraryHandle, symbolName));
+}
+
+String System::getHostName()
+{
+    static char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
+
+    if (!*hostname)
+    {
+        gethostname(hostname, sizeof(hostname));
+    }
+    hostname[sizeof(hostname)-1] = 0;
+
+    return hostname;
+}
+
+String System::getFullyQualifiedHostName ()
+{
+    static char FQHostName[PEGASUS_MAXHOSTNAMELEN + 1];
+
+    if (!*FQHostName)
+    {
+        String hostname = getHostName();
+        struct hostent* hostEnt;
+
+        hostEnt = gethostbyname((const char *)hostname.getCString());
+        if (hostEnt == NULL)
+        {
+            return String::EMPTY;
+        }
+        strncpy(FQHostName, hostEnt->h_name, sizeof(FQHostName)-1);
+    }
+
+    return FQHostName;
 }
 
 String System::getSystemCreationClassName ()
@@ -287,63 +342,62 @@ String System::getEffectiveUserName()
 {
 #if (_MSC_VER >= 1300) || defined(PEGASUS_WINDOWS_SDK_HOME)
 
-    //Bug 3076 fix
-    wchar_t fullUserName[UNLEN+1];
-    DWORD userNameSize = sizeof(fullUserName)/sizeof(fullUserName[0]);
-    wchar_t computerName[MAX_COMPUTERNAME_LENGTH+1];
-    DWORD computerNameSize = sizeof(computerName)/sizeof(computerName[0]);
-    wchar_t userName[UNLEN+1];
+	//Bug 3076 fix
+	wchar_t fullUserName[UNLEN+1];
+	DWORD userNameSize = sizeof(fullUserName)/sizeof(fullUserName[0]);
+	wchar_t computerName[MAX_COMPUTERNAME_LENGTH+1];
+    DWORD computerNameSize = sizeof(computerName)/sizeof(computerName[0]);    
+	wchar_t userName[UNLEN+1];
     wchar_t userDomain[UNLEN+1];
-    String userId;
+	String userId;
 
-    if (!GetUserNameExW(NameSamCompatible, fullUserName, &userNameSize))
-    {
-        return String();
-    }
+	if (!GetUserNameExW(NameSamCompatible, fullUserName, &userNameSize))
+	{
+		return String();
+	}
 
-    wchar_t* index = wcschr(fullUserName, '\\');
-    *index = 0;
-    wcscpy(userDomain, fullUserName);
-    wcscpy(userName, index + 1);
-
-    //The above function will return the system name as the domain if
-    //the user is not on a real domain.  Strip this out so that the rest of
-    //our windows user functions work.  What if the system name and the domain
-    //name are the same?
+	wchar_t* index = wcschr(fullUserName, '\\');
+	*index = 0;
+	wcscpy(userDomain, fullUserName);
+	wcscpy(userName, index + 1);
+ 
+	//The above function will return the system name as the domain if
+	//the user is not on a real domain.  Strip this out so that the rest of
+	//our windows user functions work.  What if the system name and the domain
+	//name are the same?
     GetComputerNameW(computerName, &computerNameSize);
-
-    if (wcscmp(computerName, userDomain) != 0)
-    {
+		
+	if (wcscmp(computerName, userDomain) != 0) 
+	{
         //userId.append(userDomain);
-        Uint32 n = (Uint32)wcslen(userDomain);
-        for (unsigned long i = 0; i < n; i++)
+        Uint32 n = wcslen(userDomain);
+        for(unsigned long i = 0; i < n; i++)
         {
             userId.append(Char16(userDomain[i]));
         }
-        userId.append("\\");
-        //userId.append(userName);
-        n = (Uint32)wcslen(userName);
-        for (unsigned long i = 0; i < n; i++)
+		userId.append("\\");
+		//userId.append(userName);
+        n = wcslen(userName);
+        for(unsigned long i = 0; i < n; i++)
         {
             userId.append(Char16(userName[i]));
         }
 
-    }
-    else
-    {
-        //userId.append(userName);
-        Uint32 n = (Uint32)wcslen(userName);
-        for (unsigned long i = 0; i < n; i++)
+	} else
+	{
+		//userId.append(userName);
+        Uint32 n = wcslen(userName);
+        for(unsigned long i = 0; i < n; i++)
         {
             userId.append(Char16(userName[i]));
         }
 
-    }
+	}
 
-    return userId;
+	return userId;
 
 #else //original getEffectiveUserName function
-
+    
     int retcode = 0;
 
     // UNLEN (256) is the limit, not including null
@@ -358,10 +412,11 @@ String System::getEffectiveUserName()
     }
     String userId;
     Uint32 n = wcslen(pUserName);
-    for (unsigned long i = 0; i < n; i++)
+    for(unsigned long i = 0; i < n; i++)
     {
         userId.append(Char16(pUserName[i]));
     }
+
 
     return userId;
 #endif
@@ -374,7 +429,7 @@ String System::encryptPassword(const char* password, const char* salt)
     char pcSalt[3] = {0};
 
     strncpy(pcSalt, salt, 2);
-    dwByteCount = (DWORD)strlen(password);
+    dwByteCount = strlen(password);
     memcpy(pbBuffer, password, dwByteCount);
     for (DWORD i=0; (i<dwByteCount) || (i>=PW_BUFF_LEN); i++)
             (i%2 == 0) ? pbBuffer[i] ^= pcSalt[1] : pbBuffer[i] ^= pcSalt[0];
@@ -387,17 +442,17 @@ Mutex processUserNameMut;
 
 Boolean System::isSystemUser(const char* userName)
 {
-    if (processUserName.size() == 0)
+    if(processUserName.size() == 0)
     {
         // Lock and recheck the processUserName length in case two threads
         // enter this block simultaneously
         AutoMutex mut(processUserNameMut);
-        if (processUserName.size() == 0)
+        if(processUserName.size() == 0)
         {
             processUserName = getEffectiveUserName();
         }
     }
-    if (processUserName == userName)
+    if(processUserName == userName)
     {
       return true;
     }
@@ -417,8 +472,8 @@ Boolean System::isSystemUser(const char* userName)
     LPUSER_INFO_1 pUserInfo = NULL;
     NET_API_STATUS nStatus = NULL;
 
-    // Make a copy of the specified username, it cannot be used directly
-    // because it's declared as const and strchr() may modify the string.
+    // Make a copy of the specified username, it cannot be used directly because it's
+    // declared as const and strchr() may modify the string.
     strncpy(tUserName, userName, sizeof(tUserName) - 1);
     tUserName[sizeof(tUserName)- 1] = '\0';
 
@@ -430,33 +485,28 @@ Boolean System::isSystemUser(const char* userName)
         strcpy(mUserName, pbs+1);
         usingDomain = true;
 
-    }
-    else if ((NULL != (pbs = (strchr(tUserName, '@')))) ||
-             (NULL != (pbs = (strchr(tUserName, '.')))))
+    } else if ((NULL != (pbs = (strchr(tUserName, '@')))) ||
+               (NULL != (pbs = (strchr(tUserName, '.')))))
     {
         *pbs = '\0';
         strcpy(mDomainName, pbs+1);
         strcpy(mUserName, tUserName);
         usingDomain = true;
 
-    }
-    else
+    } else
     {
         strcpy(mDomainName, ".");
         strcpy(mUserName, tUserName);
     }
 
     //convert domain name to unicode
-    if (!MultiByteToWideChar(
-            CP_ACP, 0, mDomainName, -1, wDomainName,
-            (int)(strlen(mDomainName) + 1)))
+    if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
     {
         return false;
     }
 
     //convert username to unicode
-    if (!MultiByteToWideChar(
-            CP_ACP, 0, mUserName, -1, wUserName, (int)(strlen(mUserName) + 1)))
+    if (!MultiByteToWideChar(CP_ACP, 0, mUserName, -1, wUserName, strlen(mUserName)+1))
     {
         return false;
     }
@@ -467,15 +517,13 @@ Boolean System::isSystemUser(const char* userName)
         DWORD rc = NetGetDCName(NULL, wDomainName, &pComputerName);
         if (rc == NERR_Success)
         {
-            // this is automatically prefixed with "\\"
-            wcscpy(wDomainName, (LPWSTR) pComputerName);
+            wcscpy(wDomainName, (LPWSTR) pComputerName); //this is automatically prefixed with "\\"
         }
         /*
         else
         {
             // failover
-            // ATTN: This is commented out until there is resolution on
-            // Bugzilla 2236. -hns 2/2005
+            // ATTN: This is commented out until there is resolution on Bugzilla 2236. -hns 2/2005
             // This needs to be more thoroughly tested when we uncomment it out.
 
             PDOMAIN_CONTROLLER_INFO DomainControllerInfo = NULL;
@@ -485,8 +533,7 @@ Boolean System::isSystemUser(const char* userName)
                              mDomainName,
                              NULL,
                              NULL,
-                             //not sure what flags we want here
-                             DS_DIRECTORY_SERVICE_REQUIRED,
+                             DS_DIRECTORY_SERVICE_REQUIRED,  //not sure what flags we want here
                              &DomainControllerInfo);
 
             if (rc == ERROR_SUCCESS && DomainControllerInfo)
@@ -494,9 +541,7 @@ Boolean System::isSystemUser(const char* userName)
                 strcpy(mDomainName, DomainControllerInfo->DomainName);
                 NetApiBufferFree(DomainControllerInfo);
 
-                if (!MultiByteToWideChar(
-                        CP_ACP, 0, mDomainName, -1, wDomainName,
-                        strlen(mDomainName) + 1))
+                if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
                 {
                     return false;
                 }
@@ -558,33 +603,28 @@ Boolean System::isPrivilegedUser(const String& userName)
         strcpy(mUserName, pbs+1);
         usingDomain = true;
 
-    }
-    else if ((NULL != (pbs = (strchr(userStr, '@')))) ||
-             (NULL != (pbs = (strchr(userStr, '.')))))
+    } else if ((NULL != (pbs = (strchr(userStr, '@')))) ||
+               (NULL != (pbs = (strchr(userStr, '.')))))
     {
         *pbs = '\0';
         strcpy(mDomainName, pbs+1);
         strcpy(mUserName, userStr);
         usingDomain = true;
 
-    }
-    else
+    } else
     {
         strcpy(mDomainName, ".");
         strcpy(mUserName, userStr);
     }
 
     //convert domain name to unicode
-    if (!MultiByteToWideChar(
-            CP_ACP, 0, mDomainName, -1, wDomainName,
-            (int)(strlen(mDomainName) + 1)))
+    if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
     {
         return false;
     }
 
     //convert username to unicode
-    if (!MultiByteToWideChar(
-            CP_ACP, 0, mUserName, -1, wUserName, (int)(strlen(mUserName) + 1)))
+    if (!MultiByteToWideChar(CP_ACP, 0, mUserName, -1, wUserName, strlen(mUserName)+1))
     {
         return false;
     }
@@ -595,15 +635,13 @@ Boolean System::isPrivilegedUser(const String& userName)
         DWORD rc = NetGetDCName(NULL, wDomainName, &pComputerName);
         if (rc == NERR_Success)
         {
-            // this is automatically prefixed with "\\"
-            wcscpy(wDomainName, (LPWSTR) pComputerName);
+            wcscpy(wDomainName, (LPWSTR) pComputerName); //this is automatically prefixed with "\\"
         }
         /*
         else
         {
             // failover
-            // ATTN: This is commented out until there is resolution on
-            // Bugzilla 2236. -hns 2/2005
+            // ATTN: This is commented out until there is resolution on Bugzilla 2236. -hns 2/2005
             // This needs to be more thoroughly tested when we uncomment it out.
 
             PDOMAIN_CONTROLLER_INFO DomainControllerInfo = NULL;
@@ -613,8 +651,7 @@ Boolean System::isPrivilegedUser(const String& userName)
                              mDomainName,
                              NULL,
                              NULL,
-                             // not sure what flags we want here
-                             DS_DIRECTORY_SERVICE_REQUIRED,
+                             DS_DIRECTORY_SERVICE_REQUIRED,  //not sure what flags we want here
                              &DomainControllerInfo);
 
             if (rc == ERROR_SUCCESS && DomainControllerInfo)
@@ -622,9 +659,7 @@ Boolean System::isPrivilegedUser(const String& userName)
                 strcpy(mDomainName, DomainControllerInfo->DomainName);
                 NetApiBufferFree(DomainControllerInfo);
 
-                if (!MultiByteToWideChar(
-                        CP_ACP, 0, mDomainName, -1, wDomainName,
-                        strlen(mDomainName) + 1))
+                if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
                 {
                     return false;
                 }
@@ -664,7 +699,7 @@ String System::getPrivilegedUserName()
     // ATTN-NB-03-20000304: Implement better way to get the privileged
     // user on the system.
 
-    return String("Administrator");
+    return (String("Administrator"));
 }
 
 Boolean System::isGroupMember(const char* userName, const char* groupName)
@@ -678,22 +713,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     DWORD dwEntriesRead = 0;
     DWORD dwTotalEntries = 0;
     NET_API_STATUS nStatus;
-    wchar_t wcUserName[UNLEN+1];
-    wchar_t wcGroupName[UNLEN+1];
 
-    //Convert user name to unicode
-    if (!MultiByteToWideChar(CP_ACP,0,userName, -1, wcUserName,
-        strlen(userName)+1))
-    {
-        return false;
-    }
-
-    //Convert group name to unicode
-    if (!MultiByteToWideChar(CP_ACP, 0, groupName, -1, wcGroupName,
-        strlen(groupName)+1))
-    {
-        return false;
-    }
 
     //
     // Call the NetUserGetLocalGroups function
@@ -703,15 +723,14 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     // function should also return the names of the local
     // groups in which the user is indirectly a member.
     //
-    nStatus = NetUserGetLocalGroups(
-        NULL,
-        (LPCWSTR)wcUserName,
-        dwLevel,
-        dwFlags,
-        (LPBYTE *) &pBuf,
-        dwPrefMaxLen,
-        &dwEntriesRead,
-        &dwTotalEntries);
+    nStatus = NetUserGetLocalGroups(NULL,
+                                   (LPCWSTR)userName,
+                                   dwLevel,
+                                   dwFlags,
+                                   (LPBYTE *) &pBuf,
+                                   dwPrefMaxLen,
+                                   &dwEntriesRead,
+                                   &dwTotalEntries);
 
     //
     // If the call succeeds,
@@ -733,8 +752,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
                 //
                 // Compare the user's group name to groupName.
                 //
-
-                if (wcscmp(pTmpBuf->lgrui0_name, wcGroupName) == 0)
+                if ( strcmp ((char *)pTmpBuf->lgrui0_name, groupName) == 0 )
                 {
                     // User is a member of the group.
                     retVal = true;
@@ -768,15 +786,13 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
         //
         // Call the NetUserGetGroups function, specifying level 0.
         //
-        nStatus = NetUserGetGroups(
-            NULL,
-            (LPCWSTR)wcUserName,
-            dwLevel,
-            (LPBYTE*)&pBuf,
-            dwPrefMaxLen,
-            &dwEntriesRead,
-            &dwTotalEntries);
-
+        nStatus = NetUserGetGroups(NULL,
+                                  (LPCWSTR)userName,
+                                  dwLevel,
+                                  (LPBYTE*)&pBuf,
+                                  dwPrefMaxLen,
+                                  &dwEntriesRead,
+                                  &dwTotalEntries);
         //
         // If the call succeeds,
         //
@@ -797,7 +813,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
                     //
                     // Compare the user's group name to groupName.
                     //
-                    if (wcscmp(pTmpBuf->grui0_name, wcGroupName) == 0)
+                    if ( strcmp ((char *)pTmpBuf->grui0_name, groupName) == 0 )
                     {
                         // User is a member of the group.
                         retVal = true;
@@ -829,8 +845,7 @@ Boolean System::lookupUserId(
     return false;
 }
 
-Boolean System::changeUserContext_SingleThreaded(
-    const char* userName,
+Boolean System::changeUserContext(
     const PEGASUS_UID_T& uid,
     const PEGASUS_GID_T& gid)
 {
@@ -853,7 +868,7 @@ Boolean System::truncateFile(
     int fd = open(path, O_RDWR);
     if (fd != -1)
     {
-        if (chsize(fd, (long)newSize) == 0)
+        if (chsize(fd, newSize) == 0)
         {
             rv = true;
         }
@@ -874,12 +889,11 @@ Boolean System::is_absolute_path(const char *path)
     strncpy(path_slash, path, _MAX_PATH);
     path_slash[_MAX_PATH-1] = '\0';
 
-    for (p = path_slash; p < path_slash + strlen(path_slash); p++)
+    for(p = path_slash; p < path_slash + strlen(path_slash); p++)
       if (*p == '/')
           *p = '\\';
 
-    return (strcasecmp(
-        _fullpath(full, path_slash, _MAX_PATH), path_slash) == 0);
+    return (strcasecmp(_fullpath( full, path_slash, _MAX_PATH ), path_slash) == 0) ? true : false;
 }
 
 // Changes file permissions on the given file.
@@ -901,291 +915,7 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
     // Not implemented
 }
 
-void System::openlog(const char *ident, int logopt, int facility)
-{
-    // Not implemented
-}
-
-void System::closelog()
-{
-    // Not implemented
-}
-
-
-
 // System ID constants for Logger::put and Logger::trace
 const String System::CIMSERVER = "cimserver";  // Server system ID
-
-// check if a given IP address is defined on the local network interfaces
-Boolean System::isIpOnNetworkInterface(Uint32 inIP)
-{
-    Socket::initializeInterface();
-    SOCKET sock;
-    int interfaces = 0;
-    int errcode;
-
-    if ( SOCKET_ERROR != ( sock  = WSASocket(AF_INET,
-                         SOCK_RAW, 0, NULL, 0, 0) ) )
-    {
-        unsigned long *bytes_returned=0;
-        char *output_buf = (char *)calloc(1, 256);
-        int buf_size = 256;
-
-        if ( 0 == (errcode = WSAIoctl(sock,
-                                      SIO_ADDRESS_LIST_QUERY,
-                                      NULL,
-                                      0,
-                                      output_buf,
-                                      256,
-                                      bytes_returned,
-                                      NULL,
-                                      NULL)) )
-        {
-            SOCKET_ADDRESS_LIST *addr_list;
-            SOCKET_ADDRESS *addr;
-            Uint32 ip;
-            struct sockaddr_in *sin;
-
-            addr_list = (SOCKET_ADDRESS_LIST *)output_buf;
-            addr = addr_list->Address;
-
-            sin = (struct sockaddr_in *)addr->lpSockaddr;
-
-            for ( ; interfaces < addr_list->iAddressCount; interfaces++)
-            {
-                ip = sin->sin_addr.s_addr;
-                addr++;
-                sin = (struct sockaddr_in *)addr->lpSockaddr;
-                if (ip == inIP)
-                {
-                    free(output_buf);
-                    closesocket(sock);
-                    Socket::uninitializeInterface();
-                    return true;
-                }
-            }
-        }
-        else
-        {
-            free(output_buf);
-            Socket::uninitializeInterface();
-            return false;
-        }
-        free(output_buf);
-        closesocket(sock);
-        Socket::uninitializeInterface();
-    }
-    return false;
-}
-
-void _getInterfaceAddrs(Array<String> &ips, int af)
-{
-    SOCKET sock;
-
-    if (INVALID_SOCKET != (sock = WSASocket(af, SOCK_RAW,
-        0, NULL, 0, 0)))
-    {
-        DWORD  bytesReturned;
-        char buf[2048];
-        int interfaces = 0;
-        char str[PEGASUS_INET6_ADDRSTR_LEN];
-        void *p = 0;
-        if (0 == WSAIoctl(sock, SIO_ADDRESS_LIST_QUERY, NULL, 0,
-            buf, 2048, &bytesReturned, NULL,
-            NULL))
-        {
-
-            SOCKET_ADDRESS_LIST *addr_list;
-            SOCKET_ADDRESS *addr;
-            struct sockaddr *sin;
-            addr_list = (SOCKET_ADDRESS_LIST *)buf;
-            addr = addr_list->Address;
-            int rc = 0;
-            for (sin = (struct sockaddr *) addr->lpSockaddr ;
-                interfaces < addr_list->iAddressCount;
-                interfaces++)
-            {
-                if (af == AF_INET)
-                {
-                    p = &((struct sockaddr_in*)sin)->sin_addr;
-                }
-#ifdef PEGASUS_ENABLE_IPV6
-                else
-                {
-                    p = &((struct sockaddr_in6*)sin)->sin6_addr;
-                }
-#endif
-                // Don't gather loopback addrs
-                if (!System::isLoopBack(af, p))
-                {
-                    if (af == AF_INET)
-                    {
-                        if ((rc = ::getnameinfo( 
-                            sin, 
-                            sizeof(struct sockaddr_in),
-                            str,
-                            sizeof(str),
-                            NULL,
-                            0,
-                            NI_NUMERICHOST)) == 0)
-                        {
-                            ips.append(str);
-                        }
-                        //Error detected in getting name info, 
-                        //display the error string
-                        else
-                        {
-                            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
-                                "getnameinfo failed: %s", gai_strerror(rc)));
-                        }
-                    }
-#ifdef PEGASUS_ENABLE_IPV6
-                    else if (af == AF_INET6)
-                    {
-                        if((rc = System::getNameInfo( 
-                            sin,
-                            sizeof(struct sockaddr_in6),
-                            str,
-                            sizeof(str),
-                            NULL,
-                            0,
-                            NI_NUMERICHOST)) == 0)
-                        {
-                            ips.append(str);
-                        }
-                    }
-#endif
-                }
-                ++addr;
-                sin = (struct sockaddr*)addr->lpSockaddr;
-            }
-        }
-    }
-}
-
-Array<String> System::getInterfaceAddrs()
-{
-    Socket::initializeInterface();
-    Array<String> ips;
-    _getInterfaceAddrs(ips, AF_INET);
-#ifdef PEGASUS_ENABLE_IPV6
-    _getInterfaceAddrs(ips, AF_INET6);
-#endif
-    Socket::uninitializeInterface();
-    return ips;
-}
-
-String System::getErrorMSG_NLS(int errorCode,int errorCode2)
-{
-    LPVOID winErrorMsg = NULL;
-
-    if (FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER |
-            FORMAT_MESSAGE_FROM_SYSTEM |
-            FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL,
-            errorCode,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPTSTR)&winErrorMsg,
-            0,
-            NULL))
-    {
-        MessageLoaderParms parms(
-            "Common.System.ERROR_MESSAGE.STANDARD",
-            "$0 (error code $1)",(char*)winErrorMsg,errorCode);
-        LocalFree(winErrorMsg);
-        return MessageLoader::getMessage(parms);
-    }
-
-    MessageLoaderParms parms(
-        "Common.System.ERROR_MESSAGE.STANDARD",
-        "$0 (error code $1)","",errorCode);
-    return MessageLoader::getMessage(parms);
-
-}
-
-String System::getErrorMSG(int errorCode,int errorCode2)
-{
-
-    String buffer;
-    LPVOID winErrorMsg = NULL;
-
-    char strErrorCode[32];
-    sprintf(strErrorCode, "%d", errorCode);
-
-    if (FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER |
-            FORMAT_MESSAGE_FROM_SYSTEM |
-            FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL,
-            errorCode,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPTSTR)&winErrorMsg,
-            0,
-            NULL))
-    {
-        buffer.append((char*)winErrorMsg);
-        LocalFree(winErrorMsg);
-    }
-
-    buffer.append(" (error code ");
-    buffer.append(strErrorCode);
-    buffer.append(")");
-
-    return buffer;
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-// AutoFileLock class
-///////////////////////////////////////////////////////////////////////////////
-
-AutoFileLock::AutoFileLock(const char* fileName)
-{
-   // Repeat createFile, if there is a sharing violation.
-   do
-   {
-       _hFile = CreateFile (fileName, GENERIC_READ | GENERIC_WRITE, 0, NULL,
-           OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-   }while ((GetLastError() == ERROR_SHARING_VIOLATION));
-
-   // If this conditon succeeds, There is an error opening the file. Hence
-   // returning from here  as Lock can not be acquired.
-   if((_hFile == INVALID_HANDLE_VALUE)
-       && (GetLastError() != ERROR_ALREADY_EXISTS)
-       && (GetLastError() != ERROR_SUCCESS))
-   {
-       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-          "AutoFileLock: Failed to open lock file '%s', error code %d.",
-          fileName, GetLastError()));
-       return;
-   }
-
-   OVERLAPPED l={0,0,0,0,0};
-   if(LockFileEx(_hFile,LOCKFILE_EXCLUSIVE_LOCK, 0, 0, 0, &l) == 0)
-   {
-       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-           "AutoFileLock: Failed to Acquire lock on file %s, error code %d.",
-           fileName, GetLastError()));
-       CloseHandle(_hFile);
-       _hFile = INVALID_HANDLE_VALUE;
-   }
-}
-
-AutoFileLock::~AutoFileLock()
-{
-    if(_hFile != INVALID_HANDLE_VALUE)
-    {
-        OVERLAPPED l={0,0,0,0,0};
-        if(UnlockFileEx (_hFile, 0, 0, 0, &l) == 0)
-        {
-           PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
-               "AutoFileLock: Failed to unlock file, error code %d.",
-                GetLastError()));
-        }
-        CloseHandle(_hFile);
-    }
-}
-
 
 PEGASUS_NAMESPACE_END

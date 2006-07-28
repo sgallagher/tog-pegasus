@@ -35,21 +35,10 @@
 #define Pegasus_Time_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Network.h>
 #include <Pegasus/Common/Linkage.h>
 
-//==============================================================================
-//
-// struct timeval
-//
-//==============================================================================
-
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-struct timeval
-{
-    long tv_sec;
-    long tv_usec;
-};
-#else
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <sys/time.h>
 #endif
 

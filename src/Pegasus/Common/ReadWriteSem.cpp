@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 ReadWriteSem::ReadWriteSem():_readers(0), _writers(0)
 {
     pthread_rwlock_init(&_rwlock.rwlock, NULL);
-    _rwlock.owner = 0;
+    _rwlock.owner.clear();
 }
 
 ReadWriteSem::~ReadWriteSem()
@@ -187,7 +187,7 @@ void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
     if (mode == PEG_SEM_WRITE)
     {
         owner = _rwlock.owner;
-        _rwlock.owner = 0;
+        _rwlock.owner.clear();
     }
     if (0 != pthread_rwlock_unlock(&_rwlock.rwlock))
     {
@@ -305,7 +305,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
     TimeOut caughtTimeOut(zero);
     TooManyReaders caughtTooManyReaders(zero);
 
-    {                           // cleanup stack frame
+    // cleanup stack frame
+    {
 
         Threads::cleanup_push(extricate_read_write, this);
 
@@ -350,11 +351,11 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
             else                // timed wait
             {
                 struct timeval start, now;
-                gettimeofday(&start, NULL);
+                Time::gettimeofday(&start);
                 start.tv_usec += (1000 * milliseconds);
                 while (_readers.get() > 0)
                 {
-                    gettimeofday(&now, NULL);
+                    Time::gettimeofday(&now);
                     if ((now.tv_usec > start.tv_usec) ||
                         now.tv_sec > start.tv_sec)
                     {
@@ -518,17 +519,17 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
             _rwlock._internal_lock.unlock();
         }
       throw_from_here:
-// ATTN:
+	// ATTN:
         Threads::cleanup_pop(0);
-    }                           // cleanup stack frame
+    }
 
-    if (caught.get_owner().id() != 0)
+    if (Threads::id(caught.get_owner()) != 0)
         throw caught;
-    if (caughtWaitFailed.get_owner().id() != 0)
+    if (Threads::id(caughtWaitFailed.get_owner()) != 0)
         throw caughtWaitFailed;
-    if (caughtTimeOut.get_owner().id() != 0)
+    if (Threads::id(caughtTimeOut.get_owner()) != 0)
         throw caughtTimeOut;
-    if (caughtTooManyReaders.get_owner().id() != 0)
+    if (Threads::id(caughtTooManyReaders.get_owner()) != 0)
         throw caughtTooManyReaders;
     return;
 }

@@ -40,6 +40,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 
+// ATTN: can we consolidate these someplace?
+
 #if defined(PEGASUS_HAVE_PTHREADS)
 # if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 # define _MULTI_THREADED // Is this really necessary?
@@ -49,6 +51,7 @@
 # include <sys/time.h>
 #elif defined(PEGASUS_HAVE_WINDOWS_THREADS)
 # include <windows.h>
+# include <process.h>
 #else
 # error "<Pegasus/Common/Threads.h>: not implemented"
 #endif
@@ -81,7 +84,7 @@ public:
 
     ThreadType()
     {
-        clear();
+        memset(this, 0, sizeof(*this));
     }
 
     ThreadType(const ThreadType& x) : _thread(x._thread), _id(x._id) 
@@ -102,19 +105,9 @@ public:
         return *this;
     }
 
-    void clear()
+    pthread_t handle() const 
     {
-        memset(this, 0, sizeof(*this));
-    }
-
-    pthread_t thread() const 
-    { 
         return _thread; 
-    }
-
-    Uint32 id() const 
-    { 
-        return _id; 
     }
 
     void print() const
@@ -127,13 +120,17 @@ private:
 
     // And id of zero indicates a null object. 1 indicates the main thread.
     Uint32 _id;
+    friend class Threads;
 };
 
 typedef void* ThreadReturnType;
 #endif
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
-typedef HANDLE ThreadType;
+struct ThreadType
+{
+    HANDLE handle;
+};
 typedef unsigned ThreadReturnType;
 #endif
 
@@ -188,6 +185,10 @@ public:
     static void cleanup_push(void (*start)(void*), void* arg);
 
     static void cleanup_pop(int execute);
+
+    static Uint32 id(const ThreadType& x);
+
+    static void clear(ThreadType& x);
 };
 
 //==============================================================================
@@ -241,6 +242,16 @@ inline void Threads::cleanup_pop(int execute)
     // ATTN: not implemented.
 }
 
+inline Uint32 Threads::id(const ThreadType& x)
+{
+    return x._id;
+}
+
+inline void Threads::clear(ThreadType& x)
+{
+    memset(&x, 0, sizeof(x));
+}
+
 #endif /* defined(PEGASUS_HAVE_PTHREADS) */
 
 //==============================================================================
@@ -253,12 +264,14 @@ inline void Threads::cleanup_pop(int execute)
 
 inline ThreadType Threads::self() 
 {
-    return ThreadType(GetCurrentThreadId()); 
+    ThreadType tt;
+    tt.handle = HANDLE(GetCurrentThreadId());
+    return tt;
 }
 
 inline bool Threads::equal(ThreadType x, ThreadType y) 
 {
-    return x == y;
+    return x.handle == y.handle;
 }
 
 inline void Threads::exit(ThreadReturnType rc)
@@ -268,7 +281,7 @@ inline void Threads::exit(ThreadReturnType rc)
 
 inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
 {
-    TerminateThread(th, rc);
+    TerminateThread(th.handle, rc);
 }
 
 inline void Threads::yield()
@@ -284,6 +297,16 @@ inline void Threads::cleanup_push(void (*func)(void*), void* arg)
 inline void Threads::cleanup_pop(int execute)
 {
     // ATTN: Not implemented on Windows.
+}
+
+inline Uint32 Threads::id(const ThreadType& x)
+{
+    return (Uint32)(long)x.handle;
+}
+
+inline void Threads::clear(ThreadType& x)
+{
+    x.handle = NULL;
 }
 
 #endif /* defined(PEGASUS_HAVE_WINDOWS_THREADS) */

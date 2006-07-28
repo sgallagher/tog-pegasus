@@ -35,6 +35,7 @@
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <windows.h>
+# include <sys/timeb.h>
 #else
 # define USE_GETTIMEOFDAY
 #endif

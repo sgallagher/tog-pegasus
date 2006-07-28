@@ -83,12 +83,12 @@ MessageQueueService::kill_idle_threads(void *parm)
 {
 
    static struct timeval now, last = {0,0};
-   gettimeofday(&now, NULL);
+   Time::gettimeofday(&now);
    int dead_threads = 0;
 
    if (now.tv_sec - last.tv_sec > 120)
    {
-      gettimeofday(&last, NULL);
+      Time::gettimeofday(&last);
       try
       {
          dead_threads = MessageQueueService::_thread_pool->cleanupIdleThreads();

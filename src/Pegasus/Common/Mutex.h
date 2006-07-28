@@ -79,10 +79,13 @@ inline void mutex_unlock(MutexType* mutex) { pthread_mutex_unlock(mutex); }
 typedef HANDLE MutexType;
 struct MutexRep
 {
-    HANDLE handle;
-    HANDLE owner;
+    MutexType handle;
+    ThreadType owner;
     size_t count;
 };
+inline void mutex_lock(MutexType* m) { WaitForSingleObject(*m, INFINITE); }
+inline void mutex_unlock(MutexType* m) { ReleaseMutex(*m); }
+# define PEGASUS_MUTEX_INITIALIZER (CreateMutex(NULL, FALSE, NULL))
 #endif
 
 //==============================================================================

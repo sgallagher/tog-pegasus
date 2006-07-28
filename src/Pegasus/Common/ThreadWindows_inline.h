@@ -48,9 +48,12 @@ inline ThreadStatus Thread::run(void)
     // So _handle.thid is actually the thread handle.
 
     unsigned threadid = 0;
-    _handle.thid = (ThreadType)
-        _beginthreadex(NULL, 0, _start, this, 0, &threadid);
-    if (_handle.thid == 0)
+    
+    ThreadType tt;
+    tt.handle = (HANDLE)_beginthreadex(NULL, 0, _start, this, 0, &threadid);
+    _handle.thid = tt;
+
+    if (Threads::id(_handle.thid) == 0)
     {
         if (errno == EAGAIN)
         {
@@ -94,32 +97,32 @@ inline void Thread::sleep( Uint32 milliseconds )
 
 inline void Thread::join(void)
 {
-	if( _handle.thid != 0 )
+	if( Threads::id(_handle.thid) != 0 )
 	{
 		if( !_is_detached )
 		{
 			if( !_cancelled )
 			{
 				// Emulate the unix join api. Caller sleeps until thread is done.
-				WaitForSingleObject( _handle.thid, INFINITE );
+				WaitForSingleObject( _handle.thid.handle, INFINITE );
 			}
 			else
 			{
 				// Currently this is the only way to ensure this code does not 
 				// hang forever.
-				if( WaitForSingleObject( _handle.thid, 10000 ) == WAIT_TIMEOUT )
+				if( WaitForSingleObject( _handle.thid.handle, 10000 ) == WAIT_TIMEOUT )
 				{
-					TerminateThread( _handle.thid, 0 );
+					TerminateThread( _handle.thid.handle, 0 );
 				}
 			}
 
 			DWORD exit_code = 0;
-			GetExitCodeThread( _handle.thid, &exit_code );
+			GetExitCodeThread( _handle.thid.handle, &exit_code );
 			_exit_code = (ThreadReturnType)exit_code;
 		}
 
-		CloseHandle( _handle.thid );
-		_handle.thid = 0;
+		CloseHandle( _handle.thid.handle );
+		Threads::clear(_handle.thid);
 	}
 }
 

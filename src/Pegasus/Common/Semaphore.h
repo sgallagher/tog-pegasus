@@ -97,7 +97,7 @@ struct SemaphoreRep
 struct SemaphoreRep
 {
     HANDLE sem;
-    HANDLE owner;
+    ThreadType owner;
 };
 #endif /* PEGASUS_USE_WINDOWS_SEMAPHORE */
 

@@ -37,10 +37,6 @@
 #include "Condition.h"
 #include "PegasusAssert.h"
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-# include "TSD.h"
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
@@ -81,20 +77,20 @@ void Condition::wait(Mutex& lock)
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
 
-static TSD _waiter_tsd;
-
 ConditionWaiter* _get_waiter()
 {
+    static DWORD* _waiter_tls = TlsAlloc();
+
     // Obtain (or create) the waiter for this thread.
 
-    ConditionWaiter* waiter = (ConditionWaiter*)_waiter_tsd.get();
+    ConditionWaiter* waiter = (ConditionWaiter*)TlsGetValue(_waiter_tls);
 
     if (waiter == 0)
     {
         waiter = new ConditionWaiter;
         waiter->event = CreateEvent(0, TRUE, FALSE, 0);
         PEGASUS_DEBUG_ASSERT(waiter->event != NULL);
-        _waiter_tsd.set(waiter);
+        TlsSetValue(_waiter_tls, waiter);
     }
 
     return waiter;

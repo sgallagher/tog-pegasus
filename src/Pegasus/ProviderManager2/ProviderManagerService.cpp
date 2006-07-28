@@ -931,7 +931,7 @@ static Boolean indicationThresholdReported = false;
         }
 
         AutoMutex indicationThresholdReportedAutoMutex1(indicationThresholdReportedLock);
-        //        indicationThresholdReportedLock.lock(Threads::self());
+        //        indicationThresholdReportedLock.lock();
         if(indicationThresholdReported)
         {
             indicationThresholdReported = false;

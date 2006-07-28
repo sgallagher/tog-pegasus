@@ -201,7 +201,7 @@ void UserFileHandler::_Update(
 
     try
     {
-        _mutex->timed_lock(_MUTEX_TIMEOUT, Threads::self());
+        _mutex->timed_lock(_MUTEX_TIMEOUT);
     }
     catch (TimeOut&)
     {

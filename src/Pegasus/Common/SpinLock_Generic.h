@@ -65,7 +65,7 @@ inline void SpinLockDestroy(SpinLock& x)
 
 inline void SpinLockLock(SpinLock& x)
 {
-    ((Mutex*)&x.mutex)->lock(Threads::self());
+    ((Mutex*)&x.mutex)->lock();
 }
 
 inline void SpinLockUnlock(SpinLock& x)

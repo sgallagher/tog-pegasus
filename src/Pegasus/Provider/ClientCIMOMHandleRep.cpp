@@ -61,7 +61,7 @@ public:
     {
         try
         {
-            _lock.try_lock(Threads::self());
+            _lock.try_lock();
         }
         catch (AlreadyLocked &)
         {

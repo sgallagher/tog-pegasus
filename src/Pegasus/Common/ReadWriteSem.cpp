@@ -301,7 +301,6 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
 
     // cleanup stack frame
     {
-
         Threads::cleanup_push(extricate_read_write, this);
 
         try

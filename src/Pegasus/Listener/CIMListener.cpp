@@ -333,7 +333,7 @@ CIMListenerService::_listener_routine(void *param)
     // _dieNow to true and called Monitor::tickle(). We must wait until we
     // can obtain the _monitorMutex, indicating that we are no longer inside
     // Monitor::tickle().
-    svc->_monitorMutex.lock(Threads::self());
+    svc->_monitorMutex.lock();
     svc->_monitorMutex.unlock();
     delete svc;
 

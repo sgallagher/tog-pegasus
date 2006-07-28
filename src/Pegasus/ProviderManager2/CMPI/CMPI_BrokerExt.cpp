@@ -223,7 +223,7 @@ extern "C" {
 
    static void lockMutex (CMPI_MUTEX_TYPE m)
    {
-      ((Mutex*)m)->lock(Threads::self());
+      ((Mutex*)m)->lock();
    }
 
    static void unlockMutex (CMPI_MUTEX_TYPE m)

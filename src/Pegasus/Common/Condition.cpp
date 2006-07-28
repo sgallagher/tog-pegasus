@@ -79,7 +79,11 @@ void Condition::wait(Mutex& lock)
 
 ConditionWaiter* _get_waiter()
 {
-    static DWORD* _waiter_tls = TlsAlloc();
+    // ATTN: since Windows Thread Local Storage does not have a cleanup 
+    // routine mechanism, the ConditionWaiter object (and its event) will 
+    // be leaked when the thread exists.
+
+    static DWORD _waiter_tls = TlsAlloc();
 
     // Obtain (or create) the waiter for this thread.
 

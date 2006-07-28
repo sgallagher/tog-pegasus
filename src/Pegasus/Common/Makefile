@@ -57,7 +57,6 @@ SOURCES1 = \
     TSDKey.cpp \
     Semaphore.cpp \
     ReadWriteSem.cpp \
-    TSD.cpp \
     Condition.cpp \
     AnonymousPipe.cpp \
     Array.cpp \

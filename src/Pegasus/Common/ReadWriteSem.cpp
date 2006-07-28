@@ -38,14 +38,18 @@
 #include "ReadWriteSem.h"
 #include "Time.h"
 #include "PegasusAssert.h"
+#include "Threads.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
 //==============================================================================
 //
 // PEGASUS_USE_POSIX_RWLOCK
 //
 //==============================================================================
+
 #ifdef PEGASUS_USE_POSIX_RWLOCK
+
 ReadWriteSem::ReadWriteSem():_readers(0), _writers(0)
 {
     pthread_rwlock_init(&_rwlock.rwlock, NULL);
@@ -288,7 +292,6 @@ ReadWriteSem::~ReadWriteSem()
 void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
                               int milliseconds)
 {
-
 //-----------------------------------------------------------------
 // Lock this object to maintain integrity while we decide
 // exactly what to do next.

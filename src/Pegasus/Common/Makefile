@@ -42,7 +42,7 @@ endif
 
 LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY
 
-LIBRARY = pegcommon
+LIBRARY = xxx_pegcommon
 
 ##
 ## CAUTION: the source files are divided evenly (more or less) between SOURCES1

@@ -304,19 +304,24 @@ ThreadPool::~ThreadPool()
         _dying++;
        Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
 		"Cleaning up %d idle threads. ", _currentThreads.get());
+
+printf("***BEFORE\n");
         while (_currentThreads.get() > 0)
         {
             Thread* thread = _idleThreads.remove_front();
             if (thread != 0)
             {
+printf("***INSIDE1\n");
                 _cleanupThread(thread);
                 _currentThreads--;
             }
             else
             {
+printf("***INSIDE2\n");
                 Threads::yield();
             }
         }
+printf("***AFTER\n");
     }
     catch (...)
     {

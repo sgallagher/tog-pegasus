@@ -129,6 +129,8 @@ typedef void* ThreadReturnType;
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
 struct ThreadType
 {
+    ThreadType() : handle(NULL) { }
+
     HANDLE handle;
 };
 typedef unsigned ThreadReturnType;

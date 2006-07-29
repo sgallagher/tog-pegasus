@@ -1,31 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +49,11 @@
 # include <processes.h>
 #endif /* PEGASUS_OS_VMS */
 
-#include <unistd.h>
+#if defined (PEGASUS_OS_OS400)
+# include <unistd.cleinc>
+#else
+# include <unistd.h>
+#endif
 #include <errno.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -53,10 +65,10 @@ AnonymousPipe::AnonymousPipe ()
     AnonymousPipeHandle thePipe [2];
     if (pipe (thePipe) < 0)
     {
-        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
-            "Failed to create pipe: %s", strerror (errno)));
+        Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "Failed to create pipe: %s", strerror (errno));
         PEG_METHOD_EXIT ();
-
+        
         MessageLoaderParms mlp ("Common.AnonymousPipe.CREATE_PIPE_FAILED",
             "Failed to create pipe.");
         throw Exception (mlp);
@@ -74,7 +86,7 @@ AnonymousPipe::AnonymousPipe (
     const char * readHandle,
     const char * writeHandle)
 {
-    PEG_METHOD_ENTER (TRC_OS_ABSTRACTION,
+    PEG_METHOD_ENTER (TRC_OS_ABSTRACTION, 
         "AnonymousPipe::AnonymousPipe (const char *, const char *)");
 
     _readHandle = 0;
@@ -86,8 +98,8 @@ AnonymousPipe::AnonymousPipe (
     {
         if (sscanf (readHandle, "%d", &_readHandle) != 1)
         {
-            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
-                "Failed to create pipe: invalid read handle %s", readHandle));
+            Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                "Failed to create pipe: invalid read handle %s", readHandle);
             PEG_METHOD_EXIT ();
 
             MessageLoaderParms mlp ("Common.AnonymousPipe.CREATE_PIPE_FAILED",
@@ -101,8 +113,8 @@ AnonymousPipe::AnonymousPipe (
     {
         if (sscanf (writeHandle, "%d", &_writeHandle) != 1)
         {
-            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
-                "Failed to create pipe: invalid write handle %s", writeHandle));
+            Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                "Failed to create pipe: invalid write handle %s", writeHandle);
             PEG_METHOD_EXIT ();
 
             MessageLoaderParms mlp ("Common.AnonymousPipe.CREATE_PIPE_FAILED",
@@ -140,7 +152,7 @@ AnonymousPipe::Status AnonymousPipe::writeBuffer (
     //
     if (!_writeOpen)
     {
-        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             "Attempted to write to pipe whose write handle is not open");
         return STATUS_CLOSED;
     }
@@ -158,8 +170,8 @@ AnonymousPipe::Status AnonymousPipe::writeBuffer (
 
         if (bytesWritten < 0)
         {
-            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                "Failed to write buffer to pipe: %s", strerror (errno)));
+            Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                "Failed to write buffer to pipe: %s", strerror (errno));
 
             if (errno == EPIPE)
             {
@@ -197,7 +209,7 @@ AnonymousPipe::Status AnonymousPipe::readBuffer (
     //
     if (!_readOpen)
     {
-        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             "Attempted to read from pipe whose read handle is not open");
         return STATUS_CLOSED;
     }
@@ -213,15 +225,15 @@ AnonymousPipe::Status AnonymousPipe::readBuffer (
             //
             //  Connection closed
             //
-            PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                 "Failed to read buffer from pipe: connection closed");
             return STATUS_CLOSED;
         }
 
         if (bytesRead < 0)
         {
-            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                "Failed to read buffer from pipe: %s", strerror (errno)));
+            Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                "Failed to read buffer from pipe: %s", strerror (errno));
 
             //
             //  If read was interrupted, keep trying
@@ -282,8 +294,8 @@ void AnonymousPipe::closeReadHandle ()
     {
         if (close (_readHandle) != 0)
         {
-            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                "Failed to close read handle: %s", strerror (errno)));
+            Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                "Failed to close read handle: %s", strerror (errno));
         }
         else
         {
@@ -292,7 +304,7 @@ void AnonymousPipe::closeReadHandle ()
     }
     else
     {
-        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             "Attempted to close read handle that was not open");
     }
 
@@ -307,8 +319,8 @@ void AnonymousPipe::closeWriteHandle ()
     {
         if (close (_writeHandle) != 0)
         {
-            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                "Failed to close write handle: %s", strerror (errno)));
+            Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                "Failed to close write handle: %s", strerror (errno));
         }
         else
         {
@@ -317,7 +329,7 @@ void AnonymousPipe::closeWriteHandle ()
     }
     else
     {
-        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             "Attempted to close write handle that was not open");
     }
 

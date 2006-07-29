@@ -166,6 +166,7 @@ SOURCES2 = \
     TraceFileHandler.cpp \
     Tracer.cpp \
     Thread.cpp \
+    ThreadPool.cpp \
     Union.cpp \
     XmlParser.cpp \
     XmlReader.cpp \

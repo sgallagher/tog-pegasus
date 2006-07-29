@@ -58,17 +58,17 @@ PEGASUS_NAMESPACE_BEGIN
 
 #if defined(PEGASUS_HAVE_PTHREADS)
 
-extern "C" void* _start_wrapper(void* arg_)
+extern "C" void *_start_wrapper(void *arg_)
 {
-    StartWrapperArg* arg = (StartWrapperArg*)arg_;
+    StartWrapperArg *arg = (StartWrapperArg *) arg_;
 
-    void* return_value = (*arg->start)(arg->arg);
+    void *return_value = (*arg->start) (arg->arg);
     delete arg;
 
     return return_value;
 }
 
-static sigset_t *block_signal_mask(sigset_t *sig)
+static sigset_t *block_signal_mask(sigset_t * sig)
 {
     sigemptyset(sig);
     // should not be used for main()
@@ -99,18 +99,10 @@ static sigset_t *block_signal_mask(sigset_t *sig)
     return sig;
 }
 
-Thread::Thread(
-    ThreadReturnType (PEGASUS_THREAD_CDECL *start)(void *),
-    void *parameter,
-    Boolean detached)
-    : _is_detached(detached),
-      _cancel_enabled(true),
-      _cancelled(false),
-      _start(start),
-      _cleanup(),
-      _tsd(),
-      _thread_parm(parameter),
-      _exit_code(0)
+Thread::Thread(ThreadReturnType(PEGASUS_THREAD_CDECL * start) (void *), void *parameter, Boolean detached):_is_detached(detached),
+_cancel_enabled(true),
+_cancelled(false),
+_start(start), _cleanup(), _tsd(), _thread_parm(parameter), _exit_code(0)
 {
     Threads::clear(_handle.thid);
 }
@@ -122,7 +114,7 @@ Thread::~Thread()
         join();
         empty_tsd();
     }
-    catch (...)
+    catch(...)
     {
         // Do not allow the destructor to throw an exception
     }
@@ -138,33 +130,26 @@ Thread::~Thread()
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
 
-Thread::Thread( 
-	ThreadReturnType ( PEGASUS_THREAD_CDECL *start )( void* ),
-	void* parameter, 
-	Boolean detached )
-	:
-	_is_detached( detached ), 
-	_cancel_enabled( true ),
-	_cancelled( false ),
-	_start( start ), 
-	_cleanup(),
-	_tsd( ),
-	_thread_parm( parameter ), 
-	_exit_code( 0 )
+Thread::Thread(ThreadReturnType(PEGASUS_THREAD_CDECL * start) (void *),
+               void *parameter,
+               Boolean detached):_is_detached(detached),
+_cancel_enabled(true),
+_cancelled(false),
+_start(start), _cleanup(), _tsd(), _thread_parm(parameter), _exit_code(0)
 {
-	Threads::clear(_handle.thid);
+    Threads::clear(_handle.thid);
 }
 
 Thread::~Thread()
 {
-	try 
-	{
-		join();
-		empty_tsd();
-	}
-	catch(...)
-	{
-	}
+    try
+    {
+        join();
+        empty_tsd();
+    }
+    catch(...)
+    {
+    }
 }
 
 #endif /* PEGASUS_HAVE_WINDOWS_THREADS */
@@ -175,18 +160,19 @@ Thread::~Thread()
 //
 //==============================================================================
 
-void thread_data::default_delete(void * data)
+void thread_data::default_delete(void *data)
 {
-    if( data != NULL)
-        ::operator delete(data);
+    if (data != NULL)
+        ::operator  delete(data);
 }
 
-void language_delete(void * data)
+void language_delete(void *data)
 {
-   if( data != NULL)
-   {
-      AutoPtr<AcceptLanguageList> al(static_cast<AcceptLanguageList *>(data));
-   }
+    if (data != NULL)
+    {
+        AutoPtr < AcceptLanguageList > al(static_cast <
+                                          AcceptLanguageList * >(data));
+    }
 }
 
 Boolean Thread::_signals_blocked = false;
@@ -198,9 +184,9 @@ TSDKeyType Thread::_platform_thread_key;
 Boolean Thread::_key_initialized = false;
 Boolean Thread::_key_error = false;
 
-void Thread::cleanup_push( void (*routine)(void *), void *parm)
+void Thread::cleanup_push(void (*routine) (void *), void *parm)
 {
-    AutoPtr<cleanup_handler> cu(new cleanup_handler(routine, parm));
+    AutoPtr < cleanup_handler > cu(new cleanup_handler(routine, parm));
     _cleanup.insert_front(cu.get());
     cu.release();
     return;
@@ -208,16 +194,16 @@ void Thread::cleanup_push( void (*routine)(void *), void *parm)
 
 void Thread::cleanup_pop(Boolean execute)
 {
-    AutoPtr<cleanup_handler> cu;
+    AutoPtr < cleanup_handler > cu;
     try
     {
         cu.reset(_cleanup.remove_front());
     }
-    catch(IPCException&)
+    catch(IPCException &)
     {
         PEGASUS_ASSERT(0);
-     }
-    if(execute == true)
+    }
+    if (execute == true)
         cu->execute();
 }
 
@@ -235,21 +221,21 @@ void Thread::exit_self(ThreadReturnType exit_code)
     pthread_exit(exit_code);
 #else
     // execute the cleanup stack and then return
-   while( _cleanup.size() )
-   {
-       try
-       {
-           cleanup_pop(true);
-       }
-       catch(IPCException&)
-       {
-          PEGASUS_ASSERT(0);
-          break;
-       }
-   }
-   _exit_code = exit_code;
-   Threads::exit(exit_code);
-   Threads::clear(_handle.thid);
+    while (_cleanup.size())
+    {
+        try
+        {
+            cleanup_pop(true);
+        }
+        catch(IPCException &)
+        {
+            PEGASUS_ASSERT(0);
+            break;
+        }
+    }
+    _exit_code = exit_code;
+    Threads::exit(exit_code);
+    Threads::clear(_handle.thid);
 #endif
 }
 
@@ -261,20 +247,20 @@ Sint8 Thread::initializeKey()
         if (Thread::_key_error)
         {
             Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-                "Thread: ERROR - thread key error");
+                          "Thread: ERROR - thread key error");
             return -1;
         }
 
         if (TSDKey::create(&Thread::_platform_thread_key) == 0)
         {
             Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-                "Thread: able to create a thread key");
+                          "Thread: able to create a thread key");
             Thread::_key_initialized = true;
         }
         else
         {
             Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-                "Thread: ERROR - unable to create a thread key");
+                          "Thread: ERROR - unable to create a thread key");
             Thread::_key_error = true;
             return -1;
         }
@@ -284,7 +270,7 @@ Sint8 Thread::initializeKey()
     return 0;
 }
 
-Thread * Thread::getCurrent()
+Thread *Thread::getCurrent()
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::getCurrent");
     if (Thread::initializeKey() != 0)
@@ -292,7 +278,7 @@ Thread * Thread::getCurrent()
         return NULL;
     }
     PEG_METHOD_EXIT();
-    return (Thread *)TSDKey::get_thread_specific(_platform_thread_key);
+    return (Thread *) TSDKey::get_thread_specific(_platform_thread_key);
 }
 
 void Thread::setCurrent(Thread * thrd)
@@ -300,8 +286,9 @@ void Thread::setCurrent(Thread * thrd)
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::setCurrent");
     if (Thread::initializeKey() == 0)
     {
-        if (TSDKey::set_thread_specific(
-               Thread::_platform_thread_key, (void *) thrd) == 0)
+        if (TSDKey::
+            set_thread_specific(Thread::_platform_thread_key,
+                                (void *) thrd) == 0)
         {
             Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
                 "Successful set Thread * into thread specific storage");
@@ -315,42 +302,41 @@ void Thread::setCurrent(Thread * thrd)
     PEG_METHOD_EXIT();
 }
 
-AcceptLanguageList * Thread::getLanguages()
+AcceptLanguageList *Thread::getLanguages()
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::getLanguages");
 
-    Thread * curThrd = Thread::getCurrent();
+    Thread *curThrd = Thread::getCurrent();
     if (curThrd == NULL)
         return NULL;
-    AcceptLanguageList * acceptLangs =
-        (AcceptLanguageList *)curThrd->reference_tsd("acceptLanguages");
+    AcceptLanguageList *acceptLangs =
+        (AcceptLanguageList *) curThrd->reference_tsd("acceptLanguages");
     curThrd->dereference_tsd();
     PEG_METHOD_EXIT();
     return acceptLangs;
 }
 
-void Thread::setLanguages(AcceptLanguageList *langs) //l10n
+void Thread::setLanguages(AcceptLanguageList * langs)   // l10n
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::setLanguages");
 
-    Thread* currentThrd = Thread::getCurrent();
+    Thread *currentThrd = Thread::getCurrent();
     if (currentThrd != NULL)
     {
         // deletes the old tsd and creates a new one
         currentThrd->put_tsd("acceptLanguages",
-            language_delete,
-            sizeof(AcceptLanguageList *),
-            langs);
+                             language_delete,
+                             sizeof (AcceptLanguageList *), langs);
     }
 
     PEG_METHOD_EXIT();
 }
 
-void Thread::clearLanguages() //l10n
+void Thread::clearLanguages()   // l10n
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::clearLanguages");
 
-    Thread * currentThrd = Thread::getCurrent();
+    Thread *currentThrd = Thread::getCurrent();
     if (currentThrd != NULL)
     {
         // deletes the old tsd
@@ -366,18 +352,14 @@ void Thread::clearLanguages() //l10n
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-ThreadPool::ThreadPool(
-    Sint16 initialSize,
-    const char* key,
-    Sint16 minThreads,
-    Sint16 maxThreads,
-    struct timeval& deallocateWait)
-    : _maxThreads(maxThreads),
-      _minThreads(minThreads),
-      _currentThreads(0),
-      _idleThreads(),
-      _runningThreads(),
-      _dying(0)
+ThreadPool::ThreadPool(Sint16 initialSize,
+                       const char *key,
+                       Sint16 minThreads,
+                       Sint16 maxThreads,
+                       struct timeval
+                       &deallocateWait):_maxThreads(maxThreads),
+_minThreads(minThreads), _currentThreads(0), _idleThreads(),
+_runningThreads(), _dying(0)
 {
     _deallocateWait.tv_sec = deallocateWait.tv_sec;
     _deallocateWait.tv_usec = deallocateWait.tv_usec;
@@ -410,14 +392,15 @@ ThreadPool::~ThreadPool()
 
     try
     {
-        // Set the dying flag so all thread know the destructor has been entered
+        // Set the dying flag so all thread know the destructor has been
+        // entered
         _dying++;
-       Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
-		"Cleaning up %d idle threads. ", _currentThreads.get());
+        Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
+                      "Cleaning up %d idle threads. ", _currentThreads.get());
 
         while (_currentThreads.get() > 0)
         {
-            Thread* thread = _idleThreads.remove_front();
+            Thread *thread = _idleThreads.remove_front();
             if (thread != 0)
             {
                 _cleanupThread(thread);
@@ -429,51 +412,52 @@ ThreadPool::~ThreadPool()
             }
         }
     }
-    catch (...)
+    catch(...)
     {
     }
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
+ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 {
     PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::_loop");
 
     try
     {
-        Thread* myself = (Thread *)parm;
+        Thread *myself = (Thread *) parm;
         PEGASUS_ASSERT(myself != 0);
 
         // Set myself into thread specific storage
         // This will allow code to get its own Thread
         Thread::setCurrent(myself);
 
-        ThreadPool* pool = (ThreadPool *)myself->get_parm();
+        ThreadPool *pool = (ThreadPool *) myself->get_parm();
         PEGASUS_ASSERT(pool != 0);
 
-        Semaphore* sleep_sem = 0;
-        struct timeval* lastActivityTime = 0;
+        Semaphore *sleep_sem = 0;
+        struct timeval *lastActivityTime = 0;
 
         try
         {
-            sleep_sem = (Semaphore *)myself->reference_tsd("sleep sem");
+            sleep_sem = (Semaphore *) myself->reference_tsd("sleep sem");
             myself->dereference_tsd();
             PEGASUS_ASSERT(sleep_sem != 0);
 
             lastActivityTime =
-                (struct timeval *)myself->reference_tsd("last activity time");
+                (struct timeval *) myself->
+                reference_tsd("last activity time");
             myself->dereference_tsd();
             PEGASUS_ASSERT(lastActivityTime != 0);
         }
-        catch (...)
+        catch(...)
         {
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "ThreadPool::_loop: Failure getting sleep_sem or "
-                    "lastActivityTime.");
+                          "ThreadPool::_loop: Failure getting sleep_sem or "
+                          "lastActivityTime.");
             PEGASUS_ASSERT(false);
             pool->_idleThreads.remove(myself);
             pool->_currentThreads--;
             PEG_METHOD_EXIT();
-            return((ThreadReturnType)1);
+            return ((ThreadReturnType) 1);
         }
 
         while (1)
@@ -482,50 +466,51 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             {
                 sleep_sem->wait();
             }
-            catch (...)
+            catch(...)
             {
                 Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "ThreadPool::_loop: failure on sleep_sem->wait().");
+                              "ThreadPool::_loop: failure on sleep_sem->wait().");
                 PEGASUS_ASSERT(false);
                 pool->_idleThreads.remove(myself);
                 pool->_currentThreads--;
                 PEG_METHOD_EXIT();
-                return((ThreadReturnType)1);
+                return ((ThreadReturnType) 1);
             }
 
             // When we awaken we reside on the _runningThreads queue, not the
             // _idleThreads queue.
 
-            ThreadReturnType (PEGASUS_THREAD_CDECL* work)(void *) = 0;
-            void* parm = 0;
-            Semaphore* blocking_sem = 0;
+            ThreadReturnType(PEGASUS_THREAD_CDECL * work) (void *) = 0;
+            void *parm = 0;
+            Semaphore *blocking_sem = 0;
 
             try
             {
-                work = (ThreadReturnType (PEGASUS_THREAD_CDECL *)(void *))
+                work = (ThreadReturnType(PEGASUS_THREAD_CDECL *) (void *))
                     myself->reference_tsd("work func");
                 myself->dereference_tsd();
                 parm = myself->reference_tsd("work parm");
                 myself->dereference_tsd();
-                blocking_sem = (Semaphore *)myself->reference_tsd("blocking sem");
+                blocking_sem =
+                    (Semaphore *) myself->reference_tsd("blocking sem");
                 myself->dereference_tsd();
             }
-            catch (...)
+            catch(...)
             {
                 Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "ThreadPool::_loop: Failure accessing work func, work parm, "
-                        "or blocking sem.");
+                              "ThreadPool::_loop: Failure accessing work func, work parm, "
+                              "or blocking sem.");
                 PEGASUS_ASSERT(false);
                 pool->_idleThreads.remove(myself);
                 pool->_currentThreads--;
                 PEG_METHOD_EXIT();
-                return((ThreadReturnType)1);
+                return ((ThreadReturnType) 1);
             }
 
             if (work == 0)
             {
                 Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-                    "ThreadPool::_loop: work func is 0, meaning we should exit.");
+                              "ThreadPool::_loop: work func is 0, meaning we should exit.");
                 break;
             }
 
@@ -533,28 +518,32 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
 
             try
             {
-                PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4, "Work starting.");
+                PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4,
+                                 "Work starting.");
                 work(parm);
-                PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4, "Work finished.");
+                PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4,
+                                 "Work finished.");
             }
-            catch (Exception & e)
+            catch(Exception & e)
             {
                 PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    String("Exception from work in ThreadPool::_loop: ") +
-                        e.getMessage());
+                                 String
+                                 ("Exception from work in ThreadPool::_loop: ")
+                                 + e.getMessage());
             }
 #if !defined(PEGASUS_OS_LSB)
-            catch (const exception& e)
+            catch(const exception & e)
             {
                 PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    String("Exception from work in ThreadPool::_loop: ") +
-                        e.what());
+                                 String
+                                 ("Exception from work in ThreadPool::_loop: ")
+                                 + e.what());
             }
 #endif
-            catch (...)
+            catch(...)
             {
                 PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "Unknown exception from work in ThreadPool::_loop.");
+                                 "Unknown exception from work in ThreadPool::_loop.");
             }
 
             // put myself back onto the available list
@@ -569,36 +558,38 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
                 pool->_runningThreads.remove(myself);
                 pool->_idleThreads.insert_front(myself);
             }
-            catch (...)
+            catch(...)
             {
                 Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "ThreadPool::_loop: Adding thread to idle pool failed.");
+                              "ThreadPool::_loop: Adding thread to idle pool failed.");
                 PEGASUS_ASSERT(false);
                 pool->_currentThreads--;
                 PEG_METHOD_EXIT();
-                return((ThreadReturnType)1);
+                return ((ThreadReturnType) 1);
             }
         }
     }
-    catch (const Exception& e)
+    catch(const Exception & e)
     {
         PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "Caught exception: \"" + e.getMessage() + "\".  Exiting _loop.");
+                         "Caught exception: \"" + e.getMessage() +
+                         "\".  Exiting _loop.");
     }
-    catch (...)
+    catch(...)
     {
         PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "Caught unrecognized exception.  Exiting _loop.");
+                         "Caught unrecognized exception.  Exiting _loop.");
     }
 
     PEG_METHOD_EXIT();
-    return((ThreadReturnType)0);
+    return ((ThreadReturnType) 0);
 }
 
-ThreadStatus ThreadPool::allocate_and_awaken(
-    void* parm,
-    ThreadReturnType (PEGASUS_THREAD_CDECL* work)(void *),
-    Semaphore* blocking)
+ThreadStatus ThreadPool::allocate_and_awaken(void *parm,
+                                             ThreadReturnType
+                                             (PEGASUS_THREAD_CDECL *
+                                              work) (void *),
+                                             Semaphore * blocking)
 {
     PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::allocate_and_awaken");
 
@@ -611,19 +602,19 @@ ThreadStatus ThreadPool::allocate_and_awaken(
         if (_dying.get())
         {
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "ThreadPool::allocate_and_awaken: ThreadPool is dying(1).");
+                          "ThreadPool::allocate_and_awaken: ThreadPool is dying(1).");
             return PEGASUS_THREAD_UNAVAILABLE;
         }
         struct timeval start;
         Time::gettimeofday(&start);
-        Thread* th = 0;
+        Thread *th = 0;
 
         th = _idleThreads.remove_front();
 
         if (th == 0)
         {
-            if ((_maxThreads == 0) || 
-		(_currentThreads.get() < Uint32(_maxThreads)))
+            if ((_maxThreads == 0) ||
+                (_currentThreads.get() < Uint32(_maxThreads)))
             {
                 th = _initializeThread();
             }
@@ -637,42 +628,42 @@ ThreadStatus ThreadPool::allocate_and_awaken(
             // this label is being used temporarily to help isolate
             // the cause of client timeout problems.
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "ThreadPool::allocate_and_awaken: Insufficient resources: "
-                    " pool = %s, running threads = %d, idle threads = %d",
-                _key, _runningThreads.size(), _idleThreads.size());
+                          "ThreadPool::allocate_and_awaken: Insufficient resources: "
+                          " pool = %s, running threads = %d, idle threads = %d",
+                          _key, _runningThreads.size(), _idleThreads.size());
             return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
         }
 
         // initialize the thread data with the work function and parameters
         Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-            "Initializing thread with work function and parameters: parm = %p",
-            parm);
+                      "Initializing thread with work function and parameters: parm = %p",
+                      parm);
 
         th->delete_tsd("work func");
         th->put_tsd("work func", NULL,
-            sizeof( ThreadReturnType (PEGASUS_THREAD_CDECL *)(void *)),
-            (void *)work);
+                    sizeof (ThreadReturnType(PEGASUS_THREAD_CDECL *)
+                            (void *)), (void *) work);
         th->delete_tsd("work parm");
-        th->put_tsd("work parm", NULL, sizeof(void *), parm);
+        th->put_tsd("work parm", NULL, sizeof (void *), parm);
         th->delete_tsd("blocking sem");
         if (blocking != 0)
-            th->put_tsd("blocking sem", NULL, sizeof(Semaphore *), blocking);
+            th->put_tsd("blocking sem", NULL, sizeof (Semaphore *), blocking);
 
         // put the thread on the running list
         _runningThreads.insert_front(th);
 
         // signal the thread's sleep semaphore to awaken it
-        Semaphore* sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+        Semaphore *sleep_sem = (Semaphore *) th->reference_tsd("sleep sem");
         PEGASUS_ASSERT(sleep_sem != 0);
 
         Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "Signal thread to awaken");
         sleep_sem->signal();
         th->dereference_tsd();
     }
-    catch (...)
+    catch(...)
     {
         Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "ThreadPool::allocate_and_awaken: Operation Failed.");
+                      "ThreadPool::allocate_and_awaken: Operation Failed.");
         PEG_METHOD_EXIT();
         // ATTN: Error result has not yet been defined
         return PEGASUS_THREAD_SETUP_FAILURE;
@@ -694,27 +685,29 @@ Uint32 ThreadPool::cleanupIdleThreads()
     for (Uint32 i = 0; i < numIdleThreads; i++)
     {
         // Do not dip below the minimum thread count
-        if (_currentThreads.get() <= (Uint32)_minThreads)
+        if (_currentThreads.get() <= (Uint32) _minThreads)
         {
             break;
         }
 
-        Thread* thread = _idleThreads.remove_back();
+        Thread *thread = _idleThreads.remove_back();
 
-        // If there are no more threads in the _idleThreads queue, we're done.
+        // If there are no more threads in the _idleThreads queue, we're
+        // done.
         if (thread == 0)
         {
             break;
         }
 
-        struct timeval* lastActivityTime;
+        struct timeval *lastActivityTime;
         try
         {
-            lastActivityTime = (struct timeval *)thread->try_reference_tsd(
-                "last activity time");
+            lastActivityTime =
+                (struct timeval *) thread->
+                try_reference_tsd("last activity time");
             PEGASUS_ASSERT(lastActivityTime != 0);
         }
-        catch (...)
+        catch(...)
         {
             PEGASUS_ASSERT(false);
             _idleThreads.insert_back(thread);
@@ -741,21 +734,20 @@ Uint32 ThreadPool::cleanupIdleThreads()
     return numThreadsCleanedUp;
 }
 
-void ThreadPool::_cleanupThread(Thread* thread)
+void ThreadPool::_cleanupThread(Thread * thread)
 {
     PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::cleanupThread");
 
     // Set the "work func" and "work parm" to 0 so _loop() knows to exit.
     thread->delete_tsd("work func");
-    thread->put_tsd(
-        "work func", 0,
-        sizeof(ThreadReturnType (PEGASUS_THREAD_CDECL *)(void *)),
-        (void *) 0);
+    thread->put_tsd("work func", 0,
+                    sizeof (ThreadReturnType(PEGASUS_THREAD_CDECL *)
+                            (void *)), (void *) 0);
     thread->delete_tsd("work parm");
-    thread->put_tsd("work parm", 0, sizeof(void *), 0);
+    thread->put_tsd("work parm", 0, sizeof (void *), 0);
 
     // signal the thread's sleep semaphore to awaken it
-    Semaphore* sleep_sem = (Semaphore *)thread->reference_tsd("sleep sem");
+    Semaphore *sleep_sem = (Semaphore *) thread->reference_tsd("sleep sem");
     PEGASUS_ASSERT(sleep_sem != 0);
     sleep_sem->signal();
     thread->dereference_tsd();
@@ -766,9 +758,8 @@ void ThreadPool::_cleanupThread(Thread* thread)
     PEG_METHOD_EXIT();
 }
 
-Boolean ThreadPool::_timeIntervalExpired(
-    struct timeval* start,
-    struct timeval* interval)
+Boolean ThreadPool::_timeIntervalExpired(struct timeval *start,
+                                         struct timeval *interval)
 {
     // never time out if the interval is zero
     if (interval && (interval->tv_sec == 0) && (interval->tv_usec == 0))
@@ -779,7 +770,7 @@ Boolean ThreadPool::_timeIntervalExpired(
     struct timeval now, finish, remaining;
     Uint32 usec;
     Time::gettimeofday(&now);
-    Time::gettimeofday(&remaining);    // Avoid valgrind error
+    Time::gettimeofday(&remaining);     // Avoid valgrind error
 
     finish.tv_sec = start->tv_sec + interval->tv_sec;
     usec = start->tv_usec + interval->tv_usec;
@@ -792,34 +783,34 @@ Boolean ThreadPool::_timeIntervalExpired(
 
 void ThreadPool::_deleteSemaphore(void *p)
 {
-    delete (Semaphore *)p;
+    delete(Semaphore *) p;
 }
 
-Thread* ThreadPool::_initializeThread()
+Thread *ThreadPool::_initializeThread()
 {
     PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::_initializeThread");
 
-    Thread* th = (Thread *) new Thread(_loop, this, false);
+    Thread *th = (Thread *) new Thread(_loop, this, false);
 
     // allocate a sleep semaphore and pass it in the thread context
     // initial count is zero, loop function will sleep until
     // we signal the semaphore
-    Semaphore* sleep_sem = (Semaphore *) new Semaphore(0);
-    th->put_tsd(
-        "sleep sem", &_deleteSemaphore, sizeof(Semaphore), (void *)sleep_sem);
+    Semaphore *sleep_sem = (Semaphore *) new Semaphore(0);
+    th->put_tsd("sleep sem", &_deleteSemaphore, sizeof (Semaphore),
+                (void *) sleep_sem);
 
-    struct timeval* lastActivityTime =
-        (struct timeval *) ::operator new(sizeof(struct timeval));
+    struct timeval *lastActivityTime =
+        (struct timeval *)::operator  new(sizeof (struct timeval));
     Time::gettimeofday(lastActivityTime);
 
     th->put_tsd("last activity time", thread_data::default_delete,
-        sizeof(struct timeval), (void *)lastActivityTime);
+                sizeof (struct timeval), (void *) lastActivityTime);
     // thread will enter _loop() and sleep on sleep_sem until we signal it
 
     if (th->run() != PEGASUS_THREAD_OK)
     {
-		Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
-			"Could not create thread. Error code is %d.", errno);
+        Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
+                      "Could not create thread. Error code is %d.", errno);
         delete th;
         return 0;
     }
@@ -830,12 +821,12 @@ Thread* ThreadPool::_initializeThread()
     return th;
 }
 
-void ThreadPool::_addToIdleThreadsQueue(Thread* th)
+void ThreadPool::_addToIdleThreadsQueue(Thread * th)
 {
     if (th == 0)
     {
         Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "ThreadPool::_addToIdleThreadsQueue: Thread pointer is null.");
+                      "ThreadPool::_addToIdleThreadsQueue: Thread pointer is null.");
         throw NullPointer();
     }
 
@@ -843,17 +834,17 @@ void ThreadPool::_addToIdleThreadsQueue(Thread* th)
     {
         _idleThreads.insert_front(th);
     }
-    catch (...)
+    catch(...)
     {
         Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "ThreadPool::_addToIdleThreadsQueue: _idleThreads.insert_front "
-                "failed.");
+                      "ThreadPool::_addToIdleThreadsQueue: _idleThreads.insert_front "
+                      "failed.");
     }
 }
 
 // ATTN: not sure where to put this!
 #ifdef PEGASUS_ZOS_SECURITY
-bool isEnhancedSecurity=99;
+bool isEnhancedSecurity = 99;
 #endif
 
 PEGASUS_NAMESPACE_END

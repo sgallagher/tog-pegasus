@@ -229,6 +229,7 @@ int ReadWriteSem::write_count() const
 // 2) I do not hold the write lock
 // 3) I am not using a reader slot
 
+#if 0
 void extricate_read_write(void *parm)
 {
     ReadWriteSem *rws = (ReadWriteSem *) parm;
@@ -242,6 +243,7 @@ void extricate_read_write(void *parm)
     if (Threads::equal(rws->_rwlock._internal_lock.get_owner(), myself))
         rws->_rwlock._internal_lock.unlock();
 }
+#endif
 
 
 ReadWriteSem::ReadWriteSem():_readers(0), _writers(0), _rwlock()
@@ -253,7 +255,7 @@ ReadWriteSem::~ReadWriteSem()
     // lock everyone out of this object
     try
     {
-        _rwlock._internal_lock.lock(Threads::self());
+        _rwlock._internal_lock.lock();
     }
     catch(Deadlock & d)
     {
@@ -301,17 +303,16 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
 
     // cleanup stack frame
     {
-        Threads::cleanup_push(extricate_read_write, this);
+        // Threads::cleanup_push(extricate_read_write, this);
 
         try
         {
             if (milliseconds == 0)
-                _rwlock._internal_lock.try_lock(Threads::self());
+                _rwlock._internal_lock.try_lock();
             else if (milliseconds == -1)
-                _rwlock._internal_lock.lock(Threads::self());
+                _rwlock._internal_lock.lock();
             else
-                _rwlock._internal_lock.timed_lock(milliseconds,
-                                                  Threads::self());
+                _rwlock._internal_lock.timed_lock(milliseconds);
         }
         catch(const IPCException & e)
         {
@@ -368,7 +369,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
             {
                 try
                 {
-                    _rwlock._wlock.try_lock(Threads::self());
+                    _rwlock._wlock.try_lock();
                 }
                 catch(IPCException & e)
                 {
@@ -381,7 +382,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
             {
                 try
                 {
-                    _rwlock._wlock.lock(Threads::self());
+                    _rwlock._wlock.lock();
                 }
                 catch(const IPCException & e)
                 {
@@ -394,7 +395,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
             {
                 try
                 {
-                    _rwlock._wlock.timed_lock(milliseconds, Threads::self());
+                    _rwlock._wlock.timed_lock(milliseconds);
                 }
                 catch(const IPCException & e)
                 {

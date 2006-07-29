@@ -74,7 +74,7 @@ void SpinLockCreatePool()
 #ifdef PEGASUS_SPINLOCK_USE_PTHREADS
     pthread_mutex_lock(&_spinLockInitMutex);
 #else
-    _spinLockInitMutex.lock(Threads::self());
+    _spinLockInitMutex.lock();
 #endif
 
     if (spinLockPoolInitialized == 0)

@@ -58,6 +58,12 @@ PEGASUS_NAMESPACE_BEGIN
 
 #if defined(PEGASUS_HAVE_PTHREADS)
 
+struct StartWrapperArg
+{
+    void *(PEGASUS_THREAD_CDECL * start) (void *);
+    void *arg;
+};
+
 extern "C" void *_start_wrapper(void *arg_)
 {
     StartWrapperArg *arg = (StartWrapperArg *) arg_;
@@ -66,6 +72,111 @@ extern "C" void *_start_wrapper(void *arg_)
     delete arg;
 
     return return_value;
+}
+
+void Thread::cancel()
+{
+    _cancelled = true;
+    pthread_cancel(_handle.thid.tt_handle());
+}
+
+void Thread::test_cancel()
+{
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    pthread_testintr();
+#else
+    pthread_testcancel();
+#endif
+}
+
+Boolean Thread::is_cancelled(void)
+{
+    return _cancelled;
+}
+
+void Thread::thread_switch()
+{
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    pthread_yield(NULL);
+#else
+    sched_yield();
+#endif
+}
+
+/*
+ATTN: why are these missing on other platforms?
+*/
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+void Thread::suspend()
+{
+    pthread_kill(_handle.thid.tt_handle(), SIGSTOP);
+}
+
+void Thread::resume()
+{
+    pthread_kill(_handle.thid.tt_handle(), SIGCONT);
+}
+#endif
+
+void Thread::sleep(Uint32 msec)
+{
+    Threads::sleep(msec);
+}
+
+void Thread::join(void)
+{
+    if (!_is_detached && Threads::id(_handle.thid) != 0)
+        pthread_join(_handle.thid.tt_handle(), &_exit_code);
+
+    Threads::clear(_handle.thid);
+}
+
+void Thread::thread_init(void)
+{
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    pthread_setintr(PTHREAD_INTR_ENABLE);
+    pthread_setintrtype(PTHREAD_INTR_ASYNCHRONOUS);
+#else
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+#endif
+    _cancel_enabled = true;
+}
+
+void Thread::detach(void)
+{
+    _is_detached = true;
+    pthread_detach(_handle.thid.tt_handle());
+}
+
+ThreadStatus Thread::run()
+{
+    StartWrapperArg *arg = new StartWrapperArg;
+    arg->start = _start;
+    arg->arg = this;
+
+    Threads::Type type = _is_detached ? Threads::DETACHED : Threads::JOINABLE;
+    int rc = Threads::create(_handle.thid, type, _start_wrapper, arg);
+
+    // On Linux distributions released prior 2005, the implementation of 
+    // Native POSIX Thread Library returns ENOMEM instead of EAGAIN when
+    // there 
+    // are no insufficient memory.  Hence we are checking for both.  See bug
+    // 386.
+
+    if ((rc == EAGAIN) || (rc == ENOMEM))
+    {
+        Threads::clear(_handle.thid);
+        delete arg;
+        return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
+    }
+    else if (rc != 0)
+    {
+        Threads::clear(_handle.thid);
+        delete arg;
+        return PEGASUS_THREAD_SETUP_FAILURE;
+    }
+    return PEGASUS_THREAD_OK;
 }
 
 static sigset_t *block_signal_mask(sigset_t * sig)
@@ -129,6 +240,105 @@ Thread::~Thread()
 //==============================================================================
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
+
+ThreadStatus Thread::run(void)
+{
+    // Note: A Win32 thread ID is not the same thing as a pthread ID.
+    // Win32 threads have both a thread ID and a handle.  The handle
+    // is used in the wait functions, etc.
+    // So _handle.thid is actually the thread handle.
+
+    unsigned threadid = 0;
+
+    ThreadType tt;
+    tt.handle = (HANDLE) _beginthreadex(NULL, 0, _start, this, 0, &threadid);
+    _handle.thid = tt;
+
+    if (Threads::id(_handle.thid) == 0)
+    {
+        if (errno == EAGAIN)
+        {
+            return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
+        }
+        else
+        {
+            return PEGASUS_THREAD_SETUP_FAILURE;
+        }
+    }
+    return PEGASUS_THREAD_OK;
+}
+
+void Thread::cancel(void)
+{
+    _cancelled = true;
+}
+
+void Thread::test_cancel(void)
+{
+    if (_cancel_enabled && _cancelled)
+    {
+        exit_self(0);
+    }
+}
+
+Boolean Thread::is_cancelled(void)
+{
+    return _cancelled;
+}
+
+void Thread::thread_switch(void)
+{
+    Sleep(0);
+}
+
+void Thread::sleep(Uint32 milliseconds)
+{
+    Sleep(milliseconds);
+}
+
+void Thread::join(void)
+{
+    if (Threads::id(_handle.thid) != 0)
+    {
+        if (!_is_detached)
+        {
+            if (!_cancelled)
+            {
+                // Emulate the unix join api. Caller sleeps until thread is
+                // done.
+                WaitForSingleObject(_handle.thid.handle, INFINITE);
+            }
+            else
+            {
+                // Currently this is the only way to ensure this code does
+                // not 
+                // hang forever.
+                if (WaitForSingleObject(_handle.thid.handle, 10000) ==
+                    WAIT_TIMEOUT)
+                {
+                    TerminateThread(_handle.thid.handle, 0);
+                }
+            }
+
+            DWORD exit_code = 0;
+            GetExitCodeThread(_handle.thid.handle, &exit_code);
+            _exit_code = (ThreadReturnType) exit_code;
+        }
+
+        CloseHandle(_handle.thid.handle);
+        Threads::clear(_handle.thid);
+    }
+}
+
+void Thread::thread_init(void)
+{
+    _cancel_enabled = true;
+}
+
+void Thread::detach(void)
+{
+    _is_detached = true;
+}
 
 Thread::Thread(ThreadReturnType(PEGASUS_THREAD_CDECL * start) (void *),
                void *parameter,

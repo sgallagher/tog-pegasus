@@ -1,31 +1,36 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+// Author: Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,11 +38,10 @@
 #define Pegasus_SpinLock_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
 
 //==============================================================================
 //
-// PEGASUS_PLATFORM_HPUX_PARISC_ACC || PEGASUS_PLATFORM_HPUX_PARISC_GNU
+// PEGASUS_PLATFORM_HPUX_PARISC_ACC
 //
 // NOTE:  This spinlock implementation is based on the paper "Implementing
 // Spinlocks on the Intel(R) Itanium(R) Architecture an PA-RISC" by Tor
@@ -49,8 +53,7 @@
 //
 //==============================================================================
 
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || \
-    defined(PEGASUS_PLATFORM_HPUX_PARISC_GNU)
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 # define PEGASUS_SPIN_LOCK_DEFINED
 
 # include <sys/time.h>    // For select()
@@ -62,7 +65,7 @@ extern "C" void _flush_globals();
 
 PEGASUS_NAMESPACE_BEGIN
 
-// This type implements a spinlock. It is deliberately not a class since we
+// This type implements a spinlock. It is deliberately not a class since we 
 // wish to avoid automatic construction/destruction.
 struct SpinLock
 {
@@ -137,9 +140,7 @@ inline void SpinLockUnlock(SpinLock& x)
 {
     // Ensure that the compiler doesn't hold any externally-visible values in
     // registers across the lock release.
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_GNU
-     _flush_globals();
-#endif
+    _flush_globals();
 
     // Set to unlocked
     *x.lock = 1;
@@ -147,8 +148,7 @@ inline void SpinLockUnlock(SpinLock& x)
 
 PEGASUS_NAMESPACE_END
 
-#endif /* PEGASUS_PLATFORM_HPUX_PARISC_ACC || 
-     PEGASUS_PLATFORM_HPUX_PARISC_GNU */
+#endif /* PEGASUS_PLATFORM_HPUX_PARISC_ACC */
 
 //==============================================================================
 //
@@ -165,7 +165,7 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_NAMESPACE_BEGIN
 
-// This type implements a spinlock. It is deliberately not a class since we
+// This type implements a spinlock. It is deliberately not a class since we 
 // wish to avoid automatic construction/destruction.
 struct SpinLock
 {
@@ -188,12 +188,12 @@ inline void SpinLockLock(SpinLock& x)
     // Loop until lock becomes zero.
     do
     {
-        // Load and store unsigned byte (LDSTUB). Load the lock argument
-        // into value and set lock to 0xFF (atomically).
-        asm("ldstub %1, %0"
-            : "=r" (value),
-              "=m" (x.lock)
-            : "m" (x.lock));
+	// Load and store unsigned byte (LDSTUB). Load the lock argument
+	// into value and set lock to 0xFF (atomically).
+	asm("ldstub %1, %0"
+	    : "=r" (value),
+	      "=m" (x.lock)
+	    : "m" (x.lock));
     }
     while (value);
 }
@@ -221,14 +221,14 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_NAMESPACE_BEGIN
 
-// This type implements a spinlock. It is deliberately not a class since we
+// This type implements a spinlock. It is deliberately not a class since we 
 // wish to avoid automatic construction/destruction.
 struct SpinLock
 {
     union
     {
-        char mutex[sizeof(Mutex)];
-        Uint64 alignment8;
+	char mutex[sizeof(Mutex)];
+	Uint64 alignment8;
     };
 };
 
@@ -262,32 +262,29 @@ PEGASUS_NAMESPACE_END
 //
 //==============================================================================
 
-//  If PEGASUS_NUM_SHARED_SPIN_LOCKS size need to be changed,
-//  ensure size is power of two to simplify moudulus calculation
 #define PEGASUS_NUM_SHARED_SPIN_LOCKS 64
 
 PEGASUS_NAMESPACE_BEGIN
 
-// This array defines spin locks shared across the system. These are
+// This array defines spin locks shared across the system. These are 
 // initialized by calling SpinLockCreatePool().
-PEGASUS_COMMON_LINKAGE
-    extern SpinLock spinLockPool[PEGASUS_NUM_SHARED_SPIN_LOCKS];
+extern SpinLock spinLockPool[PEGASUS_NUM_SHARED_SPIN_LOCKS];
 
 // This flag is 0 until SpinLockCreatePool() is called, which sets it
 // to 1.
-PEGASUS_COMMON_LINKAGE extern int spinLockPoolInitialized;
+extern int spinLockPoolInitialized;
 
 // Initializes the global pool of mutexes.
-PEGASUS_COMMON_LINKAGE void SpinLockCreatePool();
+void SpinLockCreatePool();
 
 // Maps an address into the spinLockPool[] array defined above. This is used
-// to assign objects (by their addresses) to a shared lock. Collisions are
+// to assign objects (by their addresses) to a shared lock. Collisions are 
 // okay.
 inline size_t SpinLockIndex(const void* x)
 {
     // Throw away the lower two bits since they are almost always zero
     // anyway due to alignment properties.
-    return ((size_t)x >> 2) & ( PEGASUS_NUM_SHARED_SPIN_LOCKS -1);
+    return ((unsigned long)x >> 2) % PEGASUS_NUM_SHARED_SPIN_LOCKS;
 }
 
 // Call this function before forking to unlock the spinlocks in the global

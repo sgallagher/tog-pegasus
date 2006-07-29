@@ -46,29 +46,141 @@
 #include <Pegasus/Common/Tracer.h>
 #include "Time.h"
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-# include "ThreadWindows.cpp"
-#elif defined(PEGASUS_OS_TYPE_UNIX)
-# include "ThreadUnix.cpp"
-#elif defined(PEGASUS_OS_TYPE_NSK)
-# include "ThreadNsk.cpp"
-#elif defined(PEGASUS_OS_VMS)
-# include "ThreadVms.cpp"
-#else
-# error "Unsupported platform"
-#endif
-
 PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
+//==============================================================================
+//
+// POSIX Threads Implementation:
+//
+//==============================================================================
+
+#if defined(PEGASUS_HAVE_PTHREADS)
+
+extern "C" void* _start_wrapper(void* arg_)
+{
+    StartWrapperArg* arg = (StartWrapperArg*)arg_;
+
+    void* return_value = (*arg->start)(arg->arg);
+    delete arg;
+
+    return return_value;
+}
+
+static sigset_t *block_signal_mask(sigset_t *sig)
+{
+    sigemptyset(sig);
+    // should not be used for main()
+    sigaddset(sig, SIGHUP);
+    sigaddset(sig, SIGINT);
+    // maybe useless, since KILL can't be blocked according to POSIX
+    sigaddset(sig, SIGKILL);
+
+    sigaddset(sig, SIGABRT);
+    sigaddset(sig, SIGALRM);
+    sigaddset(sig, SIGPIPE);
+
+
+// Note: older versions of the linux pthreads library use SIGUSR1 and SIGUSR2
+// internally to stop and start threads that are blocking, the newer ones
+// implement this through the kernel's real time signals
+// since SIGSTOP/CONT can handle suspend()/resume() on Linux
+// block them
+// #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+//     sigaddset(sig, SIGUSR1);
+//     sigaddset(sig, SIGUSR2);
+// #endif
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+    pthread_sigmask(SIG_BLOCK, sig, NULL);
+#else
+    sigprocmask(SIG_BLOCK, sig, NULL);
+#endif
+    return sig;
+}
+
+Thread::Thread(
+    ThreadReturnType (PEGASUS_THREAD_CDECL *start)(void *),
+    void *parameter,
+    Boolean detached)
+    : _is_detached(detached),
+      _cancel_enabled(true),
+      _cancelled(false),
+      _start(start),
+      _cleanup(),
+      _tsd(),
+      _thread_parm(parameter),
+      _exit_code(0)
+{
+    Threads::clear(_handle.thid);
+}
+
+Thread::~Thread()
+{
+    try
+    {
+        join();
+        empty_tsd();
+    }
+    catch (...)
+    {
+        // Do not allow the destructor to throw an exception
+    }
+}
+
+#endif /* PEGASUS_HAVE_PTHREADS */
+
+//==============================================================================
+//
+// Windows Threads Implementation:
+//
+//==============================================================================
+
+#if defined(PEGASUS_HAVE_WINDOWS_THREADS)
+
+Thread::Thread( 
+	ThreadReturnType ( PEGASUS_THREAD_CDECL *start )( void* ),
+	void* parameter, 
+	Boolean detached )
+	:
+	_is_detached( detached ), 
+	_cancel_enabled( true ),
+	_cancelled( false ),
+	_start( start ), 
+	_cleanup(),
+	_tsd( ),
+	_thread_parm( parameter ), 
+	_exit_code( 0 )
+{
+	Threads::clear(_handle.thid);
+}
+
+Thread::~Thread()
+{
+	try 
+	{
+		join();
+		empty_tsd();
+	}
+	catch(...)
+	{
+	}
+}
+
+#endif /* PEGASUS_HAVE_WINDOWS_THREADS */
+
+//==============================================================================
+//
+// Common implementation:
+//
+//==============================================================================
 
 void thread_data::default_delete(void * data)
 {
-   if( data != NULL)
-      ::operator delete(data);
+    if( data != NULL)
+        ::operator delete(data);
 }
 
-// l10n start
 void language_delete(void * data)
 {
    if( data != NULL)
@@ -76,10 +188,8 @@ void language_delete(void * data)
       AutoPtr<AcceptLanguageList> al(static_cast<AcceptLanguageList *>(data));
    }
 }
-// l10n end
 
 Boolean Thread::_signals_blocked = false;
-// l10n
 #ifndef PEGASUS_OS_ZOS
 TSDKeyType Thread::_platform_thread_key = TSDKeyType(-1);
 #else
@@ -87,7 +197,6 @@ TSDKeyType Thread::_platform_thread_key;
 #endif
 Boolean Thread::_key_initialized = false;
 Boolean Thread::_key_error = false;
-
 
 void Thread::cleanup_push( void (*routine)(void *), void *parm)
 {
@@ -116,9 +225,15 @@ void Thread::cleanup_pop(Boolean execute)
 //thread_data *Thread::put_tsd(const Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value)
 
 
-#ifndef PEGASUS_THREAD_EXIT_NATIVE
 void Thread::exit_self(ThreadReturnType exit_code)
 {
+#if defined(PEGASUS_PLATFORM_HPUX_ACC) || \
+    defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+    // NOTE: pthread_exit exhibits unusual behavior on RHEL 3 U2, as
+    // documented in Bugzilla 3836.  Where feasible, it may be advantageous
+    // to avoid using this function.
+    pthread_exit(exit_code);
+#else
     // execute the cleanup stack and then return
    while( _cleanup.size() )
    {
@@ -135,12 +250,9 @@ void Thread::exit_self(ThreadReturnType exit_code)
    _exit_code = exit_code;
    Threads::exit(exit_code);
    Threads::clear(_handle.thid);
+#endif
 }
 
-
-#endif
-
-// l10n start
 Sint8 Thread::initializeKey()
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::initializeKey");
@@ -247,8 +359,6 @@ void Thread::clearLanguages() //l10n
 
     PEG_METHOD_EXIT();
 }
-// l10n end
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //

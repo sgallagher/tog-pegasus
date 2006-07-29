@@ -589,18 +589,6 @@ PEGASUS_NAMESPACE_END
 
 //==============================================================================
 //
-// PEGASUS_PLATFORM_HPUX_PARISC_ACC
-//
-//==============================================================================
-
-#if defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-
-    // Uses generic implementation defined later.
-
-#endif /* PEGASUS_PLATFORM_HPUX_PARISC_ACC */
-
-//==============================================================================
-//
 // PEGASUS_PLATFORM_HPUX_IA64_ACC
 //
 //==============================================================================

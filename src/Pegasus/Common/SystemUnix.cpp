@@ -112,12 +112,29 @@
 PEGASUS_NAMESPACE_BEGIN
 
 #ifdef PEGASUS_OS_OS400
-typedef struct os400_pnstruct
+
+struct QlgPath
 {
-  Qlg_Path_Name_T qlg_struct;
-  char * pn;
-} OS400_PNSTRUCT;
-#endif
+    QlgPath(const char* path);
+    operator Qlg_Path_Name_T*() { return &qlg_struct; }
+    Qlg_Path_Name_T qlg_struct;
+    const char* pn;
+};
+
+QlgPath::QlgPath(const char* path) : pn(path)
+{
+    memset((void*)&qlg_struct, 0, sizeof(Qlg_Path_Name_T));
+    qlg_struct.CCSID = 1208;
+#pragma convert(37)
+    memcpy(qlg_struct.Country_ID,"US",2);
+    memcpy(qlg_struct.Language_ID,"ENU",3);
+#pragma convert(0)
+    qlg_struct.Path_Type = QLG_PTR_SINGLE;
+    qlg_struct.Path_Length = strlen(path);
+    qlg_struct.Path_Name_Delimiter[0] = '/';
+}
+
+#endif /* PEGASUS_OS_OS400 */
 
 inline void sleep_wrapper(Uint32 seconds)
 {
@@ -159,19 +176,7 @@ void System::sleep(Uint32 seconds)
 Boolean System::exists(const char* path)
 {
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
-
-    return QlgAccess((Qlg_Path_Name_T *)&pathname, F_OK) == 0;
+    return QlgAccess(QlgPath(path), F_OK) == 0;
 #else
     return access(path, F_OK) == 0;
 #endif
@@ -179,21 +184,8 @@ Boolean System::exists(const char* path)
 
 Boolean System::canRead(const char* path)
 {
-
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
-
-    return QlgAccess((Qlg_Path_Name_T *)&pathname, R_OK) == 0;
+    return QlgAccess(QlgPath(path), R_OK) == 0;
 #else
     return access(path, R_OK) == 0;
 #endif
@@ -202,19 +194,7 @@ Boolean System::canRead(const char* path)
 Boolean System::canWrite(const char* path)
 {
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
-
-    return QlgAccess((Qlg_Path_Name_T *)&pathname, W_OK) == 0;
+    return QlgAccess(QlgPath(path), W_OK) == 0;
 #else
     return access(path, W_OK) == 0;
 #endif
@@ -223,19 +203,7 @@ Boolean System::canWrite(const char* path)
 Boolean System::getCurrentDirectory(char* path, Uint32 size)
 {
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
-
-    return QlgGetcwd((Qlg_Path_Name_T *)&pathname, size) == 0;
+    return QlgGetcwd(QlgPath(path), size) == 0;
 #else
     return getcwd(path, size) != NULL;
 #endif
@@ -246,19 +214,7 @@ Boolean System::isDirectory(const char* path)
     struct stat st;
 
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
-
-    if (QlgStat((Qlg_Path_Name_T *)&pathname, &st) != 0)
+    if (QlgStat(QlgPath(path), &st) != 0)
         return false;
 #else
     if (stat(path, &st) != 0)
@@ -270,19 +226,7 @@ Boolean System::isDirectory(const char* path)
 Boolean System::changeDirectory(const char* path)
 {
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
-
-    return QlgChdir((Qlg_Path_Name_T *)&pathname) == 0;
+    return QlgChdir(QlgPath(path)) == 0;
 #else
     return chdir(path) == 0;
 #endif
@@ -290,21 +234,8 @@ Boolean System::changeDirectory(const char* path)
 
 Boolean System::makeDirectory(const char* path)
 {
-
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
-
-    return QlgMkdir((Qlg_Path_Name_T *)&pathname, 0777) == 0;
+    return QlgMkdir(QlgPath(path), 0777) == 0;
 #else
     return mkdir(path, 0777) == 0;
 #endif
@@ -316,19 +247,7 @@ Boolean System::getFileSize(const char* path, Uint32& size)
     struct stat st;
 
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
-
-    if (QlgStat((Qlg_Path_Name_T *)&pathname, &st) != 0)
+    if (QlgStat(QlgPath(path), &st) != 0)
         return false;
 #else
     if (stat(path, &st) != 0)
@@ -342,19 +261,7 @@ Boolean System::getFileSize(const char* path, Uint32& size)
 Boolean System::removeDirectory(const char* path)
 {
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
-
-    return QlgRmdir((Qlg_Path_Name_T *)&pathname) == 0;
+    return QlgRmdir(QlgPath(path)) == 0;
 #else
     return rmdir(path) == 0;
 #endif
@@ -363,19 +270,7 @@ Boolean System::removeDirectory(const char* path)
 Boolean System::removeFile(const char* path)
 {
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
-
-    return QlgUnlink((Qlg_Path_Name_T *)&pathname) == 0;
+    return QlgUnlink(QlgPath(path)) == 0;
 #else
     return unlink(path) == 0;
 #endif
@@ -384,39 +279,11 @@ Boolean System::removeFile(const char* path)
 Boolean System::renameFile(const char* oldPath, const char* newPath)
 {
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT oldpathname;
-    memset((void*)&oldpathname, 0x00, sizeof(OS400_PNSTRUCT));
-    oldpathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(oldpathname.qlg_struct.Country_ID,"US",2);
-    memcpy(oldpathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    oldpathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    oldpathname.qlg_struct.Path_Length = strlen(oldPath);
-    oldpathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    oldpathname.pn = (char *)oldPath;
-
-    OS400_PNSTRUCT newpathname;
-    memset((void*)&newpathname, 0x00, sizeof(OS400_PNSTRUCT));
-    newpathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(newpathname.qlg_struct.Country_ID,"US",2);
-    memcpy(newpathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    newpathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    newpathname.qlg_struct.Path_Length = strlen(newPath);
-    newpathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    newpathname.pn = (char *)newPath;
-
-    if (QlgLink((Qlg_Path_Name_T *)&oldpathname,
-                (Qlg_Path_Name_T *)&newpathname) != 0)
-    {
+    if (QlgLink(QlgPath(oldPath), QlgPath(newPath)) != 0)
         return false;
-    }
 
-    return QlgUnlink((Qlg_Path_Name_T *)&oldpathname) == 0;
+    return QlgUnlink(QlgPath(oldPath)) == 0;
 #else
-
     if (link(oldPath, newPath) != 0)
         return false;
 
@@ -1175,22 +1042,9 @@ Boolean System::truncateFile(
     const char* path,
     size_t newSize)
 {
-#if !defined(PEGASUS_OS_OS400)
-    return (truncate(path, newSize) == 0);
-#else
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
+#if defined(PEGASUS_OS_OS400)
+    int fd = QlgOpen(QlgPath(path), O_WRONLY);
 
-    int fd = QlgOpen((Qlg_Path_Name_T *)&pathname, O_WRONLY);
     if (fd != -1)
     {
        int rc = ftruncate(fd, newSize);
@@ -1199,6 +1053,8 @@ Boolean System::truncateFile(
     }
 
     return false;
+#else
+    return (truncate(path, newSize) == 0);
 #endif
 }
 
@@ -1236,27 +1092,11 @@ Boolean System::verifyFileOwnership(const char* path)
     struct stat st;
 
 #if defined(PEGASUS_OS_OS400)
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(path);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)path;
-
-    if (QlgStat((Qlg_Path_Name_T *)&pathname, &st) != 0)
-    {
+    if (QlgStat(QlgPath(path), &st) != 0)
         return false;
-    }
 #else
     if (lstat(path, &st) != 0)
-    {
         return false;
-    }
 #endif
 
     return ((st.st_uid == geteuid()) &&    // Verify the file owner

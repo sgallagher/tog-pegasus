@@ -58,7 +58,6 @@ struct MutexRep
 };
 inline void mutex_lock(MutexType* mutex) { pthread_mutex_lock(mutex); }
 inline void mutex_unlock(MutexType* mutex) { pthread_mutex_unlock(mutex); }
-inline void mutex_destroy(MutexType* mutex) { pthread_mutex_destroy(mutex); }
 # define PEGASUS_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
 #endif
 
@@ -67,7 +66,6 @@ typedef HANDLE MutexType;
 struct MutexRep
 {
     MutexType handle;
-    size_t count;
 };
 inline void mutex_lock(MutexType* m) { WaitForSingleObject(*m, INFINITE); }
 inline void mutex_unlock(MutexType* m) { ReleaseMutex(*m); }
@@ -86,10 +84,7 @@ public:
 
     Mutex();
 
-    ~Mutex()
-    {
-        mutex_destroy(&_rep.mutex);
-    }
+    ~Mutex();
 
     void lock()
     {

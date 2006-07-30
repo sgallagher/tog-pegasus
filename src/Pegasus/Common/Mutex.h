@@ -54,11 +54,11 @@ PEGASUS_NAMESPACE_BEGIN
 typedef pthread_mutex_t MutexType;
 struct MutexRep
 {
-    pthread_mutex_t mutex;
-    pthread_mutexattr_t attr;
+    MutexType mutex;
 };
 inline void mutex_lock(MutexType* mutex) { pthread_mutex_lock(mutex); }
 inline void mutex_unlock(MutexType* mutex) { pthread_mutex_unlock(mutex); }
+inline void mutex_destroy(MutexType* mutex) { pthread_mutex_destroy(mutex); }
 # define PEGASUS_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
 #endif
 
@@ -86,15 +86,24 @@ public:
 
     Mutex();
 
-    ~Mutex();
+    ~Mutex()
+    {
+        mutex_destroy(&_rep.mutex);
+    }
 
-    void lock();
+    void lock()
+    {
+        mutex_lock(&_rep.mutex);
+    }
 
     void try_lock();
 
     void timed_lock(Uint32 milliseconds);
 
-    void unlock();
+    void unlock()
+    {
+        mutex_unlock(&_rep.mutex);
+    }
 
 private:
     Mutex(const Mutex&);
@@ -117,56 +126,32 @@ class PEGASUS_COMMON_LINKAGE AutoMutex
 {
 public:
 
-    AutoMutex(Mutex& mutex, Boolean autoLock = true) : 
-	_mutex(mutex), _locked(autoLock)
+    AutoMutex(Mutex& mutex) : _mutex(mutex)
     {
-        if (autoLock)
-            _mutex.lock();
+        _mutex.lock();
     }
 
     ~AutoMutex()
     {
-        try
-        {
-	    if (_locked)
-		unlock();
-        }
-        catch (...)
-        {
-            // Do not propagate exception from destructor
-        }
+        _mutex.unlock();
     }
 
     void lock()
     {
-        if (_locked)
-            throw AlreadyLocked(ThreadType());
-
         _mutex.lock();
-        _locked = true;
     }
 
     void unlock()
     {
-        if (!_locked)
-            throw Permission(ThreadType());
-
         _mutex.unlock();
-        _locked = false;
-    }
-
-    Boolean isLocked() const
-    {
-        return _locked;
     }
 
 private:
-    AutoMutex(); // Unimplemented
-    AutoMutex(const AutoMutex& x); // Unimplemented
-    AutoMutex& operator=(const AutoMutex& x); // Unimplemented
+    AutoMutex();
+    AutoMutex(const AutoMutex& x);
+    AutoMutex& operator=(const AutoMutex& x);
 
     Mutex& _mutex;
-    Boolean _locked;
 };
 
 PEGASUS_NAMESPACE_END

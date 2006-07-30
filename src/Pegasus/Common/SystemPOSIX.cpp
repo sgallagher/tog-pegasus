@@ -1129,6 +1129,7 @@ String System::getPrivilegedUserName()
         PEGASUS_ASSERT(0);
     }
 
+    _initialized = 1;
     mutex_unlock(&_mutex);
 
     return (_userName);

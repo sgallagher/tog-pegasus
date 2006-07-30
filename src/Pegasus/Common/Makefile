@@ -52,6 +52,7 @@ LIBRARY = pegcommon
 ##
 
 SOURCES1 = \
+    Once.cpp \
     Time.cpp \
     Threads.cpp \
     TSDKey.cpp \

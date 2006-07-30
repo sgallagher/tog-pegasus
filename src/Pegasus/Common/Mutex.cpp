@@ -36,6 +36,7 @@
 #include "Mutex.h"
 #include "Time.h"
 #include "PegasusAssert.h"
+#include "Once.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -47,40 +48,19 @@ PEGASUS_NAMESPACE_BEGIN
 
 #if defined(PEGASUS_HAVE_PTHREADS)
 
+static Once _once = PEGASUS_ONCE_INITIALIZER;
+static pthread_mutexattr_t _attr;
+
+static void _init_attr()
+{
+    pthread_mutexattr_init(&_attr);
+    pthread_mutexattr_settype(&_attr, PTHREAD_MUTEX_RECURSIVE);
+}
+
 Mutex::Mutex()
 {
-    pthread_mutexattr_init(&_rep.attr);
-
-    // If your platform does not define PTHREAD_MUTEX_RECURSIVE, try
-    // PTHREAD_MUTEX_RECURSIVE_NP.
-    pthread_mutexattr_settype(&_rep.attr, PTHREAD_MUTEX_RECURSIVE);
-
-    pthread_mutex_init(&_rep.mutex, &_rep.attr);
-}
-
-Mutex::~Mutex()
-{
-   PEGASUS_DEBUG_ASSERT(_magic);
-
-    if (pthread_mutex_destroy(&_rep.mutex) == 0)
-        pthread_mutexattr_destroy(&_rep.attr);
-}
-
-void Mutex::lock()
-{
-    PEGASUS_DEBUG_ASSERT(_magic);
-
-    switch (pthread_mutex_lock(&_rep.mutex))
-    {
-        case 0:
-            break;
-
-        case EDEADLK:
-            throw Deadlock(ThreadType());
-
-        default:
-            throw WaitFailed(ThreadType());
-    }
+    once(&_once, _init_attr);
+    pthread_mutex_init(&_rep.mutex, &_attr);
 }
 
 void Mutex::try_lock()
@@ -147,6 +127,7 @@ void Mutex::timed_lock(Uint32 milliseconds)
     }
 }
 
+#if 0
 void Mutex::unlock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
@@ -154,6 +135,7 @@ void Mutex::unlock()
     if (pthread_mutex_unlock(&_rep.mutex) != 0)
         throw Permission(ThreadType());
 }
+#endif
 
 #endif /* PEGASUS_HAVE_PTHREADS */
 

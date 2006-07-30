@@ -28,58 +28,31 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: David Dillard, Symantec Corp.  (david_dillard@symantec.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Socket_h
-#define Pegasus_Socket_h
+#ifndef _Pegasus_EBCDIC_OS400_H
+#define _Pegasus_EBCDIC_OS400_H
 
-#include <cctype>
-#include <Pegasus/Common/Network.h>
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
-
-#ifdef PEGASUS_OS_OS400
-#   include <Pegasus/Common/EBCDIC_OS400.h>
-#endif
-
-#ifdef PEGASUS_OS_ZOS
-#   include <string.h>  // added by rk for memcpy
-#endif
+#include "Char16.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-class Socket
-{
-public:
+//==============================================================================
+//
+// EBCDIC/ASCII Conversion Functions
+//
+//==============================================================================
 
-    static Sint32 read(SocketHandle socket, void* ptr, Uint32 size);
+extern char AtoEchars[256];
+extern char EtoAchars[256];
 
-    static Sint32 write(SocketHandle socket, const void* ptr, Uint32 size);
-
-    static Sint32 timedWrite(SocketHandle socket,
-                             const void* ptr,
-                             Uint32 size,
-                             Uint32 socketWriteTimeout);
-
-    static void close(SocketHandle socket);
-
-    static void enableBlocking(SocketHandle socket);
-
-    static void disableBlocking(SocketHandle socket);
-
-    static void initializeInterface();
-
-    static void uninitializeInterface();
-
-private:
-    Socket();
-};
+void AtoE (char* ptr);
+void AtoE (char* ptr, int size);
+void AtoE (Char16 *ptr);
+void AtoE (Char16* ptr, int size);
+void EtoA (char* ptr);
+void EtoA (char* ptr, int size);
+void EtoA (Char16 *ptr);
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_Socket_h */
+#endif /* _Pegasus_EBCDIC_OS400_H */

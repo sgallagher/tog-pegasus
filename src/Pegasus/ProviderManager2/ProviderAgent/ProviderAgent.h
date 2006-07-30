@@ -43,6 +43,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/ProviderManager2/BasicProviderManagerRouter.h>
 

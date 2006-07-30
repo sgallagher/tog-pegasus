@@ -43,6 +43,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/List.h>

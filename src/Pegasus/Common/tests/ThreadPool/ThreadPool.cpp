@@ -37,6 +37,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/Tracer.h>
 
 #include <sys/types.h>

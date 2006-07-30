@@ -44,6 +44,7 @@
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/Mutex.h>

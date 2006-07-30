@@ -54,6 +54,7 @@
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
+#include <Pegasus/Common/IPCExceptions.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

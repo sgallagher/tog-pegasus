@@ -69,6 +69,23 @@ Mutex::~Mutex()
     pthread_mutex_destroy(&_rep.mutex);
 }
 
+void Mutex::lock()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+
+    switch (pthread_mutex_lock(&_rep.mutex))
+    {
+        case 0:
+            break;
+
+        case EDEADLK:
+            throw Deadlock(ThreadType());
+
+        default:
+            throw WaitFailed(ThreadType());
+    }
+}
+
 void Mutex::try_lock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
@@ -133,6 +150,14 @@ void Mutex::timed_lock(Uint32 milliseconds)
     }
 }
 
+void Mutex::unlock()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+
+    if (pthread_mutex_unlock(&_rep.mutex) != 0)
+        throw Permission(ThreadType());
+}
+
 #endif /* PEGASUS_HAVE_PTHREADS */
 
 //==============================================================================
@@ -147,6 +172,7 @@ Mutex::Mutex()
 {
     _rep.handle = CreateMutex(NULL, FALSE, NULL);
     Threads::clear(ThreadType());
+    _rep.count = 0;
 }
 
 Mutex::~Mutex()
@@ -155,6 +181,18 @@ Mutex::~Mutex()
 
     WaitForSingleObject(_rep.handle, INFINITE);
     CloseHandle(_rep.handle);
+}
+
+void Mutex::lock()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+
+    DWORD rc = WaitForSingleObject(_rep.handle, INFINITE);
+
+    if (rc == WAIT_FAILED)
+        throw WaitFailed(ThreadType());
+
+    _rep.count++;
 }
 
 void Mutex::try_lock()
@@ -168,6 +206,8 @@ void Mutex::try_lock()
 
     if (rc == WAIT_FAILED)
         throw WaitFailed(ThreadType());
+
+    _rep.count++;
 }
 
 void Mutex::timed_lock(Uint32 milliseconds)
@@ -181,6 +221,17 @@ void Mutex::timed_lock(Uint32 milliseconds)
 
     if (rc == WAIT_FAILED)
         throw WaitFailed(ThreadType());
+
+    _rep.count++;
+}
+
+void Mutex::unlock()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+
+    Threads::clear(ThreadType());
+    _rep.count--;
+    ReleaseMutex(_rep.handle);
 }
 
 #endif /* PEGASUS_HAVE_WINDOWS_THREADS */

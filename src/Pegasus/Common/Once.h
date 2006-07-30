@@ -64,6 +64,8 @@ PEGASUS_NAMESPACE_BEGIN
     The _create_X() function is called exactly once no matter how many times
     once() is called on it. Also, once() may be called safely from multiple
     threads.
+
+    CAUTION: Once instances must always be defined statically.
 */
 struct Once
 {

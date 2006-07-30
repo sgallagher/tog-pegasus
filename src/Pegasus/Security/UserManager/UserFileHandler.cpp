@@ -51,6 +51,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/IPCExceptions.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 

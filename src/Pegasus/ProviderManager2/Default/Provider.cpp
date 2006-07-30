@@ -40,7 +40,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Provider.h"
-
+#include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN

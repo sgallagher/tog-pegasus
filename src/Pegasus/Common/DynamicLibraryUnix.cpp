@@ -47,6 +47,10 @@
 #include <sys/stat.h>
 #include "DynamicLibraryzOS_inline.h"
 #endif
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#define _UNIX03_SOURCE
+#include <dlfcn.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -63,11 +67,10 @@ Boolean DynamicLibrary::load(void)
 	#if defined(PEGASUS_ZOS_SECURITY)
 	if (hasProgramControl(cstr))
 	{
-		_handle = dllload(cstr);
-	}
-	else _handle = 0;
+        _handle = dlopen(cstr, RTLD_LAZY);
+	} else _handle = 0;
 	#else
-		_handle = dllload(cstr);
+      _handle = dlopen(cstr, RTLD_LAZY);
 	#endif
 
     #elif defined(PEGASUS_OS_OS400)
@@ -82,12 +85,10 @@ Boolean DynamicLibrary::unload(void)
     // ensure the module is loaded
     PEGASUS_ASSERT(isLoaded() == true);
 
-    #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_DARWIN)
+    #ifdef PEGASUS_OS_OS400
+    OS400_UnloadDynamicLibrary(_handle);    
+    #else
     dlclose(_handle);
-    #elif defined(PEGASUS_OS_ZOS)
-    dllfree(_handle);
-    #elif defined(PEGASUS_OS_OS400)
-    OS400_UnloadDynamicLibrary(_handle);
     #endif
 
     _handle = 0;
@@ -108,12 +109,10 @@ DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolNa
     {
         CString cstr = symbolName.getCString();
 
-        #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_DARWIN)
-        func = (LIBRARY_SYMBOL)::dlsym(_handle, (const char *)cstr);
-        #elif defined(PEGASUS_OS_ZOS)
-        func = (LIBRARY_SYMBOL) dllqueryfn(_handle, (const char *)cstr);
-        #elif defined(PEGASUS_OS_OS400)
+        #ifdef PEGASUS_OS_OS400
         func = (LIBRARY_SYMBOL)OS400_LoadDynamicSymbol(_handle, (const char *)cstr);
+        #else
+        func = (LIBRARY_SYMBOL)::dlsym(_handle, (const char *)cstr);
         #endif
     }
 

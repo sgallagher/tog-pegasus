@@ -53,7 +53,9 @@
 #endif
 
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-# include <dll.h>
+#define _UNIX03_SOURCE
+# include <dlfcn.h>
+
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 # include <fcntl.h>
 # include <qycmutilu2.H>
@@ -460,7 +462,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     }
 # endif
     PEG_METHOD_EXIT();
-    return DynamicLibraryHandle(dllload(fileName));
+    return DynamicLibraryHandle(dlopen(fileName, RTLD_LAZY));
 #elif defined(PEGASUS_OS_OS400)
     PEG_METHOD_EXIT();
     return DynamicLibraryHandle(OS400_LoadDynamicLibrary(fileName));
@@ -479,20 +481,10 @@ void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
     // multiple times.  No reference count is kept.
     int ignored = shl_unload(reinterpret_cast<shl_t>(libraryHandle));
    // ATTN: Should this method indicate success/failure?
-#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_DARWIN)
-    dlclose(libraryHandle);
-#endif
-
-#ifdef PEGASUS_OS_OS400
+#elif defined(PEGASUS_OS_OS400)
    OS400_UnloadDynamicLibrary((int)libraryHandle);
-#endif
-
-#ifdef PEGASUS_OS_AIX
+#else
     dlclose(libraryHandle);
-#endif
-
-#ifdef PEGASUS_OS_ZOS
-    dllfree(reinterpret_cast<dllhandle *> (libraryHandle));
 #endif
 }
 
@@ -536,10 +528,6 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     }
 
     return 0;
-
-#elif defined(PEGASUS_OS_ZOS)
-    return DynamicSymbolHandle(dllqueryfn((dllhandle *)libraryHandle,
-                               (char*)symbolName));
 
 #elif defined(PEGASUS_OS_OS400)
     return DynamicSymbolHandle(OS400_LoadDynamicSymbol((int)libraryHandle,

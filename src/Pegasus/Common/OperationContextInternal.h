@@ -134,6 +134,7 @@ public:
 
     NormalizerContextContainer(const OperationContext::Container & container);
     NormalizerContextContainer(AutoPtr<NormalizerContext> & context);
+    NormalizerContextContainer(const NormalizerContextContainer & container);
     virtual ~NormalizerContextContainer(void);
 
     NormalizerContextContainer & operator=(const NormalizerContextContainer & container);

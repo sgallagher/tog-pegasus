@@ -269,6 +269,14 @@ NormalizerContextContainer::NormalizerContextContainer(
   context.release();
 }
 
+NormalizerContextContainer::NormalizerContextContainer(const NormalizerContextContainer & container)
+{
+    if(this != &container)
+    {
+        normalizerContext.reset(container.normalizerContext->clone().release());
+    }
+}
+
 NormalizerContextContainer::~NormalizerContextContainer()
 {
 }

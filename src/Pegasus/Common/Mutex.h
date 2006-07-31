@@ -126,18 +126,6 @@ public:
         _mutex.unlock();
     }
 
-#if 0
-    void lock()
-    {
-        _mutex.lock();
-    } 
-
-    void unlock()
-    {
-        _mutex.unlock();
-    }
-#endif
-
 private:
     AutoMutex(); // Unimplemented
     AutoMutex(const AutoMutex& x); // Unimplemented

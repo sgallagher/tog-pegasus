@@ -61,12 +61,14 @@ Mutex::Mutex()
 {
     once(&_once, _init_attr);
     pthread_mutex_init(&_rep.mutex, &_attr);
+    _rep.count = 0;
 }
 
 Mutex::~Mutex()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
     pthread_mutex_destroy(&_rep.mutex);
+    _rep.count = -1;
 }
 
 void Mutex::lock()
@@ -76,6 +78,7 @@ void Mutex::lock()
     switch (pthread_mutex_lock(&_rep.mutex))
     {
         case 0:
+            _rep.count++;
             break;
 
         case EDEADLK:
@@ -93,6 +96,7 @@ void Mutex::try_lock()
     switch (pthread_mutex_trylock(&_rep.mutex))
     {
         case 0:
+            _rep.count++;
             break;
 
         case EBUSY:
@@ -128,6 +132,7 @@ void Mutex::timed_lock(Uint32 milliseconds)
         switch (pthread_mutex_trylock(&_rep.mutex))
         {
             case 0:
+                _rep.count++;
                 return;
 
             case EBUSY:
@@ -153,9 +158,12 @@ void Mutex::timed_lock(Uint32 milliseconds)
 void Mutex::unlock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
+    PEGASUS_DEBUG_ASSERT(_rep.count > 0);
 
     if (pthread_mutex_unlock(&_rep.mutex) != 0)
         throw Permission(ThreadType());
+
+    _rep.count--;
 }
 
 #endif /* PEGASUS_HAVE_PTHREADS */

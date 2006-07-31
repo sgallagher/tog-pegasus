@@ -387,9 +387,9 @@ Boolean Monitor::run(Uint32 milliseconds)
           // unlocked will not result in an ArrayIndexOutOfBounds
           // exception.
 
-          autoEntryMutex.unlock();
+          _entry_mut.unlock();
           o.enqueue(message);
-          autoEntryMutex.lock();
+          _entry_mut.lock();
           // After enqueue a message and the autoEntryMutex has been released and locked again,
           // the array of _entries can be changed. The ArrayIterator has be reset with the original _entries.
           entries.reset(_entries);
@@ -423,7 +423,7 @@ Boolean Monitor::run(Uint32 milliseconds)
     */
     maxSocketCurrentPass++;
 
-    autoEntryMutex.unlock();
+    _entry_mut.unlock();
 
     //
     // The first argument to select() is ignored on Windows and it is not
@@ -435,7 +435,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 #else
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
-    autoEntryMutex.lock();
+    _entry_mut.lock();
     // After enqueue a message and the autoEntryMutex has been released and locked again,
     // the array of _entries can be changed. The ArrayIterator has be reset with the original _entries
     entries.reset(_entries);
@@ -547,9 +547,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 		   events |= SocketMessage::READ;
 		   Message *msg = new SocketMessage(entries[indx].socket, events);
 		   entries[indx]._status = _MonitorEntry::BUSY;
-                   autoEntryMutex.unlock();
+                   _entry_mut.unlock();
 		   q->enqueue(msg);
-                   autoEntryMutex.lock();
+                   _entry_mut.lock();
            // After enqueue a message and the autoEntryMutex has been released and locked again,
            // the array of entries can be changed. The ArrayIterator has be reset with the original _entries
            entries.reset(_entries);

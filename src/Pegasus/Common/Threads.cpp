@@ -36,6 +36,7 @@
 #include "Threads.h"
 #include "IDFactory.h"
 #include "TSDKey.h"
+#include "Once.h"
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include <sys/timeb.h>
@@ -122,36 +123,23 @@ void Threads::sleep(int msec)
 //
 //==============================================================================
 
-static MutexType _mutex = PEGASUS_MUTEX_INITIALIZER;
-static int _initialized;
+static Once _once = PEGASUS_ONCE_INITIALIZER;
 static TSDKeyType _key;
 
-static void _init_id_tsd()
+static void _create_key()
 {
-    mutex_lock(&_mutex);
-
-    if (_initialized == 0)
-    {
-        TSDKey::create(&_key);
-        _initialized = 1;
-    }
-
-    mutex_unlock(&_mutex);
+    TSDKey::create(&_key);
 }
 
 static inline void _set_id_tsd(Uint32 id)
 {
-    if (_initialized == 0)
-        _init_id_tsd();
-
+    once(&_once, _create_key);
     TSDKey::set_thread_specific(_key, (void*)(long)id);
 }
 
 static inline Uint32 _get_id_tsd()
 {
-    if (_initialized == 0)
-        _init_id_tsd();
-
+    once(&_once, _create_key);
     void* ptr = TSDKey::get_thread_specific(_key);
 
     if (!ptr)

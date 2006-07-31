@@ -117,6 +117,8 @@
 # include <stdlib.h>
 #endif
 
+#include "Once.h"
+
 PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
@@ -1065,29 +1067,11 @@ Boolean System::isPrivilegedUser(const String& userName)
 #endif /* default */
 }
 
-String System::getPrivilegedUserName()
+static String _priviledgedUserName;
+static Once _priviledgedUserNameOnce = PEGASUS_ONCE_INITIALIZER;
+
+static void _initPrivilegedUserName()
 {
-    static String _userName = String::EMPTY;
-    static MutexType _mutex = PEGASUS_MUTEX_INITIALIZER;
-    static int _initialized = 0;
-
-    // Use double-checked locking pattern. If already initialized, return now.
-
-    if (_initialized != 0)
-        return _userName;
-
-    // Check again after mutex is locked.
-
-    mutex_lock(&_mutex);
-
-    if (_initialized != 0)
-    {
-        mutex_unlock(&_mutex);
-        return _userName;
-    }
-
-    // Lookup the name.
-
     struct passwd* pwd = NULL;
 
 #if defined(PEGASUS_OS_SOLARIS) || \
@@ -1120,7 +1104,7 @@ String System::getPrivilegedUserName()
 #if defined(PEGASUS_OS_OS400)
         EtoA(pwd->pw_name);
 #endif
-        _userName.assign(pwd->pw_name);
+        _priviledgedUserName.assign(pwd->pw_name);
     }
     else
     {
@@ -1128,11 +1112,12 @@ String System::getPrivilegedUserName()
             TRC_OS_ABSTRACTION, Tracer::LEVEL4, "Could not find entry.");
         PEGASUS_ASSERT(0);
     }
+}
 
-    _initialized = 1;
-    mutex_unlock(&_mutex);
-
-    return (_userName);
+String System::getPrivilegedUserName()
+{
+    once(&_priviledgedUserNameOnce, _initPrivilegedUserName);
+    return _priviledgedUserName;
 }
 
 #if !defined(PEGASUS_OS_VMS) || defined(PEGASUS_ENABLE_USERGROUP_AUTHORIZATION)

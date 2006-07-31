@@ -174,6 +174,10 @@ Boolean System::exists(const char* path)
     pathname.pn = (char *)path;
 
     return QlgAccess((Qlg_Path_Name_T *)&pathname, F_OK) == 0;
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    struct stat info;
+    errno = 0;
+    return lstat(path, &info) == 0;
 #else
     return access(path, F_OK) == 0;
 #endif

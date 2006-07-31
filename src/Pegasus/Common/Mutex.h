@@ -57,6 +57,7 @@ inline void mutex_unlock(MutexType* mutex) { pthread_mutex_unlock(mutex); }
 struct MutexRep
 {
     pthread_mutex_t mutex;
+    int count;
 };
 # define PEGASUS_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
 #endif
@@ -115,48 +116,27 @@ class PEGASUS_COMMON_LINKAGE AutoMutex
 {
 public:
 
-    AutoMutex(Mutex& mutex, Boolean autoLock = true) : 
-	_mutex(mutex), _locked(autoLock)
+    AutoMutex(Mutex& mutex) : _mutex(mutex)
     {
-        if (autoLock)
-            _mutex.lock();
+        _mutex.lock();
     }
 
     ~AutoMutex()
     {
-        try
-        {
-	    if (_locked)
-		unlock();
-        }
-        catch (...)
-        {
-            // Do not propagate exception from destructor
-        }
+        _mutex.unlock();
     }
 
+#if 0
     void lock()
     {
-        if (_locked)
-            throw AlreadyLocked(ThreadType());
-
         _mutex.lock();
-        _locked = true;
-    }
+    } 
 
     void unlock()
     {
-        if (!_locked)
-            throw Permission(ThreadType());
-
         _mutex.unlock();
-        _locked = false;
     }
-
-    Boolean isLocked() const
-    {
-        return _locked;
-    }
+#endif
 
 private:
     AutoMutex(); // Unimplemented
@@ -164,7 +144,6 @@ private:
     AutoMutex& operator=(const AutoMutex& x); // Unimplemented
 
     Mutex& _mutex;
-    Boolean _locked;
 };
 
 PEGASUS_NAMESPACE_END

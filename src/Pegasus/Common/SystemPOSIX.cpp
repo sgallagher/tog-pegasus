@@ -695,8 +695,6 @@ char *getpassword(const char *prompt)
 
 #endif /* PEGASUS_OS_LSB */
 
-#if !defined(PEGASUS_OS_VMS)
-
 String System::getPassword(const char* prompt)
 {
 #if defined(PEGASUS_OS_VMS)
@@ -875,8 +873,6 @@ String System::getPassword(const char* prompt)
 
 #endif /* default */
 }
-
-#endif /* !PEGASUS_OS_VMS */
 
 String System::getEffectiveUserName()
 {

@@ -384,9 +384,9 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  undef PEGASUS_CORE_DIR
 #  define PEGASUS_CORE_DIR                  "/var/opt/wbem"
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
-#  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/wbem/sbin/cimservera"
+#  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/wbem/lbin/cimservera"
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
-#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/wbem/sbin/cimprovagt"
+#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/wbem/lbin/cimprovagt"
 # elif defined(PEGASUS_OS_AIX)
 #  undef CIMSERVER_LOCK_FILE
 #  define CIMSERVER_LOCK_FILE               "/opt/freeware/cimom/pegasus/etc/cimserver_start.lock"

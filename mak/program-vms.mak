@@ -69,8 +69,10 @@ else
 endif
 	@ $(TOUCH) $(FULL_VMSPROGRAM)
 ifdef SHARE_COPY
+ ifdef PEGASUS_RELEASE_BUILD
 #	$(COPY) $(FULL_VMSPROGRAM) sys$$share:$(PROGRAM)$(EXE)
 	$(COPY) "$(FULL_VMSPROGRAM)" "$(PEGASUS_SYSSHARE)$(PROGRAM)$(EXE)"
+ endif
 endif
 	@ $(ECHO)
 

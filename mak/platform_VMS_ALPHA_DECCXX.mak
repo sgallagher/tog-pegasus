@@ -32,9 +32,9 @@ include $(ROOT)/mak/config-vms.mak
 
 OS = VMS
 
-ARCHITECTURE = ALPHA
+ARCHITECTURE = alpha
 
-COMPILER = DECCXX
+COMPILER = deccxx
 
 SYS_VMSINCLUDES = -I$(ROOT)/src/stdcxx/cwrappers
 
@@ -48,28 +48,23 @@ BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
 OPT_DIR = $(HOME_DIR)/opt
 
-LFLAGS = /Threads_Enable=Upcalls/map=$(BIN_VMSDIRA)]$(PROGRAM)
+LFLAGS = /Threads_Enable=Upcalls/map=$(BIN_VMSDIRA)]$(PROGRAM)/symbol_table/full/cross_ref
 CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
 CCFLAGS = /OPT=INLINE=ALL/nowarn
-#CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time/preprocess_only/implicit_include
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
-#CFLAGS += /debug/noopt/show=include/machi/lis
 CFLAGS += /debug/noopt/show=include/lis=$(OBJ_VMSDIRA)]
 CCFLAGS = /debug/noopt/nowarn/show=include/lis=$(OBJ_VMSDIRA)]
-#CFLAGS += /debug/noopt/show=include/lis=$(OBJ_VMSDIRA)]/preprocess_only/implicit_include
 LFLAGS += /debug
 endif
 
 SYS_LIBS =+sys$share:sys$lib_c/lib
 
 # SSL support
-#OPENSSL_VMSHOME =/Pegasus_OpenSSLHome
 OPENSSL_VMSHOME = /Pegasus_Tools
 OPENSSL_HOME = $(OPENSSL_VMSHOME)
 PEGASUS_HAS_SSL = yes
 OPENSSL_SET_SERIAL_SUPPORTED = true
 
-PEGASUS_DISABLE_PERFINST = yes
 #PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = true
 
 # Local domain sockets, or an equivalent, is not currently supported on OpenVMS. Bug 2147

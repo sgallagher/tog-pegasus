@@ -48,23 +48,18 @@ BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
 OPT_DIR = $(HOME_DIR)/opt
 
-LFLAGS = /Threads_Enable=Upcalls/map=$(BIN_VMSDIRA)]$(PROGRAM)
-CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
-CCFLAGS = /OPT=INLINE=ALL/nowarn
-#CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time/names=as_is
-#CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time/preprocess_only/implicit_include
+LFLAGS =  /Threads_Enable=Upcalls/symbol_table/full/cross_reference/map=$(BIN_VMSDIRA)]$(PROGRAM)
+CFLAGS =  /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
+CCFLAGS = /OPT=INLINE=ALL
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
-CFLAGS += /debug/noopt/show=include/lis=$(OBJ_VMSDIRA)]
-CCFLAGS = /debug/noopt/nowarn/show=include/lis=$(OBJ_VMSDIRA)]
-#CFLAGS += /debug/noopt/show=include/lis=$(OBJ_VMSDIRA)]/be_dump="-mGLOB_show_limit_info"
-
+CFLAGS += /show=include/lis=$(OBJ_VMSDIRA)]/debug/noopt
+CCFLAGS = /show=include/lis=$(OBJ_VMSDIRA)]/debug/noopt
 LFLAGS += /debug
 endif
 
 SYS_LIBS =+sys$share:sys$lib_c/lib
 
 # SSL support
-#OPENSSL_VMSHOME =/Pegasus_OpenSSLHome
 OPENSSL_VMSHOME = /Pegasus_Tools
 OPENSSL_HOME = $(OPENSSL_VMSHOME)
 PEGASUS_HAS_SSL = yes
@@ -72,7 +67,6 @@ OPENSSL_SET_SERIAL_SUPPORTED = true
 
 PEGASUS_ARCHITECTURE_64BIT = yes
 
-PEGASUS_DISABLE_PERFINST = yes
 #PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = true
 
 # Local domain sockets, or an equivalent, is not currently supported on OpenVMS. Bug 2147

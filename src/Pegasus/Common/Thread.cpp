@@ -146,7 +146,12 @@ void Thread::thread_init(void)
 void Thread::detach(void)
 {
     _is_detached = true;
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    pthread_t  thread_id=_handle.thid.tt_handle();
+    pthread_detach(&thread_id);
+#else
     pthread_detach(_handle.thid.tt_handle());
+#endif
 }
 
 ThreadStatus Thread::run()

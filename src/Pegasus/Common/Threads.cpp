@@ -92,23 +92,16 @@ void Threads::sleep(int msec)
 
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     int seconds;
-    int microsecs = msec * 1000;
-
-    if (microsecs < 1000000)
+    if (msec < 1000)
     {
-        usleep(microsecs/2);
-        pthread_testintr();
-        usleep(microsecs/2);
+        usleep(msec*1000);
     }
     else
     {
         // sleep for loop seconds
-        seconds = microsecs / 1000000;
-        sleep(seconds);
-
-        // Usleep the remaining time
-        if ((seconds*1000000) < microsecs)
-            usleep(microsecs - (seconds*1000000));
+        sleep(msec / 1000);
+        // Usleep the remaining micro seconds
+        usleep( (msec*1000) % 1000000 );
     }
 #elif defined(PEGASUS_OS_VMS)
 

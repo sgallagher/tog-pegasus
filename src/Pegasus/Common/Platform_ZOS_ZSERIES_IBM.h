@@ -42,28 +42,18 @@
 // added for Native ASCII Support
 #pragma runopts("FILETAG(AUTOCVT,AUTOTAG)")
 
-//#define _XOPEN_SOURCE_EXTENDED 1
-//#define _OPEN_SYS 1
-#define _MSE_PROTOS
-#define _OPEN_SOURCE 3
-// timezone
-#define _ALL_SOURCE
-// longlong
-//#define _LONG_LONG 1
-
-
-#define _UNIX03_SOURCE
-
-//#include <limits.h>
+#include <sched.h>
+// include here to avoid redefinition from below
+#include <pthread.h>
 
 #ifdef __cplusplus
 #include <cstddef>
 #endif
 
 #include <stdarg.h>
-
-#define _ISOC99_SOURCE
 #include <stdio.h>
+// usleep() function in Threads.h
+#include <unistd.h>
 
 #define PEGASUS_OS_TYPE_UNIX
 
@@ -110,5 +100,9 @@
 #define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
 
 #define PEGASUS_HAVE_PTHREADS
+
+// use the NON-POSIX conform interface version if required
+// to avoid lots of ifdefs for z/OS
+#define pthread_getspecific(x) pthread_getspecific_d8_np(x);
 
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

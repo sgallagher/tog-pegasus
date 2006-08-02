@@ -5773,9 +5773,9 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_OperationContext__1get
             jobjectArray         jcopa       = 0;
             int                  jcopaLength = copa.size ();
 
-            jcopa = jEnv->NewObjectArray (jcopaLength,
-                                          JMPIjvm::jv.CIMObjectPathClassRef,
-                                          0);
+            jcopa = (jobjectArray)jEnv->NewObjectArray (jcopaLength,
+                                                        JMPIjvm::jv.CIMObjectPathClassRef,
+                                                        0);
 
             for (int i = 0; i < jcopaLength; i++)
             {

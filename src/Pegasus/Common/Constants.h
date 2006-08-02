@@ -372,9 +372,9 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  undef PEGASUS_CORE_DIR
 #  define PEGASUS_CORE_DIR                  "/var/opt/wbem"
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
-#  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/wbem/sbin/cimservera"
+#  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/wbem/lbin/cimservera"
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
-#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/wbem/sbin/cimprovagt"
+#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/wbem/lbin/cimprovagt"
 # elif defined(PEGASUS_OS_AIX)
 #  undef CIMSERVER_LOCK_FILE
 #  define CIMSERVER_LOCK_FILE               "/opt/freeware/cimom/pegasus/etc/cimserver_start.lock"
@@ -473,7 +473,12 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #define PG_PROVMODULE_USERCTXT_DESIGNATED 3
 #define PG_PROVMODULE_USERCTXT_PRIVILEGED 4
 #define PG_PROVMODULE_USERCTXT_CIMSERVER 5
+
+#ifdef PEGASUS_DEFAULT_USERCTXT_REQUESTOR
+#define PEGASUS_DEFAULT_PROV_USERCTXT PG_PROVMODULE_USERCTXT_REQUESTOR
+#else
 #define PEGASUS_DEFAULT_PROV_USERCTXT PG_PROVMODULE_USERCTXT_PRIVILEGED
+#endif
 
 // Standard Pegasus Global Prefix.
 // This prefix is used as the basis for pegasus defined classes

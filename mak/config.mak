@@ -440,6 +440,21 @@ ifdef PEGASUS_DEFAULT_ENABLE_OOP
   endif
 endif
 
+# Allow to define the default value for the Provider User Context
+# property as REQUESTOR.
+# If is set and true use REQUESTOR
+# If is not set or false use PRIVILEGED
+#
+ifdef PEGASUS_DEFAULT_USERCTXT_REQUESTOR
+  ifeq ($(PEGASUS_DEFAULT_USERCTXT_REQUESTOR),true)
+    DEFINES += -DPEGASUS_DEFAULT_USERCTXT_REQUESTOR
+  else
+    ifneq ($(PEGASUS_DEFAULT_USERCTXT_REQUESTOR),false)
+      $(error PEGASUS_DEFAULT_USERCTXT_REQUESTOR ($(PEGASUS_DEFAULT_USERCTXT_REQUESTOR)) invalid, must be true or false)
+    endif
+  endif
+endif
+
 #
 # PEP 197
 # Allow the Provider User Context feature to be disabled.

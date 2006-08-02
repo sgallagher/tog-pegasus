@@ -59,6 +59,7 @@
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/FileSystem.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Server/CIMServer.h>
@@ -2688,6 +2689,18 @@ ProviderName CMPIProviderManager::_resolveProviderName(
     genericValue.get(location);
     fileName = _resolvePhysicalName(location);
 
+    // An empty file name is only for interest if we are in the 
+    // local name space. So the message is only issued if not
+    // in the remote Name Space.
+    if (fileName == String::EMPTY && (!providerId.isRemoteNameSpace()))
+    {
+          genericValue.get(location);
+          String fullName = FileSystem::buildLibraryFileName(location);
+          Logger::put_l(Logger::ERROR_LOG, "CIM Server", Logger::SEVERE,
+              "ProviderManager.CMPI.CMPIProviderManager.CANNOT_FIND_LIBRARY",
+              "For provider $0 library $1 was not found.", providerName, fullName);
+
+    }
     ProviderName name(providerName, fileName, String::EMPTY, 0);
     name.setLocation(location);
     return name;

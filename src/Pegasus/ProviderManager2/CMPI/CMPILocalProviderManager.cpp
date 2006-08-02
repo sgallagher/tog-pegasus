@@ -582,9 +582,10 @@ getProvider (const String & fileName, const String & providerName)
   PEG_METHOD_ENTER (TRC_PROVIDERMANAGER, "ProviderManager::getProvider");
   if (fileName.size() == 0)
   {
-        throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPILocalProviderManager.CANNOT_FIND_LIBRARY",
-            "Provider library $0 was not found.",
-            fileName));
+        throw Exception(MessageLoaderParms(
+         "ProviderManager.CMPI.CMPILocalProviderManager.CANNOT_FIND_LIBRARY",
+         "For provider $0 the library name was empty. Check provider registered location.",
+         providerName));
 
   }
   lproviderName.append (providerName);

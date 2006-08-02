@@ -41,6 +41,7 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
+#include <typeinfo>
 
 #include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 #include <Pegasus/Common/System.h>
@@ -322,20 +323,60 @@ extern "C" {
       // EmbeddedObjects, so any mismatches between the property type
       // in the instance and the property type in the class definition
       // must be resolved.
-      EnumerateInstancesResponseHandler * eiRes =
-          dynamic_cast<EnumerateInstancesResponseHandler *>(res);
-      GetInstanceResponseHandler * giRes = 0;
+
       CMPIStatus status;
-      if(eiRes)
+
+      do
       {
-          status = resolveEmbeddedInstanceTypes(eiRes, inst);
+          // Try EnumerateInstancesResponseHandler:
+
+          EnumerateInstancesResponseHandler * eiRes =
+              dynamic_cast<EnumerateInstancesResponseHandler *>(res);
+
+          if(eiRes)
+          {
+              status = resolveEmbeddedInstanceTypes(eiRes, inst);
+              break;
+          }
+
+          // Try GetInstanceResponseHandler
+
+          GetInstanceResponseHandler * giRes = 0;
+              giRes = dynamic_cast<GetInstanceResponseHandler *>(res);
+
+          if (giRes)
+          {
+              status = resolveEmbeddedInstanceTypes(giRes, inst);
+              break;
+          }
+
+          // Try AssociatorsResponseHandler:
+
+          AssociatorsResponseHandler* aRes = 0;
+              aRes = dynamic_cast<AssociatorsResponseHandler*>(res);
+
+          if (aRes)
+          {
+              status = resolveEmbeddedInstanceTypes(aRes, inst);
+              break;
+          }
+
+          // Try AssociatorsResponseHandler:
+
+          ReferencesResponseHandler* rRes = 0;
+              rRes = dynamic_cast<ReferencesResponseHandler*>(res);
+
+          if (rRes)
+          {
+              status = resolveEmbeddedInstanceTypes(rRes, inst);
+              break;
+          }
+
+          // None of the above.
+
+          PEGASUS_ASSERT(0);
       }
-      else
-      {
-          giRes = dynamic_cast<GetInstanceResponseHandler *>(res);
-          PEGASUS_ASSERT(giRes);
-          status = resolveEmbeddedInstanceTypes(giRes, inst);
-      }
+      while (0);
       
       if(status.rc != CMPI_RC_OK)
       {

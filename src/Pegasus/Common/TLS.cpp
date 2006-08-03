@@ -680,14 +680,14 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 MP_Socket::MP_Socket(SocketHandle socket)
- : _socket(socket), _isSecure(false) {}
+ : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
 
 MP_Socket::MP_Socket(
     SocketHandle socket,
     SSLContext * sslcontext,
     ReadWriteSem * sslContextObjectLock,
     Boolean exportConnection)
- : _socket(socket), _isSecure(false) {}
+ : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
 
 MP_Socket::~MP_Socket() {}
 

@@ -90,9 +90,6 @@ ifndef PEGASUS_ENABLE_SLP
     PEGASUS_ENABLE_SLP = true
 endif
 
-# Local domain sockets, or an equivalent, is not currently supported on z/OS. Bug 2147
-PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
-
 SYS_LIBS =
 
 CXX = c++ -+

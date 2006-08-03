@@ -490,7 +490,9 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  "/etc/wbem/cimserver_planned.conf"
 #  undef PEGASUS_CIMSERVER_START_FILE
-#  define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver.pid"
+#  define PEGASUS_CIMSERVER_START_FILE      "/var/wbem/cimserver.pid"
+#  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
+#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/wbem/cimxml.socket"
 # elif defined(PEGASUS_OS_DARWIN)
 #  undef PEGASUS_CURRENT_CONFIG_FILE_PATH
 #  define PEGASUS_CURRENT_CONFIG_FILE_PATH  "/etc/pegasus/cimserver_current.conf"

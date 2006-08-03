@@ -66,17 +66,6 @@ static const CIMName PLANNED_VALUE      = CIMName ("PlannedValue");
 static const CIMName DYNAMIC_PROPERTY   = CIMName ("DynamicProperty");
 Uint32 My_isDefaultInstanceProvider = 0;
 
-// For the resolution of Bug#4590
-#ifdef PEGASUS_OS_DARWIN
-CIMClient& getCIMClientRef()
-{
-        static CIMClient client;
-        return client;
-}
-#define client getCIMClientRef()
-#else
-        static CIMClient client;
-#endif
 static Boolean verbose = false;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -95,7 +84,8 @@ void _errorExit(String message)
 // This would get the property values from CIMServer and return that for
 // checking whether Repository Is Default InstanceProvider or not.
 
-void getPropertiesFromCIMServer( const CIMName&    propName,
+void getPropertiesFromCIMServer(CIMClient& client, 
+                                const CIMName&    propName,
                                  Array <String>&   propValues
     ) 
 {
@@ -145,7 +135,9 @@ void getPropertiesFromCIMServer( const CIMName&    propName,
 ////////////////////////////////////////////////////////////////////////////
 // This returns the total number of associators of the instances.
 
-Uint32 _testAssociators(CIMName assocClass, CIMObjectPath instancePath)
+Uint32 _testAssociators(CIMClient& client,
+                        CIMName assocClass, 
+                        CIMObjectPath instancePath)
 {
     if (verbose)
     {
@@ -184,7 +176,9 @@ Uint32 _testAssociators(CIMName assocClass, CIMObjectPath instancePath)
 ////////////////////////////////////////////////////////////////////////////
 // This returns the total number of Associator Names of the instances.
 
-Uint32 _testAssociatorNames(CIMName assocClass, CIMObjectPath instancePath)
+Uint32 _testAssociatorNames(CIMClient& client, 
+                            CIMName assocClass, 
+                            CIMObjectPath instancePath)
 {
     if (verbose)
     {
@@ -209,7 +203,9 @@ Uint32 _testAssociatorNames(CIMName assocClass, CIMObjectPath instancePath)
 ////////////////////////////////////////////////////////////////////////////
 // This returns the total number of References of the instances.
 
-Uint32 _testReferences(CIMObjectPath instancePath, CIMName referenceClass)
+Uint32 _testReferences(CIMClient& client,
+                       CIMObjectPath instancePath,
+                       CIMName referenceClass)
 {
     if (verbose)
     {
@@ -242,7 +238,9 @@ Uint32 _testReferences(CIMObjectPath instancePath, CIMName referenceClass)
 ////////////////////////////////////////////////////////////////////////////
 // This returns the total number of Reference Names of the instances.
 
-Uint32 _testReferenceNames(CIMObjectPath instancePath, CIMName referenceClass)
+Uint32 _testReferenceNames(CIMClient& client,
+                           CIMObjectPath instancePath,
+                           CIMName referenceClass)
 {
     if (verbose)
     {
@@ -268,7 +266,7 @@ Uint32 _testReferenceNames(CIMObjectPath instancePath, CIMName referenceClass)
 // TestAggregationOutputProvider.
 // Output : As per the table in TestCaseReadMe.doc.
 
-void _testaggregation()
+void _testaggregation(CIMClient& client)
 {
     Uint32 a_count = 0;
     Uint32 an_count = 0;
@@ -308,10 +306,10 @@ void _testaggregation()
 
         for (Uint32 i = 0; i < numpersonInstances; ++i)
         {
-            a_count  += _testAssociators(TEST_TEACHES, personRefs[i]);
-            an_count += _testAssociatorNames(TEST_TEACHES, personRefs[i]);
-            r_count  += _testReferences(personRefs[i],TEST_TEACHES);
-            rn_count += _testReferenceNames(personRefs[i], TEST_TEACHES);
+            a_count  += _testAssociators(client, TEST_TEACHES, personRefs[i]);
+            an_count += _testAssociatorNames(client, TEST_TEACHES, personRefs[i]);
+            r_count  += _testReferences(client, personRefs[i],TEST_TEACHES);
+            rn_count += _testReferenceNames(client, personRefs[i], TEST_TEACHES);
         }
         if ( a_count != 2*numteachesInstances || an_count != 2*numteachesInstances ||
            r_count != 2*numteachesInstances || rn_count != 2*numteachesInstances )
@@ -336,7 +334,7 @@ void _testaggregation()
 // TestAggregationOutputProvider returns the CIM_ERR_NOT_SUPPORTED for this class.
 // Output : As per the table in TestCaseReadMe.doc.
 
-void _testFromRepository()
+void _testFromRepository(CIMClient& client)
 {
     Uint32 a_count = 0;
     Uint32 an_count = 0;
@@ -376,10 +374,10 @@ void _testFromRepository()
 
         for (Uint32 i = 0; i < numpersonInstances; ++i)
         {
-            a_count  += _testAssociators(TEST_WORKS, personRefs[i]);
-            an_count += _testAssociatorNames(TEST_WORKS, personRefs[i]);
-            r_count  += _testReferences(personRefs[i],TEST_WORKS);
-            rn_count += _testReferenceNames(personRefs[i], TEST_WORKS);
+            a_count  += _testAssociators(client, TEST_WORKS, personRefs[i]);
+            an_count += _testAssociatorNames(client, TEST_WORKS, personRefs[i]);
+            r_count  += _testReferences(client, personRefs[i],TEST_WORKS);
+            rn_count += _testReferenceNames(client, personRefs[i], TEST_WORKS);
         }
         if ( a_count != 2*numworksInstances || an_count != 2*numworksInstances ||
              r_count != 2*numworksInstances || rn_count != 2*numworksInstances )
@@ -413,7 +411,7 @@ void _testFromRepository()
 // CIM_ERR_NOT_SUPPORTED exception for this class.
 // Output : As per the table in TestCaseReadMe.doc.
 
-void _testNotSupported()
+void _testNotSupported(CIMClient& client)
 {
     Uint32 a_count = 0;
     Uint32 an_count = 0;
@@ -468,10 +466,10 @@ void _testNotSupported()
 
         for (Uint32 i = 0; i < numpersonInstances; ++i)
         {
-            a_count  += _testAssociators(TEST_MARRIAGE, personRefs[i]);
-            an_count += _testAssociatorNames(TEST_MARRIAGE, personRefs[i]);
-            r_count  += _testReferences(personRefs[i],TEST_MARRIAGE);
-            rn_count += _testReferenceNames(personRefs[i], TEST_MARRIAGE);
+            a_count  += _testAssociators(client, TEST_MARRIAGE, personRefs[i]);
+            an_count += _testAssociatorNames(client, TEST_MARRIAGE, personRefs[i]);
+            r_count  += _testReferences(client, personRefs[i],TEST_MARRIAGE);
+            rn_count += _testReferenceNames(client, personRefs[i], TEST_MARRIAGE);
         }
         if ( a_count != nummarriageInstances || an_count != nummarriageInstances ||
              r_count != nummarriageInstances || rn_count != nummarriageInstances )
@@ -506,7 +504,7 @@ void _testNotSupported()
 // would return the static instances from the repository and the CIM_ERR_NOT_FOUND from the Provider. 
 // Output : As per the table in TestCaseReadMe.doc.
 
-void _testNotFound()
+void _testNotFound(CIMClient& client)
 {
     Uint32 a_count = 0;
     Uint32 an_count = 0;
@@ -560,10 +558,10 @@ void _testNotFound()
 
         for (Uint32 i = 0; i < numpersonInstances; ++i)
         {
-            a_count  += _testAssociators(TEST_FAMILY, personRefs[i]);
-            an_count += _testAssociatorNames(TEST_FAMILY, personRefs[i]);
-            r_count  += _testReferences(personRefs[i],TEST_FAMILY);
-            rn_count += _testReferenceNames(personRefs[i], TEST_FAMILY);
+            a_count  += _testAssociators(client, TEST_FAMILY, personRefs[i]);
+            an_count += _testAssociatorNames(client, TEST_FAMILY, personRefs[i]);
+            r_count  += _testReferences(client, personRefs[i],TEST_FAMILY);
+            rn_count += _testReferenceNames(client, personRefs[i], TEST_FAMILY);
         }
         if ( a_count != numfamilyInstances || an_count != numfamilyInstances ||
              r_count != numfamilyInstances || rn_count != numfamilyInstances )
@@ -596,6 +594,7 @@ int main(int argc, char** argv)
     // Variables to collect the CIMServer properties.
     Array<String> propertyValues;
     String    currentValue  = String::EMPTY;
+    CIMClient client;
 
     // Check command line option
 
@@ -631,7 +630,7 @@ int main(int argc, char** argv)
 
     // Get the Property value from CIMServer with REPOSITORY_DEFAULT
 
-    getPropertiesFromCIMServer(REPOSITORY_DEFAULT, propertyValues);
+    getPropertiesFromCIMServer(client, REPOSITORY_DEFAULT, propertyValues);
     currentValue = propertyValues[2];
     
     if ( currentValue == "true" )
@@ -647,15 +646,24 @@ int main(int argc, char** argv)
     }
     try
     {
-        _testaggregation();
-        _testFromRepository();
-        _testNotSupported();
-        _testNotFound();
-        cout << "\n+++++ passed all tests" << endl;
+        _testaggregation(client);
+        _testFromRepository(client);
+        _testNotSupported(client);
+        _testNotFound(client);
     }
     catch(Exception)
     {
         cout << "\n----- Test Aggregation Failed" << endl;
     }
+    // Disconnect from server
+    try
+    {
+        client.disconnect();
+    }
+    catch (Exception& e)
+    {
+        _errorExit(e.getMessage());
+    }
+
     return(0);
 }

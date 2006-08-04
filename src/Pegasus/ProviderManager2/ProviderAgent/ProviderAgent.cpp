@@ -45,6 +45,12 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager2/Default/DefaultProviderManager.h>
 
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && defined(PEGASUS_ZOS_SECURITY)
+// This include file will not be provided in the OpenGroup CVS for now.
+// Do NOT try to include it in your compile
+#include <Pegasus/Common/safCheckzOS_inline.h>
+#endif
+
 #include "ProviderAgent.h"
 
 PEGASUS_USING_STD;
@@ -104,6 +110,7 @@ ProviderAgent::ProviderAgent(
     _pipeToServer = pipeToServer;
     _providerAgent = this;
     _subscriptionInitComplete = false;
+    _isInitialised = false;
 
     PEG_METHOD_EXIT();
 }
@@ -290,6 +297,29 @@ Boolean ProviderAgent::_readAndProcessRequest()
     }
 
     //
+    // It never should be possible to receive a request other than "initialise"
+    // before the provider agent is in state isInitialised
+    //
+    // Bail out.
+    //
+    if (!_isInitialised &&
+        (request->getType() != CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE))
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+            "Provider Agent was not yet initialised,"
+            " prior to receiving a request message.");
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            "ProviderManager.ProviderAgent.ProviderAgent."
+            "PROVIDERAGENT_NOT_INITIALIZED",
+            "cimprovagt \"$0\" was not yet initialised"
+            " prior to receiving a request message. Exiting.",
+            _agentId);
+        _terminating = true;
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    //
     // Check for messages to be handled by the Agent itself.
     //
     if (request->getType() == CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE)
@@ -335,6 +365,24 @@ Boolean ProviderAgent::_readAndProcessRequest()
         // Notify the cimserver that the provider agent is initialized.
         Uint32 messageLength = 0;
         _pipeToServer->writeBuffer((const char*)&messageLength, sizeof(Uint32));
+
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && defined(PEGASUS_ZOS_SECURITY)
+        // prepare and setup the thread-level security environment on z/OS
+        // if security initialization fails
+        startupCheckBPXServer(false);
+        startupCheckMSC();
+        if (!isZOSSecuritySetup())
+        {
+            Logger::put_l(Logger::ERROR_LOG, ZOS_SECURITY_NAME, Logger::FATAL,
+                          "ProviderManager.ProviderAgent.ProviderAgent."
+                          "UNINITIALIZED_SECURITY_SETUP.PEGASUS_OS_ZOS",
+                          "Security environment could not be initialised. "
+                          "Assume security fraud. Stopping Provider Agent.");
+            exit(1);
+        }
+#endif
+        // provider agent is initialised and ready to go
+        _isInitialised = true;
     }
     else if (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE)
     {

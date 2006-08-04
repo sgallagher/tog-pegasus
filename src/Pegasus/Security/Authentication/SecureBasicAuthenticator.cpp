@@ -50,6 +50,11 @@
 #endif
 #ifdef PEGASUS_OS_ZOS
 #include <pwd.h>
+#ifdef PEGASUS_ZOS_SECURITY
+// This include file will not be provided in the OpenGroup CVS for now.
+// Do NOT try to include it in your compile
+#include <Pegasus/Common/safCheckzOS_inline.h>
+#endif
 #endif
 
 PEGASUS_USING_STD;
@@ -131,10 +136,27 @@ Boolean SecureBasicAuthenticator::authenticate(
 	#if defined(PEGASUS_OS_ZOS)
 		// use zOS API to do the user name and password verification
 		// note: write possible errors to the tracelog
-		if (__passwd((const char*) userName.getCString(), (const char*) password.getCString(), NULL) == 0) 
+		if ( (password.size()>0) && (__passwd((const char*) userName.getCString(), (const char*) password.getCString(), NULL) == 0))
 		{
+#ifdef PEGASUS_ZOS_SECURITY
+            if (CheckProfileCIMSERVclassWBEM( userName , __READ_RESOURCE))
+            {
+                authenticated = true;
+            }
+            else
+            {
+                authenticated = false;
+                // no READ access to security resource profile CIMSERV CL(WBEM)
+                Logger::put_l(Logger::TRACE_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
+                    "Security.Authentication.SecureBasicAuthenticator"
+                    ".NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
+                    "Request UserID $0 misses READ permission to profile CIMSERV CL(WBEM).",
+                    userName);
+            }
+#else
 			authenticated = true;
-		}
+#endif
+        }
 		else
 		{
 			authenticated = false;

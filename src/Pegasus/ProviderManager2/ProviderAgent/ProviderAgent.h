@@ -214,6 +214,11 @@ private:
         A thread pool used for asynchronous processing of provider operations.
      */
     ThreadPool _threadPool;
+
+    /**
+       Indicates if the provider agent has been successful initialised already.
+     */
+    Boolean _isInitialised;
 };
 
 PEGASUS_NAMESPACE_END

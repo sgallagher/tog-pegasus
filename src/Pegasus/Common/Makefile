@@ -173,6 +173,7 @@ SOURCES2 = \
 SOURCES_SLP = Attribute.cpp \
     CIMServerDescription.cpp
 
+SOURCES_SECURITY_ZOS = MustStayCleanzOS.c
 ifeq ($(PEGASUS_ENABLE_SLP),true)
   SOURCES2 += $(SOURCES_SLP)
 endif
@@ -193,6 +194,9 @@ endif
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
   ifdef PEGASUS_HAS_SSL
     EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
+  endif
+  ifdef PEGASUS_ZOS_SECURITY
+    SOURCES += $(SOURCES_SECURITY_ZOS)
   endif
 endif
 

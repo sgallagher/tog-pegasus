@@ -50,6 +50,11 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
 #include "CIMOperationRequestAuthorizer.h"
+#ifdef PEGASUS_ZOS_SECURITY
+// This include file will not be provided in the OpenGroup CVS for now.
+// Do NOT try to include it in your compile
+#include <Pegasus/Common/safCheckzOS_inline.h>
+#endif
 
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
@@ -312,6 +317,46 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
          PEGASUS_ASSERT(0);
 	 break;
    }
+
+#ifdef PEGASUS_ZOS_SECURITY
+   if (checkRequestTypeAuthorizationZOS(req->getType(), userName, nameSpace) == false)
+   {
+      //
+      // user is not authorized, send an
+      // error message to the requesting client.
+      //
+      if (cimMethodName == "InvokeMethod")
+      {
+          sendMethodError(
+              queueId,
+              req->getHttpMethod(),
+              req->messageId,
+              ((CIMInvokeMethodRequestMessage*)req.get())->methodName,
+              PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
+                      MessageLoaderParms(
+                        "Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED",
+                        "Not authorized to run $0 in the namespace $1",
+                        cimMethodName, nameSpace.getString())
+                      ));
+      }
+      else
+      {
+          sendIMethodError(
+              queueId,
+              req->getHttpMethod(),
+              req->messageId,
+              cimMethodName,
+              PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
+                      MessageLoaderParms(
+                        "Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED",
+                        "Not authorized to run $0 in the namespace $1",
+                        cimMethodName, nameSpace.getString()))
+              );
+      }
+      PEG_METHOD_EXIT();
+      return;
+   }
+#endif
 
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
    //

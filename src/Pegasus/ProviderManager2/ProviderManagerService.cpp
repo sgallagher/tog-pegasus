@@ -55,6 +55,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/Constants.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
@@ -680,6 +681,22 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             ProviderIdContainer pidc =
                 request->operationContext.get(ProviderIdContainer::NAME);
             providerModule = pidc.getModule();
+#ifdef PEGASUS_ZOS_SECURITY
+            if (request->getType() != CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
+            {
+                // this is a z/OS only function
+                // the function checks user authorization
+                // based on CIM operation versus provider profile
+                // Input: request and Provider ID Container
+                //Return: failure: a response message for the client
+                //        success: NULL 
+                response = checkSAFProviderProfile(request, pidc);
+                if (response != NULL)
+                {
+                    return response;
+                }
+            }
+#endif
         }
 
         Uint16 userContext = PEGASUS_DEFAULT_PROV_USERCTXT;

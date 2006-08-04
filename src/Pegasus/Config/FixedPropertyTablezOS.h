@@ -40,3 +40,4 @@
 #else
     {"enableAuthentication",                     "false"},
 #endif
+    {"enableNamespaceAuthorization",             "false"},

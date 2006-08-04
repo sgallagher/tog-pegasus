@@ -42,6 +42,11 @@
 #include "SecureLocalAuthenticator.h"
 #include "LocalAuthenticationHandler.h"
 
+#ifdef PEGASUS_ZOS_SECURITY
+// This include file will not be provided in the OpenGroup CVS for now.
+// Do NOT try to include it in your compile
+#include <Pegasus/Common/safCheckzOS_inline.h>
+#endif
 
 PEGASUS_USING_STD;
 
@@ -114,6 +119,19 @@ Boolean LocalAuthenticationHandler::authenticate(
         PEG_METHOD_EXIT();
         return (authenticated);
     }
+
+    // Check if the user is authorized to CIMSERV
+#ifdef PEGASUS_ZOS_SECURITY
+    if ( !CheckProfileCIMSERVclassWBEM(userName, __READ_RESOURCE) )
+    {
+        Logger::put_l(Logger::TRACE_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
+            "Security.Authentication.LocalAuthenticationHandler"
+            ".NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
+            "Request UserID $0 doesn't have READ permission to profile CIMSERV CL(WBEM).",
+            userName);
+        return (authenticated);
+    }
+#endif
 
     authenticated = _localAuthenticator->authenticate(filePath, 
         secretReceived, authInfo->getAuthChallenge());

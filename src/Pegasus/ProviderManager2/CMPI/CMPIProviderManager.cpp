@@ -73,9 +73,6 @@
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 //#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-#include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
-#endif
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -453,14 +450,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         STAT_GETSTARTTIME;
 
@@ -469,9 +459,6 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         STAT_PMS_PROVIDEREND;
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
@@ -601,14 +588,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         STAT_GETSTARTTIME;
 
@@ -616,10 +596,6 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 	  (pr.miVector.instMI,&eCtx,&eRes,&eRef,(const char **)props.getList());
 
         STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
         throw CIMException((CIMStatusCode)rc.rc,
@@ -715,23 +691,13 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
+        
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->enumInstanceNames(pr.miVector.instMI,&eCtx,&eRes,&eRef);
 
         STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -832,14 +798,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         STAT_GETSTARTTIME;
 
@@ -847,10 +806,6 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
            (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst);
 
         STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -952,14 +907,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         STAT_GETSTARTTIME;
 
@@ -967,10 +915,6 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 	  (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,(const char **)props.getList());
 
         STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1066,14 +1010,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         STAT_GETSTARTTIME;
 
@@ -1081,10 +1018,6 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
            (pr.miVector.instMI,&eCtx,&eRes,&eRef);
 
         STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1192,14 +1125,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         STAT_GETSTARTTIME;
 
@@ -1207,10 +1133,6 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
            (pr.miVector.instMI,&eCtx,&eRes,&eRef,CHARS(queryLan),CHARS(query));
 
         STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1354,14 +1276,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         STAT_GETSTARTTIME;
 
@@ -1370,10 +1285,6 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
                          CHARS(rClass),CHARS(rRole),CHARS(resRole),(const char **)props.getList());
 
         STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1483,14 +1394,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         STAT_GETSTARTTIME;
 
@@ -1499,10 +1403,6 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
                          CHARS(rClass),CHARS(rRole),CHARS(resRole));
 
         STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1640,14 +1540,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         STAT_GETSTARTTIME;
 
@@ -1656,10 +1549,6 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
                          CHARS(rClass),CHARS(rRole),(const char **)props.getList());
 
         STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
             throw CIMException((CIMStatusCode)rc.rc,
@@ -1765,14 +1654,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         STAT_GETSTARTTIME;
 
@@ -1781,10 +1663,6 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
                          CHARS(rClass),CHARS(rRole));
 
         STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1919,24 +1797,14 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
+        
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.methMI->ft->invokeMethod(
            pr.miVector.methMI,&eCtx,&eRes,&eRef,CHARS(mName),&eArgsIn,&eArgsOut);
 
         STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -2182,14 +2050,8 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
+        
         STAT_GETSTARTTIME;
 		if (pr.miVector.indMI->ft->ftVersion >= 100) 
 		{
@@ -2214,10 +2076,6 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 		
 
        STAT_PMS_PROVIDEREND;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
         {
@@ -2359,14 +2217,8 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-#endif
+        AutoPThreadSecurity threadLevelSecurity(context);
+        
         STAT_GETSTARTTIME;
 		if (pr.miVector.indMI->ft->ftVersion >= 100) 
 		{
@@ -2394,10 +2246,6 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 	   delete qContext;
 	   delete eSelx;
 	   delete srec;
-
-#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity();
-#endif
 
         if (rc.rc!=CMPI_RC_OK)
         {
@@ -2739,6 +2587,14 @@ void CMPIProviderManager::_callEnableIndications
         if (pr.miVector.indMI->ft->ftVersion >= 86)
         {
             OperationContext context;
+            #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
+                // For the z/OS security model we always need an Identity container in
+                // the operation context. Since we don't have a client request ID here
+                // we have to use the cim servers identity for the time being.
+                IdentityContainer idContainer(System::getEffectiveUserName());
+                context.insert(idContainer);
+            #endif
+
             CMPIStatus rc={CMPI_RC_OK,NULL};
             CMPI_ContextOnStack eCtx(context);
             CMPI_ThreadContext thr(&pr.broker,&eCtx);

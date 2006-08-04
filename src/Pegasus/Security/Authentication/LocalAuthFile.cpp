@@ -334,6 +334,24 @@ Boolean LocalAuthFile::remove()
     //
     if (FileSystem::exists(_filePathName))
     {
+    
+    // change ownership back to the CIMOM
+#if defined(PEGASUS_OS_OS400)
+        CString tempPath = _filePathName.getCString();
+        const char * tmp1 = tempPath;
+        AtoE((char *)tmp1);
+        int rc = chown(tmp1, geteuid(), getegid());
+#else
+        int rc = chown((const char *)_filePathName.getCString(), geteuid(), getegid());
+#endif
+        if(rc == -1 )
+        {  
+            Logger::put_l(Logger::ERROR_LOG, "Authentication", Logger::WARNING,
+                "Security.Authentication.LocalAuthFile.NO_CHOWN",
+                "Changing ownership of the local authentication"
+                " security file back to the CIMServer UserId failed.");
+        }
+
         retVal = FileSystem::removeFile(_filePathName);
     }
 

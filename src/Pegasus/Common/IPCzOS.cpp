@@ -37,7 +37,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 #ifdef PEGASUS_ZOS_SECURITY
-bool isEnhancedSecurity=99;
+bool hasBPXServer=99;
+bool hasMSC=99;
 #endif
 
 PEGASUS_NAMESPACE_END

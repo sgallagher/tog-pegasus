@@ -4203,6 +4203,173 @@ CIM server listening on HTTPS port {0}."}
         // Start z/OS messages starting with message prefix PGS12500
 
         /**
+        * @note PGS12500E:
+        *    Substitution {0} is the name of a program library
+        *
+        */
+        Common.DynamicLibraryzOS_inline.MISSING_PROGRAMCONTROL_FLAG:string {"PGS12500E: Not loading dynamic load library {0} due missing program control flag."}
+
+        /**
+        * @note PGS12501E:
+        *    Do not translate 'CIMSERV', 'CLASS WBEM' since they are RACF names
+        *
+        */
+        Common.safCheckzOS_inline.BAD_WBEM_SECURITY_SETUP:string {"PGS12501E: Security Profile CIMSERV in CLASS WBEM must be defined. Ending CIM Server."}
+
+        /**
+        * @note PGS12502E:
+        *    Do not translate 'READ', 'BPX.SERVER', 'UID 0' since they are RACF names
+        *
+        */
+        Common.safCheckzOS_inline.BAD_SECURITY_SETUP:string {"PGS12502E: CIM Server Userid requires either READ access to BPX.SERVER or must be UID 0. Ending CIM Server."}
+
+        Common.safCheckzOS_inline.DIRTY_ADDRESS_SPACE:string {"PGS12503E: CIM Server address space dirty due to loading from a not program controlled load library. Ending CIM Server."}
+
+        /**
+        * @note PGS12504E:
+        *    Do not translate 'SAF' as it is the name of an interface
+        *
+        */
+        Common.safCheckzOS_inline.MISSING_PRIVILEDGES:string {"PGS12504E: CIM Server does not have appropriate privileges to check SAF security environment. Ending CIM Server."}
+
+        /**
+        * @note PGS12505E:
+        *    Do not translate 'READ', 'BPX.SERVER', 'UID 0' since they are RACF names
+        *
+        */
+        ProviderManager2.ProviderManagerzOS_inline.BAD_SECURITY_SETUP:string {"PGS12505E: CIM Server Userid requires either READ access to BPX.SERVER or must be UID 0. Ending CIM Server."}
+
+        /**
+        * @note PGS12506E:
+        *
+        */
+        ProviderManager2.ProviderManagerzOS_inline.DIRTY_ADDRESS_SPACE:string {"PGS12506E: CIM Server address space dirty due to loading from a not program controlled load library. Ending CIM Server."}
+
+        /**
+        * @note PGS12507W:
+        *    Substitution {0} is a userid
+        *
+        */
+        ProviderManager2.ProviderManagerzOS_inline.NOT_SURROGATE:string {"PGS12507W: CIM Server does not have surrogate for client userid {0}"}
+
+        /**
+        * @note PGS12508W:
+        *    Substitution {0} is an error message string
+        *
+        */
+        ProviderManager2.ProviderManagerzOS_inline.PTHREAD_SECURITY_DELETE_FAILURE:string {"PGS12508W: Failure {0} deleting pthread security"}
+
+        /**
+        * @note PGS12509E:
+        *    Do not translate 'READ', 'BPX.SERVER', 'UID 0' since they are RACF names
+        *
+        */
+        Server.cimserver_zOSinline.BAD_SECURITY_SETUP:string {"PGS12509E: The CIM Server Userid requires either READ access to BPX.SERVER or must be UID 0. Stopping CIM Server startup."}
+
+
+        /**
+        * @note PGS12510E:
+        *    Do not translate 'CIM Server', 'CIMServer'
+        *
+        */
+        Server.cimserver_zOSinline.DIRTY_ADDRESS_SPACE:string {"PGS12510E: CIM Server address space dirty due to loading from a not program controlled load library. Stopping CIMServer startup."}
+
+        /**
+        * @note PGS12511E:
+        *    Do not translate 'SAF' as it is the name of an interface
+        *
+        */
+        Server.cimserver_zOSinline.MISSING_PRIVILEDGES:string {"PGS12511E: CIM Server does not have appropriate privileges to check SAF security environment. Stopping CIMServer startup."}
+
+        /**
+        * @note PGS12512E:
+        *    Do not translate 'CIMSERV', 'CLASS WBEM' since they are RACF names
+        *
+        */
+        Server.cimserver_zOSinline.BAD_WBEM_SECURITY_SETUP:string {"PGS12512E: Security Profile CIMSERV in CLASS WBEM must be defined. Stopping CIMServer startup."}
+
+        /**
+        * @note PGS12513E:
+        *    Do not translate 'CIMSERV', 'CLASS WBEM' since they are RACF names
+        *    Do not translate 'CONTROL' since it is the name of a specific access right
+        */
+        Server.cimserver_zOSinline.NOCONTROL_CIMSERV_ACCESS:string {"PGS12513E: The CIM Server Userid requires CONTROL access to Security Profile CIMSERV in CLASS WBEM. Stopping CIMServer startup."}
+
+        // Provider authorization error messages
+
+        /**
+        * @note PGS12514E:
+        *    Substitution {0} is a string, name of a SAF profile
+        */
+        ProviderManager2.ProviderManagerzOS_inline.BAD_PROVIDER_AUTHORIZATION_SECURITY_SETUP:string {"PGS12514E: Security Profile {0} in CLASS WBEM has to be defined."}
+
+        /**
+        * @note PGS12515W:
+        *    Substitution {0},{1},{2},{3},{4} are strings
+        *                 (username, CIM operation, provider name, access type, SAF profile name)
+        */
+        ProviderManager2.ProviderManagerzOS_inline.PROVIDER_AUTHORIZATION_FAILED:string{"PGS12515W: User {0} not authorized to perform intrinsic CIM operation {1} against provider {2} . {3} access to {4} in CLASS WBEM required."}
+
+        /**
+        * @note PGS12516E:
+        *    Do not translate 'SAF' as it is the name of an interface
+        *
+        */
+        ProviderManager2.ProviderManagerzOS_inline.MISSING_PRIVILEDGES:string {"PGS12516E: CIM Server does not have appropriate privileges to check SAF security environment. Ending CIM Server."}
+
+        /**
+        * @note PGS12517E:
+        *
+        */
+        ProviderManager2.ProviderManagerzOS_inline.MISSING_IDCONTAINER_NAME:string {"PGS12517E: Missing IdentityContainer(no username) in request."}
+        
+        /**
+        * @note PGS12519E:
+        *    Substitution {0} is the error text of the opperating system.
+        *    Substitution {1} and {2} are numbers
+        *    Do not translate 'errno' 'reason code' 'CIMServer'
+        *
+        */
+        Server.safCheckzOS_inline.UNEXPECTED_ERROR:string {"PGS12519E: An unexpected error occurs: {0} ( errno {1}, reason code 0x{2} ). Stopping CIMServer startup."}
+
+        /**
+        * @note PGS12520E:
+        *    Do not translate 'CIM Server', 'Must Stay Clean', 'Provider Agent'
+        *
+        */ 
+        ProviderManager2.ProviderAgent.safCheckzOS_inline.CIM_NOTSET_MSC:string {"PGS12520E: CIM Server did not set Must Stay Clean. Stopping Provider Agent startup."}
+
+        /**
+        * @note PGS12521E:
+        *    Substitution {0} is the error text delivered by the opperating system.
+        *    Substitution {1} and {2} are numbers
+        *    Do not translate  'errno' 'reason code' 'Provider Agent'
+        *
+        */
+        ProviderManager2.ProviderAgent.safCheckzOS_inline.UNEXPECTED_ERROR:string {"PGS12521E: An unexpected error occurs: {0} ( errno {1}, reason code 0x{2} ). Stopping Provider Agent startup."}
+
+        /**
+        * @note PGS12523E:
+        *    Do not translate 'READ', 'BPX.SERVER', 'UID 0' since they are RACF names
+        *
+        */
+        ProviderManager2.ProviderAgent.safCheckzOS_inline.BAD_SECURITY_SETUP:string {"PGS12523E: CIM Runtime Environment Userid requires either READ access to BPX.SERVER or has to be UID 0. Stopping Provider Agent startup."}
+
+        /**
+        * @note PGS12524E:
+        *    Do not translate 'Provider Agent'
+        *
+        */
+        ProviderManager2.ProviderAgent.safCheckzOS_inline.DIRTY_ADDRESS_SPACE:string {"PGS12524E: Provider Agent address space dirty due to loading from a not program controlled load library. Stopping Provider Agent startup."}
+
+        /**
+        * @note PGS12525E:
+        *    Do not translate 'SAF' as it is the name of an interface
+        *
+        */
+        ProviderManager2.ProviderAgent.safCheckzOS_inline.MISSING_PRIVILEDGES:string {"PGS12525E: CIM Runtime Environment does not have appropriate privileges to check SAF security environment. Stopping Provider Agent startup."}
+
+        /**
         * @note PGS12532:
         *    Substitution {0} is the ARM element name.
         *    Do not translate CIM and ARM since it is the name of a product.
@@ -4217,6 +4384,20 @@ CIM server listening on HTTPS port {0}."}
         */
         Common.ARM_zOS.ARM_FAIL:string {"PGS12533W: The CIM server failed to register with ARM using element name {0}: return code 0x{1}, reason code 0x{2}."}
 
+        /**
+        * @note PGS12534:
+        *    Do not translate 'CIMSERV', 'CLASS WBEM' since they are RACF names
+        *    Do not translate 'CONTROL' since it is the name of a specific access right
+        */
+        Server.checkAuthorizationzOS_include.NOCONTROL_CIMSERV_ACCESS:string {"PGS12534W: Authorization failed: UserID {0} does not have CONTROL permission to profile CIMSERV CL(WBEM)."}
+
+        /**
+        * @note PGS12535:
+        *    Do not translate 'CIMSERV', 'CLASS WBEM' since they are RACF names
+        *    Do not translate 'UPDATE' since it is the name of a specific access right
+        */
+        Server.checkAuthorizationzOS_include.NOUPDATE_CIMSERV_ACCESS:string {"PGS12535W: Authorization failed: UserID $0 misses UPDATE permission to profile CIMSERV CL(WBEM) to execute a writing CIM operation."}
+        
         // End z/OS messages
 
         // ==========================================================
@@ -4485,6 +4666,20 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate the word 'cimprovagt' since it is a command name.
         */
         ProviderManager.ProviderAgent.ProviderAgent.THREAD_ALLOCATION_FAILED:string {"PGS14001:  Failed to allocate a thread in cimprovagt \"{0}\"."}
+        
+        /**
+        * @note  PGS14002
+        */
+        ProviderManager.ProviderAgent.ProviderAgent.UNINITIALIZED_SECURITY_SETUP.PEGASUS_OS_ZOS: string {"PGS14002: Security environment could not be initialised. Assume security fraud. Stopping Provider Agent."}
+        
+        /**
+        * @note  PGS14003
+        *    Substitution {0} is a string ID for the cimprovagt process instance
+        *    Do not translate the word 'cimprovagt' since it is a command name.
+        */
+        ProviderManager.ProviderAgent.ProviderAgent.PROVIDERAGENT_NOT_INITIALIZED: string {"PGS14003: cimprovagt \"$0\" was not yet initialised prior to receiving a request message. Exiting."}
+
+        
 
     // ==========================================================
         // Messages for Common.Monitor
@@ -5726,6 +5921,37 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is a user name (a string)
         */
         Security.Authentication.BasicAuthenticationHandler.PRIVILEGED_ACCESS_DISABLED:string {"PGS17201: Authentication failed for user '{0}' because enableRemotePrivilegedUserAccess is not set to 'true'."}
+
+        /**
+        * @note  PGS17202:
+        *    Substitution {0} is a user name (a string)
+        *    Do not translate 'READ', 'CIMSERV CL(WBEM)' as it are RACF names
+        */
+        Security.Authentication.SecureBasicAuthenticator.NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS:string {"PGS17202: Request UserID {0} doesn't have READ permission to profile CIMSERV CL(WBEM)."}
+        
+        // ==========================================================
+        // Messages for Security LocalAuthenticationHandler
+        //  Please use message prefix "PGS17400"
+        // ==========================================================
+        
+        /**
+        * @note  PGS17400:
+        *    Substitution {0} is a user name (a string)
+        *    Do not translate 'READ', 'CIMSERV CL(WBEM)' as it are RACF names
+        */
+        Security.Authentication.LocalAuthenticationHandler.NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS:string {"PGS17400: Request UserID {0} does not have READ permission to profile CIMSERV CL(WBEM)."}
+
+        // ==========================================================
+        // Messages for Security LocalAuthFile
+        //  Please use message prefix "PGS17600"
+        // ==========================================================
+        
+        /**
+        * @note PGS17600:
+        *     
+        */
+        Security.Authentication.LocalAuthFile.NO_CHOWN:string {"PGS17600: Changing ownership of the local authentication security file back to the CIMServer UserId failed."}
+
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

@@ -129,6 +129,11 @@
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) 
 #include <Service/ARM_zOS.h>
+# ifdef PEGASUS_ZOS_SECURITY
+// This include file will not be provided in the OpenGroup CVS for now.
+// Do NOT try to include it in your compile
+#  include <Pegasus/Common/safCheckzOS_inline.h>
+# endif
 #endif
 
 #if defined(PEGASUS_OS_TYPE_UNIX)
@@ -1055,23 +1060,33 @@ int CIMServerProcess::cimserver_run(
     }
     catch (UnrecognizedConfigProperty& e)
     {
-
-#ifdef PEGASUS_OS_OS400
-    //l10n
-    //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            //"Error: $0",e.getMessage());
-    Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "src.Server.cimserver.ERROR",
-            "Error: $0",e.getMessage());
-#else
-    //l10n
-    //cout << "Error: " << e.getMessage() << endl;
-    MessageLoaderParms parms("src.Server.cimserver.ERROR",
-                             "Error: $0",
-                             e.getMessage());
-    cout << MessageLoader::getMessage(parms) << endl;
+        // UnrecognizedConfigProperty is already translated
+        // thus, just output the message
+        Logger::put(Logger::ERROR_LOG,
+                    System::CIMSERVER,
+                    Logger::SEVERE,
+                    e.getMessage());
+#ifndef PEGASUS_OS_OS400
+        cout << e.getMessage() << endl;
 #endif
     }
+    catch (Exception& ex)
+    {
+        Logger::put(Logger::ERROR_LOG,
+                      System::CIMSERVER,
+                      Logger::SEVERE,
+                      ex.getMessage());
+#ifndef PEGASUS_OS_OS400
+        cout << ex.getMessage() << endl;
+#endif
+        exit(1);
+    }
+
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && defined(PEGASUS_ZOS_SECURITY)
+    startupCheckBPXServer(true);
+    startupCheckProfileCIMSERVclassWBEM();
+    startupEnableMSC();
+#endif
 
     // Bug 2148 - Here is the order of operations for determining the server HTTP and HTTPS ports.
     // 1) If the user explicitly specified a port, use it.

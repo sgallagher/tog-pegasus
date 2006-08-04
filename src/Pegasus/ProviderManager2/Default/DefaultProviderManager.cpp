@@ -267,9 +267,11 @@ Message * DefaultProviderManager::handleInitializeProviderRequest(
 	ProviderName name = _resolveProviderName(
 	    request->operationContext.get(ProviderIdContainer::NAME));
 
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
         // get cached or load new provider module
         OpProviderHolder ph = providerManager.getProvider(
             name.getPhysicalName(), name.getLogicalName());
+
     }
     catch(CIMException & e)
     {
@@ -353,6 +355,8 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
             "Calling provider.getInstance: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         STAT_PMS_PROVIDERSTART;
@@ -364,6 +368,7 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
             request->includeClassOrigin,
             propertyList,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -430,6 +435,8 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
             "Calling provider.enumerateInstances: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         STAT_PMS_PROVIDERSTART;
@@ -441,6 +448,7 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
             request->includeClassOrigin,
             propertyList,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -506,6 +514,8 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
             "Calling provider.enumerateInstanceNames: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         STAT_PMS_PROVIDERSTART;
@@ -514,6 +524,7 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
             context,
             objectPath,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -580,6 +591,8 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
             "Calling provider.createInstance: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         STAT_PMS_PROVIDERSTART;
@@ -589,6 +602,7 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
             objectPath,
             request->newInstance,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -657,6 +671,8 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
             "Calling provider.modifyInstance: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         STAT_PMS_PROVIDERSTART;
@@ -668,6 +684,7 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
             request->includeQualifiers,
             propertyList,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -734,6 +751,8 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
             "Calling provider.deleteInstance: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         STAT_PMS_PROVIDERSTART;
@@ -742,6 +761,7 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
             context,
             objectPath,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -815,6 +835,8 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
             "Calling provider.executeQueryRequest: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         STAT_PMS_PROVIDERSTART;
@@ -824,6 +846,7 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
             objectPath,
             qx,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -889,6 +912,8 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         STAT_PMS_PROVIDERSTART;
         pm_service_op_lock op_lock(&ph.GetProvider());
 
@@ -903,6 +928,7 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
             request->includeClassOrigin,
             request->propertyList,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -970,6 +996,8 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
 		STAT_PMS_PROVIDERSTART;
         pm_service_op_lock op_lock(&ph.GetProvider());
 
@@ -981,6 +1009,7 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
             request->role,
             request->resultRole,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -1054,6 +1083,8 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
             "Calling provider.references: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         ph.GetProvider().references(
@@ -1065,6 +1096,7 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
             request->includeClassOrigin,
             request->propertyList,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -1138,6 +1170,8 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
             "Calling provider.referenceNames: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         ph.GetProvider().referenceNames(
@@ -1146,6 +1180,7 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
             request->resultClass,
             request->role,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -1214,6 +1249,8 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
             "Calling provider.getProperty: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         // forward request
         pm_service_op_lock op_lock(&ph.GetProvider());
 
@@ -1222,6 +1259,7 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
             objectPath,
             propertyName,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -1291,6 +1329,8 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
             "Calling provider.setProperty: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         // forward request
         pm_service_op_lock op_lock(&ph.GetProvider());
 
@@ -1300,6 +1340,7 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
             propertyName,
             propertyValue,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -1373,6 +1414,8 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
             "Calling provider.invokeMethod: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         ph.GetProvider().invokeMethod(
@@ -1381,6 +1424,7 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
             request->methodName,
             request->inParameters,
             handler);
+
     }
     HandleCatch(handler);
 
@@ -1482,6 +1526,8 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.createSubscription: " +
             ph.GetProvider().getName());
+
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
@@ -1624,6 +1670,8 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
             "Calling provider.modifySubscription: " +
             ph.GetProvider().getName());
 
+        AutoPThreadSecurity threadLevelSecurity(context);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         ph.GetProvider().modifySubscription(
@@ -1632,6 +1680,7 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
             classNames,
             propertyList,
             repeatNotificationPolicy);
+
     }
     catch(CIMException & e)
     {
@@ -1743,6 +1792,8 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.deleteSubscription: " +
             ph.GetProvider().getName());
+
+        AutoPThreadSecurity threadLevelSecurity(context);
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 

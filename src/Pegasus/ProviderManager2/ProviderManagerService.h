@@ -61,6 +61,12 @@
 
 #include <Pegasus/ProviderManager2/Linkage.h>
 
+#ifdef PEGASUS_ZOS_SECURITY
+// This include file will not be provided in the OpenGroup CVS for now.
+// Do NOT try to include it in your compile
+#include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 #define IDLE_LIMIT 300
@@ -135,6 +141,40 @@ private:
 
 
 };
+
+// Auto class to encapsulate enabling and disabling
+// of the pthread_security on z/OS
+// For all other platforms this should be an empty class
+// Targets: avoid ifdefs and keep code readable(clean)
+#ifndef PEGASUS_ZOS_THREADLEVEL_SECURITY
+// not z/OS == empty class
+class PEGASUS_PPM_LINKAGE AutoPThreadSecurity
+{
+public:    
+    AutoPThreadSecurity(const OperationContext& context) {};
+};
+#else
+
+class PEGASUS_PPM_LINKAGE AutoPThreadSecurity
+{
+public:
+    AutoPThreadSecurity(const OperationContext& context)
+    {
+                int err_num=enablePThreadSecurity(context);
+                if (err_num!=0)
+                {
+                        // need a new CIMException for this
+                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+                }
+    };
+
+    ~AutoPThreadSecurity()
+    {
+        disablePThreadSecurity();
+    };
+};
+
+#endif
 
 PEGASUS_NAMESPACE_END
 

@@ -37,6 +37,8 @@
 //              Sean Keenan (sean.keenan@hp.com)
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP # 101
 //              Vageesh Umesh, IBM (vagumesh@in.ibm.com) for BUG#2543
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +47,7 @@
 //#include <dlfcn.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Tracer.h>
 #include "HandlerTable.h"
 
 PEGASUS_USING_STD;
@@ -167,6 +170,22 @@ HandlerTable::~HandlerTable()
 {
     for( Uint32 i = 0; i < _handlers.size(); i++ )
     {
+        //
+        //  Call handler's terminate() method
+        //
+        try
+        {
+            _handlers[i].handler->terminate();
+        }
+        catch (...)
+        {
+            PEGASUS_ASSERT(0);
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL3,
+                "Unknown error caught from " +
+                _handlers[i].handlerId +
+                " terminate() method");
+        }
+
         delete _handlers[i].handler;
     }
 }

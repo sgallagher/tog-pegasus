@@ -257,10 +257,9 @@ ReadWriteSem::~ReadWriteSem()
     {
         _rwlock._internal_lock.lock();
     }
-    catch(Deadlock & d)
+    catch(Deadlock &)
     {
-        d = d;                  // no problem - we own the lock, which is
-                                // what we want
+        // no problem - we own the lock, which is what we want
     }
     catch(IPCException &)
     {

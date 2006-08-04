@@ -371,12 +371,6 @@ ifdef PEGASUS_INDICATIONS_Q_THRESHOLD
 endif
 
 
-# Setup the conditional compile for client displays.
-#
-ifdef PEGASUS_CLIENT_TRACE_ENABLE
-    DEFINES += -DPEGASUS_CLIENT_TRACE_ENABLE
-endif
-
 # Allow PEGASUS_ASSERT statements to be disabled.
 ifdef PEGASUS_NOASSERTS
     DEFINES += -DNDEBUG
@@ -678,6 +672,11 @@ ifdef PEGASUS_DEBUG
 
     ifdef PEGASUS_INDICATION_HASHTRACE
         DEFINES += -DPEGASUS_INDICATION_HASHTRACE
+    endif
+
+    # Setup the conditional compile for client displays.
+    ifdef PEGASUS_CLIENT_TRACE_ENABLE
+        DEFINES += -DPEGASUS_CLIENT_TRACE_ENABLE
     endif
 endif
 

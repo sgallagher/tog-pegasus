@@ -35,11 +35,6 @@ include $(ROOT)/mak/config.mak
 
 PROGRAM            = TestIndicationsListener
 SOURCES            = TestIndicationsListener.cpp
-EXTRA_CXX_FLAGS    =
-LOCAL_DEFINES      =
-SYS_INCLUDES       =
-EXTRA_INCLUDES     =
-EXTRA_LINK_FLAGS   =
 LIBRARIES          = \
 	peglistener \
 	pegclient \

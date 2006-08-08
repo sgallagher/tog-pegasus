@@ -54,9 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 JMPIProviderModule::JMPIProviderModule (const String & fileName,
                                         const String & interfaceName)
     : _fileName (fileName),
-      _interfaceName (interfaceName),
-      _ref_count (0),
-      _library (0)
+      _interfaceName (interfaceName)
 {
    Uint32 i = fileName.find (".jar:");
 
@@ -114,22 +112,11 @@ ProviderVector JMPIProviderModule::load (const String & providerName)
                                            providerName));
    }
 
-   _ref_count++;
-
    return pv;
 }
 
 void JMPIProviderModule::unloadModule (void)
 {
-   if (_ref_count.decAndTestIfZero ())
-   {
-      if (_library != 0)
-      {
-         System::unloadDynamicLibrary (_library);
-
-         _library = 0;
-      }
-   }
 }
 
 PEGASUS_NAMESPACE_END

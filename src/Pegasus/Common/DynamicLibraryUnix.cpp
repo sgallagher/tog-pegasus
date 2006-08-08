@@ -54,7 +54,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-Boolean DynamicLibrary::load(void)
+Boolean DynamicLibrary::load()
 {
     // ensure the module is not already loaded
     PEGASUS_ASSERT(isLoaded() == false);
@@ -77,10 +77,20 @@ Boolean DynamicLibrary::load(void)
     _handle = OS400_LoadDynamicLibrary((const char *)cstr);
     #endif
 
+    if (_handle == 0)
+    {
+        // Record the load error message
+#if defined(PEGASUS_OS_OS400)
+        _loadErrorMessage = String(OS400_DynamicLoadError());
+#else
+        _loadErrorMessage = dlerror();
+#endif
+    }
+
     return(isLoaded());
 }
 
-Boolean DynamicLibrary::unload(void)
+Boolean DynamicLibrary::unload()
 {
     // ensure the module is loaded
     PEGASUS_ASSERT(isLoaded() == true);
@@ -92,11 +102,12 @@ Boolean DynamicLibrary::unload(void)
     #endif
 
     _handle = 0;
+    _loadErrorMessage.clear();
 
     return(isLoaded());
 }
 
-Boolean DynamicLibrary::isLoaded(void) const
+Boolean DynamicLibrary::isLoaded() const
 {
     return(_handle != 0);
 }
@@ -118,24 +129,5 @@ DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolNa
 
     return(func);
 }
-
-/*
-String System::dynamicLoadError(void)
-{
-    // ATTN: Is this safe in a multi-threaded process?  Should this string
-    // be returned from loadDynamicLibrary?
-    #ifdef PEGASUS_OS_HPUX
-    // ATTN: If shl_load() returns NULL, this value should be strerror(errno)
-    return String();
-    #elif defined(PEGASUS_OS_ZOS)
-    return String();
-    #elif defined(PEGASUS_OS_OS400)
-    return String(OS400_DynamicLoadError());
-    #else
-    String dlerr = dlerror();
-    return dlerr;
-    #endif
-}
-*/
 
 PEGASUS_NAMESPACE_END

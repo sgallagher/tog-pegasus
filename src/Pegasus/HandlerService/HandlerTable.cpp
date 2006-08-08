@@ -45,7 +45,6 @@
 #include <Pegasus/Common/Config.h>
 #include <cstdlib>
 //#include <dlfcn.h>
-#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
 #include "HandlerTable.h"
@@ -55,7 +54,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 HandlerTable::HandlerTable()
 {
-
 }
 
 CIMHandler* HandlerTable::getHandler(
@@ -115,15 +113,14 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
         String("/") + FileSystem::buildLibraryFileName(handlerId));
 #endif
 
-    DynamicLibraryHandle libraryHandle =
-	System::loadDynamicLibrary(fileName.getCString());
+    HandlerEntry entry(handlerId, fileName);
 
-    if (!libraryHandle) {
-#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_VMS)
-	throw DynamicLoadFailed(fileName);
+    if (!entry.handlerLibrary.load())
+    {
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+        throw DynamicLoadFailed(fileName);
 #else
-        String errorMsg = System::dynamicLoadError();
-	throw DynamicLoadFailed(errorMsg);
+        throw DynamicLoadFailed(entry.handlerLibrary.getLoadErrorMessage());
 #endif
     }
 
@@ -136,9 +133,8 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
     functionName.append(os400HandlerId);
 #endif
 
-    CreateHandlerFunc func = (CreateHandlerFunc)System::loadDynamicSymbol(
-	libraryHandle, functionName.getCString());
-
+    CreateHandlerFunc func =
+        (CreateHandlerFunc) entry.handlerLibrary.getSymbol(functionName);
 
     if (!func)
     {
@@ -147,23 +143,18 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 
     // Create the handler:
 
-    CIMHandler* handler = func();
+    entry.handler = func();
 
-    if (!handler)
+    if (!entry.handler)
     {
 	throw CreateHandlerReturnedNull(
 	    fileName,
 	    functionName);
     }
-    else
-    {
-	Entry entry;
-	entry.handlerId = handlerId;
-	entry.handler = handler;
-	_handlers.append(entry);
-    }
 
-    return handler;
+    _handlers.append(entry);
+
+    return entry.handler;
 }
 
 HandlerTable::~HandlerTable()

@@ -42,6 +42,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/DynamicLibrary.h>
 #include <Pegasus/Handler/CIMHandler.h>
 
 #include <Pegasus/HandlerService/Linkage.h>
@@ -77,13 +78,26 @@ public:
 
 private:
 
-    struct Entry
+    class HandlerEntry
     {
+    public:
+        HandlerEntry(const String& id, const String& fileName)
+            : handlerId(id), handlerLibrary(fileName)
+        {
+        }
+
+        // NOTE: The compiler default implementations of the copy constructor
+        // and assignment operator are used for this class.
+
 	String handlerId;
+        DynamicLibrary handlerLibrary;
 	CIMHandler* handler;
+
+    private:
+        HandlerEntry();
     };
 
-    Array<Entry> _handlers;
+    Array<HandlerEntry> _handlers;
 
     CIMHandler* _lookupHandler(const String& handlerId);
 
@@ -93,7 +107,7 @@ private:
 
 public:
 
-    friend int operator==(const Entry& x, const Entry& y)
+    friend int operator==(const HandlerEntry& x, const HandlerEntry& y)
     {
 	return 0;
     }

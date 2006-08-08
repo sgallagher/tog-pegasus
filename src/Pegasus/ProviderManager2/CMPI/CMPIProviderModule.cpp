@@ -54,18 +54,21 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CMPIProviderModule::CMPIProviderModule(const String & fileName)
-    : _fileName(fileName),
-    _ref_count(0),
-    _library(0)
+    : _ref_count(0)
 {
    genericProviderModule=0;
+
+   String resolvedFileName;
+
 #ifdef PEGASUS_OS_TYPE_WINDOWS
    if (fileName[1] != ':')
 #else
    if (fileName[0]!='/')
 #endif
-      _fileName=ProviderManager::_resolvePhysicalName(fileName);
-   else _fileName=fileName;
+      resolvedFileName=ProviderManager::_resolvePhysicalName(fileName);
+   else resolvedFileName=fileName;
+
+   _library = DynamicLibrary(resolvedFileName);
 }
 
 CMPIProviderModule::~CMPIProviderModule(void)
@@ -74,19 +77,24 @@ CMPIProviderModule::~CMPIProviderModule(void)
 
 ProviderVector CMPIProviderModule::load(const String & providerName)
 {
-   String realProviderName(providerName);
-   realProviderName.remove(0,1);
-   if (!genericProviderModule)
-    _library = System::loadDynamicLibrary((const char *)_fileName.getCString());
+    String realProviderName(providerName);
+    realProviderName.remove(0,1);
+    if (!genericProviderModule)
+    {
+        if (!_library.isLoaded())
+        {
+            _library.load();
+        }
+    }
 
-    if(_library == 0)
+    if (!_library.isLoaded())
     {
 
         throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProviderModule.CANNOT_LOAD_LIBRARY",
             "ProviderLoadFailure: ($0:$1):Cannot load library, error: $2",
-            _fileName,
+            _library.getFileName(),
             realProviderName,
-            System::dynamicLoadError()));
+            _library.getLoadErrorMessage()));
     }
 
     char symbolName[512];
@@ -96,7 +104,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     int specificMode=0;
 
     if ((miVector.createGenInstMI=(CREATE_GEN_INST_MI)
-           System::loadDynamicSymbol(_library,_Generic_Create_InstanceMI))) {
+           _library.getSymbol(_Generic_Create_InstanceMI))) {
        if (miVector.createGenInstMI)
          miVector.miTypes|=CMPI_MIType_Instance;
        miVector.genericMode=1;
@@ -105,7 +113,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     strcpy(symbolName,(const char*)mName);
     strcat(symbolName,_Create_InstanceMI);
     if ((miVector.createInstMI=(CREATE_INST_MI)
-          System::loadDynamicSymbol(_library,symbolName))) {
+          _library.getSymbol(symbolName))) {
        if (miVector.createInstMI)
           miVector.miTypes|=CMPI_MIType_Instance;
        specificMode=1;
@@ -113,7 +121,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
 
 
     if ((miVector.createGenAssocMI=(CREATE_GEN_ASSOC_MI)
-          System::loadDynamicSymbol(_library,_Generic_Create_AssociationMI))) {
+          _library.getSymbol(_Generic_Create_AssociationMI))) {
        if (miVector.createGenAssocMI)
           miVector.miTypes|=CMPI_MIType_Association;
        miVector.genericMode=1;
@@ -122,7 +130,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     strcpy(symbolName,(const char*)mName);
     strcat(symbolName,_Create_AssociationMI);
     if ((miVector.createAssocMI=(CREATE_ASSOC_MI)
-          System::loadDynamicSymbol(_library,symbolName))) {
+          _library.getSymbol(symbolName))) {
        if (miVector.createAssocMI)
          miVector.miTypes|=CMPI_MIType_Association;
        specificMode=1;
@@ -130,7 +138,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
 
 
     if ((miVector.createGenMethMI=(CREATE_GEN_METH_MI)
-          System::loadDynamicSymbol(_library,_Generic_Create_MethodMI))) {
+          _library.getSymbol(_Generic_Create_MethodMI))) {
        if (miVector.createGenMethMI)
           miVector.miTypes|=CMPI_MIType_Method;
        miVector.genericMode=1;
@@ -139,7 +147,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     strcpy(symbolName,(const char*)mName);
     strcat(symbolName,_Create_MethodMI);
     if ((miVector.createMethMI=(CREATE_METH_MI)
-          System::loadDynamicSymbol(_library,symbolName))) {
+          _library.getSymbol(symbolName))) {
        if (miVector.createMethMI)
           miVector.miTypes|=CMPI_MIType_Method;
        specificMode=1;
@@ -147,7 +155,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
 
 
     if ((miVector.createGenPropMI=(CREATE_GEN_PROP_MI)
-          System::loadDynamicSymbol(_library,_Generic_Create_PropertyMI))) {
+          _library.getSymbol(_Generic_Create_PropertyMI))) {
        if (miVector.createGenPropMI)
           miVector.miTypes|=CMPI_MIType_Property;
        miVector.genericMode=1;
@@ -156,7 +164,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     strcpy(symbolName,(const char*)mName);
     strcat(symbolName,_Create_PropertyMI);
     if ((miVector.createPropMI=(CREATE_PROP_MI)
-              System::loadDynamicSymbol(_library,symbolName))) {
+              _library.getSymbol(symbolName))) {
        if (miVector.createPropMI)
           miVector.miTypes|=CMPI_MIType_Property;
        specificMode=1;
@@ -164,7 +172,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
 
 
     if ((miVector.createGenIndMI=(CREATE_GEN_IND_MI)
-          System::loadDynamicSymbol(_library,_Generic_Create_IndicationMI))) {
+          _library.getSymbol(_Generic_Create_IndicationMI))) {
        if (miVector.createGenIndMI)
           miVector.miTypes|=CMPI_MIType_Indication;
        miVector.genericMode=1;
@@ -173,7 +181,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     strcpy(symbolName,(const char*)mName);
     strcat(symbolName,_Create_IndicationMI);
     if ((miVector.createIndMI=(CREATE_IND_MI)
-           System::loadDynamicSymbol(_library,symbolName))) {
+           _library.getSymbol(symbolName))) {
        if (miVector.createIndMI)
           miVector.miTypes|=CMPI_MIType_Indication;
        specificMode=1;
@@ -182,14 +190,14 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     if (miVector.miTypes==0) {
 	throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProviderModule.WRONG_LIBRARY",
             "ProviderLoadFailure: ($0) Provider is not a CMPI style provider. Cannot find $1_Create<mi-type>MI symbol.",
-	    _fileName,
+	    _library.getFileName(),
 	    realProviderName));
     }
 
     if (miVector.genericMode && specificMode) {
         throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProviderModule.CONFLICTING_CMPI_STYLE",
 		"ProviderLoadFailure: ($0:$1) conflicting generic/specfic CMPI style provider.",
-		_fileName,
+		_library.getFileName(),
 		realProviderName));
     }
 
@@ -203,10 +211,9 @@ void CMPIProviderModule::unloadModule(void)
 {
     if (_ref_count.decAndTestIfZero())
     {
-        if(_library != 0)
+        if (_library.isLoaded())
         {
-            System::unloadDynamicLibrary(_library);
-            _library = 0;
+            _library.unload();
         }
     }
 }

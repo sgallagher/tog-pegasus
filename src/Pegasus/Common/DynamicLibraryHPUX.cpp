@@ -40,6 +40,8 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include <dl.h>
 
@@ -58,10 +60,6 @@ static Mutex _mutex;
 
 static Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
 {
-    AutoMutex autoMutex(_mutex);
-
-    // scoped mutex
-
     // seek and increment
     for(Uint32 i = 0, n = _references.size(); i < n; i++)
     {
@@ -80,10 +78,6 @@ static Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
 
 static Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
 {
-    AutoMutex autoMutex(_mutex);
-
-    // scoped mutex
-
     // seek and decrement
     for(Uint32 i = 0, n = _references.size(); i < n; i++)
     {
@@ -104,27 +98,53 @@ static Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
     return 0;
 }
 
-Boolean DynamicLibrary::load(void)
+Boolean DynamicLibrary::load()
 {
+    PEG_METHOD_ENTER(TRC_OS_ABSTRACTION, "DynamicLibrary::load()");
+
+    AutoMutex autoMutex(_mutex);
+
     // ensure the module is not already loaded
     PEGASUS_ASSERT(isLoaded() == false);
 
     CString cstr = _fileName.getCString();
 
-    //_handle = shl_load(cstr,BIND_IMMEDIATE|DYNAMIC_PATH|BIND_VERBOSE, 0L);
-    _handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        "Attempting to load library %s", (const char*)cstr);
 
-    // increment handle if valid
-    if(_handle == 0)
+    if (System::bindVerbose)
     {
-        _increment_handle(_handle);
+        _handle =
+            shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0L);
+    }
+    else
+    {
+        _handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
     }
 
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        "After loading lib %s, error code is %d",
+        (const char*)cstr, (_handle == (void *)0)?errno:0);
+
+    if (_handle != 0)
+    {
+        // increment handle if valid
+        _increment_handle(_handle);
+    }
+    else
+    {
+        // If shl_load() returns NULL, errno is set to indicate the error
+        _loadErrorMessage = strerror(errno);
+    }
+
+    PEG_METHOD_EXIT();
     return(isLoaded());
 }
 
-Boolean DynamicLibrary::unload(void)
+Boolean DynamicLibrary::unload()
 {
+    AutoMutex autoMutex(_mutex);
+
     // ensure the module is loaded
     PEGASUS_ASSERT(isLoaded() == true);
 
@@ -136,11 +156,12 @@ Boolean DynamicLibrary::unload(void)
     }
 
     _handle = 0;
+    _loadErrorMessage.clear();
 
     return(isLoaded());
 }
 
-Boolean DynamicLibrary::isLoaded(void) const
+Boolean DynamicLibrary::isLoaded() const
 {
     return(_handle != 0);
 }

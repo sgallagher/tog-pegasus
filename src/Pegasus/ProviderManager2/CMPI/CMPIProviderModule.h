@@ -42,7 +42,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/DynamicLibrary.h>
 #include <Pegasus/Common/IPC.h>
 
 #include <Pegasus/Provider/CIMProvider.h>
@@ -69,10 +69,8 @@ public:
     void unloadModule(void);
 
 protected:
-    String _fileName;
     AtomicInt _ref_count;
-    DynamicLibraryHandle _library;
-    Uint32 _refCount;
+    DynamicLibrary _library;
 
 private:
     CMPIProviderModule(const String & fileName);
@@ -86,7 +84,7 @@ private:
 
 inline const String & CMPIProviderModule::getFileName(void) const
 {
-    return(_fileName);
+    return _library.getFileName();
 }
 
 inline const String & CMPIProviderModule::getProviderName(void) const

@@ -51,9 +51,8 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
-ConsumerModule::ConsumerModule() :
-_ref_count(0),
-_libraryHandle(0)
+ConsumerModule::ConsumerModule()
+    : _ref_count(0)
 {
 }
 
@@ -66,10 +65,8 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerModule::load");
 
-    _libraryPath = libraryPath;
-
     //check whether the module is cached; if it's not already in memory, load it
-    if (!_libraryHandle)
+    if (!_library.isLoaded())
     {
         if (!FileSystem::exists(libraryPath) || !FileSystem::canRead(libraryPath))
         {
@@ -79,9 +76,11 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
                consumerName));
         }
 
+        _library = DynamicLibrary(libraryPath);
+
         PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Loading library: " + consumerName);
 
-        _libraryHandle = System::loadDynamicLibrary((const char*)libraryPath.getCString());
+        _library.load();
 
         PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Successfully loaded library " + consumerName);
     }
@@ -90,18 +89,19 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
         PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Library is cached in memory: " + consumerName);
     }
 
-    if (!_libraryHandle)
+    if (!_library.isLoaded())
     {
         throw Exception(MessageLoaderParms("DynListener.ConsumerModule.CANNOT_LOAD_LIBRARY",
                                    "Cannot load consumer library ($0:$1), load error $2",
-                                   libraryPath,
+                                   _library.getFileName(),
                                    consumerName,
-                                   System::dynamicLoadError()));
+                                   _library.getLoadErrorMessage()));
     }
 
     // locate the entry point
-    CIMProvider* (*createProvider)(const String&) = 0;
-    createProvider = (CIMProvider* (*)(const String&))System::loadDynamicSymbol(_libraryHandle, "PegasusCreateProvider");
+    CIMProvider* (*createProvider)(const String&) =
+        (CIMProvider* (*)(const String&))
+            _library.getSymbol("PegasusCreateProvider");
 
     if (!createProvider)
     {
@@ -145,11 +145,11 @@ void ConsumerModule::unloadModule(void)
 
     if (_ref_count.decAndTestIfZero())
     {
-        if(_libraryHandle != 0)
+        if (_library.isLoaded())
         {
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Unloading module " + _libraryPath);
-            System::unloadDynamicLibrary(_libraryHandle);
-            _libraryHandle = 0;
+            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3,
+                "Unloading module " + _library.getFileName());
+            _library.unload();
         }
     }
 

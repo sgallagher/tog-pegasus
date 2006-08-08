@@ -36,6 +36,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/FileSystem.h>
 #include "peg_slp_agent.h"
 
 #ifdef PEGASUS_USE_OPENSLP
@@ -133,7 +135,7 @@ slp_service_agent::slp_service_agent(void)
    {
       
    }
-   if(_initialized.get() && _lib_handle && _create_client)
+   if(_initialized.get() && _library.isLoaded() && _create_client)
    {
       _rep = _create_client("239.255.255.253",
 			    0,
@@ -162,7 +164,7 @@ slp_service_agent::slp_service_agent(const char *local_interface,
    {
       
    }
-   if(_initialized.get() && _lib_handle && _create_client)
+   if(_initialized.get() && _library.isLoaded() && _create_client)
    {
       _rep = _create_client("239.255.255.253",
 			    local_interface,
@@ -189,43 +191,39 @@ slp_service_agent::~slp_service_agent(void)
 
 void slp_service_agent::_init(void)
 {
+   _initialized = 0;
+
+   String libraryFileName;
+
 #if defined(PEGASUS_OS_ZOS)
     char * pegasusHome;
     if (pegasusHome = getenv("PEGASUS_HOME"))
     {
-        _lib_fileName.append(pegasusHome);
-        _lib_fileName.append("/lib/");
+        libraryFileName.append(pegasusHome);
+        libraryFileName.append("/lib/");
     }
 #endif
-   _initialized = 0;
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-   _lib_fileName.append("pegslp_client.dll");
-#elif defined(PEGASUS_OS_HPUX)
-   _lib_fileName.append("pegslp_client.sl");
-#elif defined(PEGASUS_OS_OS400)
-   _lib_fileName.append("pegslp_client");
-#else
-   _lib_fileName.append("libpegslp_client.so");
-#endif
-   _lib_handle = System::loadDynamicLibrary((const char *)_lib_fileName.getCString());
 
-   if(_lib_handle)
+   libraryFileName.append(FileSystem::buildLibraryFileName("slp_client"));
+   _library = DynamicLibrary(libraryFileName);
+
+   if (_library.load())
    {
       _create_client = 
 	 (slp_client * (*)(const char*, const char*,  uint16, const char*, const char*, BOOL, BOOL))
-	 System::loadDynamicSymbol(_lib_handle, "create_slp_client");
+	 _library.getSymbol("create_slp_client");
 
       _destroy_client = 
 	 (void (*)(struct slp_client *)) 
-	 System::loadDynamicSymbol(_lib_handle, "destroy_slp_client");
+	 _library.getSymbol("destroy_slp_client");
       
       _find_das = 
 	 (int (*)(struct slp_client *, const char *,  const char *))
-	 System::loadDynamicSymbol(_lib_handle, "find_das");
+	 _library.getSymbol("find_das");
 
       _test_reg = 
 	 (uint32 (*)(char*, char*, char*, char*))
-	 System::loadDynamicSymbol(_lib_handle, "test_srv_reg");
+	 _library.getSymbol("test_srv_reg");
 
       _initialized = 1;
 
@@ -240,16 +238,16 @@ void slp_service_agent::_init(void)
 
          Logger::put(Logger::ERROR_LOG, "slp_agent", Logger::SEVERE,
                  "Link Error to library: $0, symbol: $1" ,
-             _lib_fileName, symbol);
+             _library.getFileName(), symbol);
 
-    	 System::unloadDynamicLibrary(_lib_handle);
+         _library.unload();
       }
    }
 }
 
 void slp_service_agent::_de_init(void)
 {
-   if(_initialized.get() && _lib_handle)
+   if(_initialized.get() && _library.isLoaded())
    {
       if(_rep)
       {
@@ -259,12 +257,10 @@ void slp_service_agent::_de_init(void)
 
       try 
       {
-	 System::unloadDynamicLibrary(_lib_handle);
-	 _lib_handle = 0;
+         _library.unload();
       }
       catch(...)
       {
-	 _lib_handle = 0;
       }
    }
 }

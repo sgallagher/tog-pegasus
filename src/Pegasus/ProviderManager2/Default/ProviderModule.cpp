@@ -56,79 +56,67 @@
 PEGASUS_NAMESPACE_BEGIN
 
 ProviderModule::ProviderModule(const String& fileName)
-    : _fileName(fileName),
-      _refCount(0),
-      _library(0)
+    : _refCount(0),
+      _library(fileName)
 {
 }
 
 ProviderModule::~ProviderModule()
 {
-    if (_library != 0)
-    {
-        System::unloadDynamicLibrary(_library);
-        _library = 0;
-        _refCount = 0;
-    }
 }
 
 CIMProvider* ProviderModule::load(const String& providerName)
 {
-    CIMProvider* provider = 0;
-
     // dynamically load the provider library
-    if (_library == 0)
+    if (!_library.isLoaded())
     {
-        _library =
-            System::loadDynamicLibrary((const char *)_fileName.getCString());
-
-        if (_library == 0)
+        if (!_library.load())
         {
-            // ATTN: does unload() need to be called?
             throw Exception(MessageLoaderParms(
                 "ProviderManager.ProviderModule.CANNOT_LOAD_LIBRARY",
                 "ProviderLoadFailure ($0:$1):Cannot load library, error: $2",
-                _fileName,
+                _library.getFileName(),
                 providerName,
-                System::dynamicLoadError()));
+                _library.getLoadErrorMessage()));
         }
     }
 
     // find library entry point
-    CIMProvider * (*createProvider)(const String &) = 0;
-
-    createProvider = (CIMProvider* (*)(const String&))System::loadDynamicSymbol(
-        _library, "PegasusCreateProvider");
+    CIMProvider * (*createProvider)(const String &) =
+        (CIMProvider* (*)(const String&))
+            _library.getSymbol("PegasusCreateProvider");
 
     if (createProvider == 0)
     {
         throw Exception(MessageLoaderParms(
             "ProviderManager.ProviderModule.ENTRY_POINT_NOT_FOUND",
             "ProviderLoadFailure ($0:$1):entry point not found.",
-            _fileName,
+            _library.getFileName(),
             providerName));
     }
 
     // invoke the provider entry point
 #ifndef PEGASUS_OS_OS400
-    provider = createProvider(providerName);
+    CIMProvider* provider = createProvider(providerName);
 #else
     // On OS/400, need to call a layer of code that does platform-specific
     // checks before calling the provider
-    provider = OS400_CreateProvider(
+    CIMProvider* provider = OS400_CreateProvider(
         providerName.getCString(), createProvider, _fileName);
 #endif
 
     // test for the appropriate interface
-    if(dynamic_cast<CIMProvider *>(provider) == 0)
+    if (dynamic_cast<CIMProvider *>(provider) == 0)
     {
         throw Exception(MessageLoaderParms(
             "ProviderManager.ProviderModule.PROVIDER_IS_NOT_A",
             "ProviderLoadFailure ($0:$1):provider is not a CIMProvider.",
-            _fileName,
+            _library.getFileName(),
             providerName));
     }
+
     _refCount++;
+
     return(provider);
 }
 
@@ -136,10 +124,9 @@ void ProviderModule::unloadModule()
 {
     if (_refCount.decAndTestIfZero())
     {
-        if (_library != 0)
+        if (_library.isLoaded())
         {
-            System::unloadDynamicLibrary(_library);
-            _library = 0;
+            _library.unload();
         }
     }
 }

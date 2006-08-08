@@ -43,7 +43,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/DynamicLibrary.h>
 #include <Pegasus/Common/IPC.h>
 
 #include <Pegasus/Provider/CIMProvider.h>
@@ -72,9 +72,8 @@ public:
     void unloadModule(void);
 
 protected:
-    String _libraryPath;
     AtomicInt _ref_count;
-    DynamicLibraryHandle _libraryHandle;
+    DynamicLibrary _library;
 
 private:
     ConsumerModule();
@@ -87,7 +86,7 @@ private:
 
 inline const String & ConsumerModule::getFileName(void) const
 {
-    return(_libraryPath);
+    return _library.getFileName();
 }
 
 inline const String & ConsumerModule::getConsumerName(void) const

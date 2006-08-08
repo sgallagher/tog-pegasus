@@ -74,9 +74,6 @@ protected:
     String _fileName;
     String _className;
     String _interfaceName;
-    AtomicInt _ref_count;
-    DynamicLibraryHandle _library;
-    Uint32 _refCount;
     void *jProviderClass;
     void *jProvider;
 

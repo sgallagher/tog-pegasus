@@ -42,7 +42,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/DynamicLibrary.h>
 #include <Pegasus/Common/IPC.h>
 
 #include <Pegasus/Provider/CIMProvider.h>
@@ -75,19 +75,19 @@ class PEGASUS_CMPIPM_LINKAGE CMPIResolverModule
 public:
     ~CMPIResolverModule(void) {}
     void load() {
-        _library = System::loadDynamicLibrary((const char *)_fileName.getCString());
+        _library = DynamicLibrary(_fileName);
         String s0 = "ResolverLoadFailure";
-        if(_library == 0) {
+        if (!_library.load()) {
            throw Exception(MessageLoaderParms("ProviderManager.CMPIProviderModule.CANNOT_LOAD_LIBRARY",
                "$0 ($1):Cannot load library, error: $3",
                s0,
                _fileName,
-               System::dynamicLoadError()));
+               _library.getLoadErrorMessage()));
          }
          resolveInstanceEntry=(RESOLVE_INSTANCE)
-	    System::loadDynamicSymbol(_library,"resolve_instance");
+	    _library.getSymbol("resolve_instance");
          resolveClassEntry=(RESOLVE_CLASS)
-	    System::loadDynamicSymbol(_library,"resolve_class");
+	    _library.getSymbol("resolve_class");
 	 if (!resolveInstanceEntry || !resolveClassEntry) {
            throw Exception(s0+" "+_fileName+String(": not a remote location resolver"));
 	 }
@@ -105,7 +105,7 @@ public:
 
 protected:
     String _fileName;
-    DynamicLibraryHandle _library;
+    DynamicLibrary _library;
     RESOLVE_INSTANCE resolveInstanceEntry;
     RESOLVE_CLASS resolveClassEntry;
 

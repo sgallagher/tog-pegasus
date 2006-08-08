@@ -44,7 +44,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/DynamicLibrary.h>
 #include <Pegasus/Common/IPC.h>
 
 #include <Pegasus/Provider/CIMProvider.h>
@@ -73,14 +73,13 @@ private:
     ProviderModule(const ProviderModule& pm);    // Unimplemented
     ProviderModule& operator=(const ProviderModule& pm);    // Unimplemented
 
-    String _fileName;
     AtomicInt _refCount;
-    DynamicLibraryHandle _library;
+    DynamicLibrary _library;
 };
 
 inline const String& ProviderModule::getFileName() const
 {
-   return(_fileName);
+    return _library.getFileName();
 }
 
 PEGASUS_NAMESPACE_END

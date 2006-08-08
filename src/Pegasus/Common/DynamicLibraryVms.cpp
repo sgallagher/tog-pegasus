@@ -71,6 +71,12 @@ Boolean DynamicLibrary::load(void)
     CString cstr = _fileName.getCString();
 
     _handle = dlopen(cstr, RTLD_NOW);
+
+    if (_handle == 0)
+    {
+        _loadErrorMessage = dlerror();
+    }
+
     return(isLoaded());
 }
 
@@ -81,6 +87,7 @@ Boolean DynamicLibrary::unload(void)
 
     dlclose(_handle);
     _handle = 0;
+    _loadErrorMessage.clear();
 
     return(isLoaded());
 }

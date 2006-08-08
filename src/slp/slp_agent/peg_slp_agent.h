@@ -41,7 +41,7 @@
 #define Pegasus_slp_agent_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/DynamicLibrary.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/HashTable.h>
@@ -163,8 +163,7 @@ class PEGASUS_SLP_LINKAGE slp_service_agent
 			  char *, 
 			  char *);
       
-      DynamicLibraryHandle _lib_handle;
-      String _lib_fileName;
+      DynamicLibrary _library;
 
       void _init(void);
       void _de_init(void);

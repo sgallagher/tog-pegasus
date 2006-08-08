@@ -66,26 +66,27 @@ public:
     #endif
 
 public:
-    DynamicLibrary(void);
+    DynamicLibrary();
     DynamicLibrary(const DynamicLibrary & library);
     explicit DynamicLibrary(const String & fileName);
-    virtual ~DynamicLibrary(void);
+    virtual ~DynamicLibrary();
 
     DynamicLibrary & operator=(const DynamicLibrary & library);
 
-    virtual Boolean load(void);
-    virtual Boolean unload(void);
+    virtual Boolean load();
+    virtual const String& getLoadErrorMessage() const;
+    virtual Boolean unload();
 
-    virtual Boolean isLoaded(void) const;
+    virtual Boolean isLoaded() const;
 
-    String getFileName(void) const;
-    LIBRARY_HANDLE getHandle(void) const;
+    const String& getFileName() const;
+    LIBRARY_HANDLE getHandle() const;
     LIBRARY_SYMBOL getSymbol(const String & symbolName);
 
 private:
     String _fileName;
     LIBRARY_HANDLE _handle;
-
+    String _loadErrorMessage;
 };
 
 PEGASUS_NAMESPACE_END

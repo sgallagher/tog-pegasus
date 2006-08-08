@@ -54,7 +54,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-DynamicLibrary::DynamicLibrary(void) : _handle(0)
+DynamicLibrary::DynamicLibrary() : _handle(0)
 {
 }
 
@@ -70,16 +70,17 @@ DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
     }
 }
 
-DynamicLibrary::DynamicLibrary(const String & fileName) : _fileName(fileName), _handle(0)
+DynamicLibrary::DynamicLibrary(const String & fileName)
+    : _fileName(fileName), _handle(0)
 {
 }
 
-DynamicLibrary::~DynamicLibrary(void)
+DynamicLibrary::~DynamicLibrary()
 {
     // unload the module, if necessary. this ensures 1) the module is released in the
     // event the caller did not explicity unload it, and 2) the operating system's
     // reference count is accurate.
-    if(isLoaded())
+    if (isLoaded())
     {
         unload();
     }
@@ -89,12 +90,12 @@ DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
 {
     //cout << "DynamicLibrary::operator=(const DynamicLibrary &)" << endl;
 
-    if(this == &library)
+    if (this == &library)
     {
-        return(*this);
+        return *this;
     }
 
-    if(isLoaded())
+    if (isLoaded())
     {
         unload();
     }
@@ -103,22 +104,27 @@ DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
 
     // load the module again, if necessary. this effectively increments the
     // operating system's reference count for the module.
-    if(library.isLoaded())
+    if (library.isLoaded())
     {
         load();
     }
 
-    return(*this);
+    return *this;
 }
 
-String DynamicLibrary::getFileName(void) const
+const String& DynamicLibrary::getLoadErrorMessage() const
 {
-    return(_fileName);
+    return _loadErrorMessage;
 }
 
-DynamicLibrary::LIBRARY_HANDLE DynamicLibrary::getHandle(void) const
+const String& DynamicLibrary::getFileName() const
 {
-    return(_handle);
+    return _fileName;
+}
+
+DynamicLibrary::LIBRARY_HANDLE DynamicLibrary::getHandle() const
+{
+    return _handle;
 }
 
 PEGASUS_NAMESPACE_END

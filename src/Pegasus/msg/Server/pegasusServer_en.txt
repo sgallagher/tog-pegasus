@@ -1173,6 +1173,9 @@ not be valid."}
 
     ControlProviders.CertificateProvider.ERROR_WRITING_CRL:string {"PGS03315: Unable to add CRL to truststore. Error while trying to write CRL."}
 
+    ControlProviders.CertificateProvider.MULTIPLE_CERT_IN_FILE:string {"PGS03316
+: Specified certificate file contains more than one certificate."}
+
         // ==========================================================
         // Messages for CIMOMHandle
         //  Please use message prefix "PGS03400"

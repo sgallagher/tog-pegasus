@@ -151,12 +151,15 @@ private:
 	String _sslTrustStore;
 	String _exportSSLTrustStore;
 	String _crlStore;
+   
+    String _getNewCertificateFileName(String trustStore, 
+                                      unsigned long hashVal);
 
-    String _getNewCertificateFileName(String trustStore, unsigned long hashVal);
+    String _getCRLFileName(String crlStore, unsigned long hashVal);
 
-	String _getCRLFileName(String crlStore, unsigned long hashVal);
+    Boolean _verifyAuthorization(const String& userName);
 
-	Boolean _verifyAuthorization(const String& userName);
+    void _removeCert(Array<CIMInstance> cimInstances);
 
 };
 

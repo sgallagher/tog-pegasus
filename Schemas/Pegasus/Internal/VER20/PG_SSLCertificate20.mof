@@ -42,7 +42,7 @@
 // ===================================================================
 // PG_SSLCertificate
 // ===================================================================
-[Version ("2.3.0"), Description (
+[Version ("2.6.0"), Description (
    "PG_SSLCertificate is a representation of an SSL client certificate.")]
 
 class PG_SSLCertificate
@@ -58,10 +58,10 @@ class PG_SSLCertificate
      Description ("Serial number of the certificate")
     ]
     string SerialNumber;
-    
+
     [Key,
      ValueMap{"0", "1", "2", "3", "4"}, Values{"Other", "Unknown", "Server Truststore", "ExportTruststore", "Client Truststore"},
-     Description("The truststore or crl list this certificate is located in.")
+     Description("The truststore this certificate is located in. The truststore types ExportTruststore and Client Truststore are deprecated.")
     ]
     Uint16 TruststoreType;
 
@@ -81,12 +81,24 @@ class PG_SSLCertificate
 
     [Description ("The system user registered to this certificate")]
     string RegisteredUserName;
+  
+    [Description ("Specifies the type of the certificate. "
+        " The possible values are: \n"
+        " 0 = \"Unknown.\" \n"
+        " 2 = \"Authority\", root and intermediate authority certificates. \n"
+        " 3 = \"Authority issued end-entity\", authority issued end-entity "
+               "certificates \n"
+        " 4 = \"Self-signed identity. Self-signed certificates "
+             " issued to an identity."),
+        ValueMap {"0", "2", "3", "4"},
+        Values {"unknown", "authority", "authority issued end-entity",
+                "self-signed identity"}]
+    Uint16 CertificateType;
 
     [static, Description ("Used to register a client certificate with a truststore")]
     boolean addCertificate([in] string certificateContents,
                            [in] string userName,
-                           [in] uint16 truststoreType,
-			   [in] string truststorePath);
+                           [in] Uint16 certificateType);
 
 };
 

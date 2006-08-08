@@ -80,6 +80,7 @@ static const CIMName TRUSTSTORE_TYPE_PROPERTY       = "TruststoreType";
 static const CIMName FILE_NAME_PROPERTY             = "TruststorePath";
 static const CIMName NOT_BEFORE_PROPERTY            = "NotBefore";
 static const CIMName NOT_AFTER_PROPERTY             = "NotAfter";
+static const CIMName CERTIFICATE_TYPE_PROPERTY      = "CertificateType";
 
 //PG_SSLCertificateRevocationList property names
 //also has IssuerName
@@ -92,7 +93,13 @@ static const CIMName REVOCATION_DATES_PROPERTY      = "RevocationDates";
 static const CIMName METHOD_ADD_CERTIFICATE         = "addCertificate";
 static const CIMName PARAMETER_CERT_CONTENTS        = "certificateContents";
 static const CIMName PARAMETER_USERNAME             = "userName";
-static const CIMName PARAMETER_TRUSTSTORE_TYPE      = "truststoreType";
+static const CIMName PARAMETER_TYPE                 = "certificateType";
+
+static const String TYPE_AUTHORITY                  = "a";
+static const String TYPE_AUTHORITY_END_ENTITY       = "e";
+static const String TYPE_SELF_SIGNED_IDENTITY       = "s";
+
+static const Uint16 CERT_TYPE_UNKNOWN                    = 0;
 
 //method names for PG_SSLCertificateRevocationList
 static const CIMName METHOD_ADD_CRL                 = "addCertificateRevocationList";
@@ -567,10 +574,64 @@ void CertificateProvider::enumerateInstances(
     
         for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
         {
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Delivering CIMInstance " + cimInstances[i].getPath().toString());
+            Uint16 truststoreType = 0;
+            Uint16 certType = 0;
+          
+            //
+            // The truststore type key property is deprecated. To retain
+            // backward compatibility, if there were instances of an earlier
+            // version in the repository that specify a truststore type
+            // other than cimserver, those instances will be ignored.
+            // Also, if there are instances that do not specify a certificate
+            // type, the type for such instances is set to unknown (1).
+            // 
+ 
+            //
+            // Retrieve the truststore type
+            //
+            Uint32 pos = cimInstances[i].findProperty(
+                            TRUSTSTORE_TYPE_PROPERTY);
+            CIMProperty prop = cimInstances[i].getProperty(pos);
+            prop.getValue().get(truststoreType);
     
-            // deliver each instance
-            handler.deliver(cimInstances[i]);
+            //
+            // Filter instances whose truststore type is other than server truststore.
+            //
+
+            if ( truststoreType == PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER )
+            { 
+                //
+                // If the certificate type property does not have a value set, 
+                // set its type to "Unknown"
+                //
+
+                Uint32 pos = cimInstances[i].findProperty(
+                               CERTIFICATE_TYPE_PROPERTY);
+
+                PEGASUS_ASSERT( pos != PEG_NOT_FOUND );
+
+                CIMProperty prop = cimInstances[i].getProperty(pos);
+
+                if ( prop.getValue().isNull())
+                {
+                    PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL3, 
+                      "The instance does not have the certificate type set. " 
+                      "Setting it to Unknown.");
+                    prop.setValue(CERT_TYPE_UNKNOWN);
+                }
+
+                // deliver instance
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+                    "Delivering CIMInstance " + 
+                    cimInstances[i].getPath().toString());
+                handler.deliver(cimInstances[i]);
+            }
+            else
+            {
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL3, 
+                    "Ignoring CIMInstance " + 
+                     cimInstances[i].getPath().toString());
+            }
         }
     
         // complete request
@@ -686,10 +747,51 @@ void CertificateProvider::enumerateInstanceNames(
     
         for (Uint32 i = 0, n = instanceNames.size(); i < n; i++)
         {
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Delivering CIMObjectPath: " + instanceNames[i].toString());
+            String truststoreType;
+            Array<CIMKeyBinding> kb;
+            Uint16 certType = 0;
+
+            //
+            // The truststore type key property is deprecated. To retain
+            // backward compatibility, if there were instances of an earlier
+            // version in the repository that specify a truststore type
+            // other than cimserver, those instances will be ignored.
+            // 
+            kb = instanceNames[i].getKeyBindings();
+            Uint32 count = kb.size();
+
+            for (Uint32 j = 0; j < count; j++)
+            {
+                //
+                // Retrieve the truststore type
+                //
+                PEG_TRACE_STRING ( TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                    "Property name : " + kb[j].getName().getString());
+                if ( kb[j].getName() == TRUSTSTORE_TYPE_PROPERTY )
+                {
+                    truststoreType = kb[j].getValue();
+                    break;
+                }
+            }
+
+            //
+            // Filter instances whose truststore type is other than server truststore.
+            //
+
+            if ( truststoreType == PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER)
+            {
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+                   "Delivering CIMObjectPath: " + instanceNames[i].toString());
     
-            // deliver object path
-            handler.deliver(instanceNames[i]);
+                // deliver object path
+                handler.deliver(instanceNames[i]);
+            }
+            else
+            {
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL3, 
+                   "Ignoring CIMObjectPath: " + 
+                   instanceNames[i].toString());
+            }
         }
     
         // complete request
@@ -817,14 +919,16 @@ void CertificateProvider::deleteInstance(
                                  const CIMObjectPath & cimObjectPath,
                                  ResponseHandler & handler)
 {
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::deleteInstance");
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, 
+        "CertificateProvider::deleteInstance");
 
     //verify authorization
     const IdentityContainer container = context.get(IdentityContainer::NAME);
     if (!_verifyAuthorization(container.getUserName())) 
     {
-        MessageLoaderParms parms("ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER",
-                                 "Superuser authority is required to run this CIM operation.");
+        MessageLoaderParms parms(
+           "ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER",
+           "Superuser authority is required to run this CIM operation.");
         throw CIMException(CIM_ERR_ACCESS_DENIED, parms);
     }
 
@@ -836,124 +940,203 @@ void CertificateProvider::deleteInstance(
         // process request
         handler.processing();
     
-        String certificateFileName = String::EMPTY;
-        String issuerName = String::EMPTY;
-        String userName = String::EMPTY;
-        Uint16 truststoreType;
-        CIMInstance cimInstance;
+        //
+        // Check if the subjectName is passed.
+        //
+        Array<CIMInstance> cimInstances;
+        Array<CIMKeyBinding> keys;
+        CIMKeyBinding key;
+        String certIssuer;
+        String certSubject;
+        String certSerialNum;
+        Boolean subjectSet = true;
+        Boolean issuerSet = true;
+        Boolean serialNumSet = true;
 
-        try
+        keys = cimObjectPath.getKeyBindings();
+
+        if (keys.size() && String::equal(keys[0].getName().getString(), 
+            ISSUER_NAME_PROPERTY.getString()))
         {
-            cimInstance = _repository->getInstance(cimObjectPath.getNameSpace(), cimObjectPath);
-
-        } catch (Exception& ex)
-        {
-             PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "The certificate does not exist.");
-             MessageLoaderParms parms("ControlProviders.CertificateProvider.CERT_DNE",
-                                      "The certificate does not exist.");
-             throw CIMException(CIM_ERR_NOT_FOUND, parms);
-        }
-
-        CIMProperty cimProperty;
-
-        //certificate file name
-        cimProperty = cimInstance.getProperty(cimInstance.findProperty(FILE_NAME_PROPERTY));
-        cimProperty.getValue().get(certificateFileName);
-
-        //issuer name
-        cimProperty = cimInstance.getProperty(cimInstance.findProperty(ISSUER_NAME_PROPERTY));
-        cimProperty.getValue().get(issuerName);
-
-        //user name
-        cimProperty = cimInstance.getProperty(cimInstance.findProperty(USER_NAME_PROPERTY));
-        cimProperty.getValue().get(userName);
-
-        cimProperty = cimInstance.getProperty(cimInstance.findProperty(TRUSTSTORE_TYPE_PROPERTY));
-        cimProperty.getValue().get(truststoreType);
-
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Issuer name " + issuerName);
-        
-        if (userName == String::EMPTY)
-        {
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "The certificate does not have"
-               "a username associated with it");
+            certIssuer = keys[0].getValue();
         }
         else
         {
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "User name " + userName);
+            issuerSet = false;
         }
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Truststore type: " +
-                                                      cimProperty.getValue().toString());
-        
-        AutoMutex lock(_trustStoreMutex);
 
-        if (FileSystem::exists(certificateFileName)) 
+        if (keys.size() && String::equal(keys[1].getName().getString(), 
+            SUBJECT_NAME_PROPERTY.getString()))
         {
-            if (FileSystem::removeFile(certificateFileName)) 
+            certSubject = keys[1].getValue();
+        }
+        else
+        {
+            subjectSet = false;
+        }
+
+        if (keys.size() && String::equal(keys[1].getName().getString(), 
+            SERIAL_NUMBER_PROPERTY.getString()))
+        {
+            certSerialNum = keys[1].getValue();
+        }
+        else
+        {
+            serialNumSet = false;
+        }
+
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+            "issuerName :" + certIssuer);
+
+        //
+        // Check if the subject and issuer were specified.
+        //
+        if (subjectSet && issuerSet)
+        {
+            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+               "Subject and issuer specified.");
+            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+                "subjectName :" + certSubject);
+
+            Array<CIMInstance> certificateNamedInstances;
+
+            //
+            // get all the instances of class PG_SSLCertificate
+            //
+            certificateNamedInstances =
+                _repository->enumerateInstances(
+                    PEGASUS_NAMESPACENAME_CERTIFICATE,
+                    PEGASUS_CLASSNAME_CERTIFICATE);
+
+            //
+            // Retrieve the instances for the specified subject & issuer
+            // 
+            Uint32 num = certificateNamedInstances.size();
+
+            for (Uint32 i = 0; i < num; i++)
             {
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Successfully deleted certificate file " + certificateFileName);
+                String issuer;
+                String subject;
+                Uint16 truststoreType = 0;
+
+                CIMInstance& certificateInstance =
+                    certificateNamedInstances[i];
+
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+                   "Comparing instance : " + certificateInstance.getPath().toString());
                 
-                // only delete from repository if we successfully deleted it from the truststore, otherwise it is still technically "trusted"
-                _repository->deleteInstance(cimObjectPath.getNameSpace(), cimObjectPath);
+                //
+                // Retrieve the truststore type
+                //
+                Uint32 pos = certificateInstance.findProperty(
+                                TRUSTSTORE_TYPE_PROPERTY);
+                CIMProperty prop = certificateInstance.getProperty(pos);
+                prop.getValue().get(truststoreType);
 
                 //
-                // Request SSLContextManager to delete the certificate from the cache
+                // Filter instances whose truststore type is 
+                // other than server truststore.
                 //
-                try
-                {
-                    switch (truststoreType)
-                    {
-                        case SERVER_TRUSTSTORE :
-                            _sslContextMgr->reloadTrustStore(SSLContextManager::SERVER_CONTEXT);
-                            break;
 
-                        case EXPORT_TRUSTSTORE :
-                            _sslContextMgr->reloadTrustStore(SSLContextManager::EXPORT_CONTEXT);
-                            break;
-    
-                        default: break;
-                    }
-                }
-                catch (SSLException& ex)
+                if ( truststoreType == PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER )
                 {
+                    //
+                    // Check if issuer name and subject are specified
+                    // and they match
+                    //
+                    Uint32 pos = certificateInstance.findProperty(
+                                    ISSUER_NAME_PROPERTY);
+                    CIMProperty prop = certificateInstance.getProperty(pos);
+                    prop.getValue().get(issuer);
+
+                    pos = 
+                        certificateInstance.findProperty(SUBJECT_NAME_PROPERTY);
+                    prop = certificateInstance.getProperty(pos);
+                    prop.getValue().get(subject);
+
+                   if ( issuer == certIssuer && subject == certSubject)
+                   {
+                       PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+                          "Found a matching instance.");
+                       cimInstances.append(certificateInstance);
+                   }
+               }
+               else
+               {
                     PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
-                        "Trust store reload failed, " + ex.getMessage());
+                        "Ignoring instance : " + 
+                        certificateInstance.getPath().toString());
+               }
+           }
 
-                    MessageLoaderParms parms("ControlProviders.CertificateProvider.TRUSTSTORE_RELOAD_FAILED",
-                        "Trust store reload failed, certificate deletion will not be effective until cimserver restart.");
-                    throw CIMException(CIM_ERR_FAILED, parms);
-                }
-
-                if (userName == String::EMPTY)
-                {
-                    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                           "The certificate without an associated user name from issuer $0 "
-                            "has been deleted from the truststore.",
-                            issuerName);
-                }
-                else
-                {
-                    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                            "The certificate registered to $0 from issuer $1 has been deleted from the truststore.",
-                            userName,
-                            issuerName);
-                }
-
-            } else
-            {
-                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Could not delete file.");
-                 MessageLoaderParms parms("ControlProviders.CertificateProvider.DELETE_FAILED",
-                                          "Could not delete file $0.", certificateFileName);
-                 throw CIMException(CIM_ERR_FAILED, parms);
-            }
-        } else
+           // Check if the certificate was found
+           if (cimInstances.size() == 0)
+           {
+               // Certificate does not exist, throw exception
+               PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+                   "The certificate does not exist.");
+               MessageLoaderParms parms(
+                   "ControlProviders.CertificateProvider.CERT_DNE",
+                   "The certificate does not exist.");
+               throw CIMException(CIM_ERR_NOT_FOUND, parms);
+           }
+        } 
+        else if (issuerSet && serialNumSet)
         {
-             PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "File does not exist.");
-             MessageLoaderParms parms("ControlProviders.CertificateProvider.FILE_DNE",
-                                      "File does not exist $0.", certificateFileName);
-             throw CIMException(CIM_ERR_FAILED, parms);
+            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+                "issuer and serial number specified.");
+
+            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+                "serial number :" + certSerialNum);
+
+            CIMObjectPath tmpPath = cimObjectPath;
+
+            try
+            {
+                Array<CIMKeyBinding> keys;
+
+                //
+                // The truststore type key property is deprecated. To retain
+                // backward compatibility, add the truststore type property
+                // to the key bindings and set it to cimserver truststore.
+                //
+                CIMKeyBinding kb (TRUSTSTORE_TYPE_PROPERTY, 
+                    PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER);
+                keys.append (kb);
+
+                keys = cimObjectPath.getKeyBindings();
+                
+                keys.append (kb);
+ 
+                tmpPath.setKeyBindings(keys);
+
+                cimInstances.append(_repository->getInstance(
+                   cimObjectPath.getNameSpace(), tmpPath));
+
+            } 
+            catch (Exception& ex)
+            {
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+                   "The certificate does not exist. " + tmpPath.toString() );
+                MessageLoaderParms parms(
+                    "ControlProviders.CertificateProvider.CERT_DNE",
+                    "The certificate does not exist.");
+                throw CIMException(CIM_ERR_NOT_FOUND, parms);
+            }
         }
-    
+        else
+        {
+            throw CIMException(CIM_ERR_INVALID_PARAMETER, 
+                cimObjectPath.toString());
+        }
+
+        // Check if there were certificates to be deleted.
+        if (cimInstances.size() > 0)
+        {
+            // Delete the certificates
+            _removeCert(cimInstances);
+        }
+
         // complete request
         handler.complete();
 
@@ -1029,6 +1212,168 @@ void CertificateProvider::deleteInstance(
     }
 
     PEG_METHOD_EXIT();
+}
+
+
+void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
+{
+    Uint32 num = cimInstances.size();
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+        "Number of certificate instances to be removed : %d " , num);
+
+
+    for ( Uint32 i = 0; i < num ; i++)
+    {
+        String issuerName;
+        String userName;
+        String certificateFileName;
+        String serialNumber;
+        CIMProperty cimProperty;
+
+        CIMInstance& certificateInstance = cimInstances[i];
+
+        //certificate file name
+        cimProperty = certificateInstance.getProperty(
+                         certificateInstance.findProperty(FILE_NAME_PROPERTY));
+        cimProperty.getValue().get(certificateFileName);
+
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+           "Certificate file name " + certificateFileName);
+
+        //issuer name
+        cimProperty = certificateInstance.getProperty(
+                         certificateInstance.findProperty(ISSUER_NAME_PROPERTY));
+        cimProperty.getValue().get(issuerName);
+
+        //user name
+        cimProperty = certificateInstance.getProperty(
+                         certificateInstance.findProperty(USER_NAME_PROPERTY));
+        cimProperty.getValue().get(userName);
+
+        //serial number
+        cimProperty = certificateInstance.getProperty(
+                      certificateInstance.findProperty(SERIAL_NUMBER_PROPERTY));
+        cimProperty.getValue().get(serialNumber);
+
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+           "Issuer name " + issuerName);
+        
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+           "serial number " + serialNumber);
+
+        if (userName == String::EMPTY)
+        {
+            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+               "The certificate does not have a username associated with it");
+        }
+        else
+        {
+            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+                "User name " + userName);
+        }
+
+        AutoMutex lock(_trustStoreMutex);
+
+        if (!FileSystem::exists(certificateFileName)) 
+        {
+             //
+             // In rare cases a certificate may have been
+             // manually removed from the truststore, but the repositoty
+             // entry still exists. Delete the Repository instance so that
+             // the certificate can be re-added again if required.
+             //
+             // This is also valid for end-entity certificates as they
+             // would not exist in the truststore.
+             //
+
+             PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+                "WARNING: Certificate file does not exist," 
+                 "remove entry from repository anyway.");
+        }
+        else if (!FileSystem::removeFile(certificateFileName)) 
+        {
+            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+                 "Could not delete file.");
+            MessageLoaderParms parms(
+                "ControlProviders.CertificateProvider.DELETE_FAILED",
+                 "Could not delete file $0.", certificateFileName);
+            throw CIMException(CIM_ERR_FAILED, parms);
+        }
+
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+          "Successfully deleted certificate file " + certificateFileName);
+                
+        Array<CIMKeyBinding> kbArray;
+        CIMKeyBinding        kb;
+
+        kb.setName(ISSUER_NAME_PROPERTY);
+        kb.setValue(issuerName);
+        kb.setType(CIMKeyBinding::STRING);
+        kbArray.append(kb);
+
+        kb.setName(SERIAL_NUMBER_PROPERTY);
+        kb.setValue(serialNumber);
+        kb.setType(CIMKeyBinding::STRING);
+        kbArray.append(kb);
+
+        //
+        // The truststore type key property is deprecated. To retain
+        // backward compatibility, add the truststore type property
+        // to the key bindings and set it to cimserver truststore.
+        // 
+        CIMKeyBinding key (TRUSTSTORE_TYPE_PROPERTY, PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER);
+        kbArray.append (key);
+
+        CIMObjectPath reference(
+            String::EMPTY, PEGASUS_NAMESPACENAME_CERTIFICATE,
+            PEGASUS_CLASSNAME_CERTIFICATE, kbArray);
+
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+          "keys are: " + reference.toString());
+
+        // Delete from repository.
+        _repository->deleteInstance(
+            PEGASUS_NAMESPACENAME_CERTIFICATE,
+            reference);
+
+        if (userName == String::EMPTY)
+        {
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, 
+               Logger::TRACE,
+              "The certificate without an associated user" 
+              "name from issuer $0 "
+              "has been deleted from the truststore.",
+               issuerName);
+        }
+        else
+        {
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+               "The certificate registered to $0 from issuer $1 "
+               "has been deleted from the truststore.",
+               userName,
+               issuerName);
+        }
+    }
+
+    //
+    // Request SSLContextManager to delete the certificate from the cache
+    //
+    try
+    {
+        _sslContextMgr->reloadTrustStore(
+            SSLContextManager::SERVER_CONTEXT);
+    }
+    catch (SSLException& ex)
+    {
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+           "Trust store reload failed, " + ex.getMessage());
+
+        MessageLoaderParms parms(
+            "ControlProviders.CertificateProvider.TRUSTSTORE_RELOAD_FAILED",
+            "Trust store reload failed, certificate deletion will" 
+            " not be effective until cimserver restart.");
+                throw CIMException(CIM_ERR_FAILED, parms);
+    }
 }
 
 /** Returns the CRL filename associated with the hashvalue that represents the issuer name.  
@@ -1190,7 +1535,7 @@ void CertificateProvider::invokeMethod(
     
             String certificateContents = String::EMPTY;
             String userName = String::EMPTY;
-            Uint16 truststoreType;
+            Uint16 certType = 0;
             CIMValue cimValue;
             
             cimValue = inParams[0].getValue();
@@ -1200,10 +1545,11 @@ void CertificateProvider::invokeMethod(
             cimValue.get(userName);
             
             cimValue = inParams[2].getValue();
-            cimValue.get(truststoreType);
-    
+            cimValue.get(certType);
+
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"Certificate parameters:\n");
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tcertificateContents:" + certificateContents);
+            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tcertificateType:" + certType);
             if (userName == String::EMPTY)
             {
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tDoes not have an associated username");
@@ -1213,12 +1559,6 @@ void CertificateProvider::invokeMethod(
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tuserName:" + userName);
             }
             
-            //check for a valid truststore
-            if (truststoreType != SERVER_TRUSTSTORE && truststoreType != EXPORT_TRUSTSTORE)
-            {
-                throw CIMException(CIM_ERR_INVALID_PARAMETER, "The truststore specified by truststoreType is invalid.");
-            }
-
             //check for a valid username if one is specified
             if (userName == String::EMPTY)
             { 
@@ -1235,17 +1575,49 @@ void CertificateProvider::invokeMethod(
             BIO *mem = BIO_new(BIO_s_mem());
             BIO_puts(mem, (const char*)certificateContents.getCString());
     
+            //
+            // Read the buffer until no more certificates found.
+            //
             X509 *xCert = NULL;
-            if (!PEM_read_bio_X509(mem, &xCert, 0, NULL))
+            Uint32 certCount = 0;
+            while (( xCert = PEM_read_bio_X509(mem, NULL , 0, NULL)))
             {
+                certCount++;
+                xCert = NULL;
+            }
+ 
+            //
+            // If more than one certificate was found, error out.
+            //
+            if (certCount > 1)
+            {
+                Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Error: More than one cert in file : %d", certCount);
                 BIO_free(mem);
+                MessageLoaderParms parms("ControlProviders.CertificateProvider.MULTIPLE_CERT_IN_FILE",
+                                         "Specified certificate file contains more than one certificate.");
+                throw CIMException(CIM_ERR_FAILED, parms);
+            }
+
+            BIO_free(mem);
+
+            //read in the certificate contents
+            BIO *memCert = BIO_new(BIO_s_mem());
+            BIO_puts(memCert, (const char*)certificateContents.getCString());
+
+            //
+            // Read the certificate from buffer.
+            //
+            xCert = PEM_read_bio_X509(memCert, NULL , 0, NULL);
+            if (xCert == NULL)
+            {
+                BIO_free(memCert);
 
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Error: Could not read x509 PEM format.");
                 MessageLoaderParms parms("ControlProviders.CertificateProvider.BAD_X509_FORMAT",
                                          "Could not read x509 PEM format.");
                 throw CIMException(CIM_ERR_FAILED, parms);
             }
-            BIO_free(mem);
+            BIO_free(memCert);
             
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"Read x509 certificate...");
             
@@ -1307,24 +1679,11 @@ void CertificateProvider::invokeMethod(
                     throw CIMException(CIM_ERR_FAILED, parms);
             }
 
-            String storePath = String::EMPTY;
-            String storeId = String::EMPTY;
-    
-            switch (truststoreType) 
-            {
-            case SERVER_TRUSTSTORE : storePath = _sslTrustStore; 
-                                     storeId = "server"; 
-                                     break;
-            case EXPORT_TRUSTSTORE : storePath = _exportSSLTrustStore; 
-                                     storeId = "export";
-                                     break;
-            default: break;
-            }
-    
             AutoMutex lock(_trustStoreMutex);
 
-            //attempt to add cert to truststore
-            String certificateFileName = _getNewCertificateFileName(storePath, X509_subject_name_hash(xCert));
+            String certificateFileName = _getNewCertificateFileName(
+                                             _sslTrustStore, 
+                                             X509_subject_name_hash(xCert));
             if (userName != String::EMPTY)
             {
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
@@ -1345,10 +1704,11 @@ void CertificateProvider::invokeMethod(
             cimInstance.addProperty(CIMProperty(SERIAL_NUMBER_PROPERTY, CIMValue(serialNumber)));
             cimInstance.addProperty(CIMProperty(SUBJECT_NAME_PROPERTY, CIMValue(subjectName)));
             cimInstance.addProperty(CIMProperty(USER_NAME_PROPERTY, CIMValue(userName)));
-            cimInstance.addProperty(CIMProperty(TRUSTSTORE_TYPE_PROPERTY, CIMValue(truststoreType)));
             cimInstance.addProperty(CIMProperty(FILE_NAME_PROPERTY, CIMValue(certificateFileName)));
+            cimInstance.addProperty(CIMProperty(TRUSTSTORE_TYPE_PROPERTY, CIMValue(PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER)));
             cimInstance.addProperty(CIMProperty(NOT_BEFORE_PROPERTY, CIMValue(notBefore)));
             cimInstance.addProperty(CIMProperty(NOT_AFTER_PROPERTY, CIMValue(notAfter)));
+            cimInstance.addProperty(CIMProperty(CERTIFICATE_TYPE_PROPERTY, CIMValue(certType)));
         
      // set keys
     Array<CIMKeyBinding> keys;
@@ -1363,11 +1723,7 @@ void CertificateProvider::invokeMethod(
     key.setValue(String(serialNumber));
     keys.append(key);
 
-    key.setName(TRUSTSTORE_TYPE_PROPERTY.getString());
-    key.setType(CIMKeyBinding::NUMERIC);
-    char tmp[10];
-    sprintf(tmp, "%d", truststoreType);
-    key.setValue(String(tmp));
+    CIMKeyBinding kb (TRUSTSTORE_TYPE_PROPERTY, PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER);
     keys.append(key);
 
             // set object path for instance
@@ -1379,59 +1735,67 @@ void CertificateProvider::invokeMethod(
             //an error before we add the file to the truststore
             _repository->createInstance("root/PG_Internal", cimInstance);
     
-            //ATTN: Take care of this conversion
-            char newFileName[256];
-            sprintf(newFileName, "%s", (const char*) certificateFileName.getCString());
+            //
+            // Check if the type of certificate is authority issued end entity. 
+            // If true, the certificate is not added to the truststore. 
+            // A username will be associated with the certificate in the
+            // repository.
+            //
+            if ( ! (certType == TYPE_AUTHORITY_END_ENTITY ))
+            {
+                //ATTN: Take care of this conversion
+                char newFileName[256];
+                sprintf(newFileName, "%s", (const char*) certificateFileName.getCString());
         
-            //use the ssl functions to write out the client x509 certificate
-            BIO* outFile = BIO_new(BIO_s_file());
-            if (outFile == NULL)
-            {
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
-                    "Unable to add certificate to truststore. " 
-                    "Error while trying to write certificate, BIO_new returned error");
-                MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CERT",
-                    "Unable to add certificate to truststore. Error while trying to write certificate.");
-                throw CIMException(CIM_ERR_FAILED, parms);
-            }
+                //use the ssl functions to write out the client x509 certificate
+                BIO* outFile = BIO_new(BIO_s_file());
+       
+                if (outFile == NULL)
+                {
+                    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                        "Unable to add certificate to truststore. " 
+                        "Error while trying to write certificate, BIO_new returned error");
+                    MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CERT",
+                        "Unable to add certificate to truststore. Error while trying to write certificate.");
+                    throw CIMException(CIM_ERR_FAILED, parms);
+                }
 
-            if (!BIO_write_filename(outFile, newFileName))
-            {
-                BIO_free_all(outFile);
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
-                    "Unable to add certificate to truststore. Error while trying to write certificate, " 
-                    "BIO_write_filename returned error");
-                MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CERT",
-                    "Unable to add certificate to truststore. Error while trying to write certificate.");
-                throw CIMException(CIM_ERR_FAILED, parms);
-            }
-            if (!PEM_write_bio_X509(outFile, xCert))
-            {
-                BIO_free_all(outFile);
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
-                    "Unable to add certificate to truststore. " 
-                    "Error while trying to write certificate, PEM_write_bio_X509 returned error");
-                MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CERT",
-                    "Unable to add certificate to truststore. Error while trying to write certificate.");
-                throw CIMException(CIM_ERR_FAILED, parms);
-            }
+                if (!BIO_write_filename(outFile, newFileName))
+                {
+                    BIO_free_all(outFile);
+                    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                        "Unable to add certificate to truststore. Error while trying to write certificate, " 
+                        "BIO_write_filename returned error");
+                    MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CERT",
+                        "Unable to add certificate to truststore. Error while trying to write certificate.");
+                    throw CIMException(CIM_ERR_FAILED, parms);
+                }
+                if (!PEM_write_bio_X509(outFile, xCert))
+                {
+                    BIO_free_all(outFile);
+                    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                        "Unable to add certificate to truststore. " 
+                        "Error while trying to write certificate, PEM_write_bio_X509 returned error");
+                    MessageLoaderParms parms("ControlProviders.CertificateProvider.ERROR_WRITING_CERT",
+                        "Unable to add certificate to truststore. Error while trying to write certificate.");
+                    throw CIMException(CIM_ERR_FAILED, parms);
+                }
 
-            BIO_free_all(outFile);
+                BIO_free_all(outFile);
             
-            if (userName == String::EMPTY)
-            {
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE, 
-                        "The certificate without an associated user name from issuer $0 has been added to the $1 truststore.", 
-                        issuerName,
-                        storeId);
-            }
-            else
-            {
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE, 
-                        "The certificate registered to $0 from issuer $1 has been added to the $2 truststore.", 
-                        userName,
-                        issuerName,
-                        storeId);
+                if (userName == String::EMPTY)
+                {
+                    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE, 
+                            "The certificate without an associated user name from issuer $0 has been added to the server truststore.", 
+                            issuerName);
+                }
+                else
+                {
+                    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE, 
+                            "The certificate registered to $0 from issuer $1 has been added to the server truststore.", 
+                            userName,
+                            issuerName);
+                }
             }
 
             CIMValue returnValue(Boolean(true));

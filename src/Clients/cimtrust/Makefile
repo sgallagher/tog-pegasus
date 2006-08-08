@@ -28,69 +28,36 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
- ROOT = $(PEGASUS_ROOT)
+ROOT = ../../..
+
+PEGASUS_ZOS_PROGRAM_OBJECT = yes
+
+DIR = Clients/cimtrust
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    CLITestClients \
-    CGIClient \
-    CGIClient/tests \
-    TestClient \
-    cliutils \
-    cimconfig \
-    cimuser \
-    cimauth \
-    cimprovider \
-    cimprovider/tests \
-    osinfo \
-    wbemexec \
-    tomof \
-    ipinfo \
-    g11ntest \
-    benchmarkTest \
-    cimperf \
-    MCCATestClient \
-    repupgrade  \
-    repupgrade/SSPModules/SampleSSPModule \
-    SendTestIndications \
-    repupgrade/tests \
-    wbemexec/tests
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
+LIBRARIES = \
+    pegcliutils \
+    peggetoopt \
+    pegclient \
+    pegcommon
 
-ifeq ($(OS),HPUX)
-  DIRS += \
-    ntpinfo \
-    dnsinfo \
-    nisinfo
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+PROGRAM = cimtrust
+
+SOURCES = \
+        CIMTrustCommand.cpp
+
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+SYS_LIBS = ws2_32.lib advapi32.lib
 endif
 
-ifeq ($(OS),VMS)
-  DIRS += \
-    ntpinfo \
-    dnsinfo \
-    nisinfo
-endif
+include $(ROOT)/mak/program.mak
 
-DIRS_SSLTRUSTMGR = \
-    ssltrustmgr 
+tests:
 
-ifdef PEGASUS_HAS_SSL
-  DIRS += \
-    $(DIRS_SSLTRUSTMGR) \
-    ssltrustmgr/tests \
-    TestCertClient \
-    cimtrust \
-    cimtrust/tests
-endif
+poststarttests:
 
-#The following tests are NOT included as part of the standard
-#regession test.  The cimuser tests require PrivilegedUser
-#access to execute successfully.  The cimconfig tests modify
-#configuration files.
-
-XDIRS = \
-    cimconfig/tests \
-    cimuser/tests 
-
-include $(ROOT)/mak/recurse.mak

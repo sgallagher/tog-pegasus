@@ -477,14 +477,18 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     char serialNumber[256];
                     sprintf(serialNumber, "%lu", clientCertificate->getSerialNumber());
     
-                    //ATTN: Use certificate provider constants
-                    String truststoreType = (httpMessage->authInfo->isExportConnection() ? String("3") : String("2"));
+                    //
+                    // The truststore type key property is deprecated. To retain
+                    // backward compatibility, add the truststore type property
+                    // to the key bindings and set it to cimserver truststore.
+                    //
         
                     //construct the corresponding PG_SSLCertificate instance
                     Array<CIMKeyBinding> keyBindings;
                     keyBindings.append(CIMKeyBinding("IssuerName", issuerName, CIMKeyBinding::STRING));
                     keyBindings.append(CIMKeyBinding("SerialNumber", serialNumber, CIMKeyBinding::STRING));
-                    keyBindings.append(CIMKeyBinding("TruststoreType", truststoreType, CIMKeyBinding::NUMERIC));
+                    keyBindings.append(CIMKeyBinding("TruststoreType", 
+                       PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER));
         
                     CIMObjectPath cimObjectPath("localhost",
                                                 PEGASUS_NAMESPACENAME_CERTIFICATE,

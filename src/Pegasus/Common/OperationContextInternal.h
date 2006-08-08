@@ -60,6 +60,9 @@ public:
     LocaleContainer(const String & languageId);
     virtual ~LocaleContainer(void);
 
+    // NOTE: The compiler default implementation of the copy constructor
+    // is used for this class.
+
     LocaleContainer & operator=(const LocaleContainer & container);
 
     virtual String getName(void) const;
@@ -83,6 +86,9 @@ public:
     ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider,
         Boolean isRemoteNameSpace = false, const String & remoteInfo = String::EMPTY);
     virtual ~ProviderIdContainer(void);
+
+    // NOTE: The compiler default implementation of the copy constructor
+    // is used for this class.
 
     ProviderIdContainer & operator=(const ProviderIdContainer & container);
 
@@ -112,6 +118,9 @@ public:
     CachedClassDefinitionContainer(const OperationContext::Container & container);
     CachedClassDefinitionContainer(const CIMClass & cimClass);
     virtual ~CachedClassDefinitionContainer(void);
+
+    // NOTE: The compiler default implementation of the copy constructor
+    // is used for this class.
 
     CachedClassDefinitionContainer & operator=(const CachedClassDefinitionContainer & container);
 

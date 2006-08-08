@@ -502,7 +502,7 @@ endif
 SSL_TS1_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=true \
        sslClientVerificationMode=optional sslTrustStoreUserName=$(CURRENT_USER)
 SSL_TS1_TEST_CMDS = \
-       $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Clients/ssltrustmgr/tests@@SSLCertificateTest1
+       $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Clients/cimtrust/tests@@SSLCertificateTest1
 
 ifdef PEGASUS_HAS_SSL
 ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
@@ -535,7 +535,7 @@ Create_SSL_Certificate: FORCE
 ifdef PEGASUS_HAS_SSL
 ifdef PEGASUS_TEST_USER_DEFINED
 	$(ECHO) "Creating SSL certificate for test"
-	ssltrustmgr -a -c $(PEGASUS_TEST_USER_ID) -f $(PEGASUS_HOME)/server.pem
+	cimtrust -a -U $(PEGASUS_TEST_USER_ID) -f $(PEGASUS_HOME)/server.pem -Ts
 endif
 else
 	$(ECHO) "PEGASUS_HAS_SSL not defined - Not Creating SSL certificate for test"

@@ -697,6 +697,68 @@ en:table {
         Clients.repupgrade.RepositoryUpgrade.OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR:string {"PGC01016: Error reading old repository dependent class {0} in namespace {1}."}
 
         // ==========================================================
+        // Messages for CIMTrustCommand
+        // Please use message prefix "PGC01100"
+        // ==========================================================
+
+        /**
+        * @note Clients.cimtrust.CIMTrustCommand.MENU.STANDARD:
+        *    Do not translate the cimtrust command or options, translate the text
+        *    that explains the options.
+        *    When translating this message, make sure that each line fits in 80 characters,
+        *    preserves the indenting,
+        *    and ends with a newline character (\n).
+        */
+        Clients.cimtrust.CIMTrustCommand.MENU.STANDARD:string {
+        "Usage: cimtrust -a [ -U certuser ] -f certfile -T ( a | e | s )\n"
+        "cimtrust -r -i issuername ( -n serialnumber | -S subject )\n"
+        "cimtrust -l [ -i issuername [ -n serialnumber | -S subject ] ]\n"
+        "cimtrust --version\n"
+        "cimtrust --help\n"
+        "Options :\n"
+        "    -a              - Add the specified certificate to the trust store\n"
+        "    -r              - Remove the specified certificate from the trust store\n"
+        "    -l              - Display the certificates in the trust store\n"
+        "    -f certfile     - Specify the PEM format file containing an X509 certificate\n"
+        "    -T type         - Specify the certificate type \n"
+        "    -U certuser     - Specify the user name to be associated with the certificate\n"
+        "    -i issuer       - Specify the certificate issuer name\n"
+        "    -n serialnumber - Specify the certificate serial number\n"
+        "    -S subject      - Specify the certificate subject name\n"
+        "    --help          - Display this help message\n"
+        "    --version       - Display CIM Server version number\n"
+        "\n"
+        "Usage note: The cimtrust command requires that the CIM Server is running.\n"
+        "\n"
+        }
+
+        Clients.cimtrust.CIMTrustCommand.REQUIRED_ARGS_MISSING:string {"PGC01100: Required arguments missing."}
+
+        Clients.cimtrust.CIMTrustCommand.CANNOT_CONNECT_CIMSERVER_NOT_RUNNING:string {"PGC01101: Cannot connect to CIM Server, CIM Server may not be running."}
+
+        Clients.cimtrust.CIMTrustCommand.ADD_CERT_SUCCESS:string {"PGC01102: Certificate added successfully."}
+
+        Clients.cimtrust.CIMTrustCommand.ADD_CERT_FAILURE:string {"PGC01103: Failed to add certificate."}
+
+        Clients.cimtrust.CIMTrustCommand.REMOVE_CERT_SUCCESS:string {"PGC01104: Certificate removed successfully."}
+
+        Clients.cimtrust.CIMTrustCommand.REMOVE_CERT_FAILURE:string {"PGC01105: Failed to remove certificate."}
+
+        Clients.cimtrust.CIMTrustCommand.CERT_ALREADY_EXISTS:string {"PGC001106: Specified certificate already exists."}
+
+        Clients.cimtrust.CIMTrustCommand.CERT_NOT_FOUND:string {"PGC01107: Specified certificate does not exist."}
+
+        Clients.cimtrust.CIMTrustCommand.CERT_SCHEMA_NOT_LOADED:string {"PGC01108: Please restore the internal repository on the CIM Server."}
+
+        Clients.cimtrust.CIMTrustCommand.LIST_CERT_FAILURE:string {"PGC01109: Failed to list certificate."}
+
+        Clients.cimtrust.CIMTrustCommand.CERT_WITHOUT_ASSOCIATED_USER:string {"PGC01110: NOTE: No user name will be associated with the certificate in the truststore."}
+
+        Clients.cimtrust.CIMTrustCommand.CONNECTION_TIMEOUT:string {"PGC01111: Connection timed out."}
+
+        Clients.cimtrust.CIMTrustCommand.INVALID_SYSTEM_USER:string {"PGC01112: Specified user is not a valid system user."}
+
+        // ==========================================================
         // Start of messages from platform-specific files
         // ==========================================================
                         

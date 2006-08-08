@@ -184,6 +184,7 @@ void CIMPropertyRep::resolve(
     {
         CIMName inheritedClassName;
         Array<CIMName> classNames;
+
         if(isEmbeddedInst)
         {
             Uint32 pos = inheritedProperty.findQualifier("EmbeddedInstance");
@@ -212,8 +213,20 @@ void CIMPropertyRep::resolve(
         }
         else
         {
-           inheritedClassName = inheritedProperty.getReferenceClassName();
-           classNames.append(_referenceClassName);
+            CIMName referenceClass;
+            if (_referenceClassName.isNull())
+            {
+     	          CIMObjectPath reference;
+                _value.get(reference);
+                referenceClass = reference.getClassName();
+            }
+            else
+            {
+                referenceClass = _referenceClassName;
+            }
+
+            inheritedClassName = inheritedProperty.getReferenceClassName();
+            classNames.append(referenceClass);
         }
 
         // This algorithm is friendly to arrays of embedded instances. It

@@ -335,7 +335,8 @@ Boolean LocalAuthFile::remove()
     if (FileSystem::exists(_filePathName))
     {
     
-    // change ownership back to the CIMOM
+#ifndef PEGASUS_OS_WIN32
+        // change ownership back to the CIMOM
 #if defined(PEGASUS_OS_OS400)
         CString tempPath = _filePathName.getCString();
         const char * tmp1 = tempPath;
@@ -351,6 +352,7 @@ Boolean LocalAuthFile::remove()
                 "Changing ownership of the local authentication"
                 " security file back to the CIMServer UserId failed.");
         }
+#endif
 
         retVal = FileSystem::removeFile(_filePathName);
     }

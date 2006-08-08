@@ -74,8 +74,6 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService
     
       IndicationHandlerService(CIMRepository* repository);
 
-      IndicationHandlerService(void);
-
       ~IndicationHandlerService(void) { } ;
       
       virtual void _handle_async_request(AsyncRequest *req);
@@ -84,13 +82,11 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService
 
       virtual void handleEnqueue(void);
 
-      static void _handleIndicationCallBack(AsyncOpNode *, 
-					    MessageQueue *, 
-					    void *);
-      
       AtomicInt dienow;
 
    private:
+      IndicationHandlerService();  //  unimplemented
+
       CIMRepository* _repository;
 
       CIMHandleIndicationResponseMessage* _handleIndication(
@@ -99,8 +95,6 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService
       HandlerTable _handlerTable;
 
       CIMHandler* _lookupHandlerForClass(const CIMName& className);
-
-      String _parseDestination(String dest);
 
       Boolean _loadHandler(
           CIMHandleIndicationRequestMessage* request,

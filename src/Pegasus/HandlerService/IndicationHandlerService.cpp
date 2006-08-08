@@ -59,12 +59,6 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_NAMESPACE_BEGIN
 
-IndicationHandlerService::IndicationHandlerService(void)
-   : Base(PEGASUS_QUEUENAME_INDHANDLERMANAGER)
-{
-
-}
-
 IndicationHandlerService::IndicationHandlerService(CIMRepository* repository)
    : Base("IndicationHandlerService", MessageQueue::getNextQueueId()),
      _repository(repository)
@@ -164,70 +158,6 @@ void IndicationHandlerService::handleEnqueue()
        handleEnqueue(message.get());
        message.release();
    }
-}
-
-// This callback method is currently unused.  ExportIndication messages
-// are passed to the CIMExportRequestDispatcher using SendWait rather than
-// SendAsync so the responses can be routed correctly.
-void IndicationHandlerService::_handleIndicationCallBack(AsyncOpNode *op,
-                                                         MessageQueue *q,
-                                                         void *parm)
-{
-   PEGASUS_ASSERT(0);
-#if 0
-   AutoPtr<IndicationHandlerService> service(static_cast<IndicationHandlerService *>(q));
-
-   AutoPtr<AsyncRequest> asyncRequest(static_cast<AsyncRequest *>(op->get_request()));
-   AutoPtr<AsyncReply> asyncReply(static_cast<AsyncReply *>(op->get_response()));
-   AutoPtr<CIMRequestMessage> request(reinterpret_cast<CIMRequestMessage *>
-      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action()));
-   AutoPtr<CIMResponseMessage> response(reinterpret_cast<CIMResponseMessage *>
-      ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result()));
-   PEGASUS_ASSERT(response.get() != 0);
-   // ensure that the destination queue is in response->dest
-#ifdef PEGASUS_POINTER_64BIT
-   response->dest = (Uint64)parm;
-#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
-   // We cast to unsigned long
-   // because sizeof(void *) == sizeof(unsigned long)
-   response->dest = (unsigned long)parm;
-#else
-   response->dest = (Uint32)parm;
-#endif
-   service->SendForget(response.get());
-   response.release();
-//   op->release();
-//   service->return_op(op);
-#endif
-}
-
-
-String IndicationHandlerService::_parseDestination(String dest)
-{
-    CString pCString = dest.getCString();
-    char* p = const_cast<char*>((const char*) pCString);
-
-    static char schemeType[] = "HTTP:";
-    Boolean hasSchemeType = true;
-    for(int i= 0; i<5; i++)
-    {
-        if(::toupper(p[i]) != schemeType[i])
-        {
-            hasSchemeType = false;
-            break;
-        }
-    }
-    if(hasSchemeType)
-    {
-        p += 5;
-    }
-
-    // See if there is a host name begins with "//":
-    if (p[0] == '/' && p[1] == '/')
-    {
-        p += 2;
-    }
-    return String(p);
 }
 
 CIMHandleIndicationResponseMessage*

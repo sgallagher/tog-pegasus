@@ -142,8 +142,9 @@ Boolean BasicAuthenticationHandler::authenticate(
     // access is not enabled.
     //
     if (System::isPrivilegedUser(userName) &&
-        !String::equalNoCase(ConfigManager::getInstance()->getCurrentValue(
-            "enableRemotePrivilegedUserAccess"), "true"))
+        !ConfigManager::parseBooleanValue(
+            ConfigManager::getInstance()->getCurrentValue(
+            "enableRemotePrivilegedUserAccess")))
     {
         Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL2,
             "Authentication failed for user '%s' because "

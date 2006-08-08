@@ -93,10 +93,10 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher( )
 	// Check whether or not AssociationTraversal is supported.
 	//
 	ConfigManager* configManager = ConfigManager::getInstance();
-	_enableAssociationTraversal = String::equal(
-		configManager->getCurrentValue("enableAssociationTraversal"), "true");
-	//   _enableIndicationService = String::equal(
-	//        configManager->getCurrentValue("enableIndicationService"), "true");
+	_enableAssociationTraversal = ConfigManager::parseBooleanValue(
+		configManager->getCurrentValue("enableAssociationTraversal"));
+	//   _enableIndicationService = ConfigManager::parseBooleanValue(
+	//        configManager->getCurrentValue("enableIndicationService"));
 
 	PEG_METHOD_EXIT();
 }

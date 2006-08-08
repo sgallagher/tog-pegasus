@@ -249,10 +249,10 @@ int ServerProcess::cimserver_initialize(void)
    // Check if SSL is enabled on either the wbem-https or
    // wbem-exp-https ports.
    ConfigManager * configManager = ConfigManager::getInstance();
-   Boolean enableHttpsConnection = String::equal(
-        configManager->getCurrentValue("enableHttpsConnection"), "true");
-   Boolean enableSSLExportClientVerification = String::equal(
-        configManager->getCurrentValue("enableSSLExportClientVerification"), "true");
+   Boolean enableHttpsConnection = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableHttpsConnection"));
+   Boolean enableSSLExportClientVerification = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableSSLExportClientVerification"));
    if (enableHttpsConnection || enableSSLExportClientVerification)
    {
        // Initialize the OS400 OpenSSL wrapper.

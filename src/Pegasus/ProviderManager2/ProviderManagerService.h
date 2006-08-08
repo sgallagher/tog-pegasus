@@ -125,6 +125,7 @@ private:
     List<AsyncOpNode,Mutex> _incomingQueue;
     List<AsyncOpNode,Mutex> _outgoingQueue;
 
+    Boolean _forceProviderProcesses;
     ProviderManagerRouter* _basicProviderManagerRouter;
     ProviderManagerRouter* _oopProviderManagerRouter;
 

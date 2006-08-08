@@ -337,11 +337,11 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
    //
    ConfigManager* configManager = ConfigManager::getInstance();
 
-   _enableAssociationTraversal = String::equal(
-        configManager->getCurrentValue("enableAssociationTraversal"), "true");
+   _enableAssociationTraversal = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableAssociationTraversal"));
 
-   _enableIndicationService = String::equal(
-        configManager->getCurrentValue("enableIndicationService"), "true");
+   _enableIndicationService = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableIndicationService"));
 
    //
    //  Get the maximum breadth of enum parameter from config if it exists.
@@ -367,8 +367,8 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 #endif
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-   _enableNormalization =
-       String::equalNoCase(configManager->getCurrentValue("enableNormalization"), "true");
+   _enableNormalization = ConfigManager::parseBooleanValue(
+       configManager->getCurrentValue("enableNormalization"));
 
    if(_enableNormalization)
    {

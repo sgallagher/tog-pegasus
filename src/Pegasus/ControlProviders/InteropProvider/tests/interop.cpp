@@ -49,6 +49,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/Common/Tracer.h>
 /* This is a test program for the Interop Control Provider.  It provides tests for the
@@ -403,8 +404,7 @@ String InteropTest::getCurrentConfigProperty(
 Boolean InteropTest::getCurrentBoolConfigProperty(
     const CIMName& propName) 
 {
-    return (getCurrentConfigProperty(propName) == "true")?
-        true : false;
+    return ConfigManager::parseBooleanValue(getCurrentConfigProperty(propName));
 }
 
 Uint32 InteropTest::getCurrentValueConfigProperty(

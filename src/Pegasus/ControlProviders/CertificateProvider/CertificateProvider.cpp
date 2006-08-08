@@ -346,18 +346,15 @@ CertificateProvider::CertificateProvider(CIMRepository* repository,
                                          SSLContextManager* sslContextMgr) :
 _cimom(0), 
 _repository(repository),
-_sslContextMgr(sslContextMgr),
-_enableAuthentication(false)
+_sslContextMgr(sslContextMgr)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::CertificateProvider");
 
     ConfigManager* configManager = ConfigManager::getInstance();
 
     //get config properties
-    if (String::equalNoCase(configManager->getCurrentValue("enableAuthentication"), "true")) 
-    {
-        _enableAuthentication = true;
-    }
+    _enableAuthentication = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableAuthentication"));
 
     _sslTrustStore = ConfigManager::getHomedPath(configManager->getCurrentValue("sslTrustStore"));
     _exportSSLTrustStore = ConfigManager::getHomedPath(configManager->getCurrentValue("exportSSLTrustStore"));

@@ -458,9 +458,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    //
    // Do namespace authorization verification
    //
-   if (String::equalNoCase(
-          configManager->getCurrentValue("enableNamespaceAuthorization"),
-          "true"))
+   if (ConfigManager::parseBooleanValue(
+       configManager->getCurrentValue("enableNamespaceAuthorization")))
    {
       //
       // If the user is not privileged, perform the authorization check.
@@ -529,11 +528,10 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    // If the user is privileged, and remote privileged user access is not 
    // enabled and the auth type is not Local then reject access.
    //
-   if ( System::isPrivilegedUser(userName) &&
-        !String::equalNoCase(authType, "Local") &&
-        !String::equalNoCase(
-           configManager->getCurrentValue("enableRemotePrivilegedUserAccess"),
-           "true") )
+   if (System::isPrivilegedUser(userName) &&
+       !String::equalNoCase(authType, "Local") &&
+       !ConfigManager::parseBooleanValue(
+           configManager->getCurrentValue("enableRemotePrivilegedUserAccess")))
    {
 
       if (cimMethodName == "InvokeMethod")

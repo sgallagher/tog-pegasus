@@ -267,13 +267,8 @@ void CIMServer::_init(void)
     //
     ConfigManager* configManager = ConfigManager::getInstance();
 
-    Boolean enableAuthentication = false;
-
-    if (String::equalNoCase(
-        configManager->getCurrentValue("enableAuthentication"), "true"))
-    {
-        enableAuthentication = true;
-    }
+    Boolean enableAuthentication = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableAuthentication"));
 
     //
     // Create Authorization queue only if authentication is enabled
@@ -318,8 +313,8 @@ void CIMServer::_init(void)
 
 /*
     _indicationService = 0;
-    if (String::equal(
-        configManager->getCurrentValue("enableIndicationService"), "true"))
+    if (ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableIndicationService")))
     {
         _indicationService = new IndicationService
             (_repository, _providerRegistrationManager);
@@ -640,20 +635,10 @@ void CIMServer::setState(Uint32 state)
     //
     ConfigManager* configManager = ConfigManager::getInstance();
 
-    Boolean enableAuthentication = false;
-    Boolean enableNamespaceAuthorization = false;
-
-    if (String::equal(
-        configManager->getCurrentValue("enableAuthentication"), "true"))
-    {
-        enableAuthentication = true;
-    }
-
-    if (String::equal(
-        configManager->getCurrentValue("enableNamespaceAuthorization"), "true"))
-    {
-        enableNamespaceAuthorization = true;
-    }
+    Boolean enableAuthentication = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableAuthentication"));
+    Boolean enableNamespaceAuthorization = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableNamespaceAuthorization"));
 
     if (state == CIMServerState::TERMINATING)
     {
@@ -801,10 +786,9 @@ SSLContext* CIMServer::_getSSLContext(Uint32 contextType)
             //
             if (String::equal(verifyClient, "required"))
             {
-                String httpEnabled = configManager->getCurrentValue(
-                                              PROPERTY_NAME__HTTP_ENABLED);
-
-                if (!String::equal(httpEnabled, "true"))
+                if (!ConfigManager::parseBooleanValue(
+                    configManager->getCurrentValue(
+                        PROPERTY_NAME__HTTP_ENABLED)))
                 {
                     MessageLoaderParms parms(
                         "Pegasus.Server.CIMServer.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED",

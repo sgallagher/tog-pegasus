@@ -76,8 +76,6 @@ static const String _HTTP_HEADER_PEGASUSAUTHORIZATION = "PegasusAuthorization";
 
 static const String _CONFIG_PARAM_ENABLEAUTHENTICATION = "enableAuthentication";
 
-static const String _TRUE = "true";
-
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 operationMessageQueueId,
     Uint32 exportMessageQueueId,
@@ -405,9 +403,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 #endif   	
 
 
-    if (String::equal(
-        configManager->getCurrentValue(
-	    _CONFIG_PARAM_ENABLEAUTHENTICATION), _TRUE))
+    if (ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue(_CONFIG_PARAM_ENABLEAUTHENTICATION)))
     {
         enableAuthentication = true;
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION 

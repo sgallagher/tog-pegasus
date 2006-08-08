@@ -243,15 +243,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     // WMI MAPPER SPECIFIC: AUTHENTICATION ALWAYS ENABLED:
     Boolean enableAuthentication = true;
     /* NORMAL METHOD OF LOOKING UP AUTHENTICATION CONFIGURATION:
-    ConfigManager* configManager = ConfigManager::getInstance();
-
-    Boolean enableAuthentication = false;
-
-    if (String::equal(
-        configManager->getCurrentValue("enableAuthentication"), "true"))
-    {
-        enableAuthentication = true;
-    }
+    Boolean enableAuthentication = ConfigManager::parseBooleanValue(
+        ConfigManager::getInstance()->getCurrentValue("enableAuthentication"));
     */
 
     //

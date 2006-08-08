@@ -47,6 +47,17 @@ PEGASUS_USING_STD;
 
 static char * verbose = 0;
 
+void testParseBooleanValue()
+{
+    PEGASUS_TEST_ASSERT(ConfigManager::parseBooleanValue("true"));
+    PEGASUS_TEST_ASSERT(ConfigManager::parseBooleanValue("True"));
+    PEGASUS_TEST_ASSERT(ConfigManager::parseBooleanValue("TRUE"));
+    PEGASUS_TEST_ASSERT(!ConfigManager::parseBooleanValue("true!"));
+    PEGASUS_TEST_ASSERT(!ConfigManager::parseBooleanValue("t"));
+    PEGASUS_TEST_ASSERT(!ConfigManager::parseBooleanValue("false"));
+    PEGASUS_TEST_ASSERT(!ConfigManager::parseBooleanValue("1"));
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -106,6 +117,8 @@ int main(int argc, char** argv)
                 cout << "planned value = " << plannedValue << endl;
             }
         }
+
+        testParseBooleanValue();
     }
     catch(Exception& e)
     {

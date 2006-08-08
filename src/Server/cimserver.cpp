@@ -943,20 +943,21 @@ int CIMServerProcess::cimserver_run(
 
     if (os400StartupOption == false)
     {
-      enableHttpConnection = String::equal(
-          configManager->getCurrentValue("enableHttpConnection"), "true");
-      enableHttpsConnection = String::equal(
-          configManager->getCurrentValue("enableHttpsConnection"), "true");
-      enableSSLExportClientVerification = String::equal(
-          configManager->getCurrentValue("enableSSLExportClientVerification"), "true");
+      enableHttpConnection = ConfigManager::parseBooleanValue(
+          configManager->getCurrentValue("enableHttpConnection"));
+      enableHttpsConnection = ConfigManager::parseBooleanValue(
+          configManager->getCurrentValue("enableHttpsConnection"));
+      enableSSLExportClientVerification = ConfigManager::parseBooleanValue(
+          configManager->getCurrentValue("enableSSLExportClientVerification"));
     }
 #else
-    Boolean enableHttpConnection = String::equal(
-        configManager->getCurrentValue("enableHttpConnection"), "true");
-    Boolean enableHttpsConnection = String::equal(
-        configManager->getCurrentValue("enableHttpsConnection"), "true");
-    Boolean enableSSLExportClientVerification = String::equal(
-        configManager->getCurrentValue("enableSSLExportClientVerification"), "true");
+    Boolean enableHttpConnection = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableHttpConnection"));
+    Boolean enableHttpsConnection = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableHttpsConnection"));
+    Boolean enableSSLExportClientVerification =
+        ConfigManager::parseBooleanValue(configManager->getCurrentValue(
+            "enableSSLExportClientVerification"));
 #endif
 
     // Make sure at least one connection is enabled
@@ -982,13 +983,11 @@ int CIMServerProcess::cimserver_run(
     try
     {
         //
-        // Check to see if we should Pegasus as a daemon
+        // Check to see if we should start Pegasus as a daemon
         //
 
-        if (String::equal(configManager->getCurrentValue("daemon"), "true"))
-        {
-            daemonOption = true;
-        }
+        daemonOption = ConfigManager::parseBooleanValue(
+            configManager->getCurrentValue("daemon"));
 
 #ifdef PEGASUS_OS_OS400
     if (os400StartupOption == false)

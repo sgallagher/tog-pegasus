@@ -118,12 +118,13 @@ IndicationService::IndicationService (
         // enableSubscriptionsForNonprivilegedUsers
         ConfigManager* configManager = ConfigManager::getInstance();
 
-        if (String::equalNoCase(
-            configManager->getCurrentValue("enableAuthentication"), "true"))
+        if (ConfigManager::parseBooleanValue(
+            configManager->getCurrentValue("enableAuthentication")))
         {
-            _enableSubscriptionsForNonprivilegedUsers = String::equalNoCase(
-                configManager->getCurrentValue(
-                "enableSubscriptionsForNonprivilegedUsers"), "true");
+            _enableSubscriptionsForNonprivilegedUsers =
+                ConfigManager::parseBooleanValue(
+                    configManager->getCurrentValue(
+                        "enableSubscriptionsForNonprivilegedUsers"));
         }
         else
         {

@@ -414,6 +414,14 @@ public:
     */
     static String getHomedPath(const String& value);
 
+    /**
+        Parses a boolean configuration property value.
+        @param propertyValue A String containing a boolean configuration
+            property value.
+        @return True if the specified configuration property value represents
+            a boolean value of "true", false otherwise.
+    */
+    static Boolean parseBooleanValue(const String& propertyValue);
 };
 
 PEGASUS_NAMESPACE_END

@@ -86,12 +86,6 @@ inline Boolean _isSupportedResponseType(const Message * message)
 ProviderManagerService* ProviderManagerService::providerManagerService=NULL;
 Uint32 ProviderManagerService::_indicationServiceQueueId = PEG_NOT_FOUND;
 
-ProviderManagerService::ProviderManagerService(void)
-    : MessageQueueService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)
-{
-    providerManagerService=this;
-}
-
 ProviderManagerService::ProviderManagerService(
         ProviderRegistrationManager * providerRegistrationManager,
         CIMRepository * repository,
@@ -110,12 +104,12 @@ ProviderManagerService::ProviderManagerService(
 
     // Determine which ProviderManagerRouter(s) to use
 
-    ConfigManager* configManager = ConfigManager::getInstance();
-    Boolean forceProviderProcesses = String::equal(
-        configManager->getCurrentValue("forceProviderProcesses"), "true");
+    _forceProviderProcesses = ConfigManager::parseBooleanValue(
+        ConfigManager::getInstance()->getCurrentValue(
+            "forceProviderProcesses"));
 
 #ifdef PEGASUS_DISABLE_PROV_USERCTXT
-    if (forceProviderProcesses)
+    if (_forceProviderProcesses)
     {
         _oopProviderManagerRouter = new OOPProviderManagerRouter(
             indicationCallback, responseChunkCallback,
@@ -132,7 +126,7 @@ ProviderManagerService::ProviderManagerService(
         indicationCallback, responseChunkCallback,
         providerModuleFailureCallback);
 
-    if (!forceProviderProcesses)
+    if (!_forceProviderProcesses)
     {
         _basicProviderManagerRouter = new BasicProviderManagerRouter(
             indicationCallback, responseChunkCallback,
@@ -710,11 +704,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
         // Forward the request to the appropriate ProviderManagerRouter, based
         // on the CIM Server configuration and the UserContext setting.
 
-        ConfigManager* configManager = ConfigManager::getInstance();
-        Boolean forceProviderProcesses = String::equal(
-            configManager->getCurrentValue("forceProviderProcesses"), "true");
-
-        if (forceProviderProcesses
+        if (_forceProviderProcesses
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
             || (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
             || (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED)

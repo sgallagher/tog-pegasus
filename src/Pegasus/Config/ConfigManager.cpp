@@ -845,5 +845,10 @@ String ConfigManager::getHomedPath(const String& value)
   return homedPath;
 }
 
+Boolean ConfigManager::parseBooleanValue(const String& propertyValue)
+{
+    return String::equalNoCase(propertyValue, "true");
+}
+
 PEGASUS_NAMESPACE_END
 

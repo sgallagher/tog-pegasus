@@ -595,8 +595,9 @@ CIMRepository::CIMRepository(const String& repositoryRoot, const CIMRepository_M
     }
 
     _context = new RepositoryDeclContext(this);
-    _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(
-        "repositoryIsDefaultInstanceProvider") == "true");
+    _isDefaultInstanceProvider = ConfigManager::parseBooleanValue(
+        ConfigManager::getInstance()->getCurrentValue(
+            "repositoryIsDefaultInstanceProvider"));
 
     PEG_METHOD_EXIT();
 }
@@ -608,8 +609,9 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
 
     if (binaryMode==-1) { // PEP 164
-       binaryMode = (ConfigManager::getInstance()->getCurrentValue(
-        "enableBinaryRepository") == "true");
+        binaryMode = ConfigManager::parseBooleanValue(
+            ConfigManager::getInstance()->getCurrentValue(
+                "enableBinaryRepository"));
     }
 
 
@@ -646,8 +648,9 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
     }
 
     _context = new RepositoryDeclContext(this);
-    _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(
-        "repositoryIsDefaultInstanceProvider") == "true");
+    _isDefaultInstanceProvider = ConfigManager::parseBooleanValue(
+        ConfigManager::getInstance()->getCurrentValue(
+            "repositoryIsDefaultInstanceProvider"));
 
     PEG_METHOD_EXIT();
 }

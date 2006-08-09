@@ -364,10 +364,8 @@ template<class PEGASUS_ARRAY_T>
 PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](
     Uint32 index)
 {
-#ifndef PEGASUS_ARRAY_NO_THROW
     if (index >= Array_size)
         ArrayThrowIndexOutOfBoundsException();
-#endif
 
     if (Array_refs.get() != 1)
 	_rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
@@ -381,10 +379,8 @@ template<class PEGASUS_ARRAY_T>
 const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](
     Uint32 index) const
 {
-#ifndef PEGASUS_ARRAY_NO_THROW
     if (index >= Array_size)
         ArrayThrowIndexOutOfBoundsException();
-#endif
 
     return Array_data[index];
 }

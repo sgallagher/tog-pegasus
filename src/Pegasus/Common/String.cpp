@@ -57,8 +57,6 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // Compile-time macros (undefined by default).
 //
-//     PEGASUS_STRING_NO_THROW -- suppresses throwing of exceptions
-//
 //     PEGASUS_STRING_NO_UTF8 -- don't generate slower UTF8 code.
 //
 //==============================================================================
@@ -164,12 +162,8 @@ inline Uint16 _toLower(Uint16 x)
 // Rounds x up to the nearest power of two (or just returns 8 if x < 8).
 static Uint32 _roundUpToPow2(Uint32 x)
 {
-#ifndef PEGASUS_STRING_NO_THROW
-
     // Check for potential overflow in x
     PEGASUS_CHECK_CAPACITY_OVERFLOW(x);
-
-#endif
 
     if (x < 8)
         return 8;
@@ -312,12 +306,8 @@ void StringThrowOutOfBounds()
 
 inline void _checkNullPointer(const void* ptr)
 {
-#ifndef PEGASUS_STRING_NO_THROW
-
     if (!ptr)
         throw NullPointer();
-
-#endif
 }
 
 static void _StringThrowBadUTF8(Uint32 index)
@@ -543,12 +533,8 @@ StringRep StringRep::_emptyRep;
 
 inline StringRep* StringRep::alloc(size_t cap)
 {
-#ifndef PEGASUS_STRING_NO_THROW
-    
     // Check for potential overflow in cap
     PEGASUS_CHECK_CAPACITY_OVERFLOW(cap);
-
-#endif
 
     StringRep* rep = (StringRep*)::operator new(
         sizeof(StringRep) + cap * sizeof(Uint16));
@@ -598,13 +584,11 @@ StringRep* StringRep::create(const char* data, size_t size)
     size_t utf8_error_index;
     rep->size = _convert((Uint16*)rep->data, data, size, utf8_error_index);
 
-#ifndef PEGASUS_STRING_NO_THROW
     if (rep->size == size_t(-1))
     {
         StringRep::free(rep);
         _StringThrowBadUTF8(utf8_error_index);
     }
-#endif
 
     rep->data[rep->size] = '\0';
 
@@ -689,14 +673,12 @@ String::String(const String& s1, const char* s2)
     size_t utf8_error_index;
     size_t tmp = _convert((Uint16*)_rep->data + n1, s2, n2, utf8_error_index);
 
-#ifndef PEGASUS_STRING_NO_THROW
     if (tmp == size_t(-1))
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
         _StringThrowBadUTF8(utf8_error_index);
     }
-#endif
 
     _rep->size = n1 + tmp;
     _rep->data[_rep->size] = '\0';
@@ -711,14 +693,12 @@ String::String(const char* s1, const String& s2)
     size_t utf8_error_index;
     size_t tmp = _convert((Uint16*)_rep->data, s1, n1, utf8_error_index);
 
-#ifndef PEGASUS_STRING_NO_THROW
     if (tmp ==  size_t(-1))
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
         _StringThrowBadUTF8(utf8_error_index);
     }
-#endif
 
     _rep->size = n2 + tmp;
     _copy(_rep->data + n1, s2._rep->data, n2);
@@ -766,14 +746,12 @@ String& String::assign(const char* str, Uint32 n)
     size_t utf8_error_index;
     _rep->size = _convert(_rep->data, str, n, utf8_error_index);
 
-#ifndef PEGASUS_STRING_NO_THROW
     if (_rep->size ==  size_t(-1))
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
         _StringThrowBadUTF8(utf8_error_index);
     }
-#endif
 
     _rep->data[_rep->size] = 0;
 
@@ -857,14 +835,12 @@ String& String::append(const char* str, Uint32 size)
     size_t tmp = _convert(
         (Uint16*)_rep->data + oldSize, str, size, utf8_error_index);
 
-#ifndef PEGASUS_STRING_NO_THROW
     if (tmp ==  size_t(-1))
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
         _StringThrowBadUTF8(utf8_error_index);
     }
-#endif
 
     _rep->size += tmp;
     _rep->data[_rep->size] = '\0';

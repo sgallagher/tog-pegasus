@@ -123,10 +123,8 @@ PEGASUS_COMMON_LINKAGE Uint32 StringFindAux(
 
 inline void _checkBounds(size_t index, size_t size)
 {
-#ifndef PEGASUS_STRING_NO_THROW
     if (index > size)
         StringThrowOutOfBounds();
-#endif
 }
 
 PEGASUS_NAMESPACE_END

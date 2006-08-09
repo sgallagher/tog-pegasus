@@ -33,7 +33,6 @@
 
 #include "DynamicLibrary.h"
 
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/System.h>

@@ -168,7 +168,7 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
     }
 }
 
- void StatisticalData::setCopyGSD(Boolean flag)
+void StatisticalData::setCopyGSD(Boolean flag)
 {
 
 	copyGSD = flag;

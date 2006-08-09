@@ -47,7 +47,7 @@
 # include <unicode/locid.h>
 #endif
 #if defined(PEGASUS_OS_OS400)
-# include "OS400ConvertChar.h"
+# include "EBCDIC_OS400.h"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

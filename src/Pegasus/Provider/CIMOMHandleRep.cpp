@@ -37,6 +37,7 @@
 
 #include <string.h>    // for memcpy()
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Time.h>
 
 #include "CIMOMHandleRep.h"
 
@@ -46,7 +47,7 @@ CIMOMHandleRep::CIMOMHandleRep()
     : _pendingOperations(0),
       _providerUnloadProtect(0)
 {
-    gettimeofday(&_idleTime, NULL);
+    Time::gettimeofday(&_idleTime);
 }
 
 CIMOMHandleRep::~CIMOMHandleRep()
@@ -112,7 +113,7 @@ void CIMOMHandleRep::get_idle_timer(struct timeval *tv)
     }
     catch (...)
     {
-        gettimeofday(tv, NULL);
+        Time::gettimeofday(tv);
     }
 }
 
@@ -121,7 +122,7 @@ void CIMOMHandleRep::update_idle_timer()
     try
     {
         AutoMutex lock(_idleTimeMutex);
-        gettimeofday(&_idleTime, NULL);
+        Time::gettimeofday(&_idleTime);
     }
     catch (...)
     {

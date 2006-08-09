@@ -42,7 +42,6 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/TraceComponents.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Server/Linkage.h>
@@ -66,7 +65,7 @@ class PEGASUS_SERVER_LINKAGE BinaryMessageHandler : public MessageQueueService
       virtual void handleEnqueue(Message * message);
       virtual void _handle_async_request(AsyncRequest * request);
    protected:
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handle_binary_message(void *);
+      static ThreadReturnType PEGASUS_THREAD_CDECL handle_binary_message(void *);
 
       // **** Request Messages **** //
       

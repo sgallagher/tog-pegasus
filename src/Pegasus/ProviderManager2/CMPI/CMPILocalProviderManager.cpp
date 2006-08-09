@@ -34,6 +34,7 @@
 #include "CMPI_Version.h"
 
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
@@ -58,8 +59,8 @@ extern int _cmpi_trace;
 Semaphore CMPILocalProviderManager::_pollingSem(0);
 AtomicInt CMPILocalProviderManager::_stopPolling(0);
 Thread *CMPILocalProviderManager::_reaperThread = 0;
-List<CMPILocalProviderManager::cleanupThreadRecord,RecursiveMutex> CMPILocalProviderManager::_finishedThreadList;
-Mutex CMPILocalProviderManager::_reaperMutex(0);
+List<CMPILocalProviderManager::cleanupThreadRecord,Mutex> CMPILocalProviderManager::_finishedThreadList;
+Mutex CMPILocalProviderManager::_reaperMutex;
 
   CMPILocalProviderManager::CMPILocalProviderManager (void):
 _idle_timeout (IDLE_LIMIT)
@@ -317,7 +318,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
             try
             {
               struct timeval now;
-              gettimeofday (&now, NULL);
+              Time::gettimeofday (&now);
               ProviderTable::Iterator i = myself->_providers.start ();
 
               for (; i != 0; i++)
@@ -440,7 +441,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
  * The reaper function polls out the threads from the global list (_finishedThreadList), 
  * joins them deletes them, and removes them from the CMPIProvider specific list.
  */
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(void *parm)
 {
   Thread *myself = reinterpret_cast<Thread *>(parm);
   do { 
@@ -464,7 +465,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(voi
 		}
     }
   while (_stopPolling.get() == 0);
-  myself->exit_self( (PEGASUS_THREAD_RETURN) 0);
+  myself->exit_self( (ThreadReturnType) 0);
   return (0);
 }
  /*
@@ -499,7 +500,7 @@ CMPILocalProviderManager::cleanupThread(Thread *t, CMPIProvider *p)
       while ( (rtn = _reaperThread->run()) != PEGASUS_THREAD_OK)
       {
 		if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-	 		pegasus_yield();
+	 		Threads::yield();
 		else
 	    {
 			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
@@ -690,14 +691,14 @@ CMPILocalProviderManager::unloadIdleProviders (void)
 
   if (first.tv_sec == 0)
     {
-      gettimeofday (&first, NULL);
+      Time::gettimeofday (&first);
     }
-  gettimeofday (&now, NULL);
+  Time::gettimeofday (&now);
 
   if (((now.tv_sec - first.tv_sec) > IDLE_LIMIT) &&
       ((now.tv_sec - last.tv_sec) > IDLE_LIMIT))
     {
-      gettimeofday (&last, NULL);
+      Time::gettimeofday (&last);
       PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                         "Checking for Idle providers to unload.");
       try

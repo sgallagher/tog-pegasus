@@ -36,7 +36,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h>
 
@@ -62,7 +61,7 @@ public:
     {
         try
         {
-            _lock.try_lock(pegasus_thread_self());
+            _lock.try_lock();
         }
         catch (AlreadyLocked &)
         {

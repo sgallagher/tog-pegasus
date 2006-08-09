@@ -256,7 +256,7 @@ private:
     class _module_lock
     {
     public:
-        _module_lock(List<RegisteredModuleHandle, RecursiveMutex> * list)
+        _module_lock(List<RegisteredModuleHandle, Mutex> * list)
            :_list(list)
         {
            _list->lock();
@@ -269,13 +269,13 @@ private:
 
     private:
         _module_lock();
-        List<RegisteredModuleHandle, RecursiveMutex> * _list;
+        List<RegisteredModuleHandle, Mutex> * _list;
     };
 
 
 
     static void _async_handleEnqueue(AsyncOpNode *h, MessageQueue *q, void *parm);
-    List<RegisteredModuleHandle, RecursiveMutex> _modules;
+    List<RegisteredModuleHandle, Mutex> _modules;
     AsyncReply *_send_wait(Uint32, AsyncRequest *);
     AsyncReply *_send_wait(Uint32, const String &, AsyncRequest *);
 

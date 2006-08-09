@@ -591,7 +591,7 @@ void CIMServer::stopClientConnection()
     // are updated before closing the connection sockets.
     //
     // PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4, "Wait 150 milliseconds.");
-    //  pegasus_sleep(150);  not needed anymore due to the semaphore
+    //  Threads::sleep(150);  not needed anymore due to the semaphore
     // in the monitor
 
     for (Uint32 i=0; i<_acceptors.size(); i++)

@@ -50,9 +50,9 @@
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
 # include "AnonymousPipeWindows.cpp"
 #elif defined (PEGASUS_OS_TYPE_UNIX)
-# include "AnonymousPipeUnix.cpp"
+# include "AnonymousPipePOSIX.cpp"
 #elif defined (PEGASUS_OS_VMS)
-# include "AnonymousPipeVms.cpp"
+# include "AnonymousPipePOSIX.cpp"
 #else
 # error "Unsupported platform"
 #endif

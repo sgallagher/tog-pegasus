@@ -394,8 +394,8 @@ void MessageQueueClient::sendTestRequestMessage(
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm);
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm);
+ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm);
+ThreadReturnType PEGASUS_THREAD_CDECL server_func(void *parm);
 
 int main(int argc, char **argv)
 {
@@ -416,7 +416,7 @@ int main(int argc, char **argv)
 
         while (msg_count.get() < 1500)
         {
-            pegasus_sleep(10);
+            Threads::sleep(10);
         }
 
         a_third.join();
@@ -446,25 +446,25 @@ int main(int argc, char **argv)
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 {
     Thread* my_handle = reinterpret_cast<Thread *>(parm);
     AtomicInt& count = *(reinterpret_cast<AtomicInt *>(my_handle->get_parm()));
 
     char name_buf[128];
 
-    sprintf(name_buf, "test client %ld", pegasus_thread_self());
+    sprintf(name_buf, "test client %ld", Threads::id());
 
     MessageQueueClient *q_client = new MessageQueueClient(name_buf);
 
     client_count++;
     while (client_count.get() < 3)
-        pegasus_yield();
+        Threads::yield();
 
     while (services.size() == 0)
     {
         q_client->find_services(String("test server"), 0, 0, &services);
-        pegasus_yield();
+        Threads::yield();
     }
 
     if (verbose)
@@ -568,12 +568,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
         cout << " exiting " << endl;
     }
 
-    my_handle->exit_self((PEGASUS_THREAD_RETURN) 1);
+    my_handle->exit_self((ThreadReturnType) 1);
     return(0);
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL server_func(void *parm)
 {
     Thread *my_handle = reinterpret_cast<Thread *>(parm);
 
@@ -581,7 +581,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
 
     while (q_server->dienow.get()  < 3)
     {
-        pegasus_yield();
+        Threads::yield();
     }
 
     if (verbose)
@@ -611,6 +611,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
         cout << "exiting server " << endl;
     }
 
-    my_handle->exit_self((PEGASUS_THREAD_RETURN) 1);
+    my_handle->exit_self((ThreadReturnType) 1);
     return(0);
 }

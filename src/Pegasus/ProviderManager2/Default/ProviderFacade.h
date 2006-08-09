@@ -42,7 +42,6 @@
 #define Pegasus_ProviderFacade_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Provider/CIMInstanceQueryProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>

@@ -200,7 +200,7 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
                      (void *)this, ProviderManagerService::handleCimOperation)) != PEGASUS_THREAD_OK)
         {
             if (rtn==PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-                pegasus_yield();
+                Threads::yield();
             else
             {
                 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
@@ -226,7 +226,7 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 
 // Note: This method should not throw an exception.  It is used as a thread
 // entry point, and any exceptions thrown are ignored.
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+ThreadReturnType PEGASUS_THREAD_CDECL
 ProviderManagerService::handleCimOperation(void* arg)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -248,7 +248,7 @@ ProviderManagerService::handleCimOperation(void* arg)
                     "op node in queue");
 
             PEG_METHOD_EXIT();
-            return(PEGASUS_THREAD_RETURN(1));
+            return(ThreadReturnType(1));
         }
 
         AsyncOpNode* op = service->_incomingQueue.remove_front();
@@ -263,7 +263,7 @@ ProviderManagerService::handleCimOperation(void* arg)
         {
             // reply with NAK
             PEG_METHOD_EXIT();
-            return(PEGASUS_THREAD_RETURN(0));
+            return(ThreadReturnType(0));
         }
 
         Message* legacy =
@@ -306,7 +306,7 @@ ProviderManagerService::handleCimOperation(void* arg)
 
     PEG_METHOD_EXIT();
 
-    return(PEGASUS_THREAD_RETURN(0));
+    return(ThreadReturnType(0));
 }
 
 void ProviderManagerService::handleCimRequest(
@@ -755,7 +755,7 @@ void ProviderManagerService::unloadIdleProviders()
     PEG_METHOD_EXIT();
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+ThreadReturnType PEGASUS_THREAD_CDECL
 ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
 {
     try
@@ -806,7 +806,7 @@ ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
             "Unexpected exception in _unloadIdleProvidersHandler");
     }
 
-    return(PEGASUS_THREAD_RETURN(0));
+    return(ThreadReturnType(0));
 }
 
 // Updates the providerModule instance and the ProviderRegistrationManager
@@ -934,11 +934,11 @@ static Boolean indicationThresholdReported = false;
 
         while (((MessageQueueService *)indicationsQueue)->getIncomingCount() > INDICATIONS_Q_RESUME_THRESHOLD)
         {
-            pegasus_sleep(INDICATIONS_Q_STALL_DURATION);
+            Threads::sleep(INDICATIONS_Q_STALL_DURATION);
         }
 
         AutoMutex indicationThresholdReportedAutoMutex1(indicationThresholdReportedLock);
-        //        indicationThresholdReportedLock.lock(pegasus_thread_self());
+        //        indicationThresholdReportedLock.lock();
         if(indicationThresholdReported)
         {
             indicationThresholdReported = false;

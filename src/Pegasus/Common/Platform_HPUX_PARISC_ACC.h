@@ -58,4 +58,8 @@
 typedef int streamsize;
 #endif
 
+#define PEGASUS_HAVE_PTHREADS
+
+#define PEGASUS_HAVE_NANOSLEEP
+
 #endif /* Pegasus_Platform_HPUX_PARISC_ACC_h */

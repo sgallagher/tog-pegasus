@@ -43,6 +43,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <Pegasus/Common/Signal.h>
+#include <Pegasus/Common/AutoPtr.h>
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <sys/ps.h>
 #endif

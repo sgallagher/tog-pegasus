@@ -135,7 +135,7 @@ static void _testEnd(
     }
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeEI(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
@@ -194,11 +194,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeEI(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((PEGASUS_THREAD_RETURN)uniqueID);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeNI(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
@@ -257,11 +257,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeNI(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((PEGASUS_THREAD_RETURN)uniqueID);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeA(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
@@ -320,11 +320,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeA(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((PEGASUS_THREAD_RETURN)uniqueID);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeAN(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
@@ -383,11 +383,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeAN(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((PEGASUS_THREAD_RETURN)uniqueID);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeR(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
@@ -446,11 +446,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeR(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((PEGASUS_THREAD_RETURN)uniqueID);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeRN(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
@@ -509,13 +509,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeRN(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((PEGASUS_THREAD_RETURN)uniqueID);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 
 Thread * _runTestThreads(
     CIMClient* client,
-    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_executeFn)(void *),
+    ThreadReturnType (PEGASUS_THREAD_CDECL *_executeFn)(void *),
     const Uint32 duration,
     Uint32 uniqueID)
 {
@@ -526,7 +526,7 @@ Thread * _runTestThreads(
     parms->uniqueID = uniqueID;
     AutoPtr<Thread> t(new Thread(_executeFn, (void*)parms.release(), false));
     // zzzzz... (1 second) zzzzz...
-    pegasus_sleep(1000);
+    Threads::sleep(1000);
     t->run();
     return t.release();
 }

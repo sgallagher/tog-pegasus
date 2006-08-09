@@ -59,9 +59,9 @@ typedef void SSL_Context;
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/ReadWriteSem.h>
 
 // REVIEW: Figure out how this works (note to myself)?
 

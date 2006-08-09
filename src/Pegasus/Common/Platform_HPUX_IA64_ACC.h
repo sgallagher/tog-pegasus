@@ -60,4 +60,8 @@
 
 #define PEGASUS_DISABLE_INTERNAL_INLINES
 
+#define PEGASUS_HAVE_PTHREADS
+
+#define PEGASUS_HAVE_NANOSLEEP
+
 #endif /* Pegasus_Platform_HPUX_IA64_ACC_h */

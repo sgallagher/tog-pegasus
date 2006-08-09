@@ -52,7 +52,6 @@
 #include <iostream>
 #include <cstring>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/TimeValue.h>
@@ -137,7 +136,7 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 	 _mask(mask),
          _httpMethod (HTTP_METHOD__POST),
          _close_connect(false),
-	_last_thread_id(pegasus_thread_self()),
+	_last_thread_id(Threads::self()),
 	 _next(0),
 	 _prev(0),
 	 _async(0),
@@ -263,9 +262,9 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       // << Tue Jul  1 11:02:49 2003 mdd >> pep_88 and helper for i18n and l10n
       Boolean thread_changed(void)
       {
-	 if(_last_thread_id != pegasus_thread_self())
+	 if (!Threads::equal(_last_thread_id, Threads::self()))
 	 {
-	    _last_thread_id = pegasus_thread_self();
+	    _last_thread_id = Threads::self();
 	    return true;
 	 }
 
@@ -308,7 +307,7 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 //
 
       // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
-      PEGASUS_THREAD_TYPE _last_thread_id;
+      ThreadType _last_thread_id;
       
       Message* _next;
       Message* _prev;

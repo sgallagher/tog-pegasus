@@ -200,8 +200,8 @@ test_async_queue::_handle_stop (CimServiceStop * stop)
   }
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func (void *parm);
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func (void *parm);
+ThreadReturnType PEGASUS_THREAD_CDECL client_func (void *parm);
+ThreadReturnType PEGASUS_THREAD_CDECL server_func (void *parm);
 
 int
 main (int argc, char **argv)
@@ -239,7 +239,7 @@ main (int argc, char **argv)
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+ThreadReturnType PEGASUS_THREAD_CDECL
 client_func (void *parm)
 {
     Thread *myself = reinterpret_cast < Thread * >(parm);
@@ -253,7 +253,7 @@ client_func (void *parm)
         client->find_services (String ("server"), 0, 0, &services);
         // It is a good idea to yield to other threads. You should do this,
         // but this test-case stresses situations in which does not happen.
-        //pegasus_yield ();
+        //Threads::yield ();
     }
 
     if (verbose)
@@ -298,7 +298,7 @@ client_func (void *parm)
         // You really ought to allow other threads to their job (like picking
         // up all of these messages, but we want to stress test unfair
         // circumstances. 
-        //pegasus_yield ();
+        //Threads::yield ();
     }
 
     if (verbose)
@@ -315,7 +315,7 @@ client_func (void *parm)
                     << "% complete" << endl;
             }
         }
-        pegasus_yield();
+        Threads::yield();
     }
 
     if (verbose)
@@ -349,7 +349,7 @@ client_func (void *parm)
             continue;
         }
         requestCount++;
-        //pegasus_yield ();
+        //Threads::yield ();
     }
 
     if (verbose)
@@ -366,7 +366,7 @@ client_func (void *parm)
                     << "% complete" << endl;
             }
         }
-        pegasus_yield();
+        Threads::yield();
     }
 
     if (verbose)
@@ -394,7 +394,7 @@ client_func (void *parm)
     while (services.size () > 0)
     {
         client->find_services (String ("server"), 0, 0, &services);
-        pegasus_yield ();
+        Threads::yield ();
     }
 
     if (verbose)
@@ -406,12 +406,12 @@ client_func (void *parm)
     client->_shutdown_incoming_queue();
 
     delete client;
-    myself->exit_self((PEGASUS_THREAD_RETURN) 1);
+    myself->exit_self((ThreadReturnType) 1);
     return (0);
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+ThreadReturnType PEGASUS_THREAD_CDECL
 server_func (void *parm)
 {
   Thread *myself = reinterpret_cast < Thread * >(parm);
@@ -420,7 +420,7 @@ server_func (void *parm)
 
   while (server->_die_now.get () < 1)
     {
-      pegasus_yield ();
+      Threads::yield ();
     }
   if (verbose)
     cout << "server shutting down" << endl;
@@ -431,6 +431,6 @@ server_func (void *parm)
 
   delete server;
 
-  myself->exit_self ((PEGASUS_THREAD_RETURN) 1);
+  myself->exit_self ((ThreadReturnType) 1);
   return (0);
 }

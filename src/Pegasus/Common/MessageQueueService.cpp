@@ -78,17 +78,17 @@ ThreadPool *MessageQueueService::get_thread_pool()
 
 Uint32 max_threads_per_svc_queue;
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+ThreadReturnType PEGASUS_THREAD_CDECL
 MessageQueueService::kill_idle_threads(void *parm)
 {
 
    static struct timeval now, last = {0,0};
-   gettimeofday(&now, NULL);
+   Time::gettimeofday(&now);
    int dead_threads = 0;
 
    if (now.tv_sec - last.tv_sec > 120)
    {
-      gettimeofday(&last, NULL);
+      Time::gettimeofday(&last);
       try
       {
          dead_threads = MessageQueueService::_thread_pool->cleanupIdleThreads();
@@ -100,19 +100,19 @@ MessageQueueService::kill_idle_threads(void *parm)
    }
 
 #ifdef PEGASUS_POINTER_64BIT
-   return (PEGASUS_THREAD_RETURN)(Uint64)dead_threads;
+   return (ThreadReturnType)(Uint64)dead_threads;
 #elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
-   return (PEGASUS_THREAD_RETURN)(unsigned long)dead_threads;
+   return (ThreadReturnType)(unsigned long)dead_threads;
 #else
-   return (PEGASUS_THREAD_RETURN)(Uint32)dead_threads;
+   return (ThreadReturnType)(Uint32)dead_threads;
 #endif
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(void *parm)
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);
-   List<MessageQueueService, RecursiveMutex> *list = 
-       reinterpret_cast<List<MessageQueueService, RecursiveMutex>*>(myself->get_parm());
+   List<MessageQueueService, Mutex> *list = 
+       reinterpret_cast<List<MessageQueueService, Mutex>*>(myself->get_parm());
 
    while (_stop_polling.get()  == 0)
    {
@@ -177,7 +177,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
                     service->_incoming.count(),
                     service->_threads.get());
 
-                 pegasus_yield();
+                 Threads::yield();
                  service = NULL;
               } 
           }
@@ -208,7 +208,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
          
       }
    }
-   myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+   myself->exit_self( (ThreadReturnType) 1 );
    return(0);
 }
 
@@ -227,7 +227,7 @@ MessageQueueService::MessageQueueService(
      _mask(mask),
      _die(0),
      _threads(0),
-     _incoming(0),
+     _incoming(),
      _incoming_queue_shutdown(0)
 {
 
@@ -315,7 +315,7 @@ MessageQueueService::~MessageQueueService()
 
    while (_threads.get() > 0)
    {
-      pegasus_yield();
+      Threads::yield();
    }
 
    {
@@ -402,7 +402,7 @@ void MessageQueueService::enqueue(Message *msg)
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
+ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
     void * parm)
 {
     MessageQueueService* service =
@@ -710,7 +710,7 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
       while ( (tr =_polling_thread->run()) != PEGASUS_THREAD_OK)
       {
         if (tr == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-           pegasus_yield();
+           Threads::yield();
         else
            throw Exception(MessageLoaderParms("Common.MessageQueueService.NOT_ENOUGH_THREAD",
                         "Could not allocate thread for the polling thread."));
@@ -805,7 +805,7 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
          } // message processing loop
 
          // shutdown the AsyncQueue
-         service->_incoming.shutdown_queue();
+         service->_incoming.close();
          return;
       }
 

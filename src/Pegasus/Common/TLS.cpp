@@ -48,7 +48,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SSLContextRep.h>
 #include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/FileSystem.h>
 

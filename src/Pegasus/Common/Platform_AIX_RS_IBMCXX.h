@@ -66,4 +66,8 @@
 
 #define AIX_RELEASE_PEGASUS_HOME "/opt/freeware/cimom/pegasus/etc"
 
+#define PEGASUS_HAVE_PTHREADS
+
+#define PEGASUS_HAVE_NANOSLEEP
+
 #endif /* Pegasus_Platform_AIX_RS_IBMCXX_h */

@@ -42,7 +42,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMInstance.h>

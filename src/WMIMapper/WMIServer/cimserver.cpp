@@ -351,9 +351,9 @@ void deleteCIMServer()
 // needed to localize the exceptions thrown during CIM request processing.
 // Note: This function should never be called! 
 // 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
 {
-   return((PEGASUS_THREAD_RETURN)0);    
+   return((ThreadReturnType)0);    
 }
 
 void shutdownCIMOM(Uint32 timeoutValue)

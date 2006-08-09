@@ -41,11 +41,10 @@
 #include <cctype>
 #include <Pegasus/Common/Network.h>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Linkage.h>
 
 #ifdef PEGASUS_OS_OS400
-#   include <Pegasus/Common/OS400ConvertChar.h>
+#   include <Pegasus/Common/EBCDIC_OS400.h>
 #endif
 
 #ifdef PEGASUS_OS_ZOS

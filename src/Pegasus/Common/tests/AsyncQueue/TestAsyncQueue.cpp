@@ -59,7 +59,7 @@ struct Message : public Linkable
 
 typedef AsyncQueue<Message> Queue;
 
-static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _reader(void* self_)
+static ThreadReturnType PEGASUS_THREAD_CDECL _reader(void* self_)
 {
     Thread* self = (Thread*)self_;
     Queue* queue = (Queue*)self->get_parm();
@@ -68,44 +68,45 @@ static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _reader(void* self_)
     {
 	Message* message = queue->dequeue_wait();
 	PEGASUS_TEST_ASSERT(message);
-    if (verbose)
-    {
-        if (((i + 1) % 1000) == 0)
-            printf("iterations: %05u\n", message->x);
-        }
+
+	if (verbose)
+	{
+	    if (((i + 1) % 1000) == 0)
+		printf("iterations: %05u\n", message->x);
+	}
 // special dish of the day for Sun Solaris
 // reports say that running as root causes
 // the thread not being scheduled-out
 // until this is resolved the yield()
 // will stay here just for Solaris
 #ifdef PEGASUS_OS_SOLARIS
-	    pegasus_yield();
+	Threads::yield();
 #endif
     }
 
-    self->exit_self((PEGASUS_THREAD_RETURN)1);
+    self->exit_self((ThreadReturnType)1);
     return(0);
 }
 
-static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _writer(void* self_)
+static ThreadReturnType PEGASUS_THREAD_CDECL _writer(void* self_)
 {
     Thread* self = (Thread*)self_;
     Queue* queue = (Queue*)self->get_parm();
 
     for (Uint32 i = 0; i < ITERATIONS; i++)
     {
-        queue->enqueue(new Message(i));
+        queue->enqueue_wait(new Message(i));
 // special dish of the day for Sun Solaris
 // reports say that running as root causes
 // the thread not being scheduled-out
 // until this is resolved the yield()
 // will stay here just for Solaris
 #ifdef PEGASUS_OS_SOLARIS
-        pegasus_yield();
+        Threads::yield();
 #endif
     }
 
-    self->exit_self((PEGASUS_THREAD_RETURN)1);
+    self->exit_self((ThreadReturnType)1);
     return(0);
 }
 

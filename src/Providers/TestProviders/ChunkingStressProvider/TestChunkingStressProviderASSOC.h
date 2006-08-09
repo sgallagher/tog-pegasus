@@ -39,7 +39,7 @@
 #define Pegasus_TestChunkingStressProviderASSOC_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN

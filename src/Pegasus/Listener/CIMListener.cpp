@@ -119,7 +119,7 @@ public:
     */
     Uint32 getPortNumber() const;
 
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL 
+    static ThreadReturnType PEGASUS_THREAD_CDECL 
     _listener_routine(void *param);
 
 private:
@@ -305,7 +305,7 @@ Uint32 CIMListenerService::getPortNumber() const
     return (portNumber);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL 
+ThreadReturnType PEGASUS_THREAD_CDECL 
 CIMListenerService::_listener_routine(void *param)
 {
     CIMListenerService *svc = reinterpret_cast < CIMListenerService * >(param);
@@ -333,7 +333,7 @@ CIMListenerService::_listener_routine(void *param)
     // _dieNow to true and called Monitor::tickle(). We must wait until we
     // can obtain the _monitorMutex, indicating that we are no longer inside
     // Monitor::tickle().
-    svc->_monitorMutex.lock(pegasus_thread_self());
+    svc->_monitorMutex.lock();
     svc->_monitorMutex.unlock();
     delete svc;
 
@@ -555,7 +555,7 @@ Boolean CIMListenerRep::waitForPendingRequests(Uint32 shutdownTimeout)
     {
         reqCount = _svc->getOutstandingRequestCount();
         if (reqCount > 0)
-            pegasus_sleep(100);
+            Threads::sleep(100);
         else
             return true;
     }

@@ -63,4 +63,6 @@
 
 #define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
 
+#define PEGASUS_HAVE_PTHREADS
+
 #endif /* Pegasus_Platform_DARWIN_PPC_GNU_h */

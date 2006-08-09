@@ -31,7 +31,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include "DynamicLibrary.h"
 

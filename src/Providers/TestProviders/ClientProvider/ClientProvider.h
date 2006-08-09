@@ -41,7 +41,7 @@
 #define Pegasus_ClientProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 

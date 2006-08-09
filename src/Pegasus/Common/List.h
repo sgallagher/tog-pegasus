@@ -146,7 +146,7 @@ private:
 
         - NullLock - no locking at all.
         - Mutex - non-recursive mutex.
-        - RecursiveMutex - recursive mutex.
+        - Mutex - recursive mutex.
 
     Now we consider an example. So you want to create a list of Person 
     elements. First you must derive from the Linkable class as shown below.
@@ -168,14 +168,14 @@ private:
 	\code
 	List<Person, NullLink>; // Do no synchronization.
 	List<Person, Mutex>; // Use Mutex class to synchronize.
-	List<Person, RecursiveMutex>; // Use RecursiveMutex class to synchronize.
+	List<Person, Mutex>; // Use Mutex class to synchronize.
 	\endcode
 
     Finally, use the list. The following example adds three Person objects
     to the back of the list and removes one from the front.
 
 	\code
-	typedef List<Person, RecursiveMutex> PersonList;
+	typedef List<Person, Mutex> PersonList;
 	PersonList list;
 
 	list.insert_back(new Person("John"));

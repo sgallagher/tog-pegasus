@@ -139,4 +139,6 @@ namespace std
 }
 #endif /* _MSC_VER < 1300 */
 
+#define PEGASUS_HAVE_WINDOWS_THREADS
+
 #endif /* Pegasus_Platform_WIN32_IX86_MSVC_h */

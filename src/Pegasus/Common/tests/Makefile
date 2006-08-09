@@ -53,7 +53,6 @@ DIRS = \
     Flavor \
     Formatter \
     HashTable \
-    IPC \
     InstanceDecl \
     IndicationFormatter \
     L10N \

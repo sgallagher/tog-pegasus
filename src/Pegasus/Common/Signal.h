@@ -40,7 +40,7 @@
 #define Pegasus_Signal_h
 
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Mutex.h>
 
 // // Ensure Unix 98
 // #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU

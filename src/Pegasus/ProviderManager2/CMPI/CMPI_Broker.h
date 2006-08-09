@@ -44,7 +44,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/ReadWriteSem.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

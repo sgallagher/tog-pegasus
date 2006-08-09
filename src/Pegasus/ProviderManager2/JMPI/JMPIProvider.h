@@ -42,7 +42,6 @@
 
 #include "JMPIImpl.h"
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>

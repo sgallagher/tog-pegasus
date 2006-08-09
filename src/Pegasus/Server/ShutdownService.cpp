@@ -52,7 +52,6 @@
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Tracer.h>
 #if defined(PEGASUS_OS_TYPE_UNIX)
 #include <sys/types.h>
@@ -453,7 +452,7 @@ Boolean ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
     while (requestCount > (requestPending ? 1 : 0) &&
            maxWaitTime > 0)
     {
-         pegasus_sleep(waitInterval * 1000);
+         Threads::sleep(waitInterval * 1000);
          maxWaitTime -= waitInterval;
          requestCount = _cimserver->getOutstandingRequestCount();
     } 

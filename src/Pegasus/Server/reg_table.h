@@ -40,7 +40,6 @@
 #define Pegasus_reg_table_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/ArrayInter.h>
 #include <Pegasus/Common/HashTable.h>

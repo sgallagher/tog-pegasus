@@ -41,6 +41,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/FileSystem.h>

@@ -42,7 +42,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/IPC.h>             // used for pegasus_sleep
+#include <Pegasus/Common/Threads.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Clients/CLITestClients/CLIClientLib/CLIClientLib.h>
 #include <Pegasus/Common/Tracer.h>
@@ -452,7 +452,7 @@ int main(int argc, char** argv)
     if (opts.delay != 0)
     {
         // This was a test because of some delay caused problems.
-        pegasus_sleep(opts.delay * 1000);
+        Threads::sleep(opts.delay * 1000);
     }
 
     // If the timeout is not zero, set the timeout for this connection.
@@ -801,7 +801,7 @@ int main(int argc, char** argv)
     }
     if (opts.delay != 0)
     {
-        pegasus_sleep(opts.delay * 1000);
+        Threads::sleep(opts.delay * 1000);
     }
     return(opts.termCondition);
 }

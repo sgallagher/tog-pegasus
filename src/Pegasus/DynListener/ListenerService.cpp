@@ -37,7 +37,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/IPC.h>
 
 #include "ListenerService.h"
 
@@ -180,7 +179,7 @@ Boolean ListenerService::runListener()
     while ( (rtn = _listening_thread->run()) != PEGASUS_THREAD_OK)
     {
 	if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-        	pegasus_yield();
+        	Threads::yield();
 	else {
 		// We need to set _running to true so that we can shutdown the 
 		// rest of the classes
@@ -202,7 +201,7 @@ Boolean ListenerService::runListener()
         while ( (rtn=_polling_thread->run()) != PEGASUS_THREAD_OK)
         {
 	   if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-            pegasus_yield();
+            Threads::yield();
 	   else
 	   {
 		/* We should delete them the objects, but there is a question
@@ -222,7 +221,7 @@ Boolean ListenerService::runListener()
     return true;
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_listener_routine(void *param)
+ThreadReturnType PEGASUS_THREAD_CDECL ListenerService::_listener_routine(void *param)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ListenerService::_listener_routine");
 
@@ -266,7 +265,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_listener_routine(vo
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_polling_routine(void *param)
+ThreadReturnType PEGASUS_THREAD_CDECL ListenerService::_polling_routine(void *param)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ListenerService::_polling_routine");
 
@@ -326,7 +325,7 @@ Boolean ListenerService::shutdownListener()
 
         if (reqCount > 0)
         {
-            pegasus_sleep(1000);
+            Threads::sleep(1000);
         } else
         {
             break;

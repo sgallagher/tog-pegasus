@@ -59,11 +59,11 @@
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/SSLContextManager.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
@@ -662,7 +662,7 @@ void CIMServer::stopClientConnection()
     // are updated before closing the connection sockets.
     //
     // PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4, "Wait 150 milliseconds.");
-    //  pegasus_sleep(150);  not needed anymore due to the semaphore
+    //  Threads::sleep(150);  not needed anymore due to the semaphore
     // in the monitor
 
     for (Uint32 i=0; i<_acceptors.size(); i++)
@@ -1015,7 +1015,7 @@ SSLContext* CIMServer::_getSSLContext(Uint32 contextType)
 }
 
 #ifdef PEGASUS_ENABLE_SLP
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void *parm);
+ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void *parm);
 
 
 // This is a control function that starts a new thread which issues a
@@ -1065,7 +1065,7 @@ void CIMServer::startSLPProvider()
 // This function is assumed to operate in a separate thread and 
 // KS 15 February 2004.
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void* parm )
+ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm )
 {
     //
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::_callSLPProvider()");
@@ -1129,7 +1129,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void* parm )
         "SLP Registration Initiated");
 
     PEG_METHOD_EXIT();
-    return( (PEGASUS_THREAD_RETURN)32 );
+    return( (ThreadReturnType)32 );
 }
 #endif
 

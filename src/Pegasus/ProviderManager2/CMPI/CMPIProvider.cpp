@@ -230,7 +230,7 @@ void CMPIProvider::initialize(CIMOMHandle & cimom)
 			compoundName=_location+":"+providername;
       try {
 	 // yield before a potentially lengthy operation.
-        pegasus_yield();
+        Threads::yield();
 	 CMPIProvider::initialize(cimom,miVector,compoundName,broker);
 	      if (miVector.miTypes & CMPI_MIType_Method) {
 	        if (miVector.methMI->ft->miName==NULL) noUnload=true;
@@ -259,7 +259,7 @@ Boolean CMPIProvider::tryTerminate(void)
    Status savedStatus=_status;
 
       // yield before a potentially lengthy operation.
-      pegasus_yield();
+      Threads::yield();
       try
       {
 	if (noUnload==false) {
@@ -413,7 +413,7 @@ void CMPIProvider::terminate()
   if(_status == INITIALIZED)
   {
 	  // yield before a potentially lengthy operation.
-	  pegasus_yield();
+	  Threads::yield();
 	  try 
     {
 	
@@ -445,7 +445,7 @@ CMPIProvider::waitUntilThreadsDone()
 {
 	while (_cleanedThreads.size() > 0)
 	{
-		pegasus_yield();
+		Threads::yield();
 	}
 }
 /*

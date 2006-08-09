@@ -44,7 +44,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/System.h>
 
 PEGASUS_USING_STD;
@@ -167,16 +166,16 @@ void Tracer::_trace(
                message,
 #if defined(PEGASUS_OS_VMS)
                //
-               // pegasus_thread_self returns long-long-unsigned.
+               // Threads::self returns long-long-unsigned.
                //
                "[%d:%llu:%s:%u]: ",
 //               "[%x:%llx:%s:%u]: ",
                System::getPID(),
-               pegasus_thread_self(),
+               Threads::self(),
 #else
                "[%d:%u:%s:%u]: ",
                System::getPID(),
-               Uint32(pegasus_thread_self()),
+               Uint32(Threads::id()),
 #endif
                fileName,
                lineNum);
@@ -344,13 +343,13 @@ void Tracer::_traceEnter(
 
 #if defined(PEGASUS_OS_VMS)
         //
-        // pegasus_thread_self returns long-long-unsigned.
+        // Threads::self returns long-long-unsigned.
         //
         sprintf(
            message,
            "[%d:%llu:%s:%u]: ",
            System::getPID(),
-           pegasus_thread_self(),
+           Threads::self(),
            fileName,
            lineNum);
 #else
@@ -358,7 +357,7 @@ void Tracer::_traceEnter(
            message,
            "[%d:%u:%s:%u]: ",
            System::getPID(),
-           Uint32(pegasus_thread_self()),
+	   Uint32(Threads::id()),
            fileName,
            lineNum);
 #endif
@@ -395,13 +394,13 @@ void Tracer::_traceExit(
 
 #if defined(PEGASUS_OS_VMS)
         //
-        // pegasus_thread_self returns long-long-unsigned.
+        // Threads::self returns long-long-unsigned.
         //
         sprintf(
            message,
            "[%d:%llu:%s:%u]: ",
            System::getPID(),
-           pegasus_thread_self(),
+           Threads::self(),
            fileName,
            lineNum);
 #else
@@ -409,7 +408,7 @@ void Tracer::_traceExit(
            message,
            "[%d:%u:%s:%u]: ",
            System::getPID(),
-           Uint32(pegasus_thread_self()),
+	   Uint32(Threads::id()),
            fileName,
            lineNum);
 #endif
@@ -485,13 +484,13 @@ void Tracer::_trace(
         tmpBuffer = new char[_STRLEN_MAX_PID_TID + 6];
 #if defined(PEGASUS_OS_VMS)
         //
-        // pegasus_thread_self returns long-long-unsigned.
+        // Threads::self returns long-long-unsigned.
         //
         sprintf(tmpBuffer, "[%u:%llu]: ", System::getPID(),
-                pegasus_thread_self());
+                Threads::self());
 #else
         sprintf(tmpBuffer, "[%u:%u]: ", System::getPID(),
-                Uint32(pegasus_thread_self()));
+	        Uint32(Threads::id()));
 #endif
         msgHeader = new char [ strlen(timeStamp) + strlen(TRACE_COMPONENT_LIST[traceComponent]) +
                                strlen(tmpBuffer) + 1  + 5 ];

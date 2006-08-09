@@ -40,7 +40,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/AsyncQueue.h>
 #include <Pegasus/Common/MessageQueueService.h>

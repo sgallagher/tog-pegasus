@@ -35,7 +35,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMName.h>

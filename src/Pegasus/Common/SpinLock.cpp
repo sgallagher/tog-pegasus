@@ -51,7 +51,7 @@
 #ifdef PEGASUS_SPINLOCK_USE_PTHREADS
 # include <pthread.h>
 #else
-# include "IPC.h"
+# include "Mutex.h"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -74,7 +74,7 @@ void SpinLockCreatePool()
 #ifdef PEGASUS_SPINLOCK_USE_PTHREADS
     pthread_mutex_lock(&_spinLockInitMutex);
 #else
-    _spinLockInitMutex.lock(pegasus_thread_self());
+    _spinLockInitMutex.lock();
 #endif
 
     if (spinLockPoolInitialized == 0)

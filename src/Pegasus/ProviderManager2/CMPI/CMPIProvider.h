@@ -45,10 +45,9 @@
 #include "CMPI_Broker.h"
 #include "CMPI_Version.h"
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/List.h>
-#include <Pegasus/Common/RecursiveMutex.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
@@ -342,8 +341,8 @@ private:
 	/*
  		List of threads which are monitored and cleaned.
  	*/
-    List<Thread,RecursiveMutex> _threadWatchList;
-    List<Thread,RecursiveMutex> _cleanedThreads;
+    List<Thread,Mutex> _threadWatchList;
+    List<Thread,Mutex> _cleanedThreads;
 
 
     /**

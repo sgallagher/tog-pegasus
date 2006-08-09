@@ -1029,7 +1029,7 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
     {
         namespaceAccessProtocol = 2;
         namespaceType = "http";
-        Uint32 portNumberHttp;
+        Uint32 portNumberHttp = 0;
         String httpPort = configManager->getCurrentValue("httpPort");
         if (httpPort == String::EMPTY)
         {

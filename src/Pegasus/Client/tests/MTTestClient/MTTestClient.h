@@ -62,7 +62,7 @@ public:
 
     // test_client is the test method executed by each thread. It needs access
     // to private members of MTTestClient.
-    friend PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_client(void *parm);
+    friend ThreadReturnType PEGASUS_THREAD_CDECL test_client(void *parm);
 
     enum { DEFAULT_TIMEOUT_MILLISECONDS = 200000 };
 

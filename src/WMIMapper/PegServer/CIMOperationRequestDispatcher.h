@@ -48,7 +48,6 @@
 #define PegasusDispatcher_Dispatcher_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>

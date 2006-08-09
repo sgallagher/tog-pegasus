@@ -36,7 +36,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/InternalException.h>
 
@@ -78,7 +77,7 @@ void test01()
 static AtomicInt _ai1(0);
 static AtomicInt _ai2(0);
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_thread(void* parm)
+ThreadReturnType PEGASUS_THREAD_CDECL test_thread(void* parm)
 {
     Thread* thread = (Thread*)parm;
 

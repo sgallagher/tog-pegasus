@@ -41,8 +41,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/AtomicInt.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -46,9 +46,9 @@
 #ifndef Pegasus_AsyncQueue_h
 #define Pegasus_AsyncQueue_h
 
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/List.h>
+#include <Pegasus/Common/Condition.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -59,24 +59,24 @@ class AsyncQueue
 {
 public:
 
-    /** Constructor.
+    /** Constructor (zero means unlimited capacity).
     */
-    AsyncQueue(Uint32 capacity = 0);
+    AsyncQueue(size_t capacity = 0);
 
     /** Destructor.
     */
     virtual ~AsyncQueue();
 
-    /** Shutdownt the queue.
+    /** Close the queue so that subsequent enqueue() and dequeue() requests
+        result in ListClosed() exceptions.
     */
-    void shutdown_queue();
+    void close();
 
     /** Enqueue an element at the back of queue.
     */
     void enqueue(ElemType *element);
 
-    /** Enqueue an element at the back of queue (wait for dequeue by another
-	thread).
+    /** Enqueue an element at the back of queue (wait if the queue is full).
     */
     void enqueue_wait(ElemType *element);
 
@@ -85,8 +85,8 @@ public:
     */
     ElemType *dequeue();
 
-    /** Dequeue an element from the front of the queue (if there is no element
-	on queue, wait until there is).
+    /** Dequeue an element from the front of the queue (wait if the queue is
+        empty).
     */
     ElemType *dequeue_wait();
 
@@ -96,287 +96,159 @@ public:
 
     /** Return number of element in queue.
     */
-    Uint32 count() const { return _count.get(); }
+    Uint32 count() const { return _size.get(); }
 
-    /** Return number of element in queue.
-    */
-    Uint32 size() const { return _count.get(); }
-
-    /** Return the maximum number of elements permitted on queue at once.
+    /** Get capacity.
     */
     Uint32 capacity() const { return _capacity.get(); }
 
-    /** Return true if queue has reached its capacity.
+    /** Return number of element in queue.
     */
-    Boolean is_full() const { /* never full */ return false; }
+    Uint32 size() const { return _size.get(); }
 
     /** Return true is queue is empty (has zero elements).
     */
-    Boolean is_empty() const { return size() == 0; }
+    Boolean is_empty() const { return _size.get() == 0; }
 
-    /** Return true if the queue has been shutdown (in which case no new
+    /** Return true if the queue is full.
+    */
+    Boolean is_full() const { return _size.get() == _capacity.get(); }
+
+    /** Return true if the queue has been closed (in which case no new
         elements may be enqueued).
     */
-    Boolean is_shutdown() const { return _disallow.get() > 0; }
-
-    /** Attempt to lock the queue.
-    */
-    void try_lock(PEGASUS_THREAD_TYPE myself);
-
-    /** Lock the queue.
-    */
-    void lock(PEGASUS_THREAD_TYPE myself);
-
-    /** Unlock the queue.
-    */
-    void unlock(void) { _cond.unlock(); }
+    Boolean is_closed() const { return _closed.get(); }
 
 private:
 
-    /**
-        @exception  IPCException    Indicates an IPC error occurred.
-    */
-    void _insert_prep();
-
-    /** @exception  IPCException    Indicates an IPC error occurred.
-    */
-    void _insert_recover();
-
-    /** @exception  IPCException    Indicates an IPC error occurred.
-    */
-    void _unlink_prep();
-
-    /** @exception  IPCException    Indicates an IPC error occurred.
-    */
-    void _unlink_recover();
-
-    /** @exception  IPCException    Indicates an IPC error occurred.
-    */
-    ElemType *_remove_no_lock(const void *key);
-
-    /** @exception  IPCException    Indicates an IPC error occurred.
-    */
-    ElemType *_remove_no_lock(const ElemType *key);
-
-    static bool _equal_key(const ElemType* elem, const void* key)
-    {
-        return elem->operator==(key);
-    }
-
-    static bool _equal_object(const ElemType* elem, const void* object)
-    {
-        return elem->operator==(*((ElemType*)object));
-    }
-
-    Mutex _cond;
-    Condition _slot;
-    Condition _node;
-    AtomicInt _count;
-    AtomicInt _disallow;
+    Mutex _mutex;
+    Condition _not_empty;
+    Condition _not_full;
     AtomicInt _capacity;
+    AtomicInt _size;
+    AtomicInt _closed;
     typedef List<ElemType,NullLock> Rep;
     Rep _rep;
 };
 
 template<class ElemType> 
-AsyncQueue<ElemType>::AsyncQueue(Uint32 capacity) :
-    _slot(_cond), _node(_cond), _capacity(0)
+AsyncQueue<ElemType>::AsyncQueue(size_t capacity) : _capacity(capacity)
 {
+    if (capacity == 0)
+        _capacity.set(0x7FFFFFFF);
 }
 
 template<class ElemType> 
 AsyncQueue<ElemType>::~AsyncQueue()
 {
-
 }
 
 template<class ElemType> 
-void AsyncQueue<ElemType>::_insert_prep()
+void AsyncQueue<ElemType>::close()
 {
-    if(_disallow.get() > 0)
+    AutoMutex auto_mutex(_mutex);
+
+    if (!is_closed())
     {
-        unlock();
-        throw ListClosed();
+        _closed++;
+        _not_full.signal();
+        _not_empty.signal();
     }
-
-    _slot.lock_object(pegasus_thread_self());
-    while(true == is_full())
-    {
-        _slot.unlocked_wait(pegasus_thread_self());
-        if(_disallow.get() > 0)
-        {
-            unlock();
-            throw ListClosed();
-        }
-    }
-}
-
-template<class ElemType> 
-void AsyncQueue<ElemType>::_insert_recover()
-{
-    _node.unlocked_signal(pegasus_thread_self());
-    _count++;
-    unlock();
-}
-
-template<class ElemType> 
-void AsyncQueue<ElemType>::_unlink_prep()
-{
-    if(_disallow.get() > 0)
-    {
-        unlock();
-        throw ListClosed();
-    }
-    _node.lock_object(pegasus_thread_self());
-    while(true == is_empty())
-    {
-        _node.unlocked_wait(pegasus_thread_self());
-       if(_disallow.get() > 0)
-       {
-           unlock();
-           throw ListClosed();
-       }
-    }
-}
-
-template<class ElemType> 
-void AsyncQueue<ElemType>::_unlink_recover()
-{
-    _slot.unlocked_signal(pegasus_thread_self());
-    _count--;
-    unlock();
-}
-
-template<class ElemType> 
-ElemType* AsyncQueue<ElemType>::_remove_no_lock(const void *key)
-{
-    if(_disallow.get() > 0)
-    {
-        unlock();
-        throw ListClosed();
-    }
-
-    if( pegasus_thread_self() != _cond.get_owner())
-        throw Permission(pegasus_thread_self());
-
-    return _rep.remove(_equal_key, key);
-}
-
-template<class ElemType> 
-ElemType *AsyncQueue<ElemType>::_remove_no_lock(const ElemType *key)
-{
-    if(_disallow.get() > 0)
-    {
-        unlock();
-        throw ListClosed();
-    }
-    if( pegasus_thread_self() != _cond.get_owner())
-        throw Permission(pegasus_thread_self());
-
-    return _rep.remove(_equal_object, key);
-}
-
-template<class ElemType> 
-void AsyncQueue<ElemType>::shutdown_queue()
-{
-    try
-    {
-        lock(pegasus_thread_self());
-        _disallow++;
-        _node.disallow();
-        _node.unlocked_signal(pegasus_thread_self());
-        _node.unlocked_signal(pegasus_thread_self());
-        _slot.disallow();
-        _slot.unlocked_signal(pegasus_thread_self());
-        _slot.unlocked_signal(pegasus_thread_self());
-        unlock();
-    }
-    catch(const ListClosed &)
-    {
-        _disallow++;
-    }
-}
-
-template<class ElemType> 
-void AsyncQueue<ElemType>::try_lock(PEGASUS_THREAD_TYPE myself)
-{
-    if(_disallow.get() > 0)
-    {
-        throw ListClosed();
-    }
-
-    _cond.try_lock(myself);
-}
-
-template<class ElemType> 
-void AsyncQueue<ElemType>::lock(PEGASUS_THREAD_TYPE myself)
-{
-    if(_disallow.get() > 0)
-    {
-       throw ListClosed();
-    }
-    _cond.lock(myself);
 }
 
 template<class ElemType> 
 void AsyncQueue<ElemType>::enqueue(ElemType *element)
 {
-    if(element != 0)
+    if (element)
     {
-        lock(pegasus_thread_self());
-        if(true == is_full())
-        {
-            unlock();
+        AutoMutex auto_mutex(_mutex);
+
+        if (is_closed())
+            throw ListClosed();
+
+        if (is_full())
             throw ListFull(_capacity.get());
-        }
+
         _rep.insert_back(element);
-        _insert_recover();
+        _size++;
+        _not_empty.signal();
     }
 }
 
 template<class ElemType> 
 void AsyncQueue<ElemType>::enqueue_wait(ElemType *element)
 {
-    if(element != 0)
+    if (element)
     {
-        _insert_prep();
+        AutoMutex auto_mutex(_mutex);
+
+        while (is_full())
+        {
+            if (is_closed())
+                throw ListClosed();
+
+            _not_full.wait(_mutex);
+        }
+
+        if (is_closed())
+            throw ListClosed();
+
         _rep.insert_back(element);
-        _insert_recover();
+        _size++;
+        _not_empty.signal();
     }
 }
 
 template<class ElemType> 
 void AsyncQueue<ElemType>::clear()
 {
-    lock(pegasus_thread_self());
+    AutoMutex auto_mutex(_mutex);
     _rep.clear();
-    _count = 0;
-    _slot.unlocked_signal(pegasus_thread_self());
-    unlock();
+    _size = 0;
+    _not_full.signal();
 }
 
 template<class ElemType> 
-ElemType *AsyncQueue<ElemType>::dequeue()
+ElemType* AsyncQueue<ElemType>::dequeue()
 {
+    AutoMutex auto_mutex(_mutex);
 
-    lock(pegasus_thread_self());
-    ElemType *ret = _rep.remove_front();
-    if(ret != 0)
+    if (is_closed())
+        throw ListClosed();
+
+    ElemType* p = _rep.remove_front();
+
+    if (p)
     {
-        _slot.unlocked_signal(pegasus_thread_self());
-        _count--;
+        _size--;
+        _not_full.signal();
     }
-    unlock();
-    return ret;
+
+    return p;
 }
 
 template<class ElemType> 
-ElemType *AsyncQueue<ElemType>::dequeue_wait()
+ElemType* AsyncQueue<ElemType>::dequeue_wait()
 {
-    _unlink_prep();
-    ElemType *ret = _rep.remove_front();
-    _unlink_recover();
-    return ret;
+    AutoMutex auto_mutex(_mutex);
+
+    while (is_empty())
+    {
+        if (is_closed())
+            throw ListClosed();
+
+        _not_empty.wait(_mutex);
+    }
+
+    if (is_closed())
+        throw ListClosed();
+
+    ElemType* p = _rep.remove_front();
+    PEGASUS_DEBUG_ASSERT(p != 0);
+    _size--;
+    _not_full.signal();
+
+    return p;
 }
 
 PEGASUS_NAMESPACE_END

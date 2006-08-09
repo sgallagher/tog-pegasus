@@ -243,7 +243,7 @@ void Monitor::initializeTickler(){
     /* set up the slave connection */
     memset(&_tickle_peer_addr, 0, sizeof(_tickle_peer_addr));
     SocketLength peer_size = sizeof(_tickle_peer_addr);
-    pegasus_sleep(1);
+    Threads::sleep(1);
 
     // this call may fail, we will try a max of 20 times to establish this peer connection
     if((_tickle_peer_socket = ::accept(_tickle_server_socket,
@@ -256,7 +256,7 @@ void Monitor::initializeTickler(){
           int retries = 0;
           do
           {
-            pegasus_sleep(1);
+            Threads::sleep(1);
             _tickle_peer_socket = ::accept(_tickle_server_socket,
                 reinterpret_cast<struct sockaddr*>(&_tickle_peer_addr),
                 &peer_size);
@@ -387,9 +387,9 @@ Boolean Monitor::run(Uint32 milliseconds)
           // unlocked will not result in an ArrayIndexOutOfBounds
           // exception.
 
-          autoEntryMutex.unlock();
+          _entry_mut.unlock();
           o.enqueue(message);
-          autoEntryMutex.lock();
+          _entry_mut.lock();
           // After enqueue a message and the autoEntryMutex has been released and locked again,
           // the array of _entries can be changed. The ArrayIterator has be reset with the original _entries.
           entries.reset(_entries);
@@ -423,7 +423,7 @@ Boolean Monitor::run(Uint32 milliseconds)
     */
     maxSocketCurrentPass++;
 
-    autoEntryMutex.unlock();
+    _entry_mut.unlock();
 
     //
     // The first argument to select() is ignored on Windows and it is not
@@ -435,7 +435,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 #else
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
-    autoEntryMutex.lock();
+    _entry_mut.lock();
     // After enqueue a message and the autoEntryMutex has been released and locked again,
     // the array of _entries can be changed. The ArrayIterator has be reset with the original _entries
     entries.reset(_entries);
@@ -547,9 +547,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 		   events |= SocketMessage::READ;
 		   Message *msg = new SocketMessage(entries[indx].socket, events);
 		   entries[indx]._status = _MonitorEntry::BUSY;
-                   autoEntryMutex.unlock();
+                   _entry_mut.unlock();
 		   q->enqueue(msg);
-                   autoEntryMutex.lock();
+                   _entry_mut.lock();
            // After enqueue a message and the autoEntryMutex has been released and locked again,
            // the array of entries can be changed. The ArrayIterator has be reset with the original _entries
            entries.reset(_entries);
@@ -671,7 +671,7 @@ void Monitor::unsolicitSocketMessages(SocketHandle socket)
 }
 
 // Note: this is no longer called with PEP 183.
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 {
    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,

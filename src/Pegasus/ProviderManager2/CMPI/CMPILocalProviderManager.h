@@ -44,7 +44,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>
 
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
@@ -136,7 +135,7 @@ private:
    *  The cleaning functions for provider threads.
    */
 
-   static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _reaper(void *);
+   static ThreadReturnType PEGASUS_THREAD_CDECL _reaper(void *);
 
   /*
    * The data structures for holding the thread and the CMPIProvider
@@ -154,7 +153,7 @@ private:
    static Semaphore _pollingSem;
    static AtomicInt _stopPolling;
    static Mutex _reaperMutex;
-   static List<cleanupThreadRecord,RecursiveMutex> _finishedThreadList;
+   static List<cleanupThreadRecord,Mutex> _finishedThreadList;
 
 protected:
 

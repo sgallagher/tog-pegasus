@@ -38,6 +38,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/AutoPtr.h>
@@ -209,7 +210,7 @@ private:
         the connection is closed.
      */
     void _processResponses();
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+    static ThreadReturnType PEGASUS_THREAD_CDECL
         _responseProcessor(void* arg);
 
     //
@@ -381,7 +382,7 @@ ProviderAgentContainer::~ProviderAgentContainer()
             // Wait for the responseProcessor thread to exit
             while (isInitialized())
             {
-                pegasus_yield();
+                Threads::yield();
             }
         }
     }
@@ -801,7 +802,7 @@ void ProviderAgentContainer::_initialize()
         {
             if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
             {
-                pegasus_yield();
+                Threads::yield();
             }
             else
             {
@@ -1390,7 +1391,7 @@ void ProviderAgentContainer::_processResponses()
 
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+ThreadReturnType PEGASUS_THREAD_CDECL
 ProviderAgentContainer::_responseProcessor(void* arg)
 {
     ProviderAgentContainer* pa =
@@ -1398,7 +1399,7 @@ ProviderAgentContainer::_responseProcessor(void* arg)
 
     pa->_processResponses();
 
-    return(PEGASUS_THREAD_RETURN(0));
+    return(ThreadReturnType(0));
 }
 
 /////////////////////////////////////////////////////////////////////////////

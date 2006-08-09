@@ -63,6 +63,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/Common/ReadWriteSem.h>
 
 #include <Pegasus/Common/XmlStreamer.h>
 #include <Pegasus/Common/BinaryStreamer.h>

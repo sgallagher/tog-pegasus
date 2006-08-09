@@ -128,7 +128,7 @@ class PEGASUS_COMMON_LINKAGE ControlServiceManager : public MessageQueueService
       AsyncResponse *control_send_wait(AsyncRequest *request);
       
       // allow the control provider to run a function on a pooled thread
-      Uint32 run_on_thread(PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *work)(void *));
+      Uint32 run_on_thread(ThreadReturnType (PEGASUS_THREAD_CDECL *work)(void *));
       
       
 

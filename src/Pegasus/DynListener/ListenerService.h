@@ -75,9 +75,9 @@ public:
 
     Uint32 getPortNumber() const;
 
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _listener_routine(void *param);
+    static ThreadReturnType PEGASUS_THREAD_CDECL _listener_routine(void *param);
 
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _polling_routine(void *param);
+    static ThreadReturnType PEGASUS_THREAD_CDECL _polling_routine(void *param);
 
 
 private:

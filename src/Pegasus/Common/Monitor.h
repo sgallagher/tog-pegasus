@@ -231,7 +231,7 @@ public:
       only be used when the MessageQueueService is active in the
       system.
    */
-  static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
+  static ThreadReturnType PEGASUS_THREAD_CDECL _dispatch(void *);
 
   /** stop listening for client connections
    */

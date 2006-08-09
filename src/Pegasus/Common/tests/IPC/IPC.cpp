@@ -36,7 +36,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Condition.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <sys/types.h>
@@ -80,7 +80,7 @@ public:
 };
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL fibonacci(void * parm)
+ThreadReturnType PEGASUS_THREAD_CDECL fibonacci(void * parm)
 {
     Thread* my_thread = (Thread *)parm;
     parmdef * Parm = (parmdef *)my_thread->get_parm();
@@ -90,7 +90,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL fibonacci(void * parm)
     Condition * condstart = Parm->cond_start;
     MessageQueue * mq = Parm->mq;
     
-    condstart->signal(my_thread->self());
+    condstart->signal();
 
     int add_to_type = 0;
     if (count < 20)
@@ -112,7 +112,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL fibonacci(void * parm)
     return NULL;
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deq(void * parm)
+ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
 {
     Thread* my_thread = (Thread *)parm;
   
@@ -125,7 +125,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deq(void * parm)
     Condition * condstart = Parm->cond_start;
     MessageQueue * mq = Parm->mq;
     
-    condstart->signal(my_thread->self());
+    condstart->signal();
 
     Message * message;
     type = 0;
@@ -135,7 +135,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deq(void * parm)
         message = mq->dequeue();
         while (!message) {
 #if defined PEGASUS_OS_SOLARIS && defined SUNOS_5_6
-	    pegasus_sleep(1);
+	    Threads::sleep(1);
 #endif
             message = mq->dequeue();
         }
@@ -147,11 +147,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deq(void * parm)
     if (verbose)
 #if defined (PEGASUS_OS_VMS)
       // 
-      // pegasus_thread_self returns long-long-unsigned.
+      // Threads::self returns long-long-unsigned.
       // 
-      printf("Received Cancel Message, %llu about to end\n", pegasus_thread_self());
+      printf("Received Cancel Message, %llu about to end\n", Threads::self());
 #else
-        cout << "Received Cancel Message, " << pegasus_thread_self() <<
+        cout << "Received Cancel Message, " << Threads::self() <<
             " about to end\n";
 #endif
     my_thread->exit_self(0);
@@ -185,14 +185,14 @@ int test01()
 
     for (int i = 0; i < 4;i++)
     {
-       parm[i]->cond_start->lock_object(pegasus_thread_self());
+       parm[i]->cond_start->lock_object(Threads::self());
        parm[i]->th->run();
     }
 
     // Let the thread start and wait for Start Condition to be signaled
     for (int i = 0; i < 4;i++)
     {
-        parm[i]->cond_start->unlocked_wait( pegasus_thread_self() );
+        parm[i]->cond_start->unlocked_wait( Threads::self() );
         parm[i]->cond_start->unlock_object( );
     }
 
@@ -227,7 +227,7 @@ int test01()
     return 0;
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL atomicIncrement(void * parm)
+ThreadReturnType PEGASUS_THREAD_CDECL atomicIncrement(void * parm)
 {
     Thread* my_thread  = (Thread *)parm;
     AtomicInt * atom = (AtomicInt *)my_thread->get_parm();

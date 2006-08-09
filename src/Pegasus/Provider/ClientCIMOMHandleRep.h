@@ -36,7 +36,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Client/CIMClient.h>
 

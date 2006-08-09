@@ -50,7 +50,6 @@
 
 #if defined (PEGASUS_USE_PAM_STANDALONE_PROC)
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/IPC.h>
 #include <pwd.h>
 #include <sys/stat.h>
 #include <unistd.h>

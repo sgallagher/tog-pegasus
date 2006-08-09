@@ -47,7 +47,7 @@
 #endif
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Mutex.h>
 
 #ifndef Pegasus_SSLContextRep_h
 #define Pegasus_SSLContextRep_h

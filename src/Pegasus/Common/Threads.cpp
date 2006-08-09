@@ -1,0 +1,291 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Mike Brasher (m.brasher@inovadevelopment.com)
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#include "Threads.h"
+#include "IDFactory.h"
+#include "TSDKey.h"
+#include "Once.h"
+
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+# include <sys/timeb.h>
+#endif
+
+PEGASUS_NAMESPACE_BEGIN
+
+void Threads::sleep(int msec)
+{
+#if defined(PEGASUS_HAVE_NANOSLEEP)
+
+    struct timespec wait;
+    wait.tv_sec = msec / 1000;
+    wait.tv_nsec = (msec % 1000) * 1000000;
+    nanosleep(&wait, NULL);
+
+#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+
+   int loop;
+   int microsecs = msec * 1000; /* convert from milliseconds to microseconds */
+
+   if (microsecs < 1000000)
+       usleep(microsecs);
+   else
+   {
+       loop = microsecs / 1000000;
+       for(int i = 0; i < loop; i++)
+           usleep(1000000);
+       if ((loop*1000000) < microsecs)
+           usleep(microsecs - (loop*1000000));
+   }
+
+#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+
+    if (msec == 0)
+    {         
+        Sleep(0);
+        return;
+    }
+
+    struct _timeb end, now;
+    _ftime( &end );
+    end.time += (msec / 1000);
+    msec -= (msec / 1000);
+    end.millitm += msec;
+
+    do
+    {
+        Sleep(0);
+        _ftime(&now);
+    } 
+    while( end.millitm > now.millitm && end.time >= now.time);
+
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    int seconds;
+    if (msec < 1000)
+    {
+        usleep(msec*1000);
+    }
+    else
+    {
+        // sleep for loop seconds
+        sleep(msec / 1000);
+        // Usleep the remaining micro seconds
+        usleep( (msec*1000) % 1000000 );
+    }
+#elif defined(PEGASUS_OS_VMS)
+
+    sleep(msec / 1000);
+
+#endif
+}
+
+//==============================================================================
+//
+// Thread id TSD:
+//
+//==============================================================================
+
+static Once _once = PEGASUS_ONCE_INITIALIZER;
+static TSDKeyType _key;
+
+static void _create_key()
+{
+    TSDKey::create(&_key);
+}
+
+static inline void _set_id_tsd(Uint32 id)
+{
+    once(&_once, _create_key);
+    TSDKey::set_thread_specific(_key, (void*)(long)id);
+}
+
+static inline Uint32 _get_id_tsd()
+{
+    once(&_once, _create_key);
+    void* ptr = TSDKey::get_thread_specific(_key);
+
+    if (!ptr)
+    {
+        // Main thread's id is 1!
+        return 1;
+    }
+
+    return (Uint32)(long)ptr;
+}
+
+//==============================================================================
+//
+// _get_stack_multiplier()
+//
+//==============================================================================
+
+static inline int _get_stack_multiplier()
+{
+#if defined(PEGASUS_OS_VMS)
+
+    static int _multiplier = 0;
+    static MutexType _multiplier_mutex = PEGASUS_MUTEX_INITIALIZER;
+
+    // 
+    // This code uses a, 'hidden' (non-documented), VMS only, logical 
+    //  name (environment variable), PEGASUS_VMS_THREAD_STACK_MULTIPLIER,
+    //  to allow in the field adjustment of the thread stack size.
+    //
+    // We only check for the logical name once to not have an
+    //  impact on performance.
+    // 
+    // Note:  This code may have problems in a multithreaded environment
+    //  with the setting of doneOnce to true.
+    // 
+    // Current code in Cimserver and the clients do some serial thread
+    //  creations first so this is not a problem now.
+    // 
+
+    if (_multiplier == 0)
+    {
+        mutex_lock(&_multiplier_mutex);
+
+        if (_multiplier == 0)
+        {
+            const char *env = getenv("PEGASUS_VMS_THREAD_STACK_MULTIPLIER");
+
+            if (env)
+                _multiplier = atoi(env);
+
+            if (_multiplier == 0)
+                _multiplier = 2;
+        }
+
+        mutex_unlock(&_multiplier_mutex);
+    }
+
+    return _multiplier;
+#else
+    return 2;
+#endif
+}
+
+//==============================================================================
+//
+// PEGASUS_HAVE_PTHREADS
+//
+//==============================================================================
+
+static IDFactory _thread_ids(2); /* 1 reserved for main thread */
+
+#if defined(PEGASUS_HAVE_PTHREADS)
+
+int Threads::create(
+    ThreadType& thread, 
+    Type type,
+    void* (*start)(void*), 
+    void* arg)
+{
+    // Initialize thread attributes:
+
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+
+    // Detached:
+
+    if (type == DETACHED)
+    {
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+        int ds = 1;
+        pthread_attr_setdetachstate(&attr, &ds);
+#else
+        pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+#endif
+    }
+
+    // Stack size:
+
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_OS_VMS)
+    {
+        size_t stacksize;
+
+        if (pthread_attr_getstacksize(&attr, &stacksize) == 0)
+        {
+            int m = _get_stack_multiplier();
+            int rc = pthread_attr_setstacksize(&attr, stacksize * m);
+            PEGASUS_ASSERT(rc == 0);
+        }
+    }
+#endif
+
+    // Scheduling policy:
+
+#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+# if defined SUNOS_5_7
+    pthread_attr_setschedpolicy(&attr, SCHED_RR);
+# else
+    pthread_attr_setschedpolicy(&attr, SCHED_OTHER);
+# endif
+#endif // PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
+
+    // Create thread:
+
+    pthread_t thr;
+    int rc = pthread_create(&thr, &attr, start, arg);
+
+    if (rc != 0)
+    {
+        thread = ThreadType();
+        return rc;
+    }
+
+    // Assign thread id (and put into thread specific storage).
+
+    Uint32 id = _thread_ids.getID();
+    _set_id_tsd(id);
+
+    // Destroy attributes now.
+
+    pthread_attr_destroy(&attr);
+
+    // Return:
+
+    thread = ThreadType(thr, id);
+    return 0;
+}
+
+ThreadType Threads::self() 
+{
+    return ThreadType(pthread_self(), _get_id_tsd());
+}
+
+#endif /* PEGASUS_HAVE_PTHREADS */
+
+PEGASUS_NAMESPACE_END

@@ -116,7 +116,6 @@
 // Globalization headers
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/LanguageParser.h>
 

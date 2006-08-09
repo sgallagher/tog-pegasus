@@ -41,7 +41,6 @@
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/IPC.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -45,7 +45,7 @@
 #include <Pegasus/Common/LanguageParser.h>
 #include <iostream>
 #ifdef PEGASUS_OS_OS400
-#include "OS400ConvertChar.h"
+#include "EBCDIC_OS400.h"
 #endif
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;

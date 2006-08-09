@@ -41,7 +41,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Mutex.h>
 #include <iostream>
 #include "WQLParser.h"
 #include "WQLParserState.h"

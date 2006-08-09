@@ -50,8 +50,8 @@
 #include <fstream>
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/Mutex.h>
 
 #include <Pegasus/Security/UserManager/PasswordFile.h>
 #include <Pegasus/Security/UserManager/Linkage.h>

@@ -38,6 +38,7 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/Exception.h>
 
 #include "OperatingSystem.h"
@@ -320,7 +321,7 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 /**
    getCurrentTimeZone method for HP-UX implementation of OS Provider
 
-   Gets information from gettimeofday call and ensures sign follows
+   Gets information from Time::gettimeofday call and ensures sign follows
    CIM standard.
   */
 Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)

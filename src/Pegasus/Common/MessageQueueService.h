@@ -43,14 +43,14 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/RecursiveMutex.h>
+#include <Pegasus/Common/Mutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -112,8 +112,8 @@ public:
     static AsyncOpNode *get_op();
     void return_op(AsyncOpNode *op);
 
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL polling_routine(void *);
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL kill_idle_threads(void *);
+    static ThreadReturnType PEGASUS_THREAD_CDECL polling_routine(void *);
+    static ThreadReturnType PEGASUS_THREAD_CDECL kill_idle_threads(void *);
     static ThreadPool *get_thread_pool();
 
     Uint32 _mask;
@@ -165,13 +165,13 @@ private:
     static AtomicInt _stop_polling;
     static AtomicInt _check_idle_flag;
 
-    typedef List<MessageQueueService, RecursiveMutex> PollingList;
+    typedef List<MessageQueueService, Mutex> PollingList;
     static PollingList* _polling_list;
     static Mutex _polling_list_mutex;
 
     PollingList* _get_polling_list();
 
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
+    static ThreadReturnType PEGASUS_THREAD_CDECL _req_proc(void *);
 
     static void _sendwait_callback(AsyncOpNode *, MessageQueue *, void *);
 

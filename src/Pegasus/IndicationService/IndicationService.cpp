@@ -435,13 +435,13 @@ void IndicationService::_initialize (void)
     //
     Array <Uint32> pmservices;
     find_services (PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, 0, 0, &pmservices);
-    pegasus_yield ();
+    Threads::yield ();
     PEGASUS_ASSERT (pmservices.size () == 1);
     _providerManager = pmservices [0];
 
     Array <Uint32> hmservices;
     find_services (PEGASUS_QUEUENAME_INDHANDLERMANAGER, 0, 0, &hmservices);
-    pegasus_yield ();
+    Threads::yield ();
     PEGASUS_ASSERT (hmservices.size () == 1);
     _handlerService = hmservices [0];
 

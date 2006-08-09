@@ -42,7 +42,7 @@
 #include <stdio.h>
 #include <stddef>
 #ifdef PEGASUS_OS_VMS
-#include "ConfigVms.h"
+#include "Platform_VMS.h"
 #endif
 
 #if (__INITIAL_POINTER_SIZE==64)
@@ -91,5 +91,7 @@
 // because debug (nooptimize) builds have the compiler inline
 // feature turned off.
 #define PEGASUS_DISABLE_INTERNAL_INLINES
+
+#define PEGASUS_HAVE_PTHREADS
 
 #endif /* Pegasus_Platform_VMS_IA64_DECCXX_h */

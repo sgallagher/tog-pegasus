@@ -29,7 +29,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mike-brasher@austin.rr.com) - Inova Europe
+// Author: Mike Brasher (m.brasher@inovadevelopment.com) - Inova Development
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,9 +38,11 @@
 
 #include <Pegasus/Common/Config.h>
 
-//#ifndef PEGASUS_INTERNALONLY
-//# error "ERROR: This header is for internal use only (AtomicInt.h)"
-//#endif
+//==============================================================================
+//
+// class AtomicIntTemplate<>
+//
+//==============================================================================
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -97,36 +99,834 @@ private:
 
 PEGASUS_NAMESPACE_END
 
+//==============================================================================
+//
+// PEGASUS_PLATFORM_LINUX_IX86_GNU
+//
+//==============================================================================
+
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-# include <Pegasus/Common/AtomicInt_LINUX_IX86_GNU.h>
-#elif defined(PEGASUS_PLATFORM_LINUX_X86_64_GNU)
-# include <Pegasus/Common/AtomicInt_LINUX_X86_64_GNU.h>
-#elif defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-# include <Pegasus/Common/AtomicInt_LINUX_IA64_GNU.h>
-#elif defined(PEGASUS_PLATFORM_LINUX_PPC_GNU)
-# include <Pegasus/Common/AtomicInt_LINUX_PPC_GNU.h>
-#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-# include <Pegasus/Common/AtomicInt_WIN32_IX86_MSVC.h>
-#elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-# include <Pegasus/Common/AtomicInt_ZOS_ZSERIES_IBM.h>
-#elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-# include <Pegasus/Common/AtomicInt_Generic.h>
-#elif defined (PEGASUS_PLATFORM_HPUX_IA64_ACC)
-# include <Pegasus/Common/AtomicInt_HPUX_IA64_ACC.h>
-#elif defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU)
-# include <Pegasus/Common/AtomicInt_LINUX_XSCALE_GNU.h>
-#elif defined (PEGASUS_PLATFORM_VMS_ALPHA_DECCXX)
-# include <Pegasus/Common/AtomicInt_VMS.h>
-#elif defined (PEGASUS_PLATFORM_VMS_IA64_DECCXX)
-# include <Pegasus/Common/AtomicInt_VMS.h>
-#else
-# include <Pegasus/Common/AtomicInt_Generic.h>
-#endif
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+// Note: this lock can be eliminated for single processor systems.
+# define PEGASUS_ATOMIC_LOCK "lock ; "
 
 PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
+{
+    volatile int n; 
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return _rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    asm volatile(
+	PEGASUS_ATOMIC_LOCK "incl %0"
+	:"=m" (_rep.n)
+	:"m" (_rep.n));
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    asm volatile(
+        PEGASUS_ATOMIC_LOCK "decl %0"
+        :"=m" (_rep.n)
+        :"m" (_rep.n));
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    unsigned char c;
+
+    asm volatile(
+	PEGASUS_ATOMIC_LOCK "decl %0; sete %1"
+	:"=m" (_rep.n), "=qm" (c)
+	:"m" (_rep.n) : "memory");
+
+    return c != 0;
+}
 
 typedef AtomicIntTemplate<AtomicType> AtomicInt;
 
 PEGASUS_NAMESPACE_END
+
+#endif /* PEGASUS_PLATFORM_LINUX_IX86_GNU */
+
+//==============================================================================
+//
+// PEGASUS_PLATFORM_LINUX_X86_64_GNU
+//
+//==============================================================================
+
+#if defined(PEGASUS_PLATFORM_LINUX_X86_64_GNU)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+// Note: this lock can be eliminated for single processor systems.
+# define PEGASUS_ATOMIC_LOCK "lock ; "
+
+PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
+{
+    volatile int n; 
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return _rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    asm volatile(
+	PEGASUS_ATOMIC_LOCK "incl %0"
+	:"=m" (_rep.n)
+	:"m" (_rep.n));
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    asm volatile(
+        PEGASUS_ATOMIC_LOCK "decl %0"
+        :"=m" (_rep.n)
+        :"m" (_rep.n));
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    unsigned char c;
+
+    asm volatile(
+	PEGASUS_ATOMIC_LOCK "decl %0; sete %1"
+	:"=m" (_rep.n), "=qm" (c)
+	:"m" (_rep.n) : "memory");
+
+    return c != 0;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif /* PEGASUS_PLATFORM_LINUX_X86_64_GNU */
+
+//==============================================================================
+//
+// PEGASUS_PLATFORM_LINUX_IA64_GNU
+//
+//==============================================================================
+
+#if defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
+{
+    volatile int n;
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = (int)n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+    // Nothing to do!
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return (Uint32)_rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = (int)n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    unsigned long tmp;
+    volatile int* v = &_rep.n;
+
+    asm volatile(
+	"fetchadd4.rel %0=[%1],%2"
+	: "=r"(tmp) 
+	: "r"(v), "i"(1) 
+	: "memory");
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    unsigned long tmp;
+    volatile int* v = &_rep.n;
+
+    asm volatile(
+	"fetchadd4.rel %0=[%1],%2"
+	: "=r"(tmp) 
+	: "r"(v), "i"(-1) 
+	: "memory");
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    unsigned long tmp;
+    volatile int* v = &_rep.n;
+
+    asm volatile(
+	"fetchadd4.rel %0=[%1],%2"
+	: "=r"(tmp) 
+	: "r"(v), "i"(-1) 
+	: "memory");
+
+    return tmp == 1;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif /* PEGASUS_PLATFORM_LINUX_IA64_GNU */
+
+//==============================================================================
+//
+// PEGASUS_PLATFORM_LINUX_PPC_GNU
+//
+//==============================================================================
+
+#if defined(PEGASUS_PLATFORM_LINUX_PPC_GNU)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
+{
+    volatile Uint32 n; 
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return _rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    int t;
+
+    asm volatile(
+	"1: lwarx %0,0,%2\n"
+	"addic %0,%0,1\n"
+	"stwcx.	%0,0,%2\n"
+	"bne- 1b"
+	: "=&r" (t), "=m" (_rep.n)
+	: "r" (&_rep.n), "m" (_rep.n)
+	: "cc");
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    int c;
+
+    asm volatile(
+	"1: lwarx %0,0,%1\n"
+	"addic %0,%0,-1\n"
+	"stwcx.	%0,0,%1\n"
+	"bne- 1b"
+	: "=&r" (c)
+	: "r" (&_rep.n)
+	: "cc", "memory");
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    int c;
+
+    asm volatile(
+	"1: lwarx %0,0,%1\n"
+	"addic %0,%0,-1\n"
+	"stwcx.	%0,0,%1\n"
+	"bne- 1b"
+	: "=&r" (c)
+	: "r" (&_rep.n)
+	: "cc", "memory");
+
+    return c == 0;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif /* PEGASUS_PLATFORM_LINUX_PPC_GNU */
+
+//==============================================================================
+//
+// PEGASUS_PLATFORM_WIN32_IX86_MSVC
+//
+//==============================================================================
+
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+#include <Pegasus/Common/Network.h>
+#include <windows.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+typedef LONG AtomicType;
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep = LONG(n);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return Uint32(_rep);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep = LONG(n);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    InterlockedIncrement(&_rep);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    InterlockedDecrement(&_rep);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    return InterlockedDecrement(&_rep) == 0;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif /* PEGASUS_PLATFORM_WIN32_IX86_MSVC */
+
+//==============================================================================
+//
+// PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+//
+//==============================================================================
+
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
+{
+    cs_t n;
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = (cs_t)n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return (Uint32)_rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = (cs_t)n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    Uint32 x = (Uint32)_rep.n;
+    Uint32 old = x;
+    x++;
+    while ( cs( (cs_t*)&old, &(_rep.n), (cs_t)x) )
+    {
+       x = (Uint32)_rep.n;
+       old = x;
+       x++;
+    }
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    Uint32 x = (Uint32)_rep.n;
+    Uint32 old = x;
+    x--;
+    while ( cs( (cs_t*)&old, &(_rep.n), (cs_t) x) )
+    {
+       x = (Uint32) _rep.n;
+       old = x;
+       x--;
+    }
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    Uint32 x = (Uint32)_rep.n;
+    Uint32 old = x;
+    x--;
+    while ( cs( (cs_t*)&old, &(_rep.n), (cs_t) x) )
+    {
+       x = (Uint32) _rep.n;
+       old = x;
+       x--;
+    }
+    return x==0;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif /* PEGASUS_PLATFORM_ZOS_ZSERIES_IBM */
+
+//==============================================================================
+//
+// PEGASUS_PLATFORM_HPUX_IA64_ACC
+//
+//==============================================================================
+
+#if defined (PEGASUS_PLATFORM_HPUX_IA64_ACC)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+#include <machine/sys/inline.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
+{
+    volatile Uint32 n;
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+    // Nothing to do!
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return _rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    _Asm_fetchadd(
+	(_Asm_fasz)_FASZ_W,
+	(_Asm_sem)_SEM_ACQ,
+	(volatile Uint32*)&_rep.n,
+	(int)1,
+	(_Asm_ldhint)_LDHINT_NONE);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    _Asm_fetchadd(
+	(_Asm_fasz)_FASZ_W,
+	(_Asm_sem)_SEM_ACQ,
+	(volatile Uint32*)&_rep.n,
+	(int)-1,
+	(_Asm_ldhint)_LDHINT_NONE);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    Uint32 x = _Asm_fetchadd(
+	(_Asm_fasz)_FASZ_W,
+	(_Asm_sem)_SEM_ACQ,
+	(volatile Uint32*)&_rep.n,
+	(int)-1,
+	(_Asm_ldhint)_LDHINT_NONE);
+
+    return x == 1;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif /* PEGASUS_PLATFORM_HPUX_IA64_ACC */
+
+//==============================================================================
+//
+// PEGASUS_PLATFORM_LINUX_XSCALE_GNU
+//
+//==============================================================================
+
+#if defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+PEGASUS_NAMESPACE_BEGIN
+
+inline void AtomicIntDisableIRQs(unsigned long& flags)
+{
+    unsigned long temp;
+    unsigned long x;
+
+    asm volatile(
+	"mrs %0, cpsr\n"
+	"orr %1, %0, #128\n"
+	"msr cpsr_c, %1\n"
+	: "=r" (x), "=r" (temp)
+	:
+	: "memory");
+
+    flags = x;
+}
+
+inline void AtomicIntEnableIRQs(unsigned long x)
+{
+    unsigned long temp;
+
+    asm volatile(
+	"mrs %0, cpsr\n"
+	"orr %1, %0, #128\n"
+	"msr cpsr_c, %1\n"
+	: "=r" (x), "=r" (temp)
+	:
+	: "memory");
+}
+
+struct AtomicType
+{
+    volatile Uint32 n;
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return _rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    unsigned long flags;
+    AtomicIntDisableIRQs(flags);
+    _rep.n++;
+    AtomicIntEnableIRQs(flags);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    unsigned long flags;
+    AtomicIntDisableIRQs(flags);
+    _rep.n--;
+    AtomicIntEnableIRQs(flags);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    Uint32 tmp;
+    unsigned long flags;
+    AtomicIntDisableIRQs(flags);
+    tmp = --_rep.n;
+    AtomicIntEnableIRQs(flags);
+    return tmp == 0;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif /* PEGASUS_PLATFORM_LINUX_XSCALE_GNU */
+
+//==============================================================================
+//
+// PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
+// PEGASUS_PLATFORM_VMS_IA64_DECCXX
+//
+//==============================================================================
+
+#if defined (PEGASUS_PLATFORM_VMS_ALPHA_DECCXX) || \
+    defined (PEGASUS_PLATFORM_VMS_IA64_DECCXX)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+# include <sys/machine/builtins.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
+{
+    volatile int n; 
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return _rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    __ATOMIC_INCREMENT_LONG(&_rep.n);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    __ATOMIC_DECREMENT_LONG(&_rep.n);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    return __ATOMIC_DECREMENT_LONG(&_rep.n) == 1;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif /* _Pegasus_Common_AtomicInt_VMS_h */
+
+//==============================================================================
+//
+// Generic Implementation
+//
+//==============================================================================
+
+#if !defined(PEGASUS_ATOMIC_INT_DEFINED)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+# include <Pegasus/Common/SpinLock.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+// Represents the atomic type counter.
+struct AtomicType
+{
+    Uint32 n;
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+
+    if (spinLockPoolInitialized == 0)
+	SpinLockCreatePool();
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+    // Nothing to do.
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    Uint32 tmp;
+    size_t i = SpinLockIndex(&_rep);
+    SpinLockLock(spinLockPool[i]);
+    tmp = _rep.n;
+    SpinLockUnlock(spinLockPool[i]);
+    return tmp;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    size_t i = SpinLockIndex(&_rep);
+    SpinLockLock(spinLockPool[i]);
+    _rep.n = n;
+    SpinLockUnlock(spinLockPool[i]);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    size_t i = SpinLockIndex(&_rep);
+    SpinLockLock(spinLockPool[i]);
+    _rep.n++;
+    SpinLockUnlock(spinLockPool[i]);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    size_t i = SpinLockIndex(&_rep);
+    SpinLockLock(spinLockPool[i]);
+    _rep.n--;
+    SpinLockUnlock(spinLockPool[i]);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    Uint32 tmp;
+    size_t i = SpinLockIndex(&_rep);
+    SpinLockLock(spinLockPool[i]);
+    tmp = --_rep.n;
+    SpinLockUnlock(spinLockPool[i]);
+    return tmp == 0;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif /* !PEGASUS_ATOMIC_INT_DEFINED */
 
 #endif /* Pegasus_AtomicInt_h */

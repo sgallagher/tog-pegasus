@@ -81,16 +81,7 @@ InternalCIMOMHandleMessageQueue::~InternalCIMOMHandleMessageQueue(void)
     try
     {
         // ATTN: release any unprocessed responses
-        _response.lock(pegasus_thread_self());
-
-        for(Uint32 i = 0, n = _response.count(); i < n; i++)
-        {
-            Message* message = _response.dequeue();
-
-            delete message;
-        }
-
-        _response.unlock();
+        _response.clear();
     }
     catch(...)
     {

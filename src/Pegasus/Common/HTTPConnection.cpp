@@ -57,13 +57,13 @@
 #include <iostream>
 #include <cctype>
 #include <cstdlib>
+#include "Signal.h"
 #include "Socket.h"
 #include "TLS.h"
 #include "HTTPConnection.h"
 #include "MessageQueue.h"
 #include "Monitor.h"
 #include "HTTPMessage.h"
-#include "Signal.h"
 #include "Tracer.h"
 #include "Buffer.h"
 #include "LanguageParser.h"
@@ -297,11 +297,7 @@ void HTTPConnection::handleEnqueue(Message *message)
         return;
     }
 
-    AutoMutex connectionLock(_connection_mut, false);
-    if (pegasus_thread_self() != _connection_mut.get_owner())
-    {
-        connectionLock.lock();
-    }
+    AutoMutex connectionLock(_connection_mut);
 
     switch (message->getType())
     {

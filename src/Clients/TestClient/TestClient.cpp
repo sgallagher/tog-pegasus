@@ -45,7 +45,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
@@ -1287,7 +1286,7 @@ void GetOptions(
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL executeTests(void *parm){
+ThreadReturnType PEGASUS_THREAD_CDECL executeTests(void *parm){
 
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
@@ -1382,7 +1381,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL executeTests(void *parm){
       errorCount++;
     }
     }
-    my_thread->exit_self((PEGASUS_THREAD_RETURN)5);
+    my_thread->exit_self((ThreadReturnType)5);
     return(0);
 }
 
@@ -1397,7 +1396,7 @@ Thread * runTests(CIMClient *client, Uint32 testCount, Boolean activeTest, Boole
         AutoPtr<Thread> t(new Thread(executeTests, (void*)parms.release(), false));
 
     // zzzzz... (1 second) zzzzz...
-        pegasus_sleep(1000);
+        Threads::sleep(1000);
     t->run();
     return t.release();
 }

@@ -56,7 +56,7 @@
 #include "HTTPConnection.h"
 
 #ifdef PEGASUS_OS_OS400
-#  include "OS400ConvertChar.h"
+#  include "EBCDIC_OS400.h"
 #endif
 
 #ifdef PEGASUS_OS_ZOS

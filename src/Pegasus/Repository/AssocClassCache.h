@@ -44,7 +44,6 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Repository/Linkage.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/IPC.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

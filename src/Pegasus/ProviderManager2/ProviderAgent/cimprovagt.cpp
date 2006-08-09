@@ -36,6 +36,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/Tracer.h>
@@ -59,9 +60,9 @@ void usage()
 // needed to localize the exceptions thrown during CIM request processing.
 // Note: This function should never be called! 
 // 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
 {
-    return(PEGASUS_THREAD_RETURN(0));
+    return(ThreadReturnType(0));
 }
 
 /////////////////////////////////////////////////////////////////////////

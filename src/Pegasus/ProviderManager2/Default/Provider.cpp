@@ -40,7 +40,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Provider.h"
-
+#include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -115,7 +115,7 @@ void Provider::initialize(CIMOMHandle & cimom)
     try
     {
 	// yield before a potentially lengthy operation.
-	pegasus_yield();
+	Threads::yield();
 
 	ProviderFacade::initialize(cimom);
     }
@@ -148,7 +148,7 @@ Boolean Provider::tryTerminate(void)
         }
 
         // yield before a potentially lengthy operation.
-        pegasus_yield();
+        Threads::yield();
         try
         {
 #ifdef PEGASUS_PRESERVE_TRYTERMINATE
@@ -178,7 +178,7 @@ void Provider::terminate(void)
   if(_status == INITIALIZED)
   {
 // yield before a potentially lengthy operation.
-	pegasus_yield();
+	Threads::yield();
 	try
        {
 	ProviderFacade::terminate();

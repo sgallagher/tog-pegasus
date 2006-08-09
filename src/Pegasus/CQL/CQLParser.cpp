@@ -40,10 +40,10 @@
 #include "CQLParser.h"
 #include "CQLParserState.h"
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/IPC.h>
 
 PEGASUS_USING_STD;
 

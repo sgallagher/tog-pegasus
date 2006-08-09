@@ -112,7 +112,7 @@ private:
     ThreadPool* _thread_pool;
 
     //worker thread
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _worker_routine(void *param);
+    static ThreadReturnType PEGASUS_THREAD_CDECL _worker_routine(void *param);
 
 
     //methods

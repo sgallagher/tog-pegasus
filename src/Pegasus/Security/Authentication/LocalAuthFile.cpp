@@ -59,8 +59,8 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/Common/IPC.h>
 #if defined(PEGASUS_OS_OS400)
 #include "OS400ConvertChar.h"
 #endif

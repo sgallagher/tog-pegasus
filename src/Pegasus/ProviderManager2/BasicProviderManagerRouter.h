@@ -42,7 +42,7 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContextInternal.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/ReadWriteSem.h>
 
 #include <Pegasus/ProviderManager2/ProviderManagerRouter.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>

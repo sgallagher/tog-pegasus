@@ -43,7 +43,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/ProviderManager2/BasicProviderManagerRouter.h>
 
@@ -122,7 +122,7 @@ private:
                    reference to the ProviderAgent object and the request
                    message to process.
      */
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+    static ThreadReturnType PEGASUS_THREAD_CDECL
         _processRequestAndWriteResponse(void* arg);
 
     /**
@@ -139,7 +139,7 @@ private:
         CIMRequestMessage* request, CIMResponseMessage* response);
 
     void _unloadIdleProviders();
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+    static ThreadReturnType PEGASUS_THREAD_CDECL
         _unloadIdleProvidersHandler(void* arg) throw();
 
     static void _terminateSignalHandler(

@@ -39,8 +39,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Repository/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -135,7 +135,7 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
     if (_maxEntries == 0)
 	return;
 
-    _mutex.lock(pegasus_thread_self());
+    _mutex.lock();
 
     //// Update object if it is already in cache:
 
@@ -228,7 +228,7 @@ bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object)
     if (_maxEntries == 0)
 	return false;
 
-    _mutex.lock(pegasus_thread_self());
+    _mutex.lock();
 
     //// Search cache for object.
 
@@ -263,7 +263,7 @@ bool ObjectCache<OBJECT>::evict(const String& path)
     if (_maxEntries == 0)
 	return false;
 
-    _mutex.lock(pegasus_thread_self());
+    _mutex.lock();
 
     //// Find and remove the given element.
 

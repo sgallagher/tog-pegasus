@@ -43,7 +43,6 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/IPC.h>
 
 #include <Pegasus/ProviderManager2/ProviderManagerRouter.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>

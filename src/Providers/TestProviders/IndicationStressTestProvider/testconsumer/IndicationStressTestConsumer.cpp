@@ -31,10 +31,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/AtomicInt.h>
 #include <cstring>
 #include "IndicationStressTestConsumer.h"
-
-#include <Pegasus/Common/IPC.h> 
 
 PEGASUS_NAMESPACE_BEGIN
 

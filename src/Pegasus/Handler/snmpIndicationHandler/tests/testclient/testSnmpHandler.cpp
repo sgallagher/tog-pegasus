@@ -464,7 +464,7 @@ static void _testEnd(const String& uniqueID, const double elapsedTime)
         << " seconds" << endl;
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeTests(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL _executeTests(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
@@ -499,7 +499,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeTests(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((PEGASUS_THREAD_RETURN)1);
+    my_thread->exit_self((ThreadReturnType)1);
     return(0);
 }
 

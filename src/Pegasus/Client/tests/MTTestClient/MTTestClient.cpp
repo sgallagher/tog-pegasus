@@ -134,7 +134,7 @@ static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
     return true;
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_client(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL test_client(void *parm)
 {
     CIMClient              client;
     Thread*                myHandle    = (Thread *)parm;
@@ -251,12 +251,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_client(void *parm)
          PEGASUS_STD(cout) << endl <<
              "++++++++ Completed Disconnect +++++++++ " << endl;
 #endif
-        myHandle->exit_self((PEGASUS_THREAD_RETURN)1);
+        myHandle->exit_self((ThreadReturnType)1);
         return(0);
     }
     catch(const Exception& e)
     {
-        myHandle->exit_self((PEGASUS_THREAD_RETURN)1);
+        myHandle->exit_self((ThreadReturnType)1);
         PEGASUS_STD(cout) << "Error: " << e.getMessage() << endl;
         return(0);
     }

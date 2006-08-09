@@ -37,10 +37,10 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#define _ISOC99_SOURCE
 #include <stdio.h>
 #endif
 
+#include <Pegasus/Common/Time.h>
 #include "CMPI_Version.h"
 
 #include "CMPI_DateTime.h"
@@ -120,10 +120,9 @@ extern "C" {
    CMPIDateTime *newDateTime() {
       struct timeval tv;
 #if defined (PEGASUS_OS_VMS)
-      gettimeofday(&tv,NULL);
+      Time::gettimeofday(&tv);
 #else
-      struct timezone tz;
-      gettimeofday(&tv,&tz);
+      Time::gettimeofday(&tv);
 #endif
       return (CMPIDateTime*)new CMPI_Object(makeCIMDateTime(tv.tv_sec,tv.tv_usec,0));
    }

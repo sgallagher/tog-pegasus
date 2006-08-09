@@ -59,7 +59,7 @@
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-#include "OS400ConvertChar.h"
+#include "EBCDIC_OS400.h"
 #endif
 
 

@@ -263,7 +263,7 @@ Uint32 ModuleController::find_service(
 {
 
    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-      throw Permission(pegasus_thread_self());
+      throw Permission(Threads::self());
    Array<Uint32> services;
    Base::find_services(name, 0, 0, &services);
    return( services[0]);
@@ -278,7 +278,7 @@ Uint32 ModuleController::find_module_in_service(
     const String & name)
 {
    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-      throw(Permission(pegasus_thread_self()));
+      throw(Permission(Threads::self()));
 
    Uint32 result = 0 ;
 
@@ -313,7 +313,7 @@ AsyncReply * ModuleController::ModuleSendWait(
     AsyncRequest *request)
 {
    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-      throw(Permission(pegasus_thread_self()));
+      throw(Permission(Threads::self()));
 
    return _send_wait(destination_q, request);
 }
@@ -355,7 +355,7 @@ AsyncReply * ModuleController::ModuleSendWait(
     AsyncRequest *message)
 {
    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-      throw(Permission(pegasus_thread_self()));
+      throw(Permission(Threads::self()));
 
    return _send_wait(destination_q, destination_module, message);
 }
@@ -416,7 +416,7 @@ Boolean ModuleController::ModuleSendAsync(
    //printf("verifying handle %p, controller at %p \n", &handle, this);
 
    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-      throw(Permission(pegasus_thread_self()));
+      throw(Permission(Threads::self()));
 
    if (message->op == NULL)
    {
@@ -449,7 +449,7 @@ Boolean ModuleController::ModuleSendAsync(const RegisteredModuleHandle& handle,
 {
 
    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-      throw(Permission(pegasus_thread_self()));
+      throw(Permission(Threads::self()));
 
    AsyncOpNode *op = get_op();
    AsyncModuleOperationStart *request =
@@ -503,7 +503,7 @@ Boolean ModuleController::ModuleSendForget(
     AsyncRequest *message)
 {
    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-      throw(Permission(pegasus_thread_self()));
+      throw(Permission(Threads::self()));
 
    return _send_forget(destination_q, message);
 }
@@ -515,7 +515,7 @@ Boolean ModuleController::ModuleSendForget(
     AsyncRequest *message)
 {
    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-      throw(Permission(pegasus_thread_self()));
+      throw(Permission(Threads::self()));
    return _send_forget(destination_q,
 		       destination_module,
 		       message);

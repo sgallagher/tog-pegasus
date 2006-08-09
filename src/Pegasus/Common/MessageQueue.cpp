@@ -40,7 +40,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Tracer.h>
 #include "MessageQueue.h"
 #include "MessageQueueService.h"

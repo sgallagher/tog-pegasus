@@ -49,8 +49,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/ReadWriteSem.h>
 
 
 PEGASUS_NAMESPACE_BEGIN

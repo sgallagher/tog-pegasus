@@ -40,6 +40,7 @@
 #define Pegasus_CIMOMHandleRep_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMObjectPath.h>
@@ -48,7 +49,6 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/Sharable.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Provider/Linkage.h>
 

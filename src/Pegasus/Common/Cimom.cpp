@@ -137,7 +137,7 @@ void cimom::_shutdown_routed_queue()
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 {
 
    Thread *myself = reinterpret_cast<Thread *>(parm);
@@ -257,22 +257,23 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 cimom::cimom()
    : MessageQueue(PEGASUS_QUEUENAME_METADISPATCHER, true, CIMOM_Q_ID ),
      _modules(),
-     _routed_ops(0), 
+     _routed_ops(), 
      _routing_thread( _routing_proc, this, false),
-     _die(0), _routed_queue_shutdown(0)
+     _die(0), 
+     _routed_queue_shutdown(0)
 {
    _capabilities |= module_capabilities::async;
    
    _global_this = static_cast<cimom *>(MessageQueue::lookup(CIMOM_Q_ID));
    
-   pegasus_gettimeofday(&_last_module_change);
+   Time::gettimeofday(&_last_module_change);
    _default_op_timeout.tv_sec = 30;
    _default_op_timeout.tv_usec = 100;
    ThreadStatus tr = PEGASUS_THREAD_OK;
    while ( (tr = _routing_thread.run()) != PEGASUS_THREAD_OK)
    {
       if (tr == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-        pegasus_yield();
+        Threads::yield();
       else
         throw Exception(MessageLoaderParms("Common.Cimom.NOT_ENOUGH_THREADS",
 			"Cannot allocate thread for Cimom class"));
@@ -288,7 +289,7 @@ cimom::~cimom()
 // shutdown legacy queues; e.g., cim operation dispatcher etc.
    _die++;
    if (_routed_queue_shutdown.get() == 0 )
-      _routed_ops.shutdown_queue();
+      _routed_ops.close();
    _routing_thread.join();
 
    _modules.clear();
@@ -602,7 +603,7 @@ void cimom::update_module(UpdateCimService *msg )
       {
 	 temp->_capabilities = msg->capabilities;
 	 temp->_mask = msg->mask;
-	 gettimeofday(&(temp->_heartbeat), NULL);
+	 Time::gettimeofday(&(temp->_heartbeat));
 	 result = async_results::OK;
 	 break;
       }
@@ -677,7 +678,7 @@ void cimom::ioctl(AsyncIoctl *msg)
 	 } // message processing loop
 
 	 // shutdown the AsyncQueue
-	 service->_routed_ops.shutdown_queue();
+	 service->_routed_ops.close();
 	 // exit the thread ! 
 	 _die++;
 	 return;

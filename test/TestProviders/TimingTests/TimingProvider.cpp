@@ -40,7 +40,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <iostream>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>
 #include "TimingProvider.h"

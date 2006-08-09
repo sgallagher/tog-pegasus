@@ -55,11 +55,11 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <Pegasus/Common/CIMDateTimeWindows.cpp>
 #elif defined(PEGASUS_OS_TYPE_UNIX)
-# include <Pegasus/Common/CIMDateTimeUnix.cpp>
+# include <Pegasus/Common/CIMDateTimePOSIX.cpp>
 #elif defined(PEGASUS_OS_TYPE_NSK)
 # include <Pegasus/Common/CIMDateTimeNsk.cpp>
 #elif defined(PEGASUS_OS_VMS)
-# include <Pegasus/Common/CIMDateTimeVms.cpp>
+# include <Pegasus/Common/CIMDateTimePOSIX.cpp>
 #else
 # error "Unsupported platform"
 #endif

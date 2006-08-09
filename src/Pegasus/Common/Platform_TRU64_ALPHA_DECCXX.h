@@ -65,4 +65,8 @@
 
 #define PEGASUS_SUPPORTS_DYNLIB
 
+#define PEGASUS_HAVE_PTHREADS
+
+#define PEGASUS_HAVE_NANOSLEEP
+
 #endif /* Pegasus_Platform_TRU64_ALPHA_DECCXX_h */

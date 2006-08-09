@@ -48,8 +48,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Repository/Linkage.h>
+#include <Pegasus/Common/ReadWriteSem.h>
 #include "AssocClassCache.h"
 
 PEGASUS_NAMESPACE_BEGIN

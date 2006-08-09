@@ -46,7 +46,6 @@
 #define PegasusRepository_Repository_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -57,6 +56,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 #include <Pegasus/Repository/Linkage.h>
+#include <Pegasus/Common/ReadWriteSem.h>
 
 #include <Pegasus/Common/ObjectStreamer.h>
 

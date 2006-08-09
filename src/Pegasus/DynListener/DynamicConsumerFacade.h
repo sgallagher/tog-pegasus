@@ -43,9 +43,9 @@
 #define Dynamic_Consumer_Facade_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
-#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 #include <Pegasus/DynListener/Linkage.h>
+#include <Pegasus/Common/AtomicInt.h>
+#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

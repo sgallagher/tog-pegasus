@@ -45,7 +45,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>

@@ -38,14 +38,13 @@ COMPILER = ibm
 
 SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include -I$(ROOT)/src/StandardIncludes/zOS
 #SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include
-DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_OPEN_SOURCE=3 -D_ENHANCED_ASCII_EXT=0xFFFFFFFF
+DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_ALL_SOURCE -D_UNIX03_SOURCE -D_OPEN_THREADS=2 -D_ISOC99_SOURCE -D_ENHANCED_ASCII_EXT=0xFFFFFFFF -D_OPEN_SYS_MUTEX_EXT
 
 ifdef PEGASUS_KERBEROS_AUTHENTICATION
   DEFINES += -DPEGASUS_KERBEROS_AUTHENTICATION
 endif
 
 
-DEPEND_DEFINES = -D__IBMCPP__=400
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
 FLAGS = -W "c,debug,ASCII,XPLINK,dll,expo,langlvl(extended),rtti(dynamiccast),float(ieee),goff"
@@ -79,9 +78,6 @@ ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
   DEFINES += -DPEGASUS_ZOS_THREADLEVEL_SECURITY
 endif
 
-#ifdef PEGASUS_ZOS_USE_LONG_ARRAYS
-  DEFINES += -DPEGASUS_ZOS_USE_LONG_ARRAYS
-#endif
 
 # if PEGASUS_ENABLE_SLP is already set then honor the users preference else
 # Enable the compilation of the SLP functions.

@@ -103,14 +103,14 @@ private:
 
     virtual void _handle_async_request(AsyncRequest* request);
 
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCimOperation(
+    static ThreadReturnType PEGASUS_THREAD_CDECL handleCimOperation(
         void* arg) ;
 
     void handleCimRequest(AsyncOpNode* op, Message* message);
 
     Message* _processMessage(CIMRequestMessage* request);
 
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+    static ThreadReturnType PEGASUS_THREAD_CDECL
         _unloadIdleProvidersHandler(void* arg) throw();
 
     void _updateProviderModuleStatus(

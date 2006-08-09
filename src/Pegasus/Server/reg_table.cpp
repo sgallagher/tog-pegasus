@@ -38,7 +38,6 @@
 
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/AutoPtr.h>

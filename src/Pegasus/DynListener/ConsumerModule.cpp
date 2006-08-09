@@ -36,6 +36,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/ThreadPool.h>
 
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 #include <Pegasus/DynListener/ConsumerManager.h>

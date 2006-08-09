@@ -41,7 +41,7 @@
 #define Pegasus_PAMBasicAuthenticator_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Mutex.h>
 #include "BasicAuthenticator.h"
 
 

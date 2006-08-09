@@ -118,7 +118,7 @@ public:
 	CIMExportIndicationResponseMessage* handleIndicationRequest(CIMExportIndicationRequestMessage* request);
 
 	
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deliver_routine(void *param);
+	static ThreadReturnType PEGASUS_THREAD_CDECL deliver_routine(void *param);
 
 private:
 	void	deliverIndication(String url, CIMInstance instance, ContentLanguageList contentLangs);
@@ -209,7 +209,7 @@ void CIMListenerIndicationDispatcherRep::deliverIndication(String url,
     		}
 	}
 }
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerIndicationDispatcherRep::deliver_routine(void *param)
+ThreadReturnType PEGASUS_THREAD_CDECL CIMListenerIndicationDispatcherRep::deliver_routine(void *param)
 {
 	CIMListenerIndicationDispatchEvent* event = static_cast<CIMListenerIndicationDispatchEvent*>(param);
 

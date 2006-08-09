@@ -35,12 +35,11 @@
 #define Pegasus_ProviderModule_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/AtomicInt.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/DynamicLibrary.h>
-#include <Pegasus/Common/IPC.h>
-
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Provider/CIMProvider.h>
-
 #include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 

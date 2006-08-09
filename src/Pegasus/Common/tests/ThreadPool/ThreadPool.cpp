@@ -36,8 +36,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/Tracer.h>
 
 #include <sys/types.h>
@@ -54,20 +54,20 @@ PEGASUS_USING_PEGASUS;
 
 Boolean verbose = false;
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcSleepUntilCancelled(
+ThreadReturnType PEGASUS_THREAD_CDECL funcSleepUntilCancelled(
     void* parm)
 {
     AtomicInt* cancelled = static_cast<AtomicInt*>(parm);
 
     while (cancelled->get() == 0)
     {
-        pegasus_sleep(1);
+        Threads::sleep(1);
     }
 
     return 0;
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcSleepSpecifiedMilliseconds(
+ThreadReturnType PEGASUS_THREAD_CDECL funcSleepSpecifiedMilliseconds(
     void* parm)
 {
 #ifdef PEGASUS_POINTER_64BIT
@@ -78,23 +78,23 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcSleepSpecifiedMilliseconds(
     Uint32 sleepMilliseconds = (Uint32)parm;
 #endif
 
-    pegasus_sleep(sleepMilliseconds);
+    Threads::sleep(sleepMilliseconds);
 
     return 0;
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcIncrementCounter(
+ThreadReturnType PEGASUS_THREAD_CDECL funcIncrementCounter(
     void* parm)
 {
     AtomicInt* counter = static_cast<AtomicInt*>(parm);
 
     (*counter)++;
-    pegasus_sleep(50);
+    Threads::sleep(50);
 
     return 0;
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcThrow(void* parm)
+ThreadReturnType PEGASUS_THREAD_CDECL funcThrow(void* parm)
 {
     throw Uint32(10);
     PEGASUS_UNREACHABLE(return 0);
@@ -158,7 +158,7 @@ void testCleanupIdleThread()
 
         threadPool.allocate_and_awaken(
             (void*)1, funcSleepSpecifiedMilliseconds);
-        pegasus_sleep(1000);
+        Threads::sleep(1000);
 
         PEGASUS_TEST_ASSERT(threadPool.idleCount() == 1);
         threadPool.cleanupIdleThreads();
@@ -251,7 +251,7 @@ void testOverloadPool()
             (void*)100, funcSleepSpecifiedMilliseconds)) != PEGASUS_THREAD_OK)
         {
           if (rc ==PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-            pegasus_yield();
+            Threads::yield();
           else
            throw Exception("Could not allocate and awaken a thread."); 
         }
@@ -285,7 +285,7 @@ void testHighWorkload()
                 &counter, funcIncrementCounter)) != PEGASUS_THREAD_OK)
             {
 		if (rc == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-                	pegasus_yield();
+                	Threads::yield();
 	 	else
 			throw Exception("Coudl not allocate a thread for counter.");	
             }
@@ -315,7 +315,7 @@ void testWorkException()
         ThreadPool threadPool(0, "test exception", 0, 6, deallocateWait);
 
         threadPool.allocate_and_awaken((void*)1, funcThrow);
-        pegasus_sleep(100);
+        Threads::sleep(100);
     }
     catch (const Exception& e)
     {
@@ -341,7 +341,7 @@ void testBlockingThread()
             (void*)16, funcSleepSpecifiedMilliseconds, &blocking)) != PEGASUS_THREAD_OK)
         {
 	  if (rt == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-            pegasus_yield();
+            Threads::yield();
 	  else
 	   throw Exception("Could not allocate thread for funcSleepSpecifiedMilliseconds function.");
         }

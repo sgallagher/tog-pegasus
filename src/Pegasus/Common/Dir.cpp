@@ -42,11 +42,9 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "DirWindows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
-# include "DirUnix.cpp"
-#elif defined(PEGASUS_OS_TYPE_NSK)
-# include "DirNsk.cpp"
+# include "DirPOSIX.cpp"
 #elif defined(PEGASUS_OS_VMS)
-# include "DirVms.cpp"
+# include "DirPOSIX.cpp"
 #else
 # error "Unsupported platform"
 #endif

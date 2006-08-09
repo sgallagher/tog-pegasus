@@ -243,7 +243,7 @@ int main(int argc, char **argv)
         // wait for 30 seconds. 
         while(finish > now) 
         {
-          pegasus_sleep(1000);
+          Threads::sleep(1000);
           System::getCurrentTime(now, msec);
         }
         

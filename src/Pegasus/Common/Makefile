@@ -52,7 +52,13 @@ LIBRARY = pegcommon
 ##
 
 SOURCES1 = \
-    RecursiveMutex.cpp \
+    Once.cpp \
+    Time.cpp \
+    Threads.cpp \
+    TSDKey.cpp \
+    Semaphore.cpp \
+    ReadWriteSem.cpp \
+    Condition.cpp \
     AnonymousPipe.cpp \
     Array.cpp \
     AsyncOpNode.cpp \
@@ -126,7 +132,6 @@ SOURCES2 = \
     HTTPMessage.cpp \
     Indentor.cpp \
     IndicationFormatter.cpp \
-    IPC.cpp \
     Logger.cpp \
     Memory.cpp \
     Message.cpp \
@@ -162,6 +167,7 @@ SOURCES2 = \
     TraceFileHandler.cpp \
     Tracer.cpp \
     Thread.cpp \
+    ThreadPool.cpp \
     Union.cpp \
     XmlParser.cpp \
     XmlReader.cpp \

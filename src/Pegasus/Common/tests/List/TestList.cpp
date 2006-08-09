@@ -38,7 +38,6 @@
 
 #include <Pegasus/Common/List.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/RecursiveMutex.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -67,7 +66,6 @@ private:
 };
 
 typedef List<Person,NullLock> PersonList;
-//typedef List<Person,RecursiveMutex> PersonList;
 
 int main(int argc, char** argv)
 {

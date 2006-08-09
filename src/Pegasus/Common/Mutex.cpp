@@ -29,22 +29,226 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Markus Mueller
-//              Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
-//              David Eger (dteger@us.ibm.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Mutex.h"
+#include "Time.h"
+#include "PegasusAssert.h"
+#include "Once.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+//==============================================================================
+//
+// PEGASUS_HAVE_PTHREADS
+//
+//==============================================================================
+
+#if defined(PEGASUS_HAVE_PTHREADS)
+
+static Once _once = PEGASUS_ONCE_INITIALIZER;
+static pthread_mutexattr_t _attr;
+
+static void _init_attr()
+{
+    pthread_mutexattr_init(&_attr);
+    pthread_mutexattr_settype(&_attr, PTHREAD_MUTEX_RECURSIVE);
+}
+
+Mutex::Mutex()
+{
+    once(&_once, _init_attr);
+    pthread_mutex_init(&_rep.mutex, &_attr);
+#if defined(PEGASUS_DEBUG)
+    _rep.count = 0;
+#endif
+}
+
+Mutex::~Mutex()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+    pthread_mutex_destroy(&_rep.mutex);
+}
+
+void Mutex::lock()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+
+    switch (pthread_mutex_lock(&_rep.mutex))
+    {
+        case 0:
+#if defined(PEGASUS_DEBUG)
+            _rep.count++;
+#endif
+            break;
+
+        default:
+            throw WaitFailed(Threads::self());
+    }
+}
+
+void Mutex::try_lock()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+
+    switch (pthread_mutex_trylock(&_rep.mutex))
+    {
+        case 0:
+#if defined(PEGASUS_DEBUG)
+            _rep.count++;
+#endif
+            break;
+
+        case EBUSY:
+            throw AlreadyLocked(Threads::self());
+
+        default:
+            throw WaitFailed(Threads::self());
+    }
+}
+
+void Mutex::timed_lock(Uint32 milliseconds)
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+
+    struct timeval now;
+    struct timeval finish;
+    struct timeval remaining;
+    {
+        Uint32 usec;
+        gettimeofday(&finish, NULL);
+        finish.tv_sec += (milliseconds / 1000 );
+        milliseconds %= 1000;
+        usec = finish.tv_usec + ( milliseconds * 1000 );
+        finish.tv_sec += (usec / 1000000);
+        finish.tv_usec = usec % 1000000;
+    }
+
+    for (;;)
+    {
+        switch (pthread_mutex_trylock(&_rep.mutex))
+        {
+            case 0:
+#if defined(PEGASUS_DEBUG)
+                _rep.count++;
+#endif
+                return;
+
+            case EBUSY:
+            {
+                gettimeofday(&now, NULL);
+
+                if (Time::subtract(&remaining, &finish, &now))
+                    throw TimeOut(Threads::self());
+
+                Threads::yield();
+                break;
+            }
+
+            default:
+                throw WaitFailed(Threads::self());
+        }
+    }
+}
+
+void Mutex::unlock()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+    PEGASUS_DEBUG_ASSERT(_rep.count > 0);
+
+#if defined(PEGASUS_DEBUG)
+    _rep.count--;
+#endif
+
+    if (pthread_mutex_unlock(&_rep.mutex) != 0)
+        throw Permission(Threads::self());
+}
+
+#endif /* PEGASUS_HAVE_PTHREADS */
+
+//==============================================================================
+//
+// PEGASUS_HAVE_WINDOWS_THREADS
+//
+//==============================================================================
+
+#if defined(PEGASUS_HAVE_WINDOWS_THREADS)
+
+Mutex::Mutex()
+{
+    _rep.handle = CreateMutex(NULL, FALSE, NULL);
+#if defined(PEGASUS_DEBUG)
+    _rep.count = 0;
+#endif
+}
+
+Mutex::~Mutex()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+
+    WaitForSingleObject(_rep.handle, INFINITE);
+    CloseHandle(_rep.handle);
+}
+
+void Mutex::lock()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+
+    DWORD rc = WaitForSingleObject(_rep.handle, INFINITE);
+
+    if (rc == WAIT_FAILED)
+        throw WaitFailed(Threads::self());
+
+#if defined(PEGASUS_DEBUG)
+    _rep.count++;
+#endif
+}
+
+void Mutex::try_lock()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+
+    DWORD rc = WaitForSingleObject(_rep.handle, 0);
+
+    if (rc == WAIT_TIMEOUT)
+        throw AlreadyLocked(Threads::self());
+
+    if (rc == WAIT_FAILED)
+        throw WaitFailed(Threads::self());
+
+#if defined(PEGASUS_DEBUG)
+    _rep.count++;
+#endif
+}
+
+void Mutex::timed_lock(Uint32 milliseconds)
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+
+    DWORD rc = WaitForSingleObject(_rep.handle, milliseconds);
+
+    if (rc == WAIT_TIMEOUT)
+        throw TimeOut(Threads::self());
+
+    if (rc == WAIT_FAILED)
+        throw WaitFailed(Threads::self());
+
+#if defined(PEGASUS_DEBUG)
+    _rep.count++;
+#endif
+}
+
+void Mutex::unlock()
+{
+    PEGASUS_DEBUG_ASSERT(_magic);
+    PEGASUS_DEBUG_ASSERT(_rep.count > 0);
+
+#if defined(PEGASUS_DEBUG)
+    _rep.count--;
+#endif
+    ReleaseMutex(_rep.handle);
+}
+
+#endif /* PEGASUS_HAVE_WINDOWS_THREADS */
 
 PEGASUS_NAMESPACE_END

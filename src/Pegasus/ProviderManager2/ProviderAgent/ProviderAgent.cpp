@@ -37,6 +37,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/CIMMessageSerializer.h>
@@ -479,7 +480,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
         {
             if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
             {
-                pegasus_yield();
+                Threads::yield();
             }
             else
             {
@@ -595,7 +596,7 @@ void ProviderAgent::_writeResponse(Message* message)
     PEG_METHOD_EXIT();
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+ThreadReturnType PEGASUS_THREAD_CDECL
 ProviderAgent::_processRequestAndWriteResponse(void* arg)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT,
@@ -631,7 +632,7 @@ ProviderAgent::_processRequestAndWriteResponse(void* arg)
     }
 
     PEG_METHOD_EXIT();
-    return(PEGASUS_THREAD_RETURN(0));
+    return(ThreadReturnType(0));
 }
 
 void ProviderAgent::_indicationCallback(
@@ -691,7 +692,7 @@ void ProviderAgent::_unloadIdleProviders()
     PEG_METHOD_EXIT();
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+ThreadReturnType PEGASUS_THREAD_CDECL
 ProviderAgent::_unloadIdleProvidersHandler(void* arg) throw()
 {
     try
@@ -728,7 +729,7 @@ ProviderAgent::_unloadIdleProvidersHandler(void* arg) throw()
     }
 
     // PEG_METHOD_EXIT();    // Note: This statement could throw an exception
-    return(PEGASUS_THREAD_RETURN(0));
+    return(ThreadReturnType(0));
 }
 
 void ProviderAgent::_terminateSignalHandler(

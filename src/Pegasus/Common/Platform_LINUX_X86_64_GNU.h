@@ -84,4 +84,8 @@
 # define PEGASUS_HIDDEN_LINKAGE __attribute__((visibility("hidden")))
 #endif
 
+#define PEGASUS_HAVE_PTHREADS
+
+#define PEGASUS_HAVE_NANOSLEEP
+
 #endif /* Pegasus_Platform_LINUX_X86_64_GNU_h */

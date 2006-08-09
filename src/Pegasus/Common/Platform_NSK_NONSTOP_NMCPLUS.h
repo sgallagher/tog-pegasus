@@ -60,4 +60,6 @@
 
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
 
+#define PEGASUS_HAVE_PTHREADS
+
 #endif /* Pegasus_Platform_NSK_NONSTOP_NMCPLUS_h */

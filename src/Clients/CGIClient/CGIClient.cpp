@@ -57,11 +57,12 @@ This Program was intended to be a test and demonstration tool for
 Pegasus.
 */
 
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <cctype>
 #include <cstdlib>
 #include <cstdio>
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Logger.h>

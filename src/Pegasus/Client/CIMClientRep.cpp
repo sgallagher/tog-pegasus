@@ -1268,7 +1268,7 @@ Message* CIMClientRep::_doRequest(
         }
 
         nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
-        pegasus_yield();
+        Threads::yield();
     }
 
     //

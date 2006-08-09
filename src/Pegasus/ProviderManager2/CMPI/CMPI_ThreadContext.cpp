@@ -48,15 +48,15 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_THREAD_KEY_TYPE CMPI_ThreadContext::contextKey;
+TSDKeyType CMPI_ThreadContext::contextKey;
 int CMPI_ThreadContext::context_key_once=1;
 
 void CMPI_ThreadContext::context_key_alloc()
 {
-	pegasus_key_create(&contextKey);
+	TSDKey::create(&contextKey);
 }
 
-PEGASUS_THREAD_KEY_TYPE CMPI_ThreadContext::getContextKey()
+TSDKeyType CMPI_ThreadContext::getContextKey()
 {
 	if (context_key_once) {
 		 context_key_alloc();
@@ -87,9 +87,9 @@ void CMPI_ThreadContext::remObject(CMPI_Object* o) {
 }
 
 CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext() {
-   PEGASUS_THREAD_KEY_TYPE k=getContextKey();
+   TSDKeyType k=getContextKey();
    #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-    return (CMPI_ThreadContext*)pegasus_get_thread_specific(k);
+    return (CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
    #else
     CMPI_ThreadContext* tCtx=NULL;
     pthread_getspecific(k,(void**)&tCtx);
@@ -113,13 +113,13 @@ CMPI_ThreadContext::CMPI_ThreadContext(const CMPIBroker *mb, const CMPIContext *
    CIMfirst=CIMlast=NULL;
    broker=mb;
    context=ctx;
-   PEGASUS_THREAD_KEY_TYPE k=getContextKey();
+   TSDKeyType k=getContextKey();
    #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-     prev=(CMPI_ThreadContext*)pegasus_get_thread_specific(k);
+     prev=(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
    #else
     pthread_getspecific(k,(void**)&prev);
    #endif
-   pegasus_set_thread_specific(k,this);
+   TSDKey::set_thread_specific(k,this);
    return;
 }
 
@@ -129,8 +129,8 @@ CMPI_ThreadContext::~CMPI_ThreadContext() {
       ((CMPIInstance*)cur)->ft->release((CMPIInstance*)cur);
    }
 
-   PEGASUS_THREAD_KEY_TYPE k=getContextKey();
-   pegasus_set_thread_specific(k,prev);
+   TSDKeyType k=getContextKey();
+   TSDKey::set_thread_specific(k,prev);
 }
 
 

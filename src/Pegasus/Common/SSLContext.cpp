@@ -476,13 +476,13 @@ void pegasus_locking_callback( int      mode,
     if ( mode & CRYPTO_LOCK )
     {
         /*Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "Now locking for %d", pegasus_thread_self());*/
-        SSLContextRep::_sslLocks.get()[type].lock( pegasus_thread_self() );
+                "Now locking for %d", Threads::self());*/
+        SSLContextRep::_sslLocks.get()[type].lock( Threads::self() );
     }
     else
     {
         /*Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "Now unlocking for %d", pegasus_thread_self());*/
+                "Now unlocking for %d", Threads::self());*/
         SSLContextRep::_sslLocks.get()[type].unlock( );
     }
 }
@@ -506,7 +506,7 @@ void SSLContextRep::init_ssl()
 
      // Set the ID callback. The ID callback returns a thread ID.
 
-     CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) pegasus_thread_self);
+     CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) Threads::self);
 
      // Set the locking callback to pegasus_locking_callback.
 
@@ -583,20 +583,20 @@ SSLContextRep::SSLContextRep(
             // load SSL library
             //
             Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "Before calling SSL_load_error_strings %d", pegasus_thread_self());
+                "Before calling SSL_load_error_strings %d", Threads::self());
 
             SSL_load_error_strings();
 
             Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "After calling SSL_load_error_strings %d", pegasus_thread_self());
+                "After calling SSL_load_error_strings %d", Threads::self());
 
             Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "Before calling SSL_library_init %d", pegasus_thread_self());
+                "Before calling SSL_library_init %d", Threads::self());
 
             SSL_library_init();
 
             Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "After calling SSL_library_init %d", pegasus_thread_self());
+                "After calling SSL_library_init %d", Threads::self());
 
         }
 

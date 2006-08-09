@@ -42,7 +42,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/DynamicLibrary.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Exception.h>
@@ -130,7 +130,7 @@ class PEGASUS_SLP_LINKAGE slp_service_agent
 			       const char *attrs, 
 			       const char *type, 
 			       const char *scopes);
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL service_listener(void *);
+      static ThreadReturnType PEGASUS_THREAD_CDECL service_listener(void *);
       
       void start_listener(void);
       void unregister(void);

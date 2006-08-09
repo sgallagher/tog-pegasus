@@ -37,6 +37,7 @@
 
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
 #include "OperatingSystem.h"
@@ -280,7 +281,7 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 /**
    getCurrentTimeZone method for Solaris implementation of OS Provider
 
-   Gets information from gettimeofday call and ensures sign follows
+   Gets information from Time::gettimeofday call and ensures sign follows
    CIM standard.
 
   */

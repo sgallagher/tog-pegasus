@@ -39,7 +39,7 @@
 #include "ResponseHandlerRep.h"
 #include "InternalException.h"
 #include "HashTable.h"
-#include "IPC.h"
+#include "Mutex.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

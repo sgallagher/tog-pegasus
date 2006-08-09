@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Markus Mueller
-//              Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
-//              David Eger (dteger@us.ibm.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Mutex_h
@@ -48,69 +36,100 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/IPCTypes.h>
+#include <Pegasus/Common/IPCExceptions.h>
 #include <Pegasus/Common/Magic.h>
+#include <Pegasus/Common/Threads.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+//==============================================================================
+//
+// MutexRep
+//
+//==============================================================================
+
+#if defined(PEGASUS_HAVE_PTHREADS)
+typedef pthread_mutex_t MutexType;
+inline void mutex_lock(MutexType* mutex) { pthread_mutex_lock(mutex); }
+inline void mutex_unlock(MutexType* mutex) { pthread_mutex_unlock(mutex); }
+struct MutexRep
+{
+    pthread_mutex_t mutex;
+    int count;
+};
+# define PEGASUS_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
+#endif
+
+#if defined(PEGASUS_HAVE_WINDOWS_THREADS)
+typedef HANDLE MutexType;
+inline void mutex_lock(MutexType* m) { WaitForSingleObject(*m, INFINITE); }
+inline void mutex_unlock(MutexType* m) { ReleaseMutex(*m); }
+struct MutexRep
+{
+    MutexType handle;
+    size_t count;
+};
+# define PEGASUS_MUTEX_INITIALIZER (CreateMutex(NULL, FALSE, NULL))
+#endif
+
+//==============================================================================
+//
+// Mutex
+//
+//==============================================================================
 
 class PEGASUS_COMMON_LINKAGE Mutex
 {
 public:
 
     Mutex();
-    Mutex(int type);
 
     ~Mutex();
 
-    // block until gaining the lock - throw a deadlock
-    // exception if process already holds the lock
-    // @exception Deadlock
-    // @exception WaitFailed
-    void lock(PEGASUS_THREAD_TYPE caller = pegasus_thread_self());
+    void lock();
 
-    // try to gain the lock - lock succeeds immediately if the
-    // mutex is not already locked. throws an exception and returns
-    // immediately if the mutex is currently locked.
-    // @exception Deadlock
-    // @exception AlreadyLocked
-    // @exception WaitFailed
-    void try_lock(PEGASUS_THREAD_TYPE caller = pegasus_thread_self());
+    void try_lock();
 
-    // wait for milliseconds and throw an exception then return if the wait
-    // expires without gaining the lock. Otherwise return without throwing an
-    // exception.
-    // @exception Deadlock
-    // @exception TimeOut
-    // @exception WaitFailed
-    void timed_lock( 
-	Uint32 milliseconds, 
-	PEGASUS_THREAD_TYPE caller = pegasus_thread_self());
+    void timed_lock(Uint32 milliseconds);
 
-    // unlock the semaphore
-    // @exception Permission
     void unlock();
 
-    inline PEGASUS_THREAD_TYPE get_owner() { return(_mutex.owner); }
-
 private:
-    inline void _set_owner(PEGASUS_THREAD_TYPE owner) { _mutex.owner = owner; }
-    PEGASUS_MUTEX_HANDLE _mutex;
-    PEGASUS_MUTEX_HANDLE & _get_handle()
-    {
-        return _mutex;
-    }
+    Mutex(const Mutex&);
+    Mutex& operator=(const Mutex&);
 
-    // Hide the assignment operator to avoid implicit use of the default
-    // assignment operator.  Do not use this method.
-    Mutex& operator=(const Mutex& original) {return *this;}
-
-    // Hide the copy constructor to avoid implicit use of the default
-    // copy constructor.  Do not use this method.
-    Mutex(const Mutex& _mutex);
+    MutexRep _rep;
+    Magic<0x57D11485> _magic;
 
     friend class Condition;
+};
 
-    Magic<0x57D11485> _magic;
+//==============================================================================
+//
+// AutoMutex
+//
+//==============================================================================
+
+class PEGASUS_COMMON_LINKAGE AutoMutex
+{
+public:
+
+    AutoMutex(Mutex& mutex) : _mutex(mutex)
+    {
+        _mutex.lock();
+    }
+
+    ~AutoMutex()
+    {
+        _mutex.unlock();
+    }
+
+private:
+    AutoMutex(); // Unimplemented
+    AutoMutex(const AutoMutex& x); // Unimplemented
+    AutoMutex& operator=(const AutoMutex& x); // Unimplemented
+
+    Mutex& _mutex;
 };
 
 PEGASUS_NAMESPACE_END

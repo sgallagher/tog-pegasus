@@ -53,7 +53,8 @@
 //#include <Pegasus/Server/CIMOperationRequestDecoder.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/List.h>
-#include <Pegasus/Common/RecursiveMutex.h>
+#include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/Time.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -148,11 +149,11 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
    private:
       struct timeval _default_op_timeout;
       struct timeval _last_module_change;
-      List<message_module, RecursiveMutex> _modules;
+      List<message_module, Mutex> _modules;
 
       AsyncQueue<AsyncOpNode> _routed_ops;
 
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _routing_proc(void *);
+      static ThreadReturnType PEGASUS_THREAD_CDECL _routing_proc(void *);
 
       Thread _routing_thread;
 

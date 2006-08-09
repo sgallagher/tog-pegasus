@@ -54,6 +54,7 @@
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
+#include <Pegasus/Common/IPCExceptions.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -2039,7 +2040,7 @@ static void TestLocalizedIndications( CIMClient& client,
     if (verboseTest)
       cout << "Getting the status from the CIMIndicationConsumerProvider"  << endl;
 
-    pegasus_sleep(3000);  // give the indication 3 sec to get to the consumer
+    Threads::sleep(3000);  // give the indication 3 sec to get to the consumer
     rtnVal = client.invokeMethod(
         SAMPLE_NAMESPACE,
         REFERENCE,

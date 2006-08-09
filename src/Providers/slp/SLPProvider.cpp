@@ -1295,7 +1295,7 @@ Boolean SLPProvider::issueSLPRegistrations()
         // wait for 10 seconds. Earlier wait for 30 secs caused the client to timeout !
         while (finish > now)
         {
-            pegasus_sleep(1000);
+            Threads::sleep(1000);
             System::getCurrentTime(now, msec);
         }
         initFlag=true;

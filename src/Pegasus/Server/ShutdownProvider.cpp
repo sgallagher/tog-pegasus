@@ -42,13 +42,13 @@
 //  Shutdown Provider
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "ShutdownProvider.h"
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Signal.h>
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Server/ShutdownService.h>
+#include "ShutdownProvider.h"
 
 // l10n
 #include <Pegasus/Common/MessageLoader.h>

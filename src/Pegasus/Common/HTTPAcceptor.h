@@ -46,7 +46,6 @@
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/Linkage.h>
 

@@ -37,7 +37,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "BinaryMessageHandler.h"
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -166,7 +165,7 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest * request)
    return;
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+ThreadReturnType PEGASUS_THREAD_CDECL
 BinaryMessageHandler::handle_binary_message(void* parm)
 {
    PEG_METHOD_ENTER(TRC_BINARY_MSG_HANDLER,

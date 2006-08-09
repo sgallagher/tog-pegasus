@@ -47,7 +47,6 @@
 #include <Pegasus/Common/Linkable.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -184,7 +183,7 @@ inline Uint32 AsyncOpNode::getState()
 
 inline void AsyncOpNode::lock()
 {
-    _mut.lock(pegasus_thread_self());
+    _mut.lock();
 }
 
 inline void AsyncOpNode::unlock()

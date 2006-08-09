@@ -58,7 +58,7 @@
 #include "System.h"
 #include "XmlConstants.h"
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-#include "OS400ConvertChar.h"
+#include "EBCDIC_OS400.h"
 #endif
 // l10n
 #include <Pegasus/Common/MessageLoader.h>

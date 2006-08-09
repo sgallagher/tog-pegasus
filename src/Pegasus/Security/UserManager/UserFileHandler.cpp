@@ -51,6 +51,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/IPCExceptions.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
@@ -201,7 +202,7 @@ void UserFileHandler::_Update(
 
     try
     {
-        _mutex->timed_lock(_MUTEX_TIMEOUT, pegasus_thread_self());
+        _mutex->timed_lock(_MUTEX_TIMEOUT);
     }
     catch (TimeOut&)
     {

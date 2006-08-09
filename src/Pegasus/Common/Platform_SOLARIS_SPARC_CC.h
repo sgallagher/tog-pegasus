@@ -69,4 +69,6 @@
 using namespace std;
 #endif
 
+#define PEGASUS_HAVE_PTHREADS
+
 #endif /* Pegasus_Platform_SOLARIS_SPARC_CC_h */

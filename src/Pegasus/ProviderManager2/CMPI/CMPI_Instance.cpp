@@ -39,6 +39,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/CIMNameUnchecked.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include "CMPI_Version.h"
 
 #include "CMPI_Instance.h"
@@ -48,6 +49,7 @@
 
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Mutex.h>
 #include <string.h>
 #include <new>
 

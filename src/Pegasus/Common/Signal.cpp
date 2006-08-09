@@ -51,7 +51,7 @@ PEGASUS_USING_PEGASUS;
 
 void sig_act(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 {
-    PEGASUS_THREAD_RETURN retval = 0;
+    ThreadReturnType retval = 0;
 
     if (s_n == PEGASUS_SIGABRT)
     {
@@ -62,7 +62,7 @@ void sig_act(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 
         // In general it is dangerous to call pthread from within a
         // signal handler, because they are not signal safe
-        exit_thread(retval);
+        Threads::exit(retval);
     }
 }
 

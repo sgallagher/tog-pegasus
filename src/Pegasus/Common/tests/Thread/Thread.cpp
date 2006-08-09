@@ -37,8 +37,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/ReadWriteSem.h>
 #include <sys/types.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
@@ -59,12 +59,12 @@ PEGASUS_USING_STD;
 
 Boolean die = false;
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm);
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm);
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test1_thread( void* parm );
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test2_thread( void* parm );
-//PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test3_thread( void* parm );
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm );
+ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm);
+ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm);
+ThreadReturnType PEGASUS_THREAD_CDECL test1_thread( void* parm );
+ThreadReturnType PEGASUS_THREAD_CDECL test2_thread( void* parm );
+//ThreadReturnType PEGASUS_THREAD_CDECL test3_thread( void* parm );
+ThreadReturnType PEGASUS_THREAD_CDECL test4_thread( void* parm );
 
 #define  THREAD_NR 500
 AtomicInt read_count ;
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 	Thread t( test1_thread, 0, false );
 	t.run();
 	t.join();
-	if( t.get_exit() != (PEGASUS_THREAD_RETURN)32 )
+	if( t.get_exit() != (ThreadReturnType)32 )
 	{
 		cerr << "Error test return code" << endl;
 		return 1;
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 	for( i = 0; i < max_threads; i++ )
 		delete threads[i];
 	// TODO: Programatically check
-	//pegasus_sleep( 10000 );
+	//Threads::sleep( 10000 );
 	}
 
 	// NOTE: see test3_thread() comments
@@ -174,7 +174,7 @@ int main(int argc, char **argv)
       writers[i] = new Thread(writing_thread, rw, false);
       writers[i]->run();
    }
-   pegasus_sleep(20000); 
+   Threads::sleep(20000); 
    die = true;
   
    for(i = 0; i < 40; i++)
@@ -229,12 +229,12 @@ void exit_two(void *parm)
    if (verbose) cout << "2";
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
 {
    Thread *my_handle = (Thread *)parm;
    ReadWriteSem * my_parm = (ReadWriteSem *)my_handle->get_parm();
    
-   PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
+   ThreadType myself = Threads::self();
    
    if (verbose) cout << "r";
    
@@ -294,7 +294,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
      // 
       printf ("Exception while trying to put local storage: %llu\n", myself);
 #else
-      cout << "Exception while trying to put local storage: " << myself << endl;
+      cout << "Exception while trying to put local storage: " 
+          << Threads::id(myself) << endl;
 #endif
       abort();
       }
@@ -370,24 +371,25 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
       // 
       printf ("Exception while trying to delete local storage: %llu\n", myself);
 #else
-	 cout << "Exception while trying to delete local storage: " << myself << endl;
+	 cout << "Exception while trying to delete local storage: " 
+             << Threads::id(myself) << endl;
 #endif
 	 abort();
       }
       i++;
    }
-   my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
+   my_handle->exit_self((ThreadReturnType)1);
    return(0);
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
 {
    
    Thread *my_handle = (Thread *)parm;
    ReadWriteSem * my_parm = (ReadWriteSem *)my_handle->get_parm();
    
-   PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
+   ThreadType myself = Threads::self();
    
    if (verbose) cout << "w";
    
@@ -418,17 +420,17 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm)
       }
    }
 
-   my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
+   my_handle->exit_self((ThreadReturnType)1);
    return(0);
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test1_thread( void* parm )
+ThreadReturnType PEGASUS_THREAD_CDECL test1_thread( void* parm )
 {
-	pegasus_sleep( 1000 );
-	return( (PEGASUS_THREAD_RETURN)32 );
+	Threads::sleep( 1000 );
+	return( (ThreadReturnType)32 );
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test2_thread( void* parm )
+ThreadReturnType PEGASUS_THREAD_CDECL test2_thread( void* parm )
 {
 	Thread* thread = (Thread*)parm;
 	TestThreadData* data = (TestThreadData*)thread->reference_tsd("test2");
@@ -439,8 +441,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test2_thread( void* parm )
 
 	thread->dereference_tsd();	
 
-	thread->exit_self( (PEGASUS_THREAD_RETURN)33 );
-	return( (PEGASUS_THREAD_RETURN)32 );
+	thread->exit_self( (ThreadReturnType)33 );
+	return( (ThreadReturnType)32 );
 }
 
 void test3_thread_cleanup1(void*)
@@ -452,22 +454,22 @@ void test3_thread_cleanup1(void*)
 // with pthreads because the implicit cancelation point or the 
 // test_cancel() call (which calls pthread_cancel()) will exit the
 // thread without performing the Thread cleanup routines.
-//PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test3_thread( void* parm )
+//ThreadReturnType PEGASUS_THREAD_CDECL test3_thread( void* parm )
 //{
 //	Thread* thread = (Thread*)parm;
 //	while( true )
 //	{
 //		testval1 = 0;
 //		thread->cleanup_push( test3_thread_cleanup1, 0 );
-//		pegasus_sleep( 2000 );
+//		Threads::sleep( 2000 );
 //		thread->test_cancel();
 //		thread->cleanup_pop( false );
 //	}
-//	thread->exit_self( (PEGASUS_THREAD_RETURN)42 );
-//	return( (PEGASUS_THREAD_RETURN)42 );
+//	thread->exit_self( (ThreadReturnType)42 );
+//	return( (ThreadReturnType)42 );
 //}
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm )
+ThreadReturnType PEGASUS_THREAD_CDECL test4_thread( void* parm )
 {
 	Thread* thread = (Thread*)parm;
 	// Simulate a deadlocked thread
@@ -480,8 +482,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm )
            // 
 	   pthread_testcancel();
 #endif
-	   pegasus_sleep( 2000 );
+	   Threads::sleep( 2000 );
 	}
-	PEGASUS_UNREACHABLE (thread->exit_self( (PEGASUS_THREAD_RETURN)52 );
-	return( (PEGASUS_THREAD_RETURN)52 );)
+	PEGASUS_UNREACHABLE (thread->exit_self( (ThreadReturnType)52 );
+	return( (ThreadReturnType)52 );)
 }

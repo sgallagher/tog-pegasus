@@ -43,7 +43,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/List.h>
-#include <Pegasus/Common/RecursiveMutex.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/DynListener/Linkage.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include "DynamicConsumerFacade.h"
@@ -167,7 +167,7 @@ private:
     friend class ConsumerManager;
 
     //indication queue
-    List<IndicationDispatchEvent,RecursiveMutex> _eventqueue;
+    List<IndicationDispatchEvent,Mutex> _eventqueue;
 
     //this mutex controls the state of the consumer to ensure it is not initializing, terminating, etc at the same time
     //ATTN: Do we need this?  The ConsumerManager will be controlling the status of the consumers.

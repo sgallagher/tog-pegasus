@@ -41,6 +41,7 @@
 #include <unistd.h>
 #endif 
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/Threads.h>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
@@ -124,7 +125,7 @@ class test_module
       
       static Message *receive_msg(Message *msg, void *parm);
       static void async_callback(Uint32 msg_id, Message *msg, void *parm);
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL thread_func(void *);
+      static ThreadReturnType PEGASUS_THREAD_CDECL thread_func(void *);
       ModuleController *get_controller();
       RegisteredModuleHandle *get_mod_handle();
 
@@ -196,7 +197,7 @@ void test_module::async_callback(Uint32 id, Message *msg, void *parm)
    }
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_module::thread_func(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL test_module::thread_func(void *parm)
 {
    test_module *myself = reinterpret_cast<test_module *>(parm);
    (myself->_thread_ex)++;
@@ -378,7 +379,7 @@ typedef struct _test_module_parms
 } MODULE_PARMS;
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
+ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);
    MODULE_PARMS *parms = reinterpret_cast<MODULE_PARMS *>(myself->get_parm());
@@ -399,12 +400,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 	 my_module->get_controller()->find_module_in_service(*(my_module->get_mod_handle()), String(parms->_peer));
 
       if((svce = MessageQueue::lookup(peer_qid)) == NULL)
-	 pegasus_sleep(1);
+	 Threads::sleep(1);
    } while( svce == NULL);
    
    cout << "Found Peer Module " << parms->_peer << " at " << svce << endl;
    
-   pegasus_sleep(1);
+   Threads::sleep(1);
    
    test_request *req;
    Boolean success;
@@ -425,7 +426,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    delete req;
    delete response;
    
-   pegasus_sleep(1);
+   Threads::sleep(1);
 
    req = 
       new test_request(
@@ -442,7 +443,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    
    delete req; 
    delete response;
-   pegasus_sleep(1);
+   Threads::sleep(1);
    cout << " ModuleSendWait to module  successfull " << endl;
    
    req = 
@@ -461,7 +462,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
       cout << "SendAsync to service successful" << endl;
 
    delete req;
-   pegasus_sleep(1);
+   Threads::sleep(1);
    req = 
       new test_request(
 		       0, //MessageQueueService::get_op(), 
@@ -586,7 +587,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    if(success == true )
       cout << "ClientSendForget to module successful" << endl;
 
-   pegasus_sleep(1000);
+   Threads::sleep(1000);
    delete my_module;
    cout << "module deleted" << endl;
    

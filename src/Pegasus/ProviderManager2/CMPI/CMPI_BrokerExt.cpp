@@ -45,11 +45,13 @@
 #include "CMPI_SelectExp.h"
 
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/Condition.h>
 
 #if defined (CMPI_VER_85)
   #include <Pegasus/Common/MessageLoader.h>
@@ -64,6 +66,19 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class ConditionWithMutex
+{
+public:
+    ConditionWithMutex() { }
+    ~ConditionWithMutex() { }
+    void signal() { _cond.signal(); }
+    void wait() { _cond.wait(_mutex); }
+
+private:
+    Mutex _mutex;
+    Condition _cond;
+};
+
 extern "C" {
 	struct thrd_data {
 	   CMPI_THREAD_RETURN(CMPI_THREAD_CDECL*pgm)(void*);
@@ -72,15 +87,15 @@ extern "C" {
 	};
 }
 
-static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL start_driver(void *parm)
+static ThreadReturnType PEGASUS_THREAD_CDECL start_driver(void *parm)
 {
-   PEGASUS_THREAD_RETURN rc;
+   ThreadReturnType rc;
    Thread* my_thread = (Thread*)parm;
    thrd_data *pp = (thrd_data*)my_thread->get_parm();
    thrd_data data=*pp;
 
    delete pp;
-   rc = (PEGASUS_THREAD_RETURN)(data.pgm)(data.parm);
+   rc = (ThreadReturnType)(data.pgm)(data.parm);
 
    // Remove the thread from the watch-list (and clean it up).
    data.provider->removeThreadFromWatch( my_thread);
@@ -117,7 +132,7 @@ extern "C" {
       while ( (rtn = t->run()) != PEGASUS_THREAD_OK)
       {
 		if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-	 		pegasus_yield();
+	 		Threads::yield();
 		else
 	    {
 			Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
@@ -148,7 +163,7 @@ extern "C" {
 
    static int exitThread(CMPI_THREAD_RETURN return_code)
    {
-      Thread::getCurrent()->exit_self((PEGASUS_THREAD_RETURN)return_code);
+      Thread::getCurrent()->exit_self((ThreadReturnType)return_code);
       return 0;
    }
 
@@ -176,22 +191,22 @@ extern "C" {
 
    static int createThreadKey(CMPI_THREAD_KEY_TYPE *key, void (*cleanup)(void*))
    {
-      return pegasus_key_create((PEGASUS_THREAD_KEY_TYPE*)key);
+      return TSDKey::create((TSDKeyType*)key);
    }
 
    static int destroyThreadKey(CMPI_THREAD_KEY_TYPE key)
    {
-      return pegasus_key_delete(key);
+      return TSDKey::destroy(key);
    }
 
    static void *getThreadSpecific(CMPI_THREAD_KEY_TYPE key)
    {
-      return pegasus_get_thread_specific(key);
+      return TSDKey::get_thread_specific(key);
    }
 
    static  int setThreadSpecific(CMPI_THREAD_KEY_TYPE key, void * value)
    {
-      return pegasus_set_thread_specific(key,value);
+      return TSDKey::set_thread_specific(key,value);
    }
 
 
@@ -208,7 +223,7 @@ extern "C" {
 
    static void lockMutex (CMPI_MUTEX_TYPE m)
    {
-      ((Mutex*)m)->lock(pegasus_thread_self());
+      ((Mutex*)m)->lock();
    }
 
    static void unlockMutex (CMPI_MUTEX_TYPE m)
@@ -220,19 +235,19 @@ extern "C" {
 
    static CMPI_COND_TYPE newCondition (int opt)
    {
-      Condition *c=new Condition();
+      ConditionWithMutex *c=new ConditionWithMutex();
       return c;
    }
 
    static void destroyCondition (CMPI_COND_TYPE c)
    {
-      delete (Condition*)c;
+      delete (ConditionWithMutex*)c;
    }
 
    static int condWait (CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
    {
       // need to take care of mutex
-      ((Condition*)c)->unlocked_wait(pegasus_thread_self());
+      ((ConditionWithMutex*)c)->wait();
       return 0;
    }
 
@@ -259,7 +274,7 @@ extern "C" {
       now.tv_usec=timebuffer.millitm*1000;
    #else
       struct timeval now;
-      gettimeofday(&now, NULL);
+      Time::gettimeofday(&now);
    #endif
 
       if (next.tv_nsec>1000000000) {
@@ -276,7 +291,7 @@ extern "C" {
 
    static int signalCondition(CMPI_COND_TYPE cond)
    {
-      ((Condition*)cond)->signal(Thread::getCurrent()->self());
+      ((ConditionWithMutex*)cond)->signal();
       return 0;
    }
 

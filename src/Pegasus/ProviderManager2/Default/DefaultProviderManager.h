@@ -52,7 +52,6 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 

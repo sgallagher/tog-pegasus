@@ -43,11 +43,11 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/List.h>
-#include <Pegasus/Common/RecursiveMutex.h>
+#include <Pegasus/Common/Mutex.h>
 
 #include "ConsumerManager.h"
 
@@ -529,7 +529,7 @@ void ConsumerManager::unloadAllConsumers()
         //ATTN: Should this have a timeout even though it's a force??
         while (hasActiveConsumers())
         {
-            pegasus_sleep(500);
+            Threads::sleep(500);
         }
     }
 
@@ -880,13 +880,13 @@ Array<IndicationDispatchEvent> ConsumerManager::_deserializeOutstandingIndicatio
  * we would never hit the wait for the retry timeout.  
  * 
  */ 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *param)
+ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *param)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::_worker_routine");
 
     DynamicConsumer* myself = static_cast<DynamicConsumer*>(param);
     String name = myself->getName();
-    List<IndicationDispatchEvent,RecursiveMutex> tmpEventQueue;
+    List<IndicationDispatchEvent,Mutex> tmpEventQueue;
 
     PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "_worker_routine::entering loop for " + name);
 

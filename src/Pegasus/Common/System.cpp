@@ -59,17 +59,17 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "SystemWindows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
-# include "SystemUnix.cpp"
+# include "SystemPOSIX.cpp"
 #elif defined(PEGASUS_OS_TYPE_NSK)
 # include "SystemNsk.cpp"
 #elif defined(PEGASUS_OS_VMS)
-# include "SystemVms.cpp"
+# include "SystemPOSIX.cpp"
 #else
 # error "Unsupported platform"
 #endif
 
 #if defined(PEGASUS_OS_OS400)
-# include "OS400ConvertChar.h"
+# include "EBCDIC_OS400.h"
 #endif
 
 PEGASUS_USING_STD;

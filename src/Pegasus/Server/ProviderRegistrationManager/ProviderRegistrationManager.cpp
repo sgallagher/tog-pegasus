@@ -46,7 +46,6 @@
 
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMDateTime.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMMessage.h>

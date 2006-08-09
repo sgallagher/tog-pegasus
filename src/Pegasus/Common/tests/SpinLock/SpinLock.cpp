@@ -45,7 +45,7 @@ PEGASUS_USING_STD;
 
 static SpinLock _lock;
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_thread(void* parm)
+ThreadReturnType PEGASUS_THREAD_CDECL test_thread(void* parm)
 {
     for (;;)
     {

@@ -42,13 +42,14 @@
 #include <Pegasus/Common/Config.h>
 #include <iostream>
 #include <cstring>
+#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMDateTime.h>
-#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/Time.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

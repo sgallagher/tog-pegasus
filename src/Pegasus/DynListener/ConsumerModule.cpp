@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, IBM (schuur@de.ibm.com)
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ConsumerModule.h"
@@ -52,7 +45,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 ConsumerModule::ConsumerModule()
-    : _ref_count(0)
 {
 }
 
@@ -77,19 +69,11 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
         }
 
         _library = DynamicLibrary(libraryPath);
-
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Loading library: " + consumerName);
-
-        _library.load();
-
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Successfully loaded library " + consumerName);
-    }
-    else
-    {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Library is cached in memory: " + consumerName);
     }
 
-    if (!_library.isLoaded())
+    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Loading library: " + consumerName);
+
+    if (!_library.load())
     {
         throw Exception(MessageLoaderParms("DynListener.ConsumerModule.CANNOT_LOAD_LIBRARY",
                                    "Cannot load consumer library ($0:$1), load error $2",
@@ -98,6 +82,8 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
                                    _library.getLoadErrorMessage()));
     }
 
+    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Successfully loaded library " + consumerName);
+
     // locate the entry point
     CIMProvider* (*createProvider)(const String&) =
         (CIMProvider* (*)(const String&))
@@ -105,6 +91,7 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
 
     if (!createProvider)
     {
+        _library.unload();
         throw Exception(MessageLoaderParms("DynListener.ConsumerModule.ENTRY_POINT_NOT_FOUND",
                "The entry point for consumer library ($0:$1) cannot be found.",
                libraryPath,
@@ -112,11 +99,11 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
     }
 
     // create the consumer provider
-    CIMProvider* providerRef = 0;
-    providerRef = createProvider(consumerName);
+    CIMProvider* providerRef = createProvider(consumerName);
 
     if(!providerRef)
     {
+        _library.unload();
         throw Exception(MessageLoaderParms("DynListener.ConsumerModule.CREATE_PROVIDER_FAILED",
                "createProvider failed for consumer library ($0:$1)",
                libraryPath,
@@ -127,13 +114,12 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
     CIMIndicationConsumerProvider* consumerRef = dynamic_cast<CIMIndicationConsumerProvider *>(providerRef);
     if(!consumerRef)
     {
+        _library.unload();
         throw Exception(MessageLoaderParms("DynListener.ConsumerModule.CONSUMER_IS_NOT_A",
             "Consumer ($0:$1) is not a CIMIndicationConsumerProvider.",
             libraryPath,
             consumerName));
     }
-
-    _ref_count++;
 
     PEG_METHOD_EXIT();
     return consumerRef;
@@ -143,15 +129,9 @@ void ConsumerModule::unloadModule(void)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerModule::unloadModule");
 
-    if (_ref_count.decAndTestIfZero())
-    {
-        if (_library.isLoaded())
-        {
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3,
-                "Unloading module " + _library.getFileName());
-            _library.unload();
-        }
-    }
+    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3,
+        "Unloading module " + _library.getFileName());
+    _library.unload();
 
     PEG_METHOD_EXIT();
 }

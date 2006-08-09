@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ProviderManagerModule_h
@@ -54,15 +50,15 @@ public:
     typedef ProviderManager * (*CREATE_PROVIDER_MANAGER_FUNCTION)(const String &);
 
 public:
-    ProviderManagerModule(void);
+    ProviderManagerModule();
     ProviderManagerModule(const ProviderManagerModule & module);
     explicit ProviderManagerModule(const String & fileName);
-    virtual ~ProviderManagerModule(void);
+    virtual ~ProviderManagerModule();
 
     ProviderManagerModule & operator=(const ProviderManagerModule & module);
 
-    virtual Boolean load(void);
-    virtual Boolean unload(void);
+    virtual Boolean load();
+    virtual void unload();
 
     ProviderManager * getProviderManager(const String & s) const;
 

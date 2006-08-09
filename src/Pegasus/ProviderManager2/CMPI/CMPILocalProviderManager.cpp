@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day IBM Corporation (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
-//              Dan Gorey, IBM djgorey@us.ibm.com
-//              Robert Kieninger, IBM kieningr@de.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -796,6 +788,7 @@ CMPILocalProviderManager::_initProvider (CMPIProvider * provider,
     module = _lookupModule (moduleFileName);
   }                             // unlock the providerTable mutex
 
+  Boolean moduleLoaded = false;
   Boolean deleteProvider = false;
   String exceptionMsg = moduleFileName;
   {
@@ -815,6 +808,7 @@ CMPILocalProviderManager::_initProvider (CMPIProvider * provider,
     try
     {
       base = module->load (provider->_name);
+      moduleLoaded = true;
     }
     catch (const Exception &e)
     {
@@ -830,7 +824,9 @@ CMPILocalProviderManager::_initProvider (CMPIProvider * provider,
                         "Unknown exception caught Loading/Linking Provider Module " +
                         moduleFileName);
        exceptionMsg = moduleFileName;
+      deleteProvider = true;
     }
+
     if (!deleteProvider)
     {
       // initialize the provider
@@ -869,8 +865,12 @@ CMPILocalProviderManager::_initProvider (CMPIProvider * provider,
       delete provider->_cimom_handle;
       // set provider status to UNINITIALIZED
       provider->reset ();
+
       // unload provider module
-      module->unloadModule ();
+      if (moduleLoaded)
+      {
+          module->unloadModule();
+      }
 
       AutoMutex lock (_providerTableMutex);
       _providers.remove (provider->_name);

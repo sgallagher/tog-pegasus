@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//      Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//		Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//     Mike Day, IBM (mdday@us.ibm.com)
-//     Adrian Schuur, IBM (schuur@de.ibm.com)
-//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -54,7 +45,6 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CMPIProviderModule::CMPIProviderModule(const String & fileName)
-    : _ref_count(0)
 {
    genericProviderModule=0;
 
@@ -79,15 +69,8 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
 {
     String realProviderName(providerName);
     realProviderName.remove(0,1);
-    if (!genericProviderModule)
-    {
-        if (!_library.isLoaded())
-        {
-            _library.load();
-        }
-    }
 
-    if (!_library.isLoaded())
+    if (!_library.load())
     {
 
         throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProviderModule.CANNOT_LOAD_LIBRARY",
@@ -188,6 +171,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     }
 
     if (miVector.miTypes==0) {
+        _library.unload();
 	throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProviderModule.WRONG_LIBRARY",
             "ProviderLoadFailure: ($0) Provider is not a CMPI style provider. Cannot find $1_Create<mi-type>MI symbol.",
 	    _library.getFileName(),
@@ -195,6 +179,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     }
 
     if (miVector.genericMode && specificMode) {
+        _library.unload();
         throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProviderModule.CONFLICTING_CMPI_STYLE",
 		"ProviderLoadFailure: ($0:$1) conflicting generic/specfic CMPI style provider.",
 		_library.getFileName(),
@@ -202,20 +187,13 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     }
 
     genericProviderModule=miVector.genericMode!=0;
-    _ref_count++;
 
     return miVector;
 }
 
 void CMPIProviderModule::unloadModule(void)
 {
-    if (_ref_count.decAndTestIfZero())
-    {
-        if (_library.isLoaded())
-        {
-            _library.unload();
-        }
-    }
+    _library.unload();
 }
 
 PEGASUS_NAMESPACE_END

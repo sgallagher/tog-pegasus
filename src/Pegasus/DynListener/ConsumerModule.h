@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, IBM (schuur@de.ibm.com)
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ConsumerModule_h
@@ -72,7 +65,6 @@ public:
     void unloadModule(void);
 
 protected:
-    AtomicInt _ref_count;
     DynamicLibrary _library;
 
 private:

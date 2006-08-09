@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, IBM (schuur@de.ibm.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4585
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ProviderModule_h
@@ -73,7 +65,6 @@ private:
     ProviderModule(const ProviderModule& pm);    // Unimplemented
     ProviderModule& operator=(const ProviderModule& pm);    // Unimplemented
 
-    AtomicInt _refCount;
     DynamicLibrary _library;
 };
 

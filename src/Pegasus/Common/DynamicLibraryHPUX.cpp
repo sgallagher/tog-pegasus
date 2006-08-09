@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "DynamicLibrary.h"
@@ -60,12 +56,14 @@ static Mutex _mutex;
 
 static Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
 {
+    AutoMutex autoMutex(_mutex);
+
     // seek and increment
-    for(Uint32 i = 0, n = _references.size(); i < n; i++)
+    for (Uint32 i = 0, n = _references.size(); i < n; i++)
     {
-        if(handle == _references[i].first)
+        if (handle == _references[i].first)
         {
-	    Uint32 n = ++_references[i].second;
+            Uint32 n = ++_references[i].second;
             return n;
         }
     }
@@ -78,12 +76,14 @@ static Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
 
 static Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
 {
+    AutoMutex autoMutex(_mutex);
+
     // seek and decrement
-    for(Uint32 i = 0, n = _references.size(); i < n; i++)
+    for (Uint32 i = 0, n = _references.size(); i < n; i++)
     {
-        if(handle == _references[i].first)
+        if (handle == _references[i].first)
         {
-	    Uint32 n = --_references[i].second;
+            Uint32 n = --_references[i].second;
 
             if(n == 0)
             {
@@ -98,14 +98,9 @@ static Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
     return 0;
 }
 
-Boolean DynamicLibrary::load()
+Boolean DynamicLibrary::_load()
 {
-    PEG_METHOD_ENTER(TRC_OS_ABSTRACTION, "DynamicLibrary::load()");
-
-    AutoMutex autoMutex(_mutex);
-
-    // ensure the module is not already loaded
-    PEGASUS_ASSERT(isLoaded() == false);
+    PEG_METHOD_ENTER(TRC_OS_ABSTRACTION, "DynamicLibrary::_load()");
 
     CString cstr = _fileName.getCString();
 
@@ -141,57 +136,40 @@ Boolean DynamicLibrary::load()
     return(isLoaded());
 }
 
-Boolean DynamicLibrary::unload()
+void DynamicLibrary::_unload()
 {
-    AutoMutex autoMutex(_mutex);
-
-    // ensure the module is loaded
-    PEGASUS_ASSERT(isLoaded() == true);
-
     // decrement handle is valid and release the library only if the handle 
     // reference count is 0
     if((_handle != 0) && (_decrement_handle(_handle) == 0))
     {
         shl_unload(reinterpret_cast<shl_t>(_handle));
     }
-
-    _handle = 0;
-    _loadErrorMessage.clear();
-
-    return(isLoaded());
-}
-
-Boolean DynamicLibrary::isLoaded() const
-{
-    return(_handle != 0);
 }
 
 DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(
     const String & symbolName)
 {
+    PEGASUS_ASSERT(isLoaded());
+
     LIBRARY_SYMBOL func = 0;
+    CString cstr = symbolName.getCString();
 
-    if(isLoaded())
+    if (shl_findsym((shl_t *)&_handle, cstr, TYPE_UNDEFINED, &func) == 0)
     {
-        CString cstr = symbolName.getCString();
-
-        if(shl_findsym((shl_t *)&_handle, cstr, TYPE_UNDEFINED, &func) == 0)
-        {
-            return(func);
-        }
-
-        // NOTE: should the underscore be prepended by the caller or should
-        // this be a compile time option?
-
-        cstr = String(String("_") + symbolName).getCString();
-
-        if(shl_findsym((shl_t *)_handle, cstr, TYPE_UNDEFINED, &func) == 0)
-        {
-            return(func);
-        }
+        return func;
     }
 
-    return(0);
+    // NOTE: should the underscore be prepended by the caller or should
+    // this be a compile time option?
+
+    cstr = String(String("_") + symbolName).getCString();
+
+    if (shl_findsym((shl_t *)_handle, cstr, TYPE_UNDEFINED, &func) == 0)
+    {
+        return func;
+    }
+
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

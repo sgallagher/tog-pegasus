@@ -29,91 +29,85 @@
 //
 //==============================================================================
 //
-// Author: Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Config/ConfigManager.h>
 #include "DynamicLibrary.h"
-#include "HashTable.h"
 
-#include <chfdef.h>
-#include <dlfcn.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <pwd.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <cstdio>
-#include <time.h>
-#include <lib$routines.h>
-#include <sys/time.h>
-#include <netdb.h>
-#include <prvdef.h>
-#include <descrip.h>
-#include <stsdef.h>
-#include <libdef.h>
-#include <ssdef.h>
-#include <starlet.h>
+#if defined(PEGASUS_OS_OS400)
+# include <fcntl.h>
+# include <unistd.cleinc>
+# include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
+#else
+# include <dlfcn.h>
+#endif
 
-#include <Pegasus/Config/ConfigManager.h>
+#if defined(PEGASUS_ZOS_SECURITY)
+# include <sys/stat.h>
+# include "DynamicLibraryzOS_inline.h"
+#endif
+
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+# define _UNIX03_SOURCE
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
-Boolean DynamicLibrary::load(void)
+Boolean DynamicLibrary::_load()
 {
-    // ensure the module is not already loaded
-    PEGASUS_ASSERT(isLoaded() == false);
-
     CString cstr = _fileName.getCString();
 
+#if defined(PEGASUS_ZOS_SECURITY)
+    if (!hasProgramControl(cstr))
+    {
+        return false;
+    }
+#endif
+
+#if defined(PEGASUS_OS_ZOS)
+    _handle = dlopen(cstr, RTLD_LAZY);
+#elif defined(PEGASUS_OS_OS400)
+    _handle = OS400_LoadDynamicLibrary((const char *)cstr);
+#else
     _handle = dlopen(cstr, RTLD_NOW);
+#endif
 
     if (_handle == 0)
     {
+        // Record the load error message
+#if defined(PEGASUS_OS_OS400)
+        _loadErrorMessage = String(OS400_DynamicLoadError());
+#else
         _loadErrorMessage = dlerror();
+#endif
     }
 
     return(isLoaded());
 }
 
-Boolean DynamicLibrary::unload(void)
+void DynamicLibrary::_unload()
 {
-    // ensure the module is loaded
-    PEGASUS_ASSERT(isLoaded() == true);
-
+#ifdef PEGASUS_OS_OS400
+    OS400_UnloadDynamicLibrary(_handle);    
+#else
     dlclose(_handle);
-    _handle = 0;
-    _loadErrorMessage.clear();
-
-    return(isLoaded());
+#endif
 }
 
-Boolean DynamicLibrary::isLoaded(void) const
+DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(
+    const String& symbolName)
 {
-    return(_handle != 0);
-}
+    PEGASUS_ASSERT(isLoaded());
 
-DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)
-{
-
-  char* Errorout;
-  void* Dsh;
-
-  if(isLoaded())
-  {
     CString cstr = symbolName.getCString();
 
-    if ((Dsh = dlsym(_handle, cstr)) == 0)
-    {
-      Errorout = dlerror();
-    }
-    return (LIBRARY_SYMBOL)Dsh;
-  }
-  return (0);
+#ifdef PEGASUS_OS_OS400
+    LIBRARY_SYMBOL func = (LIBRARY_SYMBOL)
+        OS400_LoadDynamicSymbol(_handle, (const char *)cstr);
+#else
+    LIBRARY_SYMBOL func = (LIBRARY_SYMBOL) dlsym(_handle, (const char *)cstr);
+#endif
+
+    return func;
 }
 
 PEGASUS_NAMESPACE_END

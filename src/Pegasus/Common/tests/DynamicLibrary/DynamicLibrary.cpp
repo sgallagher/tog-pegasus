@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:	Sean Keenan (sean.keenan@hp.com)
-//             	Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -88,6 +83,11 @@ void Test2()
     DynamicLibrary library(getLibraryFileName(VALID_LIBRARY_NAME));
     PEGASUS_TEST_ASSERT(!library.isLoaded());
 
+    {
+        DynamicLibrary library2(library);
+        PEGASUS_TEST_ASSERT(!library2.isLoaded());
+    }
+
     library.load();
     PEGASUS_TEST_ASSERT(library.isLoaded());
 
@@ -103,6 +103,17 @@ void Test2()
         PEGASUS_TEST_ASSERT(library2.isLoaded());
     }
 
+    {
+        DynamicLibrary library2(getLibraryFileName(VALID_LIBRARY_NAME));
+        library2.load();
+        PEGASUS_TEST_ASSERT(library2.isLoaded());
+        library2 = library;
+        PEGASUS_TEST_ASSERT(library2.isLoaded());
+    }
+
+    library = library;
+    PEGASUS_TEST_ASSERT(library.isLoaded());
+
     library.unload();
     PEGASUS_TEST_ASSERT(!library.isLoaded());
 }
@@ -113,8 +124,48 @@ void Test3()
     DynamicLibrary library(getLibraryFileName(INVALID_LIBRARY_NAME));
     PEGASUS_TEST_ASSERT(!library.isLoaded());
 
-    library.load();
+    Boolean loaded = library.load();
+    PEGASUS_TEST_ASSERT(!loaded);
     PEGASUS_TEST_ASSERT(!library.isLoaded());
+}
+
+// Test reference counting
+void Test4()
+{
+    DynamicLibrary library(getLibraryFileName(VALID_LIBRARY_NAME));
+    PEGASUS_TEST_ASSERT(!library.isLoaded());
+
+    // Load the library
+    Boolean loaded = library.load();
+    PEGASUS_TEST_ASSERT(loaded);
+    PEGASUS_TEST_ASSERT(library.isLoaded());
+
+    // Load the library again
+    loaded = library.load();
+    PEGASUS_TEST_ASSERT(loaded);
+    PEGASUS_TEST_ASSERT(library.isLoaded());
+
+    // Unload the library
+    library.unload();
+    PEGASUS_TEST_ASSERT(library.isLoaded());
+
+    // Unload the library again
+    library.unload();
+    PEGASUS_TEST_ASSERT(!library.isLoaded());
+
+    // Load the library and then assign to a new instance
+    library.load();
+    PEGASUS_TEST_ASSERT(library.isLoaded());
+    library.load();
+    PEGASUS_TEST_ASSERT(library.isLoaded());
+    library = DynamicLibrary(getLibraryFileName(VALID_LIBRARY_NAME));
+    PEGASUS_TEST_ASSERT(!library.isLoaded());
+
+    library.load();
+    PEGASUS_TEST_ASSERT(library.isLoaded());
+    library.load();
+    PEGASUS_TEST_ASSERT(library.isLoaded());
+    // Call the destructor while the library is loaded
 }
 
 int main(int argc, char** argv)
@@ -124,6 +175,7 @@ int main(int argc, char** argv)
     Test1();
     Test2();
     Test3();
+    Test4();
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

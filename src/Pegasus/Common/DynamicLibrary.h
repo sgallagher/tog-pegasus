@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Sean Keenan (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DynamicLibrary_h
@@ -41,6 +37,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Mutex.h>
 
 #include <Pegasus/Common/Linkage.h>
 
@@ -73,20 +70,24 @@ public:
 
     DynamicLibrary & operator=(const DynamicLibrary & library);
 
-    virtual Boolean load();
-    virtual const String& getLoadErrorMessage() const;
-    virtual Boolean unload();
+    Boolean load();
+    const String& getLoadErrorMessage() const;
+    void unload();
 
-    virtual Boolean isLoaded() const;
+    Boolean isLoaded() const;
 
     const String& getFileName() const;
-    LIBRARY_HANDLE getHandle() const;
     LIBRARY_SYMBOL getSymbol(const String & symbolName);
 
 private:
+    Boolean _load();
+    void _unload();
+
     String _fileName;
     LIBRARY_HANDLE _handle;
     String _loadErrorMessage;
+    Uint32 _referenceCount;
+    Mutex _loadMutex;
 };
 
 PEGASUS_NAMESPACE_END

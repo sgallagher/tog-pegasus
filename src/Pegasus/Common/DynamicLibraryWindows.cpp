@@ -29,58 +29,31 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "DynamicLibrary.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-Boolean DynamicLibrary::load(void)
+Boolean DynamicLibrary::_load()
 {
-    // ensure the module is not already loaded
-    PEGASUS_ASSERT(isLoaded() == false);
-
-    CString cstr = _fileName.getCString();
-
-    _handle = LoadLibrary(cstr);
-
+    _handle = LoadLibrary(_fileName.getCString());
     return(isLoaded());
 }
 
-Boolean DynamicLibrary::unload(void)
+void DynamicLibrary::_unload()
 {
-    // ensure the module is loaded
-    PEGASUS_ASSERT(isLoaded() == true);
-
     FreeLibrary(_handle);
-
-    _handle = 0;
-
-    return(isLoaded());
 }
 
-Boolean DynamicLibrary::isLoaded(void) const
+DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(
+    const String & symbolName)
 {
-    return(_handle != 0);
-}
+    PEGASUS_ASSERT(isLoaded());
 
-DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)
-{
-    LIBRARY_SYMBOL func = 0;
+    CString cstr = symbolName.getCString();
 
-    if(isLoaded())
-    {
-        // convert Char16 data to ascii
-        CString cstr = symbolName.getCString();
-
-        func = (LIBRARY_SYMBOL)GetProcAddress(_handle, (const char *)cstr);
-    }
-
-    return(func);
+    return (LIBRARY_SYMBOL) GetProcAddress(_handle, (const char *)cstr);
 }
 
 PEGASUS_NAMESPACE_END

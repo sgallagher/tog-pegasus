@@ -97,9 +97,9 @@ Boolean ProviderManagerModule::load()
     return(false);
 }
 
-Boolean ProviderManagerModule::unload()
+void ProviderManagerModule::unload()
 {
-    return(DynamicLibrary::unload());
+    DynamicLibrary::unload();
 }
 
 ProviderManager* ProviderManagerModule::getProviderManager(

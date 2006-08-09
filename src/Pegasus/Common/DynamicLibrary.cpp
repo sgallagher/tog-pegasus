@@ -29,73 +29,74 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//	Sean Keenan, Hewlett Packard Company <sean.keenan@hp.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include "DynamicLibrary.h"
-
-#include <Pegasus/Common/InternalException.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "DynamicLibraryWindows.cpp"
 #elif defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_HPUX_USE_DLOPEN)
 # include "DynamicLibraryHPUX.cpp"
-#elif defined(PEGASUS_OS_TYPE_UNIX)
-# include "DynamicLibraryUnix.cpp"
-#elif defined(PEGASUS_OS_VMS)
-# include "DynamicLibraryVms.cpp"
+#elif defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
+# include "DynamicLibraryPOSIX.cpp"
 #else
 # error "Unsupported platform"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
 
-DynamicLibrary::DynamicLibrary() : _handle(0)
+DynamicLibrary::DynamicLibrary()
+    : _handle(0),
+      _referenceCount(0)
 {
 }
 
-DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
+DynamicLibrary::DynamicLibrary(const DynamicLibrary& library)
+    : _fileName(library._fileName),
+      _handle(0),
+      _referenceCount(0)
 {
-    _fileName = library._fileName;
-
     // load the module again, if necessary. this effectively increments the
     // operating system's reference count for the module.
-    if(library.isLoaded())
+    if (library.isLoaded())
     {
-        load();
+        if (load())
+        {
+            _referenceCount = library._referenceCount;
+        }
     }
 }
 
-DynamicLibrary::DynamicLibrary(const String & fileName)
-    : _fileName(fileName), _handle(0)
+DynamicLibrary::DynamicLibrary(const String& fileName)
+    : _fileName(fileName),
+      _handle(0),
+      _referenceCount(0)
 {
 }
 
 DynamicLibrary::~DynamicLibrary()
 {
-    // unload the module, if necessary. this ensures 1) the module is released in the
-    // event the caller did not explicity unload it, and 2) the operating system's
-    // reference count is accurate.
-    if (isLoaded())
+    // Unload the module, if necessary, to keep the operating system's
+    // reference count accurate.  One call to _unload() takes care of it
+    // no matter how high _referenceCount is.
+
+    if (_referenceCount > 0)
     {
-        unload();
+        PEGASUS_ASSERT(_handle != 0);
+        _unload();
     }
 }
 
-DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
+DynamicLibrary& DynamicLibrary::operator=(const DynamicLibrary& library)
 {
-    //cout << "DynamicLibrary::operator=(const DynamicLibrary &)" << endl;
-
     if (this == &library)
     {
         return *this;
     }
 
-    if (isLoaded())
+    while (isLoaded())
     {
         unload();
     }
@@ -106,10 +107,39 @@ DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
     // operating system's reference count for the module.
     if (library.isLoaded())
     {
-        load();
+        if (load())
+        {
+            _referenceCount = library._referenceCount;
+        }
     }
 
     return *this;
+}
+
+Boolean DynamicLibrary::isLoaded() const
+{
+    return _handle != 0;
+}
+
+Boolean DynamicLibrary::load()
+{
+    AutoMutex lock(_loadMutex);
+
+    Boolean loaded = true;
+
+    if (_referenceCount == 0)
+    {
+        PEGASUS_ASSERT(_handle == 0);
+        loaded = _load();
+    }
+
+    if (loaded)
+    {
+        PEGASUS_ASSERT(_handle != 0);
+        _referenceCount++;
+    }
+
+    return loaded;
 }
 
 const String& DynamicLibrary::getLoadErrorMessage() const
@@ -117,14 +147,26 @@ const String& DynamicLibrary::getLoadErrorMessage() const
     return _loadErrorMessage;
 }
 
+void DynamicLibrary::unload()
+{
+    AutoMutex lock(_loadMutex);
+
+    PEGASUS_ASSERT(_referenceCount > 0);
+    PEGASUS_ASSERT(_handle != 0);
+
+    _referenceCount--;
+
+    if (_referenceCount == 0)
+    {
+        _unload();
+        _handle = 0;
+        _loadErrorMessage.clear();
+    }
+}
+
 const String& DynamicLibrary::getFileName() const
 {
     return _fileName;
-}
-
-DynamicLibrary::LIBRARY_HANDLE DynamicLibrary::getHandle() const
-{
-    return _handle;
 }
 
 PEGASUS_NAMESPACE_END

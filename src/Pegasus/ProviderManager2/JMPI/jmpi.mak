@@ -74,20 +74,14 @@ endif
 LIBRARY = JMPIProviderManager
 
 LIBRARIES = \
-    CMPIProviderManager \
-    pegprovidermanager \
-    pegprovider \
-    pegclient \
-    pegwql \
-    pegquerycommon \
-    pegcommon
-
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-LIBRARIES += \
+	CMPIProviderManager \
+	pegprovidermanager \
+	pegconfig \
+	pegprovider \
 	pegclient \
-	pegconfig
-endif
-
+	pegwql \
+	pegquerycommon \
+	pegcommon
 
 SOURCES = \
         JMPIProviderManagerMain.cpp \

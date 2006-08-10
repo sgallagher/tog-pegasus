@@ -46,7 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMDateTime CIMDateTime::getCurrentDateTime()
 {
-#if defined(OS_TYPE_VMS)
+#if defined(PEGASUS_OS_VMS)
     struct Timestamp 
     {
         char year[4];
@@ -107,7 +107,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 
     return currentDateTime;
 
-#else /* OS_TYPE_VMS */
+#else /* PEGASUS_OS_VMS */
 
     char dateTimeBuffer[26];
     time_t systemTime;
@@ -160,7 +160,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 
     return CIMDateTime(dateTimeBuffer);
 
-#endif /* !OS_TYPE_VMS */
+#endif /* !PEGASUS_OS_VMS */
 }
 
 PEGASUS_NAMESPACE_END

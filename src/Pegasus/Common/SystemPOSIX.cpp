@@ -63,18 +63,12 @@
 # include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
 # include "EBCDIC_OS400.h"
 #elif defined(PEGASUS_OS_VMS)
-# include <lib$routines.h>
-# include <netdb.h>
-# include <prvdef.h>
-# include <descrip.h>
-# include <iodef.h>
-# include <stsdef.h>
-# include <ssdef.h>
-# include <ttdef.h>
-# include <tt2def.h>
+# include <dlfcn.h>
+# include <descrip.h>           //  $DESCRIPTOR
+# include <iodef.h>             // IO$_SENSEMODE
+# include <ttdef.h>             // TT$M_NOBRDCST
+# include <tt2def.h>            // TT2$M_PASTHRU
 # include <starlet.h>
-# include <libdef.h>
-# include <cxx_exception.h>
 #else /* default */
 # include <dlfcn.h>
 #endif
@@ -89,7 +83,8 @@
 # include <string.h>
 #endif
 
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && \
+#if !defined(PEGASUS_OS_VMS) && \
+    !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && \
     !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && \
     !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 # include <crypt.h>
@@ -183,9 +178,6 @@ void System::getCurrentTimeUsec(Uint32& seconds, Uint32& microseconds)
 
 String System::getCurrentASCIITime()
 {
-#if defined(PEGAUS_OS_VMS)
-    // ATTN-VMS: this function is not implemented on VMS.
-#else
     char    str[50];
     time_t  rawTime;
     struct tm tmBuffer;
@@ -193,7 +185,6 @@ String System::getCurrentASCIITime()
     time(&rawTime);
     strftime(str, 40,"%m/%d/%Y-%T", localtime_r(&rawTime, &tmBuffer));
     return String(str);
-#endif
 }
 
 static inline void _sleep_wrapper(Uint32 seconds)
@@ -317,6 +308,8 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
 
     return QlgUnlink(QlgPath(oldPath)) == 0;
 #elif defined(PEGAUS_OS_VMS)
+//   Note: link() on OpenVMS has a different meaning so rename is used.
+//         unlink() is a synonym for remove() so it can be used.
     if (rename(oldPath, newPath) != 0)
         return false;
 
@@ -933,11 +926,7 @@ String System::getEffectiveUserName()
 
 String System::encryptPassword(const char* password, const char* salt)
 {
-#if !defined(PEGASUS_OS_OS400)
-
-    return ( String(crypt( password,salt)) );
-
-#elif !defined(PEGASUS_OS_VMS)
+#if defined(PEGASUS_OS_VMS)
 
     const size_t MAX_PASS_LEN = 1024;
     char pbBuffer[MAX_PASS_LEN] = {0};
@@ -954,6 +943,10 @@ String System::encryptPassword(const char* password, const char* salt)
     }
 
     return String(pcSalt) + String((char *)pbBuffer);
+
+#elif !defined(PEGASUS_OS_OS400) 
+
+    return ( String(crypt( password,salt)) );
 
 #else
 

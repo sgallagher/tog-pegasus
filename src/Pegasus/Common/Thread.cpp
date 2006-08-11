@@ -207,10 +207,10 @@ static sigset_t *block_signal_mask(sigset_t * sig)
 //     sigaddset(sig, SIGUSR1);
 //     sigaddset(sig, SIGUSR2);
 // #endif
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-    pthread_sigmask(SIG_BLOCK, sig, NULL);
-#else
+#if defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined (PEGASUS_OS_VMS)
     sigprocmask(SIG_BLOCK, sig, NULL);
+#else
+    pthread_sigmask(SIG_BLOCK, sig, NULL);
 #endif
     return sig;
 }

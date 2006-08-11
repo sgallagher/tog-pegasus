@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_System_h
@@ -74,24 +64,6 @@ typedef unsigned long mode_t;
 #define TCP                        "tcp"
 
 PEGASUS_NAMESPACE_BEGIN
-
-
-/** This is an opaque type which is used to represent dynamic library
-    handles returned by the System::loadDynamicLibrary() method and
-    accepted by the System::loadDynamicProcedure() method.
-*/
-typedef struct DynamicLibraryHandle_* DynamicLibraryHandle;
-
-/** This is an opaque type which is returned by System::loadDynamicSymbol().
-    Values of this type may be casted to the appropriate target type.
-*/
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-typedef struct DynamicSymbolHandle_* DynamicSymbolHandle;
-#else
-extern "C" {typedef int (* DynamicSymbolHandle)(void);}
-#endif
-
-
 
 /** The System class defines wrappers for operating system related calls.
     These are only placed here if they are extremely light. These are
@@ -148,19 +120,6 @@ public:
     static Boolean renameFile(const char* oldPath, const char* newPath);
 
     static Boolean copyFile(const char* fromPath, const char* toPath);
-
-    /** Unix issue:<br><br><b>RTLD_<blah></b> issue. Currently Pegasus uses RTLD_GLOBAL during
-	loading of the library if supported by OS.  Previous to 2.2, Pegasus used RTLD_GLOBAL on Linux. In between 2.3 and 2.4, it used RTDL_NOW. In 2.5 it is using RTLD_GLOBAL. Please consult doc/ProviderLoading.txt for more information.
-    */
-    static DynamicLibraryHandle loadDynamicLibrary(const char* fileName);
-
-    static void unloadDynamicLibrary(DynamicLibraryHandle libraryHandle);
-
-    static String dynamicLoadError(void);
-
-    static DynamicSymbolHandle loadDynamicSymbol(
-	DynamicLibraryHandle libraryHandle,
-	const char* symbolName);
 
     static String getHostName();
     static String getFullyQualifiedHostName ();

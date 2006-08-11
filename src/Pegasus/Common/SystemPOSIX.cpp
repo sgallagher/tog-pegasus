@@ -29,30 +29,9 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Ben Heilbronn (ben_heilbronn@hp.com)
-//              Sushma Fernandes (sushma_fernandes@hp.com)
-//              Nag Boranna (nagaraja_boranna@hp.com)
-//              Bapu Patil (bapu_patil@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//              Amit K Arora (amita@in.ibm.com) for PEP101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Yi Zhou (yi.zhou@hp.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3194
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sean Keenan (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_OS_HPUX
-# include <dl.h>
-# if defined(PEGASUS_HPUX_USE_DLOPEN) 
-#   include <dlfcn.h>
-# endif
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-# include <dll.h>
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # define _OPEN_SYS_EXT
 # include <sys/ps.h>
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
@@ -63,14 +42,11 @@
 # include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
 # include "EBCDIC_OS400.h"
 #elif defined(PEGASUS_OS_VMS)
-# include <dlfcn.h>
 # include <descrip.h>           //  $DESCRIPTOR
 # include <iodef.h>             // IO$_SENSEMODE
 # include <ttdef.h>             // TT$M_NOBRDCST
 # include <tt2def.h>            // TT2$M_PASTHRU
 # include <starlet.h>
-#else /* default */
-# include <dlfcn.h>
 #endif
 
 #include <unistd.h>
@@ -319,128 +295,6 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
         return false;
 
     return unlink(oldPath) == 0;
-#endif
-}
-
-DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
-{
-    PEG_METHOD_ENTER(TRC_OS_ABSTRACTION, "System::loadDynamicLibrary()");
-
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                  "Attempting to load library %s", fileName);
-
-#if defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_HPUX_USE_DLOPEN)
-    void* handle;
-    if (bindVerbose)
-    {
-        handle = shl_load(fileName,
-            BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0L);
-    }
-    else
-    {
-        handle = shl_load(fileName, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
-    }
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                  "After loading lib %s, error code is %d", fileName,
-                  (handle == (void *)0)?errno:0);
-
-    PEG_METHOD_EXIT();
-    return DynamicLibraryHandle(handle);
-#elif defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_VMS)
-    PEG_METHOD_EXIT();
-    return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
-#elif defined(PEGASUS_OS_ZOS)
-# if defined(PEGASUS_ZOS_SECURITY)
-    if (!hasProgramControl(fileName))
-    {
-        PEG_METHOD_EXIT();
-        return 0;
-    }
-# endif
-    PEG_METHOD_EXIT();
-    return DynamicLibraryHandle(dllload(fileName));
-#elif defined(PEGASUS_OS_OS400)
-    PEG_METHOD_EXIT();
-    return DynamicLibraryHandle(OS400_LoadDynamicLibrary(fileName));
-#else
-    PEG_METHOD_EXIT();
-    return DynamicLibraryHandle(dlopen(fileName,  RTLD_GLOBAL|RTLD_NOW));
-#endif /* default */
-}
-
-void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
-{
-   // ATTN: Should this method indicate success/failure?
-#if defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_HPUX_USE_DLOPEN)
-    // Note: shl_unload will unload the library even if it has been loaded
-    // multiple times.  No reference count is kept.
-    int ignored = shl_unload(reinterpret_cast<shl_t>(libraryHandle));
-#elif defined(PEGASUS_OS_ZOS)
-    dllfree(reinterpret_cast<dllhandle *> (libraryHandle));
-#elif defined(PEGASUS_OS_OS400)
-   OS400_UnloadDynamicLibrary((int)libraryHandle);
-#else
-    dlclose(libraryHandle);
-#endif
-}
-
-String System::dynamicLoadError() 
-{
-    // ATTN: Is this safe in a multi-threaded process?  Should this string
-    // be returned from loadDynamicLibrary?
-#if defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_HPUX_USE_DLOPEN)
-    // If shl_load() returns NULL, errno is set to indicate the error
-    return strerror(errno);
-#elif defined(PEGASUS_OS_ZOS)
-    return String();
-#elif defined(PEGASUS_OS_OS400)
-    return String(OS400_DynamicLoadError());
-#else
-    String dlerr = dlerror();
-    return dlerr;
-#endif
-}
-
-DynamicSymbolHandle System::loadDynamicSymbol(
-    DynamicLibraryHandle libraryHandle,
-    const char* symbolName)
-{
-#if defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_HPUX_USE_DLOPEN)
-    char* p = (char*)symbolName;
-    void* proc = 0;
-
-    if (shl_findsym((shl_t*)&libraryHandle, symbolName, TYPE_UNDEFINED,
-                    &proc) == 0)
-    {
-        return DynamicSymbolHandle(proc);
-    }
-
-    if (shl_findsym((shl_t*)libraryHandle,
-                    (String("_") + symbolName).getCString(),
-                    TYPE_UNDEFINED,
-                    &proc) == 0)
-    {
-        return DynamicSymbolHandle(proc);
-    }
-
-    return 0;
-
-#elif defined(PEGASUS_OS_ZOS)
-    return DynamicSymbolHandle(dllqueryfn((dllhandle *)libraryHandle,
-                               (char*)symbolName));
-
-#elif defined(PEGASUS_OS_OS400)
-    return DynamicSymbolHandle(
-        OS400_LoadDynamicSymbol((int)libraryHandle, symbolName));
-#elif defined(PEGASUS_OS_VMS)
-    char* Errorout;
-    void* Dsh;
-
-    if ((Dsh = dlsym(libraryHandle, (char*)symbolName)) == 0)
-        Errorout = dlerror();
-    return (DynamicSymbolHandle)Dsh;
-#else
-    return DynamicSymbolHandle(dlsym(libraryHandle,(char *) symbolName));
 #endif
 }
 

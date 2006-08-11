@@ -29,19 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Bapu Patil (bapu_patil@hp.com)
-//
-// Modified By: Dave Rosckes (rosckes@us.ibm.com)
-//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1428
-//              Seema Gupta (gseema@in.ibm.com) for Bug#1617
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "System.h"
@@ -175,28 +162,6 @@ Boolean System::removeFile(const char* path)
 Boolean System::renameFile(const char* oldPath, const char* newPath)
 {
     return rename(oldPath, newPath) == 0;
-}
-
-DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
-{
-    return DynamicLibraryHandle(LoadLibrary(fileName));
-}
-
-void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
-{
-    FreeLibrary(HINSTANCE(libraryHandle));
-}
-
-String System::dynamicLoadError(void) {
-return String();
-}
-
-DynamicSymbolHandle System::loadDynamicSymbol(
-    DynamicLibraryHandle libraryHandle,
-    const char* symbolName)
-{
-    return DynamicSymbolHandle(GetProcAddress(
-    (HINSTANCE)libraryHandle, symbolName));
 }
 
 String System::getHostName()

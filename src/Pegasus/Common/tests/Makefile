@@ -47,7 +47,6 @@ DIRS = \
     DateTime \
     Dir \
     DynLib \
-    DynLoad \
     DynamicLibrary \
     FileSystem \
     Flavor \

@@ -164,19 +164,9 @@ void Tracer::_trace(
                 _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
             sprintf(
                message,
-#if defined(PEGASUS_OS_VMS)
-               //
-               // Threads::self returns long-long-unsigned.
-               //
-               "[%d:%llu:%s:%u]: ",
-//               "[%x:%llx:%s:%u]: ",
-               System::getPID(),
-               Threads::self(),
-#else
                "[%d:%u:%s:%u]: ",
                System::getPID(),
                Uint32(Threads::id()),
-#endif
                fileName,
                lineNum);
 
@@ -341,18 +331,6 @@ void Tracer::_traceEnter(
         message = new char[ strlen(fileName) +
                             _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
 
-#if defined(PEGASUS_OS_VMS)
-        //
-        // Threads::self returns long-long-unsigned.
-        //
-        sprintf(
-           message,
-           "[%d:%llu:%s:%u]: ",
-           System::getPID(),
-           Threads::self(),
-           fileName,
-           lineNum);
-#else
         sprintf(
            message,
            "[%d:%u:%s:%u]: ",
@@ -360,7 +338,7 @@ void Tracer::_traceEnter(
 	   Uint32(Threads::id()),
            fileName,
            lineNum);
-#endif
+
         _trace(traceComponent,message,fmt,argList);
 
         va_end(argList);
@@ -392,18 +370,6 @@ void Tracer::_traceExit(
         message = new char[ strlen(fileName) +
                             _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
 
-#if defined(PEGASUS_OS_VMS)
-        //
-        // Threads::self returns long-long-unsigned.
-        //
-        sprintf(
-           message,
-           "[%d:%llu:%s:%u]: ",
-           System::getPID(),
-           Threads::self(),
-           fileName,
-           lineNum);
-#else
         sprintf(
            message,
            "[%d:%u:%s:%u]: ",
@@ -411,7 +377,7 @@ void Tracer::_traceExit(
 	   Uint32(Threads::id()),
            fileName,
            lineNum);
-#endif
+
         _trace(traceComponent,message,fmt,argList);
         va_end(argList);
 
@@ -482,16 +448,8 @@ void Tracer::_trace(
         // Needs to be updated if additional info is added
         //
         tmpBuffer = new char[_STRLEN_MAX_PID_TID + 6];
-#if defined(PEGASUS_OS_VMS)
-        //
-        // Threads::self returns long-long-unsigned.
-        //
-        sprintf(tmpBuffer, "[%u:%llu]: ", System::getPID(),
-                Threads::self());
-#else
         sprintf(tmpBuffer, "[%u:%u]: ", System::getPID(),
 	        Uint32(Threads::id()));
-#endif
         msgHeader = new char [ strlen(timeStamp) + strlen(TRACE_COMPONENT_LIST[traceComponent]) +
                                strlen(tmpBuffer) + 1  + 5 ];
 

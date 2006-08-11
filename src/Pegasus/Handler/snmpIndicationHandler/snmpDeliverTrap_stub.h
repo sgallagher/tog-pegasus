@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -45,6 +41,10 @@ PEGASUS_NAMESPACE_BEGIN
 class snmpDeliverTrap_stub : public snmpDeliverTrap
 {
 public:
+
+    void initialize();
+
+    void terminate();
 
     void deliverTrap(
         const String& trapOid,

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (Yi.Zhou@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -433,7 +429,6 @@ int main(int argc, char** argv)
         CIMHandler* handler = handlerTable.getHandler(handlerId, repository);
 	PEGASUS_TEST_ASSERT(handler != 0);
 
-        handler->initialize(repository);
         TestExceptionHandling(handler);
 
         //
@@ -454,14 +449,14 @@ int main(int argc, char** argv)
         repository->deleteQualifier(NS, CIMName ("NotMappingStrings"));
 
         repository->deleteNameSpace(NS);
-
-	delete repository;
     }
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	exit(1);
     }
+
+    delete repository;
 
     cout << "+++++ passed all tests" << endl;
     return 0;

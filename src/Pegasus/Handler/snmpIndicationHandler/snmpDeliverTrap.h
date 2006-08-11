@@ -29,11 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
+
+#ifndef Pegasus_snmpDeliverTrap_h
+#define Pegasus_snmpDeliverTrap_h
 
 #include <iostream>
 #include <Pegasus/Common/Config.h>
@@ -66,6 +65,10 @@ public:
 
     virtual ~snmpDeliverTrap() { }
 
+    virtual void initialize() = 0;
+
+    virtual void terminate() = 0;
+
     virtual void deliverTrap(
         const String& trapOid,
         const String& securityName, 
@@ -81,3 +84,5 @@ public:
 };
 
 PEGASUS_NAMESPACE_END
+
+#endif // Pegasus_snmpDeliverTrap_h

@@ -29,16 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Handler/snmpIndicationHandler/snmpDeliverTrap.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -47,8 +44,6 @@ PEGASUS_USING_STD;
 class PEGASUS_HANDLER_LINKAGE snmpIndicationHandler: public CIMHandler
 {
 public:
-
-    CIMRepository* _repository;
 
     snmpIndicationHandler();
 
@@ -66,6 +61,11 @@ public:
 	CIMInstance& subscription,
 	ContentLanguageList& contentLanguages);
 
+private:
+
+    snmpDeliverTrap* _snmpTrapSender;
+
+    CIMRepository* _repository;
 };
 
 PEGASUS_NAMESPACE_END

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//	      : Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -58,22 +52,23 @@
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 
-PEGASUS_NAMESPACE_BEGIN
-
 PEGASUS_USING_STD;
 
-#ifdef HPUX_EMANATE
-        static snmpDeliverTrap_emanate snmpTrap;
-#elif defined (PEGASUS_USE_NET_SNMP)
-        static snmpDeliverTrap_netsnmp snmpTrap;
-#else
-        static snmpDeliverTrap_stub snmpTrap;
-#endif
+PEGASUS_NAMESPACE_BEGIN
 
 snmpIndicationHandler::snmpIndicationHandler()
 {
     PEG_METHOD_ENTER (TRC_IND_HANDLER,
         "snmpIndicationHandler::snmpIndicationHandler");
+
+#ifdef HPUX_EMANATE
+    _snmpTrapSender = new snmpDeliverTrap_emanate();
+#elif defined (PEGASUS_USE_NET_SNMP)
+    _snmpTrapSender = new snmpDeliverTrap_netsnmp();
+#else
+    _snmpTrapSender = new snmpDeliverTrap_stub();
+#endif
+
     PEG_METHOD_EXIT();
 }
 
@@ -84,9 +79,7 @@ void snmpIndicationHandler::initialize(CIMRepository* repository)
 
     _repository = repository;
 
-#ifdef PEGASUS_USE_NET_SNMP
-    snmpTrap.initialize();
-#endif
+    _snmpTrapSender->initialize();
 
     PEG_METHOD_EXIT();
 }
@@ -96,9 +89,7 @@ void snmpIndicationHandler::terminate()
     PEG_METHOD_ENTER (TRC_IND_HANDLER,
         "snmpIndicationHandler::terminate");
 
-#ifdef PEGASUS_USE_NET_SNMP
-    snmpTrap.terminate();
-#endif
+    _snmpTrapSender->terminate();
 
     PEG_METHOD_EXIT();
 }
@@ -108,6 +99,7 @@ snmpIndicationHandler::~snmpIndicationHandler()
     PEG_METHOD_ENTER (TRC_IND_HANDLER,
         "snmpIndicationHandler::~snmpIndicationHandler");
 
+    delete _snmpTrapSender;
 
     PEG_METHOD_EXIT();
 }
@@ -224,14 +216,14 @@ void snmpIndicationHandler::handleIndication(
 	    //
             //  Get snmpTrapOid from context
             //
-	    try
+	    if (context.contains(SnmpTrapOidContainer::NAME))
 	    {
                 SnmpTrapOidContainer trapContainer = context.get
                     (SnmpTrapOidContainer::NAME);
 
                 trapOid = trapContainer.getSnmpTrapOid();
 	    }
-	    catch (Exception& e)
+	    else
             {
 	        // get trapOid from indication Class
 
@@ -298,7 +290,7 @@ void snmpIndicationHandler::handleIndication(
 	        handler.getProperty(engineIDPos).getValue().get(engineID);
 	    }
 
-	    snmpTrap.deliverTrap(
+	    _snmpTrapSender->deliverTrap(
                 trapOid,
                 securityName,
                 targetHost,
@@ -354,14 +346,17 @@ void snmpIndicationHandler::handleIndication(
     PEG_METHOD_EXIT();
 }
 
+PEGASUS_NAMESPACE_END
+
+PEGASUS_USING_PEGASUS;
+
 // This is the dynamic entry point into this dynamic module. The name of
 // this handler is "snmpIndicationHandler" which is appended to "PegasusCreateHandler_"
 // to form a symbol name. This function is called by the HandlerTable
 // to load this handler.
 
-extern "C" PEGASUS_EXPORT CIMHandler* 
-    PegasusCreateHandler_snmpIndicationHandler() {
+extern "C" PEGASUS_EXPORT
+CIMHandler* PegasusCreateHandler_snmpIndicationHandler()
+{
     return new snmpIndicationHandler;
 }
-
-PEGASUS_NAMESPACE_END

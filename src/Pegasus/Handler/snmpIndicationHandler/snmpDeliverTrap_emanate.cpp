@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/System.h>
@@ -88,19 +84,10 @@ PEGASUS_USING_STD;
 
 snmpDeliverTrap_emanate::snmpDeliverTrap_emanate()
 {
-    //
-    // Initialize Subagent and establish comunication with the Master Agent
-    //
-    initialize();
 }
 
 snmpDeliverTrap_emanate::~snmpDeliverTrap_emanate()
 {
-    //
-    // Close the connection to the Master Agent and shut down the 
-    // Subagent
-    //
-    EndSubagent();
 }
 
 
@@ -130,6 +117,15 @@ void snmpDeliverTrap_emanate::initialize()
 						       _MSG_INITSUBAGENT_FAILED));
 
     }
+}
+
+void snmpDeliverTrap_emanate::terminate()
+{
+    //
+    // Close the connection to the Master Agent and shut down the 
+    // Subagent
+    //
+    EndSubagent();
 }
 
 

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (Yi.Zhou@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Packer.h>
@@ -425,7 +421,6 @@ void snmpDeliverTrap_netsnmp::_createPdu(
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
                 MessageLoaderParms(_MSG_VERSION_NOT_SUPPORTED_KEY,
                                    _MSG_VERSION_NOT_SUPPORTED));
-            break;
         }
     }
 

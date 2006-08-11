@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "sr_conf.h"
@@ -150,6 +146,8 @@ public:
     ~snmpDeliverTrap_emanate();
 
     void initialize();
+
+    void terminate();
 
     /**
 	Send snmp trap to the target.

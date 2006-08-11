@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -43,6 +39,14 @@
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
+
+void snmpDeliverTrap_stub::initialize()
+{
+}
+
+void snmpDeliverTrap_stub::terminate()
+{
+}
 
 void snmpDeliverTrap_stub::deliverTrap(
         const String& trapOid,

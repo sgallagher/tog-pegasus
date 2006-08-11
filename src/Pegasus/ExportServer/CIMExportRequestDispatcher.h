@@ -67,10 +67,6 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
 
       virtual ~CIMExportRequestDispatcher();
 
-      static void _forwardRequestCallback(AsyncOpNode *,
-                                            MessageQueue *,
-                                            void *);
-
    protected:
 
       virtual void _handle_async_request(AsyncRequest *req);

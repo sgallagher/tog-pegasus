@@ -131,69 +131,6 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
     PEG_METHOD_EXIT();
 }
 
-// This callback method is currently unused.  ExportIndication messages
-// are passed to the ProviderManager using SendWait rather than SendAsync
-// so the responses can be routed correctly.
-void CIMExportRequestDispatcher::_forwardRequestCallback(AsyncOpNode *op, 
-							 MessageQueue *q, 
-							 void *parm)
-{
-   PEGASUS_ASSERT(0);
-#if 0
-   CIMExportRequestDispatcher *service = 
-      static_cast<CIMExportRequestDispatcher *>(q);
-
-   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
-   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
-
-   CIMResponseMessage *response;
-
-   Uint32 msgType =  asyncReply->getType();
-
-    if(msgType == async_messages::ASYNC_LEGACY_OP_RESULT)
-    {
-        response = reinterpret_cast<CIMResponseMessage *>(
-            (static_cast<AsyncLegacyOperationResult *>(asyncReply))->
-                get_result());
-    }
-    else if(msgType == async_messages::ASYNC_MODULE_OP_RESULT)
-    {
-        response = reinterpret_cast<CIMResponseMessage *>(
-            (static_cast<AsyncModuleOperationResult *>(asyncReply))->
-                get_result());
-    }
-    else
-    {
-        // Error
-        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "CIMExportRequestDispatcher::_forwardRequestCallback got "
-                "unexpected message type '%u'", msgType);
-    }
-
-   PEGASUS_ASSERT(response != 0);
-   // ensure that the destination queue is in response->dest
-#ifdef PEGASUS_POINTER_64BIT  
-   response->dest = (Uint64)parm;
-#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
-   // We cast to unsigned long
-   // because sizeof(void *) == sizeof(unsigned long)
-   response->dest = (unsigned long)parm;
-#else
-   response->dest = (Uint32)parm;
-#endif
-
-   if(parm != 0 )
-        service->SendForget(response);
-    else
-        delete response;
-
-    delete asyncRequest;
-    delete asyncReply;
-    op->release();
-    service->return_op(op);
-#endif
-}
-
 void CIMExportRequestDispatcher::handleEnqueue(Message* message)
 {
    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,

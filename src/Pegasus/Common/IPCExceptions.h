@@ -133,14 +133,6 @@ public:
     }
 };
 
-class PEGASUS_COMMON_LINKAGE ModuleClosed: public IPCException
-{
-public:
-    ModuleClosed() : IPCException(Threads::self())
-    {
-    }
-};
-
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_IPCExceptions_h */

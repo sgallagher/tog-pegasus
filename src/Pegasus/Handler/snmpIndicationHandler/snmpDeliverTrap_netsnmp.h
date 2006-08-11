@@ -29,16 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
+#include <Pegasus/Common/Mutex.h>
 #include "snmpDeliverTrap.h"
 
 PEGASUS_NAMESPACE_BEGIN

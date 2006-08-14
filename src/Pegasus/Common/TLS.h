@@ -27,17 +27,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Markus Mueller (sedgewick_de@yahoo.de)
-//
-// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//              David Dillard, Symantec Corp.  (david_dillard@symantec.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_TLS_h
@@ -196,6 +185,13 @@ public:
 
     void setSocketWriteTimeout(Uint32 socketWriteTimeout);
 
+#ifdef PEGASUS_OS_ZOS
+    // Return the authenicated user name
+    String getAuthenticatedUser(){ return String(_username); }
+    Boolean isClientAuthenticated(){ return _userAuthenticated; }
+#endif 
+
+
     union {
         SocketHandle _socket;
         SSLSocket *_sslsock;
@@ -204,6 +200,14 @@ public:
 private:
     Boolean   _isSecure;
     Uint32    _socketWriteTimeout;
+#ifdef PEGASUS_OS_ZOS
+    
+    int ATTLS_zOS_query();
+    // The user name if authenticated through ATTLS.
+    char _username[10];
+    Boolean _userAuthenticated;
+#endif 
+
 };
 
 

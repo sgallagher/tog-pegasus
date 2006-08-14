@@ -27,27 +27,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//         Dave Rosckes (rosckes@us.ibm.com)
-//         Amit Arora, IBM (amita@in.ibm.com)
-//         Heather Sterling, IBM (hsterl@us.ibm.com)
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
-//         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097
-//         Sushma Fernandes, IBM (sushma@hp.com) for Bug#2057
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
-//         Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
-//         David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//         John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -262,12 +241,22 @@ HTTPConnection::HTTPConnection(
            _authInfo->setExportConnection(exportConnection);
         }
 
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
         if (_socket->isPeerVerificationEnabled() && _socket->isCertificateVerified())
         {
             _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
             _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
             _authInfo->setClientCertificateChain(_socket->getPeerCertificateChain());
         }
+#else
+        
+        if(_socket->isClientAuthenticated())
+        {
+            _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+            _authInfo->setAuthenticatedUser(_socket->getAuthenticatedUser());
+        }
+#endif
+
     }
 
     _responsePending = false;
@@ -1777,13 +1766,23 @@ void HTTPConnection::_handleReadEvent()
         else
         {
             // Add SSL verification information to the authentication info
-            if (_socket->isSecure() &&
-                _socket->isPeerVerificationEnabled() &&
-                _socket->isCertificateVerified())
+            if (_socket->isSecure())
+            {
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+                if (_socket->isPeerVerificationEnabled() && _socket->isCertificateVerified())
             {
                 _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
                 _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
                 _authInfo->setClientCertificateChain(_socket->getPeerCertificateChain());
+            }
+#else
+                
+                if(_socket->isClientAuthenticated())
+                {
+                    _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+                    _authInfo->setAuthenticatedUser(_socket->getAuthenticatedUser());
+                }
+#endif
             }
 
             // Go back to the select() and wait for data on the connection

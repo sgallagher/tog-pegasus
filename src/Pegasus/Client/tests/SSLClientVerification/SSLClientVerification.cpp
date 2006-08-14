@@ -27,10 +27,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Heather Sterling (hsterl@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -68,11 +64,28 @@ const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 
 int main(int argc, char** argv)
 {
+    String host;
 
 #ifdef PEGASUS_HAS_SSL
 	try
 	{
-		String host = System::getHostName();
+
+       if(argc == 1)
+       {
+           host = System::getHostName();
+       } else
+           if(argc == 2)
+           {
+               host = argv[1];
+           } else
+           {
+               PEGASUS_STD(cerr) << "Usage of " << argv[0] <<" :" << PEGASUS_STD(endl);
+               PEGASUS_STD(cerr) << "No argument: test to localhost" << PEGASUS_STD(endl);
+               PEGASUS_STD(cerr) << "1st argument: test to specified host" << PEGASUS_STD(endl);
+               exit(1);
+
+           }
+
 		Uint32 port = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
 
 		//

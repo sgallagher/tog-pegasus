@@ -27,17 +27,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Dan Gorey, IBM (djgorey@us.ibm.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/ExportClient/CIMExportClient.h>
@@ -320,6 +309,8 @@ public:
                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest); 
 	    }
 
+#ifndef PEGASUS_OS_ZOS
+
             if (useHttps)
             {
 #ifdef PEGASUS_HAS_SSL
@@ -357,7 +348,13 @@ public:
             {
                 exportclient.connect (hostName, portNumber);
             }
+#else
+            // On zOS the ATTLS facility is using the port number(s) definded of the outbound policy 
+            // to decide if the indication is delivered through a SSL secured socket. This is totally 
+            // transparent to the CIM Server.
+            exportclient.connect (hostName, portNumber);
 
+#endif 
 // l10n 
 	    // check destStr, if no path is specified, use "/" for the URI
             Uint32 slash = destStr.find ("/");

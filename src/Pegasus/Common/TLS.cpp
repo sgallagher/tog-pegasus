@@ -27,21 +27,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Markus Mueller (sedgewick_de@yahoo.de)
-//
-// Modified By:
-//         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
-//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//         Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//         Heather Sterling, IBM (hsterl@us.ibm.com)
-//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//         David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//         Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//         Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4549
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Socket.h>
@@ -52,6 +37,10 @@
 #include <Pegasus/Common/FileSystem.h>
 
 #include "TLS.h"
+
+#ifdef PEGASUS_OS_ZOS
+#include "SocketzOS_inline.h"
+#endif
 
 //
 // use the following definitions only if SSL is available
@@ -677,6 +666,7 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifndef PEGASUS_OS_ZOS
 
 MP_Socket::MP_Socket(SocketHandle socket)
  : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
@@ -687,6 +677,8 @@ MP_Socket::MP_Socket(
     ReadWriteSem * sslContextObjectLock,
     Boolean exportConnection)
  : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
+
+#endif
 
 MP_Socket::~MP_Socket() {}
 
@@ -727,7 +719,36 @@ void MP_Socket::disableBlocking()
     Socket::disableBlocking(_socket);
 }
 
-Sint32 MP_Socket::accept() { return 1; }
+Sint32 MP_Socket::accept() 
+{ 
+#ifndef PEGASUS_OS_ZOS
+    return 1; 
+#else
+PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::accept()");
+// ****************************************************************************
+// This is a z/OS speciffic section. No other platform can port this.
+// Pegsus on z/OS has no OpenSSL but cat use a transparent layer called
+// AT-TLS ( Applicatin Transparent Transport Layer Security ) to handel 
+// HTTTPS connections.
+// ****************************************************************************
+
+int rc;
+
+if(isSecure())
+{
+   PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> HTTPS processing.");
+   rc = ATTLS_zOS_query();
+} else
+{
+   PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> Normal HTTP processing.");
+   rc = 1;
+}
+PEG_METHOD_EXIT();
+return rc;
+
+#endif
+
+}
 
 Sint32 MP_Socket::connect() { return 0; }
 

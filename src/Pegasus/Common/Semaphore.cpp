@@ -175,10 +175,10 @@ void Semaphore::time_wait(Uint32 milliseconds)
 
    while ((_count == 0) && !timedOut)
    {
-      int retcode = pthread_cond_timedwait(
+      int r = pthread_cond_timedwait(
          &_rep.cond, &_rep.mutex, &waittime);
 
-      if ((retcode == -1) && (errno = ETIMEDOUT) && (_count == 0))
+      if (((r == -1 && errno == ETIMEDOUT) || (r == ETIMEDOUT)) && _count == 0)
       {
          timedOut = true;
       }

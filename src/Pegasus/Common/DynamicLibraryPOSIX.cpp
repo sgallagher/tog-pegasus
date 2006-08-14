@@ -46,10 +46,6 @@
 # include "DynamicLibraryzOS_inline.h"
 #endif
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-# define _UNIX03_SOURCE
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 Boolean DynamicLibrary::_load()

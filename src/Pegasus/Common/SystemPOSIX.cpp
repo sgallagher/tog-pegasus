@@ -283,7 +283,7 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
         return false;
 
     return QlgUnlink(QlgPath(oldPath)) == 0;
-#elif defined(PEGAUS_OS_VMS)
+#elif defined(PEGASUS_OS_VMS)
 //   Note: link() on OpenVMS has a different meaning so rename is used.
 //         unlink() is a synonym for remove() so it can be used.
     if (rename(oldPath, newPath) != 0)

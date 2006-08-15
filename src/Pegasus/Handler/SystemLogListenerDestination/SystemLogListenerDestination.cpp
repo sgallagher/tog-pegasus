@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -196,14 +192,19 @@ void SystemLogListenerDestination::_writeToSystemLog(
 
 }
 
-// This is the dynamic entry point into this dynamic module. The name of
-// this handler is "SystemLogListenerDestination" which is appended to "PegasusCreateHandler_"
-// to form a symbol name. This function is called by the HandlerTable
-// to load this handler.
-
-extern "C" PEGASUS_EXPORT CIMHandler* 
-    PegasusCreateHandler_SystemLogListenerDestination() {
-    return new SystemLogListenerDestination;
-}
-
 PEGASUS_NAMESPACE_END
+
+PEGASUS_USING_PEGASUS;
+
+// This is the entry point into this dynamic module.
+
+extern "C" PEGASUS_EXPORT CIMHandler* PegasusCreateHandler(
+    const String& handlerName)
+{
+    if (handlerName == "SystemLogListenerDestination")
+    {
+        return new SystemLogListenerDestination;
+    }
+
+    return 0;
+}

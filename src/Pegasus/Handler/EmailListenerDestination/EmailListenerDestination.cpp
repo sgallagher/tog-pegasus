@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -511,14 +507,19 @@ void EmailListenerDestination::_openFile(
     PEG_METHOD_EXIT();
 }
 
-// This is the dynamic entry point into this dynamic module. The name of
-// this handler is "EmailListenerDestination" which is appended to "PegasusCreateHandler_"
-// to form a symbol name. This function is called by the HandlerTable
-// to load this handler.
-
-extern "C" PEGASUS_EXPORT CIMHandler* 
-    PegasusCreateHandler_EmailListenerDestination() {
-    return new EmailListenerDestination;
-}
-
 PEGASUS_NAMESPACE_END
+
+PEGASUS_USING_PEGASUS;
+
+// This is the entry point into this dynamic module.
+
+extern "C" PEGASUS_EXPORT CIMHandler* PegasusCreateHandler(
+    const String& handlerName)
+{
+    if (handlerName == "EmailListenerDestination")
+    {
+        return new EmailListenerDestination;
+    }
+
+    return 0;
+}

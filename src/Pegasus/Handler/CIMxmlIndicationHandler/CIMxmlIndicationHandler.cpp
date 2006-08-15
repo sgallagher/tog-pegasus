@@ -410,14 +410,19 @@ private:
 
 };
 
-// This is the dynamic entry point into this dynamic module. The name of
-// this handler is "CIMxmlIndicationHandler" which is appened to "PegasusCreateHandler_"
-// to form a symbol name. This function is called by the HandlerTable
-// to load this handler.
-
-extern "C" PEGASUS_EXPORT CIMHandler* 
-    PegasusCreateHandler_CIMxmlIndicationHandler() {
-    return new CIMxmlIndicationHandler;
-}
-
 PEGASUS_NAMESPACE_END
+
+PEGASUS_USING_PEGASUS;
+
+// This is the entry point into this dynamic module.
+
+extern "C" PEGASUS_EXPORT CIMHandler* PegasusCreateHandler(
+    const String& handlerName)
+{
+    if (handlerName == "CIMxmlIndicationHandler")
+    {
+        return new CIMxmlIndicationHandler;
+    }
+
+    return 0;
+}

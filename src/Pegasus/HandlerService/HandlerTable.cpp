@@ -94,7 +94,7 @@ CIMHandler* HandlerTable::_lookupHandler(const String& handlerId)
     return 0;
 }
 
-typedef CIMHandler* (*CreateHandlerFunc)();
+typedef CIMHandler* (*CreateHandlerFunc)(const String&);
 
 CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 {
@@ -126,30 +126,23 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 
     // Lookup the create handler symbol:
 
-    String functionName = "PegasusCreateHandler_";
-#ifndef PEGASUS_OS_OS400
-    functionName.append(handlerId);
-#else
-    functionName.append(os400HandlerId);
-#endif
-
-    CreateHandlerFunc func =
-        (CreateHandlerFunc) entry.handlerLibrary.getSymbol(functionName);
+    CreateHandlerFunc func = (CreateHandlerFunc)
+        entry.handlerLibrary.getSymbol("PegasusCreateHandler");
 
     if (!func)
     {
-	throw DynamicLookupFailed(functionName);
+	throw DynamicLookupFailed("PegasusCreateHandler");
     }
 
     // Create the handler:
 
-    entry.handler = func();
+    entry.handler = func(handlerId);
 
     if (!entry.handler)
     {
 	throw CreateHandlerReturnedNull(
 	    fileName,
-	    functionName);
+	    "PegasusCreateHandler");
     }
 
     _handlers.append(entry);

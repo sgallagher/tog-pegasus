@@ -27,13 +27,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//              Vageesh Umesh, IBM (vagumesh@in.ibm.com) for BUG#2543
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_HandlerTable_h
@@ -104,13 +97,6 @@ private:
     CIMHandler* _loadHandler(const String& handlerId);
 
     ReadWriteSem _handlerTableLock;
-
-public:
-
-    friend int operator==(const HandlerEntry& x, const HandlerEntry& y)
-    {
-	return 0;
-    }
 };
 
 PEGASUS_NAMESPACE_END

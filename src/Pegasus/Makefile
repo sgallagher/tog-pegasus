@@ -68,7 +68,6 @@ DIRS += \
     Server/ProviderRegistrationManager/tests \
     ExportServer \
     ExportServer/tests \
-    Consumer/tests \
     Listener \
     Listener/tests \
     Security/UserManager \

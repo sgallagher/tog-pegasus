@@ -137,9 +137,8 @@ Boolean DynamicLibrary::_load()
 
 void DynamicLibrary::_unload()
 {
-    // decrement handle is valid and release the library only if the handle 
-    // reference count is 0
-    if((_handle != 0) && (_decrement_handle(_handle) == 0))
+    // decrement handle and unload the library only if the reference count is 0
+    if (_decrement_handle(_handle) == 0)
     {
         shl_unload(reinterpret_cast<shl_t>(_handle));
     }

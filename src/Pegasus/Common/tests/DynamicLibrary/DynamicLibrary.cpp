@@ -45,6 +45,8 @@ PEGASUS_USING_STD;
 static const String VALID_LIBRARY_NAME = "TestDynLib";
 static const String INVALID_LIBRARY_NAME = "BADDynLib";
 
+const char* verbose = 0;
+
 String getLibraryFileName(const String& libraryName)
 {
 #if defined(PEGASUS_OS_VMS)
@@ -65,6 +67,8 @@ String getLibraryFileName(const String& libraryName)
 void Test1()
 {
     DynamicLibrary library(getLibraryFileName(VALID_LIBRARY_NAME));
+    PEGASUS_TEST_ASSERT(library.getFileName() ==
+        getLibraryFileName(VALID_LIBRARY_NAME));
 
     library.load();
     PEGASUS_TEST_ASSERT(library.isLoaded());
@@ -72,6 +76,9 @@ void Test1()
     Uint32 (* callme)(void) = (Uint32 (*)(void))library.getSymbol("callme");
     PEGASUS_TEST_ASSERT(callme);
     PEGASUS_TEST_ASSERT(callme() == 0xdeadbeef);
+
+    Uint32 (* badfunc)(void) = (Uint32 (*)(void))library.getSymbol("badfunc");
+    PEGASUS_TEST_ASSERT(badfunc == 0);
 
     library.unload();
     PEGASUS_TEST_ASSERT(!library.isLoaded());
@@ -127,6 +134,16 @@ void Test3()
     Boolean loaded = library.load();
     PEGASUS_TEST_ASSERT(!loaded);
     PEGASUS_TEST_ASSERT(!library.isLoaded());
+
+    String errorMessage = library.getLoadErrorMessage();
+    String fileName = library.getFileName();
+    if (verbose)
+    {
+        cout << "Invalid library name: " << fileName << endl;
+        cout << "Invalid library load error: " << errorMessage << endl;
+    }
+
+    PEGASUS_TEST_ASSERT(fileName == getLibraryFileName(INVALID_LIBRARY_NAME));
 }
 
 // Test reference counting
@@ -170,7 +187,7 @@ void Test4()
 
 int main(int argc, char** argv)
 {
-    const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     Test1();
     Test2();

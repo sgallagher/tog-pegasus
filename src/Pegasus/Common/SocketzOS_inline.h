@@ -1,4 +1,3 @@
-
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -42,7 +41,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-MP_Socket::MP_Socket(PEGASUS_SOCKET socket)
+MP_Socket::MP_Socket(SocketHandle socket)
  : _socket(socket), _isSecure(false),
    _userAuthenticated(false)
 {
@@ -50,7 +49,7 @@ MP_Socket::MP_Socket(PEGASUS_SOCKET socket)
 }
 
 MP_Socket::MP_Socket(
-    PEGASUS_SOCKET socket,
+    SocketHandle socket,
     SSLContext * sslcontext,
     ReadWriteSem * sslContextObjectLock,
     Boolean exportConnection)
@@ -135,7 +134,7 @@ int MP_Socket::ATTLS_zOS_query()
            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
                   "Pegasus.Common.SocketzOS_inline.POLICY_NOT_ENABLED",
                   "ATTLS policy is not aktive for the CIM Server HTTPS port. \
-                         Communication not secured. Connection closed");
+                         Communication not secured. Connection closed.");
            PEG_METHOD_EXIT();
            return -1;
        }
@@ -183,7 +182,7 @@ int MP_Socket::ATTLS_zOS_query()
            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
                   "Pegasus.Common.SocketzOS_inline.WRONG_ROLE",
                   "ATTLS policy specifies the wrong HandshakeRole for the CIM Server HTTPS port. \
-                         Communication not secured. Connection closed");
+                         Communication not secured. Connection closed.");
            PEG_METHOD_EXIT();
            return -1;
 

@@ -617,6 +617,8 @@ protected:
         after it is retrieved from the file.
      */
     Boolean _resolveInstance;
+
+    CString _lockFile;
 };
 
 PEGASUS_NAMESPACE_END

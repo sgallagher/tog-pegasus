@@ -1298,6 +1298,70 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
 #endif /* default */
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+// AutoFileLock class
+///////////////////////////////////////////////////////////////////////////////
+
+AutoFileLock::AutoFileLock(const char* fileName)
+{
+#ifdef PEGASUS_OS_TYPE_UNIX
+    _fl.l_type = F_WRLCK;
+    _fl.l_whence = SEEK_SET;
+    _fl.l_start = 0;
+    _fl.l_len = 0;
+    _fl.l_pid = getpid();
+
+    do
+    {
+        _fd = open(fileName, O_WRONLY);
+    } while ((_fd == -1) && (errno == EINTR));
+
+    if (_fd != -1)
+    {
+        int rc;
+
+        do
+        {
+            rc = fcntl(_fd, F_SETLKW, &_fl);
+        } while ((rc == -1) && (errno == EINTR));
+
+        if (rc == -1)
+        {
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "AutoFileLock: Failed to lock file '%s', error code %d.",
+                fileName, errno);
+            _fd = -1;
+        }
+    }
+    else
+    {
+        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "AutoFileLock: Failed to open lock file '%s', error code %d.",
+            fileName, errno);
+    }
+#endif
+}
+
+AutoFileLock::~AutoFileLock()
+{
+#ifdef PEGASUS_OS_TYPE_UNIX
+    if (_fd != -1)
+    {
+        _fl.l_type = F_UNLCK;
+        int rc = fcntl(_fd, F_SETLK, &_fl);
+        if (rc == -1)
+        {
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "AutoFileLock: Failed to unlock file, error code %d.",
+                errno);
+        }
+        close(_fd);
+    }
+#endif
+}
+
+
 //==============================================================================
 //
 // PEGASUS_OS_AIX

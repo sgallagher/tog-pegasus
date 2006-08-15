@@ -759,6 +759,54 @@ en:table {
         Clients.cimtrust.CIMTrustCommand.INVALID_SYSTEM_USER:string {"PGC01112: Specified user is not a valid system user."}
 
         // ==========================================================
+        // Messages for cimreparchive
+        //  Please use message prefix "PGC01200"
+        // ==========================================================
+
+        /**
+        * @note Clients.cimreparchive.CIMRepositoryArchiveCommand.MENU.STANDARD:
+        *    Do not translate the cimreparchive command or options, translate
+        *    the text that explains the options.
+        *    When translating this message, make sure that each line fits in
+        *    80 characters, preserves the indenting, and ends with a newline
+        *    character (\n).
+        */
+        Clients.cimreparchive.CIMRepositoryArchiveCommand.MENU.STANDARD:string {
+         "Usage: cimreparchive archive_file\n"
+         "       cimreparchive --version\n"
+         "       cimreparchive --help\n"
+         "Options:\n"
+         "    --help     - Display this help message\n"
+         "    --version  - Display CIM Server version number\n"
+         }
+
+        /**
+	* @note
+	*     Substitution {0} is a string containing a file name
+	*     Substitution {1} is a string containing a directory name
+        */
+        Clients.cimreparchive.CIMRepositoryArchiveCommand.ARCHIVE_CREATED:string {"File \"{0}\" now contains an archive of directory \"{1}\"."}        
+
+        Clients.cimreparchive.CIMRepositoryArchiveCommand.REQUIRED_ARGS_MISSING:string {"PGC01200: Required arguments missing."}
+
+        Clients.cimreparchive.CIMRepositoryArchiveCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC01201: Invalid option. Use '--help' to obtain command syntax."}
+
+        Clients.cimreparchive.CIMRepositoryArchiveCommand.ERR_USAGE:string {"PGC01202: Incorrect usage. Use '--help' to obtain command syntax."}
+
+        /**
+	* @note PGC01203
+        *     Substitution {0} is an error message string
+        */
+        Clients.cimreparchive.CIMRepositoryArchiveCommand.SYSCALL_FAILED:string {"PGC01203: Failed to initiate archive operation: {0}"}
+
+        /**
+	* @note PGC01204
+        *     Substitution {0} is an integer error status
+	*     Substitution {1} is a string containing a file name
+        */
+        Clients.cimreparchive.CIMRepositoryArchiveCommand.ARCHIVE_FAILED:string {"PGC01204: Archive operation failed with status {0}.  Removing file \"{1}\"."}
+
+        // ==========================================================
         // Start of messages from platform-specific files
         // ==========================================================
                         

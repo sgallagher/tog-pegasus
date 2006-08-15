@@ -51,6 +51,7 @@ typedef unsigned long mode_t;
 # ifndef PEGASUS_OS_OS400
 #  include <unistd.h>
 # endif
+# include <fcntl.h>  // File locking
 # define PEGASUS_UID_T uid_t
 # define PEGASUS_GID_T gid_t
 #else
@@ -319,6 +320,29 @@ public:
     // System ID constants for Logger::put and Logger::trace
     static const String CIMLISTENER;
 
+};
+
+/**
+    The AutoFileLock class uses an advisory file lock to allow access to a
+    resource to be controlled.
+*/
+class AutoFileLock
+{
+public:
+
+    AutoFileLock(const char* fileName);
+    ~AutoFileLock();
+
+private:
+
+    AutoFileLock();
+    AutoFileLock(const AutoFileLock&);
+    AutoFileLock& operator=(const AutoFileLock&);
+
+#ifdef PEGASUS_OS_TYPE_UNIX
+    struct flock _fl;
+    int _fd;
+#endif
 };
 
 PEGASUS_NAMESPACE_END

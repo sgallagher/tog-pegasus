@@ -504,6 +504,9 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #endif
 #endif
 
+// Use the configuration file as a semaphore for repository access
+#define PEGASUS_REPOSITORY_LOCK_FILE PEGASUS_CURRENT_CONFIG_FILE_PATH
+
 // Constant defines for path to icu resource bundles
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #define PEGASUS_DEFAULT_MESSAGE_SOURCE  "/QIBM/ProdData/OS400/CIM/msg"

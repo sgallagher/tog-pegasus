@@ -28,84 +28,65 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../..
 
-DIRS = \
-    Abstract \
-    AnonymousPipe \
-    Array \
-    AutoPtr \
-    async_callback \
-    AtomicInt \
-    AuthenticationInfo \
-    Base64 \
-    Buffer \
-    Cimom \
-    ClassDecl \
-    Compare \
-    Config \
-    DateTime \
-    Dir \
-    DynLib \
-    DynamicLibrary \
-    FileLock \
-    FileSystem \
-    Flavor \
-    Formatter \
-    HashTable \
-    InstanceDecl \
-    IndicationFormatter \
-    L10N \
-    L10N/msg \
-    Logger \
-    MessageQueue \
-    MessageQueueService \
-    MessageSerializer \
-    Method \
-    ModuleController \
-    Object \
-    ObjectNormalizer \
-    OperationContext \
-    OptionManager \
-    ParamValue \
-    Parameter \
-    Property \
-    Qualifier \
-    QualifierDecl \
-    QualifierList \
-    Reference \
-    Resolve \
-    Scope \
-    SpinLock \
-    Stack \
-    Stopwatch \
-    StrToInstName \
-    String \
-    System \
-    Thread \
-    ThreadPool \
-    TimeValue \
-    ToMof \
-    Tracer \
-    ValidateClass \
-    Value \
-    XmlDump \
-    XmlParser \
-    XmlPrint \
-    XmlReader \
-    List \
-    AsyncQueue \
-    IDFactory
-    
+DIR = Clients/cimreparchive/tests
 
-ifndef PEGASUS_DISABLE_PERFINST
-DIRS += \
-	StatisticalData
-endif
+include $(ROOT)/mak/config.mak
+include $(ROOT)/mak/test.mak
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-DIRS += \
-	Attribute
-endif
+RESULTFILE =  $(TMP_DIR)/result
+IGNOREFILE =  $(TMP_DIR)/ignore
+MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+tests:
+
+clean:
+	@$(RM) $(RESULTFILE)
+
+poststarttests:
+	@$(RM) $(RESULTFILE)
+	@ # Test error cases
+	@$(MAKE) -i -s poststarttests_ignoreerror
+	@ # Test success case (prints an environment-specific message)
+	@$(ECHO) "Success" >> $(RESULTFILE)
+	@cimreparchive rep.tar > $(IGNOREFILE)
+	@$(RM) $(IGNOREFILE)
+	@$(RM) rep.tar
+	@ # Check the results
+	@$(STRIPCRS)
+	$(COMPARERESULTS)
+	@$(ECHO) +++ Test passed +++
+	@$(RM) $(RESULTFILE)
+
+poststarttests_ignoreerror:
+	@$(ECHO) "Display usage - error" >> $(RESULTFILE)
+	@cimreparchive >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "Display usage - error" >> $(RESULTFILE)
+	@cimreparchive -a >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "Display Usage - error" >> $(RESULTFILE)
+	@cimreparchive a b >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "Display Usage - error" >> $(RESULTFILE)
+	@cimreparchive --help a >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "Display Usage - error" >> $(RESULTFILE)
+	@cimreparchive --bogus >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "Duplicate --help option" >> $(RESULTFILE)
+	@cimreparchive --help --help >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "Duplicate --version option" >> $(RESULTFILE)
+	@cimreparchive --version --version >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "Show help" >> $(RESULTFILE)
+	@cimreparchive --help >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "Show version" >> $(RESULTFILE)
+	@cimreparchive --version >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "Invalid archive file" >> $(RESULTFILE)
+	# The message printed by this test case is platform-specific
+	@cimreparchive a/b/c.tar > $(IGNOREFILE) $(REDIRECTERROR)
+	@$(RM) $(IGNOREFILE)
+
+depend:
+
+general:
+
+strip-license:
+
+prepend-license:

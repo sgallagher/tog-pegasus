@@ -1,0 +1,176 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+/*
+    This unit test exercises the AutoFileLock class.  Since a file lock does
+    not protect against multiple locks by the same process, it is necessary 
+    to use separate processes to exercise the locking mechanism.
+
+    This test spawns child processes, each of which iterates the steps of
+    locking a LOCK_FILE, retrieving a counter value from a COUNTER_FILE,
+    incrementing the counter, writing it back to the COUNTER_FILE, and
+    unlocking the LOCK_FILE.  The master process ensures that the correct
+    number of increments are performed.
+*/
+
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/Threads.h>
+#include <Pegasus/Common/PegasusAssert.h>
+#include <iostream>
+
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
+const char* LOCK_FILE = "lockFile";
+const char* COUNTER_FILE = "counterFile";
+const Uint32 NUM_SUBTESTS = 10;
+const Uint32 NUM_ITERATIONS = 20;
+
+ThreadReturnType PEGASUS_THREAD_CDECL runSubtest(void* parm)
+{
+    Thread* myself = (Thread*)parm;
+#ifdef PEGASUS_OS_TYPE_UNIX
+    FILE* fd = popen((const char*)myself->get_parm(), "r");
+    PEGASUS_TEST_ASSERT(fd);
+    pclose(fd);
+#endif
+    return 0;
+}
+
+void master(char testProgram[])
+{
+    // Master process
+
+    // Create the lock file
+
+    fstream fs;
+    FileSystem::removeFile(LOCK_FILE);
+    fs.open(LOCK_FILE, ios::out PEGASUS_OR_IOS_BINARY);
+    fs.close();
+
+    // Initialize the counter file to "0"
+
+    FileSystem::removeFile(COUNTER_FILE);
+    fs.open(COUNTER_FILE, ios::out PEGASUS_OR_IOS_BINARY);
+    fs.write("00000000", 8);
+    fs.close();
+
+    // Start the subtests
+
+    Thread* thread[NUM_SUBTESTS];
+
+    for (size_t i = 0; i < NUM_SUBTESTS; i++)
+    {
+        thread[i] = new Thread(runSubtest, testProgram, false);
+        thread[i]->run();
+    }
+
+    // Wait for the subtests to complete
+
+    for (size_t i = 0; i < NUM_SUBTESTS; i++)
+    {
+        thread[i]->join();
+        delete thread[i];
+    }
+
+    // Verify the result
+
+    char buffer[9];
+    FileSystem::openNoCase(
+    fs, COUNTER_FILE, ios::in PEGASUS_OR_IOS_BINARY);
+    fs.read(buffer, 8);
+    fs.close();
+
+    PEGASUS_TEST_ASSERT(atoi(buffer) == NUM_SUBTESTS*NUM_ITERATIONS);
+
+    // Clean up the files
+
+    FileSystem::removeFile(COUNTER_FILE);
+    FileSystem::removeFile(LOCK_FILE);
+
+    // Test an invalid lock file
+    AutoFileLock lock("not/a/valid/file");
+}
+
+void subtest()
+{
+    for (Uint32 i = 0; i < NUM_ITERATIONS; i++)
+    {
+        AutoFileLock lock(LOCK_FILE);
+
+        // Get the counter from the file
+
+        char buffer[9];
+        fstream fs;
+        fs.open(COUNTER_FILE, ios::in PEGASUS_OR_IOS_BINARY);
+        fs.read(buffer, 8);
+        fs.close();
+        Uint32 counter = atoi(buffer);
+
+        // Wait a bit to increase the collision window with other processes
+
+        Threads::sleep(10);
+
+        // Write the incremented counter to the file
+
+        sprintf(buffer, "%08u", counter+1);
+        fs.open(COUNTER_FILE, ios::out PEGASUS_OR_IOS_BINARY);
+        fs.write(buffer, 8);
+        fs.close();
+    }
+}
+
+int main(int argc, char** argv)
+{
+    if ((argc > 2) || ((argc == 2) && (strcmp(argv[1], "master") != 0)))
+    {
+        cerr << "Usage:  " << argv[0] << " master - start the tests" << endl;
+        cerr << "        " << argv[0] << "        - run a subtest" << endl;
+        exit(1);
+    }
+
+    if (argc == 2)
+    {
+        master(argv[0]);
+
+        cout << argv[0] << " +++++ passed all tests" << endl;
+    }
+    else
+    {
+        subtest();
+    }
+
+    return 0;
+}

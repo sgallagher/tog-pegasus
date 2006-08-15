@@ -883,4 +883,19 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
 // System ID constants for Logger::put and Logger::trace
 const String System::CIMSERVER = "cimserver";  // Server system ID
 
+
+///////////////////////////////////////////////////////////////////////////////
+// AutoFileLock class
+///////////////////////////////////////////////////////////////////////////////
+
+AutoFileLock::AutoFileLock(const char* fileName)
+{
+    // ATTN: Not implemented
+}
+
+AutoFileLock::~AutoFileLock()
+{
+    // ATTN: Not implemented
+}
+
 PEGASUS_NAMESPACE_END

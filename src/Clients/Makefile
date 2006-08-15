@@ -84,6 +84,12 @@ ifdef PEGASUS_HAS_SSL
     cimtrust/tests
 endif
 
+ifeq ($(OS_TYPE),unix)
+  DIRS += \
+    cimreparchive \
+    cimreparchive/tests
+endif
+
 #The following tests are NOT included as part of the standard
 #regession test.  The cimuser tests require PrivilegedUser
 #access to execute successfully.  The cimconfig tests modify

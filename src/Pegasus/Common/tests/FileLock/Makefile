@@ -28,84 +28,21 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../../..
+DIR = Pegasus/Common/tests/FileLock
+include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-DIRS = \
-    Abstract \
-    AnonymousPipe \
-    Array \
-    AutoPtr \
-    async_callback \
-    AtomicInt \
-    AuthenticationInfo \
-    Base64 \
-    Buffer \
-    Cimom \
-    ClassDecl \
-    Compare \
-    Config \
-    DateTime \
-    Dir \
-    DynLib \
-    DynamicLibrary \
-    FileLock \
-    FileSystem \
-    Flavor \
-    Formatter \
-    HashTable \
-    InstanceDecl \
-    IndicationFormatter \
-    L10N \
-    L10N/msg \
-    Logger \
-    MessageQueue \
-    MessageQueueService \
-    MessageSerializer \
-    Method \
-    ModuleController \
-    Object \
-    ObjectNormalizer \
-    OperationContext \
-    OptionManager \
-    ParamValue \
-    Parameter \
-    Property \
-    Qualifier \
-    QualifierDecl \
-    QualifierList \
-    Reference \
-    Resolve \
-    Scope \
-    SpinLock \
-    Stack \
-    Stopwatch \
-    StrToInstName \
-    String \
-    System \
-    Thread \
-    ThreadPool \
-    TimeValue \
-    ToMof \
-    Tracer \
-    ValidateClass \
-    Value \
-    XmlDump \
-    XmlParser \
-    XmlPrint \
-    XmlReader \
-    List \
-    AsyncQueue \
-    IDFactory
-    
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-ifndef PEGASUS_DISABLE_PERFINST
-DIRS += \
-	StatisticalData
+PROGRAM = TestFileLock
+SOURCES = FileLock.cpp
+
+include $(ROOT)/mak/program.mak
+
+tests:
+ifeq ($(OS_TYPE),unix)
+	$(PROGRAM) master
 endif
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-DIRS += \
-	Attribute
-endif
-
-include $(PEGASUS_ROOT)/mak/recurse.mak
+poststarttests:

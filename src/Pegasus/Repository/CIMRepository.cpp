@@ -600,6 +600,9 @@ CIMRepository::CIMRepository(const String& repositoryRoot, const CIMRepository_M
         ConfigManager::getInstance()->getCurrentValue(
             "repositoryIsDefaultInstanceProvider"));
 
+    _lockFile = ConfigManager::getInstance()->getHomedPath(
+        PEGASUS_REPOSITORY_LOCK_FILE).getCString();
+
     PEG_METHOD_EXIT();
 }
 
@@ -652,6 +655,9 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
     _isDefaultInstanceProvider = ConfigManager::parseBooleanValue(
         ConfigManager::getInstance()->getCurrentValue(
             "repositoryIsDefaultInstanceProvider"));
+
+    _lockFile = ConfigManager::getInstance()->getHomedPath(
+        PEGASUS_REPOSITORY_LOCK_FILE).getCString();
 
     PEG_METHOD_EXIT();
 }
@@ -972,6 +978,7 @@ void CIMRepository::deleteClass(
     PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::deleteClass");
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
 
     //
     // Get the class and check to see if it is an association class:
@@ -1091,6 +1098,7 @@ void CIMRepository::deleteInstance(
     }
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
 
     String errMessage;
 
@@ -1308,6 +1316,7 @@ void CIMRepository::createClass(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createClass");
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
     _createClass(nameSpace, newClass);
 
     PEG_METHOD_EXIT();
@@ -1544,6 +1553,7 @@ CIMObjectPath CIMRepository::createInstance(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createInstance");
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
     CIMObjectPath instanceName = _createInstance(nameSpace, newInstance);
 
     PEG_METHOD_EXIT();
@@ -1766,6 +1776,7 @@ void CIMRepository::modifyClass(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyClass");
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
     _modifyClass(nameSpace, modifiedClass);
 
     PEG_METHOD_EXIT();
@@ -1874,6 +1885,7 @@ void CIMRepository::modifyInstance(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyInstance");
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
 
     //
     // Get paths of index and data files:
@@ -3255,6 +3267,7 @@ void CIMRepository::setQualifier(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setQualifier");
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
     _setQualifier(nameSpace, qualifierDecl);
 
     PEG_METHOD_EXIT();
@@ -3299,6 +3312,7 @@ void CIMRepository::deleteQualifier(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteQualifier");
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
 
     // -- Get path of qualifier file:
 
@@ -3369,6 +3383,7 @@ void CIMRepository::createNameSpace(const CIMNamespaceName& nameSpace,
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createNameSpace");
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
     _nameSpaceManager.createNameSpace(nameSpace, attributes);
 
     PEG_METHOD_EXIT();
@@ -3380,6 +3395,7 @@ void CIMRepository::modifyNameSpace(const CIMNamespaceName& nameSpace,
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyNameSpace");
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
     _nameSpaceManager.modifyNameSpace(nameSpace, attributes);
 
     PEG_METHOD_EXIT();
@@ -3403,6 +3419,7 @@ void CIMRepository::deleteNameSpace(const CIMNamespaceName& nameSpace)
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteNameSpace");
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
     _nameSpaceManager.deleteNameSpace(nameSpace);
 
     PEG_METHOD_EXIT();
@@ -3510,6 +3527,7 @@ void CIMRepository::setDeclContext(RepositoryDeclContext *context)
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setDeclContext");
 
     WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
     _context = context;
 
     PEG_METHOD_EXIT();

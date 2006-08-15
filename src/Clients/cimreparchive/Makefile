@@ -28,84 +28,29 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../..
 
-DIRS = \
-    Abstract \
-    AnonymousPipe \
-    Array \
-    AutoPtr \
-    async_callback \
-    AtomicInt \
-    AuthenticationInfo \
-    Base64 \
-    Buffer \
-    Cimom \
-    ClassDecl \
-    Compare \
-    Config \
-    DateTime \
-    Dir \
-    DynLib \
-    DynamicLibrary \
-    FileLock \
-    FileSystem \
-    Flavor \
-    Formatter \
-    HashTable \
-    InstanceDecl \
-    IndicationFormatter \
-    L10N \
-    L10N/msg \
-    Logger \
-    MessageQueue \
-    MessageQueueService \
-    MessageSerializer \
-    Method \
-    ModuleController \
-    Object \
-    ObjectNormalizer \
-    OperationContext \
-    OptionManager \
-    ParamValue \
-    Parameter \
-    Property \
-    Qualifier \
-    QualifierDecl \
-    QualifierList \
-    Reference \
-    Resolve \
-    Scope \
-    SpinLock \
-    Stack \
-    Stopwatch \
-    StrToInstName \
-    String \
-    System \
-    Thread \
-    ThreadPool \
-    TimeValue \
-    ToMof \
-    Tracer \
-    ValidateClass \
-    Value \
-    XmlDump \
-    XmlParser \
-    XmlPrint \
-    XmlReader \
-    List \
-    AsyncQueue \
-    IDFactory
-    
+PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
-ifndef PEGASUS_DISABLE_PERFINST
-DIRS += \
-	StatisticalData
-endif
+DIR = Clients/cimreparchive
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-DIRS += \
-	Attribute
-endif
+include $(ROOT)/mak/config.mak
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+LIBRARIES = \
+    pegcliutils \
+    pegclient \
+    peggetoopt \
+    pegcommon
+
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+PROGRAM = cimreparchive
+
+SOURCES = CIMRepositoryArchiveCommand.cpp
+
+include $(ROOT)/mak/program.mak
+
+tests:
+
+poststarttests:
+

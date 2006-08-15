@@ -36,12 +36,16 @@ DIR = Pegasus/Handler/SystemLogListenerDestination
 
 include $(ROOT)/mak/config.mak
 
+ifeq ($(OS_TYPE),vms)
+ VMS_VECTOR = PegasusCreateHandler
+endif
+
 LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL -DPEGASUS_INTERNALONLY
 
 SOURCES = SystemLogListenerDestination.cpp
 
 LIBRARY = SystemLogListenerDestination
  
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:

@@ -42,12 +42,16 @@ ifdef PEGASUS_HAS_SSL
   SYS_INCLUDES += -I$(OPENSSL_HOME)/include
 endif
 
+ifeq ($(OS_TYPE),vms)
+ VMS_VECTOR = PegasusCreateHandler
+endif
+
 LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL -DPEGASUS_INTERNALONLY
 
 SOURCES = CIMxmlIndicationHandler.cpp
 
 LIBRARY = CIMxmlIndicationHandler
- 
-include $(ROOT)/mak/library.mak
+
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:

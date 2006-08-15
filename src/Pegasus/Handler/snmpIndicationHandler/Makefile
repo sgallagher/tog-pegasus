@@ -34,6 +34,10 @@ DIR = Pegasus/Handler/snmpIndicationHandler
 
 include $(ROOT)/mak/config.mak
 
+ifeq ($(OS_TYPE),vms)
+ VMS_VECTOR = PegasusCreateHandler
+endif
+
 LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
@@ -69,6 +73,6 @@ endif
 
 LIBRARY = snmpIndicationHandler
  
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:

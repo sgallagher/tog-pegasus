@@ -39,6 +39,8 @@ LIBRARIES = \
     pegclient \
     pegcommon
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = TestCertClient
 SOURCES = TestCertClient.cpp
 

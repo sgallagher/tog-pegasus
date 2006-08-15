@@ -37,15 +37,11 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
-#ifdef PEGASUS_INTERNALONLY
 #include <Pegasus/Common/StrLit.h>
-#endif
-
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** <I><B>Experimental Interface</B></I><BR>
+/**
     Formatter is a class to build formatted strings from
     strings that contain variable defintions.  The
     variable definitions in the strings are of the form
@@ -101,11 +97,9 @@ public:
 	{
 	}
 
-#ifdef PEGASUS_INTERNALONLY
 	Arg(const StrLit& x) : _cstrlit(&x), _type(CSTRLIT)
 	{
 	}
-#endif
 
 	Arg(Boolean x) : _boolean(x), _type(BOOLEAN)
 	{
@@ -148,11 +142,7 @@ public:
 	    int _boolean;
 	    Sint64 _lInteger;
 	    Uint64 _lUInteger;
-#ifdef PEGASUS_INTERNALONLY
 	    const StrLit* _cstrlit;
-#else
-	    const void* _unused;
-#endif
 	};
 
 	Type _type;
@@ -177,7 +167,5 @@ public:
 };
 
 PEGASUS_NAMESPACE_END
-
-#endif /*  PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
 #endif /* Pegasus_Formatter_h */

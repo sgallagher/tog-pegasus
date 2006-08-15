@@ -49,6 +49,8 @@ else
  LOCAL_DEFINES = -DINDICATION_DIR=\"$(DISPLAYCONSUMER_DIR)\"
 endif
 
+LOCAL_DEFINES += -DPEGASUS_INTERNALONLY
+
 PROGRAM = TestIndicationStressTest
 
 SOURCES = IndicationStressTest.cpp

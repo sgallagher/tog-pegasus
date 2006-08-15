@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Security_h
@@ -47,10 +42,7 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Provider/ProviderException.h>    
-#include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/System.h>
 
 // Security includes
 #if !defined (PEGASUS_OS_VMS)

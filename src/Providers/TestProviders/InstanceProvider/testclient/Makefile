@@ -44,6 +44,8 @@ LIBRARIES = \
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = TestInstanceProviderClient
 
 SOURCES = TestInstanceProviderClient.cpp

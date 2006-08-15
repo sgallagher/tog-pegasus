@@ -39,6 +39,8 @@ LIBRARIES = \
     pegclient \
     pegcommon
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = TestWrapperStressClient
 
 SOURCES = \

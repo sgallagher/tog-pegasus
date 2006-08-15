@@ -40,6 +40,8 @@ else
 LOCAL_DEFINES = -DSTRESSTEST_DEFAULTCFGDIR=\"$(ROOT)/test/StressTestController/\"
 endif
 
+LOCAL_DEFINES += -DPEGASUS_INTERNALONLY
+
 LIBRARIES = \
     pegcliutils \
     peggetoopt \

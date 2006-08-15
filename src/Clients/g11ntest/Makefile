@@ -42,6 +42,8 @@ LIBRARIES = \
     pegclient \
     pegcommon
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = g11ntest
 PROGRAM_ICU = g11ntest -reqlang en -rsplang en
 PROGRAM_NOICU = g11ntest

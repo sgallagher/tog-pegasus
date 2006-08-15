@@ -60,9 +60,6 @@ localization of text is not currently supported, it is
 recommended that text strings be structured in message
 catalogs to facilitate future localization.</p>
 */
-
-// l10n - added constructors with MessageLoaderParms
-
 class PEGASUS_PROVIDER_LINKAGE CIMOperationFailedException
     : public CIMException
 {
@@ -75,12 +72,10 @@ public:
     */
     CIMOperationFailedException(const String & message);
     
+#ifdef PEGASUS_INTERNALONLY
     /*
     <p>This exception will cause a <tt>CIM_ERR_FAILED</tt>
     status code to be returned to the client.</p>
-    */
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
     */
     CIMOperationFailedException(const MessageLoaderParms & parms);    
 #endif
@@ -88,10 +83,10 @@ public:
 protected:
     CIMOperationFailedException(const CIMStatusCode code, const String & message);
     
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
-    CIMOperationFailedException(const CIMStatusCode code, const MessageLoaderParms & parms);    
+#ifdef PEGASUS_INTERNALONLY
+    CIMOperationFailedException(
+        const CIMStatusCode code,
+        const MessageLoaderParms& parms);    
 #endif
 };
 
@@ -106,9 +101,7 @@ public:
     ///
     CIMAccessDeniedException(const String & message);
     
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
     CIMAccessDeniedException(const MessageLoaderParms & parms);    
 #endif
 };
@@ -124,9 +117,7 @@ public:
     ///
     CIMInvalidParameterException(const String & message);
     
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
     CIMInvalidParameterException(const MessageLoaderParms & parms);    
 #endif
 };
@@ -142,9 +133,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMInvalidClassException
 public:
     CIMInvalidClassException(const String & message);
     
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
     CIMInvalidClassException(const MessageLoaderParms & parms);    
 #endif
 };
@@ -161,9 +150,7 @@ public:
     ///
     CIMObjectNotFoundException(const String & message);
     
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
     CIMObjectNotFoundException(const MessageLoaderParms & parms); 
 #endif   
 };
@@ -179,9 +166,7 @@ public:
     ///
     CIMNotSupportedException(const String & message);
     
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
     CIMNotSupportedException(const MessageLoaderParms & parms);   
 #endif 
 };
@@ -197,9 +182,7 @@ public:
     ///
     CIMObjectAlreadyExistsException(const String & message);
     
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
     CIMObjectAlreadyExistsException(const MessageLoaderParms & parms);  
 #endif  
 };
@@ -215,9 +198,7 @@ public:
     ///
     CIMPropertyNotFoundException(const String & message);
     
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
     CIMPropertyNotFoundException(const MessageLoaderParms & parms); 
 #endif   
 };
@@ -234,9 +215,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMInvalidQueryException
 public:
     CIMInvalidQueryException(const String & message);
     
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
     CIMInvalidQueryException(const MessageLoaderParms & parms);    
 #endif
 };
@@ -253,9 +232,7 @@ public:
     ///
     CIMMethodNotFoundException(const String & message);
     
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
     CIMMethodNotFoundException(const MessageLoaderParms & parms);    
 #endif
 };

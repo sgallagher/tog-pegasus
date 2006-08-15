@@ -34,6 +34,8 @@ DIR = Clients/benchmarkTest/benchmarkProvider
 
 include $(ROOT)/mak/config.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 LIBRARY = benchmarkProviderModule
 
 LIBRARIES = \

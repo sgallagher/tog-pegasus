@@ -34,6 +34,9 @@ DIR = Providers/sample/LocalizedProvider
 
 include $(ROOT)/mak/config.mak
 
+# Note: This provider uses interfaces that are not frozen
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 LIBRARY = SampleLocalizedProvider
 
 LIBRARIES = \

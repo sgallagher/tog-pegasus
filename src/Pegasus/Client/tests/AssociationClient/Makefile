@@ -35,6 +35,8 @@ include ../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = TestPegClientAssociationClient
 SOURCES = AssociationClient.cpp
 

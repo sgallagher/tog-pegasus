@@ -34,6 +34,8 @@ DIR = Providers/TestProviders/ClientProvider
 
 include $(ROOT)/mak/config.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 LIBRARY = TestClientProvider
 
 LIBRARIES = \

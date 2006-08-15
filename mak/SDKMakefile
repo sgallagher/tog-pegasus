@@ -28,33 +28,6 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-#//
-#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
-#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
-#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
-#// IBM Corp.; EMC Corporation, The Open Group.
-#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
-#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
-#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
-#// EMC Corporation; VERITAS Software Corporation; The Open Group.
-#//
-#// Permission is hereby granted, free of charge, to any person obtaining a copy
-#// of this software and associated documentation files (the "Software"), to
-#// deal in the Software without restriction, including without limitation the
-#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-#// sell copies of the Software, and to permit persons to whom the Software is
-#// furnished to do so, subject to the following conditions:
-#// 
-#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
-#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
-#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//==============================================================================
 include $(PEGASUS_ROOT)/mak/config.mak
 include $(PEGASUS_ROOT)/mak/commands.mak
 
@@ -103,7 +76,9 @@ INCLUDE_DIRS = \
 INCLUDE_FILES = \
    Pegasus/Client/CIMClientException.h \
    Pegasus/Client/CIMClient.h \
+   Pegasus/Client/ClientOpPerformanceDataHandler.h \
    Pegasus/Client/Linkage.h \
+   Pegasus/Common/AcceptLanguageList.h \
    Pegasus/Common/Array.h \
    Pegasus/Common/ArrayInter.h \
    Pegasus/Common/Char16.h \
@@ -116,6 +91,7 @@ INCLUDE_FILES = \
    Pegasus/Common/CIMName.h \
    Pegasus/Common/CIMObject.h \
    Pegasus/Common/CIMObjectPath.h \
+   Pegasus/Common/CIMOperationType.h \
    Pegasus/Common/CIMParameter.h \
    Pegasus/Common/CIMParamValue.h \
    Pegasus/Common/CIMProperty.h \
@@ -127,7 +103,9 @@ INCLUDE_FILES = \
    Pegasus/Common/CIMType.h \
    Pegasus/Common/CIMValue.h \
    Pegasus/Common/Config.h \
+   Pegasus/Common/ContentLanguageList.h \
    Pegasus/Common/Exception.h \
+   Pegasus/Common/LanguageTag.h \
    Pegasus/Common/Linkage.h \
    Pegasus/Common/OperationContext.h \
    Pegasus/Common/ResponseHandler.h \
@@ -143,16 +121,7 @@ INCLUDE_FILES = \
    Pegasus/Provider/CIMOMHandle.h \
    Pegasus/Provider/CIMProvider.h \
    Pegasus/Provider/Linkage.h \
-   Pegasus/Provider/ProviderException.h \
-   Pegasus/Common/AcceptLanguageList.h \
-   Pegasus/Common/MessageLoader.h \
-   Pegasus/Common/ContentLanguageList.h \
-   Pegasus/Common/LanguageTag.h \
-   Pegasus/Common/Formatter.h
-
-INCLUDE_FILES += \
-   Pegasus/Client/ClientOpPerformanceDataHandler.h \
-   Pegasus/Common/CIMOperationType.h
+   Pegasus/Provider/ProviderException.h
 
 # CMPI header files
 INCLUDE_FILES += \

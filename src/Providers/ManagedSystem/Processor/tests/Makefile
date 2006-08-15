@@ -28,17 +28,6 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-#//
-#// Author: Christopher Neufeld <neufeld@linuxcare.com>
-#//         David Kennedy       <dkennedy@linuxcare.com>
-#//
-#// Modified By: 
-#//         David Kennedy       <dkennedy@linuxcare.com>
-#//         Christopher Neufeld <neufeld@linuxcare.com>
-#//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-#//         Sean Keenan <sean.keenan@hp.com>
-#//
-#//%////////////////////////////////////////////////////////////////////////////
 
 ROOT = $(PEGASUS_ROOT)
 
@@ -54,6 +43,8 @@ ifeq ($(OS),HPUX)
 endif
 
 EXTRA_INCLUDES =
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 SOURCES = \
 	../ProcessorPlatform.cpp \

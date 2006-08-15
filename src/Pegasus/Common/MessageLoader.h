@@ -53,11 +53,9 @@
 #include <unicode/msgfmt.h>
 #endif
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-
 PEGASUS_NAMESPACE_BEGIN
 
-/** <I><B>Experimental Interface</B></I><BR>
+/**
  * MessageLoaderParms class is basically a stuct class containing public variables that control
  * the way MessageLoader behaves. MessageLoader uses the fields in this class to decide where and
  * how to load messages from the message resources.
@@ -273,7 +271,5 @@ private:
 }; // end MessageLoader
 
 PEGASUS_NAMESPACE_END
-
-#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

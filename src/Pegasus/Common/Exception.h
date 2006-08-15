@@ -40,7 +40,7 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+#ifdef PEGASUS_INTERNALONLY
 # include <Pegasus/Common/MessageLoader.h>
 #endif
 
@@ -65,10 +65,7 @@ public:
     ///
     Exception(const Exception& exception);
 
-// l10n
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
     Exception(const MessageLoaderParms& msgParms);
 #endif
 
@@ -78,16 +75,11 @@ public:
     ///
     virtual const String& getMessage() const;
     
-// l10n
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    // Note: Rlse 2.3 - not virtual to preserve binary compatibility.
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
+    // Note: Not virtual to preserve binary compatibility.
     const ContentLanguageList& getContentLanguages() const;
     
-    // Note: Rlse 2.3 - not virtual to preserve binary compatibility.
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+    // Not virtual to preserve binary compatibility.
     void setContentLanguages(const ContentLanguageList& langs); 
 #endif   
 
@@ -112,9 +104,8 @@ class PEGASUS_COMMON_LINKAGE AlreadyExistsException : public Exception
 public:
     ///
     AlreadyExistsException(const String& message);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+
+#ifdef PEGASUS_INTERNALONLY
     AlreadyExistsException(MessageLoaderParms& msgParms);
 #endif
 };
@@ -125,9 +116,8 @@ class PEGASUS_COMMON_LINKAGE InvalidNameException : public Exception
 public:
     ///
     InvalidNameException(const String& name);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+
+#ifdef PEGASUS_INTERNALONLY
     InvalidNameException(MessageLoaderParms& msgParms); 
 #endif   
 };
@@ -138,9 +128,8 @@ class PEGASUS_COMMON_LINKAGE InvalidNamespaceNameException : public Exception
 public:
     ///
     InvalidNamespaceNameException(const String& name);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+
+#ifdef PEGASUS_INTERNALONLY
     InvalidNamespaceNameException(MessageLoaderParms& msgParms);
 #endif    
 };
@@ -160,9 +149,8 @@ public:
     ///
     TypeMismatchException();
     TypeMismatchException(const String& message);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+
+#ifdef PEGASUS_INTERNALONLY
     TypeMismatchException(MessageLoaderParms& msgParms);
 #endif    
 
@@ -190,9 +178,8 @@ class PEGASUS_COMMON_LINKAGE MalformedObjectNameException : public Exception
 public:
     ///
     MalformedObjectNameException(const String& objectName);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+
+#ifdef PEGASUS_INTERNALONLY
     MalformedObjectNameException(MessageLoaderParms& msgParms); 
 #endif   
 };
@@ -203,9 +190,8 @@ class PEGASUS_COMMON_LINKAGE BindFailedException : public Exception
 public:
     ///
     BindFailedException(const String& message);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+
+#ifdef PEGASUS_INTERNALONLY
     BindFailedException(MessageLoaderParms& msgParms);
 #endif    
 };
@@ -216,9 +202,8 @@ class PEGASUS_COMMON_LINKAGE InvalidLocatorException : public Exception
 public:
     ///
     InvalidLocatorException(const String& locator);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+
+#ifdef PEGASUS_INTERNALONLY
     InvalidLocatorException(MessageLoaderParms& msgParms); 
 #endif  
 };
@@ -237,9 +222,8 @@ class PEGASUS_COMMON_LINKAGE CannotConnectException : public Exception
 public:
     ///
     CannotConnectException(const String& message);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+
+#ifdef PEGASUS_INTERNALONLY
     CannotConnectException(MessageLoaderParms& msgParms); 
 #endif  
 };
@@ -274,9 +258,8 @@ class PEGASUS_COMMON_LINKAGE SSLException: public Exception
 public:
     ///
     SSLException(const String& message);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+
+#ifdef PEGASUS_INTERNALONLY
     SSLException(MessageLoaderParms& msgParms); 
 #endif   
 };
@@ -287,9 +270,8 @@ class PEGASUS_COMMON_LINKAGE DateTimeOutOfRangeException : public Exception
 public:
     ///
     DateTimeOutOfRangeException(const String& message);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+
+#ifdef PEGASUS_INTERNALONLY
     DateTimeOutOfRangeException(MessageLoaderParms& msgParms);
 #endif     
 }; 
@@ -306,10 +288,7 @@ public:
 	CIMStatusCode code = CIM_ERR_SUCCESS,
 	const String& message = String::EMPTY);
 	
-// l10n	
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-    */
+#ifdef PEGASUS_INTERNALONLY
     CIMException(
 	CIMStatusCode code,
 	const MessageLoaderParms& msgParms);

@@ -13,6 +13,8 @@ LIBRARIES = \
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = TestEmbeddedInstance
 
 SOURCES = EmbeddedInstanceTest.cpp

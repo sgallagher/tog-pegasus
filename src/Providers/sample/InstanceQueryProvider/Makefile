@@ -34,6 +34,9 @@ DIR = Providers/sample/InstanceQueryProvider
 
 include $(ROOT)/mak/config.mak
 
+# Note: This provider type currently requires interfaces that are not frozen
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 LIBRARY = SampleInstanceQueryProvider
 
 LIBRARIES = \

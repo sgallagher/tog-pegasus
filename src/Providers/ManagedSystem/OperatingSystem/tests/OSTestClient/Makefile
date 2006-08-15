@@ -40,6 +40,8 @@ LIBRARIES = \
     pegclient \
     pegcommon
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = TestOSTestClient
 SOURCES = OSTestClient.cpp
 

@@ -32,6 +32,9 @@ include $(PEGASUS_ROOT)/mak/config.mak
 
 DIR = Providers/sample/RT_Indication/RT_IndicationProvider
 
+# Note: This provider uses interfaces that are not frozen
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 LIBRARY = RT_IndicationProvider
 
 LIBRARIES = \

@@ -2926,11 +2926,18 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMArgument__1newS
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMArgument__1newSV
       (JNIEnv *jEnv, jobject jThs, jstring jN, jint jV)
 {
-   const char    *str = jEnv->GetStringUTFChars (jN,NULL);
+   const char    *str = jEnv->GetStringUTFChars (jN, NULL);
    CIMValue      *cv  = DEBUG_ConvertJavaToC (jint, CIMValue*, jV);
-   CIMParamValue *p   = new CIMParamValue (str,cv);
+   CIMParamValue *p   = 0;
 
-   jEnv->ReleaseStringUTFChars (jN,str);
+   if (  str
+      && cv
+      )
+   {
+      p = new CIMParamValue (str, *cv);
+   }
+
+   jEnv->ReleaseStringUTFChars (jN, str);
 
    return DEBUG_ConvertCToJava (CIMParamValue*, jint, p);
 }

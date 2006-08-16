@@ -61,7 +61,8 @@ JAR2CLASSES      = \
 	testExecQuery.class \
 	testIndications.class \
 	testPropertyProvider.class \
-	testCIMClient.class
+	testCIMClient.class \
+	testCIMArgument.class
 EXTRAJAR2CLASSES =
 JARS             = $(JAR1) $(JAR2)
 
@@ -79,7 +80,7 @@ clean:
 repository:
 
 poststarttests:			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
-	java -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR2))$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR3)) Client.RunTest $(KNOWN_BUGS)
+	java -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR1))$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR2)) Client.RunTest $(KNOWN_BUGS)
 
 $(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES) $(JAR1MANIFEST)
 	jar -cfm $@ $(JAR1MANIFEST) $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))

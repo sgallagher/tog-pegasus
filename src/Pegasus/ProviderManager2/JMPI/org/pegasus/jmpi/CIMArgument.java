@@ -31,7 +31,7 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:
+// Modified By: Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 package org.pegasus.jmpi;
@@ -42,17 +42,13 @@ public class CIMArgument
 
    private native int            _new           ();
    private native int            _newS          (String name);
-   private native int            _newSV         (String name, int v);
-   private native int            _getType       (int v);
-   private native int            _setType       (int v, int t);
-   private native void           _setValue      (int p, int v);
-   private native int            _getValue      (int p);
-   private native String         _getName       (int v);
-   private native void           _setName       (int v, String n);
-   private native int            _getQualifier  (int v, String n);
-   private native CIMQualifier[] _getQualifiers (int v);
-   private native void           _setQualifiers (int v, CIMQualifier[] qa);
-   private native void           _finalize      (int cp);
+   private native int            _newSV         (String name, int ciValue);
+   private native int            _getType       (int ciInst);
+   private native void           _setValue      (int ciInst, int ciValue);
+   private native int            _getValue      (int ciInst);
+   private native String         _getName       (int ciInst);
+   private native void           _setName       (int ciInst, String n);
+   private native void           _finalize      (int ciInst);
 
    protected void finalize ()
    {
@@ -142,18 +138,11 @@ public class CIMArgument
       }
    }
 
-   public void setType (CIMDataType dt)
-   {
-      _finalize (cInst);
-
-      cInst=_setType (cInst, dt.cInst ());
-   }
-
    public String toString ()
    {
       if (cInst != 0)
       {
-         return getType().toString()+" "+getName()+"="+getValue().toString()+";";
+         return getType ().toString () + " " + getName () + "=" + getValue ().toString () + ";";
       }
       else
       {
@@ -166,45 +155,6 @@ public class CIMArgument
       if (cInst != 0)
       {
          _setValue (cInst, v.cInst ());
-      }
-   }
-
-   public CIMQualifier getQualifier (String n)
-   {
-      int ciQualifier = 0;
-
-      if (cInst != 0)
-      {
-         ciQualifier = _getQualifier (cInst, n);
-      }
-
-      if (ciQualifier != 0)
-      {
-         return new CIMQualifier (ciQualifier);
-      }
-      else
-      {
-         return null;
-      }
-   }
-
-   public CIMQualifier[] getQualifiers ()
-   {
-      if (cInst != 0)
-      {
-         return _getQualifiers (cInst);
-      }
-      else
-      {
-         return null;
-      }
-   }
-
-   public void setQualifiers (CIMQualifier[] qa)
-   {
-      if (cInst != 0)
-      {
-         _setQualifiers (cInst, qa);
       }
    }
 

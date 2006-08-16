@@ -138,12 +138,12 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 
     entry.handler = func(handlerId);
 
-    if (!entry.handler)
-    {
-	throw CreateHandlerReturnedNull(
-	    fileName,
-	    "PegasusCreateHandler");
-    }
+    //
+    //  ATTN: to support dynamically pluggable handlers, the entry.handler
+    //  returned from the PegasusCreateHandler_<handlerId> function would
+    //  need to be validated to be non-null
+    //
+    PEGASUS_ASSERT(entry.handler);
 
     _handlers.append(entry);
 

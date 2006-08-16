@@ -44,17 +44,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_HANDLER_SERVICE_LINKAGE 
-CreateHandlerReturnedNull : public Exception
-{
-public:
-
-    CreateHandlerReturnedNull(
-	const String& libName,
-	const String& funcName)
-	: Exception(funcName + " returned null in library " + libName) { }
-};
-
 // The handler table maintains a list of handlers which have been
 // dynamically loaded. It maintains a mapping between string
 // handler identifiers and handlers. Indication Processor will use the

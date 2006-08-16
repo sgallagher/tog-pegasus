@@ -74,9 +74,6 @@ endif
 ifeq ($(OS_TYPE),unix)
 include $(ROOT)/mak/library-unix.mak
 endif
-ifeq ($(OS_TYPE),nsk)
-include $(ROOT)/mak/library-nsk.mak
-endif
 ifeq ($(OS_TYPE),vms)
  include $(ROOT)/mak/library-vms.mak
 endif

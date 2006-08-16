@@ -46,11 +46,7 @@
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <Pegasus/Common/TraceFileHandlerWindows.cpp>
-#elif defined(PEGASUS_OS_TYPE_UNIX)
-# include <Pegasus/Common/TraceFileHandlerPOSIX.cpp>
-#elif defined(PEGASUS_OS_TYPE_NSK)
-# include <Pegasus/Common/TraceFileHandlerNsk.cpp>
-#elif defined(PEGASUS_OS_VMS)
+#elif defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
 # include <Pegasus/Common/TraceFileHandlerPOSIX.cpp>
 #else
 # error "Unsupported platform"

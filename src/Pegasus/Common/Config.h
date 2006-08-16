@@ -54,8 +54,6 @@
 # include <Pegasus/Common/Platform_SOLARIS_SPARC_CC.h>
 #elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include <Pegasus/Common/Platform_ZOS_ZSERIES_IBM.h>
-#elif defined (PEGASUS_PLATFORM_NSK_NONSTOP_NMCPLUS)
-# include <Pegasus/Common/Platform_NSK_NONSTOP_NMCPLUS.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
 # include <Pegasus/Common/Platform_LINUX_IA64_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_X86_64_GNU)

@@ -47,9 +47,6 @@ endif
 ifeq ($(OS_TYPE),unix)
 include $(ROOT)/mak/program-unix.mak
 endif
-ifeq ($(OS_TYPE),nsk)
-include $(ROOT)/mak/program-nsk.mak
-endif
 ifeq ($(OS_TYPE),vms)
  include $(ROOT)/mak/program-vms.mak
 endif

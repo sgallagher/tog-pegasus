@@ -29,19 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//				Seema Gupta (gseema@in.ibm.com) for PEP135
-//              Amit K Arora (amita@in.ibm.com) for PEP101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -93,6 +80,9 @@ void CIMExportRequestEncoder::handleEnqueue()
       case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
 	 _encodeExportIndicationRequest((CIMExportIndicationRequestMessage*)message);
 	 break;
+        default:
+            PEGASUS_ASSERT(0);
+            break;
    }
 
    //ATTN: Do not delete the message here.

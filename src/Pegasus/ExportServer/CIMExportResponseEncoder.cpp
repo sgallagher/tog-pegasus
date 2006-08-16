@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -138,6 +131,10 @@ void CIMExportResponseEncoder::handleEnqueue(Message *message)
 	 encodeExportIndicationResponse(
 	    (CIMExportIndicationResponseMessage*)message);
 	 break;
+
+        default:
+            PEGASUS_ASSERT(0);
+            break;
    }
    
    delete message;

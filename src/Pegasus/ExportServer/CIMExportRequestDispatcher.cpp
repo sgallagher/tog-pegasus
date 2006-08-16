@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -163,9 +154,7 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
         }
 
         default:
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "CIMExportRequestDispatcher::handleEnqueue got unexpected "
-                    "message type '%u'", message->getType());
+            PEGASUS_ASSERT(0);
             break;
     }
     delete message;

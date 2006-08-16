@@ -140,9 +140,7 @@ void IndicationHandlerService::handleEnqueue(Message* message)
         }
 
         default:
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "IndicationHandlerService::handleEnqueue got unexpected "
-                    "message type '%u'", message->getType());
+            PEGASUS_ASSERT(0);
             break;
     }
 

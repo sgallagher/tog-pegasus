@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//				Seema Gupta (gseema@in.ibm.com for PEP135)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -138,6 +126,10 @@ void CIMExportRequestDecoder::handleEnqueue(Message *message)
       case HTTP_MESSAGE:
 	 handleHTTPMessage((HTTPMessage*)message);
 	 break;
+
+        default:
+            PEGASUS_ASSERT(0);
+            break;
    }
 
    delete message;

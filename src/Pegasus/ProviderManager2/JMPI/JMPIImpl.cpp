@@ -1839,7 +1839,11 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClass__1addProperty
    CIMClass    *cls = DEBUG_ConvertJavaToC (jint, CIMClass*, jCls);
    CIMProperty *p   = DEBUG_ConvertJavaToC (jint, CIMProperty*, jP);
 
-   cls->addProperty (*p);
+   try
+   {
+      cls->addProperty (*p);
+   }
+   Catch (jEnv);
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClass__1setProperties
@@ -1960,8 +1964,20 @@ JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMClass__1equals
 {
    CIMClass *cls             = DEBUG_ConvertJavaToC (jint, CIMClass*, jCls);
    CIMClass *clsToBeCompared = DEBUG_ConvertJavaToC (jint, CIMClass*, jClsToBeCompared);
+   bool      fRc             = false;
 
-   return cls->identical (*clsToBeCompared);
+   if (  cls
+      && clsToBeCompared
+      )
+   {
+      try
+      {
+         fRc = cls->identical (*clsToBeCompared);
+      }
+      Catch (jEnv);
+   }
+
+   return fRc;
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClass__1finalize

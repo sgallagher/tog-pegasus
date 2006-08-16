@@ -62,7 +62,8 @@ JAR2CLASSES      = \
 	testIndications.class \
 	testPropertyProvider.class \
 	testCIMClient.class \
-	testCIMArgument.class
+	testCIMArgument.class \
+	testCIMClass.class
 EXTRAJAR2CLASSES =
 JARS             = $(JAR1) $(JAR2)
 

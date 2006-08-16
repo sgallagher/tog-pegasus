@@ -54,43 +54,62 @@ public class CIMClass implements CIMElement
 {
    private int cInst;
 
-   private native int     _newInstance(int cInst);
-   private native int     _filterProperties(int cInst, String[] pl, boolean iq, boolean ic, boolean lo);
-   private native String  _getName(int cInst);
-   private native int     _getQualifier(int cInst, String n);
-   private native Vector  _getQualifiers(int cInst, Vector vec);
-   private native boolean _hasQualifier(int cInst, String n);
-   private native int     _addProperty(int cInst, int p);
-   private native void    _setProperties(int cInst, Vector v);
-   private native int     _getProperty(int cInst, String n);
-   private native Vector  _getProperties(int cInst, Vector vec);
-   private native int     _new(String n);
-   private native String  _getSuperClass(int cInst);
-   private native Vector  _getKeys(int cInst, Vector vec);
-   private native int     _getMethod(int cInst, String n);
-   private native boolean _equals(int cInst, int cInst1);
-   private native void    _finalize(int cc);
+   private native int     _newInstance      (int      cInst);
+   private native int     _filterProperties (int      cInst,
+                                             String[] pl,
+                                             boolean  iq,
+                                             boolean  ic,
+                                             boolean  lo);
+   private native String  _getName          (int      cInst);
+   private native int     _getQualifier     (int      cInst,
+                                             String   n);
+   private native Vector  _getQualifiers    (int      cInst,
+                                             Vector   vec);
+   private native boolean _hasQualifier     (int      cInst,
+                                             String   n);
+   private native int     _addProperty      (int      cInst,
+                                             int      p);
+   private native void    _setProperties    (int      cInst,
+                                             Vector   vec);
+   private native int     _getProperty      (int      cInst,
+                                             String   n);
+   private native Vector  _getProperties    (int      cInst,
+                                             Vector   vec);
+   private native int     _new              (String   n);
+   private native String  _getSuperClass    (int      cInst);
+   private native Vector  _getKeys          (int      cInst,
+                                             Vector   vec);
+   private native int     _getMethod        (int      cInst,
+                                             String   n);
+   private native boolean _equals           (int      cInst,
+                                             int      cInst1);
+   private native void    _finalize         (int      cInst);
 
-   protected void finalize() {
-      _finalize(cInst);
+   protected void finalize ()
+   {
+      _finalize (cInst);
    }
 
-   CIMClass(int ci) {
-      cInst=ci;
+   CIMClass (int ci)
+   {
+      cInst = ci;
    }
 
-   protected int cInst() {
+   protected int cInst ()
+   {
       return cInst;
    }
 
-   public CIMClass(String n) {
-      cInst = _new(n);
+   public CIMClass (String n)
+   {
+      cInst = _new (n);
    }
 
     /**
        Returns a new instance appropriately initialized
      */
-   public CIMInstance newInstance() {
+   public CIMInstance newInstance ()
+   {
       int ciInst = 0;
 
       if (cInst != 0)
@@ -108,8 +127,10 @@ public class CIMClass implements CIMElement
       }
    }
 
-   public CIMClass filterProperties(String propertyList[],
-        boolean includeQualifier, boolean includeClassOrigin) {
+   public CIMClass filterProperties (String  propertyList[],
+                                     boolean includeQualifier,
+                                     boolean includeClassOrigin)
+   {
       int ciClass = 0;
 
       if (cInst != 0)
@@ -131,7 +152,8 @@ public class CIMClass implements CIMElement
       }
    }
 
-   public CIMClass localElements() {
+   public CIMClass localElements ()
+   {
       int ciClass = 0;
 
       if (cInst != 0)
@@ -153,13 +175,13 @@ public class CIMClass implements CIMElement
       }
    }
 
-    /**
-   public Vector getQualifiers() {
-      getName - returns the name of this class
-
-      @return String with class name.
+   /**
+    * getName - returns the name of this class
+    * 
+    * @return String with class name.
     */
-   public String getName() {
+   public String getName ()
+   {
       if (cInst != 0)
       {
          return _getName (cInst);
@@ -170,19 +192,19 @@ public class CIMClass implements CIMElement
       }
    }
 
-   public void setName(String n) {
+   public void setName (String n)
+   {
       // not done yet
    }
 
-    /**
-       getQualifier - get the specified CIM Qualifier in this class
-
-       @param String name - The string name of the CIM qualifier.
-
-       @return CIMQualifier Returns the CIM Qualifier in this class else null
-   public Vector getQualifiers() {
-     */
-   public CIMQualifier getQualifier(String n) {
+   /**
+    * getQualifier - get the specified CIM Qualifier in this class
+    *
+    * @param String name - The string name of the CIM qualifier.
+    * @return CIMQualifier Returns the CIM Qualifier in this class else null
+    */
+   public CIMQualifier getQualifier (String n)
+   {
       int ciQualifier = 0;
 
       if (cInst != 0)
@@ -200,7 +222,8 @@ public class CIMClass implements CIMElement
       }
    }
 
-   public Vector getQualifiers() {
+   public Vector getQualifiers ()
+   {
       Vector ret = new Vector ();
 
       if (cInst != 0)
@@ -210,12 +233,14 @@ public class CIMClass implements CIMElement
 
       return ret;
    }
-       /**
-       Checks whether this class has the specified qualifier
 
-       Returns true if qualifier defined
-     */
-   public boolean hasQualifier(String n) {
+   /**
+    * Checks whether this class has the specified qualifier
+    * 
+    * @return true if qualifier defined
+    */
+   public boolean hasQualifier (String n)
+   {
       if (cInst != 0)
       {
          return _hasQualifier (cInst, n);
@@ -226,10 +251,11 @@ public class CIMClass implements CIMElement
       }
    }
 
-    /**
-       Gets the properties for this CIM class
-     */
-   public Vector getProperties() {
+   /**
+    * Gets the properties for this CIM class
+    */
+   public Vector getProperties ()
+   {
       Vector ret = new Vector ();
 
       if (cInst != 0)
@@ -240,18 +266,20 @@ public class CIMClass implements CIMElement
       return ret;
    }
 
-   public Vector getAllProperties() {
-      return getProperties();
+   public Vector getAllProperties ()
+   {
+      return getProperties ();
    }
-    /**
-       getProperty - get the CIMProperty for the specified class
 
-       @param String name - name of the property to get.
-
-       @return CIMProperty return the CIM property else if exist else Null
-			 if the property does not exist
+   /**
+    * getProperty - get the CIMProperty for the specified class
+    * 
+    * @param String name - name of the property to get.
+    * @return CIMProperty return the CIM property else if exist else Null
+    * if the property does not exist
     */
-   public CIMProperty getProperty(String n) {
+   public CIMProperty getProperty (String n)
+   {
       int ciProperty = 0;
 
       if (cInst != 0)
@@ -269,26 +297,30 @@ public class CIMClass implements CIMElement
       }
    }
 
-   public void addProperty(CIMProperty p) {
+   public void addProperty (CIMProperty p)
+      throws CIMException
+   {
       if (cInst != 0)
       {
          _addProperty (cInst, p.cInst ());
       }
    }
 
-   public void setProperties(Vector v) {
+   public void setProperties (Vector v)
+   {
       if (cInst != 0)
       {
          _setProperties (cInst, v);
       }
    }
 
-    /**
-      getSuperClass - returns the name of the parent for this class
-
-      @return String with parent class name.
+   /**
+    * getSuperClass - returns the name of the parent for this class
+    * 
+    * @return String with parent class name.
     */
-   public String getSuperClass() {
+   public String getSuperClass ()
+   {
       if (cInst != 0)
       {
          return _getSuperClass (cInst);
@@ -299,12 +331,13 @@ public class CIMClass implements CIMElement
       }
    }
 
-    /**
-         getKeys - Returns the properties that are keys for this class
-
-         @return  Vector containing the list of key properties
-     */
-   public Vector getKeys() {
+   /**
+    * getKeys - Returns the properties that are keys for this class
+    * 
+    * @return  Vector containing the list of key properties
+    */
+   public Vector getKeys ()
+   {
       Vector ret = new Vector ();
 
       if (cInst != 0)
@@ -315,10 +348,13 @@ public class CIMClass implements CIMElement
       return ret;
    }
 
-    /**
-       getMethod  - // Returns the specified method
-     */
-   public CIMMethod getMethod(String n) {
+   /**
+    * getMethod
+    *
+    * @return the specified method
+    */
+   public CIMMethod getMethod (String n)
+   {
       int ciMethod = 0;
 
       if (cInst != 0)
@@ -336,30 +372,41 @@ public class CIMClass implements CIMElement
       }
    }
 
-    /**
-       Returns a String representation of the CIMClass.
-
-       @return String empty or cimclass string
+   /**
+    * Returns a String representation of the CIMClass.
+    * 
+    * @return String empty or cimclass string
     */
-   public String toString() {
+   public String toString ()
+   {
       return "@ CIMClass.toString() not implemented yet!";
    }
 
-   public boolean equals(Object o) {
+   public boolean equals (Object o)
+   {
       if (!(o instanceof CIMClass))
          return(false);
+
       if (cInst == 0)
          return false;
-      CIMClass clsToBeCompared=(CIMClass)o;
-      if (cInst < 1 || clsToBeCompared.cInst () < 1) {
-         System.out.println("wrong cInst found!");
-         return(false);
+
+      CIMClass clsToBeCompared = (CIMClass)o;
+
+      if (  cInst == 0
+         || clsToBeCompared.cInst () == 0
+         )
+      {
+         System.out.println ("no cInst found!");
+
+         return false;
       }
-      boolean rv = _equals(cInst, clsToBeCompared.cInst ());
+
+      boolean rv = _equals (cInst, clsToBeCompared.cInst ());
+
       return rv;
    }
 
    static {
-       System.loadLibrary("JMPIProviderManager");
+       System.loadLibrary ("JMPIProviderManager");
    }
 }

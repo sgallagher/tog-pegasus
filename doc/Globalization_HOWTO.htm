@@ -30,6 +30,14 @@ the package name parameter should be used. &nbsp;It should no longer be
 used as part of the table name inside the bundle.<br>
       </td>
     </tr>
+    <tr>
+      <td style="vertical-align: top;">08/04/06<br>
+      </td>
+      <td style="vertical-align: top;">Marek Szermutzky<br>
+      </td>
+      <td style="vertical-align: top;">Section 2.2.5. &nbsp; Added information how to write platform specific messages.<br>
+      </td>
+    </tr>
   </tbody>
 </table>
 <p><br>
@@ -584,7 +592,7 @@ parms.acceptlanguages = acceptLangs; </p>
 String localizedMsg = MessageLoader::getMessage(parms); <br>
 &nbsp; <br>
 &nbsp; </p>
-<h4> 2.2.4 Message Writing Guidelines</h4>
+<h4> 2.2.5 Message Writing Guidelines</h4>
 <p><br>
 Here are some basic rules for writing messages: <br>
 &nbsp; </p>
@@ -603,6 +611,58 @@ team.&nbsp; Your messages need to make sense to the translators, and
 ultimately the customer.</li>
   <li> <b>TODO </b>- find a good message writing guide to link to</li>
 </ul>
+
+<p><b>When do I create a new message ?</b></p>
+
+<p>A new message should be created if a message is needed with a content not
+described by any existing message.</p>
+
+<p>A new message should be created if the number or placement of substitution
+parameters of an existing message would require an update.</p>
+
+<p>It is not necessary to create a new message if just the text of the message
+is changed, while the meaning is kept. For instance if the
+event(error,warning,whatever) is described more precisely by the new message
+text, it is not necessary to create a new message, but the existing one should
+be updated.</p>
+
+<p><b>How do I write a platform specific
+message ? </b></p>
+
+<p>Platform specific messages generate in a non-platform specific source file
+should be formatted with a .&lt;platform&gt; or .STANDARD suffix.</p>
+
+<p><i>Example:</i></p>
+<p>Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX</p>
+<p>Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS40</p>
+<p>Compiler.cmdline.cimmof.cmdline.MENU.STANDARD</p>
+
+<p>&nbsp;</p>
+
+<p><b>Where should I place platform specific
+messages ? </b></p>
+
+<p>As described in the message bundle file pegasusServer_en.txt messages belong
+into the section corresponding the file they are created in. This does account
+the same to platform specific messages.</p>
+<p>If a message is generated inside a source file not specific to a single
+platform, the message should be part of the message bundle section of that
+source file.</p>
+<p>If a new platform specific message is generated inside a platform specific
+source file, the message belongs to the platform specific section of the
+message bundle file.</p>
+
+<p><i>Examples:</i></p>
+
+<p>ProviderManager.ProviderAgent.ProviderAgent.UNINITIALIZED_SECURITY_SETUP.PEGASUS_OS_ZOS
+- this message is and should be part of the section for the ProviderAgent as it
+is generated inside the provider agent and not a z/OS platform specific file</p>
+<p>Common.safCheckzOS_inline.BAD_WBEM_SECURITY_SETUP - this message does and
+should reside inside the platform specific section as the message is generated
+in a z/OS platform only file</p>
+
+<p>&nbsp;</p>
+
 <h4> 2.2.5 Localized Exceptions</h4>
 <p><br>
 The base Exception class, and derived classes, have been updated to
@@ -1176,25 +1236,39 @@ for cimconfig. <br>
 &nbsp; </p>
 <p> </p>
 <hr>
-<p><i>Copyright (c) 2003 BMC Software; Hewlett-Packard Development
-Company, L.P.; IBM Corp.; The Open Group</i> </p>
-<p><i>Permission is hereby granted, free of charge, to any person
-obtaining a copy&nbsp; of this software and associated documentation
-files (the "Software"), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge,
-publish, distribute, sublicense, and/or sell copies of the Software, and
-to permit persons to whom the Software is furnished to do so, subject
-to the following conditions:</i> </p>
-<p><i>THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE
-INCLUDED IN ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE
-SOFTWARE IS PROVIDED&nbsp; "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</i> <br>
-&nbsp; <br>
-&nbsp; </p>
+<p><i>
+Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+IBM Corp.; EMC Corporation, The Open Group.
+Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+EMC Corporation; VERITAS Software Corporation; The Open Group.
+Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+EMC Corporation; Symantec Corporation; The Open Group.
+</i> </p>
+
+<p><i>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+</i> </p>
+
+<p><i>
+THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+"AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</i> <br>
+<br>
+</p>
 </body>
 </html>

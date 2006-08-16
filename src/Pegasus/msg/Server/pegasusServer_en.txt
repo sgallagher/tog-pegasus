@@ -1,6 +1,18 @@
 // ==============================================================================
 // Developer's notes:
 //
+// 0)  A new message should be created if a message is needed with a content
+//     not described by any existing message.
+//     
+//     A new message should be created if the number or placement of substitution
+//     parameters of an existing message would require an update.
+//     
+//     It is not necessary to create a new message if just the text of the message is
+//     changed, while the meaning is kept. For instance if the
+//     event(error,warning,whatever) is described more precisely by the new message
+//     text, it is not necessary to create a new message, but the existing one should
+//     be updated.
+//
 // 1)  The message key naming convention is:
 //        <directory-name>.<sourcecode-file-name>.<MESSAGE_IDENTIFIER_UPPER_CASE>
 //     For example:
@@ -35,7 +47,15 @@
 //
 //
 // 3)  Place any messages from platform-specific source files in the section
-//     at the end of this file.
+//     for platform-specific messages in this file.
+//     Platform specific messages generate in a non-platform specific source file
+//     should be formatted with a .<platform> or .STANDARD suffix and reside together
+//     in the section of the source code file.
+//     
+//     Example:
+//     Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX
+//     Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS40
+//     Compiler.cmdline.cimmof.cmdline.MENU.STANDARD
 //
 // 4)  To compile this message bundle, run make messages (but refer to
 //     pegasus/doc/Globalization_HOWTO.htm for details of how to set up ICU).

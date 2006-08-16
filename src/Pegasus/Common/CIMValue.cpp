@@ -1431,6 +1431,9 @@ Boolean CIMValue::equal(const CIMValue& x) const
     if (_rep->isNull != x._rep->isNull)
         return false;
 
+    if (_rep->isNull)
+        return true;
+
     if (_rep->isArray)
     {
         switch (_rep->type)

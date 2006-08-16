@@ -820,6 +820,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
 
     SSL_CTX_set_quiet_shutdown(sslContext, 1);
     SSL_CTX_set_mode(sslContext, SSL_MODE_AUTO_RETRY);
+    SSL_CTX_set_mode(sslContext, SSL_MODE_ENABLE_PARTIAL_WRITE);
     SSL_CTX_set_session_cache_mode(sslContext, SSL_SESS_CACHE_OFF);
 
     int options = SSL_OP_ALL;

@@ -561,6 +561,18 @@ void CIMServer::addAcceptor(
           exportConnection,
           useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0 );
     }
+
+    ConfigManager* configManager = ConfigManager::getInstance();
+    String socketWriteConfigTimeout = 
+        configManager->getCurrentValue("socketWriteTimeout");
+    // Set timeout value for server socket timeouts
+    // depending on config option
+    Uint32 socketWriteTimeout = 
+        strtol(socketWriteConfigTimeout.getCString(), (char **)0, 10);
+    // equal what went wrong, there has to be a timeout
+    if (socketWriteTimeout == 0) socketWriteTimeout = 20;
+    acceptor->setSocketWriteTimeout(socketWriteTimeout);
+
     _acceptors.append(acceptor);
 }
 

@@ -145,7 +145,8 @@ static struct OwnerEntry _properties[] =
     { "excludeModulesFromNormalization", (ConfigPropertyOwner *)ConfigManager::normalizationOwner },
 #endif
     {"forceProviderProcesses", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
-    {"maxProviderProcesses", (ConfigPropertyOwner* )ConfigManager::defaultOwner}
+    {"maxProviderProcesses", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"socketWriteTimeout", (ConfigPropertyOwner* )ConfigManager::defaultOwner}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(struct OwnerEntry);

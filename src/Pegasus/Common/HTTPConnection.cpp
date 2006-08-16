@@ -255,7 +255,6 @@ HTTPConnection::HTTPConnection(
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
 
-    //Socket::disableBlocking(_socket);
     _socket->disableBlocking();
     _authInfo.reset(new AuthenticationInfo(true));
 
@@ -718,9 +717,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
         } // if not a client
 
-        // ATTN: convert over to asynchronous write scheme:
-        // Send response message to the client (use synchronous I/O for now:
-        _socket->enableBlocking();
         SignalHandler::ignore(PEGASUS_SIGPIPE);
 
         // use the next four lines to test the SIGABRT handler
@@ -932,7 +928,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         }
     }
 
-    _socket->disableBlocking();
     return httpStatus.size() == 0 ? false : true;
 
 }
@@ -1288,6 +1283,12 @@ Boolean HTTPConnection::isChunkRequested()
 
     return answer;
 }
+
+void HTTPConnection::setSocketWriteTimeout(Uint32 socketWriteTimeout)
+{
+        _socket->setSocketWriteTimeout(socketWriteTimeout);
+}
+
 
 // determine if the current code being executed is on the client side
 

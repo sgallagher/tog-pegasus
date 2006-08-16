@@ -46,6 +46,7 @@
 #pragma message disable missingreturn
 
 #define PegasusCreateProvider PEGASUSCREATEPROVIDER
+#define PegasusCreateHandler PEGASUSCREATEHANDLER
 #define PegasusCreateProviderAdapter PEGASUSCREATEPROVIDERADAPTER
 #define PegasusCreateProviderManager PEGASUSCREATEPROVIDERMANAGER
 #define callme CALLME

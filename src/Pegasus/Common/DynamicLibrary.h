@@ -52,14 +52,14 @@ class PEGASUS_COMMON_LINKAGE DynamicLibrary
 {
 public:
     #if defined(PEGASUS_OS_TYPE_WINDOWS)
-      typedef HMODULE LIBRARY_HANDLE;
-      typedef FARPROC LIBRARY_SYMBOL;
+      typedef HMODULE DynamicLibraryHandle;
+      typedef FARPROC DynamicSymbolHandle;
     #elif defined(PEGASUS_OS_OS400)
-      typedef int LIBRARY_HANDLE;
-      typedef void * LIBRARY_SYMBOL;
+      typedef int DynamicLibraryHandle;
+      typedef void * DynamicSymbolHandle;
     #else
-      typedef void * LIBRARY_HANDLE;
-      typedef void * LIBRARY_SYMBOL;
+      typedef void * DynamicLibraryHandle;
+      typedef void * DynamicSymbolHandle;
     #endif
 
 public:
@@ -77,14 +77,14 @@ public:
     Boolean isLoaded() const;
 
     const String& getFileName() const;
-    LIBRARY_SYMBOL getSymbol(const String & symbolName);
+    DynamicSymbolHandle getSymbol(const String & symbolName);
 
 private:
     Boolean _load();
     void _unload();
 
     String _fileName;
-    LIBRARY_HANDLE _handle;
+    DynamicLibraryHandle _handle;
     String _loadErrorMessage;
     Uint32 _referenceCount;
     Mutex _loadMutex;

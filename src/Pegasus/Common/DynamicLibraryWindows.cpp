@@ -46,14 +46,14 @@ void DynamicLibrary::_unload()
     FreeLibrary(_handle);
 }
 
-DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(
+DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
     const String & symbolName)
 {
     PEGASUS_ASSERT(isLoaded());
 
     CString cstr = symbolName.getCString();
 
-    return (LIBRARY_SYMBOL) GetProcAddress(_handle, (const char *)cstr);
+    return (DynamicSymbolHandle) GetProcAddress(_handle, (const char *)cstr);
 }
 
 PEGASUS_NAMESPACE_END

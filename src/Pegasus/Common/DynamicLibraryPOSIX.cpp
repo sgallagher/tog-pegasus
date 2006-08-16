@@ -89,7 +89,7 @@ void DynamicLibrary::_unload()
 #endif
 }
 
-DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(
+DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
     const String& symbolName)
 {
     PEGASUS_ASSERT(isLoaded());
@@ -97,10 +97,11 @@ DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(
     CString cstr = symbolName.getCString();
 
 #ifdef PEGASUS_OS_OS400
-    LIBRARY_SYMBOL func = (LIBRARY_SYMBOL)
+    DynamicSymbolHandle func = (DynamicSymbolHandle)
         OS400_LoadDynamicSymbol(_handle, (const char *)cstr);
 #else
-    LIBRARY_SYMBOL func = (LIBRARY_SYMBOL) dlsym(_handle, (const char *)cstr);
+    DynamicSymbolHandle func =
+        (DynamicSymbolHandle) dlsym(_handle, (const char *)cstr);
 #endif
 
     return func;

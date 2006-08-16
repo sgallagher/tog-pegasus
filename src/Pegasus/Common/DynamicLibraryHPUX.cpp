@@ -50,10 +50,10 @@ PEGASUS_NAMESPACE_BEGIN
 // release the library only after an equal number of loads and unloads have 
 // occured.
 
-static Array<Pair<DynamicLibrary::LIBRARY_HANDLE, int> > _references;
+static Array<Pair<DynamicLibrary::DynamicLibraryHandle, int> > _references;
 static Mutex _mutex;
 
-static Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
+static Uint32 _increment_handle(DynamicLibrary::DynamicLibraryHandle handle)
 {
     AutoMutex autoMutex(_mutex);
 
@@ -68,12 +68,13 @@ static Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
     }
 
     // not found, append and set at 1
-    _references.append(Pair<DynamicLibrary::LIBRARY_HANDLE, int>(handle, 1));
+    _references.append(
+        Pair<DynamicLibrary::DynamicLibraryHandle, int>(handle, 1));
 
     return 1;
 }
 
-static Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
+static Uint32 _decrement_handle(DynamicLibrary::DynamicLibraryHandle handle)
 {
     AutoMutex autoMutex(_mutex);
 
@@ -144,12 +145,12 @@ void DynamicLibrary::_unload()
     }
 }
 
-DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(
+DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
     const String & symbolName)
 {
     PEGASUS_ASSERT(isLoaded());
 
-    LIBRARY_SYMBOL func = 0;
+    DynamicSymbolHandle func = 0;
     CString cstr = symbolName.getCString();
 
     if (shl_findsym((shl_t *)&_handle, cstr, TYPE_UNDEFINED, &func) == 0)

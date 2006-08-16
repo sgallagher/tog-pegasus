@@ -261,31 +261,26 @@ example is an enumerated response where each provider returned a
 different language.&nbsp; Please refer to PEP58 for details on these
 provider scenarios. <br>
 &nbsp; </p>
-<p>Pegasus 2.3 has added classes for the localization support.&nbsp;
-There are new classes called AcceptLanguages and ContentLanguages that
-encapsulate the Accept-Language and Content-Language headers,
-respectively.&nbsp; These classes are basically containers of
-AcceptLanguageElement and ContentLanguageElement, where a language
-element represents one language tag.&nbsp; The AcceptLanguages class
-will keep the AcceptLanguageElement's prioritized based on quality,
+<p>
+The Accept-Language and Content-Language headers are encapsulated
+in AcceptLanguageList and ContentLanguageList classes, respectively.
+These classes contain LanguageTag objects.  The AcceptLanguageList class
+keeps its LanguageTags prioritized based on quality,
 according to RFC 2616. <br>
 &nbsp; </p>
-<p>AcceptLanguages and ContentLanguages are the objects used by code
+<p>AcceptLanguageList and ContentLanguageList are the objects used by code
 throughout the request/response processing, from the client to the
 server to the providers and back.&nbsp; The server handles the creation
 of these objects from the HTTP headers.&nbsp; Code at each point in the
 process will have access to these objects. <br>
 &nbsp; </p>
-<p>Please refer to the following files for details on the new Pegasus
-classes. <br>
+<p>Please refer to the following files for details on the Pegasus
+language interfaces.<br>
 &nbsp; </p>
 <ul>
-  <li> pegasus/src/Pegasus/Common/AcceptLanguages.h</li>
-  <li> pegasus/src/Pegasus/Common/AcceptLanguageElement.h</li>
-  <li> pegasus/src/Pegasus/Common/ContentLanguages.h</li>
-  <li> pegasus/src/Pegasus/Common/ContentLanguageElement.h</li>
-  <li> pegasus/src/Pegasus/Common/LanguageElementContainer.h</li>
-  <li> pegasus/src/Pegasus/Common/LanguageElement.h</li>
+  <li> pegasus/src/Pegasus/Common/AcceptLanguageList.h</li>
+  <li> pegasus/src/Pegasus/Common/ContentLanguageList.h</li>
+  <li> pegasus/src/Pegasus/Common/LanguageTag.h</li>
 </ul>
 <p><br>
 See the sections below for details on how to write clients and
@@ -399,15 +394,15 @@ MessageLoaderParms object. <br>
 &nbsp; </p>
 <p>The MessageLoader is the place where the Accept-Language header,
 Content-Language header, and the ICU resource bundles, join up.&nbsp;
-The MessageLoader class is designed to receive an AcceptLanguages
+The MessageLoader class is designed to receive an AcceptLanguageList
 object, and a set of parameters indicating the bundle base-name and
-message ID to use.&nbsp; The AcceptLanguages object contains the list of
+message ID to use.&nbsp; The AcceptLanguageList object contains the list of
 requested languages sent by the client.&nbsp; The MessageLoader
 searches for the message in the set of bundles named with the base-name,
-using the AcceptLanguages for the list of specific translated bundles
+using the AcceptLanguageList for the list of specific translated bundles
 to search.&nbsp; The MessageLoader returns the message that it found,
-along with a ContentLanguages object indicating the language of the
-message.&nbsp; The ContentLanguages object should be used to indicate
+along with a ContentLanguageList object indicating the language of the
+message.&nbsp; The ContentLanguageList object should be used to indicate
 the language of the response sent back to the client. <br>
 &nbsp; </p>
 <p>The MessageLoaderParms object contains the parameters to load the
@@ -449,17 +444,17 @@ Note: relative paths start at $PEGASUS_HOME/msg.&nbsp; <br>
 Note: defaults to the bundle containing the Pegasus server messages.</td>
     </tr>
     <tr>
-      <td>AcceptLanguages acceptlanguages;</td>
+      <td>AcceptLanguageList acceptlanguages;</td>
       <td>Input.&nbsp; <br>
 Optional <br>
-Default: AcceptLanguages::EMPTY</td>
+Default: AcceptLanguageList()</td>
       <td>Contains the list of preferred languages, in priority
 order.&nbsp; This is combined with msg_src_path to determine which
 resource bundles to search for for the msg_id.&nbsp;&nbsp; If not empty,
 overrides useThreadLocale and useProcessLocale.</td>
     </tr>
     <tr>
-      <td>ContentLanguages contentlanguages;</td>
+      <td>ContentLanguageList contentlanguages;</td>
       <td>Output</td>
       <td>Contains the language that MessageLoader found for the
 msg_id.&nbsp;</td>
@@ -477,7 +472,7 @@ process.&nbsp; If true, overrides useThreadLocale.</td>
       <td>Input <br>
 Optional <br>
 Default = <font color="#ff0000">true</font></td>
-      <td>If true, MessageLoader will use the AcceptLanguages set by
+      <td>If true, MessageLoader will use the AcceptLanguageList set by
 Pegasus into the caller's Thread.&nbsp;&nbsp; See the Note below for
 details.&nbsp;</td>
     </tr>
@@ -488,7 +483,7 @@ Optional <br>
 Default = false</td>
       <td>If true, use ICU's fallback mechnism to search more general
 resource bundles if the msg_id cannot be found.&nbsp; Note: the
-recommended setting is false if you are using an AcceptLanguages from a
+recommended setting is false if you are using an AcceptLanguageList from a
 CIM client.&nbsp; The Accept-Languages HTTP header from the client
 contains the fallback specifications. &nbsp;Using ICU's fallback in this
 case may lead to returning a language that the client didn't ask for.</td>
@@ -516,15 +511,15 @@ Formatter::Arg class.</td>
 <p>Notes: <br>
 &nbsp; </p>
 <p>The "useThreadLocale" parameter defaults to true.&nbsp; This flag
-indicates to use the AcceptLanguages object set by Pegasus into the
+indicates to use the AcceptLanguageList object set by Pegasus into the
 Pegasus Thread in which the caller's code is running.&nbsp; This
-AcceptLanguages object reflects the languages requested by the
+AcceptLanguageList object reflects the languages requested by the
 client.&nbsp; This is useful for code that may not have access to the
-AcceptLanguages from the client.&nbsp; Pegasus sets this AcceptLanguages
+AcceptLanguageList from the client.&nbsp; Pegasus sets this AcceptLanguageList
 object into the Thread of providers and internal Pegasus code.&nbsp;
 For this reason, it is recommended that provider and internal Pegasus
 code use the "useThreadLocale" flag instead of explicity passing in an
-AcceptLanguages object.&nbsp; See the Provider Developer and Pegasus
+AcceptLanguageList object.&nbsp; See the Provider Developer and Pegasus
 Developer sections for details. <br>
 &nbsp; </p>
 <p>The "useProcessLocale" flag can be used to tell MessageLoader to use
@@ -537,15 +532,15 @@ below. <br>
 &nbsp; </p>
 <p>"Master switch" <br>
 The MessageLoader class has a public static Boolean variable called
-_useProcessLocale that may be used to override all the AcceptLanguages
+_useProcessLocale that may be used to override all the AcceptLanguageList
 and useThreadLocale settings in the MessageLoaderParms objects passed
 in.&nbsp; This is useful for CLI code (eg cimconfig) that needs to
 localize its messages based on the locale of its process, which refects
 the locale set by the user running the CLI (eg. $LANG on Unix).&nbsp;
 The CLI code may call Pegasus APIs that are coded to use the Thread's
-AcceptLanguages, which will not be set in this case.&nbsp; The
+AcceptLanguageList, which will not be set in this case.&nbsp; The
 _useProcessLocale static variable tells the MessageLoader to ignore the
-AcceptLanguages, useThreadLocale, and useProcessLocale settings in
+AcceptLanguageList, useThreadLocale, and useProcessLocale settings in
 MessageLoaderParms that it gets.&nbsp; The MessageLoader will use the
 default process locale, as determined by ICU, in this case. <br>
 &nbsp; </p>
@@ -554,7 +549,7 @@ the "fallback" mechanism described in the ICU Resource Management
 section.&nbsp; This is because the Accept-Language header itself
 describes the fallback that the client wants.&nbsp; However, the
 MessageLoader does "fallback" to the root resource bundle if none of the
-languages in AcceptLanguages can be found.&nbsp; If the root resource
+languages in AcceptLanguageList can be found.&nbsp; If the root resource
 bundle cannot be found, then the default_msg is returned.&nbsp; The
 "useICUFallback" flag can be set to have MessageLoader use ICU fallback
 on all message load attempts.&nbsp; However, usage of this flag for
@@ -578,11 +573,11 @@ The following example shows how a message may be loaded using the
 classes described above.&nbsp; Note: this a generic example.&nbsp; Each
 of the developer sections below have 'real-life' examples that are
 better suited to each type of code. </p>
-<p>// Build an AcceptLanguages with some language elements <br>
-AcceptLanguages acceptLangs; <br>
-acceptLangs.add(AcceptLanguageElement("fr", 0.5)); <br>
-acceptLangs.add(AcceptLanguageElement("de", 0.8)); <br>
-acceptLangs.add(AcceptLanguageElement("es", 0.4)); </p>
+<p>// Build an AcceptLanguageList with some language elements <br>
+AcceptLanguageList acceptLangs; <br>
+acceptLangs.insert(LanguageTag("fr"), 0.5); <br>
+acceptLangs.insert(LanguageTag("de"), 0.8); <br>
+acceptLangs.insert(LanguageTag("es"), 0.4); </p>
 <p>// Construct a MessageLoaderParms <br>
 MessageLoaderParms parms("msgID", "default message"); <br>
 parms. msg_src_path = "/my_msg_dir/my_bundle"; <br>
@@ -670,9 +665,9 @@ support localization.&nbsp; Constructors have been added that take a
 MessageLoaderParms object.&nbsp; These constructors will use the
 MessageLoaderParms object to call the MessageLoader to load the
 localized exception message.&nbsp; The localized message is saved in the
-Exception.&nbsp; The ContentLanguages object returned by MessageLoader
+Exception.&nbsp; The ContentLanguageList object returned by MessageLoader
 is also saved in the Exception.&nbsp; This indicates the language of
-the message.&nbsp; The ContentLanguages object is used later to set the
+the message.&nbsp; The ContentLanguageList object is used later to set the
 Content-Language header in the HTTP message to the client. <br>
 &nbsp; </p>
 <p>The old Exception constructors that take a String will remain.&nbsp;
@@ -731,12 +726,12 @@ strings using the client's requested Accept-Language.&nbsp; The
 provider does not need to know what the Accept-Language is.&nbsp; This
 is the recommended method to load messages based on the client's request.</li>
   <br>
-&nbsp; <li> The OperationContext will contain an AcceptLanguages object
+&nbsp; <li> The OperationContext will contain an AcceptLanguageList object
 that has the Accept-Language requested by the client.&nbsp; The provider
-can use this AcceptLanguages object to load strings with MessageLoader.</li>
+can use this AcceptLanguageList object to load strings with MessageLoader.</li>
 </ul>
 <p><br>
-The OperationContext will also contain a ContentLanguages object that
+The OperationContext will also contain a ContentLanguageList object that
 is set from the Content-Language in the client request.&nbsp; This is
 the language of the CIM objects being passed to the provider on that
 request.&nbsp; A localized provider should store the content language
@@ -793,9 +788,9 @@ if(localReference == _instanceNames[i]) <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 // We are going to let the message loader parameters default to use the <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// AcceptLanguages that Pegasus set into our thread. <br>
+// AcceptLanguageList that Pegasus set into our thread. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// (this equals the AcceptLanguages requested by the client) <br>
+// (this equals the AcceptLanguageList requested by the client) <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 // Note: This parms object could be constructed once and <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -829,7 +824,7 @@ instances[i].addProperty(CIMProperty("myProperty", localizedString)); </p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 // of parms to the language that it found for the message. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-ContentLanguages rtnLangs = parms.contentlanguages; </p>
+ContentLanguageList rtnLangs = parms.contentlanguages; </p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 // We need to tag the instance we are returning with the <br>
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// the
@@ -861,9 +856,9 @@ the instance wasn't found <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 // We are going to let the message loader parameters default to use the <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// AcceptLanguages that Pegasus set into our thread. <br>
+// AcceptLanguageList that Pegasus set into our thread. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// (this equals the AcceptLanguages requested by the client) <br>
+// (this equals the AcceptLanguageList requested by the client) <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 // Note: This parms object could be constructed once and <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -957,10 +952,10 @@ for the new methods on CIMClient. <br>
 <p>&nbsp;&nbsp; // Language priority is martian, pig-latin, and
 french.&nbsp; We should <br>
 &nbsp;&nbsp; // get french back, even though its the lowest priority <br>
-&nbsp; AcceptLanguages acceptLangs; <br>
-&nbsp; acceptLangs.add(AcceptLanguageElement("x-martian")); <br>
-&nbsp; acceptLangs.add(AcceptLanguageElement("fr", 0.1)); <br>
-&nbsp; acceptLangs.add(AcceptLanguageElement("x-pig-latin", 0.4)); </p>
+&nbsp; AcceptLanguageList acceptLangs; <br>
+&nbsp; acceptLangs.insert(LanguageTag("x-martian"), 1.0); <br>
+&nbsp; acceptLangs.insert(LanguageTag("fr"), 0.1); <br>
+&nbsp; acceptLangs.insert(LanguageTag("x-pig-latin"), 0.4); </p>
 <p>&nbsp;&nbsp;&nbsp; // Set the requested languages into the CIMClient <br>
 &nbsp; client.setRequestAcceptLanguages(acceptLangs); </p>
 <p>&nbsp;&nbsp; // Get the instance <br>
@@ -979,7 +974,8 @@ getValue(). <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 get(returnedString); </p>
 <p>&nbsp; // Check that we got back french <br>
-&nbsp; ContentLanguages CL_FR("fr"); <br>
+&nbsp; ContentLanguageList CL_FR(); <br>
+&nbsp; CL_FR.append(LanguageTag("fr")); <br>
 &nbsp; String expectedFRString = "oui"; <br>
 &nbsp; PEGASUS_ASSERT(CL_FR == client.getResponseContentLanguages()); <br>
 &nbsp; PEGASUS_ASSERT(expectedFRString == returnedString); </p>
@@ -1021,7 +1017,7 @@ requests based on the default locale of the process, as determined by
 ICU.&nbsp; If ICU is installed on the client system then CIMClient will
 set the Accept-Language from the default ICU process locale.&nbsp; If
 ICU is not installed then the caller is required to set an
-AcceptLanguages into CIMClient that meets the ISO-639 and IS0-3166
+AcceptLanguageList into CIMClient that meets the ISO-639 and IS0-3166
 standards.&nbsp; Note:&nbsp; this is useful for local clients, such as
 the Pegasus CLIs, where ICU would be installed on both the client and
 server sides. <br>
@@ -1066,12 +1062,13 @@ to described: <br>
 <p><b>Server Design Points:</b> <br>
 &nbsp; </p>
 <p>The CIMMessage object has been expanded to include an
-AcceptLanguages object and a ContentLanguages object.&nbsp; For
+AcceptLanguageList object and a ContentLanguageList object in its
+OperationContext member.&nbsp; For
 CIMRequestMessage, these objects contain the Accept-Language and
 Content-Language headers that were built from the client request.&nbsp;
-For CIMResponseMessage, the ContentLanguages object is used to build the
+For CIMResponseMessage, the ContentLanguageList object is used to build the
 Content-Language header associated with the CIM <i>objects </i>in the
-response message.&nbsp; The AcceptLanguages object in the
+response message.&nbsp; The AcceptLanguageList object in the
 CIMResponseMessage is ignored. <br>
 &nbsp; </p>
 <p>The localization of the cimException object in the
@@ -1080,7 +1077,7 @@ message string in the cimException object is assumed to have been
 localized by the time it is built into the XML.&nbsp; For this reason,
 the localization of the exception is the responsibility of the code
 throwing the exception.&nbsp; (The goal of the design is to make that
-easy - see below).&nbsp; The ContentLanguages object in the
+easy - see below).&nbsp; The ContentLanguageList object in the
 CIMResponseMessage has NO relation to this exception.&nbsp; The
 cimException object keeps its own localization information once it is
 created. <br>
@@ -1088,14 +1085,14 @@ created. <br>
 <p>To enable exceptions to be localized, the ability was added to set a
 global language for all the code running from a Pegasus Thread
 object.&nbsp; The top level code for a Thread can set a global
-AcceptLanguages object that can be accessed by all the low-level
+AcceptLanguageList object that can be accessed by all the low-level
 functions that it calls.&nbsp; This will allow an exception thrown by
 the low-level function to be localized based on this global
-AcceptLanguages object.&nbsp; Note:&nbsp; This applies only to Threads
+AcceptLanguageList object.&nbsp; Note:&nbsp; This applies only to Threads
 that are managed by a ThreadPool. <br>
 &nbsp; </p>
 <p>Each service in the request path of the Pegasus server sets the
-AcceptLanguages into its Thread from the AcceptLanguages in the
+AcceptLanguageList into its Thread from the AcceptLanguageList in the
 CIMRequestMessage object that it dequeues.&nbsp; This sets the global
 langauge for all the functions in the same thread that are called below
 handleEnqueue.&nbsp; <i>If you are writing a new service that processes
@@ -1107,10 +1104,10 @@ this.&nbsp;</i> The CIMOperationRequestDispatcher service is an example. <br>
 <p>With all that background, here is how code running in a Pegasus
 service can throw a localized exception: <br>
 This example assumes that the top-level code in the service had set the
-global thread AcceptLanguages beforehand.&nbsp; As described above,
+global thread AcceptLanguageList beforehand.&nbsp; As described above,
 every service in Pegasus should do that.&nbsp; The code here may be
 buried several layers deep in the call chain, but does not need to know
-the AcceptLanguage of the current client request. </p>
+the AcceptLanguagList of the current client request. </p>
 <p>// First, construct a MessageLoaderParms <br>
 // <br>
 // Notes: <br>
@@ -1120,7 +1117,7 @@ bundle. <br>
 //&nbsp; 3) The MessageLoaderParms will default to use the Pegasus
 server resource bundle <br>
 //&nbsp; 4) The MessageLoaderParms will default to use the
-AcceptLanguages set into the current Thread.&nbsp; Don't change this! <br>
+AcceptLanguageList set into the current Thread.&nbsp; Don't change this! <br>
 //&nbsp; 5) You might need to set the arguments for the message into
 the MessageLoaderParms <br>
 MessageLoaderParms parms("errorMessageID", "default message"); </p>
@@ -1148,18 +1145,18 @@ design problem: </p>
 e.getMessage()); <br>
 } <br>
 &nbsp; </p>
-<p>This type of code would have lost the ContentLanguages saved in "e",
+<p>This type of code would have lost the ContentLanguageList saved in "e",
 so that the Content-Language would not be set in HTTP response to the
 client. <br>
 &nbsp; </p>
 <p>For Pegasus 2.3, these types of macro calls can stay.&nbsp; The
 TraceableCIMException constructed by the macro will "re-localize".&nbsp;
 That is, the "CIM" part of the message (the part based on the error
-code) will be localized at throw time, and the ContentLanguages
+code) will be localized at throw time, and the ContentLanguageList
 re-established.&nbsp; A key is to avoid a "language mismatch" problem
 between the CIM part of the message and the extra part of the
 message.&nbsp; The design point here is that all internal exceptions
-thrown by Pegasus code are localized using the global AcceptLanguages
+thrown by Pegasus code are localized using the global AcceptLanguageList
 of the Thread...see above. <br>
 &nbsp; </p>
 <p>In the future, it will be safer and more maintainable to use of
@@ -1178,7 +1175,7 @@ CIM_ERR_FAILED, <br>
 e.getMessage( )); <br>
 } <br>
 &nbsp; </p>
-<p>This guarantees that the ContentLanguages in "e" is copied to the
+<p>This guarantees that the ContentLanguageList in "e" is copied to the
 newly created TraceableCIMException. <br>
 &nbsp; </p>
 <p>In the case where the extra message for the CIMException is

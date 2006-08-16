@@ -326,7 +326,7 @@ public:
     The AutoFileLock class uses an advisory file lock to allow access to a
     resource to be controlled.
 */
-class AutoFileLock
+class PEGASUS_COMMON_LINKAGE AutoFileLock
 {
 public:
 

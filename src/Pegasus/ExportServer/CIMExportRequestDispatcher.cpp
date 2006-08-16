@@ -127,11 +127,7 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
       "CIMExportRequestDispatcher::handleEnqueue");
 
-   if( ! message)
-   {
-      PEG_METHOD_EXIT();
-      return;
-   }
+    PEGASUS_ASSERT(message != 0);
 
     switch (message->getType())
     {

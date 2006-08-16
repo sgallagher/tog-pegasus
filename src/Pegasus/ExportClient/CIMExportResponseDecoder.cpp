@@ -29,17 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -98,11 +87,7 @@ void CIMExportResponseDecoder::handleEnqueue()
    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportResponseDecoder::handleEnqueue()");
    Message* message = dequeue();
 
-   if (!message)
-   {
-      PEG_METHOD_EXIT();
-      return;
-   }
+   PEGASUS_ASSERT(message != 0);
    
    switch (message->getType())
    {

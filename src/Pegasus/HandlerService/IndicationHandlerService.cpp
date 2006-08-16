@@ -104,10 +104,7 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest *req)
 
 void IndicationHandlerService::handleEnqueue(Message* message)
 {
-    if (!message)
-    {
-        return;
-    }
+    PEGASUS_ASSERT(message != 0);
 
 // l10n
     // Set the client's requested language into this service thread.

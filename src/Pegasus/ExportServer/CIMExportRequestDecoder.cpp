@@ -118,8 +118,7 @@ void CIMExportRequestDecoder::sendHttpError(
 
 void CIMExportRequestDecoder::handleEnqueue(Message *message)
 {
-   if (!message)
-      return;
+   PEGASUS_ASSERT(message != 0);
 
    switch (message->getType())
    {

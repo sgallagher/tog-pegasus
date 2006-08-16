@@ -70,8 +70,7 @@ void CIMExportRequestEncoder::handleEnqueue()
    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::handleEnqueue()");
    Message* message = dequeue();
 
-   if (!message)
-      return;
+   PEGASUS_ASSERT(message != 0);
 
    _authenticator->setRequestMessage(message);
 

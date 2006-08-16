@@ -121,9 +121,7 @@ void CIMExportResponseEncoder::sendEMethodError(
 
 void CIMExportResponseEncoder::handleEnqueue(Message *message)
 {
-   if (!message)
-      return;
-
+   PEGASUS_ASSERT(message != 0);
 
    switch (message->getType())
    {

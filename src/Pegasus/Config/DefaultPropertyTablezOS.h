@@ -31,29 +31,22 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_ZOS_SECURITY
-    {"enableAuthentication",                     "true"},
-#else
-    {"enableAuthentication",                     "false"},
-#endif
-    {"httpAuthType",                             "Basic"},
-    {"passwordFilePath",              "cimserver.passwd"},
-    {"sslCertificateFilePath",              "server.pem"}, 
-    {"sslKeyFilePath",                        "file.pem"},
-    {"sslTrustStore",                  "cimserver_trust"},
-    {"exportSSLTrustStore",           "indication_trust"},
-#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    {"crlStore",                                   "crl"},
-#endif
-    {"sslClientVerificationMode",             "disabled"},
-    {"sslTrustStoreUserName",                         ""},
-    {"enableNamespaceAuthorization",             "false"},
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    {"kerberosServiceName",                      "cimom"},
-#endif
-    {"enableSubscriptionsForNonprivilegedUsers",  "true"},
-#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
-    {"authorizedUserGroups",                          ""},
-#endif
-    {"enableSSLExportClientVerification",        "false"}
-
+#ifndef Pegasus_DefaultPropertyTablezOS_h
+#define Pegasus_DefaultPropertyTablezOS_h
+    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"home", "/usr/lpp/wbem", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
+# ifdef PEGASUS_DEFAULT_ENABLE_OOP
+    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+# else
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+# endif
+    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
+#endif /* Pegasus_DefaultPropertyTablezOS_h */

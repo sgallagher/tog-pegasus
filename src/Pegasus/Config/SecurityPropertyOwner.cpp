@@ -29,17 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Nag Boranna,   Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By: 
-//       Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
-//       Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
-//       Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//       Heather Sterling, IBM (hsterl@us.ibm.com)
-//       Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
-//       Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
-//       Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -65,6 +54,27 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
+///////////////////////////////////////////////////////////////////////////////
+//  For z/OS, the follwing securtiy properties are fixed properties dueto  
+//  listed in the FixedPropertyTablezOS.h . Because they are fixed, they 
+//  are hidden also:
+//  
+//   enableAuthentication                       
+//   passwordFilePath                           
+//   sslCertificateFilePath                     
+//   sslKeyFilePath                             
+//   sslTrustStore                              
+//   exportSSLTrustStore                        
+//   crlStore                                   
+//   sslClientVerificationMode                  
+//   sslTrustStoreUserName                      
+//   enableNamespaceAuthorization               
+//   kerberosServiceName                        
+//   enableSubscriptionsForNonprivilegedUsers   
+//   authorizedUserGroups                       
+//   enableSSLExportClientVerification          
+///////////////////////////////////////////////////////////////////////////////
+
 #ifdef PEGASUS_OS_OS400
     {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #else

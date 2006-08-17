@@ -6007,6 +6007,36 @@ CIM server listening on HTTPS port {0}."}
         */
         Security.Authentication.LocalAuthFile.NO_CHOWN:string {"PGS17600: Changing ownership of the local authentication security file back to the CIMServer UserId failed."}
 
+        /**
+        * @note PGS17601:
+        *    Substitution {0} is a file name (a string)
+        *    Substitution {1} is a system error message (a string)
+        *     
+        */
+        Security.Authentication.LocalAuthFile.NO_CREATE:string {"PGS17601: Creation of the local authentication security file {0} failed: {1}"}
+
+        /**
+        * @note PGS17602:
+        *    Substitution {0} is a file name (a string)
+        *     
+        */
+        Security.Authentication.LocalAuthFile.NO_WRITE:string {"PGS17602: Cannot write security token to the local authentication security file {0}."}
+
+        /**
+        * @note PGS17603:
+        *    Substitution {0} is a file name (a string)
+        *    Substitution {1} is a system error message (a string)
+        *     
+        */
+        Security.Authentication.LocalAuthFile.NO_CHMOD:string {"PGS17603: Changing permissions of the local authentication security file {0} failed: {1}"}
+            
+        /**
+        * @note PGS17604:
+        *    Substitution {0} is a file name (a string)
+        *    Substitution {1} is a system error message (a string)
+        *     
+        */
+        Security.Authentication.LocalAuthFile.NO_CHOWN_REQUSER:string {"PGS17604: Changing ownership of the local authentication security file {0} to the requesting user failed: {1}"}
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

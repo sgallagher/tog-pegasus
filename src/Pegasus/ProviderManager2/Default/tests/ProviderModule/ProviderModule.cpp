@@ -29,60 +29,177 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/FileSystem.h>
-
-#include <Pegasus/ProviderManager2/Default/LocalProviderManager.h>
+#include <Pegasus/ProviderManager2/Default/ProviderModule.h>
 
 #include <iostream>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-Boolean verbose = false;
+// Uses the pegasus/src/Providers/TestProviders/PG_TestPropertyTypes provider
+static const String GOOD_PROVIDER_LIBRARY_NAME = "PG_TestPropertyTypes";
+static const String GOOD_PROVIDER_NAME = "PG_TestPropertyTypes";
+static const String BAD_PROVIDER_NAME = "BogusProvider";
 
-int main(int argc, char** argv)
+// Made-up library name
+static const String NONEXISTENT_PROVIDER_LIBRARY_NAME = "BogusLibrary";
+
+// Uses the DynLib library from Common/tests
+static const String MISSING_ENTRY_POINT_PROVIDER_LIBRARY_NAME = "TestDynLib";
+
+const char* verbose = 0;
+
+String getLibraryFileName(const String& libraryName)
 {
+#if defined(PEGASUS_OS_VMS)
+# if defined(PEGASUS_USE_RELEASE_DIRS)
+    return String("/wbem_opt/wbem/providers/lib/lib") + libraryName + ".exe";
+# else
+    const char* tmp = getenv("PEGASUS_HOME");
+    if (tmp)
+    {
+        return tmp + String("/bin/") +
+            FileSystem::buildLibraryFileName(libraryName) + ".exe";
+    }
+# endif
+#endif
+    return FileSystem::buildLibraryFileName(libraryName);
+}
 
-    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-    if (verbose) cout << argv[0] << ": started" << endl;
+void testGoodProvider()
+{
+    ProviderModule module(getLibraryFileName(GOOD_PROVIDER_LIBRARY_NAME));
+
+    PEGASUS_TEST_ASSERT(module.getFileName() ==
+        getLibraryFileName(GOOD_PROVIDER_LIBRARY_NAME));
+
+    CIMProvider* provider = module.load(GOOD_PROVIDER_NAME);
+    PEGASUS_ASSERT(provider != 0);
+    module.unloadModule();
+
+    provider = module.load(GOOD_PROVIDER_NAME);
+    PEGASUS_ASSERT(provider != 0);
+
+    // Load incorrect provider name while another provider is loaded
+    {
+        Boolean caughtException = false;
+
+        try
+        {
+            module.load(BAD_PROVIDER_NAME);
+        }
+        catch (Exception& e)
+        {
+            caughtException = true;
+            if (verbose)
+            {
+                cout << "Got expected exception: " << e.getMessage() << endl;
+            }
+        }
+
+        PEGASUS_TEST_ASSERT(caughtException);
+    }
+
+    // Load the same provider a second time
+    provider = module.load(GOOD_PROVIDER_NAME);
+    PEGASUS_ASSERT(provider != 0);
+    module.unloadModule();
+
+    module.unloadModule();
+
+    // Load incorrect provider name while no other provider is loaded
+    {
+        Boolean caughtException = false;
+
+        try
+        {
+            module.load(BAD_PROVIDER_NAME);
+        }
+        catch (Exception& e)
+        {
+            caughtException = true;
+            if (verbose)
+            {
+                cout << "Got expected exception: " << e.getMessage() << endl;
+            }
+        }
+
+        PEGASUS_TEST_ASSERT(caughtException);
+    }
+}
+
+void testNonexistentProvider()
+{
+    ProviderModule module(
+        getLibraryFileName(NONEXISTENT_PROVIDER_LIBRARY_NAME));
+
+    Boolean caughtException = false;
 
     try
     {
-        LocalProviderManager providerManager;
+        module.load(BAD_PROVIDER_NAME);
+    }
+    catch (Exception& e)
+    {
+        caughtException = true;
+        if (verbose)
+        {
+            cout << "Got expected exception: " << e.getMessage() << endl;
+        }
+    }
 
-#if defined (PEGASUS_OS_VMS)
-        String fileName;
+    PEGASUS_TEST_ASSERT(caughtException);
+}
 
-        fileName = ConfigManager::getInstance()->getCurrentValue("providerDir") +
-            String("/") + FileSystem::buildLibraryFileName(String("SampleInstanceProvider")) + String(".exe");
-        OpProviderHolder provider = providerManager.getProvider(fileName,
-            "SampleInstanceProvider");
-#else
-        OpProviderHolder provider = providerManager.getProvider(
-            FileSystem::buildLibraryFileName("SampleInstanceProvider"),
-              "SampleInstanceProvider");
-#endif
+void testMissingProviderEntryPoint()
+{
+    ProviderModule module(
+        getLibraryFileName(MISSING_ENTRY_POINT_PROVIDER_LIBRARY_NAME));
 
-        cout << argv[0] <<  " +++++passed all tests" << endl;
+    Boolean caughtException = false;
+
+    try
+    {
+        module.load(BAD_PROVIDER_NAME);
+    }
+    catch (Exception& e)
+    {
+        caughtException = true;
+        if (verbose)
+        {
+            cout << "Got expected exception: " << e.getMessage() << endl;
+        }
+    }
+
+    PEGASUS_TEST_ASSERT(caughtException);
+}
+
+int main(int argc, char** argv)
+{
+    verbose = getenv ("PEGASUS_TEST_VERBOSE");
+
+    try
+    {
+        testGoodProvider();
+        testNonexistentProvider();
+        testMissingProviderEntryPoint();
     }
     catch(Exception& e)
     {
-        cout << "Failed: " << e.getMessage() << endl;
-        return(1);
+        cout << "Caught unexpected exception: " << e.getMessage() << endl;
+        return 1;
     }
     catch(...)
     {
-        cout << "failed" << endl;
-        return(1);
+        cout << "Caught unexpected exception" << endl;
+        return 1;
     }
 
-    return(0);
+    cout << argv[0] << " +++++ passed all tests" << endl;
+
+    return 0;
 }

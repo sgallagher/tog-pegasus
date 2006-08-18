@@ -79,7 +79,7 @@
     {"crlStore",            "/etc/opt/tog-pegasus/crl"},
     {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
 #if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
-    {"providerDir",         "/opt/tog-pegasus/providers/lib:/usr/lib/cmpi"},
+    {"providerDir",         "/opt/tog-pegasus/providers/lib:/usr/" PEGASUS_ARCH_LIB "/cmpi"},
 #else
     {"providerDir",         "/opt/tog-pegasus/providers/lib"},
 #endif
@@ -99,7 +99,7 @@
     {"crlStore",            "/etc/opt/lsb-pegasus/crl"},
     {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
 #if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
-    {"providerDir",         "/opt/lsb-pegasus/providers:/usr/lib/cmpi"},
+    {"providerDir",         "/opt/lsb-pegasus/providers:/usr/" PEGASUS_ARCH_LIB "/cmpi"},
 #else
     {"providerDir",         "/opt/lsb-pegasus/providers"},
 #endif

@@ -57,6 +57,11 @@ CMPIStatus
 TestCMPIFail_4ProviderCleanup (CMPIInstanceMI * mi, const CMPIContext * ctx,
                                  CMPIBoolean  term)
 {
+  if (!term) // If CIM Server not terminating
+  {
+      // Test preventing the unload of an idle provider
+      CMReturn(CMPI_RC_DO_NOT_UNLOAD);
+  }
 
   CMReturn (CMPI_RC_OK);
 }

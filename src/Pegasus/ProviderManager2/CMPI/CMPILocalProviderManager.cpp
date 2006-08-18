@@ -377,43 +377,46 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
                                     provider->getName ());
                   CMPIProvider *provider = unloadProviderArray[index];
 
-                  // lock the provider mutex
-
-                  AutoMutex pr_lock (provider->_statusMutex);
-
-                  if (provider->tryTerminate () == false)
-                    {
-                      // provider not unloaded -- we are respecting this!
-                      PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                        "Provider refused to unload: " +
-                                        unloadProviderArray[index]->getName());
-                      continue;
-                    }
-
-                  // delete from _provider table
-                  if (!_providers.remove (provider->_name))
                   {
-                     PEGASUS_ASSERT (0);
+                      // lock the provider mutex
+
+                      AutoMutex pr_lock (provider->_statusMutex);
+
+                      if (provider->tryTerminate () == false)
+                        {
+                          // provider not unloaded -- we are respecting this!
+                          PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                                            "Provider refused to unload: " +
+                                            unloadProviderArray[index]->getName());
+                          continue;
+                        }
+
+                      // delete from _provider table
+                      if (!_providers.remove (provider->_name))
+                      {
+                         PEGASUS_ASSERT (0);
+                      }
+
+                      // delete the cimom handle
+                      PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                                        "Destroying CMPIProvider's CIMOM Handle "
+                                        + provider->getName());
+                      delete provider->_cimom_handle;
+
+                      PEGASUS_ASSERT (provider->_module != 0);
+
+                      // unload provider module
+                      provider->_module->unloadModule ();
+                      Logger::put (Logger::STANDARD_LOG, System::CIMSERVER,
+                                   Logger::TRACE,
+                                   "CMPILocalProviderManager::_provider_crtl -  Unload provider $0",
+                                   provider->getName ());
+
+                      // set provider status to UNINITIALIZED
+                      provider->reset ();
                   }
-
-                  // delete the cimom handle
-                  PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                    "Destroying CMPIProvider's CIMOM Handle "
-                                    + provider->getName());
-                  delete provider->_cimom_handle;
-
-                  PEGASUS_ASSERT (provider->_module != 0);
-
-                  // unload provider module
-                  provider->_module->unloadModule ();
-                  Logger::put (Logger::STANDARD_LOG, System::CIMSERVER,
-                               Logger::TRACE,
-                               "CMPILocalProviderManager::_provider_crtl -  Unload provider $0",
-                               provider->getName ());
-
-                  // set provider status to UNINITIALIZED
-                  provider->reset ();
-
+                  // We need to delete the provider instance outside of the scope
+                  // of the provider mutex.
                   delete provider;
                 }
             }

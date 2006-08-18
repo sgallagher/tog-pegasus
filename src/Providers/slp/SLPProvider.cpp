@@ -671,7 +671,7 @@ String SLPProvider::getRegisteredProfileList()
 
 
     }
-    catch (Exception &e)
+    catch (Exception&)
     {
         CDEBUG("SLPProvider::getRegisteredProfiles: enum instances error");
         Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,

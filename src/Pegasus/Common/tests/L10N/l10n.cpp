@@ -599,18 +599,18 @@ void drive_AcceptLanguageList()
             AcceptLanguageList list2;
 
             list1.insert(LanguageTag("en-US"), 1);
-            list1.insert(LanguageTag("fr"), 0.8);
+            list1.insert(LanguageTag("fr"), Real32(0.8));
             list2 = list1;
             PEGASUS_TEST_ASSERT(list1 == list2);
 
             list2.remove(1);
             PEGASUS_TEST_ASSERT(list1 != list2);
 
-            list2.insert(LanguageTag("fr"), 0.7);
+            list2.insert(LanguageTag("fr"), Real32(0.7));
             PEGASUS_TEST_ASSERT(list1 != list2);
 
             list2.remove(1);
-            list2.insert(LanguageTag("de"), 0.8);
+            list2.insert(LanguageTag("de"), Real32(0.8));
             PEGASUS_TEST_ASSERT(list1 != list2);
         }
 

@@ -187,7 +187,6 @@ BinaryMessageHandler::handle_binary_message(void* parm)
       PEG_METHOD_EXIT();
       return(0);
    }
-   Uint32 msg_type;
 
    PEGASUS_ASSERT(op != 0);
 

@@ -326,7 +326,7 @@ void ProviderRegistrationProvider::modifyInstance(
 						     includeQualifiers, 
 	    					     propertyArray);
     }
-    catch(const CIMException& e)
+    catch(const CIMException&)
     {
         throw;
     }
@@ -1404,7 +1404,6 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 	Array<CIMInstance> instances;
         CIMInstance mInstance;
 	String _moduleName;
-	Uint16 providers;
 	CIMObjectPath providerRef;
 	Boolean indProvider = false;
         Array<Boolean> indicationProviders;

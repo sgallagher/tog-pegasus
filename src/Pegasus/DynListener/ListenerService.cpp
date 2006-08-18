@@ -285,7 +285,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ListenerService::_polling_routine(void *pa
                 break;
             }
 
-        } catch (TimeOut& te)
+        } catch (TimeOut&)
         {
             //time to check for idle consumers
             PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Unloading idle consumers");

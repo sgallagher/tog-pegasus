@@ -93,7 +93,7 @@ IPRouteInfo::IPRouteInfo(CIMClient &client, Boolean enableDebug,
 
     }  // end try 
    
-    catch(Exception& e)
+    catch(Exception&)
     {
         errPrintWriter << "Error getting instances of class " <<
              CLASS_NAME.getString() << endl;

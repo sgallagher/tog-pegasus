@@ -89,7 +89,7 @@ void drive_FromList(QueryContext& _query)
      _query.insertClassPath(QueryIdentifier());
      PEGASUS_TEST_ASSERT(false);
    }
-   catch (QueryParseException & e)
+   catch (QueryParseException&)
    {
    }
 
@@ -99,7 +99,7 @@ void drive_FromList(QueryContext& _query)
      _query.insertClassPath(CQLIdentifier("A"));
      PEGASUS_TEST_ASSERT(false);
    }
-   catch (QueryParseException & e)
+   catch (QueryParseException&)
    {
    }
 
@@ -109,7 +109,7 @@ void drive_FromList(QueryContext& _query)
      _query.insertClassPath(CQLIdentifier("NEW"),String("BONGO"));
      PEGASUS_TEST_ASSERT(false);
    }
-   catch (QueryParseException & e)
+   catch (QueryParseException&)
    {
    }
 
@@ -119,7 +119,7 @@ void drive_FromList(QueryContext& _query)
      _query.insertClassPath(CQLIdentifier("NEW"),String("B"));
      PEGASUS_TEST_ASSERT(false);
    }
-   catch (QueryParseException & e)
+   catch (QueryParseException&)
    {
    }
 

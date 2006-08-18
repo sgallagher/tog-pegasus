@@ -183,7 +183,7 @@ void test02(CIMRepository_Mode mode)
         // delete a non-empty namespace
 		r.deleteNameSpace(NAMESPACE);
     }
-    catch (NonEmptyNameSpace& e)
+    catch (NonEmptyNameSpace&)
     {
         testFailed=true; 
     }

@@ -289,5 +289,5 @@ endl);
 
     PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD(endl);
 
-    exit (0);
+    return 0;
 }

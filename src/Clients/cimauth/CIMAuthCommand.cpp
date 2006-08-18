@@ -955,7 +955,7 @@ Uint32 CIMAuthCommand::execute (
         //
         _client->connectLocal();
     }
-    catch(Exception& e)
+    catch(Exception&)
     {
         //l10n
         //outPrintWriter << CIMOM_NOT_RUNNING << endl;

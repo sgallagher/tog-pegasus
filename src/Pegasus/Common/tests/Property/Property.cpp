@@ -334,7 +334,7 @@ void test05()
     {
         p1 = CIMProperty(CIMName("property1"), oa, 0, CIMName("refclass"));
     }
-    catch (TypeMismatchException& e)
+    catch (TypeMismatchException&)
     {
         gotException = true;
     }
@@ -346,7 +346,7 @@ void test05()
     {
         p1.setValue(oa);
     }
-    catch (TypeMismatchException& e)
+    catch (TypeMismatchException&)
     {
         gotException = true;
     }

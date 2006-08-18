@@ -1805,7 +1805,7 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                                             true);
 
                     }
-                    catch (CIMException& ce)
+                    catch (const CIMException&)
                     {
                         //
                         // We have an exception case here.

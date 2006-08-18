@@ -92,7 +92,7 @@ int main(int argc, char** argv)
         {
             s4.top();
         }
-        catch(StackUnderflow& e)
+        catch(StackUnderflow&)
         {
         }
 
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
         {
             Uint32 tmp = s4[0];
         }
-        catch(IndexOutOfBoundsException& e)
+        catch(IndexOutOfBoundsException&)
         {
         }
 

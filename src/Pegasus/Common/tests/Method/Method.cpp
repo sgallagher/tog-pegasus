@@ -144,7 +144,7 @@ int main(int argc, char** argv)
         {
             CIMConstParameter p = cm1.getParameter(cm1.findParameter(CIMName ("ipaddress")));
         }
-        catch(IndexOutOfBoundsException& e)
+        catch(IndexOutOfBoundsException&)
         {
         }
         // throws OutOfBounds
@@ -152,7 +152,7 @@ int main(int argc, char** argv)
         {
             CIMConstQualifier q = cm1.getQualifier(cm1.findQualifier(CIMName ("abstract")));
         }
-        catch(IndexOutOfBoundsException& e)
+        catch(IndexOutOfBoundsException&)
         {
         }
 
@@ -212,7 +212,7 @@ int main(int argc, char** argv)
             //CIMParameter p = m1.getParameter(m1.findParameter(CIMName ("ipaddress")));
             CIMConstParameter p = ccm1.getParameter(0);
         }
-        catch(IndexOutOfBoundsException& e)
+        catch(IndexOutOfBoundsException&)
         {
         }
         // throws OutOfBounds
@@ -220,7 +220,7 @@ int main(int argc, char** argv)
         {
             CIMConstQualifier q = ccm1.getQualifier(0);
         }
-        catch(IndexOutOfBoundsException& e)
+        catch(IndexOutOfBoundsException&)
         {
         }
     }

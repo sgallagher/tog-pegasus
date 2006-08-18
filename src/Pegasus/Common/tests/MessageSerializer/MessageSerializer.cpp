@@ -2156,8 +2156,8 @@ int main(int argc, char** argv)
     oc4.insert(TimeoutContainer(100000000));
     AcceptLanguageList all4;
     all4.insert(LanguageTag("en-US"), 1);
-    all4.insert(LanguageTag("de"), 0.5);
-    all4.insert(LanguageTag("*"), 0.1);
+    all4.insert(LanguageTag("de"), Real32(0.5));
+    all4.insert(LanguageTag("*"), Real32(0.1));
     oc4.insert(AcceptLanguageListContainer(all4));
     ContentLanguageList cll4;
     cll4.append(LanguageTag("en-US"));

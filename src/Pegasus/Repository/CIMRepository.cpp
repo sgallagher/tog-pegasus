@@ -746,7 +746,7 @@ CIMClass CIMRepository::_getClass(
 
 #endif /* PEGASUS_USE_CLASS_CACHE */
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, className.getString());

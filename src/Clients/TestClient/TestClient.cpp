@@ -1659,7 +1659,7 @@ int main(int argc, char** argv)
     if (errorCount.get() == 0)
     {
         cout << "+++++ "<< argv[0] << " Terminated Normally" << endl;
-        exit(0);
+        return 0;
     }
     else
     {

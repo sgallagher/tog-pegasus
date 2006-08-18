@@ -104,7 +104,8 @@ void drive_CQLIdentifier(){
    	PEGASUS_TEST_ASSERT(subRanges[1] == String("6"));
    	PEGASUS_TEST_ASSERT(subRanges[2] == String("7"));
         PEGASUS_TEST_ASSERT(rangeID.getScope() == "SCOPE");
-   }catch(CQLIdentifierParseException& e){
+   }catch(CQLIdentifierParseException&)
+   {
    }
 
    try 
@@ -112,7 +113,7 @@ void drive_CQLIdentifier(){
      CQLIdentifier rangeID("SCOPE::Name[5..,6..,..7,4-5,..]");
      PEGASUS_TEST_ASSERT(false);
    }
-   catch (QueryParseException & e)
+   catch (QueryParseException&)
    {
    }
 
@@ -121,7 +122,7 @@ void drive_CQLIdentifier(){
      CQLIdentifier rangeID1("Name[*]");
      PEGASUS_TEST_ASSERT(false);
    }
-   catch (QueryParseException & e)
+   catch (QueryParseException&)
    {
    }
 
@@ -130,7 +131,7 @@ void drive_CQLIdentifier(){
      CQLIdentifier invalid("Name#OK[4-5]");
      PEGASUS_TEST_ASSERT(false);
    }
-   catch (CQLIdentifierParseException & e)
+   catch (CQLIdentifierParseException&)
    {
    }
 
@@ -140,7 +141,7 @@ void drive_CQLIdentifier(){
      CQLIdentifier invalid1("Name[4-5]#OK");
      PEGASUS_TEST_ASSERT(false);
    }
-   catch (CQLIdentifierParseException & e)
+   catch (CQLIdentifierParseException&)
    {
    }
 }
@@ -153,7 +154,7 @@ void drive_CQLChainedIdentifier()
 	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[*]");
    PEGASUS_TEST_ASSERT(false);
   }
-  catch (QueryParseException & e)
+  catch (QueryParseException&)
   {
     // do nothing, exception is expected due to wildcard
   }
@@ -163,7 +164,7 @@ void drive_CQLChainedIdentifier()
 	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[1,3-5,7]");
    PEGASUS_TEST_ASSERT(false);
   }
-  catch (QueryParseException & e)
+  catch (QueryParseException&)
   {
     // do nothing, exception is expected due to range
   }
@@ -173,7 +174,7 @@ void drive_CQLChainedIdentifier()
 	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[1..3]");
    PEGASUS_TEST_ASSERT(false);
   }
-  catch (QueryParseException & e)
+  catch (QueryParseException&)
   {
     // do nothing, exception is expected due to range
   }
@@ -183,7 +184,7 @@ void drive_CQLChainedIdentifier()
 	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[]");
    PEGASUS_TEST_ASSERT(false);
   }
-  catch (QueryParseException & e)
+  catch (QueryParseException&)
   {
     // do nothing, exception is expected due to missing index
   }
@@ -193,7 +194,7 @@ void drive_CQLChainedIdentifier()
 	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3]#'ok'");
    PEGASUS_TEST_ASSERT(false);
   }
-  catch (CQLIdentifierParseException & e)
+  catch (CQLIdentifierParseException&)
   {
     // do nothing, exception is expected due to combo of array
     // and symbolic constant.
@@ -204,7 +205,7 @@ void drive_CQLChainedIdentifier()
 	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3");
    PEGASUS_TEST_ASSERT(false);
   }
-  catch (CQLIdentifierParseException & e)
+  catch (CQLIdentifierParseException&)
   {
     // do nothing, exception is expected due to missing ']'
   }
@@ -214,7 +215,7 @@ void drive_CQLChainedIdentifier()
 	CQLChainedIdentifier _CI("CLASS.B::EO.A::this-is-bogus");
    PEGASUS_TEST_ASSERT(false);
   }
-  catch (CQLIdentifierParseException & e)
+  catch (CQLIdentifierParseException&)
   {
     // do nothing, exception is expected due to missing bad prop name
   }
@@ -274,12 +275,14 @@ void drive_CQLChainedIdentifier()
   try{
 	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[..3].SCOPE3::PROP#'ok'");
 	PEGASUS_TEST_ASSERT(false);
-  }catch(QueryParseException& e){
+  }catch(QueryParseException&)
+  {
   }
   try{
         CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3..].SCOPE3::PROP#'ok'");
         PEGASUS_TEST_ASSERT(false);
-  }catch(QueryParseException& e){
+  }catch(QueryParseException&)
+  {
   }
 }
 

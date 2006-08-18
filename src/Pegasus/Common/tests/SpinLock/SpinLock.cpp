@@ -76,8 +76,6 @@ int main(int argc, char** argv)
 	thread[i]->run();
     }
 
-    void* arg;
-
     for (size_t i = 0; i < NUM_THREADS; i++)
     {
         thread[i]->join();

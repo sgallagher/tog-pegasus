@@ -425,7 +425,7 @@ String ClientAuthenticator::_buildLocalAuthResponse()
         {
             fileContent = _getFileContent(_realm);
         }
-        catch(NoSuchFile& e)
+        catch(NoSuchFile&)
         {
             //ATTN-NB-04-20000305: Log error message to log file
         }

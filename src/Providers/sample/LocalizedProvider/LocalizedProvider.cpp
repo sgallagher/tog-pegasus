@@ -787,7 +787,7 @@ void LocalizedProvider::invokeMethod(
     // Compare the AcceptLanguageList from the client with the expected lang
     AcceptLanguageList acceptLangs = getRequestAcceptLanguages(context);
     AcceptLanguageList AL_DE;
-    AL_DE.insert(LanguageTag("de"), 0.8);
+    AL_DE.insert(LanguageTag("de"), Real32(0.8));
     if (acceptLangs != AL_DE)
     {
         throw CIMOperationFailedException(
@@ -1299,11 +1299,11 @@ void LocalizedProvider::_testCIMOMHandle()
 
   // AcceptLanguageList we are sending in the request to CIMOMHandle
   AcceptLanguageList requestAL;
-  requestAL.insert(LanguageTag("x-horse"), 1.0);
-  requestAL.insert(LanguageTag("x-cow"), 0.4);
-  requestAL.insert(LanguageTag("x-gekko"), 0.2);
-  requestAL.insert(LanguageTag("mi"), 0.9);
-  requestAL.insert(LanguageTag("es"), 0.8);
+  requestAL.insert(LanguageTag("x-horse"), Real32(1.0));
+  requestAL.insert(LanguageTag("x-cow"), Real32(0.4));
+  requestAL.insert(LanguageTag("x-gekko"), Real32(0.2));
+  requestAL.insert(LanguageTag("mi"), Real32(0.9));
+  requestAL.insert(LanguageTag("es"), Real32(0.8));
 
   //------------------------------------------------------------
   // TEST 1
@@ -1345,11 +1345,11 @@ void LocalizedProvider::_testCIMOMHandle()
   //------------------------------------------------------------
 
   requestAL.clear();
-  requestAL.insert(LanguageTag("x-horse"), 1.0);
-  requestAL.insert(LanguageTag("x-cow"), 0.4);
-  requestAL.insert(LanguageTag("x-gekko"), 0.2);
-  requestAL.insert(LanguageTag("fr"), 0.9);
-  requestAL.insert(LanguageTag("es"), 0.8);
+  requestAL.insert(LanguageTag("x-horse"), Real32(1.0));
+  requestAL.insert(LanguageTag("x-cow"), Real32(0.4));
+  requestAL.insert(LanguageTag("x-gekko"), Real32(0.2));
+  requestAL.insert(LanguageTag("fr"), Real32(0.9));
+  requestAL.insert(LanguageTag("es"), Real32(0.8));
 
   requestCtx.insert(AcceptLanguageListContainer(requestAL));
 

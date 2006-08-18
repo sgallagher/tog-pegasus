@@ -553,7 +553,7 @@ void ConsumerManager::unloadAllConsumers()
         {
             _unloadConsumers(loadedConsumers);
 
-        } catch (Exception& ex)
+        } catch (Exception&)
         {
             PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Error unloading consumers.");
         }
@@ -600,7 +600,7 @@ void ConsumerManager::unloadIdleConsumers()
         {
             _unloadConsumers(loadedConsumers);
 
-        } catch (Exception& ex)
+        } catch (Exception&)
         {
             PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Error unloading consumers.");
         }
@@ -640,7 +640,7 @@ void ConsumerManager::unloadConsumer(const String& consumerName)
         {
             _unloadConsumers(loadedConsumers);
 
-        } catch (Exception& ex)
+        } catch (Exception&)
         {
             PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Error unloading consumers.");
         }
@@ -1029,7 +1029,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *par
             }
             myself->_eventqueue.unlock();
 
-        } catch (TimeOut& te)
+        } catch (TimeOut&)
         {
             PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "_worker_routine::Time to retry any outstanding indications.");
 

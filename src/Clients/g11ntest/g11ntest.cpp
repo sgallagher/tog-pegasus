@@ -574,7 +574,7 @@ static void TestLocalizedMethods( CIMClient& client,
   {
      // Before we begin, set the language objects to be sent to the provider
      AcceptLanguageList AL_DE;
-     AL_DE.insert(LanguageTag("de"), 0.8);
+     AL_DE.insert(LanguageTag("de"), Real32(0.8));
      ContentLanguageList CL_DE;
      CL_DE.append(LanguageTag("de"));
      client.setRequestAcceptLanguages(AL_DE);
@@ -834,9 +834,9 @@ static void TestLocalizedInstances( CIMClient& client,
           }
           else
           {
-             acceptLangs1.insert(LanguageTag("fr"), 0.5);
-             acceptLangs1.insert(LanguageTag("de"), 0.8);
-             acceptLangs1.insert(LanguageTag("es"), 0.4);
+             acceptLangs1.insert(LanguageTag("fr"), Real32(0.5));
+             acceptLangs1.insert(LanguageTag("de"), Real32(0.8));
+             acceptLangs1.insert(LanguageTag("es"), Real32(0.4));
           }
 
       cout << endl << "INSTANCE TEST 1: Enumerate Instances with AcceptLanguageList = "
@@ -869,7 +869,7 @@ static void TestLocalizedInstances( CIMClient& client,
           }
           else
           {
-             acceptLangs2.insert(LanguageTag("de"), 0.8);
+             acceptLangs2.insert(LanguageTag("de"), Real32(0.8));
           }
 
           client.setRequestAcceptLanguages(acceptLangs2);
@@ -947,7 +947,7 @@ static void TestLocalizedInstances( CIMClient& client,
 
               //  Enumerate the instances starting at the base class, with deep inheritance.
               AcceptLanguageList acceptLangs3;
-              acceptLangs3.insert(LanguageTag("x-homer"), 0.8);
+              acceptLangs3.insert(LanguageTag("x-homer"), Real32(0.8));
 
               client.setRequestAcceptLanguages(acceptLangs3);
 
@@ -976,9 +976,9 @@ static void TestLocalizedInstances( CIMClient& client,
           //
 
           AcceptLanguageList acceptLangs4;
-          acceptLangs4.insert(LanguageTag("x-martian"), 0.8);
-          acceptLangs4.insert(LanguageTag("x-pig-latin"), 0.1);
-          acceptLangs4.insert(LanguageTag("x-men"), 0.4);
+          acceptLangs4.insert(LanguageTag("x-martian"), Real32(0.8));
+          acceptLangs4.insert(LanguageTag("x-pig-latin"), Real32(0.1));
+          acceptLangs4.insert(LanguageTag("x-men"), Real32(0.4));
           client.setRequestAcceptLanguages(acceptLangs4);
 
           cout << endl << "INSTANCE TEST 4: Get Instance with AcceptLanguageList = "
@@ -1035,9 +1035,9 @@ static void TestLocalizedInstances( CIMClient& client,
           }
           else
           {
-             acceptLangs5.insert(LanguageTag("x-martian"), 0.8);
-             acceptLangs5.insert(LanguageTag("fr"), 0.1);
-             acceptLangs5.insert(LanguageTag("x-men"), 0.4);
+             acceptLangs5.insert(LanguageTag("x-martian"), Real32(0.8));
+             acceptLangs5.insert(LanguageTag("fr"), Real32(0.1));
+             acceptLangs5.insert(LanguageTag("x-men"), Real32(0.4));
           }
 
           client.setRequestAcceptLanguages(acceptLangs5);
@@ -1112,9 +1112,9 @@ static void TestLocalizedInstances( CIMClient& client,
               client.createInstance(NAMESPACE, frInstance);
 
               AcceptLanguageList acceptLangs6;
-              acceptLangs6.insert(LanguageTag("x-martian"), 0.8);
-              acceptLangs6.insert(LanguageTag("fr"), 0.1);
-              acceptLangs6.insert(LanguageTag("x-men"), 0.4);
+              acceptLangs6.insert(LanguageTag("x-martian"), Real32(0.8));
+              acceptLangs6.insert(LanguageTag("fr"), Real32(0.1));
+              acceptLangs6.insert(LanguageTag("x-men"), Real32(0.4));
               client.setRequestAcceptLanguages(acceptLangs6);
 
               if (verboseTest)
@@ -1206,7 +1206,7 @@ static void TestLocalizedInstances( CIMClient& client,
                                   includeQualifiers);
 
               AcceptLanguageList acceptLangs7;
-              acceptLangs7.insert(LanguageTag("x-homer"), 0.8);
+              acceptLangs7.insert(LanguageTag("x-homer"), Real32(0.8));
               client.setRequestAcceptLanguages(acceptLangs7);
 
               if (verboseTest)
@@ -1266,8 +1266,8 @@ static void TestLocalizedInstances( CIMClient& client,
           }
           else
           {
-             acceptLangs8.insert(LanguageTag("es"), 1.0);
-             acceptLangs8.insert(LanguageTag("fr"), 0.9);
+             acceptLangs8.insert(LanguageTag("es"), Real32(1.0));
+             acceptLangs8.insert(LanguageTag("fr"), Real32(0.9));
           }
 
           client.setRequestAcceptLanguages(acceptLangs8);
@@ -1385,9 +1385,9 @@ static void TestServerMessages( CIMClient& client,
         }
         else
         {
-           acceptLangsDE.insert(LanguageTag("de"), 0.1);
-           acceptLangsDE.insert(LanguageTag("x-aa"), 0.2);
-           acceptLangsDE.insert(LanguageTag("x-bb"), 0.3);
+           acceptLangsDE.insert(LanguageTag("de"), Real32(0.1));
+           acceptLangsDE.insert(LanguageTag("x-aa"), Real32(0.2));
+           acceptLangsDE.insert(LanguageTag("x-bb"), Real32(0.3));
         }
 
         AcceptLanguageList acceptLangsFR;
@@ -1398,9 +1398,9 @@ static void TestServerMessages( CIMClient& client,
         }
         else
         {
-           acceptLangsFR.insert(LanguageTag("fr"), 0.1);
-           acceptLangsFR.insert(LanguageTag("x-aa"), 0.2);
-           acceptLangsFR.insert(LanguageTag("x-bb"), 0.3);
+           acceptLangsFR.insert(LanguageTag("fr"), Real32(0.1));
+           acceptLangsFR.insert(LanguageTag("x-aa"), Real32(0.2));
+           acceptLangsFR.insert(LanguageTag("x-bb"), Real32(0.3));
         }
 
         AcceptLanguageList acceptLangsES;
@@ -1411,9 +1411,9 @@ static void TestServerMessages( CIMClient& client,
         }
         else
         {
-           acceptLangsES.insert(LanguageTag("es"), 0.1);
-           acceptLangsES.insert(LanguageTag("x-aa"), 0.2);
-           acceptLangsES.insert(LanguageTag("x-bb"), 0.3);
+           acceptLangsES.insert(LanguageTag("es"), Real32(0.1));
+           acceptLangsES.insert(LanguageTag("x-aa"), Real32(0.2));
+           acceptLangsES.insert(LanguageTag("x-bb"), Real32(0.3));
         }
 
         // The expected results from the enumerate
@@ -1911,7 +1911,7 @@ static void TestLocalizedIndications( CIMClient& client,
       // Start the listener
       listener.start();
     }
-      catch (BindFailedException & bfe)
+      catch (const BindFailedException&)
     {
       // Got a bind error.  The port is probably already in use.
       // Put out a message and keep going.
@@ -1939,7 +1939,7 @@ static void TestLocalizedIndications( CIMClient& client,
     // Set the language objects to be sent to the provider
     // This is required by the provider
     AcceptLanguageList AL_DE;
-    AL_DE.insert(LanguageTag("de"), 0.8);
+    AL_DE.insert(LanguageTag("de"), Real32(0.8));
     ContentLanguageList CL_DE;
     CL_DE.append(LanguageTag("de"));
     client.setRequestAcceptLanguages(AL_DE);
@@ -1996,7 +1996,7 @@ static void TestLocalizedIndications( CIMClient& client,
     ContentLanguageList cl = cntr.getLanguages();
     MYASSERT(cl == expectedCL);
       }
-      catch (TimeOut & to)
+      catch (const TimeOut&)
       {
     // Ignore the timeout.  Forced to do this because pegasus_acceptor
     // (part of monitor_2) does not return an error if the bind fails.
@@ -2122,7 +2122,7 @@ Boolean setServerDefaultMessageLoading(CIMClient & client,
   // Set the language objects to be sent to the LocalizedProvider
   // This is required by the provider
   AcceptLanguageList AL_DE;
-  AL_DE.insert(LanguageTag("de"), 0.8);
+  AL_DE.insert(LanguageTag("de"), Real32(0.8));
   ContentLanguageList CL_DE;
   CL_DE.append(LanguageTag("de"));
   client.setRequestAcceptLanguages(AL_DE);
@@ -2461,7 +2461,7 @@ int main(int argc, char** argv)
         elapsedTime.stop();
         testEnd(elapsedTime.getElapsed());
           }
-          catch (Exception & e1)
+          catch (const Exception&)
           {
         // Restore the default message loading value before we leave
         setServerDefaultMessageLoading(client, oldSetting);

@@ -266,7 +266,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         {
             pegasusError = XmlReader::decodeURICharacters(pegasusError);
         }
-	catch (ParseError& e)
+	catch (const ParseError&)
         {
             // Ignore this exception.  We're more interested in having the
             // message in encoded form than knowing that the format is invalid.

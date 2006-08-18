@@ -344,7 +344,7 @@ MessageQueueService::~MessageQueueService()
   {
     try { 
       delete _incoming.dequeue();
-    } catch (const ListClosed &e)
+    } catch (const ListClosed&)
     {
       // If the list is closed, there is nothing we can do. 
       break;

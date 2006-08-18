@@ -349,6 +349,6 @@ int main(int argc, char** argv)
 
 cout << argv[0] << " +++++ passed all tests" << endl;
 
-exit(0);
+return 0;
 }
 

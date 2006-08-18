@@ -116,7 +116,7 @@ static void TestError(
             indicationHandlerInstance, indicationSubscriptionInstance,
             contentLanguages);
     }
-    catch (CIMException& e)
+    catch (CIMException&)
     {
         exceptionCaught = true;
     }

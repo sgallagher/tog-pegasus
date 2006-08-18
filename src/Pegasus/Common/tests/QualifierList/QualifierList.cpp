@@ -134,7 +134,7 @@ int main(int argc, char** argv)
 	{
 	    qualifiers1.add(CIMQualifier(CIMName ("Abstract"), true));
 	}
-	catch (Exception& e)
+	catch (Exception&)
 	{
 	    exceptionCaught = true;
 	}

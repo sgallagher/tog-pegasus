@@ -1095,7 +1095,7 @@ int _beginTest(CIMClient& workClient, const char* opt,
                 // Start the listener
                 listener.start();
             }
-            catch (BindFailedException & bfe)
+            catch (BindFailedException&)
             {
                 // Got a bind error.  The port is probably already in use.
                 // Put out a message and fail.

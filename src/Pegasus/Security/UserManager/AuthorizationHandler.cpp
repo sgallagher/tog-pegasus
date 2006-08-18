@@ -146,7 +146,7 @@ AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
     {
         _loadAllAuthorizations();
     }
-    catch(Exception& e)
+    catch (Exception&)
     {
 	//ATTN-NB-03-20020402: Should this exception be thrown or ignored ?
         //throw e;
@@ -410,7 +410,7 @@ Boolean AuthorizationHandler::verifyAuthorization(
     {
         auth = getAuthorization(userName, nameSpace);
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
         PEG_METHOD_EXIT();
         return authorized;

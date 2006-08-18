@@ -689,7 +689,7 @@ int testClass(const String& className)
   {
     if (e.getCode() == CIM_ERR_INVALID_PARAMETER) status = 1;
   }
-  catch (Exception& e)
+  catch (Exception&)
   {
     // any other exception is a failure; leave status alone
   }
@@ -714,7 +714,7 @@ int testClass(const String& className)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (Exception& e)
+  catch (Exception&)
   {
     // any other Exception is a problem; leave status alone
   }
@@ -738,7 +738,7 @@ int testClass(const String& className)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (Exception& e)
+  catch (Exception&)
   {
     // any other Exception is a problem; leave status alone
   }
@@ -819,7 +819,7 @@ int testClass(const String& className)
   {
     if (e.getCode() == CIM_ERR_NOT_SUPPORTED) status = 1;
   }
-  catch (Exception& e)
+  catch (Exception&)
   {
     // any other Exception is a problem; leave status alone
   }

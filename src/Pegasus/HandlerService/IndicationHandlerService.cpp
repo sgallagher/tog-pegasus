@@ -400,8 +400,8 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
        handlerId = String("SystemLogListenerDestination");
    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
        handlerId = String("EmailListenerDestination");
-   else
-       return 0;
+
+   PEGASUS_ASSERT(handlerId.size() != 0);
 
    CIMHandler* handler = _handlerTable.getHandler(handlerId, _repository);
 

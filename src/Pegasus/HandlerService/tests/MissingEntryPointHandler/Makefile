@@ -28,12 +28,20 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../..
+ROOT = ../../../../..
+
+DIR = Pegasus/HandlerService/tests/MissingEntryPointHandler
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    MissingEntryPointHandler \
-    HandlerTable
+LIBRARIES = pegcommon
 
-include $(ROOT)/mak/recurse.mak
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
+SOURCES = MissingEntryPointHandler.cpp
+
+LIBRARY = MissingEntryPointHandler
+ 
+include $(ROOT)/mak/dynamic-library.mak
+
+tests:

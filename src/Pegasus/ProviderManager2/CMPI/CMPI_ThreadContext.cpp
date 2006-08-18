@@ -88,13 +88,7 @@ void CMPI_ThreadContext::remObject(CMPI_Object* o) {
 
 CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext() {
    TSDKeyType k=getContextKey();
-   #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
     return (CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
-   #else
-    CMPI_ThreadContext* tCtx=NULL;
-    pthread_getspecific(k,(void**)&tCtx);
-    return tCtx;
-   #endif
 }
 
 const CMPIBroker* CMPI_ThreadContext::getBroker() {
@@ -114,11 +108,7 @@ CMPI_ThreadContext::CMPI_ThreadContext(const CMPIBroker *mb, const CMPIContext *
    broker=mb;
    context=ctx;
    TSDKeyType k=getContextKey();
-   #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
      prev=(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
-   #else
-    pthread_getspecific(k,(void**)&prev);
-   #endif
    TSDKey::set_thread_specific(k,this);
    return;
 }

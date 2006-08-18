@@ -80,7 +80,6 @@ DIRS += \
     ControlProviders/ProviderRegistrationProvider/tests \
     ControlProviders/NamespaceProvider \
     HandlerService \
-    HandlerService/tests \
     IndicationService \
     IndicationService/tests \
     ManagedClient \

@@ -29,23 +29,21 @@
 #//
 #//==============================================================================
 ROOT = ../../../../..
-DIR = Pegasus/HandlerService/tests/HandlerTable
-
+DIR = Pegasus/Server/IndicationService/tests/HandlerTable
 include $(ROOT)/mak/config.mak
-
 include ../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = TestHandlerTable
+PROGRAM = HandlerTable
 
 SOURCES = HandlerTable.cpp
 
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(PROGRAM)
+	HandlerTable
 
 poststarttests:

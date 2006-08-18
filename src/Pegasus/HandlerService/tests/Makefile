@@ -33,7 +33,6 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    MissingEntryPointHandler \
     HandlerTable
 
 include $(ROOT)/mak/recurse.mak

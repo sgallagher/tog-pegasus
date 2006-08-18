@@ -29,7 +29,6 @@
 #//
 #//==============================================================================
 LIBRARIES = \
-    peghandlerservice \
-    pegrepository \
-    pegconfig \
-    pegcommon
+    pegcommon \
+    pegclient \
+    peghandlerservice

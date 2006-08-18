@@ -29,91 +29,35 @@
 //
 //==============================================================================
 //
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//
+// Modified By:
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/HandlerService/HandlerTable.h>
+#include <Pegasus/Server/IndicationService/HandlerTable.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
-    const char* pegasusHome = getenv("PEGASUS_HOME");
-    if (!pegasusHome)
-    {
-        cerr << argv[0] << ": Test skipped because PEGASUS_HOME is not defined"
-             << endl;
-        return 1;
-    }
-    ConfigManager::setPegasusHome(pegasusHome);
-
     try
     {
-        HandlerTable handlerTable;
-        String handlerId;
-        CIMHandler* handler;
-        CIMRepository* repository = 0;
-
-        //
-        //  Test getHandler - get a handler that is not yet loaded
-        //
-        handlerId = "CIMxmlIndicationHandler";
-        handler = handlerTable.getHandler(handlerId, repository);
-        PEGASUS_TEST_ASSERT(handler != 0);
-
-        //
-        //  Test getHandler - get a handler that is already loaded
-        //
-        handlerId = "CIMxmlIndicationHandler";
-        handler = handlerTable.getHandler(handlerId, repository);
-        PEGASUS_TEST_ASSERT(handler != 0);
-
-        //
-        //  Test getHandler - try to get a nonexistent handler
-        //  Specified handler library does not exist
-        //
-        Boolean dynamicLoadFailedCaught = false;
-        try
-        {
-            handlerId = "NonexistentHandler";
-            handler = handlerTable.getHandler(handlerId, repository);
-        }
-        catch(const DynamicLoadFailed&)
-        {
-            dynamicLoadFailedCaught = true;                      
-        }
-        PEGASUS_TEST_ASSERT(dynamicLoadFailedCaught);
-
-        //
-        //  Test getHandler - try to get a nonexistent handler
-        //  handlerId specifies a valid library name but library is missing
-        //  the PegasusCreateHandler function
-        //
-        Boolean dynamicLookupFailedCaught = false;
-        try
-        {
-            handlerId = "MissingCreateLibrary";
-            handler = handlerTable.getHandler(handlerId, repository);
-        }
-        catch(const DynamicLookupFailed&)
-        {
-            dynamicLookupFailedCaught = true;                      
-        }
-        PEGASUS_TEST_ASSERT(dynamicLookupFailedCaught);
+	HandlerTable table;
+	CIMHandler* handler = table.loadHandler("CIMxmlIndicationHandler");
+	PEGASUS_TEST_ASSERT(handler != 0);
+	delete handler;
     }
-    catch(const Exception& e)
+    catch(Exception& e)
     {
-        cerr << argv[0] << ": Exception " << e.getMessage() << endl;
-        return 1;
-    }
-    catch(...)
-    {
-        cerr << argv[0] << ": " << "Unknown error" << endl;
-        return 1;
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	exit(1);
     }
 
     cout << "+++++ passed all tests" << endl;
+
     return 0;
 }

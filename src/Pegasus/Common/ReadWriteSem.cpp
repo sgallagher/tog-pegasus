@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Reworked By: Mike Brasher (m.brasher@inovadevelopment.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ReadWriteSem.h"
@@ -58,8 +54,8 @@ ReadWriteSem::ReadWriteSem():_readers(0), _writers(0)
 
 ReadWriteSem::~ReadWriteSem()
 {
-
-    while (EBUSY == pthread_rwlock_destroy(&_rwlock.rwlock))
+    int r=0;
+    while (r=pthread_rwlock_destroy(&_rwlock.rwlock) == EBUSY || (r == -1 && errno == EBUSY))
     {
         Threads::yield();
     }
@@ -116,7 +112,8 @@ void ReadWriteSem::try_wait(Uint32 mode, ThreadType caller)
     }
     else
         throw(Permission(Threads::self()));
-
+    if (errorcode == -1)
+        errorcode = errno;
     if (errorcode == EBUSY)
         throw(AlreadyLocked(_rwlock.owner));
     else if (errorcode == EDEADLK)
@@ -147,6 +144,8 @@ void ReadWriteSem::timed_wait(Uint32 mode,
         do
         {
             errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock);
+            if (errorcode == -1)
+                errorcode = errno;
             gettimeofday(&now, NULL);
         }
         while (errorcode == EBUSY &&
@@ -162,6 +161,8 @@ void ReadWriteSem::timed_wait(Uint32 mode,
         do
         {
             errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock);
+            if (errorcode == -1)
+                errorcode = errno;
             gettimeofday(&now, NULL);
         }
         while (errorcode == EBUSY &&

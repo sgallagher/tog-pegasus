@@ -91,7 +91,10 @@ void Mutex::try_lock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
-    switch (pthread_mutex_trylock(&_rep.mutex))
+    int r = pthread_mutex_trylock(&_rep.mutex);
+    if (r == -1)
+        r=errno;
+    switch (r)
     {
         case 0:
 #if defined(PEGASUS_DEBUG)
@@ -126,7 +129,10 @@ void Mutex::timed_lock(Uint32 milliseconds)
 
     for (;;)
     {
-        switch (pthread_mutex_trylock(&_rep.mutex))
+        int r=pthread_mutex_trylock(&_rep.mutex);
+        if (r == -1)
+            r = errno;
+        switch (r)
         {
             case 0:
 #if defined(PEGASUS_DEBUG)

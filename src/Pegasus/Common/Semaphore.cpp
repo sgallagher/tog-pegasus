@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Time.h>
@@ -67,7 +65,8 @@ Semaphore::~Semaphore()
 {
 #ifndef PEGASUS_PLATFORM_AIX_RS_IBMCXX
    pthread_mutex_lock(&_rep.mutex);
-   while( EBUSY == pthread_cond_destroy(&_rep.cond))
+   int r=0;
+   while( r=pthread_cond_destroy(&_rep.cond) == EBUSY || (r==-1 && errno == EBUSY) )
    {
       pthread_mutex_unlock(&_rep.mutex);
       Threads::yield();

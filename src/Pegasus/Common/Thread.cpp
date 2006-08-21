@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
-//              added nsk platform support
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Thread.h"
@@ -169,6 +159,8 @@ ThreadStatus Thread::run()
     // are no insufficient memory.  Hence we are checking for both.  See bug
     // 386.
 
+    if (rc == -1)
+        rc = errno;
     if ((rc == EAGAIN) || (rc == ENOMEM))
     {
         Threads::clear(_handle.thid);

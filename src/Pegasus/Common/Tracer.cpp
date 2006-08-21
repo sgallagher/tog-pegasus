@@ -84,7 +84,7 @@ const Uint32 Tracer::_NUM_COMPONENTS =
 const Uint32 Tracer::_STRLEN_MAX_UNSIGNED_INT = 21;
 
 // Set the max PID and Thread ID Length
-const Uint32 Tracer::_STRLEN_MAX_PID_TID = 20;
+const Uint32 Tracer::_STRLEN_MAX_PID_TID = 21;
 
 // Initialize public indicator of trace state
 Boolean Tracer::_traceOn = false;
@@ -329,7 +329,7 @@ void Tracer::_traceEnter(
         // Needs to be updated if additional info is added
         //
         message = new char[ strlen(fileName) +
-                            _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
+	    _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
 
         sprintf(
            message,
@@ -447,7 +447,7 @@ void Tracer::_trace(
         // Allocate messageHeader.
         // Needs to be updated if additional info is added
         //
-        tmpBuffer = new char[_STRLEN_MAX_PID_TID + 6];
+        tmpBuffer = new char[2 * _STRLEN_MAX_PID_TID + 6];
         sprintf(tmpBuffer, "[%u:%s]: ", System::getPID(), Threads::id().buffer);
         msgHeader = new char [ strlen(timeStamp) + strlen(TRACE_COMPONENT_LIST[traceComponent]) +
                                strlen(tmpBuffer) + 1  + 5 ];

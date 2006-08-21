@@ -37,6 +37,8 @@
 #define Pegasus_Threads_h
 
 #include <cstring>
+#include <cstdio>
+#include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 
@@ -286,7 +288,7 @@ inline void Threads::clear(ThreadType& x)
 inline ThreadType Threads::self() 
 {
     ThreadType tt;
-    tt.handle = HANDLE(GetCurrentThreadId());
+    tt.handle = GetCurrentThread();
     return tt;
 }
 
@@ -325,7 +327,7 @@ inline ThreadId Threads::id(const ThreadType& x)
     ThreadId tmp;
 
     sprintf(tmp.buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", 
-        Uint64((unsigned long)x.handle));
+        Uint64(x.handle));
 
     return tmp;
 }

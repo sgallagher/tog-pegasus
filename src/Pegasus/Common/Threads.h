@@ -77,55 +77,38 @@ PEGASUS_NAMESPACE_BEGIN
 //==============================================================================
 
 #if defined(PEGASUS_HAVE_PTHREADS)
+
 struct ThreadType
 {
-public:
-
     ThreadType()
     {
-        memset(this, 0, sizeof(*this));
+        memset(&thread, 0, sizeof(thread));
     }
 
-    ThreadType(const ThreadType& x) : _thread(x._thread), _id(x._id) 
+    ThreadType(pthread_t thread_) : thread(thread_)
     {
     }
 
-    ThreadType(pthread_t thread, Uint32 id) : _thread(thread), _id(id) 
-    {
-    }
-
-    ThreadType& operator=(const ThreadType& x)
-    {
-        if (&x != this)
-        {
-            _id = x._id;
-            _thread = x._thread;
-        }
-        return *this;
-    }
-
-    pthread_t tt_handle() const 
-    {
-        return _thread; 
-    }
-
-    void print() const
-    {
-        printf("ThreadType(%lu, %lu)\n", _thread, (unsigned long)_id);
-    }
-
-private:
-    pthread_t _thread;
-    // An id of zero indicates a null object. 1 indicates the main thread.
-    Uint32 _id;
-    friend class Threads;
+    pthread_t thread;
 };
+
+// This structure represents a thread identifier.
+struct ThreadId
+{
+    // The character representation of a uint64 requires 22 bytes including the 
+    // null terminator.
+    char buffer[22];
+};
+
 #endif /* PEGASUS_HAVE_PTHREADS */
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
 struct ThreadType
 {
-    ThreadType() : handle(NULL) { }
+    ThreadType() : handle(NULL) 
+    { 
+    }
+
     HANDLE handle;
 };
 #endif /* PEGASUS_HAVE_WINDOWS_THREADS */
@@ -196,7 +179,9 @@ public:
 
     static void cleanup_pop(int execute);
 
-    static Uint32 id(const ThreadType& x = Threads::self());
+    static ThreadId id(const ThreadType& x = Threads::self());
+
+    static bool null(const ThreadType& x = Threads::self());
 
     static void clear(ThreadType& x);
 };
@@ -211,7 +196,7 @@ public:
 
 inline bool Threads::equal(ThreadType x, ThreadType y) 
 { 
-    return pthread_equal(x.tt_handle(), y.tt_handle());
+    return pthread_equal(x.thread, y.thread);
 }
 
 inline void Threads::exit(ThreadReturnType rc)
@@ -221,7 +206,7 @@ inline void Threads::exit(ThreadReturnType rc)
 
 inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
 {
-    pthread_cancel(th.tt_handle());
+    pthread_cancel(th.thread);
 }
 
 inline void Threads::yield()
@@ -253,9 +238,31 @@ inline void Threads::cleanup_pop(int execute)
     // ATTN: not implemented.
 }
 
-inline Uint32 Threads::id(const ThreadType& x)
+inline ThreadId Threads::id(const ThreadType& x)
 {
-    return x._id;
+    ThreadId tid;
+
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    const char* s = x.thread.__;
+    sprintf(tid.buffer, "%X%X%X%X%X%X%X%X", 
+        s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
+#else
+    sprintf(tid.buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", 
+        Uint64((unsigned long)x.thread));
+#endif
+
+    return tid;
+}
+
+inline bool Threads::null(const ThreadType& x)
+{
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    Uint64 tmp;
+    memcpy(&tmp, x._thread.__, sizeof(Uint64));
+    return tmp == 0;
+#else
+    return x.thread == 0;
+#endif
 }
 
 inline void Threads::clear(ThreadType& x)
@@ -310,9 +317,19 @@ inline void Threads::cleanup_pop(int execute)
     // ATTN: Not implemented on Windows.
 }
 
-inline Uint32 Threads::id(const ThreadType& x)
+inline ThreadId Threads::id(const ThreadType& x)
 {
-    return (Uint32)(long)x.handle;
+    ThreadId tmp;
+
+    sprintf(tmp.buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", 
+        Uint64((unsigned long)x.handle));
+
+    return tmp;
+}
+
+inline bool Threads::null(const ThreadType& x)
+{
+    return x.handle == NULL;
 }
 
 inline void Threads::clear(ThreadType& x)

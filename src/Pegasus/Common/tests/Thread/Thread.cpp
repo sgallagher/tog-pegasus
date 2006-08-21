@@ -288,15 +288,10 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       catch(IPCException& e)
       {
       e = e;
-#if defined (PEGASUS_OS_VMS)
-     // 
-     // myself is a long-long-unsigned.
-     // 
-      printf ("Exception while trying to put local storage: %llu\n", myself);
-#else
+
       cout << "Exception while trying to put local storage: " 
-          << Threads::id(myself) << endl;
-#endif
+          << Threads::id(myself).buffer << endl;
+
       abort();
       }
       try 
@@ -365,15 +360,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       catch(IPCException& e)
       {
 	 e = e;
-#if defined (PEGASUS_OS_VMS)
-      // 
-      // myself is a long-long-unsigned.
-      // 
-      printf ("Exception while trying to delete local storage: %llu\n", myself);
-#else
 	 cout << "Exception while trying to delete local storage: " 
-             << Threads::id(myself) << endl;
-#endif
+             << Threads::id(myself).buffer << endl;
 	 abort();
       }
       i++;

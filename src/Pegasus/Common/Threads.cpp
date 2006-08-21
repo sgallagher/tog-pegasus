@@ -202,8 +202,6 @@ static inline int _get_stack_multiplier()
 //
 //==============================================================================
 
-static IDFactory _thread_ids(2); /* 1 reserved for main thread */
-
 #if defined(PEGASUS_HAVE_PTHREADS)
 
 int Threads::create(
@@ -257,8 +255,7 @@ int Threads::create(
 
     // Create thread:
 
-    pthread_t thr;
-    int rc = pthread_create(&thr, &attr, start, arg);
+    int rc = pthread_create(&thread.thread, &attr, start, arg);
 
     if (rc != 0)
     {
@@ -266,24 +263,20 @@ int Threads::create(
         return rc;
     }
 
-    // Assign thread id (and put into thread specific storage).
-
-    Uint32 id = _thread_ids.getID();
-    _set_id_tsd(id);
-
     // Destroy attributes now.
 
     pthread_attr_destroy(&attr);
 
     // Return:
 
-    thread = ThreadType(thr, id);
     return 0;
 }
 
 ThreadType Threads::self() 
 {
-    return ThreadType(pthread_self(), _get_id_tsd());
+    ThreadType tt;
+    tt.thread = pthread_self();
+    return tt;
 }
 
 #endif /* PEGASUS_HAVE_PTHREADS */

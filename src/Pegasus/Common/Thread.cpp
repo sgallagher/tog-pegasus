@@ -67,7 +67,7 @@ extern "C" void *_start_wrapper(void *arg_)
 void Thread::cancel()
 {
     _cancelled = true;
-    pthread_cancel(_handle.thid.tt_handle());
+    pthread_cancel(_handle.thid.thread);
 }
 
 void Thread::test_cancel()
@@ -99,12 +99,12 @@ ATTN: why are these missing on other platforms?
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 void Thread::suspend()
 {
-    pthread_kill(_handle.thid.tt_handle(), SIGSTOP);
+    pthread_kill(_handle.thid.thread, SIGSTOP);
 }
 
 void Thread::resume()
 {
-    pthread_kill(_handle.thid.tt_handle(), SIGCONT);
+    pthread_kill(_handle.thid.thread, SIGCONT);
 }
 #endif
 
@@ -115,8 +115,8 @@ void Thread::sleep(Uint32 msec)
 
 void Thread::join(void)
 {
-    if (!_is_detached && Threads::id(_handle.thid) != 0)
-        pthread_join(_handle.thid.tt_handle(), &_exit_code);
+    if (!_is_detached && !Threads::null(_handle.thid))
+        pthread_join(_handle.thid.thread, &_exit_code);
 
     Threads::clear(_handle.thid);
 }
@@ -137,10 +137,10 @@ void Thread::detach(void)
 {
     _is_detached = true;
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-    pthread_t  thread_id=_handle.thid.tt_handle();
+    pthread_t  thread_id=_handle.thid.thread;
     pthread_detach(&thread_id);
 #else
-    pthread_detach(_handle.thid.tt_handle());
+    pthread_detach(_handle.thid.thread);
 #endif
 }
 

@@ -517,13 +517,14 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
         Threads::cleanup_pop(0);
     }
 
-    if (Threads::id(caught.get_owner()) != 0)
+    if (!Threads::null(caught.get_owner()))
         throw caught;
-    if (Threads::id(caughtWaitFailed.get_owner()) != 0)
+    if (!Threads::null(caughtWaitFailed.get_owner()))
         throw caughtWaitFailed;
-    if (Threads::id(caughtTimeOut.get_owner()) != 0)
+    if (!Threads::null(caughtTimeOut.get_owner()))
         throw caughtTimeOut;
-    if (Threads::id(caughtTooManyReaders.get_owner()) != 0)
+    if (!Threads::null(caughtTooManyReaders.get_owner()))
+
         throw caughtTooManyReaders;
     return;
 }

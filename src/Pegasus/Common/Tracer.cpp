@@ -164,9 +164,9 @@ void Tracer::_trace(
                 _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
             sprintf(
                message,
-               "[%d:%u:%s:%u]: ",
+               "[%d:%s:%s:%u]: ",
                System::getPID(),
-               Uint32(Threads::id()),
+               Threads::id().buffer,
                fileName,
                lineNum);
 
@@ -333,9 +333,9 @@ void Tracer::_traceEnter(
 
         sprintf(
            message,
-           "[%d:%u:%s:%u]: ",
+           "[%d:%s:%s:%u]: ",
            System::getPID(),
-	   Uint32(Threads::id()),
+	   Threads::id().buffer,
            fileName,
            lineNum);
 
@@ -372,9 +372,9 @@ void Tracer::_traceExit(
 
         sprintf(
            message,
-           "[%d:%u:%s:%u]: ",
+           "[%d:%s:%s:%u]: ",
            System::getPID(),
-	   Uint32(Threads::id()),
+	   Threads::id().buffer,
            fileName,
            lineNum);
 
@@ -448,8 +448,7 @@ void Tracer::_trace(
         // Needs to be updated if additional info is added
         //
         tmpBuffer = new char[_STRLEN_MAX_PID_TID + 6];
-        sprintf(tmpBuffer, "[%u:%u]: ", System::getPID(),
-	        Uint32(Threads::id()));
+        sprintf(tmpBuffer, "[%u:%s]: ", System::getPID(), Threads::id().buffer);
         msgHeader = new char [ strlen(timeStamp) + strlen(TRACE_COMPONENT_LIST[traceComponent]) +
                                strlen(tmpBuffer) + 1  + 5 ];
 

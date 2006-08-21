@@ -253,7 +253,7 @@ inline ThreadId Threads::id(const ThreadType& x)
         s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
 #else
     sprintf(tid.buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", 
-        Uint64((unsigned long)x.thread));
+        Uint64(x.thread));
 #endif
 
     return tid;

@@ -203,4 +203,40 @@ void Buffer::remove(size_t pos, size_t size)
     _rep->size -= size;
 }
 
+size_t Buffer::appendf(const char* format, ...)
+{
+    size_t size = 128;
+    va_list ap;
+
+    for (;;)
+    {
+	reserveCapacity(_rep->size + size);
+	char* str = _rep->data + _rep->size;
+
+	va_start(ap, format);
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+	int n = _vsnprintf(str, size, format, ap);
+#else
+	int n = vsnprintf(str, size, format, ap);
+#endif
+
+	va_end(ap);
+
+	if (n > -1 && n < int(size))
+	{
+	    _rep->size += n;
+	    return size_t(n);
+	}
+
+	if (n > -1)
+	    size = n + 1;
+	else
+	    size *= 2;
+    }
+
+    // Unreachable:
+    return 0;
+}
+
 PEGASUS_NAMESPACE_END

@@ -197,28 +197,27 @@ void Mutex::unlock()
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
 
+static inline void _initialize(MutexRep& rep)
+{
+    rep.handle = CreateMutex(NULL, FALSE, NULL);
+#if defined(PEGASUS_DEBUG)
+    rep.count = 0;
+#endif
+}
+
 Mutex::Mutex()
 {
+    _initialize(_rep);
+}
+
 Mutex::Mutex(RecursiveTag)
 {
-    _rep.handle = CreateMutex(NULL, FALSE, NULL);
-#if defined(PEGASUS_DEBUG)
-    _rep.count = 0;
-#endif
+    _initialize(_rep);
 }
 
 Mutex::Mutex(NonRecursiveTag)
 {
-    _rep.handle = CreateMutex(NULL, FALSE, NULL);
-#if defined(PEGASUS_DEBUG)
-    _rep.count = 0;
-#endif
-}
-
-    _rep.handle = CreateMutex(NULL, FALSE, NULL);
-#if defined(PEGASUS_DEBUG)
-    _rep.count = 0;
-#endif
+    _initialize(_rep);
 }
 
 Mutex::~Mutex()

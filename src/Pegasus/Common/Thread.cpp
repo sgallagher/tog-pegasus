@@ -251,7 +251,7 @@ ThreadStatus Thread::run(void)
     tt.handle = (HANDLE) _beginthreadex(NULL, 0, _start, this, 0, &threadid);
     _handle.thid = tt;
 
-    if (Threads::id(_handle.thid) == 0)
+    if (Threads::null(_handle.thid))
     {
         if (errno == EAGAIN)
         {
@@ -295,7 +295,7 @@ void Thread::sleep(Uint32 milliseconds)
 
 void Thread::join(void)
 {
-    if (Threads::id(_handle.thid) != 0)
+    if (!Threads::null(_handle.thid))
     {
         if (!_is_detached)
         {

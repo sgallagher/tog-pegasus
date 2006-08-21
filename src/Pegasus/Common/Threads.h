@@ -72,12 +72,24 @@ PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
 //
+// ThreadId
+//
+//==============================================================================
+
+struct ThreadId
+{
+    // The character representation of a uint64 requires 22 bytes including the 
+    // null terminator.
+    char buffer[22];
+};
+
+//==============================================================================
+//
 // ThreadType
 //
 //==============================================================================
 
 #if defined(PEGASUS_HAVE_PTHREADS)
-
 struct ThreadType
 {
     ThreadType()
@@ -91,15 +103,6 @@ struct ThreadType
 
     pthread_t thread;
 };
-
-// This structure represents a thread identifier.
-struct ThreadId
-{
-    // The character representation of a uint64 requires 22 bytes including the 
-    // null terminator.
-    char buffer[22];
-};
-
 #endif /* PEGASUS_HAVE_PTHREADS */
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)

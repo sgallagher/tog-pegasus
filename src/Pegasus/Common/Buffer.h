@@ -39,7 +39,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <cstring>
-#include <cstdarg>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -95,8 +94,6 @@ public:
 
     void append(
 	char c1, char c2, char c3, char c4, char c5, char c6, char c7, char c8);
-
-    size_t appendf(const char* format, ...);
 
     void insert(size_t pos, const char* data, size_t size);
 

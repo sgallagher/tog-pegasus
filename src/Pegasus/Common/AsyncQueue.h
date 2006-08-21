@@ -132,7 +132,8 @@ private:
 };
 
 template<class ElemType> 
-AsyncQueue<ElemType>::AsyncQueue(size_t capacity) : _capacity(capacity)
+AsyncQueue<ElemType>::AsyncQueue(size_t capacity) : 
+    _mutex(Mutex::NON_RECURSIVE), _capacity(capacity)
 {
     if (capacity == 0)
         _capacity.set(0x7FFFFFFF);

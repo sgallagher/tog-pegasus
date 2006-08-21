@@ -69,7 +69,7 @@ PEGASUS_NAMESPACE_BEGIN
 class ConditionWithMutex
 {
 public:
-    ConditionWithMutex() { }
+    ConditionWithMutex() : _mutex(Mutex::NON_RECURSIVE) { }
     ~ConditionWithMutex() { }
     void signal() { _cond.signal(); }
     void wait() { _cond.wait(_mutex); }

@@ -64,6 +64,23 @@ Mutex::Mutex()
 #endif
 }
 
+Mutex::Mutex(RecursiveTag)
+{
+    once(&_once, _init_attr);
+    pthread_mutex_init(&_rep.mutex, &_attr);
+#if defined(PEGASUS_DEBUG)
+    _rep.count = 0;
+#endif
+}
+
+Mutex::Mutex(NonRecursiveTag)
+{
+    pthread_mutex_init(&_rep.mutex, NULL);
+#if defined(PEGASUS_DEBUG)
+    _rep.count = 0;
+#endif
+}
+
 Mutex::~Mutex()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
@@ -182,6 +199,22 @@ void Mutex::unlock()
 
 Mutex::Mutex()
 {
+Mutex::Mutex(RecursiveTag)
+{
+    _rep.handle = CreateMutex(NULL, FALSE, NULL);
+#if defined(PEGASUS_DEBUG)
+    _rep.count = 0;
+#endif
+}
+
+Mutex::Mutex(NonRecursiveTag)
+{
+    _rep.handle = CreateMutex(NULL, FALSE, NULL);
+#if defined(PEGASUS_DEBUG)
+    _rep.count = 0;
+#endif
+}
+
     _rep.handle = CreateMutex(NULL, FALSE, NULL);
 #if defined(PEGASUS_DEBUG)
     _rep.count = 0;

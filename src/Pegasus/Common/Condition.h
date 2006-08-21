@@ -100,8 +100,8 @@ public:
     void wait(Mutex& mutex);
 
 private:
-    Condition(const Condition& original);
-    Condition& operator=(Mutex& mutex);
+    Condition(const Condition&);
+    Condition& operator=(const Condition&);
     ConditionRep _rep;
 };
 

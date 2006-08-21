@@ -82,7 +82,20 @@ class PEGASUS_COMMON_LINKAGE Mutex
 {
 public:
 
+    enum RecursiveTag { RECURSIVE };
+    enum NonRecursiveTag { NON_RECURSIVE };
+
+    /** Default constructor creates a recursive mutex.
+    */
     Mutex();
+
+    /** Call as Mutex(Mutex::RECURSIVE) to create a recursive mutex.
+    */
+    Mutex(RecursiveTag);
+
+    /** Call as Mutex(Mutex::NON_RECURSIVE) to create a non-recursive mutex.
+    */
+    Mutex(NonRecursiveTag);
 
     ~Mutex();
 

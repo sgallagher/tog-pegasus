@@ -60,7 +60,6 @@
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
-#include <Pegasus/ProviderManager2/ProviderType.h>
 
 #define HandleCatch(handler)                                                   \
 catch(CIMException & e)                                                        \

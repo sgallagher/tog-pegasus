@@ -66,7 +66,6 @@
 
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 #include <Pegasus/ProviderManager2/CIMOMHandleContext.h>
-#include <Pegasus/ProviderManager2/ProviderType.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>

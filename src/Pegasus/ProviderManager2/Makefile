@@ -58,7 +58,6 @@ SOURCES = \
 	\
 	ProviderManager.cpp \
 	ProviderName.cpp \
-	ProviderType.cpp \
 	\
 	OperationResponseHandler.cpp \
 	SimpleResponseHandler.cpp \

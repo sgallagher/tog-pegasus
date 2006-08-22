@@ -55,7 +55,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Thread.h>
-// l10n
+#include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AutoPtr.h>
 

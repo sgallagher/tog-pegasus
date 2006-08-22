@@ -29,19 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Adrain Schuur (schuur@de.ibm.com)
-//
-// Modified By:
-//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//	   Seema Gupta (gseema@in.ibm.com) for PEP135
-//     Carol Ann Krug Graves, Hewlett-Packard Company 
-//         (carolann_graves@hp.com)
-//     Muni S Reddy, IBM (mreddy@in.ibm.com) for Bug# 4056
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "WQLOperationRequestDispatcher.h"
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/StatisticalData.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

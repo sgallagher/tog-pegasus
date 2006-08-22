@@ -41,7 +41,8 @@
 // #include <iostream.h>
 #include "MessageQueueService.h"
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/StatisticalData.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

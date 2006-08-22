@@ -52,10 +52,10 @@
 #include <iostream>
 #include <cstring>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/CIMOperationType.h>
+#include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Linkable.h>
 
 PEGASUS_NAMESPACE_BEGIN

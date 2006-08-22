@@ -52,6 +52,9 @@ void CIMResponseMessage::syncAttributes(const CIMRequestMessage* request)
     setMask(request->getMask());
     setHttpMethod(request->getHttpMethod());
     setCloseConnect(request->getCloseConnect());
+#ifndef PEGASUS_DISABLE_PERFINST
+    setStartServerTime(request->getStartServerTime());
+#endif
 }
 
 CIMResponseMessage* CIMGetClassRequestMessage::buildResponse() const

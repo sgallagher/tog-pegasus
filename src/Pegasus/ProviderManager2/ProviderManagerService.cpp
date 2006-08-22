@@ -56,6 +56,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/StatisticalData.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 

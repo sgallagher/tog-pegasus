@@ -29,15 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Arthur Pichlkostner
-//             (checked in: Markus Mueller sedgewick_de@yahoo.de)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef STATISTICAL_DATA_H
-#define STATISTICAL_DATA_H
+#ifndef Pegasus_StatisticalData_h
+#define Pegasus_StatisticalData_h
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
@@ -48,6 +43,7 @@
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/Time.h>
 
@@ -143,6 +139,32 @@ if (StatisticalData::current()->copyGSD)\
 #define STAT_SERVERTIME
 #define STAT_BYTESSENT
 #endif
+
+class PEGASUS_COMMON_LINKAGE StatProviderTimeMeasurement
+{
+public:
+    StatProviderTimeMeasurement(CIMMessage* message)
+        : _message(message)
+    {
+#ifndef PEGASUS_DISABLE_PERFINST
+        _message->setStartProviderTime(TimeValue::getCurrentTime());
+#endif
+    }
+
+    ~StatProviderTimeMeasurement()
+    {
+#ifndef PEGASUS_DISABLE_PERFINST
+        _message->endProvider();
+#endif
+    }
+
+private:
+    StatProviderTimeMeasurement();
+    StatProviderTimeMeasurement(const StatProviderTimeMeasurement&);
+    StatProviderTimeMeasurement& operator=(const StatProviderTimeMeasurement&);
+
+    CIMMessage* _message;
+};
 
 class PEGASUS_COMMON_LINKAGE StatisticalData
 {

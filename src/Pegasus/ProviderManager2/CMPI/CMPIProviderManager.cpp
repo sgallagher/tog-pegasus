@@ -280,39 +280,23 @@ void CMPIProviderManager::unloadIdleProviders()
 #define CHARS(cstring) (char*)(strlen(cstring)?(const char*)cstring:NULL)
 
 
-#define HandlerIntroBase(type,type1,message,request,response,handler,respType) \
+#define HandlerIntroBase(type,type1,message,request,response,handler) \
     CIM##type##RequestMessage * request = \
         dynamic_cast<CIM##type##RequestMessage *>(const_cast<Message *>(message)); \
     PEGASUS_ASSERT(request != 0); \
     CIM##type##ResponseMessage * response = \
-        new CIM##type##ResponseMessage( \
-        request->messageId, \
-        CIMException(), \
-        request->queueIds.copyAndPop() \
-        respType \
+        dynamic_cast<CIM##type##ResponseMessage*>(request->buildResponse()); \
     PEGASUS_ASSERT(response != 0); \
-    response->setHttpMethod(request->getHttpMethod()); \
     type1##ResponseHandler handler(request, response, _responseChunkCallback);
 
-#define VOIDINTRO );
-#define NOVOIDINTRO(type) ,type);
-#define METHODINTRO ,CIMValue(), Array<CIMParamValue>(), request->methodName );
-
-
-#define HandlerIntroVoid(type,message,request,response,handler) \
-     HandlerIntroBase(type,type,message,request,response,handler,VOIDINTRO)
-
-#define HandlerIntroMethod(type,message,request,response,handler) \
-     HandlerIntroBase(type,type,message,request,response,handler,METHODINTRO)
-
 #define HandlerIntroInd(type,message,request,response,handler) \
-     HandlerIntroBase(type,Operation,message,request,response,handler,VOIDINTRO)
+     HandlerIntroBase(type,Operation,message,request,response,handler)
 
 #define HandlerIntroInit(type,message,request,response,handler) \
-     HandlerIntroBase(type,Operation,message,request,response,handler,VOIDINTRO)
+     HandlerIntroBase(type,Operation,message,request,response,handler)
 
-#define HandlerIntro(type,message,request,response,handler,respType) \
-     HandlerIntroBase(type,type,message,request,response,handler,NOVOIDINTRO(respType))
+#define HandlerIntro(type,message,request,response,handler) \
+     HandlerIntroBase(type,type,message,request,response,handler)
 
 #define HandlerCatch(handler) \
     catch(const CIMException & e)  \
@@ -338,7 +322,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleGetInstanceRequest");
 
-    HandlerIntro(GetInstance,message,request,response,handler,CIMInstance());
+    HandlerIntro(GetInstance,message,request,response,handler);
 
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
@@ -451,12 +435,13 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.instMI->ft->getInstance
-        (pr.miVector.instMI,&eCtx,&eRes,&eRef,(const char **)props.getList());
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.instMI->ft->getInstance(
+                pr.miVector.instMI,&eCtx,&eRes,&eRef,
+                (const char **)props.getList());
+        }
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -466,8 +451,6 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -476,8 +459,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleEnumerateInstanceRequest");
 
-    HandlerIntro(EnumerateInstances,message,request,response,
-                 handler,Array<CIMInstance>());
+    HandlerIntro(EnumerateInstances,message,request,response,handler);
     try {
       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleEnumerateInstancesRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -589,12 +571,13 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.instMI->ft->enumInstances
-	  (pr.miVector.instMI,&eCtx,&eRes,&eRef,(const char **)props.getList());
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.instMI->ft->enumInstances(
+                pr.miVector.instMI,&eCtx,&eRes,&eRef,
+                (const char **)props.getList());
+        }
 
         if (rc.rc!=CMPI_RC_OK)
         throw CIMException((CIMStatusCode)rc.rc,
@@ -605,8 +588,6 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -614,8 +595,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleEnumerateInstanceNamesRequest");
 
-    HandlerIntro(EnumerateInstanceNames,message,request,response,
-                 handler,Array<CIMObjectPath>());
+    HandlerIntro(EnumerateInstanceNames,message,request,response,handler);
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleEnumerateInstanceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -692,11 +672,12 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         AutoPThreadSecurity threadLevelSecurity(context);
         
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.instMI->ft->enumInstanceNames(pr.miVector.instMI,&eCtx,&eRes,&eRef);
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.instMI->ft->enumInstanceNames(
+                pr.miVector.instMI,&eCtx,&eRes,&eRef);
+        }
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -704,10 +685,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
     }
     HandlerCatch(handler);
 
-
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -717,8 +695,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleCreateInstanceRequest");
 
-    HandlerIntro(CreateInstance,message,request,response,
-                 handler,CIMObjectPath());
+    HandlerIntro(CreateInstance,message,request,response,handler);
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleCreateInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -799,12 +776,12 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.instMI->ft->createInstance
-           (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst);
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.instMI->ft->createInstance(
+                pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst);
+        }
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -814,8 +791,6 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -824,8 +799,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleModifyInstanceRequest");
 
-    HandlerIntroVoid(ModifyInstance,message,request,response,
-                 handler);
+    HandlerIntro(ModifyInstance,message,request,response,handler);
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleModifyInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -908,12 +882,13 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.instMI->ft->modifyInstance
-	  (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,(const char **)props.getList());
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.instMI->ft->modifyInstance(
+                pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,
+                (const char **)props.getList());
+        }
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -923,8 +898,6 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -933,8 +906,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleDeleteInstanceRequest");
 
-    HandlerIntroVoid(DeleteInstance,message,request,response,
-                 handler);
+    HandlerIntro(DeleteInstance,message,request,response,handler);
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleDeleteInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -1011,12 +983,12 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.instMI->ft->deleteInstance
-           (pr.miVector.instMI,&eCtx,&eRes,&eRef);
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.instMI->ft->deleteInstance(
+                pr.miVector.instMI,&eCtx,&eRes,&eRef);
+        }
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1026,8 +998,6 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -1036,8 +1006,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleExecQueryRequest");
 
-    HandlerIntro(ExecQuery,message,request,response,
-                 handler,Array<CIMObject>());
+    HandlerIntro(ExecQuery,message,request,response,handler);
 
     try {
       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
@@ -1126,12 +1095,13 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.instMI->ft->execQuery
-           (pr.miVector.instMI,&eCtx,&eRes,&eRef,CHARS(queryLan),CHARS(query));
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.instMI->ft->execQuery(
+                pr.miVector.instMI,&eCtx,&eRes,&eRef,
+                CHARS(queryLan),CHARS(query));
+        }
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1143,8 +1113,6 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -1153,8 +1121,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorsRequest");
 
-    HandlerIntro(Associators,message,request,response,
-                 handler,Array<CIMObject>());
+    HandlerIntro(Associators,message,request,response,handler);
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleAssociatorsRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -1277,13 +1244,14 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.assocMI->ft->associators(
-                         pr.miVector.assocMI,&eCtx,&eRes,&eRef,CHARS(aClass),
-                         CHARS(rClass),CHARS(rRole),CHARS(resRole),(const char **)props.getList());
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.assocMI->ft->associators(
+                pr.miVector.assocMI,&eCtx,&eRes,&eRef,
+                CHARS(aClass),CHARS(rClass),CHARS(rRole),CHARS(resRole),
+                (const char **)props.getList());
+        }
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1293,8 +1261,6 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -1303,8 +1269,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorNamesRequest");
 
-    HandlerIntro(AssociatorNames,message,request,response,
-                 handler,Array<CIMObjectPath>());
+    HandlerIntro(AssociatorNames,message,request,response,handler);
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleAssociatorNamesRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -1395,13 +1360,13 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.assocMI->ft->associatorNames(
-                         pr.miVector.assocMI,&eCtx,&eRes,&eRef,CHARS(aClass),
-                         CHARS(rClass),CHARS(rRole),CHARS(resRole));
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.assocMI->ft->associatorNames(
+                pr.miVector.assocMI,&eCtx,&eRes,&eRef,CHARS(aClass),
+                CHARS(rClass),CHARS(rRole),CHARS(resRole));
+        }
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1411,8 +1376,6 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -1421,8 +1384,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleReferencesRequest");
 
-    HandlerIntro(References,message,request,response,
-                 handler,Array<CIMObject>());
+    HandlerIntro(References,message,request,response,handler);
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -1541,13 +1503,13 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.assocMI->ft->references(
-                         pr.miVector.assocMI,&eCtx,&eRes,&eRef,
-                         CHARS(rClass),CHARS(rRole),(const char **)props.getList());
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.assocMI->ft->references(
+                pr.miVector.assocMI,&eCtx,&eRes,&eRef,
+                CHARS(rClass),CHARS(rRole),(const char **)props.getList());
+        }
 
         if (rc.rc!=CMPI_RC_OK)
             throw CIMException((CIMStatusCode)rc.rc,
@@ -1557,8 +1519,6 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -1567,8 +1527,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleReferenceNamesRequest");
 
-    HandlerIntro(ReferenceNames,message,request,response,
-                 handler,Array<CIMObjectPath>());
+    HandlerIntro(ReferenceNames,message,request,response,handler);
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleReferenceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -1655,13 +1614,13 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.assocMI->ft->referenceNames(
-                         pr.miVector.assocMI,&eCtx,&eRes,&eRef,
-                         CHARS(rClass),CHARS(rRole));
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.assocMI->ft->referenceNames(
+                pr.miVector.assocMI,&eCtx,&eRes,&eRef,
+                CHARS(rClass),CHARS(rRole));
+        }
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1671,8 +1630,6 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -1681,8 +1638,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleInvokeMethodRequest");
 
-    HandlerIntroMethod(InvokeMethod,message,request,response,
-                 handler);
+    HandlerIntro(InvokeMethod,message,request,response,handler);
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CMPIProviderManager::handleInvokeMethodRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -1798,12 +1754,13 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         AutoPThreadSecurity threadLevelSecurity(context);
         
-        STAT_GETSTARTTIME;
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-        rc=pr.miVector.methMI->ft->invokeMethod(
-           pr.miVector.methMI,&eCtx,&eRes,&eRef,CHARS(mName),&eArgsIn,&eArgsOut);
-
-        STAT_PMS_PROVIDEREND;
+            rc = pr.miVector.methMI->ft->invokeMethod(
+                pr.miVector.methMI,&eCtx,&eRes,&eRef,
+                CHARS(mName),&eArgsIn,&eArgsOut);
+        }
 
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -1893,8 +1850,6 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
     HandlerCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -2051,30 +2006,31 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         AutoPThreadSecurity threadLevelSecurity(context);
         
-        STAT_GETSTARTTIME;
-		if (pr.miVector.indMI->ft->ftVersion >= 100) 
-		{
-        rc=pr.miVector.indMI->ft->activateFilter(
-           pr.miVector.indMI,&eCtx,eSelx,
-           CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
-           &eRef,false);
-		}
-		else
-		{
-			// Older version of (pre 1.00) also pass in a CMPIResult
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-		rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
-						CMPIResult*, CMPISelectExp*,
-						const char *, CMPIObjectPath*,
-						CMPIBoolean))
-						pr.miVector.indMI->ft->activateFilter)(
-						   pr.miVector.indMI,&eCtx,NULL,eSelx,
-           CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
-           &eRef,false);
-		}
-		
+            if (pr.miVector.indMI->ft->ftVersion >= 100) 
+            {
+                rc = pr.miVector.indMI->ft->activateFilter(
+                    pr.miVector.indMI,&eCtx,eSelx,
+                    CHARS(eSelx->classNames[0].getClassName().getString().
+                        getCString()),
+                    &eRef,false);
+            }
+            else
+            {
+            	// Older version of (pre 1.00) also pass in a CMPIResult
 
-       STAT_PMS_PROVIDEREND;
+                rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
+            	    CMPIResult*, CMPISelectExp*,
+                	const char *, CMPIObjectPath*, CMPIBoolean))
+                    pr.miVector.indMI->ft->activateFilter)(
+                        pr.miVector.indMI,&eCtx,NULL,eSelx,
+                        CHARS(eSelx->classNames[0].getClassName().getString().
+                            getCString()),
+                        &eRef,false);
+            }
+        }
 
         if (rc.rc!=CMPI_RC_OK)
         {
@@ -2218,33 +2174,35 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         AutoPThreadSecurity threadLevelSecurity(context);
         
-        STAT_GETSTARTTIME;
-		if (pr.miVector.indMI->ft->ftVersion >= 100) 
-		{
-        rc=pr.miVector.indMI->ft->deActivateFilter(
-						   pr.miVector.indMI,&eCtx,eSelx,
-           CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
-           &eRef,prec==NULL);
-		}
-		else
-		{
-			// Older version of (pre 1.00) also pass in a CMPIResult
+        {
+            StatProviderTimeMeasurement providerTime(response);
 
-		rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
-						CMPIResult*, CMPISelectExp*,
-						const char *, CMPIObjectPath*,
-						CMPIBoolean))
-						pr.miVector.indMI->ft->deActivateFilter)(
-						   pr.miVector.indMI,&eCtx,NULL,eSelx,
-           CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
-           &eRef,prec==NULL);
-		}
+            if (pr.miVector.indMI->ft->ftVersion >= 100) 
+            {
+                rc = pr.miVector.indMI->ft->deActivateFilter(
+                    pr.miVector.indMI,&eCtx,eSelx,
+                    CHARS(eSelx->classNames[0].getClassName().getString().
+                        getCString()),
+                    &eRef,prec==NULL);
+            }
+            else
+            {
+                // Older version of (pre 1.00) also pass in a CMPIResult
 
-       STAT_PMS_PROVIDEREND;
+                rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
+                    CMPIResult*, CMPISelectExp*,
+                        const char *, CMPIObjectPath*, CMPIBoolean))
+                    pr.miVector.indMI->ft->deActivateFilter)(
+                        pr.miVector.indMI,&eCtx,NULL,eSelx,
+                        CHARS(eSelx->classNames[0].getClassName().getString().
+                            getCString()),
+                        &eRef,prec==NULL);
+            }
+        }
 
-	   delete qContext;
-	   delete eSelx;
-	   delete srec;
+        delete qContext;
+        delete eSelx;
+        delete srec;
 
         if (rc.rc!=CMPI_RC_OK)
         {

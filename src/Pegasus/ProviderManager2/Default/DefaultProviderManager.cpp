@@ -79,8 +79,7 @@ catch(CIMException & e)                                                        \
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,                      \
                      "Exception: Unknown");                                    \
     handler.setStatus(CIM_ERR_FAILED, "Unknown error.");                       \
-}                                                                              \
-STAT_RESPONSEEND
+}
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -358,7 +357,7 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_PMS_PROVIDERSTART;
+        StatProviderTimeMeasurement providerTime(response);
 
         ph.GetProvider().getInstance(
             context,
@@ -372,9 +371,6 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -438,7 +434,7 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_PMS_PROVIDERSTART;
+        StatProviderTimeMeasurement providerTime(response);
 
         ph.GetProvider().enumerateInstances(
             context,
@@ -452,8 +448,6 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-     STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -517,7 +511,7 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_PMS_PROVIDERSTART;
+        StatProviderTimeMeasurement providerTime(response);
 
         ph.GetProvider().enumerateInstanceNames(
             context,
@@ -528,8 +522,6 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -594,7 +586,7 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_PMS_PROVIDERSTART;
+        StatProviderTimeMeasurement providerTime(response);
 
         ph.GetProvider().createInstance(
             context,
@@ -606,8 +598,6 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -674,7 +664,7 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_PMS_PROVIDERSTART;
+        StatProviderTimeMeasurement providerTime(response);
 
         ph.GetProvider().modifyInstance(
             context,
@@ -688,8 +678,6 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -754,7 +742,7 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_PMS_PROVIDERSTART;
+        StatProviderTimeMeasurement providerTime(response);
 
         ph.GetProvider().deleteInstance(
             context,
@@ -765,8 +753,6 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -838,7 +824,7 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_PMS_PROVIDERSTART;
+        StatProviderTimeMeasurement providerTime(response);
 
         ph.GetProvider().execQuery(
             context,
@@ -913,7 +899,8 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        STAT_PMS_PROVIDERSTART;
+        StatProviderTimeMeasurement providerTime(response);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         ph.GetProvider().associators(
@@ -932,8 +919,6 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -997,7 +982,8 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-		STAT_PMS_PROVIDERSTART;
+        StatProviderTimeMeasurement providerTime(response);
+
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         ph.GetProvider().associatorNames(
@@ -1013,8 +999,6 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1076,13 +1060,13 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
-        STAT_PMS_PROVIDERSTART;
-
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.references: " +
             ph.GetProvider().getName());
 
         AutoPThreadSecurity threadLevelSecurity(context);
+
+        StatProviderTimeMeasurement providerTime(response);
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
@@ -1100,8 +1084,6 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1163,13 +1145,13 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
-        STAT_PMS_PROVIDERSTART;
-
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.referenceNames: " +
             ph.GetProvider().getName());
 
         AutoPThreadSecurity threadLevelSecurity(context);
+
+        StatProviderTimeMeasurement providerTime(response);
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
@@ -1184,8 +1166,6 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1242,13 +1222,13 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
 
         CIMName propertyName = request->propertyName;
 
-        STAT_PMS_PROVIDERSTART;
-
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.getProperty: " +
             ph.GetProvider().getName());
 
         AutoPThreadSecurity threadLevelSecurity(context);
+
+        StatProviderTimeMeasurement providerTime(response);
 
         // forward request
         pm_service_op_lock op_lock(&ph.GetProvider());
@@ -1263,8 +1243,6 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1322,13 +1300,13 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
         CIMName propertyName = request->propertyName;
         CIMValue propertyValue = request->newValue;
 
-        STAT_PMS_PROVIDERSTART;
-
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.setProperty: " +
             ph.GetProvider().getName());
 
         AutoPThreadSecurity threadLevelSecurity(context);
+
+        StatProviderTimeMeasurement providerTime(response);
 
         // forward request
         pm_service_op_lock op_lock(&ph.GetProvider());
@@ -1344,8 +1322,6 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
     HandleCatch(handler);
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1406,14 +1382,13 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
         // ATTN: propagate namespace
         instanceReference.setNameSpace(request->nameSpace);
 
-        // forward request
-        STAT_PMS_PROVIDERSTART;
-
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.invokeMethod: " +
             ph.GetProvider().getName());
 
         AutoPThreadSecurity threadLevelSecurity(context);
+
+        StatProviderTimeMeasurement providerTime(response);
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
@@ -1886,8 +1861,6 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
         OpProviderHolder ph = providerManager.getProvider(
             name.getPhysicalName(), name.getLogicalName());
 
-		STAT_PMS_PROVIDERSTART
-
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                        "Calling provider.: " +
                        ph.GetProvider().getName());
@@ -1907,6 +1880,9 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
       context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
       CIMInstance indication_copy = request->indicationInstance;
+
+      StatProviderTimeMeasurement providerTime(response);
+
       pm_service_op_lock op_lock(&ph.GetProvider());
 
       ph.GetProvider().consumeIndication(context,

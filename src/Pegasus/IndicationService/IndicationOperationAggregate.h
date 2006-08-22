@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3601
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_IndicationOperationAggregate_h
@@ -47,6 +39,7 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Magic.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Server/Linkage.h>
 
 #include "ProviderClassList.h"

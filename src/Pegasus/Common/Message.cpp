@@ -43,6 +43,7 @@
 
 #include "Message.h"
 #include "Tracer.h"
+#include <Pegasus/Common/StatisticalData.h>
 
 PEGASUS_USING_STD;
 

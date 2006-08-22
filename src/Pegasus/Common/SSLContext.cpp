@@ -489,7 +489,11 @@ void pegasus_locking_callback( int      mode,
 
 static unsigned long _get_thread_id()
 {
-     return Threads::id();
+#if defined(PEGASUS_HAVE_PTHREADS)
+    return pthread_self();
+#else
+    return 0;
+#endif
 }
 
 //

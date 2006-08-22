@@ -1985,7 +1985,15 @@ void XmlWriter::appendMethodResponseHeader(
 {
      char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
      out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n");
-     STAT_SERVERTIME
+
+#ifndef PEGASUS_DISABLE_PERFINST
+     if (StatisticalData::current()->copyGSD)
+     {
+         out << STRLIT("WBEMServerResponseTime: ") <<
+             CIMValue(serverResponseTime).toString() << STRLIT("\r\n");
+     }
+#endif
+
      out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
      OUTPUT_CONTENTLENGTH;
 

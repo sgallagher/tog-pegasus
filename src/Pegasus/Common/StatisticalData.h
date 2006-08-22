@@ -114,14 +114,6 @@ Uint16 statType = (request->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
     request->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE: request->getType()-1;\
 StatisticalData::current()->requSize = contentLength; 
 
-
-
-
-
-//serverResponseTime should be an Uint64 but the << operator wont accept that
-#define STAT_SERVERTIME \
-if (StatisticalData::current()->copyGSD)\
-	 out << "WBEMServerResponseTime: " << (Uint32) serverResponseTime << "\r\n";
 #else
 #define STAT_GETSTARTTIME
 #define STAT_PMS_PROVIDERSTART
@@ -136,7 +128,6 @@ if (StatisticalData::current()->copyGSD)\
 #define STAT_COPYDISPATCHER
 #define STAT_COPYDISPATCHER_REP
 #define STAT_BYTESREAD
-#define STAT_SERVERTIME
 #define STAT_BYTESSENT
 #endif
 

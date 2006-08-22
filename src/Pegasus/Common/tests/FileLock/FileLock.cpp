@@ -111,6 +111,7 @@ void master(char testProgram[])
     FileSystem::openNoCase(
     fs, COUNTER_FILE, ios::in PEGASUS_OR_IOS_BINARY);
     fs.read(buffer, 8);
+    buffer[8] = 0;
     fs.close();
 
     PEGASUS_TEST_ASSERT(atoi(buffer) == NUM_SUBTESTS*NUM_ITERATIONS);
@@ -136,6 +137,7 @@ void subtest()
         fstream fs;
         fs.open(COUNTER_FILE, ios::in PEGASUS_OR_IOS_BINARY);
         fs.read(buffer, 8);
+        buffer[8] = 0;
         fs.close();
         Uint32 counter = atoi(buffer);
 

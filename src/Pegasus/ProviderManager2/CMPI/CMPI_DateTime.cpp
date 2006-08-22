@@ -29,16 +29,7 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
-
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include <stdio.h>
-#endif
 
 #include <Pegasus/Common/Time.h>
 #include "CMPI_Version.h"

@@ -105,4 +105,16 @@
 // to avoid lots of ifdefs for z/OS
 #define pthread_getspecific(x) pthread_getspecific_d8_np(x);
 
+// use my own snprintf implementation using sprintf mapping
+// until the Java SDK is fixed to work with _ISOC99_SOURCE
+inline int snprintf(char *sptr, size_t len, const char* form, ...)
+{
+    int returnvalue;
+    va_list arguments;
+    va_start(arguments, form);
+    returnvalue = vsprintf(sptr, form, arguments);
+    va_end(arguments);
+    return returnvalue;
+}
+
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

@@ -41,7 +41,7 @@
 # be lost the next time this file is regenerated and submitted to CVS.
 #
 
-Version: 2.5RC1
+Version: 2.6.0
 Release: 1%{?LINUX_VERSION:.%{LINUX_VERSION}}
 Epoch:   1
 

@@ -3290,6 +3290,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Boolean> boarr;
          cv.get (boarr);
          boarr.append (bo);
+         cv.set (boarr);
       }
       break;
    case CIMTYPE_UINT8: {
@@ -3298,6 +3299,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Uint8> u8arr;
          cv.get (u8arr);
          u8arr.append (u8);
+         cv.set (u8arr);
       }
       break;
    case CIMTYPE_SINT8: {
@@ -3306,6 +3308,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Sint8> s8arr;
          cv.get (s8arr);
          s8arr.append (s8);
+         cv.set (s8arr);
       }
       break;
    case CIMTYPE_UINT16: {
@@ -3314,6 +3317,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Uint16> u16arr;
          cv.get (u16arr);
          u16arr.append (u16);
+         cv.set (u16arr);
       }
       break;
    case CIMTYPE_SINT16: {
@@ -3322,6 +3326,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Sint16> s16arr;
          cv.get (s16arr);
          s16arr.append (s16);
+         cv.set (s16arr);
       }
       break;
    case CIMTYPE_UINT32: {
@@ -3330,6 +3335,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Uint32> u32arr;
          cv.get (u32arr);
          u32arr.append (u32);
+         cv.set (u32arr);
       }
       break;
    case CIMTYPE_SINT32: {
@@ -3338,6 +3344,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Sint32> s32arr;
          cv.get (s32arr);
          s32arr.append (s32);
+         cv.set (s32arr);
       }
       break;
    case CIMTYPE_UINT64: {
@@ -3346,6 +3353,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Uint64> u64arr;
          cv.get (u64arr);
          u64arr.append (u64);
+         cv.set (u64arr);
       }
       break;
    case CIMTYPE_SINT64: {
@@ -3354,6 +3362,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Sint64> s64arr;
          cv.get (s64arr);
          s64arr.append (s64);
+         cv.set (s64arr);
       }
       break;
    case CIMTYPE_REAL32: {
@@ -3362,6 +3371,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Real32> farr;
          cv.get (farr);
          farr.append (f);
+         cv.set (farr);
       }
       break;
    case CIMTYPE_REAL64: {
@@ -3370,6 +3380,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Real64> darr;
          cv.get (darr);
          darr.append (d);
+         cv.set (darr);
       }
       break;
    case CIMTYPE_CHAR16: {
@@ -3378,6 +3389,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<Char16> c16arr;
          cv.get (c16arr);
          c16arr.append (c16);
+         cv.set (c16arr);
       }
       break;
    case CIMTYPE_STRING: {
@@ -3386,6 +3398,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<String> strarr;
          cv.get (strarr);
          strarr.append (str);
+         cv.set (strarr);
       }
       break;
    case CIMTYPE_DATETIME: {
@@ -3394,6 +3407,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<CIMDateTime> dtarr;
          cv.get (dtarr);
          dtarr.append (dt);
+         cv.set (dtarr);
       }
       break;
    case CIMTYPE_REFERENCE: {
@@ -3402,6 +3416,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<CIMObjectPath> refarr;
          cv.get (refarr);
          refarr.append (ref);
+         cv.set (refarr);
       }
       break;
    case CIMTYPE_OBJECT: {
@@ -3410,11 +3425,13 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          Array<CIMObject> objarr;
          cv.get (objarr);
          objarr.append (obj);
+         cv.set (objarr);
       }
       break;
    default:
       throwCIMException (jEnv,"+++ unsupported type ");
    }
+   cp->setValue (cv);
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addQualifier

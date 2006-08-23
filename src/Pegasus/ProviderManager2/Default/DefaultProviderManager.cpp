@@ -206,7 +206,7 @@ Message * DefaultProviderManager::processMessage(Message * request)
 
 	break;
     default:
-        response = handleUnsupportedRequest(request);
+        PEGASUS_ASSERT(0);
 
         break;
     }
@@ -214,16 +214,6 @@ Message * DefaultProviderManager::processMessage(Message * request)
     PEG_METHOD_EXIT();
 
     return(response);
-}
-
-Message * DefaultProviderManager::handleUnsupportedRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleUnsupportedRequest");
-
-    PEG_METHOD_EXIT();
-
-    // a null response implies unsupported or unknown operation
-    return(0);
 }
 
 Message * DefaultProviderManager::handleInitializeProviderRequest(
@@ -1412,7 +1402,7 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
         {
             temp.append(request->classNames[i].getString());
 
-            if(i == (n - 1))
+            if (i < (n - 1))
             {
                 temp.append(", ");
             }
@@ -1561,7 +1551,7 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
         {
             temp.append(request->classNames[i].getString());
 
-            if(i == (n - 1))
+            if (i < (n - 1))
             {
                 temp.append(", ");
             }
@@ -1688,7 +1678,7 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
         {
             temp.append(request->classNames[i].getString());
 
-            if(i == (n - 1))
+            if (i < (n - 1))
             {
                 temp.append(", ");
             }
@@ -1816,7 +1806,8 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
 
 Message *DefaultProviderManager::handleExportIndicationRequest(const Message *message)
 {
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManagerService::handlExportIndicationRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::handleExportIndicationRequest");
 
     CIMExportIndicationRequestMessage * request =
         dynamic_cast<CIMExportIndicationRequestMessage *>(const_cast<Message *>(message));
@@ -2208,10 +2199,10 @@ String DefaultProviderManager::_generateKey (
     const String & providerName,
     const String & providerFileName)
 {
-    String tableKey;
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_generateKey");
 
-    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
-                      "DefaultProviderManagerService::_generateKey");
+    String tableKey;
 
     //
     //  Append providerName and providerFileName to key

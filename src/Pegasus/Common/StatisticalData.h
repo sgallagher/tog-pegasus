@@ -54,22 +54,8 @@ PEGASUS_NAMESPACE_BEGIN
 #define STAT_GETSTARTTIME \
 TimeValue startTime = TimeValue::getCurrentTime();
 
-#define STAT_PMS_PROVIDERSTART                               \
-response->setStartServerTime(request->getStartServerTime()); \
-response->setStartProviderTime(TimeValue::getCurrentTime());
-
-#define STAT_RESPONSEEND \
-response->endProvider();
-
-#define STAT_PMS_PROVIDEREND \
-response->endProvider();            \
-response->setStartServerTime(request->getStartServerTime()); \
-response->setStartProviderTime(startTime);
-
-
 #define STAT_SERVERSTART \
 request->setStartServerTime(startTime);
-
 
 #define STAT_SERVEREND \
 response->endServer();\
@@ -84,25 +70,8 @@ StatisticalData::current()->addToValue(message.size(), statType, StatisticalData
 #define STAT_SERVEREND_ERROR \
 response->endServer();
 
-
-#define STAT_PROVIDERSTART \
-request->startProvider();
-
-
-#define STAT_PROVIDEREND   \
-request->endProvider();
-
 #define STAT_COPYDISPATCHER \
 response->setStartServerTime(request->getStartServerTime());
-
-
-
-// copy request timing info into response
-#define STAT_COPYDISPATCHER_REP \
-response->setStartServerTime(request->getStartServerTime());   \
-response->setStartProviderTime(request->getStartProviderTime());   \
-response->setEndProviderTime(request->getEndProviderTime());
-
 
 
 /*the request size value must be stored (requSize) and passed to the StatisticalData object at the
@@ -116,17 +85,10 @@ StatisticalData::current()->requSize = contentLength;
 
 #else
 #define STAT_GETSTARTTIME
-#define STAT_PMS_PROVIDERSTART
-#define STAT_PMS_PROVIDEREND
-#define STAT_RESPONSEEND
 #define STAT_SERVERSTART
 #define STAT_SERVEREND
 #define STAT_SERVEREND_ERROR
-#define STAT_PROVIDERSTART
-#define STAT_PROVIDEREND
-#define STAT_PROVIDEREND_REP
 #define STAT_COPYDISPATCHER
-#define STAT_COPYDISPATCHER_REP
 #define STAT_BYTESREAD
 #define STAT_BYTESSENT
 #endif
@@ -138,7 +100,7 @@ public:
         : _message(message)
     {
 #ifndef PEGASUS_DISABLE_PERFINST
-        _message->setStartProviderTime(TimeValue::getCurrentTime());
+        _message->startProvider();
 #endif
     }
 

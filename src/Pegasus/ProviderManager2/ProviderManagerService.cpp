@@ -411,8 +411,6 @@ void ProviderManagerService::handleCimRequest(
                     "ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
                     "provider blocked."));
             response = cimResponse;
-
-             STAT_COPYDISPATCHER
         }
         else
         {
@@ -464,11 +462,13 @@ void ProviderManagerService::handleCimRequest(
 
             delete response;
 
-            response = new CIMEnableModuleResponseMessage(
-                request->messageId,
-                CIMException(CIM_ERR_FAILED, e.getMessage()),
-                request->queueIds.copyAndPop(),
-                operationalStatus);
+            CIMEnableModuleResponseMessage* emResp =
+                dynamic_cast<CIMEnableModuleResponseMessage*>(
+                    request->buildResponse());
+            emResp->operationalStatus = operationalStatus;
+            emResp->cimException =
+                CIMException(CIM_ERR_FAILED, e.getMessage());
+            response = emResp;
         }
     }
     else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
@@ -556,11 +556,13 @@ void ProviderManagerService::handleCimRequest(
 
             delete response;
 
-            response = new CIMDisableModuleResponseMessage(
-                request->messageId,
-                CIMException(CIM_ERR_FAILED, e.getMessage()),
-                request->queueIds.copyAndPop(),
-                operationalStatus);
+            CIMDisableModuleResponseMessage* dmResp =
+                dynamic_cast<CIMDisableModuleResponseMessage*>(
+                    request->buildResponse());
+            dmResp->operationalStatus = operationalStatus;
+            dmResp->cimException =
+                CIMException(CIM_ERR_FAILED, e.getMessage());
+            response = dmResp;
         }
     }
     else

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "JMPIProviderManager.h"
@@ -524,39 +519,23 @@ void JMPIProviderManager::unloadIdleProviders()
 #define CHARS(cstring) (char*)(strlen(cstring)?(const char*)cstring:NULL)
 
 
-#define HandlerIntroBase(type,type1,message,request,response,handler,respType) \
+#define HandlerIntroBase(type,type1,message,request,response,handler) \
     CIM##type##RequestMessage * request = \
         dynamic_cast<CIM##type##RequestMessage *>(const_cast<Message *>(message)); \
     PEGASUS_ASSERT(request != 0); \
     CIM##type##ResponseMessage * response = \
-        new CIM##type##ResponseMessage( \
-        request->messageId, \
-        CIMException(), \
-        request->queueIds.copyAndPop() \
-        respType \
+        dynamic_cast<CIM##type##ResponseMessage*>(request->buildResponse()); \
     PEGASUS_ASSERT(response != 0); \
-    response->setHttpMethod(request->getHttpMethod()); \
     type1##ResponseHandler handler(request, response, _responseChunkCallback);
 
-#define VOIDINTRO );
-#define NOVOIDINTRO(type) ,type);
-#define METHODINTRO ,CIMValue(), Array<CIMParamValue>(), request->methodName );
-
-
-#define HandlerIntroVoid(type,message,request,response,handler) \
-     HandlerIntroBase(type,type,message,request,response,handler,VOIDINTRO)
-
-#define HandlerIntroMethod(type,message,request,response,handler) \
-     HandlerIntroBase(type,type,message,request,response,handler,METHODINTRO)
-
 #define HandlerIntroInd(type,message,request,response,handler) \
-     HandlerIntroBase(type,Operation,message,request,response,handler,VOIDINTRO)
+     HandlerIntroBase(type,Operation,message,request,response,handler)
 
 #define HandlerIntroInit(type,message,request,response,handler) \
-     HandlerIntroBase(type,Operation,message,request,response,handler,VOIDINTRO)
+     HandlerIntroBase(type,Operation,message,request,response,handler)
 
-#define HandlerIntro(type,message,request,response,handler,respType) \
-     HandlerIntroBase(type,type,message,request,response,handler,NOVOIDINTRO(respType))
+#define HandlerIntro(type,message,request,response,handler) \
+     HandlerIntroBase(type,type,message,request,response,handler)
 
 #define HandlerCatch(handler) \
     catch(CIMException & e)  \
@@ -594,7 +573,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleGetInstanceRequest");
 
-    HandlerIntro(GetInstance,message,request,response,handler,CIMInstance());
+    HandlerIntro(GetInstance,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -648,8 +627,6 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
@@ -658,8 +635,6 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 ////////DDD(debugPrintMethodPointers (env, (jclass)pr.jProviderClass));
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -735,8 +710,6 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
            PEG_METHOD_EXIT();
 
-           STAT_COPYDISPATCHER
-
            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                               "Could not find a method for the provider based on InterfaceType."));
@@ -786,6 +759,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject jciRet = env->CallObjectMethod((jobject)pr.jProvider,
                                                    id,
                                                    jop,
@@ -796,8 +771,6 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
                                                    jcimClass);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
 
@@ -854,6 +827,9 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
             JMPIjvm::checkException(env);
 
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
+
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject      jciRet        = env->CallObjectMethod((jobject)pr.jProvider,
                                                                id,
                                                                joc,
@@ -864,8 +840,6 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
                                                                jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -925,6 +899,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             // Modified for Bugzilla# 3679
             jobject jciRet = env->CallObjectMethod((jobject)pr.jProvider,
                                                    id,
@@ -933,8 +909,6 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
                                                    JMPI_LOCALONLY);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
 
@@ -961,8 +935,6 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -970,7 +942,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleEnumerateInstanceRequest");
 
-    HandlerIntro(EnumerateInstances,message,request,response,handler,Array<CIMInstance>());
+    HandlerIntro(EnumerateInstances,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -1027,16 +999,12 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -1135,8 +1103,6 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
            PEG_METHOD_EXIT();
 
-           STAT_COPYDISPATCHER
-
            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                               "Could not find a method for the provider based on InterfaceType."));
@@ -1185,6 +1151,9 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             JMPIjvm::checkException(env);
 
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
+
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr           = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                              id,
                                                                              jcop,
@@ -1195,8 +1164,6 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                                                                              jcc);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jAr) {
@@ -1287,6 +1254,9 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             JMPIjvm::checkException(env);
 
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
+
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr           = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                              id,
                                                                              joc,
@@ -1297,8 +1267,6 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                                                                              jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -1397,6 +1365,9 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             JMPIjvm::checkException(env);
 
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
+
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject      jVec          = env->CallObjectMethod((jobject)pr.jProvider,
                                                                id,
                                                                joc,
@@ -1407,8 +1378,6 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                                                                jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -1508,6 +1477,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             // Modified for Bugzilla# 3679
             jobject jVec = env->CallObjectMethod((jobject)pr.jProvider,
                                                  id,
@@ -1517,8 +1488,6 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                                                  JMPI_LOCALONLY);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jVec) {
@@ -1585,8 +1554,6 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -1594,7 +1561,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleEnumerateInstanceNamesRequest");
 
-    HandlerIntro(EnumerateInstanceNames,message,request,response, handler,Array<CIMObjectPath>());
+    HandlerIntro(EnumerateInstanceNames,message,request,response, handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -1649,16 +1616,12 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -1744,8 +1707,6 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
            PEG_METHOD_EXIT();
 
-           STAT_COPYDISPATCHER
-
            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                               "Could not find a method for the provider based on InterfaceType."));
@@ -1793,14 +1754,14 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                    id,
                                                                    jcop,
                                                                    jcimClass);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jAr) {
@@ -1864,6 +1825,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                    id,
                                                                    joc,
@@ -1871,8 +1834,6 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
                                                                    jcimClass);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -1943,6 +1904,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject jVec = env->CallObjectMethod((jobject)pr.jProvider,
                                                  id,
                                                  joc,
@@ -1950,8 +1913,6 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
                                                  jcimClass);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -2019,6 +1980,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject jVec = env->CallObjectMethod((jobject)pr.jProvider,
                                                  id,
                                                  jcop,
@@ -2026,8 +1989,6 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
                                                  jcimClass);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jVec) {
@@ -2063,8 +2024,6 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -2072,7 +2031,7 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleCreateInstanceRequest");
 
-    HandlerIntro(CreateInstance,message,request,response,handler,CIMObjectPath());
+    HandlerIntro(CreateInstance,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -2121,16 +2080,12 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -2178,8 +2133,6 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
            PEG_METHOD_EXIT();
 
-           STAT_COPYDISPATCHER
-
            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                               "Could not find a method for the provider based on InterfaceType."));
@@ -2204,14 +2157,14 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
             DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateInstanceRequest: id = "<<id<<", jcop = "<<jcop<<", jci = "<<jci<<PEGASUS_STD(endl));
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject jcopRet = env->CallObjectMethod((jobject)pr.jProvider,
                                                     id,
                                                     jcop,
                                                     jci);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
 
@@ -2243,6 +2196,8 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
             DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateInstanceRequest: id = "<<id<<", jcop = "<<jcop<<", jci = "<<jci<<PEGASUS_STD(endl));
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject jcopRet = env->CallObjectMethod((jobject)pr.jProvider,
                                                     id,
                                                     joc,
@@ -2250,8 +2205,6 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
                                                     jci);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -2285,8 +2238,6 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -2294,7 +2245,7 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleModifyInstanceRequest");
 
-    HandlerIntroVoid(ModifyInstance,message,request,response,handler);
+    HandlerIntro(ModifyInstance,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -2346,16 +2297,12 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -2423,8 +2370,6 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
            PEG_METHOD_EXIT();
 
-           STAT_COPYDISPATCHER
-
            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                               "Could not find a method for the provider based on InterfaceType."));
@@ -2452,6 +2397,8 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             env->CallVoidMethod((jobject)pr.jProvider,
                                 id,
                                 joc,
@@ -2459,8 +2406,6 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
                                 jci);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -2486,6 +2431,8 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             env->CallVoidMethod((jobject)pr.jProvider,
                                 id,
                                 jcop,
@@ -2494,8 +2441,6 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
                                 jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
             break;
         }
 
@@ -2512,14 +2457,14 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             env->CallVoidMethod((jobject)pr.jProvider,
                                 id,
                                 jcop,
                                 jci);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
             break;
         }
 
@@ -2536,8 +2481,6 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -2545,7 +2488,7 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleDeleteInstanceRequest");
 
-    HandlerIntroVoid(DeleteInstance,message,request,response,handler);
+    HandlerIntro(DeleteInstance,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -2594,16 +2537,12 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -2649,8 +2588,6 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
            PEG_METHOD_EXIT();
 
-           STAT_COPYDISPATCHER
-
            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                               "Could not find a method for the provider based on InterfaceType."));
@@ -2670,14 +2607,14 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             env->CallVoidMethod((jobject)pr.jProvider,
                                 id,
                                 joc,
                                 jcop);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -2695,13 +2632,13 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             env->CallVoidMethod((jobject)pr.jProvider,
                                 id,
                                 jcop);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
             break;
         }
 
@@ -2718,8 +2655,6 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -2727,7 +2662,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleExecQueryRequest");
 
-    HandlerIntro(ExecQuery,message,request,response,handler,Array<CIMObject>());
+    HandlerIntro(ExecQuery,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -2784,16 +2719,12 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -2887,8 +2818,6 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                                "Could not find a method for the provider based on InterfaceType."));
@@ -2940,6 +2869,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                    id,
                                                                    jcop,
@@ -2948,8 +2879,6 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
                                                                    jCc);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jAr) {
@@ -3017,6 +2946,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                    id,
                                                                    joc,
@@ -3026,8 +2957,6 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
                                                                    jCc);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -3100,6 +3029,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject jVec = env->CallObjectMethod ((jobject)pr.jProvider,
                                                   id,
                                                   joc,
@@ -3109,8 +3040,6 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
                                                   jqueryLanguage);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -3188,6 +3117,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             jint jql = 0; // @BUG - how to convert?
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject jVec = env->CallObjectMethod ((jobject)pr.jProvider,
                                                   id,
                                                   jcop,
@@ -3196,8 +3127,6 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
                                                   jCc);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jVec) {
@@ -3233,8 +3162,6 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -3242,7 +3169,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleAssociatorsRequest");
 
-    HandlerIntro(Associators,message,request,response,handler,Array<CIMObject>());
+    HandlerIntro(Associators,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -3303,16 +3230,12 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -3425,8 +3348,6 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                                "Could not find a method for the provider based on InterfaceType."));
@@ -3466,6 +3387,8 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jAssociationName,
@@ -3478,8 +3401,6 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
                                                                   jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jAr) {
@@ -3565,6 +3486,8 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
@@ -3578,8 +3501,6 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
                                                                   jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -3672,6 +3593,8 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
@@ -3685,8 +3608,6 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
                                                                   jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -3776,6 +3697,8 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jAssociationName,
@@ -3788,8 +3711,6 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
                                                                   jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jVec) {
@@ -3852,8 +3773,6 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -3861,7 +3780,7 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleAssociatorNamesRequest");
 
-    HandlerIntro(AssociatorNames,message,request,response,handler,Array<CIMObjectPath>());
+    HandlerIntro(AssociatorNames,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -3915,16 +3834,12 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -4021,8 +3936,6 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                                "Could not find a method for the provider based on InterfaceType."));
@@ -4057,6 +3970,8 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultRole  = "<<request->resultRole<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jAssociationName,
@@ -4066,8 +3981,6 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
                                                                   jResultRole);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jAr) {
@@ -4117,6 +4030,8 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultRole  = "<<request->resultRole<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
@@ -4127,8 +4042,6 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
                                                                   jResultRole);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -4184,6 +4097,8 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultRole  = "<<request->resultRole<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jAssociationName,
@@ -4193,8 +4108,6 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
                                                                   jResultRole);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jVec) {
@@ -4246,6 +4159,8 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultRole  = "<<request->resultRole<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
@@ -4256,8 +4171,6 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
                                                                   jResultRole);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -4300,8 +4213,6 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -4309,7 +4220,7 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleReferencesRequest");
 
-    HandlerIntro(References,message,request,response,handler,Array<CIMObject>());
+    HandlerIntro(References,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -4370,16 +4281,12 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -4480,8 +4387,6 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                                "Could not find a method for the provider based on InterfaceType."));
@@ -4516,6 +4421,8 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jAssociationName,
@@ -4526,8 +4433,6 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
                                                                   jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jAr) {
@@ -4608,6 +4513,8 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
@@ -4619,8 +4526,6 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
                                                                   jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -4706,6 +4611,8 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jAssociationName,
@@ -4716,8 +4623,6 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
                                                                   jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jVec) {
@@ -4796,6 +4701,8 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
@@ -4807,8 +4714,6 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
                                                                   jPropertyList);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -4878,8 +4783,6 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -4887,7 +4790,7 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleReferenceNamesRequest");
 
-    HandlerIntro(ReferenceNames,message,request,response,handler,Array<CIMObjectPath>());
+    HandlerIntro(ReferenceNames,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -4940,16 +4843,12 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -5038,8 +4937,6 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                                "Could not find a method for the provider based on InterfaceType."));
@@ -5070,6 +4967,8 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jPathName,
@@ -5077,8 +4976,6 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
                                                                   jRole);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jAr) {
@@ -5126,6 +5023,8 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
@@ -5134,8 +5033,6 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
                                                                   jRole);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -5188,6 +5085,8 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   jAssociationName,
@@ -5195,8 +5094,6 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
                                                                   jRole);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
             if (jVec) {
@@ -5245,6 +5142,8 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
 #endif
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
                                                                   id,
                                                                   joc,
@@ -5253,8 +5152,6 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
                                                                   jRole);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -5298,8 +5195,6 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -5307,7 +5202,7 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleGetPropertyRequest");
 
-    HandlerIntro(GetProperty,message,request,response,handler,CIMValue());
+    HandlerIntro(GetProperty,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -5356,16 +5251,12 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -5417,8 +5308,6 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
 
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                                "Could not find a method for the provider based on InterfaceType."));
@@ -5443,7 +5332,7 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            STAT_GETSTARTTIME;
+            StatProviderTimeMeasurement providerTime(response);
 
             jobject jvalRet = env->CallObjectMethod ((jobject)pr.jProvider,
                                                      id,
@@ -5452,8 +5341,6 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
                                                      jpName);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
 
@@ -5488,7 +5375,7 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            STAT_GETSTARTTIME;
+            StatProviderTimeMeasurement providerTime(response);
 
             jobject jvalRet = env->CallObjectMethod ((jobject)pr.jProvider,
                                                      id,
@@ -5498,8 +5385,6 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
                                                      jpName);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -5536,8 +5421,6 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -5545,7 +5428,7 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleSetPropertyRequest");
 
-    HandlerIntroVoid(SetProperty,message,request,response,handler);
+    HandlerIntro(SetProperty,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -5594,16 +5477,12 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -5657,8 +5536,6 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                                "Could not find a method for the provider based on InterfaceType."));
@@ -5692,7 +5569,7 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            STAT_GETSTARTTIME;
+            StatProviderTimeMeasurement providerTime(response);
 
             env->CallVoidMethod ((jobject)pr.jProvider,
                                  id,
@@ -5702,8 +5579,6 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
                                  jval);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
             break;
         }
 
@@ -5734,7 +5609,7 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            STAT_GETSTARTTIME;
+            StatProviderTimeMeasurement providerTime(response);
 
             env->CallVoidMethod ((jobject)pr.jProvider,
                                  id,
@@ -5752,8 +5627,6 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
                JMPIjvm::checkException(env);
             }
-
-            STAT_PMS_PROVIDEREND;
             break;
         }
 
@@ -5770,8 +5643,6 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
-    STAT_COPYDISPATCHER
-
     return(response);
 }
 
@@ -5779,7 +5650,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleInvokeMethodRequest");
 
-    HandlerIntroMethod(InvokeMethod,message,request,response,handler);
+    HandlerIntro(InvokeMethod,message,request,response,handler);
 
     typedef enum {
        METHOD_UNKNOWN = 0,
@@ -5829,16 +5700,12 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -5931,8 +5798,6 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
            PEG_METHOD_EXIT();
 
-           STAT_COPYDISPATCHER
-
            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                               "Could not find a method for the provider based on InterfaceType."));
@@ -5967,6 +5832,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
             jobjectArray jArOut=(jobjectArray)env->NewObjectArray(24,jv->CIMArgumentClassRef,NULL);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject jValueRet = env->CallObjectMethod((jobject)pr.jProvider,
                                                       id,
                                                       jcop,
@@ -5974,8 +5841,6 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
                                                       jArIn,
                                                       jArOut);
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
 
@@ -6032,6 +5897,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
             jobjectArray jArOut=(jobjectArray)env->NewObjectArray(24,jv->CIMArgumentClassRef,NULL);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject jValueRet = env->CallObjectMethod((jobject)pr.jProvider,
                                                       id,
                                                       joc,
@@ -6040,8 +5907,6 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
                                                       jArIn,
                                                       jArOut);
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -6106,6 +5971,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
             jobject jVecOut=env->NewObject(jv->VectorClassRef,jv->VectorNew);
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject jValueRet = env->CallObjectMethod((jobject)pr.jProvider,
                                                       id,
                                                       jcop,
@@ -6113,8 +5980,6 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
                                                       jVecIn,
                                                       jVecOut);
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             handler.processing();
 
@@ -6175,6 +6040,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
             jobject jVecOut=env->NewObject(jv->VectorClassRef,jv->VectorNew);
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             jobject jValueRet = env->CallObjectMethod((jobject)pr.jProvider,
                                                       id,
                                                       joc,
@@ -6183,8 +6050,6 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
                                                       jVecIn,
                                                       jVecOut);
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
 
             if (joc)
             {
@@ -6232,8 +6097,6 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
     if (env) JMPIjvm::detachThread();
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -6415,16 +6278,12 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -6476,8 +6335,6 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
            PEG_METHOD_EXIT();
 
-           STAT_COPYDISPATCHER
-
            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                               "Could not find a method for the provider based on InterfaceType."));
@@ -6508,6 +6365,8 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             env->CallVoidMethod ((jobject)pr.jProvider,
                                  id,
                                  jSelectExp,
@@ -6516,8 +6375,6 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                                  (jboolean)fNewPrec);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
             break;
         }
 
@@ -6545,6 +6402,8 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             env->CallVoidMethod ((jobject)pr.jProvider,
                                  id,
                                  joc,
@@ -6561,8 +6420,6 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
                JMPIjvm::checkException(env);
             }
-
-            STAT_PMS_PROVIDEREND;
             break;
         }
 
@@ -6691,16 +6548,12 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         {
             PEG_METHOD_EXIT();
 
-            STAT_COPYDISPATCHER
-
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                            MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
                                                               "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        STAT_GETSTARTTIME;
 
         jmethodID id               = NULL;
         String    interfaceType;
@@ -6752,8 +6605,6 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
            PEG_METHOD_EXIT();
 
-           STAT_COPYDISPATCHER
-
            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
                                                               "Could not find a method for the provider based on InterfaceType."));
@@ -6784,6 +6635,8 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             env->CallVoidMethod ((jobject)pr.jProvider,
                                  id,
                                  jSelectExp,
@@ -6792,8 +6645,6 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
                                  (jboolean)fFreePrec);
 
             JMPIjvm::checkException(env);
-
-            STAT_PMS_PROVIDEREND;
             break;
         }
 
@@ -6821,6 +6672,8 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
+            StatProviderTimeMeasurement providerTime(response);
+
             env->CallVoidMethod ((jobject)pr.jProvider,
                                  id,
                                  joc,
@@ -6837,8 +6690,6 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
                JMPIjvm::checkException(env);
             }
-
-            STAT_PMS_PROVIDEREND;
             break;
         }
 
@@ -6872,8 +6723,6 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
     if (env) JMPIjvm::detachThread();
 
     PEG_METHOD_EXIT();
-
-    STAT_COPYDISPATCHER
 
     return(response);
 }

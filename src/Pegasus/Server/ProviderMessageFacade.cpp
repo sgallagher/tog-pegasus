@@ -29,25 +29,13 @@
 //
 //==============================================================================
 //
+//%/////////////////////////////////////////////////////////////////////////////
+
 // This module provides the calling facade for control providers.
 // Accepting CIMMessages on the input side it provides calls for each of
 // the CIM provider operations to control providers setting up the
 // appropriate context for each call and processing handler responses.
 // NOTE: Today the execquery is NOT SUPPORTED by this facade.
-//
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By:
-//               Carol Ann Krug Graves, Hewlett-Packard Company
-//                   (carolann_graves@hp.com)
-//               Dan Gorey, IBM (djgorey@us.ibm.com)
-//               Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//				 Seema Gupta (gseema@in.ibm.com) for PEP135
-//				 Seema Gupta (gseema@in.ibm.com) for Bug#1441
-//               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3766
-//               John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
-//%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderMessageFacade.h"
 
@@ -189,10 +177,12 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message)
 {
     const CIMGetInstanceRequestMessage * request =
 	dynamic_cast<CIMGetInstanceRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMGetInstanceResponseMessage> response(
+        dynamic_cast<CIMGetInstanceResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
     CIMInstance cimInstance;
@@ -219,6 +209,8 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message)
 
 	SimpleInstanceResponseHandler handler;
 
+        StatProviderTimeMeasurement providerTime(response.get());
+
 	// forward request
 	getInstance(
 	    request->operationContext,
@@ -229,22 +221,17 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message)
 	    handler);
 
 	// error? provider claims success, but did not deliver an instance.
-	if(handler.getObjects().size() == 0)
+	if (handler.getObjects().size() == 0)
 	{
-	   // << Mon Apr 29 12:40:36 2002 mdd >>
-//	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
-
-	  // l10n
-
-	  cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-
-	  // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
-
+	    cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                    "Unknown Error"));
 	}
 
 	// save returned instance
 	cimInstance = handler.getObjects()[0];
-        contentLangs = handler.getLanguages();  // l10n
+        contentLangs = handler.getLanguages();
     }
     catch(CIMException & e)
     {
@@ -256,37 +243,28 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message)
     }
     catch(...)
     {
-      // l10n
-
-      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMGetInstanceResponseMessage> response(
-	new CIMGetInstanceResponseMessage(
-	    request->messageId,
-	    cimException,
-	    request->queueIds.copyAndPop(),
-	    cimInstance));  // l10n
-
-    STAT_PMS_PROVIDEREND
-
-	response->operationContext.set(ContentLanguageListContainer(contentLangs));
+    response->cimInstance = cimInstance;
+    response->cimException = cimException;
+    response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     return response.release();
 }
 
 Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * message) 
 {
-    
-
     const CIMEnumerateInstancesRequestMessage * request =
 	dynamic_cast<CIMEnumerateInstancesRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMEnumerateInstancesResponseMessage> response(
+        dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
     Array<CIMInstance> cimInstances;
@@ -313,6 +291,8 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 
 	SimpleInstanceResponseHandler handler;
 
+        StatProviderTimeMeasurement providerTime(response.get());
+
 	enumerateInstances(
 	    request->operationContext,
 	    objectPath,
@@ -323,7 +303,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 
 	// save returned instances
         cimInstances = handler.getObjects();
-        contentLangs = handler.getLanguages();  // l10n
+        contentLangs = handler.getLanguages();
     }
     catch(CIMException & e)
     {
@@ -335,37 +315,28 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
     }
     catch(...)
     {
-      // l10n
-
-      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMEnumerateInstancesResponseMessage> response(
-	new CIMEnumerateInstancesResponseMessage(
-	    request->messageId,
-	    cimException,
-	    request->queueIds.copyAndPop(),
-	    cimInstances));  // l10n
-
-    STAT_PMS_PROVIDEREND
-
-	response->operationContext.set(ContentLanguageListContainer(contentLangs));
+    response->cimNamedInstances = cimInstances;
+    response->cimException = cimException;
+    response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     return response.release();
 }
 
 Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * message) 
 {
-    
-
     const CIMEnumerateInstanceNamesRequestMessage * request =
 	dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
+        dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
     Array<CIMObjectPath> cimReferences;
@@ -389,6 +360,8 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
     */
 	SimpleObjectPathResponseHandler handler;
 
+        StatProviderTimeMeasurement providerTime(response.get());
+
 	enumerateInstanceNames(
 	    request->operationContext,
 	    objectPath,
@@ -396,7 +369,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 
 	// save returned instance
 	cimReferences = handler.getObjects();
-        contentLangs = handler.getLanguages();  // l10n
+        contentLangs = handler.getLanguages();
     }
     catch(CIMException & e)
     {
@@ -408,23 +381,14 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
     }
     catch(...)
     {
-      // l10n
-
-      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
-	new CIMEnumerateInstanceNamesResponseMessage(
-	    request->messageId,
-	    cimException,
-	    request->queueIds.copyAndPop(),
-	    cimReferences));  //l10n
-
-    STAT_PMS_PROVIDEREND
-
-	response->operationContext.set(ContentLanguageListContainer(contentLangs));
+    response->instanceNames = cimReferences;
+    response->cimException = cimException;
+    response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     return response.release();
 }
@@ -433,10 +397,12 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 {
     const CIMCreateInstanceRequestMessage * request =
 	dynamic_cast<CIMCreateInstanceRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMCreateInstanceResponseMessage> response(
+        dynamic_cast<CIMCreateInstanceResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
     CIMInstance cimInstance;
@@ -462,6 +428,8 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
     */
 	SimpleObjectPathResponseHandler handler;
 
+        StatProviderTimeMeasurement providerTime(response.get());
+
 	// forward request
 	createInstance(
 	    request->operationContext,
@@ -471,20 +439,17 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 
 	// error? provider claims success, but did not deliver an
 	// instance name.
-	if(handler.getObjects().size() == 0)
+	if (handler.getObjects().size() == 0)
 	{
-//	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
-	   // << Mon Apr 29 12:40:57 2002 mdd >>
-	
-	  // l10n
-
-	  cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-	  // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+	    cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                    "Unknown Error"));
 	}
 
 	// save returned instance name
 	instanceName = handler.getObjects()[0];
-        contentLangs = handler.getLanguages();  // l10n
+        contentLangs = handler.getLanguages();
     }
     catch(CIMException & e)
     {
@@ -496,23 +461,14 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
     }
     catch(...)
     {
-      // l10n
-
-      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMCreateInstanceResponseMessage> response(
-	new CIMCreateInstanceResponseMessage(
-	    request->messageId,
-	    cimException,
-	    request->queueIds.copyAndPop(),
-	    instanceName));  // l10n
-
-    STAT_PMS_PROVIDEREND
-
-	response->operationContext.set(ContentLanguageListContainer(contentLangs));
+    response->instanceName = instanceName;
+    response->cimException = cimException;
+    response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     return response.release();
 }
@@ -521,10 +477,12 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 {
     const CIMModifyInstanceRequestMessage * request =
 	dynamic_cast<CIMModifyInstanceRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMModifyInstanceResponseMessage> response(
+        dynamic_cast<CIMModifyInstanceResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
     CIMObjectPath instanceName;
@@ -553,6 +511,8 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 
 	SimpleResponseHandler handler;
 
+        StatProviderTimeMeasurement providerTime(response.get());
+
 	// forward request
 	modifyInstance(
 	    request->operationContext,
@@ -572,21 +532,12 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
     }
     catch(...)
     {
-      // l10n
-
-      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-      //  cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMModifyInstanceResponseMessage> response(
-	new CIMModifyInstanceResponseMessage(
-	    request->messageId,
-	    cimException,
-	    request->queueIds.copyAndPop()));
-
-    STAT_PMS_PROVIDEREND
-
+    response->cimException = cimException;
     return response.release();
 }
 
@@ -594,10 +545,12 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
 {
     const CIMDeleteInstanceRequestMessage * request =
 	dynamic_cast<CIMDeleteInstanceRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMDeleteInstanceResponseMessage> response(
+        dynamic_cast<CIMDeleteInstanceResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
 
@@ -620,6 +573,8 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
     */
 	SimpleResponseHandler handler;
 
+        StatProviderTimeMeasurement providerTime(response.get());
+
 	// forward request
 	deleteInstance(
 	    request->operationContext,
@@ -636,20 +591,12 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
     }
     catch(...)
     {
-      // l10n
-
-      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMDeleteInstanceResponseMessage> response(
-	new CIMDeleteInstanceResponseMessage(
-	    request->messageId,
-	    cimException,
-	    request->queueIds.copyAndPop()));
-
-    STAT_PMS_PROVIDEREND
+    response->cimException = cimException;
 
     return response.release();
 }
@@ -658,30 +605,16 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message)
 {
     const CIMExecQueryRequestMessage * request =
         dynamic_cast<CIMExecQueryRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
 
-    Array<CIMObject> cimObjects;
-
-    // l10n
-
     AutoPtr<CIMExecQueryResponseMessage> response(
-	new CIMExecQueryResponseMessage(
-	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
-	    request->queueIds.copyAndPop(),
-	    cimObjects));
+        dynamic_cast<CIMExecQueryResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
-    // CIMExecQueryResponseMessage * response =
-    // new CIMExecQueryResponseMessage(
-    //    request->messageId,
-    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
-    //    request->queueIds.copyAndPop(),
-    //    cimObjects);
-
-    STAT_PMS_PROVIDEREND
+    response->cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+        MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED",
+            "not implemented"));
 
     return response.release();
 }
@@ -690,16 +623,17 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message)
 {
     const CIMAssociatorsRequestMessage * request =
         dynamic_cast<CIMAssociatorsRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMAssociatorsResponseMessage> response(
+        dynamic_cast<CIMAssociatorsResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
     Array<CIMObject> cimObjects;
     ContentLanguageList contentLangs;
 
-    // l10n
     try
     {
 	// make target object path
@@ -721,6 +655,8 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message)
 
 	SimpleObjectResponseHandler handler;
 
+        StatProviderTimeMeasurement providerTime(response.get());
+
 	associators(
 	    request->operationContext,
 	    objectPath,
@@ -735,7 +671,7 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message)
 
 	// save returned Objects
         cimObjects = handler.getObjects();
-        contentLangs = handler.getLanguages();  // l10n
+        contentLangs = handler.getLanguages();
     }
     catch(CIMException & e)
     {
@@ -747,22 +683,13 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message)
     }
     catch(...)
     {
-      // l10n
-
-      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMAssociatorsResponseMessage> response(
-	new CIMAssociatorsResponseMessage(
-	    request->messageId,
-	    cimException,
-	    request->queueIds.copyAndPop(),
-	    cimObjects));  // l10n
-
-    STAT_PMS_PROVIDEREND
-
+    response->cimObjects = cimObjects;
+    response->cimException = cimException;
     response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     return response.release();
@@ -772,10 +699,12 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
 {
     const CIMAssociatorNamesRequestMessage * request =
         dynamic_cast<CIMAssociatorNamesRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMAssociatorNamesResponseMessage> response(
+        dynamic_cast<CIMAssociatorNamesResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
     Array<CIMObjectPath> cimReferences;
@@ -800,6 +729,8 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
     */
 	SimpleObjectPathResponseHandler handler;
 
+        StatProviderTimeMeasurement providerTime(response.get());
+
 	associatorNames(
 	    request->operationContext,
 	    objectPath,
@@ -811,7 +742,7 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
 
 	// save returned Objects
         cimReferences = handler.getObjects();
-        contentLangs = handler.getLanguages();  // l10n
+        contentLangs = handler.getLanguages();
     }
     catch(CIMException & e)
     {
@@ -823,40 +754,32 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
     }
     catch(...)
     {
-      // l10n
-
-      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMAssociatorNamesResponseMessage> response(
-	new CIMAssociatorNamesResponseMessage(
-	    request->messageId,
-	    cimException,
-	    request->queueIds.copyAndPop(),
-	    cimReferences));  // l10n
-
-    STAT_PMS_PROVIDEREND
-
+    response->objectNames = cimReferences;
+    response->cimException = cimException;
     response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     return response.release();
 }
+
 Message * ProviderMessageFacade::_handleReferencesRequest(Message * message) 
 {
     const CIMReferencesRequestMessage * request =
         dynamic_cast<CIMReferencesRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMReferencesResponseMessage> response(
+        dynamic_cast<CIMReferencesResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
     Array<CIMObject> cimObjects;
     ContentLanguageList contentLangs;
-
-    // l10n
 
     try
     {
@@ -879,6 +802,8 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message)
 
 	SimpleObjectResponseHandler handler;
 
+        StatProviderTimeMeasurement providerTime(response.get());
+
 	references(
 	    request->operationContext,
 	    objectPath,
@@ -891,7 +816,7 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message)
 
 	// save returned Objects
         cimObjects = handler.getObjects();
-        contentLangs = handler.getLanguages();  // l10n
+        contentLangs = handler.getLanguages();
     }
     catch(CIMException & e)
     {
@@ -903,22 +828,13 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message)
     }
     catch(...)
     {
-      // l10n
-
-      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMReferencesResponseMessage> response(
-	new CIMReferencesResponseMessage(
-	    request->messageId,
-	    cimException,
-	    request->queueIds.copyAndPop(),
-	    cimObjects));  // l10n
-
-    STAT_PMS_PROVIDEREND
-
+    response->cimObjects = cimObjects;
+    response->cimException = cimException;
     response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     return response.release();
@@ -928,10 +844,12 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
 {
     const CIMReferenceNamesRequestMessage * request =
         dynamic_cast<CIMReferenceNamesRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMReferenceNamesResponseMessage> response(
+        dynamic_cast<CIMReferenceNamesResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
     Array<CIMObjectPath> cimReferences;
@@ -956,6 +874,8 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
     */
 	SimpleObjectPathResponseHandler handler;
 
+        StatProviderTimeMeasurement providerTime(response.get());
+
 	referenceNames(
 	    request->operationContext,
 	    objectPath,
@@ -965,7 +885,7 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
 
 	// save returned Objects
         cimReferences = handler.getObjects();
-        contentLangs = handler.getLanguages();  // l10n
+        contentLangs = handler.getLanguages();
     }
     catch(CIMException & e)
     {
@@ -977,22 +897,13 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
     }
     catch(...)
     {
-      // l10n
-
-      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMReferenceNamesResponseMessage> response(
-	new CIMReferenceNamesResponseMessage(
-	    request->messageId,
-	    cimException,
-	    request->queueIds.copyAndPop(),
-	    cimReferences));  // l10n
-
-    STAT_PMS_PROVIDEREND
-
+    response->objectNames = cimReferences;
+    response->cimException = cimException;
     response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     return response.release();
@@ -1002,10 +913,12 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message)
 {
     const CIMGetPropertyRequestMessage * request =
         dynamic_cast<CIMGetPropertyRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMGetPropertyResponseMessage> response(
+        dynamic_cast<CIMGetPropertyResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMValue cimValue;
     CIMException cimException;
@@ -1025,6 +938,8 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message)
         CIMPropertyList propertyList(propertyListArray);
 
         SimpleInstanceResponseHandler handler;
+
+        StatProviderTimeMeasurement providerTime(response.get());
 
         getInstance(
             request->operationContext,
@@ -1066,16 +981,8 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message)
                 "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMGetPropertyResponseMessage> response(
-        new CIMGetPropertyResponseMessage(
-            request->messageId,
-            cimException,
-            request->queueIds.copyAndPop(),
-            cimValue));
-
-    STAT_PMS_PROVIDEREND
-
+    response->value = cimValue;
+    response->cimException = cimException;
     response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     return response.release();
@@ -1085,10 +992,12 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message)
 {
     const CIMSetPropertyRequestMessage * request =
 	dynamic_cast<CIMSetPropertyRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMSetPropertyResponseMessage> response(
+        dynamic_cast<CIMSetPropertyResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
 
@@ -1110,6 +1019,8 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message)
         CIMPropertyList propertyList(propertyListArray);
 
         SimpleResponseHandler handler;
+
+        StatProviderTimeMeasurement providerTime(response.get());
 
         modifyInstance(
             request->operationContext,
@@ -1134,14 +1045,7 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message)
                 "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMSetPropertyResponseMessage> response(
-        new CIMSetPropertyResponseMessage(
-            request->messageId,
-            cimException,
-            request->queueIds.copyAndPop()));
-
-    STAT_PMS_PROVIDEREND
+    response->cimException = cimException;
 
     return response.release();
 }
@@ -1150,10 +1054,12 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message)
 {
     const CIMInvokeMethodRequestMessage * request =
 	dynamic_cast<CIMInvokeMethodRequestMessage *>(message);
-
-    STAT_GETSTARTTIME
-
     PEGASUS_ASSERT(request != 0);
+
+    AutoPtr<CIMInvokeMethodResponseMessage> response(
+        dynamic_cast<CIMInvokeMethodResponseMessage*>(
+            request->buildResponse()));
+    PEGASUS_ASSERT(response.get() != 0);
 
     CIMException cimException;
     CIMValue returnValue;
@@ -1184,6 +1090,8 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message)
 
 	SimpleMethodResultResponseHandler handler;
 
+        StatProviderTimeMeasurement providerTime(response.get());
+
 	// forward request
 	invokeMethod(
 	    request->operationContext,
@@ -1203,7 +1111,7 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message)
 
 	outParameters = handler.getParamValues();
 	returnValue = handler.getReturnValue();
-        contentLangs = handler.getLanguages();  // l10n
+        contentLangs = handler.getLanguages();
     }
     catch(CIMException & e)
     {
@@ -1215,25 +1123,15 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message)
     }
     catch(...)
     {
-      // l10n
-
-      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
-      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
-    // create response message
-    AutoPtr<CIMInvokeMethodResponseMessage> response(
-	new CIMInvokeMethodResponseMessage(
-	    request->messageId,
-	    cimException,
-	    request->queueIds.copyAndPop(),
-	    returnValue,
-	    outParameters,
-	    request->methodName));  // l10n
-
-    STAT_PMS_PROVIDEREND
-
-	response->operationContext.set(ContentLanguageListContainer(contentLangs));
+    response->retValue = returnValue;
+    response->outParameters = outParameters;
+    response->cimException = cimException;
+    response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     return response.release();
 }

@@ -2315,7 +2315,9 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleGetClassRequest");
 
-   STAT_PROVIDERSTART
+   AutoPtr<CIMGetClassResponseMessage> response(
+       dynamic_cast<CIMGetClassResponseMessage*>(
+           request->buildResponse()));
 
    // ATTN: Need code here to expand partial class!
 
@@ -2324,6 +2326,8 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 
    try
    {
+      StatProviderTimeMeasurement providerTime(response.get());
+
       cimClass = _repository->getClass(
          request->nameSpace,
          request->className,
@@ -2352,17 +2356,10 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
-   STAT_PROVIDEREND
+   response->cimClass = cimClass;
+   response->cimException = cimException;
 
-   CIMGetClassResponseMessage* response = new CIMGetClassResponseMessage(
-      request->messageId,
-      cimException,
-      request->queueIds.copyAndPop(),
-      cimClass);
-
-   STAT_COPYDISPATCHER_REP
-
-   _enqueueResponse(request, response);
+   _enqueueResponse(request, response.release());
    PEG_METHOD_EXIT();
 }
 
@@ -2400,14 +2397,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
            request->nameSpace.getString(),
            className.getString()));
 
-      CIMGetInstanceResponseMessage* response =
-          new CIMGetInstanceResponseMessage(
-              request->messageId,
-              checkClassException,
-              request->queueIds.copyAndPop(),
-              CIMInstance());
-
-      STAT_COPYDISPATCHER_REP
+      CIMResponseMessage* response = request->buildResponse();
+      response->cimException = checkClassException;
 
       _enqueueResponse(request, response);
 
@@ -2457,15 +2448,19 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    }
 
    // not internal or found provider, go to default
+   AutoPtr<CIMGetInstanceResponseMessage> response(
+       dynamic_cast<CIMGetInstanceResponseMessage*>(
+           request->buildResponse()));
+
    if (_repository->isDefaultInstanceProvider())
    {
        CIMException cimException;
        CIMInstance cimInstance;
 
-       STAT_PROVIDERSTART
-
        try
        {
+           StatProviderTimeMeasurement providerTime(response.get());
+
            cimInstance =
                _repository->getInstance(
                    request->nameSpace,
@@ -2489,31 +2484,17 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
           cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
        }
 
-       STAT_PROVIDEREND
+       response->cimInstance = cimInstance;
+       response->cimException = cimException;
 
-       CIMGetInstanceResponseMessage* response =
-           new CIMGetInstanceResponseMessage(
-               request->messageId,
-               cimException,
-               request->queueIds.copyAndPop(),
-               cimInstance);
-
-       STAT_COPYDISPATCHER_REP
-
-      _enqueueResponse(request, response);
+      _enqueueResponse(request, response.release());
    }
    else // No provider is registered and the repository isn't the default
    {
-      CIMGetInstanceResponseMessage* response =
-          new CIMGetInstanceResponseMessage(
-              request->messageId,
-              PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-              request->queueIds.copyAndPop(),
-              CIMInstance());
+       response->cimException =
+           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
 
-      STAT_COPYDISPATCHER
-
-      _enqueueResponse(request, response);
+      _enqueueResponse(request, response.release());
    }
 
    PEG_METHOD_EXIT();
@@ -2531,12 +2512,16 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleDeleteClassRequest");
 
-   STAT_PROVIDERSTART
+   AutoPtr<CIMDeleteClassResponseMessage> response(
+       dynamic_cast<CIMDeleteClassResponseMessage*>(
+           request->buildResponse()));
 
    CIMException cimException;
 
    try
    {
+      StatProviderTimeMeasurement providerTime(response.get());
+
       _repository->deleteClass(
          request->nameSpace,
          request->className);
@@ -2546,9 +2531,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 	  "Name Space: $0  Class Name: $1",
 	  request->nameSpace.getString(),
 	  request->className.getString()));
-
    }
-
    catch(const CIMException& exception)
    {
       cimException = exception;
@@ -2563,17 +2546,9 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
-   STAT_PROVIDEREND
+   response->cimException = cimException;
 
-   CIMDeleteClassResponseMessage* response =
-      new CIMDeleteClassResponseMessage(
-         request->messageId,
-         cimException,
-         request->queueIds.copyAndPop());
-
-   STAT_COPYDISPATCHER_REP
-
-   _enqueueResponse(request, response);
+   _enqueueResponse(request, response.release());
 
    PEG_METHOD_EXIT();
 }
@@ -2607,13 +2582,8 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
            request->nameSpace.getString(),
            className.getString()));
 
-      CIMDeleteInstanceResponseMessage* response =
-         new CIMDeleteInstanceResponseMessage(
-            request->messageId,
-            checkClassException,
-            request->queueIds.copyAndPop());
-
-      STAT_COPYDISPATCHER_REP
+      CIMResponseMessage* response = request->buildResponse();
+      response->cimException = checkClassException;
 
       _enqueueResponse(request, response);
 
@@ -2656,12 +2626,16 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMException cimException;
+      AutoPtr<CIMDeleteInstanceResponseMessage> response(
+          dynamic_cast<CIMDeleteInstanceResponseMessage*>(
+              request->buildResponse()));
 
-      STAT_PROVIDERSTART
+      CIMException cimException;
 
       try
       {
+          StatProviderTimeMeasurement providerTime(response.get());
+
           _repository->deleteInstance(
               request->nameSpace,
               request->instanceName);
@@ -2689,27 +2663,15 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
          cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
-      STAT_PROVIDEREND
+      response->cimException = cimException;
 
-      CIMDeleteInstanceResponseMessage* response =
-          new CIMDeleteInstanceResponseMessage(
-              request->messageId,
-              cimException,
-              request->queueIds.copyAndPop());
-
-      STAT_COPYDISPATCHER_REP
-
-      _enqueueResponse(request, response);
+      _enqueueResponse(request, response.release());
    }
    else // No provider is registered and the repository isn't the default
    {
-      CIMDeleteInstanceResponseMessage* response =
-          new CIMDeleteInstanceResponseMessage(
-              request->messageId,
-              PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-              request->queueIds.copyAndPop());
-
-      STAT_COPYDISPATCHER
+      CIMResponseMessage* response = request->buildResponse();
+      response->cimException =
+          PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
 
       _enqueueResponse(request, response);
    }
@@ -2729,13 +2691,18 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleCreateClassRequest");
 
-   CIMException cimException;
+   AutoPtr<CIMCreateClassResponseMessage> response(
+       dynamic_cast<CIMCreateClassResponseMessage*>(
+           request->buildResponse()));
 
-   STAT_PROVIDERSTART
+   CIMException cimException;
 
    try
    {
-     removePropagatedAndOriginAttributes(request->newClass);
+      removePropagatedAndOriginAttributes(request->newClass);
+
+      StatProviderTimeMeasurement providerTime(response.get());
+
       _repository->createClass(
          request->nameSpace,
          request->newClass,
@@ -2761,17 +2728,9 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
-   STAT_PROVIDEREND
+   response->cimException = cimException;
 
-   CIMCreateClassResponseMessage* response =
-      new CIMCreateClassResponseMessage(
-         request->messageId,
-         cimException,
-         request->queueIds.copyAndPop());
-
-   STAT_COPYDISPATCHER_REP
-
-   _enqueueResponse(request, response);
+   _enqueueResponse(request, response.release());
 
    PEG_METHOD_EXIT();
 }
@@ -2805,14 +2764,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
            request->nameSpace.getString(),
            className.getString()));
 
-       CIMCreateInstanceResponseMessage* response =
-           new CIMCreateInstanceResponseMessage(
-               request->messageId,
-               checkClassException,
-               request->queueIds.copyAndPop(),
-               CIMObjectPath());
-
-      STAT_COPYDISPATCHER_REP
+       CIMResponseMessage* response = request->buildResponse();
+       response->cimException = checkClassException;
 
       _enqueueResponse(request, response);
 
@@ -2857,14 +2810,19 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
+       AutoPtr<CIMCreateInstanceResponseMessage> response(
+           dynamic_cast<CIMCreateInstanceResponseMessage*>(
+               request->buildResponse()));
+
        CIMException cimException;
        CIMObjectPath instanceName;
-
-       STAT_PROVIDERSTART
 
        try
        {
            removePropagatedAndOriginAttributes(request->newInstance);
+
+           StatProviderTimeMeasurement providerTime(response.get());
+
            instanceName =
                _repository->createInstance(
                    request->nameSpace,
@@ -2895,29 +2853,16 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
           cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
        }
 
-      STAT_PROVIDEREND
+       response->instanceName = instanceName;
+       response->cimException = cimException;
 
-      CIMCreateInstanceResponseMessage* response =
-          new CIMCreateInstanceResponseMessage(
-              request->messageId,
-              cimException,
-              request->queueIds.copyAndPop(),
-              instanceName);
-
-      STAT_COPYDISPATCHER_REP
-
-      _enqueueResponse(request, response);
+       _enqueueResponse(request, response.release());
    }
    else // No provider is registered and the repository isn't the default
    {
-      CIMCreateInstanceResponseMessage* response =
-          new CIMCreateInstanceResponseMessage(
-              request->messageId,
-              PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-              request->queueIds.copyAndPop(),
-              CIMObjectPath());
-
-      STAT_COPYDISPATCHER
+       CIMResponseMessage* response = request->buildResponse();
+       response->cimException =
+           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
       _enqueueResponse(request, response);
    }
@@ -2938,13 +2883,18 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleModifyClassRequest");
 
-   CIMException cimException;
+   AutoPtr<CIMModifyClassResponseMessage> response(
+       dynamic_cast<CIMModifyClassResponseMessage*>(
+           request->buildResponse()));
 
-   STAT_PROVIDERSTART
+   CIMException cimException;
 
    try
    {
        removePropagatedAndOriginAttributes(request->modifiedClass);
+
+       StatProviderTimeMeasurement providerTime(response.get());
+
       _repository->modifyClass(
          request->nameSpace,
          request->modifiedClass,
@@ -2965,17 +2915,9 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
-   STAT_PROVIDEREND
+   response->cimException = cimException;
 
-   CIMModifyClassResponseMessage* response =
-      new CIMModifyClassResponseMessage(
-        request->messageId,
-        cimException,
-        request->queueIds.copyAndPop());
-
-   STAT_COPYDISPATCHER_REP
-
-   _enqueueResponse(request, response);
+   _enqueueResponse(request, response.release());
 
    PEG_METHOD_EXIT();
 }
@@ -3012,13 +2954,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
            request->nameSpace.getString(),
            className.getString()));
 
-       CIMModifyInstanceResponseMessage* response =
-           new CIMModifyInstanceResponseMessage(
-               request->messageId,
-               checkClassException,
-               request->queueIds.copyAndPop());
-
-      STAT_COPYDISPATCHER_REP
+       CIMResponseMessage* response = request->buildResponse();
+       response->cimException = checkClassException;
 
       _enqueueResponse(request, response);
 
@@ -3064,11 +3001,16 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       // translate and forward request to repository
       CIMException cimException;
 
-      STAT_PROVIDERSTART
+      AutoPtr<CIMModifyInstanceResponseMessage> response(
+          dynamic_cast<CIMModifyInstanceResponseMessage*>(
+              request->buildResponse()));
 
       try
       {
           removePropagatedAndOriginAttributes(request->modifiedInstance);
+
+          StatProviderTimeMeasurement providerTime(response.get());
+
           _repository->modifyInstance(
               request->nameSpace,
               request->modifiedInstance,
@@ -3098,27 +3040,15 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
          cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
 
-      STAT_PROVIDEREND
+      response->cimException = cimException;
 
-      CIMModifyInstanceResponseMessage* response =
-          new CIMModifyInstanceResponseMessage(
-              request->messageId,
-              cimException,
-              request->queueIds.copyAndPop());
-
-      STAT_COPYDISPATCHER_REP
-
-      _enqueueResponse(request, response);
+      _enqueueResponse(request, response.release());
    }
    else // No provider is registered and the repository isn't the default
    {
-      CIMModifyInstanceResponseMessage* response =
-          new CIMModifyInstanceResponseMessage(
-              request->messageId,
-              PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-              request->queueIds.copyAndPop());
-
-      STAT_COPYDISPATCHER
+       CIMResponseMessage* response = request->buildResponse();
+       response->cimException =
+           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
       _enqueueResponse(request, response);
    }
@@ -3138,14 +3068,17 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleEnumerateClassesRequest");
 
-   CIMException cimException;
-
-   STAT_PROVIDERSTART
+   AutoPtr<CIMEnumerateClassesResponseMessage> response(
+       dynamic_cast<CIMEnumerateClassesResponseMessage*>(
+           request->buildResponse()));
 
    Array<CIMClass> cimClasses;
+   CIMException cimException;
 
    try
    {
+      StatProviderTimeMeasurement providerTime(response.get());
+
       cimClasses = _repository->enumerateClasses(
          request->nameSpace,
          request->className,
@@ -3160,7 +3093,6 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
          request->nameSpace.getString(),
          request->className.getString()));
    }
-
    catch(const CIMException& exception)
    {
       cimException = exception;
@@ -3175,18 +3107,10 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
-   STAT_PROVIDEREND
+   response->cimClasses = cimClasses;
+   response->cimException = cimException;
 
-   CIMEnumerateClassesResponseMessage* response =
-      new CIMEnumerateClassesResponseMessage(
-         request->messageId,
-         cimException,
-         request->queueIds.copyAndPop(),
-         cimClasses);
-
-   STAT_COPYDISPATCHER_REP
-
-   _enqueueResponse(request, response);
+   _enqueueResponse(request, response.release());
 
    PEG_METHOD_EXIT();
 }
@@ -3201,14 +3125,17 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest");
 
-   CIMException cimException;
-
-   STAT_PROVIDERSTART
+   AutoPtr<CIMEnumerateClassNamesResponseMessage> response(
+       dynamic_cast<CIMEnumerateClassNamesResponseMessage*>(
+           request->buildResponse()));
 
    Array<CIMName> classNames;
+   CIMException cimException;
 
    try
    {
+      StatProviderTimeMeasurement providerTime(response.get());
+
       classNames = _repository->enumerateClassNames(
          request->nameSpace,
          request->className,
@@ -3234,18 +3161,10 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
 
-   STAT_PROVIDEREND
+   response->classNames = classNames;
+   response->cimException = cimException;
 
-   CIMEnumerateClassNamesResponseMessage* response =
-      new CIMEnumerateClassNamesResponseMessage(
-         request->messageId,
-         cimException,
-         request->queueIds.copyAndPop(),
-         classNames);
-
-   STAT_COPYDISPATCHER_REP
-
-   _enqueueResponse(request, response);
+   _enqueueResponse(request, response.release());
 
    PEG_METHOD_EXIT();
 }
@@ -3296,13 +3215,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        CIMEnumerateInstancesResponseMessage* response =
-            new CIMEnumerateInstancesResponseMessage(request->messageId,
-                checkClassException,
-                request->queueIds.copyAndPop(),
-                Array<CIMInstance>());
-
-        STAT_COPYDISPATCHER_REP
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = checkClassException;
 
         _enqueueResponse(request, response);
 
@@ -3352,26 +3266,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     }
     catch(const CIMException& exception)
     {
-        // Return exception response if exception from getSubClasses
-        cimException = exception;
-
-        CIMEnumerateInstancesResponseMessage* response =
-            new CIMEnumerateInstancesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMInstance>());
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = exception;
 
         _enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
-
         return;
     }
 
     Uint32 toIssueCount = providerInfos.size();
-
-    STAT_PROVIDERSTART
 
     // Test for "enumerate too Broad" and if so, execute exception.
     // This limits the number of provider invocations, not the number
@@ -3397,23 +3301,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 _maximumEnumerateBreadth,
                 providerCount));
 
-        // l10n
-
-        CIMEnumerateInstancesResponseMessage* response =
-            new CIMEnumerateInstancesResponseMessage(
-                request->messageId,
-                PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
-                    MessageLoaderParms("Server.CIMOperationRequestDispatcher."
-                    "ENUM_REQ_TOO_BROAD", "Enumerate request too Broad")),
-                request->queueIds.copyAndPop(),
-                Array<CIMInstance>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
+            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
+                "Server.CIMOperationRequestDispatcher.ENUM_REQ_TOO_BROAD",
+                "Enumerate request too Broad")),
 
         _enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
-
         return;
     }
 
@@ -3427,19 +3323,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             Tracer::LEVEL4,
             "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
 
-        CIMEnumerateInstancesResponseMessage* response =
-            new CIMEnumerateInstancesResponseMessage(
-                request->messageId,
-                PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-                request->queueIds.copyAndPop(),
-                Array<CIMInstance>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
         _enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
-
         return;
     }
 
@@ -3484,13 +3374,17 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     numClasses,
                     poA->_aggregationSN));
 
+            AutoPtr<CIMEnumerateInstancesResponseMessage> response(
+                dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
+                    request->buildResponse()));
+
             CIMException cimException;
             Array<CIMInstance> cimNamedInstances;
 
-            STAT_PROVIDERSTART
-
             try
             {
+                StatProviderTimeMeasurement providerTime(response.get());
+
                 // Enumerate instances only for this class
                 cimNamedInstances =
                     _repository->enumerateInstancesForClass(
@@ -3518,18 +3412,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     String::EMPTY);
             }
 
-            STAT_PROVIDEREND
+            response->cimNamedInstances = cimNamedInstances;
+            response->cimException = cimException;
 
-            CIMResponseMessage* response =
-                new CIMEnumerateInstancesResponseMessage(
-                    request->messageId,
-                    cimException,
-                    request->queueIds.copyAndPop(),
-                    cimNamedInstances);
-
-            STAT_COPYDISPATCHER_REP
-
-                poA->appendResponse(response);
+            poA->appendResponse(response.release());
         } // for all classes and derived classes
 
         Uint32 numberResponses = poA->numberResponses();
@@ -3566,8 +3452,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         // this class is NOT registered to a provider - skip
         if (! providerInfo.hasProvider)
             continue;
-
-        STAT_PROVIDERSTART
 
         PEG_TRACE_STRING(
             TRC_DISPATCHER,
@@ -3636,8 +3520,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 requestCopy,
                 poA);
         }
-
-        STAT_PROVIDEREND
     } // for all classes and dervied classes
 
     PEG_METHOD_EXIT();
@@ -3691,19 +3573,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        CIMEnumerateInstanceNamesResponseMessage* response =
-            new CIMEnumerateInstanceNamesResponseMessage(
-                request->messageId,
-                checkClassException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObjectPath>());
-
-        STAT_COPYDISPATCHER_REP
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = checkClassException;
 
         _enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
-
         return;
     }
 
@@ -3725,22 +3600,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     }
     catch(const CIMException& exception)
     {
-        // Return exception response if exception from getSubClasses
-        cimException = exception;
-
-        CIMEnumerateInstanceNamesResponseMessage* response =
-            new CIMEnumerateInstanceNamesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObjectPath>());
-
-        STAT_COPYDISPATCHER_REP
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = exception;
 
         _enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
-
         return;
     }
 
@@ -3769,25 +3634,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                 _maximumEnumerateBreadth,
                 providerCount));
 
-        // l10n
-
-        CIMEnumerateInstanceNamesResponseMessage* response =
-            new CIMEnumerateInstanceNamesResponseMessage(
-                request->messageId,
-                PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_NOT_SUPPORTED,
-                    MessageLoaderParms(
-                        "Server.CIMOperationRequestDispatcher."
-                        "ENUM_REQ_TOO_BROAD", "Enumerate request too Broad")),
-                request->queueIds.copyAndPop(),
-                Array<CIMObjectPath>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+            MessageLoaderParms(
+                "Server.CIMOperationRequestDispatcher.ENUM_REQ_TOO_BROAD",
+                "Enumerate request too Broad")),
 
         _enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
-
         return;
     }
 
@@ -3800,19 +3655,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             Tracer::LEVEL4,
             "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
 
-        CIMEnumerateInstanceNamesResponseMessage* response =
-            new CIMEnumerateInstanceNamesResponseMessage(
-                request->messageId,
-                PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-                request->queueIds.copyAndPop(),
-                Array<CIMObjectPath>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
         _enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
-
         return;
     }
 
@@ -3850,15 +3699,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                     providerInfo.className.getString(),
                     i, numClasses, poA->_aggregationSN));
 
-            CIMException cimException;
-            Array<CIMObjectPath> cimInstanceNames;
-
-            STAT_PROVIDERSTART
+            AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
+                dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>(
+                    request->buildResponse()));
 
             try
             {
+                StatProviderTimeMeasurement providerTime(response.get());
+
                 // Enumerate instances only for this class
-                cimInstanceNames =
+                response->instanceNames =
                     _repository->enumerateInstanceNamesForClass(
                         request->nameSpace,
                         providerInfo.className,
@@ -3866,35 +3716,24 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             }
             catch(const CIMException& exception)
             {
-                cimException = exception;
+                response->cimException = exception;
             }
             catch(const Exception& exception)
             {
-                cimException =
+                response->cimException =
                     PEGASUS_CIM_EXCEPTION(
                         CIM_ERR_FAILED,
                         exception.getMessage());
             }
             catch(...)
             {
-                cimException =
+                response->cimException =
                     PEGASUS_CIM_EXCEPTION(
                         CIM_ERR_FAILED,
                         String::EMPTY);
             }
 
-            STAT_PROVIDEREND
-
-            CIMResponseMessage* response =
-                new CIMEnumerateInstanceNamesResponseMessage(
-                    request->messageId,
-                    cimException,
-                    request->queueIds.copyAndPop(),
-                    cimInstanceNames);
-
-            STAT_COPYDISPATCHER_REP
-
-                poA->appendResponse(response);
+            poA->appendResponse(response.release());
         } // for all classes and derived classes
 
 
@@ -3930,8 +3769,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         // this class is NOT registered to a provider - skip
         if (! providerInfo.hasProvider)
             continue;
-
-        STAT_PROVIDERSTART
 
         PEG_TRACE_STRING(
             TRC_DISPATCHER,
@@ -3992,8 +3829,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                 requestCopy,
                 poA);
         }
-
-        STAT_PROVIDEREND
     } // for all classes and derived classes
 
     PEG_METHOD_EXIT();
@@ -4013,16 +3848,9 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
     if (!_enableAssociationTraversal)
     {
-        CIMException cimException =
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Associators");
-
-        CIMAssociatorsResponseMessage* response =
-            new CIMAssociatorsResponseMessage(request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObject>());
-
-        STAT_COPYDISPATCHER
 
         _enqueueResponse(request, response);
 
@@ -4033,17 +3861,9 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
     // Validate role parameter syntax
     if ((request->role != String::EMPTY) && (!CIMName::legal(request->role)))
     {
-	CIMException cimException = PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_INVALID_PARAMETER, request->role);
-
-        CIMAssociatorsResponseMessage* response =
-            new CIMAssociatorsResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObject>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
+	    PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->role);
 
         _enqueueResponse(request, response);
 
@@ -4055,17 +3875,9 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
     if ((request->resultRole != String::EMPTY) &&
 	(!CIMName::legal(request->resultRole)))
     {
-	CIMException cimException = PEGASUS_CIM_EXCEPTION(
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_INVALID_PARAMETER, request->resultRole);
-
-        CIMAssociatorsResponseMessage* response =
-            new CIMAssociatorsResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObject>());
-
-        STAT_COPYDISPATCHER
 
         _enqueueResponse(request, response);
 
@@ -4079,17 +3891,14 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                            checkClassException);
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        if(checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
-            checkClassException = PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+        if (checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
+        {
+            checkClassException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+        }
 
-        CIMAssociatorsResponseMessage* response =
-            new CIMAssociatorsResponseMessage(
-                request->messageId,
-                checkClassException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObject>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = checkClassException;
 
         _enqueueResponse(request, response);
 
@@ -4119,14 +3928,15 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "Associators executing Class request");
 
-        CIMException cimException;
-        Array<CIMObject> cimObjects;
-
-        STAT_PROVIDERSTART
+        AutoPtr<CIMAssociatorsResponseMessage> response(
+            dynamic_cast<CIMAssociatorsResponseMessage*>(
+                request->buildResponse()));
 
         try
         {
-            cimObjects = _repository->associators(
+            StatProviderTimeMeasurement providerTime(response.get());
+
+            response->cimObjects = _repository->associators(
                 request->nameSpace,
                 request->objectName,
                 request->assocClass,
@@ -4139,31 +3949,20 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         }
         catch(const CIMException& exception)
         {
-            cimException = exception;
+            response->cimException = exception;
         }
         catch(const Exception& exception)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+            response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                  exception.getMessage());
         }
         catch(...)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+            response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                  String::EMPTY);
         }
 
-        STAT_PROVIDEREND
-
-        CIMAssociatorsResponseMessage* response =
-            new CIMAssociatorsResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                cimObjects);
-
-        STAT_COPYDISPATCHER_REP
-
-        _enqueueResponse(request, response);
+        _enqueueResponse(request, response.release());
     }
     else
     {
@@ -4188,14 +3987,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         }
         catch(const CIMException& cimException)
         {
-            CIMAssociatorsResponseMessage* response =
-                new CIMAssociatorsResponseMessage(
-                    request->messageId,
-                    cimException,
-                    request->queueIds.copyAndPop(),
-                    Array<CIMObject>());
-
-            STAT_COPYDISPATCHER
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException = cimException;
 
             _enqueueResponse(request, response);
             PEG_METHOD_EXIT();
@@ -4215,14 +4008,9 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 Tracer::LEVEL4,
                 "CIM_ERR_NOT_SUPPORTED for " + request->className.getString());
 
-            CIMAssociatorsResponseMessage* response =
-                new CIMAssociatorsResponseMessage(
-                    request->messageId,
-                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-                    request->queueIds.copyAndPop(),
-                    Array<CIMObject>());
-
-            STAT_COPYDISPATCHER
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
             _enqueueResponse(request, response);
 
@@ -4236,18 +4024,18 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
         // Hold the repository results in a response message.
         // If not using the repository, this pointer is null.
-        CIMAssociatorsResponseMessage* response = 0;
+        AutoPtr<CIMAssociatorsResponseMessage> response;
 
         if (_repository->isDefaultInstanceProvider())
         {
-            Array<CIMObject> cimObjects;
-            CIMException cimException;
-
-            STAT_PROVIDERSTART
+            response.reset(dynamic_cast<CIMAssociatorsResponseMessage*>(
+                request->buildResponse()));
 
             try
             {
-                cimObjects = _repository->associators(
+                StatProviderTimeMeasurement providerTime(response.get());
+
+                response->cimObjects = _repository->associators(
                     request->nameSpace,
                     request->objectName,
                     request->assocClass,
@@ -4260,34 +4048,23 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             }
             catch(const CIMException& exception)
             {
-                cimException = exception;
+                response->cimException = exception;
             }
             catch(const Exception& exception)
             {
-                cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                     exception.getMessage());
+                response->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_FAILED, exception.getMessage());
             }
             catch(...)
             {
-                cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                     String::EMPTY);
+                response->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_FAILED, String::EMPTY);
             }
-
-            STAT_PROVIDEREND
 
             Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "Associators repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    cimObjects.size());
-
-            response =
-                new CIMAssociatorsResponseMessage(
-                    request->messageId,
-                    cimException,
-                    request->queueIds.copyAndPop(),
-                    cimObjects);
-
-            STAT_COPYDISPATCHER_REP
+                    response->cimObjects.size());
         }
 
         //
@@ -4296,7 +4073,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
         if (providerCount == 0)
         {
-             _enqueueResponse(request, response);
+             _enqueueResponse(request, response.release());
              PEG_METHOD_EXIT();
              return;
         }
@@ -4316,7 +4093,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         poA->_aggregationSN = cimOperationAggregationSN++;
 
         // Include the repository response in the aggregation, if applicable
-        if (response != 0)
+        if (response.get() != 0)
         {
             poA->setTotalIssued(providerCount+1);
             // send the repository's results
@@ -4325,7 +4102,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 String(),
                 new CIMAssociatorsRequestMessage(*request),
                 poA,
-                response);
+                response.release());
         }
         else
         {
@@ -4371,16 +4148,9 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
     if (!_enableAssociationTraversal)
     {
-        CIMException cimException =
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "AssociatorNames");
-
-        CIMAssociatorNamesResponseMessage* response =
-            new CIMAssociatorNamesResponseMessage(request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObjectPath>());
-
-        STAT_COPYDISPATCHER
 
         _enqueueResponse(request, response);
 
@@ -4391,17 +4161,9 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
     // Validate role parameter syntax
     if ((request->role != String::EMPTY) && (!CIMName::legal(request->role)))
     {
-	CIMException cimException = PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_INVALID_PARAMETER, request->role);
-
-        CIMAssociatorNamesResponseMessage* response =
-            new CIMAssociatorNamesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObjectPath>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->role);
 
         _enqueueResponse(request, response);
 
@@ -4413,17 +4175,9 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
     if ((request->resultRole != String::EMPTY) &&
         (!CIMName::legal(request->resultRole)))
     {
-	CIMException cimException = PEGASUS_CIM_EXCEPTION(
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_INVALID_PARAMETER, request->resultRole);
-
-        CIMAssociatorNamesResponseMessage* response =
-            new CIMAssociatorNamesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObjectPath>());
-
-        STAT_COPYDISPATCHER
 
         _enqueueResponse(request, response);
 
@@ -4437,17 +4191,14 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                            checkClassException);
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        if(checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
-            checkClassException = PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+        if (checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
+        {
+            checkClassException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+        }
 
-        CIMAssociatorNamesResponseMessage* response =
-            new CIMAssociatorNamesResponseMessage(
-                request->messageId,
-                checkClassException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObjectPath>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = checkClassException;
 
         _enqueueResponse(request, response);
 
@@ -4477,14 +4228,15 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "AssociatorNames executing Class request");
 
-        CIMException cimException;
-        Array<CIMObjectPath> cimObjectPaths;
-
-        STAT_PROVIDERSTART
+        AutoPtr<CIMAssociatorNamesResponseMessage> response(
+            dynamic_cast<CIMAssociatorNamesResponseMessage*>(
+                request->buildResponse()));
 
         try
         {
-            cimObjectPaths = _repository->associatorNames(
+            StatProviderTimeMeasurement providerTime(response.get());
+
+            response->objectNames = _repository->associatorNames(
                 request->nameSpace,
                 request->objectName,
                 request->assocClass,
@@ -4494,31 +4246,20 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         }
         catch(const CIMException& exception)
         {
-            cimException = exception;
+            response->cimException = exception;
         }
         catch(const Exception& exception)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                 exception.getMessage());
+            response->cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED, exception.getMessage());
         }
         catch(...)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                 String::EMPTY);
+            response->cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED, String::EMPTY);
         }
 
-        STAT_PROVIDEREND
-
-        CIMAssociatorNamesResponseMessage* response =
-            new CIMAssociatorNamesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                cimObjectPaths);
-
-        STAT_COPYDISPATCHER_REP
-
-        _enqueueResponse(request, response);
+        _enqueueResponse(request, response.release());
     }
     else
     {
@@ -4543,14 +4284,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         }
         catch(const CIMException& cimException)
         {
-            CIMAssociatorNamesResponseMessage* response =
-                new CIMAssociatorNamesResponseMessage(
-                    request->messageId,
-                    cimException,
-                    request->queueIds.copyAndPop(),
-                    Array<CIMObjectPath>());
-
-            STAT_COPYDISPATCHER
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException = cimException;
 
             _enqueueResponse(request, response);
             PEG_METHOD_EXIT();
@@ -4570,14 +4305,9 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 Tracer::LEVEL4,
                 "CIM_ERR_NOT_SUPPORTED for " + request->className.getString());
 
-            CIMAssociatorNamesResponseMessage* response =
-                new CIMAssociatorNamesResponseMessage(
-                    request->messageId,
-                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-                    request->queueIds.copyAndPop(),
-                    Array<CIMObjectPath>());
-
-            STAT_COPYDISPATCHER
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
             _enqueueResponse(request, response);
 
@@ -4591,18 +4321,18 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
         // Hold the repository results in a response message.
         // If not using the repository, this pointer is null.
-        CIMAssociatorNamesResponseMessage* response = 0;
+        AutoPtr<CIMAssociatorNamesResponseMessage> response;
 
         if (_repository->isDefaultInstanceProvider())
         {
-            Array<CIMObjectPath> cimObjectPaths;
-            CIMException cimException;
-
-            STAT_PROVIDERSTART
+            response.reset(dynamic_cast<CIMAssociatorNamesResponseMessage*>(
+                request->buildResponse()));
 
             try
             {
-                cimObjectPaths = _repository->associatorNames(
+                StatProviderTimeMeasurement providerTime(response.get());
+
+                response->objectNames = _repository->associatorNames(
                     request->nameSpace,
                     request->objectName,
                     request->assocClass,
@@ -4612,34 +4342,23 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             }
             catch(const CIMException& exception)
             {
-                cimException = exception;
+                response->cimException = exception;
             }
             catch(const Exception& exception)
             {
-                cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                     exception.getMessage());
+                response->cimException = PEGASUS_CIM_EXCEPTION( 
+                    CIM_ERR_FAILED, exception.getMessage());
             }
             catch(...)
             {
-                cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                     String::EMPTY);
+                response->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_FAILED, String::EMPTY);
             }
-
-            STAT_PROVIDEREND
 
             Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "AssociatorNames repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    cimObjectPaths.size());
-
-            response =
-                new CIMAssociatorNamesResponseMessage(
-                    request->messageId,
-                    cimException,
-                    request->queueIds.copyAndPop(),
-                    cimObjectPaths);
-
-            STAT_COPYDISPATCHER_REP
+                    response->objectNames.size());
         }
 
         //
@@ -4648,7 +4367,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
         if (providerCount == 0)
         {
-             _enqueueResponse(request, response);
+             _enqueueResponse(request, response.release());
              PEG_METHOD_EXIT();
              return;
         }
@@ -4668,7 +4387,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         poA->_aggregationSN = cimOperationAggregationSN++;
 
         // Include the repository response in the aggregation, if applicable
-        if (response != 0)
+        if (response.get() != 0)
         {
             poA->setTotalIssued(providerCount+1);
             // send the repository's results
@@ -4677,7 +4396,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 String(),
                 new CIMAssociatorNamesRequestMessage(*request),
                 poA,
-                response);
+                response.release());
         }
         else
         {
@@ -4723,16 +4442,9 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
     if (!_enableAssociationTraversal)
     {
-        CIMException cimException =
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "References");
-
-        CIMReferencesResponseMessage* response =
-            new CIMReferencesResponseMessage(request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObject>());
-
-        STAT_COPYDISPATCHER
 
         _enqueueResponse(request, response);
 
@@ -4743,17 +4455,9 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
     // Validate role parameter syntax
     if ((request->role != String::EMPTY) && (!CIMName::legal(request->role)))
     {
-	CIMException cimException = PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_INVALID_PARAMETER, request->role);
-
-        CIMReferencesResponseMessage* response =
-            new CIMReferencesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObject>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
+	    PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->role);
 
         _enqueueResponse(request, response);
 
@@ -4767,17 +4471,14 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                            checkClassException);
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        if(checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
-            checkClassException = PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+        if (checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
+        {
+            checkClassException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+        }
 
-        CIMReferencesResponseMessage* response =
-            new CIMReferencesResponseMessage(
-                request->messageId,
-                checkClassException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObject>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = checkClassException;
 
         _enqueueResponse(request, response);
 
@@ -4807,14 +4508,15 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "References executing Class request");
 
-        CIMException cimException;
-        Array<CIMObject> cimObjects;
-
-        STAT_PROVIDERSTART
+        AutoPtr<CIMReferencesResponseMessage> response(
+            dynamic_cast<CIMReferencesResponseMessage*>(
+                request->buildResponse()));
 
         try
         {
-            cimObjects = _repository->references(
+            StatProviderTimeMeasurement providerTime(response.get());
+
+            response->cimObjects = _repository->references(
                 request->nameSpace,
                 request->objectName,
                 request->resultClass,
@@ -4825,31 +4527,20 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         }
         catch(const CIMException& exception)
         {
-            cimException = exception;
+            response->cimException = exception;
         }
         catch(const Exception& exception)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                 exception.getMessage());
+            response->cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED, exception.getMessage());
         }
         catch(...)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                 String::EMPTY);
+            response->cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED, String::EMPTY);
         }
 
-        STAT_PROVIDEREND
-
-        CIMReferencesResponseMessage* response =
-            new CIMReferencesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                cimObjects);
-
-        STAT_COPYDISPATCHER_REP
-
-        _enqueueResponse(request, response);
+        _enqueueResponse(request, response.release());
     }
     else
     {
@@ -4874,14 +4565,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         }
         catch(const CIMException& cimException)
         {
-            CIMReferencesResponseMessage* response =
-                new CIMReferencesResponseMessage(
-                    request->messageId,
-                    cimException,
-                    request->queueIds.copyAndPop(),
-                    Array<CIMObject>());
-
-            STAT_COPYDISPATCHER
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException = cimException;
 
             _enqueueResponse(request, response);
             PEG_METHOD_EXIT();
@@ -4901,14 +4586,9 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 Tracer::LEVEL4,
                 "CIM_ERR_NOT_SUPPORTED for " + request->className.getString());
 
-            CIMReferencesResponseMessage* response =
-                new CIMReferencesResponseMessage(
-                    request->messageId,
-                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-                    request->queueIds.copyAndPop(),
-                    Array<CIMObject>());
-
-            STAT_COPYDISPATCHER
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
             _enqueueResponse(request, response);
 
@@ -4922,18 +4602,18 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
         // Hold the repository results in a response message.
         // If not using the repository, this pointer is null.
-        CIMReferencesResponseMessage* response = 0;
+        AutoPtr<CIMReferencesResponseMessage> response;
 
         if (_repository->isDefaultInstanceProvider())
         {
-            Array<CIMObject> cimObjects;
-            CIMException cimException;
-
-            STAT_PROVIDERSTART
+            response.reset(dynamic_cast<CIMReferencesResponseMessage*>(
+                request->buildResponse()));
 
             try
             {
-                cimObjects = _repository->references(
+                StatProviderTimeMeasurement providerTime(response.get());
+
+                response->cimObjects = _repository->references(
                     request->nameSpace,
                     request->objectName,
                     request->resultClass,
@@ -4944,34 +4624,23 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             }
             catch(const CIMException& exception)
             {
-                cimException = exception;
+                response->cimException = exception;
             }
             catch(const Exception& exception)
             {
-                cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                     exception.getMessage());
+                response->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_FAILED, exception.getMessage());
             }
             catch(...)
             {
-                cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                     String::EMPTY);
+                response->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_FAILED, String::EMPTY);
             }
-
-            STAT_PROVIDEREND
 
             Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "References repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    cimObjects.size());
-
-            response =
-                new CIMReferencesResponseMessage(
-                    request->messageId,
-                    cimException,
-                    request->queueIds.copyAndPop(),
-                    cimObjects);
-
-            STAT_COPYDISPATCHER_REP
+                    response->cimObjects.size());
         }
 
         //
@@ -4980,7 +4649,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
         if (providerCount == 0)
         {
-             _enqueueResponse(request, response);
+             _enqueueResponse(request, response.release());
              PEG_METHOD_EXIT();
              return;
         }
@@ -5000,7 +4669,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         poA->_aggregationSN = cimOperationAggregationSN++;
 
         // Include the repository response in the aggregation, if applicable
-        if (response != 0)
+        if (response.get() != 0)
         {
             poA->setTotalIssued(providerCount+1);
             // send the repository's results
@@ -5009,7 +4678,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 String(),
                 new CIMReferencesRequestMessage(*request),
                 poA,
-                response);
+                response.release());
         }
         else
         {
@@ -5055,16 +4724,9 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
     if (!_enableAssociationTraversal)
     {
-        CIMException cimException =
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ReferenceNames");
-
-        CIMReferenceNamesResponseMessage* response =
-            new CIMReferenceNamesResponseMessage(request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObjectPath>());
-
-        STAT_COPYDISPATCHER
 
         _enqueueResponse(request, response);
 
@@ -5075,17 +4737,9 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
     // Validate role parameter syntax
     if ((request->role != String::EMPTY) && (!CIMName::legal(request->role)))
     {
-	CIMException cimException = PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_INVALID_PARAMETER, request->role);
-
-        CIMReferenceNamesResponseMessage* response =
-            new CIMReferenceNamesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObjectPath>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
+	    PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->role);
 
         _enqueueResponse(request, response);
 
@@ -5099,17 +4753,14 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                            checkClassException);
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        if(checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
-            checkClassException = PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+        if (checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
+        {
+            checkClassException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+        }
 
-        CIMReferenceNamesResponseMessage* response =
-            new CIMReferenceNamesResponseMessage(
-                request->messageId,
-                checkClassException,
-                request->queueIds.copyAndPop(),
-                Array<CIMObjectPath>());
-
-        STAT_COPYDISPATCHER
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = checkClassException;
 
         _enqueueResponse(request, response);
 
@@ -5139,14 +4790,15 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "ReferenceNames executing Class request");
 
-        CIMException cimException;
-        Array<CIMObjectPath> cimObjectPaths;
-
-        STAT_PROVIDERSTART
+        AutoPtr<CIMReferenceNamesResponseMessage> response(
+            dynamic_cast<CIMReferenceNamesResponseMessage*>(
+                request->buildResponse()));
 
         try
         {
-            cimObjectPaths = _repository->referenceNames(
+            StatProviderTimeMeasurement providerTime(response.get());
+
+            response->objectNames = _repository->referenceNames(
                 request->nameSpace,
                 request->objectName,
                 request->resultClass,
@@ -5154,31 +4806,20 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         }
         catch(const CIMException& exception)
         {
-            cimException = exception;
+            response->cimException = exception;
         }
         catch(const Exception& exception)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                 exception.getMessage());
+            response->cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED, exception.getMessage());
         }
         catch(...)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                 String::EMPTY);
+            response->cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED, String::EMPTY);
         }
 
-        STAT_PROVIDEREND
-
-        CIMReferenceNamesResponseMessage* response =
-            new CIMReferenceNamesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                cimObjectPaths);
-
-        STAT_COPYDISPATCHER_REP
-
-        _enqueueResponse(request, response);
+        _enqueueResponse(request, response.release());
     }
     else
     {
@@ -5203,14 +4844,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         }
         catch(const CIMException& cimException)
         {
-            CIMReferenceNamesResponseMessage* response =
-                new CIMReferenceNamesResponseMessage(
-                    request->messageId,
-                    cimException,
-                    request->queueIds.copyAndPop(),
-                    Array<CIMObjectPath>());
-
-            STAT_COPYDISPATCHER
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException = cimException;
 
             _enqueueResponse(request, response);
             PEG_METHOD_EXIT();
@@ -5230,14 +4865,9 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 Tracer::LEVEL4,
                 "CIM_ERR_NOT_SUPPORTED for " + request->className.getString());
 
-            CIMReferenceNamesResponseMessage* response =
-                new CIMReferenceNamesResponseMessage(
-                    request->messageId,
-                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-                    request->queueIds.copyAndPop(),
-                    Array<CIMObjectPath>());
-
-            STAT_COPYDISPATCHER
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
             _enqueueResponse(request, response);
 
@@ -5251,18 +4881,18 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
         // Hold the repository results in a response message.
         // If not using the repository, this pointer is null.
-        CIMReferenceNamesResponseMessage* response = 0;
+        AutoPtr<CIMReferenceNamesResponseMessage> response;
 
         if (_repository->isDefaultInstanceProvider())
         {
-            Array<CIMObjectPath> cimObjectPaths;
-            CIMException cimException;
-
-            STAT_PROVIDERSTART
+            response.reset(dynamic_cast<CIMReferenceNamesResponseMessage*>(
+                request->buildResponse()));
 
             try
             {
-                cimObjectPaths = _repository->referenceNames(
+                StatProviderTimeMeasurement providerTime(response.get());
+
+                response->objectNames = _repository->referenceNames(
                     request->nameSpace,
                     request->objectName,
                     request->resultClass,
@@ -5270,34 +4900,23 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             }
             catch(const CIMException& exception)
             {
-                cimException = exception;
+                response->cimException = exception;
             }
             catch(const Exception& exception)
             {
-                cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                     exception.getMessage());
+                response->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_FAILED, exception.getMessage());
             }
             catch(...)
             {
-                cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                     String::EMPTY);
+                response->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_FAILED, String::EMPTY);
             }
-
-            STAT_PROVIDEREND
 
             Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "ReferenceNames repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    cimObjectPaths.size());
-
-            response =
-                new CIMReferenceNamesResponseMessage(
-                    request->messageId,
-                    cimException,
-                    request->queueIds.copyAndPop(),
-                    cimObjectPaths);
-
-            STAT_COPYDISPATCHER_REP
+                    response->objectNames.size());
         }
 
         //
@@ -5306,7 +4925,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
         if (providerCount == 0)
         {
-             _enqueueResponse(request, response);
+             _enqueueResponse(request, response.release());
              PEG_METHOD_EXIT();
              return;
         }
@@ -5326,7 +4945,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         poA->_aggregationSN = cimOperationAggregationSN++;
 
         // Include the repository response in the aggregation, if applicable
-        if (response != 0)
+        if (response.get() != 0)
         {
             poA->setTotalIssued(providerCount+1);
             _forwardRequestForAggregation(
@@ -5334,7 +4953,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 String(),
                 new CIMReferenceNamesRequestMessage(*request),
                 poA,
-                response);
+                response.release());
         }
         else
         {
@@ -5416,56 +5035,41 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMException cimException;
-
-      STAT_PROVIDERSTART
-
-      CIMValue value;
+      AutoPtr<CIMGetPropertyResponseMessage> response(
+          dynamic_cast<CIMGetPropertyResponseMessage*>(
+              request->buildResponse()));
 
       try
       {
-         value = _repository->getProperty(
-            request->nameSpace,
-            request->instanceName,
-            request->propertyName);
+          StatProviderTimeMeasurement providerTime(response.get());
+
+          response->value = _repository->getProperty(
+              request->nameSpace,
+              request->instanceName,
+              request->propertyName);
       }
       catch(const CIMException& exception)
       {
-         cimException = exception;
+          response->cimException = exception;
       }
       catch(const Exception& exception)
       {
-         cimException =
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
+          response->cimException = PEGASUS_CIM_EXCEPTION(
+              CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+          response->cimException = PEGASUS_CIM_EXCEPTION(
+              CIM_ERR_FAILED, String::EMPTY);
       }
 
-      STAT_PROVIDEREND
-
-      CIMGetPropertyResponseMessage* response =
-         new CIMGetPropertyResponseMessage(
-            request->messageId,
-            cimException,
-            request->queueIds.copyAndPop(),
-            value);
-
-      STAT_COPYDISPATCHER_REP
-
-      _enqueueResponse(request, response);
+      _enqueueResponse(request, response.release());
    }
    else // No provider is registered and the repository isn't the default
    {
-      CIMGetPropertyResponseMessage* response =
-         new CIMGetPropertyResponseMessage(
-            request->messageId,
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-            request->queueIds.copyAndPop(),
-            CIMValue());
-
-      STAT_COPYDISPATCHER
+       CIMResponseMessage* response = request->buildResponse();
+       response->cimException =
+           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
       _enqueueResponse(request, response);
    }
@@ -5509,13 +5113,9 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 	     System::CIMSERVER, Logger::TRACE,
             "CIMOperationRequestDispatcher::handleSetPropertyRequest - "
 	    "CIM exception has occurred."));
-         CIMSetPropertyResponseMessage* response =
-            new CIMSetPropertyResponseMessage(
-               request->messageId,
-               cimException,
-               request->queueIds.copyAndPop());
 
-         STAT_COPYDISPATCHER
+         CIMResponseMessage* response = request->buildResponse();
+         response->cimException = cimException;
 
          _enqueueResponse(request, response);
 
@@ -5558,12 +5158,14 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
    }
    else if (_repository->isDefaultInstanceProvider())
    {
-      CIMException cimException;
-
-      STAT_PROVIDERSTART
+      AutoPtr<CIMSetPropertyResponseMessage> response(
+          dynamic_cast<CIMSetPropertyResponseMessage*>(
+              request->buildResponse()));
 
       try
       {
+         StatProviderTimeMeasurement providerTime(response.get());
+
          _repository->setProperty(
             request->nameSpace,
             request->instanceName,
@@ -5571,6 +5173,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
             request->newValue,
             ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
                getLanguages());
+
          PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
 	     Logger::TRACE,
 	     "CIMOperationRequestDispatcher::handleSetPropertyRequest - "
@@ -5583,39 +5186,26 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       }
       catch(const CIMException& exception)
       {
-         cimException = exception;
+          response->cimException = exception;
       }
       catch(const Exception& exception)
       {
-         cimException =
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
+          response->cimException = PEGASUS_CIM_EXCEPTION(
+              CIM_ERR_FAILED, exception.getMessage());
       }
       catch(...)
       {
-         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+          response->cimException = PEGASUS_CIM_EXCEPTION(
+              CIM_ERR_FAILED, String::EMPTY);
       }
 
-      STAT_PROVIDEREND
-
-      CIMSetPropertyResponseMessage* response =
-         new CIMSetPropertyResponseMessage(
-            request->messageId,
-            cimException,
-            request->queueIds.copyAndPop());
-
-      STAT_COPYDISPATCHER_REP
-
-      _enqueueResponse(request, response);
+      _enqueueResponse(request, response.release());
    }
    else // No provider is registered and the repository isn't the default
    {
-      CIMSetPropertyResponseMessage* response =
-         new CIMSetPropertyResponseMessage(
-            request->messageId,
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-            request->queueIds.copyAndPop());
-
-      STAT_COPYDISPATCHER
+       CIMResponseMessage* response = request->buildResponse();
+       response->cimException =
+           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
       _enqueueResponse(request, response);
    }
@@ -5633,14 +5223,15 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleGetQualifierRequest");
 
-   STAT_PROVIDERSTART
-
-   CIMException cimException;
-   CIMQualifierDecl cimQualifierDecl;
+   AutoPtr<CIMGetQualifierResponseMessage> response(
+       dynamic_cast<CIMGetQualifierResponseMessage*>(
+           request->buildResponse()));
 
    try
    {
-      cimQualifierDecl = _repository->getQualifier(
+      StatProviderTimeMeasurement providerTime(response.get());
+
+      response->cimQualifierDecl = _repository->getQualifier(
          request->nameSpace,
          request->qualifierName);
 
@@ -5652,30 +5243,20 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
    }
    catch(const CIMException& exception)
    {
-      cimException = exception;
+       response->cimException = exception;
    }
    catch(const Exception& exception)
    {
-      cimException =
-         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
+       response->cimException = PEGASUS_CIM_EXCEPTION(
+           CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+       response->cimException = PEGASUS_CIM_EXCEPTION(
+           CIM_ERR_FAILED, String::EMPTY);
    }
 
-   STAT_PROVIDEREND
-
-   CIMGetQualifierResponseMessage* response =
-      new CIMGetQualifierResponseMessage(
-         request->messageId,
-         cimException,
-         request->queueIds.copyAndPop(),
-         cimQualifierDecl);
-
-   STAT_COPYDISPATCHER_REP
-
-   _enqueueResponse(request, response);
+   _enqueueResponse(request, response.release());
 
    PEG_METHOD_EXIT();
 }
@@ -5690,17 +5271,20 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleSetQualifierRequest");
 
-   STAT_PROVIDERSTART
-
-   CIMException cimException;
+   AutoPtr<CIMSetQualifierResponseMessage> response(
+       dynamic_cast<CIMSetQualifierResponseMessage*>(
+           request->buildResponse()));
 
    try
    {
+      StatProviderTimeMeasurement providerTime(response.get());
+
       _repository->setQualifier(
          request->nameSpace,
          request->qualifierDeclaration,
          ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
             getLanguages());
+
       PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 	 "CIMOperationRequestDispatcher::handleSetQualifierRequest - "
 	 "Name Space: $0  Qualifier Name: $1",
@@ -5709,29 +5293,20 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
    }
    catch(const CIMException& exception)
    {
-      cimException = exception;
+       response->cimException = exception;
    }
    catch(const Exception& exception)
    {
-      cimException =
-         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
+       response->cimException = PEGASUS_CIM_EXCEPTION(
+           CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+       response->cimException = PEGASUS_CIM_EXCEPTION(
+           CIM_ERR_FAILED, String::EMPTY);
    }
 
-   STAT_PROVIDEREND
-
-   CIMSetQualifierResponseMessage* response =
-      new CIMSetQualifierResponseMessage(
-         request->messageId,
-         cimException,
-         request->queueIds.copyAndPop());
-
-   STAT_COPYDISPATCHER_REP
-
-   _enqueueResponse(request, response);
+   _enqueueResponse(request, response.release());
 
    PEG_METHOD_EXIT();
 }
@@ -5746,16 +5321,17 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleDeleteQualifierRequest");
 
-   STAT_PROVIDERSTART
-
-   CIMException cimException;
+   AutoPtr<CIMDeleteQualifierResponseMessage> response(
+       dynamic_cast<CIMDeleteQualifierResponseMessage*>(
+           request->buildResponse()));
 
    try
    {
+      StatProviderTimeMeasurement providerTime(response.get());
+
       _repository->deleteQualifier(
          request->nameSpace,
          request->qualifierName);
-
 
       PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
          "CIMOperationRequestDispatcher::handleDeleteQualifierRequest - "
@@ -5763,32 +5339,22 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
          request->nameSpace.getString(),
          request->qualifierName.getString()));
    }
-
    catch(const CIMException& exception)
    {
-      cimException = exception;
+       response->cimException = exception;
    }
    catch(const Exception& exception)
    {
-      cimException =
-         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
+       response->cimException = PEGASUS_CIM_EXCEPTION(
+           CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+       response->cimException = PEGASUS_CIM_EXCEPTION(
+           CIM_ERR_FAILED, String::EMPTY);
    }
 
-   STAT_PROVIDEREND
-
-   CIMDeleteQualifierResponseMessage* response =
-      new CIMDeleteQualifierResponseMessage(
-         request->messageId,
-         cimException,
-         request->queueIds.copyAndPop());
-
-   STAT_COPYDISPATCHER_REP
-
-   _enqueueResponse(request, response);
+   _enqueueResponse(request, response.release());
 
    PEG_METHOD_EXIT();
 }
@@ -5803,15 +5369,15 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest");
 
-   CIMException cimException;
-
-   STAT_PROVIDERSTART
-
-   Array<CIMQualifierDecl> qualifierDeclarations;
+   AutoPtr<CIMEnumerateQualifiersResponseMessage> response(
+       dynamic_cast<CIMEnumerateQualifiersResponseMessage*>(
+           request->buildResponse()));
 
    try
    {
-      qualifierDeclarations = _repository->enumerateQualifiers(
+      StatProviderTimeMeasurement providerTime(response.get());
+
+      response->qualifierDeclarations = _repository->enumerateQualifiers(
          request->nameSpace);
 
       PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
@@ -5819,33 +5385,22 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 	 "Name Space: $0",
          request->nameSpace.getString()));
    }
-
    catch(const CIMException& exception)
    {
-      cimException = exception;
+       response->cimException = exception;
    }
    catch(const Exception& exception)
    {
-      cimException =
-         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
+       response->cimException = PEGASUS_CIM_EXCEPTION(
+           CIM_ERR_FAILED, exception.getMessage());
    }
    catch(...)
    {
-      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+       response->cimException = PEGASUS_CIM_EXCEPTION(
+           CIM_ERR_FAILED, String::EMPTY);
    }
 
-   STAT_PROVIDEREND
-
-   CIMEnumerateQualifiersResponseMessage* response =
-      new CIMEnumerateQualifiersResponseMessage(
-         request->messageId,
-         cimException,
-         request->queueIds.copyAndPop(),
-         qualifierDeclarations);
-
-   _enqueueResponse(request, response);
-
-   STAT_COPYDISPATCHER_REP
+   _enqueueResponse(request, response.release());
 
    PEG_METHOD_EXIT();
 }
@@ -5857,50 +5412,44 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 void CIMOperationRequestDispatcher::handleExecQueryRequest(
    CIMExecQueryRequestMessage* request)
 {
-   Boolean exception=false;
-   CIMException cimException;
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::handleExecQueryRequest");
 
-   STAT_PROVIDERSTART
+    AutoPtr<CIMExecQueryResponseMessage> response(
+        dynamic_cast<CIMExecQueryResponseMessage*>(
+            request->buildResponse()));
 
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleExecQueryRequest");
+    Boolean exception = false;
 
 #ifdef PEGASUS_DISABLE_EXECQUERY
-   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-   exception=true;
+    response->cimException =
+        PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+    exception=true;
 #else
     if (QuerySupportRouter::routeHandleExecQueryRequest(this,request)==false)
     {
         if(request->operationContext.contains(SubscriptionFilterConditionContainer::NAME))
         {
             SubscriptionFilterConditionContainer sub_cntr = request->operationContext.get(SubscriptionFilterConditionContainer::NAME);
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, sub_cntr.getQueryLanguage());
+            response->cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
+                sub_cntr.getQueryLanguage());
         }
         else
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, request->queryLanguage);
+            response->cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, request->queryLanguage);
         }
         
         exception = true;
     }
 #endif
 
-   if (exception) {
-   Array<CIMObject> cimObjects;
-
-   STAT_PROVIDEREND
-
-   CIMExecQueryResponseMessage* response =
-      new CIMExecQueryResponseMessage(
-         request->messageId,
-         cimException,
-         request->queueIds.copyAndPop(),
-         cimObjects);
-
-      STAT_COPYDISPATCHER_REP
-      _enqueueResponse(request, response);
-      PEG_METHOD_EXIT();
-      return;
+    if (exception)
+    {
+        _enqueueResponse(request, response.release());
+        PEG_METHOD_EXIT();
+        return;
     }
 
     PEG_METHOD_EXIT();
@@ -5917,7 +5466,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleInvokeMethodRequest");
 
-   CIMResponseMessage * response;
+   CIMResponseMessage* response;
 
    {
       CIMException cimException;
@@ -5945,16 +5494,9 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	     Logger::TRACE,
             "CIMOperationRequestDispatcher::handleInvokeMethodRequest - "
 	    "CIM exception has occurred."));
-         response =
-            new CIMInvokeMethodResponseMessage(
-               request->messageId,
-               cimException,
-               request->queueIds.copyAndPop(),
-               CIMValue(),
-               Array<CIMParamValue>(),
-               request->methodName);
 
-         STAT_COPYDISPATCHER
+         CIMResponseMessage* response = request->buildResponse();
+         response->cimException = cimException;
 
          _enqueueResponse(request, response);
 
@@ -5982,15 +5524,9 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	  "CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
           request->nameSpace.getString(),
           className.getString()));
-      CIMInvokeMethodResponseMessage* response =
-         new CIMInvokeMethodResponseMessage(
-            request->messageId,
-            checkClassException,
-            request->queueIds.copyAndPop(),
-            CIMValue(),
-            Array<CIMParamValue>(),
-            request->methodName);
-      STAT_COPYDISPATCHER
+
+       CIMResponseMessage* response = request->buildResponse();
+       response->cimException = checkClassException;
 
       _enqueueResponse(request, response);
       PEG_METHOD_EXIT();
@@ -6040,24 +5576,10 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
       return;
    }
 
-   CIMException cimException =
-      PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE,
-         request->methodName.getString());
-
-
-   CIMValue retValue(1);
-   Array<CIMParamValue> outParameters;
-
-   response =
-      new CIMInvokeMethodResponseMessage(
-         request->messageId,
-         cimException,
-         request->queueIds.copyAndPop(),
-         retValue,
-         outParameters,
-         request->methodName);
-
-   STAT_COPYDISPATCHER
+   response = request->buildResponse();
+   response->cimException =
+       PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE,
+           request->methodName.getString());
 
    _enqueueResponse(request, response);
 

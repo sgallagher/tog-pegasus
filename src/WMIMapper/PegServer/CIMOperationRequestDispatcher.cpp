@@ -277,19 +277,21 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleGetClassRequest");
 
-STAT_PROVIDERSTART
+	AutoPtr<CIMGetClassResponseMessage> response(
+		dynamic_cast<CIMGetClassResponseMessage>(
+			request->buildResponse()));
 
-	CIMClass cimClass;
-	CIMException cimException;
 	WMIClassProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
-		cimClass = provider.getClass(
+		response->cimClass = provider.getClass(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -301,34 +303,23 @@ STAT_PROVIDERSTART
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "GetClass() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "GetClass() failed!");
 	}
 
 	//terminate the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMGetClassResponseMessage* response = new CIMGetClassResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		cimClass);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send the response
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 	PEG_METHOD_EXIT();
 }
 
@@ -338,10 +329,10 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleGetInstanceRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMGetInstanceResponseMessage> response(
+		dynamic_cast<CIMGetInstanceResponseMessage>(
+			request->buildResponse()));
 
-	CIMInstance cimInstance;
-	CIMException cimException;
 	WMIInstanceProvider provider;
 
 	// get the class name
@@ -350,10 +341,12 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
-		cimInstance = provider.getInstance(
+		response->cimInstance = provider.getInstance(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -365,34 +358,23 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "GetInstance() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "GetInstance() failed!");
 	}
 
 	// cancel the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMGetInstanceResponseMessage * response = new CIMGetInstanceResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		cimInstance);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send the response
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 	PEG_METHOD_EXIT();
 }
 
@@ -402,15 +384,18 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleDeleteClassRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMDeleteClassResponseMessage> response(
+		dynamic_cast<CIMDeleteClassResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
 	WMIClassProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
 		provider.deleteClass(
@@ -421,33 +406,23 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "DeleteClass() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "DeleteClass() failed!");
 	}
 	
 	//terminate the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMDeleteClassResponseMessage* response = new CIMDeleteClassResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop());
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send the response
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -458,15 +433,18 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleDeleteInstanceRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMDeleteInstanceResponseMessage> response(
+		dynamic_cast<CIMDeleteInstanceResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
 	WMIInstanceProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
 		provider.deleteInstance(
@@ -477,33 +455,23 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "DeleteInstance() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "DeleteInstance() failed!");
 	}
 
 	//terminate the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND	
-
-	// create the response
-	CIMDeleteInstanceResponseMessage* response = new CIMDeleteInstanceResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop());
-
-	STAT_COPYDISPATCHER_REP
-
     // and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -514,15 +482,18 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleCreateClassRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMCreateClassResponseMessage> response(
+		dynamic_cast<CIMCreateClassResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
 	WMIClassProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
 		provider.createClass(
@@ -533,32 +504,23 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "CreateClass() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "CreateClass() failed!");
 	}
 
 	//terminate the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	CIMCreateClassResponseMessage* response = new CIMCreateClassResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop());
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send the response
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -569,19 +531,21 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleCreateInstanceRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMCreateInstanceResponseMessage> response(
+		dynamic_cast<CIMCreateInstanceResponseMessage>(
+			request->buildResponse()));
 
-	CIMObjectPath instanceName;
-	CIMException cimException;
 	WMIInstanceProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
- 	
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
-		instanceName = provider.createInstance(
+		response->instanceName = provider.createInstance(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -589,34 +553,23 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "CreateInstance() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "CreateInstance() failed!");
 	}
 	
 	//terminate the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	//create the response
-	CIMCreateInstanceResponseMessage* response = new CIMCreateInstanceResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		instanceName);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -627,15 +580,18 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleModifyClassRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMModifyClassResponseMessage> response(
+		dynamic_cast<CIMModifyClassResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
 	WMIClassProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
 		provider.modifyClass(
@@ -646,32 +602,23 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "modifyClass() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "modifyClass() failed!");
 	}
 
 	//terminate the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	CIMModifyClassResponseMessage* response = new CIMModifyClassResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop());
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send the response
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -682,15 +629,18 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleModifyInstanceRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMModifyInstanceResponseMessage> response(
+		dynamic_cast<CIMModifyInstanceResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
 	WMIInstanceProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
 		provider.modifyInstance(
@@ -703,33 +653,23 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "modifyInstance() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "modifyInstance() failed!");
 	}
 
 	//terminate the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response
-	CIMModifyInstanceResponseMessage* response = new CIMModifyInstanceResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop());
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -740,19 +680,21 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleEnumerateClassesRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMEnumerateClassesResponseMessage> response(
+		dynamic_cast<CIMEnumerateClassesResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	Array<CIMClass> cimClasses;
 	WMIClassProvider provider;
 	
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-	
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
-		cimClasses = provider.enumerateClasses(
+		response->cimClasses = provider.enumerateClasses(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -764,33 +706,23 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateClasses() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateClasses() failed!");
 	}
 
 	//terminate the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	CIMEnumerateClassesResponseMessage* response = new CIMEnumerateClassesResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		cimClasses);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send the response
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -801,19 +733,21 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMEnumerateClassNamesResponseMessage> response(
+		dynamic_cast<CIMEnumerateClassNamesResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	Array<CIMName> classNames;
 	WMIClassProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
-		classNames = provider.enumerateClassNames(
+		response->classNames = provider.enumerateClassNames(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -822,33 +756,23 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateClassNames() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateClassNames() failed!");
 	}
 
 	//terminate the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	CIMEnumerateClassNamesResponseMessage* response = new CIMEnumerateClassNamesResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		classNames);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send the response
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -859,20 +783,22 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleEnumerateInstanceRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMEnumerateInstancesResponseMessage> response(
+		dynamic_cast<CIMEnumerateInstancesResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	Array<CIMInstance> cimInstances;
 	WMIInstanceProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
 		CIMPropertyList propertyList(request->propertyList);
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize( );
 
-		cimInstances = provider.enumerateInstances(
+		response->cimNamedInstances = provider.enumerateInstances(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -882,34 +808,23 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateInstances() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateInstances() failed!");
 	}
 
 	// cancel the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMEnumerateInstancesResponseMessage * response = new CIMEnumerateInstancesResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		cimInstances);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send the response
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 	PEG_METHOD_EXIT();
 }
 
@@ -919,20 +834,22 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
+		dynamic_cast<CIMEnumerateInstanceNamesResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	Array<CIMObjectPath> instanceNames;
 	WMIInstanceProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		// make the request...
 		provider.initialize( );
 
-		instanceNames = provider.enumerateInstanceNames(
+		response->instanceNames = provider.enumerateInstanceNames(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -940,34 +857,23 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateInstanceNames() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateInstanceNames() failed!");
 	}
 
 	// cancel the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMEnumerateInstanceNamesResponseMessage * response = new CIMEnumerateInstanceNamesResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		instanceNames);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send the response
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 	PEG_METHOD_EXIT();
 }
 
@@ -977,10 +883,10 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleAssociatorsRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMAssociatorsResponseMessage> response(
+		dynamic_cast<CIMAssociatorsResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	Array<CIMObject> cimObjects;
 	WMIAssociatorProvider provider;
 
 	try
@@ -988,11 +894,13 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
 		CIMPropertyList propertyList(request->propertyList);
 
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize( );
 
 		// ATTN: fix parameter list
 
-		cimObjects = provider.associators(
+		response->cimObjects = provider.associators(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -1007,34 +915,23 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "associators() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "associators() failed!");
 	}
 	
 	// cancel the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response
-	CIMAssociatorsResponseMessage* response = new CIMAssociatorsResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		cimObjects);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -1045,19 +942,21 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleAssociatorNamesRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMAssociatorNamesResponseMessage> response(
+		dynamic_cast<CIMAssociatorNamesResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	Array<CIMObjectPath> objectNames;
 	WMIAssociatorProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize( );
 
-		objectNames = provider.associatorNames(
+		response->objectNames = provider.associatorNames(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -1069,34 +968,23 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "associatorNames() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "associatorNames() failed!");
 	}
 
 	// cancel the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response
-	CIMAssociatorNamesResponseMessage* response = new CIMAssociatorNamesResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		objectNames);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -1107,22 +995,24 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleReferencesRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMReferencesResponseMessage> response(
+		dynamic_cast<CIMReferencesResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	Array<CIMObject> cimObjects;
 	WMIReferenceProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
 		CIMPropertyList propertyList(request->propertyList);
-			
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize( );
 
 		// ATTN: fix parameter list
 
-		cimObjects = provider.references(
+		response->cimObjects = provider.references(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -1135,34 +1025,23 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "references() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "references() failed!");
 	}
 	
 	// cancel the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response
-	CIMReferencesResponseMessage* response = new CIMReferencesResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		cimObjects);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -1173,19 +1052,21 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleReferenceNamesRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMReferenceNamesResponseMessage> response(
+		dynamic_cast<CIMReferenceNamesResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	Array<CIMObjectPath> objectNames;
 	WMIReferenceProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize( );
 
-		objectNames = provider.referenceNames(
+		response->objectNames = provider.referenceNames(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -1195,34 +1076,23 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "referenceNames() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "referenceNames() failed!");
 	}
 	
 	// cancel the provider
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response
-	CIMReferenceNamesResponseMessage* response = new CIMReferenceNamesResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		objectNames);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -1233,19 +1103,21 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleGetPropertyRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMGetPropertyResponseMessage> response(
+		dynamic_cast<CIMGetPropertyResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	CIMValue value;
 	WMIInstanceProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
-		value = provider.getProperty(
+		response->value = provider.getProperty(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -1254,33 +1126,22 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "getProperty() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "getProperty() failed!");
 	}
 
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMGetPropertyResponseMessage* response = new CIMGetPropertyResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		value);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -1291,10 +1152,10 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleSetPropertyRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMSetPropertyResponseMessage> response(
+		dynamic_cast<CIMSetPropertyResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	CIMValue value;
 	WMIInstanceProvider provider;
 
 	/* 
@@ -1306,28 +1167,21 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 		}
 		catch (CIMException& exception)
 		{
-			cimException = exception;
+			response->cimException = exception;
 		}
 		catch(Exception& exception)
 		{
-			cimException =
+			response->cimException =
 				PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 		}
 		catch(...)
 		{
-			cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+			response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
 		}
 
 		if (cimException.getCode() != CIM_ERR_SUCCESS)
 		{
-			CIMSetPropertyResponseMessage* response = new CIMSetPropertyResponseMessage(
-				request->messageId,
-				cimException,
-				request->queueIds.copyAndPop());
-
-			STAT_COPYDISPATCHER
-
-			_enqueueResponse(request, response);
+			_enqueueResponse(request, response.release());
 
 			PEG_METHOD_EXIT();
 			return;
@@ -1338,7 +1192,9 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
 		provider.setProperty(
@@ -1351,32 +1207,22 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "setProperty() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "setProperty() failed!");
 	}
 
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response
-	CIMSetPropertyResponseMessage* response = new CIMSetPropertyResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop());
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -1387,19 +1233,21 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleGetQualifierRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMGetQualifierResponseMessage> response(
+		dynamic_cast<CIMGetQualifierResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	CIMQualifierDecl cimQualifierDecl;
 	WMIQualifierProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-	
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
-		cimQualifierDecl = provider.getQualifier(
+		response->cimQualifierDecl = provider.getQualifier(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -1407,33 +1255,22 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "getQualifier() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "getQualifier() failed!");
 	}
 
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMGetQualifierResponseMessage* response = new CIMGetQualifierResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		cimQualifierDecl);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -1444,15 +1281,18 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleSetQualifierRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMSetQualifierResponseMessage> response(
+		dynamic_cast<CIMSetQualifierResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
 	WMIQualifierProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
 		provider.setQualifier(
@@ -1463,32 +1303,22 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "setQualifier() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "setQualifier() failed!");
 	}
 
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMSetQualifierResponseMessage* response = new CIMSetQualifierResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop());
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -1499,15 +1329,18 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleDeleteQualifierRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMDeleteQualifierResponseMessage> response(
+		dynamic_cast<CIMDeleteQualifierResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
 	WMIQualifierProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
 		provider.deleteQualifier(
@@ -1518,32 +1351,22 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "deleteQualifier() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "deleteQualifier() failed!");
 	}
 
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMDeleteQualifierResponseMessage* response = new CIMDeleteQualifierResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop());
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -1554,52 +1377,43 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMEnumerateQualifiersResponseMessage> response(
+		dynamic_cast<CIMEnumerateQualifiersResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	Array<CIMQualifierDecl> qualifierDeclarations;
 	WMIQualifierProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
-		qualifierDeclarations = provider.enumerateQualifiers(
+		response->qualifierDeclarations = provider.enumerateQualifiers(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword());
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateQualifiers() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateQualifiers() failed!");
 	}
 
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMEnumerateQualifiersResponseMessage* response = new CIMEnumerateQualifiersResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		qualifierDeclarations);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -1610,19 +1424,21 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleExecQueryRequest");
 
-	STAT_PROVIDERSTART
+	AutoPtr<CIMExecQueryResponseMessage> response(
+		dynamic_cast<CIMExecQueryResponseMessage>(
+			request->buildResponse()));
 
-	CIMException cimException;
-	Array<CIMObject> cimObjects;
 	WMIQueryProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
-		cimObjects = provider.execQuery(
+		response->cimObjects = provider.execQuery(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
@@ -1631,33 +1447,22 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "execQuery() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "execQuery() failed!");
 	}
 
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMExecQueryResponseMessage* response = new CIMExecQueryResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		cimObjects);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }
@@ -1668,9 +1473,9 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	PEG_METHOD_ENTER(TRC_WMI_MAPPER,
 		"CIMOperationRequestDispatcher::handleInvokeMethodRequest");
 
-	STAT_PROVIDERSTART
-
-	CIMException cimException;
+	AutoPtr<CIMInvokeMethodResponseMessage> response(
+		dynamic_cast<CIMInvokeMethodResponseMessage>(
+			request->buildResponse()));
 
 	/*
 	{
@@ -1680,30 +1485,21 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 		}
 		catch(CIMException& exception)
 		{
-			cimException = exception;
+			response->cimException = exception;
 		}
 		catch(Exception& exception)
 		{
-			cimException =
+			response->cimException =
 				PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 		}
 		catch(...)
 		{
-			cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+			response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
 		}
 
 		if (errorCode != CIM_ERR_SUCCESS)
 		{
-			CIMInvokeMethodResponseMessage *response =
-				new CIMInvokeMethodResponseMessage(
-				request->messageId,
-				cimException,
-				request->queueIds.copyAndPop(),
-				CIMValue(),
-				Array<CIMParamValue>(),
-				request->methodName);
-
-			_enqueueResponse(request, response);
+			_enqueueResponse(request, response.release());
 
 			PEG_METHOD_EXIT();
 			return;
@@ -1711,57 +1507,44 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	}
 	*/
 
-	CIMValue retValue;
-	Array<CIMParamValue> outParameters;
 	WMIMethodProvider provider;
 
 	try
 	{
 		WMIMapperUserInfoContainer container = request->operationContext.get("WMIMapperUserInfoContainer");
-		
+
+		StatProviderTimeMeasurement providerTime(response.get());
+
 		provider.initialize();
 
-		retValue = provider.invokeMethod(
+		response->retValue = provider.invokeMethod(
 			request->nameSpace.getString(),
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->instanceName,
 			request->methodName.getString(),
 			request->inParameters,
-			outParameters);
+			response->outParameters);
 	}
 	catch(CIMException& exception)
 	{
-		cimException = exception;
+		response->cimException = exception;
 	}
 	catch(Exception& exception)
 	{
-		cimException =
+		response->cimException =
 			PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
 	}
 	catch(...)
 	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "invokeMethod() failed!");
+		response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "invokeMethod() failed!");
 	}
 
 	// ATTN:  I need some exception handling here
 	provider.terminate();
 
-	STAT_PROVIDEREND
-
-	// create the response message
-	CIMInvokeMethodResponseMessage *response = new CIMInvokeMethodResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop(),
-		retValue,
-		outParameters,
-		request->methodName);
-
-	STAT_COPYDISPATCHER_REP
-
 	// and send it
-	_enqueueResponse(request, response);
+	_enqueueResponse(request, response.release());
 
 	PEG_METHOD_EXIT();
 }

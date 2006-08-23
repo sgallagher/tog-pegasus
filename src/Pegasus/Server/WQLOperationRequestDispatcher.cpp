@@ -91,15 +91,13 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
 	Boolean manyResponses = true;
 	if (response->getType() == CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
 	{
-		CIMRequestMessage &request = *poA->getRequest();
-		AutoPtr<CIMExecQueryResponseMessage> query
-			(new CIMExecQueryResponseMessage(request.messageId,
+		CIMRequestMessage* request = poA->getRequest();
+		AutoPtr<CIMExecQueryResponseMessage> query(
+			new CIMExecQueryResponseMessage(request->messageId,
                                              CIMException(),
-                                             request.queueIds.copyAndPop(),
+                                             request->queueIds.copyAndPop(),
                                              Array<CIMObject>()));
-#ifndef PEGASUS_DISABLE_PERFINST
-        query->setStartServerTime(request.getStartServerTime());
-#endif
+		query->syncAttributes(request);
         toResponse = query.release();
 	}
 	else
@@ -193,15 +191,14 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
 void WQLOperationRequestDispatcher::handleQueryRequest(
    CIMExecQueryRequestMessage* request)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::handleExecQueryRequest");
+
    Boolean exception=false;
    AutoPtr<WQLSelectStatement> selectStatement(new WQLSelectStatement());
    AutoPtr<WQLQueryExpressionRep> qx;
    CIMException cimException;
    CIMName className;
-
-   //if (getenv("CMPI_DEBUG")) asm("int $3");
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleExecQueryRequest");
 
     if (request->queryLanguage!="WQL") {
       cimException =
@@ -235,18 +232,12 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
       }
    }
 
-   if (exception) {
-   Array<CIMObject> cimObjects;
+    if (exception)
+    {
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = cimException;
 
-   AutoPtr<CIMExecQueryResponseMessage> response(
-      new CIMExecQueryResponseMessage(
-	 request->messageId,
-	 cimException,
-	 request->queueIds.copyAndPop(),
-	 cimObjects));
-
-        STAT_COPYDISPATCHER_REP
-        _enqueueResponse(request, response.release());
+        _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
         return;
     }
@@ -268,16 +259,10 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     }
     catch(CIMException& exception) {
         // Return exception response if exception from getSubClasses
-        cimException = exception;
-        AutoPtr<CIMExecQueryResponseMessage> response(
-        new CIMExecQueryResponseMessage(request->messageId,
-            cimException,
-            request->queueIds.copyAndPop(),
-            Array<CIMObject>()));
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException = exception;
 
-		STAT_COPYDISPATCHER_REP
-
-        _enqueueResponse(request, response.release());
+        _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
         return;
     }
@@ -301,19 +286,13 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                               _maximumEnumerateBreadth,
                               providerCount));
 
-        // l10n
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
+            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
+                "Server.CIMOperationRequestDispatcher.QUERY_REQ_TOO_BROAD",
+                "Query request too Broad"));
 
-        AutoPtr<CIMExecQueryResponseMessage> response(
-            new CIMExecQueryResponseMessage(request->messageId,
-                PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
-                    MessageLoaderParms("Server.CIMOperationRequestDispatcher."
-                        "QUERY_REQ_TOO_BROAD", "Query request too Broad")),
-                request->queueIds.copyAndPop(),
-                Array<CIMObject>()));
-
-   STAT_COPYDISPATCHER
-
-   _enqueueResponse(request, response.release());
+        _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
         return;
     }
@@ -325,16 +304,12 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
             "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
 
-        AutoPtr<CIMExecQueryResponseMessage> response(
-            new CIMExecQueryResponseMessage(request->messageId,
-                PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-                request->queueIds.copyAndPop(),
-                Array<CIMObject>()));
+        CIMResponseMessage* response = request->buildResponse();
+        response->cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
-   STAT_COPYDISPATCHER
-
-   _enqueueResponse(request, response.release());
-   PEG_METHOD_EXIT();
+        _enqueueResponse(request, response);
+        PEG_METHOD_EXIT();
         return;
     }
 
@@ -374,14 +349,14 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 													providerInfo.className.getString(),
 													i, numClasses, poA->_aggregationSN));
 
-				CIMException cimException;
-				Array<CIMInstance> cimInstances;
-				STAT_PROVIDERSTART
+				AutoPtr<CIMEnumerateInstancesResponseMessage> response(
+					dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
+						request->buildResponse()));
 
 				try
 				{
 					// Enumerate instances only for this class
-					cimInstances =
+					response->cimNamedInstances =
 						_repository->enumerateInstancesForClass(
 																										request->nameSpace,
 																										providerInfo.className,
@@ -389,27 +364,18 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 				}
 				catch(CIMException& exception)
 				{
-					cimException = exception;
+					response->cimException = exception;
 				}
 				catch(Exception& exception)
 				{
-					cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+					response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 																							 exception.getMessage());
 				}
 				catch(...)
 				{
-					cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+					response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 																							 String::EMPTY);
 				}
-
-				STAT_PROVIDEREND
-
-				AutoPtr<CIMEnumerateInstancesResponseMessage> response
-					(new CIMEnumerateInstancesResponseMessage
-					 (request->messageId,	cimException, request->queueIds.copyAndPop(),
-						cimInstances));
-
-				STAT_COPYDISPATCHER_REP
 
 				poA->appendResponse(response.release());
 			} // for all classes and derived classes
@@ -443,8 +409,6 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 			// this class is NOT registered to a provider - skip
 			if (! providerInfo.hasProvider)
 				continue;
-
-			STAT_PROVIDERSTART
 
 			PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, Formatter::format
 											 ("Query Req. class $0 to svc \"$1\" for "
@@ -499,8 +463,6 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 																			providerInfo.controlProviderName,
 																			requestCopy.release(), poA);
 	    }
-
-			STAT_PROVIDEREND
 
     } // for all classes and derived classes
 

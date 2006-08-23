@@ -3734,9 +3734,18 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMDateTime__1finalize
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMMethod__1getType
       (JNIEnv *jEnv, jobject jThs, jint jM)
 {
-   CIMMethod *cm = DEBUG_ConvertJavaToC (jint, CIMMethod*, jM);
+   CIMMethod *cm       = DEBUG_ConvertJavaToC (jint, CIMMethod*, jM);
+   bool       fSuccess = false;
+   int        iJType   = 0;
 
-   return DEBUG_ConvertCToJava (CIMType *, jint, new CIMType (cm->getType ()));
+   if (cm)
+   {
+      CIMType ct = cm->getType ();
+
+      iJType = _dataType::convertCTypeToJavaType (ct, &fSuccess);
+   }
+
+   return iJType;
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMMethod__1finalize

@@ -55,7 +55,7 @@ JAR1CLASSES      = \
 EXTRAJAR1CLASSES = \
         MyFilenameFilter.class
 JAR1MANIFEST     = JMPITestClient.manifest
-JAR2             = JMPITestInstanceProvider.jar
+JAR2             = JMPITestClientTests.jar
 JAR2CLASSES      = \
 	testDataType.class \
 	testExecQuery.class \
@@ -65,9 +65,17 @@ JAR2CLASSES      = \
 	testCIMArgument.class \
 	testCIMClass.class \
 	testCIMDataType.class \
-	testCIMDateTime.class
-# @TBD remove... only for testing!
-JAR2CLASSES      = testCIMDateTime.class
+	testCIMDateTime.class \
+	testCIMInstance.class \
+	testCIMMethod.class \
+	testCIMObjectPath.class \
+	testCIMProperty.class \
+	testCIMQualifier.class \
+	testCIMQualifier.class \
+	testUnsignedInt8.class \
+	testUnsignedInt16.class \
+	testUnsignedInt32.class \
+	testUnsignedInt64.class
 EXTRAJAR2CLASSES =
 JARS             = $(JAR1) $(JAR2)
 

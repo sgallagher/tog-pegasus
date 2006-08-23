@@ -422,6 +422,7 @@ class _dataType {
 #define OperationContextUnassociate  instMethodIDs[49]
 #define ClassGetInterfaces           instMethodIDs[50]
 #define ClassGetName                 instMethodIDs[51]
+#define UnsignedInt64NewStr          instMethodIDs[52]
 
 //extern "C" JNIEnv* attachThread(JvmVector**);
 //extern "C" void detachThread();

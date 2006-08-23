@@ -27,12 +27,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author:      Mark Hamzy, IBM (hamzy@us.ibm.com)
-//
-// Modified By: Mark Hamzy, IBM (hamzy@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 package Client;
 

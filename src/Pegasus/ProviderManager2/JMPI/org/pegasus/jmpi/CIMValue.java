@@ -93,12 +93,14 @@ public class CIMValue
       cInst = calculateCInst (o);
    }
 
-   public CIMValue (Object o, CIMDataType type) throws CIMException
+   public CIMValue (Object o, CIMDataType type)
+      throws CIMException
    {
       cInst = calculateCInst (o);
    }
 
-   private int calculateCInst (Object o) throws CIMException
+   private int calculateCInst (Object o)
+      throws CIMException
    {
       int ciRet = 0;
 
@@ -344,7 +346,8 @@ public class CIMValue
       return ciRet;
    }
 
-   public Object getValue () throws CIMException
+   public Object getValue ()
+      throws CIMException
    {
       if (cInst == 0)
          return null;
@@ -352,7 +355,8 @@ public class CIMValue
       return getValue (true);
    }
 
-   public Object getValue (boolean toVector) throws CIMException
+   public Object getValue (boolean toVector)
+      throws CIMException
    {
       if (cInst == 0)
          return null;
@@ -369,9 +373,7 @@ public class CIMValue
 
          int     type    = _getType (cInst);
          boolean isArray = _isArray (cInst);
-         {
 
-         }
          if (isArray)
          {
             switch (type)
@@ -676,4 +678,4 @@ public class CIMValue
    static {
       System.loadLibrary ("JMPIProviderManager");
    }
-};
+}

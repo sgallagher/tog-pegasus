@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,73 +29,90 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 package org.pegasus.jmpi;
 
-public class UnsignedNumber  extends Number {
-
+public class UnsignedNumber
+       extends Number
+{
     private long number;
     private long mask;
 
-    public UnsignedNumber(long val, long mask, String msg)
-                throws java.lang.NumberFormatException {
-        number=val;
-        if ((number&~mask)!=0)
-            throw new java.lang.NumberFormatException(msg);
-	this.mask=mask;
+    public UnsignedNumber (long val, long mask, String msg)
+       throws NumberFormatException
+    {
+       this.number = val;
+       this.mask   = mask;
+
+       if ((number & ~mask) != 0)
+          throw new NumberFormatException (msg);
+       else if (number < 0L)
+          throw new NumberFormatException (msg);
     }
 
-    public UnsignedNumber(java.lang.String str, long mask, String msg)
-                throws java.lang.NumberFormatException {
-        Long l=new Long(str);
-        number=l.longValue();
-        if ((number&~mask)!=0)
-            throw new java.lang.NumberFormatException(msg);
-	this.mask=mask;
+    public UnsignedNumber (String str, long mask, String msg)
+       throws NumberFormatException
+    {
+       Long l = new Long (str);
+
+       this.mask   = mask;
+       this.number = l.longValue ();
+
+       if ((number & ~mask) != 0)
+          throw new NumberFormatException (msg);
+       else if (number < 0L)
+          throw new NumberFormatException (msg);
     }
 
-    public String toString() {
-        return ""+(number & mask);
+    public String toString ()
+    {
+        return "" + (number & mask);
     }
 
-    public int hashCode(){
+    public int hashCode ()
+    {
         return (int)(number & mask);
     }
 
-    public boolean equals(java.lang.Object o){
+    public boolean equals (Object o)
+    {
         if (o instanceof UnsignedNumber)
-        return (((UnsignedNumber)o).number & ((UnsignedNumber)o).mask)==(number & mask);
+           return (((UnsignedNumber)o).number & ((UnsignedNumber)o).mask) == (number & mask);
+
         return false;
     }
 
-    public int intValue() {
+    public int intValue ()
+    {
         return (int)(number & mask);
     }
 
-    public long longValue() {
+    public long longValue ()
+    {
         return (long)(number & mask);
     }
 
-    public float floatValue() {
+    public float floatValue ()
+    {
         return (float)(number & mask);
     }
 
-    public double doubleValue() {
+    public double doubleValue ()
+    {
         return (double)(number & mask);
     }
 
-    public byte byteValue() {
+    public byte byteValue ()
+    {
         return (byte)(number & mask);
     }
 
-    public short shortValue() {
+    public short shortValue ()
+    {
         return (short) (number & mask);
     }
 }
-

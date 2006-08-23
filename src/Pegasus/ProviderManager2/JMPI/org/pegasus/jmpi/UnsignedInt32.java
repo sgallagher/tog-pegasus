@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,7 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By:
 //
@@ -39,10 +39,10 @@ package org.pegasus.jmpi;
 public class UnsignedInt32 extends UnsignedNumber  {
 
     public UnsignedInt32(long num)  throws java.lang.NumberFormatException {
-       super((long)num,(long)0xffffffff,"Not an unsigned 32 bit integer (" + num + ")");
+       super((long)num,(long)0xffffffffl,"Not an unsigned 32 bit integer (" + num + ")");
     }
 
     public UnsignedInt32(java.lang.String str) throws java.lang.NumberFormatException {
-        super(str,(long)0xffffffff,"Not an unsigned 32 bit integer (" + str + ")");
+        super(str,(long)0xffffffffl,"Not an unsigned 32 bit integer (" + str + ")");
     }
 }

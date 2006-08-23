@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,30 +29,106 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:
+// Modified By: Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 package org.pegasus.jmpi;
 
 import java.math.BigInteger;
 
-public class UnsignedInt64 extends BigInteger {
+/**
+ * The UnsignedInt64 class wraps the value of an uint64. This
+ * class was created to represent an uint64 data type as defined
+ * by the CIM Infrastructure Specification. The specification is
+ * available from the DMTF (Distributed Management Task Force)
+ * at http://dmtf.org/
+ */
+public class UnsignedInt64
+       extends BigInteger
+       implements java.io.Serializable,
+                  java.lang.Comparable
+{
+   /**
+    * The minimum value of an UnsignedInt64.
+    */
+   public static final BigInteger UINT64MIN = new BigInteger ("0");
+   /**
+    * The maximum value of an UnsignedInt64.
+    */
+   public static final BigInteger UINT64MAX = new BigInteger ("18446744073709551615");
+   /**
+    * The mask to cover possible values.
+    */
+   public static final BigInteger MAXMASK   = new BigInteger ("ffffffffffffffff", 16);
 
-    public static final BigInteger UINT64MAX=new BigInteger("18446744073709551615");
-    public static final BigInteger MAXMASK=new BigInteger("ffffffffffffffff",16);
+   protected BigInteger bi;
 
-    public UnsignedInt64(BigInteger val)  {
-        super(val.and(MAXMASK).toString());
-        if (this.compareTo(BigInteger.ZERO)<0 || this.compareTo(UINT64MAX)>0)
-            throw new java.lang.NumberFormatException("Not an unsigned 64 bit integer");
+   /**
+    * Constructs an unsigned 64-bit integer object for the specified
+    * BigInteger. Only the lower 64 bits are considered.
+    *
+    * @param val - the BigInteger to be represented as an unsigned 64-bit
+    * integer.
+    * @throws NumberFormatException - if the number is out of range.
+    */
+   public UnsignedInt64 (BigInteger val)
+      throws NumberFormatException
+   {
+      super (val.and (MAXMASK).toString ());
+
+      bi = val;
+
+      if (  val.compareTo (BigInteger.ZERO) < 0
+         || val.compareTo (UINT64MAX) > 0
+         )
+         throw new NumberFormatException (val + " Not an unsigned 64 bit integer");
    }
-    public UnsignedInt64(String str) throws java.lang.NumberFormatException {
-        super(str);
-        if (this.compareTo(BigInteger.ZERO)<0 || this.compareTo(UINT64MAX)>0)
-            throw new java.lang.NumberFormatException("Not an unsigned 64 bit integer");
-    }
-};
+
+   /**
+    * Constructs an unsigned 64-bit integer object from the specified string.
+    * Only the lower 64 bits are considered.
+    *
+    * @param value - the String to be represented as an unsigned 64-bit
+    * integer.
+    * @throws NumberFormatException - if the number is out of range.
+    */
+   public UnsignedInt64 (String str)
+      throws NumberFormatException
+   {
+      super (str);
+
+      bi = new BigInteger (str);
+
+      if (  bi.compareTo (BigInteger.ZERO) < 0
+         || bi.compareTo (UINT64MAX) > 0
+         )
+         throw new java.lang.NumberFormatException (bi + " Not an unsigned 64 bit integer");
+   }
+
+   /**
+    * Compares this UnsignedInt64 with the specified UnsignedInt64.
+    * This method is provided in preference to individual methods
+    * for each of the six boolean comparison operators (<, ==, >,
+    * >=, !=, <=). The suggested idiom for performing these
+    * comparisons is: (x.compareTo(y) <op> 0), where <op>  is one
+    * of the six comparison operators.
+    *
+    * @param val - Object to which this UnsignedInt64 is to be
+    * compared. Throws a ClassCastException if the input object is
+    * not an UnsignedInt32.
+    * @return -1, 0 or 1 as this UnsignedInt64 is numerically
+    * less than, equal to, or greater than val.
+    */
+   public int compareTo (Object val)
+      throws ClassCastException
+   {
+      if (!(val instanceof UnsignedInt64))
+         throw new ClassCastException ();
+
+      UnsignedInt64 that = (UnsignedInt64)val;
+
+      return this.bi.compareTo (that.bi);
+   }
+}

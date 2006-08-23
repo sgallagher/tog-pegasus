@@ -27,12 +27,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author:      Mark Hamzy, hamzy@us.ibm.com
-//
-// Modified By: Mark Hamzy, hamzy@us.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 package Client;
 
@@ -129,141 +123,335 @@ public class testDataType
         copTest.addKey ("InstanceId", new CIMValue (new UnsignedInt64 ("1")));
 
         if (DEBUG)
-            System.err.println ("copTest      = " + copTest);
+        {
+           System.err.println ("copTest      = " + copTest);
+        }
 
         cimInstance = cimClient.getInstance (copTest, false);
 
         if (DEBUG)
-            System.err.println ("cimInstance = " + cimInstance);
+        {
+           System.err.println ("cimInstance = " + cimInstance);
+        }
 
         if (runTestUINT8 (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: UINT8.");
+        {
+           System.out.println ("SUCCESS: UINT8.");
+        }
         else
-            System.out.println ("ERROR: UINT8 failed!");
+        {
+           System.out.println ("ERROR: UINT8 failed!");
+
+           return false;
+        }
         if (runTestSINT8 (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: SINT8.");
+        {
+           System.out.println ("SUCCESS: SINT8.");
+        }
         else
-            System.out.println ("ERROR: SINT8 failed!");
+        {
+           System.out.println ("ERROR: SINT8 failed!");
+
+           return false;
+        }
         if (runTestUINT16 (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: UINT16.");
+        {
+           System.out.println ("SUCCESS: UINT16.");
+        }
         else
-            System.out.println ("ERROR: UINT16 failed!");
+        {
+           System.out.println ("ERROR: UINT16 failed!");
+
+           return false;
+        }
         if (runTestSINT16 (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: SINT16.");
+        {
+           System.out.println ("SUCCESS: SINT16.");
+        }
         else
-            System.out.println ("ERROR: SINT16 failed!");
+        {
+           System.out.println ("ERROR: SINT16 failed!");
+
+           return false;
+        }
         if (runTestUINT32 (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: UINT32.");
+        {
+           System.out.println ("SUCCESS: UINT32.");
+        }
         else
-            System.out.println ("ERROR: UINT32 failed!");
+        {
+           System.out.println ("ERROR: UINT32 failed!");
+
+           return false;
+        }
         if (runTestSINT32 (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: SINT32.");
+        {
+           System.out.println ("SUCCESS: SINT32.");
+        }
         else
-            System.out.println ("ERROR: SINT32 failed!");
+        {
+           System.out.println ("ERROR: SINT32 failed!");
+
+           return false;
+        }
         if (runTestUINT64 (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: UINT64.");
+        {
+           System.out.println ("SUCCESS: UINT64.");
+        }
         else
-            System.out.println ("ERROR: UINT64 failed!");
+        {
+           System.out.println ("ERROR: UINT64 failed!");
+
+           return false;
+        }
         if (runTestSINT64 (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: SINT64.");
+        {
+           System.out.println ("SUCCESS: SINT64.");
+        }
         else
-            System.out.println ("ERROR: SINT64 failed!");
+        {
+           System.out.println ("ERROR: SINT64 failed!");
+
+           return false;
+        }
         if (runTestSTRING (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: STRING.");
+        {
+           System.out.println ("SUCCESS: STRING.");
+        }
         else
-            System.out.println ("ERROR: STRING failed!");
+        {
+           System.out.println ("ERROR: STRING failed!");
+
+           return false;
+        }
         if (runTestBOOLEAN (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: BOOLEAN.");
+        {
+           System.out.println ("SUCCESS: BOOLEAN.");
+        }
         else
-            System.out.println ("ERROR: BOOLEAN failed!");
+        {
+           System.out.println ("ERROR: BOOLEAN failed!");
+
+           return false;
+        }
         if (runTestREAL32 (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: REAL32.");
+        {
+           System.out.println ("SUCCESS: REAL32.");
+        }
         else
-            System.out.println ("ERROR: REAL32 failed!");
+        {
+           System.out.println ("ERROR: REAL32 failed!");
+
+           return false;
+        }
         if (runTestREAL64 (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: REAL64.");
+        {
+           System.out.println ("SUCCESS: REAL64.");
+        }
         else
-            System.out.println ("ERROR: REAL64 failed!");
+        {
+           System.out.println ("ERROR: REAL64 failed!");
+
+           return false;
+        }
         if (runTestDATETIME (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: DATETIME.");
+        {
+           System.out.println ("SUCCESS: DATETIME.");
+        }
         else
-            System.out.println ("ERROR: DATETIME failed!");
+        {
+           System.out.println ("ERROR: DATETIME failed!");
+
+           return false;
+        }
         if (runTestCHAR16 (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: CHAR16.");
+        {
+           System.out.println ("SUCCESS: CHAR16.");
+        }
         else
-            System.out.println ("ERROR: CHAR16 failed!");
+        {
+           System.out.println ("ERROR: CHAR16 failed!");
+
+           return false;
+        }
         if (runTestINSTANCE (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: INSTANCE.");
+        {
+           System.out.println ("SUCCESS: INSTANCE.");
+        }
         else
-            System.out.println ("ERROR: INSTANCE failed!");
+        {
+           System.out.println ("ERROR: INSTANCE failed!");
+
+           return false;
+        }
         if (runTestCLASS (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: CLASS.");
+        {
+           System.out.println ("SUCCESS: CLASS.");
+        }
         else
-            System.out.println ("ERROR: CLASS failed!");
+        {
+           System.out.println ("ERROR: CLASS failed!");
+
+           return false;
+        }
         if (runTestUINT8_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: UINT8_ARRAY.");
+        {
+           System.out.println ("SUCCESS: UINT8_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: UINT8_ARRAY failed!");
+        {
+           System.out.println ("ERROR: UINT8_ARRAY failed!");
+
+           return false;
+        }
         if (runTestSINT8_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: SINT8_ARRAY.");
+        {
+           System.out.println ("SUCCESS: SINT8_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: SINT8_ARRAY failed!");
+        {
+           System.out.println ("ERROR: SINT8_ARRAY failed!");
+
+           return false;
+        }
         if (runTestUINT16_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: UINT16_ARRAY.");
+        {
+           System.out.println ("SUCCESS: UINT16_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: UINT16_ARRAY failed!");
+        {
+           System.out.println ("ERROR: UINT16_ARRAY failed!");
+
+           return false;
+        }
         if (runTestSINT16_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: SINT16_ARRAY.");
+        {
+           System.out.println ("SUCCESS: SINT16_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: SINT16_ARRAY failed!");
+        {
+           System.out.println ("ERROR: SINT16_ARRAY failed!");
+
+           return false;
+        }
         if (runTestUINT32_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: UINT32_ARRAY.");
+        {
+           System.out.println ("SUCCESS: UINT32_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: UINT32_ARRAY failed!");
+        {
+           System.out.println ("ERROR: UINT32_ARRAY failed!");
+
+           return false;
+        }
         if (runTestSINT32_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: SINT32_ARRAY.");
+        {
+           System.out.println ("SUCCESS: SINT32_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: SINT32_ARRAY failed!");
+        {
+           System.out.println ("ERROR: SINT32_ARRAY failed!");
+
+           return false;
+        }
         if (runTestUINT64_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: UINT64_ARRAY.");
+        {
+           System.out.println ("SUCCESS: UINT64_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: UINT64_ARRAY failed!");
+        {
+           System.out.println ("ERROR: UINT64_ARRAY failed!");
+
+           return false;
+        }
         if (runTestSINT64_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: SINT64_ARRAY.");
+        {
+           System.out.println ("SUCCESS: SINT64_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: SINT64_ARRAY failed!");
+        {
+           System.out.println ("ERROR: SINT64_ARRAY failed!");
+
+           return false;
+        }
         if (runTestSTRING_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: STRING_ARRAY.");
+        {
+           System.out.println ("SUCCESS: STRING_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: STRING_ARRAY failed!");
+        {
+           System.out.println ("ERROR: STRING_ARRAY failed!");
+
+           return false;
+        }
         if (runTestBOOLEAN_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: BOOLEAN_ARRAY.");
+        {
+           System.out.println ("SUCCESS: BOOLEAN_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: BOOLEAN_ARRAY failed!");
+        {
+           System.out.println ("ERROR: BOOLEAN_ARRAY failed!");
+
+           return false;
+        }
         if (runTestREAL32_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: REAL32_ARRAY.");
+        {
+           System.out.println ("SUCCESS: REAL32_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: REAL32_ARRAY failed!");
+        {
+           System.out.println ("ERROR: REAL32_ARRAY failed!");
+
+           return false;
+        }
         if (runTestREAL64_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: REAL64_ARRAY.");
+        {
+           System.out.println ("SUCCESS: REAL64_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: REAL64_ARRAY failed!");
+        {
+           System.out.println ("ERROR: REAL64_ARRAY failed!");
+
+           return false;
+        }
         if (runTestDATETIME_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: DATETIME_ARRAY.");
+        {
+           System.out.println ("SUCCESS: DATETIME_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: DATETIME_ARRAY failed!");
+        {
+           System.out.println ("ERROR: DATETIME_ARRAY failed!");
+
+           return false;
+        }
         if (runTestCHAR16_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: CHAR16_ARRAY.");
+        {
+           System.out.println ("SUCCESS: CHAR16_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: CHAR16_ARRAY failed!");
+        {
+           System.out.println ("ERROR: CHAR16_ARRAY failed!");
+
+           return false;
+        }
         if (runTestINSTANCE_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: INSTANCE_ARRAY.");
+        {
+           System.out.println ("SUCCESS: INSTANCE_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: INSTANCE_ARRAY failed!");
+        {
+           System.out.println ("ERROR: INSTANCE_ARRAY failed!");
+
+           return false;
+        }
         if (runTestCLASS_ARRAY (cimClient, cimInstance, copTest))
-            System.out.println ("SUCCESS: CLASS_ARRAY.");
+        {
+           System.out.println ("SUCCESS: CLASS_ARRAY.");
+        }
         else
-            System.out.println ("ERROR: CLASS_ARRAY failed!");
+        {
+           System.out.println ("ERROR: CLASS_ARRAY failed!");
+        }
 
         return fRet;
     }
@@ -1513,12 +1701,18 @@ public class testDataType
         try
         {
             // set UINT64_ARRAY
+            String   apszValues[] = {
+               "7482743276264381934",
+               "11122233344455566677",
+               "18446744073709551615"
+            };
             CIMValue cv           = null;
             Vector   vectorUINT64 = new Vector ();
+            int      idxValue     = 0;
 
-            vectorUINT64.addElement (new UnsignedInt64 (new BigInteger ("7482743276264381934")));
-            vectorUINT64.addElement (new UnsignedInt64 (new BigInteger ("11122233344455566677")));
-            vectorUINT64.addElement (new UnsignedInt64 (new BigInteger ("18446744073709551615")));
+            vectorUINT64.addElement (new UnsignedInt64 (new BigInteger (apszValues[idxValue++])));
+            vectorUINT64.addElement (new UnsignedInt64 (new BigInteger (apszValues[idxValue++])));
+            vectorUINT64.addElement (new UnsignedInt64 (new BigInteger (apszValues[idxValue++])));
 
             cv = new CIMValue (vectorUINT64, new CIMDataType (CIMDataType.UINT64_ARRAY));
 
@@ -1548,18 +1742,29 @@ public class testDataType
             if (DEBUG)
                 System.err.println ("o           = " + o);
 
-            UnsignedInt64 ui64[] = (UnsignedInt64[])o;
+            UnsignedInt64 aui64[] = (UnsignedInt64[])o;
 
             if (DEBUG)
             {
-                System.err.print ("ui64        = [");
-                for (int i = 0; i < ui64.length; i++)
+                System.err.print ("aui64       = [");
+                for (int i = 0; i < aui64.length; i++)
                 {
-                    System.err.print (ui64[i]);
-                    if (i < ui64.length - 1)
+                    System.err.print (aui64[i]);
+                    if (i < aui64.length - 1)
                         System.err.print (",");
                 }
                 System.err.println ("]");
+            }
+
+            for (int i = 0; i < aui64.length; i++)
+            {
+               BigInteger    bi   = new BigInteger (apszValues[i]);
+               UnsignedInt64 ui64 = new UnsignedInt64 (bi);
+
+               if (aui64[i].compareTo (ui64) != 0)
+               {
+                  return false;
+               }
             }
 
             return true;

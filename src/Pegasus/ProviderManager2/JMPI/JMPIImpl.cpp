@@ -3015,6 +3015,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMArgument__1getType
    return DEBUG_ConvertCToJava (_dataType*, jint, type);
 }
 
+
 // -------------------------------------
 // ---
 // -		CIMProperty
@@ -3545,15 +3546,24 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMQualifier__1setValue
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMDateTime__1datetime
       (JNIEnv *jEnv, jobject jThs, jstring jN)
 {
-   const char  *str = jEnv->GetStringUTFChars (jN,NULL);
-   CIMDateTime *dt  = 0;
+   const char  *str  = jEnv->GetStringUTFChars (jN, NULL);
+   CIMDateTime *dt   = 0;
+   String       date;
 
-   if (strlen (str) == 0)
-      dt = new CIMDateTime ();
-   else
-      dt = new CIMDateTime (String (str));
+   if (  str
+      && *str
+      )
+   {
+      date = str;
+   }
 
-   jEnv->ReleaseStringUTFChars (jN,str);
+   jEnv->ReleaseStringUTFChars (jN, str);
+
+   try
+   {
+      dt = new CIMDateTime (date);
+   }
+   Catch (jEnv);
 
    return DEBUG_ConvertCToJava (CIMDateTime*, jint, dt);
 }
@@ -3571,8 +3581,33 @@ JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMDateTime__1after
 {
    CIMDateTime *ct = DEBUG_ConvertJavaToC (jint, CIMDateTime*, jC);
    CIMDateTime *dt = DEBUG_ConvertJavaToC (jint, CIMDateTime*, jD);
+   jboolean     ret = 0;
 
-   return (jboolean) (ct->getDifference (*ct, *dt)>0);
+   if (  ct
+      && dt
+      )
+   {
+      ret = (jboolean)(ct->getDifference (*ct, *dt)<0);
+   }
+
+   return ret;
+}
+
+JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMDateTime__1before
+      (JNIEnv *jEnv, jobject jThs, jint jC, jint jD)
+{
+   CIMDateTime *ct  = DEBUG_ConvertJavaToC (jint, CIMDateTime*, jC);
+   CIMDateTime *dt  = DEBUG_ConvertJavaToC (jint, CIMDateTime*, jD);
+   jboolean     ret = 0;
+
+   if (  ct
+      && dt
+      )
+   {
+      ret = (jboolean)(ct->getDifference (*ct, *dt)>0);
+   }
+
+   return ret;
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMDateTime__1finalize

@@ -63,7 +63,11 @@ JAR2CLASSES      = \
 	testPropertyProvider.class \
 	testCIMClient.class \
 	testCIMArgument.class \
-	testCIMClass.class
+	testCIMClass.class \
+	testCIMDataType.class \
+	testCIMDateTime.class
+# @TBD remove... only for testing!
+JAR2CLASSES      = testCIMDateTime.class
 EXTRAJAR2CLASSES =
 JARS             = $(JAR1) $(JAR2)
 

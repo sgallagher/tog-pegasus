@@ -32,9 +32,9 @@
 // Author:      Adrian Duta
 //
 // Modified By: Magda
+//              Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
 package org.pegasus.jmpi;
 
 import java.util.Calendar;
@@ -43,8 +43,8 @@ import java.util.TimeZone;
 /**
     Creates and instantiates a Java object that represents the date and time.
  */
-public class CIMDateTime {
-
+public class CIMDateTime
+{
    private int cInst;
 
    private native int     _datetime      (String n);
@@ -58,9 +58,9 @@ public class CIMDateTime {
    private static String  GMT            = "GMT";
    private static int     UTC_MULTIPLIER = 60000;
 
-   protected void finalize()
+   protected void finalize ()
    {
-      _finalize(cInst);
+      _finalize (cInst);
    }
 
    protected int cInst ()
@@ -70,12 +70,12 @@ public class CIMDateTime {
 
    CIMDateTime (int ci)
    {
-      cInst=ci;
+      cInst = ci;
    }
 
    public CIMDateTime ()
    {
-      cInst=_datetimeempty();
+      cInst = _datetimeempty ();
    }
 
    /**
@@ -85,9 +85,10 @@ public class CIMDateTime {
     * @param inStr The date/time as defined by the CIM specification
     *
     */
-   public CIMDateTime(String n)
+   public CIMDateTime (String n)
+      throws CIMException
    {
-      cInst=_datetime(n);
+      cInst = _datetime (n);
    }
 
    /**
@@ -97,8 +98,9 @@ public class CIMDateTime {
     */
    public CIMDateTime (java.util.Date inDate)
    {
-      String dateTime = getDateString(inDate);
-      cInst=_datetime(dateTime);
+      String dateTime = getDateString (inDate);
+
+      cInst = _datetime (dateTime);
    }
 
    public boolean after (CIMDateTime d)
@@ -127,45 +129,59 @@ public class CIMDateTime {
 
    private String getDateString (java.util.Date d)
    {
-      Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(GMT));
-      cal.setTime(d);
+      Calendar cal = Calendar.getInstance (TimeZone.getTimeZone (GMT));
 
-      int UTCOffset = ((cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET))/UTC_MULTIPLIER);
-      StringBuffer newString = new StringBuffer();
+      cal.setTime (d);
 
-      newString.append(padZero(4,cal.get(Calendar.YEAR)));
-      newString.append(padZero(2,cal.get(Calendar.MONTH)+1));
-      newString.append(padZero(2,cal.get(Calendar.DAY_OF_MONTH)));
-      newString.append(padZero(2,cal.get(Calendar.HOUR_OF_DAY)));
-      newString.append(padZero(2,cal.get(Calendar.MINUTE)));
-      newString.append(padZero(2,cal.get(Calendar.SECOND)));
-      newString.append(".");
+      int UTCOffset = (( cal.get(Calendar.ZONE_OFFSET)
+                       + cal.get(Calendar.DST_OFFSET)
+                       )
+                       /
+                       UTC_MULTIPLIER
+                      );
+
+      StringBuffer newString = new StringBuffer ();
+
+      newString.append (padZero (4, cal.get (Calendar.YEAR)));
+      newString.append (padZero (2, cal.get (Calendar.MONTH) + 1));
+      newString.append (padZero (2, cal.get (Calendar.DAY_OF_MONTH)));
+      newString.append (padZero (2, cal.get (Calendar.HOUR_OF_DAY)));
+      newString.append (padZero (2, cal.get (Calendar.MINUTE)));
+      newString.append (padZero (2, cal.get (Calendar.SECOND)));
+      newString.append (".");
 
       //millisecond to microsecond
-      newString.append(padZero(6,cal.get(Calendar.MILLISECOND)));
-      if (UTCOffset > 0) {
-         newString.append("+");
-      }
-      else {
-         newString.append("-");
-      }
-      newString.append(padZero(3, Math.abs(UTCOffset)));
+      newString.append (padZero (6, cal.get (Calendar.MILLISECOND)));
 
-      return newString.toString();
+      if (UTCOffset > 0)
+      {
+         newString.append ("+");
+      }
+      else
+      {
+         newString.append ("-");
+      }
+
+      newString.append (padZero (3, Math.abs (UTCOffset)));
+
+      return newString.toString ();
    }
 
    private String padZero (int length,
                            int value)
    {
-      String buf = String.valueOf(value);
-      int delta = length - buf.length();
+      String buf   = String.valueOf (value);
+      int    delta = length - buf.length ();
 
-      if (delta < 1) {
+      if (delta < 1)
+      {
          return buf;
       }
 
       String prefix = "0";
-      for (int i = 1; i < delta; i++) {
+
+      for (int i = 1; i < delta; i++)
+      {
          prefix = prefix + "0";
       }
 
@@ -173,6 +189,6 @@ public class CIMDateTime {
    }
 
    static {
-      System.loadLibrary("JMPIProviderManager");
+      System.loadLibrary ("JMPIProviderManager");
    }
 }

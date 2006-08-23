@@ -1,6 +1,6 @@
 ROOT = $(PEGASUS_ROOT)
 
-DIR = Providers/TestProviders/EmbeddedInstanceProvider/testclient
+DIR = Providers/TestProviders/EmbeddedInstanceProvider/testClient
 
 include $(ROOT)/mak/config.mak
 

@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Seema Gupta(gseema@in.ibm.com) for PEP135
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2619, #2685,#3354
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "BasicProviderManagerRouter.h"
@@ -50,8 +40,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
-#include <Pegasus/ProviderManager2/ProviderManagerModule.h>
+#include <Pegasus/ProviderManagerService/ProviderManagerModule.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 
 // ProviderManager library names.  Should these be defined elsewhere?

@@ -63,6 +63,7 @@ endif
 
 LIBRARIES += \
     pegprovidermanager \
+    pegpmservice \
     pegprovider \
     pegexportserver \
     pegrepository \

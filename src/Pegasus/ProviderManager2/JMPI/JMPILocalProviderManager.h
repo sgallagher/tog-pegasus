@@ -113,8 +113,6 @@ private:
         const String *interfaceName;
     } CTRL_STRINGS;
 
-    friend class ProviderManagerService;
-
     ResolverTable _resolvers;
     ProviderTable _providers;
     ModuleTable _modules;

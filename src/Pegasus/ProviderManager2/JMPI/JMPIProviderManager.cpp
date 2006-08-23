@@ -43,13 +43,13 @@
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProviderModule.h>
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN

@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
-//              Dan Gorey, IBM djgorey@us.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CMPIProvider_h
@@ -327,7 +320,6 @@ private:
 
     friend class CMPILocalProviderManager;
     friend class CMPIProviderManager;
-    friend class ProviderManagerService;
     class OpProviderHolder;
     friend class OpProviderHolder;
     CIMOMHandle *_cimom_handle;

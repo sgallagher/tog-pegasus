@@ -101,8 +101,7 @@ DIRS += \
     ProviderManager2 \
     ProviderManager2/Default \
     ProviderManager2/tests \
-    ProviderManager2/Default/tests \
-    ProviderManager2/ProviderAgent
+    ProviderManager2/Default/tests
 
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
     DIRS += \
@@ -141,6 +140,10 @@ ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
             ProviderManager2/JMPI
     endif
 endif
+
+DIRS += \
+    ProviderManagerService \
+    ProviderManagerService/ProviderAgent
 
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC
     DIRS += \

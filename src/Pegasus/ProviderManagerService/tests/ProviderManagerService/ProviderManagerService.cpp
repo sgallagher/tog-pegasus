@@ -29,88 +29,26 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "ProviderManagerModule.h"
+#include <Pegasus/Common/Config.h>
 
-PEGASUS_NAMESPACE_BEGIN
+#include <Pegasus/ProviderManagerService/ProviderManagerService.h>
 
-ProviderManagerModule::ProviderManagerModule()
-    : DynamicLibrary(),
-      _createProviderManager(0)
+PEGASUS_USING_PEGASUS;
+
+#include <iostream>
+
+PEGASUS_USING_STD;
+
+Boolean verbose = false;
+
+int main(int argc, char** argv)
 {
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+    if (verbose) cout << argv[0] << ": started" << endl;
+
+    cout << argv[0] << " +++++passed all tests" << endl;
+
+    return(0);
 }
-
-ProviderManagerModule::ProviderManagerModule(
-    const ProviderManagerModule& module)
-    : DynamicLibrary(module),
-      _createProviderManager(module._createProviderManager)
-{
-}
-
-ProviderManagerModule::ProviderManagerModule(
-    const String& fileName)
-    : DynamicLibrary(fileName),
-      _createProviderManager(0)
-{
-}
-
-ProviderManagerModule::~ProviderManagerModule()
-{
-}
-
-ProviderManagerModule& ProviderManagerModule::operator=(
-    const ProviderManagerModule& module)
-{
-    if (this == &module)
-    {
-        return(*this);
-    }
-
-    DynamicLibrary::operator=(module);
-
-    _createProviderManager = module._createProviderManager;
-
-    return(*this);
-}
-
-Boolean ProviderManagerModule::load()
-{
-    if (DynamicLibrary::load())
-    {
-        // export entry points
-        _createProviderManager = (CREATE_PROVIDER_MANAGER_FUNCTION)
-            getSymbol("PegasusCreateProviderManager");
-
-        if (_createProviderManager != 0)
-        {
-            return(true);
-        }
-
-        DynamicLibrary::unload();
-    }
-
-    return(false);
-}
-
-void ProviderManagerModule::unload()
-{
-    DynamicLibrary::unload();
-}
-
-ProviderManager* ProviderManagerModule::getProviderManager(
-    const String& s) const
-{
-    if (!isLoaded())
-    {
-        return(0);
-    }
-
-    return(_createProviderManager(s));
-}
-
-PEGASUS_NAMESPACE_END

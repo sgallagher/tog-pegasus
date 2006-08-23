@@ -195,7 +195,6 @@ protected:
 private:
     friend class JMPILocalProviderManager;
     friend class JMPIProviderManager;
-    friend class ProviderManagerService;
     class OpProviderHolder;
     friend class OpProviderHolder;
     mutable Mutex _cimomMutex;

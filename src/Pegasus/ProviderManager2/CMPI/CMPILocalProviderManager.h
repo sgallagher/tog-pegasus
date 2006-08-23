@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Jenny Yu, Hewlett-Packard Company(jenny_yu@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
-//              Dan Gorey, IBM djgorey@us.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CMPILocalProviderManager_h
@@ -45,6 +37,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIResolverModule.h>
@@ -112,8 +105,6 @@ private:
         const String *fileName;
         const String *location;
     } CTRL_STRINGS;
-
-    friend class ProviderManagerService;
 
     ResolverTable _resolvers;
     ProviderTable _providers;

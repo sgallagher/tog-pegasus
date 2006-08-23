@@ -42,8 +42,6 @@
 
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
-
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 
 PEGASUS_USING_STD;

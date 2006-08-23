@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Dan Gorey, IBM djgorey@us.ibm.com
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Provider_h
@@ -168,7 +160,6 @@ protected:
     CIMProvider *getCIMProvider();
 private:
     friend class LocalProviderManager;
-    friend class ProviderManagerService;
     friend class OpProviderHolder;
     CIMOMHandle *_cimom_handle;
     String _name;

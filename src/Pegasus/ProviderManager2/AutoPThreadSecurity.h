@@ -31,41 +31,55 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ProviderManagerModule_h
-#define Pegasus_ProviderManagerModule_h
+#ifndef Pegasus_AutoPThreadSecurity_h
+#define Pegasus_AutoPThreadSecurity_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/DynamicLibrary.h>
-
-#include <Pegasus/ProviderManager2/ProviderManager.h>
-
+#include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/ProviderManager2/Linkage.h>
+
+#ifdef PEGASUS_ZOS_SECURITY
+// This include file will not be provided in the OpenGroup CVS for now.
+// Do NOT try to include it in your compile
+#include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_PPM_LINKAGE ProviderManagerModule : public DynamicLibrary
+// Auto class to encapsulate enabling and disabling
+// of the pthread_security on z/OS
+// For all other platforms this should be an empty class
+// Targets: avoid ifdefs and keep code readable(clean)
+#ifndef PEGASUS_ZOS_THREADLEVEL_SECURITY
+// not z/OS == empty class
+class PEGASUS_PPM_LINKAGE AutoPThreadSecurity
+{
+public:    
+    AutoPThreadSecurity(const OperationContext& context) {};
+};
+#else
+
+class PEGASUS_PPM_LINKAGE AutoPThreadSecurity
 {
 public:
-    typedef ProviderManager * (*CREATE_PROVIDER_MANAGER_FUNCTION)(const String &);
+    AutoPThreadSecurity(const OperationContext& context)
+    {
+        int err_num=enablePThreadSecurity(context);
+        if (err_num!=0)
+        {
+            // need a new CIMException for this
+            throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+        }
+    };
 
-public:
-    ProviderManagerModule();
-    ProviderManagerModule(const ProviderManagerModule & module);
-    explicit ProviderManagerModule(const String & fileName);
-    virtual ~ProviderManagerModule();
-
-    ProviderManagerModule & operator=(const ProviderManagerModule & module);
-
-    virtual Boolean load();
-    virtual void unload();
-
-    ProviderManager * getProviderManager(const String & s) const;
-
-private:
-    CREATE_PROVIDER_MANAGER_FUNCTION _createProviderManager;
-
+    ~AutoPThreadSecurity()
+    {
+        disablePThreadSecurity();
+    };
 };
+
+#endif
 
 PEGASUS_NAMESPACE_END
 

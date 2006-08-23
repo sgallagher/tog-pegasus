@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_OOPProviderManagerRouter_h
@@ -44,9 +39,9 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/CIMMessage.h>
 
-#include <Pegasus/ProviderManager2/ProviderManagerRouter.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
-#include <Pegasus/ProviderManager2/Linkage.h>
+#include <Pegasus/ProviderManagerService/ProviderManagerRouter.h>
+#include <Pegasus/ProviderManagerService/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,7 +53,7 @@ class ProviderAgentContainer;
 typedef HashTable<String, ProviderAgentContainer*, EqualFunc<String>,
     HashFunc<String> > ProviderAgentTable;
 
-class PEGASUS_PPM_LINKAGE OOPProviderManagerRouter
+class PEGASUS_PMS_LINKAGE OOPProviderManagerRouter
     : public ProviderManagerRouter
 {
 public:

@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:	Seema Gupta (gseema@in.ibm.com) for PEP135
-//              Robert Kieninger (kieningr@de.ibm.com) for Bugzilla 2320
-//              Josephine Eskaline Joyce(jojustin@in.ibm.com) for PEP#101
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3496
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -67,13 +59,12 @@
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 #include <Pegasus/ProviderManager2/CIMOMHandleContext.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
+#include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
-//#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
-
 
 PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 int _cmpi_trace=0;

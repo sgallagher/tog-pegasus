@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ProviderManagerRouter_h
@@ -41,11 +36,11 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
-#include <Pegasus/ProviderManager2/Linkage.h>
+#include <Pegasus/ProviderManagerService/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_PPM_LINKAGE ProviderManagerRouter
+class PEGASUS_PMS_LINKAGE ProviderManagerRouter
 {
 public:
     ProviderManagerRouter();

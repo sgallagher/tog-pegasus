@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Seema Gupta (gseema@in.ibm.com) for PEP135
-//              Willis White (whiwill@us.ibm.com)
-//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "DefaultProviderManager.h"
@@ -58,8 +46,7 @@
 
 #include <Pegasus/ProviderManager2/Default/Provider.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
-
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
+#include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
 
 #define HandleCatch(handler)                                                   \
 catch(CIMException & e)                                                        \

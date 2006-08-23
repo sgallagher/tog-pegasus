@@ -36,7 +36,7 @@ include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_PPM_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER
+LOCAL_DEFINES = -DPEGASUS_PPM_INTERNAL -DPEGASUS_INTERNALONLY
 
 STATIC=1
 LIBRARY = pegprovidermanager
@@ -50,18 +50,10 @@ LIBRARIES = \
     pegcommon
 
 SOURCES = \
-	ProviderManagerService.cpp \
-	ProviderManagerRouter.cpp \
-	BasicProviderManagerRouter.cpp \
-	OOPProviderManagerRouter.cpp \
-	ProviderManagerModule.cpp \
-	\
 	ProviderManager.cpp \
 	ProviderName.cpp \
-	\
 	OperationResponseHandler.cpp \
 	SimpleResponseHandler.cpp \
 	CIMOMHandleContext.cpp
-
 
 include $(ROOT)/mak/library.mak

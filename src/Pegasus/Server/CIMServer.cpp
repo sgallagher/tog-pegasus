@@ -29,21 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//         Mike Day (mdday@us.ibm.com)s
-//         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//         Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//         Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
-//         Dan Gorey, IBM (djgorey@us.ibm.com)
-//         Heather Sterling, IBM (hsterl@us.ibm.com)
-//         Amit K Arora, IBM (amita@in.ibm.com) for PEP 193
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -75,7 +60,7 @@
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
+#include <Pegasus/ProviderManagerService/ProviderManagerService.h>
 #include <Pegasus/ProviderManager2/Default/DefaultProviderManager.h>
 
 #ifdef PEGASUS_ENABLE_SLP

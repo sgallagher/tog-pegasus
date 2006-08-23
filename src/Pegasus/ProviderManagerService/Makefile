@@ -28,25 +28,33 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../..
 
-DIR = Pegasus/ProviderManager2/tests/ProviderManagerService
+DIR = Pegasus/ProviderManagerService
+
+include $(ROOT)/mak/config.mak
+
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+LOCAL_DEFINES = -DPEGASUS_PMS_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER
+
+STATIC=1
+LIBRARY = pegpmservice
 
 LIBRARIES = \
     pegprovidermanager \
     pegprovider \
+    pegprm \
+    pegwql \
     pegconfig \
-    pegcommon 
+    pegclient \
+    pegcommon
 
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+SOURCES = \
+    ProviderManagerService.cpp \
+    ProviderManagerRouter.cpp \
+    BasicProviderManagerRouter.cpp \
+    OOPProviderManagerRouter.cpp \
+    ProviderManagerModule.cpp
 
-PROGRAM = TestProviderManagerService
-
-SOURCES = ProviderManagerService.cpp
-
-include $(PEGASUS_ROOT)/mak/program.mak
-
-tests:
-	$(PROGRAM)
-
-poststarttests:
+include $(ROOT)/mak/library.mak

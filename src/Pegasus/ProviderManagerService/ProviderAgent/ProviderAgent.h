@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ProviderAgent_h
@@ -45,7 +39,7 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/Signal.h>
-#include <Pegasus/ProviderManager2/BasicProviderManagerRouter.h>
+#include <Pegasus/ProviderManagerService/BasicProviderManagerRouter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

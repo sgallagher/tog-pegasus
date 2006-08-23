@@ -52,6 +52,7 @@ LIBRARIES = \
 	pegrepository \
 	pegprovider \
 	pegexportserver \
+	pegpmservice \
 	pegprovidermanager \
 	pegconfig \
 	peguser \

@@ -44,7 +44,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/ProviderManager2/ProviderAgent/ProviderAgent.h>
+#include <Pegasus/ProviderManagerService/ProviderAgent/ProviderAgent.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;

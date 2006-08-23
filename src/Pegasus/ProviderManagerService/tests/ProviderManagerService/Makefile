@@ -30,9 +30,24 @@
 #//==============================================================================
 include $(PEGASUS_ROOT)/mak/config.mak
 
-DIRS = \
-	ProviderManager \
-	ProviderName \
-	OperationResponseHandler
+DIR = Pegasus/ProviderManagerService/tests/ProviderManagerService
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+LIBRARIES = \
+    pegpmservice \
+    pegprovidermanager \
+    pegprovider \
+    pegconfig \
+    pegcommon 
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
+PROGRAM = TestProviderManagerService
+
+SOURCES = ProviderManagerService.cpp
+
+include $(PEGASUS_ROOT)/mak/program.mak
+
+tests:
+	$(PROGRAM)
+
+poststarttests:

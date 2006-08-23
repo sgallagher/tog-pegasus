@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day IBM Corporation (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "JMPILocalProviderManager.h"
@@ -44,9 +38,9 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
+#include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProviderModule.h>
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN

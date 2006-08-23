@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_BasicProviderManagerRouter_h
@@ -44,15 +40,15 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/ReadWriteSem.h>
 
-#include <Pegasus/ProviderManager2/ProviderManagerRouter.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
-#include <Pegasus/ProviderManager2/Linkage.h>
+#include <Pegasus/ProviderManagerService/ProviderManagerRouter.h>
+#include <Pegasus/ProviderManagerService/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class ProviderManagerContainer;
 
-class PEGASUS_PPM_LINKAGE BasicProviderManagerRouter
+class PEGASUS_PMS_LINKAGE BasicProviderManagerRouter
     : public ProviderManagerRouter
 {
 public:

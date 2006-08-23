@@ -29,30 +29,24 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
+#include "ProviderManagerRouter.h"
 
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
+PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_PEGASUS;
-
-#include <iostream>
-
-PEGASUS_USING_STD;
-
-Boolean verbose = false;
-
-int main(int argc, char** argv)
+ProviderManagerRouter::ProviderManagerRouter()
 {
-    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-    if (verbose) cout << argv[0] << ": started" << endl;
-
-    cout << argv[0] << " +++++passed all tests" << endl;
-
-    return(0);
 }
+
+ProviderManagerRouter::~ProviderManagerRouter()
+{
+}
+
+void ProviderManagerRouter::setSubscriptionInitComplete
+    (Boolean subscriptionInitComplete)
+{
+    _subscriptionInitComplete = subscriptionInitComplete;
+}
+
+PEGASUS_NAMESPACE_END

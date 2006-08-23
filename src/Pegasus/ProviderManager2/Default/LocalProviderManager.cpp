@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day IBM Corporation (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
-//              Dan Gorey, IBM djgorey@us.ibm.com
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "LocalProviderManager.h"
@@ -48,7 +38,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
+#include <Pegasus/ProviderManager2/ProviderManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

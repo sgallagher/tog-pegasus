@@ -29,29 +29,14 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "ProviderManagerRouter.h"
+#include <Pegasus/Common/Config.h>
 
-PEGASUS_NAMESPACE_BEGIN
-
-ProviderManagerRouter::ProviderManagerRouter()
-{
-}
-
-ProviderManagerRouter::~ProviderManagerRouter()
-{
-}
-
-void ProviderManagerRouter::setSubscriptionInitComplete
-    (Boolean subscriptionInitComplete)
-{
-    _subscriptionInitComplete = subscriptionInitComplete;
-}
-
-PEGASUS_NAMESPACE_END
+#ifndef PEGASUS_PMS_LINKAGE
+#   ifdef PEGASUS_PMS_INTERNAL
+#       define PEGASUS_PMS_LINKAGE PEGASUS_EXPORT
+#   else
+#       define PEGASUS_PMS_LINKAGE PEGASUS_IMPORT
+#   endif
+#endif

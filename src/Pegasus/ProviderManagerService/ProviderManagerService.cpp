@@ -29,20 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Adrian Schuur, IBM (schuur@de.ibm.com)
-//              Amit K Arora (amita@in.ibm.com) for PEP-101
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Seema Gupta (gseema@in.ibm.com for PEP135)
-//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
-//              Aruran, IBM (ashanmug@in.ibm.com)for Bug# 3881
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderManagerService.h"
@@ -60,9 +46,8 @@
 
 #include <Pegasus/Config/ConfigManager.h>
 
-#include <Pegasus/ProviderManager2/BasicProviderManagerRouter.h>
-#include <Pegasus/ProviderManager2/OOPProviderManagerRouter.h>
-#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
+#include <Pegasus/ProviderManagerService/BasicProviderManagerRouter.h>
+#include <Pegasus/ProviderManagerService/OOPProviderManagerRouter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -29,19 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//              Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, IBM (schuur@de.ibm.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ProviderManagerService_h
@@ -57,21 +44,12 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
-#include <Pegasus/ProviderManager2/ProviderManagerRouter.h>
-
-#include <Pegasus/ProviderManager2/Linkage.h>
-
-#ifdef PEGASUS_ZOS_SECURITY
-// This include file will not be provided in the OpenGroup CVS for now.
-// Do NOT try to include it in your compile
-#include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
-#endif
+#include <Pegasus/ProviderManagerService/ProviderManagerRouter.h>
+#include <Pegasus/ProviderManagerService/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define IDLE_LIMIT 300
-
-class PEGASUS_PPM_LINKAGE ProviderManagerService : public MessageQueueService
+class PEGASUS_PMS_LINKAGE ProviderManagerService : public MessageQueueService
 {
 public:
     ProviderManagerService(
@@ -139,43 +117,7 @@ private:
         unloading idle providers at the same time.
      */
     AtomicInt _unloadIdleProvidersBusy;
-
-
 };
-
-// Auto class to encapsulate enabling and disabling
-// of the pthread_security on z/OS
-// For all other platforms this should be an empty class
-// Targets: avoid ifdefs and keep code readable(clean)
-#ifndef PEGASUS_ZOS_THREADLEVEL_SECURITY
-// not z/OS == empty class
-class PEGASUS_PPM_LINKAGE AutoPThreadSecurity
-{
-public:    
-    AutoPThreadSecurity(const OperationContext& context) {};
-};
-#else
-
-class PEGASUS_PPM_LINKAGE AutoPThreadSecurity
-{
-public:
-    AutoPThreadSecurity(const OperationContext& context)
-    {
-                int err_num=enablePThreadSecurity(context);
-                if (err_num!=0)
-                {
-                        // need a new CIMException for this
-                        throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
-                }
-    };
-
-    ~AutoPThreadSecurity()
-    {
-        disablePThreadSecurity();
-    };
-};
-
-#endif
 
 PEGASUS_NAMESPACE_END
 

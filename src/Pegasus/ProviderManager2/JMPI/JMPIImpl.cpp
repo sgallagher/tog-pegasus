@@ -2144,44 +2144,95 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMInstance__1setProperty
 {
    CIMInstance *ci  = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInst);
    CIMValue    *cv  = DEBUG_ConvertJavaToC (jint, CIMValue*, jV);
-   const char  *str = jEnv->GetStringUTFChars (jN,NULL);
-   Uint32       pos = ci->findProperty (CIMName (str));
+   const char  *str = jEnv->GetStringUTFChars (jN, NULL);
+   Uint32       pos;
 
-   try {
-      if (pos!= PEG_NOT_FOUND)
-      {
-         CIMProperty cp = ci->getProperty (pos);
+   if (  ci
+      && cv
+      )
+   {
+      try {
+         pos = ci->findProperty (CIMName (str));
 
-         if (cp.getType () == cv->getType ())
+         if (pos!= PEG_NOT_FOUND)
          {
-            cp.setValue (*cv);
+            CIMProperty cp = ci->getProperty (pos);
+
+            if (cp.getType () == cv->getType ())
+            {
+               cp.setValue (*cv);
+            }
+            else
+            {
+               throw CIMException (CIM_ERR_TYPE_MISMATCH, String ("Property type mismatch"));
+            }
+
+            ci->removeProperty (pos);
+            ci->addProperty (cp);
          }
          else
          {
-            DDD (PEGASUS_STD (cerr)<<"!!! CIMInstance.setProperty - Wrong type of CIMValue (instance name:"<<ci->getClassName ().getString ()<<", property name: "<<str<<")");
-            DDD (PEGASUS_STD (cerr)<<"!!! CIMInstance.setProperty : "<<cp.getType ()<<" <> "<<cv->getType ()<<PEGASUS_STD (endl));
+            CIMProperty *cp = new CIMProperty (CIMName (str), *cv);
 
-            throw CIMException (CIM_ERR_FAILED, String ("Type mismatch"));
+            ci->addProperty (*cp);
          }
-
-         ci->removeProperty (pos);
-         ci->addProperty (cp);
       }
-      else
-      {
-         CIMProperty *cp = new CIMProperty (CIMName (str),*cv);
-         ci->addProperty (*cp);
-      }
+      Catch (jEnv);
    }
-   Catch (jEnv);
 
-   jEnv->ReleaseStringUTFChars (jN,str);
+   jEnv->ReleaseStringUTFChars (jN, str);
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMInstance__1setProperties
       (JNIEnv *jEnv, jobject jThs, jint jInst, jobject jV)
 {
-   throw CIMException (CIM_ERR_NOT_SUPPORTED, String ("Not yet supported"));
+   CIMInstance *ci = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInst);
+
+   if (!ci)
+   {
+      return;
+   }
+
+   try
+   {
+      for (int i = 0, m = jEnv->CallIntMethod (jV,
+                                               JMPIjvm::jv.VectorSize);
+           i < m;
+           i++)
+      {
+         JMPIjvm::checkException (jEnv);
+
+         jobject jProp = jEnv->CallObjectMethod (jV,
+                                                 JMPIjvm::jv.VectorElementAt,
+                                                 i);
+
+         JMPIjvm::checkException (jEnv);
+
+         jint         jCpRef = jEnv->CallIntMethod (jProp, JMPIjvm::jv.CIMPropertyCInst);
+         CIMProperty *cpNew  = DEBUG_ConvertJavaToC (jint, CIMProperty*, jCpRef);
+
+         if (cpNew)
+         {
+            Uint32 pos = ci->findProperty (cpNew->getName ());
+
+            if (pos != PEG_NOT_FOUND)
+            {
+               CIMProperty cpOld = ci->getProperty (pos);
+
+               if (cpOld.getType () == cpNew->getType ())
+               {
+                  ci->removeProperty (pos);
+                  ci->addProperty (*cpNew);
+               }
+               else
+               {
+                  throw CIMException (CIM_ERR_TYPE_MISMATCH, String ("Property type mismatch"));
+               }
+            }
+         }
+      }
+   }
+   Catch (jEnv);
 }
 
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1getProperty
@@ -2215,24 +2266,52 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMInstance__1getKeyValuePairs
 
    CIMInstance *ci = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInst);
 
-//@HACK
-//cout << "ci->getPropertyCount () = " << ci->getPropertyCount () << endl;
-   for (int i = 0,s = ci->getPropertyCount (); i < s; i++)
+   if (ci)
    {
-//cout << ci->getProperty (i).getName ().getString ()
-//     << " "
-//     << ci->getProperty (i).getQualifierCount ()
-//     << " "
-//     << ci->getProperty (i).findQualifier (CIMName ("key"))
-//     << endl;
-      if (ci->getProperty (i).findQualifier (String ("key"))!= PEG_NOT_FOUND)
+      CIMOMHandle      ch;
+      OperationContext oc;
+      CIMClass         cc;
+
+      cc = ch.getClass (oc,
+                        ci->getPath ().getNameSpace (),
+                        ci->getClassName (),
+                        false,                                     // localOnly
+                        true,                                      // includeQualifiers
+                        true,                                      // includeClassOrigin
+                        CIMPropertyList ());                       // propertyList
+
+      if (!cc.hasKeys ())
       {
-         CIMProperty *cp  = new CIMProperty (ci->getProperty (i));
-         jint         jCp = DEBUG_ConvertCToJava (CIMProperty*, jint, cp);
+         return jVec;
+      }
 
-         jobject prop = jEnv->NewObject (JMPIjvm::jv.CIMPropertyClassRef,JMPIjvm::jv.CIMPropertyNewI,jCp);
+      Array<CIMName> keyNames;
 
-         jEnv->CallVoidMethod (jVec,JMPIjvm::jv.VectorAddElement,prop);
+      cc.getKeyNames (keyNames);
+
+      for (Uint32 i = 0; i < keyNames.size (); i++)
+      {
+         PEGASUS_STD (cout) << "finding key " << keyNames[i].getString () << PEGASUS_STD (endl);
+
+         for (Uint32 j = 0; j < ci->getPropertyCount (); j++)
+         {
+            CIMProperty cp = ci->getProperty (j);
+
+            if (cp.getName () == keyNames[i])
+            {
+               PEGASUS_STD (cout) << "adding key (" << j << ") " << keyNames[i].getString () << PEGASUS_STD (endl);
+
+               CIMProperty *cpRef  = new CIMProperty (cp);
+               jint         jCpRef = DEBUG_ConvertCToJava (CIMProperty*, jint, cpRef);
+               jobject      jProp  = jEnv->NewObject (JMPIjvm::jv.CIMPropertyClassRef,
+                                                      JMPIjvm::jv.CIMPropertyNewI,
+                                                      jCpRef);
+
+               jEnv->CallVoidMethod (jVec,
+                                     JMPIjvm::jv.VectorAddElement,
+                                     jProp);
+            }
+         }
       }
    }
 
@@ -2254,16 +2333,41 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1getQualifier
       (JNIEnv *jEnv, jobject jThs, jint jInst, jstring jN)
 {
    CIMInstance *ci  = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInst);
-   const char  *str = jEnv->GetStringUTFChars (jN,NULL);
+   const char  *str = jEnv->GetStringUTFChars (jN, NULL);
    jint         rv  = 0;
-   Uint32       pos = ci->findQualifier (String (str));
+   Uint32       pos;
 
-   if (pos!= PEG_NOT_FOUND)
+   if (ci)
    {
-      rv = DEBUG_ConvertCToJava (CIMQualifier*, jint, new CIMQualifier (ci->getQualifier (pos)));
+      try
+      {
+         CIMOMHandle      ch;
+         OperationContext oc;
+         CIMClass         cc;
+
+         cc = ch.getClass (oc,
+                           ci->getPath ().getNameSpace (),
+                           ci->getClassName (),
+                           false,                                     // localOnly
+                           true,                                      // includeQualifiers
+                           true,                                      // includeClassOrigin
+                           CIMPropertyList ());                       // propertyList
+
+         pos = cc.findQualifier (String (str));
+
+         if (pos != PEG_NOT_FOUND)
+         {
+            CIMQualifier *cq = 0;
+
+            cq = new CIMQualifier (cc.getQualifier (pos));
+
+            rv = DEBUG_ConvertCToJava (CIMQualifier*, jint, cq);
+         }
+      }
+      Catch (jEnv);
    }
 
-   jEnv->ReleaseStringUTFChars (jN,str);
+   jEnv->ReleaseStringUTFChars (jN, str);
 
    return rv;
 }
@@ -2777,6 +2881,7 @@ JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_CIMObjectPath__1toString
 
    return str;
 }
+
 
 // -------------------------------------
 // ---

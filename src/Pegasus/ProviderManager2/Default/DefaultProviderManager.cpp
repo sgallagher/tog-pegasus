@@ -786,13 +786,6 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
         OpProviderHolder ph = providerManager.getProvider(
             name.getPhysicalName(), name.getLogicalName());
 
-        if (dynamic_cast<CIMInstanceQueryProvider*>(ph.GetCIMProvider()) == 0) {
-           String errorString = " instance provider is registered supporting execQuery "
-                                "but is not a CIMQueryInstanceProvider subclass.";
-           throw CIMException(CIM_ERR_FAILED,"ProviderLoadFailure (" + name.getPhysicalName() + ":" +
-                            name.getLogicalName() + "):" + errorString);
-        }
-
         // convert arguments
         OperationContext context;
 

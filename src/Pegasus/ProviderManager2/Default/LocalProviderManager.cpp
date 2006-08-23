@@ -75,7 +75,6 @@ OpProviderHolder LocalProviderManager::getProvider(
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "LocalProviderManager::getProvider");
 
-    OpProviderHolder ph;
     Provider* pr = _lookupProvider(providerName);
 
     if (pr->getStatus() != Provider::INITIALIZED)
@@ -90,7 +89,7 @@ OpProviderHolder LocalProviderManager::getProvider(
         }
     }
 
-    ph.SetProvider(pr);
+    OpProviderHolder ph(pr);
     ph.GetProvider().update_idle_timer();
 
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,

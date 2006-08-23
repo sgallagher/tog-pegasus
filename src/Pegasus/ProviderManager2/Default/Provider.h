@@ -206,63 +206,49 @@ private:
 
 class OpProviderHolder
 {
-private:
-    Provider* _provider;
-
 public:
-    OpProviderHolder(): _provider( NULL )
+    OpProviderHolder(Provider* p)
+        : _provider(p)
     {
+        PEGASUS_ASSERT(_provider != 0);
+        _provider->_current_operations++;
     }
-    OpProviderHolder( const OpProviderHolder& p ): _provider( NULL )
+
+    OpProviderHolder(const OpProviderHolder& p)
+        : _provider(p._provider)
     {
-        SetProvider( p._provider );
+        PEGASUS_ASSERT(_provider != 0);
+        _provider->_current_operations++;
     }
-    OpProviderHolder( Provider* p ): _provider( NULL )
-    {
-        SetProvider( p );
-    }
+
     ~OpProviderHolder()
     {
-        UnSetProvider();
+        _provider->_current_operations--;
     }
 
     Provider& GetProvider()
     {
-        return(*_provider);
+        return *_provider;
     }
 
-    CIMProvider* GetCIMProvider()
+    OpProviderHolder& operator=(const OpProviderHolder& x)
     {
-        return _provider->getCIMProvider();
-    }
-
-    OpProviderHolder& operator=( const OpProviderHolder& x )
-    {
-        if(this == &x)
-            return(*this);
-        SetProvider( x._provider );
-
-        return(*this);
-    }
-
-    void SetProvider( Provider* p )
-    {
-        UnSetProvider();
-        if(p)
-        {
-            _provider = p;
-            _provider->_current_operations++;
-        }
-    }
-
-    void UnSetProvider()
-    {
-        if(_provider)
+        if (this != &x)
         {
             _provider->_current_operations--;
-            _provider = NULL;
+            _provider = x._provider;
+            PEGASUS_ASSERT(_provider != 0);
+            _provider->_current_operations++;
         }
+
+        return *this;
     }
+
+private:
+
+    OpProviderHolder();
+
+    Provider* _provider;
 };
 
 PEGASUS_NAMESPACE_END

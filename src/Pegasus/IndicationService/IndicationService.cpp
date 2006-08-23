@@ -50,6 +50,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/CIMProperty.h>

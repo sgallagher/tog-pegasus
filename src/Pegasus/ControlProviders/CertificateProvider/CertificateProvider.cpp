@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Heather Sterling (hsterl@us.ibm.com), PEP187
-//
-// Modified By:
-//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//         Sushma Fernandes, Hewlett-Packard Company 
-//             (sushma_fernandes@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #include "CertificateProvider.h"
@@ -552,8 +545,8 @@ void CertificateProvider::enumerateInstances(
     const IdentityContainer container = context.get(IdentityContainer::NAME);
     if (!_verifyAuthorization(container.getUserName())) 
     {
-        MessageLoaderParms parms("ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER",
-                                 "Superuser authority is required to run this CIM operation.");
+        MessageLoaderParms parms( "ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER", 
+		"Superuser authority is required to run this CIM operation.");
         throw CIMException(CIM_ERR_ACCESS_DENIED, parms);
     }
 
@@ -1467,9 +1460,21 @@ String CertificateProvider::_getNewCertificateFileName(String trustStore, unsign
         {
             for (Uint32 i = 0; i < trustedCerts.size(); i++)
             {
-                if (String::compare(trustedCerts[i], hashString, hashString.size()) == 0)
+                //
+                // Check if another certificate with the same
+                // subject name already exists. If yes, error out.
+                //
+                if (String::compare(trustedCerts[i], 
+                    hashString, hashString.size()) == 0)
                 {
-                    index++;
+                    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, 
+                        Tracer::LEVEL3, 
+                        "Error: Certificate with the same subject already exists.");
+                    MessageLoaderParms parms( "ControlProviders."
+                        "CertificateProvider.CERT_WITH_SAME_SUBJECT",
+                        "Another certificate with the"
+                        " same subject name already exists.");
+                    throw CIMException(CIM_ERR_ALREADY_EXISTS, parms);
                 }
             }
         } else

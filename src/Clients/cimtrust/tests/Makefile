@@ -234,7 +234,7 @@ ifdef PEGASUS_HAS_SSL
 	@# Create a certificate signed by the CA
 	@#
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdup.key 1024
-	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdup.key -out $(PEGASUS_HOME)/testdup.csr < testdn2.txt
+	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdup.key -out $(PEGASUS_HOME)/testdup.csr < testdn1.txt
 	@$(OPENSSL_COMMAND) x509 -req $(SETSERIAL_1) -days 365 -in $(PEGASUS_HOME)/testdup.csr -CA $(PEGASUS_HOME)/testca2.cert -CAkey $(PEGASUS_HOME)/testca2.key -CAcreateserial -out $(PEGASUS_HOME)/testdup.cert
 	@$(RM) $(PEGASUS_HOME)/testdup.csr
 	@#
@@ -667,6 +667,22 @@ endif
 	@$(ECHO) "Try to connect with the 1st certificate issued by CA1, this should succeed." >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Add the second CA certificate to the truststore." >> $(RESULTFILE)
+	@cimtrust -a -T a -U $(CURRENT_USER) -f $(PEGASUS_HOME)/testca2.cert >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Add the self-signed certificate to the truststore." >> $(RESULTFILE)
+	@cimtrust -a -Ts -U $(CURRENT_USER) -f $(PEGASUS_HOME)/testdn1.cert >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+	
+	@$(ECHO) "Try to connect with testdn1, this should succeed." >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testdn1.cert $(PEGASUS_HOME)/testdn1.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Try to connect with testdup (same subject as testdn1) issued by CA2, this should succeed." >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testdup.cert $(PEGASUS_HOME)/testdup.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Remove the CA1 certificate from the truststore, this should succeed." >> $(RESULTFILE)
 	@cimtrust -r -i /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA -n 0 >> $(RESULTFILE) $(REDIRECTERROR)
@@ -684,7 +700,18 @@ endif
 	@TestCertClient $(PEGASUS_HOME)/testdn4.cert $(PEGASUS_HOME)/testdn4.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
-	
+	@$(ECHO) "Remove the CA2 certificate from the truststore, this should succeed." >> $(RESULTFILE)
+	@cimtrust -r -i /C=US/ST=OREGON/L=Portland/O=OpenGroup/OU=OpenPegasus/CN=TestCA -n 0 >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Add the testdup certificate to the truststore, this should fail with duplicate subject error." >> $(RESULTFILE)
+	@cimtrust -a -Ta -U $(CURRENT_USER) -f $(PEGASUS_HOME)/testdup.cert >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Delete the self-signed certificate from the truststore by subject & issuer. This should succeed" >> $(RESULTFILE)
+	@cimtrust -r -i /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1 -S /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1 >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
 	@$(ECHO) +++++++++ Functional tests - multi-level chain tests  +++++++++ >> $(RESULTFILE)
 	@$(ECHO) "Add the root CA certificate to the truststore without an associated username." >> $(RESULTFILE)
 	@cimtrust -a -T a -f $(PEGASUS_HOME)/testchca.cert >> $(RESULTFILE) $(REDIRECTERROR)

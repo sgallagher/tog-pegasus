@@ -40,6 +40,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
+#include <errno.h>
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>

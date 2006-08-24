@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Thread.h"
+#include <errno.h>
 #include <exception>
 #include <Pegasus/Common/Tracer.h>
 #include "Time.h"

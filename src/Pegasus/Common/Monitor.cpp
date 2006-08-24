@@ -51,6 +51,7 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Exception.h>
 #include "ArrayIterator.h"
+#include <errno.h>
 
 PEGASUS_USING_STD;
 

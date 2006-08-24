@@ -63,6 +63,7 @@ Pegasus.
 #include <cctype>
 #include <cstdlib>
 #include <cstdio>
+#include <errno.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Logger.h>

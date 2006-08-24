@@ -263,7 +263,7 @@ inline bool Threads::null(const ThreadType& x)
 {
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     Uint64 tmp;
-    memcpy(&tmp, x._thread.__, sizeof(Uint64));
+    memcpy(&tmp, x.thread.__, sizeof(Uint64));
     return tmp == 0;
 #else
     return x.thread == 0;

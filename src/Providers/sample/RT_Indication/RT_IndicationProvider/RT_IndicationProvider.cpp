@@ -41,6 +41,7 @@
 #include <Pegasus/Common/PegasusAssert.h>
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/System.h>
@@ -264,7 +265,7 @@ void _generateIndication (
                 handlerString, CIMKeyBinding::REFERENCE));
 
             CIMObjectPath subscriptionPath ("",
-                CIMNamespaceName ("root/PG_InterOp"),
+                PEGASUS_NAMESPACENAME_INTEROP,
                 CIMName ("CIM_IndicationSubscription"),
                 subscriptionKeyBindings);
             subscriptionInstanceNames.append (subscriptionPath);

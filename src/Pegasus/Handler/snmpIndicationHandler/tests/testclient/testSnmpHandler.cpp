@@ -45,7 +45,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName INTEROP_NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+// Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
 const CIMNamespaceName SOURCE_NAMESPACE = 
     CIMNamespaceName ("root/SampleProvider");
 
@@ -156,7 +156,7 @@ CIMObjectPath _createHandlerInstance
     handlerInstance.addProperty (CIMProperty (CIMName ("PortNumber"),
         CIMValue ((Uint32) PORT_NUMBER)));
 
-    return(client.createInstance (INTEROP_NAMESPACE, handlerInstance));
+    return(client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handlerInstance));
 }
 
 CIMObjectPath _createFilterInstance
@@ -179,7 +179,7 @@ CIMObjectPath _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
         SOURCE_NAMESPACE.getString ()));
 
-    return(client.createInstance (INTEROP_NAMESPACE, filterInstance));
+    return(client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, filterInstance));
 }
 
 CIMObjectPath _createSubscriptionInstance
@@ -195,7 +195,7 @@ CIMObjectPath _createSubscriptionInstance
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    return(client.createInstance (INTEROP_NAMESPACE, subscriptionInstance));
+    return(client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscriptionInstance));
 }
 
 void _sendTestIndication(CIMClient* client, const CIMName & methodName, 
@@ -233,7 +233,7 @@ void _deleteSubscriptionInstance
 {
     CIMObjectPath subscriptionObjectPath =
        _getSubscriptionObjectPath(filterName, handlerName);
-    client.deleteInstance (INTEROP_NAMESPACE, subscriptionObjectPath);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, subscriptionObjectPath);
 }
 
 void _deleteHandlerInstance
@@ -241,7 +241,7 @@ void _deleteHandlerInstance
      const String & name)
 {
     CIMObjectPath handlerObjectPath = _getHandlerObjectPath(name);
-    client.deleteInstance (INTEROP_NAMESPACE, handlerObjectPath);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, handlerObjectPath);
 }
 
 void _deleteFilterInstance
@@ -249,7 +249,7 @@ void _deleteFilterInstance
      const String & name)
 {
     CIMObjectPath filterObjectPath = _getFilterObjectPath(name);
-    client.deleteInstance (INTEROP_NAMESPACE, filterObjectPath);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, filterObjectPath);
 }
 
 void _usage ()

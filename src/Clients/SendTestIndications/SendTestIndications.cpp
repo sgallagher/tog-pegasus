@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -45,7 +46,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName INTEROPNAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+// Uses Interop Namespace as defined in Constants.h
 const CIMNamespaceName 
     SOURCENAMESPACE = CIMNamespaceName ("root/SampleProvider");
 static const CIMName 
@@ -76,7 +77,7 @@ CIMObjectPath _createFilter
     filter.addProperty (CIMProperty (CIMName ("SourceNamespace"), 
         sourceNamespace));
 
-    CIMObjectPath path = client.createInstance (INTEROPNAMESPACE, filter);
+    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, filter);
     return path;
 }
 
@@ -90,7 +91,7 @@ CIMObjectPath _createHandler
     handler.addProperty (CIMProperty (CIMName ("Name"), name));
     handler.addProperty (CIMProperty (CIMName ("Destination"), destination));
 
-    CIMObjectPath path = client.createInstance (INTEROPNAMESPACE, handler);
+    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handler);
     return path;
 }
 
@@ -106,7 +107,8 @@ CIMObjectPath _createSubscription
     subscription.addProperty (CIMProperty (CIMName ("Handler"),
         handlerPath, 0, HANDLER_CLASSNAME));
 
-    CIMObjectPath path = client.createInstance (INTEROPNAMESPACE, subscription);
+    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
+        subscription);
     return path;
 }
 
@@ -117,7 +119,8 @@ CIMObjectPath _findFilterOrHandlerPath
 {
     CIMObjectPath path;
     Array <CIMObjectPath> paths;
-    paths = client.enumerateInstanceNames (INTEROPNAMESPACE, className);
+    paths = client.enumerateInstanceNames (PEGASUS_NAMESPACENAME_INTEROP,
+        className);
 
     for (Uint32 i = 0; i < paths.size (); i++)
     {
@@ -242,17 +245,17 @@ void _unsubscribe
     //
     //  Delete subscription
     //
-    client.deleteInstance (INTEROPNAMESPACE, subscriptionPath);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, subscriptionPath);
 
     //
     //  Delete handler
     //
-    client.deleteInstance (INTEROPNAMESPACE, handlerPath);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, handlerPath);
 
     //
     //  Delete filter
     //
-    client.deleteInstance (INTEROPNAMESPACE, filterPath);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, filterPath);
 }
 
 int main (int argc, char ** argv)

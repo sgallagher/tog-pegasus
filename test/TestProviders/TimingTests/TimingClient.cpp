@@ -33,6 +33,7 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
@@ -42,7 +43,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
-const CIMNamespaceName NAMESPACE1 = CIMNamespaceName ("root/PG_InterOp");
+
 const String CLASSONE = "TimeOne";
 const String CLASSTWO = "TimeTwo";
 

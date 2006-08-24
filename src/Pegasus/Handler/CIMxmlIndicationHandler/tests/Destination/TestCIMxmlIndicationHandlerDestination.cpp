@@ -43,8 +43,6 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE("root/PG_InterOp");
-
 static CIMInstance CreateHandlerInstance()
 {
     CIMInstance handlerInstance(PEGASUS_CLASSNAME_LSTNRDST_EMAIL);
@@ -75,8 +73,11 @@ static void TestDestination(
     exceptionCaught = false;
     try
     {
-        handler->handleIndication(context, NAMESPACE, indicationInstance,
-            indicationHandlerInstance, indicationSubscriptionInstance,
+        handler->handleIndication(context, 
+            PEGASUS_NAMESPACENAME_INTEROP.getString(),
+            indicationInstance,
+            indicationHandlerInstance,
+            indicationSubscriptionInstance,
             contentLanguages);
     }
     catch (CIMException& e)

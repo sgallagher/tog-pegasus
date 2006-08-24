@@ -166,11 +166,11 @@ executeMethod (CIMClient & client, String operation)
   keyBindings.append (CIMKeyBinding ("Name", 
 	"TestCMPIThreadProviderModule", CIMKeyBinding::STRING));
 
-  instanceName.setNameSpace ("root/PG_InterOp");
+  instanceName.setNameSpace (PEGASUS_NAMESPACENAME_INTEROP);
   instanceName.setClassName ("PG_ProviderModule");
   instanceName.setKeyBindings(keyBindings);
 
-  CIMValue retVal  = client.invokeMethod ("root/PG_InterOp",
+  CIMValue retVal  = client.invokeMethod (PEGASUS_NAMESPACENAME_INTEROP.getString(),
                                               instanceName,
 						operation,
 						inParm,

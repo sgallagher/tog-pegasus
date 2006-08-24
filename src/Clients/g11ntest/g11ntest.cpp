@@ -1627,7 +1627,7 @@ static void createSubscriptions(CIMClient& client,
                 Boolean verboseTest)
 {
   const CIMNamespaceName SAMPLE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
-  const CIMNamespaceName INTEROP_NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+// Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
   const CIMName METHOD = CIMName("getIndicationResult");
   const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
 
@@ -1664,7 +1664,7 @@ static void createSubscriptions(CIMClient& client,
 
     try
     {
-      client.deleteInstance(INTEROP_NAMESPACE, CIMObjectPath(g11ntestSubscriptionPath));
+      client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, CIMObjectPath(g11ntestSubscriptionPath));
     }
     catch (CIMException & ce)
     {
@@ -1679,7 +1679,7 @@ static void createSubscriptions(CIMClient& client,
 
     try
     {
-      client.deleteInstance(INTEROP_NAMESPACE, CIMObjectPath(g11ntestHandlerPath));
+      client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, CIMObjectPath(g11ntestHandlerPath));
     }
     catch (CIMException & ce)
     {
@@ -1706,7 +1706,7 @@ static void createSubscriptions(CIMClient& client,
                               String("g11ntest_Handler")));
       g11ntestHandlerInstance.addProperty(CIMProperty(CIMName ("Destination"), listenerDest));
 
-      g11ntestHandlerRef = client.createInstance(INTEROP_NAMESPACE, g11ntestHandlerInstance);
+      g11ntestHandlerRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, g11ntestHandlerInstance);
     }
 
     // Create the new handler instance with LocalizedProvider as the destination
@@ -1724,7 +1724,7 @@ static void createSubscriptions(CIMClient& client,
 
     try
     {
-      providerHandlerRef = client.createInstance(INTEROP_NAMESPACE, providerHandlerInstance);
+      providerHandlerRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, providerHandlerInstance);
     }
     catch (CIMException& ce)
     {
@@ -1756,7 +1756,7 @@ static void createSubscriptions(CIMClient& client,
 
     try
     {
-      filterRef = client.createInstance(INTEROP_NAMESPACE, filterInstance);
+      filterRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, filterInstance);
     }
     catch (CIMException& ce)
     {
@@ -1783,7 +1783,7 @@ static void createSubscriptions(CIMClient& client,
 
       try
     {
-      g11ntestSubscriptionRef = client.createInstance(INTEROP_NAMESPACE,
+      g11ntestSubscriptionRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
                               g11ntestSubscriptionInstance);
     }
       catch (CIMException& ce)
@@ -1806,7 +1806,7 @@ static void createSubscriptions(CIMClient& client,
 
     try
     {
-        providerSubscriptionRef = client.createInstance(INTEROP_NAMESPACE,
+        providerSubscriptionRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
             providerSubscriptionInstance);
     }
     catch (CIMException& ce)
@@ -1836,7 +1836,6 @@ static void TestLocalizedIndications( CIMClient& client,
                       String listenerHost)
 {
   const CIMNamespaceName SAMPLE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
-  const CIMNamespaceName INTEROP_NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
   const CIMName GEN_METHOD = CIMName("generateIndication");
   const CIMName RESULT_METHOD = CIMName("getConsumerStatus");
   const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
@@ -2085,12 +2084,12 @@ static void TestLocalizedIndications( CIMClient& client,
       cout << "Removing the handlers, filters,and subscriptions"  << endl;
 
     if (!skipListener)
-      client.deleteInstance(INTEROP_NAMESPACE, g11ntestSubscriptionRef);
-    client.deleteInstance(INTEROP_NAMESPACE, providerSubscriptionRef);
-    client.deleteInstance(INTEROP_NAMESPACE, filterRef);
+      client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, g11ntestSubscriptionRef);
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, providerSubscriptionRef);
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, filterRef);
     if (!skipListener)
-      client.deleteInstance(INTEROP_NAMESPACE, g11ntestHandlerRef);
-    client.deleteInstance(INTEROP_NAMESPACE, providerHandlerRef);
+      client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, g11ntestHandlerRef);
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, providerHandlerRef);
 
     if (verboseTest)
       cout << "Indication test completed successfully " << endl;

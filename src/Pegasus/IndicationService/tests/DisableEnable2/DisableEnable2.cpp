@@ -43,7 +43,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+// Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
 const CIMNamespaceName NAMESPACE1 = CIMNamespaceName ("root/cimv2");
 const CIMNamespaceName NAMESPACE2 = CIMNamespaceName ("test/TestProvider");
 const CIMNamespaceName NAMESPACE3 = CIMNamespaceName ("root/SampleProvider");
@@ -234,7 +234,8 @@ void _deleteSubscriptionInstance
      const String & handlerName)
 {
     _deleteSubscriptionInstance (client, filterName, handlerName,
-        CIMNamespaceName (), CIMNamespaceName (), NAMESPACE);
+        CIMNamespaceName (), CIMNamespaceName (),
+        PEGASUS_NAMESPACENAME_INTEROP);
 }
 
 void _deleteHandlerInstance 
@@ -292,10 +293,10 @@ void _setup (CIMClient & client, String& qlang)
     {
         _createFilterInstance (client, String ("DEFilter01"),
             String ("SELECT MethodName FROM RT_TestIndication"),
-            qlang, NAMESPACE);
+            qlang, PEGASUS_NAMESPACENAME_INTEROP);
         _createHandlerInstance (client, String ("DEHandler01"), 
             String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"),
-            NAMESPACE);
+            PEGASUS_NAMESPACENAME_INTEROP);
     }
     catch (Exception & e)
     {
@@ -360,7 +361,7 @@ void _create (CIMClient & client)
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
                 "DEFilter01"),
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-                "DEHandler01"), NAMESPACE);
+                "DEHandler01"), PEGASUS_NAMESPACENAME_INTEROP);
     }
     catch (Exception & e)
     {
@@ -485,8 +486,10 @@ void _cleanup (CIMClient & client)
 {
     try
     {
-        _deleteHandlerInstance (client, String ("DEHandler01"), NAMESPACE);
-        _deleteFilterInstance (client, String ("DEFilter01"), NAMESPACE);
+        _deleteHandlerInstance (client, String ("DEHandler01"),
+                                PEGASUS_NAMESPACENAME_INTEROP);
+        _deleteFilterInstance (client, String ("DEFilter01"),
+                               PEGASUS_NAMESPACENAME_INTEROP);
     }
     catch (Exception & e)
     {

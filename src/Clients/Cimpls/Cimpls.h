@@ -37,6 +37,8 @@
 #define _cimpls_h_
 
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/Constants.h>
+// Constants provides interop namespace name
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;

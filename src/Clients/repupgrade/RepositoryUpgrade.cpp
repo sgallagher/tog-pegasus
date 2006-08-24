@@ -1198,10 +1198,10 @@ void RepositoryUpgrade::_processClasses(
         {
 
             /** This check is required to ignore PG_Ind* classes
-                in the PG_InterOp namespace. These classes were
+                in the interop namespace. These classes were
                 replaced with CIM_Ind* in CIM 2.7
             */
-            if ( namespaceName == "root/PG_InterOp" &&
+            if ( namespaceName == PEGASUS_NAMESPACENAME_INTEROP &&
                 Contains( _interopIgnoreClasses, oldClasses[oldclasses] ) )
             {
 #ifdef REPUPGRADE_DEBUG
@@ -1213,8 +1213,8 @@ void RepositoryUpgrade::_processClasses(
             /** Ignore any "CIM_" classes in pegasus namespaces, except root/cimv2. 
                 Since they don't exist in 2.7 they must have been renamed or deleted.
             */
-            if ( ( (namespaceName=="root/PG_InterOp") ||
-                   (namespaceName=="root/PG_Internal")) &&
+            if ( ( (namespaceName == PEGASUS_NAMESPACENAME_INTEROP) ||
+                   (namespaceName == "root/PG_Internal")) &&
                    (oldClasses[oldclasses].getString().subString(0,4))=="CIM_")
             {
 #ifdef REPUPGRADE_DEBUG

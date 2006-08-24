@@ -43,7 +43,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+// Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
 const CIMNamespaceName NAMESPACE1 = CIMNamespaceName ("root/SampleProvider");
 const CIMNamespaceName NAMESPACE2 = CIMNamespaceName ("root/cimv2");
 const CIMNamespaceName NAMESPACE3 = CIMNamespaceName ("test/TestProvider");
@@ -150,7 +150,7 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
 
     try
     {
-        Handler1Ref = CreateHandler1Instance (client, NAMESPACE);
+        Handler1Ref = CreateHandler1Instance (client, PEGASUS_NAMESPACENAME_INTEROP);
         Handler2Ref = CreateHandler1Instance (client, NAMESPACE2);
     }
     catch (Exception& e)
@@ -169,7 +169,7 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
       String name1 = "TestFilter01";
       String name2 = "TestFilter02";
       Filter1Ref = CreateFilterInstance (client, query1, qlang, name1,
-          NAMESPACE);
+          PEGASUS_NAMESPACENAME_INTEROP);
       Filter2Ref = CreateFilterInstance (client, query2, qlang, name2,
           NAMESPACE1);
     }
@@ -189,7 +189,7 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
     {
         Subscription1Ref = 
           CreateSbscriptionInstance (client, Handler1Ref, Filter1Ref,
-              NAMESPACE);
+              PEGASUS_NAMESPACENAME_INTEROP);
         Subscription2Ref = 
           CreateSbscriptionInstance (client, Handler1Ref, Filter2Ref,
               NAMESPACE3);
@@ -252,11 +252,14 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
 
     try
     {
-      DeleteInstance (client, Subscription1Ref, NAMESPACE);
+      DeleteInstance (client, Subscription1Ref,
+                      PEGASUS_NAMESPACENAME_INTEROP);
       DeleteInstance (client, Subscription2Ref, NAMESPACE3);
-      DeleteInstance (client, Filter1Ref, NAMESPACE);
+      DeleteInstance (client, Filter1Ref,
+                      PEGASUS_NAMESPACENAME_INTEROP);
       DeleteInstance (client, Filter2Ref, NAMESPACE1);
-      DeleteInstance (client, Handler1Ref, NAMESPACE);
+      DeleteInstance (client, Handler1Ref,
+                      PEGASUS_NAMESPACENAME_INTEROP);
       DeleteInstance (client, Handler2Ref, NAMESPACE2);
     }
     catch (Exception& e)

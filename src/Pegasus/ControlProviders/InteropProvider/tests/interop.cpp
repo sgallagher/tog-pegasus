@@ -79,7 +79,6 @@ char * pgmName;
 char * verbose;
 
 static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
-static const CIMNamespaceName InteropNamespace = CIMNamespaceName("root/PG_Interop");
 
 static const char programVersion[] =  "1.0";
 
@@ -930,7 +929,7 @@ Array<CIMInstance> InteropTest::_getCIMNamespaceInstances()
     Array<CIMInstance> instances;
     try
     {
-        instances = _client.enumerateInstances(InteropNamespace,
+        instances = _client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP,
                                               CIM_NAMESPACE_CLASSNAME);
     }
     catch(Exception& e)
@@ -949,7 +948,7 @@ Array<CIMInstance> InteropTest::_getPGNamespaceInstances()
     Array<CIMInstance> instances;
     try
     {
-        instances = _client.enumerateInstances(InteropNamespace,
+        instances = _client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP,
                                               PG_NAMESPACE_CLASSNAME);
     }
     catch(Exception& e)
@@ -968,7 +967,7 @@ Array<CIMObjectPath> InteropTest::_getPGNamespaceInstanceNames()
     Array<CIMObjectPath> objectNames;
     try
     {
-        objectNames = _client.enumerateInstanceNames(InteropNamespace,
+        objectNames = _client.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP,
                                               PG_NAMESPACE_CLASSNAME);
     }
     catch(Exception& e)
@@ -987,7 +986,7 @@ Array<CIMObjectPath> InteropTest::_getCIMNamespaceInstanceNames()
     Array<CIMObjectPath> objectNames;
     try
     {
-        objectNames = _client.enumerateInstanceNames(InteropNamespace,
+        objectNames = _client.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP,
                                               CIM_NAMESPACE_CLASSNAME);
     }
     catch(Exception& e)
@@ -1313,12 +1312,12 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name)
     try
     {
            CIMObjectPath path;
-           path = _client.createInstance(InteropNamespace, instance);
+           path = _client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, instance);
     }
     catch(Exception& e)
     {
         cerr << "Error during Creation of " << name.getString()
-            << " in Namespace " << InteropNamespace
+            << " in Namespace " << PEGASUS_NAMESPACENAME_INTEROP
             << ": " << e.getMessage()
             << " Instance Creation error" << endl;
         return(false);
@@ -1455,7 +1454,7 @@ Boolean InteropTest::_testPGNamespace(const CIMNamespaceName& name,
         if (testString.find(name.getString()) != 0)
         {
             // get this instance.
-            instance = _client.getInstance(InteropNamespace, 
+            instance = _client.getInstance(PEGASUS_NAMESPACENAME_INTEROP, 
                             paths[i],
                             false,                  //lo
                             true,                   //includeQualifiers
@@ -1596,7 +1595,7 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name,
     instance.removeProperty(pos);
     instance.addProperty(p2);
 
-    CDEBUG("Creating instance for " << localName << " in namespace " << InteropNamespace);
+    CDEBUG("Creating instance for " << localName << " in namespace " << PEGASUS_NAMESPACENAME_INTEROP);
     if (verbose)
     {
         cout << "Show instance used to do namespace create: " << endl;
@@ -1605,7 +1604,7 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name,
     try
     {
            CIMObjectPath path;
-           path = _client.createInstance(InteropNamespace, instance);
+           path = _client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, instance);
     }
     catch(Exception& e)
     {
@@ -1649,7 +1648,7 @@ Boolean InteropTest::_namespaceDeleteCIM_Namespace(const CIMNamespaceName& name)
     // Delete the namespace
     try
     {
-        _client.deleteInstance(InteropNamespace, paths[i]);
+        _client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, paths[i]);
 
     }
     catch(Exception& e)
@@ -1782,7 +1781,7 @@ void InteropTest::testNameSpacesManagement()
 
     CDEBUG("Now Create New Namespace with CIM_Namespace. Namespace name = " << testNameNew.getString() << ".");
 
-    PEGASUS_TEST_ASSERT(_namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew), InteropNamespace));
+    PEGASUS_TEST_ASSERT(_namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew), PEGASUS_NAMESPACENAME_INTEROP));
 
     if (verbose)
         _showNamespaceList(nameListNew, "CIM_Namespace response after add. with PG_Namespace");
@@ -1843,7 +1842,7 @@ void InteropTest::testNameSpacesManagement()
     {
         // The get class test is here simply as a means to assure that no 
         // instances exist in the any namespace except the interop namespace
-        if (!(namespaceList[i] == InteropNamespace)) 
+        if (!(namespaceList[i] == PEGASUS_NAMESPACENAME_INTEROP)) 
         {
             // Error if we can successfully create namespace.
             if (_namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew), namespaceList[i]))
@@ -1892,7 +1891,7 @@ void InteropTest::testSharedNameSpacesManagement()
         _namespaceCreatePG_Namespace(testNameShared, false, false, testNameSharable.getString());
 
         // create a namespace with the previous sharable as parent.
-        PEGASUS_TEST_ASSERT(_namespaceCreateCIM_Namespace(testNameNotShared, InteropNamespace));
+        PEGASUS_TEST_ASSERT(_namespaceCreateCIM_Namespace(testNameNotShared, PEGASUS_NAMESPACENAME_INTEROP));
         // Confirm that both exist
         PEGASUS_TEST_ASSERT(_existsNew(testNameSharable));
         PEGASUS_TEST_ASSERT(_existsNew(testNameShared));
@@ -2086,13 +2085,13 @@ void InteropTest::testObjectManagerClass()
     Boolean errFound = false;
         Array<CIMNamespaceName> namespaceList = _getNamespacesNew();
 
-        // for all namespaces not PG_interop, try to get CIM_ObjectManager
+        // for all namespaces not the interop namespace, try to get CIM_ObjectManager
         // results should always be zero.
         for (Uint32 i = 0 ; i < namespaceList.size() ; i++)
         {
             // for all namespaces except interop, try to enumerate
             // instances of cimobjectmanager.
-            if (namespaceList[i] != InteropNamespace) 
+            if (namespaceList[i] != PEGASUS_NAMESPACENAME_INTEROP) 
             {
                 try
                 {
@@ -2128,7 +2127,7 @@ void InteropTest::testObjectManagerClass()
         }
         if (errFound)
         {
-            TERMINATE("Error: CImObjectManager instance should not exist other than PG_Interop namespace");
+            TERMINATE("Error: CImObjectManager instance should not exist other than interop namespace");
         }
     if (verbose)
         cout << "ObjectManagerClass Tests passed" << endl;

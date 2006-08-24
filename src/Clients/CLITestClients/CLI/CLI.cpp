@@ -635,7 +635,8 @@ int main(int argc, char** argv)
                         opts.inputObjectName = argv[2];
                     }
                     else
-                        opts.nameSpace = "root/PG_InterOp";
+                        // set nameSpace to interop namespace name
+                        opts.nameSpace = PEGASUS_NAMESPACENAME_INTEROP.getString();
 
                     enumerateNamespaces_Namespace(client,opts);
                     break;

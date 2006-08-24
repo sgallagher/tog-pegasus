@@ -37,6 +37,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Client/ClientOpPerformanceDataHandler.h>
@@ -117,8 +118,7 @@ public:
 int main(int argc, char** argv)
 {
     cout << "+++++ testing Client Performance Statistics " << endl;
-    const String interopNameSpace = "root/PG_Interop";
-    const String nameSpace = "root/cimv2";
+
     try
     {
 // connecting to server
@@ -138,7 +138,7 @@ int main(int argc, char** argv)
         */
         try
         {
-            instanceNames = client.enumerateInstanceNames(interopNameSpace, cN);
+            instanceNames = client.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP, cN);
         }
         catch (Exception& e)
         {
@@ -147,7 +147,8 @@ int main(int argc, char** argv)
         }
         catch (...)
         {
-            cout << "enumerateInstancesNames in Client/tests/ClientStatistics has thrown an exception" << endl;
+            cout << "enumerateInstancesNames in Client/tests/ClientStatistics has thrown an exception" 
+                << endl;
             exit(1);
         }
         // assert that we received  one name
@@ -166,7 +167,8 @@ int main(int argc, char** argv)
         {
             // Create property list that represents correct request
             // get instance.  Get only the gatherstatitistics property
-            instObjectManager  = client.getInstance(interopNameSpace, instanceNames[0], true, false, false, statPropertyList);
+            instObjectManager  = client.getInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceNames[0],
+                                                    true, false, false, statPropertyList);
             instObjectManager.setPath(instanceNames[0]);         // set correct path into instance
 
             prop_num = instObjectManager.findProperty(gathStatName);
@@ -174,7 +176,7 @@ int main(int argc, char** argv)
 
             instObjectManager.getProperty(prop_num).setValue(CIMValue(true));
 
-            client.modifyInstance(interopNameSpace, instObjectManager, false,statPropertyList);
+            client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP, instObjectManager, false,statPropertyList);
         }
         catch (Exception& e)
         {
@@ -186,10 +188,10 @@ int main(int argc, char** argv)
         CliStat stat = CliStat();
         client.registerClientOpPerformanceDataHandler(stat);
         String classN = "PG_ComputerSystem";
-        Array<CIMObjectPath> instance = client.enumerateInstanceNames(nameSpace,
+        Array<CIMObjectPath> instance = client.enumerateInstanceNames(PEGASUS_NAMESPACENAME_CIMV2,
             classN);
         instObjectManager.getProperty(prop_num).setValue(CIMValue(false));
-        client.modifyInstance(interopNameSpace, instObjectManager, false,statPropertyList);
+        client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP, instObjectManager, false,statPropertyList);
     }
 
     catch (Exception& e)

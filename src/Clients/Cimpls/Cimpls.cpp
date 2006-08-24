@@ -71,17 +71,17 @@ int main(const int argc, const char **argv)
 
     // Start by enumerating PG_ProviderCapabilities
     Array<CIMObjectPath> capRef =
-      _c.enumerateInstanceNames(_nameSpace, "PG_ProviderCapabilities");
+      _c.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP, "PG_ProviderCapabilities");
     for (int i=0; i<capRef.size(); i++)
     {
       // get the instance
-      CIMInstance cap = _c.getInstance(_nameSpace,capRef[i]);
+      CIMInstance cap = _c.getInstance(PEGASUS_NAMESPACENAME_INTEROP,capRef[i]);
 
       // get referenced instance of PG_ProviderModule for later use
       String pMod;
       cap.getProperty(cap.findProperty("ProviderModuleName")).getValue().get(pMod);
       CIMObjectPath modRef(String("PG_ProviderModule.Name=\"") + pMod + "\"");
-      CIMInstance mod = _c.getInstance(_nameSpace,modRef);
+      CIMInstance mod = _c.getInstance(PEGASUS_NAMESPACENAME_INTEROP,modRef);
 
       // display name of class instrumented
       String className;
@@ -144,7 +144,7 @@ int _getClass(const int argc, const char **argv)
   CIMClass cldef;
   try
   {
-    cldef = _c.getClass( _nameSpace, argv[0] );
+    cldef = _c.getClass( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
   }
   catch (Exception& e)
   {
@@ -252,7 +252,7 @@ int _getInstance(const int argc, const char **argv)
   CIMClass cldef;
   try
   {
-    cldef = _c.getClass( _nameSpace, argv[0] );
+    cldef = _c.getClass( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
   }
   catch(Exception& e)
   {
@@ -265,7 +265,7 @@ int _getInstance(const int argc, const char **argv)
 
   // If there are no more args, prompt user for keys
   if (argv[1] == 0) ref = CIMObjectPath(String::EMPTY, // hostname left blank
-                                       _nameSpace,
+                                       PEGASUS_NAMESPACENAME_INTEROP,
                                        argv[0],
                                        _inputInstanceKeys(cldef));
   
@@ -287,7 +287,7 @@ int _getInstance(const int argc, const char **argv)
   // get the specified instance
   try
   {
-    inst = _c.getInstance(_nameSpace,ref);
+    inst = _c.getInstance(PEGASUS_NAMESPACENAME_INTEROP,ref);
   }
   catch(Exception& e)
   {
@@ -307,7 +307,7 @@ int _enumerateInstances(const int argc, const char **argv)
   Array<CIMInstance> ia;
   try
   {
-    ia = _c.enumerateInstances( _nameSpace, argv[0] );
+    ia = _c.enumerateInstances( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
   }
   catch(Exception& e)
   {
@@ -335,7 +335,7 @@ int _enumerateInstanceNames(const int argc, const char **argv)
   Array<CIMObjectPath> iNames; 
   try
   {
-    iNames = _c.enumerateInstanceNames( _nameSpace, argv[0] );
+    iNames = _c.enumerateInstanceNames( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
   }
   catch(Exception& e)
   {
@@ -361,7 +361,7 @@ int _getProperty(const int argc, const char **argv)
   CIMClass cldef;
   try
   {
-    cldef = _c.getClass( _nameSpace, argv[0] );
+    cldef = _c.getClass( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
   }
   catch(Exception& e)
   {
@@ -374,7 +374,7 @@ int _getProperty(const int argc, const char **argv)
 
   // If next arg is "ask", prompt user for keys
   if (String::equalNoCase("ask",argv[1])) ref = CIMObjectPath(String::EMPTY,
-                                                   _nameSpace,
+                                                   PEGASUS_NAMESPACENAME_INTEROP,
                                                    argv[0],
                                                    _inputInstanceKeys(cldef) );
 
@@ -420,7 +420,7 @@ int _getProperty(const int argc, const char **argv)
   CIMValue v;
   try
   {
-    v = _c.getProperty( _nameSpace, ref, pDef.getName() );
+    v = _c.getProperty( PEGASUS_NAMESPACENAME_INTEROP, ref, pDef.getName() );
   }
   catch (Exception &e)
   {
@@ -448,7 +448,7 @@ int _deleteClass(const int argc, const char **argv)
   CIMClass cldef;
   try
   {
-    _c.deleteClass( _nameSpace, argv[0] );
+    _c.deleteClass( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
   }
   catch (Exception& e)
   {
@@ -469,7 +469,7 @@ int _deleteInstance(const int argc, const char **argv)
   CIMClass cldef;
   try
   {
-    cldef = _c.getClass( _nameSpace, argv[0] );
+    cldef = _c.getClass( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
   }
   catch(Exception& e)
   {
@@ -482,7 +482,7 @@ int _deleteInstance(const int argc, const char **argv)
 
   // If there are no more args, prompt user for keys
   if (argv[1] == 0) ref = CIMObjectPath(String::EMPTY, // hostname left blank
-                                       _nameSpace,
+                                       PEGASUS_NAMESPACENAME_INTEROP,
                                        argv[0],
                                        _inputInstanceKeys(cldef));
   
@@ -504,7 +504,7 @@ int _deleteInstance(const int argc, const char **argv)
   // delete the specified instance
   try
   {
-    _c.deleteInstance(_nameSpace,ref);
+    _c.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP,ref);
   }
   catch(Exception& e)
   {
@@ -573,7 +573,7 @@ CIMObjectPath _selectInstance(const String &clnam)
   Array<CIMObjectPath> iNames;
   try
   {
-    iNames = _c.enumerateInstanceNames(_nameSpace,clnam);
+    iNames = _c.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP,clnam);
   }
   catch (Exception& e)
   {

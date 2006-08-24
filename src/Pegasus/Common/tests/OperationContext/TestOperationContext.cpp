@@ -64,7 +64,7 @@ CIMInstance _createFilterInstance1(void)
     filterInstance.addProperty(CIMProperty("Name", String("Filter1")));
     filterInstance.addProperty(CIMProperty("Query", String("SELECT * FROM CIM_AlertIndication WHERE AlertType = 5")));
     filterInstance.addProperty(CIMProperty("QueryLanguage", String("WQL1")));
-    filterInstance.addProperty(CIMProperty("SourceNamespace", String("root/PG_InterOp")));
+    filterInstance.addProperty(CIMProperty("SourceNamespace", PEGASUS_NAMESPACENAME_INTEROP.getString()));
 
     // create keys
     Array<CIMKeyBinding> keys;
@@ -124,7 +124,7 @@ CIMInstance _createFilterInstance2(void)
     filterInstance.addProperty(CIMProperty("Name", String("Filter2")));
     filterInstance.addProperty(CIMProperty("Query", String("SELECT * FROM CIM_AlertIndication WHERE AlertType = 8")));
     filterInstance.addProperty(CIMProperty("QueryLanguage", String("WQL1")));
-    filterInstance.addProperty(CIMProperty("SourceNamespace", String("root/PG_InterOp")));
+    filterInstance.addProperty(CIMProperty("SourceNamespace", PEGASUS_NAMESPACENAME_INTEROP.getString()));
 
     // create keys
     Array<CIMKeyBinding> keys;

@@ -42,7 +42,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+// This test uses the Interop namespace definition from Constants.h
 const CIMNamespaceName NAMESPACE1 = CIMNamespaceName ("root/SampleProvider");
 const CIMNamespaceName NAMESPACE2 = CIMNamespaceName ("root/cimv2");
 const CIMNamespaceName NAMESPACE3 = CIMNamespaceName ("test/TestProvider");
@@ -66,7 +66,8 @@ void _createModuleInstance
         String ("2.2.0")));
     moduleInstance.addProperty (CIMProperty (CIMName ("Location"), location));
 
-    CIMObjectPath path = client.createInstance (NAMESPACE, moduleInstance);
+    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
+        moduleInstance);
 }
 
 void _createProviderInstance 
@@ -79,7 +80,8 @@ void _createProviderInstance
     providerInstance.addProperty (CIMProperty (CIMName ("ProviderModuleName"), 
         providerModuleName));
 
-    CIMObjectPath path = client.createInstance (NAMESPACE, providerInstance);
+    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
+    providerInstance);
 }
 
 void _createCapabilityInstance 
@@ -118,7 +120,8 @@ void _createCapabilityInstance
             (CIMName ("supportedProperties"), CIMValue (propertyNameStrings)));
     }
 
-    CIMObjectPath path = client.createInstance (NAMESPACE, capabilityInstance);
+    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
+        capabilityInstance);
 }
 
 void _createHandlerInstance 
@@ -220,7 +223,8 @@ void _modifyCapabilityInstance
     }
     Array <CIMName> propertyNames;
     propertyNames.append (CIMName ("SupportedProperties"));
-    client.modifyInstance (NAMESPACE, modifiedInstance, false, 
+    client.modifyInstance (PEGASUS_NAMESPACENAME_INTEROP,
+        modifiedInstance, false, 
         CIMPropertyList (propertyNames));
 }
 
@@ -273,7 +277,8 @@ void _deleteSubscriptionInstance
      const String & handlerName)
 {
     _deleteSubscriptionInstance (client, filterName, handlerName,
-        CIMNamespaceName (), CIMNamespaceName (), NAMESPACE);
+        CIMNamespaceName (), CIMNamespaceName (),
+        PEGASUS_NAMESPACENAME_INTEROP);
 }
 
 void _deleteHandlerInstance 
@@ -330,7 +335,7 @@ void _deleteCapabilityInstance
         capabilityID, CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         CIMName ("PG_ProviderCapabilities"), keyBindings);
-    client.deleteInstance (NAMESPACE, path);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
 void _deleteProviderInstance 
@@ -345,7 +350,7 @@ void _deleteProviderInstance
         providerModuleName, CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         CIMName ("PG_Provider"), keyBindings);
-    client.deleteInstance (NAMESPACE, path);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
 void _deleteModuleInstance 
@@ -357,7 +362,7 @@ void _deleteModuleInstance
         name, CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         CIMName ("PG_ProviderModule"), keyBindings);
-    client.deleteInstance (NAMESPACE, path);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
 CIMObjectPath _buildFilterOrHandlerPath
@@ -413,13 +418,14 @@ void _setup (CIMClient & client, String& qlang)
             supportedProperties);
         _createFilterInstance (client, String ("DEFilter01"),
             String ("SELECT IndicationTime FROM cim_processindication"),
-            qlang, NAMESPACE);
+            qlang, PEGASUS_NAMESPACENAME_INTEROP);
         _createFilterInstance (client, String ("DEFilter02"),
             String ("SELECT IndicationTime, IndicationIdentifier "
                     "FROM CIM_ProcessIndication"),
             qlang, NAMESPACE1);
         _createHandlerInstance (client, String ("DEHandler01"), 
-            String ("localhost/CIMListener/test1"), NAMESPACE);
+            String ("localhost/CIMListener/test1"),
+            PEGASUS_NAMESPACENAME_INTEROP);
         _createHandlerInstance (client, String ("DEHandler02"), 
             String ("localhost/CIMListener/test1"), NAMESPACE2);
     }
@@ -442,7 +448,7 @@ void _create (CIMClient & client)
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
                 String ("DEFilter01")),
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-                String ("DEHandler01")), NAMESPACE);
+                String ("DEHandler01")), PEGASUS_NAMESPACENAME_INTEROP);
     }
     catch (Exception & e)
     {
@@ -516,9 +522,11 @@ void _cleanup (CIMClient & client)
 {
     try
     {
-        _deleteHandlerInstance (client, String ("DEHandler01"), NAMESPACE);
+        _deleteHandlerInstance (client, String ("DEHandler01"),
+            PEGASUS_NAMESPACENAME_INTEROP);
         _deleteHandlerInstance (client, String ("DEHandler02"), NAMESPACE2);
-        _deleteFilterInstance (client, String ("DEFilter01"), NAMESPACE);
+        _deleteFilterInstance (client, String ("DEFilter01"),
+            PEGASUS_NAMESPACENAME_INTEROP);
         _deleteFilterInstance (client, String ("DEFilter02"), NAMESPACE1);
         _deleteCapabilityInstance (client, 
             String ("ProcessIndicationProviderModule"), 

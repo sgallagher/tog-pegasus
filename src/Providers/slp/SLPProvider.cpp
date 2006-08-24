@@ -154,10 +154,6 @@ const char templateVersion[] = "1.0";
 const char templateDescription[] =
     "This template describes the attributes used for advertising Pegasus CIM Servers.";
 
-// This name defines the Interop namespace.  It should be in a much more public place
-// Than the middle of this provider.
-String InteropSchemaNamespaceName = "root/PG_Interop";
-
 // Default list of Registered Profiles is empty
 const char defaultRegisteredProfilesList[] = "";
 
@@ -614,7 +610,6 @@ String SLPProvider::getRegisteredProfileList()
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "SLPProvider::getRegisteredProfileList()");
 
-    const CIMNamespaceName NAMESPACE = CIMNamespaceName("root/PG_InterOp");
     const CIMName          CLASSNAME = CIMName("CIM_RegisteredProfile");
     String                  regitem = String::EMPTY;
     String                  reglist = String::EMPTY;
@@ -635,7 +630,7 @@ String SLPProvider::getRegisteredProfileList()
     {
         RO_Class = _cimomHandle.getClass(
             OperationContext(),
-            NAMESPACE,  
+            PEGASUS_NAMESPACENAME_INTEROP,  
             CLASSNAME, 
             localOnly,  
             includeQualifiers,  // include the qualifiers, required for ValueMap mapping
@@ -661,7 +656,7 @@ String SLPProvider::getRegisteredProfileList()
         //
         cimInstances = _cimomHandle.enumerateInstances(
             OperationContext(),
-            NAMESPACE,  
+            PEGASUS_NAMESPACENAME_INTEROP,  
             CLASSNAME, 
             deepInheritance,
             localOnly,  
@@ -1004,8 +999,9 @@ Boolean SLPProvider::populateRegistrationData(
     populateTemplateField(templateInstance, templateDescriptionAttribute,String(templateDescription),
         templateDescriptionProperty);
 
-    // InterOp Schema
-    populateTemplateField(templateInstance, InteropSchemaNamespaceAttribute, InteropSchemaNamespaceName, String::EMPTY);
+    // populate name of InterOp Namespace attribute
+    populateTemplateField(templateInstance, InteropSchemaNamespaceAttribute,
+                          PEGASUS_NAMESPACENAME_INTEROP.getString(), String::EMPTY);
 
     // Loop through all properties and process each.
     // Note: This does not make it easy to distinguish required vs. optional but works.

@@ -43,6 +43,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -1863,7 +1864,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
         */
         usingPegasus = false;
         opts.className = CIMName("__namespace");
-        opts.nameSpace = "root/PG_InterOp";
+        opts.nameSpace = PEGASUS_NAMESPACENAME_INTEROP.getString();
     }
 
     if (usingPegasus)

@@ -43,7 +43,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+
+// Uses interop namespace defined by PEGASUS_NAMESPACENAME_INTEROP in Constants.h
 
 CIMObjectPath CreateHandler1Instance (CIMClient& client)
 {
@@ -57,7 +58,8 @@ CIMObjectPath CreateHandler1Instance (CIMClient& client)
     handlerInstance.addProperty(CIMProperty(CIMName ("Name"), 
 	String("Handler1")));
 
-    CIMObjectPath Ref = client.createInstance(NAMESPACE, handlerInstance);
+    CIMObjectPath Ref = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
+        handlerInstance);
     return (Ref);
 }
 
@@ -79,7 +81,8 @@ CIMObjectPath CreateFilterInstance (CIMClient& client,
     filterInstance.addProperty (CIMProperty(CIMName ("SourceNamespace"),
         String("root/SampleProvider")));
 
-    CIMObjectPath Ref = client.createInstance(NAMESPACE, filterInstance);
+    CIMObjectPath Ref = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
+        filterInstance);
     return (Ref);
 }
 
@@ -102,8 +105,8 @@ CIMObjectPath CreateFormattedSubscriptionIns (CIMClient& client,
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("TextFormatParameters"), textFormatParams));
 
-    CIMObjectPath Ref = client.createInstance(NAMESPACE, 
-	subscriptionInstance);
+    CIMObjectPath Ref = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, 
+	    subscriptionInstance);
     return (Ref);
 }
 
@@ -130,7 +133,7 @@ void generateIndication(CIMClient& client)
 
 void DeleteInstance (CIMClient& client, const CIMObjectPath Ref)
 {
-    client.deleteInstance(NAMESPACE, Ref);
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, Ref);
 }
 
 int main(int argc, char** argv)

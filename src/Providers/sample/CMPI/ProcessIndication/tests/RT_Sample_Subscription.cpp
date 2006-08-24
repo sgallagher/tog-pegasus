@@ -47,7 +47,6 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
 const CIMNamespaceName SOURCENAMESPACE =
 CIMNamespaceName ("root/SampleProvider");
 
@@ -393,14 +392,14 @@ void _deleteSubscriptionInstance
 {
   CIMObjectPath subscriptionPath = _buildSubscriptionPath
     (filterName, handlerClass, handlerName);
-  client.deleteInstance (NAMESPACE, subscriptionPath);
+  client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, subscriptionPath);
 }
 
 void _deleteHandlerInstance
   (CIMClient & client, const CIMName & className, const String & name)
 {
   CIMObjectPath path = _buildFilterOrHandlerPath (className, name);
-  client.deleteInstance (NAMESPACE, path);
+  client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
 void
@@ -408,7 +407,7 @@ _deleteFilterInstance (CIMClient & client, const String & name)
 {
   CIMObjectPath path = _buildFilterOrHandlerPath
     (PEGASUS_CLASSNAME_INDFILTER, name);
-  client.deleteInstance (NAMESPACE, path);
+  client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
 
@@ -443,10 +442,10 @@ _addFilter (CIMClient & client, String & filter, String & query,
                       SOURCENAMESPACE.getString ());
   _addStringProperty (filter01, "Query", query);
   _addStringProperty (filter01, "QueryLanguage", qlang);
-  path = client.createInstance (NAMESPACE, filter01);
+  path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, filter01);
 
   _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, filter);
-  retrievedInstance = client.getInstance (NAMESPACE, path);
+  retrievedInstance = client.getInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
   _checkStringProperty (retrievedInstance, "SystemCreationClassName",
                         System::getSystemCreationClassName ());
   _checkStringProperty (retrievedInstance, "SystemName",
@@ -483,12 +482,12 @@ _addHandler (CIMClient & client, String & handler, String & dest)
   _addStringProperty (handler01, "Destination", dest);
 
 
-  path = client.createInstance (NAMESPACE, handler01);
+  path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handler01);
 
   _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                              handler);
 
-  retrievedInstance = client.getInstance (NAMESPACE, path);
+  retrievedInstance = client.getInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
   _checkStringProperty (retrievedInstance, "SystemCreationClassName",
                         System::getSystemCreationClassName ());
   _checkStringProperty (retrievedInstance, "SystemName",
@@ -531,11 +530,11 @@ _addSubscription (CIMClient & client, String & filter, String & handler)
   _addUint64Property (subscription01, "RepeatNotificationInterval", 60);
   _addUint64Property (subscription01, "RepeatNotificationGap", 30);
   _addUint16Property (subscription01, "RepeatNotificationCount", 5);
-  path = client.createInstance (NAMESPACE, subscription01);
+  path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscription01);
 
   _checkSubscriptionPath (path, filter,
                           PEGASUS_CLASSNAME_INDHANDLER_CIMXML, handler);
-  retrievedInstance = client.getInstance (NAMESPACE, path);
+  retrievedInstance = client.getInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
   _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
   _checkStringProperty (retrievedInstance, "OtherOnFatalErrorPolicy",
                         String::EMPTY, true);

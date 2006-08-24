@@ -36,6 +36,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMDateTime.h>
 
 #include "SNMPIndicationProvider.h"
@@ -66,7 +67,9 @@ void SNMPIndicationProvider::enableIndications(IndicationResponseHandler & handl
     handler.processing();
 
     //Indication
-    CIMInstance cimInstance("root/PG_InterOp:cycHostAdapterDiscovered");
+    //CIMInstance cimInstance("root/PG_InterOp:cycHostAdapterDiscovered");
+    CIMInstance cimInstance(PEGASUS_NAMESPACENAME_INTEROP.getString()
+                            + ":cycHostAdapterDiscovered" );
 
     cimInstance.addProperty(CIMProperty("cycHostAdapterNumber", Uint32(101)));
     cimInstance.addProperty(CIMProperty("cycHostAdapterID", String("HP-NU-123")));

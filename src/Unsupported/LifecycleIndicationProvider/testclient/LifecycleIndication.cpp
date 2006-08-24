@@ -56,7 +56,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName INTEROP_NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+
+// Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
 const CIMNamespaceName SOURCE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
 const CIMName SAMPLE_CLASSNAME  = CIMName ("Sample_LifecycleIndicationProviderClass");
 
@@ -156,7 +157,7 @@ void _createHandlerInstance
     handlerInstance.addProperty (CIMProperty (CIMName ("Destination"),
         destination));
 
-    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, handlerInstance);
+    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handlerInstance);
 }
 
 void _createFilterInstance
@@ -179,7 +180,7 @@ void _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
         SOURCE_NAMESPACE.getString ()));
 
-    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, filterInstance);
+    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, filterInstance);
 }
 
 void _createSubscriptionInstance
@@ -195,7 +196,7 @@ void _createSubscriptionInstance
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE,
+    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
         subscriptionInstance);
 }
 
@@ -236,7 +237,7 @@ void _deleteSubscriptionInstance
         handlerPath.toString (), CIMKeyBinding::REFERENCE));
     CIMObjectPath subscriptionPath ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings);
-    client.deleteInstance (INTEROP_NAMESPACE, subscriptionPath);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, subscriptionPath);
 }
 
 void _deleteHandlerInstance
@@ -255,7 +256,7 @@ void _deleteHandlerInstance
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, keyBindings);
-    client.deleteInstance (INTEROP_NAMESPACE, path);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
 void _deleteFilterInstance
@@ -273,7 +274,7 @@ void _deleteFilterInstance
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDFILTER, keyBindings);
-    client.deleteInstance (INTEROP_NAMESPACE, path);
+    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
 void _usage ()

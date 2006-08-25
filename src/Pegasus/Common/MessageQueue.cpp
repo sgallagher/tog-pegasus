@@ -64,7 +64,7 @@ MessageQueue::MessageQueue(
     const char* name,
     Boolean async,
     Uint32 queueId)
-   : _queueId(queueId), _capabilities(0), _count(0), _front(0), _back(0), _async(async)
+   : _queueId(queueId), _capabilities(0), _async(async)
 {
     //
     // Copy the name:
@@ -107,13 +107,6 @@ MessageQueue::~MessageQueue()
 
     delete [] _name;
 
-    while(_front)
-    {
-       Message* tmp = _front;
-       _front = _front->_next;
-       delete tmp;
-    }
-    
     // Return the queue id.
 
     putQueueId(_queueId);
@@ -125,13 +118,7 @@ void MessageQueue::enqueue(Message* message)
 {
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::enqueue()");
 
-    if (!message)
-    {
-        Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-                    "MessageQueue::enqueue failure");
-        PEG_METHOD_EXIT();
-        throw NullPointer();
-    }
+    PEGASUS_ASSERT(message != 0);
 
     PEG_TRACE_STRING( TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
                       String("Queue name: ") + getQueueName() ) ;
@@ -140,29 +127,8 @@ void MessageQueue::enqueue(Message* message)
                       "Message: [%s]",
                       MessageTypeToString(message->getType()));
 
-    {
-    AutoMutex autoMut(_mut);
-    if (_back)
-    {
-        _back->_next = message;
-        message->_prev = _back;
-        message->_next = 0;
-        _back = message;
-    }
-    else
-    {
-        _front = message;
-        _back = message;
-        message->_prev = 0;
-        message->_next = 0;
-    }
+    _messageList.insert_back(message);
     message->_owner = this;
-
-    _count++;
-    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-                  "MessageQueue::enqueue _queueId = %d, _count = %d", _queueId, _count);
-
-    } // mutex unlocks here
 
     handleEnqueue();
     PEG_METHOD_EXIT();
@@ -172,44 +138,16 @@ Message* MessageQueue::dequeue()
 {
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::dequeue()");
 
-    AutoMutex autoMut(_mut);
-    if (_front)
+    Message* message = _messageList.remove_front();
+
+    if (message)
     {
-        Message* message = _front;
-        _front = _front->_next;
-        if (_front)
-            _front->_prev = 0;
-
-        if (_back == message)
-            _back = 0;
-
-        _count--;
-        Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-            "MessageQueue::dequeue _queueId = %d, _count = %d",
-            _queueId, _count);
-
-        message->_next = 0;
-        message->_prev = 0;
         message->_owner = 0;
-
-        PEG_METHOD_EXIT();
-        return message;
     }
 
     PEG_METHOD_EXIT();
-    return 0;
+    return message;
 }
-
-
-#ifdef PEGASUS_DEBUG
-void MessageQueue::print(ostream& os) const
-{
-    AutoMutex autoMut(const_cast<MessageQueue *>(this)->_mut);
-
-    for (const Message* m = _front; m; m = m->getNext())
-        m->print(os);
-}
-#endif
 
 const char* MessageQueue::getQueueName() const
 {

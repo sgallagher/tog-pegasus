@@ -29,20 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Mike Day (mdday@us.ibm.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
-//				Willis White (whiwill@us.ibm.com) PEP 127 and 128
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//		
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Message_h
@@ -137,8 +123,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
          _httpMethod (HTTP_METHOD__POST),
          _close_connect(false),
 	_last_thread_id(Threads::self()),
-	 _next(0),
-	 _prev(0),
 	 _async(0),
 	 dest(destination),
 	 _isComplete(true), 
@@ -154,7 +138,7 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 	    _type = msg._type;
 	    _mask = msg._mask;
 	    _last_thread_id = msg._last_thread_id;
-	    _next = _prev = _async = 0;
+	    _async = 0;
 	    dest = msg.dest;
 			_httpMethod = msg._httpMethod;
 			_index = msg._index;
@@ -230,14 +214,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 //
 #endif
 
-      Message* getNext() { return _next; }
-
-      const Message* getNext() const { return _next; }
-
-      Message* getPrevious() { return _prev; }
-
-      const Message* getPrevious() const { return _prev; }
-
       static CIMOperationType convertMessageTypetoCIMOpType(Uint32 type);
 
 #ifdef PEGASUS_DEBUG
@@ -308,9 +284,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 
       // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
       ThreadType _last_thread_id;
-      
-      Message* _next;
-      Message* _prev;
 
    protected:
 

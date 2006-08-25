@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/List.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -118,10 +119,10 @@ public:
     virtual Message* dequeue();
 
     /** Returns true if there are no messages on the queue. */
-    Boolean isEmpty() const throw() { return _front == 0; }
+    Boolean isEmpty() const { return _messageList.is_empty(); }
 
     /** Returns the number of messages on the queue. */
-    Uint32 getCount() const throw() { return _count; }
+    Uint32 getCount() const { return _messageList.size(); }
 
     /** Retrieve the queue id for this queue. */
     Uint32 getQueueId() const throw() { return _queueId; }
@@ -130,15 +131,6 @@ public:
     {
         return _capabilities;
     }
-
-    #ifdef PEGASUS_DEBUG
-    /** Prints the contents of this queue by calling the print() method
-    of each message.
-    @param os stream onto which the output is placed.
-    @exception IPCException Thrown if an IPC error occurs.
-    */
-    void print(PEGASUS_STD(ostream)& os) const;
-    #endif 
 
     /** Provide a string name for this queue to be used by the print method.
      */
@@ -185,10 +177,7 @@ protected:
     Uint32 _capabilities;
 
 private:
-    Mutex _mut;
-    Uint32 _count;
-    Message* _front;
-    Message* _back;
+    List<Message, Mutex> _messageList;
     Boolean _async;
 };
 

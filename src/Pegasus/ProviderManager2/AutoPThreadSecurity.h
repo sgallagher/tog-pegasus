@@ -53,14 +53,14 @@ PEGASUS_NAMESPACE_BEGIN
 // Targets: avoid ifdefs and keep code readable(clean)
 #ifndef PEGASUS_ZOS_THREADLEVEL_SECURITY
 // not z/OS == empty class
-class PEGASUS_PPM_LINKAGE AutoPThreadSecurity
+class AutoPThreadSecurity
 {
 public:    
     AutoPThreadSecurity(const OperationContext& context) {};
 };
 #else
 
-class PEGASUS_PPM_LINKAGE AutoPThreadSecurity
+class AutoPThreadSecurity
 {
 public:
     AutoPThreadSecurity(const OperationContext& context)

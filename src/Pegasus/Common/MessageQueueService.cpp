@@ -616,9 +616,6 @@ Boolean MessageQueueService::_enqueueResponse(
    Message* request,
    Message* response)
 {
-
-  STAT_COPYDISPATCHER
-
    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,
                     "MessageQueueService::_enqueueResponse");
 

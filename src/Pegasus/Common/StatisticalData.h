@@ -70,10 +70,6 @@ StatisticalData::current()->addToValue(message.size(), statType, StatisticalData
 #define STAT_SERVEREND_ERROR \
 response->endServer();
 
-#define STAT_COPYDISPATCHER \
-response->setStartServerTime(request->getStartServerTime());
-
-
 /*the request size value must be stored (requSize) and passed to the StatisticalData object at the
  end of processing other wise it will be the ONLY vlaue that is passed to the client which reports 
  the current state of the object, not the pevious (one command ago) state */
@@ -88,7 +84,6 @@ StatisticalData::current()->requSize = contentLength;
 #define STAT_SERVERSTART
 #define STAT_SERVEREND
 #define STAT_SERVEREND_ERROR
-#define STAT_COPYDISPATCHER
 #define STAT_BYTESREAD
 #define STAT_BYTESSENT
 #endif

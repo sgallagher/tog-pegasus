@@ -519,6 +519,22 @@ TestCertClient::Connecting to 127.0.0.1:5989
 Result: CIM_ComputerSystem
 +++++ TestCertClient Terminated Normally
 
+Add the second CA certificate to the truststore.
+Certificate added successfully.
+
+Add the self-signed certificate to the truststore.
+Certificate added successfully.
+
+Try to connect with testdn1, this should succeed.
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with testdup (same subject as testdn1) issued by CA2, this should succeed.
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
 Remove the CA1 certificate from the truststore, this should succeed.
 Certificate removed successfully.
 
@@ -533,6 +549,17 @@ Exception: HTTP Error (401 Unauthorized).
 Try to connect with the 3rd certificate issued by the CA, this should fail.
 TestCertClient::Connecting to 127.0.0.1:5989
 Exception: HTTP Error (401 Unauthorized).
+
+Remove the CA2 certificate from the truststore, this should succeed.
+Certificate removed successfully.
+
+Add the testdup certificate to the truststore, this should fail with duplicate subject error.
+Failed to add certificate.
+Specified certificate already exists.
+CIM_ERR_ALREADY_EXISTS: Operation cannot be carried out because an object already exists: "Another certificate with the same subject name already exists."
+
+Delete the self-signed certificate from the truststore by subject & issuer. This should succeed
+Certificate removed successfully.
 
 +++++++++ Functional tests - multi-level chain tests +++++++++
 Add the root CA certificate to the truststore without an associated username.

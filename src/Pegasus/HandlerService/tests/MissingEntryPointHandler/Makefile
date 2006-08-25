@@ -34,14 +34,19 @@ DIR = Pegasus/HandlerService/tests/MissingEntryPointHandler
 
 include $(ROOT)/mak/config.mak
 
-LIBRARIES = pegcommon
-
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 SOURCES = MissingEntryPointHandler.cpp
 
 LIBRARY = MissingEntryPointHandler
  
+ifeq ($(OS_TYPE),vms)
+# VMS_VECTOR = PegasusCreateProviderManager
+ VMS_VECTOR = BadCreateHandler
+endif
+
+LIBRARIES = pegcommon
+
 include $(ROOT)/mak/dynamic-library.mak
 
 tests:

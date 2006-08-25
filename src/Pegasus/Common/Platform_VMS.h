@@ -45,6 +45,7 @@
 #pragma message disable longextern
 #pragma message disable missingreturn
 
+#define BadCreateHandler BADCREATEHANDLER
 #define PegasusCreateProvider PEGASUSCREATEPROVIDER
 #define PegasusCreateHandler PEGASUSCREATEHANDLER
 #define PegasusCreateProviderAdapter PEGASUSCREATEPROVIDERADAPTER

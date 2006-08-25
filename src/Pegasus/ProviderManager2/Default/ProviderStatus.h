@@ -31,17 +31,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Provider_h
-#define Pegasus_Provider_h
+#ifndef Pegasus_ProviderStatus_h
+#define Pegasus_ProviderStatus_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Mutex.h>
-
 #include <Pegasus/Provider/CIMOMHandle.h>
-
 #include <Pegasus/ProviderManager2/Default/ProviderModule.h>
-#include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
-
 #include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -50,48 +46,30 @@ PEGASUS_NAMESPACE_BEGIN
 // provider module. It is wrapped in a facade to stabalize the interface
 // and is directly tied to a module.
 
-class PEGASUS_DEFPM_LINKAGE Provider : public ProviderFacade
+class PEGASUS_DEFPM_LINKAGE ProviderStatus
 {
 public:
-    enum Status
-    {
-        UNINITIALIZED,
-        INITIALIZED
-    };
+    ProviderStatus();
 
-public:
-    typedef ProviderFacade Base;
+    virtual ~ProviderStatus();
 
-    Provider(const String & name,
-        ProviderModule *module,
-        CIMProvider *pr);
+    Boolean isInitialized();
+    void setInitialized(Boolean initialized);
 
-    virtual ~Provider(void);
-
-    virtual void initialize(CIMOMHandle & cimom);
-    virtual void terminate(void);
-    virtual Boolean tryTerminate(void);
-
-    Status getStatus(void);
-    String getName(void) const;
-
-    ProviderModule *getModule(void) const;
+    ProviderModule* getModule() const;
+    void setModule(ProviderModule* module);
+    void setCIMOMHandle(CIMOMHandle* cimomHandle);
+    void reset();
 
     virtual void get_idle_timer(struct timeval *);
-    virtual void update_idle_timer(void);
-    virtual Boolean pending_operation(void);
-    virtual Boolean unload_ok(void);
+    virtual void update_idle_timer();
+    virtual Boolean pending_operation();
+    virtual Boolean unload_ok();
 
-    //   force provider manager to keep in memory
-    virtual void protect(void);
+    // force provider manager to keep in memory
+    virtual void protect();
     // allow provider manager to unload when idle
-    virtual void unprotect(void);
-
-    void set(ProviderModule *module,
-            CIMProvider *base,
-            CIMOMHandle *cimomHandle);
-
-    void reset();
+    virtual void unprotect();
 
     /**
         Increments the count of current subscriptions for this provider, and
@@ -104,7 +82,7 @@ public:
                        subscriptions for this provider;
                  False, otherwise
      */
-    Boolean testIfZeroAndIncrementSubscriptions ();
+    Boolean testIfZeroAndIncrementSubscriptions();
 
     /**
         Decrements the count of current subscriptions for this provider, and
@@ -117,7 +95,7 @@ public:
                        for this provider;
                  False, otherwise
      */
-    Boolean decrementSubscriptionsAndTestIfZero ();
+    Boolean decrementSubscriptionsAndTestIfZero();
 
     /**
         Determines if there are current subscriptions for this provider.
@@ -126,12 +104,12 @@ public:
                        for this provider;
                  False, otherwise
      */
-    Boolean testSubscriptions ();
+    Boolean testSubscriptions();
 
     /**
         Resets the count of current subscriptions for the indication provider.
      */
-    void resetSubscriptions ();
+    void resetSubscriptions();
 
     /**
         Sets the provider instance for the provider.
@@ -141,7 +119,7 @@ public:
 
         @param  instance  the Provider CIMInstance for the provider
      */
-    void setProviderInstance (const CIMInstance & instance);
+    void setProviderInstance(const CIMInstance & instance);
 
     /**
         Gets the provider instance for the provider.
@@ -152,17 +130,17 @@ public:
 
         @return  the Provider CIMInstance for the provider
      */
-    CIMInstance getProviderInstance ();
+    CIMInstance getProviderInstance();
 
-protected:
-    Status _status;
-    ProviderModule *_module;
-    CIMProvider *getCIMProvider();
 private:
+    ProviderStatus(const ProviderStatus&);
+    ProviderStatus& operator=(const ProviderStatus&);
+
     friend class LocalProviderManager;
-    friend class OpProviderHolder;
+
     CIMOMHandle *_cimom_handle;
-    String _name;
+    ProviderModule *_module;
+    Boolean _isInitialized;
     AtomicInt _no_unload;
     Uint32 _quantum;
     Mutex _statusMutex;
@@ -196,59 +174,6 @@ private:
         generated the indication accepted a matching subscription.
      */
     CIMInstance _providerInstance;
-};
-
-
-//
-// Used to encapsulate the incrementing/decrementing of the _current_operations
-// for a Provider so it won't be unloaded during operations.
-//
-
-class OpProviderHolder
-{
-public:
-    OpProviderHolder(Provider* p)
-        : _provider(p)
-    {
-        PEGASUS_ASSERT(_provider != 0);
-        _provider->_current_operations++;
-    }
-
-    OpProviderHolder(const OpProviderHolder& p)
-        : _provider(p._provider)
-    {
-        PEGASUS_ASSERT(_provider != 0);
-        _provider->_current_operations++;
-    }
-
-    ~OpProviderHolder()
-    {
-        _provider->_current_operations--;
-    }
-
-    Provider& GetProvider()
-    {
-        return *_provider;
-    }
-
-    OpProviderHolder& operator=(const OpProviderHolder& x)
-    {
-        if (this != &x)
-        {
-            _provider->_current_operations--;
-            _provider = x._provider;
-            PEGASUS_ASSERT(_provider != 0);
-            _provider->_current_operations++;
-        }
-
-        return *this;
-    }
-
-private:
-
-    OpProviderHolder();
-
-    Provider* _provider;
 };
 
 PEGASUS_NAMESPACE_END

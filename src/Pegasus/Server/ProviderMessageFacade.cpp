@@ -54,7 +54,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 ProviderMessageFacade::ProviderMessageFacade(CIMProvider* provider)
-    : ProviderFacade(provider)
+    : ProviderFacade(String(), provider)
 {
 }
 

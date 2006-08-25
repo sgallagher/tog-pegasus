@@ -44,7 +44,7 @@
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
 #include <Pegasus/ProviderManager2/QueryExpressionFactory.h>
 
-#include <Pegasus/ProviderManager2/Default/Provider.h>
+#include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 #include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
 
@@ -74,21 +74,24 @@ PEGASUS_NAMESPACE_BEGIN
 // auto variable to protect provider during operations
 class pm_service_op_lock
 {
-private:
-    pm_service_op_lock(void);
-
 public:
-    pm_service_op_lock(Provider *provider) : _provider(provider)
+    pm_service_op_lock(ProviderStatus *providerStatus)
+    : _providerStatus(providerStatus)
     {
-        _provider->protect();
+        _providerStatus->protect();
     }
 
-    ~pm_service_op_lock(void)
+    ~pm_service_op_lock()
     {
-        _provider->unprotect();
+        _providerStatus->unprotect();
     }
 
-    Provider * _provider;
+private:
+    pm_service_op_lock();
+    pm_service_op_lock(const pm_service_op_lock&);
+    pm_service_op_lock& operator=(const pm_service_op_lock&);
+
+    ProviderStatus* _providerStatus;
 };
 
 //
@@ -332,7 +335,7 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -409,7 +412,7 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -486,7 +489,7 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -561,7 +564,7 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -639,7 +642,7 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -717,7 +720,7 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -792,7 +795,7 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -871,7 +874,7 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
 
         StatProviderTimeMeasurement providerTime(response);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         ph.GetProvider().associators(
             context,
@@ -954,7 +957,7 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
 
         StatProviderTimeMeasurement providerTime(response);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         ph.GetProvider().associatorNames(
             context,
@@ -1038,7 +1041,7 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
 
         StatProviderTimeMeasurement providerTime(response);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         ph.GetProvider().references(
             context,
@@ -1123,7 +1126,7 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
 
         StatProviderTimeMeasurement providerTime(response);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         ph.GetProvider().referenceNames(
             context,
@@ -1201,7 +1204,7 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
         StatProviderTimeMeasurement providerTime(response);
 
         // forward request
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         ph.GetProvider().getProperty(
             context,
@@ -1279,7 +1282,7 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
         StatProviderTimeMeasurement providerTime(response);
 
         // forward request
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         ph.GetProvider().setProperty(
             context,
@@ -1360,7 +1363,7 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
 
         StatProviderTimeMeasurement providerTime(response);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         ph.GetProvider().invokeMethod(
             context,
@@ -1437,7 +1440,7 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
         //
         //  Save the provider instance from the request
         //
-        ph.GetProvider ().setProviderInstance (req_provider);
+        ph.GetProvider().status.setProviderInstance(req_provider);
 
         // convert arguments
         OperationContext context;
@@ -1473,7 +1476,7 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         ph.GetProvider().createSubscription(
             context,
@@ -1485,7 +1488,7 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
         //
         //  Increment count of current subscriptions for this provider
         //
-        if (ph.GetProvider ().testIfZeroAndIncrementSubscriptions ())
+        if (ph.GetProvider().status.testIfZeroAndIncrementSubscriptions())
         {
             //
             //  If there were no current subscriptions before the increment, 
@@ -1616,7 +1619,7 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         ph.GetProvider().modifySubscription(
             context,
@@ -1739,7 +1742,7 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&ph.GetProvider());
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
 
         ph.GetProvider().deleteSubscription(
             context,
@@ -1749,7 +1752,7 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
         //
         //  Decrement count of current subscriptions for this provider
         //
-        if (ph.GetProvider ().decrementSubscriptionsAndTestIfZero ())
+        if (ph.GetProvider().status.decrementSubscriptionsAndTestIfZero())
         {
             //
             //  If there are no current subscriptions after the decrement, 
@@ -1764,7 +1767,7 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
 
                 ph.GetProvider ().disableIndications ();
 
-                ph.GetProvider ().unprotect ();
+                ph.GetProvider().status.unprotect();
 
                 //
                 //
@@ -1854,7 +1857,7 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
 
       StatProviderTimeMeasurement providerTime(response);
 
-      pm_service_op_lock op_lock(&ph.GetProvider());
+      pm_service_op_lock op_lock(&ph.GetProvider().status);
 
       ph.GetProvider().consumeIndication(context,
                                 request->destinationPath,
@@ -1939,7 +1942,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
                         OpProviderHolder ph = providerManager.getProvider(
                             physicalName, pName);
 
-                        ph.GetProvider ().resetSubscriptions ();
+                        ph.GetProvider().status.resetSubscriptions();
                     }
 
                     //
@@ -2102,7 +2105,7 @@ DefaultProviderManager::handleSubscriptionInitCompleteRequest
     //  For each provider that has at least one subscription, call 
     //  provider's enableIndications method
     //
-    Array <Provider *> enableProviders;
+    Array <ProviderFacade*> enableProviders;
     enableProviders = providerManager.getIndicationProvidersToEnable ();
 
     Uint32 numProviders = enableProviders.size ();
@@ -2111,13 +2114,13 @@ DefaultProviderManager::handleSubscriptionInitCompleteRequest
         try
         {
             CIMInstance provider;
-            provider = enableProviders [i]->getProviderInstance ();
+            provider = enableProviders[i]->status.getProviderInstance();
 
             //
             //  Get cached or load new provider module
             //
             OpProviderHolder ph = providerManager.getProvider(
-                enableProviders[i]->getModule()->getFileName(),
+                enableProviders[i]->status.getModule()->getFileName(),
                 enableProviders[i]->getName());
 
             _callEnableIndications (provider, _indicationCallback, ph);
@@ -2143,8 +2146,8 @@ DefaultProviderManager::handleSubscriptionInitCompleteRequest
     return (response);
 }
 
-void DefaultProviderManager::_insertEntry (
-    const Provider & provider,
+void DefaultProviderManager::_insertEntry(
+    const ProviderFacade& provider,
     EnableIndicationsResponseHandler* handler)
 {
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
@@ -2175,7 +2178,7 @@ EnableIndicationsResponseHandler * DefaultProviderManager::_removeEntry(
 }
 
 String DefaultProviderManager::_generateKey (
-    const Provider & provider)
+    const ProviderFacade & provider)
 {
     String tableKey;
 
@@ -2186,7 +2189,7 @@ String DefaultProviderManager::_generateKey (
     //  Append provider key values to key
     //
     String providerName = provider.getName();
-    String providerFileName = provider.getModule()->getFileName();
+    String providerFileName = provider.status.getModule()->getFileName();
     tableKey.append (providerName);
     tableKey.append (providerFileName);
 
@@ -2273,8 +2276,8 @@ void DefaultProviderManager::_callEnableIndications
             "Calling provider.enableIndications: " +
             ph.GetProvider ().getName ());
     
-        pm_service_op_lock op_lock (& ph.GetProvider ());
-        ph.GetProvider ().protect ();
+        pm_service_op_lock op_lock(&ph.GetProvider().status);
+        ph.GetProvider().status.protect();
         ph.GetProvider ().enableIndications (* enableHandler);
     
         //

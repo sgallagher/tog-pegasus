@@ -29,19 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//              Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur (schuur@de.ibm.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DefaultProviderManager_h
@@ -57,10 +44,10 @@
 
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
+#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
 #include <Pegasus/ProviderManager2/Default/LocalProviderManager.h>
-#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
-#include <Pegasus/ProviderManager2/Default/Provider.h>
+#include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
 
 #include <Pegasus/ProviderManager2/Default/Linkage.h>
 
@@ -125,11 +112,11 @@ protected:
         (const Message * message);
 
     void _insertEntry(
-        const Provider & provider,
+        const ProviderFacade& provider,
         EnableIndicationsResponseHandler* handler);
     EnableIndicationsResponseHandler * _removeEntry(const String & key);
 
-    String _generateKey(const Provider & provider);
+    String _generateKey(const ProviderFacade& provider);
     String _generateKey(const String & providerName,const String & providerFileName);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);

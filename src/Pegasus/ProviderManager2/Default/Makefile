@@ -61,8 +61,8 @@ SOURCES = \
 	DefaultProviderManagerMain.cpp \
 	DefaultProviderManager.cpp \
 	LocalProviderManager.cpp \
-	Provider.cpp \
 	ProviderFacade.cpp \
-	ProviderModule.cpp 
+	ProviderModule.cpp \
+	ProviderStatus.cpp
 
 include $(ROOT)/mak/library.mak

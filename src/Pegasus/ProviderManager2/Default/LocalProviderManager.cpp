@@ -56,7 +56,7 @@ LocalProviderManager::~LocalProviderManager()
 
     for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
     {
-        Provider* provider = i.value();
+        ProviderFacade* provider = i.value();
         delete provider;
     }
 
@@ -75,13 +75,13 @@ OpProviderHolder LocalProviderManager::getProvider(
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "LocalProviderManager::getProvider");
 
-    Provider* pr = _lookupProvider(providerName);
+    ProviderFacade* pr = _lookupProvider(providerName);
 
-    if (pr->getStatus() != Provider::INITIALIZED)
+    if (!pr->status.isInitialized())
     {
         _initProvider(pr, moduleFileName);
 
-        if (pr->getStatus() != Provider::INITIALIZED)
+        if (!pr->status.isInitialized())
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
@@ -90,7 +90,7 @@ OpProviderHolder LocalProviderManager::getProvider(
     }
 
     OpProviderHolder ph(pr);
-    ph.GetProvider().update_idle_timer();
+    ph.GetProvider().status.update_idle_timer();
 
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
         "Returning Provider " + providerName);
@@ -105,8 +105,8 @@ void LocalProviderManager::unloadProvider(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "LocalProviderManager::unloadProvider");
 
-    Provider* pr = _lookupProvider(providerName);
-    if (pr->getStatus() == Provider::INITIALIZED)
+    ProviderFacade* pr = _lookupProvider(providerName);
+    if (pr->status.isInitialized())
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Unloading Provider " + pr->_name);
@@ -132,10 +132,10 @@ void LocalProviderManager::shutdownAllProviders()
 
         for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
         {
-            Provider* provider = i.value();
+            ProviderFacade* provider = i.value();
             PEGASUS_ASSERT(provider != 0);
 
-            if (provider->getStatus() == Provider::INITIALIZED)
+            if (provider->status.isInitialized())
             {
                 _unloadProvider(provider);
             }
@@ -165,7 +165,7 @@ Boolean LocalProviderManager::hasActiveProviders()
         // Iterate through the _providers table looking for an active provider
         for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
         {
-            if (i.value()->getStatus() == Provider::INITIALIZED)
+            if (i.value()->status.isInitialized())
             {
                 PEG_METHOD_EXIT();
                 return true;
@@ -224,20 +224,20 @@ void LocalProviderManager::unloadIdleProviders()
 
         for (ProviderTable::Iterator i = _providers.start(); i != 0 ; i++)
         {
-            Provider* provider = i.value();
+            ProviderFacade* provider = i.value();
             PEGASUS_ASSERT(provider != 0);
 
-            if (provider->getStatus() == Provider::UNINITIALIZED)
+            if (!provider->status.isInitialized())
             {
                 continue;
             }
 
-            if (provider->_quantum == quantum)
+            if (provider->status._quantum == quantum)
             {
                 continue;
             }
 
-            provider->_quantum = quantum;
+            provider->status._quantum = quantum;
 
             if (provider->_current_operations.get())
             {
@@ -251,16 +251,16 @@ void LocalProviderManager::unloadIdleProviders()
                 "Checking timeout data for Provider: " +
                 provider->getName());
             struct timeval timeout = {0,0};
-            provider->get_idle_timer(&timeout);
+            provider->status.get_idle_timer(&timeout);
 
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "provider->unload_ok() returns: " +
-                provider->unload_ok() ? "true" : "false");
+                "provider->status.unload_ok() returns: " +
+                provider->status.unload_ok() ? "true" : "false");
 
-            if (provider->unload_ok() &&
+            if (provider->status.unload_ok() &&
                 ((now.tv_sec - timeout.tv_sec) > ((Sint32)_idle_timeout)))
             {
-                AutoMutex pr_lock(provider->_statusMutex);
+                AutoMutex pr_lock(provider->status._statusMutex);
                 Logger::put(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                     "LocalProviderManager::unloadIdleProviders - "
@@ -270,18 +270,19 @@ void LocalProviderManager::unloadIdleProviders()
                     "Trying to Terminate Provider " + provider->getName());
                 try
                 {
-                    if (!provider->tryTerminate())
+                    if (!provider->status.unload_ok())
                     {
                         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                            "Provider Refused Termination " +
+                            "Provider not OK to unload: " +
                                 provider->getName());
                         continue;
                     }
-                    else
-                    {
-                        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                            "Provider terminated: " + provider->getName());
-                    }
+
+                    provider->terminate();
+
+                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                        "Provider terminated: " + provider->getName());
+                    provider->status.setInitialized(false);
                 }
                 catch(...)
                 {
@@ -291,16 +292,17 @@ void LocalProviderManager::unloadIdleProviders()
                     continue;
                 }
 
-                PEGASUS_ASSERT(provider->_module != 0);
+                PEGASUS_ASSERT(provider->status._module != 0);
                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                     "unloading Provider module" + provider->getName());
-                provider->_module->unloadModule();
+                provider->status._module->unloadModule();
 
                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                     "Destroying Provider's CIMOM Handle: " +
                     provider->getName());
-                delete provider->_cimom_handle;
-                provider->reset();
+                delete provider->status._cimom_handle;
+
+                provider->status.reset();
             }
         }
     }
@@ -318,8 +320,8 @@ Sint16 LocalProviderManager::disableProvider(const String& providerName)
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "LocalProviderManager::disableProvider");
 
-    Provider* pr=_lookupProvider(providerName);
-    if (pr->getStatus() == Provider::INITIALIZED)
+    ProviderFacade* pr=_lookupProvider(providerName);
+    if (pr->status.isInitialized())
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Disable Provider " + pr->_name);
@@ -369,12 +371,12 @@ Sint16 LocalProviderManager::disableProvider(const String& providerName)
     return(1);
 }
 
-Array<Provider*> LocalProviderManager::getIndicationProvidersToEnable()
+Array<ProviderFacade*> LocalProviderManager::getIndicationProvidersToEnable()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "LocalProviderManager::getIndicationProvidersToEnable");
 
-    Array<Provider*> enableProviders;
+    Array<ProviderFacade*> enableProviders;
 
     Tracer::trace (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
         "Number of providers in _providers table = %d", _providers.size());
@@ -391,9 +393,9 @@ Array<Provider*> LocalProviderManager::getIndicationProvidersToEnable()
             //
             //  Enable any indication provider with current subscriptions
             //
-            Provider* provider = i.value();
+            ProviderFacade* provider = i.value();
 
-            if (provider->testSubscriptions ())
+            if (provider->status.testSubscriptions())
             {
                 enableProviders.append (provider);
             }
@@ -424,8 +426,8 @@ Array<Provider*> LocalProviderManager::getIndicationProvidersToEnable()
     return enableProviders;
 }
 
-Provider* LocalProviderManager::_initProvider(
-    Provider* provider,
+ProviderFacade* LocalProviderManager::_initProvider(
+    ProviderFacade* provider,
     const String& moduleFileName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -444,9 +446,9 @@ Provider* LocalProviderManager::_initProvider(
 
     {
         // lock the provider status mutex
-        AutoMutex lock(provider->_statusMutex);
+        AutoMutex lock(provider->status._statusMutex);
 
-        if (provider->_status == Provider::INITIALIZED)
+        if (provider->status.isInitialized())
         {
             // Initialization is already complete
             return provider;
@@ -474,19 +476,24 @@ Provider* LocalProviderManager::_initProvider(
             "Initializing Provider " + provider->_name);
 
         CIMOMHandle *cimomHandle = new CIMOMHandle();
-        provider->set(module, base, cimomHandle);
-        provider->_quantum=0;
+        provider->status.setCIMOMHandle(cimomHandle);
+        provider->status.setModule(module);
+        provider->status._quantum=0;
+        provider->setProvider(base);
 
         Boolean initializeError = false;
 
         try
         {
-          provider->initialize(*(provider->_cimom_handle));
+          provider->initialize(*(provider->status._cimom_handle));
         }
         catch(...)
         {
           initializeError = true;
         }
+
+        provider->status.setInitialized(!initializeError);
+        provider->_current_operations = 0;
 
         // The cleanup code executed when an exception occurs was previously
         // included in the catch block above. Unloading the provider module
@@ -501,10 +508,10 @@ Provider* LocalProviderManager::_initProvider(
         if (initializeError == true)
         {
             // delete the cimom handle
-            delete provider->_cimom_handle;
+            delete provider->status._cimom_handle;
 
-            // set provider status to UNINITIALIZED
-            provider->reset();
+            // set provider status to uninitialized
+            provider->status.reset();
 
             provider->_provider = 0;
 
@@ -517,7 +524,7 @@ Provider* LocalProviderManager::_initProvider(
     return(provider);
 }
 
-void LocalProviderManager::_unloadProvider(Provider* provider)
+void LocalProviderManager::_unloadProvider(ProviderFacade* provider)
 {
     //
     // NOTE:  It is the caller's responsibility to make sure that
@@ -541,7 +548,7 @@ void LocalProviderManager::_unloadProvider(Provider* provider)
             "Terminating Provider " + provider->_name);
 
         // lock the provider mutex
-        AutoMutex pr_lock(provider->_statusMutex);
+        AutoMutex pr_lock(provider->status._statusMutex);
 
         try
         {
@@ -565,13 +572,14 @@ void LocalProviderManager::_unloadProvider(Provider* provider)
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
                 "Error occured terminating provider " + provider->_name);
         }
+        provider->status.setInitialized(false);
 
-        PEGASUS_ASSERT(provider->_module != 0);
+        PEGASUS_ASSERT(provider->status._module != 0);
 
         // unload provider module
-        provider->_module->unloadModule();
+        provider->status._module->unloadModule();
 
-        // NOTE: The "delete provider->_cimom_handle" operation was
+        // NOTE: The "delete provider->status._cimom_handle" operation was
         //   moved to be called after the unloadModule() call above
         //   as part of a fix for bugzilla 3669. For some providers
         //   run out-of-process on Windows platforms (i.e. running
@@ -584,20 +592,21 @@ void LocalProviderManager::_unloadProvider(Provider* provider)
         // delete the cimom handle
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Destroying Provider's CIMOM Handle " + provider->_name);
-        delete provider->_cimom_handle;
+        delete provider->status._cimom_handle;
         
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "ProviderManager::_provider_crtl -  Unload provider $0",
             provider->getName());
 
-        // set provider status to UNINITIALIZED
-        provider->reset();
+        // set provider status to uninitialized
+        provider->status.reset();
     }
 
     PEG_METHOD_EXIT();
 }
 
-Provider* LocalProviderManager::_lookupProvider(const String& providerName)
+ProviderFacade* LocalProviderManager::_lookupProvider(
+    const String& providerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "LocalProviderManager::_lookupProvider");
@@ -606,7 +615,7 @@ Provider* LocalProviderManager::_lookupProvider(const String& providerName)
     AutoMutex lock(_providerTableMutex);
 
     // look up provider in cache
-    Provider* pr = 0;
+    ProviderFacade* pr = 0;
     if (_providers.lookup(providerName, pr))
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -615,7 +624,7 @@ Provider* LocalProviderManager::_lookupProvider(const String& providerName)
     else
     {
         // create provider
-        pr = new Provider(providerName, 0, 0);
+        pr = new ProviderFacade(providerName, 0);
 
         // insert provider in provider table
         _providers.insert(providerName, pr);

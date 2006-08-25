@@ -29,17 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Markus Mueller (sedgewick_de@yahoo.de)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company
-//                  (sushma_fernandes@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderFacade.h"
@@ -86,13 +75,27 @@ inline T * getInterface(CIMProvider * provider)
     return(p);
 }
 
-ProviderFacade::ProviderFacade(CIMProvider * provider) : _provider(provider)
+ProviderFacade::ProviderFacade(
+    const String& name,
+    CIMProvider* provider)
+    : _name(name),
+      _provider(provider)
 {
    _indications_enabled=false;
 }
 
 ProviderFacade::~ProviderFacade(void)
 {
+}
+
+String ProviderFacade::getName() const
+{
+    return _name;
+}
+
+void ProviderFacade::setProvider(CIMProvider* provider)
+{
+    _provider = provider;
 }
 
 void ProviderFacade::initialize(CIMOMHandle & cimom)

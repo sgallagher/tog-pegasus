@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ProviderFacade_h
@@ -50,6 +43,7 @@
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
 #include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
+#include <Pegasus/ProviderManager2/Default/ProviderStatus.h>
 #include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -68,8 +62,14 @@ class PEGASUS_DEFPM_LINKAGE ProviderFacade :
     public CIMIndicationConsumerProvider
 {
 public:
-    ProviderFacade(CIMProvider * provider);
+    ProviderFacade(
+        const String& name,
+        CIMProvider* provider);
+
     virtual ~ProviderFacade(void);
+
+    String getName() const;
+    void setProvider(CIMProvider* provider);
 
     // CIMProvider interface
     virtual void initialize(CIMOMHandle & cimom);
@@ -217,12 +217,67 @@ public:
         const String & destinationPath,
         const CIMInstance& indicationInstance);
 
-protected:
+    ProviderStatus status;
+
+private:
+    friend class LocalProviderManager;
+    friend class OpProviderHolder;
+
+    String _name;
     CIMProvider * _provider;
     AtomicInt _current_operations;
-//    AtomicInt _current_ind_operations;
     Boolean _indications_enabled;
+};
 
+
+/**
+    Encapsulates the incrementing/decrementing of the _current_operations
+    for a ProviderFacade so it won't be unloaded during operations.
+*/
+class OpProviderHolder
+{
+public:
+    OpProviderHolder(ProviderFacade* p)
+        : _provider(p)
+    {
+        PEGASUS_ASSERT(_provider != 0);
+        _provider->_current_operations++;
+    }
+
+    OpProviderHolder(const OpProviderHolder& p)
+        : _provider(p._provider)
+    {
+        PEGASUS_ASSERT(_provider != 0);
+        _provider->_current_operations++;
+    }
+
+    ~OpProviderHolder()
+    {
+        _provider->_current_operations--;
+    }
+
+    ProviderFacade& GetProvider()
+    {
+        return *_provider;
+    }
+
+    OpProviderHolder& operator=(const OpProviderHolder& x)
+    {
+        if (this != &x)
+        {
+            _provider->_current_operations--;
+            _provider = x._provider;
+            PEGASUS_ASSERT(_provider != 0);
+            _provider->_current_operations++;
+        }
+
+        return *this;
+    }
+
+private:
+    OpProviderHolder();
+
+    ProviderFacade* _provider;
 };
 
 PEGASUS_NAMESPACE_END

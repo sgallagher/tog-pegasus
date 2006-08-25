@@ -254,7 +254,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
    private:      
       CIMOMHandleRep* _rep;
 
-      friend class Provider;
+      friend class ProviderStatus;
       friend class CMPIProvider;
 #ifdef PEGASUS_OS_OS400
       friend class CIMProviderOS400UserState;

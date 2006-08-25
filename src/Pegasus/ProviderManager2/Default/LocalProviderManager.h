@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Jenny Yu, Hewlett-Packard Company(jenny_yu@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Dan Gorey, IBM djgorey@us.ibm.com
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_LocalProviderManager_h
@@ -48,7 +38,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
 
-#include <Pegasus/ProviderManager2/Default/Provider.h>
+#include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
 #include <Pegasus/ProviderManager2/Default/ProviderModule.h>
 
 #include <Pegasus/ProviderManager2/Default/Linkage.h>
@@ -83,21 +73,21 @@ public:
         @return list of providers whose enableIndications() method must be
                 called
      */
-    Array<Provider*> getIndicationProvidersToEnable();
+    Array<ProviderFacade*> getIndicationProvidersToEnable();
 
 private:
 
-    Provider* _initProvider(
-        Provider* provider,
+    ProviderFacade* _initProvider(
+        ProviderFacade* provider,
         const String& moduleFileName);
 
-    void _unloadProvider(Provider* provider);
+    void _unloadProvider(ProviderFacade* provider);
 
-    Provider* _lookupProvider(const String& providerName);
+    ProviderFacade* _lookupProvider(const String& providerName);
 
     ProviderModule* _lookupModule(const String& moduleFileName);
 
-    typedef HashTable<String, Provider*,
+    typedef HashTable<String, ProviderFacade*,
         EqualFunc<String>,  HashFunc<String> > ProviderTable;
 
     typedef HashTable<String, ProviderModule*,
@@ -106,9 +96,9 @@ private:
     /**
         The _providerTableMutex must be locked whenever accessing the
         _providers table or the _modules table.  It is okay to lock a
-        Provider::_statusMutex while holding the _providerTableMutex,
+        ProviderStatus::_statusMutex while holding the _providerTableMutex,
         but one should never lock the _providerTableMutex while holding
-        a Provider::_statusMutex.
+        a ProviderStatus::_statusMutex.
      */
     Mutex _providerTableMutex;
 

@@ -487,10 +487,10 @@ inline CIMInstance _getCRLInstance(X509_CRL* xCrl, String host, CIMNamespaceName
 
     // validity dates
     CIMDateTime lastUpdate = getDateTime(X509_CRL_get_lastUpdate(xCrl));
-    cimInstance.addProperty(CIMProperty(NEXT_UPDATE_PROPERTY, CIMValue(lastUpdate)));
+    cimInstance.addProperty(CIMProperty(LAST_UPDATE_PROPERTY, CIMValue(lastUpdate)));
 
     CIMDateTime nextUpdate = getDateTime(X509_CRL_get_nextUpdate(xCrl));
-    cimInstance.addProperty(CIMProperty(LAST_UPDATE_PROPERTY, CIMValue(nextUpdate)));
+    cimInstance.addProperty(CIMProperty(NEXT_UPDATE_PROPERTY, CIMValue(nextUpdate)));
 
     Array<String> revokedSerialNumbers;
     Array<CIMDateTime> revocationDates;

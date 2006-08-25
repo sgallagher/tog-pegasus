@@ -487,15 +487,6 @@ void pegasus_locking_callback( int      mode,
     }
 }
 
-static unsigned long _get_thread_id()
-{
-#if defined(PEGASUS_HAVE_PTHREADS)
-    return pthread_self();
-#else
-    return 0;
-#endif
-}
-
 //
 // Initialize OpenSSL Locking and id callbacks.
 //
@@ -513,9 +504,10 @@ void SSLContextRep::init_ssl()
 
      _sslLocks.reset(new Mutex[CRYPTO_num_locks()]);
 
+#if defined(PEGASUS_HAVE_PTHREADS) && !defined(PEGASUS_OS_VMS)
      // Set the ID callback. The ID callback returns a thread ID.
-
-     CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK)_get_thread_id);
+     CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) pthread_self());
+#endif
 
      // Set the locking callback to pegasus_locking_callback.
 

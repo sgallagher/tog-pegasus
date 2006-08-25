@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -66,56 +62,37 @@ private:
 
 Alarm::~Alarm()
 {
-
-}
-
-Uint32 Sum(const MessageQueue& q)
-{
-    Uint32 sum = 0;
-
-    for (const Message* m = q.front(); m; m = m->getNext())
-    {
-	const Alarm* a = (const Alarm*)m;
-	sum += a->getKey();
-    }
-    return sum;
 }
 
 void TestMessageQueue1()
 {
     MessageQueue q("Test1");
 
-    Uint32 sum = 0;
-
     for (Uint32 i = 1; i <= 4; i++)
     {
 	q.enqueue(new Alarm(i));
-	sum += i;
     }
-
-    PEGASUS_TEST_ASSERT(Sum(q) == sum);
-
-    // Test removing from the front:
-    q.remove(q.front());
-    PEGASUS_TEST_ASSERT(Sum(q) == sum - 1);
-    PEGASUS_TEST_ASSERT(q.getCount() == 3);
-
-    // Test removing from the front:
-    q.remove(q.back());
-    PEGASUS_TEST_ASSERT(Sum(q) == sum - 1 - 4);
-    PEGASUS_TEST_ASSERT(q.getCount() == 2);
 
     // Test dequeue:
     Message* m = q.dequeue();
-    PEGASUS_TEST_ASSERT(((const Alarm*)m)->getKey() == 2);
-    PEGASUS_TEST_ASSERT(Sum(q) == sum - 1 - 4 - 2);
-    PEGASUS_TEST_ASSERT(q.getCount() == 1);
+    PEGASUS_TEST_ASSERT(((const Alarm*)m)->getKey() == 1);
+    PEGASUS_TEST_ASSERT(q.getCount() == 3);
+    PEGASUS_TEST_ASSERT(!q.isEmpty());
 
-    // Test dequeue:
+    m = q.dequeue();
+    PEGASUS_TEST_ASSERT(((const Alarm*)m)->getKey() == 2);
+    PEGASUS_TEST_ASSERT(q.getCount() == 2);
+    PEGASUS_TEST_ASSERT(!q.isEmpty());
+
     m = q.dequeue();
     PEGASUS_TEST_ASSERT(((const Alarm*)m)->getKey() == 3);
-    PEGASUS_TEST_ASSERT(Sum(q) == sum - 1 - 4 - 2 - 3);
+    PEGASUS_TEST_ASSERT(q.getCount() == 1);
+    PEGASUS_TEST_ASSERT(!q.isEmpty());
+
+    m = q.dequeue();
+    PEGASUS_TEST_ASSERT(((const Alarm*)m)->getKey() == 4);
     PEGASUS_TEST_ASSERT(q.getCount() == 0);
+    PEGASUS_TEST_ASSERT(q.isEmpty());
 }
 
 void TestMessageQueue2()
@@ -132,7 +109,7 @@ void TestMessageQueue2()
     PEGASUS_TEST_ASSERT(sum == 15);
 
     while (!q.isEmpty())
-	q.remove(q.front());
+        q.dequeue();
 
     PEGASUS_TEST_ASSERT(q.getCount() == 0);
 }
@@ -151,7 +128,7 @@ void TestMessageQueue3()
     PEGASUS_TEST_ASSERT(sum == 15);
 
     while (!q.isEmpty())
-	q.remove(q.back());
+        q.dequeue();
 
     PEGASUS_TEST_ASSERT(q.getCount() == 0);
 }

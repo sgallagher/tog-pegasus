@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBm (ashanmug@in.ibm.com) for Bug# 3475
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_MessageQueue_h
@@ -42,8 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -124,39 +117,6 @@ public:
     */
     virtual Message* dequeue();
 
-    /** Removes the given message from the queue.
-    @param message to be removed.
-    @exception throws NullPointer if message parameter is null.
-    @exception throws NoSuchMessageOnQueue is message paramter is not
-    @exception IPCException Thrown if an IPC error occurs.
-    on this queue.
-    */
-    virtual void remove(Message* message);
-
-    /** Find the message with the given type.
-    @parameter type type of message to be found.
-    @return pointer to message if found; null otherwise.
-    @exception IPCException Thrown if an IPC error occurs.
-    */
-    virtual Message* findByType(Uint32 type);
-
-    /** Const version of findByType().
-    @exception IPCException Thrown if an IPC error occurs.
-    */
-    virtual const Message* findByType(Uint32 type) const;
-
-    /** Returns pointer to front message. */
-    Message* front() throw() { return _front; }
-
-     /** Const version of front(). */
-    const Message* front() const throw() { return _front; }
-
-    /** Returns pointer to back message. */
-    Message* back() throw() { return _back; }
-
-    /** Const version of back(). */
-    const Message* back() const throw() { return _back; }
-
     /** Returns true if there are no messages on the queue. */
     Boolean isEmpty() const throw() { return _front == 0; }
 
@@ -220,8 +180,6 @@ public:
     static void putQueueId(Uint32 queueId);
 
 protected:
-    static void remove_myself(Uint32);
-
     Uint32 _queueId;
     char *_name;
     Uint32 _capabilities;
@@ -232,17 +190,6 @@ private:
     Message* _front;
     Message* _back;
     Boolean _async;
-};
-
-inline const Message* MessageQueue::findByType(Uint32 type) const
-{
-    return ((MessageQueue*)this)->findByType(type);
-}
-
-class PEGASUS_COMMON_LINKAGE NoSuchMessageOnQueue : public Exception
-{
-public:
-    NoSuchMessageOnQueue() : Exception("No such message on this queue") { }
 };
 
 PEGASUS_NAMESPACE_END

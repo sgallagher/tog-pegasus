@@ -29,20 +29,12 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2076
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3475
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/CimomMessage.h>
 #include "MessageQueue.h"
-#include "MessageQueueService.h"
 #include "IDFactory.h"
 
 PEGASUS_USING_STD;
@@ -54,12 +46,6 @@ typedef HashTable<Uint32, MessageQueue*, EqualFunc<Uint32>, HashFunc<Uint32> >
 
 static QueueTable _queueTable(256);
 static Mutex q_table_mut ;
-
-void MessageQueue::remove_myself(Uint32 qid)
-{
-    AutoMutex autoMut(q_table_mut);
-    _queueTable.remove(qid);
-}
 
 static IDFactory _qidFactory(CIMOM_Q_ID + 1);
 
@@ -215,70 +201,12 @@ Message* MessageQueue::dequeue()
 }
 
 
-
-void MessageQueue::remove(Message* message)
-{
-    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::remove()");
-
-    if (!message)
-    {
-        PEG_METHOD_EXIT();
-        throw NullPointer();
-    }
-
-    if (message->_owner != this)
-    {
-        PEG_METHOD_EXIT();
-        throw NoSuchMessageOnQueue();
-    }
-
-    {
-    AutoMutex autoMut(_mut);
-
-    if (message->_next)
-        message->_next->_prev = message->_prev;
-    else
-        _back = message->_prev;
-
-    if (message->_prev)
-        message->_prev->_next = message->_next;
-    else
-        _front = message->_next;
-
-    _count--;
-    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
-       "MessageQueue::remove _count = %d", _count);
-
-    } // mutex unlocks here
-
-    message->_prev = 0;
-    message->_next = 0;
-    message->_owner = 0;
-
-    PEG_METHOD_EXIT();
-}
-
-Message* MessageQueue::findByType(Uint32 type)
-{
-    AutoMutex autoMut(_mut);
-
-    for (Message* m = front(); m; m = m->getNext())
-    {
-        if (m->getType() == type)
-        {
-            return m;
-        }
-    }
-
-    return 0;
-}
-
 #ifdef PEGASUS_DEBUG
 void MessageQueue::print(ostream& os) const
 {
     AutoMutex autoMut(const_cast<MessageQueue *>(this)->_mut);
 
-    for (const Message* m = front(); m; m = m->getNext())
+    for (const Message* m = _front; m; m = m->getNext())
         m->print(os);
 }
 #endif

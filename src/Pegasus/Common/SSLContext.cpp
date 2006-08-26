@@ -506,7 +506,7 @@ void SSLContextRep::init_ssl()
 
 #if defined(PEGASUS_HAVE_PTHREADS) && !defined(PEGASUS_OS_VMS)
      // Set the ID callback. The ID callback returns a thread ID.
-     CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) pthread_self());
+     CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) pthread_self);
 #endif
 
      // Set the locking callback to pegasus_locking_callback.

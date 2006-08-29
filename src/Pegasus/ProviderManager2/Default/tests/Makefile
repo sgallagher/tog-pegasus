@@ -31,9 +31,7 @@
 include $(PEGASUS_ROOT)/mak/config.mak
 
 DIRS = \
-	ProviderFacade \
-	ProviderManager \
-	ProviderModule \
+    ProviderModule \
     ResponseHandler
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

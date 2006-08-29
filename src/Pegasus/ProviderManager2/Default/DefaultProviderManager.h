@@ -44,27 +44,19 @@
 
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
-#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
-#include <Pegasus/ProviderManager2/Default/LocalProviderManager.h>
-#include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
-
+#include <Pegasus/ProviderManager2/Default/ProviderMessageHandler.h>
 #include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-typedef HashTable<String,
-        EnableIndicationsResponseHandler *,
-        EqualFunc<String>,
-        HashFunc<String> > IndicationResponseTable;
-
 class PEGASUS_DEFPM_LINKAGE DefaultProviderManager : public ProviderManager
 {
 public:
-    DefaultProviderManager(void);
-    virtual ~DefaultProviderManager(void);
+    DefaultProviderManager();
+    virtual ~DefaultProviderManager();
 
-    virtual Message * processMessage(Message * request);
+    virtual Message* processMessage(Message* request);
 
     virtual Boolean hasActiveProviders();
     virtual void unloadIdleProviders();
@@ -76,76 +68,50 @@ public:
     // each library would contain a reference to the other).
     static ProviderManager* createDefaultProviderManagerCallback();
 
-protected:
-    Message * handleUnsupportedRequest(const Message * message);
-
-    Message * handleGetInstanceRequest(const Message * message);
-    Message * handleEnumerateInstancesRequest(const Message * message);
-    Message * handleEnumerateInstanceNamesRequest(const Message * message);
-    Message * handleCreateInstanceRequest(const Message * message);
-    Message * handleModifyInstanceRequest(const Message * message);
-    Message * handleDeleteInstanceRequest(const Message * message);
-
-    Message * handleExecQueryRequest(const Message * message);
-
-    Message * handleAssociatorsRequest(const Message * message);
-    Message * handleAssociatorNamesRequest(const Message * message);
-    Message * handleReferencesRequest(const Message * message);
-    Message * handleReferenceNamesRequest(const Message * message);
-
-    Message * handleGetPropertyRequest(const Message * message);
-    Message * handleSetPropertyRequest(const Message * message);
-
-    Message * handleInvokeMethodRequest(const Message * message);
-
-    Message * handleCreateSubscriptionRequest(const Message * message);
-    Message * handleModifySubscriptionRequest(const Message * message);
-    Message * handleDeleteSubscriptionRequest(const Message * message);
-
-    Message * handleExportIndicationRequest(const Message * message);
-
-    Message * handleDisableModuleRequest(const Message * message);
-    Message * handleEnableModuleRequest(const Message * message);
-    Message * handleStopAllProvidersRequest(const Message * message);
-    Message * handleInitializeProviderRequest(const Message * message);
-    Message * handleSubscriptionInitCompleteRequest
-        (const Message * message);
-
-    void _insertEntry(
-        const ProviderFacade& provider,
-        EnableIndicationsResponseHandler* handler);
-    EnableIndicationsResponseHandler * _removeEntry(const String & key);
-
-    String _generateKey(const ProviderFacade& provider);
-    String _generateKey(const String & providerName,const String & providerFileName);
+private:
+    Message* _handleDisableModuleRequest(Message* message);
+    Message* _handleEnableModuleRequest(Message* message);
+    Message* _handleStopAllProvidersRequest(Message* message);
+    Message* _handleInitializeProviderRequest(Message* message);
+    Message* _handleSubscriptionInitCompleteRequest(Message* message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 
-protected:
-    IndicationResponseTable _responseTable;
-    Mutex _responseTableMutex;
-    LocalProviderManager providerManager;
+    ProviderOperationCounter _getProvider(
+        const String& moduleFileName,
+        const String& providerName);
 
-private:
+    ProviderMessageHandler* _lookupProvider(const String& providerName);
+
+    ProviderMessageHandler* _initProvider(
+        ProviderMessageHandler* provider,
+        const String& moduleFileName);
+
+    ProviderModule* _lookupModule(const String& moduleFileName);
+
+    void _shutdownAllProviders();
+
+    Sint16 _disableProvider(const String& providerName);
+
+    void _unloadProvider(ProviderMessageHandler* provider);
 
     /**
-        Calls the provider's enableIndications() method.
-        If successful, the indications response handler is stored in the 
-        _responseTable.
-
-        @param  req_provider  CIMInstance for the provider to be enabled
-        @param  _indicationCallback  PEGASUS_INDICATION_CALLBACK_T for
-            indications
-        @param  ph  OpProviderHolder for the provider to be enabled
-
-        Note that since an exception thrown by the provider's 
-        enableIndications() method is considered a provider error, any such
-        exception is ignored, and no exceptions are thrown by this method.
+        The _providerTableMutex must be locked whenever accessing the
+        _providers table or the _modules table.  It is okay to lock a
+        ProviderStatus::_statusMutex while holding the _providerTableMutex,
+        but one should never lock the _providerTableMutex while holding
+        a ProviderStatus::_statusMutex.
      */
-    void _callEnableIndications
-        (CIMInstance & req_provider,
-         PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
-         OpProviderHolder & ph);
+    Mutex _providerTableMutex;
+
+    typedef HashTable<String, ProviderMessageHandler*,
+        EqualFunc<String>,  HashFunc<String> > ProviderTable;
+
+    typedef HashTable<String, ProviderModule*,
+        EqualFunc<String>, HashFunc<String> > ModuleTable;
+
+    ProviderTable _providers;
+    ModuleTable _modules;
 };
 
 PEGASUS_NAMESPACE_END

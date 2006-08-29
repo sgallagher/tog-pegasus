@@ -136,14 +136,19 @@ private:
     ProviderStatus(const ProviderStatus&);
     ProviderStatus& operator=(const ProviderStatus&);
 
-    friend class LocalProviderManager;
+    friend class DefaultProviderManager;
+    friend class ProviderMessageHandler;
+    friend class ProviderOperationCounter;
 
     CIMOMHandle *_cimom_handle;
     ProviderModule *_module;
     Boolean _isInitialized;
-    AtomicInt _no_unload;
+    AtomicInt _noUnload;
     Uint32 _quantum;
     Mutex _statusMutex;
+
+    AtomicInt _currentOperations;
+    Boolean _indicationsEnabled;
 
     /**
         Count of current subscriptions for this provider.  Access to this

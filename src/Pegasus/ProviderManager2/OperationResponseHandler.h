@@ -430,7 +430,7 @@ public:
     EnableIndicationsResponseHandler(
         CIMRequestMessage* request,
         CIMResponseMessage* response,
-        CIMInstance& provider,
+        const CIMInstance& provider,
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 

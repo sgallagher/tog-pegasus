@@ -39,7 +39,9 @@ ProviderStatus::ProviderStatus()
     : _cimom_handle(0),
       _module(0),
       _isInitialized(false),
-      _no_unload(0),
+      _noUnload(0),
+      _currentOperations(0),
+      _indicationsEnabled(false),
       _currentSubscriptions(0)
 {
 }
@@ -79,7 +81,7 @@ void ProviderStatus::reset()
 {
     _cimom_handle = 0;
     _module = 0;
-    _no_unload = 0;
+    _noUnload = 0;
     _isInitialized = false;
 }
 
@@ -112,7 +114,7 @@ Boolean ProviderStatus::pending_operation()
 
 Boolean ProviderStatus::unload_ok()
 {
-    if (!_isInitialized || _no_unload.get())
+    if (!_isInitialized || _noUnload.get())
     {
         return false;
     }
@@ -127,12 +129,12 @@ Boolean ProviderStatus::unload_ok()
 
 void ProviderStatus::protect()
 {
-    _no_unload++;
+    _noUnload++;
 }
 
 void ProviderStatus::unprotect()
 {
-    _no_unload--;
+    _noUnload--;
 }
 
 Boolean ProviderStatus::testIfZeroAndIncrementSubscriptions()

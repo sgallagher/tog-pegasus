@@ -35,200 +35,133 @@
 
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/Constants.h>
 
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
 #include <Pegasus/ProviderManager2/QueryExpressionFactory.h>
 
-#include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
-#include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
-
-#define HandleCatch(handler)                                                   \
-catch(CIMException & e)                                                        \
-{                                                                              \
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,                      \
-                     "Exception: " + e.getMessage());                          \
-    handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage());   \
-}                                                                              \
-    catch(Exception & e)                                                       \
-{                                                                              \
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,                      \
-                     "Exception: " + e.getMessage());                          \
-    handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage());\
-}                                                                              \
-    catch(...)                                                                 \
-{                                                                              \
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,                      \
-                     "Exception: Unknown");                                    \
-    handler.setStatus(CIM_ERR_FAILED, "Unknown error.");                       \
-}
-
 
 PEGASUS_NAMESPACE_BEGIN
-
-// auto variable to protect provider during operations
-class pm_service_op_lock
-{
-public:
-    pm_service_op_lock(ProviderStatus *providerStatus)
-    : _providerStatus(providerStatus)
-    {
-        _providerStatus->protect();
-    }
-
-    ~pm_service_op_lock()
-    {
-        _providerStatus->unprotect();
-    }
-
-private:
-    pm_service_op_lock();
-    pm_service_op_lock(const pm_service_op_lock&);
-    pm_service_op_lock& operator=(const pm_service_op_lock&);
-
-    ProviderStatus* _providerStatus;
-};
 
 //
 // Default Provider Manager
 //
-DefaultProviderManager::DefaultProviderManager(void)
+DefaultProviderManager::DefaultProviderManager()
 {
     _subscriptionInitComplete = false;
 }
 
-DefaultProviderManager::~DefaultProviderManager(void)
+DefaultProviderManager::~DefaultProviderManager()
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::~DefaultProviderManager");
+
+    _shutdownAllProviders();
+
+    for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
+    {
+        ProviderMessageHandler* provider = i.value();
+        delete provider;
+    }
+
+    for (ModuleTable::Iterator j = _modules.start(); j != 0; j++)
+    {
+        ProviderModule* module = j.value();
+        delete module;
+    }
+
+    PEG_METHOD_EXIT();
 }
 
-Message * DefaultProviderManager::processMessage(Message * request)
+Message* DefaultProviderManager::processMessage(Message* request)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "DefaultProviderManager::processMessage()");
 
-    Message * response = 0;
+    Message* response = 0;
 
     // pass the request message to a handler method based on message type
     switch(request->getType())
     {
     case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-        response = handleGetInstanceRequest(request);
-
-        break;
     case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-        response = handleEnumerateInstancesRequest(request);
-
-        break;
     case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-        response = handleEnumerateInstanceNamesRequest(request);
-
-        break;
     case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-        response = handleCreateInstanceRequest(request);
-
-        break;
     case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-        response = handleModifyInstanceRequest(request);
-
-        break;
     case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-        response = handleDeleteInstanceRequest(request);
-
-        break;
     case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-        response = handleExecQueryRequest(request);
-
-        break;
     case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-        response = handleAssociatorsRequest(request);
-
-        break;
     case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-        response = handleAssociatorNamesRequest(request);
-
-        break;
     case CIM_REFERENCES_REQUEST_MESSAGE:
-        response = handleReferencesRequest(request);
-
-        break;
     case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-        response = handleReferenceNamesRequest(request);
-
-        break;
     case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-        response = handleGetPropertyRequest(request);
-
-        break;
     case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-        response = handleSetPropertyRequest(request);
-
-        break;
     case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-        response = handleInvokeMethodRequest(request);
-
-        break;
     case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleCreateSubscriptionRequest(request);
-
-        break;
     case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleModifySubscriptionRequest(request);
-
-        break;
     case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleDeleteSubscriptionRequest(request);
-
-        break;
     case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
-        response = handleExportIndicationRequest(request);
-        break;
+        {
+            CIMRequestMessage* cimRequest =
+                dynamic_cast<CIMRequestMessage*>(request);
+
+            // resolve provider name
+            ProviderName name = _resolveProviderName(
+                cimRequest->operationContext.get(ProviderIdContainer::NAME));
+
+            // get cached or load new provider module
+            ProviderOperationCounter poc(
+                _getProvider(name.getPhysicalName(), name.getLogicalName()));
+
+            response = poc.GetProvider().processMessage(cimRequest);
+            break;
+        }
 
     case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-        response = handleDisableModuleRequest(request);
-
+        response = _handleDisableModuleRequest(request);
         break;
+
     case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-        response = handleEnableModuleRequest(request);
-
+        response = _handleEnableModuleRequest(request);
         break;
+
     case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-        response = handleStopAllProvidersRequest(request);
-
+        response = _handleStopAllProvidersRequest(request);
         break;
+
     case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
-	response = handleInitializeProviderRequest(request);
+        response = _handleInitializeProviderRequest(request);
+        break;
 
-	break;
     case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
-	response = handleSubscriptionInitCompleteRequest (request);
+        response = _handleSubscriptionInitCompleteRequest(request);
+        break;
 
-	break;
     default:
         PEGASUS_ASSERT(0);
-
         break;
     }
 
     PEG_METHOD_EXIT();
 
-    return(response);
+    return response;
 }
 
-Message * DefaultProviderManager::handleInitializeProviderRequest(
-    const Message * message)
+Message* DefaultProviderManager::_handleInitializeProviderRequest(
+    Message* message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
-	"DefaultProviderManager::handleInitializeProviderRequest");
+	"DefaultProviderManager::_handleInitializeProviderRequest");
 
-    CIMInitializeProviderRequestMessage * request =
-        dynamic_cast<CIMInitializeProviderRequestMessage *>
-	    (const_cast<Message *>(message));
-
+    CIMInitializeProviderRequestMessage* request =
+        dynamic_cast<CIMInitializeProviderRequestMessage*>(message);
     PEGASUS_ASSERT(request != 0);
 
     CIMInitializeProviderResponseMessage* response =
@@ -236,1659 +169,52 @@ Message * DefaultProviderManager::handleInitializeProviderRequest(
             request->buildResponse());
     PEGASUS_ASSERT(response != 0);
 
-    OperationResponseHandler handler(
-        request, response, _responseChunkCallback);
-
     try
     {
         // resolve provider name
 	ProviderName name = _resolveProviderName(
 	    request->operationContext.get(ProviderIdContainer::NAME));
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
         // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
+        ProviderOperationCounter poc(
+            _getProvider(name.getPhysicalName(), name.getLogicalName()));
     }
-    catch(CIMException & e)
+    catch (CIMException& e)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
             "CIMException: " + e.getMessage());
 
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage());
+        response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
+            e.getContentLanguages(), e.getCode(), e.getMessage());
     }
-    catch(Exception & e)
+    catch (Exception& e)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
             "Exception: " + e.getMessage());
 
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage());
+        response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
+            e.getContentLanguages(), CIM_ERR_FAILED, e.getMessage());
     }
-    catch(...)
+    catch (...)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
             "Exception: Unknown");
 
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+        response->cimException = PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_FAILED, "Unknown error.");
     }
 
     PEG_METHOD_EXIT();
-
-    return(response);
+    return response;
 }
 
-Message * DefaultProviderManager::handleGetInstanceRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleGetInstanceRequest");
-
-    CIMGetInstanceRequestMessage * request =
-        dynamic_cast<CIMGetInstanceRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMGetInstanceResponseMessage* response =
-        dynamic_cast<CIMGetInstanceResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    GetInstanceResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleGetInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->instanceName.getClassName().getString());
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        CIMPropertyList propertyList(request->propertyList);
-
-        // forward request
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.getInstance: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        ph.GetProvider().getInstance(
-            context,
-            objectPath,
-            request->includeQualifiers,
-            request->includeClassOrigin,
-            propertyList,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-    return(response);
-}
-
-Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleEnumerateInstanceRequest");
-
-    CIMEnumerateInstancesRequestMessage * request =
-        dynamic_cast<CIMEnumerateInstancesRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMEnumerateInstancesResponseMessage* response =
-        dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    EnumerateInstancesResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE, 
-	    "DefaultProviderManager::handleEnumerateInstancesRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->className.getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->className);
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        CIMPropertyList propertyList(request->propertyList);
-
-        // forward request
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.enumerateInstances: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        ph.GetProvider().enumerateInstances(
-            context,
-            objectPath,
-            request->includeQualifiers,
-            request->includeClassOrigin,
-            propertyList,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleEnumerateInstanceNamesRequest");
-
-    CIMEnumerateInstanceNamesRequestMessage * request =
-        dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMEnumerateInstanceNamesResponseMessage* response =
-        dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    EnumerateInstanceNamesResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    // process the request
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleEnumerateInstanceNamesRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->className.getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->className);
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        // forward request
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.enumerateInstanceNames: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        ph.GetProvider().enumerateInstanceNames(
-            context,
-            objectPath,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleCreateInstanceRequest");
-
-    CIMCreateInstanceRequestMessage * request =
-        dynamic_cast<CIMCreateInstanceRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    // create response message
-    CIMCreateInstanceResponseMessage* response =
-        dynamic_cast<CIMCreateInstanceResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    CreateInstanceResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleCreateInstanceRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->newInstance.getPath().getClassName().getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->newInstance.getPath().getClassName(),
-            request->newInstance.getPath().getKeyBindings());
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        // forward request
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.createInstance: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        ph.GetProvider().createInstance(
-            context,
-            objectPath,
-            request->newInstance,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleModifyInstanceRequest");
-
-    CIMModifyInstanceRequestMessage * request =
-        dynamic_cast<CIMModifyInstanceRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    // create response message
-    CIMModifyInstanceResponseMessage* response =
-        dynamic_cast<CIMModifyInstanceResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    ModifyInstanceResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleModifyInstanceRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->modifiedInstance.getPath().getClassName().getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->modifiedInstance.getPath ().getClassName(),
-            request->modifiedInstance.getPath ().getKeyBindings());
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        CIMPropertyList propertyList(request->propertyList);
-
-        // forward request
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.modifyInstance: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        ph.GetProvider().modifyInstance(
-            context,
-            objectPath,
-            request->modifiedInstance,
-            request->includeQualifiers,
-            propertyList,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDeleteInstanceRequest");
-
-    CIMDeleteInstanceRequestMessage * request =
-        dynamic_cast<CIMDeleteInstanceRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    // create response message
-    CIMDeleteInstanceResponseMessage* response =
-        dynamic_cast<CIMDeleteInstanceResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    DeleteInstanceResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleDeleteInstanceRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->instanceName.getClassName().getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        // forward request
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.deleteInstance: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        ph.GetProvider().deleteInstance(
-            context,
-            objectPath,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleExecQueryRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleExecQueryRequest");
-
-    CIMExecQueryRequestMessage * request =
-        dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMExecQueryResponseMessage* response =
-        dynamic_cast<CIMExecQueryResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    ExecQueryResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleExecQueryRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->className.getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->className);
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        QueryExpression qx(request->queryLanguage,request->query);
-
-        // forward request
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.executeQueryRequest: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        ph.GetProvider().execQuery(
-            context,
-            objectPath,
-            qx,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleAssociatorsRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleAssociatorsRequest");
-
-    CIMAssociatorsRequestMessage * request =
-        dynamic_cast<CIMAssociatorsRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMAssociatorsResponseMessage* response =
-        dynamic_cast<CIMAssociatorsResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    AssociatorsResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    // process the request
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleAssociatorsRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->objectName.getClassName().getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath assocPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->assocClass.getString());
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        ph.GetProvider().associators(
-            context,
-            objectPath,
-            request->assocClass,
-            request->resultClass,
-            request->role,
-            request->resultRole,
-            request->includeQualifiers,
-            request->includeClassOrigin,
-            request->propertyList,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleAssociatorNamesRequest");
-
-    CIMAssociatorNamesRequestMessage * request =
-        dynamic_cast<CIMAssociatorNamesRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMAssociatorNamesResponseMessage* response =
-        dynamic_cast<CIMAssociatorNamesResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    AssociatorNamesResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    // process the request
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleAssociationNamesRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->objectName.getClassName().getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath assocPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->assocClass.getString());
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        ph.GetProvider().associatorNames(
-            context,
-            objectPath,
-            request->assocClass,
-            request->resultClass,
-            request->role,
-            request->resultRole,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleReferencesRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleReferencesRequest");
-
-    CIMReferencesRequestMessage * request =
-        dynamic_cast<CIMReferencesRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMReferencesResponseMessage* response =
-        dynamic_cast<CIMReferencesResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    ReferencesResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    // process the request
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleReferencesRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->objectName.getClassName().getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath resultPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->resultClass.getString());
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.references: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        ph.GetProvider().references(
-            context,
-            objectPath,
-            request->resultClass,
-            request->role,
-            request->includeQualifiers,
-            request->includeClassOrigin,
-            request->propertyList,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleReferenceNamesRequest");
-
-    CIMReferenceNamesRequestMessage * request =
-        dynamic_cast<CIMReferenceNamesRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMReferenceNamesResponseMessage* response =
-        dynamic_cast<CIMReferenceNamesResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    ReferenceNamesResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    // process the request
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleReferenceNamesRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->objectName.getClassName().getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath resultPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->resultClass.getString());
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.referenceNames: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        ph.GetProvider().referenceNames(
-            context,
-            objectPath,
-            request->resultClass,
-            request->role,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleGetPropertyRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleGetPropertyRequest");
-
-    CIMGetPropertyRequestMessage * request =
-        dynamic_cast<CIMGetPropertyRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    // create response message
-    CIMGetPropertyResponseMessage* response =
-        dynamic_cast<CIMGetPropertyResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    GetPropertyResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleGetPropertyRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->instanceName.getClassName().getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        CIMName propertyName = request->propertyName;
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.getProperty: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        // forward request
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        ph.GetProvider().getProperty(
-            context,
-            objectPath,
-            propertyName,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleSetPropertyRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleSetPropertyRequest");
-
-    CIMSetPropertyRequestMessage * request =
-        dynamic_cast<CIMSetPropertyRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    // create response message
-    CIMSetPropertyResponseMessage* response = 
-        dynamic_cast<CIMSetPropertyResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    SetPropertyResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleSetPropertyRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->instanceName.getClassName().getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-        CIMName propertyName = request->propertyName;
-        CIMValue propertyValue = request->newValue;
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.setProperty: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        // forward request
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        ph.GetProvider().setProperty(
-            context,
-            objectPath,
-            propertyName,
-            propertyValue,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleInvokeMethodRequest");
-
-    CIMInvokeMethodRequestMessage * request =
-        dynamic_cast<CIMInvokeMethodRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    // create response message
-    CIMInvokeMethodResponseMessage* response =
-        dynamic_cast<CIMInvokeMethodResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // create a handler for this request
-    InvokeMethodResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleInvokeMethodRequest - "
-	    "Host name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->instanceName.getClassName().getString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
-
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));  
-
-        CIMObjectPath instanceReference(request->instanceName);
-
-        // ATTN: propagate namespace
-        instanceReference.setNameSpace(request->nameSpace);
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.invokeMethod: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        StatProviderTimeMeasurement providerTime(response);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        ph.GetProvider().invokeMethod(
-            context,
-            instanceReference,
-            request->methodName,
-            request->inParameters,
-            handler);
-
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleCreateSubscriptionRequest");
-
-    CIMCreateSubscriptionRequestMessage * request =
-        dynamic_cast<CIMCreateSubscriptionRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMCreateSubscriptionResponseMessage* response =
-        dynamic_cast<CIMCreateSubscriptionResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    OperationResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        String temp;
-
-        for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
-        {
-            temp.append(request->classNames[i].getString());
-
-            if (i < (n - 1))
-            {
-                temp.append(", ");
-            }
-        }
-
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleCreateSubscriptionRequest - "
-	    "Host name: $0  Name space: $1  Class name(s): $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            temp));
-
-		CIMInstance req_provider, req_providerModule;
-		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
-		req_provider = pidc.getProvider();
-		req_providerModule = pidc.getModule();
-
-        String physicalName=_resolvePhysicalName( req_providerModule.getProperty(
-                                                  req_providerModule.findProperty("Location")).getValue().toString());
-
-        ProviderName name(req_provider.getProperty(req_provider.findProperty("Name")).getValue ().toString (),
-                                  physicalName,
-                                  req_providerModule.getProperty(req_providerModule.findProperty
-                                  ("InterfaceType")).getValue().toString(),
-                                   0);
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        //
-        //  Save the provider instance from the request
-        //
-        ph.GetProvider().status.setProviderInstance(req_provider);
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
-		 context.insert(request->operationContext.get(SubscriptionFilterQueryContainer::NAME));
-
-        CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
-
-        Array<CIMObjectPath> classNames;
-
-        for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
-        {
-            CIMObjectPath className(
-                System::getHostName(),
-                request->nameSpace,
-                request->classNames[i]);
-
-            classNames.append(className);
-        }
-
-        CIMPropertyList propertyList = request->propertyList;
-
-        Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.createSubscription: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        ph.GetProvider().createSubscription(
-            context,
-            subscriptionName,
-            classNames,
-            propertyList,
-            repeatNotificationPolicy);
-
-        //
-        //  Increment count of current subscriptions for this provider
-        //
-        if (ph.GetProvider().status.testIfZeroAndIncrementSubscriptions())
-        {
-            //
-            //  If there were no current subscriptions before the increment, 
-            //  the first subscription has been created
-            //  Call the provider's enableIndications method
-            //
-            if (_subscriptionInitComplete)
-            {
-                _callEnableIndications (req_provider, 
-                    _indicationCallback, ph);
-            }
-        }
-    }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
-    }
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleModifySubscriptionRequest");
-
-    CIMModifySubscriptionRequestMessage * request =
-        dynamic_cast<CIMModifySubscriptionRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMModifySubscriptionResponseMessage* response =
-        dynamic_cast<CIMModifySubscriptionResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    OperationResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        String temp;
-
-        for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
-        {
-            temp.append(request->classNames[i].getString());
-
-            if (i < (n - 1))
-            {
-                temp.append(", ");
-            }
-        }
-
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleCreateSubscriptionRequest - "
-	    "Host name: $0  Name space: $1  Class name(s): $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            temp));
-			
-		CIMInstance req_provider, req_providerModule;
-		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
-		req_provider = pidc.getProvider();
-		req_providerModule = pidc.getModule();
-
-        String physicalName=_resolvePhysicalName( req_providerModule.getProperty(
-                                                  req_providerModule.findProperty("Location")).getValue().toString());
-
-        ProviderName name(req_provider.getProperty(req_provider.findProperty("Name")).getValue ().toString (),
-                                  physicalName,
-                                  req_providerModule.getProperty(req_providerModule.findProperty
-                                  ("InterfaceType")).getValue().toString(),
-                                   0);
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-	    context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
-		 context.insert(request->operationContext.get(SubscriptionFilterQueryContainer::NAME));
-
-        CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
-
-        Array<CIMObjectPath> classNames;
-
-        for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
-        {
-            CIMObjectPath className(
-                System::getHostName(),
-                request->nameSpace,
-                request->classNames[i]);
-
-            classNames.append(className);
-        }
-
-        CIMPropertyList propertyList = request->propertyList;
-
-        Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.modifySubscription: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        ph.GetProvider().modifySubscription(
-            context,
-            subscriptionName,
-            classNames,
-            propertyList,
-            repeatNotificationPolicy);
-
-    }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
-    }
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDeleteSubscriptionRequest");
-
-    CIMDeleteSubscriptionRequestMessage * request =
-        dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMDeleteSubscriptionResponseMessage* response =
-        dynamic_cast<CIMDeleteSubscriptionResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    OperationResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        String temp;
-
-        for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
-        {
-            temp.append(request->classNames[i].getString());
-
-            if (i < (n - 1))
-            {
-                temp.append(", ");
-            }
-        }
-
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	    Logger::TRACE,
-            "DefaultProviderManager::handleDeleteSubscriptionRequest - "
-	    "Host name: $0  Name space: $1  Class name(s): $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            temp));
-
-		CIMInstance req_provider, req_providerModule;
-		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
-
-		req_provider = pidc.getProvider();
-		req_providerModule = pidc.getModule();
-        
-              String physicalName=_resolvePhysicalName( req_providerModule.getProperty(
-                                                  req_providerModule.findProperty("Location")).getValue().toString());
-
-              ProviderName name(req_provider.getProperty(req_provider.findProperty("Name")).getValue ().toString (),
-                                  physicalName,
-                                  req_providerModule.getProperty(req_providerModule.findProperty
-                                  ("InterfaceType")).getValue().toString(),
-                                   0);
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-
-        CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
-
-        Array<CIMObjectPath> classNames;
-
-        for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
-        {
-            CIMObjectPath className(
-                System::getHostName(),
-                request->nameSpace,
-                request->classNames[i]);
-
-            classNames.append(className);
-        }
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.deleteSubscription: " +
-            ph.GetProvider().getName());
-
-        AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-        ph.GetProvider().deleteSubscription(
-            context,
-            subscriptionName,
-            classNames);
-
-        //
-        //  Decrement count of current subscriptions for this provider
-        //
-        if (ph.GetProvider().status.decrementSubscriptionsAndTestIfZero())
-        {
-            //
-            //  If there are no current subscriptions after the decrement, 
-            //  the last subscription has been deleted
-            //  Call the provider's disableIndications method
-            //
-            if (_subscriptionInitComplete)
-            {
-                PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Calling provider.disableIndications: " +
-                    ph.GetProvider ().getName ());
-
-                ph.GetProvider ().disableIndications ();
-
-                ph.GetProvider().status.unprotect();
-
-                //
-                //
-                //
-                PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Removing and Destroying indication handler for " +
-                    ph.GetProvider ().getName ());
-
-                delete _removeEntry (_generateKey (ph.GetProvider ()));
-            }
-        }
-    }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
-    }
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message *DefaultProviderManager::handleExportIndicationRequest(const Message *message)
+Message* DefaultProviderManager::_handleDisableModuleRequest(Message* message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "DefaultProviderManager::handleExportIndicationRequest");
+        "DefaultProviderManager::_handleDisableModuleRequest");
 
-    CIMExportIndicationRequestMessage * request =
-        dynamic_cast<CIMExportIndicationRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMExportIndicationResponseMessage* response =
-        dynamic_cast<CIMExportIndicationResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    OperationResponseHandler handler(
-        request, response, _responseChunkCallback);
-
-    try
-    {
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-            request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        OpProviderHolder ph = providerManager.getProvider(
-            name.getPhysicalName(), name.getLogicalName());
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "Calling provider.: " +
-                       ph.GetProvider().getName());
-
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-
-//L10N_TODO
-//l10n
-// ATTN-CEC 06/04/03 NOTE: I can't find where the consume msg is sent.  This
-// does not appear to be hooked-up.  When it is added, need to
-// make sure that Content-Language is set in the consume msg.
-// NOTE: A-L is not needed to be set in the consume msg.
-      // add the langs to the context
-
-      context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
-
-      CIMInstance indication_copy = request->indicationInstance;
-
-      StatProviderTimeMeasurement providerTime(response);
-
-      pm_service_op_lock op_lock(&ph.GetProvider().status);
-
-      ph.GetProvider().consumeIndication(context,
-                                request->destinationPath,
-                                indication_copy);
-    }
-    HandleCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-
-
-
-//
-// This function disables a provider module if disableProviderOnly is not true,
-// otherwise, disables a provider. Disable provider module means that
-// block all the providers which contain in the module and unload the
-// providers.
-// Disable provider means unload the provider and the provider is not blocked.
-//
-// ATTN-YZ-P2-20030519: Provider needs to be blocked when disable a provider.
-//
-Message * DefaultProviderManager::handleDisableModuleRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDisableModuleRequest");
-
-    CIMDisableModuleRequestMessage * request =
-        dynamic_cast<CIMDisableModuleRequestMessage *>(const_cast<Message *>(message));
-
+    CIMDisableModuleRequestMessage* request =
+        dynamic_cast<CIMDisableModuleRequestMessage*>(message);
     PEGASUS_ASSERT(request != 0);
 
     Array<Uint16> operationalStatus;
@@ -1899,28 +225,27 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
         // get provider module name
         String moduleName;
         CIMInstance mInstance = request->providerModule;
-        Uint32 pos = mInstance.findProperty(CIMName ("Name"));
+        Uint32 pos = mInstance.findProperty(CIMName("Name"));
         PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
         mInstance.getProperty(pos).getValue().get(moduleName);
-
-        Boolean disableProviderOnly = request->disableProviderOnly;
 
         //
         // Unload providers
         //
-        Array<CIMInstance> _pInstances = request->providers;
-        Array<Boolean> _indicationProviders = request->indicationProviders;
+        Array<CIMInstance> providerInstances = request->providers;
 
-        String physicalName=_resolvePhysicalName(
-           mInstance.getProperty(
-              mInstance.findProperty("Location")).getValue().toString());
+        String physicalName = _resolvePhysicalName(
+            mInstance.getProperty(
+                mInstance.findProperty("Location")).getValue().toString());
 
-        for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
+        for (Uint32 i = 0, n = providerInstances.size(); i < n; i++)
         {
-            String pName(_pInstances[i].getProperty(
-               _pInstances[i].findProperty("Name")).getValue().toString());
+            String pName;
+            providerInstances[i].getProperty(
+                providerInstances[i].findProperty("Name")).
+                    getValue().get(pName);
 
-            Sint16 ret_value = providerManager.disableProvider(pName);
+            Sint16 ret_value = _disableProvider(pName);
 
             if (ret_value == 0)
             {
@@ -1929,31 +254,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
                 operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
                 break;
             }
-            else if (ret_value == 1)  // Success
-            {
-                if (_indicationProviders[i])
-                {
-                    //
-                    //  Reset the indication provider's count of current 
-                    //  subscriptions since it has been disabled
-                    //
-                    if (physicalName.size () > 0)
-                    {
-                        OpProviderHolder ph = providerManager.getProvider(
-                            physicalName, pName);
-
-                        ph.GetProvider().status.resetSubscriptions();
-                    }
-
-                    //
-                    //  If it is an indication provider
-                    //  remove the entry from the table since the
-                    //  provider has been disabled
-                    //
-                    delete _removeEntry(_generateKey(pName,physicalName));
-                }
-            }
-            else
+            else if (ret_value != 1)  // Not success
             {
                 // disable failed for other reason, throw exception
                 throw PEGASUS_CIM_EXCEPTION_L(
@@ -1965,24 +266,22 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
             }
         }
     }
-    catch(CIMException & e)
+    catch (CIMException & e)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                          "Exception: " + e.getMessage());
         cimException = e;
     }
-    catch(Exception & e)
+    catch (Exception & e)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                         "Exception: " + e.getMessage());
+            "Exception: " + e.getMessage());
         cimException = CIMException(CIM_ERR_FAILED, e.getMessage());
     }
-    catch(...)
+    catch (...)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                         "Exception: Unknown");
-        //l10n
-        //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+            "Exception: Unknown");
         cimException = PEGASUS_CIM_EXCEPTION_L(
             CIM_ERR_FAILED,
             MessageLoaderParms(
@@ -2013,16 +312,16 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
 
     PEG_METHOD_EXIT();
 
-    return(response);
+    return response;
 }
 
-Message * DefaultProviderManager::handleEnableModuleRequest(const Message * message)
+Message* DefaultProviderManager::_handleEnableModuleRequest(Message* message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleEnableModuleRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_handleEnableModuleRequest");
 
-    CIMEnableModuleRequestMessage * request =
-        dynamic_cast<CIMEnableModuleRequestMessage *>(const_cast<Message *>(message));
-
+    CIMEnableModuleRequestMessage* request =
+        dynamic_cast<CIMEnableModuleRequestMessage*>(message);
     PEGASUS_ASSERT(request != 0);
 
     Array<Uint16> operationalStatus;
@@ -2036,16 +335,17 @@ Message * DefaultProviderManager::handleEnableModuleRequest(const Message * mess
     response->operationalStatus = operationalStatus;
 
     PEG_METHOD_EXIT();
-    return(response);
+    return response;
 }
 
-Message * DefaultProviderManager::handleStopAllProvidersRequest(const Message * message)
+Message* DefaultProviderManager::_handleStopAllProvidersRequest(
+    Message* message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleStopAllProvidersRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_handleStopAllProvidersRequest");
 
-    CIMStopAllProvidersRequestMessage * request =
-        dynamic_cast<CIMStopAllProvidersRequestMessage *>(const_cast<Message *>(message));
-
+    CIMStopAllProvidersRequestMessage* request =
+        dynamic_cast<CIMStopAllProvidersRequestMessage*>(message);
     PEGASUS_ASSERT(request != 0);
 
     CIMStopAllProvidersResponseMessage* response =
@@ -2054,167 +354,50 @@ Message * DefaultProviderManager::handleStopAllProvidersRequest(const Message * 
     PEGASUS_ASSERT(response != 0);
 
     // tell the provider manager to shutdown all the providers
-    providerManager.shutdownAllProviders();
-
-    try
-    {
-        // Delete the response handlers that were not explicitly disabled.
-        AutoMutex lock(_responseTableMutex);
-
-        for (IndicationResponseTable::Iterator i = _responseTable.start();
-             i != 0; i++)  
-        {  
-            EnableIndicationsResponseHandler *handler = i.value();  
-            delete handler;  
-        }  
-
-        _responseTable.clear();
-    }
-    catch (...) { } 
+    _shutdownAllProviders();
 
     PEG_METHOD_EXIT();
-
-    return(response);
+    return response;
 }
 
-Message * 
-DefaultProviderManager::handleSubscriptionInitCompleteRequest
-    (const Message * message)
+Message* DefaultProviderManager::_handleSubscriptionInitCompleteRequest(
+    Message* message)
 {
-    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER, 
-     "DefaultProviderManager::handleSubscriptionInitCompleteRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+        "DefaultProviderManager::_handleSubscriptionInitCompleteRequest");
 
-    CIMSubscriptionInitCompleteRequestMessage * request =
-        dynamic_cast <CIMSubscriptionInitCompleteRequestMessage *>
-            (const_cast <Message *> (message));
+    CIMSubscriptionInitCompleteRequestMessage* request =
+        dynamic_cast<CIMSubscriptionInitCompleteRequestMessage*>(message);
+    PEGASUS_ASSERT(request != 0);
 
-    PEGASUS_ASSERT (request != 0);
+    CIMSubscriptionInitCompleteResponseMessage* response =
+        dynamic_cast<CIMSubscriptionInitCompleteResponseMessage*>(
+            request->buildResponse());
+    PEGASUS_ASSERT(response != 0);
 
-    CIMSubscriptionInitCompleteResponseMessage * response = 
-        dynamic_cast <CIMSubscriptionInitCompleteResponseMessage *> 
-            (request->buildResponse ());
-
-    PEGASUS_ASSERT (response != 0);
-
-    //
-    //  Set indicator
-    //
     _subscriptionInitComplete = true;
 
-    //
-    //  For each provider that has at least one subscription, call 
-    //  provider's enableIndications method
-    //
-    Array <ProviderFacade*> enableProviders;
-    enableProviders = providerManager.getIndicationProvidersToEnable ();
-
-    Uint32 numProviders = enableProviders.size ();
-    for (Uint32 i = 0; i < numProviders; i++)
+    // Make a copy of the table so it is not locked during the provider calls
+    Array<ProviderMessageHandler*> providerList;
     {
-        try
-        {
-            CIMInstance provider;
-            provider = enableProviders[i]->status.getProviderInstance();
+        AutoMutex lock(_providerTableMutex);
 
-            //
-            //  Get cached or load new provider module
-            //
-            OpProviderHolder ph = providerManager.getProvider(
-                enableProviders[i]->status.getModule()->getFileName(),
-                enableProviders[i]->getName());
-
-            _callEnableIndications (provider, _indicationCallback, ph);
-        }
-        catch (CIMException & e)
+        for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
         {
-            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "CIMException: " + e.getMessage ());
-        }
-        catch (Exception & e)
-        {
-            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "Exception: " + e.getMessage ());
-        }
-        catch(...)
-        {
-            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "Unknown error in handleSubscriptionInitCompleteRequest");
+            providerList.append(i.value());
         }
     }
 
-    PEG_METHOD_EXIT ();
-    return (response);
-}
-
-void DefaultProviderManager::_insertEntry(
-    const ProviderFacade& provider,
-    EnableIndicationsResponseHandler* handler)
-{
-    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
-        "DefaultProviderManager::_insertEntry");
-
-    String tableKey = _generateKey(provider);
-
-    AutoMutex lock(_responseTableMutex);
-    _responseTable.insert(tableKey, handler);
+    //
+    // Notify all providers that subscription initialization is complete
+    //
+    for (Uint32 j = 0; j < providerList.size(); j++)
+    {
+        providerList[j]->subscriptionInitComplete();
+    }
 
     PEG_METHOD_EXIT();
-}
-
-EnableIndicationsResponseHandler * DefaultProviderManager::_removeEntry(
-    const String & key)
-{
-    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
-        "DefaultProviderManager::_removeEntry");
-    EnableIndicationsResponseHandler *ret = 0;
-
-    AutoMutex lock(_responseTableMutex);
-    _responseTable.lookup(key, ret);
-    _responseTable.remove(key);
-
-    PEG_METHOD_EXIT();
-
-    return(ret);
-}
-
-String DefaultProviderManager::_generateKey (
-    const ProviderFacade & provider)
-{
-    String tableKey;
-
-    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
-        "DefaultProviderManager::_generateKey");
-
-    //
-    //  Append provider key values to key
-    //
-    String providerName = provider.getName();
-    String providerFileName = provider.status.getModule()->getFileName();
-    tableKey.append (providerName);
-    tableKey.append (providerFileName);
-
-    PEG_METHOD_EXIT();
-
-    return(tableKey);
-}
-
-String DefaultProviderManager::_generateKey (
-    const String & providerName,
-    const String & providerFileName)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "DefaultProviderManager::_generateKey");
-
-    String tableKey;
-
-    //
-    //  Append providerName and providerFileName to key
-    //
-    tableKey.append (providerName);
-    tableKey.append (providerFileName);
-
-    PEG_METHOD_EXIT ();
-    return tableKey;
+    return response;
 }
 
 ProviderName DefaultProviderManager::_resolveProviderName(
@@ -2242,89 +425,525 @@ ProviderName DefaultProviderManager::_resolveProviderName(
     return ProviderName(providerName, fileName, interfaceName, 0);
 }
 
+ProviderOperationCounter DefaultProviderManager::_getProvider(
+    const String& moduleFileName,
+    const String& providerName)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_getProvider");
+
+    ProviderMessageHandler* pr = _lookupProvider(providerName);
+
+    if (!pr->status.isInitialized())
+    {
+        _initProvider(pr, moduleFileName);
+
+        if (!pr->status.isInitialized())
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED, "provider initialization failed");
+        }
+    }
+
+    ProviderOperationCounter poc(pr);
+    poc.GetProvider().status.update_idle_timer();
+
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Returning Provider " + providerName);
+
+    PEG_METHOD_EXIT();
+    return poc;
+}
+
+ProviderMessageHandler* DefaultProviderManager::_lookupProvider(
+    const String& providerName)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_lookupProvider");
+
+    // lock the providerTable mutex
+    AutoMutex lock(_providerTableMutex);
+
+    // look up provider in cache
+    ProviderMessageHandler* pr = 0;
+    if (_providers.lookup(providerName, pr))
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Found Provider " + providerName + " in Provider Manager Cache");
+    }
+    else
+    {
+        // create provider
+        pr = new ProviderMessageHandler(
+            providerName, 0, _indicationCallback, _responseChunkCallback,
+            _subscriptionInitComplete);
+
+        // insert provider in provider table
+        _providers.insert(providerName, pr);
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Created provider " + pr->getName());
+    }
+
+    PEG_METHOD_EXIT();
+    return pr;
+}
+
+ProviderMessageHandler* DefaultProviderManager::_initProvider(
+    ProviderMessageHandler* provider,
+    const String& moduleFileName)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_initProvider");
+
+    ProviderModule* module = 0;
+    CIMProvider* base;
+
+    {
+        // lock the providerTable mutex
+        AutoMutex lock(_providerTableMutex);
+
+        // lookup provider module
+        module = _lookupModule(moduleFileName);
+    }   // unlock the providerTable mutex
+
+    {
+        // lock the provider status mutex
+        AutoMutex lock(provider->status._statusMutex);
+
+        if (provider->status.isInitialized())
+        {
+            // Initialization is already complete
+            return provider;
+        }
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Loading/Linking Provider Module " + moduleFileName);
+
+        // load the provider
+        try
+        {
+            base = module->load(provider->getName());
+        }
+        catch (...)
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Exception caught Loading/Linking Provider Module " +
+                moduleFileName);
+            PEG_METHOD_EXIT();
+            throw;
+        }
+
+        // initialize the provider
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Initializing Provider " + provider->getName());
+
+        CIMOMHandle *cimomHandle = new CIMOMHandle();
+        provider->status.setCIMOMHandle(cimomHandle);
+        provider->status.setModule(module);
+        provider->status._quantum=0;
+        provider->setProvider(base);
+
+        Boolean initializeError = false;
+
+        try
+        {
+            provider->initialize(*(provider->status._cimom_handle));
+        }
+        catch (...)
+        {
+            initializeError = true;
+        }
+
+        provider->status.setInitialized(!initializeError);
+        provider->status._currentOperations = 0;
+
+        // The cleanup code executed when an exception occurs was previously
+        // included in the catch block above. Unloading the provider module
+        // from inside the catch block resulted in a crash when an exception
+        // was thrown from a provider's initialize() method. The issue is that
+        // when an exception is thrown, the program maintains internal
+        // pointers related to the code that threw the exception. In the case
+        // of an exception thrown from a provider during the initialize()
+        // method, those pointers point into the provider library, so when
+        // the LocalProviderManager unloads the library, the pointers into the
+        // library that the program was holding are invalid.
+        if (initializeError == true)
+        {
+            // delete the cimom handle
+            delete provider->status._cimom_handle;
+
+            // set provider status to uninitialized
+            provider->status.reset();
+
+            provider->setProvider(0);
+
+            // unload provider module
+            module->unloadModule();
+        }
+    }   // unlock the provider status mutex
+
+    PEG_METHOD_EXIT();
+    return provider;
+}
+
+ProviderModule* DefaultProviderManager::_lookupModule(
+    const String& moduleFileName)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_lookupModule");
+
+    // look up provider module in cache
+    ProviderModule* module = 0;
+
+    if (_modules.lookup(moduleFileName, module))
+    {
+        // found provider module in cache
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Found Provider Module " + moduleFileName +
+            " in Provider Manager Cache");
+    }
+    else
+    {
+        // provider module not found in cache, create provider module
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Creating Provider Module " + moduleFileName);
+
+        module = new ProviderModule(moduleFileName);
+
+        // insert provider module in module table
+        _modules.insert(moduleFileName, module);
+    }
+
+    PEG_METHOD_EXIT();
+    return module;
+}
+
 Boolean DefaultProviderManager::hasActiveProviders()
 {
-    return providerManager.hasActiveProviders();
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::hasActiveProviders");
+
+    try
+    {
+        AutoMutex lock(_providerTableMutex);
+        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Number of providers in _providers table = %d", _providers.size());
+
+        // Iterate through the _providers table looking for an active provider
+        for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
+        {
+            if (i.value()->status.isInitialized())
+            {
+                PEG_METHOD_EXIT();
+                return true;
+            }
+        }
+    }
+    catch (...)
+    {
+        // Unexpected exception; do not assume that no providers are loaded
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Unexpected Exception in hasActiveProviders.");
+        PEG_METHOD_EXIT();
+        return true;
+    }
+
+    // No active providers were found in the _providers table
+    PEG_METHOD_EXIT();
+    return false;
 }
 
 void DefaultProviderManager::unloadIdleProviders()
 {
-    providerManager.unloadIdleProviders();
-}
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "LocalProviderManager::unloadIdleProviders");
 
-void DefaultProviderManager::_callEnableIndications
-    (CIMInstance & req_provider,
-     PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
-     OpProviderHolder & ph)
-{
-    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER, 
-        "DefaultProviderManager::_callEnableIndications");
+    static Uint32 quantum = 0;
+    static struct timeval first = {0,0}, now, last = {0,0};
+
+    if (first.tv_sec == 0)
+    {
+        Time::gettimeofday(&first);
+    }
+    Time::gettimeofday(&now);
+
+    if (!(((now.tv_sec - first.tv_sec) > IDLE_LIMIT) &&
+          ((now.tv_sec - last.tv_sec) > IDLE_LIMIT)))
+    {
+        // It's not time yet to check for idle providers
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    Time::gettimeofday(&last);
+
+    Time::gettimeofday(&last);
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Checking for Idle providers to unload.");
 
     try
     {
-        CIMRequestMessage * request = 0;
-        CIMResponseMessage * response = 0;
-        EnableIndicationsResponseHandler * enableHandler =
-            new EnableIndicationsResponseHandler(
-                request,
-                response,
-                req_provider,
-                _indicationCallback,
-                _responseChunkCallback);
-    
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.enableIndications: " +
-            ph.GetProvider ().getName ());
-    
-        pm_service_op_lock op_lock(&ph.GetProvider().status);
-        ph.GetProvider().status.protect();
-        ph.GetProvider ().enableIndications (* enableHandler);
-    
-        //
-        //  Store the handler so it is persistent for as
-        //  long as the provider has indications enabled
-        //
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Storing indication handler for " +
-            ph.GetProvider ().getName ());
-    
-        _insertEntry (ph.GetProvider (), enableHandler);
+        AutoMutex lock(_providerTableMutex);
+
+        quantum++;
+
+        struct timeval now;
+        Time::gettimeofday(&now);
+
+        for (ProviderTable::Iterator i = _providers.start(); i != 0 ; i++)
+        {
+            ProviderMessageHandler* provider = i.value();
+            PEGASUS_ASSERT(provider != 0);
+
+            if (!provider->status.isInitialized())
+            {
+                continue;
+            }
+
+            if (provider->status._quantum == quantum)
+            {
+                continue;
+            }
+
+            provider->status._quantum = quantum;
+
+            if (provider->status._currentOperations.get())
+            {
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    "Provider has pending operations: " +
+                    provider->getName());
+                continue;
+            }
+
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Checking timeout data for Provider: " +
+                provider->getName());
+            struct timeval timeout = {0,0};
+            provider->status.get_idle_timer(&timeout);
+
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "provider->status.unload_ok() returns: " +
+                provider->status.unload_ok() ? "true" : "false");
+
+            if (provider->status.unload_ok() &&
+                ((now.tv_sec - timeout.tv_sec) > ((Sint32)IDLE_LIMIT)))
+            {
+                AutoMutex pr_lock(provider->status._statusMutex);
+                Logger::put(
+                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "LocalProviderManager::unloadIdleProviders - "
+                        "Unload idle provider $0", provider->getName());
+
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    "Trying to Terminate Provider " + provider->getName());
+                try
+                {
+                    if (!provider->status.unload_ok())
+                    {
+                        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                            "Provider not OK to unload: " +
+                                provider->getName());
+                        continue;
+                    }
+
+                    provider->terminate();
+
+                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                        "Provider terminated: " + provider->getName());
+                    provider->status.setInitialized(false);
+                }
+                catch (...)
+                {
+                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                        "Exception terminating " + provider->getName());
+                    i = _providers.start();
+                    continue;
+                }
+
+                PEGASUS_ASSERT(provider->status._module != 0);
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    "unloading Provider module" + provider->getName());
+                provider->status._module->unloadModule();
+
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    "Destroying Provider's CIMOM Handle: " +
+                    provider->getName());
+                delete provider->status._cimom_handle;
+
+                provider->status.reset();
+            }
+        }
     }
-    catch (CIMException & e)
+    catch (...)
     {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "CIMException: " + e.getMessage ());
-
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.Default.DefaultProviderManager."
-                "ENABLE_INDICATIONS_FAILED",
-            "Failed to enable indications for provider $0: $1.", 
-            ph.GetProvider ().getName (), e.getMessage ());
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Caught unexpected exception in unloadIdleProviders.");
     }
-    catch (Exception & e)
+
+    PEG_METHOD_EXIT();
+}
+
+void DefaultProviderManager::_shutdownAllProviders()
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_shutdownAllProviders");
+
+    try
     {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "Exception: " + e.getMessage ());
+        AutoMutex lock(_providerTableMutex);
 
-        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.Default.DefaultProviderManager."
-                "ENABLE_INDICATIONS_FAILED",
-            "Failed to enable indications for provider $0: $1.", 
-            ph.GetProvider ().getName (), e.getMessage ());
+        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "providers in cache = %d", _providers.size());
+
+        for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
+        {
+            ProviderMessageHandler* provider = i.value();
+            PEGASUS_ASSERT(provider != 0);
+
+            if (provider->status.isInitialized())
+            {
+                _unloadProvider(provider);
+            }
+        }
     }
-    catch(...)
+    catch (...)
     {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "Unexpected error in _callEnableIndications");
-
-        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.Default.DefaultProviderManager."
-                "ENABLE_INDICATIONS_FAILED_UNKNOWN",
-            "Failed to enable indications for provider $0.", 
-            ph.GetProvider ().getName ());
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Unexpected Exception in _shutdownAllProviders().");
     }
 
-    PEG_METHOD_EXIT ();
+    PEG_METHOD_EXIT();
+}
+
+Sint16 DefaultProviderManager::_disableProvider(const String& providerName)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_disableProvider");
+
+    ProviderMessageHandler* pr = _lookupProvider(providerName);
+    if (!pr->status.isInitialized())
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Provider " + providerName + " is not loaded");
+        PEG_METHOD_EXIT();
+        return 1;
+    }
+
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Disable Provider " + pr->getName());
+    //
+    // Check to see if there are pending requests. If there are pending
+    // requests and the disable timeout has not expired, loop and wait one
+    // second until either there is no pending requests or until timeout
+    // expires.
+    //
+    Uint32 waitTime = PROVIDER_DISABLE_TIMEOUT;
+    while ((pr->status._currentOperations.get() > 0) && (waitTime > 0))
+    {
+        Threads::sleep(1000);
+        waitTime = waitTime - 1;
+    }
+
+    // There are still pending requests, do not disable
+    if (pr->status._currentOperations.get() > 0)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Disable failed since there are pending requests.");
+        PEG_METHOD_EXIT();
+        return 0;
+    }
+
+    try
+    {
+        AutoMutex lock(_providerTableMutex);
+
+        if (pr->status.isInitialized())
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Unloading Provider " + pr->getName());
+            _unloadProvider(pr);
+        }
+    }
+    catch (...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Unload provider failed " + pr->getName());
+        PEG_METHOD_EXIT();
+        return -1;
+    }
+
+    PEG_METHOD_EXIT();
+    return 1;
+}
+
+void DefaultProviderManager::_unloadProvider(ProviderMessageHandler* provider)
+{
+    //
+    // NOTE:  It is the caller's responsibility to make sure that
+    // the ProviderTable mutex is locked before calling this method.
+    //
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_unloadProvider");
+
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Unloading Provider " + provider->getName());
+
+    if (provider->status._currentOperations.get() > 0)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Provider cannot be unloaded due to pending operations: " +
+            provider->getName());
+    }
+    else
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Terminating Provider " + provider->getName());
+
+        // lock the provider mutex
+        AutoMutex pr_lock(provider->status._statusMutex);
+
+        try
+        {
+            provider->terminate();
+        }
+        catch (...)
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+                "Error occured terminating provider " + provider->getName());
+        }
+        provider->status.setInitialized(false);
+
+        PEGASUS_ASSERT(provider->status._module != 0);
+
+        // unload provider module
+        provider->status._module->unloadModule();
+
+        // NOTE: The "delete provider->status._cimom_handle" operation was
+        //   moved to be called after the unloadModule() call above
+        //   as part of a fix for bugzilla 3669. For some providers
+        //   run out-of-process on Windows platforms (i.e. running
+        //   the cimserver with the forceProviderProcesses config option
+        //   set to "true"), deleting the provider's CIMOMHandle before
+        //   unloading the provider library caused the unload mechanism
+        //   to deadlock, making that provider unavailable and preventing
+        //   the cimserver from shutting down. It should NOT be moved back
+        //   above the unloadModule() call. See bugzilla 3669 for details.
+        // delete the cimom handle
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Destroying Provider's CIMOM Handle " + provider->getName());
+        delete provider->status._cimom_handle;
+
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "ProviderManager::_provider_crtl -  Unload provider $0",
+            provider->getName());
+
+        // set provider status to uninitialized
+        provider->status.reset();
+    }
+
+    PEG_METHOD_EXIT();
 }
 
 ProviderManager* DefaultProviderManager::createDefaultProviderManagerCallback()

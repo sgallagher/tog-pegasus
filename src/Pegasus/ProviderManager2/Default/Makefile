@@ -58,11 +58,11 @@ LIBRARIES += \
     pegcommon
 
 SOURCES = \
-	DefaultProviderManagerMain.cpp \
-	DefaultProviderManager.cpp \
-	LocalProviderManager.cpp \
-	ProviderFacade.cpp \
-	ProviderModule.cpp \
-	ProviderStatus.cpp
+    DefaultProviderManagerMain.cpp \
+    DefaultProviderManager.cpp \
+    ProviderModule.cpp \
+    ProviderFacade.cpp \
+    ProviderMessageHandler.cpp \
+    ProviderStatus.cpp
 
 include $(ROOT)/mak/library.mak

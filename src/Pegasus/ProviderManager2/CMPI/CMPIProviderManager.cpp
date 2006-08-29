@@ -54,7 +54,6 @@
 #include <Pegasus/Common/FileSystem.h>
 
 #include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/Server/CIMServer.h>
 
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 #include <Pegasus/ProviderManager2/CIMOMHandleContext.h>

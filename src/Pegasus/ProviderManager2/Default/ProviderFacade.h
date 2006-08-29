@@ -217,67 +217,14 @@ public:
         const String & destinationPath,
         const CIMInstance& indicationInstance);
 
-    ProviderStatus status;
-
 private:
-    friend class LocalProviderManager;
-    friend class OpProviderHolder;
-
     String _name;
     CIMProvider * _provider;
     AtomicInt _current_operations;
     Boolean _indications_enabled;
-};
 
-
-/**
-    Encapsulates the incrementing/decrementing of the _current_operations
-    for a ProviderFacade so it won't be unloaded during operations.
-*/
-class OpProviderHolder
-{
 public:
-    OpProviderHolder(ProviderFacade* p)
-        : _provider(p)
-    {
-        PEGASUS_ASSERT(_provider != 0);
-        _provider->_current_operations++;
-    }
-
-    OpProviderHolder(const OpProviderHolder& p)
-        : _provider(p._provider)
-    {
-        PEGASUS_ASSERT(_provider != 0);
-        _provider->_current_operations++;
-    }
-
-    ~OpProviderHolder()
-    {
-        _provider->_current_operations--;
-    }
-
-    ProviderFacade& GetProvider()
-    {
-        return *_provider;
-    }
-
-    OpProviderHolder& operator=(const OpProviderHolder& x)
-    {
-        if (this != &x)
-        {
-            _provider->_current_operations--;
-            _provider = x._provider;
-            PEGASUS_ASSERT(_provider != 0);
-            _provider->_current_operations++;
-        }
-
-        return *this;
-    }
-
-private:
-    OpProviderHolder();
-
-    ProviderFacade* _provider;
+    ProviderStatus status;
 };
 
 PEGASUS_NAMESPACE_END

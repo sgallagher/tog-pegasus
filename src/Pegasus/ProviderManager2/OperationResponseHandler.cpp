@@ -130,7 +130,7 @@ void OperationResponseHandler::setStatus(
 
 Boolean OperationResponseHandler::isAsync(void) const
 {
-    return(true);
+    return _responseChunkCallback != 0;
 }
 
 // This is only called from SimpleResponseHandler.deliver() but lives in this
@@ -958,7 +958,7 @@ void InvokeMethodResponseHandler::transfer(void)
 EnableIndicationsResponseHandler::EnableIndicationsResponseHandler(
     CIMRequestMessage* request,
     CIMResponseMessage* response,
-    CIMInstance& provider,
+    const CIMInstance& provider,
     PEGASUS_INDICATION_CALLBACK_T indicationCallback,
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
     : OperationResponseHandler(request, response, responseChunkCallback),

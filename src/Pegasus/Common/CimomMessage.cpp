@@ -97,7 +97,7 @@ AsyncMessage::AsyncMessage(
     Uint32 destination,
     Uint32 mask,
     AsyncOpNode* operation)
-    : Message(type, destination, mask | message_mask::ha_async),
+    : Message(type, destination, mask | MessageMask::ha_async),
       op(operation)
 {
 }
@@ -110,7 +110,7 @@ AsyncRequest::AsyncRequest(
     Uint32 response,
     Boolean blocking)
     : AsyncMessage(
-          type, destination, mask | message_mask::ha_request, operation),
+          type, destination, mask | MessageMask::ha_request, operation),
       resp(response),
       block(blocking)
 {
@@ -126,7 +126,7 @@ AsyncReply::AsyncReply(
     Uint32 destination,
     Boolean blocking)
     : AsyncMessage(
-          type, destination, mask | message_mask::ha_reply, operation),
+          type, destination, mask | MessageMask::ha_reply, operation),
       result(resultCode),
       block(blocking)
 {

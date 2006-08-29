@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Cimom.h"
@@ -298,7 +294,7 @@ cimom::~cimom()
 void cimom::_make_response(Message *req, Uint32 code)
 {
    
-   if ( ! (req->getMask() & message_mask::ha_async) )
+   if ( ! (req->getMask() & MessageMask::ha_async) )
    {
       // legacy message, just delete
       delete req;
@@ -487,14 +483,14 @@ void cimom::_handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queu
 
    Uint32 mask = msg->getMask();
    Uint32 type = msg->getType();
-   if ( ! (mask & message_mask::ha_async) )
+   if (!(mask & MessageMask::ha_async))
    {
       _make_response(msg, async_results::CIM_NAK);
    }
    op->_thread_ptr = thread;
    op->_service_ptr = queue;
    
-   if( mask & message_mask::ha_request)
+   if (mask & MessageMask::ha_request)
    {
       op->processing();
       accepted = true;

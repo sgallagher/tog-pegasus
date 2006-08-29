@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By:
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090,#2657
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3259
-//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // #include <iostream.h>
@@ -476,7 +469,7 @@ void MessageQueueService::_handle_async_callback(AsyncOpNode *op)
    {
 
       Message *msg = op->removeRequest();
-      if (msg && (msg->getMask() & message_mask::ha_async))
+      if (msg && (msg->getMask() & MessageMask::ha_async))
       {
          if (msg->getType() == async_messages::ASYNC_LEGACY_OP_START)
          {
@@ -503,7 +496,7 @@ void MessageQueueService::_handle_async_callback(AsyncOpNode *op)
       }
 
       msg = op->removeResponse();
-      if (msg && (msg->getMask() & message_mask::ha_async))
+      if (msg && (msg->getMask() & MessageMask::ha_async))
       {
          if (msg->getType() == async_messages::ASYNC_LEGACY_OP_RESULT)
          {
@@ -553,7 +546,7 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation)
 // messages become async messages.
 
       // divert legacy messages to handleEnqueue
-      if ((rq != 0) && (!(rq->getMask() & message_mask::ha_async)))
+      if ((rq != 0) && (!(rq->getMask() & MessageMask::ha_async)))
       {
          operation->_request.release();
          operation->unlock();
@@ -619,9 +612,9 @@ Boolean MessageQueueService::_enqueueResponse(
    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,
                     "MessageQueueService::_enqueueResponse");
 
-   if (request->getMask() & message_mask::ha_async)
+   if (request->getMask() & MessageMask::ha_async)
    {
-      if (response->getMask() & message_mask::ha_async)
+      if (response->getMask() & MessageMask::ha_async)
       {
          _completeAsyncResponse(static_cast<AsyncRequest *>(request),
                                 static_cast<AsyncReply *>(response),
@@ -634,7 +627,7 @@ Boolean MessageQueueService::_enqueueResponse(
    if (request->_async != 0)
    {
       Uint32 mask = request->_async->getMask();
-      PEGASUS_ASSERT(mask & (message_mask::ha_async | message_mask::ha_request));
+      PEGASUS_ASSERT(mask & (MessageMask::ha_async | MessageMask::ha_request));
 
       AsyncRequest *async = static_cast<AsyncRequest *>(request->_async);
       AsyncOpNode *op = async->op;
@@ -991,7 +984,7 @@ Boolean MessageQueueService::SendAsync(
    op->_callback_parameter = parameter;
    op->_callback_response_q = this;
 
-   if (!(msg->getMask() & message_mask::ha_async))
+   if (!(msg->getMask() & MessageMask::ha_async))
    {
       AsyncLegacyOperationStart *wrapper = new AsyncLegacyOperationStart(
          op,
@@ -1013,7 +1006,7 @@ Boolean MessageQueueService::SendForget(Message *msg)
    AsyncOpNode *op = 0;
    Uint32 mask = msg->getMask();
 
-   if (mask & message_mask::ha_async)
+   if (mask & MessageMask::ha_async)
    {
       op = (static_cast<AsyncMessage *>(msg))->op ;
    }
@@ -1022,7 +1015,7 @@ Boolean MessageQueueService::SendForget(Message *msg)
    {
       op = get_op();
       op->_request.reset(msg);
-      if (mask & message_mask::ha_async)
+      if (mask & MessageMask::ha_async)
       {
          (static_cast<AsyncMessage *>(msg))->op = op;
       }
@@ -1104,9 +1097,9 @@ Boolean MessageQueueService::register_service(
 
    if (reply != 0)
    {
-      if (reply->getMask() & message_mask::ha_async)
+      if (reply->getMask() & MessageMask::ha_async)
       {
-         if (reply->getMask() & message_mask::ha_reply)
+         if (reply->getMask() & MessageMask::ha_reply)
          {
             if (reply->result == async_results::OK ||
                 reply->result == async_results::MODULE_ALREADY_REGISTERED)
@@ -1135,9 +1128,9 @@ Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
    AsyncMessage *reply = SendWait(msg);
    if (reply)
    {
-      if (reply->getMask() & message_mask::ha_async)
+      if (reply->getMask() & MessageMask::ha_async)
       {
-         if (reply->getMask() & message_mask::ha_reply)
+         if (reply->getMask() & MessageMask::ha_reply)
          {
             if (static_cast<AsyncReply *>(reply)->result == async_results::OK)
             {
@@ -1186,9 +1179,9 @@ void MessageQueueService::find_services(
    AsyncMessage *reply = SendWait(req);
    if (reply)
    {
-      if (reply->getMask() & message_mask::ha_async)
+      if (reply->getMask() & MessageMask::ha_async)
       {
-         if (reply->getMask() & message_mask::ha_reply)
+         if (reply->getMask() & MessageMask::ha_reply)
          {
             if (reply->getType() == async_messages::FIND_SERVICE_Q_RESULT)
             {
@@ -1222,9 +1215,9 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
    {
       Boolean found = false;
 
-      if (reply->getMask() & message_mask::ha_async)
+      if (reply->getMask() & MessageMask::ha_async)
       {
-         if (reply->getMask() & message_mask::ha_reply)
+         if (reply->getMask() & MessageMask::ha_reply)
          {
             if (reply->getType() == async_messages::ENUMERATE_SERVICE_RESULT)
             {

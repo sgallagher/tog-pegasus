@@ -128,7 +128,6 @@ void MessageQueue::enqueue(Message* message)
                       MessageTypeToString(message->getType()));
 
     _messageList.insert_back(message);
-    message->_owner = this;
 
     handleEnqueue();
     PEG_METHOD_EXIT();
@@ -139,11 +138,6 @@ Message* MessageQueue::dequeue()
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::dequeue()");
 
     Message* message = _messageList.remove_front();
-
-    if (message)
-    {
-        message->_owner = 0;
-    }
 
     PEG_METHOD_EXIT();
     return message;

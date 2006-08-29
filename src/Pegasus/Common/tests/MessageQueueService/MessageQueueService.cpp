@@ -126,11 +126,11 @@ public:
     MessageQueueServer(const char *name)
     : Base(
         name, MessageQueue::getNextQueueId(), 0,
-        message_mask::type_cimom |
-            message_mask::type_service |
-            message_mask::ha_request |
-            message_mask::ha_reply |
-            message_mask::ha_async),
+        MessageMask::type_cimom |
+            MessageMask::type_service |
+            MessageMask::ha_request |
+            MessageMask::ha_reply |
+            MessageMask::ha_async),
       dienow(0)
     {
     }
@@ -171,11 +171,11 @@ class MessageQueueClient : public MessageQueueService
 
       MessageQueueClient(const char *name)
          : Base(name, MessageQueue::getNextQueueId(), 0,
-                message_mask::type_cimom |
-                message_mask::type_service |
-                message_mask::ha_request |
-                message_mask::ha_reply |
-                message_mask::ha_async),
+                MessageMask::type_cimom |
+                MessageMask::type_service |
+                MessageMask::ha_request |
+                MessageMask::ha_reply |
+                MessageMask::ha_async),
            client_xid(1)
       {
          _client_capabilities = Base::_capabilities;
@@ -228,7 +228,7 @@ void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation)
         Message* rq = operation->getRequest();
 
         PEGASUS_TEST_ASSERT(rq != 0);
-        if (rq->getMask() & message_mask::ha_async)
+        if (rq->getMask() & MessageMask::ha_async)
         {
             _handle_async_request(static_cast<AsyncRequest *>(rq));
         }
@@ -357,7 +357,7 @@ void MessageQueueClient::_handle_async_request(AsyncRequest *req)
 
 Boolean MessageQueueClient::messageOK(const Message *msg)
 {
-   if(msg->getMask() & message_mask::ha_async)
+   if(msg->getMask() & MessageMask::ha_async)
    {
       if (msg->getType() == 0x04200000 ||
           msg->getType() == async_messages::CIMSERVICE_STOP ||

@@ -283,11 +283,11 @@ class test_service : public MessageQueueService
 
 test_service::test_service(const char *name)
       	 : Base(name, 0, 
-		message_mask::type_cimom | 
-		message_mask::type_service | 
-		message_mask::ha_request | 
-		message_mask::ha_reply | 
- 		message_mask::ha_async ) 
+		MessageMask::type_cimom | 
+		MessageMask::type_service | 
+		MessageMask::ha_request | 
+		MessageMask::ha_reply | 
+ 		MessageMask::ha_async ) 
 {
 }
 
@@ -302,7 +302,7 @@ void test_service::_handle_incoming_operation(AsyncOpNode *operation)
       Message* rq = operation->getRequest();
 
       PEGASUS_TEST_ASSERT(rq != 0 );
-      if ( rq && (rq->getMask() & message_mask::ha_async))
+      if ( rq && (rq->getMask() & MessageMask::ha_async))
       {
 	 _handle_async_request(static_cast<AsyncRequest *>(rq));
       }

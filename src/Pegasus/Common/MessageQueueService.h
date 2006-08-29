@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_MessageQueue_Service_h
@@ -66,14 +60,15 @@ public:
 
     typedef MessageQueue Base;
 
-    MessageQueueService(const char *name,
-            Uint32 queueID = MessageQueue::getNextQueueId(),
-            Uint32 capabilities = 0,
-            Uint32 mask = message_mask::type_cimom |
-            message_mask::type_service |
-            message_mask::ha_request |
-            message_mask::ha_reply |
-            message_mask::ha_async );
+    MessageQueueService(
+        const char *name,
+        Uint32 queueID = MessageQueue::getNextQueueId(),
+        Uint32 capabilities = 0,
+        Uint32 mask = MessageMask::type_cimom |
+            MessageMask::type_service |
+            MessageMask::ha_request |
+            MessageMask::ha_reply |
+            MessageMask::ha_async);
 
     virtual ~MessageQueueService();
 

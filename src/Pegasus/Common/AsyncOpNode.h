@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1188
-//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AsyncOpNode_h
@@ -47,6 +39,7 @@
 #include <Pegasus/Common/Linkable.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/Thread.h>
 
 PEGASUS_NAMESPACE_BEGIN

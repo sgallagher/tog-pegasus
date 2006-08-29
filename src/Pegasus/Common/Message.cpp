@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company 
-//                  (carolann_graves@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
-//				Willis White (whiwill@us.ibm.com) PEP 127 and 128
-//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Message.h"
@@ -49,27 +39,13 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-Uint32 message_mask::type_legacy =            0x00000000;
-Uint32 message_mask::type_CIMOperation =      0x00000001;
-Uint32 message_mask::type_CIMAsyncOperation = 0x00000002;
-Uint32 message_mask::type_export =            0x00000004;
-Uint32 message_mask::type_lifetime =          0x00000008;
-Uint32 message_mask::type_socket =            0x00000010;
-Uint32 message_mask::type_connection =        0x00000020;
-Uint32 message_mask::type_http =              0x00000040;
-Uint32 message_mask::type_http_error =        0x00000080;
-Uint32 message_mask::type_cimom =             0x00000100;
-Uint32 message_mask::type_control =           0x00000200;
-Uint32 message_mask::type_service =           0x00000400;
-Uint32 message_mask::type_broadcast =         0x00000800;
-Uint32 message_mask::type_client_exception =  0x00001000;
+Uint32 MessageMask::type_legacy =            0x00000000;
+Uint32 MessageMask::type_cimom =             0x00000001;
+Uint32 MessageMask::type_service =           0x00000002;
 
-Uint32 message_mask::ha_no_delete =           0x00100000;
-Uint32 message_mask::ha_request =             0x00200000;
-Uint32 message_mask::ha_reply =               0x00400000;
-Uint32 message_mask::ha_synchronous =         0x00800000;
-Uint32 message_mask::ha_async =               0x01000000;
-Uint32 message_mask::ha_wait =                0x02000000;
+Uint32 MessageMask::ha_request =             0x00100000;
+Uint32 MessageMask::ha_reply =               0x00200000;
+Uint32 MessageMask::ha_async =               0x00400000;
 
 Message::~Message() 
 { 

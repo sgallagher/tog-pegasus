@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com) << Tue Mar 19 13:19:24 2002 mdd >>
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for PEP101 and Bug#1090
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ModuleController.h"
@@ -369,10 +362,10 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
    Message *request = op->removeRequest();
    Message *response = op->removeResponse();
 
-   if( request && (! (request->getMask() & message_mask::ha_async)))
+   if( request && (! (request->getMask() & MessageMask::ha_async)))
       throw TypeMismatchException();
 
-   if( response && (! (response->getMask() & message_mask::ha_async) ))
+   if( response && (! (response->getMask() & MessageMask::ha_async) ))
       throw TypeMismatchException();
 
    op->release();
@@ -559,7 +552,7 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
       if(module_result == NULL)
       {
 	 module_result = new AsyncReply(async_messages::REPLY,
-					message_mask::ha_async | message_mask::ha_reply,
+					MessageMask::ha_async | MessageMask::ha_reply,
 					rq->op,
 					async_results::CIM_NAK,
 					rq->resp,

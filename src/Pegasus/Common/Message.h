@@ -46,53 +46,21 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// REVIEW: could class be renamed to MessageMask (coding standard)
-
-class PEGASUS_COMMON_LINKAGE message_mask
+class PEGASUS_COMMON_LINKAGE MessageMask
 {
-   public:
+public:
+    // Message type is indicated by the low order 20 bits.  For example:
+    // Uint32 messageType = flags & 0x000fffff;
+    static Uint32 type_legacy;
+    static Uint32 type_cimom;
+    static Uint32 type_service;
 
-      static Uint32 type_legacy;
-      static Uint32 type_CIMOperation;
-      static Uint32 type_CIMAsyncOperation;
-      static Uint32 type_export;
-      static Uint32 type_lifetime;
-      static Uint32 type_socket;
-      static Uint32 type_connection;
-      static Uint32 type_http;
-      static Uint32 type_http_error;
-      static Uint32 type_cimom;
-      static Uint32 type_control;
-      static Uint32 type_service;
-      static Uint32 type_broadcast;
-      static Uint32 type_client_exception;
-
-      static Uint32 ha_no_delete;
-      static Uint32 ha_request;
-      static Uint32 ha_reply;
-      static Uint32 ha_synchronous;
-      static Uint32 ha_async;
-      static Uint32 ha_wait;
-
-
-      // more for documentation than for use
-
-      inline Uint32 get_type(Uint32 flags)
-      {
-	 return (flags & 0x000fffff);
-      }
-
-      inline Uint32 get_handling(Uint32 flags)
-      {
-	 return( flags & 0xfff00000);
-      }
+    // Message handling is indicated by the high order 12 bits.  For example:
+    // Uint32 messageHandling = flags & 0xfff00000;
+    static Uint32 ha_request;
+    static Uint32 ha_reply;
+    static Uint32 ha_async;
 };
-
-class cimom;
-class MessageQueue;
-class MessageQueueService;
-class AsyncLegacyOperationStart;
-class AsyncLegacyOperationResult;
 
 enum HttpMethod
 {
@@ -116,7 +84,7 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       Message(
 	 Uint32 type,
 	 Uint32 destination = 0,
-	 Uint32 mask = message_mask::type_legacy)
+	 Uint32 mask = MessageMask::type_legacy)
 	 :
 	 _type(type),
 	 _mask(mask),
@@ -285,8 +253,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
       ThreadType _last_thread_id;
 
-   protected:
-
    public:
       Message *_async;
       Uint32 dest;
@@ -294,12 +260,10 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       Uint64 totServerTime;
 
    private:
-      MessageQueue* _owner;
       Boolean _isComplete;
       Uint32 _index;
 
       friend class cimom;
-      friend class MessageQueue;
       friend class MessageQueueService;
       friend class AsyncLegacyOperationStart;
       friend class AsyncLegacyOperationResult;

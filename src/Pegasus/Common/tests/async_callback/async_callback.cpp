@@ -82,7 +82,7 @@ _die_now (0), _role (role)
 
 Boolean test_async_queue::messageOK (const Message * msg)
 {
-  if (msg->getMask () & message_mask::ha_async)
+  if (msg->getMask () & MessageMask::ha_async)
     {
       if (_role == CLIENT)
         {

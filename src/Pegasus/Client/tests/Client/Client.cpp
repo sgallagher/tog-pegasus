@@ -394,6 +394,12 @@ int main(int argc, char** argv)
     {
 	CIMClient client;
 
+        // 
+        // On slower systems, some of the tests require more time.
+        // Set the timeout to be 2 minutes (20 seconds is default).
+        // 
+        client.setTimeout(1000 * 120);
+
         client.connectLocal();
 
 	TestGetClass(client);

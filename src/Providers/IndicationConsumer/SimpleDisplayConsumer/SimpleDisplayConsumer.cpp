@@ -74,6 +74,8 @@ void SimpleDisplayConsumer::consumeIndication(
                                              const CIMInstance& indicationInstance)
 {
 
+    AutoMutex autoMut(_displayFile);
+
     String indicationFile = INDICATION_DIR;
 
     Boolean printOnConsole;

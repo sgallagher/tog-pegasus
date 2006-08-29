@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
+#include <Pegasus/Common/Mutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -51,6 +52,8 @@ public:
 	const OperationContext & context,
 	const String& url,
 	const CIMInstance& indicationInstance);
+protected:
+    Mutex _displayFile;
 };
 
 PEGASUS_NAMESPACE_END

@@ -350,8 +350,12 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 													i, numClasses, poA->_aggregationSN));
 
 				AutoPtr<CIMEnumerateInstancesResponseMessage> response(
-					dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
-						request->buildResponse()));
+					new CIMEnumerateInstancesResponseMessage(
+						request->messageId,
+						CIMException(),
+						request->queueIds.copyAndPop(),
+						Array<CIMInstance>()));
+				response->syncAttributes(request);
 
 				try
 				{

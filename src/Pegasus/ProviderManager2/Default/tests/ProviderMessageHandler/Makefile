@@ -30,9 +30,26 @@
 #//==============================================================================
 include $(PEGASUS_ROOT)/mak/config.mak
 
-DIRS = \
-    ProviderModule \
-    ProviderMessageHandler \
-    ResponseHandler
+DIR = Pegasus/ProviderManager2/Default/tests/ProviderMessageHandler
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+LIBRARIES = \
+    DefaultProviderManager \
+    pegprovidermanager \
+    pegprovider \
+    pegclient \
+    pegcommon
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
+PROGRAM = TestProviderMessageHandler
+
+SOURCES = \
+    ExceptionProvider.cpp \
+    ProviderMessageHandler.cpp
+
+include $(PEGASUS_ROOT)/mak/program.mak
+
+tests:
+	$(PROGRAM)
+
+poststarttests:

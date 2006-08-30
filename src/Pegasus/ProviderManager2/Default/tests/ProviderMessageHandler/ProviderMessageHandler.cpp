@@ -1,0 +1,282 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/ProviderManager2/Default/ProviderMessageHandler.h>
+#include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/Common/PegasusAssert.h>
+#include "ExceptionProvider.h"
+
+#include <iostream>
+
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
+const char* verbose = 0;
+
+class NotARealProvider : public CIMProvider
+{
+public:
+    void initialize(CIMOMHandle& cimom) { }
+    void terminate() { }
+};
+
+void testExceptionResponse(
+    ProviderMessageHandler* pmh,
+    CIMRequestMessage* request,
+    const String& className)
+{
+    CIMResponseMessage* response = pmh->processMessage(request);
+    CIMException e = response->cimException;
+
+    if (className == "CIM_Exception")
+    {
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(e.getMessage() == "test cim exception");
+    }
+    else if (className == "Regular_Exception")
+    {
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_FAILED);
+        PEGASUS_TEST_ASSERT(e.getMessage() == "test regular exception");
+    }
+    else if (className == "Other_Exception")
+    {
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_FAILED);
+        PEGASUS_TEST_ASSERT(e.getMessage() == "Unknown error.");
+    }
+    else if (className == "Not_Provider")
+    {
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+        PEGASUS_TEST_ASSERT(e.getMessage() == "Invalid provider interface.");
+    }
+    else
+    {
+        PEGASUS_TEST_ASSERT(0);
+    }
+
+    delete response;
+}
+
+void testExceptions(
+    ProviderMessageHandler* pmh,
+    const String& className)
+{
+    String mid("1234");
+
+    QueueIdStack qids;
+    qids.push(10);
+    qids.push(5);
+
+    CIMNamespaceName ns("test/cimv2");
+
+    Array<CIMKeyBinding> kbs;
+    kbs.append(CIMKeyBinding("Index", 1));
+    CIMObjectPath objectPath(String::EMPTY, ns, className, kbs);
+
+    CIMInstance instance(className);
+    CIMPropertyList pl;
+
+    Array<CIMName> subClasses;
+    subClasses.append(className);
+    subClasses.append(className);
+    subClasses.append(className);
+
+    OperationContext oc;
+    oc.insert(IdentityContainer("test user"));
+    oc.insert(AcceptLanguageListContainer(AcceptLanguageList()));
+    oc.insert(ContentLanguageListContainer(ContentLanguageList()));
+    oc.insert(SubscriptionInstanceContainer(instance));
+    oc.insert(SubscriptionFilterConditionContainer("cond", "WQL"));
+    oc.insert(SubscriptionFilterQueryContainer("cond", "WQL", ns));
+    oc.insert(ProviderIdContainer(instance, instance));
+
+    {
+        CIMGetInstanceRequestMessage request(
+            mid, ns, objectPath, false, false, false, pl, qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMEnumerateInstancesRequestMessage request(
+            mid, ns, className, false, false, false, false, pl, qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMEnumerateInstanceNamesRequestMessage request(
+            mid, ns, className, qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMCreateInstanceRequestMessage request(
+            mid, ns, instance, qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMModifyInstanceRequestMessage request(
+            mid, ns, instance, false, pl, qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMDeleteInstanceRequestMessage request(
+            mid, ns, objectPath, qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMExecQueryRequestMessage request(
+            mid, ns, "WQL", String("SELECT * FROM ") + className, qids);
+        request.className = className;
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMAssociatorsRequestMessage request(
+            mid, ns, objectPath, className, className, "role1", "role2",
+            false, false, pl, qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMAssociatorNamesRequestMessage request(
+            mid, ns, objectPath, className, className, "role1", "role2", qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMReferencesRequestMessage request(
+            mid, ns, objectPath, className, "role1", false, false, pl, qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMReferenceNamesRequestMessage request(
+            mid, ns, objectPath, className, "role1", qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMGetPropertyRequestMessage request(
+            mid, ns, objectPath, className, qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMSetPropertyRequestMessage request(
+            mid, ns, objectPath, className, CIMValue(Uint32(10)), qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMInvokeMethodRequestMessage request(
+            mid, ns, objectPath, className, Array<CIMParamValue>(), qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMCreateSubscriptionRequestMessage request(
+            mid, ns, instance, subClasses, pl, Uint16(1), "q", qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMModifySubscriptionRequestMessage request(
+            mid, ns, instance, subClasses, pl, Uint16(1), "q", qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMDeleteSubscriptionRequestMessage request(
+            mid, ns, instance, subClasses, qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+
+    {
+        CIMExportIndicationRequestMessage request(
+            mid, className, instance, qids);
+        request.operationContext = oc;
+        testExceptionResponse(pmh, &request, className);
+    }
+}
+
+int main(int argc, char** argv)
+{
+    verbose = getenv ("PEGASUS_TEST_VERBOSE");
+
+    try
+    {
+        ExceptionProvider ep;
+        ProviderMessageHandler pmh("Test", &ep, 0, 0, false);
+        testExceptions(&pmh, "CIM_Exception");
+        testExceptions(&pmh, "Regular_Exception");
+        testExceptions(&pmh, "Other_Exception");
+
+        NotARealProvider np;
+        ProviderMessageHandler pmh2("BadProvider", &np, 0, 0, false);
+        testExceptions(&pmh2, "Not_Provider");
+    }
+    catch (Exception& e)
+    {
+        cout << "Caught unexpected exception: " << e.getMessage() << endl;
+        return 1;
+    }
+    catch (...)
+    {
+        cout << "Caught unexpected exception" << endl;
+        return 1;
+    }
+
+    cout << argv[0] << " +++++ passed all tests" << endl;
+
+    return 0;
+}

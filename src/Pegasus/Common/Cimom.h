@@ -72,8 +72,6 @@ class PEGASUS_COMMON_LINKAGE module_capabilities
 
 } ;
 
-class cimom;
-
 class PEGASUS_COMMON_LINKAGE message_module : public Linkable
 {
    public:

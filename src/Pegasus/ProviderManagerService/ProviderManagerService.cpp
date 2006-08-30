@@ -49,6 +49,12 @@
 #include <Pegasus/ProviderManagerService/BasicProviderManagerRouter.h>
 #include <Pegasus/ProviderManagerService/OOPProviderManagerRouter.h>
 
+#ifdef PEGASUS_ZOS_SECURITY
+// This include file will not be provided in the OpenGroup CVS for now.
+// Do NOT try to include it in your compile
+#include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 inline Boolean _isSupportedRequestType(const Message * message)

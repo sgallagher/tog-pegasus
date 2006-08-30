@@ -290,18 +290,16 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
    // Search for "CIMOperation" header:
    //
 
-   String cimOperation;
+   String cimExport;
 
-   if (!HTTPMessage::lookupHeader(
-	  headers, "CIMExport", cimOperation, true))
+   if (!HTTPMessage::lookupHeader(headers, "CIMExport", cimExport, true))
    {
-
-     // l10n
-
-     // CIMClientMalformedHTTPException* malformedHTTPException = new
-     //    CIMClientMalformedHTTPException("Missing CIMOperation HTTP header");
-
-      MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.MISSING_CIMOP_HEADER", "Missing CIMOperation HTTP header");
+      //
+      //  Missing CIMExport HTTP header
+      //
+      MessageLoaderParms mlParms(
+          "ExportClient.CIMExportResponseDecoder.MISSING_CIMEXP_HEADER",
+          "Missing CIMExport HTTP header");
       String mlString(MessageLoader::getMessage(mlParms));
 
       AutoPtr<CIMClientMalformedHTTPException> malformedHTTPException(new
@@ -358,17 +356,15 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
    // If it is a method response, then dispatch it to the handler:
    //
 
-   if (!String::equalNoCase(cimOperation, "MethodResponse"))
+   if (!String::equalNoCase(cimExport, "MethodResponse"))
    {
-
-     // l10n
-
-     // CIMClientMalformedHTTPException* malformedHTTPException =
-     //    new CIMClientMalformedHTTPException(
-     //         String("Received CIMOperation HTTP header value \"") +
-     //         cimOperation + "\", expected \"MethodResponse\"");
-
-      MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE", "Received CIMOperation HTTP header value \"$0\", expected \"MethodResponse\"", cimOperation);
+      //
+      //  Expected CIMExport HTTP header value MethodResponse
+      //
+      MessageLoaderParms mlParms(
+          "ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE",
+          "Received CIMExport HTTP header value \"$0\", "
+              "expected \"MethodResponse\"", cimExport);
       String mlString(MessageLoader::getMessage(mlParms));
 
       AutoPtr<CIMClientMalformedHTTPException> malformedHTTPException(
@@ -480,28 +476,27 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content,Boolean cimRe
       // Expect <EXPMETHODRESPONSE ... >
       //
 
-      const char* iMethodResponseName = 0;
+      const char* expMethodResponseName = 0;
       Boolean isEmptyTag = false;
 
       if (XmlReader::getEMethodResponseStartTag(
-              parser, iMethodResponseName, isEmptyTag))
+              parser, expMethodResponseName, isEmptyTag))
       {
-	  if (System::strcasecmp(iMethodResponseName, "ExportIndication") == 0)
+          if (System::strcasecmp(expMethodResponseName, "ExportIndication") ==
+              0)
           {
               response.reset(_decodeExportIndicationResponse(
                   parser, messageId, isEmptyTag));
           }
           else
 	  {
-	    // Unrecognized IMethodResponse name attribute
-	    
-	    // l10n
-
-	    // throw XmlValidationError(parser.getLine(),
-	    //	 String("Unrecognized IMethodResponse name \"") +
-	    //          iMethodResponseName + "\"");
-
-	    MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_IMETH", "Unrecognized IMethodResponse name \"$0\"", iMethodResponseName);
+            //
+            //  Unrecognized ExpMethodResponse name attribute
+            //
+            MessageLoaderParms mlParms(
+                "ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_EXPMETHRSP",
+                "Unrecognized ExpMethodResponse name \"$0\"",
+                expMethodResponseName);
 	    String mlString(MessageLoader::getMessage(mlParms));
 	    
             PEG_METHOD_EXIT();
@@ -519,13 +514,13 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content,Boolean cimRe
         }
         else
         {
-
-	  // l10n
-
-	  // throw XmlValidationError(parser.getLine(),
-	  //   "expected METHODRESPONSE or IMETHODRESPONSE element");
-	  
-	  MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE_OR_IMETHODRESPONSE_ELEMENT", "expected METHODRESPONSE or IMETHODRESPONSE element");
+          //
+          //  Expected ExpMethodResponse element
+          //
+          MessageLoaderParms mlParms(
+              "ExportClient.CIMExportResponseDecoder.
+                  EXPECTED_EXPMETHODRESPONSE_ELEMENT",
+              "expected EXPMETHODRESPONSE element");
 	  String mlString(MessageLoader::getMessage(mlParms));
 	  
           PEG_METHOD_EXIT();

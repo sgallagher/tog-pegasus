@@ -52,7 +52,6 @@
 #include <Pegasus/Common/SSLContextManager.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
-#include "ProviderMessageFacade.h"
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
@@ -112,9 +111,17 @@ static Message * controlProviderReceiveMessageCallback(
     Message * message,
     void * instance)
 {
-    ProviderMessageFacade * mpf =
-        reinterpret_cast<ProviderMessageFacade *>(instance);
-    return mpf->handleRequestMessage(message);
+    CIMRequestMessage* request = dynamic_cast<CIMRequestMessage*>(message);
+    PEGASUS_ASSERT(request != 0);
+
+    AcceptLanguageList* langs = new AcceptLanguageList(
+        ((AcceptLanguageListContainer) request->operationContext.get(
+            AcceptLanguageListContainer::NAME)).getLanguages());
+    Thread::setLanguages(langs);
+
+    ProviderMessageHandler* pmh =
+        reinterpret_cast<ProviderMessageHandler*>(instance);
+    return pmh->processMessage(request);
 }
 
 //
@@ -227,11 +234,12 @@ void CIMServer::_init(void)
 
 	// Jump this number up when there are more control providers.
 	_controlProviders.reserveCapacity(16);
-    // Create the Configuration control provider
-    ProviderMessageFacade * configProvider =
-        new ProviderMessageFacade(new ConfigSettingProvider());
 
-	_controlProviders.append(configProvider);
+    // Create the Configuration control provider
+    ProviderMessageHandler* configProvider = new ProviderMessageHandler(
+        "ConfigSettingProvider", new ConfigSettingProvider(), 0, 0, false);
+
+    _controlProviders.append(configProvider);
     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                       PEGASUS_MODULENAME_CONFIGPROVIDER,
                                       configProvider,
@@ -239,9 +247,9 @@ void CIMServer::_init(void)
                                       0);
 
     // Create the User/Authorization control provider
-    ProviderMessageFacade * userAuthProvider =
-        new ProviderMessageFacade(new UserAuthProvider(_repository));
-	_controlProviders.append(userAuthProvider);
+    ProviderMessageHandler* userAuthProvider = new ProviderMessageHandler(
+        "UserAuthProvider", new UserAuthProvider(_repository), 0, 0, false);
+    _controlProviders.append(userAuthProvider);
     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                       PEGASUS_MODULENAME_USERAUTHPROVIDER,
                                       userAuthProvider,
@@ -249,30 +257,33 @@ void CIMServer::_init(void)
                                       0);
 
     // Create the Provider Registration control provider
-    ProviderMessageFacade * provRegProvider = new ProviderMessageFacade(
-        new ProviderRegistrationProvider(_providerRegistrationManager));
-	// Warning. The deconstructor for this object deletes _providerRegistrationManager
-	_controlProviders.append(provRegProvider);
+    ProviderMessageHandler* provRegProvider = new ProviderMessageHandler(
+        "ProviderRegistrationProvider",
+        new ProviderRegistrationProvider(_providerRegistrationManager),
+        0, 0, false);
+    // Warning: The ProviderRegistrationProvider destructor deletes
+    // _providerRegistrationManager
+    _controlProviders.append(provRegProvider);
     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                       PEGASUS_MODULENAME_PROVREGPROVIDER,
                                       provRegProvider,
                                       controlProviderReceiveMessageCallback,
                                       0);
 
-     // Create the Shutdown control provider
-     ProviderMessageFacade * shutdownProvider =
-         new ProviderMessageFacade(new ShutdownProvider(this));
-	_controlProviders.append(shutdownProvider);
+    // Create the Shutdown control provider
+    ProviderMessageHandler* shutdownProvider = new ProviderMessageHandler(
+        "ShutdownProvider", new ShutdownProvider(this), 0, 0, false);
+    _controlProviders.append(shutdownProvider);
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
                                        shutdownProvider,
                                        controlProviderReceiveMessageCallback,
                                        0);
 
-     // Create the namespace control provider
-     ProviderMessageFacade * namespaceProvider =
-         new ProviderMessageFacade(new NamespaceProvider(_repository));
-	_controlProviders.append(namespaceProvider);
+    // Create the namespace control provider
+    ProviderMessageHandler* namespaceProvider = new ProviderMessageHandler(
+        "NamespaceProvider", new NamespaceProvider(_repository), 0, 0, false);
+    _controlProviders.append(namespaceProvider);
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_NAMESPACEPROVIDER,
                                        namespaceProvider,
@@ -289,10 +300,11 @@ void CIMServer::_init(void)
         //the export truststore, and the local client truststore, it needs to be 
         //available regardless of the values of ssClientVerification and 
         //enableSSLExportVerification.
-        ProviderMessageFacade * certificateProvider =
-            new ProviderMessageFacade(new CertificateProvider(_repository, 
-                                                              _sslContextMgr));
-		_controlProviders.append(certificateProvider);
+    ProviderMessageHandler* certificateProvider = new ProviderMessageHandler(
+        "CertificateProvider",
+        new CertificateProvider(_repository, _sslContextMgr),
+        0, 0, false);
+    _controlProviders.append(certificateProvider);
         ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                           PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
                                           certificateProvider,
@@ -301,10 +313,10 @@ void CIMServer::_init(void)
 #endif
 
 #ifndef PEGASUS_DISABLE_PERFINST
-   // Create the Statistical Data control provider
-     ProviderMessageFacade * cimomstatdataProvider =
-         new ProviderMessageFacade(new CIMOMStatDataProvider());
-     _controlProviders.append(cimomstatdataProvider);
+    // Create the Statistical Data control provider
+    ProviderMessageHandler* cimomstatdataProvider = new ProviderMessageHandler(
+        "CIMOMStatDataProvider", new CIMOMStatDataProvider(), 0, 0, false);
+    _controlProviders.append(cimomstatdataProvider);
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,                                       cimomstatdataProvider,
                                        controlProviderReceiveMessageCallback,
@@ -313,10 +325,12 @@ void CIMServer::_init(void)
 
 #ifndef PEGASUS_DISABLE_CQL
 
-   // Create the Query Capabilities control provider
-     ProviderMessageFacade * cimquerycapprovider =
-         new ProviderMessageFacade(new CIMQueryCapabilitiesProvider());
-	 _controlProviders.append(cimquerycapprovider);
+    // Create the Query Capabilities control provider
+    ProviderMessageHandler* cimquerycapprovider = new ProviderMessageHandler(
+        "CIMQueryCapabilitiesProvider",
+        new CIMQueryCapabilitiesProvider(),
+        0, 0, false);
+    _controlProviders.append(cimquerycapprovider);
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
                                        cimquerycapprovider,
@@ -327,10 +341,10 @@ void CIMServer::_init(void)
 
 #if !defined(PEGASUS_DISABLE_PERFINST) ||  defined(PEGASUS_ENABLE_SLP)
 
-// Create the interop control provider
-     ProviderMessageFacade * interopProvider =
-         new ProviderMessageFacade(new InteropProvider(_repository));
-	 _controlProviders.append(interopProvider);
+    // Create the interop control provider
+    ProviderMessageHandler* interopProvider = new ProviderMessageHandler(
+        "InteropProvider", new InteropProvider(_repository), 0, 0, false);
+    _controlProviders.append(interopProvider);
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_INTEROPPROVIDER,
                                        interopProvider,
@@ -485,8 +499,8 @@ CIMServer::~CIMServer ()
     // its own table of the internal providers (pointers).
     for (Uint32 i = 0, n = _controlProviders.size(); i < n; i++)
     {
-        ProviderMessageFacade *p = _controlProviders[i];
-        // ~ProviderMessageFacade calls 'terminate' on the control providers.
+        ProviderMessageHandler *p = _controlProviders[i];
+        p->terminate();
         delete p;
     }
 
@@ -498,7 +512,7 @@ CIMServer::~CIMServer ()
     // DefaultProviderManager (if loaded) to get unloaded.  Dynamically
     // unloading the DefaultProviderManager library affects (on HP-UX, at
     // least) the statically loaded version of this library used by the
-    // ProviderMessageFacade wrapper for the control providers.  Deleting
+    // ProviderMessageHandler wrapper for the control providers.  Deleting
     // the ProviderManagerService after the control providers is a
     // workaround for this problem.
     delete _providerManager;

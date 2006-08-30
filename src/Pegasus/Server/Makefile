@@ -102,7 +102,6 @@ SOURCES = \
 	ShutdownService.cpp \
 	CIMServer.cpp \
 	CIMServerState.cpp \
-	ProviderMessageFacade.cpp \
 	BinaryMessageHandler.cpp \
 	reg_table.cpp \
 	QuerySupportRouter.cpp \

@@ -61,7 +61,6 @@ SOURCES = \
     DefaultProviderManagerMain.cpp \
     DefaultProviderManager.cpp \
     ProviderModule.cpp \
-    ProviderFacade.cpp \
     ProviderMessageHandler.cpp \
     ProviderStatus.cpp
 

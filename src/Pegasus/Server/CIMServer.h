@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//         Mike Day (mdday@us.ibm.com)
-//	   Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//	   Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//	   Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Server_h
@@ -45,14 +36,14 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Common/Cimom.h>
-#include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/ProviderManager2/Default/ProviderMessageHandler.h>
+#include <Pegasus/Server/CIMServerState.h>
+#include <Pegasus/Server/HTTPAuthenticatorDelegator.h>
+#include <Pegasus/Server/Linkage.h>
 
-#include "HTTPAuthenticatorDelegator.h"
-#include "ProviderMessageFacade.h"
 PEGASUS_NAMESPACE_BEGIN
 
 struct ServerRep;
@@ -181,7 +172,7 @@ private:
     HTTPAuthenticatorDelegator* _httpAuthenticatorDelegator;
 
     Array<HTTPAcceptor*> _acceptors;
-    Array<ProviderMessageFacade*> _controlProviders;
+    Array<ProviderMessageHandler*> _controlProviders;
     AutoPtr<CIMServerState> _serverState; //PEP101
 
     ModuleController* _controlService;

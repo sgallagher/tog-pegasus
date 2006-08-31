@@ -59,9 +59,9 @@ public class Provider1 implements InstanceProvider2 {
     public void initialize(CIMOMHandle ch)
            throws CIMException {
     	handle = ch;
-	Enumeration enum=ch.enumClass(new CIMObjectPath((String)null,"root"),true);
-	while (enum.hasMoreElements()) {
-	    CIMObjectPath cop=(CIMObjectPath)(enum.nextElement());
+	Enumeration enm=ch.enumClass(new CIMObjectPath((String)null,"root"),true);
+	while (enm.hasMoreElements()) {
+	    CIMObjectPath cop=(CIMObjectPath)(enm.nextElement());
 	    System.err.println("Loaded class name:"+cop);
 	}
 	buildClass();

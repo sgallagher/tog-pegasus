@@ -539,14 +539,14 @@ public class testIndications
    {
       CIMObjectPath copTestIndication  = new CIMObjectPath (className,
                                                             nameSpaceClass);
-      Enumeration   enum               = null;
+      Enumeration   enm                = null;
       int           iInstancesReturned = 0;
 
       try
       {
-         enum = cc.execQuery (copTestIndication,
-                              "SELECT InstanceId FROM " + className + " WHERE InstanceId = 1",
-                              "WQL");
+         enm = cc.execQuery (copTestIndication,
+                             "SELECT InstanceId FROM " + className + " WHERE InstanceId = 1",
+                             "WQL");
       }
       catch (Exception e)
       {
@@ -557,17 +557,17 @@ public class testIndications
          }
       }
 
-      if (enum == null)
+      if (enm == null)
       {
          if (fBugExistsExecQuery)
          {
-            System.out.println ("IGNORE: testExecQueryIndication: enum == null");
+            System.out.println ("IGNORE: testExecQueryIndication: enm == null");
 
             return true;
          }
          else
          {
-            System.out.println ("FAIL: testExecQueryIndication: enum == null");
+            System.out.println ("FAIL: testExecQueryIndication: enm == null");
 
             return false;
          }
@@ -575,12 +575,12 @@ public class testIndications
 
       if (DEBUG)
       {
-         System.err.println ("enum.hasMoreElements () = " + enum.hasMoreElements ());
+         System.err.println ("enm.hasMoreElements () = " + enm.hasMoreElements ());
       }
 
-      while (enum.hasMoreElements ())
+      while (enm.hasMoreElements ())
       {
-         CIMInstance elm = (CIMInstance)enum.nextElement ();
+         CIMInstance elm = (CIMInstance)enm.nextElement ();
 
          if (DEBUG)
          {
@@ -605,9 +605,9 @@ public class testIndications
 
       try
       {
-         enum = cc.execQuery (copTestIndication,
-                              "SELECT InstanceId FROM " + className + " WHERE InstanceId <= 5",
-                              "WQL");
+         enm = cc.execQuery (copTestIndication,
+                             "SELECT InstanceId FROM " + className + " WHERE InstanceId <= 5",
+                             "WQL");
       }
       catch (Exception e)
       {
@@ -618,21 +618,21 @@ public class testIndications
          }
       }
 
-      if (enum == null)
+      if (enm == null)
       {
-         System.out.println ("FAIL: testExecQueryIndication: enum == null");
+         System.out.println ("FAIL: testExecQueryIndication: enm == null");
 
          return false;
       }
 
       if (DEBUG)
       {
-         System.err.println ("enum.hasMoreElements () = " + enum.hasMoreElements ());
+         System.err.println ("enm.hasMoreElements () = " + enm.hasMoreElements ());
       }
 
-      while (enum.hasMoreElements ())
+      while (enm.hasMoreElements ())
       {
-         CIMInstance elm = (CIMInstance)enum.nextElement ();
+         CIMInstance elm = (CIMInstance)enm.nextElement ();
 
          if (DEBUG)
          {

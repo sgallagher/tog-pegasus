@@ -147,18 +147,18 @@ public class RunTest
          System.exit (1);
       }
 
-      Enumeration enum = htTests_d.elements ();
+      Enumeration enm = htTests_d.elements ();
 
-      if (!enum.hasMoreElements ())
+      if (!enm.hasMoreElements ())
       {
          System.out.println ("Error: Could not find any testcases!");
 
          System.exit (1);
       }
 
-      while (enum.hasMoreElements ())
+      while (enm.hasMoreElements ())
       {
-         TestEntry te = (TestEntry)enum.nextElement ();
+         TestEntry te = (TestEntry)enm.nextElement ();
 
          if (!runTest (te))
          {

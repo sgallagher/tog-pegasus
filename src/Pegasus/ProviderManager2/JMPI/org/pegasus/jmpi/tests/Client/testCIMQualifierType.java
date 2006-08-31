@@ -87,8 +87,8 @@ public class testCIMQualifierType
 
       // -----
 
-      CIMObjectPath cop  = null;
-      Enumeration   enum = null;
+      CIMObjectPath cop = null;
+      Enumeration   enm = null;
 
       cop = new CIMObjectPath ("JMPIExpInstance_TestPropertyTypes",
                                "root/SampleProvider");
@@ -100,7 +100,7 @@ public class testCIMQualifierType
 
       try
       {
-         enum = client.enumQualifierTypes (cop);
+         enm = client.enumQualifierTypes (cop);
       }
       catch (CIMException e)
       {
@@ -109,22 +109,22 @@ public class testCIMQualifierType
          return false;
       }
 
-      if (enum == null)
+      if (enm == null)
       {
-         System.out.println ("FAILURE: testCIMQualifierType: enum == null");
+         System.out.println ("FAILURE: testCIMQualifierType: enm == null");
 
          return false;
       }
 
       // -----
 
-      while (enum.hasMoreElements ())
+      while (enm.hasMoreElements ())
       {
-         CIMQualifierType cqt = (CIMQualifierType)enum.nextElement ();
+         CIMQualifierType cqt = (CIMQualifierType)enm.nextElement ();
 
          if (cqt == null)
          {
-            System.out.println ("FAILURE: testCIMQualifierType: enum.next ()");
+            System.out.println ("FAILURE: testCIMQualifierType: enm.next ()");
 
             return false;
          }

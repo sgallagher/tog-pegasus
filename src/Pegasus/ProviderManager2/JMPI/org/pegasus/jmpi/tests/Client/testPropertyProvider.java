@@ -139,14 +139,14 @@ public class testPropertyProvider
          if (DEBUG)
             System.err.println ("cop1          = " + cop1);
 
-         Enumeration enum = cimClient.enumInstances (cop1, true);
+         Enumeration enm = cimClient.enumInstances (cop1, true);
 
          if (DEBUG)
-            System.err.println ("enum = " + enum + ", hasMoreElements = " + enum.hasMoreElements ());
+            System.err.println ("enm = " + enm + ", hasMoreElements = " + enm.hasMoreElements ());
 
-         while (enum.hasMoreElements ())
+         while (enm.hasMoreElements ())
          {
-            CIMObjectPath copRet = (CIMObjectPath)enum.nextElement ();
+            CIMObjectPath copRet = (CIMObjectPath)enm.nextElement ();
             Vector        keys   = copRet.getKeys ();
 
             for (int i = 0; i < keys.size (); i++)

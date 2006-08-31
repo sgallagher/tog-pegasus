@@ -105,7 +105,7 @@ public class testExecQuery
         String        queryStatement = null;
         String        queryLanguage  = null;
         CIMObjectPath cimObjectPath  = new CIMObjectPath (className, nameSpaceClass);
-        Enumeration   enum           = null;
+        Enumeration   enm            = null;
 
         queryStatement = "Select * from " + className + " where InstanceId = 1";
         queryLanguage  = "WQL";
@@ -115,9 +115,9 @@ public class testExecQuery
 
         try
         {
-           enum = cimClient.execQuery (cimObjectPath,
-                                       queryStatement,
-                                       queryLanguage);
+           enm = cimClient.execQuery (cimObjectPath,
+                                      queryStatement,
+                                      queryLanguage);
         }
         catch (Exception e)
         {
@@ -128,28 +128,28 @@ public class testExecQuery
            }
         }
 
-        if (enum == null)
+        if (enm == null)
         {
            if (fBugExistsExecQuery)
            {
-              System.out.println ("IGNORE: testExecQuery: enum == null");
+              System.out.println ("IGNORE: testExecQuery: enm == null");
 
               return true;
            }
            else
            {
-              System.out.println ("FAIL: testExecQuery: enum == null");
+              System.out.println ("FAIL: testExecQuery: enm == null");
 
               return false;
            }
         }
 
         if (DEBUG)
-            System.out.println ("enum = " + enum + ", hasMoreElements = " + enum.hasMoreElements ());
+            System.out.println ("enm = " + enm + ", hasMoreElements = " + enm.hasMoreElements ());
 
-        while (enum.hasMoreElements())
+        while (enm.hasMoreElements())
         {
-           CIMInstance cimInstanceEQ = (CIMInstance)(enum.nextElement());
+           CIMInstance cimInstanceEQ = (CIMInstance)(enm.nextElement());
 
            System.out.println (cimInstanceEQ);
         }
@@ -162,9 +162,9 @@ public class testExecQuery
 
         try
         {
-           enum = cimClient.execQuery (cimObjectPath,
-                                       queryStatement,
-                                       queryLanguage);
+           enm = cimClient.execQuery (cimObjectPath,
+                                      queryStatement,
+                                      queryLanguage);
         }
         catch (Exception e)
         {
@@ -175,18 +175,18 @@ public class testExecQuery
            }
         }
 
-        if (enum == null)
+        if (enm == null)
         {
-           System.out.println ("FAIL: testExecQuery: enum == null");
+           System.out.println ("FAIL: testExecQuery: enm == null");
 
            return false;
         }
         if (DEBUG)
-            System.out.println ("enum = " + enum + ", hasMoreElements = " + enum.hasMoreElements ());
+            System.out.println ("enm = " + enm + ", hasMoreElements = " + enm.hasMoreElements ());
 
-        while (enum.hasMoreElements())
+        while (enm.hasMoreElements())
         {
-           CIMInstance cimInstanceEQ = (CIMInstance)(enum.nextElement());
+           CIMInstance cimInstanceEQ = (CIMInstance)(enm.nextElement());
 
            System.out.println (cimInstanceEQ);
         }

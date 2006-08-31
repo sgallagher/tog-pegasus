@@ -104,9 +104,9 @@ public class TestClient1 {
 
           System.out.println("--- 5 "+attachName);
 
-          Enumeration enum=cc.enumInstances(cop,false,true);
-          while (enum.hasMoreElements()) {
-             CIMInstance obj=(CIMInstance)(enum.nextElement());
+          Enumeration enm=cc.enumInstances(cop,false,true);
+          while (enm.hasMoreElements()) {
+             CIMInstance obj=(CIMInstance)(enm.nextElement());
              System.err.println(obj.toString());
           }
 
@@ -121,10 +121,10 @@ public class TestClient1 {
                   "TRACE select id "+
                   "from Test_VirtualMachine "+
                   "where id!=\"VM4\"";
-          Enumeration enum=cc.execQuery(new CIMObjectPath("Test_VirtualMachine"),query,1);
+          Enumeration enm=cc.execQuery(new CIMObjectPath("Test_VirtualMachine"),query,1);
 
-          while (enum.hasMoreElements()) {
-             CIMInstance obj=(CIMInstance)(enum.nextElement());
+          while (enm.hasMoreElements()) {
+             CIMInstance obj=(CIMInstance)(enm.nextElement());
              System.err.println("--- obj: "+obj.toString());
           }
 */

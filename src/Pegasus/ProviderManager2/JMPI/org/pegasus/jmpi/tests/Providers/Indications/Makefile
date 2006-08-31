@@ -91,6 +91,8 @@ cimmof_repository:
 	@cimmof -I. "-n$(NAMESPACE)" $(subst .jar,,$(JAR1)).mof
 	@cimmof -I. "-n$(INTEROPNS)" $(subst .jar,,$(JAR1))R.mof
 
+tests:
+
 poststarttests:
 
 $(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES) CommonInstanceProvider.class

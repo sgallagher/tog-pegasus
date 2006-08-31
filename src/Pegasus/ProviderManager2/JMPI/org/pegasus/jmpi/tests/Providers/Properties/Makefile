@@ -88,6 +88,8 @@ cimmof_repository:
 	@cimmof -I. "-n$(NAMESPACE)" $(subst .jar,,$(JAR1)).mof
 	@cimmof -I. "-n$(INTEROPNS)" $(subst .jar,,$(JAR1))R.mof
 
+tests:
+
 poststarttests:
 #	CLI sp -n $(NAMESPACE) JMPIProperty_TestPropertyTypes.InstanceId=1 PropertyString "hello"
 

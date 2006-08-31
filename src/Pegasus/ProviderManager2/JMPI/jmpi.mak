@@ -94,3 +94,5 @@ SOURCES = \
 include $(ROOT)/mak/library.mak
 
 all:	$(FULL_LIB)
+
+repository tests poststarttests:

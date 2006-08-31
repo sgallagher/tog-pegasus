@@ -92,6 +92,8 @@ clean:
 
 repository:
 
+tests:
+
 poststarttests:			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
 	java -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR1))$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR2)) Client.RunTest $(KNOWN_BUGS)
 

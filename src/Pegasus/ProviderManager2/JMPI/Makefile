@@ -29,7 +29,7 @@
 #//
 #//==============================================================================
 
-all clean depend build:
+all clean depend build poststarttests repository tests:
 	$(MAKE) -f jmpi.mak $(MFLAGS) $@
 	$(MAKE) -C org/pegasus/jmpi $(MFLAGS) $@
 	$(MAKE) -C org/pegasus/jmpi/tests/Providers/Associations  $(MFLAGS) $@
@@ -39,8 +39,3 @@ all clean depend build:
 	$(MAKE) -C org/pegasus/jmpi/tests/Client $(MFLAGS) $@
 
 messages:
-
-tests:
-
-poststarttests:
-

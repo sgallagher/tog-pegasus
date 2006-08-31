@@ -122,3 +122,4 @@ clean:
 $(PEGASUS_HOME)/lib/JMPIImpl.jar: $(CLASSES)
 	jar -cf $@ $(PFXCLASSES)
 
+repository tests poststarttests:

@@ -93,6 +93,8 @@ cimmof_repository:
 	@cimmof -I. "-n$(NAMESPACE)" $(subst .jar,,$(JAR2)).mof
 	@cimmof -I. "-n$(INTEROPNS)" $(subst .jar,,$(JAR2))R.mof
 
+tests:
+
 poststarttests:			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
 	@CLI a  --sum -count 1 -n $(NAMESPACE) JMPIExpAssociation_Teacher
 	@CLI an --sum -count 1 -n $(NAMESPACE) JMPIExpAssociation_Teacher

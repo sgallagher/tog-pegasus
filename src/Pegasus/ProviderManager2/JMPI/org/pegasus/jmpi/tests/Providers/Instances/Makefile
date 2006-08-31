@@ -140,6 +140,8 @@ cimmof_repository:
 	@cimmof -I. "-n$(NAMESPACE)" $(subst .jar,,$(JAR4)).mof
 	@cimmof -I. "-n$(INTEROPNS)" $(subst .jar,,$(JAR4))R.mof
 
+tests:
+
 poststarttests:			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
 	CLI im -n $(NAMESPACE) 'JMPIExpInstance_TestPropertyTypes' 'resetProvider'
 	CLI gi --sum -count 1 -n $(NAMESPACE) 'JMPIExpInstance_TestPropertyTypes.CreationClassName="JMPIExpInstance_TestPropertyTypes",InstanceId=1'

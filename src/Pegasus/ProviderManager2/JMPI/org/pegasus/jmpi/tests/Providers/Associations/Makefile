@@ -42,7 +42,7 @@ include $(PEGASUS_ROOT)/test/config.mak
 .SUFFIXES: .java .class .jar
 
 .java.class:
-	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar $*.java
+	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar -target 1.4 -source 1.4 $*.java
 
 NAMESPACE          = root/SampleProvider
 PACKAGEDIR         = Associations/

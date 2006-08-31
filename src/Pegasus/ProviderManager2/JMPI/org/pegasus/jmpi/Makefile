@@ -36,11 +36,11 @@ include $(ROOT)/mak/config.mak
 .SUFFIXES: .java .class .jar
 
 .java.class:
-	javac -classpath $(JAVAROOT) $*.java
+	javac -classpath $(JAVAROOT) -target 1.4 -source 1.4 $*.java
 
 PACKAGEDIR = org/pegasus/jmpi
 
-   CLASSES = \
+CLASSES = \
    CIMClass.class \
    CIMInstance.class \
    CIMDataType.class \

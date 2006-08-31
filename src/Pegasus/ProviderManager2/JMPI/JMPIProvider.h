@@ -46,6 +46,7 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
+#include <Pegasus/Common/AtomicInt.h>
 
 //#include <Pegasus/ProviderManager2/CMPI/CMPIResolverModule.h>
 

@@ -41,73 +41,73 @@ include $(ROOT)/mak/config.mak
 PACKAGEDIR = org/pegasus/jmpi
 
 CLASSES = \
-   CIMClass.class \
-   CIMInstance.class \
-   CIMDataType.class \
-   CIMDateTime.class \
-   CIMElement.class \
-   CIMException.class \
-   CIMInstanceException.class \
-   CIMInstance.class \
-   CIMMethod.class \
-   CIMNameSpace.class \
-   CIMObject.class \
-   CIMObjectPath.class \
-   CIMOMHandle.class \
-   ProviderCIMOMHandle.class \
-   CIMProperty.class \
-   CIMValue.class \
-   CIMQualifier.class \
-   CIMQualifierType.class \
-   CIMDataType.class \
-   CIMFlavor.class \
-   CIMScope.class \
-   CIMArgument.class \
-   \
-   OperationContext.class \
-   \
-   CIMProvider.class \
-   CIMInstanceProvider.class \
-   CIMInstanceProvider2.class \
-   CIMAssociatorProvider.class \
-   CIMAssociatorProvider2.class \
-   CIMMethodProvider.class \
-   CIMMethodProvider2.class \
-   \
-   InstanceProvider.class \
-   InstanceProvider2.class \
-   MethodProvider.class \
-   MethodProvider2.class \
-   AssociatorProvider.class \
-   AssociatorProvider2.class \
-   EventProvider.class \
-   EventProvider2.class \
-   PropertyProvider.class \
-   PropertyProvider2.class \
-   \
-   SelectExp.class \
-   FromExp.class \
-   NonJoinExp.class \
-   SelectList.class \
-   JMPISelectList.class \
-   QueryExp.class \
-   JMPIQueryExp.class \
-   WQLExp.class \
-   \
-   UnsignedNumber.class \
-   UnsignedInt16.class \
-   UnsignedInt32.class \
-   UnsignedInt64.class \
-   UnsignedInt8.class \
-   \
-   CIMNameSpace.class \
-   CIMClient.class \
-   ClassEnumeration.class \
-   InstEnumeration.class \
-   PathEnumeration.class \
-   QualEnumeration.class \
-   \
-   JarClassLoader.class
+	CIMClass.class \
+	CIMInstance.class \
+	CIMDataType.class \
+	CIMDateTime.class \
+	CIMElement.class \
+	CIMException.class \
+	CIMInstanceException.class \
+	CIMInstance.class \
+	CIMMethod.class \
+	CIMNameSpace.class \
+	CIMObject.class \
+	CIMObjectPath.class \
+	CIMOMHandle.class \
+	ProviderCIMOMHandle.class \
+	CIMProperty.class \
+	CIMValue.class \
+	CIMQualifier.class \
+	CIMQualifierType.class \
+	CIMDataType.class \
+	CIMFlavor.class \
+	CIMScope.class \
+	CIMArgument.class \
+	\
+	OperationContext.class \
+	\
+	CIMProvider.class \
+	CIMInstanceProvider.class \
+	CIMInstanceProvider2.class \
+	CIMAssociatorProvider.class \
+	CIMAssociatorProvider2.class \
+	CIMMethodProvider.class \
+	CIMMethodProvider2.class \
+	\
+	InstanceProvider.class \
+	InstanceProvider2.class \
+	MethodProvider.class \
+	MethodProvider2.class \
+	AssociatorProvider.class \
+	AssociatorProvider2.class \
+	EventProvider.class \
+	EventProvider2.class \
+	PropertyProvider.class \
+	PropertyProvider2.class \
+	\
+	SelectExp.class \
+	FromExp.class \
+	NonJoinExp.class \
+	SelectList.class \
+	JMPISelectList.class \
+	QueryExp.class \
+	JMPIQueryExp.class \
+	WQLExp.class \
+	\
+	UnsignedNumber.class \
+	UnsignedInt16.class \
+	UnsignedInt32.class \
+	UnsignedInt64.class \
+	UnsignedInt8.class \
+	\
+	CIMNameSpace.class \
+	CIMClient.class \
+	ClassEnumeration.class \
+	InstEnumeration.class \
+	PathEnumeration.class \
+	QualEnumeration.class \
+	\
+	JarClassLoader.class
 
 PFXCLASSES=$(addprefix -C ../../.. org/pegasus/jmpi/,$(CLASSES))
 

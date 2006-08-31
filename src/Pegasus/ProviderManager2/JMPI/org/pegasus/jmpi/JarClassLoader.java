@@ -29,55 +29,87 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
-
 package org.pegasus.jmpi;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.JarURLConnection;
 import java.io.IOException;
-import java.io.IOException;
 
-public class JarClassLoader extends URLClassLoader {
-    private URL url;
+public class JarClassLoader
+       extends URLClassLoader
+{
+    private static boolean DEBUG = false;
+    private        URL     url   = null;
 
-    public JarClassLoader(URL url) {
-      super(new URL[] { url });
-      this.url = url;
-      System.err.println("--- url: "+url.toString());
+    public JarClassLoader (URL url)
+    {
+        super (new URL[] { url });
+
+        this.url = url;
+
+        if (DEBUG)
+        {
+           System.err.println ("--- JarClassLoader::JarClassLoader: url: " + url);
+        }
     }
 
-    void connect()
+    void connect ()
        throws IOException
     {
-      URL u = new URL("jar", "", url + "!/");
-      JarURLConnection uc = (JarURLConnection)u.openConnection();
-      System.err.println("--- u: "+u.toString());
+        URL              u  = null;
+        JarURLConnection uc = null;
+
+        u = new URL ("jar",       // protocol
+                     "",          // host
+                     url + "!/"); // file
+
+        if (u == null)
+        {
+           throw new IOException ("cannot create a new URL " + url + "!/");
+        }
+
+        uc = (JarURLConnection)u.openConnection ();
+
+        if (DEBUG)
+        {
+           System.err.println ("--- JarClassLoader::connect: u: " + u);
+        }
+
+        if (uc == null)
+        {
+           throw new IOException ("cannot open a connection on URL " + url + "!/");
+        }
     }
 
-    public Class loadClass(String name)
-      throws ClassNotFoundException
-    {
-      Class c = loadClass(name);
-      return c;
-    }
-
-    static public Class load(String jar, String cls)
+    static public Class load (String jar, String cls)
        throws ClassNotFoundException, IOException
     {
-       JarClassLoader cl=new JarClassLoader(new URL("File:"+jar));
-       cl.connect();
-       System.err.println("--- finding ...");
-//       Class c=cl.findClass(cls);
-//       System.err.println("--- Loading ...");
-       Class c=cl.loadClass(cls);
-       System.err.println("--- Loading done: "+cls.toString());
-       return c;
-    }
+        JarClassLoader cl = null;
+        Class          c  = null;
 
+        cl = new JarClassLoader (new URL ("File:" + jar));
+
+        if (cl == null)
+        {
+           throw new IOException ("cannot create a new JarClassLoader " + jar);
+        }
+
+        cl.connect ();
+
+        if (DEBUG)
+        {
+           System.err.println ("--- JarClassLoader::load: Loading " + cls);
+        }
+
+        c = cl.loadClass (cls);
+
+        if (DEBUG)
+        {
+           System.err.println ("--- JarClassLoader::load: Loading done: " + c);
+        }
+
+        return c;
+    }
 }

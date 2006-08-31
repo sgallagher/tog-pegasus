@@ -29,12 +29,7 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
-
 
 #ifndef _Provider_JMPIImpl_h
 #define _Provider_JMPIImpl_h
@@ -366,6 +361,7 @@ class _dataType {
 #define CharacterClassRef            classRefs[32]
 #define OperationContextClassRef     classRefs[33]
 #define ClassClassRef                classRefs[34]
+#define JarClassLoaderRef            classRefs[35]
 
 #define BigIntegerValueOf            staticMethodIDs[0]
 #define JarClassLoaderLoad           staticMethodIDs[1]

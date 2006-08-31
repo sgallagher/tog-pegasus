@@ -29,16 +29,8 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Adrian Dutta
-//              Andy Viciu
-//              Magda Vacarelu
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Mark Hamzy,    hamzy@us.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
+
 #include "JMPIImpl.h"
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
@@ -117,6 +109,7 @@ const char* classNames[]={
 /*32*/ "java/lang/Character",
 /*33*/ "org/pegasus/jmpi/OperationContext",
 /*34*/ "java/lang/Class",
+/*35*/ "org/pegasus/jmpi/JarClassLoader",
 };
 
 const METHOD_STRUCT instanceMethodNames[]={
@@ -532,75 +525,147 @@ void JMPIjvm::detachThread()
    jvm->DetachCurrentThread();
 }
 
-jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
-     const char *cn, jclass *cls)
+jobject JMPIjvm::getProvider (JNIEnv     *env,
+                              String      jarName,
+                              String      className,
+                              const char *pszProviderName,
+                              jclass     *pjClass)
 {
-   jobject gProv = NULL;
-   jclass scls = NULL;
+   jobject   jProviderInstance      = 0;
+   jclass    jClassLoaded           = 0;
+   jmethodID jId                    = 0;
+   jobject   jProviderInstanceLocal = 0;
 
-   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jar = "<<jar<<", cln = "<<cln<<", cn = "<<cn<<", cls = "<<cls<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jarName = "<<jarName<<", className = "<<className<<", pszProviderName = "<<pszProviderName<<", pjClass = "<<PEGASUS_STD(hex)<<(int)pjClass<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 
-   _objectTable.lookup(cln,gProv);
-   _classTable.lookup(cln,scls);
-   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<", scls = "<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+   // CASE #1
+   //    className has been loaded previously.
+   //    Return saved instance.
+   _objectTable.lookup (className, jProviderInstance);
+   _classTable.lookup (className, jClassLoaded);
 
-   if (gProv)
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jProviderInstance = "<<PEGASUS_STD(hex)<<(int)jProviderInstance<<", jClassLoaded = "<<(int)jClassLoaded<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
+   if (  jProviderInstance
+      && jClassLoaded
+      )
    {
-      *cls = scls;
-      return gProv;
+      if (pjClass)
+      {
+         *pjClass = jClassLoaded;
+      }
+
+      return jProviderInstance;
    }
 
-   /*
-   DDD(PEGASUS_STD(cout)<<"--- jar: "<<jar<<PEGASUS_STD(endl));
-   DDD(PEGASUS_STD(cout)<<"--- cln: "<<cln<<PEGASUS_STD(endl));
+   // CASE #2
+   //    className can be loaded via getGlobalClassRef ().
+   //    Load and return the instance.
+   // NOTE:
+   //    According to http://java.sun.com/j2se/1.5.0/docs/guide/jni/spec/functions.html
+   //    In JDK 1.1, FindClass searched only local classes in CLASSPATH.
 
-   jstring jjar = env->NewStringUTF((const char*)jar.getCString());
-   jstring jcln = env->NewStringUTF((const char*)cln.getCString());
+   jClassLoaded = getGlobalClassRef (env,
+                                     (const char*)className.getCString ());
 
-   jclass jcls = (jclass)env->CallStaticObjectMethod (JMPIjvm::jv.JarClassLoaderRef,
-                                                      jv.JarClassLoaderLoad,
-                                                      jjar,
-                                                      jcln);
-   if (env->ExceptionCheck())
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jClassLoaded = "<<PEGASUS_STD(hex)<<(int)jClassLoaded<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
+   if (env->ExceptionCheck ())
    {
-      env->ExceptionDescribe();
-      PEGASUS_STD(cerr)<<"--- Unable to instantiate provider "<<cn<<PEGASUS_STD(endl);
-////////return NULL;
-   }
-*/
+      // CASE #3
+      //    see if the className can be loaded via JarClassLoader.load ().
+      //    Load and return the instance.
+      jstring jJarName   = 0;
+      jstring jClassName = 0;
 
-   scls = getGlobalClassRef(env,(const char*)cln.getCString());
-   if (env->ExceptionCheck())
+      env->ExceptionClear ();
+
+      // NOTE: Instances of "packageName/className" will not work with the jar
+      //       class loader.  Change the '/' to a '.'.
+      String fixedClassName;
+      Uint32 idx            = className.find ('/');
+
+      if (idx != PEG_NOT_FOUND)
+      {
+         fixedClassName = className.subString (0, idx)
+                        + "."
+                        + className.subString (idx + 1);
+      }
+      else
+      {
+         fixedClassName = className;
+      }
+
+      DDD(PEGASUS_STD(cerr)<<"--- JMPIjvm::getProvider: fixedClassName = "<<fixedClassName<<PEGASUS_STD(endl));
+
+      jJarName   = env->NewStringUTF ((const char*)jarName.getCString ());
+      jClassName = env->NewStringUTF ((const char*)fixedClassName.getCString ());
+
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jJarName = "<<PEGASUS_STD(hex)<<(int)jJarName<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jClassName = "<<PEGASUS_STD(hex)<<(int)jClassName<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
+      jClassLoaded = (jclass)env->CallStaticObjectMethod (JMPIjvm::jv.JarClassLoaderRef,
+                                                          JMPIjvm::jv.JarClassLoaderLoad,
+                                                          jJarName,
+                                                          jClassName);
+
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jClassLoaded = "<<PEGASUS_STD(hex)<<(int)jClassLoaded<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
+      if (env->ExceptionCheck ())
+      {
+         DDD (env->ExceptionDescribe ());
+
+         DDD(PEGASUS_STD(cerr)<<"--- Unable to instantiate provider "<<pszProviderName<<PEGASUS_STD(endl));
+
+         return 0;
+      }
+   }
+
+   if (pjClass)
    {
-      DDD(PEGASUS_STD(cerr)<<"--- JMPIjvm::getProvider: Provider "<<cn<<" not found"<<PEGASUS_STD(endl));
-      DDD(env->ExceptionDescribe());
-
-      return NULL;
+      *pjClass = jClassLoaded;
    }
-   *cls = scls;
 
-   if (scls)
+   if (!jClassLoaded)
    {
-      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: scls = "<<PEGASUS_STD(hex)<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
-      _classTable.insert(cln,scls);
+      DDD(PEGASUS_STD(cerr)<<"--- Unable to instantiate provider "<<pszProviderName<<PEGASUS_STD(endl));
+
+      return 0;
    }
 
-   jmethodID id = env->GetMethodID(*cls,"<init>","()V");
-   jobject lProv = env->NewObject(*cls,id);
-   gProv = (jobject)env->NewGlobalRef(lProv);
-   if (env->ExceptionCheck())
+   jId = env->GetMethodID (jClassLoaded,
+                           "<init>",
+                           "()V");
+
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jId = "<<PEGASUS_STD(hex)<<(int)jId<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
+   jProviderInstanceLocal = env->NewObject (jClassLoaded,
+                                            jId);
+
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jProviderInstanceLocal = "<<PEGASUS_STD(hex)<<(int)jProviderInstanceLocal<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
+   if (!jProviderInstanceLocal)
    {
-      DDD(PEGASUS_STD(cerr)<<"--- Unable to instantiate provider "<<cn<<PEGASUS_STD(endl));
-      return NULL;
+      DDD(PEGASUS_STD(cerr)<<"--- Unable to instantiate provider "<<pszProviderName<<PEGASUS_STD(endl));
+
+      return 0;
    }
 
-   if (gProv)
+   jProviderInstance = (jobject)env->NewGlobalRef (jProviderInstanceLocal);
+
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jProviderInstance = "<<PEGASUS_STD(hex)<<(int)jProviderInstance<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
+   if (!jProviderInstance)
    {
-      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
-      _objectTable.insert(cln,gProv);
+      DDD(PEGASUS_STD(cerr)<<"--- Unable to instantiate provider "<<pszProviderName<<PEGASUS_STD(endl));
+
+      return 0;
    }
 
-   return gProv;
+   _classTable.insert (className, jClassLoaded);
+   _objectTable.insert (className, jProviderInstance);
+
+   return jProviderInstance;
 }
 
 jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)

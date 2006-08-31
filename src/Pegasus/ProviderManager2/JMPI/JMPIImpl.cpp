@@ -575,8 +575,9 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
       // CASE #3
       //    see if the className can be loaded via JarClassLoader.load ().
       //    Load and return the instance.
-      jstring jJarName   = 0;
-      jstring jClassName = 0;
+      jstring jJarName          = 0;
+      jstring jClassName        = 0;
+      jclass  jClassLoadedLocal = 0;
 
       env->ExceptionClear ();
 
@@ -604,12 +605,12 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
       DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jJarName = "<<PEGASUS_STD(hex)<<(int)jJarName<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
       DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jClassName = "<<PEGASUS_STD(hex)<<(int)jClassName<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 
-      jClassLoaded = (jclass)env->CallStaticObjectMethod (JMPIjvm::jv.JarClassLoaderRef,
-                                                          JMPIjvm::jv.JarClassLoaderLoad,
-                                                          jJarName,
-                                                          jClassName);
+      jClassLoadedLocal = (jclass)env->CallStaticObjectMethod (JMPIjvm::jv.JarClassLoaderRef,
+                                                               JMPIjvm::jv.JarClassLoaderLoad,
+                                                               jJarName,
+                                                               jClassName);
 
-      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jClassLoaded = "<<PEGASUS_STD(hex)<<(int)jClassLoaded<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jClassLoadedLocal = "<<PEGASUS_STD(hex)<<(int)jClassLoadedLocal<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 
       if (env->ExceptionCheck ())
       {
@@ -619,6 +620,12 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
 
          return 0;
       }
+
+      jClassLoaded = (jclass)env->NewGlobalRef (jClassLoadedLocal);
+
+      DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jClassLoaded = "<<PEGASUS_STD(hex)<<(int)jClassLoaded<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
+      env->DeleteLocalRef (jClassLoadedLocal);
    }
 
    if (pjClass)

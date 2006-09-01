@@ -3848,10 +3848,9 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS11401:
-        *   Do not translate 'METHODRESPONSE' since it is a standard element for CIM in XML
-        *   Do not translate 'IMETHODRESPONSE' since it is a standard element for CIM in XML
+        *   Do not translate 'EXPMETHODRESPONSE' since it is a standard element for CIM in XML
         */
-        ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE_OR_IMETHODRESPONSE_ELEMENT:string {"PGS11401:  A METHODRESPONSE or an IMETHODRESPONSE element is expected for CIM in XML."}
+        ExportClient.CIMExportResponseDecoder.EXPECTED_EXPMETHODRESPONSE_ELEMENT:string {"PGS11401:  An EXPMETHODRESPONSE element is expected for CIM in XML."}
 
         ExportClient.CIMExportResponseDecoder.EMPTY_RESPONSE:string {"PGS11402: The HTTP response message is empty."}
 
@@ -3861,17 +3860,17 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS11405:
-        *   Do not translate 'CIMOperation' since it is a standard CIM HTTP header
+        *   Do not translate 'CIMExport' since it is a standard CIM HTTP header
         */
-        ExportClient.CIMExportResponseDecoder.MISSING_CIMOP_HEADER:string {"PGS11405: The CIMOperation HTTP header is missing."}
+        ExportClient.CIMExportResponseDecoder.MISSING_CIMEXP_HEADER:string {"PGS11405: The CIMExport HTTP header is missing."}
 
         /**
         * @note  PGS11406:
-        *    Substitution {0} is a string containing a CIM operation element
-        *    Do not translate 'CIMOperation' since it is a standard CIM HTTP header
+        *    Substitution {0} is a string containing a CIM export element
+        *    Do not translate 'CIMExport' since it is a standard CIM HTTP header
         *    Do not translate 'METHODRESPONSE' since it is a standard element for CIM in XML
         */
-        ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE:string {"PGS11406:  Client received a CIMOperation HTTP header value of \"{0}\" when \"METHODRESPONSE\" element is expected."}
+        ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE:string {"PGS11406:  Client received a CIMExport HTTP header value of \"{0}\" when \"METHODRESPONSE\" element is expected."}
 
         /**
         * @note  PGS11407:
@@ -3883,9 +3882,9 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS11408:
         *    Substitution {0} is a string containing a CIM operation name
-        *    Do not translate 'IMETHODRESPONSE' since it is a standard element for CIM in XML
+        *    Do not translate 'EXPMETHODRESPONSE' since it is a standard element for CIM in XML
         */
-        ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_IMETH:string {"PGS11408:  IMETHODRESPONSE name {0} is not recognized."}
+        ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_EXPMETHRSP:string {"PGS11408:  EXPMETHODRESPONSE name {0} is not recognized."}
 
 
         // ==========================================================

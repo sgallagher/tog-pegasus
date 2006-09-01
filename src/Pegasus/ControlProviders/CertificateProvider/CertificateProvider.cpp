@@ -1189,7 +1189,7 @@ void CertificateProvider::deleteInstance(
              PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "File does not exist.");
              MessageLoaderParms parms("ControlProviders.CertificateProvider.FILE_DNE",
                                       "File does not exist $0.", FileSystem::extractFileName(crlFileName));
-             throw CIMException(CIM_ERR_FAILED, parms);
+             throw CIMException(CIM_ERR_NOT_FOUND, parms);
         }
    
         X509_NAME_free(name);

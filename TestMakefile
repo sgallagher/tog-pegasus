@@ -503,6 +503,8 @@ SSL_TS1_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=true \
        sslClientVerificationMode=optional sslTrustStoreUserName=$(CURRENT_USER)
 SSL_TS1_TEST_CMDS = \
        $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Clients/cimtrust/tests@@SSLCertificateTest1
+SSL_TS2_TEST_CMDS = \
+       $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Clients/cimcrl/tests@@SSLCRLTest1
 
 ifdef PEGASUS_HAS_SSL
 ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
@@ -510,6 +512,9 @@ run_SSL_TS1: FORCE
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(SSL_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(SSL_TS1_TEST_CMDS)"
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(SSL_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(SSL_TS2_TEST_CMDS)"
 else
 run_SSL_TS1: FORCE
 	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping run_SSL_TS1"	

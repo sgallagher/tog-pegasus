@@ -807,6 +807,52 @@ en:table {
         Clients.cimreparchive.CIMRepositoryArchiveCommand.ARCHIVE_FAILED:string {"PGC01204: Archive operation failed with status {0}.  Removing file \"{1}\"."}
 
         // ==========================================================
+        // Messages for CIMCRLCommand
+        // Please use message prefix "PGC01300"
+        // ==========================================================
+
+        /**
+        * @note Clients.cimcrl.CIMCRLCommand.MENU.STANDARD:
+        *    Do not translate the cimcrl command or options, translate the text
+        *    that explains the options.
+        *    When translating this message, make sure that each line fits in 80 characters,
+        *    preserves the indenting,
+        *    and ends with a newline character (\n).
+        */
+        Clients.cimcrl.CIMCRLCommand.MENU.STANDARD:string {
+        "Usage: cimcrl -a -f crlfile \n"
+        "cimcrl -r -i issuername \n"
+        "cimcrl -l [ -i issuername ] \n"
+        "cimcrl --version\n"
+        "cimcrl --help\n"
+        "Options :\n"
+        "    -a              - Add the specified CRL to the trust store\n"
+        "    -r              - Remove the specified CRL from the trust store\n"
+        "    -l              - Display the CRLs in the trust store\n"
+        "    -f crlfile      - Specify the PEM format file containing an X509 CRL\n"
+        "    -i issuer       - Specify the CRL issuer name\n"
+        "    --help          - Display this help message\n"
+        "    --version       - Display CIM Server version number\n"
+        "\n"
+        "Usage note: The cimcrl command requires that the CIM Server is running.\n"
+        "\n"
+        }
+
+        Clients.cimcrl.CIMCRLCommand.REQUIRED_ARGS_MISSING:string {"PGC01300: Required arguments missing."}
+
+        Clients.cimcrl.CIMCRLCommand.CANNOT_CONNECT_CIMSERVER_NOT_RUNNING:string {"PGC01301: Cannot connect to CIM Server, CIM Server may not be running."}
+
+        Clients.cimcrl.CIMCRLCommand.ADD_CRL_SUCCESS:string {"PGC01302: CRL added successfully."}
+
+        Clients.cimcrl.CIMCRLCommand.REMOVE_CRL_SUCCESS:string {"PGC01303: CRL removed successfully."}
+
+        Clients.cimcrl.CIMCRLCommand.CRL_NOT_FOUND:string {"PGC01304: Specified CRL does not exist."}
+
+        Clients.cimcrl.CIMCRLCommand.CRL_SCHEMA_NOT_LOADED:string {"PGC01305: Please restore the internal repository on the CIM Server."}
+
+        Clients.cimcrl.CIMCRLCommand.CONNECTION_TIMEOUT:string {"PGC01306: Connection timed out."}
+
+        // ==========================================================
         // Start of messages from platform-specific files
         // ==========================================================
                         

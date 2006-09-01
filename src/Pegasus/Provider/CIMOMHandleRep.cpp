@@ -29,25 +29,18 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <string.h>    // for memcpy()
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Time.h>
 
 #include "CIMOMHandleRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOMHandleRep::CIMOMHandleRep()
-    : _pendingOperations(0),
-      _providerUnloadProtect(0)
+    : _providerUnloadProtect(0)
 {
-    Time::gettimeofday(&_idleTime);
 }
 
 CIMOMHandleRep::~CIMOMHandleRep()
@@ -99,52 +92,8 @@ void CIMOMHandleRep::allowProviderUnload()
     PEG_METHOD_EXIT();
 }
 
-void CIMOMHandleRep::get_idle_timer(struct timeval *tv)
-{
-    if (tv == 0)
-    {
-        return;
-    }
-   
-    try 
-    {
-        AutoMutex lock(_idleTimeMutex);
-        memcpy(tv, &_idleTime, sizeof(struct timeval));
-    }
-    catch (...)
-    {
-        Time::gettimeofday(tv);
-    }
-}
-
-void CIMOMHandleRep::update_idle_timer()
-{
-    try
-    {
-        AutoMutex lock(_idleTimeMutex);
-        Time::gettimeofday(&_idleTime);
-    }
-    catch (...)
-    {
-    }
-}
-
-Boolean CIMOMHandleRep::pending_operation()
-{
-    if (_pendingOperations.get())
-    {
-        return true;
-    }
-    return false;
-}
-
 Boolean CIMOMHandleRep::unload_ok()
 {
-    if (_pendingOperations.get())
-    {
-        return false;
-    }
-
     Boolean unloadable = true;
 
     AutoMutex lock(_providerUnloadProtectMutex);

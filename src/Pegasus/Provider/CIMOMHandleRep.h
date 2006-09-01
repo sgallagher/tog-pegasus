@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -53,11 +49,6 @@
 #include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-class ProviderManager;
-class Provider;
-
-class CIMOMHandleOpSemaphore;
 
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandleRep : public Sharable
 {
@@ -253,48 +244,11 @@ public:
     virtual void setOS400ProfileHandle(const char* profileHandle) = 0;
 #endif
 
-    virtual void get_idle_timer(struct timeval*);
-    virtual void update_idle_timer();
-    virtual Boolean pending_operation();
     virtual Boolean unload_ok();
 
 private:      
-    AtomicInt _pendingOperations;
-    struct timeval _idleTime;
-    Mutex _idleTimeMutex;
     Uint32 _providerUnloadProtect;
     Mutex _providerUnloadProtectMutex;
-
-    friend class CIMOMHandleOpSemaphore;
-};
-
-class PEGASUS_PROVIDER_LINKAGE CIMOMHandleOpSemaphore
-{
-public:
-    CIMOMHandleOpSemaphore(CIMOMHandleRep *rep)
-        : _rep(rep)
-    {
-        _rep->update_idle_timer();
-        (_rep->_pendingOperations)++;
-    }
-
-    ~CIMOMHandleOpSemaphore()
-    {
-        _rep->update_idle_timer();
-        (_rep->_pendingOperations)--;
-    }
-
-private:
-    // Unimplemented
-    CIMOMHandleOpSemaphore();
-
-    // Unimplemented
-    CIMOMHandleOpSemaphore(const CIMOMHandleOpSemaphore& sem);
-
-    // Unimplemented
-    CIMOMHandleOpSemaphore& operator=(const CIMOMHandleOpSemaphore& sem);
-
-    CIMOMHandleRep *_rep;
 };
 
 PEGASUS_NAMESPACE_END

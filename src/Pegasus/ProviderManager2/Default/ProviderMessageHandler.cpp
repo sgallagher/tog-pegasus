@@ -76,51 +76,6 @@ catch (...)                                                                    \
 
 PEGASUS_NAMESPACE_BEGIN
 
-// auto variable to protect provider during operations
-class pm_service_op_lock
-{
-public:
-    pm_service_op_lock(ProviderStatus *providerStatus)
-    : _providerStatus(providerStatus)
-    {
-        _providerStatus->protect();
-    }
-
-    ~pm_service_op_lock()
-    {
-        _providerStatus->unprotect();
-    }
-
-private:
-    pm_service_op_lock();
-    pm_service_op_lock(const pm_service_op_lock&);
-    pm_service_op_lock& operator=(const pm_service_op_lock&);
-
-    ProviderStatus* _providerStatus;
-};
-
-class op_counter
-{
-public:
-    op_counter(AtomicInt* counter)
-        : _counter(counter)
-    {
-        (*_counter)++;
-    }
-
-    ~op_counter()
-    {
-        (*_counter)--;
-    }
-
-private:
-    op_counter();
-    op_counter(const op_counter&);
-    op_counter& operator=(const op_counter&);
-
-    AtomicInt* _counter;
-};
-
 template<class T>
 inline T* getProviderInterface(CIMProvider* provider)
 {
@@ -176,7 +131,17 @@ void ProviderMessageHandler::initialize(CIMOMHandle& cimom)
 void ProviderMessageHandler::terminate()
 {
     _disableIndications();
-    _provider->terminate();
+
+    try
+    {
+        _provider->terminate();
+    }
+    catch (...)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Caught exception from provider " + _name +
+                " terminate() method.");
+    }
 }
 
 void ProviderMessageHandler::subscriptionInitComplete()
@@ -194,8 +159,6 @@ CIMResponseMessage* ProviderMessageHandler::processMessage(
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderMessageHandler::processMessage()");
-
-    op_counter ops(&status._currentOperations);
 
     CIMResponseMessage* response = 0;
 
@@ -305,12 +268,13 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetInstanceRequest(
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleGetInstanceRequest - "
                 "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->instanceName.getClassName().getString());
+            request->instanceName.getClassName().getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -331,8 +295,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetInstanceRequest(
             "Calling provider.getInstance: " + _name);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -401,8 +363,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstancesRequest(
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&status);
-
         StatProviderTimeMeasurement providerTime(response);
 
         CIMInstanceProvider* provider =
@@ -447,7 +407,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstanceNamesRequest
     try
     {
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleEnumerateInstanceNamesRequest - "
                 "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -472,8 +432,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstanceNamesRequest
             "Calling provider.enumerateInstanceNames: " + _name);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -516,7 +474,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateInstanceRequest(
     try
     {
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleCreateInstanceRequest - "
                 "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -542,8 +500,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateInstanceRequest(
             "Calling provider.createInstance: " + _name);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -587,7 +543,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifyInstanceRequest(
     try
     {
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleModifyInstanceRequest - "
                 "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -613,8 +569,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifyInstanceRequest(
             "Calling provider.modifyInstance: " + _name);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -660,7 +614,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteInstanceRequest(
     try
     {
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleDeleteInstanceRequest - "
                 "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -686,8 +640,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteInstanceRequest(
             "Calling provider.deleteInstance: " + _name);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -729,7 +681,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleExecQueryRequest(
     try
     {
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleExecQueryRequest - "
                 "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -756,8 +708,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleExecQueryRequest(
             "Calling provider.execQuery: " + _name);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -801,7 +751,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorsRequest(
     try
     {
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleAssociatorsRequest - "
                 "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -831,8 +781,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorsRequest(
         AutoPThreadSecurity threadLevelSecurity(context);
 
         StatProviderTimeMeasurement providerTime(response);
-
-        pm_service_op_lock op_lock(&status);
 
         CIMAssociationProvider* provider =
             getProviderInterface<CIMAssociationProvider>(_provider);
@@ -880,7 +828,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorNamesRequest(
     try
     {
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleAssociationNamesRequest - "
                 "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -910,8 +858,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorNamesRequest(
         AutoPThreadSecurity threadLevelSecurity(context);
 
         StatProviderTimeMeasurement providerTime(response);
-
-        pm_service_op_lock op_lock(&status);
 
         CIMAssociationProvider* provider =
             getProviderInterface<CIMAssociationProvider>(_provider);
@@ -956,7 +902,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferencesRequest(
     try
     {
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleReferencesRequest - "
                 "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -989,8 +935,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferencesRequest(
         AutoPThreadSecurity threadLevelSecurity(context);
 
         StatProviderTimeMeasurement providerTime(response);
-
-        pm_service_op_lock op_lock(&status);
 
         CIMAssociationProvider* provider =
             getProviderInterface<CIMAssociationProvider>(_provider);
@@ -1036,7 +980,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferenceNamesRequest(
     try
     {
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleReferenceNamesRequest - "
                 "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -1069,8 +1013,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferenceNamesRequest(
         AutoPThreadSecurity threadLevelSecurity(context);
 
         StatProviderTimeMeasurement providerTime(response);
-
-        pm_service_op_lock op_lock(&status);
 
         CIMAssociationProvider* provider =
             getProviderInterface<CIMAssociationProvider>(_provider);
@@ -1110,13 +1052,14 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleGetPropertyRequest - "
                 "Host name: $0  Name space: $1  Class name: $2  Property: $3",
             System::getHostName(),
             request->nameSpace.getString(),
             request->instanceName.getClassName().getString(),
-            request->propertyName.getString());
+            request->propertyName.getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1140,8 +1083,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
             "Calling provider.getInstance: " + _name);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -1223,13 +1164,14 @@ CIMResponseMessage* ProviderMessageHandler::_handleSetPropertyRequest(
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleSetPropertyRequest - "
                 "Host name: $0  Name space: $1  Class name: $2  Property: $3",
             System::getHostName(),
             request->nameSpace.getString(),
             request->instanceName.getClassName().getString(),
-            request->propertyName.getString());
+            request->propertyName.getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1257,8 +1199,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleSetPropertyRequest(
             "Calling provider.modifyInstance: " + _name);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&status);
 
         StatProviderTimeMeasurement providerTime(response);
 
@@ -1325,7 +1265,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleInvokeMethodRequest(
     try
     {
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleInvokeMethodRequest - "
                 "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -1355,8 +1295,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleInvokeMethodRequest(
         AutoPThreadSecurity threadLevelSecurity(context);
 
         StatProviderTimeMeasurement providerTime(response);
-
-        pm_service_op_lock op_lock(&status);
 
         CIMMethodProvider* provider =
             getProviderInterface<CIMMethodProvider>(_provider);
@@ -1450,8 +1388,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateSubscriptionRequest(
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
-        pm_service_op_lock op_lock(&status);
-
         CIMIndicationProvider* provider =
             getProviderInterface<CIMIndicationProvider>(_provider);
 
@@ -1520,7 +1456,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifySubscriptionRequest(
         }
 
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleCreateSubscriptionRequest - "
                 "Host name: $0  Name space: $1  Class name(s): $2",
             System::getHostName(),
@@ -1552,8 +1488,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifySubscriptionRequest(
             "Calling provider.modifySubscription: " + _name);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&status);
 
         CIMIndicationProvider* provider =
             getProviderInterface<CIMIndicationProvider>(_provider);
@@ -1605,7 +1539,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteSubscriptionRequest(
         }
 
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+            Logger::TRACE,
             "ProviderMessageHandler::_handleDeleteSubscriptionRequest - "
                 "Host name: $0  Name space: $1  Class name(s): $2",
             System::getHostName(),
@@ -1636,8 +1570,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteSubscriptionRequest(
             "Calling provider.deleteSubscription: " + _name);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-
-        pm_service_op_lock op_lock(&status);
 
         CIMIndicationProvider* provider =
             getProviderInterface<CIMIndicationProvider>(_provider);
@@ -1707,8 +1639,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleExportIndicationRequest(
 
         StatProviderTimeMeasurement providerTime(response);
 
-        pm_service_op_lock op_lock(&status);
-
         CIMIndicationConsumerProvider* provider =
             getProviderInterface<CIMIndicationConsumerProvider>(_provider);
 
@@ -1741,11 +1671,7 @@ void ProviderMessageHandler::_enableIndications()
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enableIndications: " + _name);
 
-        pm_service_op_lock op_lock(&status);
-
-        status.protect();
-
-        status._indicationsEnabled = true;
+        status.setIndicationsEnabled(true);
 
         CIMIndicationProvider* provider =
             getProviderInterface<CIMIndicationProvider>(_provider);
@@ -1753,17 +1679,6 @@ void ProviderMessageHandler::_enableIndications()
         provider->enableIndications(*indicationResponseHandler);
 
         _indicationResponseHandler = indicationResponseHandler;
-    }
-    catch (CIMException& e)
-    {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "CIMException: " + e.getMessage ());
-
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.Default.DefaultProviderManager."
-                "ENABLE_INDICATIONS_FAILED",
-            "Failed to enable indications for provider $0: $1.",
-            _name, e.getMessage());
     }
     catch (Exception& e)
     {
@@ -1798,18 +1713,23 @@ void ProviderMessageHandler::_disableIndications()
 
     try
     {
-        if (status._indicationsEnabled)
+        if (status.getIndicationsEnabled())
         {
-            pm_service_op_lock op_lock(&status);
-
             CIMIndicationProvider* provider =
                 getProviderInterface<CIMIndicationProvider>(_provider);
 
-            provider->disableIndications();
+            try
+            {
+                provider->disableIndications();
+            }
+            catch (...)
+            {
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Caught exception from provider " + _name +
+                        " terminate() method.");
+            }
 
-            status._indicationsEnabled = false;
-
-            status.unprotect();
+            status.setIndicationsEnabled(false);
 
             status.resetSubscriptions();
 

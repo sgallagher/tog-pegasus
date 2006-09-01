@@ -191,26 +191,6 @@ void JMPIProvider::terminate(void)
 }
 
 /*
-void JMPIProvider::get_idle_timer(struct timeval *t)
-{
-   if(t && _cimom_handle)
-      _cimom_handle->get_idle_timer(t);
-}
-
-void JMPIProvider::update_idle_timer(void)
-{
-   if(_cimom_handle)
-      _cimom_handle->update_idle_timer();
-}
-
-Boolean JMPIProvider::pending_operation(void)
-{
-   if(_cimom_handle)
-      return _cimom_handle->pending_operation();
-   return false;
-}
-
-
 Boolean JMPIProvider::unload_ok(void)
 {
    return false;

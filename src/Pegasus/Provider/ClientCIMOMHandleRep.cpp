@@ -288,7 +288,6 @@ CIMClass ClientCIMOMHandleRep::getClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::getClass");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -314,7 +313,6 @@ Array<CIMClass> ClientCIMOMHandleRep::enumerateClasses(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateClasses");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -337,7 +335,6 @@ Array<CIMName> ClientCIMOMHandleRep::enumerateClassNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateClassNames");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -355,7 +352,6 @@ void ClientCIMOMHandleRep::createClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::createClass");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -373,7 +369,6 @@ void ClientCIMOMHandleRep::modifyClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::modifyClass");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -392,7 +387,6 @@ void ClientCIMOMHandleRep::deleteClass(
 
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::deleteClass");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -414,7 +408,6 @@ CIMInstance ClientCIMOMHandleRep::getInstance(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::getInstance");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -441,7 +434,6 @@ Array<CIMInstance> ClientCIMOMHandleRep::enumerateInstances(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateInstances");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -464,7 +456,6 @@ Array<CIMObjectPath> ClientCIMOMHandleRep::enumerateInstanceNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateInstanceNames");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -482,7 +473,6 @@ CIMObjectPath ClientCIMOMHandleRep::createInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::createInstance");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -502,7 +492,6 @@ void ClientCIMOMHandleRep::modifyInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::modifyInstance");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -523,7 +512,6 @@ void ClientCIMOMHandleRep::deleteInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::deleteInstance");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -542,7 +530,6 @@ Array<CIMObject> ClientCIMOMHandleRep::execQuery(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::execQuery");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -567,7 +554,6 @@ Array<CIMObject> ClientCIMOMHandleRep::associators(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::associators");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -596,7 +582,6 @@ Array<CIMObjectPath> ClientCIMOMHandleRep::associatorNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::associatorNames");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -622,7 +607,6 @@ Array<CIMObject> ClientCIMOMHandleRep::references(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::references");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -647,7 +631,6 @@ Array<CIMObjectPath> ClientCIMOMHandleRep::referenceNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::referenceNames");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -667,7 +650,6 @@ CIMValue ClientCIMOMHandleRep::getProperty(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::getProperty");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -687,7 +669,6 @@ void ClientCIMOMHandleRep::setProperty(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::setProperty");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -710,7 +691,6 @@ CIMValue ClientCIMOMHandleRep::invokeMethod(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::invokeMethod");
 
-    CIMOMHandleOpSemaphore opsem(this);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 

@@ -218,7 +218,6 @@ public:
 
     virtual void get_idle_timer(struct timeval *);
     virtual void update_idle_timer(void);
-    virtual Boolean pending_operation(void);
     virtual Boolean unload_ok(void);
 
 //   force provider manager to keep in memory
@@ -329,6 +328,9 @@ private:
     Uint32 _quantum;
     AtomicInt _current_operations;
     Mutex _statusMutex;
+
+    struct timeval _idleTime;
+    Mutex _idleTimeMutex;
 
 	/*
  		List of threads which are monitored and cleaned.

@@ -32,18 +32,14 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderStatus.h"
+#include <Pegasus/Common/Time.h>
+#include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 ProviderStatus::ProviderStatus()
-    : _cimom_handle(0),
-      _module(0),
-      _isInitialized(false),
-      _noUnload(0),
-      _currentOperations(0),
-      _indicationsEnabled(false),
-      _currentSubscriptions(0)
 {
+    setInitialized(false);
 }
 
 ProviderStatus::~ProviderStatus()
@@ -60,6 +56,17 @@ void ProviderStatus::setInitialized(Boolean initialized)
 {
     AutoMutex lock(_statusMutex);
     _isInitialized = initialized;
+
+    if (!_isInitialized)
+    {
+        _module = 0;
+        _cimomHandle = 0;
+        _currentOperations = 0;
+        _indicationsEnabled = false;
+        _currentSubscriptions = 0;
+    }
+
+    Time::gettimeofday(&_lastOperationEndTime);
 }
 
 ProviderModule* ProviderStatus::getModule() const
@@ -72,69 +79,67 @@ void ProviderStatus::setModule(ProviderModule* module)
     _module = module;
 }
 
+CIMOMHandle* ProviderStatus::getCIMOMHandle()
+{
+    return _cimomHandle;
+}
+
 void ProviderStatus::setCIMOMHandle(CIMOMHandle* cimomHandle)
 {
-    _cimom_handle = cimomHandle;
+    _cimomHandle = cimomHandle;
 }
 
-void ProviderStatus::reset()
+void ProviderStatus::getLastOperationEndTime(struct timeval* t)
 {
-    _cimom_handle = 0;
-    _module = 0;
-    _noUnload = 0;
-    _isInitialized = false;
+    PEGASUS_ASSERT(t != 0);
+    AutoMutex lock(_lastOperationEndTimeMutex);
+    memcpy(t, &_lastOperationEndTime, sizeof(struct timeval));
 }
 
-void ProviderStatus::get_idle_timer(struct timeval* t)
+Boolean ProviderStatus::isIdle()
 {
-    if (t && _cimom_handle)
-    {
-        _cimom_handle->get_idle_timer(t);
-    }
-}
-
-void ProviderStatus::update_idle_timer()
-{
-    if (_cimom_handle)
-    {
-        _cimom_handle->update_idle_timer();
-    }
-}
-
-Boolean ProviderStatus::pending_operation()
-{
-    if (_cimom_handle)
-    {
-        return _cimom_handle->pending_operation();
-    }
-
-    return false;
-}
-
-
-Boolean ProviderStatus::unload_ok()
-{
-    if (!_isInitialized || _noUnload.get())
+    if (!_isInitialized ||
+        (_currentOperations.get() > 0) ||
+        _indicationsEnabled)
     {
         return false;
     }
 
-    if (_cimom_handle)
+    if (_cimomHandle)
     {
-        return _cimom_handle->unload_ok();
+        return _cimomHandle->unload_ok();
     }
 
     return true;
 }
 
-void ProviderStatus::protect()
+void ProviderStatus::operationBegin()
 {
-    _noUnload++;
+    _currentOperations++;
 }
 
-void ProviderStatus::unprotect()
+void ProviderStatus::operationEnd()
 {
-    _noUnload--;
+    _currentOperations--;
+
+    // Update the timer used to detect idle providers
+    AutoMutex lock(_lastOperationEndTimeMutex);
+    Time::gettimeofday(&_lastOperationEndTime);
+}
+
+Uint32 ProviderStatus::numCurrentOperations() const
+{
+    return _currentOperations.get();
+}
+
+Boolean ProviderStatus::getIndicationsEnabled() const
+{
+    return _indicationsEnabled;
+}
+
+void ProviderStatus::setIndicationsEnabled(Boolean indicationsEnabled)
+{
+    _indicationsEnabled = indicationsEnabled;
 }
 
 Boolean ProviderStatus::testIfZeroAndIncrementSubscriptions()
@@ -169,6 +174,11 @@ void ProviderStatus::setProviderInstance(const CIMInstance& instance)
 CIMInstance ProviderStatus::getProviderInstance()
 {
     return _providerInstance;
+}
+
+Mutex& ProviderStatus::getStatusMutex()
+{
+    return _statusMutex;
 }
 
 PEGASUS_NAMESPACE_END

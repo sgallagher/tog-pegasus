@@ -437,8 +437,6 @@ CIMClass InternalCIMOMHandleRep::getClass(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     // encode request
     CIMGetClassRequestMessage* request =
         new CIMGetClassRequestMessage(
@@ -531,8 +529,6 @@ Array<CIMClass> InternalCIMOMHandleRep::enumerateClasses(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     CIMEnumerateClassesRequestMessage* request =
         new CIMEnumerateClassesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -617,8 +613,6 @@ Array<CIMName> InternalCIMOMHandleRep::enumerateClassNames(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     CIMEnumerateClassNamesRequestMessage* request =
         new CIMEnumerateClassNamesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -696,8 +690,6 @@ void InternalCIMOMHandleRep::createClass(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     CIMCreateClassRequestMessage* request =
         new CIMCreateClassRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -772,8 +764,6 @@ void InternalCIMOMHandleRep::modifyClass(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     CIMModifyClassRequestMessage* request =
         new CIMModifyClassRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -847,8 +837,6 @@ void InternalCIMOMHandleRep::deleteClass(
         return;
     }
     #endif
-
-    CIMOMHandleOpSemaphore opsem(this);
 
     // encode request
     CIMDeleteClassRequestMessage* request =
@@ -933,8 +921,6 @@ CIMInstance InternalCIMOMHandleRep::getInstance(
         return(cimInstance);
     }
     #endif
-
-    CIMOMHandleOpSemaphore opsem(this);
 
     // encode request
     CIMGetInstanceRequestMessage* request =
@@ -1028,8 +1014,6 @@ Array<CIMInstance> InternalCIMOMHandleRep::enumerateInstances(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     // encode request
     CIMEnumerateInstancesRequestMessage* request =
         new CIMEnumerateInstancesRequestMessage(
@@ -1114,8 +1098,6 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::enumerateInstanceNames(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     // encode request
     CIMEnumerateInstanceNamesRequestMessage* request =
         new CIMEnumerateInstanceNamesRequestMessage(
@@ -1193,8 +1175,6 @@ CIMObjectPath InternalCIMOMHandleRep::createInstance(
         return(cimReference);
     }
     #endif
-
-    CIMOMHandleOpSemaphore opsem(this);
 
     CIMCreateInstanceRequestMessage* request =
         new CIMCreateInstanceRequestMessage(
@@ -1277,8 +1257,6 @@ void InternalCIMOMHandleRep::modifyInstance(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     CIMModifyInstanceRequestMessage* request =
         new CIMModifyInstanceRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1356,8 +1334,6 @@ void InternalCIMOMHandleRep::deleteInstance(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     CIMDeleteInstanceRequestMessage* request =
         new CIMDeleteInstanceRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1434,8 +1410,6 @@ Array<CIMObject> InternalCIMOMHandleRep::execQuery(
         return(cimObjects);
     }
     #endif
-
-    CIMOMHandleOpSemaphore opsem(this);
 
     CIMExecQueryRequestMessage* request =
         new CIMExecQueryRequestMessage(
@@ -1528,8 +1502,6 @@ Array<CIMObject> InternalCIMOMHandleRep::associators(
         return(cimObjects);
     }
     #endif
-
-    CIMOMHandleOpSemaphore opsem(this);
 
     CIMAssociatorsRequestMessage* request =
         new CIMAssociatorsRequestMessage(
@@ -1624,8 +1596,6 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::associatorNames(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     CIMAssociatorNamesRequestMessage* request =
         new CIMAssociatorNamesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1717,8 +1687,6 @@ Array<CIMObject> InternalCIMOMHandleRep::references(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     CIMReferencesRequestMessage* request =
         new CIMReferencesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1806,8 +1774,6 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::referenceNames(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     CIMReferenceNamesRequestMessage* request =
         new CIMReferenceNamesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1889,8 +1855,6 @@ CIMValue InternalCIMOMHandleRep::getProperty(
     }
     #endif
 
-    CIMOMHandleOpSemaphore opsem(this);
-
     CIMGetPropertyRequestMessage* request =
         new CIMGetPropertyRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1971,8 +1935,6 @@ void InternalCIMOMHandleRep::setProperty(
         return;
     }
     #endif
-
-    CIMOMHandleOpSemaphore opsem(this);
 
     CIMSetPropertyRequestMessage* request =
         new CIMSetPropertyRequestMessage(
@@ -2056,8 +2018,6 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
         return(cimValue);
     }
     #endif
-
-    CIMOMHandleOpSemaphore opsem(this);
 
     CIMInvokeMethodRequestMessage* request =
         new CIMInvokeMethodRequestMessage(

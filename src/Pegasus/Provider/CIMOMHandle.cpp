@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By:  Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP101
-//               Josephine Eskaline Joyce (jojustin@in.ibm.com) for Bug#2486
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -410,21 +405,6 @@ CIMValue CIMOMHandle::invokeMethod(
         outParameters);
 }
 
-
-void CIMOMHandle::get_idle_timer(void *tv)
-{
-    _rep->get_idle_timer(reinterpret_cast<struct timeval*>(tv));
-}
-
-void CIMOMHandle::update_idle_timer(void)
-{
-    _rep->update_idle_timer();
-}
-
-Boolean CIMOMHandle::pending_operation(void)
-{
-    return _rep->pending_operation();
-}
 
 void CIMOMHandle::disallowProviderUnload()
 {

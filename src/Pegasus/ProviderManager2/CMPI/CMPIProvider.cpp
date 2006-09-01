@@ -48,6 +48,7 @@
 #include "CMPI_Ftabs.h"
 
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Time.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
@@ -70,6 +71,7 @@ CMPIProvider::CMPIProvider(const String & name,
    broker.provider = this;
    if (mv) miVector=*mv;
    noUnload=false; 
+   Time::gettimeofday(&_idleTime);
 }
 
 CMPIProvider::CMPIProvider(CMPIProvider *pr)
@@ -83,6 +85,7 @@ CMPIProvider::CMPIProvider(CMPIProvider *pr)
    broker.provider = this;
    _cimom_handle=new CIMOMHandle();
    noUnload=pr->noUnload; 
+   Time::gettimeofday(&_idleTime);
 }
 
 CMPIProvider::~CMPIProvider(void)
@@ -529,23 +532,16 @@ CMPIProvider::addThreadToWatch(Thread *t)
 
 void CMPIProvider::get_idle_timer(struct timeval *t)
 {
-   if(t && _cimom_handle)
-      _cimom_handle->get_idle_timer(t);
+    PEGASUS_ASSERT(t != 0);
+    AutoMutex lock(_idleTimeMutex);
+    memcpy(t, &_idleTime, sizeof(struct timeval));
 }
 
 void CMPIProvider::update_idle_timer(void)
 {
-   if(_cimom_handle)
-      _cimom_handle->update_idle_timer();
+    AutoMutex lock(_idleTimeMutex);
+    Time::gettimeofday(&_idleTime);
 }
-
-Boolean CMPIProvider::pending_operation(void)
-{
-   if(_cimom_handle)
-      return _cimom_handle->pending_operation();
-   return false; 
-}
-
 
 Boolean CMPIProvider::unload_ok(void)
 {

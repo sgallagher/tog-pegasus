@@ -47,8 +47,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class ProviderManager;
-class Provider;
 #ifdef PEGASUS_OS_OS400
 class CIMProviderOS400UserState;
 class CIMProviderOS400SystemState;
@@ -263,9 +261,6 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
       friend class CIMProviderOS400SystemState;
       void setOS400ProfileHandle(const char * profileHandle);
 #endif
-      void get_idle_timer(void *);
-      void update_idle_timer(void);
-      Boolean pending_operation(void);
       Boolean unload_ok(void);
 };
 

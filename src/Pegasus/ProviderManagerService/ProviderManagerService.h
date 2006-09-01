@@ -43,7 +43,7 @@
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
-
+#include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/ProviderManagerService/ProviderManagerRouter.h>
 #include <Pegasus/ProviderManagerService/Linkage.h>
 

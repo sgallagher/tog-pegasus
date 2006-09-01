@@ -51,25 +51,60 @@ class PEGASUS_DEFPM_LINKAGE ProviderStatus
 public:
     ProviderStatus();
 
-    virtual ~ProviderStatus();
+    ~ProviderStatus();
 
     Boolean isInitialized();
+
+    /**
+        Set the initialization state of the provider.  If the initialized
+        parameter is false, the ProviderStatus values are reset.
+     */
     void setInitialized(Boolean initialized);
 
     ProviderModule* getModule() const;
     void setModule(ProviderModule* module);
+
+    CIMOMHandle* getCIMOMHandle();
     void setCIMOMHandle(CIMOMHandle* cimomHandle);
-    void reset();
 
-    virtual void get_idle_timer(struct timeval *);
-    virtual void update_idle_timer();
-    virtual Boolean pending_operation();
-    virtual Boolean unload_ok();
+    /**
+        Indicates that the provider is busy processing an operation.
+     */
+    void operationBegin();
 
-    // force provider manager to keep in memory
-    virtual void protect();
-    // allow provider manager to unload when idle
-    virtual void unprotect();
+    /**
+        Indicates that the provider is finished processing an operation.
+     */
+    void operationEnd();
+
+    /**
+        Returns the time at which the operationEnd() method was last called.
+     */
+    void getLastOperationEndTime(struct timeval*);
+
+    /**
+        Returns true if the provider is initialized, is not processing any
+        operations, is not enabled as an indication provider, and has not
+        been protected against unloads via the CIMOMHandle.
+     */
+    Boolean isIdle();
+
+    /**
+        Gets the number of provider operations currently in progress.
+     */
+    Uint32 numCurrentOperations() const;
+
+    /**
+        Returns a Boolean indicating whether indications have been enabled
+        for this provider.
+     */
+    Boolean getIndicationsEnabled() const;
+
+    /**
+        Sets a flag indicating whether indications have been enabled
+        for this provider.
+     */
+    void setIndicationsEnabled(Boolean indicationsEnabled);
 
     /**
         Increments the count of current subscriptions for this provider, and
@@ -132,23 +167,28 @@ public:
      */
     CIMInstance getProviderInstance();
 
+    /**
+        The status mutex must be locked while changes to the initialization
+        status of the provider are in progress.  This mutex may be locked
+        recursively.
+     */
+    Mutex& getStatusMutex();
+
 private:
     ProviderStatus(const ProviderStatus&);
     ProviderStatus& operator=(const ProviderStatus&);
 
-    friend class DefaultProviderManager;
-    friend class ProviderMessageHandler;
-    friend class ProviderOperationCounter;
-
-    CIMOMHandle *_cimom_handle;
-    ProviderModule *_module;
     Boolean _isInitialized;
-    AtomicInt _noUnload;
-    Uint32 _quantum;
-    Mutex _statusMutex;
+    Mutex _statusMutex;    // Must be a recursive mutex
+
+    ProviderModule *_module;
+    CIMOMHandle *_cimomHandle;
 
     AtomicInt _currentOperations;
     Boolean _indicationsEnabled;
+
+    struct timeval _lastOperationEndTime;
+    Mutex _lastOperationEndTimeMutex;
 
     /**
         Count of current subscriptions for this provider.  Access to this

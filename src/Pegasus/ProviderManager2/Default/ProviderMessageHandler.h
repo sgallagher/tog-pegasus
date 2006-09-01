@@ -133,29 +133,30 @@ public:
 
 
 /**
-    Encapsulates the incrementing/decrementing of the _currentOperations
-    for a ProviderMessageHandler so it won't be unloaded during operations.
+    Encapsulates the calling of operationBegin() and operationEnd() for a
+    ProviderMessageHandler to help ensure an accurate count of provider
+    operations.
 */
-class ProviderOperationCounter
+class PEGASUS_DEFPM_LINKAGE ProviderOperationCounter
 {
 public:
     ProviderOperationCounter(ProviderMessageHandler* p)
         : _provider(p)
     {
         PEGASUS_ASSERT(_provider != 0);
-        _provider->status._currentOperations++;
+        _provider->status.operationBegin();
     }
 
     ProviderOperationCounter(const ProviderOperationCounter& p)
         : _provider(p._provider)
     {
         PEGASUS_ASSERT(_provider != 0);
-        _provider->status._currentOperations++;
+        _provider->status.operationBegin();
     }
 
     ~ProviderOperationCounter()
     {
-        _provider->status._currentOperations--;
+        _provider->status.operationEnd();
     }
 
     ProviderMessageHandler& GetProvider()

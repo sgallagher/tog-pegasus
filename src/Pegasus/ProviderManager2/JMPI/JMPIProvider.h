@@ -115,9 +115,6 @@ public:
 
     JMPIProviderModule *getModule(void) const;
 
-//    virtual void get_idle_timer(struct timeval *);
-//    virtual void update_idle_timer(void);
-//    virtual Boolean pending_operation(void);
 //    virtual Boolean unload_ok(void);
 
 //   force provider manager to keep in memory

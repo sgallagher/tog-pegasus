@@ -337,14 +337,22 @@ Uint32 CIMRepositoryArchiveCommand::execute(
     const char TAR_COMMAND[] = "/usr/bin/tar";
 #elif defined(PEGASUS_OS_LINUX)
     const char TAR_COMMAND[] = "/bin/tar";
+#elif defined(PEGASUS_OS_ZOS)
+    const char TAR_COMMAND[] = "/bin/pax";
 #else
     const char TAR_COMMAND[] = "tar";
 #endif
 
-    // Define the "archive" command
+    // Define the "archive" command based on the platfrom
+#if defined(PEGASUS_OS_ZOS)
+    String sysCommand =
+        String(TAR_COMMAND) + " -o saveext -ppx -wzf "
+            + _archiveFileName + " " + repositoryDir;
+#else
     String sysCommand =
         String(TAR_COMMAND) + " cf " + _archiveFileName +
             " -C " + repositoryDirPath + " " + repositoryDirName;
+#endif
 
 #if defined(PEGASUS_OS_TYPE_UNIX)
 

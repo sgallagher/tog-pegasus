@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "OperationResponseHandler.h"
@@ -138,37 +132,39 @@ Boolean OperationResponseHandler::isAsync(void) const
 // to go through. Only operation classes have a response pointer
 void OperationResponseHandler::send(Boolean isComplete)
 {
-	// some handlers do not send async because their callers cannot handle
-	// partial responses. If this is the case, stop here.
+    // It is possible to instantiate this class directly (not a derived
+    // class, which would also inherit from SimpleResponseHandler).
+    // The caller would do this only if the operation does not have any
+    // data to be returned.
 
-	if (isAsync() == false)
-	{
-		// preserve tradional behavior
-		if (isComplete == true)
+    SimpleResponseHandler* simpleP =
+        dynamic_cast<SimpleResponseHandler*>(this);
+    if (simpleP == 0)
+    {
+        // if there is no data to be returned, then the message should NEVER be
+        // incomplete (even on an error)
+        PEGASUS_ASSERT(isComplete);
+        return;
+    }
+
+    // some handlers do not send async because their callers cannot handle
+    // partial responses. If this is the case, stop here.
+
+    if (!isAsync())
+    {
+        // preserve traditional behavior
+        if (isComplete)
         {
+            if (_response != 0)
+            {
+                _response->operationContext.set(
+                    ContentLanguageListContainer(simpleP->getLanguages()));
+            }
             transfer();
         }
 
         return;
-	}
-
-	SimpleResponseHandler *simpleP = dynamic_cast<SimpleResponseHandler*>(this);
-
-	// It is possible to instantiate this class directly (not derived)
-	// The caller would do this only if the operation does not have any data to
-	// be returned
-
-	if (! simpleP)
-	{
-		// if there is no data to be returned, then the message should NEVER be
-		// incomplete (even on an error)
-		if (isComplete == false)
-        {
-            PEGASUS_ASSERT(false);
-        }
-
-        return;
-	}
+    }
 
 	SimpleResponseHandler &simple = *simpleP;
 	PEGASUS_ASSERT(_response);

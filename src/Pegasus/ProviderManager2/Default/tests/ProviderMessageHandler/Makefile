@@ -36,7 +36,18 @@ LIBRARIES = \
     DefaultProviderManager \
     pegprovidermanager \
     pegprovider \
+    pegqueryexpression
+
+ifndef PEGASUS_DISABLE_CQL
+    LIBRARIES += \
+       pegcql
+endif
+
+LIBRARIES += \
+    pegwql \
+    pegquerycommon \
     pegclient \
+    pegconfig \
     pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY

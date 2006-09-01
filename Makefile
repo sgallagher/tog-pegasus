@@ -279,6 +279,9 @@ testrepository: FORCE
 	@ $(MAKE) "-SC" src/Pegasus/Query/QueryExpression/tests repository
 	@ $(MAKE) "-SC" src/Providers/TestProviders/Load repository
 	@ $(MAKE) "-SC" src/Pegasus/ControlProviders/QueryCapabilitiesProvider/tests repository
+ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
+	@ $(MAKE) "-SC" src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests repository
+endif
 
 testrepositoryServer: FORCE
 	@ $(MAKE) "-SC" src/Providers/sample/Load repositoryServer
@@ -288,6 +291,9 @@ testrepositoryServer: FORCE
 	@ $(MAKE) "-SC" src/Pegasus/Query/QueryExpression/tests repositoryServer
 	@ $(MAKE) "-SC" src/Providers/TestProviders/Load repositoryServer
 	@ $(MAKE) "-SC" src/Pegasus/ControlProviders/QueryCapabilitiesProvider/tests repositoryServer
+ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
+	@ $(MAKE) "-SC" src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests repositoryServer
+endif
 
 removetestrepository: FORCE
 	@ $(MAKE) "-SC" src/Providers/sample/Load removerepository

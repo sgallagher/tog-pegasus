@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//				Willis White (whiwill@us.ibm.com) Bug 1596
-//              Amit K Arora, IBM (amitarora@in.ibm.com) for PEP 193
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +37,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -124,160 +117,108 @@ PEGASUS_NAMESPACE_BEGIN
 // CIM Class Names
 //
 
-static const CIMName PEGASUS_CLASSNAME_CONFIGSETTING        = 
-    CIMName ("PG_ConfigSetting");
-static const CIMName PEGASUS_CLASSNAME_AUTHORIZATION        = 
-    CIMName ("PG_Authorization");
-static const CIMName PEGASUS_CLASSNAME_USER                 = 
-    CIMName ("PG_User");
-static const CIMName PEGASUS_CLASSNAME_CERTIFICATE          =
-    CIMName ("PG_SSLCertificate");
-static const CIMName PEGASUS_CLASSNAME_CRL                  =
-    CIMName ("PG_SSLCertificateRevocationList");
-static const CIMName PEGASUS_CLASSNAME_PROVIDERMODULE       = 
-    CIMName ("PG_ProviderModule");
-static const CIMName PEGASUS_CLASSNAME_PROVIDER             = 
-    CIMName ("PG_Provider");
-static const CIMName PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION =
-    CIMName ("PG_CapabilitiesRegistration");
-static const CIMName PEGASUS_CLASSNAME_CONSUMERCAPABILITIES =
-    CIMName ("PG_ConsumerCapabilities");
-static const CIMName PEGASUS_CLASSNAME_PROVIDERCAPABILITIES = 
-    CIMName ("PG_ProviderCapabilities");
-static const CIMName PEGASUS_CLASSNAME_INDSUBSCRIPTION      = 
-    CIMName ("CIM_IndicationSubscription");
-static const CIMName PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION =
-    CIMName ("CIM_FormattedIndicationSubscription");
-static const CIMName PEGASUS_CLASSNAME_INDHANDLER           = 
-    CIMName ("CIM_IndicationHandler");
-static const CIMName PEGASUS_CLASSNAME_LSTNRDST           =
-    CIMName ("CIM_ListenerDestination");
-static const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML    = 
-    CIMName ("CIM_IndicationHandlerCIMXML");
-static const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML    = 
-		CIMName ("CIM_ListenerDestinationCIMXML");
-static const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP      = 
-    CIMName ("PG_IndicationHandlerSNMPMapper");
-static const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG      =
-    CIMName ("PG_ListenerDestinationSystemLog");
-static const CIMName PEGASUS_CLASSNAME_LSTNRDST_EMAIL      =
-    CIMName ("PG_ListenerDestinationEmail");
-static const CIMName PEGASUS_CLASSNAME_INDFILTER            = 
-    CIMName ("CIM_IndicationFilter");
-static const CIMName PEGASUS_CLASSNAME_SHUTDOWN             = 
-    CIMName ("PG_ShutdownService");
-static const CIMName PEGASUS_CLASSNAME___NAMESPACE          = 
-    CIMName ("__Namespace");
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CONFIGSETTING;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_AUTHORIZATION;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_USER;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CERTIFICATE;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CRL;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_PROVIDERMODULE;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_PROVIDER;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CONSUMERCAPABILITIES;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_PROVIDERCAPABILITIES;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDSUBSCRIPTION;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_EMAIL;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDFILTER;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_SHUTDOWN;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME___NAMESPACE;
 
 #ifndef PEGASUS_DISABLE_PERFINST
-static const CIMName PEGASUS_CLASSNAME_CIMOMSTATDATA      =
-    CIMName ("CIM_CIMOMStatisticalData");
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CIMOMSTATDATA;
 #endif
 
 #ifndef PEGASUS_DISABLE_CQL
-static const CIMName PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES   =
-    CIMName ("CIM_QueryCapabilities");
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES;
 #endif
 
 // Interop Classes Accessed through Interop Control Provider
 #if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
-static const CIMName PEGASUS_CLASSNAME_OBJECTMANAGER            = 
-    CIMName ("CIM_ObjectManager");
-static const CIMName PEGASUS_CLASSNAME_PGNAMESPACE            = 
-    CIMName ("PG_Namespace");
-static const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE = 
-    CIMName ("CIM_Namespace");
-static const CIMName PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM  = 
-    CIMName ("CIM_ObjectManagerCommunicationMechanism");
-static const CIMName PEGASUS_CLASSNAME_CIMXMLCOMMUNICATIONMECHANISM  = 
-    CIMName ("CIM_CIMXMLCommunicationMechanism");
-static const CIMName PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM  = 
-    CIMName ("PG_CIMXMLCommunicationMechanism");
-static const CIMName PEGASUS_CLASSNAME_PROTOCOLADAPTER  = 
-    CIMName ("CIM_ProtocolAdapter");
-static const CIMName PEGASUS_CLASSNAME_NAMESPACEINMANAGER  = 
-    CIMName ("CIM_NamespaceInManager");
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_OBJECTMANAGER;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_PGNAMESPACE;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CIMXMLCOMMUNICATIONMECHANISM;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_PROTOCOLADAPTER;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_NAMESPACEINMANAGER;
 
 // slp Class which operates slp provider. Started by system
 
-static const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE = 
-    CIMName ("PG_WBEMSLPTEMPLATE");
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE;
 #endif
 
 //
 // Property Names
 //
 
-static const CIMName PEGASUS_PROPERTYNAME_INDSUB_CREATOR    = 
-    CIMName ("Creator");
-static const CIMName PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS = 
-    CIMName ("AcceptLanguages"); 
-static const CIMName PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS = 
-    CIMName ("ContentLanguages");  
-static const CIMName PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT =
-    CIMName ("UserContext");
-static const CIMName PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER =
-    CIMName ("DesignatedUserContext");
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_INDSUB_CREATOR;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS; 
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS;  
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT;
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER;
 
 /**
     The name of the Destination property for CIM XML Indication Handler
     subclass
 */
-static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION = 
-    CIMName ("Destination");
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION;
 
 /**
     The name of the TargetHost property for SNMP Mapper Indication
     Handler subclass
 */
-static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST = 
-    CIMName ("TargetHost");
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST;
 
 /**
     The name of the TextFormat property for Formatted Indication
     Subscription class
 */
-    static const CIMName _PROPERTY_TEXTFORMAT = CIMName ("TextFormat");
+    PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_TEXTFORMAT;
 
 /**
     The name of the TextFormatParameters property for Formatted
     Indication Subscription class
 */
-    static const CIMName _PROPERTY_TEXTFORMATPARAMETERS =
-        CIMName ("TextFormatParameters");
+    PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_TEXTFORMATPARAMETERS;
 
 //
 // CIM Namespace Names
 //
 
-static const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP  = 
-    CIMNamespaceName ("root/PG_InterOp");
-static const CIMNamespaceName PEGASUS_NAMESPACENAME_INTERNAL = 
-    CIMNamespaceName ("root/PG_Internal");
-static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMV2    = 
-    CIMNamespaceName ("root/cimv2");
+PEGASUS_COMMON_LINKAGE extern const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP;
+PEGASUS_COMMON_LINKAGE extern const CIMNamespaceName PEGASUS_NAMESPACENAME_INTERNAL;
+PEGASUS_COMMON_LINKAGE extern const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMV2;
 
-static const CIMNamespaceName PEGASUS_NAMESPACENAME_AUTHORIZATION = 
-    PEGASUS_NAMESPACENAME_INTERNAL;
-static const CIMNamespaceName PEGASUS_NAMESPACENAME_CONFIG        = 
-    PEGASUS_NAMESPACENAME_INTERNAL;
-static const CIMNamespaceName PEGASUS_NAMESPACENAME_PROVIDERREG   = 
-    PEGASUS_NAMESPACENAME_INTEROP;
-static const CIMNamespaceName PEGASUS_NAMESPACENAME_SHUTDOWN      = 
-    PEGASUS_NAMESPACENAME_INTERNAL;
-static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          = 
-    PEGASUS_NAMESPACENAME_INTERNAL;
-static const CIMNamespaceName PEGASUS_NAMESPACENAME_CERTIFICATE   =
-    PEGASUS_NAMESPACENAME_INTERNAL;
+PEGASUS_COMMON_LINKAGE extern const CIMNamespaceName PEGASUS_NAMESPACENAME_AUTHORIZATION;
+PEGASUS_COMMON_LINKAGE extern const CIMNamespaceName PEGASUS_NAMESPACENAME_CONFIG;
+PEGASUS_COMMON_LINKAGE extern const CIMNamespaceName PEGASUS_NAMESPACENAME_PROVIDERREG;
+PEGASUS_COMMON_LINKAGE extern const CIMNamespaceName PEGASUS_NAMESPACENAME_SHUTDOWN;
+PEGASUS_COMMON_LINKAGE extern const CIMNamespaceName PEGASUS_NAMESPACENAME_USER ;
+PEGASUS_COMMON_LINKAGE extern const CIMNamespaceName PEGASUS_NAMESPACENAME_CERTIFICATE;
 
 #ifndef PEGASUS_DISABLE_PERFINST
-static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMOMSTATDATA =
-    PEGASUS_NAMESPACENAME_CIMV2;
+PEGASUS_COMMON_LINKAGE extern const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMOMSTATDATA;
 #endif
 
 #ifndef PEGASUS_DISABLE_CQL
-static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
-    PEGASUS_NAMESPACENAME_CIMV2;
+PEGASUS_COMMON_LINKAGE extern const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES;
 #endif
 
 //

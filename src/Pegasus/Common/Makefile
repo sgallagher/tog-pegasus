@@ -174,7 +174,8 @@ SOURCES2 = \
     XmlStreamer.cpp \
     XmlWriter.cpp \
     MofWriter.cpp \
-    CommonUTF.cpp
+    CommonUTF.cpp \
+    Constants.cpp
 
 SOURCES_SLP = Attribute.cpp \
     CIMServerDescription.cpp

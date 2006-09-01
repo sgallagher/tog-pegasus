@@ -45,7 +45,15 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/MessageLoader.h>
 
-#define PEG_LOGGER_TRACE(ARGS_LIST) \
+// The Logger::trace optimization introduces the PEG_LOGGER_TRACE macro which
+// propagates branch conditions wherever it is used.  The optimization is
+// disabled for C-Cover builds so the coverage of these branches is not
+// measured.
+#ifdef PEGASUS_CCOVER
+# define PEG_LOGGER_TRACE(ARGS_LIST) \
+    Logger::trace ARGS_LIST
+#else
+# define PEG_LOGGER_TRACE(ARGS_LIST) \
     do \
     { \
         if (Logger::wouldLog(Logger::TRACE)) \
@@ -54,6 +62,7 @@
         } \
     } \
     while (0)
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 

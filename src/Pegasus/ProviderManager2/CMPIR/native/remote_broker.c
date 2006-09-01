@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -712,7 +709,7 @@ __new_remote_broker ( const char * comm_layer_id,
              #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
 	        strcpy(dlName,"lib");
 	        strcat(dlName,provider_module);
-                strcat(dlName,".so");
+                strcat(dlName,".sl");
              #else
 	        strcpy(dlName,"lib");
 	        strcat(dlName,provider_module);

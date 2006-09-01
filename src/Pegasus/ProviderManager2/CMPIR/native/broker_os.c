@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +57,7 @@ static char *resolveFileName (const char *filename)
     #ifdef CMPI_PLATFORM_HPUX_PARISC_ACC
         strcpy(dlName,"lib");
         strcat(dlName,filename);
-        strcat(dlName,".so");
+        strcat(dlName,".sl");
     #else
         strcpy(dlName,"lib");
         strcat(dlName,filename);

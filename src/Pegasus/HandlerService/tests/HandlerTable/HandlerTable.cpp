@@ -86,10 +86,6 @@ int main(int argc, char** argv)
         }
         PEGASUS_TEST_ASSERT(dynamicLoadFailedCaught);
 
-        // this test currently is broken on z/OS due to a problem
-        // with the dlsym call
-        // TODO: when problem fixed, reenable the test
-#ifndef PEGASUS_OS_ZOS
         //
         //  Test getHandler - try to get a nonexistent handler
         //  handlerId specifies a valid library name but library is missing
@@ -106,7 +102,6 @@ int main(int argc, char** argv)
             dynamicLookupFailedCaught = true;                      
         }
         PEGASUS_TEST_ASSERT(dynamicLookupFailedCaught);
-#endif
     }
     catch(const Exception& e)
     {

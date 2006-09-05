@@ -82,8 +82,6 @@
 // removed as Pegasus will work with Native ASCII support on zOS
 // #define PEGASUS_HAVE_EBCDIC
 
-#define PEGASUS_STATIC_CDECL __cdecl
-
 #define PEGASUS_HAS_SIGNALS
 
 #define PEGASUS_MAXHOSTNAMELEN  256

@@ -113,7 +113,7 @@ struct ArrayRep : public ArrayRepBase
         memory for the elements is unitialized and must be initialized by
         the caller.
     */
-    static ArrayRep<T>* PEGASUS_STATIC_CDECL alloc(Uint32 size);
+    static ArrayRep<T>* alloc(Uint32 size);
 
     static void ref(const ArrayRep<T>* rep);
 
@@ -121,7 +121,7 @@ struct ArrayRep : public ArrayRepBase
 };
 
 template<class T>
-ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::alloc(Uint32 size)
+ArrayRep<T>* ArrayRep<T>::alloc(Uint32 size)
 {
     // ATTN-MEB: throw out raising to next power of two (put this
     // logic in reserveCapacity().

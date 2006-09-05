@@ -251,9 +251,4 @@ PEGASUS_NAMESPACE_END
 # define PEGASUS_MAX_PRINTABLE_CHAR 127
 #endif
 
-// used for zOS only
-#ifndef PEGASUS_STATIC_CDECL
-#define PEGASUS_STATIC_CDECL
-#endif
-
 #endif  /* Pegasus_Config_h */

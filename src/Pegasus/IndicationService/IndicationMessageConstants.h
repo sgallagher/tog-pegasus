@@ -41,6 +41,12 @@
 
 #include <Pegasus/Common/Config.h>
 
+/* Normallyit is not good practice to put static constants into headers because
+   the footprint grows with each use of the header.  In this case, there is only
+   one use of this header so it is actually a smaller footprint to use the header
+   file than define extern definitions.  If this header is EVER used in more than
+   one cpp file, it should be modified to create a .cpp file for the definitions.
+*/
 
 PEGASUS_NAMESPACE_BEGIN
 

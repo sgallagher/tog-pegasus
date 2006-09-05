@@ -30,85 +30,20 @@
 //==============================================================================
 //
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%///////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_IndicationConstants_h
-#define Pegasus_IndicationConstants_h
+#include "IndicationConstants.h"
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMName.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-/**
-    Values for the Subscription State property of the Subscription class,
-    as defined in the CIM Events MOF
- */
-enum SubscriptionState {_STATE_UNKNOWN = 0, _STATE_OTHER = 1, 
-     _STATE_ENABLED = 2, _STATE_ENABLEDDEGRADED = 3, _STATE_DISABLED = 4};
-
-/**
-    Values for the Repeat Notification Policy property of the Subscription 
-    class, as defined in the CIM Events MOF
- */
-enum RepeatNotificationPolicy {_POLICY_UNKNOWN = 0, _POLICY_OTHER = 1,
-     _POLICY_NONE = 2, _POLICY_SUPPRESS = 3, _POLICY_DELAY = 4};
-
-/**
-    Values for the On Fatal Error Policy property of the Subscription 
-    class, as defined in the CIM Events MOF
- */
-enum OnFatalErrorPolicy {_ERRORPOLICY_OTHER = 1, _ERRORPOLICY_IGNORE = 2, 
-    _ERRORPOLICY_DISABLE = 3, _ERRORPOLICY_REMOVE = 4};
-
-/**
-    Values for the Persistence Type property of the Handler class, 
-    as defined in the CIM Events MOF
- */
-enum PersistenceType {_PERSISTENCE_OTHER = 1, _PERSISTENCE_PERMANENT = 2, 
-    _PERSISTENCE_TRANSIENT = 3};
-
-/**
-    Values for the Perceived Severity property of the Alert Indication 
-    class, as defined in the CIM Events MOF
- */
-enum PerceivedSeverity {_SEVERITY_UNKNOWN = 0, _SEVERITY_OTHER = 1, 
-     _SEVERITY_INFORMATION = 2, _SEVERITY_WARNING = 3, _SEVERITY_MINOR = 4,
-     _SEVERITY_MAJOR = 5, _SEVERITY_CRITICAL = 6, _SEVERITY_FATAL = 7};
-
-/**
-    Values for the Probable Cause property of the Alert Indication 
-    class, as defined in the CIM Events MOF
-    Note: not all possible values have been included
- */
-enum ProbableCause {_CAUSE_UNKNOWN = 0, _CAUSE_OTHER = 1};
-
-/**
-    Values for the Alert Type property of the Alert Indication class, 
-    as defined in the CIM Events MOF
- */
-enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
-     _TYPE_PROCESSING = 4, _TYPE_DEVICE = 5, _TYPE_ENVIRONMENTAL = 6,
-     _TYPE_MODELCHANGE = 7, _TYPE_SECURITY = 8};
-
-/**
-    Values for the SNMPVersion property of the PG_IndicationHandlerSNMPMapper 
-    class, as defined in the PG Events MOF
- */
-enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
-     _SNMPV3_TRAP = 5, _SNMPV3_INFORM = 6};
-
-//
-//  Class names
-//
-
 /**
     The name of the CIMOM Shutdown alert indication class
  */
 //
 //  ATTN: Update once CimomShutdownAlertIndication has been defined
 //
- extern const CIMName _CLASS_CIMOM_SHUTDOWN_ALERT;
+const CIMName _CLASS_CIMOM_SHUTDOWN_ALERT =
+    CIMName ("CIM_AlertIndication");
 
 /**
     The name of the No Provider alert indication class
@@ -116,7 +51,7 @@ enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
 //
 //  ATTN: Update once NoProviderAlertIndication has been defined
 //
- extern const CIMName _CLASS_NO_PROVIDER_ALERT;
+const CIMName _CLASS_NO_PROVIDER_ALERT = CIMName ("CIM_AlertIndication");
 
 /**
     The name of the CIMOM shutdown alert indication class
@@ -124,7 +59,8 @@ enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
 //
 //  ATTN: Update once ProviderTerminatedAlertIndication has been defined
 //
- extern const CIMName _CLASS_PROVIDER_TERMINATED_ALERT;
+const CIMName _CLASS_PROVIDER_TERMINATED_ALERT =
+    CIMName ("CIM_AlertIndication");
 
 
 //
@@ -134,248 +70,266 @@ enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
 /**
     The name of the Filter reference property for indication subscription class
  */
- extern const CIMName _PROPERTY_FILTER;
+const CIMName _PROPERTY_FILTER = CIMName ("Filter");
 
 /**
     The name of the Handler reference property for indication subscription class
  */
- extern const CIMName _PROPERTY_HANDLER;
+const CIMName _PROPERTY_HANDLER = CIMName ("Handler");
 
 /**
     The name of the Subscription State property for indication subscription 
     class
  */
- extern const CIMName _PROPERTY_STATE;
+const CIMName _PROPERTY_STATE = CIMName ("SubscriptionState");
 
 /**
     The name of the Other Subscription State property for Indication 
     Subscription class
  */
- extern const CIMName _PROPERTY_OTHERSTATE;
+const CIMName _PROPERTY_OTHERSTATE = CIMName ("OtherSubscriptionState");
 
 /**
     The name of the Repeat Notification Policy property for indication
     subscription class
  */
- extern const CIMName _PROPERTY_REPEATNOTIFICATIONPOLICY;
+const CIMName _PROPERTY_REPEATNOTIFICATIONPOLICY =
+    CIMName ("RepeatNotificationPolicy");
 
 /**
     The name of the Other Repeat Notification Policy property for
     indication subscription class
  */
- extern const CIMName _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY;
+const CIMName _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY =
+    CIMName ("OtherRepeatNotificationPolicy");
 
 /**
     The name of the On Fatal Error Policy property for Indication Subscription 
     class
  */
- extern const CIMName _PROPERTY_ONFATALERRORPOLICY;
+const CIMName _PROPERTY_ONFATALERRORPOLICY = 
+    CIMName ("OnFatalErrorPolicy");
 
 /**
     The name of the Other On Fatal Error Policy property for Indication 
     Subscription class
  */
- extern const CIMName _PROPERTY_OTHERONFATALERRORPOLICY;
+const CIMName _PROPERTY_OTHERONFATALERRORPOLICY = 
+    CIMName ("OtherOnFatalErrorPolicy");
 
 /**
     The name of the Failure Trigger Time Interval property for Indication 
     Subscription class
  */
- extern const CIMName _PROPERTY_FAILURETRIGGERTIMEINTERVAL;
+const CIMName _PROPERTY_FAILURETRIGGERTIMEINTERVAL = 
+    CIMName ("FailureTriggerTimeInterval");
 
 /**
     The name of the Time Of Last State Change property for Indication 
     Subscription class
  */
- extern const CIMName _PROPERTY_LASTCHANGE;
+const CIMName _PROPERTY_LASTCHANGE = CIMName ("TimeOfLastStateChange");
 
 /**
     The name of the Subscription Start Time property for Indication 
     Subscription class
  */
- extern const CIMName _PROPERTY_STARTTIME;
+const CIMName _PROPERTY_STARTTIME = CIMName ("SubscriptionStartTime");
 
 /**
     The name of the Subscription Duration property for Indication 
     Subscription class
  */
- extern const CIMName _PROPERTY_DURATION;
+const CIMName _PROPERTY_DURATION = CIMName ("SubscriptionDuration");
 
 /**
     The name of the Subscription Time Remaining property for Indication 
     Subscription class
  */
- extern const CIMName _PROPERTY_TIMEREMAINING;
+const CIMName _PROPERTY_TIMEREMAINING = 
+    CIMName ("SubscriptionTimeRemaining");
 
 /**
     The name of the Repeat Notification Interval property for indication
     subscription class
  */
- extern const CIMName _PROPERTY_REPEATNOTIFICATIONINTERVAL;
+const CIMName _PROPERTY_REPEATNOTIFICATIONINTERVAL = 
+    CIMName ("RepeatNotificationInterval");
 
 /**
     The name of the Repeat Notification Gap property for indication
     subscription class
  */
- extern const CIMName _PROPERTY_REPEATNOTIFICATIONGAP;
+const CIMName _PROPERTY_REPEATNOTIFICATIONGAP = 
+    CIMName ("RepeatNotificationGap");
 
 /**
     The name of the Repeat Notification Count property for indication
     subscription class
  */
- extern const CIMName _PROPERTY_REPEATNOTIFICATIONCOUNT;
+const CIMName _PROPERTY_REPEATNOTIFICATIONCOUNT = 
+    CIMName ("RepeatNotificationCount");
 
 /**
     The name of the TextFormatOwningEntity property for Formatted Indication
     Subscription class
 */
- extern const CIMName _PROPERTY_TEXTFORMATOWNINGENTITY;
+const CIMName _PROPERTY_TEXTFORMATOWNINGENTITY =
+    CIMName ("TextFormatOwningEntity");
 
 /**
     The name of the TextFormatID property for Formatted Indication
     Subscription class
 */
- extern const CIMName _PROPERTY_TEXTFORMATID;
+const CIMName _PROPERTY_TEXTFORMATID = CIMName ("TextFormatID");
 
 /**
     The name of the Caption property for Managed Element class
  */
- extern const CIMName _PROPERTY_CAPTION;
+const CIMName _PROPERTY_CAPTION = CIMName ("Caption");
 
 /**
     The name of the Description property for Managed Element class
  */
- extern const CIMName _PROPERTY_DESCRIPTION;
+const CIMName _PROPERTY_DESCRIPTION = CIMName ("Description");
 
 /**
     The name of the ElementName property for Managed Element class
  */
- extern const CIMName _PROPERTY_ELEMENTNAME;
+const CIMName _PROPERTY_ELEMENTNAME = CIMName ("ElementName");
 
 /**
     The name of the Query property for indication filter class
  */
- extern const CIMName _PROPERTY_QUERY;
+const CIMName _PROPERTY_QUERY = CIMName ("Query");
 
 /**
     The name of the Query Language property for indication filter class
  */
- extern const CIMName _PROPERTY_QUERYLANGUAGE;
+const CIMName _PROPERTY_QUERYLANGUAGE = CIMName ("QueryLanguage");
 
 /**
     The name of the Source Namespace property for indication filter class
  */
- extern const CIMName _PROPERTY_SOURCENAMESPACE;
+const CIMName _PROPERTY_SOURCENAMESPACE = CIMName ("SourceNamespace");
 
 /**
     The name of the Name property for indication filter and indications handler     classes
  */
- extern const CIMName _PROPERTY_NAME;
+const CIMName _PROPERTY_NAME = CIMName ("Name");
 
 /**
     The name of the Creation Class Name property for indication filter and 
     indications handler classes
  */
- extern const CIMName _PROPERTY_CREATIONCLASSNAME;
+const CIMName _PROPERTY_CREATIONCLASSNAME = 
+    CIMName ("CreationClassName");
 
 /**
     The name of the System Name property for indication filter and indications 
     handler classes
  */
- extern const CIMName _PROPERTY_SYSTEMNAME;
+const CIMName _PROPERTY_SYSTEMNAME = CIMName ("SystemName");
 
 /**
     The name of the System Creation Class Name property for indication filter 
     and indications handler classes
  */
- extern const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME;
+const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME = 
+    CIMName ("SystemCreationClassName");
 
 /**
     The name of the Persistence Type property for Indication Handler class
  */
- extern const CIMName _PROPERTY_PERSISTENCETYPE;
+const CIMName _PROPERTY_PERSISTENCETYPE = CIMName ("PersistenceType");
 
 /**
     The name of the Other Persistence Type property for Indication Handler 
     class
  */
- extern const CIMName _PROPERTY_OTHERPERSISTENCETYPE;
+const CIMName _PROPERTY_OTHERPERSISTENCETYPE = 
+    CIMName ("OtherPersistenceType");
 
 /**
     The name of the Owner property for Indication Handler class
  */
- extern const CIMName _PROPERTY_OWNER;
+const CIMName _PROPERTY_OWNER = CIMName ("Owner");
 
 /**
     The name of the TargetHostFormat property for SNMP Mapper Indication 
     Handler subclass
  */
- extern const CIMName _PROPERTY_TARGETHOSTFORMAT;
+const CIMName _PROPERTY_TARGETHOSTFORMAT = CIMName ("TargetHostFormat");
 
 /**
     The name of the OtherTargetHostFormat property for SNMP Mapper Indication 
     Handler subclass
  */
- extern const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT;
+const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT =
+    CIMName ("OtherTargetHostFormat");
 
 /**
     The name of the SNMP Version property for SNMP Mapper Indication Handler 
     subclass
  */
- extern const CIMName _PROPERTY_SNMPVERSION;
+const CIMName _PROPERTY_SNMPVERSION = CIMName ("SNMPVersion");
 
 /**
     The name of the Port Number property for SNMP Mapper Indication Handler 
     subclass
  */
- extern const CIMName _PROPERTY_PORTNUMBER;
+const CIMName _PROPERTY_PORTNUMBER = CIMName ("PortNumber");
 
 /**
     The name of the SNMP Security Name property for SNMP Mapper Indication 
     Handler subclass
  */
- extern const CIMName _PROPERTY_SNMPSECURITYNAME;
+const CIMName _PROPERTY_SNMPSECURITYNAME = CIMName ("SNMPSecurityName");
 
 /**
     The name of the SNMP Engine ID property for SNMP Mapper Indication Handler 
     subclass
  */
- extern const CIMName _PROPERTY_SNMPENGINEID;
+const CIMName _PROPERTY_SNMPENGINEID = CIMName ("SNMPEngineID");
 
 /**
     The name of the MailTo property for Email Handler subclass
 */
- extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO;
+const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO = 
+    CIMName ("MailTo");
 
 /**
     The name of the MailSubject property for Email Handler subclass
 */
- extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT;
+const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT = 
+    CIMName ("MailSubject");
 
 /**
     The name of the MailCc  property for Email Handler subclass
  */
- extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC;
+const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC = 
+    CIMName ("MailCc");
 
 /**
     The name of the Alert Type property for Alert Indication class
  */
- extern const CIMName _PROPERTY_ALERTTYPE;
+const CIMName _PROPERTY_ALERTTYPE = CIMName ("AlertType");
 
 /**
     The name of the Other Alert Type property for Alert Indication class
  */
- extern const CIMName _PROPERTY_OTHERALERTTYPE;
+const CIMName _PROPERTY_OTHERALERTTYPE = CIMName ("OtherAlertType");
 
 /**
     The name of the Perceived Severity property for Alert Indication class
  */
- extern const CIMName _PROPERTY_PERCEIVEDSEVERITY;
+const CIMName _PROPERTY_PERCEIVEDSEVERITY = 
+    CIMName ("PerceivedSeverity");
 
 /**
     The name of the Probable Cause property for Alert Indication class
  */
- extern const CIMName _PROPERTY_PROBABLECAUSE;
+const CIMName _PROPERTY_PROBABLECAUSE = CIMName ("ProbableCause");
 
 //
 //  Qualifier names
@@ -384,7 +338,7 @@ enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
 /**
     The name of the Indication qualifier for classes
  */
- extern const CIMName _QUALIFIER_INDICATION;
+const CIMName _QUALIFIER_INDICATION = CIMName ("INDICATION");
 
 
 //
@@ -394,13 +348,11 @@ enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
 /**
     The WHERE keyword in WQL
  */
- extern const char   _QUERY_WHERE [];
+const char   _QUERY_WHERE []         = "WHERE";
 
 /**
     A zero value CIMDateTime interval
  */
- extern const char _ZERO_INTERVAL_STRING [];
+const char _ZERO_INTERVAL_STRING [] = "00000000000000.000000:000";
 
 PEGASUS_NAMESPACE_END
-
-#endif  /* Pegasus_IndicationConstants_h */

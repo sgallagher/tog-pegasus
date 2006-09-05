@@ -55,7 +55,8 @@ SOURCES = \
     IndicationOperationAggregate.cpp \
     SubscriptionRepository.cpp \
     SubscriptionTable.cpp \
-    IndicationService.cpp
+    IndicationService.cpp \
+    IndicationConstants.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

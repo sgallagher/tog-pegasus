@@ -80,126 +80,112 @@ DefaultProviderManager::~DefaultProviderManager()
     PEG_METHOD_EXIT();
 }
 
-Message* DefaultProviderManager::processMessage(Message* request)
+Message* DefaultProviderManager::processMessage(Message* message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "DefaultProviderManager::processMessage()");
 
-    Message* response = 0;
+    CIMRequestMessage* request = dynamic_cast<CIMRequestMessage*>(message);
+    PEGASUS_ASSERT(request != 0);
 
-    // pass the request message to a handler method based on message type
-    switch(request->getType())
+    CIMResponseMessage* response = 0;
+
+    try
     {
-    case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-    case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-    case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-    case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-    case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-    case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-    case CIM_REFERENCES_REQUEST_MESSAGE:
-    case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+        // pass the request message to a handler method based on message type
+        switch(request->getType())
         {
-            CIMRequestMessage* cimRequest =
-                dynamic_cast<CIMRequestMessage*>(request);
-
+        case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+        case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+        case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+        case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+        case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+        case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+        case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+        case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+        case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+        case CIM_REFERENCES_REQUEST_MESSAGE:
+        case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+        case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+        case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+        case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+        case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
+        case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
+        case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
+        case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+        {
             // resolve provider name
             ProviderName name = _resolveProviderName(
-                cimRequest->operationContext.get(ProviderIdContainer::NAME));
+                request->operationContext.get(ProviderIdContainer::NAME));
 
             // get cached or load new provider module
             ProviderOperationCounter poc(
                 _getProvider(name.getPhysicalName(), name.getLogicalName()));
 
-            response = poc.GetProvider().processMessage(cimRequest);
+            response = poc.GetProvider().processMessage(request);
             break;
         }
 
-    case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-        response = _handleDisableModuleRequest(request);
-        break;
+        case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
+            response = _handleDisableModuleRequest(request);
+            break;
 
-    case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-        response = _handleEnableModuleRequest(request);
-        break;
+        case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
+            response = _handleEnableModuleRequest(request);
+            break;
 
-    case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-        response = _handleStopAllProvidersRequest(request);
-        break;
+        case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
+            // tell the provider manager to shutdown all the providers
+            _shutdownAllProviders();
+            response = request->buildResponse();
+            break;
 
-    case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
-        response = _handleInitializeProviderRequest(request);
-        break;
+        case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
+            response = _handleSubscriptionInitCompleteRequest(request);
+            break;
 
-    case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
-        response = _handleSubscriptionInitCompleteRequest(request);
-        break;
+// Note: The PG_Provider AutoStart property is not yet supported
+#if 0
+        case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
+        {
+            // resolve provider name
+            ProviderName name = _resolveProviderName(
+                request->operationContext.get(ProviderIdContainer::NAME));
 
-    default:
-        PEGASUS_ASSERT(0);
-        break;
-    }
+            // get cached or load new provider module
+            ProviderOperationCounter poc(
+                _getProvider(name.getPhysicalName(), name.getLogicalName()));
 
-    PEG_METHOD_EXIT();
+            break;
+        }
+#endif
 
-    return response;
-}
-
-Message* DefaultProviderManager::_handleInitializeProviderRequest(
-    Message* message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
-	"DefaultProviderManager::_handleInitializeProviderRequest");
-
-    CIMInitializeProviderRequestMessage* request =
-        dynamic_cast<CIMInitializeProviderRequestMessage*>(message);
-    PEGASUS_ASSERT(request != 0);
-
-    CIMInitializeProviderResponseMessage* response =
-        dynamic_cast<CIMInitializeProviderResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    try
-    {
-        // resolve provider name
-	ProviderName name = _resolveProviderName(
-	    request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        ProviderOperationCounter poc(
-            _getProvider(name.getPhysicalName(), name.getLogicalName()));
+        default:
+            PEGASUS_ASSERT(0);
+            break;
+        }
     }
     catch (CIMException& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "CIMException: " + e.getMessage());
-
+        response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
             e.getContentLanguages(), e.getCode(), e.getMessage());
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Exception: " + e.getMessage());
-
+        response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
             e.getContentLanguages(), CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Exception: Unknown");
-
+        response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_FAILED, "Unknown error.");
     }
@@ -208,7 +194,8 @@ Message* DefaultProviderManager::_handleInitializeProviderRequest(
     return response;
 }
 
-Message* DefaultProviderManager::_handleDisableModuleRequest(Message* message)
+CIMResponseMessage* DefaultProviderManager::_handleDisableModuleRequest(
+    CIMRequestMessage* message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "DefaultProviderManager::_handleDisableModuleRequest");
@@ -315,7 +302,8 @@ Message* DefaultProviderManager::_handleDisableModuleRequest(Message* message)
     return response;
 }
 
-Message* DefaultProviderManager::_handleEnableModuleRequest(Message* message)
+CIMResponseMessage* DefaultProviderManager::_handleEnableModuleRequest(
+    CIMRequestMessage* message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "DefaultProviderManager::_handleEnableModuleRequest");
@@ -338,32 +326,11 @@ Message* DefaultProviderManager::_handleEnableModuleRequest(Message* message)
     return response;
 }
 
-Message* DefaultProviderManager::_handleStopAllProvidersRequest(
-    Message* message)
+CIMResponseMessage*
+DefaultProviderManager::_handleSubscriptionInitCompleteRequest(
+    CIMRequestMessage* message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "DefaultProviderManager::_handleStopAllProvidersRequest");
-
-    CIMStopAllProvidersRequestMessage* request =
-        dynamic_cast<CIMStopAllProvidersRequestMessage*>(message);
-    PEGASUS_ASSERT(request != 0);
-
-    CIMStopAllProvidersResponseMessage* response =
-        dynamic_cast<CIMStopAllProvidersResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    // tell the provider manager to shutdown all the providers
-    _shutdownAllProviders();
-
-    PEG_METHOD_EXIT();
-    return response;
-}
-
-Message* DefaultProviderManager::_handleSubscriptionInitCompleteRequest(
-    Message* message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
         "DefaultProviderManager::_handleSubscriptionInitCompleteRequest");
 
     CIMSubscriptionInitCompleteRequestMessage* request =

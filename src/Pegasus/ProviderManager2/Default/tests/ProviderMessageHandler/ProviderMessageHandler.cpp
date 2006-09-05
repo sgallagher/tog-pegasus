@@ -51,6 +51,74 @@ public:
     void terminate() { }
 };
 
+class GetPropertyErrorProvider : public CIMInstanceProvider
+{
+public:
+    void initialize(CIMOMHandle& cimom) { }
+    void terminate() { }
+
+    void getInstance(
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler)
+    {
+        handler.processing();
+
+        if (instanceReference.getClassName() == "No_Properties")
+        {
+            CIMInstance instance(instanceReference.getClassName());
+            handler.deliver(instance);
+        }
+
+        handler.complete();
+    }
+
+    void enumerateInstances(
+        const OperationContext& context,
+        const CIMObjectPath& classReference,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler)
+    {
+    }
+
+    void enumerateInstanceNames(
+        const OperationContext& context,
+        const CIMObjectPath& classReference,
+        ObjectPathResponseHandler& handler)
+    {
+    }
+
+    void modifyInstance(
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
+        const CIMInstance& instanceObject,
+        const Boolean includeQualifiers,
+        const CIMPropertyList& propertyList,
+        ResponseHandler& handler)
+    {
+    }
+
+    void createInstance(
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
+        const CIMInstance& instanceObject,
+        ObjectPathResponseHandler& handler)
+    {
+    }
+
+    void deleteInstance(
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
+        ResponseHandler& handler)
+    {
+    }
+};
+
 void testExceptionResponse(
     ProviderMessageHandler* pmh,
     CIMRequestMessage* request,
@@ -249,6 +317,43 @@ void testExceptions(
     }
 }
 
+void testGetPropertyError()
+{
+    QueueIdStack qids;
+    qids.push(10);
+    qids.push(5);
+
+    CIMNamespaceName ns("test/sample");
+
+    OperationContext oc;
+    oc.insert(IdentityContainer("test user"));
+    oc.insert(AcceptLanguageListContainer(AcceptLanguageList()));
+    oc.insert(ContentLanguageListContainer(ContentLanguageList()));
+
+    GetPropertyErrorProvider np;
+    ProviderMessageHandler pmh("GetPropertyErrorProvider", &np, 0, 0, false);
+
+    // Test GetProperty where the requested property is not contained in the
+    // instance delivered.
+    {
+        CIMName className("No_Properties");
+
+        Array<CIMKeyBinding> kbs;
+        kbs.append(CIMKeyBinding("Index", 1));
+        CIMObjectPath objectPath(String::EMPTY, ns, className, kbs);
+
+        CIMGetPropertyRequestMessage request(
+            "mid1", ns, objectPath, "theProperty", qids);
+        request.operationContext = oc;
+
+        CIMResponseMessage* response = pmh.processMessage(&request);
+        CIMException e = response->cimException;
+
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NO_SUCH_PROPERTY);
+        PEGASUS_TEST_ASSERT(e.getMessage() == "theProperty");
+    }
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv ("PEGASUS_TEST_VERBOSE");
@@ -264,6 +369,8 @@ int main(int argc, char** argv)
         NotARealProvider np;
         ProviderMessageHandler pmh2("BadProvider", &np, 0, 0, false);
         testExceptions(&pmh2, "Not_Provider");
+
+        testGetPropertyError();
     }
     catch (Exception& e)
     {

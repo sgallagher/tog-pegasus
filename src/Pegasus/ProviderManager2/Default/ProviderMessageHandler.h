@@ -64,6 +64,9 @@ public:
     CIMResponseMessage* processMessage(CIMRequestMessage* request);
 
 private:
+    OperationContext _createProviderOperationContext(
+        const OperationContext& context);
+
     CIMResponseMessage* _handleGetInstanceRequest(
         CIMRequestMessage* message);
     CIMResponseMessage* _handleEnumerateInstancesRequest(

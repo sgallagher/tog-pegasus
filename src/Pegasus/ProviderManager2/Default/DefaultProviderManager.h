@@ -56,7 +56,7 @@ public:
     DefaultProviderManager();
     virtual ~DefaultProviderManager();
 
-    virtual Message* processMessage(Message* request);
+    virtual Message* processMessage(Message* message);
 
     virtual Boolean hasActiveProviders();
     virtual void unloadIdleProviders();
@@ -69,11 +69,12 @@ public:
     static ProviderManager* createDefaultProviderManagerCallback();
 
 private:
-    Message* _handleDisableModuleRequest(Message* message);
-    Message* _handleEnableModuleRequest(Message* message);
-    Message* _handleStopAllProvidersRequest(Message* message);
-    Message* _handleInitializeProviderRequest(Message* message);
-    Message* _handleSubscriptionInitCompleteRequest(Message* message);
+    CIMResponseMessage* _handleDisableModuleRequest(
+        CIMRequestMessage* message);
+    CIMResponseMessage* _handleEnableModuleRequest(
+        CIMRequestMessage* message);
+    CIMResponseMessage* _handleSubscriptionInitCompleteRequest(
+        CIMRequestMessage* message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 

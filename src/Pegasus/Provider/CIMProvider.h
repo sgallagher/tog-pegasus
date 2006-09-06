@@ -194,6 +194,9 @@ public:
     This function must complete before the CIM server invokes any other function of
     the provider, other than terminate.</p>
 
+    An exception thrown from this method indicates a provider initialization
+    failure which prevents it from processing operation requests.
+
     @param cimom Reserved for future use.
     */
     virtual void initialize(CIMOMHandle & cimom) = 0;
@@ -226,24 +229,11 @@ public:
     ...
     return;
     }</pre>
+
+    An exception thrown from this method is considered to be a provider error
+    and is ignored.
     */
     virtual void terminate(void) = 0;
-
-#ifdef PEGASUS_PRESERVE_TRYTERMINATE
-    /** 
-    Allows a provider to decline a terminate call. If the provider
-    is unable to terminate, it should return false. Otherwise, 
-    it calls its terminate() function and then
-    returns true, as in the default implementation.
-    @return	False If the provider is unable to terminate; Otherwise, return true.
-    */
-    virtual Boolean tryTerminate(void) 
-      {
-	terminate();
-	return true;
-      }
-#endif
-
 };
 
 PEGASUS_NAMESPACE_END

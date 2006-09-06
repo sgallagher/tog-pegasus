@@ -126,19 +126,9 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
     endif
 endif
 
-ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
-    ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
-        DIRS += \
-            ProviderManager2/JMPI
-    endif
-    ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-        DIRS += \
-            ProviderManager2/JMPI
-    endif
-    ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-        DIRS += \
-            ProviderManager2/JMPI
-    endif
+ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
+    DIRS += \
+        ProviderManager2/JMPI
 endif
 
 DIRS += \

@@ -34,12 +34,23 @@
 #ifndef _Provider_JMPIImpl_h
 #define _Provider_JMPIImpl_h
 
+#include <Pegasus/Common/Config.h>
+
 #include <jni.h>
+
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+#if defined (__GNUC__) && GCC_VERSION >= 40000
+// If gcc is compiled with -fvisibility=hidden then JMPI is broken.  This is because
+// the JNI h file defines JNIEXPORT as empty since the default is visible.
+#undef  JNIEXPORT
+#define JNIEXPORT __attribute__ ((visibility("default")))
+#endif
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/HashTable.h>

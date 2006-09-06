@@ -30,10 +30,36 @@
 #//==============================================================================
 include $(PEGASUS_ROOT)/mak/config.mak
 
-DIRS = \
-    ProviderModule \
-    ProviderMessageHandler \
-    ProviderStatus \
-    ResponseHandler
+DIR = Pegasus/ProviderManager2/Default/tests/ProviderStatus
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+LIBRARIES = \
+    DefaultProviderManager \
+    pegprovidermanager \
+    pegprovider \
+    pegqueryexpression
+
+ifndef PEGASUS_DISABLE_CQL
+    LIBRARIES += \
+       pegcql
+endif
+
+LIBRARIES += \
+    pegwql \
+    pegquerycommon \
+    pegclient \
+    pegconfig \
+    pegcommon
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
+PROGRAM = TestProviderStatus
+
+SOURCES = \
+    ProviderStatus.cpp
+
+include $(PEGASUS_ROOT)/mak/program.mak
+
+tests:
+	$(PROGRAM)
+
+poststarttests:

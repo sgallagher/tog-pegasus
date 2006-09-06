@@ -420,7 +420,6 @@ void ShutdownService::_shutdownProviders()
 	//    "ShutdownService::_shutdownProviders - CIM provider shutdown exception has occurred.");
 
         CIMException e = response->cimException;
-        delete stopRequest;
         delete asyncRequest;
         delete asyncReply;
         delete response;
@@ -428,7 +427,6 @@ void ShutdownService::_shutdownProviders()
         throw (e);
     }
 
-    //delete stopRequest;
     delete asyncRequest;
     delete asyncReply;
     delete response;

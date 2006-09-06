@@ -29,122 +29,157 @@
 //
 //==============================================================================
 
-Java Manageability Programming Interface - JMPI
+Java Manageability Programming Interface (JMPI)
+-----------------------------------------------
 
-Author: Adrian Schuur, schuur@de.ibm.com  - 30 Apr 2004 -
+JMPI is a bridge between clients and providers written in Java and the Open
+Pegasus project.
 
-First installment
-
-   This installment of JMPI has been committed to the 2.4 branch.
-   This installment has been build and tested on Suse 9.0 with Sun's j2sdk 1.4.2_04.
+More information on JMPI's status can be found at 
+   http://www.openpegasus.org/page.tpl?ggid=799
 
 
 Environment settings
+--------------------
 
-   In order to build this support a few environment variables have to used.
-   The following script has been proven useful for setting up the build and execution environment.
-   You might need to adjust this to your system layout.
+In order to build this support a few environment variables have to used.
+The following script has been proven useful for setting up the build and execution environment.
+You might need to adjust this to your system layout.
 
+   an example setJPeg script file:
    export PEGASUS_HOME=`pwd`
+   export PEGASUS_ROOT=${PEGASUS_HOME}
    export PEGASUS_PLATFORM=LINUX_IX86_GNU
-   export PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER=1
-   export PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=1
+   export PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER=true
+   export PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=true
    export PEGASUS_DEBUG=1
-   export JAVA_SDK=/usr/java/j2sdk1.4.2_04
-   export JAVA_SDKINC=$JAVA_SDK/include
-   export LD_LIBRARY_PATH=$PEGASUS_HOME/lib:$JAVA_SDK/jre/lib/i386/server:$JAVA_SDK/jre/lib/i386/native_threads:$JAVA_SDK/jre/lib/i386
-   export PATH=$JAVA_SDK/bin:$PATH
-   export CLASSPATH=$PEGASUS_ROOT/src/Pegasus/ProviderManager2/JMPI
-   export PATH=$PEGASUS_HOME/bin:$PATH
-   export PEGASUS_ROOT=$PEGASUS_HOME
-   export LD_ASSUME_KERNEL=2.2.5
-   cd $PEGASUS_HOME
+   export JAVA_SDK=/usr/java/j2sdk1.4.2_08
+   export JAVA_SDKINC=${JAVA_SDK}/include
+   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JAVA_SDK}/jre/lib/i386/server:${JAVA_SDK}/jre/lib/i386/native_threads:${JAVA_SDK}/jre/lib/i386
+   export PATH=${JAVA_SDK}/bin/:${PEGASUS_HOME}/bin:${PATH}
+   export CLASSPATH=${CLASSPATH}:${PEGASUS_HOME}/lib/JMPIImpl.jar
 
-   There is now a new variable to determine which JVM to link with.  The choices are as follows:
-	PEGASUS_JVM	sun	Sun's jvm (ex: j2sdk1.4.2_07)
-	PEGASUS_JVM	ibm	IBM's jvm (ex: IBMJava2-142)
-	PEGASUS_JVM	bea	Suse's IBM jvm (ex: BEAJava2-1.4.2)
-   So, pick one and export that variable to the environment.  For example,
-	export PEGASUS_JVM=sun
-   NOTE: This is currently listened to for Linux builds.
+There is now a new variable to determine which JVM to link with.  The choices are as follows:
+     PEGASUS_JVM	sun	Sun's jvm (ex: j2sdk1.4.2_07)
+     PEGASUS_JVM	ibm	IBM's jvm (ex: IBMJava2-142)
+     PEGASUS_JVM	bea	Suse's IBM jvm (ex: BEAJava2-1.4.2)
+So, pick one and export that variable to the environment.  For example,
+     export PEGASUS_JVM=sun
+NOTE: This is currently listened to for Linux builds.  And the sun option was the only
+      tested version.
 
-   There are a couple of optional environment variables to determine how the JRE is initialized.  These are
-   as follows (the variable name and what JRE option that it corresponds to):
+There are a couple of optional environment variables to determine how the JRE is initialized.  These are
+as follows (the variable name and what JRE option that it corresponds to):
 
-   PEGASUS_JMPI_MAX_HEAP               -Xmx
-   PEGASUS_JMPI_INITIAL_HEAP           -Xms
-   PEGASUS_JMPI_JAVA_THREAD_STACK_SIZE -Xss
+PEGASUS_JMPI_MAX_HEAP               -Xmx
+PEGASUS_JMPI_INITIAL_HEAP           -Xms
+PEGASUS_JMPI_JAVA_THREAD_STACK_SIZE -Xss
 
-   So, for example, you would perform the following if you want to change the maximum heap size to 128 megabytes.
+So, for example, you would perform the following if you want to change the maximum heap size to 128 megabytes.
 
-   export PEGASUS_JMPI_MAX_HEAP=128m
+export PEGASUS_JMPI_MAX_HEAP=128m
 
-   There is a new environment variable that tells the JVM to output more debugging information.  The variable name
-   is called PEGASUS_JMPI_VERBOSE.  An example usage is as follows:
+There is a new optional environment variable that tells the JVM to output more debugging information.  The variable name
+is called PEGASUS_JMPI_VERBOSE.  An example usage is as follows:
 
-   export PEGASUS_JMPI_VERBOSE="jni,class"
+export PEGASUS_JMPI_VERBOSE="jni,class"
 
-   This will tell the JVM to output debug information on the JNI layer and class loading.
+This will tell the JVM to output debug information on the JNI layer and class loading.
 
-   When using this script, place a copy of this script above your PEGASUS_HOME directory.
-   "cd" to PEGASUS_HOME, and issue ". ../setJPeg". Then do a normal make.
+When using this script, place a copy of this script above your PEGASUS_HOME directory.
+"cd" to PEGASUS_HOME, and issue ". ./setJPeg". Then do a normal make.
 
 
-This installment has a number of restrictios:
+Known restrictions
+------------------
 
-   The provider interfaces follow the SNIA OpenWBEM APIs
-   Only Instance and Association providers are supported at the moment.
+This installment has the following restrictios:
+
    Unloading of idle providers is not supported and Java will increase the memory footprint.
+   Java 1.5 is not currently supported.
 
 
-poststarttests
+Level of coverage
+-----------------
 
-   This installment has a set of tests modelled after wetest/static.
-   For the tests, I had to modify "diff" to "diff -w", why that is needed I do not understand.
+All interfaces to a provider have a sample provider written for them and are part of the
+testcases.  All main CIM java classes have testcases written for them as well.
 
 
-Building poststarttests:
+Outstanding issues
+------------------
 
-   cd to .../src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/Load
-   Issue "make"
+Java documentation needs to be written for the classes and methods within JMPI.
+
+
+Testing
+-------
+
+This installment has a set of tests located under src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/
+
+   Static/
+
+      These tests have been modelled after wetest/static.
+      For the tests, I had to modify "diff" to "diff -w", why that is needed I do not understand.
+
+   Providers/
+
+      These tests implement the many variants of provider interfaces.
+
+   Client/
+
+      These tests test out the client code and various Java classes.
+
+
+Running the tests
+-----------------
+
+Tests are run with the following process.
+If the repository has not been built before then issue the following:
+
+   cd to ${PEGASUS_HOME}/src/Pegasus/ProviderManager2/JMPI/
+   Issue "make repository"
 
    This will load a schema to the repository and register the provider.
 
+Next, run the tests.
 
-Running poststarttests:
-
-   cd to .../src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests
-   Issue "find -name "*.rsp" -exec rm {} \;" to clean up *.rsp files
+   cd to ${PEGASUS_HOME}/src/Pegasus/ProviderManager2/JMPI/
+   Issue "find -name \*.rsp -exec rm {} \;" to clean up *.rsp files from failed tests.
    Issue "make poststarttests"
 
 
 Samples
+-------
 
-   The provider used for posstarttest,
-	.../JMPI/org/pegasus/jmpi/test/JMPI_TestPropertyTypes/JMPI_TestPropertyTest.java is a working
-	example of how to code an JMPI tyle instance provider.
-	This directors also constains the required Makefile.
+ There are four sample providers located in
+   ${PEGASUS_HOME}/src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/Providers/
 
-	.../JMPI/org/pegasus/jmpi/sample contains more samples, one of which is an incomplete CIMClient
-	sample.
+   Associations/
 
-	Notice that all provider classes must be accessibe via the CASSPATH environment setting.
+      This provider implements an association provider.
+
+   Instances/
+
+      This provider implements an instance provider.
+
+   Indications/
+
+      This provider implements an indication provider.
+
+   Properties/
+
+      This provider implements a property provider.
+
+   There is also sample Java code that deals with CIM classes that is located in
+   ${PEGASUS_HOME}/src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/Client/
 
 
 Provider Registration
+---------------------
 
-   JMPI providers are registered as usual. The Location property in P_ProviderModule has a special format.
+   JMPI providers are registered as usual. The Location property in PG_ProviderModule has a special format.
 	The format is: <jar-file-name>:<provider-class-name>
-
-   instance of PG_ProviderModule
-   {
-      Name = "JMPI_TestPropertyTypesModule";
-      Location = "JMPI_TestPropertyTypes.jar:org/pegasus/jmpi/tests/JMPI_TestPropertyTypes/JMPI_TestPropertyTypes";
-      Vendor = "Pegasus Community";
-      Version = "2.0.0";
-      InterfaceType = "JMPI";
-      InterfaceVersion = "1.0.0";
-   };
 
    JMPI providers now fall into two groups.
    1) Legacy providers use:
@@ -154,17 +189,34 @@ Provider Registration
       InterfaceVersion = "2.0.0";
       InterfaceVersion = "2.2.0";
    Note that there is no difference in behavior in the three versions.
+
+   instance of PG_ProviderModule
+   {
+      Name             = "JMPIInstanceProviderModule";
+      Location         = "JMPIInstanceProvider.jar:Instances/JMPIInstanceProvider";
+      Vendor           = "OpenPegasus";
+      Version          = "2.0.0";
+      InterfaceType    = "JMPI";
+      InterfaceVersion = "1.0.0";
+   };
+
    2) New style providers use:
       InterfaceType = "JMPIExperimental"
    and:
       InterfaceVersion = "0.0.1";
 
+   instance of PG_ProviderModule
+   {
+      Name             = "JMPIExpInstanceProviderModule";
+      Location         = "JMPIExpInstanceProvider.jar:Instances/JMPIExpInstanceProvider";
+      Vendor           = "OpenPegasus";
+      Version          = "2.0.0";
+      InterfaceType    = "JMPIExperimental";
+      InterfaceVersion = "0.0.1";
+   };
+
 
 Bug reports
+-----------
 
    Use normal Pegasus bugzilla procedures to report malfunctions.
-
-
-Regards, Adrian Schuur.
-
-

@@ -677,6 +677,7 @@ extern "C" {
       CMPIProviderManager::indProvRecord *prec;
       OperationContext* context=CM_Context(ctx);
 
+      ReadLock readLock(CMPIProviderManager::rwSemProvTab);
       if (CMPIProviderManager::provTab.lookup(mb->name,prec)) {
          if (prec->enabled) {
             try {

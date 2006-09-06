@@ -70,9 +70,12 @@ int _cmpi_trace=0;
 
 #define DDD(x) if (_cmpi_trace) x;
 
+ReadWriteSem    CMPIProviderManager::rwSemProvTab;
+ReadWriteSem    CMPIProviderManager::rwSemSelxTab;
 CMPIProviderManager::IndProvTab    CMPIProviderManager::provTab;
 CMPIProviderManager::IndSelectTab  CMPIProviderManager::selxTab;
 CMPIProviderManager::ProvRegistrar CMPIProviderManager::provReg;
+
 class CMPIPropertyList {
    char **props;
    int pCount;
@@ -116,6 +119,8 @@ CMPIProviderManager::~CMPIProviderManager(void)
 {
 	/* Clean up the hash-tables */
     indProvRecord *prec=NULL;
+    {
+        WriteLock writeLock(rwSemProvTab);
 	for (IndProvTab::Iterator i = provTab.start(); i; i++)
 	{
         provTab.lookup(i.key(),prec);
@@ -128,7 +133,11 @@ CMPIProviderManager::~CMPIProviderManager(void)
         //provTab.remove(i.key());
         prec=NULL;
 	}
+    }
+
 	indSelectRecord *selx=NULL;
+    {
+        WriteLock writeLock(rwSemSelxTab);
 	for (IndSelectTab::Iterator i = selxTab.start(); i; i++)
 	{
 		selxTab.lookup(i.key(), selx);
@@ -141,6 +150,7 @@ CMPIProviderManager::~CMPIProviderManager(void)
         //selxTab.remove(i.key());
 		selx=NULL;
 	}
+    }
 }
 
 Boolean CMPIProviderManager::insertProvider(const ProviderName & name,
@@ -1890,11 +1900,14 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         }
 
         indProvRecord *prec=NULL;
+        {
+            WriteLock writeLock(rwSemProvTab);
         provTab.lookup(ph.GetProvider().getName(),prec);
         if (prec) prec->count++;
         else {
            prec=new indProvRecord();
            provTab.insert(ph.GetProvider().getName(),prec);
+        }
         }
 
         //
@@ -1902,10 +1915,19 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         //
         ph.GetProvider ().setProviderInstance (req_provider);
 
-        indSelectRecord *srec=new indSelectRecord();
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
 
+        indSelectRecord *srec=NULL;
+
+        {
+            WriteLock writeLock(rwSemSelxTab);
+            selxTab.lookup(sPath,srec);
+            if (srec) srec->count++;
+            else {
+               srec=new indSelectRecord();
         selxTab.insert(sPath,srec);
+            }
+        }
 
         // convert arguments
         OperationContext context;
@@ -2024,6 +2046,15 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         if (rc.rc!=CMPI_RC_OK)
         {
+            //  Removed the select expression from the cache
+            WriteLock lock(rwSemSelxTab);
+            if (--srec->count<=0)
+            {
+                selxTab.remove(sPath);
+                delete _context;
+                delete eSelx;
+                delete srec;
+            }
            throw CIMException((CIMStatusCode)rc.rc,
                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
         }
@@ -2090,6 +2121,8 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
 
         indProvRecord *prec=NULL;
+        {
+            WriteLock writeLock(rwSemProvTab);
         provTab.lookup(ph.GetProvider().getName(),prec);
         if (--prec->count<=0) {
 		   if (prec->handler)
@@ -2098,20 +2131,26 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
            provTab.remove(ph.GetProvider().getName());
            prec=NULL;
         }
+        }
 
         indSelectRecord *srec=NULL;
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
 
+        WriteLock writeLock(rwSemSelxTab);
         if (!selxTab.lookup(sPath,srec)) {
 	  // failed to get select expression from hash table
-	  throw CIMException(CIM_ERR_FAILED,"CMPI Provider Manager Failed to locate subscription filter.");
+	  throw CIMException(CIM_ERR_FAILED,
+                         "CMPI Provider Manager Failed to locate subscription filter.");
 	};
 
         CMPI_SelectExp *eSelx=srec->eSelx;
 	CIMOMHandleQueryContext *qContext=srec->qContext;
 
         CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
+        if (--srec->count<=0)
+        {
         selxTab.remove(sPath);
+        }
 
         // convert arguments
         OperationContext context;
@@ -2190,9 +2229,12 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             }
         }
 
+        if (srec->count<=0)
+        {
         delete qContext;
         delete eSelx;
         delete srec;
+        }
 
         if (rc.rc!=CMPI_RC_OK)
         {
@@ -2513,6 +2555,9 @@ void CMPIProviderManager::_callEnableIndications
     try
     {
         indProvRecord *provRec =0;
+        {
+            WriteLock lock(rwSemProvTab);
+
         if (provTab.lookup (ph.GetProvider ().getName (), provRec))
         {
             provRec->enabled = true;
@@ -2524,6 +2569,7 @@ void CMPIProviderManager::_callEnableIndications
                 req_provider,
                 _indicationCallback,
                 _responseChunkCallback);
+        }
         }
 
         CMPIProvider & pr=ph.GetProvider();
@@ -2611,11 +2657,14 @@ void CMPIProviderManager::_callDisableIndications
         "CMPIProviderManager::_callDisableIndications");
 
     indProvRecord * provRec = 0;
+    {
+        WriteLock writeLock(rwSemProvTab);
     if (provTab.lookup (ph.GetProvider ().getName (), provRec))
     {
         provRec->enabled = false;
         if (provRec->handler) delete provRec->handler;
         provRec->handler = NULL;
+    }
     }
 
     CMPIProvider & pr=ph.GetProvider();

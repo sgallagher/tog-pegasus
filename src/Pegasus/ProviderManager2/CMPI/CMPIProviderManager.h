@@ -86,9 +86,10 @@ public:
    };
 
    struct indSelectRecord {
-      indSelectRecord() : eSelx(NULL) {}
+      indSelectRecord() : eSelx(NULL), count(1) {}
       CMPI_SelectExp *eSelx;
 	  CIMOMHandleQueryContext *qContext;
+      int count;
    };
 
    typedef HashTable<String,indProvRecord*,  EqualFunc<String>,HashFunc<String> > IndProvTab;
@@ -96,7 +97,9 @@ public:
    typedef HashTable<String,ProviderName,EqualFunc<String>,HashFunc<String> > ProvRegistrar;
 
    static IndProvTab provTab;
+   static ReadWriteSem  rwSemProvTab;
    static IndSelectTab selxTab;
+   static ReadWriteSem  rwSemSelxTab;
    static ProvRegistrar provReg;
 protected:
     CMPILocalProviderManager providerManager;

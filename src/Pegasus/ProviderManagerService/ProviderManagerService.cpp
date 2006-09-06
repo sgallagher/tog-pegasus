@@ -722,22 +722,45 @@ void ProviderManagerService::unloadIdleProviders()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderManagerService::unloadIdleProviders");
-    ThreadStatus rtn = PEGASUS_THREAD_OK;
+
     // Ensure that only one _unloadIdleProvidersHandler thread runs at a time
     _unloadIdleProvidersBusy++;
-    if ((_unloadIdleProvidersBusy.get() == 1) &&
-        ((rtn = _thread_pool->allocate_and_awaken(
-             (void*)this, ProviderManagerService::_unloadIdleProvidersHandler))==PEGASUS_THREAD_OK))
+    if (_unloadIdleProvidersBusy.get() != 1)
     {
-        // _unloadIdleProvidersBusy is decremented in
-        // _unloadIdleProvidersHandler
-    }
-    else
-    {
-        // If we fail to allocate a thread, don't retry now.
         _unloadIdleProvidersBusy--;
+        PEG_METHOD_EXIT();
+        return;
     }
-    if (rtn != PEGASUS_THREAD_OK)
+
+    //
+    // Check whether the idle provider unload interval has elapsed
+    //
+
+    static struct timeval prevIdleCheckTime = {0, 0};
+
+    if (prevIdleCheckTime.tv_sec == 0)
+    {
+        Time::gettimeofday(&prevIdleCheckTime);
+    }
+
+    struct timeval now;
+    Time::gettimeofday(&now);
+
+    if (!((now.tv_sec - prevIdleCheckTime.tv_sec) > IDLE_LIMIT))
+    {
+        // It's not time yet to check for idle providers
+        _unloadIdleProvidersBusy--;
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    //
+    // Start an idle provider unload thread
+    //
+
+    if (_thread_pool->allocate_and_awaken((void*)this,
+            ProviderManagerService::_unloadIdleProvidersHandler) !=
+                PEGASUS_THREAD_OK)
     {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "Not enough threads to unload idle providers.");
@@ -745,20 +768,32 @@ void ProviderManagerService::unloadIdleProviders()
         Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Could not allocate thread for %s to unload idle providers.",
             getQueueName());
+
+        // If we fail to allocate a thread, don't retry now.
+        _unloadIdleProvidersBusy--;
+        PEG_METHOD_EXIT();
+        return;
     }
+
+    // Update the time of the most recent attempt to unload idle providers
+    Time::gettimeofday(&prevIdleCheckTime);
+
+    // Note: _unloadIdleProvidersBusy is decremented in
+    // _unloadIdleProvidersHandler
+
     PEG_METHOD_EXIT();
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL
 ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
 {
+    ProviderManagerService* myself =
+        reinterpret_cast<ProviderManagerService*>(arg);
+
     try
     {
         PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-            "ProviderManagerService::unloadIdleProvidersHandler");
-
-        ProviderManagerService* myself =
-            reinterpret_cast<ProviderManagerService*>(arg);
+            "ProviderManagerService::_unloadIdleProvidersHandler");
 
         if (myself->_basicProviderManagerRouter)
         {
@@ -798,6 +833,8 @@ ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
         // Ignore errors
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Unexpected exception in _unloadIdleProvidersHandler");
+
+        myself->_unloadIdleProvidersBusy--;
     }
 
     return(ThreadReturnType(0));

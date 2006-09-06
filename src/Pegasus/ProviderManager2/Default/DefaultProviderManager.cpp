@@ -625,30 +625,11 @@ void DefaultProviderManager::unloadIdleProviders()
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "DefaultProviderManager::unloadIdleProviders");
 
-    static struct timeval prevIdleCheckTime = {0, 0};
-
-    if (prevIdleCheckTime.tv_sec == 0)
-    {
-        Time::gettimeofday(&prevIdleCheckTime);
-    }
-
-    struct timeval now;
-    Time::gettimeofday(&now);
-
-    if (!((now.tv_sec - prevIdleCheckTime.tv_sec) > IDLE_LIMIT))
-    {
-        // It's not time yet to check for idle providers
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    Time::gettimeofday(&prevIdleCheckTime);
-
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Checking for Idle providers to unload.");
-
     try
     {
+        struct timeval now;
+        Time::gettimeofday(&now);
+
         // Make a copy of the table so it is not locked during provider calls
         Array<ProviderMessageHandler*> providerList;
         {

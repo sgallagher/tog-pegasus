@@ -683,36 +683,20 @@ CMPILocalProviderManager::hasActiveProviders ()
 void
 CMPILocalProviderManager::unloadIdleProviders (void)
 {
-  PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
-                    "ProviderManager::unloadIdleProviders");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManager::unloadIdleProviders");
 
-  static struct timeval first = { 0, 0 }, now, last =
-  {
-  0, 0};
-
-  if (first.tv_sec == 0)
+    try
     {
-      Time::gettimeofday (&first);
-    }
-  Time::gettimeofday (&now);
-
-  if (((now.tv_sec - first.tv_sec) > IDLE_LIMIT) &&
-      ((now.tv_sec - last.tv_sec) > IDLE_LIMIT))
-    {
-      Time::gettimeofday (&last);
-      PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                        "Checking for Idle providers to unload.");
-      try
-      {
         _provider_ctrl (UNLOAD_IDLE_PROVIDERS, this, (void *) 0);
-      }
-      catch (...)
-      {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                          "Caught unexpected exception from UNLOAD_IDLE_PROVIDERS.");
-      }
     }
-  PEG_METHOD_EXIT ();
+    catch (...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Caught unexpected exception from UNLOAD_IDLE_PROVIDERS.");
+    }
+
+    PEG_METHOD_EXIT ();
 }
 
 Array <

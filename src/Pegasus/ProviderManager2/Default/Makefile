@@ -58,7 +58,6 @@ LIBRARIES += \
     pegcommon
 
 SOURCES = \
-    DefaultProviderManagerMain.cpp \
     DefaultProviderManager.cpp \
     ProviderModule.cpp \
     ProviderMessageHandler.cpp \

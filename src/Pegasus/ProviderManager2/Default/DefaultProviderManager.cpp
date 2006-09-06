@@ -854,3 +854,20 @@ ProviderManager* DefaultProviderManager::createDefaultProviderManagerCallback()
 }
 
 PEGASUS_NAMESPACE_END
+
+PEGASUS_USING_PEGASUS;
+
+// This entry point is not needed because the DefaultProviderManager is created
+// using DefaultProviderManager::createDefaultProviderManagerCallback().
+#if 0
+extern "C" PEGASUS_EXPORT ProviderManager* PegasusCreateProviderManager(
+    const String& providerManagerName)
+{
+    if (String::equalNoCase(providerManagerName, "Default"))
+    {
+        return new DefaultProviderManager();
+    }
+
+    return 0;
+}
+#endif

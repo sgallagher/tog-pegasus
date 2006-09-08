@@ -153,8 +153,10 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	Buffer bodylocal;
 	Buffer &body = bodygiven ? *bodygiven : bodylocal;
 
-    STAT_SERVEREND         // STAT_SERVEREND sets the toServerTime value in the message class
-    Uint64 serverTime = response->totServerTime;
+    // STAT_SERVEREND sets the getTotalServerTime() value in the message class
+    STAT_SERVEREND
+
+    Uint64 serverTime = response->getTotalServerTime();
 
 
 	Buffer (*formatResponse)(const CIMName& iMethodName,

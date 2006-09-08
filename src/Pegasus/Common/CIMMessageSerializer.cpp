@@ -67,13 +67,9 @@ void CIMMessageSerializer::serialize(Buffer& out, CIMMessage* cimMessage)
     // Serialize the statistics data
 
     XmlWriter::appendValueElement(
-        out, cimMessage->getStartServerTime().toMicroseconds());
+        out, cimMessage->getServerStartTime());
     XmlWriter::appendValueElement(
-        out, cimMessage->getEndServerTime().toMicroseconds());
-    XmlWriter::appendValueElement(
-        out, cimMessage->getStartProviderTime().toMicroseconds());
-    XmlWriter::appendValueElement(
-        out, cimMessage->getEndProviderTime().toMicroseconds());
+        out, cimMessage->getProviderTime());
 #endif
 
     XmlWriter::appendValueElement(out, cimMessage->isComplete());

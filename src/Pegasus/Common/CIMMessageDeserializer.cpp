@@ -63,10 +63,8 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
     Uint32 type;
     CIMValue genericValue;
 #ifndef PEGASUS_DISABLE_PERFINST
-    Uint64 timeServerStart;
-    Uint64 timeServerEnd;
-    Uint64 timeProviderStart;
-    Uint64 timeProviderEnd;
+    Uint64 serverStartTimeMicroseconds;
+    Uint64 providerTimeMicroseconds;
 #endif
     Boolean isComplete;
     Uint32 index;
@@ -85,13 +83,9 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
     // Deserialize the performance statistics data
 
     XmlReader::getValueElement(parser, CIMTYPE_UINT64, genericValue);
-    genericValue.get(timeServerStart);
+    genericValue.get(serverStartTimeMicroseconds);
     XmlReader::getValueElement(parser, CIMTYPE_UINT64, genericValue);
-    genericValue.get(timeServerEnd);
-    XmlReader::getValueElement(parser, CIMTYPE_UINT64, genericValue);
-    genericValue.get(timeProviderStart);
-    XmlReader::getValueElement(parser, CIMTYPE_UINT64, genericValue);
-    genericValue.get(timeProviderEnd);
+    genericValue.get(providerTimeMicroseconds);
 #endif
 
     XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
@@ -120,18 +114,8 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
 
     message->messageId = messageID;
 #ifndef PEGASUS_DISABLE_PERFINST
-    message->setStartServerTime(TimeValue(
-        Uint32(timeServerStart / Uint64(1000000)),
-        Uint32(timeServerStart % Uint64(1000000))));
-    message->setEndServerTime(TimeValue(
-        Uint32(timeServerEnd / Uint64(1000000)),
-        Uint32(timeServerEnd % Uint64(1000000))));
-    message->setStartProviderTime(TimeValue(
-        Uint32(timeProviderStart / Uint64(1000000)),
-        Uint32(timeProviderStart % Uint64(1000000))));
-    message->setEndProviderTime(TimeValue(
-        Uint32(timeProviderEnd / Uint64(1000000)),
-        Uint32(timeProviderEnd % Uint64(1000000))));
+    message->setServerStartTime(serverStartTimeMicroseconds);
+    message->setProviderTime(providerTimeMicroseconds);
 #endif
     message->setComplete(isComplete);
     message->setIndex(index);

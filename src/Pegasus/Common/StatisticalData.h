@@ -52,10 +52,11 @@ PEGASUS_NAMESPACE_BEGIN
 #ifndef PEGASUS_DISABLE_PERFINST
 
 #define STAT_GETSTARTTIME \
-TimeValue startTime = TimeValue::getCurrentTime();
+Uint64 serverStartTimeMicroseconds = \
+    TimeValue::getCurrentTime().toMicroseconds();
 
 #define STAT_SERVERSTART \
-request->setStartServerTime(startTime);
+request->setServerStartTime(serverStartTimeMicroseconds);
 
 #define STAT_SERVEREND \
 response->endServer();\
@@ -95,14 +96,16 @@ public:
         : _message(message)
     {
 #ifndef PEGASUS_DISABLE_PERFINST
-        _message->startProvider();
+        _startTimeMicroseconds = TimeValue::getCurrentTime().toMicroseconds();
 #endif
     }
 
     ~StatProviderTimeMeasurement()
     {
 #ifndef PEGASUS_DISABLE_PERFINST
-        _message->endProvider();
+        _message->setProviderTime(
+            TimeValue::getCurrentTime().toMicroseconds() -
+                _startTimeMicroseconds);
 #endif
     }
 
@@ -112,6 +115,7 @@ private:
     StatProviderTimeMeasurement& operator=(const StatProviderTimeMeasurement&);
 
     CIMMessage* _message;
+    Uint64 _startTimeMicroseconds;
 };
 
 class PEGASUS_COMMON_LINKAGE StatisticalData

@@ -89,6 +89,9 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 	 _type(type),
 	 _mask(mask),
          _httpMethod (HTTP_METHOD__POST),
+         _serverStartTimeMicroseconds(0),
+         _providerTimeMicroseconds(0),
+         _totalServerTimeMicroseconds(0),
          _close_connect(false),
 	_last_thread_id(Threads::self()),
 	 _async(0),
@@ -142,44 +145,38 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 // Needed for performance measurement
 //
 
-      void startServer();
+      Uint64 getServerStartTime() const
+      {
+          return _serverStartTimeMicroseconds;
+      }
+
+      void setServerStartTime(Uint64 serverStartTimeMicroseconds)
+      {
+           _serverStartTimeMicroseconds = serverStartTimeMicroseconds;
+      }
 
       void endServer();
 
-      void startProvider();
-
-      void endProvider();
-
-      TimeValue getStartServerTime() const { return _timeServerStart; }
-
-      void setStartServerTime(TimeValue timeServerStart)
+      Uint64 getProviderTime() const
       {
-           _timeServerStart = timeServerStart;
+          return _providerTimeMicroseconds;
       }
 
-      TimeValue getStartProviderTime() const { return _timeProviderStart; }
-
-      void setStartProviderTime(TimeValue timeProviderStart)
+      void setProviderTime(Uint64 providerTimeMicroseconds)
       {
-          _timeProviderStart = timeProviderStart;
+          _providerTimeMicroseconds = providerTimeMicroseconds;
       }
 
-      TimeValue getEndServerTime() const { return _timeServerEnd; }
-
-      void setEndServerTime (TimeValue timeServerEnd)
+      Uint64 getTotalServerTime() const
       {
-          _timeServerEnd = timeServerEnd;
+          return _totalServerTimeMicroseconds;
       }
 
-      TimeValue getEndProviderTime() const { return _timeProviderEnd; }
-
-      void setEndProviderTime(TimeValue timeProviderEnd)
+      void setTotalServerTime(Uint64 totalServerTimeMicroseconds)
       {
-          _timeProviderEnd = timeProviderEnd;
+          _totalServerTimeMicroseconds = totalServerTimeMicroseconds;
       }
 
-	  TimeValue getServerTime() { return _serverTime; }
-//
 #endif
 
       static CIMOperationType convertMessageTypetoCIMOpType(Uint32 type);
@@ -240,15 +237,13 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       Uint32 _type;
       Uint32 _mask;
       HttpMethod _httpMethod;
-// Needed for performance measurement
-      TimeValue _timeServerStart;
-      TimeValue _timeServerEnd;
-      TimeValue _timeProviderStart;
-      TimeValue _timeProviderEnd;
-	  TimeValue _serverTime;	
-      Boolean   _close_connect;  
 
-//
+      // Needed for performance measurement
+      Uint64 _serverStartTimeMicroseconds;
+      Uint64 _providerTimeMicroseconds;
+      Uint64 _totalServerTimeMicroseconds;
+
+      Boolean   _close_connect;  
 
       // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
       ThreadType _last_thread_id;
@@ -257,7 +252,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
       Message *_async;
       Uint32 dest;
 	  //needed for PEP 128 - transmitting Server Response Time to Client
-      Uint64 totServerTime;
 
    private:
       Boolean _isComplete;

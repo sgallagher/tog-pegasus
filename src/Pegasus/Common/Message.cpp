@@ -32,8 +32,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Message.h"
-#include "Tracer.h"
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_USING_STD;
 
@@ -341,113 +341,25 @@ CIMOperationType Message::convertMessageTypetoCIMOpType(Uint32 type)
 
 
 #ifndef PEGASUS_DISABLE_PERFINST
-void Message::startServer()
-{
-    _timeServerStart = TimeValue::getCurrentTime();
-}
-
-#define SS  8          // Has server start time
-#define SE  4          // Has server end time (they all have this)
-#define PS  2          // Has Provider start time
-#define PE  1          // Has Provider end time
-
-// 
-// These are the only states in which the times are processed.
-// Of these the following two states are suspect:
-//        HAS_TIME_SERVER1 because it has a provider start time 
-//                         but not a finish time. 
-//        HAS_TIME_PROVIDER because it does not have a server start time.
-//
-// There are other errors as well as I also see state 04 
-// (only a server end time) reported in the DEBUG_LOG.
-//      JRW Oct 23 2005
-//
-#define HAS_TIME_ALL      (SS | SE | PS | PE)  // 15
-#define HAS_TIME_SERVER1  (SS | SE | PS )      // 14
-#define HAS_TIME_SERVER2  (SS | SE )           // 12
-#define HAS_TIME_PROVIDER (SE | PS | PE )      // 7
-
 void Message::endServer()
 {
-  _timeServerEnd = TimeValue::getCurrentTime();
-    
-  Uint16 statType = (Uint16)((_type >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
-			     _type-CIM_GET_CLASS_RESPONSE_MESSAGE:_type-1);
+    PEGASUS_ASSERT(_serverStartTimeMicroseconds != 0);
 
-  Uint32 State;
-  Uint64 _provTi, _totTi, _servTi;
+    _totalServerTimeMicroseconds =
+        TimeValue::getCurrentTime().toMicroseconds() -
+            _serverStartTimeMicroseconds;
 
-  Uint64 timeServerStartMicro = _timeServerStart.toMicroseconds();
-  Uint64 timeServerEndMicro = _timeServerEnd.toMicroseconds();
-  Uint64 timeProviderStartMicro = _timeProviderStart.toMicroseconds();
-  Uint64 timeProviderEndMicro = _timeProviderEnd.toMicroseconds(); 
+    Uint64 serverTimeMicroseconds =
+        _totalServerTimeMicroseconds - _providerTimeMicroseconds;
 
-  State = SE;
+    Uint16 statType = (Uint16)((_type >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
+        _type - CIM_GET_CLASS_RESPONSE_MESSAGE : _type - 1);
 
-  if (timeServerStartMicro != 0)
-    State |= SS;
-  if (timeProviderStartMicro != 0)
-    State |= PS;
-  if (timeProviderEndMicro != 0)
-    State |= PE;
-
-  switch(State)
-    {
-    case (HAS_TIME_ALL):
-      {
-	_totTi = timeServerEndMicro - timeServerStartMicro;
-	_provTi = timeProviderEndMicro - timeProviderStartMicro;
-	_servTi =  _totTi - _provTi;
-	break;
-	 
-      }
-    case (HAS_TIME_PROVIDER):
-      {
-	Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-		      "Message::endserver(): Invalid statistical data - Missing server start time. State = %d = 0x%x",
-		      State, State);
-
-	_totTi = _provTi = timeProviderEndMicro - timeProviderStartMicro;
-	_servTi =  _totTi - _provTi;
-	break;
-
-      }
-    case (HAS_TIME_SERVER1):
-      {
-	Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-		      "Message::endserver(): Invalid statistical data - Missing provider end time. State = %d = 0x%x",
-		      State, State);
-
-	_totTi = _servTi = timeServerEndMicro - timeServerStartMicro;
-	_provTi = 0;
-	break;
-      }
-
-    case (HAS_TIME_SERVER2):
-      { 
-	_totTi = _servTi = timeServerEndMicro - timeServerStartMicro;
-	_provTi = 0;
-	break;
-
-      }
-    default:
-      {
-	Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-		    "Message::endserver(): Invalid statistical data - discarding data. State = %d = 0x%x",
-		      State, State);
-
-	return;
-      }
-    }
-
-  totServerTime = _totTi;
-
+    StatisticalData::current()->addToValue(serverTimeMicroseconds, statType,
+        StatisticalData::PEGASUS_STATDATA_SERVER);
    
-  StatisticalData::current()->addToValue((_servTi), statType, 
-					 StatisticalData::PEGASUS_STATDATA_SERVER );
-   
-  StatisticalData::current()->addToValue((_provTi), statType, 
-					 StatisticalData::PEGASUS_STATDATA_PROVIDER );
+    StatisticalData::current()->addToValue(_providerTimeMicroseconds, statType,
+        StatisticalData::PEGASUS_STATDATA_PROVIDER);
 
   /*This adds the number of bytes read to the total.the request size 
     value must be stored (requSize) and passed to the StatisticalData 
@@ -457,16 +369,6 @@ void Message::endServer()
  
   StatisticalData::current()->addToValue(StatisticalData::current()->requSize,
 					 statType, StatisticalData::PEGASUS_STATDATA_BYTES_READ);
-}
-
-void Message::startProvider()
-{
-    _timeProviderStart = TimeValue::getCurrentTime();
-}
-
-void Message::endProvider()
-{
-    _timeProviderEnd = TimeValue::getCurrentTime();
 }
 #endif
 

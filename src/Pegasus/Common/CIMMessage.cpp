@@ -53,7 +53,7 @@ void CIMResponseMessage::syncAttributes(const CIMRequestMessage* request)
     setHttpMethod(request->getHttpMethod());
     setCloseConnect(request->getCloseConnect());
 #ifndef PEGASUS_DISABLE_PERFINST
-    setStartServerTime(request->getStartServerTime());
+    setServerStartTime(request->getServerStartTime());
 #endif
 }
 

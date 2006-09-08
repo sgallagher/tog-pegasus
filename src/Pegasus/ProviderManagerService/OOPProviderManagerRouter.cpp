@@ -1012,6 +1012,11 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
         }
     } while (response == _REQUEST_NOT_PROCESSED);
 
+    if (request->getType() == CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE)
+    {
+        _subscriptionInitComplete = true;
+    }
+
     PEG_METHOD_EXIT();
     return response;
 }

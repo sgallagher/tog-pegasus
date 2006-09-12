@@ -67,6 +67,7 @@
     {"sslCertificateFilePath", "/etc/opt/hp/sslshare/cert.pem"},
     {"sslKeyFilePath",      "/etc/opt/hp/sslshare/file.pem"},
     {"sslTrustStore",       "/etc/opt/hp/sslshare/cimserver_trust"},
+    {"sslTrustStoreUserName", ""},
     {"exportSSLTrustStore", "/etc/opt/hp/sslshare/indication_trust"},
     {"crlStore",            "/etc/opt/hp/sslshare/crl"},
     {"repositoryDir",       PEGASUS_REPOSITORY_DIR},

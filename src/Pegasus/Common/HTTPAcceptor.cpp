@@ -52,7 +52,7 @@
 #include "Socket.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-#include <windows.h>
+# include <windows.h>
 #else
 # include <cctype>
 # include <cstdlib>
@@ -63,9 +63,10 @@
 # include <netinet/tcp.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
-# ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 # include <unistd.h>
-#  include <sys/un.h>
+# include <sys/un.h>
 # endif
 #endif
 
@@ -77,7 +78,7 @@
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-#include "OS400ConvertChar.h"
+# include "OS400ConvertChar.h"
 #endif
 
 
@@ -101,14 +102,15 @@ public:
     {
         if (local)
         {
+
 #ifndef PEGASUS_OS_TYPE_WINDOWS
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+# ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 
             address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
             address_size = sizeof(struct sockaddr_un);
-#else
+# else
             PEGASUS_ASSERT(false);
-#endif
+# endif
 
 #endif
         }
@@ -128,20 +130,12 @@ public:
     Mutex _connection_mut;
 
     PEGASUS_SOCKET socket;
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     NamedPipeServer* namedPipeServer;
 #endif
     Array<HTTPConnection*> connections;
- /*
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-      // This method creates and connects to a named pipe
-    void createNamedPipe();
-    NamedPipeServer* namedPipeServer;
-    void _acceptNamedPipeConnection(NamedPipeMessage* namedPipeMessage);
-#endif
-*/
-
-
 };
 
 //------------------------------------------------------------------------------
@@ -262,7 +256,9 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 
          break;
       }
- #ifdef PEGASUS_OS_TYPE_WINDOWS
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
       case NAMEDPIPE_MESSAGE:
       {
          NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
@@ -278,14 +274,12 @@ void HTTPAcceptor::handleEnqueue(Message *message)
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
               "HTTPAcceptor::handleEnqueue: Invalid NAMEDPIPE_MESSAGE received.");
          }
-
          break;
-
       }
 #endif
      // may Need to close connection for Named Pipe too.....??
      case CLOSE_CONNECTION_MESSAGE:
-      {
+     {
         CloseConnectionMessage* closeConnectionMessage
            = (CloseConnectionMessage*)message;
 
@@ -294,9 +288,11 @@ void HTTPAcceptor::handleEnqueue(Message *message)
         for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
         {
             HTTPConnection* connection = _rep->connections[i];
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             if(!connection->isNamedPipeConnection())
             {
-        
+#endif
                 PEGASUS_SOCKET socket = connection->getSocket();
 
                 if (socket == closeConnectionMessage->socket)
@@ -305,25 +301,28 @@ void HTTPAcceptor::handleEnqueue(Message *message)
                     _rep->connections.remove(i);
                     delete connection;
                     break;
-                 }
-          }
-          else
-             {
-                 NamedPipe namedPipe = connection->getNamedPipe();
-                 //NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
-
-                 if (namedPipe.getPipe() == closeConnectionMessage->namedPipe.getPipe())
-                 {
-                     _monitor->unsolicitPipeMessages(namedPipe);
-                     _rep->connections.remove(i);
-                     delete connection;
-                     break;
-                 } 
+                }
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             }
-         }
+            else
+            {
+                NamedPipe namedPipe = connection->getNamedPipe();
+                //NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
 
-      break;
-      }
+                if (namedPipe.getPipe() == closeConnectionMessage->namedPipe.getPipe())
+                {
+                    _monitor->unsolicitPipeMessages(namedPipe);
+                    _rep->connections.remove(i);
+                    delete connection;
+                    break;
+                }
+            }
+#endif
+        }
+
+        break;
+     }
 
       default:
       // ATTN: need unexpected message error!
@@ -397,13 +396,13 @@ void HTTPAcceptor::_bind()
 #endif
 
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+#if defined PEGASUS_OS_TYPE_WINDOWS
    if (!_localConnection)
    {
+#endif
        memset(_rep->address, 0, sizeof(*_rep->address));
+#if defined PEGASUS_OS_TYPE_WINDOWS
    }
-#else
-   memset(_rep->address, 0, sizeof(*_rep->address));
 #endif
 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
@@ -415,27 +414,26 @@ void HTTPAcceptor::_bind()
 
    if (_localConnection)
    {
+// Added for NamedPipe implementation for windows
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+# ifdef PEGASUS_OS_TYPE_WINDOWS
+#  ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
        {
-        AutoMutex automut(Monitor::_cout_mut);
-       PEGASUS_STD(cout)
-           << "in HTTPAcceptor::_bind before calling _createNamedPipe() "
-           << PEGASUS_STD(endl);
+           AutoMutex automut(Monitor::_cout_mut);
+           PEGASUS_STD(cout) << "in HTTPAcceptor::_bind before calling _createNamedPipe() "
+                             << PEGASUS_STD(endl);
        }
-#endif
-     // _rep->createNamedPipe();
+#  endif
        _createNamedPipe();
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+# ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
        {
-        AutoMutex automut(Monitor::_cout_mut);
-       PEGASUS_STD(cout) << "in HTTPAcceptor::_bind after calling _createNamedPipe() " << PEGASUS_STD(endl);
+           AutoMutex automut(Monitor::_cout_mut);
+           PEGASUS_STD(cout) << "in HTTPAcceptor::_bind after calling _createNamedPipe() " << PEGASUS_STD(endl);
        }
-#endif
+# endif
        return;
-#else
+# else // Other than Windows platform
        reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =
            AF_UNIX;
        strcpy(
@@ -446,7 +444,7 @@ void HTTPAcceptor::_bind()
        AtoE(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #endif
        ::unlink(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
-#endif
+# endif
 
 #else
        PEGASUS_ASSERT(false);
@@ -508,7 +506,6 @@ void HTTPAcceptor::_bind()
    }
 #endif
 
-
    //
    // Set the socket option SO_REUSEADDR to reuse the socket address so
    // that we can rebind to a new socket using the same address when we
@@ -531,7 +528,6 @@ void HTTPAcceptor::_bind()
       throw BindFailedException(parms);
    }
 
-
    //
    // Bind socket to port:
    //
@@ -549,7 +545,6 @@ void HTTPAcceptor::_bind()
       throw BindFailedException(parms);
    }
 
-
    //
    // Get the actual port value used if the caller specified a port value of 0.
    //
@@ -562,7 +557,6 @@ void HTTPAcceptor::_bind()
           _portNumber = ntohs(buf.sin_port);
       }
    }
-
 
    //
    //  Change permissions on Linux local domain socket to allow writes by others.
@@ -590,7 +584,6 @@ void HTTPAcceptor::_bind()
 #endif
 
    // Set up listening on the given socket:
-
    //int const MAX_CONNECTION_QUEUE_LENGTH = 15;
 
    if (listen(_rep->socket, MAX_CONNECTION_QUEUE_LENGTH) < 0)
@@ -628,8 +621,8 @@ void HTTPAcceptor::_bind()
    }
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
    {
-    AutoMutex automut(Monitor::_cout_mut);
-   PEGASUS_STD(cout) << "in HTTPAcceptor::_bind at the End" << PEGASUS_STD(endl);
+       AutoMutex automut(Monitor::_cout_mut);
+       PEGASUS_STD(cout) << "in HTTPAcceptor::_bind at the End" << PEGASUS_STD(endl);
    }
 #endif
 
@@ -654,14 +647,14 @@ void HTTPAcceptor::closeConnectionSocket()
       if (_localConnection)
       {
 #ifndef PEGASUS_OS_TYPE_WINDOWS
- #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+# ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
           PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
                         "HTTPAcceptor::closeConnectionSocket Unlinking local connection." );
          ::unlink(
              reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
- #else
+# else
          PEGASUS_ASSERT(false);
- #endif
+# endif
 #endif
       }
 
@@ -726,11 +719,11 @@ void HTTPAcceptor::unbind()
       if (_localConnection)
       {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-#ifndef PEGASUS_OS_TYPE_WINDOWS
+# ifndef PEGASUS_OS_TYPE_WINDOWS
 
          ::unlink(
              reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
-#endif
+# endif
 #else
          PEGASUS_ASSERT(false);
 #endif
@@ -756,27 +749,30 @@ void HTTPAcceptor::destroyConnections()
      for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
      {
         HTTPConnection* connection = _rep->connections[i];
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         if(!connection->isNamedPipeConnection())
         {
-
+#endif
             PEGASUS_SOCKET socket = connection->getSocket();
 
            // Unsolicit SocketMessages:
 
            _monitor->unsolicitSocketMessages(socket);
 
-           // Destroy the connection (causing it to close):
+// Added for NamedPipe implementation for windows
+// Destroy the connection (causing it to close):
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         }
-        else 
+        else
         {
             NamedPipe namedPipe = connection->getNamedPipe();
             _monitor->unsolicitPipeMessages(namedPipe);
-             
             ::FlushFileBuffers(namedPipe.getPipe());
             ::DisconnectNamedPipe(namedPipe.getPipe());
             ::CloseHandle(namedPipe.getPipe());
         }
-
+#endif
         while (connection->refcount.get()) { }
         delete connection;
      }
@@ -795,19 +791,18 @@ void HTTPAcceptor::_acceptConnection()
       return;
 
    // Accept the connection (populate the address):
-
    struct sockaddr* accept_address;
    PEGASUS_SOCKLEN_T address_size;
 
    if (_localConnection)
    {
 #ifndef PEGASUS_OS_TYPE_WINDOWS
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+# ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
        accept_address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
        address_size = sizeof(struct sockaddr_un);
-#else
+# else
        PEGASUS_ASSERT(false);
-#endif
+# endif
 #endif
    }
    else
@@ -909,25 +904,26 @@ void HTTPAcceptor::_acceptConnection()
    _rep->connections.append(connection);
 }
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 void HTTPAcceptor::_createNamedPipe()
 {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
-     AutoMutex automut(Monitor::_cout_mut);
-    PEGASUS_STD(cout) << "Entering  HTTPAcceptor::_createNamedPipe()." << PEGASUS_STD(endl);
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "Entering  HTTPAcceptor::_createNamedPipe()." << PEGASUS_STD(endl);
     }
 #endif
-    _rep->namedPipeServer = new NamedPipeServer("\\\\.\\pipe\\MyNamedPipe");
+    _rep->namedPipeServer = new NamedPipeServer(PEGASUS_NAMEDPIPE_PATH);
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
-     AutoMutex automut(Monitor::_cout_mut);
-    PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() after calling the pipe server constructor" << PEGASUS_STD(endl);
+        AutoMutex automut(Monitor::_cout_mut);
+        PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() after calling the pipe server constructor" << PEGASUS_STD(endl);
     }
 
     {
-     AutoMutex automut(Monitor::_cout_mut);
-    cout << "Named pipe...in _createNamedPipe..." << _rep->namedPipeServer->getPipe() << endl;
+        AutoMutex automut(Monitor::_cout_mut);
+        cout << "Named pipe...in _createNamedPipe..." << _rep->namedPipeServer->getPipe() << endl;
     }
 #endif
     // Register to receive Messages on Connection pipe:
@@ -950,8 +946,9 @@ void HTTPAcceptor::_createNamedPipe()
        throw BindFailedException(parms);
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
        {
-        AutoMutex automut(Monitor::_cout_mut); //added
-       PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() _monitor->solicitSocketMessages failed" << PEGASUS_STD(endl);
+           AutoMutex automut(Monitor::_cout_mut); //added
+           PEGASUS_STD(cout) << "in HTTPAcceptor::_createNamedPipe() _monitor->solicitSocketMessages failed"
+                             << PEGASUS_STD(endl);
        }
 #endif
    }
@@ -962,12 +959,8 @@ void HTTPAcceptor::_createNamedPipe()
    }
 #endif
    return;
-
 }
-#endif
 
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
 void HTTPAcceptor::_acceptNamedPipeConnection()
 {
     PEGASUS_ASSERT(_rep != 0);
@@ -976,18 +969,16 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
        return;
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
-
         AutoMutex automut(Monitor::_cout_mut);
         cout <<"In HTTPAcceptor::_acceptNamedPipeConnection " << endl;
     }
 #endif
-    
 
    // shouldnt we be using the private var....
      //                 _namedPipeServer->accept()
 
     NamedPipeServerEndPiont nPSEndPoint = _rep->namedPipeServer->accept();
-    // Registerpe to receive Messages on Connection pipe:
+    // Register to receive Messages on Connection pipe:
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
         AutoMutex automut(Monitor::_cout_mut);
@@ -1004,7 +995,6 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
             "HTTPAcceptor: SSL_accept() pending");
         connection->_acceptPending = true;
     }
-
     */
 
     // Solicit events on this new connection's socket:

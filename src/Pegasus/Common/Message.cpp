@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,7 +32,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company 
+//              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
@@ -74,8 +74,8 @@ Uint32 Message::_nextKey = 0;
 Mutex Message::_mut;
 
 
-Message::~Message() 
-{ 
+Message::~Message()
+{
 }
 
 #ifdef PEGASUS_DEBUG
@@ -90,7 +90,7 @@ void Message::print(ostream& os, Boolean printHeader) const
     os << "    messageType: " << MessageTypeToString(_type) << endl;
     os << "    key: " << _key << endl;
 
-    // << Tue Jul  1 11:10:35 2003 mdd >> pep_88 
+    // << Tue Jul  1 11:10:35 2003 mdd >> pep_88
     os << "    routing code: " << _routing_code << endl;
 
     if (printHeader)
@@ -181,7 +181,7 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
     "HTTP_MESSAGE",
     "HTTP_ERROR_MESSAGE",
     "CLIENT_EXCEPTION_MESSAGE",
-        
+
     "ASYNC::REGISTER_CIM_SERVICE", //  80        async_message::0x00000001;
     "ASYNC::DEREGISTER_CIM_SERVICE", //          async_message::0x00000002;
     "ASYNC::UPDATE_CIM_SERVICE", //              async_message::0x00000003;
@@ -195,20 +195,20 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
     "ASYNC::ASYNC_OP_RESULT", //                 async_message::0x0000000a;
     "ASYNC::ASYNC_LEGACY_OP_START", //  90       async_message::0x0000000b;
     "ASYNC::ASYNC_LEGACY_OP_RESULT", //          async_message::0x0000000c;
-    
+
     "ASYNC::FIND_SERVICE_Q", //                  async_message::0x0000000d;
     "ASYNC::FIND_SERVICE_Q_RESULT", //           async_message::0x0000000e;
     "ASYNC::ENUMERATE_SERVICE", //               async_message::0x0000000f;
     "ASYNC::ENUMERATE_SERVICE_RESULT", //        async_message::0x00000010;
-    
+
     "ASYNC::REGISTERED_MODULE", //               async_message::0x00000011;
     "ASYNC::DEREGISTERED_MODULE", //             async_message::0x00000012;
     "ASYNC::FIND_MODULE_IN_SERVICE", //          async_message::0x00000013;
     "ASYNC::FIND_MODULE_IN_SERVICE_RESPONSE", // async_message::0x00000014;
-    
+
     "ASYNC::ASYNC_MODULE_OP_START", //  100      async_message::0x00000015;
     "ASYNC::ASYNC_MODULE_OP_RESULT", //          async_message::0x00000016;
-    
+
     "CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE",
     "CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE",
 
@@ -226,7 +226,11 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
 
     "CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE",
     "CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE",
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     "NAMEDPIPE_MESSAGE"
+#endif
 
 };
 
@@ -252,126 +256,126 @@ CIMOperationType Message::convertMessageTypetoCIMOpType(Uint32 type)
         case CIM_GET_CLASS_REQUEST_MESSAGE:
         case CIM_GET_CLASS_RESPONSE_MESSAGE:
              enum_type = CIMOPTYPE_GET_CLASS;
-            break;    
+            break;
 
       case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-      case CIM_GET_INSTANCE_RESPONSE_MESSAGE:     
+      case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
            enum_type = CIMOPTYPE_GET_INSTANCE;
            break;
-      
+
       case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-      case CIM_DELETE_CLASS_RESPONSE_MESSAGE:     
+      case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
            enum_type = CIMOPTYPE_DELETE_CLASS;
            break;
-      
+
       case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
       case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
-           enum_type = CIMOPTYPE_DELETE_INSTANCE;              
+           enum_type = CIMOPTYPE_DELETE_INSTANCE;
            break;
 
       case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-      case CIM_CREATE_CLASS_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_CREATE_CLASS;              
+      case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_CREATE_CLASS;
            break;
 
       case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-      case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_CREATE_INSTANCE;              
+      case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_CREATE_INSTANCE;
            break;
-          
+
       case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-      case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_MODIFY_CLASS;              
+      case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_MODIFY_CLASS;
            break;
-           
+
       case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-      case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_MODIFY_INSTANCE;              
+      case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_MODIFY_INSTANCE;
            break;
-      
+
       case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-      case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_ENUMERATE_CLASSES;              
+      case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_ENUMERATE_CLASSES;
            break;
 
       case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-      case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_ENUMERATE_CLASS_NAMES;              
+      case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_ENUMERATE_CLASS_NAMES;
            break;
 
       case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-      case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_ENUMERATE_INSTANCES;              
+      case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_ENUMERATE_INSTANCES;
            break;
 
       case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-      case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_ENUMERATE_INSTANCE_NAMES;              
+      case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_ENUMERATE_INSTANCE_NAMES;
            break;
 
       case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-      case CIM_EXEC_QUERY_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_EXEC_QUERY;              
+      case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_EXEC_QUERY;
            break;
 
       case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-      case CIM_ASSOCIATORS_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_ASSOCIATORS;              
+      case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_ASSOCIATORS;
            break;
 
       case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-      case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_ASSOCIATORS;              
+      case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_ASSOCIATORS;
            break;
 
       case CIM_REFERENCES_REQUEST_MESSAGE:
-      case CIM_REFERENCES_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_REFERENCES;              
+      case CIM_REFERENCES_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_REFERENCES;
            break;
 
       case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-      case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_REFERENCE_NAMES;              
+      case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_REFERENCE_NAMES;
            break;
 
       case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-      case CIM_GET_PROPERTY_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_GET_PROPERTY;              
+      case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_GET_PROPERTY;
            break;
 
       case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-      case CIM_SET_PROPERTY_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_SET_PROPERTY;              
+      case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_SET_PROPERTY;
            break;
 
       case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-      case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_GET_QUALIFIER;              
+      case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_GET_QUALIFIER;
            break;
 
       case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-      case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_SET_QUALIFIER;              
+      case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_SET_QUALIFIER;
            break;
 
       case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-      case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_DELETE_QUALIFIER;              
+      case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_DELETE_QUALIFIER;
            break;
 
       case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-      case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_ENUMERATE_QUALIFIERS;              
+      case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_ENUMERATE_QUALIFIERS;
            break;
 
       case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-      case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:     
-           enum_type = CIMOPTYPE_INVOKE_METHOD;              
+      case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
+           enum_type = CIMOPTYPE_INVOKE_METHOD;
            break;
     default:
            // exicution should never get to this point
            PEGASUS_ASSERT(false);
- 
+
   }
   return enum_type;
 }
@@ -388,14 +392,14 @@ void Message::startServer()
 #define PS  2          // Has Provider start time
 #define PE  1          // Has Provider end time
 
-// 
+//
 // These are the only states in which the times are processed.
 // Of these the following two states are suspect:
-//        HAS_TIME_SERVER1 because it has a provider start time 
-//                         but not a finish time. 
+//        HAS_TIME_SERVER1 because it has a provider start time
+//                         but not a finish time.
 //        HAS_TIME_PROVIDER because it does not have a server start time.
 //
-// There are other errors as well as I also see state 04 
+// There are other errors as well as I also see state 04
 // (only a server end time) reported in the DEBUG_LOG.
 //      JRW Oct 23 2005
 //
@@ -407,7 +411,7 @@ void Message::startServer()
 void Message::endServer()
 {
   _timeServerEnd = TimeValue::getCurrentTime();
-    
+
   Uint16 statType = (Uint16)((_type >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
 			     _type-CIM_GET_CLASS_RESPONSE_MESSAGE:_type-1);
 
@@ -417,7 +421,7 @@ void Message::endServer()
   Uint64 timeServerStartMicro = _timeServerStart.toMicroseconds();
   Uint64 timeServerEndMicro = _timeServerEnd.toMicroseconds();
   Uint64 timeProviderStartMicro = _timeProviderStart.toMicroseconds();
-  Uint64 timeProviderEndMicro = _timeProviderEnd.toMicroseconds(); 
+  Uint64 timeProviderEndMicro = _timeProviderEnd.toMicroseconds();
 
   State = SE;
 
@@ -436,7 +440,7 @@ void Message::endServer()
 	_provTi = timeProviderEndMicro - timeProviderStartMicro;
 	_servTi =  _totTi - _provTi;
 	break;
-	 
+
       }
     case (HAS_TIME_PROVIDER):
       {
@@ -461,7 +465,7 @@ void Message::endServer()
       }
 
     case (HAS_TIME_SERVER2):
-      { 
+      {
 	_totTi = _servTi = timeServerEndMicro - timeServerStartMicro;
 	_provTi = 0;
 	break;
@@ -479,19 +483,19 @@ void Message::endServer()
 
   totServerTime = _totTi;
 
-   
-  StatisticalData::current()->addToValue((_servTi), statType, 
+
+  StatisticalData::current()->addToValue((_servTi), statType,
 					 StatisticalData::PEGASUS_STATDATA_SERVER );
-   
-  StatisticalData::current()->addToValue((_provTi), statType, 
+
+  StatisticalData::current()->addToValue((_provTi), statType,
 					 StatisticalData::PEGASUS_STATDATA_PROVIDER );
 
-  /*This adds the number of bytes read to the total.the request size 
-    value must be stored (requSize) and passed to the StatisticalData 
-    object at the end of processing other wise it will be the ONLY vlaue 
-    that is passed to the client which reports the current state of the 
+  /*This adds the number of bytes read to the total.the request size
+    value must be stored (requSize) and passed to the StatisticalData
+    object at the end of processing other wise it will be the ONLY vlaue
+    that is passed to the client which reports the current state of the
     object, not the pevious (one command ago) state */
- 
+
   StatisticalData::current()->addToValue(StatisticalData::current()->requSize,
 					 statType, StatisticalData::PEGASUS_STATDATA_BYTES_READ);
 }

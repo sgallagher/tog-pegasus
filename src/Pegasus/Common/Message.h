@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -41,7 +41,7 @@
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//		
+//
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -147,7 +147,7 @@ class PEGASUS_COMMON_LINKAGE Message
 	 _prev(0),
 	 _async(0),
 	 dest(destination),
-	 _isComplete(true), 
+	 _isComplete(true),
 	 _index(0)
       {
 
@@ -167,7 +167,7 @@ class PEGASUS_COMMON_LINKAGE Message
 			_httpMethod = msg._httpMethod;
 			_index = msg._index;
 			_isComplete = msg._isComplete;
-	    
+
 	 }
 	 return *this;
       }
@@ -199,7 +199,7 @@ class PEGASUS_COMMON_LINKAGE Message
 
       void setHttpMethod(HttpMethod httpMethod) {_httpMethod = httpMethod;}
 
-      
+
 #ifndef PEGASUS_DISABLE_PERFINST
 //
 // Needed for performance measurement
@@ -264,7 +264,7 @@ class PEGASUS_COMMON_LINKAGE Message
 
 #ifdef PEGASUS_DEBUG
       virtual void print(
-	  PEGASUS_STD(ostream)& os, 
+	  PEGASUS_STD(ostream)& os,
 	  Boolean printHeader = true) const;
 #endif
 
@@ -282,7 +282,7 @@ class PEGASUS_COMMON_LINKAGE Message
 	 Message *ret = _async;
 	 _async = 0;
 	 return ret;
-	
+
       }
 
       void put_async(Message * msg)
@@ -301,8 +301,8 @@ class PEGASUS_COMMON_LINKAGE Message
 
 	 return false;
       }
-      
-      // << Tue Jul  1 13:41:02 2003 mdd >> pep_88 - 
+
+      // << Tue Jul  1 13:41:02 2003 mdd >> pep_88 -
       // assist in synchronizing responses with requests
 
       void synch_response(Message *req)
@@ -310,7 +310,7 @@ class PEGASUS_COMMON_LINKAGE Message
 	 _key = req->_key;
 	 _routing_code = req->_routing_code;
       }
-      
+
 			// set the message index indicating what piece (or sequence) this is
 			// message indexes start at zero
 			void setIndex(Uint32 index) { _index = index; }
@@ -318,9 +318,9 @@ class PEGASUS_COMMON_LINKAGE Message
 			// increment the message index
 			void incrementIndex() { _index++; }
 
-			// set the complete flag indicating if this message piece is the 
+			// set the complete flag indicating if this message piece is the
 			// last or not
-			void setComplete(Boolean isComplete) 
+			void setComplete(Boolean isComplete)
 				{ _isComplete = isComplete ? true:false; }
 
 			// get the message index (or sequence number)
@@ -343,14 +343,14 @@ class PEGASUS_COMMON_LINKAGE Message
       TimeValue _timeServerEnd;
       TimeValue _timeProviderStart;
       TimeValue _timeProviderEnd;
-	  TimeValue _serverTime;	
-      Boolean   _close_connect;  
+	  TimeValue _serverTime;
+      Boolean   _close_connect;
 
 //
 
       // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
       PEGASUS_THREAD_TYPE _last_thread_id;
-      
+
       Message* _next;
       Message* _prev;
 
@@ -524,8 +524,11 @@ enum MessageType
     CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE,
     CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE,
 
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     // Monitor-related messages:
     NAMEDPIPE_MESSAGE,
+#endif
 
     NUMBER_OF_MESSAGES
 };

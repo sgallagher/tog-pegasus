@@ -1,24 +1,24 @@
 #ifndef Pegasus_NamedPipe_h
 #define Pegasus_NamedPipe_h
 
-
 #include <windows.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
 #include "Linkage.h"
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 #define MAX_PIPE_INSTANCES  1
 #define PEGASUS_LOCALDOMAINSOCKET_DEBUG 1
 
-const DWORD NAMEDPIPE_MAX_BUFFER_SIZE = 8192; //8192; 
+const DWORD NAMEDPIPE_MAX_BUFFER_SIZE = 8192; //8192;
 
 typedef struct
 {
-	HANDLE hpipe;
-	OVERLAPPED overlap;
-} PEGASUS_NAMEDPIPE;
+    HANDLE hpipe;
+    OVERLAPPED overlap;
+}PEGASUS_NAMEDPIPE;
 
 
 //class PEGASUS_COMMON_LINKAGE NamedPipe
@@ -37,14 +37,12 @@ public:
     char raw[NAMEDPIPE_MAX_BUFFER_SIZE];
     //string raw;
     DWORD bytesRead;
-  
+
 protected:
    String _name;
    PEGASUS_NAMEDPIPE _pipe;
 
 };
-
-
 
 //Need a better name for this class
 class PEGASUS_COMMON_LINKAGE NamedPipeServerEndPiont : public NamedPipe
@@ -63,31 +61,19 @@ public:
 
 };
 
-
-
-//class PEGASUS_COMMON_LINKAGE NamedPipeServer : public NamedPipe 
-
 class PEGASUS_COMMON_LINKAGE NamedPipeServer : public NamedPipe
 {
 public:
-    NamedPipeServer(const String & name); 
+    NamedPipeServer(const String & name);
     ~NamedPipeServer(void);
 
- //   HANDLE accept(void) const;
+    //HANDLE accept(void) const;
     NamedPipeServerEndPiont accept(void);
-    
-    
 
 private:
 
    Boolean _connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap);
-   //String _name;
-  // PEGASUS_NAMEDPIPE _pipe;
-
 };
-
-//class PEGASUS_COMMON_LINKAGE NamedPipeClient : public NamedPipe
-
 
 class PEGASUS_COMMON_LINKAGE NamedPipeClient : public NamedPipe
 {
@@ -104,9 +90,5 @@ private:
     //String _name;
     ///String _name;
     //PEGASUS_NAMEDPIPE _pipe;
-
-
 };
-
-
 #endif /* Pegasus_NamedPipe_h */

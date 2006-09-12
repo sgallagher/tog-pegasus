@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -62,9 +62,11 @@
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/HTTPMessage.h>
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
  #include <Pegasus/Common/NamedPipe.h>
 #endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 class HTTPConnector;
@@ -82,11 +84,16 @@ public:
 
     CloseConnectionMessage(PEGASUS_SOCKET socket_)
         : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     CloseConnectionMessage(NamedPipe namedPipe_)
         : Message(CLOSE_CONNECTION_MESSAGE), namedPipe(namedPipe_) { }
 
-    PEGASUS_SOCKET socket;
     NamedPipe namedPipe;
+#endif
+
+    PEGASUS_SOCKET socket;
 };
 
 /** This class represents an HTTP listener.
@@ -106,7 +113,8 @@ public:
         MessageQueue * outputMessageQueue,
         Boolean exportConnection);
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 
     /** Constructor. Which takes named pipe */
     HTTPConnection(
@@ -115,7 +123,6 @@ public:
         MessageQueue * ownerMessageQueue,
         MessageQueue * outputMessageQueue,
         Boolean exportConnection);
-
 #endif
 
     /** Destructor. */
@@ -131,8 +138,11 @@ public:
     /** Return socket this connection is using. */
     PEGASUS_SOCKET getSocket() { return _socket->getSocket();}
 
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     NamedPipe getNamedPipe(){ return _namedPipe; }
     void setNamedPipeConnetion();
+#endif
 
     MP_Socket& getMPSocket() { return *_socket;}
 
@@ -170,13 +180,15 @@ public:
     ContentLanguageList contentLanguages;
 
     /* WW***************************************************/
-    
-    //retruns true is HTTPConnection is connected to a Named Pipe
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    //returns true if HTTPConnection is connected to a Named Pipe
     Boolean isNamedPipeConnection();
     void setNamedPipe(NamedPipe namedPipe);
-
+#endif
     /**********************************************************/
-    
+
 
 private:
 
@@ -199,8 +211,8 @@ private:
     Boolean _isClient();
 
 
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     //This method is called from _handleWriteEvent to write to named pipes
     //ATTN Uint32 messageLength is not needed
     Boolean _writeToNamePipe(String message, Uint32 messageLength);
@@ -219,7 +231,7 @@ private:
     Buffer _incomingBuffer;
     AutoPtr<AuthenticationInfo> _authInfo;
     static AtomicInt _requestCount;
-    
+
 
     // _connectionRequestCount contains the number of
     // requests that have been received on this connection.

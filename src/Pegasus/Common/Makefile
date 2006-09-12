@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -47,7 +47,7 @@ LIBRARY = pegcommon
 ##
 ## CAUTION: the source files are divided evenly (more or less) between SOURCES1
 ## and SOURCES2. This avoids a command line buffer overflow on Windows 2000
-## (see bug #2754 for details). As a precaution, limit SOURCES1 and SOURCES2 
+## (see bug #2754 for details). As a precaution, limit SOURCES1 and SOURCES2
 ## to 75 source files each.
 ##
 
@@ -238,7 +238,7 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   else
      ifneq ($(CL_MAJOR_VERSION), 12)
     SYS_LIBS += secur32.lib
-     endif  
+     endif
   endif
 endif
 

@@ -2,17 +2,9 @@
 
 #include "NamedPipe.h"
 #include "Monitor.h"
-#include <windows.h>
-
-
-#include <iostream>
-#include <Pegasus/Common/String.h>
-
-//using namespace std;
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
 
 const static DWORD MAX_TIMEOUT = 30000;     // 30 seconds
 
@@ -20,9 +12,6 @@ const static char* CONNECT_REQUEST = "<connect-request>";
 const static char* CONNECT_RESPONSE = "<connect-response>";
 const static char* DISCONNECT_REQUEST = "<disconnect-request>";
 const static char* DISCONNECT_RESPONSE = "<disconnect-response>";
-
-
-
 
 static inline String _PRIMARY_PIPE_NAME(const String & name)
 {
@@ -39,7 +28,6 @@ bool NamedPipe::read(HANDLE pipe, String & buffer)
 {
     // clear buffer
     buffer.clear();
-
 
     for( ; ; )
     {
@@ -557,20 +545,12 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
         throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
     }
 
-
-
-
-
-
     // the caller is responsible for disconnecting the pipe
     // and closing the pipe
 
     //NOTE:: I am not sure how to give each new Pipe a new name
     return(NamedPipeServerEndPiont(String("Operationpipe"), *pipe2));
 }
-
-
-
 
 Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
 {
@@ -604,7 +584,6 @@ Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
         {
             if (SetEvent(overlap->hEvent))
                  break;
-
         }
      // JA  listening
     case ERROR_PIPE_LISTENING:
@@ -618,8 +597,7 @@ Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
             break;
         }
 
-            //ABB: If an error occurs during the connect operation...
-
+        //ABB: If an error occurs during the connect operation...
        default:
        {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
@@ -643,13 +621,6 @@ Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
     return fconnected;
 
 }
-
-
-
-
-
-
-
 
 //
 // NamedPipeClient
@@ -835,8 +806,6 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
 
     }
 
-
-
     // the caller is responsible for disconnecting the pipe
     // and closing the pipe
     NamedPipeClientEndPiont* nPCEPoint = new NamedPipeClientEndPiont(String("Operationpipe"), *pipe2);
@@ -900,7 +869,6 @@ void NamedPipeClient::disconnect(HANDLE pipe) const
     ::CloseHandle(pipe);
 }
 
-
 NamedPipeServerEndPiont::NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct)
 {
     isConnectionPipe = false;
@@ -928,8 +896,6 @@ NamedPipeClientEndPiont::NamedPipeClientEndPiont(String name, PEGASUS_NAMEDPIPE 
     _pipe = pipeStruct;
 
 }
-
-
 
 NamedPipeServerEndPiont::~NamedPipeServerEndPiont()
 {

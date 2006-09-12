@@ -52,8 +52,6 @@
 #include <Pegasus/Common/Exception.h>
 #include "ArrayIterator.h"
 
-
-
 //const static DWORD MAX_BUFFER_SIZE = 4096;  // 4 kilobytes
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -82,11 +80,13 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static AtomicInt _connections(0);
+
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
 Mutex Monitor::_cout_mut;
 #endif
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
  #define PIPE_INCREMENT 1
 #endif
 
@@ -97,6 +97,7 @@ Mutex Monitor::_cout_mut;
 ////////////////////////////////////////////////////////////////////////////////
 
 #define MAX_NUMBER_OF_MONITOR_ENTRIES  32
+
 Monitor::Monitor()
    : _stopConnections(0),
      _stopConnectionsSem(0),
@@ -437,7 +438,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                         entries[indx]._status.get() == _MonitorEntry::DYING )
                    {
                        // remove the entry
-		               entries[indx]._status = _MonitorEntry::EMPTY;
+                       entries[indx]._status = _MonitorEntry::EMPTY;
                    }
                    else
                    {
@@ -448,60 +449,80 @@ Boolean Monitor::run(Uint32 milliseconds)
            }
         }
         _stopConnections = 0;
-	_stopConnectionsSem.signal();
+        _stopConnectionsSem.signal();
     }
 
     for( int indx = 0; indx < (int)entries.size(); indx++)
     {
         const _MonitorEntry &entry = entries[indx];
        if ((entry._status.get() == _MonitorEntry::DYING) &&
-           (entry._type == Monitor::CONNECTION))
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+           (entry._type == Monitor::ACCEPTOR)
+#else
+           (entry._type == Monitor::CONNECTION)
+#endif
+           )
        {
           MessageQueue *q = MessageQueue::lookup(entry.queueId);
           PEGASUS_ASSERT(q != 0);
           HTTPConnection &h = *static_cast<HTTPConnection *>(q);
 
-					if (h._connectionClosePending == false)
-						continue;
+          if (h._connectionClosePending == false)
+              continue;
 
-					// NOTE: do not attempt to delete while there are pending responses
-					// coming thru. The last response to come thru after a
-					// _connectionClosePending will reset _responsePending to false
-					// and then cause the monitor to rerun this code and clean up.
-					// (see HTTPConnection.cpp)
+          // NOTE: do not attempt to delete while there are pending responses
+          // coming thru. The last response to come thru after a
+          // _connectionClosePending will reset _responsePending to false
+          // and then cause the monitor to rerun this code and clean up.
+          // (see HTTPConnection.cpp)
 
-					if (h._responsePending == true)
-					{
-                        if (!entry.namedPipeConnection)
-                        {
-                            Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Monitor::run - "
-													"Ignoring connection delete request because "
-													"responses are still pending. "
-													"connection=0x%p, socket=%d\n",
-													(void *)&h, h.getSocket());
-                        }
-                        else
-                        {
-                            Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Monitor::run - "
-													"Ignoring connection delete request because "
-													"responses are still pending. "
-													"connection=0x%p, NamedPipe=%d\n",
-													(void *)&h, h.getNamedPipe().getPipe());
-                        }
-						continue;
-					}
-					h._connectionClosePending = false;
+          if (h._responsePending == true)
+          {
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+              if (!entry.namedPipeConnection)
+              {
+#endif
+                  Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Monitor::run - "
+                      "Ignoring connection delete request because "
+                      "responses are still pending. "
+                      "connection=0x%p, socket=%d\n",
+                  (void *)&h, h.getSocket());
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+              }
+              else
+              {
+                  Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Monitor::run - "
+                      "Ignoring connection delete request because "
+                      "responses are still pending. "
+                      "connection=0x%p, NamedPipe=%d\n",
+                  (void *)&h, h.getNamedPipe().getPipe());
+              }
+#endif
+              continue;
+          }
+          h._connectionClosePending = false;
           MessageQueue &o = h.get_owner();
           Message* message;
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
           if (!entry.namedPipeConnection)
           {
+#endif
               message= new CloseConnectionMessage(entry.socket);
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
           }
           else
           {
               message= new CloseConnectionMessage(entry.namedPipe);
 
           }
+#endif
           message->dest = o.getQueueId();
 
           // HTTPAcceptor is responsible for closing the connection.
@@ -537,81 +558,70 @@ Boolean Monitor::run(Uint32 milliseconds)
         PEGASUS_SOCKET maxSocketCurrentPass = 0;
     int indx;
 
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     //This array associates named pipe connections to their place in [indx]
-    //in the entries array. The value in poition zero of the array is the
+    //in the entries array. The value in portion zero of the array is the
     //index of the fist named pipe connection in the entries array
     Array <Uint32> indexPipeCountAssociator;
     int pipeEntryCount=0;
     int MaxPipes = PIPE_INCREMENT;
     HANDLE* hEvents = new HANDLE[PIPE_INCREMENT];
-
 #endif
 
+    // This loop takes care of setting the namedpipe which has to be used from the list....
     for( indx = 0; indx < (int)entries.size(); indx++)
     {
-
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-       if(entries[indx].isNamedPipeConnection())
-       {
-
-           //entering this clause mean that a Named Pipe connection is at entries[indx]
-           //cout << "In Monitor::run in clause to to create array of for WaitformultipuleObjects" << endl;
-
-           //cout << "In Monitor::run - pipe being added to array is " << entries[indx].namedPipe.getName() << endl;
-
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+        if(entries[indx].namedPipeConnection)
+        {
+            //entering this clause mean that a Named Pipe connection is at entries[indx]
+            // Initalizing to false since there is no event triggerred at this point.
+            //Which will be set true on selection of the pipe to be used.
             entries[indx].pipeSet = false;
 
-           // We can Keep a counter in the Monitor class for the number of named pipes ...
-           //  Which can be used here to create the array size for hEvents..( obviously before this for loop.:-) )
+            // We can Keep a counter in the Monitor class for the number of named pipes ...
+            //  Which can be used here to create the array size for hEvents..( obviously before this for loop.:-) )
             if (pipeEntryCount >= MaxPipes)
             {
-               // cout << "Monitor::run 'if (pipeEntryCount >= MaxPipes)' begining - pipeEntryCount=" <<
-                   // pipeEntryCount << " MaxPipes=" << MaxPipes << endl;
-                 MaxPipes += PIPE_INCREMENT;
-                 HANDLE* temp_hEvents = new HANDLE[MaxPipes];
+                // MaxPipe is incremented by PIPE_INCREMENT and an event is created. This is to maintain
+                // the number of hEvents passed to WaitForMultipleObjects() through 2nd parameter same as
+                // the first parameter of the same call..
+                MaxPipes += PIPE_INCREMENT;
+                HANDLE* temp_hEvents = new HANDLE[MaxPipes];
 
-                 for (Uint32 i =0;i<pipeEntryCount;i++)
-                 {
-                     temp_hEvents[i] = hEvents[i];
-                 }
+                for (Uint32 i =0;i<pipeEntryCount;i++)
+                {
+                    temp_hEvents[i] = hEvents[i];
+                }
 
-                 delete [] hEvents;
+                delete [] hEvents;
 
-                 hEvents = temp_hEvents;
-                // cout << "Monitor::run 'if (pipeEntryCount >= MaxPipes)' ending"<< endl;
-
+                hEvents = temp_hEvents;
             }
-
-           //pipeEventArray.append((entries[indx].namedPipe.getOverlap()).hEvent);
-           hEvents[pipeEntryCount] = entries[indx].namedPipe.getOverlap()->hEvent;
-
-           indexPipeCountAssociator.append(indx);
-           
-       pipeEntryCount++;
-
-
-
-       }
-       else
-
+            //pipeEventArray.append((entries[indx].namedPipe.getOverlap()).hEvent);
+            hEvents[pipeEntryCount] = entries[indx].namedPipe.getOverlap()->hEvent;
+            indexPipeCountAssociator.append(indx);
+            pipeEntryCount++;
+        }
+        else
+        {
 #endif
-       {
-
-           if(maxSocketCurrentPass < entries[indx].socket)
+            if(maxSocketCurrentPass < entries[indx].socket)
             maxSocketCurrentPass = entries[indx].socket;
 
-           if(entries[indx]._status.get() == _MonitorEntry::IDLE)
-           {
-               _idleEntries++;
-               FD_SET(entries[indx].socket, &fdread);
-           }
+            if(entries[indx]._status.get() == _MonitorEntry::IDLE)
+            {
+                _idleEntries++;
+                FD_SET(entries[indx].socket, &fdread);
+            }
 
-       }
-  }
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+        }
+#endif
+    }
 
     /*
         Add 1 then assign maxSocket accordingly. We add 1 to account for
@@ -621,136 +631,119 @@ Boolean Monitor::run(Uint32 milliseconds)
 
     autoEntryMutex.unlock();
 
-    //
-    // The first argument to select() is ignored on Windows and it is not
-    // a socket value.  The original code assumed that the number of sockets
-    // and a socket value have the same type.  On Windows they do not.
-    //
-
     int events;
     int pEvents;
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 
-   // events = select(0, &fdread, NULL, NULL, &tv);
+    events = 0;
+    DWORD dwWait=NULL;
+    pEvents = 0;
 
-    //if (events == NULL)
-    //{  // This connection uses namedPipes
-
-        events = 0;
-        DWORD dwWait=NULL;
-        pEvents = 0;
-
-        
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG      
-       {
+// Added for NamedPipe implementation for windows
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+# ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+    {
         AutoMutex automut(Monitor::_cout_mut);
         cout << "Monitor::run - Calling WaitForMultipleObjects\n";
-        }
-#endif
-   // }
-        //this should be in a try block
+    }
+# endif
 
+    //this should be in a try block
     dwWait = WaitForMultipleObjects(
-                 MaxPipes,    
+                 MaxPipes,
                  hEvents,               //ABB:- array of event objects
                  FALSE,                 // ABB:-does not wait for all
                  milliseconds);        //ABB:- timeout value   //WW this may need be shorter
 
     if(dwWait == WAIT_TIMEOUT)
-        {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG       
+    {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
         {
             AutoMutex automut(Monitor::_cout_mut);
-        cout << "Wait WAIT_TIMEOUT\n";
-        cout << "Monitor::run before the select in TIMEOUT clause events = " << events << endl;
+            cout << "Wait WAIT_TIMEOUT\n";
+            cout << "Monitor::run before the select in TIMEOUT clause events = " << events << endl;
         }
 #endif
-                events = select(0, &fdread, NULL, NULL, &tv);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
+#endif
+        /********* NOTE
+         this time (tv) combined with the waitForMulitpleObjects timeout is
+         too long it will cause the client side to time out
+         ******************/
+        events = select(0, &fdread, NULL, NULL, &tv);
+
+// Added for NamedPipe implementation for windows
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+# ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+        {
             AutoMutex automut(Monitor::_cout_mut);
            cout << "Monitor::run after the select in TIMEOUT clause events = " << events << endl;
-}
-#endif
-       
-
-                   // Sleep(2000);
-            //continue;
-
-             //return false;  // I think we do nothing.... Mybe there is a socket connection... so
-             // cant return.
         }
-        else if (dwWait == WAIT_FAILED)
+# endif
+    }
+    else if (dwWait == WAIT_FAILED)
+    {
+        if (GetLastError() == 6) //WW this may be too specific
         {
-            if (GetLastError() == 6) //WW this may be too specific
-            {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
 {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "Monitor::run about to call 'select since waitForMultipleObjects failed\n";
+            AutoMutex automut(Monitor::_cout_mut);
+            cout << "Monitor::run about to call 'select since waitForMultipleObjects failed\n";
 }
 #endif
-                /********* NOTE
-                this time (tv) combined with the waitForMulitpleObjects timeout is 
-                too long it will cause the client side to time out
-                ******************/
-                events = select(0, &fdread, NULL, NULL, &tv);
-
-            }
-            else
-            {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "Wait Failed returned\n";
-                cout << "failed with " << GetLastError() << "." << endl;
-}
-#endif
-                pEvents = -1;
-                return false;
-            }
+        /********* NOTE
+         this time (tv) combined with the waitForMulitpleObjects timeout is
+         too long it will cause the client side to time out
+         ******************/
+            events = select(0, &fdread, NULL, NULL, &tv);
         }
         else
         {
-            int pCount = dwWait - WAIT_OBJECT_0;  // determines which pipe
-            { 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                 {          
-                     AutoMutex automut(Monitor::_cout_mut);
-                     // cout << endl << "****************************" <<
-                     //  "Monitor::run WaitForMultiPleObject returned activity on server pipe: "<<
-                     //  pCount<< endl <<  endl;
-                     cout << "Monitor::run WaitForMultiPleObject returned activity pipeEntrycount is " << 
-                     pipeEntryCount <<
-                     " this is the type " << entries[indexPipeCountAssociator[pCount]]._type << " this is index " << indexPipeCountAssociator[pCount] << endl;
-                 }
-#endif
-
-               /* There is a timeing problem here sometimes the wite in HTTPConnection i s
-             not all the way done (has not _monitor->setState (_entry_index, _MonitorEntry::IDLE) )
-             there for that should be done here if it is not done alread*/
-                
-               if (entries[indexPipeCountAssociator[pCount]]._status.get() != _MonitorEntry::IDLE)
-               {                
-                   this->setState(indexPipeCountAssociator[pCount], _MonitorEntry::IDLE); 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
 {
             AutoMutex automut(Monitor::_cout_mut);
-            cout << "setting state of index " << indexPipeCountAssociator[pCount]  << " to IDLE" << endl; 
+            cout << "Wait Failed returned\n";
+            cout << "failed with " << GetLastError() << "." << endl;
 }
 #endif
-               }
-        
- 
-            }
-
-            pEvents = 1;
-
-            //this statment gets the pipe entry that was trigered
-            entries[indexPipeCountAssociator[pCount]].pipeSet = true;
-
+            pEvents = -1;
+            return false;
         }
+    }
+    else
+    {
+        int pCount = dwWait - WAIT_OBJECT_0;  // determines which pipe
+        {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
+            AutoMutex automut(Monitor::_cout_mut);
+            cout << "Monitor::run WaitForMultiPleObject returned activity pipeEntrycount is "
+                 << pipeEntryCount << " this is the type "
+                 << entries[indexPipeCountAssociator[pCount]]._type
+                 << " this is index " << indexPipeCountAssociator[pCount] << endl;
+}
+#endif
+               /* There is a timing problem here sometimes the write in HTTPConnection is
+             not all the way done (has not _monitor->setState (_entry_index, _MonitorEntry::IDLE) )
+             therefore that should be done here if it is not done already*/
+
+            if (entries[indexPipeCountAssociator[pCount]]._status.get() != _MonitorEntry::IDLE)
+            {
+                this->setState(indexPipeCountAssociator[pCount], _MonitorEntry::IDLE);
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
+                AutoMutex automut(Monitor::_cout_mut);
+                cout << "setting state of index " << indexPipeCountAssociator[pCount]  << " to IDLE" << endl;
+}
+#endif
+            }
+        }
+        pEvents = 1;
+            //this statment gets the pipe entry that has triggered an event
+        entries[indexPipeCountAssociator[pCount]].pipeSet = true;
+    }
+#endif
+
 #else
     events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
@@ -759,6 +752,7 @@ Boolean Monitor::run(Uint32 milliseconds)
     // the array of _entries can be changed. The ArrayIterator has be reset with the original _entries
     entries.reset(_entries);
 
+// Added for NamedPipe implementation for windows
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     if(pEvents == -1)
     {
@@ -771,16 +765,12 @@ Boolean Monitor::run(Uint32 milliseconds)
 
         // We need to generate an assert  here...
        PEGASUS_ASSERT(GetLastError()!= EBADF);
-
-
     }
-
     if(events == SOCKET_ERROR)
 #else
     if(events == -1)
 #endif
     {
-
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "Monitor::run - errorno = %d has occurred on select.", errno);
        // The EBADF error indicates that one or more or the file
@@ -792,93 +782,91 @@ Boolean Monitor::run(Uint32 milliseconds)
     }
     else if ((events)||(pEvents))
     {
-
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
         {
-                 AutoMutex automut(Monitor::_cout_mut);
-     cout << "IN Monior::run events= " << events << " pEvents= " << pEvents<< endl;
+            AutoMutex automut(Monitor::_cout_mut);
+            cout << "IN Monior::run events= " << events << " pEvents= " << pEvents<< endl;
         }
-#endif            
-     
-     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-          "Monitor::run select event received events = %d, monitoring %d idle entries",
-           events, _idleEntries);
-       for( int indx = 0; indx < (int)entries.size(); indx++)
-       {
-           //cout << "Monitor::run at start of 'for( int indx = 0; indx ' - index = " << indx << endl;
-          // The Monitor should only look at entries in the table that are IDLE (i.e.,
-          // owned by the Monitor).
-        // cout << endl << " status of entry " << indx << " is " << entries[indx]._status.get() << endl;
-          if((entries[indx]._status.get() == _MonitorEntry::IDLE) &&
-             ((FD_ISSET(entries[indx].socket, &fdread)&& (events)) ||
-             (entries[indx].isNamedPipeConnection() && entries[indx].pipeSet && (pEvents))))
-          {
+#endif
+
+        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "Monitor::run select event received events = %d, monitoring %d idle entries",
+            events, _idleEntries);
+        for( int indx = 0; indx < (int)entries.size(); indx++)
+        {
+            //cout << "Monitor::run at start of 'for( int indx = 0; indx ' - index = " << indx << endl;
+            // The Monitor should only look at entries in the table that are IDLE (i.e.,
+            // owned by the Monitor).
+            // cout << endl << " status of entry " << indx << " is " << entries[indx]._status.get() << endl;
+            if((entries[indx]._status.get() == _MonitorEntry::IDLE) &&
+               ((FD_ISSET(entries[indx].socket, &fdread)&& (events))
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+               || (entries[indx].namedPipeConnection && entries[indx].pipeSet && (pEvents))
+#endif
+              ))
+            {
 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-              {
-                 AutoMutex automut(Monitor::_cout_mut);
-                 cout <<"Monitor::run - index  " << indx << " just got into 'if' statement" << endl;
-              }
+                {
+                    AutoMutex automut(Monitor::_cout_mut);
+                    cout <<"Monitor::run - index  " << indx << " just got into 'if' statement" << endl;
+                }
 #endif
-              MessageQueue *q;
-           try{
-
-                 q = MessageQueue::lookup(entries[indx].queueId);
-              }
-             catch (Exception e)
-             {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-                 AutoMutex automut(Monitor::_cout_mut);
-                 cout << " this is what lookup gives - " << e.getMessage() << endl;
-}
-#endif
-                 exit(1);
-             }
-             catch(...)
-             {
+                MessageQueue *q;
+                try
+                {
+                    q = MessageQueue::lookup(entries[indx].queueId);
+                }
+                catch (Exception e)
+                {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
 {
-                 AutoMutex automut(Monitor::_cout_mut);
-                 cout << "MessageQueue::lookup gives strange exception " << endl;
+                    AutoMutex automut(Monitor::_cout_mut);
+                    cout << " this is what lookup gives - " << e.getMessage() << endl;
 }
 #endif
-                 exit(1);
-             }
+                    exit(1);
+                }
+                catch(...)
+                {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+{
+                    AutoMutex automut(Monitor::_cout_mut);
+                    cout << "MessageQueue::lookup gives strange exception " << endl;
+}
+#endif
+                    exit(1);
+                }
 
-
-
-
-              Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "Monitor::run indx = %d, queueId =  %d, q = %p",
                   indx, entries[indx].queueId, q);
-           //  printf("Monitor::run indx = %d, queueId =  %d, q = %p",
-             //     indx, entries[indx].queueId, q);
-             //cout << "Monitor::run before PEGASUS_ASSerT(q !=0) " << endl;
-             PEGASUS_ASSERT(q !=0); 
 
-          
-             try
-             {
-                /* {
-                 AutoMutex automut(Monitor::_cout_mut);
-                  cout <<" this is the type " << entries[indx]._type <<
-                      " for index " << indx << endl;
-               cout << "IN Monior::run right before entries[indx]._type == Monitor::CONNECTION" << endl;
-                 }*/
-               if(entries[indx]._type == Monitor::CONNECTION)
+                PEGASUS_ASSERT(q !=0);
+
+                try
                 {
-                    
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+                    {
+                        AutoMutex automut(Monitor::_cout_mut);
+                        cout <<" this is the type " << entries[indx]._type
+                             <<" for index " << indx << endl;
+                        cout << "IN Monior::run right before entries[indx]._type == Monitor::CONNECTION"
+                             << endl;
+                    }
+#endif
+                    if(entries[indx]._type == Monitor::CONNECTION)
+                    {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
 {
-                     AutoMutex automut(Monitor::_cout_mut);
-                     cout << "In Monitor::run Monitor::CONNECTION clause" << endl;
+                        AutoMutex automut(Monitor::_cout_mut);
+                        cout << "In Monitor::run Monitor::CONNECTION clause" << endl;
 }
 #endif
-
-                                      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                     "entries[indx].type for indx = %d is Monitor::CONNECTION", indx);
-                   static_cast<HTTPConnection *>(q)->_entry_index = indx;
+                        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                            "entries[indx].type for indx = %d is Monitor::CONNECTION", indx);
+                        static_cast<HTTPConnection *>(q)->_entry_index = indx;
 
                    // Do not update the entry just yet. The entry gets updated once
                    // the request has been read.
@@ -896,190 +884,192 @@ Boolean Monitor::run(Uint32 milliseconds)
                    }
 */
 // Added for PEP 183
-                   HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
-                   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                         "Monitor::_dispatch: entering run() for indx  = %d, queueId = %d, q = %p",
-                   dst->_entry_index, dst->_monitor->_entries[dst->_entry_index].queueId, dst);
+                        HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
+                        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                            "Monitor::_dispatch: entering run() for indx  = %d, queueId = %d, q = %p",
+                        dst->_entry_index, dst->_monitor->_entries[dst->_entry_index].queueId, dst);
 
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
                    /*In the case of named Pipes, the request has already been read from the pipe
                    therefor this section passed the request data to the HTTPConnection
-                   NOTE: not sure if this would be better suited in a sparate private method
+                   NOTE: not sure if this would be better suited in a separate private method
                    */
-                                      
-                   dst->setNamedPipe(entries[indx].namedPipe); //this step shouldn't be needd
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                   {
-                       AutoMutex automut(Monitor::_cout_mut);
-                   cout << "In Monitor::run after dst->setNamedPipe string read is " <<  entries[indx].namedPipe.raw << endl;
-                   }
+                        dst->setNamedPipe(entries[indx].namedPipe); //this step shouldn't be needed
 #endif
-                   try
-                   {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                       {
-                       AutoMutex automut(Monitor::_cout_mut);
-                       cout << "In Monitor::run about to call 'dst->run(1)' "  << endl;
-                       }
-#endif
-                       dst->run(1);
-                   }
-                   catch (...)
-                   {
-                      
-                       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                       "Monitor::_dispatch: exception received");
-                   }
-                   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                   "Monitor::_dispatch: exited run() for index %d", dst->_entry_index);
 
-                   if (entries[indx].isNamedPipeConnection())
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
                    {
-                       entries[indx]._type = Monitor::ACCEPTOR;
+                       AutoMutex automut(Monitor::_cout_mut);
+                       cout << "In Monitor::run after dst->setNamedPipe string read is " <<  entries[indx].namedPipe.raw << endl;
                    }
-                   
+#endif
+                        try
+                        {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+                            {
+                                AutoMutex automut(Monitor::_cout_mut);
+                                cout << "In Monitor::run about to call 'dst->run(1)' "  << endl;
+                            }
+#endif
+                            dst->run(1);
+                        }
+                        catch (...)
+                        {
+                            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                                "Monitor::_dispatch: exception received");
+                        }
+
+                        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                            "Monitor::_dispatch: exited run() for index %d", dst->_entry_index);
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+                        if (entries[indx].namedPipeConnection)
+                        {
+                            entries[indx]._type = Monitor::ACCEPTOR;
+                        }
+#endif
                    // It is possible the entry status may not be set to busy.
                    // The following will fail in that case.
-   		   // PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.get() == _MonitorEntry::BUSY);
-		   // Once the HTTPConnection thread has set the status value to either
-		   // Monitor::DYING or Monitor::IDLE, it has returned control of the connection
-		   // to the Monitor.  It is no longer permissible to access the connection
-		   // or the entry in the _entries table.
+                   // PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.get() == _MonitorEntry::BUSY);
+                   // Once the HTTPConnection thread has set the status value to either
+                   // Monitor::DYING or Monitor::IDLE, it has returned control of the connection
+                   // to the Monitor.  It is no longer permissible to access the connection
+                   // or the entry in the _entries table.
 
                    // The following is not relevant as the worker thread or the
                    // reader thread will update the status of the entry.
-		   //if (dst->_connectionClosePending)
-		   //{
-		   //  dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::DYING;
-		   //}
-		   //else
-		   //{
-		   //  dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
-		   //}
+                   //if (dst->_connectionClosePending)
+                   //{
+                   //  dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::DYING;
+                   //}
+                   //else
+                   //{
+                   //  dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
+                   //}
 // end Added for PEP 183
-		}
-	        else if( entries[indx]._type == Monitor::INTERNAL){
-			// set ourself to BUSY,
+                    }
+                    else if( entries[indx]._type == Monitor::INTERNAL)
+                    {
+                        // set ourself to BUSY,
                         // read the data
                         // and set ourself back to IDLE
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
 {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << endl << " in - entries[indx]._type == Monitor::INTERNAL- " << endl << endl;
+                        AutoMutex automut(Monitor::_cout_mut);
+                        cout << endl << " in - entries[indx]._type == Monitor::INTERNAL- "
+                             << endl << endl;
 }
 #endif
-            if (!entries[indx].isNamedPipeConnection())
-            {
-		   	    entries[indx]._status = _MonitorEntry::BUSY;
-			    static char buffer[2];
-      			Socket::disableBlocking(entries[indx].socket);
-      			Sint32 amt = Socket::read(entries[indx].socket,&buffer, 2);
-      			Socket::enableBlocking(entries[indx].socket);
-			    entries[indx]._status = _MonitorEntry::IDLE;
-            }
-		}
-		else
-		{
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+                        if (!entries[indx].namedPipeConnection)
+                        {
+#endif
+                            entries[indx]._status = _MonitorEntry::BUSY;
+                            static char buffer[2];
+                            Socket::disableBlocking(entries[indx].socket);
+                            Sint32 amt = Socket::read(entries[indx].socket,&buffer, 2);
+                            Socket::enableBlocking(entries[indx].socket);
+                            entries[indx]._status = _MonitorEntry::IDLE;
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+                        }
+#endif
+                    }
+                    else
+                    {
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+                        {
+                            AutoMutex automut(Monitor::_cout_mut);
+                            cout << "In Monitor::run else clause of CONNECTION if statments" << endl;
+                        }
+#endif
+                        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                            "Non-connection entry, indx = %d, has been received.", indx);
+                        int events = 0;
+                        Message *msg;
 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-      {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "In Monitor::run else clause of CONNECTION if statments" << endl;
-      }
+                        {
+                            AutoMutex automut(Monitor::_cout_mut);
+                            cout << " In Monitor::run Just before checking if NamedPipeConnection"
+                                 << "for Index "<<indx<< endl;
+                        }
 #endif
-                               Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                     "Non-connection entry, indx = %d, has been received.", indx);
-		   int events = 0;
-           Message *msg;
-          
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+                        if (entries[indx].namedPipeConnection)
+                        {
+                            if(!entries[indx].namedPipe.isConnectionPipe)
+                            {
+                                /*if we enter this clasue it means that the named pipe that we are
+                                  looking at has recived a connection but is not the pipe we get 
+                                  connection requests over. Therefore we need to change the _type
+								  to CONNECTION and wait for a CIM Operations request
+								 */
+                                entries[indx]._type = Monitor::CONNECTION;
+
+                                /* This is a test  - this shows that the read file needs to be done
+                                   before we call wiatForMultipleObjects*/
+
+                                memset(entries[indx].namedPipe.raw,'\0',NAMEDPIPE_MAX_BUFFER_SIZE);
+                                BOOL rc = ::ReadFile(
+                                    entries[indx].namedPipe.getPipe(),
+                                    &entries[indx].namedPipe.raw,
+                                    NAMEDPIPE_MAX_BUFFER_SIZE,
+                                    &entries[indx].namedPipe.bytesRead,
+                                    entries[indx].namedPipe.getOverlap());
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-          {
-           AutoMutex automut(Monitor::_cout_mut);
-           cout << " In Monitor::run Just before checking if NamedPipeConnection" << "for Index "<<indx<< endl;
-           }
+                                {
+                                    AutoMutex automut(Monitor::_cout_mut);
+                                    cout << "Monitor::run just called read on index " << indx << endl;
+                                }
 #endif
-           if (entries[indx].isNamedPipeConnection())
-           {
-               if(!entries[indx].namedPipe.isConnectionPipe)
-               { /*if we enter this clasue it means that the named pipe that we are
-                   looking at has recived a connection but is not the pipe we get connection requests over.
-                   therefore we need to change the _type to CONNECTION and wait for a CIM Operations request*/
-                   entries[indx]._type = Monitor::CONNECTION;
-
-
-     /* This is a test  - this shows that the read file needs to be done
-     before we call wiatForMultipleObjects*/
-    /******************************************************
-    ********************************************************/
-
-
-
-        memset(entries[indx].namedPipe.raw,'\0',NAMEDPIPE_MAX_BUFFER_SIZE);
-        BOOL rc = ::ReadFile(
-                entries[indx].namedPipe.getPipe(),
-                &entries[indx].namedPipe.raw,
-                NAMEDPIPE_MAX_BUFFER_SIZE,
-                &entries[indx].namedPipe.bytesRead,
-                entries[indx].namedPipe.getOverlap());
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-         AutoMutex automut(Monitor::_cout_mut);
-         cout << "Monitor::run just called read on index " << indx << endl;
-        }
-#endif
-
-         //&entries[indx].namedPipe.bytesRead = &size;
-        if(!rc)
-        {
+                                if(!rc)
+                                {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
 {
            AutoMutex automut(Monitor::_cout_mut);
            cout << "ReadFile failed for : "  << GetLastError() << "."<< endl;
 }
 #endif
-        }
-
-
-
-    /******************************************************
-    ********************************************************/
-
-
-
-
-                 continue;
-      
-
-               }
+                                }
+                                continue;
+                            }
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
                {
                    AutoMutex automut(Monitor::_cout_mut);
                     cout << " In Monitor::run about to create a Pipe message" << endl;
-
                }
 #endif
-               events |= NamedPipeMessage::READ;
-               msg = new NamedPipeMessage(entries[indx].namedPipe, events);
-           }
-           else
-           {
+                            events |= NamedPipeMessage::READ;
+                            msg = new NamedPipeMessage(entries[indx].namedPipe, events);
+                        }
+                        else
+                        {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
                {
                AutoMutex automut(Monitor::_cout_mut);
                cout << " In Monitor::run ..its a socket message" << endl;
                }
 #endif
-               events |= SocketMessage::READ;
-		       msg = new SocketMessage(entries[indx].socket, events);
-           }
-
-		   entries[indx]._status = _MonitorEntry::BUSY;
-                   autoEntryMutex.unlock();
-		   q->enqueue(msg);
-                   autoEntryMutex.lock();
+                            events |= SocketMessage::READ;
+                            msg = new SocketMessage(entries[indx].socket, events);
+#endif
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+                        }
+#endif
+                        entries[indx]._status = _MonitorEntry::BUSY;
+                        autoEntryMutex.unlock();
+                        q->enqueue(msg);
+                        autoEntryMutex.lock();
            // After enqueue a message and the autoEntryMutex has been released and locked again,
            // the array of entries can be changed. The ArrayIterator has be reset with the original _entries
-           entries.reset(_entries);
-		   entries[indx]._status = _MonitorEntry::IDLE;
+                        entries.reset(_entries);
+                        entries[indx]._status = _MonitorEntry::IDLE;
 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
                    {
@@ -1087,15 +1077,15 @@ Boolean Monitor::run(Uint32 milliseconds)
                        PEGASUS_STD(cout) << "Exiting:  Monitor::run(): (tid:" << Uint32(pegasus_thread_self()) << ")" << PEGASUS_STD(endl);
                    }
 #endif
-		   return true;
-		}
-	     }
-	     catch(...)
-	     {
-	     }
-	     handled_events = true;
-	  }
-       }
+                        return true;
+                    }
+                }
+                catch(...)
+             {
+             }
+                handled_events = true;
+            }
+        }
     }
 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
@@ -1292,8 +1282,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
    return 0;
 }
 
-
-//This method is anlogsu to solicitSocketMessages. It does the same thing for named Pipes
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+//This method is anlogus to solicitSocketMessages. It does the same thing for named Pipes
 int  Monitor::solicitPipeMessages(
     NamedPipe namedPipe,
     Uint32 events,  //not sure what has to change for this enum
@@ -1306,13 +1297,12 @@ int  Monitor::solicitPipeMessages(
    // Check to see if we need to dynamically grow the _entries array
    // We always want the _entries array to 2 bigger than the
    // current connections requested
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG 
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
 {
    AutoMutex automut(Monitor::_cout_mut);
    PEGASUS_STD(cout) << "In Monitor::solicitPipeMessages at the begining" << PEGASUS_STD(endl);
 }
 #endif
-
 
    _solicitSocketCount++;  // bump the count
    int size = (int)_entries.size();
@@ -1336,13 +1326,13 @@ int  Monitor::solicitPipeMessages(
             _entries[index].queueId  = queueId;
             _entries[index]._type = type;
             _entries[index]._status = _MonitorEntry::IDLE;
-  #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG 
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
   {
             AutoMutex automut(Monitor::_cout_mut);
             PEGASUS_STD(cout) << "In Monitor::solicitPipeMessages after seting up  _entries[index] index = " << index << PEGASUS_STD(endl);
   }
-  #endif
-  
+#endif
+
             return index;
          }
       }
@@ -1388,10 +1378,10 @@ void Monitor::unsolicitPipeMessages(NamedPipe namedPipe)
     }
 
     /*
-	Dynamic Contraction:
-	To remove excess entries we will start from the end of the _entries array
-	and remove all entries with EMPTY status until we find the first NON EMPTY.
-	This prevents the positions, of the NON EMPTY entries, from being changed.
+        Dynamic Contraction:
+        To remove excess entries we will start from the end of the _entries array
+        and remove all entries with EMPTY status until we find the first NON EMPTY.
+        This prevents the positions, of the NON EMPTY entries, from being changed.
     */
     index = _entries.size() - 1;
     while(_entries[index]._status.get() == _MonitorEntry::EMPTY){
@@ -1400,7 +1390,7 @@ void Monitor::unsolicitPipeMessages(NamedPipe namedPipe)
         {
             _entries.remove(index);
         }
-	index--;
+        index--;
     }
     PEG_METHOD_EXIT();
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
@@ -1411,6 +1401,6 @@ void Monitor::unsolicitPipeMessages(NamedPipe namedPipe)
 #endif
 }
 
-
+#endif
 
 PEGASUS_NAMESPACE_END

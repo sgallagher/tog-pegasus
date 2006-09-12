@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -47,7 +47,9 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/IPC.h>
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
  #include <Pegasus/Common/NamedPipe.h>
 #endif
 
@@ -66,7 +68,7 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 {
    public:
       typedef MessageQueue Base;
-  
+
       /** Constructor.
 	  @param monitor pointer to monitor object which this class uses to
 	  solicit SocketMessages on the server port (socket).
@@ -83,7 +85,7 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 	  connections.  If non-null, the argument specifies an SSL context to
 	  use for connections established by this acceptor.
           @param exportConnection Boolean indicating whether this acceptor is
-          is only for export connections. If true, client SSL certificate 
+          is only for export connections. If true, client SSL certificate
           verification is enabled on the connection created by this acceptor.
           Ignored when sslcontext is null.
       */
@@ -100,10 +102,10 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 
       /** This method is called whenever a SocketMessage is enqueued
 	  on the input queue of the HTTPAcceptor object.
-      */ 
+      */
 
       virtual void handleEnqueue(Message *);
-    
+
       virtual void handleEnqueue();
 
       /** Bind the specified listen socket.
@@ -143,13 +145,13 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 
       cimom *_meta_dispatcher;
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
       /*This method creates and connects to a named pipe*/
       void _createNamedPipe();
-     // NamedPipeServer* _namedPipeServer;
       void _acceptNamedPipeConnection();
 #endif
-      
+
       Monitor* _monitor;
       MessageQueue* _outputMessageQueue;
       HTTPAcceptorRep* _rep;

@@ -73,9 +73,6 @@ enum HttpMethod
     (see MessageQueue class). Derived classes may add their own fields.
     This base class defines a common type field, which is the type of
     the message.
-
-    The Message class also provides previous and next pointers which are
-    used to place the messages on a queue by the MessageQueue class.
 */
 class PEGASUS_COMMON_LINKAGE Message : public Linkable
 {
@@ -93,34 +90,19 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
          _providerTimeMicroseconds(0),
          _totalServerTimeMicroseconds(0),
          _close_connect(false),
-	_last_thread_id(Threads::self()),
+	 _last_thread_id(Threads::self()),
 	 _async(0),
 	 dest(destination),
 	 _isComplete(true), 
 	 _index(0)
       {
-
       }
-
-      Message & operator = ( const Message & msg)
-      {
-	 if (this != &msg)
-	 {
-	    _type = msg._type;
-	    _mask = msg._mask;
-	    _last_thread_id = msg._last_thread_id;
-	    _async = 0;
-	    dest = msg.dest;
-			_httpMethod = msg._httpMethod;
-			_index = msg._index;
-			_isComplete = msg._isComplete;
-	    
-	 }
-	 return *this;
-      }
-
 
       virtual ~Message();
+
+      // NOTE: The compiler default implementation of the copy constructor
+      // is used for this class.
+
       Boolean getCloseConnect() const { return _close_connect; }
       void setCloseConnect(Boolean close_connect)
       {
@@ -192,7 +174,6 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
 	 Message *ret = _async;
 	 _async = 0;
 	 return ret;
-	
       }
 
       void put_async(Message * msg)
@@ -251,17 +232,12 @@ class PEGASUS_COMMON_LINKAGE Message : public Linkable
    public:
       Message *_async;
       Uint32 dest;
-	  //needed for PEP 128 - transmitting Server Response Time to Client
 
    private:
+      Message& operator=(const Message& msg);
+
       Boolean _isComplete;
       Uint32 _index;
-
-      friend class cimom;
-      friend class MessageQueueService;
-      friend class AsyncLegacyOperationStart;
-      friend class AsyncLegacyOperationResult;
-
 };
 
 

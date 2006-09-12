@@ -62,16 +62,6 @@ ifndef PEGASUS_DISABLE_CQL
 endif
 
 LIBRARIES += \
-    pegprovidermanager \
-    pegpmservice \
-    pegprovider \
-    pegexportserver \
-    pegrepository \
-    pegconfig \
-    pegcommon \
-    pegservice
-
-LIBRARIES += \
     DefaultProviderManager \
     pegprovidermanager
 
@@ -98,6 +88,16 @@ ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
     endif
   endif
 endif
+
+LIBRARIES += \
+    pegprovidermanager \
+    pegpmservice \
+    pegprovider \
+    pegexportserver \
+    pegrepository \
+    pegconfig \
+    pegcommon \
+    pegservice
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

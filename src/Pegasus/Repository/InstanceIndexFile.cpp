@@ -960,12 +960,23 @@ Boolean InstanceIndexFile::beginTransaction(const String& path)
     //
     // Create a rollback file which is a copy of the index file. The
     // new filename is formed by appending ".rollback" to the name of
-    // the index file.
+    // the index file.  The rollback file, if it exists, is considered
+    // the "master" copy of the data.  To ensure its completeness, the
+    // index file is renamed to the rollback file and the data is then
+    // copied back to the index file.
     //
-    if (!FileSystem::copyFile(path, rollbackPath))
+
+    if (!FileSystem::renameFileNoCase(path, rollbackPath))
     {
-        // Make sure no rollback file is left over.
-        FileSystem::removeFileNoCase(rollbackPath);
+        PEG_METHOD_EXIT();
+	return false;
+    }
+
+    if (!FileSystem::copyFile(rollbackPath, path))
+    {
+        // Try to restore the initial state
+        FileSystem::removeFileNoCase(path);
+        FileSystem::renameFileNoCase(rollbackPath, path);
 
         PEG_METHOD_EXIT();
 	return false;

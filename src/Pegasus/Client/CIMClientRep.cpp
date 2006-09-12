@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -183,7 +183,7 @@ void CIMClientRep::_connect()
     _httpConnection = httpConnection.release();
     _requestEncoder.reset(requestEncoder.release());
     _responseDecoder->setEncoderQueue(_requestEncoder.get());
-      
+
     //pass endcoder and decoder a pointer to CIMClientRep::perfDataStore
     _requestEncoder->setDataStorePointer(&perfDataStore);
     _responseDecoder->setDataStorePointer(&perfDataStore);
@@ -337,7 +337,7 @@ void CIMClientRep::connectLocal()
     _connectSSLContext.reset();
     _connectHost = String::EMPTY;
     _connectPortNumber = 0;
-    _connect();  
+    _connect();
 #else
 
     try
@@ -1071,6 +1071,14 @@ Message* CIMClientRep::_doRequest(
         throw NotConnectedException();
     }
 
+    try
+    {
+        _reconnect();
+    }
+    catch (...)
+    {
+    }
+
     String messageId = XmlWriter::getNextMessageId();
     const_cast<String &>(request->messageId) = messageId;
 
@@ -1246,7 +1254,7 @@ Message* CIMClientRep::_doRequest(
                 // client application via a call back
                 Boolean re_check = perfDataStore.checkMessageIDandType(cimResponse->messageId,
                                                                         cimResponse->getType());
-     
+
                 if (re_check && !perfDataStore.getStatError() && perfDataStore.isClassRegistered())
                 {
                    //if callback method throws an exception it will be seen by the client
@@ -1291,13 +1299,13 @@ Message* CIMClientRep::_doRequest(
     //
     // Reconnect to reset the connection (disregard late response)
     //
-    try
-    {
-        _reconnect();
-    }
-    catch (...)
-    {
-    }
+    //try
+    //{
+        //_reconnect();
+    //}
+    //catch (...)
+    //{
+    //}
 
     //
     // Throw timed out exception:

@@ -74,7 +74,7 @@
         if ( __trace_level ( (level) ) ) { \
                 char * __msg = __trace_format args; \
                 __trace_this ( (level), \
-                               __FILE__, __FUNCTION__, __LINE__, \
+                               __FILE__, __LINE__, \
                                __msg ); \
         }
 
@@ -117,10 +117,10 @@
 #ifdef __GNUC__
 static int __trace_level ( int ) __attribute__ ((unused));
 
-static char * __trace_format ( char *, ... )
+static char * __trace_format ( const char *, ... )
      __attribute__ ((unused, format (printf, 1, 2)));
 
-static void __trace_this ( int, const char *, const char *, int, char * )
+static void __trace_this ( int, const char *, int, char * )
      __attribute__ ((unused));
 
 static void __start_debugger () __attribute__ ((unused));
@@ -149,7 +149,7 @@ static int __trace_level ( int level )
 }
 
 
-static char * __trace_format ( char * fmt, ... )
+static char * __trace_format ( const char * fmt, ... )
 {
 	va_list ap;
 	char * msg = (char *) malloc ( 512 );
@@ -166,15 +166,14 @@ static char * __trace_format ( char * fmt, ... )
 
 static void __trace_this ( int level,
 			   const char * file,
-			   const char * function,
 			   int line,
 			   char * msg )
 {
 	fprintf ( stderr,
-		  "--rcmpi(%s)--[%d(%d,%d)]:%s:%s(%d): %s\n",
+		  "--rcmpi(%s)--[%d(%d,%d)]:%s:(%d): %s\n",
 		   __debug_levels[level],
 		  getpid (), getuid (), getgid (),
-		  file, function, line,
+		  file, line,
 		  msg );
 	free ( msg ); \
 }

@@ -1,4 +1,4 @@
-//%2006////////////////////////////////////////////////////////////////////////
+//%2006///////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -31,14 +31,56 @@
 //
 // Author: Ray Boucher, Hewlett-Packard Company <ray.boucher@hp.com>
 //
-// Modified By: Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
+// Modified By:
+// Indrani Devi   PTR 73-51-32
+//                Modified getNumberOfUsers() function to return the 
+//                number of interactive user names for number of users
+//                property 
+// Indrani Devi   PTR 73-51-30 and PTR 73-51-2
+//                Changes made to address review comments in PTR 73-51-2
+//                Replacing sys$specific:[000000] with wbem_tmp: logical
+//                as first argument to tempnam() in 
+//                in getNumberOfLicensedUsers() and getInstallDate() functions.
+//
+// Indrani Devi   PTR 73-51-27
+//                Changed getNumberOfLicensedUsers() to return number of licensed users 
+//                as 0 (unlimited licensed users) in case of I64 as the base O/S license on 
+//                IA64 (FOE) provides unlimited number of users
+//
+// Indrani Devi   PTR 73-51-22 21-Jul-2006
+//                Changed the getTotalSwapSpaceSize(),getFreeSpaceInPagingFiles(),
+//                getSizeStoredInPagingFiles(), getTotalVisibleMemorySize() and
+//                getFreePhysicalMemory() functions to get teh pagesize using the 
+//                sys$getsyiw() call using item code SYI$_PAGE_SIZE
+//
+// Prasad SG      PTR 73-51-28 12-Jul-2006
+//                changed obtaining of TotalVirtualMemorySize from current process PGFLQUOTA
+//                to the sum of TotalVisibleMemorySize and SizeStoredInPagingFiles.
+//                changed obtaining of FreeVirtualMemory from current process PAGFILCNT
+//                to the sum of FreePhysicalMemory and FreeSpaceInPagingFiles
+// Prasad SG      PTR 73-51-19 and PTR 73-51-20 11-Jul-2006
+//                The installDate and NumberOfLicensedUsers are not displayed in the wbemexec
+//                enumerate instance output. The same was seen as appearing fine, when
+//                CIMserver is running interactively.
+//                The function getInstallDate() and getNumberOfLicensedUsers() is modifled as below:
+//                The first argument of tempname() call is changed from NULL to "SYS$SPECIFIC:[000000]"
+//                as tempnam() would take a default of "SYS$SCRATCH:" directory, if first argument is not specified.
+// Prasad SG      PTR 73-51-21 10-Jul-06.
+//                changed The checking for define PEGASUS_PLATFORM_VMS_IPF_DECCXX
+//                to PEGASUS_PLATFORM_VMS_IA64_DECCXX, as the later was being used
+//                in the /define directive during compilation.
+//                The FreePhysicalMemory is retrived properly, after changing this define.
+// Indrani Devi   PTR 73-51-2 28-Jun-06.
+//                Made changes to get the coreect OS verison.
+//                Removed the display of uname.release information from getversion()
+// Indrani Devi , PTR 73-51-15. Removed include of <pegasus/common/system.h>
+//                and <pegasus/common/logger.h> as it was giving compiler warning
+// Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Common/Logger.h>
 #include "OperatingSystem.h"
 
 #include <time.h>
@@ -70,7 +112,7 @@ extern "C"
 {
 #if defined (PEGASUS_PLATFORM_VMS_ALPHA_DECCXX)
   extern const long SCH$GL_FREECNT;
-#elif defined (PEGASUS_PLATFORM_VMS_IPF_DECCXX)
+#elif defined (PEGASUS_PLATFORM_VMS_IA64_DECCXX)
   extern const long SCH$GI_FREECNT;
 #endif
 }
@@ -200,7 +242,7 @@ int GetFreeMem(long *pFreeMem)
 {
 #if defined (PEGASUS_PLATFORM_VMS_ALPHA_DECCXX)
   *pFreeMem = SCH$GL_FREECNT;
-#elif defined (PEGASUS_PLATFORM_VMS_IPF_DECCXX)
+#elif defined (PEGASUS_PLATFORM_VMS_IA64_DECCXX)
   *pFreeMem = SCH$GI_FREECNT;
 #endif
 
@@ -341,7 +383,7 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
   // Note: The prefix string is limited to 5 chars.
   //       P3 = 0 returns unix format \sys$sratch\hist_acca.out
   //       P3 = 1 returns vms format. sys$scratch:hist_acca.out
-  HistFile = tempnam(NULL, "hist_", 1);
+  HistFile = tempnam("wbem_tmp:", "hist_", 1);
   if (!HistFile) {
     bStatus = false;
     goto done;
@@ -554,7 +596,8 @@ Boolean OperatingSystem::getStatus(String & status)
 Boolean OperatingSystem::getVersion(String & osVersion)
 {
   struct utsname unameInfo;
-  char version[sizeof (unameInfo.release) + sizeof (unameInfo.version)];
+  // Changed to fix PTR -73-51-2
+  char version[sizeof (unameInfo.version)]; 
 
   // Call uname and check for any errors.
 
@@ -563,7 +606,8 @@ Boolean OperatingSystem::getVersion(String & osVersion)
     return false;
   }
 
-  sprintf(version, "%s %s", unameInfo.release, unameInfo.version);
+  // Changed to fix PTR -73-51-2
+  sprintf(version, "%s", unameInfo.version);
   osVersion.assign(version);
 
   return true;
@@ -794,7 +838,7 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16 & currentTimeZone)
 // NOTES             :
 // ================================================================================
 //
-
+//PTR 73-51-27 - Changed to return 0 for number of licensed users on I64.
 Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers)
 {
   Boolean bStatus = false;
@@ -819,14 +863,14 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers
   // Note: The prefix string is limited to 5 chars.
   //       P3 = 0 returns unix format \sys$sratch\usageacca.out
   //       P3 = 1 returns vms format. sys$scratch:usageacca.out
-  UsageFile = tempnam(NULL, "usage", 1);
+  UsageFile = tempnam("wbem_tmp:", "usage", 1);
   if (!UsageFile) {
     bStatus = false;
     goto done;
   }
   strcat(UsageFile, ".out");
 
-  UnitsFile = tempnam(NULL, "units", 1);
+  UnitsFile = tempnam("wbem_tmp:", "units", 1);
   if (!UnitsFile) {
     bStatus = false;
     goto done;
@@ -920,12 +964,22 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers
   {
     while (fgets(record1, sizeof (record1), fptr1))
     {
+#ifdef	PEGASUS_PLATFORM_VMS_IA64_DECCXX
+// The base O/S license on IA64 (FOE) provides unlimited number
+// of users - PTR 73-51-27
+
+      if (rptr1 = strstr(record1, "HP "))
+      {
+          // either  FOE,EOE or MCOE license is existing on the system
+          // Return Unlimited number of users  
+          numberOfLicensedUsers = 0;
+          bStatus = true;
+          goto done;
+      }
+#endif
+
 #ifdef	PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
       if (rptr1 = strstr(record1, "DEC "))
-#endif
-#ifdef	PEGASUS_PLATFORM_VMS_IA64_DECCXX
-      if (rptr1 = strstr(record1, "HP "))
-#endif
       {
 	rptr2 = strstr(rptr1 + 3, "Unlimited license");
 	if (rptr2)
@@ -942,16 +996,9 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers
 	  {
 	    while (fgets(record2, sizeof (record2), fptr2))
 	    {
-#ifdef	PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
 	      if (rptr1 = strstr(record2, "Type: A, Units Required:"))
 	      {
 		rptr3 = strtok(rptr1 + 25, " ");
-#endif
-#ifdef	PEGASUS_PLATFORM_VMS_IA64_DECCXX
-	      if (rptr1 = strstr(record2, "Units Required:"))
-	      {
-		rptr3 = strtok(rptr1 + 15, " ");
-#endif
 		req_units = strtol(rptr3, NULL, 10);
 		if (req_units != 0)
 		{
@@ -982,9 +1029,18 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers
 
       }				// end if (rptr1 = strstr(record1,"DEC "))
 
-    }				// end while (fgets(record1, sizeof(record1), fptr1))
+#endif  //#ifdef  PEGASUS_PLATFORM_VMS_ALPHA_DECCXX                        
 
-  }				// end if (fptr1 = fopen(UsageFile, "r"))
+    }				// end while (fgets(record1, sizeof(record1), fptr1))
+  
+#ifdef PEGASUS_PLATFORM_VMS_IA64_DECCXX      
+     // no FOE,EOE or MCOE license is existing on the system
+     // Returning False
+     bStatus = false;
+     goto done;
+#endif
+
+ }				// end if (fptr1 = fopen(UsageFile, "r"))
 
 done: 
 
@@ -1040,6 +1096,7 @@ done:
 // ================================================================================
 //
 
+//Made changes to return only the numbers of interactive users - PTR-73-51-32
 Boolean OperatingSystem::getNumberOfUsers(Uint32 & numberOfUsers)
 {
   int i,
@@ -1064,159 +1121,6 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32 & numberOfUsers)
   itmlst3[0].wlength = 0;
   itmlst3[0].wcode = PSCAN$_MODE;
   itmlst3[0].pbuffer = (void *) JPI$K_INTERACTIVE;
-  itmlst3[0].pretlen = NULL;
-  itmlst3[1].wlength = 0;
-  itmlst3[1].wcode = 0;
-  itmlst3[1].pbuffer = NULL;
-  itmlst3[1].pretlen = NULL;
-
-  status = sys$process_scan(&jpictx, itmlst3);
-  if (!$VMS_STATUS_SUCCESS(status))
-  {
-    return false;
-  }
-
-  itmlst3[0].wlength = 12;
-  itmlst3[0].wcode = JPI$_USERNAME;
-  itmlst3[0].pbuffer = usernamebuf;
-  itmlst3[0].pretlen = &usernamlen;
-  itmlst3[1].wlength = 0;
-  itmlst3[1].wcode = 0;
-  itmlst3[1].pbuffer = NULL;
-  itmlst3[1].pretlen = NULL;
-
-  while (1)
-  {
-    status = sys$getjpiw(0, &jpictx, NULL, itmlst3, 0, NULL, 0);
-    if (status == SS$_NOMOREPROC)
-    {
-      break;
-    }
-    if (!$VMS_STATUS_SUCCESS(status))
-    {
-      return false;
-    }
-    usernamebuf[12] = '\0';
-    for (i = 0; i < MAXUSERNAME; i++)
-    {
-      ptr1 = &username[i * 13];
-      if (!strncmp(usernamebuf, ptr1, 13))
-      {
-	break;
-      }
-      else if (!strcmp(ptr1, ""))
-      {
-	strncpy(ptr1, usernamebuf, 13);
-	count++;
-	break;
-      }
-    }
-  }
-  itmlst3[0].wlength = 0;
-  itmlst3[0].wcode = PSCAN$_MODE;
-  itmlst3[0].pbuffer = (void *) JPI$K_OTHER;
-  itmlst3[0].pretlen = NULL;
-  itmlst3[1].wlength = 0;
-  itmlst3[1].wcode = 0;
-  itmlst3[1].pbuffer = NULL;
-  itmlst3[1].pretlen = NULL;
-
-  status = sys$process_scan(&jpictx, itmlst3);
-  if (!$VMS_STATUS_SUCCESS(status))
-  {
-    return false;
-  }
-
-  itmlst3[0].wlength = 12;
-  itmlst3[0].wcode = JPI$_USERNAME;
-  itmlst3[0].pbuffer = usernamebuf;
-  itmlst3[0].pretlen = &usernamlen;
-  itmlst3[1].wlength = 0;
-  itmlst3[1].wcode = 0;
-  itmlst3[1].pbuffer = NULL;
-  itmlst3[1].pretlen = NULL;
-
-  while (1)
-  {
-    status = sys$getjpiw(0, &jpictx, NULL, itmlst3, 0, NULL, 0);
-    if (status == SS$_NOMOREPROC)
-    {
-      break;
-    }
-    if (!$VMS_STATUS_SUCCESS(status))
-    {
-      return false;
-    }
-    usernamebuf[12] = '\0';
-    for (i = 0; i < MAXUSERNAME; i++)
-    {
-      ptr1 = &username[i * 13];
-      if (!strncmp(usernamebuf, ptr1, 13))
-      {
-	break;
-      }
-      else if (!strcmp(ptr1, ""))
-      {
-	strncpy(ptr1, usernamebuf, 13);
-	count++;
-	break;
-      }
-    }
-  }
-  itmlst3[0].wlength = 0;
-  itmlst3[0].wcode = PSCAN$_MODE;
-  itmlst3[0].pbuffer = (void *) JPI$K_BATCH;
-  itmlst3[0].pretlen = NULL;
-  itmlst3[1].wlength = 0;
-  itmlst3[1].wcode = 0;
-  itmlst3[1].pbuffer = NULL;
-  itmlst3[1].pretlen = NULL;
-
-  status = sys$process_scan(&jpictx, itmlst3);
-  if (!$VMS_STATUS_SUCCESS(status))
-  {
-    return false;
-  }
-
-  itmlst3[0].wlength = 12;
-  itmlst3[0].wcode = JPI$_USERNAME;
-  itmlst3[0].pbuffer = usernamebuf;
-  itmlst3[0].pretlen = &usernamlen;
-  itmlst3[1].wlength = 0;
-  itmlst3[1].wcode = 0;
-  itmlst3[1].pbuffer = NULL;
-  itmlst3[1].pretlen = NULL;
-
-  while (1)
-  {
-    status = sys$getjpiw(0, &jpictx, NULL, itmlst3, 0, NULL, 0);
-    if (status == SS$_NOMOREPROC)
-    {
-      break;
-    }
-    if (!$VMS_STATUS_SUCCESS(status))
-    {
-      return false;
-    }
-    usernamebuf[12] = '\0';
-    for (i = 0; i < MAXUSERNAME; i++)
-    {
-      ptr1 = &username[i * 13];
-      if (!strncmp(usernamebuf, ptr1, 13))
-      {
-	break;
-      }
-      else if (!strcmp(ptr1, ""))
-      {
-	strncpy(ptr1, usernamebuf, 13);
-	count++;
-	break;
-      }
-    }
-  }
-  itmlst3[0].wlength = 0;
-  itmlst3[0].wcode = PSCAN$_MODE;
-  itmlst3[0].pbuffer = (void *) JPI$K_NETWORK;
   itmlst3[0].pretlen = NULL;
   itmlst3[1].wlength = 0;
   itmlst3[1].wcode = 0;
@@ -1508,10 +1412,12 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32 & mMaxProcesses)
 // ================================================================================
 //
 
+
+// Added calculation of pagesize using sys$getsyi() -PTR 73-51-22
 Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64 & mTotalSwapSpaceSize)
 {
   int status,
-    swapsize;
+    swapsize,pagesize;
   typedef struct
   {
     unsigned short wlength;
@@ -1521,21 +1427,29 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64 & mTotalSwapSpaceSize)
   }
   item_list;
 
-  item_list itmlst3[2];
+  item_list itmlst3[3];
 
   itmlst3[0].wlength = 4;
   itmlst3[0].wcode = SYI$_SWAPFILE_PAGE;
   itmlst3[0].pbuffer = &swapsize;
   itmlst3[0].pretlen = NULL;
-  itmlst3[1].wlength = 0;
-  itmlst3[1].wcode = 0;
-  itmlst3[1].pbuffer = NULL;
+  itmlst3[1].wlength = 4;
+  itmlst3[1].wcode = SYI$_PAGE_SIZE;
+  itmlst3[1].pbuffer = &pagesize;
   itmlst3[1].pretlen = NULL;
+  itmlst3[2].wlength = 0;
+  itmlst3[2].wcode = 0;
+  itmlst3[2].pbuffer = NULL;
+  itmlst3[2].pretlen = NULL;
 
   status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
+ 
+  // Pagesize in KB
+  pagesize = pagesize/1024;
+
   if ($VMS_STATUS_SUCCESS(status))
   {
-    mTotalSwapSpaceSize = swapsize * 8;
+    mTotalSwapSpaceSize = swapsize * pagesize;
     return true;
   }
   else
@@ -1551,40 +1465,25 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64 & mTotalSwapSpaceSize)
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
-// NOTES             : This doesn't map well in VMS. Pagefile quota is the closest
-//                     thing but it's per process and reports the quota from the
-//                     current process.
+// NOTES             : returns the sum of TotalVisibleMemorySize and SizeStoredInPagingFiles,
+//                     which would be the total physical memory and total size in pagefile.sys
 // ================================================================================
 //
 
 Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64 & total)
 {
-  long status,
-    retlen,
-    item = 0;
-  unsigned long pid,
-    val1,
-    val2;
-  char libres[80];
+  Uint64 visibleMemory;
+  Uint64 sizeInPageFile;
 
-  item = JPI$_PID;
-  status = lib$getjpi(&item, 0, 0, &pid, 0, 0);
-  if (!$VMS_STATUS_SUCCESS(status))
-  {
+  if (getTotalVisibleMemorySize(visibleMemory) == false)
     return false;
-  }
 
-  item = JPI$_PGFLQUOTA;
-  status = lib$getjpi(&item, &pid, 0, &val1, 0, 0);
-  if ($VMS_STATUS_SUCCESS(status))
-  {
-    total = val1;
-    return true;
-  }
-  else
-  {
+  if (getSizeStoredInPagingFiles(sizeInPageFile)  == false)
     return false;
-  }
+
+  total = visibleMemory + sizeInPageFile;
+ 
+  return true;
 }
 
 //
@@ -1594,40 +1493,24 @@ Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64 & total)
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
-// NOTES             : This doesn't map well in VMS. Free pagefile quota of the
-//                      default process is the closest thing to the requested
-//                      value.
+// NOTES             : returns the sum of FreePhysicalMemory and FreeSpaceInPagingFiles
+//                     which would be the free physical memory and free size in pagefile.sys
 // ================================================================================
 //
 
 Boolean OperatingSystem::getFreeVirtualMemory(Uint64 & freeVirtualMemory)
 {
-  long status,
-    retlen,
-    item = 0;
-  unsigned long pid,
-    val1,
-    val2;
-  char libres[80];
+  Uint64 freePhysicalMem;
+  Uint64 freePageFile;
 
-  item = JPI$_PID;
-  status = lib$getjpi(&item, 0, 0, &pid, 0, 0);
-  if (!$VMS_STATUS_SUCCESS(status))
-  {
+  if (getFreePhysicalMemory(freePhysicalMem) == false)
     return false;
-  }
 
-  item = JPI$_PAGFILCNT;
-  status = lib$getjpi(&item, &pid, 0, &val2, 0, 0);
-  if ($VMS_STATUS_SUCCESS(status))
-  {
-    freeVirtualMemory = val2;
-    return true;
-  }
-  else
-  {
+  if (getFreeSpaceInPagingFiles(freePageFile) == false)
     return false;
-  }
+
+  freeVirtualMemory = freePhysicalMem + freePageFile;
+  return true;
 }
 
 //
@@ -1641,10 +1524,38 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64 & freeVirtualMemory)
 // ================================================================================
 //
 
+// Added calculation of pagesize using sys$getsyi() -PTR 73-51-22
 Boolean OperatingSystem::getFreePhysicalMemory(Uint64 & total)
 {
   long status = SS$_NORMAL,
     lFreeMem;
+
+  int pagesize;
+  
+  typedef struct
+  {
+    unsigned short wlength;
+    unsigned short wcode;
+    void *pbuffer;
+    void *pretlen;
+  }
+  item_list;
+
+  item_list itmlst3[2];
+
+  itmlst3[0].wlength = 4;
+  itmlst3[0].wcode = SYI$_PAGE_SIZE;
+  itmlst3[0].pbuffer = &pagesize;
+  itmlst3[0].pretlen = NULL;
+  itmlst3[1].wlength = 0;
+  itmlst3[1].wcode = 0;
+  itmlst3[1].pbuffer = NULL;
+  itmlst3[1].pretlen = NULL;
+
+  status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
+
+  // Pagesize in KB
+  pagesize = pagesize/1024;
 
   struct k1_arglist
   {				// kernel call arguments
@@ -1664,7 +1575,7 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64 & total)
   if ($VMS_STATUS_SUCCESS(status))
   {
     total = lFreeMem;
-    total = total * 8;
+    total = total * pagesize;
     return true;
   }
   else
@@ -1684,11 +1595,13 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64 & total)
 // ================================================================================
 //
 
+// Added calculation of pagesize using sys$getsyi() -PTR 73-51-22
 Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64 & memory)
 {
   long status,
     physmem;
   __int64 membytes;
+  int pagesize;
   typedef struct
   {
     unsigned short wlength;
@@ -1698,22 +1611,31 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64 & memory)
   }
   item_list;
 
-  item_list itmlst3[2];
+  item_list itmlst3[3];
 
   itmlst3[0].wlength = 4;
   itmlst3[0].wcode = SYI$_MEMSIZE;
   itmlst3[0].pbuffer = &physmem;
   itmlst3[0].pretlen = NULL;
-  itmlst3[1].wlength = 0;
-  itmlst3[1].wcode = 0;
-  itmlst3[1].pbuffer = NULL;
+  itmlst3[1].wlength = 4;
+  itmlst3[1].wcode = SYI$_PAGE_SIZE;
+  itmlst3[1].pbuffer = &pagesize;
   itmlst3[1].pretlen = NULL;
+  itmlst3[2].wlength = 0;
+  itmlst3[2].wcode = 0;
+  itmlst3[2].pbuffer = NULL;
+  itmlst3[2].pretlen = NULL;
+
 
   status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
+  
+  // Pagesize in KB
+  pagesize = pagesize/1024;
+
   if ($VMS_STATUS_SUCCESS(status))
   {
     membytes = physmem;
-    memory = membytes * 8;
+    memory = membytes * pagesize;
     return true;
   }
   else
@@ -1734,10 +1656,13 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64 & memory)
 // ================================================================================
 //
 
+// Added calculation of pagesize using sys$getsyi() -PTR 73-51-22
 Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64 & total)
 {
   int status,
     pagesize;
+ 
+  int pgsize;
   typedef struct
   {
     unsigned short wlength;
@@ -1747,21 +1672,29 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64 & total)
   }
   item_list;
 
-  item_list itmlst3[2];
+  item_list itmlst3[3];
 
   itmlst3[0].wlength = 4;
   itmlst3[0].wcode = SYI$_PAGEFILE_PAGE;
   itmlst3[0].pbuffer = &pagesize;
   itmlst3[0].pretlen = NULL;
-  itmlst3[1].wlength = 0;
-  itmlst3[1].wcode = 0;
-  itmlst3[1].pbuffer = NULL;
+  itmlst3[1].wlength = 4;
+  itmlst3[1].wcode = SYI$_PAGE_SIZE;
+  itmlst3[1].pbuffer = &pgsize;
   itmlst3[1].pretlen = NULL;
+  itmlst3[2].wlength = 0;
+  itmlst3[2].wcode = 0;
+  itmlst3[2].pbuffer = NULL;
+  itmlst3[2].pretlen = NULL;
 
   status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
+  
+  // Pagesize in KB
+  pgsize = pgsize/1024;
+
   if ($VMS_STATUS_SUCCESS(status))
   {
-    total = pagesize * 8;
+    total = pagesize * pgsize;
     return true;
   }
   else
@@ -1782,10 +1715,13 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64 & total)
 // ================================================================================
 //
 
+// Added calculation of pagesize using sys$getsyi() -PTR 73-51-22
 Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64 & freeSpaceInPagingFiles)
 {
   int status,
-    pagefree;
+    pagefree;                                   
+  int pagesize;
+
   typedef struct
   {
     unsigned short wlength;
@@ -1795,21 +1731,29 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64 & freeSpaceInPagingFil
   }
   item_list;
 
-  item_list itmlst3[2];
+  item_list itmlst3[3];
 
   itmlst3[0].wlength = 4;
   itmlst3[0].wcode = SYI$_PAGEFILE_FREE;
   itmlst3[0].pbuffer = &pagefree;
   itmlst3[0].pretlen = NULL;
-  itmlst3[1].wlength = 0;
-  itmlst3[1].wcode = 0;
-  itmlst3[1].pbuffer = NULL;
+  itmlst3[1].wlength = 4;
+  itmlst3[1].wcode = SYI$_PAGE_SIZE;
+  itmlst3[1].pbuffer = &pagesize;
   itmlst3[1].pretlen = NULL;
+  itmlst3[2].wlength = 0;
+  itmlst3[2].wcode = 0;
+  itmlst3[2].pbuffer = NULL;
+  itmlst3[2].pretlen = NULL;
 
   status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
+  
+  // Pagesize in KB
+  pagesize = pagesize/1024;
+
   if ($VMS_STATUS_SUCCESS(status))
   {
-    freeSpaceInPagingFiles = pagefree * 8;
+    freeSpaceInPagingFiles = pagefree * pagesize;
     return true;
   }
   else

@@ -48,6 +48,11 @@ include $(ROOT)/mak/config.mak
 
 LIBRARY = ProcessProvider
 
+ifeq ($(OS_TYPE),vms)
+VMS_CLIB = +sys$$library:sys$$lib_c/lib
+VMS_LIB = +sys$$library:sys$$lib_c/lib
+endif
+
 EXTRA_INCLUDES =
 
 SOURCES = \

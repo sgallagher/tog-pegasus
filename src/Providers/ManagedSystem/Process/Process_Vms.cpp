@@ -32,6 +32,36 @@
 // Author: Sean Keenan <sean.keenan@hp.com>
 //
 // Modified By:
+// Indrani Devi    PTR 73-51-26
+//                 Changes made to incorporate review suggestions in PTR 73-51-26.
+//                 Removed local definition of PCB structure and using PCB structure
+//                 defined in <pcbdef.h>
+//
+// Indrani Devi    PTR 73-51-25
+//                 Changes made to Process::getProcessSessionID() to return False as the
+//                 concept of process session id does not apply to OpenVMS
+//
+// Indrani Devi    PTR 73-51-26 and PTR 73-51-15
+//                 Changes made to incorporate review comments in PTR 73-51-15.
+//                 Changed the getKernelModeTime(), getUserModeTime() and
+//                 getCPUTime() functions such that the pid of the current 
+//                 process is obtained from the pInfo->pid field and not by
+//                 passing the PID as a argument to the fucntions.
+//                 Removed the #include <pcbdef.h> and used local PCB structure
+//                 definition
+// Indrani Devi    PTR 73-51-29
+//                 Changed the getCreationDate() fucntion to set the creation date to 
+//                 system uptime instead of 17--Nov-1858.
+//
+// Indrani Devi    PTR 73-51-26 
+//                 Changed getCPUTicks function to take pid as first argument
+//                 and use exe_std$cvt_epid_to_pcb() call to get the PCB structure
+//                 pointer for each individual process. This would get the correct
+//                 kernel mode time, user mode time and CPU time for each process.
+//                 
+//                 Made changes to the getKernelModeTime(), getUserModeTime() and 
+//                 getCPUTime() functions to make call to getCPUTicks() by passing 
+//                 pid as first argument.
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -40,8 +70,8 @@
 // ==========================================================================
 //
 
-
 #include "ProcessPlatform.h"
+#include <pcbdef.h>
 
 #define MAXITMLST 16
 #define MAXHOSTNAMELEN 256
@@ -56,16 +86,13 @@ struct proc_info *Process::pData = NULL;
 
 struct proc_info *pInfo = NULL;
 
-typedef struct
-{
-  char fill1[568];
-  long pcb$l_kernel_counter;
-  long pcb$l_exec_counter;
-  long pcb$l_super_counter;
-  long pcb$l_user_counter;
-  char fill2[72];
-  long pcb$l_kt_high;
-} PCB;
+#ifdef __cplusplus
+extern "C" {
+#endif
+PCB *exe_std$cvt_epid_to_pcb(unsigned int epid);
+#ifdef __cplusplus
+}
+#endif
 
 typedef struct
 {
@@ -386,6 +413,18 @@ Boolean Process::getCreationDate (CIMDateTime & d)
     unsigned int retlen;
     struct tm timetm;
     struct tm *ptimetm = &timetm;
+   
+    // Added to get system uptime for SWAPPER process - PTR 73-51-29
+    long item = SYI$_BOOTTIME;
+    char t_string[24] = "";
+    unsigned __int64  val = 0;
+    struct dsc$descriptor_s sysinfo;
+
+    sysinfo.dsc$b_dtype = DSC$K_DTYPE_T;
+    sysinfo.dsc$b_class = DSC$K_CLASS_S;
+    sysinfo.dsc$w_length = sizeof (t_string);
+    sysinfo.dsc$a_pointer = t_string;
+
     static $DESCRIPTOR (lnm_tbl, "LNM$SYSTEM");
     struct
     {
@@ -427,6 +466,13 @@ Boolean Process::getCreationDate (CIMDateTime & d)
       return false;
     }
 
+    //  Added to get sysuptime for SWAPPER process --- PTR 73-51-29 
+    if( bintime == 0 )
+    {
+      status = lib$getsyi(&item, 0, &sysinfo, &val, 0, 0);
+      status = sys$bintim(&sysinfo, &bintime);
+    }
+ 
     status = sys$numtim (timbuf, &bintime);
     if (!$VMS_STATUS_SUCCESS (status))
     {
@@ -451,6 +497,7 @@ Boolean Process::getCreationDate (CIMDateTime & d)
 
     if (convertToCIMDateString (ptimetm, cimtime) != -1)
     {
+
       d = CIMDateTime (cimtime);
       return true;
     }
@@ -488,20 +535,23 @@ Boolean Process::getTerminationDate (CIMDateTime & d)
 //
 
 // Kernel mode routine
+// Passing extended pid of each process as an argument -PTR 73-51-26
 
-int GetCPUTicks (long *pKernelTicks, long *pExecTicks, long *pSuperTicks, long *pUserTicks)
+int GetCPUTicks (long epid, long *pKernelTicks, long *pExecTicks, long *pSuperTicks, long *pUserTicks)
 {
-  PCB *pcb_ptr = 0;		// PCB pointer
+   PCB *other;                           // Pointer to PCB structure
+  
+  // call to get the PCB address of each process from the process extended pid
 
+  other = exe_std$cvt_epid_to_pcb(epid);
+  
 
-  pcb_ptr = (PCB *) CTL$GL_PCB;
+  *pKernelTicks = other->pcb$l_kernel_counter;
+  *pExecTicks = other->pcb$l_exec_counter;
+  *pSuperTicks = other->pcb$l_super_counter;
+  *pUserTicks = other->pcb$l_user_counter;
 
-  *pKernelTicks = pcb_ptr->pcb$l_kernel_counter;
-  *pExecTicks = pcb_ptr->pcb$l_exec_counter;
-  *pSuperTicks = pcb_ptr->pcb$l_super_counter;
-  *pUserTicks = pcb_ptr->pcb$l_user_counter;
-
-  if (pcb_ptr->pcb$l_kt_high <= 1)
+  if (other->pcb$l_kt_high <= 1)
   {
     return (SS$_NORMAL);	// single thread only
   }
@@ -522,7 +572,7 @@ int GetCPUTicks (long *pKernelTicks, long *pExecTicks, long *pSuperTicks, long *
 // ================================================================================
 //
 
-Boolean Process::getKernelModeTime (Uint64 & i64)
+Boolean Process::getKernelModeTime (Uint64& i64)
   const
   {
     int status = SS$_NORMAL;
@@ -537,15 +587,15 @@ Boolean Process::getKernelModeTime (Uint64 & i64)
 
       long lCount;		// number of arguments
 
-
+      long epid;
       long *pKernelTicks;
       long *pExecTicks;
       long *pSuperTicks;
       long *pUserTicks;
     }
-    getcputickskargs = {4};	// init to 4 arguments
+    getcputickskargs = {5};	// init to 5 arguments
 
-
+    getcputickskargs.epid        = pInfo->pid;
     getcputickskargs.pKernelTicks = &lKernelTicks;
     getcputickskargs.pExecTicks = &lExecTicks;
     getcputickskargs.pSuperTicks = &lSuperTicks;
@@ -572,7 +622,7 @@ Boolean Process::getKernelModeTime (Uint64 & i64)
 // ================================================================================
 //
 
-Boolean Process::getUserModeTime (Uint64 & i64)
+Boolean Process::getUserModeTime (Uint64& i64)
   const
   {
     int status = SS$_NORMAL;
@@ -584,14 +634,15 @@ Boolean Process::getUserModeTime (Uint64 & i64)
     struct k1_arglist
     {				// kernel call arguments
       long lCount;		// number of arguments
+      long epid;
       long *pKernelTicks;
       long *pExecTicks;
       long *pSuperTicks;
       long *pUserTicks;
     }
-    getcputickskargs = {4};	// init to 4 arguments
+    getcputickskargs = {5};	// init to 5 arguments
 
-
+    getcputickskargs.epid         = pInfo->pid;
     getcputickskargs.pKernelTicks = &lKernelTicks;
     getcputickskargs.pExecTicks = &lExecTicks;
     getcputickskargs.pSuperTicks = &lSuperTicks;
@@ -672,11 +723,12 @@ Boolean Process::getProcessGroupID (Uint64 & i64)
 // ================================================================================
 //
 
+// Changed to return false - PTR 73-51-25
 Boolean Process::getProcessSessionID (Uint64 & i64)
   const
-  {
-    i64 = pInfo->session;
-    return true;
+  {             
+    // Not Supported
+    return false;
   }
 
 //
@@ -846,7 +898,7 @@ Boolean Process::getProcessWaitingForEvent (String & s)
 // ================================================================================
 //
 
-Boolean Process::getCPUTime (Uint32 & i32)
+Boolean Process::getCPUTime (Uint32& i32)
   const
   {
     int status = SS$_NORMAL;
@@ -864,12 +916,13 @@ Boolean Process::getCPUTime (Uint32 & i32)
     struct k1_arglist
     {				// kernel call arguments
       long lCount;		// number of arguments
+      long epid;
       long *pKernelTicks;
       long *pExecTicks;
       long *pSuperTicks;
       long *pUserTicks;
     }
-    getcputickskargs = {4};	// init to 4 arguments
+    getcputickskargs = {5};	// init to 5 arguments
 
     typedef struct
     {
@@ -881,6 +934,7 @@ Boolean Process::getCPUTime (Uint32 & i32)
 
     item_list itmlst3[2];
 
+    getcputickskargs.epid = pInfo->pid;
     getcputickskargs.pKernelTicks = &lKernelTicks;
     getcputickskargs.pExecTicks = &lExecTicks;
     getcputickskargs.pSuperTicks = &lSuperTicks;

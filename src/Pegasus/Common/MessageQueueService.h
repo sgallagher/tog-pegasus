@@ -108,9 +108,8 @@ public:
     static AsyncOpNode *get_op();
     void return_op(AsyncOpNode *op);
 
-    static ThreadReturnType PEGASUS_THREAD_CDECL polling_routine(void *);
-    static ThreadReturnType PEGASUS_THREAD_CDECL kill_idle_threads(void *);
     static ThreadPool *get_thread_pool();
+    static void cleanupThreadPool();
 
     Uint32 _mask;
     AtomicInt _die;
@@ -153,8 +152,12 @@ protected:
     static cimom *_meta_dispatcher;
     static AtomicInt _service_count;
     static Mutex _meta_dispatcher_mutex;
+    static ThreadPool *_thread_pool;
 
 private:
+    static ThreadReturnType PEGASUS_THREAD_CDECL polling_routine(void *);
+    static ThreadReturnType PEGASUS_THREAD_CDECL kill_idle_threads(void *);
+
     AsyncQueue<AsyncOpNode> _incoming;
     static Thread* _polling_thread;
     static Semaphore _polling_sem;
@@ -173,13 +176,9 @@ private:
 
     AtomicInt _incoming_queue_shutdown;
 
-protected:
-    static ThreadPool *_thread_pool;
-
-private:
     struct timeval _default_op_timeout;
+
     friend class cimom;
-    friend class CIMServer;
 };
 
 PEGASUS_NAMESPACE_END

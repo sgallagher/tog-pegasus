@@ -57,6 +57,12 @@ ThreadPool *MessageQueueService::get_thread_pool()
    return _thread_pool;
 }
 
+void MessageQueueService::cleanupThreadPool()
+{
+    _check_idle_flag = 1;
+    _polling_sem.signal();
+}
+
 //
 // MAX_THREADS_PER_SVC_QUEUE
 //

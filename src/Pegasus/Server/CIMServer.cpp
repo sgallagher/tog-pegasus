@@ -623,10 +623,8 @@ void CIMServer::runForever()
 
       try
       {
-        MessageQueueService::_check_idle_flag = 1;
-        MessageQueueService::_polling_sem.signal();
-        
         _providerManager->unloadIdleProviders();
+        MessageQueueService::cleanupThreadPool();
       }
       catch(...)
       {

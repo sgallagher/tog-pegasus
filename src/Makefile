@@ -43,5 +43,3 @@ DIRS += \
 
 include $(ROOT)/mak/recurse.mak
 
-vms:
-	@ $(MAKE) "-SC" Pegasus/ProviderManager2/Default -f makefile_vms

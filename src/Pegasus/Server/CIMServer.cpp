@@ -610,8 +610,17 @@ void CIMServer::runForever()
     startSLPProvider();
 #endif
 
-    if(false == _monitor->run(500000))
+    _monitor->run(500000);
+
+    static struct timeval lastIdleCleanupTime = {0, 0};
+    struct timeval now;
+
+    gettimeofday(&now, 0);
+
+    if (now.tv_sec - lastIdleCleanupTime.tv_sec > 300)
     {
+      lastIdleCleanupTime.tv_sec = now.tv_sec;
+
       try
       {
         MessageQueueService::_check_idle_flag = 1;

@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
-//
-// Modified By:   Dan Gorey (djgorey@us.ibm.com)
-//                Amit K Arora, IBM (amita@in.ibm.com) for PEP#183
-//                Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//                David Dillard, VERITAS Software Corp.
-//                    (david.dillard@veritas.com)
-//                Vijay Eli, IBM (vijay.eli@in.ibm.com) for bug#3425
-//                Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3604
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMListener.h"
@@ -215,13 +205,15 @@ void CIMListenerService::bind()
 
 void CIMListenerService::runForever()
 {
-    static int modulator = 0;
-
     if (!_dieNow)
     {
-        if (false == _monitor->run(500000))
+        _monitor->run(500000);
+        static struct timeval lastIdleCleanupTime = {0, 0};
+        struct timeval now;
+        gettimeofday(&now, 0);
+        if (now.tv_sec - lastIdleCleanupTime.tv_sec > 300)
         {
-            modulator++;
+            lastIdleCleanupTime.tv_sec = now.tv_sec;
             try
             {
                 MessageQueueService::get_thread_pool()->cleanupIdleThreads();

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Heather Sterling (hsterl@us.ibm.com)
-//
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3654
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -228,39 +224,29 @@ ThreadReturnType PEGASUS_THREAD_CDECL ListenerService::_listener_routine(void *p
     Thread *myself = reinterpret_cast<Thread *>(param);
     ListenerService* listenerService = reinterpret_cast<ListenerService*>(myself->get_parm());
 
-    static int modulator = 0;  //ATTN: What is this for???
-
-    while (true)
+    while (!(listenerService->_dieNow))
     {
-          static int modulator = 0;
-
-          if(!(listenerService->_dieNow))
-          {
-              //PEGASUS_STD(cout) << "Running monitor\n";
-              if(!(listenerService->_monitor->run(30000)))
-              {   
-      modulator++;
-      try 
-      {
-         //MessageQueueService::_check_idle_flag = 1;
-         //MessageQueueService::_polling_sem.signal();
-         MessageQueueService::get_thread_pool()->cleanupIdleThreads();
-      }
-      catch(...)
-      {
-      }
-    }
-          } else
-          {
-				PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "ListenerService::Got shutdown signal.");
-              break;
-          }
+         listenerService->_monitor->run(30000);
+         static struct timeval lastIdleCleanupTime = {0, 0};
+         struct timeval now;
+         gettimeofday(&now, 0);
+         if (now.tv_sec - lastIdleCleanupTime.tv_sec > 300)
+         {
+             lastIdleCleanupTime.tv_sec = now.tv_sec;
+             try 
+             {
+                 MessageQueueService::get_thread_pool()->cleanupIdleThreads();
+             }
+             catch(...)
+             {
+             }
+         }
     }
 
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "ListenerService::Stopping _listener_routine");
-
+    PEG_TRACE_STRING(TRC_LISTENER, 
+                     Tracer::LEVEL4,
+                     "ListenerService::Stopping _listener_routine");
     PEG_METHOD_EXIT();
-
     return 0;  //success
 }
 

@@ -200,7 +200,7 @@ public:
       @param timeoutMsec the number of milliseconds to wait for an event.
       @return true if an event occured.
   */
-  Boolean run(Uint32 timeoutMsec);
+  void run(Uint32 timeoutMsec);
 
   /** Solicit interest in SocketMessages. Note that there may only
       be one solicitor per socket.

@@ -42,7 +42,7 @@
 #define Pegasus_HTTPConnector_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
@@ -58,11 +58,11 @@ class HTTPConnection;
     server. For each established connection, a HTTPConnection object
     is created.
 */
-class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
+class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueue
 {
    public:
    
-      typedef MessageQueueService Base;
+      typedef MessageQueue Base;
   
       /** Constructor.
 	  @param monitor pointer to monitor object which this class uses to

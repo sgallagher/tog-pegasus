@@ -733,28 +733,6 @@ void ProviderManagerService::unloadIdleProviders()
     }
 
     //
-    // Check whether the idle provider unload interval has elapsed
-    //
-
-    static struct timeval prevIdleCheckTime = {0, 0};
-
-    if (prevIdleCheckTime.tv_sec == 0)
-    {
-        Time::gettimeofday(&prevIdleCheckTime);
-    }
-
-    struct timeval now;
-    Time::gettimeofday(&now);
-
-    if (!((now.tv_sec - prevIdleCheckTime.tv_sec) > IDLE_LIMIT))
-    {
-        // It's not time yet to check for idle providers
-        _unloadIdleProvidersBusy--;
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    //
     // Start an idle provider unload thread
     //
 
@@ -774,9 +752,6 @@ void ProviderManagerService::unloadIdleProviders()
         PEG_METHOD_EXIT();
         return;
     }
-
-    // Update the time of the most recent attempt to unload idle providers
-    Time::gettimeofday(&prevIdleCheckTime);
 
     // Note: _unloadIdleProvidersBusy is decremented in
     // _unloadIdleProvidersHandler

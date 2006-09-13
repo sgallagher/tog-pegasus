@@ -327,15 +327,10 @@ ThreadStatus ThreadPool::allocate_and_awaken(void *parm,
 
         if (th == 0)
         {
-            // ATTN-DME-P3-20031103: This trace message should not be
-            // be labeled TRC_DISCARDED_DATA, because it does not
-            // necessarily imply that a failure has occurred.  However,
-            // this label is being used temporarily to help isolate
-            // the cause of client timeout problems.
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                          "ThreadPool::allocate_and_awaken: Insufficient resources: "
-                          " pool = %s, running threads = %d, idle threads = %d",
-                          _key, _runningThreads.size(), _idleThreads.size());
+            Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
+                "ThreadPool::allocate_and_awaken: Insufficient resources: "
+                    " pool = %s, running threads = %d, idle threads = %d",
+                _key, _runningThreads.size(), _idleThreads.size());
             return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
         }
 

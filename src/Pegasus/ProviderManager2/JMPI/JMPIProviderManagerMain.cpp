@@ -58,7 +58,7 @@ extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
         PEGASUS_STD(cerr)<<"--- JMPI Provider Manager activated"<<PEGASUS_STD(endl);
 #endif
 
-        return new JMPIProviderManager (JMPIProviderManager::CMPI_MODE);
+        return new JMPIProviderManager ();
     }
 
     return 0;

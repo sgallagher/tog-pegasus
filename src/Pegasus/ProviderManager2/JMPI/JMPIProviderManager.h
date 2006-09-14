@@ -58,14 +58,7 @@ struct CMPI_SelectExp;
 class PEGASUS_SERVER_LINKAGE JMPIProviderManager : public ProviderManager
 {
 public:
-    enum Mode {
-       CMPI_MODE,
-       CMPI_R_MODE,
-       CMPI_O_MODE
-    };
-
-    Mode getMode() { return mode; }
-    JMPIProviderManager(Mode=CMPI_MODE);
+    JMPIProviderManager();
     virtual ~JMPIProviderManager(void);
 
     virtual Boolean insertProvider(const ProviderName & providerName,
@@ -123,7 +116,6 @@ public:
 
 protected:
     JMPILocalProviderManager providerManager;
-    Mode mode;
 
     Message * handleUnsupportedRequest(const Message * message) throw();
 

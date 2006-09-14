@@ -347,9 +347,8 @@ Mutex                              JMPIProviderManager::mutexSelxTab;
 JMPIProviderManager::ProvRegistrar JMPIProviderManager::provReg;
 Mutex                              JMPIProviderManager::mutexProvReg;
 
-JMPIProviderManager::JMPIProviderManager(Mode m)
+JMPIProviderManager::JMPIProviderManager()
 {
-   mode=m;
    _subscriptionInitComplete = false;
 
 #ifdef PEGASUS_DEBUG

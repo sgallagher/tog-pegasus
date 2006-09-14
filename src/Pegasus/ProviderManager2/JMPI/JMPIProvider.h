@@ -48,14 +48,11 @@
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Common/AtomicInt.h>
 
-//#include <Pegasus/ProviderManager2/CMPI/CMPIResolverModule.h>
-
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class JMPIProviderModule;
-class CMPIResolverModule;
 
 struct ProviderVector {
    jclass jProviderClass;
@@ -111,7 +108,6 @@ public:
 
     Status getStatus(void) const;
     String getName(void) const;
-    void setResolver(CMPIResolverModule *rm) { _rm=rm; }
 
     JMPIProviderModule *getModule(void) const;
 
@@ -208,7 +204,6 @@ private:
     void *jProviderClass,*jProvider;
     String _name;
     AtomicInt _no_unload;
-    CMPIResolverModule *_rm;
     Uint32 _quantum;
     AtomicInt _current_operations;
     mutable Mutex _statusMutex;

@@ -67,7 +67,6 @@ JMPIProvider::JMPIProvider (const String       &name,
    _java_cimom_handle    = new CIMOMHandle ();
    _name                 = name;
    _no_unload            = false;
-   _rm                   = 0;
    _current_operations   = 1;
    _currentSubscriptions = 0;
    miVector              = *mv;
@@ -86,7 +85,6 @@ JMPIProvider::JMPIProvider (JMPIProvider *pr)
    _java_cimom_handle    = new CIMOMHandle ();
    _name                 = pr->_name;
    _no_unload            = pr->noUnload;
-   _rm                   = 0;
    _current_operations   = 1;
    _currentSubscriptions = 0;
    miVector              = pr->miVector;

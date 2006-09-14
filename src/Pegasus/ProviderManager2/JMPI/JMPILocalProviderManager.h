@@ -119,7 +119,6 @@ private:
     Uint32 _idle_timeout;
 
     JMPIProvider *_getResolver(const String & fileName, const String & interfaceType);
-//    CMPIResolverModule *_loadResolver(const String & fileName);
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
 
     Mutex _providerTableMutex;

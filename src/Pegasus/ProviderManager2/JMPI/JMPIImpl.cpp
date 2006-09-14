@@ -109,7 +109,6 @@ const char* classNames[]={
 /*32*/ "java/lang/Character",
 /*33*/ "org/pegasus/jmpi/OperationContext",
 /*34*/ "java/lang/Class",
-/*35*/ "org/pegasus/jmpi/JarClassLoader",
 };
 
 const METHOD_STRUCT instanceMethodNames[]={
@@ -605,7 +604,7 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
       DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jJarName = "<<PEGASUS_STD(hex)<<(int)jJarName<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
       DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::getProvider: jClassName = "<<PEGASUS_STD(hex)<<(int)jClassName<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 
-      jClassLoadedLocal = (jclass)env->CallStaticObjectMethod (JMPIjvm::jv.JarClassLoaderRef,
+      jClassLoadedLocal = (jclass)env->CallStaticObjectMethod (JMPIjvm::jv.JarClassLoaderClassRef,
                                                                JMPIjvm::jv.JarClassLoaderLoad,
                                                                jJarName,
                                                                jClassName);

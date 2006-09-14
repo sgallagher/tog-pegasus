@@ -74,7 +74,6 @@ endif
 LIBRARY = JMPIProviderManager
 
 LIBRARIES = \
-	CMPIProviderManager \
 	pegprovidermanager \
 	pegconfig \
 	pegprovider \

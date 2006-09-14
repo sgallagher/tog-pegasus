@@ -6347,7 +6347,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         {
             WQLSelectStatement *stmt       = newSelectExp (srec->query,
                                                            srec->queryLanguage);
-            jint                jStmtRef   = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, stmt);
+            jint                jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jint, stmt);
             jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
 
             JMPIjvm::checkException(env);
@@ -6384,7 +6384,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
             WQLSelectStatement *stmt       = newSelectExp (srec->query,
                                                            srec->queryLanguage);
-            jint                jStmtRef   = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, stmt);
+            jint                jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jint, stmt);
             jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
 
             JMPIjvm::checkException(env);
@@ -6617,7 +6617,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         {
             WQLSelectStatement *stmt       = newSelectExp (srec->query,
                                                            srec->queryLanguage);
-            jint                jStmtRef   = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, stmt);
+            jint                jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jint, stmt);
             jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
 
             JMPIjvm::checkException(env);
@@ -6654,7 +6654,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
             WQLSelectStatement *stmt       = newSelectExp (srec->query,
                                                            srec->queryLanguage);
-            jint                jStmtRef   = DEBUG_ConvertCToJava (CMPI_SelectExp*, jint, stmt);
+            jint                jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jint, stmt);
             jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
 
             JMPIjvm::checkException(env);

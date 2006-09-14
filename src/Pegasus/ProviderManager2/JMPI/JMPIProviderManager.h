@@ -53,8 +53,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct CMPI_SelectExp;
-
 class PEGASUS_SERVER_LINKAGE JMPIProviderManager : public ProviderManager
 {
 public:

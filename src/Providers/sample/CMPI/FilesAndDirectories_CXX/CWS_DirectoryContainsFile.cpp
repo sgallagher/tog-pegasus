@@ -190,8 +190,8 @@ static void DirectoryContainsFileReturnHelper
 	  refop.setHostname(CSName());
 #endif
       CmpiInstance refinst(refop);
-      refinst.setProperty("GroupComponent",isparent?cop:assocop);
-      refinst.setProperty("PartComponent",isparent?assocop:cop);
+      refinst.setProperty("GroupComponent",isparent?CmpiData (cop):CmpiData (assocop));
+      refinst.setProperty("PartComponent",isparent?CmpiData (assocop):CmpiData (cop));
       rslt.returnData(refinst);
     }
     break;
@@ -202,8 +202,8 @@ static void DirectoryContainsFileReturnHelper
 #ifdef SIMULATED
 	  refop.setHostname(CSName());
 #endif
-      refop.setKey("GroupComponent",isparent?cop:assocop);
-      refop.setKey("PartComponent",isparent?assocop:cop);
+      refop.setKey("GroupComponent",isparent?CmpiData (cop):CmpiData (assocop));
+      refop.setKey("PartComponent",isparent?CmpiData (assocop):CmpiData (cop));
       rslt.returnData(refop);
     }
     break;
@@ -226,7 +226,7 @@ static CmpiStatus CWS_DirectoryContainsFileAssocHelper
   //  Check if the object path belongs to a supported class
   if (cop.classPathIsA(DIRECTORYCLASS)) {
     // we have a directory and can return the children
-    CmpiString key = cop.getKey("Name");
+    CmpiString key = cop.getKey("Name").getString();
       
     // first the plain files
     enumhdl = CWS_Begin_Enum(key.charPtr(),CWS_TYPE_PLAIN);      
@@ -257,7 +257,7 @@ static CmpiStatus CWS_DirectoryContainsFileAssocHelper
   if (cop.classPathIsA(FILECLASS) ||
       cop.classPathIsA(DIRECTORYCLASS)) {
     // we can always return the parent
-    CmpiString key = cop.getKey("Name");
+    CmpiString key = cop.getKey("Name").getString();
     
     if (CWS_Get_File(dirname((char*)key.charPtr()),&filebuf)) {
      DirectoryContainsFileReturnHelper(rslt,cop,&filebuf,

@@ -156,7 +156,7 @@ CmpiStatus CWS_PlainFile::getInstance(const CmpiContext& ctx,
   cout<<"CWS_PlainFile getting instance"<<endl;
 #endif
 
-  CmpiString key = cop.getKey("Name"); 
+  CmpiString key = cop.getKey("Name").getString();
   CmpiString nameSpace=cop.getNameSpace();
   CWS_FILE  filebuf;
 
@@ -183,7 +183,7 @@ CmpiStatus CWS_PlainFile::setInstance(const CmpiContext& ctx,
   cout<<"CWS_PlainFile modifying instance"<<endl;
 #endif
   CWS_FILE   filebuf;
-  CmpiString key = cop.getKey("Name"); 
+  CmpiString key = cop.getKey("Name").getString();
   
   if (!CWS_Get_File(key.charPtr(),&filebuf)) {
     throw CmpiStatus(CMPI_RC_ERR_NOT_FOUND,key.charPtr());
@@ -230,7 +230,7 @@ CmpiStatus CWS_PlainFile::invokeMethod(const CmpiContext& ctx,
   cout<<"CWS_PlainFile invoking method "<<method<<endl;
 #endif
   char typebuf[1000];  
-  CmpiString key=cop.getKey("Name");
+  CmpiString key=cop.getKey("Name").getString();
 
   if (strcasecmp("filetype",method)) {
     throw CmpiStatus(CMPI_RC_ERR_METHOD_NOT_FOUND,method);
@@ -241,7 +241,7 @@ CmpiStatus CWS_PlainFile::invokeMethod(const CmpiContext& ctx,
 		     "Could not get type");
   }
 
-  rslt.returnData(typebuf);
+  rslt.returnData(CmpiData (typebuf));
   rslt.returnDone();
   return CmpiStatus(CMPI_RC_OK);
 }

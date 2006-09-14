@@ -767,9 +767,6 @@ CmpiArray::CmpiArray(CMPICount max, CMPIType type) {
 CmpiArray::CmpiArray() {
 }
 
- void CmpiArray::operator=(int x) {
- }
-
 CmpiArrayIdx CmpiArray::operator[](int idx) const {
    return CmpiArrayIdx(*this,idx);
 }
@@ -800,6 +797,8 @@ CmpiArrayIdx::CmpiArrayIdx(const CmpiArray &a, CMPICount i)
 {
 }
 
+#ifdef PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
+
 CmpiArrayIdx& CmpiArrayIdx::operator=(const CmpiData& v) {
    CMPIStatus rc={CMPI_RC_OK,NULL};
    if (ar.getEnc()->ft->getSimpleType(ar.getEnc(),&rc)!=v._data.type)
@@ -810,75 +809,149 @@ CmpiArrayIdx& CmpiArrayIdx::operator=(const CmpiData& v) {
    return *this;
 }
 
+#endif
 
 CmpiData CmpiArrayIdx::getData() const{
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIData d;
    d=ar.getEnc()->ft->getElementAt(ar.getEnc(),idx,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
-   return d;
+   return CmpiData (d);
 }
 
+#ifdef PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
+
 CmpiArrayIdx::operator CmpiString() const{
-   return getData();
+   return getData().getString();
 }
 
 CmpiArrayIdx::operator const char* () const{
-   return getData();
+   return getData().getCString();
 }
 
 CmpiArrayIdx::operator CmpiDateTime() const{
-   return getData();
+   return getData().getDateTime();
 }
 
 CmpiArrayIdx::operator CmpiObjectPath() const{
-   return getData();
+   return getData().getObjectPath();
 }
 
 CmpiArrayIdx::operator CmpiInstance() const{
-   return getData();
+   return getData().getInstance();
 }
 
 CmpiArrayIdx::operator CMPIUint8() const{
-   return getData();
+   return getData().getUint8();
 }
 
 CmpiArrayIdx::operator CMPIUint16() const{
-   return getData();
+   return getData().getUint16();
 }
 
 CmpiArrayIdx::operator CMPIUint32() const{
-   return getData();
+   return getData().getUint32();
 }
 
 CmpiArrayIdx::operator CMPIUint64() const{
-   return getData();
+   return getData().getUint64();
 }
 
 CmpiArrayIdx::operator CMPISint8() const{
-   return getData();
+   return getData().getSint8();
 }
 
 CmpiArrayIdx::operator CMPISint16() const{
-   return getData();
+   return getData().getSint16();
 }
 
 CmpiArrayIdx::operator CMPISint32() const{
-   return getData();
+   return getData().getSint32();
 }
 
 CmpiArrayIdx::operator CMPISint64() const{
-   return getData();
+   return getData().getSint64();
 }
 
 CmpiArrayIdx::operator CMPIReal32() const{
-   return getData();
+   return getData().getReal32();
 }
 
 CmpiArrayIdx::operator CMPIReal64() const{
-   return getData();
+   return getData().getReal64();
 }
 
+#endif /* PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS */
+
+CMPIBoolean CmpiArrayIdx::getBoolean() const
+{
+    return getData().getBoolean();
+}
+
+CMPIUint8 CmpiArrayIdx::getUint8() const
+{
+    return getData().getUint8();
+}
+
+CMPISint8 CmpiArrayIdx::getSint8() const
+{
+    return getData().getSint8();
+}
+
+CMPIUint16 CmpiArrayIdx::getUint16() const
+{
+    return getData().getUint16();
+}
+
+CMPISint16 CmpiArrayIdx::getSint16() const
+{
+    return getData().getSint16();
+}
+
+CMPIUint32 CmpiArrayIdx::getUint32() const
+{
+    return getData().getUint32();
+}
+
+CMPISint32 CmpiArrayIdx::getSint32() const
+{
+    return getData().getSint32();
+}
+
+CMPIUint64 CmpiArrayIdx::getUint64() const
+{
+    return getData().getUint64();
+}
+
+CMPISint64 CmpiArrayIdx::getSint64() const
+{
+    return getData().getSint64();
+}
+
+CMPIReal32 CmpiArrayIdx::getReal32() const
+{
+    return getData().getReal32();
+}
+
+CMPIReal64 CmpiArrayIdx::getReal64() const
+{
+    return getData().getReal64();
+}
+
+CMPIChar16 CmpiArrayIdx::getChar16() const
+{
+    return getData().getChar16();
+}
+
+CmpiString CmpiArrayIdx::getString() const
+{
+    return getData().getString();
+}
+
+CmpiDateTime CmpiArrayIdx::getDateTime() const
+{
+    return getData().getDateTime();
+}
 
 //---------------------------------------------------
 //--
@@ -886,7 +959,7 @@ CmpiArrayIdx::operator CMPIReal64() const{
 //--
 //---------------------------------------------------
 
-CmpiData::CmpiData(CMPIData& data) {
+CmpiData::CmpiData(const CMPIData& data) {
    this->_data=data;
 }
 
@@ -979,6 +1052,38 @@ CmpiData::CmpiData(const CmpiArray& d) {
    _data.value.array=d.getEnc();
    _data.type=((CMPIArrayFT*)d.getEnc()->ft)->getSimpleType(d.getEnc(),0) | CMPI_ARRAY;
 }
+
+CmpiData::CmpiData(const CmpiObjectPath& d) {
+  _data.state=d.getEnc()==0?CMPI_nullValue:CMPI_goodValue;
+  _data.value.ref=(CMPIObjectPath*)d.getEnc();
+  _data.type=CMPI_ref;
+}
+
+CmpiData::CmpiData(const CmpiInstance& d) {
+   _data.state=d.getEnc()==0?CMPI_nullValue:CMPI_goodValue;
+   _data.value.inst=(CMPIInstance*)d.getEnc();
+   _data.type=CMPI_instance;
+}
+
+CmpiData::CmpiData(const CmpiData& d) {
+   _data=d._data;
+}
+
+CmpiData::~CmpiData() {
+}
+
+CmpiData& CmpiData::operator= (const CmpiData& rhs) {
+   if (this == &rhs)
+   {
+      return *this;
+   }
+
+   _data=rhs._data;
+
+   return *this;
+}
+
+#ifdef PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
 
 CmpiData::operator CmpiString() const {
    if (_data.type!=CMPI_string)
@@ -1074,12 +1179,6 @@ CmpiData::operator CMPIReal64() const {
       return _data.value.real64;
 }
 
-CmpiData::CmpiData(const CmpiObjectPath& d) {
-  _data.state=d.getEnc()==0?CMPI_nullValue:CMPI_goodValue;
-  _data.value.ref=(CMPIObjectPath*)d.getEnc();
-  _data.type=CMPI_ref;
-}
-
 CmpiData::operator CmpiInstance() const{
    if (_data.type!=CMPI_instance)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
@@ -1097,6 +1196,285 @@ CmpiData::operator CmpiArray() const {
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else return CmpiArray(_data.value.array);
 }
+
+#endif /* PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS */
+
+//==============================================================================
+//
+// Getters:
+//
+//==============================================================================
+
+CMPIBoolean CmpiData::getBoolean() const
+{
+   if (_data.type != CMPI_boolean)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.boolean;
+}
+
+CMPIUint8 CmpiData::getUint8() const
+{
+   if (_data.type != CMPI_uint8)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.uint8;
+}
+
+CMPISint8 CmpiData::getSint8() const
+{
+   if (_data.type != CMPI_sint8)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.sint8;
+}
+
+CMPIUint16 CmpiData::getUint16() const
+{
+   if (_data.type != CMPI_uint16)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.uint16;
+}
+
+CMPISint16 CmpiData::getSint16() const
+{
+   if (_data.type != CMPI_sint16)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.sint16;
+}
+
+CMPIUint32 CmpiData::getUint32() const
+{
+   if (_data.type != CMPI_uint32)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.uint32;
+}
+
+CMPISint32 CmpiData::getSint32() const
+{
+   if (_data.type != CMPI_sint32)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.sint32;
+}
+
+CMPIUint64 CmpiData::getUint64() const
+{
+   if (_data.type != CMPI_uint64)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.uint64;
+}
+
+CMPISint64 CmpiData::getSint64() const
+{
+   if (_data.type != CMPI_sint64)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.sint64;
+}
+
+CMPIReal32 CmpiData::getReal32() const
+{
+   if (_data.type != CMPI_real32)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.real32;
+}
+
+CMPIReal64 CmpiData::getReal64() const
+{
+   if (_data.type != CMPI_real64)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.real64;
+}
+
+CMPIChar16 CmpiData::getChar16() const
+{
+   if (_data.type != CMPI_char16)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return _data.value.char16;
+}
+
+CmpiString CmpiData::getString() const
+{
+   if (_data.type != CMPI_string)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return CmpiString(_data.value.string);
+}
+
+const char* CmpiData::getCString() const
+{
+   if (_data.type!=CMPI_string)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return CMGetCharPtr(_data.value.string);
+}
+
+CmpiDateTime CmpiData::getDateTime() const
+{
+   if (_data.type != CMPI_dateTime)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+      return CmpiDateTime(_data.value.dateTime);
+}
+
+CmpiArray CmpiData::getArray() const
+{
+   if (!(_data.type & CMPI_ARRAY))
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+       return CmpiArray(_data.value.array);
+}
+
+CmpiInstance CmpiData::getInstance() const
+{
+   if (_data.type != CMPI_instance)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+       return CmpiInstance(_data.value.inst);
+}
+
+CmpiObjectPath CmpiData::getObjectPath() const
+{
+   if (_data.type != CMPI_ref)
+      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   else
+       return CmpiObjectPath(_data.value.ref);
+}
+
+//==============================================================================
+//
+// Setters:
+//
+//==============================================================================
+
+void CmpiData::setBoolean (const CmpiBoolean d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.boolean=d;
+   _data.type=CMPI_boolean;
+}
+
+void CmpiData::setSint8 (const CMPISint8 d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.sint8=d;
+   _data.type=CMPI_sint8;
+}
+
+void CmpiData::setUint8 (const CMPIUint8 d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.uint8=d;
+   _data.type=CMPI_uint8;
+}
+
+void CmpiData::setSint16 (const CMPISint16 d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.sint16=d;
+   _data.type=CMPI_sint16;
+}
+
+void CmpiData::setUint16 (const CMPIUint16 d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.uint16=d;
+   _data.type=CMPI_uint16;
+}
+
+void CmpiData::setSint32 (const CMPISint32 d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.sint32=d;
+   _data.type=CMPI_sint32;
+}
+
+void CmpiData::setUint32 (const CMPIUint32 d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.uint32=d;
+   _data.type=CMPI_uint32;
+}
+
+void CmpiData::setSint64 (const CMPISint64 d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.sint64=d;
+   _data.type=CMPI_sint64;
+}
+
+void CmpiData::setReal32 (const CMPIReal32 d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.real32=d;
+   _data.type=CMPI_real32;
+}
+
+void CmpiData::setReal64 (const CMPIReal64 d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.real64=d;
+   _data.type=CMPI_real64;
+}
+
+void CmpiData::setChar16 (const CMPIChar16 d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.char16=d;
+   _data.type=CMPI_char16;
+}
+
+void CmpiData::setString (const CmpiString d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.chars=(char*)d.charPtr();
+   _data.type=CMPI_chars;
+}
+
+void CmpiData::setCString (const char* d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.chars=(char*)d;
+   _data.type=CMPI_chars;
+}
+
+void CmpiData::setDateTime (const CmpiDateTime d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.dateTime=d.getEnc();
+   _data.type=CMPI_dateTime;
+}
+
+void CmpiData::setArray (const CmpiArray d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.array=d.getEnc();
+   _data.type=((CMPIArrayFT*)d.getEnc()->ft)->getSimpleType(d.getEnc(),0) | CMPI_ARRAY;
+}
+
+void CmpiData::setInstance (const CmpiInstance d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.inst=d.getEnc();
+   _data.type=CMPI_instance;
+}
+
+void CmpiData::setObjectPath (const CmpiObjectPath d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.ref=d.getEnc();
+   _data.type=CMPI_ref;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 int CmpiData::isNullValue() const {
   return (_data.state & CMPI_nullValue);
@@ -1183,7 +1561,7 @@ CmpiData CmpiInstance::getProperty(const char* name) const{
      else
        throw CmpiStatus(rc.rc,name);
    }
-   return d;
+   return CmpiData (d);
 }
 
 CmpiData CmpiInstance::getProperty(const int pos, CmpiString *name) {
@@ -1198,7 +1576,7 @@ CmpiData CmpiInstance::getProperty(const int pos, CmpiString *name) {
        throw CmpiStatus(rc.rc,name->charPtr());
    }
    if (name) *name=CmpiString(s);
-   return d;
+   return CmpiData (d);
 };
 
 unsigned int CmpiInstance::getPropertyCount() {
@@ -1370,7 +1748,7 @@ CmpiData CmpiObjectPath::getKey(const char* name) const {
    CMPIStatus rc={CMPI_RC_OK,NULL};
    d._data=getEnc()->ft->getKey(getEnc(),name,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
-   return d;
+   return CmpiData (d);
 }
 
 unsigned int CmpiObjectPath::getKeyCount() const {
@@ -1387,7 +1765,7 @@ CmpiData CmpiObjectPath::getKey(const int pos, CmpiString *name) const{
    d._data=getEnc()->ft->getKeyAt(getEnc(),(int)pos,&s,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    if (name) *name=CmpiString(s);
-   return d;
+   return CmpiData (d);
 }
 
 void CmpiObjectPath::setKey(const char* name, const CmpiData data) {
@@ -1711,7 +2089,7 @@ CmpiData CmpiArgs::getArg(const int pos, CmpiString *name) const {
        throw CmpiStatus(rc.rc,name->charPtr());
    }
    if (name) *name=CmpiString(s);
-   return d;
+   return CmpiData (d);
 }
 
 CmpiData CmpiArgs::getArg(const char* name) const {
@@ -1724,7 +2102,7 @@ CmpiData CmpiArgs::getArg(const char* name) const {
      else
        throw CmpiStatus(rc.rc,name);
    }
-   return d;
+   return CmpiData (d);
 }
 
 unsigned int CmpiArgs::getArgCount() const {
@@ -1842,7 +2220,7 @@ CmpiData CmpiContext::getEntry(const char* name) const{
    CMPIStatus rc={CMPI_RC_OK,NULL};
    d._data=getEnc()->ft->getEntry(getEnc(),name,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
-   return d;
+   return CmpiData (d);
 }
 
 

@@ -39,6 +39,10 @@
 #ifndef _CmpiArray_h_
 #define _CmpiArray_h_
 
+#ifndef PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
+#define PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
+#endif
+
 #include "cmpidt.h"
 #include "CmpiString.h"
 
@@ -52,14 +56,21 @@ class CmpiArray;
 class CmpiInstance;
 class CmpiData;
 
+// ATTN: consider implementing homogeneous arrays rather than these
+// heterogeneous ones.
+
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiArrayIdx {
    friend class CmpiArray;
    const CmpiArray &ar;
    CMPICount idx;
    CmpiArrayIdx(const CmpiArray &a, CMPICount i);
 public:
-   CmpiArrayIdx& operator=(const CmpiData&);
+
    CmpiData getData() const;
+
+#ifdef PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
+
+   CmpiArrayIdx& operator=(const CmpiData&);
 
    /** Extracting String.
    */
@@ -108,6 +119,79 @@ public:
    */
    operator CMPIReal64() const;
 
+#endif /* PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS */
+
+   /** Get value.
+   */
+   CMPIBoolean getBoolean() const;
+
+   /** Get value.
+   */
+   CMPISint8 getSint8() const;
+
+   /** Get value.
+   */
+   CMPIUint8 getUint8() const;
+
+   /** Get value.
+   */
+   CMPISint16 getSint16() const;
+
+   /** Get value.
+   */
+   CMPIUint16 getUint16() const;
+
+   /** Get value.
+   */
+   CMPISint32 getSint32() const;
+
+   /** Get value.
+   */
+   CMPIUint32 getUint32() const;
+
+   /** Get value.
+   */
+   CMPISint64 getSint64() const;
+
+   /** Get value.
+   */
+   CMPIUint64 getUint64() const;
+
+   /** Get value.
+   */
+   CMPIReal32 getReal32() const;
+
+   /** Get value.
+   */
+   CMPIReal64 getReal64() const;
+
+   /** Get value.
+   */
+   CMPIChar16 getChar16() const;
+
+   /** Get value.
+   */
+   CmpiString getString() const;
+
+   /** Get value.
+   */
+   const char* getCString() const;
+
+   /** Get value.
+   */
+   CmpiDateTime getDateTime() const;
+
+   /** Get value.
+   */
+   CmpiArray getArray() const;
+
+   /** Get value.
+   */
+   CmpiInstance getInstance() const;
+
+   /** Get value.
+   */
+   CmpiObjectPath getObjectPath() const;
 };
 
 
@@ -136,7 +220,6 @@ class CmpiArray : public CmpiObject {
    friend class CmpiArrayIdx;
    friend class CmpiData;
    friend class CmpiEnumeration;
-   void operator=(int x);
 
    /** Gets the encapsulated CMPIArray.
    */

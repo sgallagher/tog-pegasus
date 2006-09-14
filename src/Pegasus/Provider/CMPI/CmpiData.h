@@ -39,6 +39,16 @@
 #ifndef _CmpiData_h_
 #define _CmpiData_h_
 
+#ifndef PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
+#define PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
+#endif
+
+#ifdef PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
+#define EXPLICIT
+#else
+#define EXPLICIT explicit
+#endif
+
 #include "cmpidt.h"
 #include "cmpift.h"
 #include "CmpiString.h"
@@ -60,7 +70,8 @@ class CmpiCharData;
       Extraction operations can be appended to a property type retrieval statement
       like this:
  
-        CmpiString name = cop.getKey("DeviceID");
+        CmpiObjectPath cop  = ...;
+        CmpiString     name = cop.getKey ("DeviceID").getString ();
  
        Type mismatches will be signalled by exceptions.
 */
@@ -79,11 +90,23 @@ protected:
    */
    CMPIData _data;
 
-   /** Constructor - Empty constructor.
+   /** Constructor - CMPIData as input.
    */
-   CmpiData(CMPIData& data);
+   EXPLICIT CmpiData(const CMPIData& data);
 
 public:
+
+   // ATTN: there is no way to construct a char16-valued CmpiData object.
+   // REASON: error: `CmpiData::CmpiData(CMPIChar16)' and `CmpiData::CmpiData(CMPIUint16)' cannot be overloaded
+
+   // ATTN: there is no way to construct a Boolean-valued CmpiData object.
+   // REASON: error: `CmpiData::CmpiData(CMPIBoolean)' and `CmpiData::CmpiData(CMPIUint8)' cannot be overloaded
+
+   // ATTN: CmpiData(0) is ambiguous.
+
+   // ATTN: initializing constructors will cause overloading ambiguities since
+   // some of the data types cannot be distinguished by type overloading
+   // (boolean, char16, uint32).
 
    /** Constructor - Empty constructor.
    */
@@ -91,64 +114,81 @@ public:
 
    /** Constructor - signed 8 bit as input.
    */
-   CmpiData(CMPISint8 d);
+   EXPLICIT CmpiData(CMPISint8 d);
 
    /** Constructor - signed 16 bit as input.
    */
-   CmpiData(CMPISint16 d);
+   EXPLICIT CmpiData(CMPISint16 d);
 
    /** Constructor - signed 32 bit as input.
    */
-   CmpiData(CMPISint32 d);
+   EXPLICIT CmpiData(CMPISint32 d);
 
    /** Constructor - signed 64 bit as input.
    */
-   CmpiData(CMPISint64 d);
+   EXPLICIT CmpiData(CMPISint64 d);
 
    /** Constructor - unsigned 8 bit as input.
    */
-   CmpiData(CMPIUint8 d);
+   EXPLICIT CmpiData(CMPIUint8 d);
 
    /** Constructor - unsigned 16 bit as input.
    */
-   CmpiData(CMPIUint16 d);
+   EXPLICIT CmpiData(CMPIUint16 d);
 
    /** Constructor - unsigned 32 bit as input.
    */
-   CmpiData(CMPIUint32 d);
+   EXPLICIT CmpiData(CMPIUint32 d);
 
    /** Constructor - unsigned 64 bit as input.
    */
-   CmpiData(CMPIUint64 d);
+   EXPLICIT CmpiData(CMPIUint64 d);
 
    /** Constructor - 32 bit float as input.
    */
-   CmpiData(CMPIReal32 d);
+   EXPLICIT CmpiData(CMPIReal32 d);
 
    /** Constructor - 64 bit float as input.
    */
-   CmpiData(CMPIReal64 d);
+   EXPLICIT CmpiData(CMPIReal64 d);
 
    /** Constructor - String as input.
    */
-   CmpiData(const CmpiString& d);
+   EXPLICIT CmpiData(const CmpiString& d);
 
    /** Constructor - char* as input.
    */
-   CmpiData(const char* d);
+   EXPLICIT CmpiData(const char* d);
 
    /** Constructor - ObjectPath as input.
    */
-   CmpiData(const CmpiObjectPath& d);
+   EXPLICIT CmpiData(const CmpiObjectPath& d);
 
+   /** Constructor - Instance as input.
+    */
+   EXPLICIT CmpiData(const CmpiInstance& d);
 
    /** Constructor - DateTime as input.
    */
-   CmpiData(const CmpiDateTime& d);
+   EXPLICIT CmpiData(const CmpiDateTime& d);
 
    /** Constructor - Array as input.
    */
-   CmpiData(const CmpiArray& d);
+   EXPLICIT CmpiData(const CmpiArray& d);
+
+   /** Constructor - CmpiData reference as input.
+    */
+   CmpiData(const CmpiData& d);
+
+   /** Destructor.
+   */
+   ~CmpiData();
+
+   /** Assignment operator.
+    */
+   CmpiData& operator= (const CmpiData& d);
+
+#ifdef PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
 
    /** Extracting String.
    */
@@ -212,6 +252,152 @@ public:
    /** Extracting ObjectPath.
    */
    operator CmpiObjectPath() const;
+
+#endif /* PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS */
+
+   /** Get boolean value.
+   */
+   CMPIBoolean getBoolean() const;
+
+   /** Get signed 8 bit value.
+   */
+   CMPISint8 getSint8() const;
+
+   /** Get unsigned 8 bit value.
+   */
+   CMPIUint8 getUint8() const;
+
+   /** Get signed 16 bit value.
+   */
+   CMPISint16 getSint16() const;
+
+   /** Get unsigned 16 bit value.
+   */
+   CMPIUint16 getUint16() const;
+
+   /** Get signed 32 bit value.
+   */
+   CMPISint32 getSint32() const;
+
+   /** Get unsigned 32 bit value.
+   */
+   CMPIUint32 getUint32() const;
+
+   /** Get signed 64 bit value.
+   */
+   CMPISint64 getSint64() const;
+
+   /** Get unsigned 64 bit value.
+   */
+   CMPIUint64 getUint64() const;
+
+   /** Get float 32 bit value.
+   */
+   CMPIReal32 getReal32() const;
+
+   /** Get float 64 bit value.
+   */
+   CMPIReal64 getReal64() const;
+
+   /** Get character value.
+   */
+   CMPIChar16 getChar16() const;
+
+   /** Get string value.
+   */
+   CmpiString getString() const;
+
+   /** Get char * value.
+   */
+   const char* getCString() const;
+
+   /** Get DateTime value.
+   */
+   CmpiDateTime getDateTime() const;
+
+   /** Get array value.
+   */
+   CmpiArray getArray() const;
+
+   /** Get Instance value.
+   */
+   CmpiInstance getInstance() const;
+
+   /** Get ObjectPath value.
+   */
+   CmpiObjectPath getObjectPath() const;
+
+   /** Set boolean value.
+    */
+   void setBoolean (const CmpiBoolean d);
+
+   /** Set signed 8 bit value.
+   */
+   void setSint8 (const CMPISint8 d);
+
+   /** Set unsigned 8 bit value.
+   */
+   void setUint8 (const CMPIUint8 d);
+
+   /** Set signed 16 bit value.
+   */
+   void setSint16 (const CMPISint16 d);
+
+   /** Set unsigned 16 bit value.
+   */
+   void setUint16 (const CMPIUint16 d);
+
+   /** Set signed 32 bit value.
+   */
+   void setSint32 (const CMPISint32 d);
+
+   /** Set unsigned 32 bit value.
+   */
+   void setUint32 (const CMPIUint32 d);
+
+   /** Set signed 64 bit value.
+   */
+   void setSint64 (const CMPISint64 d);
+
+   /** Set unsigned 64 bit value.
+   */
+   void setUint64 (const CMPIUint64 d);
+
+   /** Set float 32 bit value.
+   */
+   void setReal32 (const CMPIReal32 d);
+
+   /** Set float 64 bit value.
+   */
+   void setReal64 (const CMPIReal64 d);
+
+   /** Set character value.
+   */
+   void setChar16 (const CMPIChar16 d);
+
+   /** Set string value.
+   */
+   void setString (const CmpiString d);
+
+   /** Set char * value.
+   */
+   void setCString (const char* d);
+
+   /** Set DateTime value.
+   */
+   void setDateTime (const CmpiDateTime d);
+
+   /** Set array value.
+   */
+   void setArray (const CmpiArray d);
+
+   /** Set Instance value.
+   */
+   void setInstance (const CmpiInstance d);
+
+   /** Set ObjectPath value.
+   */
+   void setObjectPath (const CmpiObjectPath d);
 
    /** test for null value
    */

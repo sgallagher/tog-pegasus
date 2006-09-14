@@ -156,7 +156,7 @@ CmpiStatus CWS_Directory::getInstance(const CmpiContext& ctx,
   cout<<"CWS_Directory getting instance"<<endl;
 #endif
 
-  CmpiString key = cop.getKey("Name"); 
+  CmpiString key = cop.getKey("Name").getString (); 
   CmpiString nameSpace = cop.getNameSpace();
   CWS_FILE  filebuf;
 
@@ -183,7 +183,7 @@ CmpiStatus CWS_Directory::setInstance(const CmpiContext& ctx,
   cout<<"CWS_Directory modifying instance"<<endl;
 #endif
   CWS_FILE   filebuf;
-  CmpiString key = cop.getKey("Name"); 
+  CmpiString key = cop.getKey("Name").getString (); 
 
   if (!CWS_Get_File(key.charPtr(),&filebuf)) {
     throw CmpiStatus(CMPI_RC_ERR_NOT_FOUND,key.charPtr());
@@ -207,7 +207,7 @@ CmpiStatus CWS_Directory::createInstance(const CmpiContext& ctx,
 #ifndef SIMULATED
   cout<<"CWS_Directory creating instance"<<endl;
 #endif
-  key = inst.getProperty("Name");
+  key = inst.getProperty("Name").getString ();
   if (strncmp(key.charPtr(),CWS_FILEROOT, strlen(CWS_FILEROOT))) {
     throw CmpiStatus(CMPI_RC_ERR_FAILED,
 		     "Invalid path name");

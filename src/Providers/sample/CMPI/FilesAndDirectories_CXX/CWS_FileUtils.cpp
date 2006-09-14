@@ -85,12 +85,12 @@ CmpiObjectPath makePath(const char * classname,
 #ifdef SIMULATED
   op.setHostname(CSName());
 #endif
-  op.setKey("CSCreationClassName",CSCreationClassName());
-  op.setKey("CSName",CSName()); 
-  op.setKey("FSCreationClassName",FSCreationClassName()); 
-  op.setKey("FSName",FSName()); 
-  op.setKey("CreationClassName",classname); 
-  op.setKey("Name",cwsf->cws_name); 
+  op.setKey("CSCreationClassName",CmpiData (CSCreationClassName()));
+  op.setKey("CSName",CmpiData (CSName())); 
+  op.setKey("FSCreationClassName",CmpiData (FSCreationClassName())); 
+  op.setKey("FSName",CmpiData (FSName())); 
+  op.setKey("CreationClassName",CmpiData (classname)); 
+  op.setKey("Name",CmpiData (cwsf->cws_name)); 
   return op;
 }
 
@@ -114,13 +114,13 @@ CmpiInstance makeInstance(const char * classname,
     in.setPropertyFilter(filter,keys);
   }
   
-  in.setProperty("CSCreationClassName",CSCreationClassName());
-  in.setProperty("CSName",CSName());
-  in.setProperty("FSCreationClassName",FSCreationClassName());
-  in.setProperty("FSName",FSName());
-  in.setProperty("CreationClassName",classname);
-  in.setProperty("Name",cwsf->cws_name); 
-  in.setProperty("FileSize",(CMPIUint64)cwsf->cws_size);
+  in.setProperty("CSCreationClassName",CmpiData (CSCreationClassName()));
+  in.setProperty("CSName",CmpiData (CSName()));
+  in.setProperty("FSCreationClassName",CmpiData (FSCreationClassName()));
+  in.setProperty("FSName",CmpiData (FSName()));
+  in.setProperty("CreationClassName",CmpiData (classname));
+  in.setProperty("Name",CmpiData (cwsf->cws_name)); 
+  in.setProperty("FileSize",CmpiData ((CMPIUint64)cwsf->cws_size));
 #ifndef SIMULATED
 /* We don't want this code in the simulated env - time is dynamic (diff timezones)
  *    and the testing system might using a diff timezone and report failure */
@@ -137,19 +137,19 @@ CmpiInstance makeInstance(const char * classname,
 int makeFileBuf(const CmpiInstance &instance, CWS_FILE *cwsf)
 {
   if (cwsf) {
-    strcpy(cwsf->cws_name,CmpiString(instance.getProperty("Name")).charPtr());
+    strcpy(cwsf->cws_name, instance.getProperty("Name").getString().charPtr());
     CmpiData data=instance.getProperty("FileSize");
     if (!data.isNullValue())
-      cwsf->cws_size=(CMPIUint64)data;
+      cwsf->cws_size = data.getUint64();
     data=instance.getProperty("Readable");
     if (!data.isNullValue())
-      cwsf->cws_mode=(CmpiBoolean)data ? 0400 : 0;
+      cwsf->cws_mode=data.getBoolean() ? 0400 : 0;
     data=instance.getProperty("Writeable");
     if (!data.isNullValue())
-      cwsf->cws_mode+=(CmpiBoolean)data ? 0200 : 0;
+      cwsf->cws_mode+=data.getBoolean() ? 0200 : 0;
     data=instance.getProperty("Executable");
     if (!data.isNullValue())
-      cwsf->cws_mode+=(CmpiBoolean)data ? 0100 : 0;
+      cwsf->cws_mode+=data.getBoolean() ? 0100 : 0;
     return 1;
   }
   return 0;

@@ -31,8 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_DateTime_h
-#define Pegasus_DateTime_h
+#ifndef Pegasus_CIMDateTime_h
+#define Pegasus_CIMDateTime_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
@@ -121,9 +121,22 @@ class PEGASUS_COMMON_LINKAGE CIMDateTime
 {
 public:
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
+    /** Wildcard parameter for component-based initializer member functions.
+    */
+    static const Uint32 WILDCARD;
+
+#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
+
     /** Creates a new CIMDateTime object with a zero interval value.
     */
     CIMDateTime();
+
+    /** Creates a CIMDateTime object from another CIMDateTime object.
+        @param x  Specifies the name of the CIMDateTime object to copy.
+    */
+    CIMDateTime(const CIMDateTime& x);
 
     /** Creates a new CIMDateTime object from a string constant representing
         the CIM DateTime formatted datetime.
@@ -134,12 +147,7 @@ public:
         @exception InvalidDateTimeFormatException If the input string is not
         formatted correctly.
     */
-    CIMDateTime(const String & str);
-
-    /** Creates a CIMDateTime object from another CIMDateTime object.
-        @param x  Specifies the name of the CIMDateTime object to copy.
-    */
-    CIMDateTime(const CIMDateTime& x);
+    CIMDateTime(const String& str);
 
     /** Creates a CIMDateTime object from an integer.
         @param microSec For a time stamp, the number of microseconds since
@@ -153,7 +161,57 @@ public:
         @exception InvalidDateTimeFormatException If the CIMDateTime object is
         not formed correctly.
     */
-    CIMDateTime(Uint64 microSec, Boolean interval);
+    CIMDateTime(Uint64 usec, Boolean isInterval);
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
+    /** Create datetime time stamp from components.
+        @param year zero-based year number (or CIMDateTime::WILDCARD)
+        @param month number from 1 to 12 (or CIMDateTime::WILDCARD)
+        @param day one-based day of the month (or CIMDateTime::WILDCARD)
+        @param hours a number from 0 to 23 (or CIMDateTime::WILDCARD)
+        @param minutes a number from 0 to 59 (or CIMDateTime::WILDCARD)
+        @param seconds a number from 0 to 59 (or CIMDateTime::WILDCARD)
+        @param microseconds a number from 0 to 999999
+        @param numSignificantMicrosecondDigits the number of decimal digits of
+            the microseconds parameter (from left to right) that are
+            significant (all others are wildcarded) or six if they are all
+            significant.
+        @param UTF offset in minutes (negative or positive).
+        @exception DateTimeOutOfRangeException.
+    */
+    CIMDateTime(
+        Uint32 year,
+        Uint32 month,
+        Uint32 day,
+        Uint32 hours,
+        Uint32 minutes,
+        Uint32 seconds,
+        Uint32 microseconds,
+        Uint32 numSignificantMicrosecondDigits,
+        Sint32 utcOffset);
+
+    /** Create datetime interval from components.
+        @param days a number from 0 to 99999999 (or CIMDateTime::WILDCARD)
+        @param hours a number from 0 to 23 (or CIMDateTime::WILDCARD)
+        @param minutes a number from 0 to 59 (or CIMDateTime::WILDCARD)
+        @param seconds a number from 0 to 59 (or CIMDateTime::WILDCARD)
+        @param microseconds a number from 0 to 999999
+        @param numSignificantMicrosecondDigits the number of decimal digits of
+            the microseconds parameter (from left to right) that are
+            significant (all others are wildcarded) or six if they are all
+            significant.
+        @exception DateTimeOutOfRangeException.
+    */
+    CIMDateTime(
+        Uint32 days,
+        Uint32 hours,
+        Uint32 minutes,
+        Uint32 seconds,
+        Uint32 microseconds,
+        Uint32 numSignificantMicrosecondDigits);
+
+#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
     /** CIMDateTime destructor. */
     ~CIMDateTime();
@@ -167,7 +225,8 @@ public:
             CIMDateTime d2 = "00000000000000.000000:000";
             d1 = d2;
         </PRE>
-        Therefore, d1 is assigned the same "00000000000000.000000:000" value as d2.
+        Therefore, d1 is assigned the same "00000000000000.000000:000" value 
+        as d2.
     */
     CIMDateTime& operator=(const CIMDateTime& x);
 
@@ -192,6 +251,56 @@ public:
         formatted correctly.
     */
     void set(const String & str);
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
+    /** Sets the datetime timestamp from individual components.
+        @param year zero-based year number (or CIMDateTime::WILDCARD)
+        @param month number from 1 to 12 (or CIMDateTime::WILDCARD)
+        @param day one-based day of the month (or CIMDateTime::WILDCARD)
+        @param hours a number from 0 to 23 (or CIMDateTime::WILDCARD)
+        @param minutes a number from 0 to 59 (or CIMDateTime::WILDCARD)
+        @param seconds a number from 0 to 59 (or CIMDateTime::WILDCARD)
+        @param microseconds a number from 0 to 999999
+        @param UTF offset in minutes (negative or positive).
+        @param numSignificantMicrosecondDigits the number of decimal digits of
+            the microseconds parameter (from left to right) that are
+            significant (all others are wildcarded) or six if they are all
+            significant.
+        @exception DateTimeOutOfRangeException.
+    */
+    void setTimeStamp(
+        Uint32 year,
+        Uint32 month,
+        Uint32 day,
+        Uint32 hours,
+        Uint32 minutes,
+        Uint32 seconds,
+        Uint32 microseconds,
+        Uint32 numSignificantMicrosecondDigits,
+        Sint32 utcOffset);
+
+    /** Create datetime interval from components.
+        @param days a number from 0 to 99999999
+        @param hours a number from 0 to 23 (or CIMDateTime::WILDCARD)
+        @param minutes a number from 0 to 59 (or CIMDateTime::WILDCARD)
+        @param seconds a number from 0 to 59 (or CIMDateTime::WILDCARD)
+        @param microseconds a number from 0 to 999999
+        @param numSignificantMicrosecondDigits the number of decimal digits of
+            the microseconds parameter (from left to right) that are
+            significant (all others are wildcarded) or six if they are all
+            significant.
+        @exception DateTimeOutOfRangeException.
+    */
+    void setInterval(
+        Uint32 days,
+        Uint32 hours,
+        Uint32 minutes,
+        Uint32 seconds,
+        Uint32 microseconds,
+        Uint32 numSignificantMicrosecondDigits);
+
+#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
     /** Clears the datetime class object.  The date time is set to
         a zero interval value.
@@ -220,13 +329,22 @@ public:
     Boolean isInterval() const;
     Boolean isInterval();
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
+    /** Checks whether the datetime is a timestamp.
+        @return True if so.
+    */
+    Boolean isTimeStamp() const;
+
+#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
+
     /** Compares the CIMDateTime object to another CIMDateTime object for
         equality.
         @param x  CIMDateTime object to be compared.
         @return true if the two CIMDateTime objects are equal, false otherwise
         @exception TypeMismatchException If arguments are of different types.
     */
-    Boolean equal(const CIMDateTime & x) const;
+    Boolean equal(const CIMDateTime& x) const;
 
     /** Converts a CIMDateTime object to its microsecond representation.
         @return Number of microseconds since the epoch (for time stamps) or
@@ -238,7 +356,7 @@ public:
 
     /** Adds two CIMDateTime objects and returns a CIMDateTime object that
         represents the sum.
-        @param cDT operand on the RHS of the operator
+        @param x operand on the RHS of the operator
         @return A CIMDateTime object that is the result of adding the calling
         object to the RHS operand
         @exception DateTimeOutOfRangeException If the operation causes an
@@ -246,11 +364,11 @@ public:
         @exception TypeMismatchException If the operands are not type
         compatible (see table of operations).
     */
-    CIMDateTime operator+(const CIMDateTime& cDT) const;
+    CIMDateTime operator+(const CIMDateTime& x) const;
 
     /** Adds two CIMDateTime objects, returns the sum and changes
         the value of the calling CIMDateTime object to match the return value.
-        @param cDT operand on the RHS of the operator
+        @param x operand on the RHS of the operator
         @return A CIMDateTime object that is the result of adding the calling
         object to the RHS operand
         @exception DateTimeOutOfRangeException If the operation causes an
@@ -258,11 +376,11 @@ public:
         @exception TypeMismatchException If the operands are not type
         compatible (see table of operations).
     */
-    CIMDateTime & operator+=(const CIMDateTime& cDT);
+    CIMDateTime & operator+=(const CIMDateTime& x);
 
     /** Subtracts one CIMDateTime object from another and returns a
         CIMDateTime object that represents the difference.
-        @param cDT operand on the RHS of the operator
+        @param x operand on the RHS of the operator
         @return A CIMDateTime object that is the result of subtracting the
         the RHS object from the calling.
         @exception DateTimeOutOfRangeException If the operation causes an
@@ -271,12 +389,12 @@ public:
         @exception TypeMismatchException If the operands are not type
         compatible (see table of operations).
     */
-    CIMDateTime operator-(const CIMDateTime& cDT) const;
+    CIMDateTime operator-(const CIMDateTime& x) const;
 
     /** Subtracts one CIMDateTime object from another, returns the difference
         and changes the value of the calling CIMDateTime object to match the
         return value.
-        @param cDT operand on the RHS of the operator
+        @param x operand on the RHS of the operator
         @return A CIMDateTime object that is the result of subtracting the
         object on the RHS from the calling object.
         @exception DateTimeOutOfRangeException If the operation causes an
@@ -285,7 +403,7 @@ public:
         @exception TypeMismatchException If the operands are not type
         compatible (see table of operations).
     */
-    CIMDateTime & operator-=(const CIMDateTime& cDT);
+    CIMDateTime & operator-=(const CIMDateTime& x);
 
     /** Multiplies a CIMDateTime object by an integer and returns a CIMDateTime
         object that represents the product.
@@ -297,7 +415,7 @@ public:
         @exception TypeMismatchException If the operands are not type
         compatible (see table of operations).
     */
-    CIMDateTime operator*(Uint64 num) const;
+    CIMDateTime operator*(Uint64 x) const;
 
     /** Multiplies a CIMDateTime object by an integer, returns the product
         and changes the value of the calling object to match the returned
@@ -310,7 +428,7 @@ public:
         @exception TypeMismatchException If the operands are not type
         compatible (see table of operations).
     */
-    CIMDateTime & operator*=(Uint64 num);
+    CIMDateTime & operator*=(Uint64 x);
 
     /** Divides a CIMDateTime object by an integer and returns a CIMDateTime
         object that represents the quotient.
@@ -355,18 +473,18 @@ public:
 
     /** Compare two CIMDateTime objects and returns true if the LHS is
         less than the RHS.
-        @param cDT operand on the RHS of the operator
+        @param x operand on the RHS of the operator
         @return true if the LHS is less than the RHS, false otherwise.
         @exception DateTimeOutOfRangeException If conversion to UTC (an
         internal operation) causes an overflow condition.
         @exception TypeMismatchException if operands are not of the same
         type.
      */
-    Boolean operator<(const CIMDateTime& cDT) const;
+    Boolean operator<(const CIMDateTime& x) const;
 
     /** Compare two CIMDateTime objects and returns true if the LHS is
         less than or equal to the RHS.
-        @param cDT operand on the RHS of the operator
+        @param x operand on the RHS of the operator
         @return true if the LHS is less than or equal to the RHS, false
         otherwise.
         @exception DateTimeOutOfRangeException If conversion to UTC (an
@@ -374,22 +492,22 @@ public:
         @exception TypeMismatchException if operands are not of the same
         type.
     */
-    Boolean operator<=(const CIMDateTime& cDT) const;
+    Boolean operator<=(const CIMDateTime& x) const;
 
     /** Compare two CIMDateTime objects and returns true if the LHS is
         greater than the RHS.
-        @param cDT operand on the RHS of the operator
+        @param x operand on the RHS of the operator
         @return true if the LHS is greater than the RHS, false otherwise.
         @exception DateTimeOutOfRangeException If conversion to UTC (an
         internal operation) causes an overflow condition.
         @exception TypeMismatchException if operands are not of the same
         type.
     */
-    Boolean operator>(const CIMDateTime & cDT) const;
+    Boolean operator>(const CIMDateTime & x) const;
 
     /** Compare two CIMDateTime objects and returns true if the LHS is
         greater than or equal to the RHS.
-        @param cDT operand on the RHS of the operator
+        @param x operand on the RHS of the operator
         @return true if the LHS is greater than or equal to the RHS, false
         otherwise.
         @exception DateTimeOutOfRangeException If conversion to UTC (an
@@ -397,38 +515,22 @@ public:
         @exception TypeMismatchException if operands are not of the same
         type.
     */
-    Boolean operator>=(const CIMDateTime & cDT) const;
+    Boolean operator>=(const CIMDateTime & x) const;
 
     /** Compare two CIMDateTime objects and returns true if the LHS is
         not equal to the RHS.
-        @param cDT operand on the RHS of the operator
+        @param x operand on the RHS of the operator
         @return true if the LHS is not equal to RHS, false otherwise.
         @exception DateTimeOutOfRangeException If conversion to UTC (an
         internal operation) causes an overflow condition.
         @exception TypeMismatchException if operands are not of the same
         type.
     */
-    Boolean operator!=(const CIMDateTime & cDT) const;
+    Boolean operator!=(const CIMDateTime & x) const;
 
 private:
-
     CIMDateTimeRep* _rep;
-    Boolean _set(const String & dateTimeStr);
-    enum Field {ONLY_WILD_CARDS, SOME_WILD_CARDS, ONLY_DIGITS, ERR};
-
-    Field fieldcheck(const String & in_p, String & rep_field);
-
-    Boolean restOfFields(Uint32 start_position,const String & inStr);
-
-    Uint64 _toMicroSeconds();
-
-    void convertToUTC();
-
-    void setUtcOffSet(Sint32 utc);
-
-    void insert_WildCard(Uint32 index);
-
-    Uint32 getHighestWildCardPosition(const CIMDateTime & cDT_s);
+    CIMDateTime(CIMDateTimeRep*);
 };
 
 /** Compares two CIMDateTime objects and returns true if they represent the
@@ -446,7 +548,6 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_DateTime_h */
+#endif /* Pegasus_CIMDateTime_h */

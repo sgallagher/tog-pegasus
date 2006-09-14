@@ -32,6 +32,7 @@
 all clean depend build poststarttests repository tests:
 	$(MAKE) -f jmpi.mak $(MFLAGS) $@
 	$(MAKE) -C org/pegasus/jmpi $(MFLAGS) $@
+	$(MAKE) -C org/pegasus/jmpi/tests/JRE  $(MFLAGS) $@
 	$(MAKE) -C org/pegasus/jmpi/tests/Providers/Associations  $(MFLAGS) $@
 	$(MAKE) -C org/pegasus/jmpi/tests/Providers/Indications $(MFLAGS) $@
 	$(MAKE) -C org/pegasus/jmpi/tests/Providers/Instances $(MFLAGS) $@

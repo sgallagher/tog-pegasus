@@ -1416,7 +1416,7 @@ CIMDateTime CIMDateTime::operator*(Uint64 x) const
     return result*=(x);
 }
 
-CIMDateTime& CIMDateTime::operator*=(const Uint64 x)
+CIMDateTime& CIMDateTime::operator*=(Uint64 x)
 {
     if (!isInterval())
         throw TypeMismatchException();
@@ -1431,7 +1431,7 @@ CIMDateTime CIMDateTime::operator/(Uint64 x) const
     return result/=(x);
 }
 
-CIMDateTime& CIMDateTime::operator/=(const Uint64 x)
+CIMDateTime& CIMDateTime::operator/=(Uint64 x)
 {
     if (!isInterval())
     {

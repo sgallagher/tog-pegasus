@@ -939,21 +939,19 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
             }
 
             _outstandingRequestTable.clear();
+        }
 
+        //
+        //  If not a clean shutdown, call the provider module failure callback
+        //
+        if (!cleanShutdown)
+        {
             //
-            //  If not a clean shutdown, call the provider module failure
-            //  callback
+            // Call the provider module failure callback to communicate
+            // the failure to the Provider Manager Service.  The Provider
+            // Manager Service will inform the Indication Service.
             //
-            if (!cleanShutdown)
-            {
-                //
-                //  Call the provider module failure callback to
-                //  communicate the failure to the Provider Manager Service
-                //  Provider Manager Service will inform Indication Service  
-                //
-                _providerModuleFailCallback (_moduleName, _userName,
-                    _userContext);
-            }
+            _providerModuleFailCallback(_moduleName, _userName, _userContext);
         }
     }
     catch (...)

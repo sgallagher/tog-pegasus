@@ -29,30 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//      Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//      Chip Vincent (cvincent@us.ibm.com)
-//      Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//      Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//      Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//      Mike Day (mdday@us.ibm.com)
-//      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
-//      Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
-//      Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//      Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//      Dave Rosckes (rosckes@us.ibm.com)
-//      Adrian Schuur (schuur@de.ibm.com)
-//      Seema Gupta (gseema@in.ibm.com), PEP#135
-//      Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
-//      Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP#140/phase2
-//      Heather Sterling, IBM (hsterl@us.ibm.com), PEP#187
-//      Amit K Arora, IBM (amita@in.ibm.com), for PEP#193
-//      David Dillard, VERITAS Software Corp.
-//          (david.dillard@veritas.com)
-//      John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOperationRequestDispatcher.h"
@@ -1725,8 +1701,7 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     CIMOperationRequestDispatcher *service =
         static_cast<CIMOperationRequestDispatcher *>(q);
 
-    AsyncRequest *asyncRequest =
-        static_cast<AsyncRequest *>(op->removeRequest());
+    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->getRequest());
     AsyncReply *asyncReply = static_cast<AsyncReply *>(op->removeResponse());
 
     OperationAggregate* poA = reinterpret_cast<OperationAggregate*>(userParameter);
@@ -1758,22 +1733,16 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
 
     PEGASUS_ASSERT(response != 0);
     PEGASUS_ASSERT(response->messageId == poA->_messageId);
+    delete asyncReply;
 
-    // Before resequencing, this flag represents the completion status of
-    // one provider threads message, not the entire message
+    // Before resequencing, the isComplete() flag represents the completion
+    // status of one provider's response, not the entire response
 
-    Boolean isComplete = response->isComplete();
-    if (isComplete == false)
+    if (response->isComplete())
     {
-        // put back the async request because there are more chunks to come.
-        op->setRequest(asyncRequest);
-        delete asyncReply;
-    }
-    else
-    {
-        // these are per thread instantiations
+        // these are per provider instantiations
+        op->removeRequest();
         delete asyncRequest;
-        delete asyncReply;
         op->release();
         service->return_op(op);
     }
@@ -1781,7 +1750,8 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     // After resequencing, this flag represents the completion status of
     // the ENTIRE response to the request.
 
-    isComplete = service->_enqueueResponse(poA, response);
+    Boolean isComplete = service->_enqueueResponse(poA, response);
+
     if(isComplete)
     {
         // also deletes the copied request attached to it

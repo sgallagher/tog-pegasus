@@ -96,6 +96,7 @@ PEGASUS_LIBRARIES = \
    libpeghandlerservice \
    libpegindicationservice \
    libpeglistener \
+   libpegpmservice \
    libpegprm \
    libpegprovider \
    libpegprovidermanager \

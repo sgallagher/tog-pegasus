@@ -44,9 +44,15 @@ LIBRARIES = \
     pegconfig \
     pegclient \
     pegqueryexpression \
-    pegquerycommon \
-    pegcql \
-    pegquerycommon \
+    pegquerycommon
+
+ifndef PEGASUS_DISABLE_CQL
+    LIBRARIES += \
+        pegcql \
+        pegquerycommon
+endif
+
+LIBRARIES += \
     pegwql \
     pegcommon
 

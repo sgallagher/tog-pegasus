@@ -54,25 +54,11 @@ ProviderManager::~ProviderManager(void)
 
 String ProviderManager::_resolvePhysicalName(String physicalName)
 {
-    String fileName = FileSystem::buildLibraryFileName(physicalName);
-
 #if defined(PEGASUS_OS_VMS)
-    String temp, temp2;
-
-    temp =  String("/") + fileName + String(".exe");
-
-    temp2 = FileSystem::getAbsoluteFileName(
-                           ConfigManager::getInstance()->getCurrentValue("providerDir"),
-                         temp);
-    if (temp2 == String::EMPTY)
-    {
-      return temp2;
-    }
-    else
-    {
-      return (ConfigManager::getInstance()->getCurrentValue("providerDir") + temp);
-    }
+    String fileName = FileSystem::buildLibraryFileName(physicalName) + String(".exe");
 #else
+    String fileName = FileSystem::buildLibraryFileName(physicalName);
+#endif
 #ifndef PEGASUS_OS_OS400
     fileName = FileSystem::getAbsoluteFileName(
         ConfigManager::getHomedPath(
@@ -81,7 +67,6 @@ String ProviderManager::_resolvePhysicalName(String physicalName)
 #endif
 
     return fileName;
-#endif
 }
 
 void ProviderManager::setIndicationCallback(

@@ -38,6 +38,7 @@
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/Time.h>
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
@@ -210,7 +211,7 @@ void CIMListenerService::runForever()
         _monitor->run(500000);
         static struct timeval lastIdleCleanupTime = {0, 0};
         struct timeval now;
-        gettimeofday(&now, 0);
+        Time::gettimeofday(&now);
         if (now.tv_sec - lastIdleCleanupTime.tv_sec > 300)
         {
             lastIdleCleanupTime.tv_sec = now.tv_sec;

@@ -50,6 +50,7 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/SSLContextManager.h>
+#include <Pegasus/Common/Time.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
@@ -615,7 +616,7 @@ void CIMServer::runForever()
     static struct timeval lastIdleCleanupTime = {0, 0};
     struct timeval now;
 
-    gettimeofday(&now, 0);
+    Time::gettimeofday(&now);
 
     if (now.tv_sec - lastIdleCleanupTime.tv_sec > 300)
     {

@@ -28,23 +28,34 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../../
+ROOT = $(PEGASUS_ROOT)
+
+DIR = Pegasus/Client/tests/TestStaticClient
 
 include $(ROOT)/mak/config.mak
 
-DIRS =	AssociationClient \
-	Client \
-	InvokeMethod2 \
-	EnumInstances \
-	DeleteNamespace \
-	ClientStatistics \
-	TestStaticClient
-
-DIRS_SLP = \
-    slp
-
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-  DIRS += $(DIRS_SLP)
+ifdef PEGASUS_HAS_SSL
+  FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
+  SYS_INCLUDES += -I$(OPENSSL_HOME)/include
 endif
 
-include $(ROOT)/mak/recurse.mak
+POSTSTARTTESTS =
+ifeq ($(OS),HPUX)
+  POSTSTARTTESTS = $(PROGRAM)
+endif
+
+include ../libraries.mak
+
+EXTRA_INCLUDES =
+
+PROGRAM = TestStaticClient
+
+SOURCES = \
+	TestStaticClient.cpp
+
+include $(ROOT)/mak/program.mak
+
+tests:
+
+poststarttests:
+	$(PROGRAM)

@@ -37,6 +37,7 @@
 #include "CIMDateTime.h"
 #include "Exception.h"
 #include "PegasusAssert.h"
+#include <time.h>
 
 #if defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
 # include <sys/time.h>
@@ -44,7 +45,6 @@
 # include <sstream>
 # include <iomanip>
 # include <windows.h>
-# include <time.h>
 #else
 # error "unsupported platform"
 #endif

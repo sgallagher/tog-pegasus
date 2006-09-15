@@ -65,6 +65,7 @@ MAK_FILES = \
 PRESTARTTEST_FILES = \
    TestAbstract \
    TestArray \
+   TestAsyncQueue \
    TestBase64 \
    TestClassDecl \
    TestDateTime \
@@ -72,6 +73,7 @@ PRESTARTTEST_FILES = \
    TestFormatter \
    TestHashTable \
    TestInstanceDecl \
+   TestList \
    TestLogger \
    TestMethod \
    TestObject \
@@ -82,7 +84,6 @@ PRESTARTTEST_FILES = \
    TestQualifier \
    TestQualifierDecl \
    TestQualifierList \
-   TestQueue \
    TestReference \
    TestResolve \
    TestResponseHandler \
@@ -93,10 +94,9 @@ PRESTARTTEST_FILES = \
    TestString \
    TestTimeValue \
    TestToMof \
+   TestTracer \
    TestValidateClass \
-   TestValue \
-   TracerTest \
-   TestIPC
+   TestValue
 
 PEGASUS_TEST_PROVIDERS = \
    libSampleInstanceProvider \

@@ -49,6 +49,8 @@
 #ifdef PEGASUS_OS_TYPE_UNIX
 # include <fcntl.h>
 # include <errno.h>
+# include <sys/types.h>
+# include <sys/wait.h>
 #endif
 
 PEGASUS_USING_STD;

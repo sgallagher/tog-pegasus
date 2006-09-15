@@ -1519,14 +1519,13 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 
     time_t sec;
     Uint64 usec;
-    {
-        // ATTN: if this fails on your platform, use time() to obtain the
-        // sec element and set usec to zero.
-        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        sec = tv.tv_sec;
-        usec = Uint64(tv.tv_usec);
-    }
+    // ATTN: if this fails on your platform, use time() to obtain the
+    // sec element and set usec to zero.
+    struct timeval tv;
+    struct timezone tz;
+    gettimeofday(&tv, &tz);
+    sec = tv.tv_sec;
+    usec = Uint64(tv.tv_usec);
 
     // Get the localtime
 
@@ -1553,10 +1552,12 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 # elif defined(PEGASUS_OS_LINUX)
         tzMinutesEast = (int) tmval->tm_gmtoff/60;
 # else
-        struct timeval tv;
-        struct timezone tz;
-        gettimeofday(&tv, &tz);
-        tzMinutesEast = -tz.tz_minuteswest;
+        if (tz.tz_dsttime > 0)
+            tzMinutesEast = -tz.tz_minuteswest;
+        else
+            // ATTN: It is unclear how to determine the DST offset.  
+            // Assume 1 hour.
+            tzMinutesEast = -tz.tz_minuteswest + 60;
 # endif
     }
 

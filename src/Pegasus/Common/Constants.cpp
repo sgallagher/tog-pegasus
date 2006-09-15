@@ -159,6 +159,24 @@ const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST =
     const CIMName _PROPERTY_TEXTFORMATPARAMETERS =
         CIMName ("TextFormatParameters");
 
+/**
+    The name of the MailTo property for Email Handler subclass
+*/
+    const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO =
+        CIMName ("MailTo");
+
+/**
+    The name of the MailSubject property for Email Handler subclass
+*/
+    const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT =
+        CIMName ("MailSubject");
+
+/**
+    The name of the MailCc  property for Email Handler subclass
+*/
+    const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC =
+        CIMName ("MailCc");
+
 //
 // CIM Namespace Names
 //

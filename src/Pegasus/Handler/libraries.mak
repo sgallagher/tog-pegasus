@@ -29,7 +29,6 @@
 #//
 #//==============================================================================
 LIBRARIES = \
-    pegindicationservice \
     pegexportclient \
     pegrepository \
     pegclient \

@@ -523,6 +523,29 @@ PEGASUS_COMMON_LINKAGE
 // Pegasus prefix
 #define PEGASUS_INSTANCEID_GLOBAL_PREFIX "PG"
 
+/**
+    Values for the Perceived Severity property of the Alert Indication
+    class, as defined in the CIM Events MOF
+ */
+enum PerceivedSeverity {_SEVERITY_UNKNOWN = 0, _SEVERITY_OTHER = 1,
+    _SEVERITY_INFORMATION = 2, _SEVERITY_WARNING = 3, _SEVERITY_MINOR = 4,
+    _SEVERITY_MAJOR = 5, _SEVERITY_CRITICAL = 6, _SEVERITY_FATAL = 7};
+
+/**
+    The name of the MailTo property for Email Handler subclass
+*/
+extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO;
+
+/**
+    The name of the MailSubject property for Email Handler subclass
+*/
+extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT;
+
+/**
+    The name of the MailCc  property for Email Handler subclass
+*/
+extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC;
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Constants_h */

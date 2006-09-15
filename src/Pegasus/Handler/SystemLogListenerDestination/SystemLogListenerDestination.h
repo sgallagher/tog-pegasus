@@ -29,13 +29,9 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/IndicationService/IndicationConstants.h>
+#include <Pegasus/Common/Constants.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

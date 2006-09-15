@@ -42,7 +42,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/IndicationFormatter.h>
-#include <Pegasus/IndicationService/IndicationConstants.h>
+#include <Pegasus/Common/Constants.h>
 
 #if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_OS_LINUX)
 # error "Unsupported Platform" 

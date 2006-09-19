@@ -346,10 +346,9 @@ void Monitor::setState( Uint32 index, _MonitorEntry::entry_status status )
     _entries[index]._status = status;
 }
 
-Boolean Monitor::run(Uint32 milliseconds)
+void Monitor::run(Uint32 milliseconds)
 {
 
-    Boolean handled_events = false;
     int i = 0;
 
     struct timeval tv = {milliseconds/1000, milliseconds%1000*1000};
@@ -538,7 +537,6 @@ Boolean Monitor::run(Uint32 milliseconds)
                       Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                           "Monitor::run: Insufficient resources to process request.");
                       entries[indx]._status = _MonitorEntry::IDLE;
-                      return true;
                    }
 */
 // Added for PEP 183
@@ -603,19 +601,14 @@ Boolean Monitor::run(Uint32 milliseconds)
            // the array of entries can be changed. The ArrayIterator has be reset with the original _entries
            entries.reset(_entries);
 		   entries[indx]._status = _MonitorEntry::IDLE;
-
-		   return true;
 		}
 	     }
 	     catch(...)
 	     {
 	     }
-	     handled_events = true;
 	  }
        }
     }
-
-    return(handled_events);
 }
 
 void Monitor::stopListeningForConnections(Boolean wait)

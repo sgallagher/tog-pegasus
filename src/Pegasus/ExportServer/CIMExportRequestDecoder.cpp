@@ -453,9 +453,11 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 							      true);
 
    // Validating the charset is utf-8
-   if(!(String::equalNoCase(cimContentType, "application/xml; charset=\"utf-8\"")  ||
-  	     String::equalNoCase(cimContentType, "text/xml; charset=\"utf-8\"") ||
-	     contentTypeHeaderFound))
+   if (!contentTypeHeaderFound ||
+       !(String::equalNoCase(
+           cimContentType, "application/xml; charset=\"utf-8\"") ||
+         String::equalNoCase(
+           cimContentType, "text/xml; charset=\"utf-8\"")))
    {
 	sendHttpError(
             queueId,

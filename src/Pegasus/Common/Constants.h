@@ -534,17 +534,20 @@ enum PerceivedSeverity {_SEVERITY_UNKNOWN = 0, _SEVERITY_OTHER = 1,
 /**
     The name of the MailTo property for Email Handler subclass
 */
-extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO;
+PEGASUS_COMMON_LINKAGE extern const CIMName
+    PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO;
 
 /**
     The name of the MailSubject property for Email Handler subclass
 */
-extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT;
+PEGASUS_COMMON_LINKAGE extern const CIMName
+    PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT;
 
 /**
     The name of the MailCc  property for Email Handler subclass
 */
-extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC;
+PEGASUS_COMMON_LINKAGE extern const
+    CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC;
 
 PEGASUS_NAMESPACE_END
 

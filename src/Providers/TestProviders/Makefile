@@ -86,7 +86,9 @@ DIRS += \
 	CMPI/TestFail_4 \
 	CMPI/TestFail_4/tests \
 	CMPI/TestProviderThreaded \
-	CMPI/TestProviderThreaded/tests
+	CMPI/TestProviderThreaded/tests \
+	CMPI/TestAssociation \
+	CMPI/TestAssociation/tests
 
 ifndef PEGASUS_DISABLE_CQL
 DIRS += \

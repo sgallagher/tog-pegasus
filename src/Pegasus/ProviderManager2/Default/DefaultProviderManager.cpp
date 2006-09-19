@@ -1934,18 +1934,6 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
                 if (_indicationProviders[i])
                 {
                     //
-                    //  Reset the indication provider's count of current 
-                    //  subscriptions since it has been disabled
-                    //
-                    if (physicalName.size () > 0)
-                    {
-                        OpProviderHolder ph = providerManager.getProvider(
-                            physicalName, pName);
-
-                        ph.GetProvider ().resetSubscriptions ();
-                    }
-
-                    //
                     //  If it is an indication provider
                     //  remove the entry from the table since the
                     //  provider has been disabled

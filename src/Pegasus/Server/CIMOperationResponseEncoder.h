@@ -73,6 +73,8 @@ class CIMOperationResponseEncoder : public MessageQueueService
 												Boolean isImplicit,
 												Buffer *bodygiven = 0);
 
+      virtual void enqueue(Message *);
+
       virtual void handleEnqueue(Message *);
       
       virtual void handleEnqueue();

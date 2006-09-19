@@ -289,6 +289,11 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	PEG_METHOD_EXIT();	
 }
 
+void CIMOperationResponseEncoder::enqueue(Message *message)
+{
+    handleEnqueue(message);
+}
+
 void CIMOperationResponseEncoder::handleEnqueue(Message *message)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,

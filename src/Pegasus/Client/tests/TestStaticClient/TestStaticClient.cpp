@@ -44,7 +44,7 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 // For the resolution of Bug#4590
-#ifdef PEGASUS_OS_DARWIN
+#if defined(PEGASUS_OS_DARWIN) || defined(PEGASUS_OS_VMS)
 CIMClient& getCIMClientRef()
 {
         static CIMClient client;

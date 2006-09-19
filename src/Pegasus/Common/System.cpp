@@ -97,7 +97,7 @@ Boolean System::copyFile(const char* fromPath, const char* toPath)
 	    return false;
     }
 
-    return true;
+    return is.eof();
 }
 
 static const Uint8 _toLowerTable[256] = 

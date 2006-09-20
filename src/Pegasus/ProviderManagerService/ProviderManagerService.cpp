@@ -397,7 +397,7 @@ void ProviderManagerService::handleCimRequest(
             //
             CIMResponseMessage* cimResponse = request->buildResponse();
             cimResponse->cimException = PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_ACCESS_DENIED,
+                CIM_ERR_NOT_SUPPORTED,
                 MessageLoaderParms(
                     "ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
                     "provider blocked."));

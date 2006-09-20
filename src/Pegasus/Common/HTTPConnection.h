@@ -103,6 +103,8 @@ public:
     /** Destructor. */
     ~HTTPConnection();
 
+    virtual void enqueue(Message *);
+
     /** This method is called whenever a SocketMessage is enqueued
         on the input queue of the HTTPConnection object.
     */

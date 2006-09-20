@@ -295,6 +295,11 @@ HTTPConnection::~HTTPConnection()
 }
 
 
+void HTTPConnection::enqueue(Message *message)
+{
+    handleEnqueue(message);
+}
+
 void HTTPConnection::handleEnqueue(Message *message)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::handleEnqueue");

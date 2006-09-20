@@ -29,18 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_JMPIProvider_h
 #define Pegasus_JMPIProvider_h
 
-#include "JMPIImpl.h"
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
@@ -49,6 +42,8 @@
 #include <Pegasus/Common/AtomicInt.h>
 
 #include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/JMPI/Linkage.h>
+#include <Pegasus/ProviderManager2/JMPI/JMPIImpl.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -63,7 +58,7 @@ struct ProviderVector {
 // provider module. It is wrapped in a facade to stabalize the interface
 // and is directly tied to a module.
 
-class PEGASUS_SERVER_LINKAGE JMPIProvider :
+class PEGASUS_JMPIPM_LINKAGE JMPIProvider :
                        public virtual CIMProvider
 {
 public:

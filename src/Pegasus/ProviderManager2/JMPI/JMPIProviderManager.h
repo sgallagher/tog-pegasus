@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_JMPIProviderManager_h
@@ -46,6 +42,8 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 #include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/ProviderManager2/JMPI/Linkage.h>
+#include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPILocalProviderManager.h>
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
@@ -53,7 +51,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE JMPIProviderManager : public ProviderManager
+class PEGASUS_JMPIPM_LINKAGE JMPIProviderManager : public ProviderManager
 {
 public:
     JMPIProviderManager();

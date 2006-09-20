@@ -29,18 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, IBM (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_JMPIProviderModule_h
 #define Pegasus_JMPIProviderModule_h
-
-#include "JMPIImpl.h"
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -48,8 +40,10 @@
 
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
+#include <Pegasus/ProviderManager2/JMPI/JMPIImpl.h>
 
 #include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/JMPI/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 // "physical" portion of a provider.
 
 
-class PEGASUS_SERVER_LINKAGE JMPIProviderModule
+class PEGASUS_JMPIPM_LINKAGE JMPIProviderModule
 {
 
     friend class JMPILocalProviderManager;

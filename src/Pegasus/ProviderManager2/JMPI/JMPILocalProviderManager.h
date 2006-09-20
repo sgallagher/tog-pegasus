@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Jenny Yu, Hewlett-Packard Company(jenny_yu@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_JMPILocalProviderManager_h
@@ -46,13 +39,11 @@
 #include <Pegasus/Common/HashTable.h>
 
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
-//#include <Pegasus/ProviderManager2/JMPI/JMPIResolverModule.h>
-
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/JMPI/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE JMPILocalProviderManager
+class PEGASUS_JMPIPM_LINKAGE JMPILocalProviderManager
 {
 
 public:

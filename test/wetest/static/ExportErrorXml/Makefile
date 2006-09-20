@@ -28,28 +28,23 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT=../../..
 
+ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
-DIRS = \
-	Load\
-	Headers\
-	CreateInstance\
-	GetInstance\
-	EnumerateInstanceNames\
-	EnumerateInstances\
-	ErrorXml\
-	ModifyInstance\
-	DeleteInstance\
-        Property\
-        ExportMessageHeaders \
-        ExportErrorXml
+XMLSCRIPTS = \
+    BadCimVersion01 \
+    BadDtdVersion01 \
+    BadDtdVersion02 \
+    BadDtdVersion03 \
+    BadDtdVersion04 \
+    BadProtocolVersion01 \
+    BadProtocolVersion02 \
+    BadProtocolVersion03 \
+    BadProtocolVersion04 \
+    BadProtocolVersion05 \
+    BadProtocolVersion06
 
-# These tests are not re-runnable
-#	ModifyClass\
-#	DeleteClass
-	
-include $(ROOT)/mak/recurse.mak
 
+include $(ROOT)/test/configend.mak

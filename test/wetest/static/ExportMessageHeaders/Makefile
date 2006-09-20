@@ -38,6 +38,10 @@ XMLSCRIPTS = \
    EMUnsupportedHTTPMethod01 \
    EMIncompatibleHTTPVersion01 \
    EMMissingMethodRequest01 \
-   EMIncorrectCIMExportBatchRequest01
+   EMIncorrectCIMExportBatchRequest01 \
+   EMBadContentType01 \
+   EMMissingContentType01 \
+   EMMissingHost01 \
+   EMTextContentType01
 
 include $(ROOT)/test/configend.mak

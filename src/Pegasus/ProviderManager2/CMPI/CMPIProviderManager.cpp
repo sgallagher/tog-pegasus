@@ -68,6 +68,15 @@ PEGASUS_NAMESPACE_BEGIN
 
 int _cmpi_trace=0;
 
+//Function to throw exception if provider has not been correctly created.
+void _throw_MINotInitializedException()
+{
+     MessageLoaderParms parms("ProviderManager.CMPI.CMPIProviderManager.PROVIDER_LOAD_FAILURE","ProviderLoadFailure: Cannot find _Create<mi-type>MI symbol.");  
+ 
+     throw CIMException(CIM_ERR_FAILED,MessageLoader::getMessage(parms));
+}
+
+
 #define DDD(x) if (_cmpi_trace) x;
 
 ReadWriteSem    CMPIProviderManager::rwSemProvTab;
@@ -435,6 +444,11 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
+        if (pr.miVector.instMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -571,6 +585,11 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
+        if (pr.miVector.instMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -672,6 +691,11 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         AutoPThreadSecurity threadLevelSecurity(context);
         
+        if (pr.miVector.instMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -775,6 +799,11 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
         AutoPThreadSecurity threadLevelSecurity(context);
+
+        if (pr.miVector.instMI==0)
+        {
+            _throw_MINotInitializedException();
+        } 
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -882,6 +911,11 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
+        if (pr.miVector.instMI==0)
+        {
+            _throw_MINotInitializedException();
+        }  
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -982,6 +1016,11 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
         AutoPThreadSecurity threadLevelSecurity(context);
+
+        if (pr.miVector.instMI==0)
+        {
+            _throw_MINotInitializedException();
+        } 
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -1095,6 +1134,11 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
+        if (pr.miVector.instMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -1106,7 +1150,6 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
-
 
     }
     HandlerCatch(handler);
@@ -1244,6 +1287,11 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
+        if (pr.miVector.assocMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -1359,6 +1407,11 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
         AutoPThreadSecurity threadLevelSecurity(context);
+
+        if (pr.miVector.assocMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -1503,6 +1556,11 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         AutoPThreadSecurity threadLevelSecurity(context);
 
+        if (pr.miVector.assocMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -1613,6 +1671,11 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
         AutoPThreadSecurity threadLevelSecurity(context);
+
+        if (pr.miVector.assocMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -1754,6 +1817,11 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         AutoPThreadSecurity threadLevelSecurity(context);
         
+        if (pr.miVector.methMI==0)
+        {
+            _throw_MINotInitializedException();
+        }  
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -2018,6 +2086,11 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         AutoPThreadSecurity threadLevelSecurity(context);
         
+        if (pr.miVector.indMI==0)
+        {
+            _throw_MINotInitializedException();
+        } 
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -2026,8 +2099,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                 rc = pr.miVector.indMI->ft->activateFilter(
                     pr.miVector.indMI,&eCtx,eSelx,
                     CHARS(eSelx->classNames[0].getClassName().getString().
-                        getCString()),
-                    &eRef,false);
+                    getCString()),&eRef,false);
             }
             else
             {
@@ -2036,11 +2108,10 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                 rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
             	    CMPIResult*, CMPISelectExp*,
                 	const char *, CMPIObjectPath*, CMPIBoolean))
-                    pr.miVector.indMI->ft->activateFilter)(
-                        pr.miVector.indMI,&eCtx,NULL,eSelx,
+                    pr.miVector.indMI->ft->activateFilter)
+                    (pr.miVector.indMI,&eCtx,NULL,eSelx,
                         CHARS(eSelx->classNames[0].getClassName().getString().
-                            getCString()),
-                        &eRef,false);
+                    getCString()),&eRef,false);
             }
         }
 
@@ -2203,6 +2274,11 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         AutoPThreadSecurity threadLevelSecurity(context);
         
+        if (pr.miVector.indMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -2211,8 +2287,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
                 rc = pr.miVector.indMI->ft->deActivateFilter(
                     pr.miVector.indMI,&eCtx,eSelx,
                     CHARS(eSelx->classNames[0].getClassName().getString().
-                        getCString()),
-                    &eRef,prec==NULL);
+                    getCString()),&eRef,prec==NULL);
             }
             else
             {
@@ -2221,11 +2296,10 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
                 rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
                     CMPIResult*, CMPISelectExp*,
                         const char *, CMPIObjectPath*, CMPIBoolean))
-                    pr.miVector.indMI->ft->deActivateFilter)(
-                        pr.miVector.indMI,&eCtx,NULL,eSelx,
+                    pr.miVector.indMI->ft->deActivateFilter)
+                    (pr.miVector.indMI,&eCtx,NULL,eSelx,
                         CHARS(eSelx->classNames[0].getClassName().getString().
-                            getCString()),
-                        &eRef,prec==NULL);
+                    getCString()),&eRef,prec==NULL);
             }
         }
 
@@ -2574,6 +2648,11 @@ void CMPIProviderManager::_callEnableIndications
 
         CMPIProvider & pr=ph.GetProvider();
 
+        if (pr.miVector.indMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
+
         //
         //  Versions prior to 86 did not include enableIndications routine
         //
@@ -2669,6 +2748,11 @@ void CMPIProviderManager::_callDisableIndications
 
     CMPIProvider & pr=ph.GetProvider();
 
+    if (pr.miVector.indMI==0)
+    {
+        _throw_MINotInitializedException();
+    }
+
     //
     //  Versions prior to 86 did not include disableIndications routine
     //
@@ -2700,7 +2784,6 @@ void CMPIProviderManager::_callDisableIndications
         DDD(cerr<<"--- provider.disableIndications " \
             "cannot be called as the provider uses an earlier version " \
             "that does not support this function"<<endl);
-
     }
 
     PEG_METHOD_EXIT ();

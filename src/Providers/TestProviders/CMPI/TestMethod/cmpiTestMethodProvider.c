@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
@@ -417,7 +415,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
   CMPIInstance *instance = NULL;
   CMPIInstance *paramInst = NULL;
   unsigned int arg_cnt = 0, index = 0;
-  int oper_rc = 1;
+  CMPIUint32 oper_rc = 1;
   char *result = NULL;
 
 

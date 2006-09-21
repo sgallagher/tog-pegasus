@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Based on: RT_IndicationProvider.cpp by Carol Ann Krug Graves, Hewlett-Packard Company
-//                                        (carolann_graves@hp.com)
-
-// Author: Adrian Schuur, IBM (schuur@de.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -120,7 +113,7 @@ CMPIStatus testProvInvokeMethod
    const CMPIObjectPath * cop, const char *method, const CMPIArgs * in,
    CMPIArgs * out)
 {
-  int rc = 0;
+  CMPIUint32 rc = 0;
 #ifdef PEGASUS_DEBUG
   fprintf (stderr, "+++ testProvInvokeMethod()\n");
 #endif

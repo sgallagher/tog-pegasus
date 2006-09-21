@@ -1861,7 +1861,7 @@ inline static   void CMSetStatusWithChars(const CMPIBroker *mb, CMPIStatus* st, 
 #ifndef DOC_ONLY
    // MI factory stubs
 
-  #define CMNoHook ; 
+  #define CMNoHook 
 #endif
 
 /*

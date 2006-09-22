@@ -32,50 +32,59 @@
 // Author: Ray Boucher, Hewlett-Packard Company <ray.boucher@hp.com>
 //
 // Modified By:
-// Indrani Devi   PTR 73-51-32
-//                Modified getNumberOfUsers() function to return the 
-//                number of interactive user names for number of users
-//                property 
-// Indrani Devi   PTR 73-51-30 and PTR 73-51-2
-//                Changes made to address review comments in PTR 73-51-2
-//                Replacing sys$specific:[000000] with wbem_tmp: logical
-//                as first argument to tempnam() in 
-//                in getNumberOfLicensedUsers() and getInstallDate() functions.
 //
-// Indrani Devi   PTR 73-51-27
-//                Changed getNumberOfLicensedUsers() to return number of licensed users 
-//                as 0 (unlimited licensed users) in case of I64 as the base O/S license on 
-//                IA64 (FOE) provides unlimited number of users
-//
-// Indrani Devi   PTR 73-51-22 21-Jul-2006
-//                Changed the getTotalSwapSpaceSize(),getFreeSpaceInPagingFiles(),
-//                getSizeStoredInPagingFiles(), getTotalVisibleMemorySize() and
-//                getFreePhysicalMemory() functions to get teh pagesize using the 
-//                sys$getsyiw() call using item code SYI$_PAGE_SIZE
-//
-// Prasad SG      PTR 73-51-28 12-Jul-2006
-//                changed obtaining of TotalVirtualMemorySize from current process PGFLQUOTA
-//                to the sum of TotalVisibleMemorySize and SizeStoredInPagingFiles.
-//                changed obtaining of FreeVirtualMemory from current process PAGFILCNT
-//                to the sum of FreePhysicalMemory and FreeSpaceInPagingFiles
-// Prasad SG      PTR 73-51-19 and PTR 73-51-20 11-Jul-2006
-//                The installDate and NumberOfLicensedUsers are not displayed in the wbemexec
-//                enumerate instance output. The same was seen as appearing fine, when
-//                CIMserver is running interactively.
-//                The function getInstallDate() and getNumberOfLicensedUsers() is modifled as below:
-//                The first argument of tempname() call is changed from NULL to "SYS$SPECIFIC:[000000]"
-//                as tempnam() would take a default of "SYS$SCRATCH:" directory, if first argument is not specified.
-// Prasad SG      PTR 73-51-21 10-Jul-06.
-//                changed The checking for define PEGASUS_PLATFORM_VMS_IPF_DECCXX
-//                to PEGASUS_PLATFORM_VMS_IA64_DECCXX, as the later was being used
-//                in the /define directive during compilation.
-//                The FreePhysicalMemory is retrived properly, after changing this define.
-// Indrani Devi   PTR 73-51-2 28-Jun-06.
-//                Made changes to get the coreect OS verison.
-//                Removed the display of uname.release information from getversion()
-// Indrani Devi , PTR 73-51-15. Removed include of <pegasus/common/system.h>
-//                and <pegasus/common/logger.h> as it was giving compiler warning
 // Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
+//
+//%////////////////////////////////////////////////////////////////////////////
+//
+//  PTR 73-51-32
+//  Modified getNumberOfUsers() function to return the 
+//  number of interactive user names for number of users
+//  property 
+//
+//  PTR 73-51-30 and PTR 73-51-2
+//  Changes made to address review comments in PTR 73-51-2
+//  Replacing sys$specific:[000000] with wbem_tmp: logical
+//  as first argument to tempnam() in 
+//  in getNumberOfLicensedUsers() and getInstallDate() functions.
+//
+//  PTR 73-51-27
+//  Changed getNumberOfLicensedUsers() to return number of licensed users 
+//  as 0 (unlimited licensed users) in case of I64 as the base O/S license on 
+//  IA64 (FOE) provides unlimited number of users
+//
+//  PTR 73-51-22 21-Jul-2006
+//  Changed the getTotalSwapSpaceSize(),getFreeSpaceInPagingFiles(),
+//  getSizeStoredInPagingFiles(), getTotalVisibleMemorySize() and
+//  getFreePhysicalMemory() functions to get teh pagesize using the 
+//  sys$getsyiw() call using item code SYI$_PAGE_SIZE
+//
+//  PTR 73-51-28 12-Jul-2006
+//  changed obtaining of TotalVirtualMemorySize from current process PGFLQUOTA
+//  to the sum of TotalVisibleMemorySize and SizeStoredInPagingFiles.
+//  changed obtaining of FreeVirtualMemory from current process PAGFILCNT
+//  to the sum of FreePhysicalMemory and FreeSpaceInPagingFiles
+//
+//  PTR 73-51-19 and PTR 73-51-20 11-Jul-2006
+//  The installDate and NumberOfLicensedUsers are not displayed in the wbemexec
+//  enumerate instance output. The same was seen as appearing fine, when
+//  CIMserver is running interactively.
+//  The function getInstallDate() and getNumberOfLicensedUsers() is modifled as below:
+//  The first argument of tempname() call is changed from NULL to "SYS$SPECIFIC:[000000]"
+//  as tempnam() would take a default of "SYS$SCRATCH:" directory, if first argument is not specified.
+//
+//  PTR 73-51-21 10-Jul-06.
+//  changed The checking for define PEGASUS_PLATFORM_VMS_IPF_DECCXX
+//  to PEGASUS_PLATFORM_VMS_IA64_DECCXX, as the later was being used
+//  in the /define directive during compilation.
+//  The FreePhysicalMemory is retrived properly, after changing this define.
+//
+//  PTR 73-51-2 28-Jun-06.
+//  Made changes to get the coreect OS verison.
+//  Removed the display of uname.release information from getversion()
+//
+//  PTR 73-51-15. Removed include of <pegasus/common/system.h>
+//  and <pegasus/common/logger.h> as it was giving compiler warning
 //
 //%////////////////////////////////////////////////////////////////////////////
 

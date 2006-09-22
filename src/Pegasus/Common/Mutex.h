@@ -145,6 +145,45 @@ private:
     Mutex& _mutex;
 };
 
+//==============================================================================
+//
+// PEGASUS_FORK_SAFE_MUTEX
+//
+//==============================================================================
+
+// Use of this macro ensures that a static Mutex is not locked during a fork().
+#if defined(PEGASUS_HAVE_PTHREADS) && \
+    !defined(PEGASUS_OS_ZOS) && \
+    !defined(PEGASUS_OS_VMS)
+# define PEGASUS_FORK_SAFE_MUTEX(mutex) \
+    class ForkSafeMutex ## mutex        \
+    {                                   \
+    public:                             \
+        ForkSafeMutex ## mutex()        \
+        {                               \
+            pthread_atfork(             \
+                _lockMutex,             \
+                _unlockMutex,           \
+                _unlockMutex);          \
+        }                               \
+                                        \
+    private:                            \
+        static void _lockMutex()        \
+        {                               \
+            mutex.lock();               \
+        }                               \
+                                        \
+        static void _unlockMutex()      \
+        {                               \
+            mutex.unlock();             \
+        }                               \
+    };                                  \
+                                        \
+    static ForkSafeMutex ## mutex __forkSafeMutex ## mutex;
+#else
+# define PEGASUS_FORK_SAFE_MUTEX(mutex)
+#endif
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Mutex_h */

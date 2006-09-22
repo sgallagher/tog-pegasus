@@ -458,27 +458,19 @@ private:
         const CIMNamespaceName& nameSpace,
         const CIMConstClass& assocClass);
 
-    /** Returns the index (or byte location) and size of the instance
-        record in the instance file for a given instance.  Returns true
-        if successful.  Returns false if the instance cannot be found.
+    /**
+        Checks whether an instance with the specified key values exists in the
+        class hierarchy of the specified class.
 
         @param   nameSpace      the namespace of the instance
         @param   instanceName   the name of the instance
-        @param   className      the name of the class
-        @param   size           the size of the instance record found
-        @param   index          the byte positon of the instance record found
-        @param   searchSuper    if true, search all superclasses 
      
         @return  true           if the instance is found
                  false          if the instance cannot be found
      */
-    Boolean _getInstanceIndex(
+    Boolean _checkInstanceAlreadyExists(
         const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName,
-        CIMName& className,
-        Uint32& size,
-        Uint32& index,
-        Boolean searchSuperClasses = false) const;
+        const CIMObjectPath& instanceName) const;
 
     /** Returns the file path of the instance index file.
 

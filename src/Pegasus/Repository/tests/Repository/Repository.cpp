@@ -154,10 +154,7 @@ void test02(CIMRepository_Mode mode)
 
     CIMObjectPath instanceName1 = subClassInstance.buildPath(subClass);
 
-    CIMObjectPath instanceName2 =
-	CIMObjectPath ("SuperClass.first=\"John\",last=\"Smith\",age=101");
-
-    CIMInstance tmp = r.getInstance(NAMESPACE, instanceName2,false,true,true);
+    CIMInstance tmp = r.getInstance(NAMESPACE, instanceName1,false,true,true);
 
     PEGASUS_TEST_ASSERT(subClassInstance.identical(tmp));
 

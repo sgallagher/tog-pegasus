@@ -830,35 +830,25 @@ CIMClass CIMRepository::_getClass(
     return cimClass;
 }
 
-Boolean CIMRepository::_getInstanceIndex(
+Boolean CIMRepository::_checkInstanceAlreadyExists(
     const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    CIMName& className,
-    Uint32& index,
-    Uint32& size,
-    Boolean searchSuperClasses) const
+    const CIMObjectPath& instanceName) const
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getInstanceIndex");
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "CIMRepository::_checkInstanceAlreadyExists");
 
     //
-    // Get all descendent classes of this class:
+    // Get the names of all superclasses and subclasses of this class
     //
-
-    className = instanceName.getClassName();
 
     Array<CIMName> classNames;
+    CIMName className = instanceName.getClassName();
     classNames.append(className);
     _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+    _nameSpaceManager.getSuperClassNames(nameSpace, className, classNames);
 
     //
-    // Get all superclasses of this one:
-    //
-
-    if (searchSuperClasses)
-        _nameSpaceManager.getSuperClassNames(nameSpace, className, classNames);
-
-    //
-    // Get instance names from each qualifying instance file for the class:
+    // Search for an instance with the specified key values
     //
 
     for (Uint32 i = 0; i < classNames.size(); i++)
@@ -866,15 +856,12 @@ Boolean CIMRepository::_getInstanceIndex(
         CIMObjectPath tmpInstanceName = instanceName;
         tmpInstanceName.setClassName(classNames[i]);
 
-    //
-    // Lookup index of instance:
-    //
-
         String path = _getInstanceIndexFilePath(nameSpace, classNames[i]);
 
+        Uint32 index;
+        Uint32 size;
         if (InstanceIndexFile::lookupEntry(path, tmpInstanceName, index, size))
         {
-            className = classNames[i];
             PEG_METHOD_EXIT();
             return true;
         }
@@ -927,15 +914,27 @@ CIMInstance CIMRepository::_getInstance(
                                        instanceName.toString());
     }
 
+    if (!_nameSpaceManager.classExists(nameSpace, instanceName.getClassName()))
+    {
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_CLASS, instanceName.getClassName().getString());
+    }
+
     //
     // Get the index for this instance:
     //
 
-    CIMName className;
     Uint32 index;
     Uint32 size;
 
-    if (!_getInstanceIndex(nameSpace, instanceName, className, index, size))
+    String indexFilePath = _getInstanceIndexFilePath(
+        nameSpace, instanceName.getClassName());
+
+    String dataFilePath = _getInstanceDataFilePath(
+        nameSpace, instanceName.getClassName());
+
+    if (!InstanceIndexFile::lookupEntry(
+            indexFilePath, instanceName, index, size))
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
@@ -945,13 +944,12 @@ CIMInstance CIMRepository::_getInstance(
     // Load the instance from file:
     //
 
-    String path = _getInstanceDataFilePath(nameSpace, className);
     CIMInstance cimInstance;
 
-    if (!_loadInstance(path, cimInstance, index, size))
+    if (!_loadInstance(dataFilePath, cimInstance, index, size))
     {
         PEG_METHOD_EXIT();
-        throw CannotOpenFile(path);
+        throw CannotOpenFile(dataFilePath);
     }
 
     //
@@ -1640,12 +1638,7 @@ CIMObjectPath CIMRepository::_createInstance(
     // Be sure instance does not already exist:
     //
 
-    CIMName className;
-    Uint32 dummyIndex;
-    Uint32 dummySize;
-
-    if (_getInstanceIndex(nameSpace, instanceName, className, dummyIndex,
-        dummySize, true))
+    if (_checkInstanceAlreadyExists(nameSpace, instanceName))
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS,
@@ -3113,15 +3106,27 @@ CIMValue CIMRepository::getProperty(
 
     ReadLock lock(_lock);
 
+    if (!_nameSpaceManager.classExists(nameSpace, instanceName.getClassName()))
+    {
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_CLASS, instanceName.getClassName().getString());
+    }
+
     //
     // Get the index for this instance:
     //
 
-    CIMName className;
     Uint32 index;
     Uint32 size;
 
-    if (!_getInstanceIndex(nameSpace, instanceName, className, index, size))
+    String indexFilePath = _getInstanceIndexFilePath(
+        nameSpace, instanceName.getClassName());
+
+    String dataFilePath = _getInstanceDataFilePath(
+        nameSpace, instanceName.getClassName());
+
+    if (!InstanceIndexFile::lookupEntry(
+            indexFilePath, instanceName, index, size))
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
@@ -3131,13 +3136,12 @@ CIMValue CIMRepository::getProperty(
     // Load the instance into memory:
     //
 
-    String path = _getInstanceDataFilePath(nameSpace, className);
     CIMInstance cimInstance;
 
-    if (!_loadInstance(path, cimInstance, index, size))
+    if (!_loadInstance(dataFilePath, cimInstance, index, size))
     {
         PEG_METHOD_EXIT();
-        throw CannotOpenFile(path);
+        throw CannotOpenFile(dataFilePath);
     }
 
     //

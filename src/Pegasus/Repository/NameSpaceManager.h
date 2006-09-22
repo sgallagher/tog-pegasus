@@ -249,6 +249,10 @@ public:
 	const CIMName& className,
 	Boolean throwExcp=false) const;
 
+    Boolean classExists(
+	const CIMNamespaceName& nameSpaceName,
+	const CIMName& className) const;
+
 private:
     NameSpace *lookupNameSpace(String&);
     String _repositoryRoot;

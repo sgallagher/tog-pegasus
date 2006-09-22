@@ -1722,7 +1722,7 @@ Boolean NameSpaceManager::classExists(
     const CIMName& className,
     Boolean throwExcp) const
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::classHasChildren()");
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::classExists()");
 
     Boolean first=true;
 
@@ -1748,6 +1748,27 @@ Boolean NameSpaceManager::classExists(
 
     PEG_METHOD_EXIT();
     return false;
+}
+
+Boolean NameSpaceManager::classExists(
+    const CIMNamespaceName& nameSpaceName,
+    const CIMName& className) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::classExists()");
+
+    NameSpace *nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    Boolean exists = classExists(nameSpace, className, false);
+
+    PEG_METHOD_EXIT();
+    return exists;
 }
 
 PEGASUS_NAMESPACE_END

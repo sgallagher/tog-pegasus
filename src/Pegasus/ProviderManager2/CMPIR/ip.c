@@ -29,18 +29,12 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
   \file ip.c
   \brief General TCP/IP routines.
 
-  \author Frank Scheffler
 */
 
 #include <stdio.h>
@@ -84,11 +78,48 @@ extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 static int _die = 0;
 /****************************************************************************/
 
+static struct hostent * _getHostByName (
+    const char *hname,
+    struct hostent *hbuf,
+    char *tmphbuf,
+    int hbuflen)
+{
+    struct hostent  *hptr;
+    int herr,rc=0;
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+    extern int h_errno;
+#endif
+
+#if defined(PEGASUS_OS_LINUX)
+    rc = gethostbyname_r (hname,hbuf,tmphbuf,hbuflen,&hptr,&herr);
+#elif defined(PEGASUS_OS_SOLARIS)
+    hptr = gethostbyname_r(hname,hbuf,tmphbuf,hbuflen,&herr);
+#else
+    hptr = gethostbyname(hname);
+#endif
+
+    if (hptr==NULL)
+    {
+        error_at_line (0, 0, __FILE__, __LINE__,
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+        strerror (h_errno));
+#else
+        hstrerror (h_errno));
+#endif
+    }   
+
+    return hptr;
+}
+
+
 int open_connection ( const char * address, int port )
 {
-	int sockfd;
-	struct sockaddr_in sin;
-	struct hostent * server_host_name;
+    int sockfd;
+    struct sockaddr_in sin;
+    struct hostent * server_host_name;
+    struct hostent hbuf;
+    char tempbuf[8192];
+
 // masking unability to transform an ip-address via gethostbyname()
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 	extern int h_errno;
@@ -106,15 +137,14 @@ if ( broker_ip_address != INADDR_NONE )
 	}
 } else {
 #endif
-	if ( ( server_host_name = gethostbyname ( address ) ) == NULL ) {
-		error_at_line ( 0, 0, __FILE__, __LINE__,
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-		strerror ( h_errno ) );
-#else
-				hstrerror ( h_errno ) );
-#endif
-		return -1;
-	}
+    if ((server_host_name = _getHostByName (
+        address,
+        &hbuf,
+        tempbuf,
+        sizeof(tempbuf))) == NULL) 
+    {
+        return -1;
+    }
 // masking end of if case for differing between ip-address and host
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 }

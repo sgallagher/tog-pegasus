@@ -29,24 +29,24 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
   \file ip.h
   \brief General TCP/IP routines.
 
-  \author Frank Scheffler
 */
 
 #ifndef _IP_H
 #define _IP_H
 
 #include "proxy.h"
+
+static struct hostent * _getHostByName (
+    const char *hname,
+    struct hostent *hbuf,
+    char *tmphbuf,
+    int hbuflen);
 
 void accept_connections ( int port,
 			  void (* __connection_handler) ( int ),

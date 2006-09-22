@@ -181,7 +181,7 @@ void _sendIndicationShouldBeBlocked
     }
     catch (CIMException & e)
     {
-        PEGASUS_TEST_ASSERT (e.getCode () == CIM_ERR_ACCESS_DENIED);
+        PEGASUS_TEST_ASSERT (e.getCode () == CIM_ERR_NOT_SUPPORTED);
     }
 }
 

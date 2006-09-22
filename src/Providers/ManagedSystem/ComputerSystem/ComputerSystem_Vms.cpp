@@ -32,29 +32,32 @@
 // Author: Ray Boucher, Hewlett-Packard Company (ray.boucher@hp.com)
 //
 // Modified By: 
-//              Indrani Devi 22-Aug-06
-//              PTR 73-51-30 , Made changes to replace sys$specific:[000000]
-//              with "wbem_tmp:" logical in getInstallDate().
-//
-//              Indrani Devi 11-July-06
-//              PTR 73-51-24 , Made changes to getInstallDate() and convertToCIMDateString()
-//              functions to display InstallDate()
-//    
-//              Indrani Devi 11-July-06
-//              PTR 73-51-23, Changes made to get the correct string values to be displayed
-//              for Caption , Description, PrimaryOwner, PrimaryOwnerContact, 
-//              PrimaryOwnerPager, InitialLoadInfo, SecondaryOwnerName, 
-//              SecondaryOwnerContact and SecondaryOwnerPager properties 
-//
-//              Indrani Devi 28-Jun-06
-//              PTR 73-51-4, 73-51-6 and PTR 73-51-8, changes made to use temp file 
-//              instead of hsitory.out in GetInstallDate()
-//
-//              Indrani Devi 28-Jun-06
-//              PTR 73-51-16, changes made to obtaine correct serial number on I64
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
+//
+//  22-Aug-06
+//  PTR 73-51-30 , Made changes to replace sys$specific:[000000]
+//  with "wbem_tmp:" logical in getInstallDate().
+//
+//  11-July-06
+//  PTR 73-51-24 , Made changes to getInstallDate() and convertToCIMDateString()
+//  functions to display InstallDate()
+//    
+//  11-July-06
+//  PTR 73-51-23, Changes made to get the correct string values to be displayed
+//  for Caption , Description, PrimaryOwner, PrimaryOwnerContact, 
+//  PrimaryOwnerPager, InitialLoadInfo, SecondaryOwnerName, 
+//  SecondaryOwnerContact and SecondaryOwnerPager properties 
+//
+//  28-Jun-06
+//  PTR 73-51-4, 73-51-6 and PTR 73-51-8, changes made to use temp file 
+//  instead of hsitory.out in GetInstallDate()
+//
+//  28-Jun-06
+//  PTR 73-51-16, changes made to obtaine correct serial number on I64
+//
+///////////////////////////////////////////////////////////////////////////////
 
 #include "ComputerSystemProvider.h"
 #include "ComputerSystem.h"
@@ -151,10 +154,10 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
    Boolean bStatus;
    int status, istr;
    char record1[512], *rptr1=0;
-   // Added to address PTR 73-51-4, 73-51-6 and 73-51-8 - Indrani
+   // Added to address PTR 73-51-4, 73-51-6 and 73-51-8 
    char *HistFile = 0;
    char  cmd[512];
-   // end of addition - Indrani
+   // end of addition 
 
    FILE *fptr1=0;
    unsigned __int64 bintime=0;
@@ -180,7 +183,7 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
         int term;
         } item_list;
    
-  // Added to address PTR 73-51-4, 73-51-6 and 73-51-8 - Indrani
+  // Added to address PTR 73-51-4, 73-51-6 and 73-51-8 
   // A temp file is used to avoid a filename collision when two users
   // call OsInfo at the same time.
   // Note: The prefix string is limited to 5 chars.
@@ -201,12 +204,12 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
    sysinfo.dsc$w_length=sizeof(t_string);
    sysinfo.dsc$a_pointer=t_string;
  
-  // Commented to address PTR 73-51-4, 73-51-6 and 73-51-8 - Indrani
+  // Commented to address PTR 73-51-4, 73-51-6 and 73-51-8 
   //   status = system("pipe product show history openvms | search/nolog/nowarn/out=history.out sys$input install");
   // "pipe product show history openvms |
   //       search/nolog/nowarn/out=history.out sys$input install");
 
-  // Added to address PTR 73-51-4, 73-51-6 and 73-51-8 - Indrani
+  // Added to address PTR 73-51-4, 73-51-6 and 73-51-8 
   strcpy(cmd, "pipe product show history openvms | search/nolog/nowarn/out=");
   strcat(cmd, HistFile);
   strcat(cmd, " sys$input install");
@@ -349,7 +352,7 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
     	goto done;
    }
 
-// Added to address PTR 73-51-4, 73-51-6 and 73-51-8 - Indrani
+// Added to address PTR 73-51-4, 73-51-6 and 73-51-8 
 done:
 
 if (fptr1) {

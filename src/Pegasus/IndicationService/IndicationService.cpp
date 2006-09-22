@@ -3330,9 +3330,7 @@ Boolean IndicationService::_canCreate (
             _MSG_KEY_PROPERTY);
 
         //
-        //  Validate the Filter and Handler reference properties
-        //  Ensure Filter and Handler instances can be retrieved from the
-        //  repository
+        //  Get filter and handler property values
         //
         CIMProperty filterProperty = instance.getProperty
             (instance.findProperty (_PROPERTY_FILTER));
@@ -3340,39 +3338,11 @@ Boolean IndicationService::_canCreate (
         CIMObjectPath filterPath;
         filterValue.get (filterPath);
 
-        //
-        //  Get Filter namespace - if not set in Filter reference property
-        //  value, namespace is the namespace of the subscription
-        //
-        CIMNamespaceName filterNS = filterPath.getNameSpace ();
-        if (filterNS.isNull ())
-        {
-            filterNS = nameSpace;
-        }
-
-        CIMInstance filterInstance =
-            _subscriptionRepository->getInstance (filterNS, filterPath,
-            true, false, false, CIMPropertyList ());
-
         CIMProperty handlerProperty = instance.getProperty
             (instance.findProperty (_PROPERTY_HANDLER));
         CIMValue handlerValue = handlerProperty.getValue ();
         CIMObjectPath handlerPath;
         handlerValue.get (handlerPath);
-
-        //
-        //  Get Handler namespace - if not set in Handler reference property
-        //  value, namespace is the namespace of the subscription
-        //
-        CIMNamespaceName handlerNS = handlerPath.getNameSpace ();
-        if (handlerNS.isNull ())
-        {
-            handlerNS = nameSpace;
-        }
-
-        CIMInstance handlerInstance =
-            _subscriptionRepository->getInstance (handlerNS, handlerPath,
-            true, false, false, CIMPropertyList ());
 
         //
         //  Currently, the Indication Service requires that a Subscription
@@ -3428,6 +3398,39 @@ Boolean IndicationService::_canCreate (
                     origHandlerPath.toString(), _PROPERTY_HANDLER.getString()));
             }
         }
+
+        //
+        //  Get Filter namespace - if not set in Filter reference property
+        //  value, namespace is the namespace of the subscription
+        //
+        CIMNamespaceName filterNS = filterPath.getNameSpace ();
+        if (filterNS.isNull ())
+        {
+            filterNS = nameSpace;
+        }
+
+        //
+        //  Get Handler namespace - if not set in Handler reference property
+        //  value, namespace is the namespace of the subscription
+        //
+        CIMNamespaceName handlerNS = handlerPath.getNameSpace ();
+        if (handlerNS.isNull ())
+        {
+            handlerNS = nameSpace;
+        }
+
+        //
+        //  Validate the Filter and Handler reference properties
+        //  Ensure Filter and Handler instances can be retrieved from the
+        //  repository
+        //
+        CIMInstance filterInstance =
+            _subscriptionRepository->getInstance (filterNS, filterPath,
+            true, false, false, CIMPropertyList ());
+
+        CIMInstance handlerInstance =
+            _subscriptionRepository->getInstance (handlerNS, handlerPath,
+            true, false, false, CIMPropertyList ());
 
         //
         //  Set the key bindings in the subscription instance

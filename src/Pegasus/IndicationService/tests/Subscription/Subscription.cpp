@@ -3549,7 +3549,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_CLASS);
+        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -3569,7 +3569,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        _checkExceptionCode (e, CIM_ERR_INVALID_CLASS);
+        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //

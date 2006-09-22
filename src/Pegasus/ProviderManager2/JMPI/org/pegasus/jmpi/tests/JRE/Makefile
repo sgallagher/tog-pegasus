@@ -70,6 +70,7 @@ endif
 
 LIBRARIES = \
      pegcommon \
+     pegconfig \
      JMPIProviderManager
 
 LOGFILES = TestJRE
@@ -85,6 +86,10 @@ PROGRAM = TestJRE
 
 include $(ROOT)/mak/program.mak
 include $(ROOT)/test/config.mak
+
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+  SYS_LIBS = ws2_32.lib advapi32.lib	
+endif
 
 tests:
 

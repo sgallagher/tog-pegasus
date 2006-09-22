@@ -54,6 +54,43 @@ int trace = 0;
 #define DDD(x)
 #endif
 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+static LPCSTR g_cimservice_key  = TEXT("SYSTEM\\CurrentControlSet\\Services\\%s");
+
+static bool _getRegInfo(const char *lpchKeyword, char *lpchRetValue)
+{
+  HKEY   hKey;
+  DWORD  dw                   = _MAX_PATH;
+  char   subKey[_MAX_PATH]    = {0};
+  
+  sprintf(subKey, g_cimservice_key, "cimserver");
+
+  if ((RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                    subKey, 
+                    0,
+                    KEY_READ, 
+                    &hKey)) != ERROR_SUCCESS)
+    {
+      return false;
+    }
+
+  if ((RegQueryValueEx(hKey, 
+                       lpchKeyword, 
+                       NULL, 
+                       NULL, 
+                       (LPBYTE)lpchRetValue,
+                       &dw)) != ERROR_SUCCESS)
+    {
+      RegCloseKey(hKey);
+      return false;
+    }
+
+  RegCloseKey(hKey);
+
+  return true;
+}
+#endif
+
 void
 printEnvironmentVariables ()
 {
@@ -639,8 +676,54 @@ int testJVM ()
 #else
 
       // windows only
-      //setHome(pegasusHome);
-      pegasusHome = _cimServerProcess->getHome();
+      // Determine the absolute path to the running program
+      char exe_pathname[_MAX_PATH] = {0};
+      char home_pathname[_MAX_PATH] = {0};
+      if(0 != GetModuleFileName(NULL, exe_pathname, sizeof(exe_pathname)))
+      {
+
+        // Pegasus home search rules:
+        // - look in registry (if set)
+        // - if not found, look in PEGASUS_HOME (if set)
+        // - if not found, use exe directory minus one level
+
+        bool found_reg = _getRegInfo("home", home_pathname);
+        if (found_reg == true)
+          {
+            // Make sure home matches
+            String current_home(home_pathname);
+            String current_exe(exe_pathname);
+            current_home.toLower();
+            current_exe.toLower();
+
+            Uint32 pos = current_exe.find(current_home);
+            if (pos != PEG_NOT_FOUND)
+              {
+                pegasusHome = home_pathname;
+              }
+            else
+              {
+                found_reg = false;
+              }
+          }
+        if (found_reg == false)
+          {
+            const char* tmp = getenv("PEGASUS_HOME");
+            if (tmp)
+              {
+                pegasusHome = tmp;
+              }
+            else
+              {
+                // ASSUMPTION: At a minimum, the cimserver program is running
+                // from a "bin" directory
+                pegasusHome = FileSystem::extractFilePath(exe_pathname);
+                pegasusHome.remove(pegasusHome.size()-1, 1);
+                pegasusHome = FileSystem::extractFilePath(pegasusHome);
+                pegasusHome.remove(pegasusHome.size()-1, 1);
+              }
+          }
+      }
 #endif
 
       //
@@ -654,6 +737,50 @@ int testJVM ()
       String         fileName;
       String         className;
       String         providerName;
+
+      // Windows returns two paths, must pick the correct one!
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+      PEGASUS_STD(cerr)<<"testJVM: path = \"" << path <<"\""<<PEGASUS_STD(endl);
+
+      String winPath = path;
+
+      do
+      {
+         String winPathPart;
+         String testJarLocation;
+         Uint32 posDelim        = 0;
+
+         posDelim = winPath.find (FileSystem::getPathDelimiter ());
+
+         if (posDelim != PEG_NOT_FOUND)
+         {
+            winPathPart = winPath.subString (posDelim + 1);
+
+            winPath.remove (posDelim);
+         }
+         else
+         {
+            winPathPart = winPath;
+            winPath     = "";
+         }
+
+         PEGASUS_STD(cerr)<<"testJVM: winPathPart = \"" << winPathPart <<"\""<<PEGASUS_STD(endl);
+
+         testJarLocation = winPathPart + "/JMPIExpAssociationProvider.jar";
+
+         FileSystem::translateSlashes (testJarLocation);
+
+         if (FileSystem::exists (testJarLocation))
+         {
+            PEGASUS_STD(cerr)<<"testJVM: Found!"<<PEGASUS_STD(endl);
+
+            path = winPathPart;
+
+            break;
+         }
+
+      } while (winPath.size () > 0);
+#endif
 
       fileName  = path + "/JMPIExpAssociationProvider.jar";
       className = "Associations/JMPIExpAssociationProvider";

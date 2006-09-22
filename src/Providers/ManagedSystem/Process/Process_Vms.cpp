@@ -32,16 +32,14 @@
 // Author: Sean Keenan <sean.keenan@hp.com>
 //
 // Modified By:
-// Indrani Devi    PTR 73-51-26
-//                 Changes made to incorporate review suggestions in PTR 73-51-26.
-//                 Removed local definition of PCB structure and using PCB structure
-//                 defined in <pcbdef.h>
 //
-// Indrani Devi    PTR 73-51-25
+//%////////////////////////////////////////////////////////////////////////////
+//
+//  PTR 73-51-25
 //                 Changes made to Process::getProcessSessionID() to return False as the
 //                 concept of process session id does not apply to OpenVMS
 //
-// Indrani Devi    PTR 73-51-26 and PTR 73-51-15
+//  PTR 73-51-26 and PTR 73-51-15
 //                 Changes made to incorporate review comments in PTR 73-51-15.
 //                 Changed the getKernelModeTime(), getUserModeTime() and
 //                 getCPUTime() functions such that the pid of the current 
@@ -49,11 +47,11 @@
 //                 passing the PID as a argument to the fucntions.
 //                 Removed the #include <pcbdef.h> and used local PCB structure
 //                 definition
-// Indrani Devi    PTR 73-51-29
+//  PTR 73-51-29
 //                 Changed the getCreationDate() fucntion to set the creation date to 
 //                 system uptime instead of 17--Nov-1858.
 //
-// Indrani Devi    PTR 73-51-26 
+//  PTR 73-51-26 
 //                 Changed getCPUTicks function to take pid as first argument
 //                 and use exe_std$cvt_epid_to_pcb() call to get the PCB structure
 //                 pointer for each individual process. This would get the correct
@@ -63,7 +61,7 @@
 //                 getCPUTime() functions to make call to getCPUTicks() by passing 
 //                 pid as first argument.
 //
-//%////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // ==========================================================================
 // Includes.

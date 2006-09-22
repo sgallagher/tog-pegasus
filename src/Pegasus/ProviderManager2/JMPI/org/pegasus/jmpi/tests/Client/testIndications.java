@@ -55,7 +55,7 @@ public class testIndications
 
    private static boolean      DEBUG               = false;
    private static int          iNumIndications     = 10;
-   private static boolean      fDelete             = true;
+   private static boolean      DELETE              = true;
 
    private static boolean      fBugExistsExecQuery = false;
 
@@ -99,11 +99,11 @@ public class testIndications
          }
          else if (args[i].equalsIgnoreCase ("delete"))
          {
-            fDelete = true;
+            DELETE = true;
          }
          else if (args[i].equalsIgnoreCase ("noDelete"))
          {
-            fDelete = false;
+            DELETE = false;
          }
          else if (args[i].equalsIgnoreCase ("BugExistsExecQuery"))
          {
@@ -189,10 +189,7 @@ public class testIndications
          }
          else
          {
-            if (DEBUG)
-            {
-               System.err.println ("testIndications::createInstance: Caught " + e);
-            }
+            System.err.println ("testIndications::createInstance: Caught " + e);
 
             throw e;
          }
@@ -224,14 +221,79 @@ public class testIndications
          // Get IP Address
          byte[] ipAddr = addr.getAddress ();
 
-         // Get hostname
-         return addr.getHostName ();
+         // Get the canonical hostname
+         return addr.getCanonicalHostName ();
       }
       catch (UnknownHostException e)
       {
       }
 
       return "localhost";
+   }
+
+   private static String getSystemName (CIMClient cc)
+   {
+      Enumeration   enm;
+      CIMObjectPath cop;
+
+      try
+      {
+         cop = new CIMObjectPath ("PG_NameSpace", "root/PG_InterOp");
+         enm = cc.enumInstances (cop,
+                                 true,   // deepInheritance
+                                 true);  // localOnly
+
+         if (DEBUG)
+         {
+            System.out.println ("testIndications::getSystemName cop = " + cop);
+            System.out.println ("testIndications::getSystemName enm = " + enm);
+         }
+
+         if (  enm != null
+            && enm.hasMoreElements ()
+            )
+         {
+            CIMInstance ci = (CIMInstance)enm.nextElement ();
+            CIMProperty cp = null;
+            CIMValue    cv = null;
+
+            if (DEBUG)
+            {
+               System.out.println ("testIndications::getSystemName ci = " + ci);
+            }
+
+            if (ci != null)
+            {
+               cp = ci.getProperty ("SystemName");
+            }
+
+            if (DEBUG)
+            {
+               System.out.println ("testIndications::getSystemName cp = " + cp);
+            }
+
+            if (cp != null)
+            {
+               cv = cp.getValue ();
+            }
+
+            if (DEBUG)
+            {
+               System.out.println ("testIndications::getSystemName cv = " + cv);
+            }
+
+            if (cv != null)
+            {
+               return (String)cv.getValue ();
+            }
+         }
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace ();
+      }
+
+      return getHostname ();
    }
 
    private static UnsignedInt64 findNextIndicationNumber (CIMClient cc)
@@ -303,12 +365,9 @@ public class testIndications
       }
       catch (Exception e)
       {
-         if (DEBUG)
-         {
-            System.err.println ("testIndications::testCreateClassIndicationFilter: Exception: " + e);
+         System.err.println ("testIndications::testCreateClassIndicationFilter: Exception: " + e);
 
-            e.printStackTrace ();
-         }
+         e.printStackTrace ();
       }
 
       if (DEBUG)
@@ -592,7 +651,7 @@ public class testIndications
 
       if (iInstancesReturned == 1)
       {
-         System.out.println ("SUCCESS: testExecQueryIndication");
+         System.out.println ("SUCCESS: testExecQueryIndication = 1");
       }
       else
       {
@@ -644,7 +703,7 @@ public class testIndications
 
       if (iInstancesReturned == 5)
       {
-         System.out.println ("SUCCESS: testExecQueryIndication");
+         System.out.println ("SUCCESS: testExecQueryIndication <= 5");
       }
       else
       {
@@ -748,7 +807,7 @@ public class testIndications
 
          copHandler = testCreateClassIndicationHandler (cc);
 
-         if (copFilter == null)
+         if (copHandler == null)
          {
             return false;
          }
@@ -770,22 +829,11 @@ public class testIndications
 
          testExecQueryIndication (cc);
 
-         if (fDelete)
+         if (DELETE)
          {
-            if (!testDeleteClassIndicationSubscription (cc, copSubscription))
-            {
-               return false;
-            }
-
-            if (!testDeleteClassIndicationHandler (cc, copHandler))
-            {
-               return false;
-            }
-
-            if (!testDeleteClassIndicationFilter (cc, copFilter))
-            {
-               return false;
-            }
+            testDeleteClassIndicationSubscription (cc, copSubscription);
+            testDeleteClassIndicationHandler (cc, copHandler);
+            testDeleteClassIndicationFilter (cc, copFilter);
          }
 
          return true;

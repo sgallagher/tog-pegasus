@@ -56,6 +56,7 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/ProviderManager2/JMPI/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -95,7 +96,7 @@ typedef struct jvmVector {
    const METHOD_STRUCT *instanceMethodNames;
 } JvmVector;
 
-class JMPIjvm {
+class PEGASUS_JMPIPM_LINKAGE JMPIjvm {
  public:
    static int trace;
    static JavaVM *jvm;

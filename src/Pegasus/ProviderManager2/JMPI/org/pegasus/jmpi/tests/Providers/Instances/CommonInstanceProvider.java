@@ -297,7 +297,7 @@ public class CommonInstanceProvider
          }
 
          // Ensure that the requested object does not exist
-         if (findCOPInPropertyTypes (cop) >= 0)
+         if (findCOPInPropertyTypesNew (cop) >= 0)
          {
             throw new CIMException (CIMException.CIM_ERR_ALREADY_EXISTS);
          }
@@ -377,7 +377,7 @@ public class CommonInstanceProvider
          }
 
          // Ensure that the request object exists
-         int index = findCOPInPropertyTypes (cop);
+         int index = findCOPInPropertyTypesNew (cop);
 
          if (index < 0)
          {
@@ -462,7 +462,7 @@ public class CommonInstanceProvider
          }
 
          // Ensure that the request object exists
-         int index = findCOPInPropertyTypes (cop);
+         int index = findCOPInPropertyTypesNew (cop);
 
          if (index < 0)
          {
@@ -546,7 +546,7 @@ public class CommonInstanceProvider
          }
 
          // Ensure that the request object exists
-         int index = findCOPInPropertyTypes (cop);
+         int index = findCOPInPropertyTypesNew (cop);
 
          if (index < 0)
          {
@@ -719,14 +719,7 @@ public class CommonInstanceProvider
                   System.err.println (providerName + "::execQuery: adding instance " + instances.elementAt (i));
                }
 
-if (true)
-{
                ret.addElement (attrs.apply ((CIMInstance)instances.elementAt (i)));
-}
-else
-{
-               ret.addElement (instances.elementAt (i));
-}
             }
          }
 
@@ -904,7 +897,7 @@ else
    {
       Vector keys = cop.getKeys ();
 
-      if (keys.size () != PROPERTYTYPES_KEYS.length)
+      if (keys.size () < PROPERTYTYPES_KEYS.length)
       {
          if (DEBUG)
          {
@@ -1147,8 +1140,11 @@ else
                    System.out.println (providerName + "::findCOPInPropertyTypesNew: copKeyValue \"" + copKeyValue + "\"");
                }
 
-               // Compare the property values and save it for later
-               hashCop1.put (cp.toString (), new Boolean (cpKeyValue.equals (copKeyValue)));
+               if (copKeyValue != null)
+               {
+                  // Compare the property values and save it for later
+                  hashCop1.put (cp.toString (), new Boolean (cpKeyValue.equals (copKeyValue)));
+               }
            }
 
            // Save the result of all of the property comparisons

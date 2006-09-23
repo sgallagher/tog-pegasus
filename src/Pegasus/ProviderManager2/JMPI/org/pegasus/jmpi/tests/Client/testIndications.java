@@ -349,7 +349,7 @@ public class testIndications
                             new CIMValue ("CIM_ComputerSystem"));
       ciFilter.setProperty ("Name",
                             new CIMValue ("classCreationFilter"));
-      ciFilter.setProperty ("SystemName", new CIMValue (getHostname ()));
+      ciFilter.setProperty ("SystemName", new CIMValue (getSystemName (cc)));
       ciFilter.setProperty ("SourceNamespace", new CIMValue (nameSpaceClass));
       ciFilter.setProperty ("Query",
                             new CIMValue ("SELECT * FROM " + className));
@@ -404,7 +404,7 @@ public class testIndications
 
          ciHandler.setProperty ("CreationClassName",
                                 new CIMValue ("CIM_IndicationHandlerCIMXML"));
-         ciHandler.setProperty ("SystemName", new CIMValue (getHostname ()));
+         ciHandler.setProperty ("SystemName", new CIMValue (getSystemName (cc)));
          ciHandler.setProperty ("Destination", new CIMValue ("http://" + getHostname () + ":2005/CIMListener/Pegasus_SimpleDisplayConsumer"));
       }
       else if (false)

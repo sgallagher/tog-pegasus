@@ -38,8 +38,9 @@ include $(ROOT)/mak/config.mak
 LIBRARY = CIMOMHandleTestProvider
 
 LIBRARIES = \
-    pegcommon \
-    pegprovider
+    pegprovider \
+    pegclient \
+    pegcommon
 
 SOURCES = \
     CIMOMHandleTestProviderMain.cpp \
@@ -47,6 +48,6 @@ SOURCES = \
     TestProviderB.cpp \
     TestOperationsProvider.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:

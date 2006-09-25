@@ -8,13 +8,14 @@ LIBRARY = EmbeddedInstanceProvider
 
 LIBRARIES = \
 	pegprovider \
+	pegclient \
 	pegcommon
 	
 SOURCES = \
 	EmbeddedInstanceProviderMain.cpp \
 	EmbeddedInstanceProvider.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:
 

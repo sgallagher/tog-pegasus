@@ -47,4 +47,4 @@ SOURCES = \
    benchmarkProvider.cpp \
    benchmarkProviderMain.cpp 
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak

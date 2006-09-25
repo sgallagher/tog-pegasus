@@ -37,11 +37,12 @@ include $(ROOT)/mak/config.mak
 LIBRARY = TestAggregationOutputProvider
 
 LIBRARIES = \
+	 pegprovider \
+	 pegclient \
 	 pegcommon \
-	 pegprovider
 	
 SOURCES = \
    TestAggregationOutputProviderMain.cpp \
    TestAggregationOutputProvider.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak

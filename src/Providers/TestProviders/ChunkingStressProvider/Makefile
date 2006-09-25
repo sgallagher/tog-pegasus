@@ -37,8 +37,9 @@ include $(ROOT)/mak/config.mak
 LIBRARY = TestChunkingStressProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+	pegprovider \
+	pegclient \
+	pegcommon
 
 SOURCES = \
 	TestChunkingStressProviderMain.cpp \
@@ -46,7 +47,7 @@ SOURCES = \
 	TestChunkingStressProviderEIS.cpp \
 	TestChunkingStressProviderASSOC.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:
 

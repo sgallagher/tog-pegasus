@@ -47,20 +47,23 @@ static const String INVALID_LIBRARY_NAME = "BADDynLib";
 
 const char* verbose = 0;
 
-String getLibraryFileName(const String& libraryName)
-{
+String getLibraryFileName(const String& libraryName) { 
 #if defined(PEGASUS_OS_VMS)
+    String prefixDir;
 # if defined(PEGASUS_USE_RELEASE_DIRS)
-    return String("/wbem_opt/wbem/providers/lib/lib") + libraryName + ".exe";
+    prefixDir = String("/wbem_opt/wbem/providers/lib/");
 # else
     const char* tmp = getenv("PEGASUS_HOME");
     if (tmp)
     {
-      return tmp + String("/bin/") + FileSystem::buildLibraryFileName(libraryName) + ".exe";
+        prefixDir = tmp + String("/bin/");
     }
 # endif
-#endif
+    return prefixDir +
+           FileSystem::buildLibraryFileName(libraryName) + ".exe"; 
+# else
     return FileSystem::buildLibraryFileName(libraryName);
+#endif
 }
 
 // load a valid module, export a symbol, call it, and unload module

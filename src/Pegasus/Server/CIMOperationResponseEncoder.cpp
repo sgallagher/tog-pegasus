@@ -156,8 +156,11 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
     // STAT_SERVEREND sets the getTotalServerTime() value in the message class
     STAT_SERVEREND
 
+#ifndef PEGASUS_DISABLE_PERFINST
     Uint64 serverTime = response->getTotalServerTime();
-
+#else
+    Uint64 serverTime = 0;
+#endif
 
 	Buffer (*formatResponse)(const CIMName& iMethodName,
 																 const String& messageId,

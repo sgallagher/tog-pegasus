@@ -76,10 +76,10 @@ LIBRARY = JMPIProviderManager
 LIBRARIES = \
 	pegprovidermanager \
 	pegconfig \
-	pegprovider \
-	pegclient \
 	pegwql \
 	pegquerycommon \
+	pegprovider \
+	pegclient \
 	pegcommon
 
 SOURCES = \
@@ -90,7 +90,7 @@ SOURCES = \
         JMPIProvider.cpp \
         JMPIImpl.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 all:	$(FULL_LIB)
 

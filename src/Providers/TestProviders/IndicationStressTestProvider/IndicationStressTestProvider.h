@@ -86,6 +86,10 @@ public:
          const CIMName & methodName,
          const Array<CIMParamValue> & inParameters,
          MethodResultResponseHandler & handler);
+
+private:
+
+    CIMOMHandle _cimom;
 };
 
 #endif

@@ -52,7 +52,6 @@ static IndicationResponseHandler * _indication_handler = 0;
 static Boolean _enabled = false;
 static Uint32 _nextUID = 1;
 static Uint32 _numSubscriptions = 0;
-static CIMOMHandle _cimom;
 
 static CIMObjectPath path;
 static Array <String> correlatedIndications;

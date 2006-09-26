@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Sushma Fernandes, Hewlett-Packard Company
-//		(sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//				Seema Gupta (gseema@in.ibm.com) for PEP135
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -528,10 +516,10 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    // If the user is privileged, and remote privileged user access is not 
    // enabled and the auth type is not Local then reject access.
    //
-   if (System::isPrivilegedUser(userName) &&
-       !String::equalNoCase(authType, "Local") &&
+   if (!String::equalNoCase(authType, "Local") &&
        !ConfigManager::parseBooleanValue(
-           configManager->getCurrentValue("enableRemotePrivilegedUserAccess")))
+           configManager->getCurrentValue("enableRemotePrivilegedUserAccess")) &&
+       System::isPrivilegedUser(userName))
    {
 
       if (cimMethodName == "InvokeMethod")

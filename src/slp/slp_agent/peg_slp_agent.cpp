@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/System.h>
@@ -204,7 +199,7 @@ void slp_service_agent::_init(void)
     }
 #endif
 
-   libraryFileName.append(FileSystem::buildLibraryFileName("slp_client"));
+   libraryFileName.append(FileSystem::buildLibraryFileName("pegslp_client"));
    _library = DynamicLibrary(libraryFileName);
 
    if (_library.load())

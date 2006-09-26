@@ -97,12 +97,4 @@ SOURCES += \
     CMPI_SelectExpAccessor_CQL.cpp
 endif
 
-ifeq ($(OS),VMS)
-#
-# Large number of objects causes command line to be too long.
-# Added them to the linker options file.
-#
-OBJECTS_IN_OPTIONFILE = YES
-endif
-
 include $(ROOT)/mak/dynamic-library.mak

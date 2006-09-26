@@ -1511,7 +1511,7 @@ Boolean operator==(const CIMDateTime& x, const CIMDateTime& y)
 //
 //==============================================================================
 
-#if defined(PEGASUS_OS_TYPE_UNIX)
+#if defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
 
 CIMDateTime CIMDateTime::getCurrentDateTime()
 {
@@ -1522,7 +1522,11 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     // ATTN: if this fails on your platform, use time() to obtain the
     // sec element and set usec to zero.
     struct timeval tv;
+#if defined(PEGASUS_OS_VMS)
+    void *tz = NULL;
+#else
     struct timezone tz;
+#endif
     gettimeofday(&tv, &tz);
     sec = tv.tv_sec;
     usec = Uint64(tv.tv_usec);
@@ -1549,7 +1553,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
             // Assume 1 hour.
             tzMinutesEast += 60;
         }
-# elif defined(PEGASUS_OS_LINUX)
+# elif defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_VMS)
         tzMinutesEast = (int) tmval->tm_gmtoff/60;
 # else
         if (tz.tz_dsttime > 0)
@@ -1574,43 +1578,6 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 }
 
 #endif /* PEGASUS_OS_TYPE_UNIX */
-
-//==============================================================================
-//
-// PEGASUS_OS_VMS
-//
-//==============================================================================
-
-#if defined(PEGASUS_OS_VMS)
-
-CIMDateTime CIMDateTime::getCurrentDateTime()
-{
-    time_t mSysTime;
-    struct tm* tmval;
-
-    // Get time.
-
-    mSysTime = time(NULL);
-
-    // Get the localtime
-
-    tmval = localtime(&mSysTime);
-
-    // Initialize components.
-
-    Uint32 year = 1900 + tmval->tm_year;
-    Uint32 month = tmval->tm_mon + 1;
-    Uint32 day = tmval->tm_mday;
-    Uint32 hours = tmval->tm_hour;
-    Uint32 minutes = tmval->tm_min;
-    Uint32 seconds = tmval->tm_sec;
-
-    // ATTN: missing UTC offset here.
-
-    return CIMDateTime(year, month, day, hours, minutes, seconds, 0, 6, 0);
-}
-
-#endif /* PEGASUS_OS_VMS */
 
 //==============================================================================
 //

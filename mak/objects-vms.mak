@@ -49,7 +49,10 @@ DEFINES +=,$(EXTRA_DEFINES)
 endif
 
 $(OBJ_DIR)/%.obj: %.c $(ERROR)
-	$(CC)/object=$(OBJ_VMSDIRA)] $(CCFLAGS)/DEFINE=(__NEW_STARLET) $*.c$(VMS_CLIB)
+	$(CC)/object=$(OBJ_VMSDIRA)] $(CCFLAGS)/define=(VMS$(TMP_FLAGS)$(TMP_DEFINES)$(TMP_LDEFINES))/include=($(INCLUDES)$(TMP_SINCLUDES)","$(OPENSSL_VMSHOME)")  $*.c$(VMS_CLIB)
+ifndef EXE_OUTPUT
+	library/replace $(FULL_VMSLIB) $(OBJ_VMSDIRA)]$*.obj
+endif
 	@ $(TOUCH) $(OBJ_VMSDIRA)]$*.obj
 	@ $(ECHO)
 

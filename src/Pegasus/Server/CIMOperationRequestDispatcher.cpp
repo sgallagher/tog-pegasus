@@ -3360,11 +3360,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     _repository->enumerateInstancesForClass(
                         request->nameSpace,
                         providerInfo.className,
-                        request->deepInheritance,
                         request->localOnly,
                         request->includeQualifiers,
                         request->includeClassOrigin,
-                        false,
                         request->propertyList);
             }
             catch(const CIMException& exception)
@@ -3681,8 +3679,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                 response->instanceNames =
                     _repository->enumerateInstanceNamesForClass(
                         request->nameSpace,
-                        providerInfo.className,
-                        false);
+                        providerInfo.className);
             }
             catch(const CIMException& exception)
             {

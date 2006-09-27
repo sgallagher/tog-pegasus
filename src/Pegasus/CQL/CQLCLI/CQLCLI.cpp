@@ -874,8 +874,7 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
 
     try
     {
-      // Deep inh = false to only get the CIM_ComputerSystem
-      cSystems.appendArray(_rep->enumerateInstances( _ns, CSClass, false));
+      cSystems.appendArray(_rep->enumerateInstancesForClass( _ns, CSClass));
     }
     catch(Exception& e)
     {
@@ -903,7 +902,7 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
     try
     {
       const CIMName _testclass(className);
-      _instances = _rep->enumerateInstances( _ns, _testclass, true );  // deep inh true
+      _instances = _rep->enumerateInstancesForSubtree( _ns, _testclass, true );  // deep inh true
 
       // Sort the CQL instances to avoid the class ordering problem that happens
       // because the order depends on how the file system orders the class files
@@ -925,7 +924,7 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
     {
       // Deep inh = true for CQL_TestElement to also get CQL_TestPropertyTypes
       // and CQL_TestPropertyTypesMissing
-      _instances = _rep->enumerateInstances( _ns, _testclass1, true ); // deep inh true
+      _instances = _rep->enumerateInstancesForSubtree( _ns, _testclass1, true ); // deep inh true
 
       // Sort the CQL instances to avoid the class ordering problem that happens
       // because the order depends on how the file system orders the class files
@@ -934,8 +933,8 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
       // the CIM_ComputerSystem to be after the CQL instances.
       sortInstances(_instances);
 
-      // Deep inh = false to only get the CIM_ComputerSystem
-      _instances.appendArray(_rep->enumerateInstances( _ns, _testclass2, false )); // deep inh false
+      // only get the CIM_ComputerSystem
+      _instances.appendArray(_rep->enumerateInstancesForClass( _ns, _testclass2));
     }
     catch(Exception& e)
     {
@@ -1063,7 +1062,7 @@ int main(int argc, char ** argv)
     cout << "Running Demo..." << endl;
     _instances.clear();
     const CIMName _testclassDEMO(String("CIM_Process"));
-    _instances.appendArray(_rep->enumerateInstances( _ns, _testclassDEMO ));
+    _instances.appendArray(_rep->enumerateInstancesForSubtree( _ns, _testclassDEMO ));
     _instances.remove(6,6);
   }
 

@@ -1455,23 +1455,22 @@ CIMInstance ProviderRegistrationManager::getInstance(
 }
 
 // get all registered providers
-Array<CIMInstance> ProviderRegistrationManager::enumerateInstances(
+Array<CIMInstance> ProviderRegistrationManager::enumerateInstancesForClass(
     const CIMObjectPath & ref,
     const Boolean includeQualifiers,
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "ProviderRegistrationManager::enumerateInstances");
+        "ProviderRegistrationManager::enumerateInstancesForClass");
 
     Array<CIMInstance> enumInstances;
 
     try
     {
-        enumInstances = _repository->enumerateInstances(
+        enumInstances = _repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             ref.getClassName(),
-            false,
             false,
             includeQualifiers,
             includeClassOrigin,
@@ -1489,18 +1488,18 @@ Array<CIMInstance> ProviderRegistrationManager::enumerateInstances(
 }
 
 // get all registered provider names
-Array<CIMObjectPath> ProviderRegistrationManager::enumerateInstanceNames(
+Array<CIMObjectPath> ProviderRegistrationManager::enumerateInstanceNamesForClass(
     const CIMObjectPath & ref)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::enumerateInstanceNames");
+        "ProviderRegistrationManager::enumerateInstanceNamesForClass");
 
     Array<CIMObjectPath> enumInstanceNames;
 
     try
     {
         // get all instance names from repository
-        enumInstanceNames = _repository->enumerateInstanceNames(
+        enumInstanceNames = _repository->enumerateInstanceNamesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             ref.getClassName());
     }
@@ -1884,10 +1883,9 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                 PEGASUS_NAMESPACENAME_INTEROP.getString().getCString(),
             (const char *)
                 PEGASUS_CLASSNAME_PROVIDERMODULE.getString().getCString());
-        cimNamedInstances = _repository->enumerateInstances(
+        cimNamedInstances = _repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDERMODULE,
-            false,
             false,
             false,
             false,
@@ -2072,10 +2070,9 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         //
         // get all instances of provider class
         //
-        cimNamedInstances = _repository->enumerateInstances(
+        cimNamedInstances = _repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDER,
-            false,
             false,
             false,
             false,
@@ -2113,10 +2110,9 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         //
         // get all instances of ConsumerCapabilities class
         //
-        cimNamedInstances = _repository->enumerateInstances(
+        cimNamedInstances = _repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_CONSUMERCAPABILITIES,
-            false,
             false,
             false,
             false,
@@ -2154,10 +2150,9 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         //
         // get all instances of providerCapabilities class
         //
-        cimNamedInstances = _repository->enumerateInstances(
+        cimNamedInstances = _repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
-            false,
             false,
             false,
             false,
@@ -3210,9 +3205,14 @@ void ProviderRegistrationManager::_deleteInstance(
         //
         Array<CIMObjectPath> enumCapInstanceNames;
 
-        enumCapInstanceNames = _repository->enumerateInstanceNames(
+        enumCapInstanceNames = _repository->enumerateInstanceNamesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION);
+            PEGASUS_CLASSNAME_PROVIDERCAPABILITIES);
+
+        enumCapInstanceNames.appendArray(
+            _repository->enumerateInstanceNamesForClass(
+                PEGASUS_NAMESPACENAME_INTEROP,
+                PEGASUS_CLASSNAME_CONSUMERCAPABILITIES));
 
         for (Uint32 i = 0, n = enumCapInstanceNames.size(); i < n; i++)
         {
@@ -3369,7 +3369,7 @@ void ProviderRegistrationManager::_deleteInstance(
         //
         Array<CIMObjectPath> enumProviderInstanceNames;
 
-        enumProviderInstanceNames = _repository->enumerateInstanceNames(
+        enumProviderInstanceNames = _repository->enumerateInstanceNamesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDER);
 
@@ -3412,9 +3412,14 @@ void ProviderRegistrationManager::_deleteInstance(
         //
         Array<CIMObjectPath> enumCapInstanceNames;
 
-        enumCapInstanceNames = _repository->enumerateInstanceNames(
+        enumCapInstanceNames = _repository->enumerateInstanceNamesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION);
+            PEGASUS_CLASSNAME_PROVIDERCAPABILITIES);
+
+        enumCapInstanceNames.appendArray(
+            _repository->enumerateInstanceNamesForClass(
+                PEGASUS_NAMESPACENAME_INTEROP,
+                PEGASUS_CLASSNAME_CONSUMERCAPABILITIES));
 
         for (Uint32 i = 0, n = enumCapInstanceNames.size(); i < n; i++)
         {
@@ -3603,7 +3608,8 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
 
     //
     //  Each instance already includes its path because it was obtained from a
-    //  repository enumerateInstances call which returns a named instance
+    //  repository enumerateInstancesForClass call which returns a named
+    //  instance
     //
 
     try

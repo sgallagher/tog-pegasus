@@ -1291,11 +1291,10 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         _updatePropertyList (request->className,
             propertyList, setTimeRemaining, startTimeAdded, durationAdded);
 
-        enumInstances = _subscriptionRepository->enumerateInstancesForClass
-            (request->nameSpace, request->className,
-             request->deepInheritance, request->localOnly,
-             request->includeQualifiers, request->includeClassOrigin,
-             false, propertyList);
+        enumInstances = _subscriptionRepository->enumerateInstancesForClass(
+            request->nameSpace, request->className, request->localOnly,
+            request->includeQualifiers, request->includeClassOrigin,
+            propertyList);
 
 // l10n
         // Vars used to aggregate the content languages of the subscription
@@ -1441,7 +1440,7 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
         _checkNonprivilegedAuthorization(userName);
         enumInstanceNames =
             _subscriptionRepository->enumerateInstanceNamesForClass
-            (request->nameSpace, request->className, false);
+            (request->nameSpace, request->className);
     }
     catch (CIMException& exception)
     {

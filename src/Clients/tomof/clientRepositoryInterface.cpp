@@ -185,7 +185,8 @@ Array<CIMObjectPath> clientRepositoryInterface::enumerateInstanceNames(
 	const CIMName& className)
 {
     if (_repository)
-       return _repository->enumerateInstanceNames(nameSpace, className);
+       return _repository->enumerateInstanceNamesForSubtree(
+           nameSpace, className);
 
     if (_client)
        return _client->enumerateInstanceNames(nameSpace, className);
@@ -203,7 +204,7 @@ Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
 	
 {
     if (_repository)
-       return _repository->enumerateInstances(nameSpace, className,
+       return _repository->enumerateInstancesForSubtree(nameSpace, className,
 			deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
 
     if (_client)

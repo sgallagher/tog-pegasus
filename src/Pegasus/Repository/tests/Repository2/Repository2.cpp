@@ -341,7 +341,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     // -- Enumerate instances names:
     //
     Array<CIMObjectPath> instanceNames = 
-	r.enumerateInstanceNames(NS, CIMName ("SuperClass"));
+	r.enumerateInstanceNamesForSubtree(NS, CIMName ("SuperClass"));
 
     PEGASUS_TEST_ASSERT(instanceNames.size() == 2);
 
@@ -360,7 +360,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     //
     // -- Enumerate instances:
     //
-    Array<CIMInstance> namedInstances = r.enumerateInstances(NS, 
+    Array<CIMInstance> namedInstances = r.enumerateInstancesForSubtree(NS,
         CIMName ("SuperClass"),true, false, true, true);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
@@ -377,10 +377,10 @@ void TestCreateClass(CIMRepository_Mode mode)
 	namedInstances[1].identical(inst1));
 
     //   
-    // Repeat the above tests for the enumerateInstancesFor Class function
+    // Repeat the above tests for the enumerateInstancesForClass function
     //
     namedInstances = r.enumerateInstancesForClass(NS, 
-        CIMName ("SuperClass"),true, false, true, true);
+        CIMName("SuperClass"), false, true, true);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
@@ -390,7 +390,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     PEGASUS_TEST_ASSERT( namedInstances[0].identical(inst0));
 
     namedInstances = r.enumerateInstancesForClass(NS, 
-        CIMName ("SubClass"),true, false, true, true);
+        CIMName("SubClass"), false, true, true);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
@@ -401,7 +401,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     // Test enumerating with classOrigin false
     //
 
-    namedInstances = r.enumerateInstances(NS, 
+    namedInstances = r.enumerateInstancesForSubtree(NS,
         CIMName ("SuperClass"),true, false, true, false);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
@@ -420,7 +420,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     // Repeat the above for enumerateinstancesForClass
     //
     namedInstances = r.enumerateInstancesForClass(NS, 
-        CIMName ("SuperClass"),true, false, true, false, false);
+        CIMName("SuperClass"), false, true, false);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
@@ -436,7 +436,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     //
     // Test for qualifier removal from enumerateinstances
     //
-    namedInstances = r.enumerateInstances(NS, 
+    namedInstances = r.enumerateInstancesForSubtree(NS, 
         CIMName ("SuperClass"),true, false, false, false);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
@@ -456,7 +456,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     // Repeat the above for the enumerateinstancesFor Class
     //
     namedInstances = r.enumerateInstancesForClass(NS, 
-        CIMName ("SuperClass"),true, false, false, false, false);
+        CIMName("SuperClass"), false, false, false);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
@@ -485,7 +485,7 @@ void TestCreateClass(CIMRepository_Mode mode)
 
     // deepInheritance=true,localOnly=false,
     // includeQualifiers=false,includeClassOrigin=false,
-    namedInstances = r.enumerateInstances(NS,
+    namedInstances = r.enumerateInstancesForSubtree(NS,
         CIMName ("SuperClass"),true, false, false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
@@ -511,7 +511,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     pl1.clear();
     pl1.set(pls1);
 
-    namedInstances = r.enumerateInstances(NS,
+    namedInstances = r.enumerateInstancesForSubtree(NS,
         CIMName ("SuperClass"),true, false, false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
@@ -537,7 +537,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     pl1.set(pls1);
     // deepInheritance=true,localOnly=false,
     // includeQualifiers=false,includeClassOrigin=false,
-    namedInstances = r.enumerateInstances(NS,
+    namedInstances = r.enumerateInstancesForSubtree(NS,
         CIMName ("SuperClass"),true, false, false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
@@ -565,7 +565,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     pl1.set(pls1);
     // deepInheritance=true,localOnly=true,
     // includeQualifiers=false,includeClassOrigin=false,
-    namedInstances = r.enumerateInstances(NS,
+    namedInstances = r.enumerateInstancesForSubtree(NS,
         CIMName ("SuperClass"),true, true, false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
@@ -591,7 +591,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     pl1.clear();
     pl1.set(pls1);
 
-    namedInstances = r.enumerateInstances(NS,
+    namedInstances = r.enumerateInstancesForSubtree(NS,
         CIMName ("SuperClass"),true, false, false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);

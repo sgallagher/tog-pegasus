@@ -179,10 +179,11 @@ void ProviderRegistrationProvider::enumerateInstances(
     try
     {
         enumInstances = 
-	    _providerRegistrationManager->enumerateInstances(classReference, 
-							     includeQualifiers,
-			 				     includeClassOrigin, 
-							     propertyList);
+	    _providerRegistrationManager->enumerateInstancesForClass(
+                classReference, 
+                includeQualifiers,
+                includeClassOrigin, 
+                propertyList);
     }
     catch(const CIMException&)
     {
@@ -228,7 +229,8 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
     try
     {
         enumInstanceNames =
-            _providerRegistrationManager->enumerateInstanceNames(classReference);
+            _providerRegistrationManager->enumerateInstanceNamesForClass(
+                classReference);
     }
     catch(const CIMException&)
     {
@@ -1277,7 +1279,8 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
 	    PEGASUS_CLASSNAME_PROVIDER, ref.getKeyBindings());
 
         Array<CIMObjectPath> instanceNames =
-	    _providerRegistrationManager->enumerateInstanceNames(reference);
+	    _providerRegistrationManager->enumerateInstanceNamesForClass(
+                reference);
 
         // find all the instances which have same module name as moduleName
         for (Uint32 i = 0, n=instanceNames.size(); i < n; i++)
@@ -1443,7 +1446,8 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 	    // get all provider instances which have same module name as 
 	    // moduleName
  	    Array<CIMObjectPath> instanceNames = 
-	        _providerRegistrationManager->enumerateInstanceNames(providerRef);
+	        _providerRegistrationManager->enumerateInstanceNamesForClass(
+                    providerRef);
 
 	    for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
 	    {
@@ -1650,7 +1654,8 @@ Sint16 ProviderRegistrationProvider::_enableModule(
 	    // moduleName
             //
 	    Array<CIMObjectPath> instanceNames =
-	        _providerRegistrationManager->enumerateInstanceNames(providerRef);
+	        _providerRegistrationManager->enumerateInstanceNamesForClass(
+                    providerRef);
 	    CIMInstance pInstance;
 	    String _moduleName;
 	    String _providerName;
@@ -1805,12 +1810,13 @@ Array<CIMInstance> ProviderRegistrationProvider::_getIndicationCapInstances(
 
     capabilityRef = CIMObjectPath(providerRef.getHost(),
 				  providerRef.getNameSpace(),
-		       		  PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION,
+		       		  PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
 		       		  providerRef.getKeyBindings());
 
     // get all Capabilities instances
     Array<CIMObjectPath> instanceNames =
-	_providerRegistrationManager->enumerateInstanceNames(capabilityRef);
+	_providerRegistrationManager->enumerateInstanceNamesForClass(
+            capabilityRef);
 			
     String _moduleName, _providerName;
     CIMInstance capInstance;

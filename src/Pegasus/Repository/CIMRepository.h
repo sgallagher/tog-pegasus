@@ -166,7 +166,17 @@ public:
         Boolean deepInheritance = false);
 
     
-    virtual Array<CIMInstance> enumerateInstances(
+    /**
+        Enumerates the instances of the specified class and its subclasses.
+        This method mimics the client behavior for the EnumerateInstances
+        operation, but of course it can only return the instances that reside
+        in the repository.  This method does not perform deepInheritance
+        filtering regardless of the value given for that parameter.
+
+        This method is useful mainly for testing purposes, and should not be
+        relied upon for complete results in a CIM Server environment.
+    */
+    virtual Array<CIMInstance> enumerateInstancesForSubtree(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance = true,
@@ -175,45 +185,53 @@ public:
         Boolean includeClassOrigin = false,
 	const CIMPropertyList& propertyList = CIMPropertyList());
 
-    /** enumerateInstances for a single Class. This and the forClass
-    // in enumerate instancenames are a temp hack to get a version
-    // that only gets for a single class until we can go through all
-    // code and put them back together again.
-    // This simply adds the includeInheritance property
+    /**
+        Enumerates the instances of just the specified class.
+        This method mimics the provider behavior for the EnumerateInstances
+        operation.
     */
     virtual Array<CIMInstance> enumerateInstancesForClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        Boolean deepInheritance = true,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-        Boolean includeInheritance = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
 
-    /** enumerateInstanceNames returns names of instances that
-        meet the critera.  This is an extension of the CIM
-        enumerate instances client call
-        @nameSpace - target namespace
-        @param className - Name of the target class
-        @param Boolean that defines whether to search inheritance or not
-        @return CIMObjectPath defining the names of the found instances.
-        @exception - Yes
+    /**
+        Enumerates the names of the instances of the specified class and its
+        subclasses.  This method mimics the client behavior for the
+        EnumerateInstanceNames operation, but of course it can only return
+        the names of the instances that reside in the repository.
+
+        This method is useful mainly for testing purposes, and should not be
+        relied upon for complete results in a CIM Server environment.
+
+        @param nameSpace The namespace in which className resides.
+        @param className The name the class for which to retrieve the instance
+            names.
+        @return An Array of CIMObjectPath objects containing the names of the
+            instances of the specified class in the specified namespace.
     */
-    virtual Array<CIMObjectPath> enumerateInstanceNames(
+    virtual Array<CIMObjectPath> enumerateInstanceNamesForSubtree(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-    /** enumerateInstanceNames for a single Class. This is a temporary
-    	hack and should eventually be merged with enumerateInstanceNames
-	This function allows you to either include the inheritance tree
-	or not with teh boolean includeInheritance.
+    /**
+        Enumerates the names of the instances of just the specified class.
+        This method mimics the provider behavior for the EnumerateInstanceNames
+        operation.
+
+        @param nameSpace The namespace in which className resides.
+        @param className The name the class for which to retrieve the instance
+            names.
+        @return An Array of CIMObjectPath objects containing the names of the
+            instances of the specified class in the specified namespace.
     */
     virtual Array<CIMObjectPath> enumerateInstanceNamesForClass(
         const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        const Boolean includeInheritance = true	);
+        const CIMName& className);
 
 
     /// execQuery

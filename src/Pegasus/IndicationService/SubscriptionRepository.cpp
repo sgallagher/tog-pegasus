@@ -320,27 +320,15 @@ Array <CIMInstance> SubscriptionRepository::getSubscriptions (
     Array <CIMInstance> subscriptions;
 
     //
-    //  Get existing subscriptions in specified namespace
+    //  Get the CIM_IndicationSubscription and
+    //  CIM_FormattedIndicationSubscription instances in specified namespace
     //
     try
     {
-        subscriptions = _repository->enumerateInstances
-            (nameSpace, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-
-        //
-        //  Process each subscription
-        //
-        for (Uint32 i = 0; i < subscriptions.size (); i++)
-        {
-            //
-            //  CIMInstances returned from repository do not include
-            //  namespace
-            //  Set namespace here
-            //
-            CIMObjectPath instanceName = subscriptions [i].getPath ();
-            instanceName.setNameSpace (nameSpace);
-            subscriptions [i].setPath (instanceName);
-        }
+        subscriptions = _repository->enumerateInstancesForClass(
+            nameSpace, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+        subscriptions.appendArray(_repository->enumerateInstancesForClass(
+            nameSpace, PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION));
     }
     catch (const CIMException& e)
     {
@@ -354,6 +342,21 @@ Array <CIMInstance> SubscriptionRepository::getSubscriptions (
             PEG_METHOD_EXIT ();
             throw;
         }
+    }
+
+    //
+    //  Process each subscription
+    //
+    for (Uint32 i = 0; i < subscriptions.size(); i++)
+    {
+        //
+        //  CIMInstances returned from repository do not include
+        //  namespace
+        //  Set namespace here
+        //
+        CIMObjectPath instanceName = subscriptions[i].getPath();
+        instanceName.setNameSpace(nameSpace);
+        subscriptions[i].setPath(instanceName);
     }
 
     PEG_METHOD_EXIT ();
@@ -1016,25 +1019,20 @@ void SubscriptionRepository::deleteInstance (
 Array <CIMInstance> SubscriptionRepository::enumerateInstancesForClass (
     const CIMNamespaceName & nameSpace,
     const CIMName & className,
-    Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    Boolean includeInheritance,
     const CIMPropertyList & propertyList)
 {
     return _repository->enumerateInstancesForClass (nameSpace, className,
-        deepInheritance, localOnly, includeQualifiers, includeClassOrigin,
-        false, propertyList);
+        localOnly, includeQualifiers, includeClassOrigin, propertyList);
 }
 
 Array <CIMObjectPath> SubscriptionRepository::enumerateInstanceNamesForClass (
     const CIMNamespaceName & nameSpace,
-    const CIMName & className,
-    Boolean includeInheritance)
+    const CIMName & className)
 {
-    return _repository->enumerateInstanceNamesForClass (nameSpace, className,
-        false);
+    return _repository->enumerateInstanceNamesForClass(nameSpace, className);
 }
 
 void SubscriptionRepository::_disableSubscription (

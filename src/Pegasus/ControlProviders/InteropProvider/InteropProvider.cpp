@@ -280,10 +280,11 @@ InteropProvider::InteropProvider(CIMRepository* repository)
 
      try
      { 
-         instance = repository->enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP, 
-                                                   CIM_OBJECTMANAGER_CLASSNAME);
+         instance = repository->enumerateInstancesForClass(
+             PEGASUS_NAMESPACENAME_INTEROP, 
+             CIM_OBJECTMANAGER_CLASSNAME);
      }
-     catch(Exception e)
+     catch (Exception& e)
      {
          InstancesExists = false;
      }
@@ -1103,9 +1104,9 @@ Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
     Array<CIMInstance> instances;
     try
     {
-        instances = _repository->enumerateInstances(
+        instances = _repository->enumerateInstancesForClass(
                 objectPath.getNameSpace(),
-                CIM_OBJECTMANAGER_CLASSNAME, true, false, includeQualifiers,
+                CIM_OBJECTMANAGER_CLASSNAME, false, includeQualifiers,
                 includeClassOrigin, propertyList);
 
         if (instances.size() >= 1)
@@ -1157,8 +1158,7 @@ Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
     @param includeClassOrigin Boolean
     @param propertylist CIMPropertyList
     @return CIMInstance with a single built instance of the class
-    @exception repository instances if exception to enumerateInstances
-        for this class.
+    @exception repository instances if exception to enumerateInstancesForClass
 */
 CIMInstance InteropProvider::_getInstanceCIMObjectManager(
                         const CIMObjectPath& objectPath,

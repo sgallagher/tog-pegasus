@@ -258,7 +258,7 @@ void TestEnumerateInstance(Uint32 num)
 
     // -- Enumerate instances names:
     Array<CIMObjectPath> instanceNames = 
-	r->enumerateInstanceNames(NS, CIMName ("SuperClass"));
+	r->enumerateInstanceNamesForSubtree(NS, CIMName ("SuperClass"));
 
 	if (verbose)
 	{
@@ -279,7 +279,7 @@ void TestEnumerateInstances(Uint32 num)
   if (verbose) cout << ProgName << "-TestEnumerateInstances()" << endl;
     // -- Enumerate instances:
 
-    Array<CIMInstance> namedInstances = r->enumerateInstances(NS, 
+    Array<CIMInstance> namedInstances = r->enumerateInstancesForSubtree(NS,
         CIMName ("SuperClass"),true,false, true, true);
 
 #ifdef NOTDEF
@@ -304,10 +304,10 @@ void TestEnumerateInstancesForClass(Uint32 num)
 {
   if (verbose) cout << ProgName << "-TestEnumerateInstancesForClass()" << endl;
 
-    // test the enumerateInstancesFor Class function
+    // test the enumerateInstancesForClass function
 
     Array<CIMInstance>  namedInstances = r->enumerateInstancesForClass(NS, 
-        CIMName ("SuperClass"),true,false, true, true);
+        CIMName("SuperClass"), false, true, true);
 
 #ifdef NOTDEF
     // defined out becuase it is very verbose
@@ -325,7 +325,7 @@ void TestEnumerateInstancesForClass(Uint32 num)
     PEGASUS_TEST_ASSERT(namedInstances.size() == num);
 
     namedInstances = r->enumerateInstancesForClass(NS, 
-        CIMName ("SubClass"),true,false, true, true);
+        CIMName("SubClass"), false, true, true);
 
 #ifdef NOTDEF
     // defined out becuase it is very verbose

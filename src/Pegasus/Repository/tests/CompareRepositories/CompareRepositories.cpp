@@ -129,9 +129,9 @@ void CompareInstances(
 
     for (size_t i = 0; i < classNames1.size(); i++)
     {
-	Array<CIMObjectPath> objectPaths1 = r1.enumerateInstanceNames(
+	Array<CIMObjectPath> objectPaths1 = r1.enumerateInstanceNamesForClass(
 	    namespaceName, classNames1[i]);
-	Array<CIMObjectPath> objectPaths2 = r2.enumerateInstanceNames(
+	Array<CIMObjectPath> objectPaths2 = r2.enumerateInstanceNamesForClass(
 	    namespaceName, classNames2[i]);
 	// BubbleSort(objectPaths1);
 	// BubbleSort(objectPaths2);

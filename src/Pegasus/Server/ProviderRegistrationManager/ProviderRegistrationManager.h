@@ -245,13 +245,14 @@ public:
 		    const Boolean includeClassOrigin = false,
 		    const CIMPropertyList & propertyList = CIMPropertyList());
 
-	Array<CIMInstance> enumerateInstances(
+	Array<CIMInstance> enumerateInstancesForClass(
 			   const CIMObjectPath & classReference,
 		    	   const Boolean includeQualifiers = false,
 		     	   const Boolean includeClassOrigin = false,
 		    	   const CIMPropertyList & propertyList = CIMPropertyList());
 
-	Array<CIMObjectPath> enumerateInstanceNames(const CIMObjectPath & ref);
+	Array<CIMObjectPath> enumerateInstanceNamesForClass(
+            const CIMObjectPath & ref);
 
 	void modifyInstance(const CIMObjectPath & ref, 
 		const CIMInstance & instance,

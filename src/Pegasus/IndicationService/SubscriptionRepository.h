@@ -361,7 +361,6 @@ public:
         @param   localOnly             return only local elements
         @param   includeQualifiers     return qualifier elements
         @param   includeClassOrigin    return ClassOrigin attribute
-        @param   includeInheritance    return instances of subclasses
         @param   propertyList          return specified properties
 
         @return  Array of CIMInstance objects for the specified enumeration
@@ -369,11 +368,9 @@ public:
     Array <CIMInstance> enumerateInstancesForClass (
         const CIMNamespaceName & nameSpace,
         const CIMName & className,
-        Boolean deepInheritance = true,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-        Boolean includeInheritance = false,
         const CIMPropertyList & propertyList = CIMPropertyList ());
 
     /**
@@ -381,14 +378,12 @@ public:
 
         @param   nameSpace             the namespace
         @param   className             the class name
-        @param   includeInheritance    return names of instances of subclasses
 
         @return  Array of CIMObjectPath objects for the specified enumeration
      */
     Array <CIMObjectPath> enumerateInstanceNamesForClass (
         const CIMNamespaceName & nameSpace,
-        const CIMName & className,
-        Boolean includeInheritance = true);
+        const CIMName & className);
 
 private:
 

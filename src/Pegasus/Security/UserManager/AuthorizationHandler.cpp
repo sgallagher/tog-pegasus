@@ -225,9 +225,9 @@ void AuthorizationHandler::_loadAllAuthorizations()
     try
     {
         //
-        // call enumerateInstances of the repository
+        // call enumerateInstancesForClass of the repository
         //
-        namedInstances = _repository->enumerateInstances(
+        namedInstances = _repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_AUTHORIZATION, PEGASUS_CLASSNAME_AUTHORIZATION);
 
         //

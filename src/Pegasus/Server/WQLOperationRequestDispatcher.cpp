@@ -362,9 +362,8 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 					// Enumerate instances only for this class
 					response->cimNamedInstances =
 						_repository->enumerateInstancesForClass(
-																										request->nameSpace,
-																										providerInfo.className,
-																										false);
+							request->nameSpace,
+																	providerInfo.className);
 				}
 				catch(CIMException& exception)
 				{

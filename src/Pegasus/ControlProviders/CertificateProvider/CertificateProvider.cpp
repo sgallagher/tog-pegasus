@@ -560,7 +560,8 @@ void CertificateProvider::enumerateInstances(
     
         // get instances from the repository
         Array<CIMInstance> cimInstances;
-        cimInstances = _repository->enumerateInstances(cimObjectPath.getNameSpace(), PEGASUS_CLASSNAME_CERTIFICATE);
+        cimInstances = _repository->enumerateInstancesForClass(
+            cimObjectPath.getNameSpace(), PEGASUS_CLASSNAME_CERTIFICATE);
     
         for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
         {
@@ -733,7 +734,9 @@ void CertificateProvider::enumerateInstanceNames(
         // process request
         handler.processing();
     
-        Array<CIMObjectPath> instanceNames = _repository->enumerateInstanceNames(cimObjectPath.getNameSpace(), PEGASUS_CLASSNAME_CERTIFICATE);
+        Array<CIMObjectPath> instanceNames =
+            _repository->enumerateInstanceNamesForClass(
+                cimObjectPath.getNameSpace(), PEGASUS_CLASSNAME_CERTIFICATE);
     
         for (Uint32 i = 0, n = instanceNames.size(); i < n; i++)
         {
@@ -994,7 +997,7 @@ void CertificateProvider::deleteInstance(
             // get all the instances of class PG_SSLCertificate
             //
             certificateNamedInstances =
-                _repository->enumerateInstances(
+                _repository->enumerateInstancesForClass(
                     PEGASUS_NAMESPACENAME_CERTIFICATE,
                     PEGASUS_CLASSNAME_CERTIFICATE);
 

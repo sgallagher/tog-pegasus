@@ -682,9 +682,9 @@ void UserAuthProvider::enumerateInstances(
     try
     {
         //
-        // call enumerateInstances of the repository
+        // call enumerateInstancesForClass of the repository
         //
-        namedInstances = _repository->enumerateInstances(
+        namedInstances = _repository->enumerateInstancesForClass(
             ref.getNameSpace(), ref.getClassName());
 
     }
@@ -802,9 +802,9 @@ void UserAuthProvider::enumerateInstanceNames(
         try
         {
             //
-            // call enumerateInstanceNames of the repository
+            // call enumerateInstanceNamesForClass of the repository
             //
-            instanceRefs = _repository->enumerateInstanceNames(
+            instanceRefs = _repository->enumerateInstanceNamesForClass(
                 nameSpace, className);
 
             handler.deliver(instanceRefs);

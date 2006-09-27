@@ -126,7 +126,6 @@ void DefaultInstanceProvider::_copyClass(
 
     // get the class
     CIMClass cimClass;
-    Boolean deepInheritance = true;
     Boolean localOnly = false;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
@@ -457,18 +456,15 @@ void DefaultInstanceProvider::enumerateInstances(
         Array<CIMInstance> cimNamedInstances;
 
         Boolean localOnly = true;
-        Boolean deepInheritance = true;
 
         try
         {
            cimNamedInstances = _repository->enumerateInstancesForClass(
               nameSpace,
               className,
-              deepInheritance,
               localOnly,
               includeQualifiers,
               includeClassOrigin,
-              false,
               propertyList);
         }
         catch( Exception& ex )
@@ -530,7 +526,7 @@ void DefaultInstanceProvider::enumerateInstanceNames(
         try
         {
             instanceNames = _repository->enumerateInstanceNamesForClass(
-                                               nameSpace, className, true);
+                nameSpace, className);
         }
         catch (Exception & ex)
         {

@@ -1908,36 +1908,12 @@ void RepositoryUpgrade::_addInstances(void)
                     Uint32                     n = 0;
                     Uint32                     ictr = 0;
 
-		    Array<CIMObjectPath> instanceNames;
-		    instanceNames = _oldRepository->enumerateInstanceNamesForClass(
+                        instances = _oldRepository->enumerateInstancesForClass(
                                             oldNamespaces[i],
                                             oldClassNames[ctr],
-                                            false); // includeInheritance
-
-                    for (Uint32 nmCnt = 0; nmCnt < instanceNames.size(); nmCnt++)
-		    {
-                        CIMInstance instance = _oldRepository->getInstance(
-                                                   oldNamespaces[i],
-                                                   instanceNames[nmCnt],
-                                                   true,
-                                                   true,
-                                                   true);
-
-			instances.append(instance);
-		    } 	    
-	    
-/* remove this call - it is causing stack overflow exceptions when the
-namespace is root/cimv2 and the class is CIM_ManagedSystemElement
-
-                        instances = _oldRepository->enumerateInstances(
-                                            oldNamespaces[i],
-                                            oldClassNames[ctr],
-                                            false,
                                             true,
                                             true,
                                             true);
-*/
-
 
                         if (instances.size() > 0)
                         {

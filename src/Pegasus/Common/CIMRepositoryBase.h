@@ -123,16 +123,15 @@ public:
         const CIMName& className = CIMName(),
         Boolean deepInheritance = false) = 0;
 
-    virtual Array<CIMInstance> enumerateInstances(
+    virtual Array<CIMInstance> enumerateInstancesForClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        Boolean deepInheritance = true,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
-    virtual Array<CIMObjectPath> enumerateInstanceNames(
+    virtual Array<CIMObjectPath> enumerateInstanceNamesForClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className) = 0;
 

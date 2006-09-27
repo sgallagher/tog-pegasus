@@ -80,9 +80,6 @@
 #include <netdb.h>
 #include <time.h>
 
-#include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/Tracer.h>
-
 // Changed to Fix PTR -73-51-16
 
 #ifdef  PEGASUS_PLATFORM_VMS_IA64_DECCXX
@@ -303,14 +300,10 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
 		status = sys$trnlnm (0,&lnm_tbl,&dst_desc,0,&item_list);
 		if (!$VMS_STATUS_SUCCESS(status)) 
 	        {
-
         	  bStatus = false;
 	          goto done;
         	}
 
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "Security.UserManager.PasswordFile.PWD_FILE_NOT_FOUND",
-            "New message for carson : $0.", "xyzzy");
 
 		status = sys$numtim(timbuf,&bintime);
 		if (!$VMS_STATUS_SUCCESS(status)) 

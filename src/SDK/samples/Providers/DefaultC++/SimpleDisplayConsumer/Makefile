@@ -31,7 +31,7 @@
 ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
-LIBRARY = SimpleDisplayConsumer
+LIBRARY = SDKDisplayConsumer
 
 SOURCE_DIR = Providers/DefaultC++/SimpleDisplayConsumer
 
@@ -52,4 +52,4 @@ SOURCES = \
 
 include $(ROOT)/mak/library.mak
 
-tests:
+testSDK:

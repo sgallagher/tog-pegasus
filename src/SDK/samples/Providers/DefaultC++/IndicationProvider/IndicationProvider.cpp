@@ -79,7 +79,7 @@ void _generateIndication (
         CIMInstance indicationInstance (CIMName("RT_TestIndication"));
 
         CIMObjectPath path ;
-        path.setNameSpace("root/SampleProvider");
+        path.setNameSpace("SDKExamples/DefaultCXX");
         path.setClassName("RT_TestIndication");
 
         indicationInstance.setPath(path);

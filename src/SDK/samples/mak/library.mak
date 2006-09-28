@@ -28,51 +28,43 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-RM = rm -f
-
 include $(ROOT)/mak/common.mak
 
-.SUFFIXES: .xml .rsp
+PATHED_LIBRARY = $(PEGASUS_SAMPLE_LIB_DIR)/lib$(LIBRARY).$(PLATFORM_LIB_SUFFIX)
+TMP_LIST_STEP1 = $(foreach i,$(SOURCES),$(PEGASUS_SAMPLE_OBJ_DIR)/$i)
+TMP_LIST_STEP2 = $(TMP_LIST_STEP1:.cpp=$(OBJ_SUFFIX))
+PATHED_OBJECTS = $(TMP_LIST_STEP2:.c=$(OBJ_SUFFIX))
 
-TMP_OBJECTS = $(foreach i,$(SOURCES),$i)
+$(PEGASUS_SAMPLE_OBJ_DIR)/%$(OBJ_SUFFIX): %.c
+	$(COMPILE_C_COMMAND) -c -o $@ $(LIBRARY_COMPILE_OPTIONS) \
+             -I $(PEGASUS_INCLUDE_DIR) $(DEFINES) $*.c
 
-ifeq ($(OS_TYPE),windows)
-CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.obj)
-OBJECTS = $(CPP_OBJECTS:.c=.obj)
-else
-CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.o)
-OBJECTS = $(CPP_OBJECTS:.c=.o)
-endif
+$(PEGASUS_SAMPLE_OBJ_DIR)/%$(OBJ_SUFFIX): %.cpp
+	$(COMPILE_CXX_COMMAND) -c -o $@  $(LIBRARY_COMPILE_OPTIONS) \
+             -I $(PEGASUS_INCLUDE_DIR) $(DEFINES) $*.cpp
 
-LIB = lib$(LIBRARY).$(PLATFORM_SUFFIX)
-
-.c.o:
-	$(COMPILE_C_COMMAND) -c -o $@ $(LIBRARY_COMPILE_OPTIONS) -I $(PEGASUS_INCLUDE_DIR) $(DEFINES) $*.c
-
-.cpp.o:
-	$(COMPILE_COMMAND) -c -o $@  $(LIBRARY_COMPILE_OPTIONS) -I $(PEGASUS_INCLUDE_DIR) $(DEFINES) $*.cpp
-
-.xml.rsp:
-	@ wbemexec $*.xml > $*.rsp || cd .
-
-$(LIB): $(OBJECTS) Makefile $(ROOT)/mak/library.mak
-	$(LIBRARY_LINK_COMMAND) $(LIBRARY_LINK_OPTIONS) $(DEFINES) $(LINK_OUT)$@ $(OBJECTS) $(SYS_LIBS) $(DYNAMIC_LIBRARIES) $(EXTRA_LINK_ARGUMENTS)
+$(PATHED_LIBRARY): $(PEGASUS_SAMPLE_OBJ_DIR)/target $(PEGASUS_SAMPLE_LIB_DIR)/target $(PATHED_OBJECTS) Makefile $(ROOT)/mak/library.mak
+	$(LIBRARY_LINK_COMMAND) $(LIBRARY_LINK_OPTIONS) $(DEFINES) \
+             $(LINK_OUT)$@ $(PATHED_OBJECTS) $(SYS_LIBS) \
+             $(DYNAMIC_LIBRARIES) $(EXTRA_LINK_ARGUMENTS)
 	$(MAKE) -i unlink
-	ln -f -s $(PEGASUS_SAMPLES_DIR)/$(SOURCE_DIR)/$(LIB) $(SYM_LINK_LIB).$(PLATFORM_SUFFIX)
-
-rebuild:
-	$(MAKE) clean
-	$(MAKE)
-
-clean:
-	@$(foreach i, $(OBJECTS), $(RM) $(i);)
-	$(MAKE) -i unlink
-	@$(foreach i, $(LIB), $(RM) $(i);)
-	@$(foreach i, $(XMLRESPONSES), $(RM) $(i);)
-	@$(foreach i, $(ADDITIONAL_CLEAN_FILES), $(RM) $(i);)
-
-XMLRESPONSES = $(XMLSCRIPTS:.xml=.rsp)
-tests: $(XMLRESPONSES)
+	ln -f -s $(PATHED_LIBRARY) $(SYM_LINK_LIB).$(PLATFORM_LIB_SUFFIX)
 
 unlink:
-	$(RM) $(SYM_LINK_LIB).$(PLATFORM_SUFFIX)
+	$(RM) $(SYM_LINK_LIB).$(PLATFORM_LIB_SUFFIX)
+
+clean:
+	$(foreach i, $(PATHED_OBJECTS), $(RM) $(i);)
+	$(MAKE) -i unlink
+	$(RM) $(PATHED_LIBRARY)
+	$(foreach i, $(XMLRESPONSES), $(RM) $(i);)
+	$(foreach i, $(ADDITIONAL_CLEAN_FILES), $(RM) $(i);)
+
+depend:
+
+tests:
+
+poststarttests:
+
+include $(ROOT)/mak/build.mak
+	

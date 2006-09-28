@@ -28,7 +28,6 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ECHO = echo
 
 VALID_PLATFORMS = \
     WIN32_IX86_MSVC \
@@ -41,18 +40,11 @@ VALID_PLATFORMS = \
     LINUX_ZSERIES64_GNU \
     AIX_RS_IBMCXX \
     HPUX_PARISC_ACC \
-    HPUX_IA64_ACC \
-    TRU64_ALPHA_DECCXX \
-    SOLARIS_SPARC_GNU \
-    SOLARIS_SPARC_CC \
-    ZOS_ZSERIES_IBM
+    HPUX_IA64_ACC 
 
 ifndef PEGASUS_PLATFORM
-  ERROR = pegasus_undefined
-pegasus_undefined:
-	@ $(ECHO) PEGASUS_PLATFORM environment variable undefined. Please set to\
-	one of the following: $(VALID_PLATFORMS)
-	@ exit 1
+    $(error PEGASUS_PLATFORM environment variable undefined. Please set to\
+        one of the following:$(VALID_PLATFORMS))
 endif
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
@@ -98,3 +90,5 @@ endif
 ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
   include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
 endif
+
+include $(ROOT)/mak/SDKEnvVar.mak

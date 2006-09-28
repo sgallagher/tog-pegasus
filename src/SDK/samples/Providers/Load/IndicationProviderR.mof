@@ -34,27 +34,27 @@ instance of PG_ProviderModule
 {
     Description = "The Sample Pegasus Indication Provider Module that implements Sample_IndicationProviderClass";
     Caption = "Sample Pegasus Indication Provider Module";
-    Name = "SampleIndicationProviderModule";
+    Name = "SDKIndicationProviderModule";
     Vendor = "OpenPegasus";
     Version = "2.0.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.2.0";
-    Location = "SampleIndicationProvider";
+    Location = "SDKIndicationProvider";
 };
 
 instance of PG_Provider
 {
-    ProviderModuleName = "SampleIndicationProviderModule";
+    ProviderModuleName = "SDKIndicationProviderModule";
     Name = "SampleIndicationProvider";
 };
 
 instance of PG_ProviderCapabilities
 {
-    ProviderModuleName = "SampleIndicationProviderModule";
+    ProviderModuleName = "SDKIndicationProviderModule";
     ProviderName = "SampleIndicationProvider";
     CapabilityID = "SampleIndicationProvider-01";
     ClassName = "RT_TestIndication";
-    Namespaces = { "root/SampleProvider" };
+    Namespaces = { "SDKExamples/DefaultCXX" };
     ProviderType = { 4, 5 };  // Indication & Method
     SupportedProperties = NULL;
     SupportedMethods = {"SendTestIndication"};

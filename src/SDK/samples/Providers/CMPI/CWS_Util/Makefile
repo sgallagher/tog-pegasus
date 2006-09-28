@@ -31,7 +31,7 @@
 ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
-LIBRARY = cmpiCWS_Util
+LIBRARY = SDKcmpiCWS_Util
 
 SOURCE_DIR = Providers/CMPI/CWS_Util
 
@@ -40,4 +40,5 @@ SOURCES = \
 
 include $(ROOT)/mak/library.mak
 
-tests:
+testSDK:
+

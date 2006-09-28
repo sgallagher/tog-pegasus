@@ -31,13 +31,13 @@
 ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
-LIBRARY = FilesAndDirectories
+LIBRARY = SDKFilesAndDirectories
 
 SOURCE_DIR = Providers/CMPI/FilesAndDirectories
 
-LIBRARIES = cmpiCWS_Util
+LIBRARIES = SDKcmpiCWS_Util
 
-EXTRA_LINK_ARGUMENTS = -L ../CWS_Util
+EXTRA_LINK_ARGUMENTS = -L $(PEGASUS_SAMPLE_LIB_DIR)
 
 SOURCES = \
    CWS_PlainFile.c \
@@ -47,4 +47,4 @@ SOURCES = \
 
 include $(ROOT)/mak/library.mak
 
-tests:
+testSDK:

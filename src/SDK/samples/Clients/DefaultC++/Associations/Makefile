@@ -31,22 +31,17 @@
 ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
-include $(ROOT)/mak/config.mak
-
 SOURCE_DIR = Clients/DefaultC++/Associations
 
 PROGRAM = AssociationTestClient
-
-SOURCES = \
-	AssociationTestClient.cpp
+SOURCES = AssociationTestClient.cpp
 
 LIBRARIES = \
-	pegprovider \
-	pegclient \
-	pegcommon
+   pegclient \
+   pegcommon
 
 include $(ROOT)/mak/program.mak
 
-tests:
-	@$(PEGASUS_SAMPLES_DIR)/$(SOURCE_DIR)/$(PROGRAM)
+testSDK:
+	@$(PATHED_PROGRAM)
 

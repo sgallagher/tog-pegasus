@@ -31,7 +31,7 @@
 ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
-LIBRARY = SampleAssociationProvider
+LIBRARY = SDKAssociationProvider
 
 SOURCE_DIR = Providers/DefaultC++/AssociationProvider
 
@@ -45,4 +45,4 @@ SOURCES = \
 
 include $(ROOT)/mak/library.mak
 
-tests:
+testSDK:

@@ -267,6 +267,10 @@ endif
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile ConfigureUsers
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile Create_SSL_Certificate
+ifeq ($(PEGASUS_TEST_SDK),true)
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/SDK/samples -f Makefile setupSDK 
+endif
+
 
 
 servertests: servertestsclean servertestssetup serversuite
@@ -283,6 +287,7 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_G11N_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runCBATestSuites
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SDK_TS1
 
 #####################
 #
@@ -578,6 +583,35 @@ run_STRESS_TS1:
             TESTSUITE_CMDS="$(STRESS_TS1_TEST_CMDS)"
 ###############################################################################
 
+###############################################################################
+##  SDK Test Suite 1:  SDK Tests
+##
+##  Configuration Options: (none)
+##
+###############################################################################
+SDK_TS1_CONFIG_OPTIONS =
+SDK_TS1_TEST_CMDS = \
+        $(MAKE) --directory $(PEGASUS_ROOT)/src/SDK/samples \
+            -f Makefile testSDK 
+
+ifeq ($(PEGASUS_TEST_SDK),true)
+run_SDK_TS1: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT)/mak \
+            -f $(PEGASUS_ROOT)/mak/SDKMakefile stageINCLUDE \
+            PEGASUS_STAGING_DIR=$(PEGASUS_HOME) \
+            PEGASUS_INCLUDE_DIR=/include
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/SDK/samples \
+            -f Makefile clean
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/SDK/samples \
+            -f Makefile PEGASUS_INCLUDE_DIR=$(PEGASUS_HOME)/include
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(SDK_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(SDK_TS1_TEST_CMDS)"
+else
+run_SDK_TS1: FORCE
+	@ $(ECHO) "+++++ PEGASUS_TEST_SDK is not true: Skipping run_SDK_TS1"	
+endif
+###############################################################################
 
 ###############################################################################
 

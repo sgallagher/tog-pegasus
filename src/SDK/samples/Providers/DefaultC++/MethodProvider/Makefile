@@ -31,7 +31,7 @@
 ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
-LIBRARY = SampleMethodProvider
+LIBRARY = SDKMethodProvider
 
 SOURCE_DIR = Providers/DefaultC++/MethodProvider
 
@@ -45,4 +45,4 @@ SOURCES = \
 
 include $(ROOT)/mak/library.mak
 
-tests:
+testSDK:

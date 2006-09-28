@@ -42,7 +42,7 @@ PEGASUS_PROVIDER_DIR_2 = $(PEGASUS_PROD_DIR)/%PEGASUS_ARCH_LIB/Pegasus
 PEGASUS_PROVIDER_LIB_DIR = $(PEGASUS_PROVIDER_DIR)/providers
 PEGASUS_PROVIDER_LIB_DIR_2 = $(PEGASUS_PROVIDER_DIR_2)/providers
 
-PEGASUS_DOC_DIR = /usr/share/doc/tog-pegasus-2.5
+PEGASUS_DOC_DIR = /usr/share/doc/tog-pegasus-2.6
 PEGASUS_MAN_DIR = /usr/share/man
 PEGASUS_MANUSER_DIR = $(PEGASUS_MAN_DIR)/man1
 PEGASUS_MANADMIN_DIR = $(PEGASUS_MAN_DIR)/man8
@@ -96,6 +96,9 @@ PEGASUS_SSL_EXPORT_TRUSTSTORE = $(PEGASUS_PEM_DIR)/indication_trust
 PEGASUS_SSL_SERVER_CRL = $(PEGASUS_PEM_DIR)/crl
 
 PEGASUS_SAMPLES_DIR = $(PEGASUS_PRODSHARE_DIR)/samples
+PEGASUS_SAMPLES_OBJ_DIR = $(PEGASUS_SAMPLES_DIR)/obj
+PEGASUS_SAMPLES_LIB_DIR = $(PEGASUS_SAMPLES_DIR)/lib
+PEGASUS_SAMPLES_BIN_DIR = $(PEGASUS_SAMPLES_DIR)/bin
 PEGASUS_INCLUDE_DIR = /usr/include
 PEGASUS_HTML_DIR = $(PEGASUS_PRODSHARE_DIR)/html
 
@@ -120,7 +123,7 @@ PEGASUS_SYSTEM_DIRECTORIES = \
 # Only Pegasus-specific directories should be added to this list.
 
 PEGASUS_SPECIFIC_DIRECTORIES = \
-   /usr/share/doc/tog-pegasus-2.5 \
+   /usr/share/doc/tog-pegasus-2.6 \
    /usr/share/Pegasus \
    /usr/share/Pegasus/scripts \
    /usr/share/Pegasus/mof \
@@ -135,7 +138,7 @@ PEGASUS_SPECIFIC_DIRECTORIES = \
    /etc/Pegasus 
 
 PEGASUS_DIRECTORIES_TO_BE_REMOVED = \
-   /usr/share/doc/tog-pegasus-2.5 \
+   /usr/share/doc/tog-pegasus-2.6 \
    /usr/share/Pegasus \
    /var/lib/Pegasus \
    /var/run/tog-pegasus \

@@ -743,6 +743,7 @@ Array<CIMNamespaceName> InteropTest::_getNamespacesOld()
     // is a hole is the spec, not in our code.
     namespaceNames.append("root");
     namespaceNames.append("test");
+    namespaceNames.append("SDKExamples");
     Uint32 start = 0;
     Uint32 end = namespaceNames.size();
     do

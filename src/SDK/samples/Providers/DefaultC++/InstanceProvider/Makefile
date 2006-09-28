@@ -31,7 +31,7 @@
 ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
-LIBRARY = SampleInstanceProvider
+LIBRARY = SDKInstanceProvider
 
 SOURCE_DIR = Providers/DefaultC++/InstanceProvider
 
@@ -45,4 +45,4 @@ SOURCES = \
 
 include $(ROOT)/mak/library.mak
 
-tests:
+testSDK:

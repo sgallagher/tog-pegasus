@@ -45,5 +45,13 @@ depend: $(RECURSE_DEPENDS) $(ERROR)
 tests: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) tests $(NL) )
 
+poststarttests: $(RECURSE_DEPENDS) $(ERROR)
+	@ $(foreach i, $(DIRS), \
+              $(MAKESH) $(MAKE) "-SC" $(i) poststarttests $(NL) )
+
+testSDK: $(RECURSE_DEPENDS) $(ERROR)
+	@ $(foreach i, $(DIRS), \
+              $(MAKESH) $(MAKE) "-SC" $(i) testSDK $(NL) )
+
 clean: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i,$(CLEAN_DIRS),$(MAKESH) $(MAKE) -SC $(i) clean $(NL))

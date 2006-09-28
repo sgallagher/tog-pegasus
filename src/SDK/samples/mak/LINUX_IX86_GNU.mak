@@ -28,44 +28,31 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-SYM_LINK_LIB = $(PEGASUS_PROVIDER_LIB_DIR)/lib$(LIBRARY)
 
-COMPILE_COMMAND = g++
+ECHO = echo
+MKDIRHIER = mkdir -p
+RM = rm -f
+TOUCH = touch
 
+COMPILE_CXX_COMMAND = g++
 COMPILE_C_COMMAND = gcc
-
-PLATFORM_SUFFIX = so
-
-DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
-
-CXX_MACHINE_OPTIONS= -m32
-
-LINK_MACHINE_OPTIONS= -m32
-
-## Options:
-##     -O2          turns on level 2 optimization
-##     -W           prints extra warning messages
-##     -Wall        enables all the warnings
-##     -Wno-unused  does not print unused variable warnings
-##     -Wl,         passes the following option to the linker
-##       -h         causes the dynamic linker to attempt to load the shared
-##                  object name specified
-##     -Xlinker     passes an option to the linker
-##       -rpath     adds a directory to the runtime library search path
-##
-
-PROGRAM_COMPILE_OPTIONS = -O2 -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -fPIC $(CXX_MACHINE_OPTIONS)
-
-PROGRAM_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) $(LINK_MACHINE_OPTIONS)
-
-LIBRARY_COMPILE_OPTIONS = $(PROGRAM_COMPILE_OPTIONS)
-
-LIBRARY_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) $(LINK_MACHINE_OPTIONS)
+LIBRARY_LINK_COMMAND = $(COMPILE_CXX_COMMAND) -shared
+PROGRAM_LINK_COMMAND = $(COMPILE_CXX_COMMAND)
 
 SYS_LIBS = -ldl -lpthread -lcrypt
 
-LIBRARY_LINK_COMMAND = $(COMPILE_COMMAND) -shared
+OBJ_SUFFIX=.o
+CXX_MACHINE_OPTIONS= -m32
+LINK_MACHINE_OPTIONS= -m32
 
-PROGRAM_LINK_COMMAND = $(COMPILE_COMMAND)
+DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
+PROGRAM_COMPILE_OPTIONS = -O2 -W -Wall -Wno-unused -D_GNU_SOURCE \
+     -DTHREAD_SAFE -D_REENTRANT -fPIC $(CXX_MACHINE_OPTIONS)
+LIBRARY_COMPILE_OPTIONS = $(PROGRAM_COMPILE_OPTIONS)
 
+PROGRAM_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) \
+     $(LINK_MACHINE_OPTIONS)
+LIBRARY_LINK_OPTIONS = $(PROGRAM_LINK_OPTIONS) 
 LINK_OUT = -o
+SYM_LINK_LIB = $(PEGASUS_PROVIDER_LIB_DIR)/lib$(LIBRARY)
+PLATFORM_LIB_SUFFIX = so

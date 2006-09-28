@@ -30,16 +30,27 @@
 #//==============================================================================
 include $(ROOT)/mak/common.mak
 
-OUTPUT = $(PROGRAM)
+PATHED_PROGRAM = $(PEGASUS_SAMPLE_BIN_DIR)/$(PROGRAM)
+TMP_LIST_STEP1 = $(foreach i,$(SOURCES),$(PEGASUS_SAMPLE_OBJ_DIR)/$i)
+TMP_LIST_STEP2 = $(TMP_LIST_STEP1:.cpp=$(OBJ_SUFFIX))
+PATHED_OBJECTS = $(TMP_LIST_STEP2:.c=$(OBJ_SUFFIX))
 
-OBJECTS = $(SOURCES:.cpp=.o)
-.cpp.o:
-	$(COMPILE_COMMAND) $(PROGRAM_COMPILE_OPTIONS) -c -o $@ -I $(PEGASUS_INCLUDE_DIR) $(DEFINES) $*.cpp
+$(PEGASUS_SAMPLE_OBJ_DIR)/%.o: %.cpp
+	$(COMPILE_CXX_COMMAND) $(PROGRAM_COMPILE_OPTIONS) -c -o $@ -I $(PEGASUS_INCLUDE_DIR) $(DEFINES) $*.cpp
 
-$(OUTPUT): $(OBJECTS)
-	$(PROGRAM_LINK_COMMAND) $(PROGRAM_LINK_OPTIONS) $(LINK_OUT)$@ $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+$(PATHED_PROGRAM): $(PEGASUS_SAMPLE_OBJ_DIR)/target $(PEGASUS_SAMPLE_BIN_DIR)/target $(PATHED_OBJECTS)
+	$(PROGRAM_LINK_COMMAND) $(PROGRAM_LINK_OPTIONS) $(LINK_OUT)$@ $(PATHED_OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
 
 clean:
-	@$(foreach i, $(OBJECTS), $(RM) $(i);)
-	@$(foreach i, $(PROGRAM), $(RM) $(i);)
+	@$(foreach i, $(PATHED_OBJECTS), $(RM) $(i);)
+	@$(foreach i, $(PATHED_PROGRAM), $(RM) $(i);)
 	@$(foreach i, $(ADDITIONAL_CLEAN_FILES), $(RM) $(i);)
+
+depend:
+
+tests:
+
+poststarttests:
+
+include $(ROOT)/mak/build.mak
+

@@ -42,5 +42,8 @@ LIBRARIES = \
 
 include $(ROOT)/mak/program.mak
 
-tests:
-	@$(PEGASUS_SAMPLES_DIR)/$(SOURCE_DIR)/$(PROGRAM)
+testSDK:
+	@$(PATHED_PROGRAM)
+
+unsubscribe:
+	@$(PATHED_PROGRAM) unsubscribe

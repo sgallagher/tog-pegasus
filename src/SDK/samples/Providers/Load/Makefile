@@ -31,29 +31,70 @@
 # Makefile builds a Sample Provider Namespace
 
 ROOT = ../..
-
 include $(ROOT)/mak/config.mak
 
 INTEROPNS = root/PG_InterOp
 
-SAMPLEPROVIDERNS=root/SampleProvider
+SAMPLECXXPROVIDERNS=SDKExamples/DefaultCXX
+SAMPLECMPIPROVIDERNS=SDKExamples/CMPI
 
-createrepository:
-	@ $(ECHO) +++++ Creating $(SAMPLEPROVIDERNS) namespace ...
-	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading CIM_Physical$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/CIM_Physical$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading CIM_System$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/CIM_System$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/CIM_Event$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading class definitions into $(SAMPLEPROVIDERNS) namespace ...
-	@ $(PEGASUS_BIN_DIR)/cimmof -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
-	@ $(PEGASUS_BIN_DIR)/cimmof -n$(SAMPLEPROVIDERNS) CWS_FilesAndDir.mof
+createCXXrepository:
+	@$(ECHO) "+++++ Creating $(SAMPLECXXPROVIDERNS) namespace ..."
+	@$(ECHO) "+++++ Loading CIM_Core$(CIM_SCHEMA_VER) into" \
+            "$(SAMPLECXXPROVIDERNS) namespace ..."
+	@$(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
+            -n$(SAMPLECXXPROVIDERNS) \
+            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) "+++++ Loading CIM_Physical$(CIM_SCHEMA_VER) into" \
+            "$(SAMPLECXXPROVIDERNS) namespace ..."
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
+            -n$(SAMPLECXXPROVIDERNS) \
+            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Physical$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) "+++++ Loading CIM_System$(CIM_SCHEMA_VER) into" \
+            "$(SAMPLECXXPROVIDERNS) namespace ..."
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
+            -n$(SAMPLECXXPROVIDERNS) \
+            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_System$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) "+++++ Loading CIM_Event$(CIM_SCHEMA_VER) into" \
+            "$(SAMPLECXXPROVIDERNS) namespace ..."
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
+            -n$(SAMPLECXXPROVIDERNS) \
+            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) "+++++ Loading class definitions into " \
+            "$(SAMPLECXXPROVIDERNS) namespace ..."
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(SAMPLECXXPROVIDERNS) \
+             SampleProviderSchema.mof
+
+createCMPIrepository:
+	@$(ECHO) "+++++ Creating $(SAMPLECMPIPROVIDERNS) namespace ..."
+	@$(ECHO) "+++++ Loading CIM_Core$(CIM_SCHEMA_VER) into" \
+            "$(SAMPLECMPIPROVIDERNS) namespace ..."
+	@$(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
+            -n$(SAMPLECMPIPROVIDERNS) \
+            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) "+++++ Loading CIM_Physical$(CIM_SCHEMA_VER) into" \
+            "$(SAMPLECMPIPROVIDERNS) namespace ..."
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
+            -n$(SAMPLECMPIPROVIDERNS) \
+            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Physical$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) "+++++ Loading CIM_System$(CIM_SCHEMA_VER) into" \
+            "$(SAMPLECMPIPROVIDERNS) namespace ..."
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
+            -n$(SAMPLECMPIPROVIDERNS) \
+            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_System$(CIM_SCHEMA_VER).mof
+	@ $(ECHO) "+++++ Loading CIM_Event$(CIM_SCHEMA_VER) into" \
+            "$(SAMPLECMPIPROVIDERNS) namespace ..."
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
+            -n$(SAMPLECMPIPROVIDERNS) \
+            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(SAMPLECMPIPROVIDERNS) CWS_FilesAndDir.mof
+
+createrepository: createCXXrepository createCMPIrepository
+	@$(ECHO) "+++++ Repository created."
 
 registerproviders:
-	@ $(ECHO) +++++ Registering providers for SampleProvider namespace  ...
+	@ $(ECHO) "+++++ Registering providers for" \
+            "$(SAMPLECXXPROVIDERNS) namespace  ..."
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) InstanceProviderR.mof
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) MethodProviderR.mof
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) IndicationProviderR.mof
@@ -62,15 +103,15 @@ registerproviders:
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) AssociationProviderR.mof
 
 deregisterproviders:
-	@ $(ECHO) +++++ Deregistering SampleInstanceProvider ...
+	@ $(ECHO) "+++++ Deregistering SampleInstanceProvider ..."
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleInstanceProviderModule
-	@ $(ECHO) +++++ Deregistering SampleMethodProvider ...
+	@ $(ECHO) "+++++ Deregistering SampleMethodProvider ..."
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleMethodProviderModule
-	@ $(ECHO) +++++ Deregistering SampleIndicationProvider ...
+	@ $(ECHO) "+++++ Deregistering SampleIndicationProvider ..."
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleIndicationProviderModule
-	@ $(ECHO) +++++ Deregistering SimpleDisplayConsumerModule ...
+	@ $(ECHO) "+++++ Deregistering SimpleDisplayConsumerModule ..."
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SimpleDisplayConsumerModule
-	@ $(ECHO) +++++ Deregistering FilesandDirectoryModule ... 	 
+	@ $(ECHO) "+++++ Deregistering FilesandDirectoryModule ..." 	 
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m FilesAndDirectoriesModule
-	@ $(ECHO) +++++ Deregistering SampleAssociationModule ...
+	@ $(ECHO) "+++++ Deregistering SampleAssociationModule ..."
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleAssociationModule

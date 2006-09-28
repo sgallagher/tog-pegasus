@@ -31,7 +31,7 @@
 ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
-LIBRARY = SampleIndicationProvider
+LIBRARY = SDKIndicationProvider
 
 SOURCE_DIR = Providers/DefaultC++/IndicationProvider
 
@@ -45,4 +45,4 @@ SOURCES = \
 
 include $(ROOT)/mak/library.mak
 
-tests:
+testSDK:

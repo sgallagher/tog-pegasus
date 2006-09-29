@@ -178,6 +178,7 @@ if ( broker_ip_address != INADDR_NONE )
 		       (struct sockaddr *) &sin,
 		       sizeof ( sin ) ) == -1 ) {
 
+                close(sockfd);
 		error_at_line ( 0, errno, __FILE__, __LINE__,
 				"could not connect to %s:%d",
 				address,

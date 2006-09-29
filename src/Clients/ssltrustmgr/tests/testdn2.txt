@@ -1,8 +1,0 @@
-US
-FLORIDA
-Miami
-OpenGroup
-OpenPegasus
-TestUnderCA1
-.
-

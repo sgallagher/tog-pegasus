@@ -72,13 +72,8 @@ ifeq ($(OS),VMS)
     nisinfo
 endif
 
-DIRS_SSLTRUSTMGR = \
-    ssltrustmgr 
-
 ifdef PEGASUS_HAS_SSL
   DIRS += \
-    $(DIRS_SSLTRUSTMGR) \
-    ssltrustmgr/tests \
     TestCertClient \
     cimtrust \
     cimtrust/tests

@@ -45,7 +45,7 @@ OBJ_DIR = $(HOME_DIR)/obj/$(TMP_OBJDIR)
 BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
 OPT_DIR = $(HOME_DIR)/opt
-LFLAGS =  /Threads_Enable=Upcalls/symbol_table/full/cross_reference/map=$(BIN_VMSDIRA)]$(PROGRAM)
+LFLAGS =  /Threads_Enable=Upcalls/symbol_table=$(BIN_VMSDIRA)]$(PROGRAM)/map=$(BIN_VMSDIRA)]$(PROGRAM)/full/cross_reference
 CFLAGS =  /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
 CCFLAGS = /OPT=INLINE=ALL
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 

@@ -48,7 +48,7 @@ BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
 OPT_DIR = $(HOME_DIR)/opt
 
-LFLAGS = /Threads_Enable=Upcalls/map=$(BIN_VMSDIRA)]$(PROGRAM)/symbol_table/full/cross_ref
+LFLAGS = /Threads_Enable=Upcalls/symbol_table=$(BIN_VMSDIRA)]$(PROGRAM)/map=$(BIN_VMSDIRA)]$(PROGRAM)/full/cross_ref
 CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
 CCFLAGS = /OPT=INLINE=ALL/nowarn
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 

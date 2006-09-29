@@ -350,8 +350,9 @@ HTTPConnection* HTTPConnector::connect(
       throw CannotConnectException(parms);
    }
     
-   HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
-        this, static_cast<MessageQueueService *>(outputMessageQueue));
+   HTTPConnection* connection = new HTTPConnection(
+        _monitor, mp_socket, String::EMPTY, this,
+        static_cast<MessageQueueService *>(outputMessageQueue));
 
    // Solicit events on this new connection's socket:
 

@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//		   Seema Gupta (gseema@in.ibm.com) for Bug#1096
-//         David Dillard, VERITAS Software Corp.  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_HTTPMessage_h
@@ -75,6 +67,7 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 
       Buffer message;
       Uint32 queueId;
+      String ipAddress;
       AuthenticationInfo* authInfo;
       AcceptLanguageList acceptLanguages;
       ContentLanguageList contentLanguages;

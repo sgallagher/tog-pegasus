@@ -28,22 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company
-//                  (sushma_fernandes@hp.com)
-//              Chip Vincent (cvincent@us.ibm.com)
-//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
-//              Adrian Schuur (schuur@de.ibm.com)
-//              Seema Gupta (gseema@in.ibm.com for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -186,6 +170,7 @@ public:
 
     String authType;
     String userName;
+    String ipAddress;
     CIMNamespaceName nameSpace;
     CIMName className;
     Uint32 providerType;
@@ -308,6 +293,7 @@ public:
     CIMInstance indicationInstance;
     String authType;
     String userName;
+    String ipAddress;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMDeleteClassRequestMessage

@@ -27,6 +27,8 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+//==============================================================================
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -210,12 +212,14 @@ void * sigabrt_generator(void * parm)
 HTTPConnection::HTTPConnection(
     Monitor* monitor,
     AutoPtr<MP_Socket>& socket,
+    const String& ipAddress,
     MessageQueue* ownerMessageQueue,
     MessageQueue* outputMessageQueue)
     :
     Base(PEGASUS_QUEUENAME_HTTPCONNECTION),
     _monitor(monitor),
     _socket(socket),
+    _ipAddress(ipAddress),
     _ownerMessageQueue(ownerMessageQueue),
     _outputMessageQueue(outputMessageQueue),
     _contentOffset(-1),
@@ -252,6 +256,9 @@ HTTPConnection::HTTPConnection(
     _responsePending = false;
     _connectionRequestCount = 0;
     _transferEncodingChunkOffset = 0;
+
+    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+        "Connection IP address = " + _ipAddress);
 
     PEG_METHOD_EXIT();
 }
@@ -1892,6 +1899,7 @@ void HTTPConnection::_handleReadEvent()
     {
         HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
         message->authInfo = _authInfo.get();
+        message->ipAddress = _ipAddress;
 
         // add any content languages
         message->contentLanguages = contentLanguages;

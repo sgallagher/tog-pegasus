@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS SOftware Corp.
-//                  (david.dillard@veritas.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMExportRequestDecoder_h
@@ -106,6 +96,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
           const String& cimProtocolVersionInHeader,
           const String& cimExportMethodInHeader,
           const String& userName,
+          const String& ipAddress,
           const AcceptLanguageList& httpAcceptLanguages,
           const ContentLanguageList& httpContentLanguages,
           Boolean closeConnect);	 

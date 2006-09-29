@@ -499,6 +499,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        cimProtocolVersion,
        cimExportMethod,
        userName,
+       httpMessage->ipAddress,
        acceptLanguages,
        contentLanguages,
        closeConnect);
@@ -513,6 +514,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
     const String& cimProtocolVersionInHeader,
     const String& cimExportMethodInHeader,
     const String& userName,
+    const String& ipAddress,
     const AcceptLanguageList& httpAcceptLanguages,
     const ContentLanguageList& httpContentLanguages,
     Boolean closeConnect)	 
@@ -543,7 +545,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
    XmlEntry entry;
    String messageId;
    const char* cimExportMethodName = "";
-   AutoPtr<Message> request;
+   AutoPtr<CIMExportIndicationRequestMessage> request;
 
    try
    {
@@ -883,18 +885,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	// by the export client, ignore Accept-Language in the export request.
 	// This will cause any export error response message to be sent in the
 	// default language.
-	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request.get());
-	if (cimmsg != NULL)
-	{
-		cimmsg->operationContext.insert(IdentityContainer(userName));
-		cimmsg->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
-		cimmsg->operationContext.set(AcceptLanguageListContainer(AcceptLanguageList()));
-	}
-	else
-	{
-		;	// l10n TODO - error back to client here	
-	}
+	request->operationContext.insert(IdentityContainer(userName));
+	request->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
+	request->operationContext.set(AcceptLanguageListContainer(AcceptLanguageList()));
 // l10n end	
+
+   request->ipAddress = ipAddress;
 
    request->setCloseConnect(closeConnect);
 

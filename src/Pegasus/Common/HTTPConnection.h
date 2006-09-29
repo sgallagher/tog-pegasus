@@ -85,6 +85,7 @@ public:
     HTTPConnection(
         Monitor* monitor,
         AutoPtr<MP_Socket>& socket,
+        const String& ipAddress,
         MessageQueue * ownerMessageQueue,
         MessageQueue * outputMessageQueue);
 
@@ -163,6 +164,7 @@ private:
     Monitor* _monitor;
 
     AutoPtr<MP_Socket> _socket;
+    String _ipAddress;
     MessageQueue* _ownerMessageQueue;
     MessageQueue* _outputMessageQueue;
 

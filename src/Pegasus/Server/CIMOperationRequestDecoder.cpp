@@ -29,25 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company
-//              (sushma_fernandes@hp.com)
-//              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//				Seema Gupta (gseema@in.ibm.com for PEP135)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -551,6 +532,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        cimObject,
        authType,
        userName,
+       httpMessage->ipAddress,
        httpMessage->acceptLanguages,
        httpMessage->contentLanguages,
        closeConnect);
@@ -567,8 +549,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
    const String& cimProtocolVersionInHeader,
    const String& cimMethodInHeader,
    const String& cimObjectInHeader,
-   String authType,
-   String userName,
+   const String& authType,
+   const String& userName,
+   const String& ipAddress,
    const AcceptLanguageList& httpAcceptLanguages,
    const ContentLanguageList& httpContentLanguages,
    Boolean closeConnect)
@@ -1455,6 +1438,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
    request->authType = authType;
    request->userName = userName;
+   request->ipAddress = ipAddress;
    request->setHttpMethod (httpMethod);
 
 //l10n start

@@ -29,20 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company 
-//              (sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMOperationRequestDecoder_h
@@ -116,8 +102,9 @@ class CIMOperationRequestDecoder : public MessageQueueService
          const String& cimProtocolVersionInHeader,
          const String& cimMethodInHeader,
          const String& cimObjectInHeader,
-         String authType,
-         String userName,
+         const String& authType,
+         const String& userName,
+         const String& ipAddress,
          const AcceptLanguageList& httpAcceptLanguages,
          const ContentLanguageList& httpContentLanguages,
          Boolean closeConnect);

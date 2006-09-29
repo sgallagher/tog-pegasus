@@ -631,9 +631,6 @@ void HTTPAcceptor::_acceptConnection()
 
    PEGASUS_ASSERT(_rep != 0);
 
-   if (!_rep)
-      return;
-
    // Accept the connection (populate the address):
 
    struct sockaddr* accept_address;
@@ -656,8 +653,6 @@ void HTTPAcceptor::_acceptConnection()
 
    SocketHandle socket = accept(_rep->socket, accept_address, &address_size);
 
-   delete accept_address;
-
    if (socket < 0)
    {
 
@@ -669,6 +664,24 @@ void HTTPAcceptor::_acceptConnection()
                         "HTTPAcceptor: accept() failed");
       return;
    }
+
+   String ipAddress;
+
+   if (_localConnection)
+   {
+       ipAddress = "localhost";
+   }
+   else
+   {
+       unsigned char* sa = reinterpret_cast<unsigned char*>(
+           &reinterpret_cast<struct sockaddr_in*>(
+               accept_address)->sin_addr.s_addr);
+       char ipBuffer[32];
+       sprintf(ipBuffer, "%u.%u.%u.%u", sa[0], sa[1], sa[2], sa[3]);
+       ipAddress = ipBuffer;
+   }
+
+   delete accept_address;
 
 // set the close on exec flag
 #if !defined(PEGASUS_OS_TYPE_WINDOWS) && !defined(PEGASUS_OS_VMS)
@@ -717,7 +730,7 @@ void HTTPAcceptor::_acceptConnection()
    // Create a new connection and add it to the connection list:
 
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
-       this, static_cast<MessageQueue *>(_outputMessageQueue));
+       ipAddress, this, static_cast<MessageQueue *>(_outputMessageQueue));
 
    if (socketAcceptStatus == 0)
    {

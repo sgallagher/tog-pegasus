@@ -35,6 +35,8 @@ ifndef PEGASUS_HOME
     $(error PEGASUS_HOME environment variable undefined)
 endif
 
+DIR = Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/JRE
+
 include $(PEGASUS_ROOT)/mak/config.mak
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)

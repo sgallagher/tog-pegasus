@@ -41,9 +41,11 @@
 //#pragma message disable codcauunr
 //#pragma message disable unscomzer
 //#pragma message disable unrintunr
+#if defined(PEGASUS_PLATFORM_VMS_ALPHA_DECCXX)
 #pragma message disable labelnotreach
-#pragma message disable longextern
-#pragma message disable missingreturn
+#endif
+//#pragma message disable longextern
+//#pragma message disable missingreturn
 
 #define BadCreateHandler BADCREATEHANDLER
 #define PegasusCreateProvider PEGASUSCREATEPROVIDER

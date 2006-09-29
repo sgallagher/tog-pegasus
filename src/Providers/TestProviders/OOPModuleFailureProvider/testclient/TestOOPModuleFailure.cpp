@@ -2211,6 +2211,128 @@ void _testISInitb (CIMClient & client)
     }
 }
 
+void _testCSRestarta (CIMClient & client)
+{
+    if (verbose)
+    {
+        cout <<
+        "+++++ Testing that OOP provider module failure degraded status does "
+        "not persist across CIM Server restarts " <<
+        endl;
+    }
+
+    _setup (client);
+
+    Array <String> namespaces;
+    namespaces.append (NAMESPACE.getString ());
+    Array <Uint16> providerType;
+    providerType.append (_INDICATION_PROVIDER);
+    providerType.append (_METHOD_PROVIDER);
+
+    //
+    //  Register the OOPModuleCreate2FailureTestProvider provider
+    //
+    _register (
+        client,
+        PG_PROVMODULE_USERCTXT_REQUESTOR,
+        String ("OOPModuleFailureTestProviderModule"),
+        String ("OOPModuleCreate2FailureTestProvider"),
+        String ("OOPCapability006"),
+        String ("FailureTestIndication"),
+        namespaces,
+        providerType,
+        CIMPropertyList (),
+        CIMPropertyList ());
+
+    //
+    //  Create a subscription
+    //
+    _createSubscription (client, String ("OOPFilter01"));
+
+    //
+    //  Invoke method to send test indication
+    //
+    String identifier = "CSRestarta: OOPModuleCreate2FailureTestProvider";
+    _invokeMethod (client, String ("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+
+    //
+    //  Create a subscription that will cause provider failure
+    //
+    try
+    {
+        _createSubscription (client, String ("OOPFilter02"));
+        PEGASUS_TEST_ASSERT (false);
+    }
+    catch (const CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+    }
+
+    //
+    //  Verify module status is Degraded
+    //
+    _checkStatus (client, String ("OOPModuleFailureTestProviderModule"),
+        CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+
+    if (verbose)
+    {
+        cout <<
+        "+++++ Test that OOP provider module failure degraded status does "
+        "not persist across CIM Server restarts " <<
+        "completed successfully" <<
+        endl;
+    }
+}
+
+void _testCSRestartb (CIMClient & client)
+{
+    if (verbose)
+    {
+        cout <<
+        "+++++ Testing that OOP provider module failure degraded status does "
+        "not persist across CIM Server restarts " <<
+        endl;
+    }
+
+    //
+    //  Upon IndicationService initialization, a createSubscription request is
+    //  made to the OOPModuleCreate2FailureTestProvider
+    //
+
+    //
+    //  Verify module status is OK
+    //
+    _checkStatus (client, String ("OOPModuleFailureTestProviderModule"),
+        CIM_MSE_OPSTATUS_VALUE_OK);
+
+    //
+    //  Delete subscription
+    //
+    _deleteSubscriptionInstance (client, String ("OOPFilter01"),
+        String ("OOPHandler01"));
+
+    //
+    //  De-register the OOPModuleCreate2FailureTestProvider
+    //
+    _deregister (
+        client,
+        String ("OOPModuleFailureTestProviderModule"),
+        String ("OOPModuleCreate2FailureTestProvider"),
+        String ("OOPCapability006"));
+
+    _cleanup (client);
+
+    if (verbose)
+    {
+        cout <<
+        "+++++ Test of OOP provider module failure during Indication Service "
+        "initialization (test) "
+        "completed successfully" <<
+        endl;
+    }
+}
+
 void _test (CIMClient & client, char * argv0)
 {
     _setup (client);
@@ -2281,6 +2403,40 @@ int main (int argc, char** argv)
 #else
             cout << argv [0] << 
                 ": Indication Service initialization tests skipped because"
+                " PEGASUS_DISABLE_PROV_USERCTXT is defined" << endl;
+#endif
+        }
+
+        else if ((argc == 2) && !strcmp(argv[1], "restarta"))
+        {
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
+            _testCSRestarta (client);
+#else
+            cout << argv [0] << 
+                ": CIM Server restart tests skipped because"
+                " PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR is defined" << endl;
+#endif
+#else
+            cout << argv [0] << 
+                ": CIM Server restart tests skipped because"
+                " PEGASUS_DISABLE_PROV_USERCTXT is defined" << endl;
+#endif
+        }
+
+        else if ((argc == 2) && !strcmp(argv[1], "restartb"))
+        {
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
+            _testCSRestartb (client);
+#else
+            cout << argv [0] << 
+                ": CIM Server restart tests skipped because"
+                " PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR is defined" << endl;
+#endif
+#else
+            cout << argv [0] << 
+                ": CIM Server restart tests skipped because"
                 " PEGASUS_DISABLE_PROV_USERCTXT is defined" << endl;
 #endif
         }

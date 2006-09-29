@@ -2041,17 +2041,51 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             }
             else
             {
+                Boolean statusModified = false;
+                Boolean stoppingFound = false;
                 for (Uint32 j=0; j < status.size(); j++)
                 {
-                    if (status[j] == _PROVIDER_STOPPING)
+                    //
+                    //  Degraded status should not persist across CIM Server
+                    //  restarts
+                    //  Replace Degraded status with OK status
+                    //
+                    if (status[j] == CIM_MSE_OPSTATUS_VALUE_DEGRADED)
+                    {
+                        status[j] = CIM_MSE_OPSTATUS_VALUE_OK;
+                        statusModified = true;
+                    }
+                    else if (status[j] == _PROVIDER_STOPPING)
                     {
                         // if operational status is stopping
                         // change module status to be Stopped
-                        status.remove(j);
-                        status.append(_PROVIDER_STOPPED);
-
-                        _setStatus(status, instance);
+                        status[j] = _PROVIDER_STOPPED;
+                        stoppingFound = true;
+                        statusModified = true;
                     }
+                }
+
+                //
+                //  If a Stopping status was found and replaced with a Stopped
+                //  status, any OK status must be removed from the status array
+                //
+                if (stoppingFound)
+                {
+                    for (Uint32 k=0; k < status.size(); k++)
+                    {
+                        if (status[k] == CIM_MSE_OPSTATUS_VALUE_OK)
+                        {
+                            status.remove(k);
+                        }
+                    }
+                }
+
+                //
+                //  If status has been modified, update the repository
+                //
+                if (statusModified)
+                {
+                    _setStatus(status, instance);
                 }
             }
 

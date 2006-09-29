@@ -43,7 +43,7 @@ include $(PEGASUS_ROOT)/test/config.mak
 
 .java.class:
 # Note: .. included in path to compile package helper classes if necessary
-	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER).. -target 1.4 -source 1.4 $*.java
+	$(PEGASUS_JAVA_COMPILER) -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER).. $*.java
 
 NAMESPACE          = root/SampleProvider
 PACKAGEDIR         = Instances/
@@ -52,41 +52,53 @@ JAR1CLASSES        = \
 	JMPIExpInstanceProvider.class
 EXTRAJAR1CLASSES   = \
 	CommonInstanceProvider.class \
-	CommonInstanceProvider\$$1.class \
 	CommonInstanceProvider\$$CIMInstanceComparer.class \
 	CommonInstanceProvider\$$CIMObjectPathComparer.class \
 	CommonInstanceProvider\$$Compare.class \
         CommonInstanceProvider\$$SortableVector.class
+ifneq ($(PEGASUS_JVM),gcj)
+EXTRAJAR1CLASSES  += \
+	CommonInstanceProvider\$$1.class
+endif
 JAR2               = JMPIInstanceProvider.jar
 JAR2CLASSES        = \
 	JMPIInstanceProvider.class
 EXTRAJAR2CLASSES   = \
 	CommonInstanceProvider.class \
-	CommonInstanceProvider\$$1.class \
 	CommonInstanceProvider\$$CIMInstanceComparer.class \
 	CommonInstanceProvider\$$CIMObjectPathComparer.class \
 	CommonInstanceProvider\$$Compare.class \
         CommonInstanceProvider\$$SortableVector.class
+ifneq ($(PEGASUS_JVM),gcj)
+EXTRAJAR2CLASSES  += \
+	CommonInstanceProvider\$$1.class
+endif
 JAR3               = JMPICIMInstanceProvider.jar
 JAR3CLASSES        = \
 	JMPICIMInstanceProvider.class
 EXTRAJAR3CLASSES   = \
 	CommonInstanceProvider.class \
-	CommonInstanceProvider\$$1.class \
 	CommonInstanceProvider\$$CIMInstanceComparer.class \
 	CommonInstanceProvider\$$CIMObjectPathComparer.class \
 	CommonInstanceProvider\$$Compare.class \
         CommonInstanceProvider\$$SortableVector.class
+ifneq ($(PEGASUS_JVM),gcj)
+EXTRAJAR3CLASSES  += \
+	CommonInstanceProvider\$$1.class
+endif
 JAR4               = JMPICIMInstance2Provider.jar
 JAR4CLASSES        = \
 	JMPICIMInstance2Provider.class
 EXTRAJAR4CLASSES   = \
 	CommonInstanceProvider.class \
-	CommonInstanceProvider\$$1.class \
 	CommonInstanceProvider\$$CIMInstanceComparer.class \
 	CommonInstanceProvider\$$CIMObjectPathComparer.class \
 	CommonInstanceProvider\$$Compare.class \
         CommonInstanceProvider\$$SortableVector.class
+ifneq ($(PEGASUS_JVM),gcj)
+EXTRAJAR4CLASSES  += \
+	CommonInstanceProvider\$$1.class
+endif
 JARS               = $(JAR1) $(JAR2) $(JAR3) $(JAR4)
 
 LOCAL_CLEAN_TARGET = \
@@ -175,15 +187,15 @@ poststarttests2:
 	CLI xq -n $(NAMESPACE) 'SELECT InstanceId FROM JMPIExpInstance_TestPropertyTypes WHERE InstanceId = 1' 'WQL'
 
 $(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES) CommonInstanceProvider.class
-	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
 
 $(PEGASUS_HOME)/lib/$(JAR2):	$(JAR2CLASSES) CommonInstanceProvider.class
-	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR2CLASSES))
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR2CLASSES))
 
 $(PEGASUS_HOME)/lib/$(JAR3):	$(JAR3CLASSES) CommonInstanceProvider.class
-	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR3CLASSES))
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR3CLASSES))
 
 $(PEGASUS_HOME)/lib/$(JAR4):	$(JAR4CLASSES) CommonInstanceProvider.class
-	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR4CLASSES))
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR4CLASSES))
 
 #include $(ROOT)/test/configend.mak

@@ -240,69 +240,69 @@ public class testUnsignedInt64
          System.out.println ("testUnsignedInt64: uint64B2 = " + uint64B2);
          System.out.println ("testUnsignedInt64: uint64C  = " + uint64C);
 
-         System.out.println ("testUnsignedInt64: uint64A.compareTo (uint64C)   = " + uint64A.compareTo (uint64C));
-         System.out.println ("testUnsignedInt64: uint64C.compareTo (uint64A)   = " + uint64C.compareTo (uint64A));
-         System.out.println ("testUnsignedInt64: uint64B1.compareTo (uint64B2) = " + uint64B1.compareTo (uint64B2));
-         System.out.println ("testUnsignedInt64: uint64B1.compareTo (uint64B2) = " + uint64B2.compareTo (uint64B1));
+         System.out.println ("testUnsignedInt64: uint64A.compareTo (uint64C)   = " + uint64A.compareTo ((Object)uint64C));
+         System.out.println ("testUnsignedInt64: uint64C.compareTo (uint64A)   = " + uint64C.compareTo ((Object)uint64A));
+         System.out.println ("testUnsignedInt64: uint64B1.compareTo (uint64B2) = " + uint64B1.compareTo ((Object)uint64B2));
+         System.out.println ("testUnsignedInt64: uint64B1.compareTo (uint64B2) = " + uint64B2.compareTo ((Object)uint64B1));
          System.out.println ("testUnsignedInt64: uint64B1.equals (uint64B2)    = " + uint64B1.equals (uint64B2));
          System.out.println ("testUnsignedInt64: uint64A.equals (uint64C)      = " + uint64A.equals (uint64C));
       }
 
-      if (!(uint64A.compareTo (uint64C) < 0))
+      if (!(uint64A.compareTo ((Object)uint64C) < 0))
       {
          System.out.println ("FAILURE: testUnsignedInt64: uint64A.compareTo (uint64C) < 0");
 
          return false;
       }
-      else if (!(uint64C.compareTo (uint64A) > 0))
+      else if (!(uint64C.compareTo ((Object)uint64A) > 0))
       {
          System.out.println ("FAILURE: testUnsignedInt64: uint64C.compareTo (uint64A) > 0");
 
          return false;
       }
-      else if (!(uint64B1.compareTo (uint64B2) == 0))
+      else if (!(uint64B1.compareTo ((Object)uint64B2) == 0))
       {
          System.out.println ("FAILURE: testUnsignedInt64: uint64B1.compareTo (uint64B2) == 0");
 
          return false;
       }
-      else if (!(uint64B2.compareTo (uint64B1) == 0))
+      else if (!(uint64B2.compareTo ((Object)uint64B1) == 0))
       {
          System.out.println ("FAILURE: testUnsignedInt64: uint64B2.compareTo (uint64B1) == 0");
 
          return false;
       }
-      else if (!(sgn (uint64A.compareTo (uint64C)) == -sgn (uint64C.compareTo (uint64A))))
+      else if (!(sgn (uint64A.compareTo ((Object)uint64C)) == -sgn (uint64C.compareTo ((Object)uint64A))))
       {
          System.out.println ("FAILURE: testUnsignedInt64: sgn (uint64A.compareTo (uint64C)) == -sgn (uint64C.compareTo (uint64A))");
 
          return false;
       }
-      else if (!(((uint64A.compareTo (uint64B1) > 0) && (uint64B1.compareTo (uint64C) > 0)) == (uint64A.compareTo (uint64C) > 0)))
+      else if (!(((uint64A.compareTo ((Object)uint64B1) > 0) && (uint64B1.compareTo ((Object)uint64C) > 0)) == (uint64A.compareTo ((Object)uint64C) > 0)))
       {
          System.out.println ("FAILURE: testUnsignedInt64: ((uint64A.compareTo (uint64B1) > 0) && (uint64B1.compareTo (uint64C) > 0)) == (uint64A.compareTo (uint64C) > 0)");
 
          return false;
       }
-      else if (!(sgn (uint64B1.compareTo (uint64A)) == sgn (uint64B2.compareTo (uint64A))))
+      else if (!(sgn (uint64B1.compareTo ((Object)uint64A)) == sgn (uint64B2.compareTo ((Object)uint64A))))
       {
          System.out.println ("FAILURE: testUnsignedInt64: sgn (uint64B1.compareTo (uint64A)) == sgn (uint64B2.compareTo (uint64A))");
 
          return false;
       }
-      else if (!(sgn (uint64B1.compareTo (uint64C)) == sgn (uint64B2.compareTo (uint64C))))
+      else if (!(sgn (uint64B1.compareTo ((Object)uint64C)) == sgn (uint64B2.compareTo ((Object)uint64C))))
       {
          System.out.println ("FAILURE: testUnsignedInt64: sgn (uint64B1.compareTo (uint64C)) == sgn (uint64B2.compareTo (uint64C))");
 
          return false;
       }
-      else if (!((uint64B1.compareTo (uint64B2) == 0) == (uint64B1.equals (uint64B2))))
+      else if (!((uint64B1.compareTo ((Object)uint64B2) == 0) == (uint64B1.equals (uint64B2))))
       {
          System.out.println ("FAILURE: testUnsignedInt64: (uint64B1.compareTo (uint64B2) == 0) == (uint64B1.equals (uint64B2))");
 
          return false;
       }
-      else if (!((uint64A.compareTo (uint64C) == 0) == (uint64A.equals (uint64C))))
+      else if (!((uint64A.compareTo ((Object)uint64C) == 0) == (uint64A.equals (uint64C))))
       {
          System.out.println ("FAILURE: testUnsignedInt64: (uint64A.compareTo (uint64C) == 0) == (uint64A.equals (uint64C))");
 

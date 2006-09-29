@@ -36,7 +36,7 @@ include $(ROOT)/mak/config.mak
 .SUFFIXES: .java .class
 
 .java.class:
-	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar $*.java
+	$(PEGASUS_JAVA_COMPILER) -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar $*.java
 
 PACKAGEDIR = org/pegasus/jmpi/sample/
 
@@ -68,10 +68,10 @@ repository:
 	cimmofl -I. -nroot/PG_InterOp $(subst .jar,,$(JAR3))R.mof
 
 $(PEGASUS_HOME)/lib/$(JAR1): $(JAR1CLASSES)
-	jar -cf $@ $(addprefix -C ../../../.. $(PACKAGEDIR),$^)
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C ../../../.. $(PACKAGEDIR),$^)
 
 $(PEGASUS_HOME)/lib/$(JAR2): $(JAR2CLASSES)
-	jar -cf $@ $(addprefix -C ../../../.. $(PACKAGEDIR),$^)
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C ../../../.. $(PACKAGEDIR),$^)
 
 $(PEGASUS_HOME)/lib/$(JAR3): $(JAR3CLASSES)
-	jar -cf $@ $(addprefix -C ../../../.. $(PACKAGEDIR),$^)
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C ../../../.. $(PACKAGEDIR),$^)

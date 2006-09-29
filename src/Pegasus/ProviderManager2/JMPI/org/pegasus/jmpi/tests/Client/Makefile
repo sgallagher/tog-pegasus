@@ -43,7 +43,7 @@ include $(PEGASUS_ROOT)/test/config.mak
 
 .java.class:
 # Note: .. included in path to compile package helper classes if necessary
-	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER).. -target 1.4 -source 1.4 $*.java
+	$(PEGASUS_JAVA_COMPILER) -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER).. $*.java
 
 KNOWN_BUGS       = BugExistsExecQuery
 
@@ -95,12 +95,12 @@ repository:
 tests:
 
 poststarttests:			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
-	java -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR1))$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR2)) Client.RunTest $(KNOWN_BUGS)
+	$(PEGASUS_JAVA_INTERPRETER) -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR1))$(PEGASUS_JAVA_CLASSPATH_DELIMITER)$(addprefix $(PEGASUS_HOME)/lib/,$(JAR2)) Client.RunTest $(KNOWN_BUGS)
 
 $(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES) $(JAR1MANIFEST)
-	jar -cfm $@ $(JAR1MANIFEST) $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
+	$(PEGASUS_JAVA_JAR) -cfm $@ $(JAR1MANIFEST) $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
 
 $(PEGASUS_HOME)/lib/$(JAR2):	$(JAR2CLASSES)
-	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR2CLASSES))
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR2CLASSES))
 
 #include $(ROOT)/test/configend.mak

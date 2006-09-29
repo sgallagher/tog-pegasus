@@ -43,7 +43,7 @@ include $(PEGASUS_ROOT)/test/config.mak
 
 .java.class:
 # Note: .. included in path to compile package helper classes if necessary
-	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER).. -target 1.4 -source 1.4 $*.java
+	$(PEGASUS_JAVA_COMPILER) -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar$(PEGASUS_JAVA_CLASSPATH_DELIMITER).. $*.java
 
 NAMESPACE        = root/SampleProvider
 PACKAGEDIR       = Indications/
@@ -52,11 +52,14 @@ JAR1CLASSES      = \
 	JMPIExpIndicationProvider.class
 EXTRAJAR1CLASSES = \
 	CommonInstanceProvider.class \
-	CommonInstanceProvider\$$1.class \
 	CommonInstanceProvider\$$CIMInstanceComparer.class \
 	CommonInstanceProvider\$$CIMObjectPathComparer.class \
 	CommonInstanceProvider\$$Compare.class \
         CommonInstanceProvider\$$SortableVector.class
+ifneq ($(PEGASUS_JVM),gcj)
+EXTRAJAR1CLASSES  += \
+	CommonInstanceProvider\$$1.class
+endif
 JARS             = $(JAR1)
 
 LOCAL_CLEAN_TARGET = \
@@ -96,6 +99,6 @@ tests:
 poststarttests:
 
 $(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES) CommonInstanceProvider.class
-	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
 
 #include $(ROOT)/test/configend.mak

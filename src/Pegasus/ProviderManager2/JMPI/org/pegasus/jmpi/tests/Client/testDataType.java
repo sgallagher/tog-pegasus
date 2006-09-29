@@ -1761,7 +1761,7 @@ public class testDataType
                BigInteger    bi   = new BigInteger (apszValues[i]);
                UnsignedInt64 ui64 = new UnsignedInt64 (bi);
 
-               if (aui64[i].compareTo (ui64) != 0)
+               if (aui64[i].compareTo ((Object)ui64) != 0)
                {
                   return false;
                }

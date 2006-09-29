@@ -42,7 +42,7 @@ include $(PEGASUS_ROOT)/test/config.mak
 .SUFFIXES: .java .class .jar
 
 .java.class:
-	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar -target 1.4 -source 1.4 $*.java
+	$(PEGASUS_JAVA_COMPILER) -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar $*.java
 
 NAMESPACE          = root/SampleProvider
 PACKAGEDIR         = Associations/
@@ -133,9 +133,9 @@ poststarttests:			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
 	@CLI rn --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIAssociation_Student.Name="Student1",Identifier=1'
 
 $(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES)
-	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
 
 $(PEGASUS_HOME)/lib/$(JAR2):	$(JAR2CLASSES)
-	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR2CLASSES))
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR2CLASSES))
 
 #include $(ROOT)/test/configend.mak

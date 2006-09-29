@@ -42,7 +42,7 @@ include $(PEGASUS_ROOT)/test/config.mak
 .SUFFIXES: .java .class .jar
 
 .java.class:
-	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar -target 1.4 -source 1.4 $*.java
+	$(PEGASUS_JAVA_COMPILER) -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar $*.java
 
 NAMESPACE          = root/SampleProvider
 PACKAGEDIR         = Properties/
@@ -50,12 +50,15 @@ JAR1               = JMPIPropertyProvider.jar
 JAR1CLASSES        = \
 	JMPIPropertyProvider.class
 EXTRAJAR1CLASSES   = \
-	JMPIPropertyProvider\$$1.class \
 	JMPIPropertyProvider\$$CIMInstanceComparer.class \
 	JMPIPropertyProvider\$$CIMObjectPathComparer.class \
 	JMPIPropertyProvider\$$Compare.class \
         JMPIPropertyProvider\$$SortableVector.class \
         JMPIPropertyProvider\$$ConvertibleVector.class
+ifneq ($(PEGASUS_JVM),gcj)
+EXTRAJAR1CLASSES  += \
+	JMPIPropertyProvider\$$1.class
+endif
 JARS               = $(JAR1)
 
 LOCAL_CLEAN_TARGET = \
@@ -94,6 +97,6 @@ poststarttests:
 #	CLI sp -n $(NAMESPACE) JMPIProperty_TestPropertyTypes.InstanceId=1 PropertyString "hello"
 
 $(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES)
-	jar -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
+	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))
 
 #include $(ROOT)/test/configend.mak

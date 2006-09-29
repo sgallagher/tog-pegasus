@@ -36,7 +36,7 @@ include $(ROOT)/mak/config.mak
 .SUFFIXES: .java .class .jar
 
 .java.class:
-	javac -classpath $(JAVAROOT) -target 1.4 -source 1.4 $*.java
+	$(PEGASUS_JAVA_COMPILER) -classpath $(JAVAROOT) $*.java
 
 PACKAGEDIR = org/pegasus/jmpi
 
@@ -120,6 +120,6 @@ clean:
 	-$(RM) $(PEGASUS_HOME)/lib/JMPIImpl.jar
 
 $(PEGASUS_HOME)/lib/JMPIImpl.jar: $(CLASSES)
-	jar -cf $@ $(PFXCLASSES)
+	$(PEGASUS_JAVA_JAR) -cf $@ $(PFXCLASSES)
 
 repository tests poststarttests:

@@ -302,7 +302,6 @@ PEGASUS_COMMON_LINKAGE
 //
 #define WBEM_HTTP_SERVICE_NAME "wbem-http"
 #define WBEM_HTTPS_SERVICE_NAME "wbem-https"
-#define WBEM_EXPORT_HTTPS_SERVICE_NAME "wbem-exp-https"
 
 
 

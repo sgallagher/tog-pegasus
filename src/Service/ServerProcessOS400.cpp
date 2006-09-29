@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Diane Olson (dianeols@us.ibm.com) 
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By: Dave Rosckes (rosckes@us.ibm.com)
-//
-// Modified By: Bert Rivero (hurivero@us.ibm.com) 
-//
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <sys/types.h>
@@ -246,14 +237,11 @@ int ServerProcess::cimserver_initialize(void)
    // if they do not already exist.
    //--------------------------------------------------
 
-   // Check if SSL is enabled on either the wbem-https or
-   // wbem-exp-https ports.
+   // Check if SSL is enabled on the wbem-https port
    ConfigManager * configManager = ConfigManager::getInstance();
    Boolean enableHttpsConnection = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableHttpsConnection"));
-   Boolean enableSSLExportClientVerification = ConfigManager::parseBooleanValue(
-        configManager->getCurrentValue("enableSSLExportClientVerification"));
-   if (enableHttpsConnection || enableSSLExportClientVerification)
+   if (enableHttpsConnection) 
    {
        // Initialize the OS400 OpenSSL wrapper.
        // This checks if the OpenSSL LPO is installed.

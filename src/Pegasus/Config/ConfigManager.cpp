@@ -29,24 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By:
-//      Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
-//      Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//      Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
-//      Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
-//      Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//      Heather Sterling, IBM (hsterl@us.ibm.com)
-//      Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//      Dave Rosckes (rosckes@us.ibm.com)
-//      Chip Vincent (cvincent@us.ibm.com)
-//      David Dillard, VERITAS Software Corp.
-//          (david.dillard@veritas.com)
-//      Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3612
-//      Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3610
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -120,7 +102,6 @@ static struct OwnerEntry _properties[] =
     {"sslCertificateFilePath", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslKeyFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslTrustStore",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
-    {"exportSSLTrustStore",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
 #endif
@@ -136,7 +117,6 @@ static struct OwnerEntry _properties[] =
     {"providerDir",         (ConfigPropertyOwner* )ConfigManager::providerDirOwner},
     {"enableRemotePrivilegedUserAccess", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"enableSubscriptionsForNonprivilegedUsers", (ConfigPropertyOwner* )ConfigManager::securityOwner},
-    {"enableSSLExportClientVerification", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     {"authorizedUserGroups", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 #endif

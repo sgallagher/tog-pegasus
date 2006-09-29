@@ -29,19 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Sushma Fernandes, Hewlett-Packard Company
-//                                (sushma_fernandes@hp.com)
-//              Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -224,8 +211,6 @@ private:
 
     AutoPtr<struct ConfigProperty>      _trustStore; //PEP101
 
-    AutoPtr<struct ConfigProperty>      _exportSSLTrustStore; //PEP101
-
     AutoPtr<struct ConfigProperty>      _crlStore; //PEP101
 
     AutoPtr<struct ConfigProperty>      _sslClientVerificationMode; //PEP101
@@ -237,8 +222,6 @@ private:
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     AutoPtr<struct ConfigProperty>      _authorizedUserGroups; //PEP101
 #endif
-
-    AutoPtr<struct ConfigProperty>      _enableSSLExportClientVerification; //PEP101
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     AutoPtr<struct ConfigProperty>      _kerberosServiceName; //PEP101

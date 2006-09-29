@@ -350,7 +350,6 @@ _sslContextMgr(sslContextMgr)
         configManager->getCurrentValue("enableAuthentication"));
 
     _sslTrustStore = ConfigManager::getHomedPath(configManager->getCurrentValue("sslTrustStore"));
-    _exportSSLTrustStore = ConfigManager::getHomedPath(configManager->getCurrentValue("exportSSLTrustStore"));
 
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _crlStore = ConfigManager::getHomedPath(configManager->getCurrentValue("crlStore"));
@@ -1353,8 +1352,7 @@ void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
     //
     try
     {
-        _sslContextMgr->reloadTrustStore(
-            SSLContextManager::SERVER_CONTEXT);
+        _sslContextMgr->reloadTrustStore();
     }
     catch (SSLException& ex)
     {

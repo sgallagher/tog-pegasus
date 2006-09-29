@@ -92,16 +92,11 @@ public:
                This parameter is ignored if localConnection=true.
         @param useSSL Boolean specifying whether SSL should be used for
                connections created by this acceptor.
-        @param exportConnection Boolean indicating whether this acceptor is
-               only for export connections. If true, client SSL certificate
-               verification is enabled on the export connection created by
-               this acceptor. Ignored when useSSL is false.
     */
     void addAcceptor(
         Boolean localConnection,
         Uint32 portNumber,
-        Boolean useSSL,
-        Boolean exportConnection);
+        Boolean useSSL);
 
     /** Bind the acceptors to the specified listen sockets.
 	@exception - This function may receive exceptions from
@@ -184,7 +179,7 @@ private:
     SSLContextManager* _sslContextMgr;
     
     void _init(void);
-    SSLContext* _getSSLContext(Uint32 contextType);
+    SSLContext* _getSSLContext();
 };
 
 PEGASUS_NAMESPACE_END

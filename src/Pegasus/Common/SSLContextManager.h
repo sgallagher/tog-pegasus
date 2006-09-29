@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja.boranna@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SSLContextManager_h
@@ -63,11 +59,6 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE SSLContextManager
 {
 public:
-    enum SSLContextType
-    {
-        SERVER_CONTEXT = 1, EXPORT_CONTEXT = 2
-    };
-
     /** Constructor. */
 
     SSLContextManager();
@@ -75,7 +66,6 @@ public:
     ~SSLContextManager();
 
     void createSSLContext(
-        Uint32 contextType,
         const String& trustStore, 
         const String& certPath,
         const String& keyPath, 
@@ -86,11 +76,8 @@ public:
     /**
         Reload the trust store used by either the CIM Server or 
         Indication Server based on the context type.
-
-        @param contextType specifies the SSLContext type for which
-               the trust store is to be reloaded
      */
-    void reloadTrustStore(Uint32 contextType);
+    void reloadTrustStore();
 
     /**
         Reload the CRL store.
@@ -100,7 +87,7 @@ public:
     /**
         Get a pointer to the sslContext object.
      */
-    SSLContext*  getSSLContext(Uint32 contextType) const;
+    SSLContext*  getSSLContext() const;
 
     /**
         Get a pointer to the sslContextObjectLock.
@@ -115,15 +102,13 @@ private:
     X509_STORE* _getNewX509Store(const String& store);
 
     /**
-        A lock to control access to the _sslContext and _exportSSLContext 
-        objects.  Before read accessing the _sslContext and _exportSSLContext 
-        objects, one must first lock this for read access.  Before write 
-        accessing the _sslContext and _exportSSLContext objects, one must 
-        first lock this for write access.
+        A lock to control access to the _sslContext object.
+        Before read accessing the _sslContext object, one must first 
+        lock this for read access.  Before write accessing the _sslContext 
+        object, one must first lock this for write access.
      */
     ReadWriteSem _sslContextObjectLock;
     SSLContext* _sslContext; 
-    SSLContext* _exportSSLContext;
 };
 
 PEGASUS_NAMESPACE_END

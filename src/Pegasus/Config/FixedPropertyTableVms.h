@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
-// Modified By: Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja.boranna@hp.com)
-//            
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_FixedPropertyTableVms_h
@@ -59,7 +53,6 @@
     {"sslKeyFilePath",      "/wbem_etc/opt/hp/sslshare/file.pem"},
 //
     {"sslTrustStore",       "/wbem_etc/opt/hp/sslshare/cimserver_trust"},
-    {"exportSSLTrustStore", "/wbem_etc/opt/hp/sslshare/indication_trust"},
     {"crlStore",            "/wbem_etc/opt/hp/sslshare/crl"},
 //
     {"tempLocalAuthDir",    PEGASUS_LOCAL_AUTH_DIR},

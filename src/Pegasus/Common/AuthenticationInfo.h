@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AuthenticationInfo_h
@@ -300,22 +295,6 @@ public:
         _rep->setSecurityAssociation(); 
     }
 #endif
-
-    /** Indicate whether the export connection flag is set or not
-    */
-    Boolean isExportConnection() const
-    {
-        _checkRep();
-        return _rep->isExportConnection();
-    }
-
-    /** Set the export connection flag
-    */
-    void setExportConnection(Boolean exportConnection)
-    {
-        _checkRep();
-        _rep->setExportConnection(exportConnection);
-    }
 
 	//PEP187
     Array<SSLCertificateInfo*> getClientCertificateChain()

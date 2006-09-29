@@ -27,6 +27,8 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+//==============================================================================
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Socket.h>
@@ -56,16 +58,14 @@ PEGASUS_NAMESPACE_BEGIN
 SSLSocket::SSLSocket(
     SocketHandle socket,
     SSLContext * sslcontext,
-    ReadWriteSem * sslContextObjectLock,
-    Boolean exportConnection)
+    ReadWriteSem * sslContextObjectLock)
    :
    _SSLConnection(0),
    _socket(socket),
    _SSLContext(sslcontext),
    _sslContextObjectLock(sslContextObjectLock),
    _SSLCallbackInfo(0),
-   _certificateVerified(false),
-   _exportConnection(exportConnection)
+   _certificateVerified(false)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::SSLSocket()");
 
@@ -341,7 +341,7 @@ Sint32 SSLSocket::accept()
     // export connection, get the peer certificate and verify the trust
     // store validation result.
     //
-    if (_SSLContext->isPeerVerificationEnabled() || _exportConnection)
+    if (_SSLContext->isPeerVerificationEnabled())
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to certify client");
 
@@ -371,16 +371,6 @@ Sint32 SSLSocket::accept()
             {
                 PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
                      "---> SSL: Client Certificate not verified");
-                //
-                // On export connection, do not continue if the
-                // certificate is not verified.
-                //
-                if (_exportConnection)
-                {
-                    X509_free(client_cert);
-                    PEG_METHOD_EXIT();
-                    return -1;
-                }
             }
 
             X509_free(client_cert);
@@ -389,15 +379,6 @@ Sint32 SSLSocket::accept()
         {
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
                 "---> SSL: Client not certified, no certificate received");
-            //
-            // On export connection, do not continue if peer certificate
-            // is not received
-            //
-            if (_exportConnection)
-            {
-                PEG_METHOD_EXIT();
-                return -1;
-            }
         }
     }
     else
@@ -523,15 +504,14 @@ MP_Socket::MP_Socket(SocketHandle socket)
 MP_Socket::MP_Socket(
     SocketHandle socket,
     SSLContext * sslcontext,
-    ReadWriteSem * sslContextObjectLock,
-    Boolean exportConnection)
+    ReadWriteSem * sslContextObjectLock)
 {
     PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::MP_Socket()");
     if (sslcontext != NULL)
     {
         _isSecure = true;
         _sslsock = new SSLSocket(
-            socket, sslcontext, sslContextObjectLock, exportConnection);
+            socket, sslcontext, sslContextObjectLock);
     }
     else
     {
@@ -674,8 +654,7 @@ MP_Socket::MP_Socket(SocketHandle socket)
 MP_Socket::MP_Socket(
     SocketHandle socket,
     SSLContext * sslcontext,
-    ReadWriteSem * sslContextObjectLock,
-    Boolean exportConnection)
+    ReadWriteSem * sslContextObjectLock)
  : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
 
 #endif

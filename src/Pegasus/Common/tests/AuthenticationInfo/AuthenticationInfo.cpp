@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-//    Author: Vageesh Umesh (vagumesh@in.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -88,14 +86,6 @@ void test01()
     PEGASUS_TEST_ASSERT(authInfo.isPrivileged() == false);
     authInfo.setPrivileged(true);
     PEGASUS_TEST_ASSERT(authInfo.isPrivileged() == true);
-
-    /**
-        Added to cover the Function
-        void AuthenticationInfo::setExportConnection(Boolean exportConnection)
-    */
-    PEGASUS_TEST_ASSERT(authInfo.isExportConnection() == false);
-    authInfo.setExportConnection(true);
-    PEGASUS_TEST_ASSERT(authInfo.isExportConnection() == true);
 
     /**
         Added to cover the Function

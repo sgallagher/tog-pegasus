@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
-// Modified By: Sushma Fernandes,  Hewlett-Packard Company sushma_fernandes@hp.com
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//            
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_FixedPropertyTableHpux_h
@@ -68,7 +62,6 @@
     {"sslKeyFilePath",      "/etc/opt/hp/sslshare/file.pem"},
     {"sslTrustStore",       "/etc/opt/hp/sslshare/cimserver_trust"},
     {"sslTrustStoreUserName", ""},
-    {"exportSSLTrustStore", "/etc/opt/hp/sslshare/indication_trust"},
     {"crlStore",            "/etc/opt/hp/sslshare/crl"},
     {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
     {"providerDir",         "/opt/wbem/providers/lib"},

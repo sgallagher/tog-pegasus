@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By: Jair Santos, Hewlett-Packard Company(jair.santos@hp.com)
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AuthenticationInfoRep_h
@@ -136,21 +131,15 @@ public:
     void setSecurityAssociation();
 #endif
 
-    Boolean isExportConnection() const
+    //PEP187
+    Array<SSLCertificateInfo*> getClientCertificateChain()
     {
-        return _exportConnection;
+        return _clientCertificate;
     }
 
-    void setExportConnection(Boolean exportConnection);
-
-	//PEP187
-    Array<SSLCertificateInfo*> getClientCertificateChain()
-	{
-        return _clientCertificate;
-	}
-
-	//PEP187
-	void setClientCertificateChain(Array<SSLCertificateInfo*> clientCertificate);
+    //PEP187
+    void setClientCertificateChain(Array<SSLCertificateInfo*> 
+                                      clientCertificate);
 
 private:
 
@@ -172,8 +161,7 @@ private:
     AutoPtr<CIMKerberosSecurityAssociation> _securityAssoc;//PEP101
 #endif
 
-    Boolean _exportConnection;
-	Array<SSLCertificateInfo*> _clientCertificate;
+    Array<SSLCertificateInfo*> _clientCertificate;
 };
 
 PEGASUS_NAMESPACE_END

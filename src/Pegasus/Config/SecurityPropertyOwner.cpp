@@ -64,7 +64,6 @@ static struct ConfigPropertyRow properties[] =
 //   sslCertificateFilePath                     
 //   sslKeyFilePath                             
 //   sslTrustStore                              
-//   exportSSLTrustStore                        
 //   crlStore                                   
 //   sslClientVerificationMode                  
 //   sslTrustStoreUserName                      
@@ -72,7 +71,6 @@ static struct ConfigPropertyRow properties[] =
 //   kerberosServiceName                        
 //   enableSubscriptionsForNonprivilegedUsers   
 //   authorizedUserGroups                       
-//   enableSSLExportClientVerification          
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_OS_OS400
@@ -104,11 +102,6 @@ static struct ConfigPropertyRow properties[] =
     {"sslTrustStore", "ssl/truststore/", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
     {"sslTrustStore", "cimserver_trust", IS_STATIC, 0, 0, IS_VISIBLE},
-#endif
-#ifdef PEGASUS_OS_OS400
-    {"exportSSLTrustStore", "ssl/exporttruststore/", IS_STATIC, 0, 0, IS_VISIBLE},
-#else
-    {"exportSSLTrustStore", "indication_trust", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
 #ifdef PEGASUS_OS_OS400
@@ -152,11 +145,6 @@ static struct ConfigPropertyRow properties[] =
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     {"authorizedUserGroups", "", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
-#ifdef PEGASUS_OS_OS400
-    {"enableSSLExportClientVerification", "true", IS_STATIC, 0, 0, IS_VISIBLE}
-#else
-    {"enableSSLExportClientVerification", "false", IS_STATIC, 0, 0, IS_VISIBLE}
-#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -172,7 +160,6 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _certificateFilePath.reset(new ConfigProperty());
     _keyFilePath.reset(new ConfigProperty());
     _trustStore.reset(new ConfigProperty());
-    _exportSSLTrustStore.reset(new ConfigProperty());
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
 	_crlStore.reset(new ConfigProperty());
 #endif
@@ -183,7 +170,6 @@ SecurityPropertyOwner::SecurityPropertyOwner()
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     _authorizedUserGroups.reset(new ConfigProperty());
 #endif
-    _enableSSLExportClientVerification.reset(new ConfigProperty());
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
         _kerberosServiceName.reset(new ConfigProperty());
 #endif
@@ -290,19 +276,6 @@ void SecurityPropertyOwner::initialize()
             // do not initialize trustpath; a truststore is not required for SSL handshakes
             // a server may wish to connect on HTTPS but not verify clients
         } 
-        else if (String::equalNoCase(
-                            properties[i].propertyName,
-                            "exportSSLTrustStore"))
-        {
-            _exportSSLTrustStore->propertyName = properties[i].propertyName;
-            _exportSSLTrustStore->defaultValue = properties[i].defaultValue;
-            _exportSSLTrustStore->currentValue = properties[i].defaultValue;
-            _exportSSLTrustStore->plannedValue = properties[i].defaultValue;
-            _exportSSLTrustStore->dynamic = properties[i].dynamic;
-            _exportSSLTrustStore->domain = properties[i].domain;
-            _exportSSLTrustStore->domainSize = properties[i].domainSize;
-            _exportSSLTrustStore->externallyVisible = properties[i].externallyVisible;
-        }
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
         else if (String::equalNoCase(
 			    properties[i].propertyName, 
@@ -380,18 +353,6 @@ void SecurityPropertyOwner::initialize()
             _authorizedUserGroups->externallyVisible = properties[i].externallyVisible;
         }
 #endif
-        else if (String::equalNoCase(
-            properties[i].propertyName, "enableSSLExportClientVerification"))
-        {
-            _enableSSLExportClientVerification->propertyName = properties[i].propertyName;
-            _enableSSLExportClientVerification->defaultValue = properties[i].defaultValue;
-            _enableSSLExportClientVerification->currentValue = properties[i].defaultValue;
-            _enableSSLExportClientVerification->plannedValue = properties[i].defaultValue;
-            _enableSSLExportClientVerification->dynamic = properties[i].dynamic;
-            _enableSSLExportClientVerification->domain = properties[i].domain;
-            _enableSSLExportClientVerification->domainSize = properties[i].domainSize;
-            _enableSSLExportClientVerification->externallyVisible = properties[i].externallyVisible;
-        }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
         else if (String::equalNoCase(properties[i].propertyName, "kerberosServiceName"))
         {
@@ -440,10 +401,6 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     {  
         return _trustStore.get();
     }
-    else if (String::equalNoCase(_exportSSLTrustStore->propertyName, name))
-    {
-        return _exportSSLTrustStore.get();
-    }
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
 	else if (String::equalNoCase(_crlStore->propertyName, name))
     {
@@ -476,11 +433,6 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
         return _authorizedUserGroups.get();
     }
 #endif
-    else if (String::equalNoCase(
-                 _enableSSLExportClientVerification->propertyName, name))
-    {
-        return _enableSSLExportClientVerification.get();
-    }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     else if (String::equalNoCase(_kerberosServiceName->propertyName, name))
     {
@@ -767,22 +719,21 @@ Boolean SecurityPropertyOwner::isValid(const String& name,
 
          return false;
     }
-    else if (String::equalNoCase(_trustStore->propertyName, name) ||
-             String::equalNoCase(_exportSSLTrustStore->propertyName, name)
+    else if (String::equalNoCase(_trustStore->propertyName, name) 
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
         	|| String::equalNoCase(_crlStore->propertyName, name)
 #endif
     )
     {
         //
-        // Allow the exportSSLTrustStore and sslTrustStore file paths to be empty
+        // Allow the file path to be empty
         //
         if (value == String::EMPTY)
         {
             return true;
         }
 
-		String fileName = ConfigManager::getHomedPath(value);
+	String fileName = ConfigManager::getHomedPath(value);
 
         //
         // Check if the file path is a directory
@@ -843,13 +794,6 @@ Boolean SecurityPropertyOwner::isValid(const String& name,
         retVal = true;
     }
 #endif
-    else if (String::equalNoCase(_enableSSLExportClientVerification->propertyName, name))
-    {
-        if(String::equal(value, "true") || String::equal(value, "false"))
-        {
-            retVal = true;
-        }
-    }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     else if (String::equalNoCase(_kerberosServiceName->propertyName, name))
     {

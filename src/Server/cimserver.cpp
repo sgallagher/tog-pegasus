@@ -29,30 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Mike Day (mdday@us.ibm.com)
-//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//              Nag Boranna (nagaraja_boranna@hp.com)
-//              Jenny Yu (jenny_yu@hp.com)
-//              Sushma Fernandes (sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//              Humberto Rivero (hurivero@us.ibm.com)
-//              Steve Hills (steve.hills@ncr.com)
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Amit K Arora, IBM (amitarora@in.ibm.com) - pep 167
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2555
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2032
-//              Heather Sterling, IBM (hsterl@us.ibm.com) - PEP#222
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#3452
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM (aruran.shanmug@in.ibm.com) for Bug# 4183, 4937
-//              Thilo Boehm, IBM (tboehm@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -939,7 +915,6 @@ int CIMServerProcess::cimserver_run(
     // one of the variables is true.
     Boolean enableHttpConnection = false;
     Boolean enableHttpsConnection = false;
-    Boolean enableSSLExportClientVerification = false;
 
     if (os400StartupOption == false)
     {
@@ -947,17 +922,12 @@ int CIMServerProcess::cimserver_run(
           configManager->getCurrentValue("enableHttpConnection"));
       enableHttpsConnection = ConfigManager::parseBooleanValue(
           configManager->getCurrentValue("enableHttpsConnection"));
-      enableSSLExportClientVerification = ConfigManager::parseBooleanValue(
-          configManager->getCurrentValue("enableSSLExportClientVerification"));
     }
 #else
     Boolean enableHttpConnection = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableHttpConnection"));
     Boolean enableHttpsConnection = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableHttpsConnection"));
-    Boolean enableSSLExportClientVerification =
-        ConfigManager::parseBooleanValue(configManager->getCurrentValue(
-            "enableSSLExportClientVerification"));
 #endif
 
     // Make sure at least one connection is enabled
@@ -1167,34 +1137,6 @@ int CIMServerProcess::cimserver_run(
             }
         }
     }
-
-
-    if (enableSSLExportClientVerification)
-    {
-        //
-        // No config property is looked up to get the default port number.
-        // Lookup the port defined in /etc/services for the service name
-        // wbem-exp-https and bind to that port. If the service is  not defined
-        // then log a warning message and do not start the cimserver.
-        //
-        Uint32 port = 0;
-
-        portNumberExportHttps = System::lookupPort(WBEM_EXPORT_HTTPS_SERVICE_NAME, port);
-
-        if (portNumberExportHttps == 0)
-        {
-            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                "src.Server.cimserver.EXPORT_HTTPS_PORT_NOT_DEFINED",
-                "Port not defined for the service wbem-exp-https. CIMServer will not be started.");
-
-            MessageLoaderParms parms("src.Server.cimserver.EXPORT_HTTPS_PORT_NOT_DEFINED",
-                "Port not defined for the service wbem-exp-https. CIMServer will not be started.");
-
-            cerr << MessageLoader::getMessage(parms) << endl;
-
-            return(1);
-        }
-    }
 #if defined(PEGASUS_DEBUG)
     // Put out startup up message.
     cout << _cimServerProcess->getProductName() << " " << _cimServerProcess->getCompleteVersion() << endl;
@@ -1340,7 +1282,7 @@ MessageLoader::_useProcessLocale = false;
 
         if (enableHttpConnection)
         {
-            _cimServer->addAcceptor(false, portNumberHttp, false, false);
+            _cimServer->addAcceptor(false, portNumberHttp, false);
             //l10n
             //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                         //"Listening on HTTP port $0.", portNumberHttp);
@@ -1351,7 +1293,7 @@ MessageLoader::_useProcessLocale = false;
         }
         if (enableHttpsConnection)
         {
-            _cimServer->addAcceptor(false, portNumberHttps, true, false);
+            _cimServer->addAcceptor(false, portNumberHttps, true);
             //l10n
             //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                         //"Listening on HTTPS port $0.", portNumberHttps);
@@ -1359,17 +1301,9 @@ MessageLoader::_useProcessLocale = false;
                             "src.Server.cimserver.LISTENING_ON_HTTPS_PORT",
                             "Listening on HTTPS port $0.", portNumberHttps);
         }
-        if (enableSSLExportClientVerification)
-        {
-            _cimServer->addAcceptor(false, portNumberExportHttps, true, true);
-
-            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                "src.Server.cimserver.LISTENING_ON_EXPORT_HTTPS_PORT",
-                "Listening on Export HTTPS port $0.", portNumberExportHttps);
-        }
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-        _cimServer->addAcceptor(true, 0, false, false);
+        _cimServer->addAcceptor(true, 0, false);
         //l10n
         //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                     //"Listening on local connection socket.");
@@ -1393,13 +1327,6 @@ MessageLoader::_useProcessLocale = false;
             //cout << "Listening on HTTPS port " << portNumberHttps << endl;
             MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_HTTPS_PORT",
                      "Listening on HTTPS port $0.", portNumberHttps);
-            cout << MessageLoader::getMessage(parms) << endl;
-        }
-        if (enableSSLExportClientVerification)
-        {
-            MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_EXPORT_HTTPS_PORT",
-                "Listening on Export HTTPS port $0.", portNumberExportHttps);
-
             cout << MessageLoader::getMessage(parms) << endl;
         }
 

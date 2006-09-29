@@ -27,6 +27,8 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+//==============================================================================
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_TLS_h
@@ -66,8 +68,7 @@ public:
     SSLSocket(
         SocketHandle socket,
         SSLContext * sslcontext,
-        ReadWriteSem * sslContextObjectLock,
-        Boolean exportConnection = false);
+        ReadWriteSem * sslContextObjectLock);
 
     ~SSLSocket();
 
@@ -124,7 +125,6 @@ private:
 
     AutoPtr<SSLCallbackInfo> _SSLCallbackInfo;
     Boolean _certificateVerified;
-    Boolean _exportConnection;
 };
 #else
 
@@ -146,8 +146,7 @@ public:
     MP_Socket(
         SocketHandle socket,
         SSLContext * sslcontext,
-        ReadWriteSem * sslContextObjectLock,
-        Boolean exportConnection = false);             // secure socket
+        ReadWriteSem * sslContextObjectLock);
 
     ~MP_Socket();
 

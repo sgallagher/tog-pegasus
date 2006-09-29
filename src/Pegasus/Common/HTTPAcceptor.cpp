@@ -29,21 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//          Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//          Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//          Dave Rosckes (rosckes@us.ibm.com)
-//          Denise Eckstein (denise.eckstein@hp.com)
-//          Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
-//          Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
-//          Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//          Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//          Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2065
-//          David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//          John Alex, IBM (johnalex@us.ibm.com) for Bug#3312
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Config.h"
@@ -140,7 +125,6 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
                            Boolean localConnection,
                            Uint32 portNumber,
                            SSLContext * sslcontext,
-                           Boolean exportConnection,
                            ReadWriteSem* sslContextObjectLock)
    : Base(PEGASUS_QUEUENAME_HTTPACCEPTOR),  // ATTN: Need unique names?
      _monitor(monitor),
@@ -150,7 +134,6 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _localConnection(localConnection),
      _portNumber(portNumber),
      _sslcontext(sslcontext),
-     _exportConnection(exportConnection),
      _sslContextObjectLock(sslContextObjectLock)
 {
    Socket::initializeInterface();
@@ -711,7 +694,7 @@ void HTTPAcceptor::_acceptConnection()
        "HTTPAcceptor - accept() success.  Socket: $1" ,socket));
 
    AutoPtr<MP_Socket> mp_socket(new MP_Socket(
-       socket, _sslcontext, _sslContextObjectLock, _exportConnection));
+       socket, _sslcontext, _sslContextObjectLock));
 
    mp_socket->setSocketWriteTimeout(_socketWriteTimeout);
 
@@ -734,7 +717,7 @@ void HTTPAcceptor::_acceptConnection()
    // Create a new connection and add it to the connection list:
 
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
-       this, static_cast<MessageQueue *>(_outputMessageQueue), _exportConnection);
+       this, static_cast<MessageQueue *>(_outputMessageQueue));
 
    if (socketAcceptStatus == 0)
    {

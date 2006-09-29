@@ -29,19 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-// Modified By: Sushma Fernandes, Hewlett-Packard Company
-//                (sushma_fernandes@hp.com)
-// Modified By: Dan Gorey, IBM (djgorey@us.ibm.com)
-// Modified By: Amit Arora (amita@in.ibm.com) for Bug#1170
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
-//              Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, Symantec Corp (david_dillard@symantec.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Network.h"
@@ -349,7 +336,7 @@ HTTPConnection* HTTPConnector::connect(
 
    // Create HTTPConnection object:
 
-   AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, sslContext, 0, false));
+   AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, sslContext, 0));
    if (mp_socket->connect() < 0) {
       char portStr [32];
       sprintf (portStr, "%u", portNumber);
@@ -364,7 +351,7 @@ HTTPConnection* HTTPConnector::connect(
    }
     
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
-        this, static_cast<MessageQueueService *>(outputMessageQueue), false);
+        this, static_cast<MessageQueueService *>(outputMessageQueue));
 
    // Solicit events on this new connection's socket:
 

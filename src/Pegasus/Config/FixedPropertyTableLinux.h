@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
-//
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4592
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
@@ -60,7 +56,6 @@
     {"sslCertificateFilePath", PEGASUS_SSL_CERT_FILE_PATH},
     {"sslKeyFilePath",       PEGASUS_SSL_KEY_FILE_PATH},
     {"sslTrustStore",        PEGASUS_SSL_SERVER_TRUSTSTORE},
-    {"exportSSLTrustStore",  PEGASUS_SSL_EXPORT_TRUSTSTORE},
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore",             PEGASUS_SSL_SERVER_CRL},
 #endif
@@ -75,7 +70,6 @@
     {"sslCertificateFilePath", "/etc/opt/tog-pegasus/server.pem"},
     {"sslKeyFilePath",      "/etc/opt/tog-pegasus/file.pem"},
     {"sslTrustStore",       "/etc/opt/tog-pegasus/cimserver_trust"},
-    {"exportSSLTrustStore", "/etc/opt/tog-pegasus/indication_trust"},
     {"crlStore",            "/etc/opt/tog-pegasus/crl"},
     {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
 #if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
@@ -95,7 +89,6 @@
     {"sslCertificateFilePath", "/etc/opt/lsb-pegasus/server.pem"},
     {"sslKeyFilePath",      "/etc/opt/lsb-pegasus/file.pem"},
     {"sslTrustStore",       "/etc/opt/lsb-pegasus/cimserver_trust"},
-    {"exportSSLTrustStore", "/etc/opt/lsb-pegasus/indication_trust"},
     {"crlStore",            "/etc/opt/lsb-pegasus/crl"},
     {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
 #if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)

@@ -211,8 +211,7 @@ HTTPConnection::HTTPConnection(
     Monitor* monitor,
     AutoPtr<MP_Socket>& socket,
     MessageQueue* ownerMessageQueue,
-    MessageQueue* outputMessageQueue,
-    Boolean exportConnection)
+    MessageQueue* outputMessageQueue)
     :
     Base(PEGASUS_QUEUENAME_HTTPCONNECTION),
     _monitor(monitor),
@@ -232,15 +231,6 @@ HTTPConnection::HTTPConnection(
     // Add SSL verification information to the authentication information
     if (_socket->isSecure())
     {
-        //
-        // Set the flag to indicate that the request was received on
-        // export Connection
-        //
-        if (exportConnection)
-        {
-           _authInfo->setExportConnection(exportConnection);
-        }
-
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
         if (_socket->isPeerVerificationEnabled() && _socket->isCertificateVerified())
         {
@@ -274,7 +264,6 @@ HTTPConnection::~HTTPConnection()
 
     PEG_METHOD_EXIT();
 }
-
 
 void HTTPConnection::enqueue(Message *message)
 {

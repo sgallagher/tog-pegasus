@@ -40,8 +40,6 @@
     {"passwordFilePath",              "cimserver.passwd"},
     {"sslCertificateFilePath",              "server.pem"}, 
     {"sslKeyFilePath",                        "file.pem"},
-    {"sslTrustStore",                  "cimserver_trust"},
-    {"exportSSLTrustStore",           "indication_trust"},
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore",                                   "crl"},
 #endif
@@ -55,5 +53,5 @@
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     {"authorizedUserGroups",                          ""},
 #endif
-    {"enableSSLExportClientVerification",        "false"}
+    {"sslTrustStore",                  "cimserver_trust"}
 

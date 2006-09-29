@@ -3284,6 +3284,8 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS10027:  Substitution {0} is the port number (an integer)
         * @version 2.4
+        *
+        * This message is obsolete (PEP 259 export connection port and export truststore related changes).
         */
         src.Server.cimserver.LISTENING_ON_EXPORT_HTTPS_PORT:string {"PGS10027:  The CIM server is listening on export HTTPS port {0}."}
 
@@ -3295,6 +3297,8 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS10029:
         * @version 2.4
+        *
+        * This message is obsolete (PEP 259 export connection port and export truststore related changes).
         */
         src.Server.cimserver.EXPORT_HTTPS_PORT_NOT_DEFINED:string {"PGS10029: Port not defined for the service wbem-exp-https. The CIM server is not started."}
 
@@ -4562,6 +4566,8 @@ CIM server listening on HTTPS port {0}."}
          * @note  PGS13303:
          * DO NOT TRANSLATE "exportSSLTrustStore" or "enableSSLsslClientVerification"
          * @version 2.5
+         *
+         * This message is obsolete (PEP 259 export connection port and export truststore related changes).
          */
          Pegasus.Server.SSLContextManager.EXPORT_TRUST_EMPTY:string {"PGS13303: The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. The CIM server not started."}
 

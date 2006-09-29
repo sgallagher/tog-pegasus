@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -56,8 +50,7 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     _authSecret(String::EMPTY),
     _privileged(false),
     _authType(String::EMPTY),
-    _authStatus(NEW_REQUEST),
-    _exportConnection(false)
+    _authStatus(NEW_REQUEST)
 { 
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");
@@ -158,16 +151,6 @@ void   AuthenticationInfoRep::setSecurityAssociation()
     PEG_METHOD_EXIT();
 }
 #endif
-
-void   AuthenticationInfoRep::setExportConnection(Boolean exportConnection)
-{
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "AuthenticationInfoRep::setExportConnection");
-
-    _exportConnection = exportConnection;
-
-    PEG_METHOD_EXIT();
-}
 
 //PEP187
 void AuthenticationInfoRep::setClientCertificateChain(Array<SSLCertificateInfo*> clientCertificate)

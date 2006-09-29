@@ -149,7 +149,6 @@ private:
 
 	Boolean _enableAuthentication;
 	String _sslTrustStore;
-	String _exportSSLTrustStore;
 	String _crlStore;
    
     String _getNewCertificateFileName(String trustStore, 

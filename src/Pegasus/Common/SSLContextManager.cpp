@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja.boranna@hp.com)
-//
-// Modified By: David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//              Sushma Fernandes,  Hewlett-Packard Company
-//                 sushma_fernandes@hp.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
@@ -89,8 +83,7 @@ Boolean verifyClientOptionalCallback(SSLCertificateInfo &certInfo)
 
 
 SSLContextManager::SSLContextManager()
-    : _sslContext(0),
-      _exportSSLContext(0)
+    : _sslContext(0)
 {
 
 }
@@ -98,20 +91,19 @@ SSLContextManager::SSLContextManager()
 SSLContextManager::~SSLContextManager()
 {
     delete _sslContext;
-    delete _exportSSLContext;
 }
 
 //
 // Part of this code logic comes from the CIMServer::_getSSLContext()
 // and CIMServer::_getExportSSLContext() methods.
 //
-void SSLContextManager::createSSLContext(Uint32 contextType,
+void SSLContextManager::createSSLContext(
     const String& trustStore, const String& certPath, const String& keyPath,
     const String& crlStore, Boolean callback, const String& randFile)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextManager::createSSLContext()");
 
-    if ( contextType == SERVER_CONTEXT  && !_sslContext )
+    if ( !_sslContext )
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
             "Creating the Server SSL Context.");
@@ -137,18 +129,6 @@ void SSLContextManager::createSSLContext(Uint32 contextType,
                 keyPath, crlStore, 0, randFile);
         }
     }
-    else if ( contextType == EXPORT_CONTEXT && !_exportSSLContext )
-    {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
-            "Creating the Export SSL Context.");
-
-        //
-        // Note: Trust store is used by default on Export connections,
-        // verification callback function is not used.
-        //
-        _exportSSLContext = new SSLContext(trustStore, certPath,
-            keyPath, crlStore, 0, randFile);
-    }
 
     PEG_METHOD_EXIT();
 }
@@ -158,26 +138,17 @@ void SSLContextManager::createSSLContext(Uint32 contextType,
 //
 #ifdef PEGASUS_HAS_SSL
 
-void SSLContextManager::reloadTrustStore(Uint32 contextType)
+void SSLContextManager::reloadTrustStore()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextManager::reloadTrustStore()");
 
     SSL_CTX* sslContext;
     String trustStore = String::EMPTY;
 
-    if ( contextType == SERVER_CONTEXT && _sslContext )
+    if ( _sslContext )
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
-            "Context Type is Server Context.");
         sslContext = _sslContext->_rep->getContext();
         trustStore = _sslContext->getTrustStore();
-    }
-    else if ( contextType == EXPORT_CONTEXT && _exportSSLContext )
-    {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
-            "Context Type is Export Context.");
-        sslContext = _exportSSLContext->_rep->getContext();
-        trustStore = _exportSSLContext->getTrustStore();
     }
     else
     {
@@ -209,10 +180,9 @@ void SSLContextManager::reloadTrustStore(Uint32 contextType)
     // acquire write lock to Context object and then overwrite the trust
     // store cache
     //
-    {
-        WriteLock contextLock(_sslContextObjectLock);
-        SSL_CTX_set_cert_store(sslContext, newStore);
-    }
+    WriteLock contextLock(_sslContextObjectLock);
+    SSL_CTX_set_cert_store(sslContext, newStore);
+
     PEG_METHOD_EXIT();
 }
 
@@ -220,7 +190,7 @@ void SSLContextManager::reloadCRLStore()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextManager::reloadCRLStore()");
 
-    if (!_sslContext && !_exportSSLContext)
+    if (!_sslContext)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
         "Could not reload the crl store, SSL Context is not initialized.");
@@ -258,14 +228,11 @@ void SSLContextManager::reloadCRLStore()
         {
             _sslContext->_rep->setCRLStore(_getNewX509Store(crlPath));
         }
-        if (_exportSSLContext)
-        {
-            _exportSSLContext->_rep->setCRLStore(_getNewX509Store(crlPath));
-        }
     }
 
     PEG_METHOD_EXIT();
 }
+
 
 X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
 {
@@ -341,7 +308,7 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
 
 #else    //#ifdef PEGASUS_HAS_SSL
 
-void SSLContextManager::reloadTrustStore(Uint32 contextType) { }
+void SSLContextManager::reloadTrustStore() { }
 
 void SSLContextManager::reloadCRLStore() { }
 
@@ -352,17 +319,9 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath) { retur
 /**
     Get a pointer to the sslContext object.
  */
-SSLContext*  SSLContextManager::getSSLContext(Uint32 contextType) const
+SSLContext*  SSLContextManager::getSSLContext() const
 {
-    if ( contextType == SERVER_CONTEXT )
-    {
-        return _sslContext;
-    }
-    else if ( contextType == EXPORT_CONTEXT )
-    {
-        return _exportSSLContext;
-    }
-    return 0;
+    return _sslContext;
 }
 
 /**

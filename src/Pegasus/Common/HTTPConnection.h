@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097, #2541
-//         David Dillard, VERITAS Software Corp.  (david.dillard@veritas.com)
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_HTTPConnection_h
@@ -96,9 +86,7 @@ public:
         Monitor* monitor,
         AutoPtr<MP_Socket>& socket,
         MessageQueue * ownerMessageQueue,
-        MessageQueue * outputMessageQueue,
-        Boolean exportConnection);
-
+        MessageQueue * outputMessageQueue);
 
     /** Destructor. */
     ~HTTPConnection();

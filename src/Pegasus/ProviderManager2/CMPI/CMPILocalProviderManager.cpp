@@ -389,18 +389,6 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
                           continue;
                         }
 
-                      // delete from _provider table
-                      if (!_providers.remove (provider->_name))
-                      {
-                         PEGASUS_ASSERT (0);
-                      }
-
-                      // delete the cimom handle
-                      PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                        "Destroying CMPIProvider's CIMOM Handle "
-                                        + provider->getName());
-                      delete provider->_cimom_handle;
-
                       PEGASUS_ASSERT (provider->_module != 0);
 
                       // unload provider module
@@ -410,12 +398,19 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
                                    "CMPILocalProviderManager::_provider_crtl -  Unload provider $0",
                                    provider->getName ());
 
+                      // Note: The deleting of the cimom handle is being
+                      // moved after the call to unloadModule() based on
+                      // a previous fix for bug 3669 and consistency with
+                      // other provider managers. Do not move it back before
+                      // the call to unloadModule().
+                      PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                                        "Destroying CMPIProvider's CIMOM Handle "
+                                        + provider->getName());
+                      delete provider->_cimom_handle;
+
                       // set provider status to UNINITIALIZED
                       provider->reset ();
                   }
-                  // We need to delete the provider instance outside of the scope
-                  // of the provider mutex.
-                  delete provider;
                 }
             }
             catch (...)
@@ -423,7 +418,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
               PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                 "Unexpected Exception in UNLOAD_IDLE_PROVIDERS.");
             }
-            delete unloadProviderArray;
+            delete [] unloadProviderArray;
           }                     // if there are any providers
         break;
       }

@@ -94,4 +94,10 @@ SOURCES = \
 
 include $(ROOT)/mak/dynamic-library.mak
 
+ifeq ($(OS_TYPE),vms)
+all:    $(FULL_PROGRAM)
+else
+all:    $(FULL_LIB)
+endif
+
 repository tests poststarttests:

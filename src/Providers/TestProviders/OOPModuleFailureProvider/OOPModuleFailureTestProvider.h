@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_OOPModuleFailureTestProvider_h

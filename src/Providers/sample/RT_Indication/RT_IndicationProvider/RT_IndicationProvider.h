@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_RT_IndicationProvider_h
@@ -92,6 +87,10 @@ protected:
 
      void _checkOperationContext(const OperationContext& context,
                                  const String& funcName);
+
+private:
+
+     CIMOMHandle _cimom;
 
 };
 

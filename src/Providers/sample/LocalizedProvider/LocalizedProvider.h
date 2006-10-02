@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chuck Carmack (carmack@us.ibm.com)
-//
-// Modified By: Vijay Eli (vijay.eli@ini.ibm.com) for bug #2330
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef LocalizedProvider_h
@@ -49,6 +45,8 @@
 
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ContentLanguageList.h>
+
+PEGASUS_USING_PEGASUS;
 
 class LocalizedProvider :
       public PEGASUS_NAMESPACE(CIMInstanceProvider),
@@ -197,6 +195,8 @@ public:
 				   const PEGASUS_NAMESPACE(CIMInstance)& indicationInstance);
 
 private:
+    CIMOMHandle _cimom;
+
     PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)> _instanceNames;
     PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMInstance)> _instances;
     PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(ContentLanguageList)> _instanceLangs;

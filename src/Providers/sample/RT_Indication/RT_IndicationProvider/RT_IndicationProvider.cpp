@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//      Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//      Chip Vincent (cvincent@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -58,7 +51,6 @@ static IndicationResponseHandler * _handler = 0;
 static Boolean _enabled = false;
 static Uint32 _nextUID = 0;
 static Uint32 _numSubscriptions = 0;
-static CIMOMHandle _cimom;
 
 RT_IndicationProvider::RT_IndicationProvider (void) throw ()
 {

@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chuck Carmack (carmack@us.ibm.com)
-//
-// Modified By:
-//      Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
-//      Chip Vincent (cvincent@us.ibm.com)
-//      David Dillard, VERITAS Software Corp.
-//          (david.dillard@veritas.com)
-//      Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // This is a sample provider that test globalization support, including unicode
@@ -209,9 +200,6 @@ Mutex mutex;
 
 // Serializes access to the CIMOMHandle
 Mutex mutexCH;
-
-// CIMOMHandle we got on initialize
-CIMOMHandle _cimom;
 
 // Vars for the indication provider
 static IndicationResponseHandler * _handler = 0;

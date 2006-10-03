@@ -259,6 +259,7 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_IndInit_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOPProvFail_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOPProvFail_TS2
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOPProvFail_TS3
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_INDSSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_G11N_TS1
@@ -424,6 +425,38 @@ run_OOPProvFail_TS2:
 else
 run_OOPProvFail_TS2: FORCE
 	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping run_OOPProvFail_TS2"
+endif
+
+###############################################################################
+##  OOPProvFail Test Suite 3: OOP Provider Module Failure CIM Server restart
+##                            Tests
+##
+##  Configuration Options: forceProviderProcesses=true
+##                         enableAuthentication=true
+##
+##  NOTE: Regardless of the setting of PEGASUS_DEFAULT_ENABLE_OOP, this test
+##  suite is always run with OOP enabled.  This test suite causes a provider to
+##  exit.  Running this test suite with OOP disabled would cause the cimserver
+##  to exit and the test suite to fail.
+##
+###############################################################################
+OOPProvFail_TS3_CONFIG_OPTIONS = forceProviderProcesses=true enableAuthentication=true
+OOPProvFail_TS3a_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/OOPModuleFailureProvider/testclient@@OOPProvFail_TS3a
+OOPProvFail_TS3b_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/OOPModuleFailureProvider/testclient@@OOPProvFail_TS3b
+
+ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
+run_OOPProvFail_TS3:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(OOPProvFail_TS3_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(OOPProvFail_TS3a_TEST_CMDS)"
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(OOPProvFail_TS3_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(OOPProvFail_TS3b_TEST_CMDS)"
+else
+run_OOPProvFail_TS3: FORCE
+	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping run_OOPProvFail_TS3"
 endif
 
 ###############################################################################

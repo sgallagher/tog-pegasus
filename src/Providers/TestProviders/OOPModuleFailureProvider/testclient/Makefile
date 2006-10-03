@@ -62,3 +62,9 @@ OOPProvFail_TS2a:
 
 OOPProvFail_TS2b:
 	@$(PROGRAM) initb
+
+OOPProvFail_TS3a:
+	@$(PROGRAM) restarta
+
+OOPProvFail_TS3b:
+	@$(PROGRAM) restartb

@@ -92,7 +92,6 @@ public:
             void *parameter);
 
     Boolean SendForget(Message *msg);
-    Boolean ForwardOp(AsyncOpNode *, Uint32 destination);
 
 
     Boolean register_service(String name, Uint32 capabilities, Uint32 mask);
@@ -109,7 +108,6 @@ public:
     void return_op(AsyncOpNode *op);
 
     static ThreadPool *get_thread_pool();
-    static void cleanupThreadPool();
 
     Uint32 _mask;
     AtomicInt _die;
@@ -156,13 +154,11 @@ protected:
 
 private:
     static ThreadReturnType PEGASUS_THREAD_CDECL polling_routine(void *);
-    static ThreadReturnType PEGASUS_THREAD_CDECL kill_idle_threads(void *);
 
     AsyncQueue<AsyncOpNode> _incoming;
     static Thread* _polling_thread;
     static Semaphore _polling_sem;
     static AtomicInt _stop_polling;
-    static AtomicInt _check_idle_flag;
 
     typedef List<MessageQueueService, Mutex> PollingList;
     static PollingList* _polling_list;

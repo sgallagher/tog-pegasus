@@ -605,7 +605,7 @@ void CIMServer::runForever()
       try
       {
         _providerManager->unloadIdleProviders();
-        MessageQueueService::cleanupThreadPool();
+        MessageQueueService::get_thread_pool()->cleanupIdleThreads();
       }
       catch(...)
       {

@@ -356,13 +356,13 @@ int test(int argc, char** argv)
         String t6 = "defg";
         PEGASUS_TEST_ASSERT(t1.find('c') == 2);
         PEGASUS_TEST_ASSERT(t1.find(t2)==2);
-        PEGASUS_TEST_ASSERT(t1.find(t3)==(Uint32)-1);
+        PEGASUS_TEST_ASSERT(t1.find(t3)==PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(t1.find(t4)==0);
-        PEGASUS_TEST_ASSERT(t1.find(t5)==(Uint32)-1);
-        PEGASUS_TEST_ASSERT(t1.find(t6)==(Uint32)-1);
+        PEGASUS_TEST_ASSERT(t1.find(t5)==PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(t1.find(t6)==PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(t1.find("cde")==2);
         PEGASUS_TEST_ASSERT(t1.find("def")==3);
-        PEGASUS_TEST_ASSERT(t1.find("xyz")==(Uint32)-1);
+        PEGASUS_TEST_ASSERT(t1.find("xyz")==PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(t1.find("a") ==0);
 
         // test for the case where string
@@ -370,12 +370,12 @@ int test(int argc, char** argv)
         // completely occurs
         String s = "this is an apple";
         PEGASUS_TEST_ASSERT(s.find("apple")==11);
-        PEGASUS_TEST_ASSERT(s.find("appld")==(Uint32)-1);
+        PEGASUS_TEST_ASSERT(s.find("appld")==PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(s.find("this")==0);
         PEGASUS_TEST_ASSERT(s.find("t")==0);
         PEGASUS_TEST_ASSERT(s.find("e")==15);
         s = "a";
-        PEGASUS_TEST_ASSERT(s.find("b")==(Uint32)-1);
+        PEGASUS_TEST_ASSERT(s.find("b")==PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(s.find("a")==0);
         PEGASUS_TEST_ASSERT(s.find(s)==0);
         s = "aaaapple";
@@ -1187,7 +1187,7 @@ int test(int argc, char** argv)
 	PEGASUS_TEST_ASSERT(s.size() == 6);
 	PEGASUS_TEST_ASSERT(s == "YZLMNO");
 
-	s.remove(2, size_t(-1));
+	s.remove(2, PEG_NOT_FOUND);
 	PEGASUS_TEST_ASSERT(s.size() == 2);
 	PEGASUS_TEST_ASSERT(s == "YZ");
 

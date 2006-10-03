@@ -29,20 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By:  Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//                  1. add comment line to xml output.  aug 2001
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Gerarda Marquez (gmarquez@us.ibm.com)
-//              -- PEP 43 changes
-//              Seema gupta (gseema@in.ibm.com) Bug 281
-//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // bug 4573 - cimmof include file search path processing is inadequate
@@ -772,7 +758,6 @@ cimmofParser::addInstance(CIMInstance *instance)
     cimmofMessages::getMessage(message,
         cimmofMessages::ADD_INSTANCE_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
 

@@ -2358,7 +2358,7 @@ not be valid."}
 
         Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_CLASS:string {"PGS06408: The provider must be registered before registering the provider capabilities."}
 
-        Server.ProviderRegistrationManager.ProviderRegistrationManager.CAN_NOT_INSERT_ELEMENT:string {"PGS06409: CIM provider registration:  An element cannot be inserted into the registration table."}
+        Server.ProviderRegistrationManager.ProviderRegistrationManager.CAN_NOT_INSERT_ELEMENT:string {"PGS06409: CIM provider registration:  A provider is already registered for the specified capability."}
 
         Server.ProviderRegistrationManager.ProviderRegistrationManager.PGPROVIDER_NEEDS_TO_BE_REGISTERED_BEFORE_CONSUMER_CAPABILITIES:string {"PGS06410: The provider must be registered before registering the consumer capabilities."}
 

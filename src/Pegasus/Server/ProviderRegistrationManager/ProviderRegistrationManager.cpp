@@ -2618,18 +2618,11 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                     //
                     _consumerKey = _generateKey(_indicationDestinations[i],
                                                 CON_PROVIDER);
-                    if (_registrationTable->table.contains(_consumerKey))
-                    {
-                        // the instance was already registered
-//L10N_TODO DONE
-                        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
-                    }
-                    else
-                    {
-                        // add the instance to the table
-                        instances.append(instance);
-                        _addInstancesToTable(_consumerKey, instances);
-                    }
+
+                    // add the instance to the table, will throw
+                    // exception if duplicate already exists
+                    instances.append(instance);
+                    _addInstancesToTable(_consumerKey, instances);
                 }
 
                 cimRef = _repository->createInstance(
@@ -2737,18 +2730,11 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                     _className, INS_PROVIDER);
                                 else _capabilityKey = _generateKey(_namespaces[j],
                                      _className, INS_PROVIDER);
-                                if (_registrationTable->table.contains(_capabilityKey))
-                                {
-                                    // the instance was already registered
-//L10N_TODO DONE
-                                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
-                                }
-                                else
-                                {
-                                    // add the instance to the table
-                                    instances.append(instance);
-                                    _addInstancesToTable(_capabilityKey, instances);
-                                }
+
+                                // add the instance to the table, will throw
+                                // exception if duplicate already exists
+                                instances.append(instance);
+                                _addInstancesToTable(_capabilityKey, instances);
                             }
 
                             break;
@@ -2770,17 +2756,11 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                     _className, ASSO_PROVIDER);
                                 else _capabilityKey = _generateKey(_namespaces[j],
                                     _className, ASSO_PROVIDER);
-                                if (_registrationTable->table.contains(_capabilityKey))
-                                {
-                                    // the instance was already registered
-                                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
-                                }
-                                else
-                                {
-                                    // add the instance to the table
-                                    instances.append(instance);
-                                    _addInstancesToTable(_capabilityKey, instances);
-                                }
+
+                                // add the instance to the table, will throw
+                                // exception if duplicate already exists
+                                instances.append(instance);
+                                _addInstancesToTable(_capabilityKey, instances);
                             }
                             break;
                         }
@@ -2924,13 +2904,8 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                     else _capabilityKey = _generateKey(_namespaces[j],
                                         _className, "{}", MET_PROVIDER);
 
-                                    if (_registrationTable->table.contains(_capabilityKey))
-                                    {
-                                        // the instance was already registered
-                                        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
-                                    }
-
-                                    // add the instance to the table
+                                    // add the instance to the table, will throw
+                                    // exception if duplicate already exists
                                     instances.append(instance);
                                     _addInstancesToTable(_capabilityKey, instances);
                                 }
@@ -2948,17 +2923,11 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                             _className, _supportedMethods[k], MET_PROVIDER);
                                         else _capabilityKey = _generateKey(_namespaces[j],
                                             _className, _supportedMethods[k], MET_PROVIDER);
-                                        if (_registrationTable->table.contains(_capabilityKey))
-                                        {
-                                            // the instance already registered
-                                            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
 
-                                        }
-                                        else
-                                        {
-                                            instances.append(instance);
-                                            _addInstancesToTable(_capabilityKey, instances);
-                                        }
+                                        // add the instance to the table, will throw
+                                        // exception if duplicate already exists
+                                        instances.append(instance);
+                                        _addInstancesToTable(_capabilityKey, instances);
                                     }
                                 }
                             }
@@ -2995,18 +2964,11 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                     _className, INSTANCE_QUERY_PROVIDER);
                                 else _capabilityKey = _generateKey(_namespaces[j],
                                     _className, INSTANCE_QUERY_PROVIDER);
-                                if (_registrationTable->table.contains(_capabilityKey))
-                                {
-                                    // the instance was already registered
-//L10N_TODO DONE
-                                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
-                                }
-                                else
-                                {
-                                    // add the instance to the table
-                                    instances.append(instance);
-                                    _addInstancesToTable(_capabilityKey, instances);
-                                }
+
+                                // add the instance to the table, will throw
+                                // exception if duplicate already exists
+                                instances.append(instance);
+                                _addInstancesToTable(_capabilityKey, instances);
                             }
 
                             break;
@@ -3624,8 +3586,9 @@ void ProviderRegistrationManager::_addInstancesToTable(
         // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Can not insert element to the table ");
 
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                      MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.CAN_NOT_INSERT_ELEMENT",
-                                                         "Can not insert element to the table "));
+            MessageLoaderParms(
+                "Server.ProviderRegistrationManager.ProviderRegistrationManager.CAN_NOT_INSERT_ELEMENT",
+                "A provider is already registered for the specified capability."));
     }
     PEG_METHOD_EXIT();
 }

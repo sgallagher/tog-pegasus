@@ -49,7 +49,10 @@
 #include <Pegasus/Common/AutoPtr.h>
 #include "FileSystem.h"
 #include "Dir.h"
-
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+#include <pwd.h>
+#endif
+#include <Pegasus/Common/Tracer.h>
 PEGASUS_NAMESPACE_BEGIN
 
 // Clone the path as a C String but discard trailing slash if any:
@@ -505,4 +508,68 @@ Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
     return gotChar;
 }
 
+//
+// changes the file owner to one specified
+//
+Boolean FileSystem::changeFileOwner(const String& fileName,const String& userName)
+{
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+
+    return true;
+
+#else
+
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, "FileSystem::changeFileOwner()");
+
+    struct passwd*        userPasswd;
+#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
+    defined(PEGASUS_OS_HPUX) || \
+    defined (PEGASUS_OS_LINUX)
+
+    const unsigned int PWD_BUFF_SIZE = 1024;
+    struct passwd  pwd;
+    struct passwd *result;
+    char pwdBuffer[PWD_BUFF_SIZE];
+
+    if(getpwnam_r(userName.getCString(), &pwd, pwdBuffer, PWD_BUFF_SIZE,
+                  &userPasswd) != 0)
+    {
+    userPasswd=(struct passwd *)NULL;
+    }
+
+#elif defined(PEGASUS_OS_OS400)
+    CString tempName = userName.getCString();
+    const char * tmp = tempName;
+    AtoE((char *)tmp);
+    userPasswd = getpwnam(tmp);
+#else
+
+    userPasswd = getpwnam(userName.getCString());
+#endif
+
+    if ( userPasswd  == NULL)
+    {
+        PEG_METHOD_EXIT();
+        return (false);
+    }
+
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = fileName.getCString();
+    const char * tmp1 = tempPath;
+    AtoE((char *)tmp1);
+    Sint32 ret = chown(tmp1, userPasswd->pw_uid, userPasswd->pw_gid);
+#else
+    Sint32 ret = chown(fileName.getCString(), userPasswd->pw_uid, userPasswd->pw_gid);
+#endif
+    if ( ret == -1)
+    {
+        PEG_METHOD_EXIT();
+        return (false);
+    }
+
+    PEG_METHOD_EXIT();
+
+    return (true);
+#endif
+}
 PEGASUS_NAMESPACE_END

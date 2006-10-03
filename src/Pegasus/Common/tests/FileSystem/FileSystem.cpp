@@ -213,6 +213,55 @@ int main(int argc, char** argv)
 	pathName = FileSystem::getAbsoluteFileName("./testdir","#$@#(@$#!");
 	PEGASUS_TEST_ASSERT(pathName.size()==0);	// It should not be there.	
     }
+
+    // Test changeFileOwner
+	    {
+	        String testUser;
+	        testUser.assign(System::getEffectiveUserName());
+	        String cd(tmpDir);
+	        cd.append("/TestFile.txt");
+	        ofstream of1(cd.getCString());
+	        of1 << "test" << endl;
+	        of1.close();
+	        //checking that the file exists
+	        PEGASUS_TEST_ASSERT(FileSystem::exists(cd));
+
+	        //testing changeFileOwner with valid username
+	        PEGASUS_TEST_ASSERT(FileSystem::changeFileOwner(cd,testUser));
+
+	        //Added to test if file is owned by effective user for current process
+	        PEGASUS_TEST_ASSERT((System::verifyFileOwnership(cd.getCString()))==true);
+	#ifndef PEGASUS_OS_TYPE_WINDOWS
+	        //testing to fail changeFileOwner with an unusual username @@@###
+	        //on Windows changeFileOwner always returns true
+	        PEGASUS_TEST_ASSERT(!FileSystem::changeFileOwner(cd,"@@@###"));
+	#endif
+	    }
+
+	    //Test changeFilePermissions
+	    {
+	        String cd(tmpDir);
+	        cd.append("/TestFile.txt");
+	        PEGASUS_TEST_ASSERT(FileSystem::exists(cd));
+	#ifndef PEGASUS_OS_TYPE_WINDOWS
+	        PEGASUS_TEST_ASSERT(
+	            FileSystem::changeFilePermissions(cd,S_IRUSR|S_IRGRP|S_IROTH));
+	#else
+	        PEGASUS_TEST_ASSERT(
+	            FileSystem::changeFilePermissions(cd, _S_IREAD|_S_IWRITE));
+	#endif
+	        PEGASUS_TEST_ASSERT(FileSystem::canReadNoCase(cd));
+
+	        if (System::isPrivilegedUser(System::getEffectiveUserName()))
+	        {
+	            PEGASUS_TEST_ASSERT(FileSystem::canWrite(cd));
+	        }
+	        else
+	        {
+	            PEGASUS_TEST_ASSERT(!FileSystem::canWrite(cd));
+	        }
+	    }
+
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

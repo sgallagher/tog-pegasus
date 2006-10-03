@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
-//
-// Modified By:
-//                Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_LocalAuthFile_h
@@ -79,7 +74,6 @@ public:
 
 private:
 
-    Boolean _changeFileOwner(const String& fileName);
 
     String  _generateRandomTokenString();
 

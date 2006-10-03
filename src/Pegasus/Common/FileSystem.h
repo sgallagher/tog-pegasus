@@ -348,6 +348,7 @@ public:
     */
     static String buildLibraryFileName(const String &libraryName);
 
+    static Boolean changeFileOwner(const String& fileName,const String& userName);
 private:
 
     FileSystem() { }

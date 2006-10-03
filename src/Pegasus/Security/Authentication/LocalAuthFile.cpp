@@ -38,9 +38,6 @@
 #include <unistd.h>
 #endif
 #include <errno.h>
-#ifndef PEGASUS_OS_TYPE_WINDOWS
-#include <pwd.h>
-#endif
 #include <sys/stat.h>
 #include <sys/types.h>
 #ifndef PEGASUS_OS_TYPE_WINDOWS
@@ -318,8 +315,8 @@ String LocalAuthFile::create()
     //
     // 5. Change the file owner to the requesting user.
     //
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-    if (!_changeFileOwner(filePath))
+
+    if (!FileSystem::changeFileOwner(filePath,_userName))
     {
         String errorMsg = strerror(errno);
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4, 
@@ -347,7 +344,6 @@ String LocalAuthFile::create()
         PEG_METHOD_EXIT();
         throw CannotOpenFile (filePath);
     }
-#endif
 
     _challenge = randomToken;
 
@@ -412,66 +408,6 @@ String LocalAuthFile::getChallengeString()
     return(_challenge);
 }
 
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-
-//
-// changes the file owner to one specified
-//
-Boolean LocalAuthFile::_changeFileOwner(const String& fileName)
-{
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::_changeFileOwner()");
-
-    struct passwd*        userPasswd;
-#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
-    defined(PEGASUS_OS_HPUX) || \
-    defined (PEGASUS_OS_LINUX)
-
-    const unsigned int PWD_BUFF_SIZE = 1024;
-    struct passwd  pwd;
-    struct passwd *result;
-    char pwdBuffer[PWD_BUFF_SIZE];
-
-    if(getpwnam_r(_userName.getCString(), &pwd, pwdBuffer, PWD_BUFF_SIZE,
-                  &userPasswd) != 0)
-    {
-	userPasswd=(struct passwd *)NULL;
-    }
-
-#elif defined(PEGASUS_OS_OS400)
-    CString tempName = _userName.getCString();
-    const char * tmp = tempName;
-    AtoE((char *)tmp);
-    userPasswd = getpwnam(tmp);
-#else
-
-    userPasswd = getpwnam(_userName.getCString());
-#endif
-
-    if ( userPasswd  == NULL)
-    {
-        PEG_METHOD_EXIT();
-        return (false);
-    }
-
-#if defined(PEGASUS_OS_OS400)
-    CString tempPath = fileName.getCString();
-    const char * tmp1 = tempPath;
-    AtoE((char *)tmp1);
-    Sint32 ret = chown(tmp1, userPasswd->pw_uid, userPasswd->pw_gid);
-#else
-    Sint32 ret = chown(fileName.getCString(), userPasswd->pw_uid, userPasswd->pw_gid);
-#endif
-    if ( ret == -1)
-    {
-        PEG_METHOD_EXIT();
-        return (false);
-    }
-   
-    PEG_METHOD_EXIT();
-
-    return (true);
-}
-#endif
 
 //
 // Generate  random token string

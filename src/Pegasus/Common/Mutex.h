@@ -107,6 +107,15 @@ public:
 
     void unlock();
 
+#if defined(PEGASUS_OS_LINUX)
+    /**
+        This method must only be called after a fork() to reset the mutex
+        lock status in the new process.  Any other use of this method is
+        unsafe.
+    */
+    void reinitialize();
+#endif
+
 private:
     Mutex(const Mutex&);
     Mutex& operator=(const Mutex&);
@@ -144,6 +153,73 @@ private:
 
     Mutex& _mutex;
 };
+
+//==============================================================================
+//
+// PEGASUS_FORK_SAFE_MUTEX
+//
+//==============================================================================
+
+// Use of this macro ensures that a static Mutex is not locked across a fork().
+
+#if !defined(PEGASUS_HAVE_PTHREADS) || \
+    defined(PEGASUS_OS_ZOS) || \
+    defined(PEGASUS_OS_VMS)
+
+# define PEGASUS_FORK_SAFE_MUTEX(mutex)
+
+#elif defined(PEGASUS_OS_LINUX)
+
+# define PEGASUS_FORK_SAFE_MUTEX(mutex)  \
+    class ForkSafeMutex ## mutex         \
+    {                                    \
+    public:                              \
+        ForkSafeMutex ## mutex()         \
+        {                                \
+            pthread_atfork(              \
+                0,                       \
+                0,                       \
+                _reinitializeMutex);     \
+        }                                \
+                                         \
+    private:                             \
+        static void _reinitializeMutex() \
+        {                                \
+            mutex.reinitialize();        \
+        }                                \
+    };                                   \
+                                         \
+    static ForkSafeMutex ## mutex __forkSafeMutex ## mutex;
+
+#else
+
+# define PEGASUS_FORK_SAFE_MUTEX(mutex)  \
+    class ForkSafeMutex ## mutex         \
+    {                                    \
+    public:                              \
+        ForkSafeMutex ## mutex()         \
+        {                                \
+            pthread_atfork(              \
+                _lockMutex,              \
+                _unlockMutex,            \
+                _unlockMutex);           \
+        }                                \
+                                         \
+    private:                             \
+        static void _lockMutex()         \
+        {                                \
+            mutex.lock();                \
+        }                                \
+                                         \
+        static void _unlockMutex()       \
+        {                                \
+            mutex.unlock();              \
+        }                                \
+    };                                   \
+                                         \
+    static ForkSafeMutex ## mutex __forkSafeMutex ## mutex;
+
+#endif
 
 PEGASUS_NAMESPACE_END
 

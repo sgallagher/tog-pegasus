@@ -187,6 +187,16 @@ void Mutex::unlock()
         throw Permission(Threads::self());
 }
 
+#if defined(PEGASUS_OS_LINUX)
+void Mutex::reinitialize()
+{
+    pthread_mutex_init(&_rep.mutex, &_attr);
+#if defined(PEGASUS_DEBUG)
+    _rep.count = 0;
+#endif
+}
+#endif
+
 #endif /* PEGASUS_HAVE_PTHREADS */
 
 //==============================================================================

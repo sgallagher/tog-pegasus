@@ -48,7 +48,10 @@
 
 PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN static Mutex writeMutex;
+PEGASUS_NAMESPACE_BEGIN
+
+static Mutex writeMutex;
+PEGASUS_FORK_SAFE_MUTEX(writeMutex)
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Writes message to file. Locks the file before writing to it

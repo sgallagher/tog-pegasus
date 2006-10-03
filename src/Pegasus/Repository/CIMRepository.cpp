@@ -421,10 +421,11 @@ void _filterInstance(CIMInstance& cimInstance,
                 Boolean includeQualifiers,
                 Boolean includeClassOrigin)
 {
-    // Remove properties based on propertylist and localOnly flag
-#ifdef PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
+#ifndef PEGASUS_DISABLE_REPOSITORY_INSTANCE_FILTER
+    // Remove properties based on propertyList and localOnly flag
     _removeProperties(cimInstance, propertyList, localOnly);
 #endif
+
     // If includequalifiers false, remove all qualifiers from
     // properties.
 
@@ -432,13 +433,16 @@ void _filterInstance(CIMInstance& cimInstance,
     {
         _removeAllQualifiers(cimInstance);
     }
+
     // if ClassOrigin Flag false, remove classOrigin info from Instance object
     // by setting the classOrigin to Null.
+
     if (!includeClassOrigin)
     {
         _removeClassOrigins(cimInstance);
     }
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // _LoadObject()
@@ -2501,8 +2505,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
                 className.getString()));
     }
 
-// Turn off this function for the moment since it changes client behavior
-#ifdef PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
+#ifndef PEGASUS_DISABLE_REPOSITORY_INSTANCE_FILTER
     // Do any required filtering of properties, qualifiers, classorigin
     // on the returned instances.
     for (Uint32 i = 0 ; i < namedInstances.size(); i++)

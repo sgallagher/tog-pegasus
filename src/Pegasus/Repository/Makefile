@@ -76,25 +76,6 @@ ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 
 endif
 
-########################################################################
-########################################################################
-##
-## 
-## The PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER build config variable turns on
-## the filtering of enumerate instances for localOnly, includeQualifiers,
-## IncludClassOrigin, deepInheritance, and PropertyList. 
-##
-##  (See bug reports 1046, 2334, 1975, 1046, 3270)
-##
-##
-########################################################################
-########################################################################
-
-
-ifdef PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
-  LOCAL_DEFINES += -DPEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
-endif
-
 ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
 ## 
 ## The following .PHONY rule gets around the problem in Windows for 

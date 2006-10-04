@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -886,10 +886,18 @@ void _parseKeyBindingPairs(
                 isComma = true;
             }
 
-            Sint64 x;
-
-            if (!XmlReader::stringToSignedInteger(p, x))
-                throw MalformedObjectNameException(objectName);
+            if (*p == '-')
+            {
+                Sint64 x;
+                if (!XmlReader::stringToSignedInteger(p, x))
+                    throw MalformedObjectNameException(objectName);
+            }
+            else
+            {
+                Uint64 x;
+                if (!XmlReader::stringToUnsignedInteger(p, x))
+                    throw MalformedObjectNameException(objectName);
+            }
 
             valueString.assign(p, n);
 

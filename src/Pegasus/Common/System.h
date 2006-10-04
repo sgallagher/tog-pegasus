@@ -47,7 +47,7 @@ typedef unsigned long mode_t;
 #endif
 #endif
 
-#ifdef PEGASUS_OS_TYPE_UNIX
+#if defined (PEGASUS_OS_TYPE_UNIX) || (PEGASUS_OS_VMS)
 # ifndef PEGASUS_OS_OS400
 #  include <unistd.h>
 # endif

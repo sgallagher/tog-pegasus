@@ -547,6 +547,116 @@ void _SaveObject(const String& path, Buffer& objectXml,
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// _beginInstanceTransaction()
+//
+//      Creates rollback files to allow an incomplete transaction to be voided.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void _beginInstanceTransaction(
+    const String& indexFilePath,
+    const String& dataFilePath)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "_beginInstanceTransaction");
+
+    //
+    // Begin the transaction (an incomplete transaction will cause
+    // a rollback the next time an instance-oriented routine is invoked).
+    //
+
+    if (!InstanceIndexFile::beginTransaction(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
+                "begin failed"));
+    }
+
+    if (!InstanceDataFile::beginTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
+                "begin failed"));
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _commitInstanceTransaction()
+//
+//      Removes the rollback files to complete the transaction.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void _commitInstanceTransaction(
+    const String& indexFilePath,
+    const String& dataFilePath)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "_commitInstanceTransaction");
+
+    //
+    // Commit the transaction by removing the rollback files.
+    //
+
+    if (!InstanceIndexFile::commitTransaction(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
+                "commit failed"));
+    }
+
+    if (!InstanceDataFile::commitTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
+                "commit failed"));
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _rollbackInstanceTransaction()
+//
+//      Restores instance index and data files to void an incomplete operation.
+//      If there are no rollback files, this method has no effect.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void _rollbackInstanceTransaction(
+    const String& indexFilePath,
+    const String& dataFilePath)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "_rollbackInstanceTransaction");
+
+    if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
+                "rollback failed"));
+    }
+
+    if (!InstanceDataFile::rollbackTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.ROLLBACK_FAILED",
+                "rollback failed"));
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // CIMRepository
 //
 //     The following are not implemented:
@@ -886,6 +996,7 @@ CIMInstance CIMRepository::getInstance(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getInstance");
 
     ReadLock lock(_lock);
+
     CIMInstance cimInstance = _getInstance(nameSpace,
                                            instanceName,
                                            localOnly,
@@ -925,17 +1036,21 @@ CIMInstance CIMRepository::_getInstance(
     }
 
     //
-    // Get the index for this instance:
+    // Get paths of index and data files:
     //
-
-    Uint32 index;
-    Uint32 size;
 
     String indexFilePath = _getInstanceIndexFilePath(
         nameSpace, instanceName.getClassName());
 
     String dataFilePath = _getInstanceDataFilePath(
         nameSpace, instanceName.getClassName());
+
+    //
+    // Get the index for this instance:
+    //
+
+    Uint32 index;
+    Uint32 size;
 
     if (!InstanceIndexFile::lookupEntry(
             indexFilePath, instanceName, index, size))
@@ -967,7 +1082,12 @@ CIMInstance CIMRepository::_getInstance(
             true);
     }
 
-    _filterInstance(cimInstance, propertyList, localOnly, includeQualifiers, includeClassOrigin);
+    _filterInstance(
+        cimInstance,
+        propertyList,
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin);
 
     PEG_METHOD_EXIT();
     return cimInstance;
@@ -1120,27 +1240,7 @@ void CIMRepository::deleteInstance(
     // from last time an instance-oriented function was called.
     //
 
-    if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-                "rollback failed"));
-        //l10n end
-    }
-
-    if (!InstanceDataFile::rollbackTransaction(dataFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-                "rollback failed"));
-        //l10n end
-    }
+    _rollbackInstanceTransaction(indexFilePath, dataFilePath);
 
     //
     // Lookup instance from the index file (raise error if not found).
@@ -1157,35 +1257,10 @@ void CIMRepository::deleteInstance(
     }
 
     //
-    // Begin the transaction (any return prior to commit will cause
-    // a rollback next time an instance-oriented routine is invoked).
-    //
-
-    if (!InstanceIndexFile::beginTransaction(indexFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-                "begin failed"));
-        //l10n end
-    }
-
-    if (!InstanceDataFile::beginTransaction(dataFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-                "begin failed"));
-        //l10n end
-    }
-
-    //
     // Remove entry from index file.
     //
+
+    _beginInstanceTransaction(indexFilePath, dataFilePath);
 
     Uint32 freeCount;
 
@@ -1204,31 +1279,7 @@ void CIMRepository::deleteInstance(
         //l10n end
     }
 
-    //
-    // Commit the transaction:
-    //
-
-    if (!InstanceIndexFile::commitTransaction(indexFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-                "commit failed"));
-        //l10n end
-    }
-
-    if (!InstanceDataFile::commitTransaction(dataFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-                "commit failed"));
-        //l10n end
-    }
+    _commitInstanceTransaction(indexFilePath, dataFilePath);
 
     //
     // Compact the index and data files if the free count max was
@@ -1574,10 +1625,10 @@ CIMObjectPath CIMRepository::_createInstance(
     // Get paths to data and index files:
     //
 
-    String dataFilePath = _getInstanceDataFilePath(
+    String indexFilePath = _getInstanceIndexFilePath(
         nameSpace, newInstance.getClassName());
 
-    String indexFilePath = _getInstanceIndexFilePath(
+    String dataFilePath = _getInstanceDataFilePath(
         nameSpace, newInstance.getClassName());
 
     //
@@ -1586,28 +1637,7 @@ CIMObjectPath CIMRepository::_createInstance(
     // from last time an instance-oriented function was called.
     //
 
-    if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-                "rollback failed"));
-        //l10n end
-    }
-
-    if (!InstanceDataFile::rollbackTransaction(dataFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms(
-                "Repository.CIMRepository.ROLLBACK_FAILED",
-                "rollback failed"));
-        //l10n end
-    }
+    _rollbackInstanceTransaction(indexFilePath, dataFilePath);
 
     //
     // Resolve the instance. Looks up class and fills out properties but
@@ -1657,35 +1687,10 @@ CIMObjectPath CIMRepository::_createInstance(
         _createAssocInstEntries(nameSpace, cimClass, cimInstance, instanceName);
 
     //
-    // Begin the transaction (any return prior to commit will cause
-    // a rollback next time an instance-oriented routine is invoked).
-    //
-
-    if (!InstanceIndexFile::beginTransaction(indexFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-                "begin failed"));
-        //l10n end
-    }
-
-    if (!InstanceDataFile::beginTransaction(dataFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-                "begin failed"));
-        //l10n end
-    }
-
-    //
     // Save instance to file:
     //
+
+    _beginInstanceTransaction(indexFilePath, dataFilePath);
 
     Uint32 index;
     Uint32 size;
@@ -1693,22 +1698,16 @@ CIMObjectPath CIMRepository::_createInstance(
     {
         Buffer data;
         streamer->encode(data, cimInstance);
-        // XmlWriter::appendInstanceElement(data, cimInstance);
         size = data.size();
 
         if (!InstanceDataFile::appendInstance(dataFilePath, data, index))
         {
-            //l10n
-            //errMessage.append("Failed to create instance: ");
-            //errMessage.append(instanceName.toString());
             PEG_METHOD_EXIT();
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                 MessageLoaderParms(
                     "Repository.CIMRepository.FAILED_TO_CREATE_INSTANCE",
                     "Failed to create instance: $0",
                     instanceName.toString()));
-            //l10n end
         }
     }
 
@@ -1719,44 +1718,15 @@ CIMObjectPath CIMRepository::_createInstance(
     if (!InstanceIndexFile::createEntry(
             indexFilePath, instanceName, index, size))
     {
-        //l10n
-        //errMessage.append("Failed to create instance: ");
-        //errMessage.append(instanceName.toString());
         PEG_METHOD_EXIT();
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 "Repository.CIMRepository.FAILED_TO_CREATE_INSTANCE",
                 "Failed to create instance: $0",
                 instanceName.toString()));
-        //l10n end
     }
 
-    //
-    // Commit the changes:
-    //
-
-    if (!InstanceIndexFile::commitTransaction(indexFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-                "commit failed"));
-        //l10n end
-    }
-
-    if (!InstanceDataFile::commitTransaction(dataFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-                "commit failed"));
-        //l10n end
-    }
+    _commitInstanceTransaction(indexFilePath, dataFilePath);
 
     Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass,
         true);
@@ -1897,56 +1867,12 @@ void CIMRepository::modifyInstance(
         nameSpace, instance.getClassName());
 
     //
-    // First attempt rollback:
+    // Attempt rollback (if there are no rollback files, this will have no
+    // effect). This code is here to rollback uncommitted changes left over
+    // from last time an instance-oriented function was called.
     //
 
-    if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-                "rollback failed"));
-        //l10n end
-    }
-
-    if (!InstanceDataFile::rollbackTransaction(dataFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "rollback failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
-                "rollback failed"));
-        //l10n end
-    }
-
-    //
-    // Begin the transaction:
-    //
-
-    if (!InstanceIndexFile::beginTransaction(indexFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-                "begin failed"));
-        //l10n end
-    }
-
-    if (!InstanceDataFile::beginTransaction(dataFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "begin failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
-                "begin failed"));
-        //l10n end
-    }
+    _rollbackInstanceTransaction(indexFilePath, dataFilePath);
 
     //
     // Do this:
@@ -2167,7 +2093,7 @@ void CIMRepository::modifyInstance(
     // Disallow operation if the instance name was changed:
     //
 
-    // For for bugzilla 1508. Hostname and namespace are not included
+    // For bugzilla 1508. Hostname and namespace are not included
     // in the comparison here.
     CIMObjectPath modifiedInstancePath = modifiedInstance.getPath();
     modifiedInstancePath.setNameSpace(CIMNamespaceName());
@@ -2175,14 +2101,10 @@ void CIMRepository::modifyInstance(
     if (instanceName != modifiedInstancePath)
     {
         PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            //"Attempted to modify a key property");
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 "Repository.CIMRepository.ATTEMPT_TO_MODIFY_KEY_PROPERTY",
                 "Attempted to modify a key property"));
-        //l10n end
     }
 
     Uint32 oldSize;
@@ -2201,6 +2123,8 @@ void CIMRepository::modifyInstance(
     // Modify the data file:
     //
 
+    _beginInstanceTransaction(indexFilePath, dataFilePath);
+
     {
         Buffer out;
         streamer->encode(out, cimInstance);
@@ -2210,17 +2134,12 @@ void CIMRepository::modifyInstance(
 
         if (!InstanceDataFile::appendInstance(dataFilePath, out, newIndex))
         {
-            //l10n
-            //errMessage.append("Failed to modify instance ");
-            //errMessage.append(instanceName.toString());
             PEG_METHOD_EXIT();
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                 MessageLoaderParms(
                     "Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE",
                     "Failed to modify instance $0",
                     instanceName.toString()));
-            //l10n end
         }
     }
 
@@ -2233,44 +2152,15 @@ void CIMRepository::modifyInstance(
     if (!InstanceIndexFile::modifyEntry(indexFilePath, instanceName, newIndex,
         newSize, freeCount))
     {
-        //l10n
-        //errMessage.append("Failed to modify instance ");
-        //errMessage.append(instanceName.toString());
         PEG_METHOD_EXIT();
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 "Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE",
                 "Failed to modify instance $0",
                 instanceName.toString()));
-        //l10n end
     }
 
-    //
-    // Commit the transaction:
-    //
-
-    if (!InstanceIndexFile::commitTransaction(indexFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-                "commit failed"));
-        //l10n end
-    }
-
-    if (!InstanceDataFile::commitTransaction(dataFilePath))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
-                "commit failed"));
-        //l10n end
-    }
+    _commitInstanceTransaction(indexFilePath, dataFilePath);
 
     //
     // Compact the index and data files if the free count max was
@@ -2350,15 +2240,10 @@ Boolean CIMRepository::_loadAllInstances(
     Array<Uint32> sizes;
 
     //
-    // Form the name of the instance index file
+    // Form the names of the instance index and data files
     //
 
     String indexFilePath = _getInstanceIndexFilePath(nameSpace, className);
-
-    //
-    // Form the name of the instance file
-    //
-
     String dataFilePath = _getInstanceDataFilePath(nameSpace, className);
 
     //
@@ -2406,10 +2291,6 @@ Boolean CIMRepository::_loadAllInstances(
             {
                 Uint32 pos=(&(buffer[indices[i]]))-buffer;
                 streamer->decode(data, pos, tmpInstance);
-
-//                XmlParser parser(&(buffer[indices[i]]));
-//
-//                XmlReader::getObject(parser, tmpInstance);
 
                 Resolver::resolveInstance (tmpInstance, _context, nameSpace,
                         true);
@@ -2529,62 +2410,27 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForSubtree(
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "CIMRepository::enumerateInstanceNamesForSubtree");
 
-    ReadLock lock(_lock);
+    // It is not necessary to control access to the ReadWriteSem _lock here.
+    // This method calls enumerateInstanceNamesForClass, which does its own
+    // access control.
 
     //
     // Get names of descendent classes:
     //
+
     Array<CIMName> classNames;
-
     classNames.append(className);
-
-    try
-    {
-        _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
-    }
-    catch(const CIMException&)
-    {
-        PEG_METHOD_EXIT();
-        throw;
-    }
+    _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
 
     //
-    // Get instance names from each qualifying instance file for the class:
+    // Enumerate instance names for each of the subclasses
     //
     Array<CIMObjectPath> instanceNames;
-    Array<Uint32> indices;
-    Array<Uint32> sizes;
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-        //
-        // Form the name of the class index file:
-        //
-
-        String indexFilePath = _getInstanceIndexFilePath(
-            nameSpace, classNames[i]);
-
-        //
-        // Get all instances for that class:
-        //
-
-        Array<Uint32> freeFlags;
-
-        if (!InstanceIndexFile::enumerateEntries(
-            indexFilePath, freeFlags, indices, sizes, instanceNames, false))
-        {
-            //l10n
-            //String errMessage = "Failed to load instance names in class ";
-            //errMessage.append(classNames[i].getString());
-            PEG_METHOD_EXIT();
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "Repository.CIMRepository.FAILED_TO_LOAD_INSTANCE_NAMES",
-                    "Failed to load instance names in class $0",
-                    classNames[i].getString()));
-            //l10n end
-        }
+        instanceNames.appendArray(
+            enumerateInstanceNamesForClass(nameSpace, classNames[i]));
     }
 
     PEG_METHOD_EXIT();
@@ -2608,10 +2454,11 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
     Array<Uint32> sizes;
 
     //
-    // Form the name of the class index file:
+    // Form the names of the instance index and data files
     //
 
     String indexFilePath = _getInstanceIndexFilePath(nameSpace, className);
+    String dataFilePath = _getInstanceDataFilePath(nameSpace, className);
 
     //
     // Get all instances for the class:
@@ -3035,46 +2882,15 @@ CIMValue CIMRepository::getProperty(
 
     ReadLock lock(_lock);
 
-    if (!_nameSpaceManager.classExists(nameSpace, instanceName.getClassName()))
-    {
-        throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_INVALID_CLASS, instanceName.getClassName().getString());
-    }
-
     //
-    // Get the index for this instance:
+    // Retrieve the specified instance
     //
 
-    Uint32 index;
-    Uint32 size;
-
-    String indexFilePath = _getInstanceIndexFilePath(
-        nameSpace, instanceName.getClassName());
-
-    String dataFilePath = _getInstanceDataFilePath(
-        nameSpace, instanceName.getClassName());
-
-    if (!InstanceIndexFile::lookupEntry(
-            indexFilePath, instanceName, index, size))
-    {
-        PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
-    }
+    CIMInstance cimInstance = _getInstance(
+        nameSpace, instanceName, false, true, true, CIMPropertyList());
 
     //
-    // Load the instance into memory:
-    //
-
-    CIMInstance cimInstance;
-
-    if (!_loadInstance(dataFilePath, cimInstance, index, size))
-    {
-        PEG_METHOD_EXIT();
-        throw CannotOpenFile(dataFilePath);
-    }
-
-    //
-    // Grab the property from the instance:
+    // Get the requested property from the instance
     //
 
     Uint32 pos = cimInstance.findProperty(propertyName);

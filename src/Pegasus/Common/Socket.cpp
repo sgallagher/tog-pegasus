@@ -41,6 +41,8 @@
 #include <cctype>
 #include <cstring>
 #include <Pegasus/Common/Sharable.h>
+#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/System.h>
 
 //------------------------------------------------------------------------------
 //
@@ -213,6 +215,98 @@ void Socket::uninitializeInterface()
     if (_socketInterfaceRefCount == 0)
         WSACleanup();
 #endif
+}
+
+//------------------------------------------------------------------------------
+//
+// _setTCPNoDelay()
+//
+//------------------------------------------------------------------------------
+
+inline void _setTCPNoDelay(SocketHandle socket)
+{
+    // This function disables "Nagle's Algorithm" also known as "the TCP delay
+    // algorithm", which causes read operations to obtain whatever data is
+    // already in the input queue and then wait a little longer to see if 
+    // more data arrives. This algorithm optimizes the case in which data is 
+    // sent in only one direction but severely impairs performance of round 
+    // trip servers. Disabling TCP delay is a standard technique for round 
+    // trip servers.
+
+   int opt = 1;
+   setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char*)&opt, sizeof(opt));
+}
+//------------------------------------------------------------------------------
+//
+// _setInformIfNewTCPIP()
+//
+//------------------------------------------------------------------------------
+inline void _setInformIfNewTCPIP(SocketHandle socket)
+{
+#ifdef PEGASUS_OS_ZOS
+   // This function enables the notification of the CIM Server that a new
+   // TCPIP transport layer is active. This is needed to be aware of a 
+   // restart of the transport layer. When this option is in effect,
+   // the accetp(), select(), and read() request will receive an errno=EIO.
+   // Once this happens, the socket should be closed and create a new.
+   
+   int NewTcpipOn = 1;
+   setibmsockopt(socket,SOL_SOCKET,SO_EioIfNewTP,(char*)&NewTcpipOn,sizeof(NewTcpipOn));
+#endif
+}
+
+
+SocketHandle Socket::createSocket(int domain, int type, int protocol)
+{
+    SocketHandle newSocket;
+
+    if( domain == AF_UNIX)
+    {
+        return(socket(domain,type,protocol));
+    }
+
+    bool sendTcpipMsg = true;
+
+    while(1)
+    {
+
+        newSocket = socket(domain,type,protocol);
+
+        // The program should wait for transport layer to become ready.
+
+        if(newSocket == PEGASUS_INVALID_SOCKET && 
+           getSocketError() == PEGASUS_NETWORK_TCPIP_TRYAGAIN )
+        {
+           if(sendTcpipMsg)
+           {
+               Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                             "Common.Socket.WAIT_FOR_TCPIP",
+                             "TCP/IP temporary unavailable.");
+               sendTcpipMsg=false;
+           }
+
+           System::sleep(30);
+           continue;
+        } else 
+        {
+           break;
+        }
+    } // wait for the transport layer become ready.
+
+    // Is the socket in an unrecoverable error ?
+    if (newSocket == PEGASUS_INVALID_SOCKET)
+    {
+        // return immediate
+        return(PEGASUS_INVALID_SOCKET);
+    } else {
+        
+        // set aditional socket options
+        _setTCPNoDelay(newSocket);
+        _setInformIfNewTCPIP(newSocket);
+
+        return(newSocket);            
+    }
+
 }
 
 PEGASUS_NAMESPACE_END

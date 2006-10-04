@@ -2642,6 +2642,19 @@ not be valid."}
 
         Common.OperationContext.OBJECT_ALREADY_EXISTS:string {"PGS09001: Object already exists."}
 
+        // ==========================================================
+        // Messages for System Abstraction
+        //  Please use message prefix "PGS09100"
+        // ==========================================================
+
+        /**
+        * @note  PGS09100:
+        *   Do not translate the word 'TCP/IP'
+        */
+
+        Common.Socket.WAIT_FOR_TCPIP:string {"PGS09100: TCP/IP temporary unavailable."}
+        
+
 
         // ==========================================================
         // Messages for SSLContext

@@ -35,7 +35,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.cpp,v 1.5 2006/01/31 14:50:42 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.cpp,v 1.6 2006/10/04 11:20:38 thilo.boehm Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -190,3 +190,42 @@ void _lslp_term(int sig)
   signal(sig, SIG_DFL);
   raise(sig);
 }
+
+#ifdef PEGASUS_OS_ZOS
+SOCKETD _lslp_socket(int domain, int type, int protocol)
+{
+    SOCKETD newSocket;
+
+    if( domain == AF_UNIX)
+    {
+        return(socket(domain,type,protocol));
+    }
+
+    while(1)
+    {
+
+        newSocket = socket(domain,type,protocol);
+
+        // The program should wait for transport layer to become ready.
+
+        if(newSocket == -1 && errno == EAGAIN)
+        {
+
+           sleep(30);
+           continue;
+        } else 
+        {
+           break;
+        }
+    } // wait for the transport layer become ready.
+
+    // Is the socket OK ?
+    if (newSocket > -1)
+    {
+        int NewTcpipOn = 1;
+        setibmsockopt(newSocket,SOL_SOCKET,SO_EioIfNewTP,(char*)&NewTcpipOn,sizeof(NewTcpipOn));
+    }
+
+    return(newSocket);
+}
+#endif

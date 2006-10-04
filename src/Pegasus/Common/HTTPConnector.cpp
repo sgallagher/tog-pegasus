@@ -269,7 +269,7 @@ HTTPConnection* HTTPConnector::connect(
       AtoE(address.sun_path);
 #endif
 
-      socket = ::socket(AF_UNIX, SOCK_STREAM, 0);
+      socket = Socket::createSocket(AF_UNIX, SOCK_STREAM, 0);
       if (socket == PEGASUS_INVALID_SOCKET)
          throw CannotCreateSocketException();
 
@@ -305,13 +305,9 @@ HTTPConnection* HTTPConnector::connect(
 
 
    // Create the socket:
-   socket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+   socket = Socket::createSocket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
    if (socket == PEGASUS_INVALID_SOCKET)
       throw CannotCreateSocketException();
-   
-   // set TCP_NODELAY
-   int opt = 1;
-   setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char*)&opt, sizeof(opt));
    
    // Conect the socket to the address:
    if (::connect(socket,

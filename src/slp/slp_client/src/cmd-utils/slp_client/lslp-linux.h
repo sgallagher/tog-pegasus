@@ -35,7 +35,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.8 2006/01/31 14:50:42 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.9 2006/10/04 11:20:38 thilo.boehm Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -216,7 +216,12 @@ void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg);
 
 
 #define _LSLP_CLOSESOCKET close
+#ifdef PEGASUS_OS_ZOS
+SOCKETD _lslp_socket(int domain, int type, int protocol);
+#define _LSLP_SOCKET(a, b, c) _lslp_socket((int)(a), (int)(b), (int)(c))
+#else
 #define _LSLP_SOCKET(a, b, c) socket((int)(a), (int)(b), (int)(c))
+#endif
 #define _LSLP_BIND(a, b, c) bind((int)(a), (const struct sockaddr *)(b), (socklen_t)(c))
 #define _LSLP_CONNECT(a, b, c) connect((int)(a), (const struct sockaddr *)(b), (socklen_t)(c))
 #define _LSLP_LISTEN(a, b) listen((int)(a), (int)(b))

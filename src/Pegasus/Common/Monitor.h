@@ -191,6 +191,8 @@ public:
   void setState( Uint32 index, _MonitorEntry::entry_status status );
 
   void initializeTickler();
+  void uninitializeTickler();
+
   void tickle();
   /** Monitor system-level for the given number of milliseconds. Post a
       message to the corresponding queue when such an event occurs.

@@ -77,9 +77,6 @@
 //------------------------------------------------------------------------------
 
 #if defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS)
-#   ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#       define _OPEN_SYS_SOCK_IPV6
-#   endif
 #   include <errno.h>
 #   include <sys/types.h>
 #   include <fcntl.h>
@@ -88,6 +85,8 @@
 #   include <arpa/inet.h>
 #   include <sys/socket.h>
 #   include <sys/time.h>
+#   include <net/if.h>
+#   include <sys/ioctl.h>
 #   ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 #       include <unistd.h>
 #       include <sys/un.h>
@@ -116,6 +115,51 @@
 #   define PEGASUS_SOCKET_ERROR SOCKET_ERROR
 #else
 #   define PEGASUS_SOCKET_ERROR (-1)
+#endif
+
+//------------------------------------------------------------------------------
+//
+// PEGASUS_NETWORK_TCPIP_STOPPED
+// 
+// This return code indicates that the transpor layer is 
+// stopped and the socket is invalid. The socket must created again.
+//
+//------------------------------------------------------------------------------
+
+#ifdef PEGASUS_OS_ZOS
+#   define PEGASUS_NETWORK_TCPIP_STOPPED EIO
+#else
+#   define PEGASUS_NETWORK_TCPIP_STOPPED 0
+#endif
+
+//------------------------------------------------------------------------------
+//
+// PEGASUS_NETWORK_TCPIP_TRYAGAIN
+//  
+// This return code indicates that the transport layer is
+// temporary unavailable and the program can try again.
+//
+//------------------------------------------------------------------------------
+
+#ifdef PEGASUS_OS_ZOS
+#   define PEGASUS_NETWORK_TCPIP_TRYAGAIN EAGAIN
+#else
+#   define PEGASUS_NETWORK_TCPIP_TRYAGAIN 0
+#endif
+
+//------------------------------------------------------------------------------
+//
+// PEGASUS_NETWORK_TRYAGAIN
+//  
+// This return code indicates that the network function 
+// should be tried again by the program.
+//
+//------------------------------------------------------------------------------
+
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
+#   define PEGASUS_NETWORK_TRYAGAIN EAGAIN
+#else
+#   define PEGASUS_NETWORK_TRYAGAIN 0
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -94,25 +94,6 @@ public:
     Array<HTTPConnection*> connections;
 };
 
-//------------------------------------------------------------------------------
-//
-// _setTCPNoDelay()
-//
-//------------------------------------------------------------------------------
-
-inline void _setTCPNoDelay(SocketHandle socket)
-{
-    // This function disables "Nagle's Algorithm" also known as "the TCP delay
-    // algorithm", which causes read operations to obtain whatever data is
-    // already in the input queue and then wait a little longer to see if 
-    // more data arrives. This algorithm optimizes the case in which data is 
-    // sent in only one direction but severely impairs performance of round 
-    // trip servers. Disabling TCP delay is a standard technique for round 
-    // trip servers.
-
-   int opt = 1;
-   setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char*)&opt, sizeof(opt));
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -325,13 +306,12 @@ void HTTPAcceptor::_bind()
 
    if (_localConnection)
    {
-       _rep->socket = socket(AF_UNIX, SOCK_STREAM, 0);
+       _rep->socket = Socket::createSocket(AF_UNIX, SOCK_STREAM, 0);
    }
    else
    {
-       _rep->socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+       _rep->socket = Socket::createSocket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-       _setTCPNoDelay(_rep->socket);
    }
 
    if (_rep->socket < 0)
@@ -540,6 +520,40 @@ void HTTPAcceptor::reopenConnectionSocket()
    }
 }
 
+
+/**
+   reconnectConnectionSocket - creates a new server socket.
+*/
+void HTTPAcceptor::reconnectConnectionSocket()
+{
+   if (_rep)
+   {      
+      // unregister the socket
+      _monitor->unsolicitSocketMessages(_rep->socket);
+      // close the socket
+      Socket::close(_rep->socket);
+      // Unlink Local Domain Socket Bug# 3312
+      if (_localConnection)
+      {
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+          PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor::reconnectConnectionSocket Unlinking local connection." );
+         ::unlink(
+             reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
+#else
+         PEGASUS_ASSERT(false);
+#endif
+      }
+      // open the socket
+      _bind();
+   }
+   else
+   {
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor::reconnectConnectionSocket failure _rep is null." );
+   }
+}
+
 /**
    getOutstandingRequestCount - returns the number of outstanding requests.
 */
@@ -653,9 +667,22 @@ void HTTPAcceptor::_acceptConnection()
 
    SocketHandle socket = accept(_rep->socket, accept_address, &address_size);
 
-   if (socket < 0)
+   if (socket == PEGASUS_SOCKET_ERROR)
    {
+       // the remote connection is invalid, destroy client address.
+       delete accept_address;
 
+       // TCPIP is down reconnect this acceptor
+       if(getSocketError() == PEGASUS_NETWORK_TCPIP_STOPPED)
+       {
+           
+           PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Socket has an IO error. TCP/IP down. Try to reconnect." );
+
+           reconnectConnectionSocket();
+           
+           return;
+       }
        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
            "HTTPAcceptor - accept() failure.  errno: $0"
            ,errno);

@@ -76,6 +76,8 @@ public:
 
     static void uninitializeInterface();
 
+    static SocketHandle createSocket(int domain, int type, int protocol);
+
 private:
     Socket();
 };

@@ -109,6 +109,10 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       /** Destroys all the connections created by this acceptor. */
       void destroyConnections();
 
+      /** Close and Reopen the connection socket.
+        */
+      void reconnectConnectionSocket();
+
       /** Returns the number of outstanding requests
        */
       Uint32 getOutstandingRequestCount() const;

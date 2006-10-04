@@ -688,7 +688,7 @@ errcode = WSAGetLastError();
   interfaces = 1;
 
 #else
-  if( -1 < (sock = socket(AF_INET, SOCK_DGRAM, 0) ) ) {
+  if( -1 < (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0) ) ) {
     struct ifconf conf;
     uint32 *this_addr;
     int interface_counter;

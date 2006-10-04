@@ -39,17 +39,20 @@ include $(PEGASUS_ROOT)/mak/config.mak
 
 all:
 
-# Delete and rebuild the repository using the MOF compiler.
+# Delete and rebuild the core namespaces using the standalone MOF compiler.
+# This does not remove any other namespaces.
 repository:
 	$(MAKE) --directory=Internal repository
 	$(MAKE) --directory=InterOp repository
 	$(MAKE) --directory=ManagedSystem repository
 
+# Delete and rebuild the core namespaces using the client MOF compiler
 repositoryServer:
 	$(MAKE) --directory=Internal repositoryServer
 	$(MAKE) --directory=InterOp repositoryServer
 	$(MAKE) --directory=ManagedSystem repositoryServer
 
+# Clean out the core namespaces.
 clean:
 	$(MAKE) --directory=Internal clean
 	$(MAKE) --directory=InterOp clean

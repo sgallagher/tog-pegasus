@@ -84,10 +84,11 @@ usage: FORCE
 	$(USAGE)"buildmu             - builds the mu utility"
 	$(USAGE)"setupdevserver      - setup the development server env"
 	$(USAGE)"cleandevserver      - cleans the development server env"
-	$(USAGE)"repository          - builds the base repository"
+	$(USAGE)"repository          - builds the base repository. Does not remove other"
+	$(USAGE)"                      namespaces than the base namespaces."  
 	$(USAGE)"testrepository      - builds items for the test suites into the repository"
 	$(USAGE)"removetestrepository- removes test items from the repository"
-	$(USAGE)"repositoryclean     - cleans the repository"
+	$(USAGE)"repositoryclean     - removes the complete repository"
 	$(USAGE)"listplatforms       - List all valid platforms"
 	$(USAGE)
 	$(USAGE)"Test rules (accessable here but implemented in TestMakefile)"
@@ -259,7 +260,10 @@ clobber: FORCE
 
 
 #---------------------
-# The repository Target removes and rebuilds the CIM repository
+# The repository Target removes and rebuilds the base repository. It
+# does not remove all possible namespaces.  See
+# Schemas/Pegasus/Makefile for details. The repository clean has the
+# same limitation
 
 # Note: Arguments must be quoted to preserve upper case characters in VMS.
 repository: FORCE

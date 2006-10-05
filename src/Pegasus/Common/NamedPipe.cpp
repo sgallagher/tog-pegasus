@@ -1,7 +1,41 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #pragma warning(disable:4530)
 
-#include "NamedPipe.h"
-#include "Monitor.h"
+#include <Pegasus/Common/NamedPipe.h>
+#include <Pegasus/Common/Monitor.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -22,14 +56,22 @@ static inline String _SECONDARY_PIPE_NAME(const String & name)
 {
     return(name + "1");
 }
+////////////////////////////////////////////////////////////////////////////
+// Method Name      : read
+// Input Parameter  : pipe   - type HANDLE
+// Output Parameter : buffer - type Reference to String
+// Return Type      : bool
+// -----------------------------------------------------------------------
+// The method reads the data from the pipe and populates the data
+// into buffer. If status of read is returned as the return value
+///////////////////////////////////////////////////////////////////////////
 
-//this method should retrun a Message
 bool NamedPipe::read(HANDLE pipe, String & buffer)
 {
     // clear buffer
     buffer.clear();
 
-    for( ; ; )
+    for ( ; ; )
     {
         // read all data in pipe
         string raw(NAMEDPIPE_MAX_BUFFER_SIZE, string::value_type(0));
@@ -43,28 +85,35 @@ bool NamedPipe::read(HANDLE pipe, String & buffer)
                 0);
 
         // only fail is ::ReadFile returns false and some error other than more data
-        if((rc == FALSE) && (::GetLastError() != ERROR_MORE_DATA))
+        if ((rc == FALSE) && (::GetLastError() != ERROR_MORE_DATA))
         {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "::ReadFile() failed (RC = " << hex << ::GetLastError() << ")" << endl;
-            }
-#endif
-            return(false);                                                       }
+            return false;
+        }
 
-        //string temp(const raw);
+
         buffer.assign(raw.data());
 
         // check for message complete
-        if(rc == TRUE)
+        if (rc == TRUE)
         {
             break;
         }
     }
 
-    return(true);
+    return true;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// Method Name      : write
+// Input Parameter  : pipe    - type HANDLE
+//                    buffer  - type Reference to String
+//                    overlap - LPOVERLAPPED
+// Return Type      : bool
+// ----------------------------------------------------------------------------
+// The method writes the data from the buffer onto the pipe
+// Once the data is written to pipe, the writer waits untill
+// data is read by the peer. If status of write is returned as the return value
+///////////////////////////////////////////////////////////////////////////////
 
 // ATTN: need to update function to read data larger than MAX_BUFFER_SIZE
 //bool NamedPipe::write(HANDLE pipe, String & buffer)
@@ -80,55 +129,38 @@ bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
             &size,
             overlap);     //this should be the overlap
 
-    if(!rc)
+    if (!rc)
     {
         if (GetLastError() != 232)
         {
-           const char* lpMsgBuf;
-           LPVOID lpDisplayBuf;
-           DWORD dw = GetLastError();
+            const char* lpMsgBuf;
+            LPVOID lpDisplayBuf;
+            DWORD dw = GetLastError();
 
-           FormatMessage(
-              FORMAT_MESSAGE_ALLOCATE_BUFFER |
-              FORMAT_MESSAGE_FROM_SYSTEM,
-              NULL,
-              dw,
-              MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-              (LPTSTR) &lpMsgBuf,
-              0, NULL );
+            FormatMessage(
+               FORMAT_MESSAGE_ALLOCATE_BUFFER |
+               FORMAT_MESSAGE_FROM_SYSTEM,
+               NULL,
+               dw,
+               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+               (LPTSTR) &lpMsgBuf,
+               0, NULL );
 
-          lpDisplayBuf = LocalAlloc(LMEM_ZEROINIT, (strlen(lpMsgBuf)+90)*sizeof(TCHAR));
+            lpDisplayBuf = LocalAlloc(LMEM_ZEROINIT, 
+				           (strlen(lpMsgBuf)+90)*sizeof(TCHAR));
  #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-          printf("WriteFile in NamedPipe::write failed with error %d: %s", dw, lpMsgBuf);
+            printf("WriteFile in NamedPipe::write failed with error \
+				   %d: %s", dw, lpMsgBuf);
  #endif
-          //LocalFree(lpMsgBuf);
-          LocalFree(lpDisplayBuf);
-          //ExitProcess(dw);
-          return(false);
-       }
-       else
-       {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-           AutoMutex automut(Monitor::_cout_mut);
-           cout << "trying to write to connection that is closed" << endl;
-}
-#endif
-           /**************************************************
-            WW I think this is a hack - we shouldn't be writing to closed
-            connections. Each client should have it's own pipe - that way when
-            that client ends it only closed it's connection
-            *********************************************/
-
-       }
-
-           //cout << "::WriteFile() failed (RC = " << hex << ::GetLastError() << ")" << endl;
-
-
-
-
+            //LocalFree(lpMsgBuf);
+            LocalFree(lpDisplayBuf);
+            //ExitProcess(dw);
+            return false;
+        }
     }
-
+	// Wait for the client peer to read the data. This must be enabled
+	// for Chunking support
+    ::FlushFileBuffers (pipe);
     return(true);
 }
 
@@ -138,12 +170,6 @@ bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
 
 NamedPipeServer::NamedPipeServer(const String & pipeName)
 {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "Entering NamedPipeServer::NamedPipeServer()" << endl;
-    }
-#endif
     _name = pipeName;
     Boolean ConnectFailed = false;
     isConnectionPipe = true;
@@ -160,28 +186,18 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
             NAMEDPIPE_MAX_BUFFER_SIZE,
             MAX_TIMEOUT,
             0);   // NULL ??
-
-    if(_pipe.hpipe == INVALID_HANDLE_VALUE)
+        
+	if (_pipe.hpipe == INVALID_HANDLE_VALUE)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "NamedPipeServer::NamedPipeServer() - failed to create primary pipe" << endl;
-            cout << "::CreateNamedPipe() rc = " << ::GetLastError() << endl;
-        }
-#endif
-
         throw 0;
     }
+ 
+	// Set the isConnected flag which shall be used in Monitor::run 
+	connected();
+
     _pipe.overlap.Offset = 0;
     _pipe.overlap.OffsetHigh = 0;
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "NamedPipeServer::NamedPipeServer() - primary pipe created" << _pipe.hpipe << endl;
-    }
-#endif
     _pipe.overlap.hEvent = CreateEvent(NULL,    // default security attribute
                                        FALSE,
                                        FALSE,
@@ -189,273 +205,114 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
 
     if (_pipe.overlap.hEvent == NULL)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-         {
-             AutoMutex automut(Monitor::_cout_mut);
-             cout << " NamedPipeServer::NamedPipeServer() - Failed to create event." << endl;
-             cout << "CreateEvent failed with " << GetLastError() << "."<< endl;
-         }
-#endif
-         throw Exception("CreateEvet failed in NamedPipeServer constructor");
+        throw Exception("CreateEvet failed in NamedPipeServer constructor");
     }
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-     AutoMutex automut(Monitor::_cout_mut);
-    cout << " NamedPipeServer::NamedPipeServer() - creating Event "<< (int) _pipe.overlap.hEvent << endl;
-    }
-#endif
-    Boolean fconnected = false;
+    Boolean bIsconnected = false;
 
-    fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+    bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+    if (bIsconnected)
     {
-     AutoMutex automut(Monitor::_cout_mut);
-    cout << "Primary pipe in NamePipeServer::NamePipeServer : " << _pipe.hpipe << endl;
-
-    cout << "Primiary pipe overlap.hEvent in NamePipeServer::NamePipeServer : " << _pipe.overlap.hEvent << endl;
-    }
-#endif
-    if (fconnected)
-    {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-           AutoMutex automut(Monitor::_cout_mut);
-           cout << "NamedPipeServer::NamedPipeServer ConnectNamedPipe failed." << endl;
-        }
-#endif
             //SHOULD THROW AN EXCEPTION HERE
     }
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-     AutoMutex automut(Monitor::_cout_mut);
-    cout << "at the end of NamedPipeServer::NamedPipeServer" << endl;
-    }
-#endif
 
 }
 
 NamedPipeServer::~NamedPipeServer(void)
 {
-    cout << "NamedPipeServer::~NamedPipeServer()" << endl;
-
-    //::CloseHandle(_pipe.hpipe);
 }
 
 NamedPipeServerEndPiont NamedPipeServer::accept(void)
 {
 
-    Boolean fconnected = false;
+    Boolean bIsconnected = false;
     Boolean ConnectFailed = false;
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-     AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeServer::accept()" << endl;
-    }
-#endif
     // perform handshake
     String request(CONNECT_REQUEST);
     String response(CONNECT_RESPONSE);
 
     // get request
-    if(!NamedPipe::read(_pipe.hpipe, request))
+    if (!NamedPipe::read(_pipe.hpipe, request))
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "NamedPipeServer::accept() - read failed" << endl;
-        }
-#endif
-
         ::DisconnectNamedPipe(_pipe.hpipe);
-        fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+        bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+        if (bIsconnected)
         {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "In NamePipeServer::accept() - Primary pipe reconnecting after failed read: " << _pipe.hpipe << endl;
-        }
-#endif
-        if (fconnected)
-        {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-             {
-             AutoMutex automut(Monitor::_cout_mut);
-             cout << "NamedPipeServer::accept Primary - Pipe Failed to reconnect." << endl;
-             }
-#endif
             //should throw an exception here
-             throw(Exception("NamedPipeServer::accept Primary - Pipe Failed to reconnect."));
-            //return NULL;
+             throw(Exception("NamedPipeServer::accept Primary - Pipe Failed to \
+							 reconnect."));
         }
-       // return NULL;
-        throw(Exception("NamedPipeServer::accept Primary - Pipe Failed to reconnect."));
+       
+        throw(Exception("NamedPipeServer::accept Primary - Pipe Failed to \
+						reconnect."));
     }
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeServer::accept() - recv " << request << endl;
-    }
-#endif
 
-    if(request != CONNECT_REQUEST)
+    if (request != CONNECT_REQUEST)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "NamedPipeServer::accept() - incorrect request type" << endl;
-        }
-#endif
-
         ::DisconnectNamedPipe(_pipe.hpipe);
-        fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-       // fconnected = _connectToNamedPipe( _pipe.hpipe, NULL);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+        bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+       
+        if (bIsconnected)
         {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "In NamePipeServer::accept() - Primary Pipe reconnecting after incorrect request: " << _pipe.hpipe << endl;
-        }
-#endif
-        if (fconnected)
-        {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "NamedPipeServer::accept() - Primary Pipe Failed to reconnect." << endl;
-            }
-#endif
            //should throw an exception here
-           // return NULL;
-            throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
+            throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed\
+							 to reconnect."));
         }
-        //return NULL;
-        throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
+
+        throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed \
+						to reconnect."));
     }
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeServer::accept() - Creating Secondary Pipe " << request << endl;
-    }
-#endif
 
     PEGASUS_NAMEDPIPE* pipe2 = new PEGASUS_NAMEDPIPE;
 
     pipe2->overlap.Offset = 0;
     pipe2->overlap.OffsetHigh = 0;
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeServer::accept() - Creating Secondary Pipe " << request << endl;
-    }
-#endif
 
     // create a secondary named pipe for processing requests
     pipe2->hpipe =
     ::CreateNamedPipe(
             _SECONDARY_PIPE_NAME(_name).getCString(),
-            PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,   // PIPE_ACCESS_DUPLEX |  FILE_FLAG_OVERLAPPED, // read/write   ??
+            PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,   
             PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
             PIPE_UNLIMITED_INSTANCES,
             NAMEDPIPE_MAX_BUFFER_SIZE,
             NAMEDPIPE_MAX_BUFFER_SIZE,
             MAX_TIMEOUT,
-            0);   // NULL ??
+            0);   
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+    if (pipe2->hpipe == INVALID_HANDLE_VALUE)
     {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeServer::accept() - After creating secondary pipe" << endl;
-    }
-#endif
-
-    if(pipe2->hpipe == INVALID_HANDLE_VALUE)
-    {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "NamedPipeServer::accept() - failed to create secondary pipe" << endl;
-        cout << "::CreateNamedPipe() rc = " << ::GetLastError() << endl;
-        }
-#endif
-
         ::DisconnectNamedPipe(_pipe.hpipe);
-        fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+        bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+        if (bIsconnected)
         {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "In NamePipeServer::accept() - Primary Pipe reconnecting after failing to create secondary pipe. " << _pipe.hpipe << endl;
-        }
-#endif
-        if (fconnected)
-        {
-
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "NamedPipeServer::accept() - Primary Pipe Failed to reconnect." << endl;
-            }
-#endif
            //should throw an exception here
-           // return NULL;
-           throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
+           throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed\
+						    to reconnect."));
         }
         // temp debug code to detect pipe creating failures
         throw 0;
 
-        //return NULL;
     }
-
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeServer::accept() - secondary pipe successfully created" << endl;
-
-       // send response
-    cout << "NamedPipeServer::accept() - send "  << response << endl;
-    }
-#endif
 
     if(!NamedPipe::write(_pipe.hpipe, response))
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-        AutoMutex automut(Monitor::_cout_mut);
-         cout << "NamedPipeServer::accept() - write failed" << endl;
-        }
-#endif
         ::DisconnectNamedPipe(_pipe.hpipe);
         ::CloseHandle(pipe2->hpipe);
-        fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+        bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+        if (bIsconnected)
         {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "In NamePipeServer::accept() - Primary Pipe reconnecting after write failure." << _pipe.hpipe << endl;
+            //should throw an exception here
+            throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed\
+							to reconnect."));
         }
-#endif
-        if (fconnected)
-        {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "NamedPipeServer::accept() - Primary Pipe Failed to reconnect." << endl;
-            }
-#endif
-           //should throw an exception here
-           // return NULL;
-           throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
-        }
-        //return NULL;
-        throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
+        throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to\
+						reconnect."));
     }
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-     cout << "NamedPipeServer::accept() - waiting for connection " << _SECONDARY_PIPE_NAME(_name) << endl;
-    }
-#endif
     pipe2->overlap.hEvent = CreateEvent(NULL,    // default security attribute
                                        FALSE,
                                        FALSE,
@@ -463,85 +320,34 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
 
     if (pipe2->overlap.hEvent == NULL)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-         {
-         AutoMutex automut(Monitor::_cout_mut);
-         cout << " NamedPipeServer::accept failed to create event for secondary pipe." << endl;
-         cout << "CreateEvent failed with " << GetLastError() << "."<< endl;
-         }
-#endif
-         throw 0;
+        throw 0;
     }
 
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+    bIsconnected = _connectToNamedPipe(pipe2->hpipe, &pipe2->overlap);
+    if (bIsconnected)
     {
-        AutoMutex automut(Monitor::_cout_mut);
-    cout << " NamedPipeServer::accept - Creating Event "<< pipe2->overlap.hEvent << endl;
-    }
-#endif
-    fconnected = _connectToNamedPipe(pipe2->hpipe, &pipe2->overlap);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "In NamePipeServer::accept() - Secondary Pipe connecting.... " << _pipe.hpipe << endl;
-}
-#endif
-    if (fconnected)
-    {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "NamedPipeServer::accept() - Secondary Pipe Failed to reconnect." << endl;
-}
-#endif
-       //should throw an exception here
         ::DisconnectNamedPipe(_pipe.hpipe);
         ::CloseHandle(pipe2->hpipe);
-        fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "In NamePipeServer::accept() - Primary Pipe reconnecting after Secondary Pipe connection failure. " << _pipe.hpipe << endl;
-}
-#endif
-        if (fconnected)
+        bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+        if (bIsconnected)
         {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "NamedPipeServer::accept() - Primary Pipe Failed to reconnect." << endl;
-}
-#endif
-           //should throw an exception here
-            //return NULL;
-            throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
+            //should throw an exception here
+            throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed\
+							to reconnect."));
         }
 
-        //return NULL;
-        throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
+        throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to \
+						reconnect."));
     }
 
     // disconnect primary pipe so it can respond to other requests
     ::DisconnectNamedPipe(_pipe.hpipe);
 
-    fconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "In NamePipeServer::accept() - Primary Pipe reconnecting after disconnecting from prev. client. " << _pipe.hpipe << endl;
-}
-#endif
-    if (fconnected)
+    bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
+    if (bIsconnected)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "NamedPipeServer::accept() - Primary Pipe Failed to reconnect." << endl;
-}
-#endif
-       //should throw an exception here
-        //return NULL;
+        //should throw an exception here
         throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
     }
 
@@ -549,28 +355,21 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
     // and closing the pipe
 
     //NOTE:: I am not sure how to give each new Pipe a new name
+	connected();
     return(NamedPipeServerEndPiont(String("Operationpipe"), *pipe2));
 }
 
 Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
 {
 
-    Boolean fconnected = false;
+    Boolean bIsconnected = false;
     Boolean ConnectFailed = false;
 
-    fconnected = ConnectNamedPipe(pipe, overlap);
-    if (fconnected)
+    bIsconnected = ConnectNamedPipe(pipe, overlap);
+    if (bIsconnected)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-          AutoMutex automut(Monitor::_cout_mut);
-          cout << "Main:: ConnectNamedPipe failed." << endl;
-}
-#endif
-
           ::CloseHandle(pipe);
-          //::DisconnectNamedPipe(namedPipes[0].hpipe);
-          return fconnected;
+          return bIsconnected;
      }
     switch (GetLastError())
     {
@@ -583,42 +382,32 @@ Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
         case ERROR_PIPE_CONNECTED:
         {
             if (SetEvent(overlap->hEvent))
-                 break;
+			{
+                break;
+			}
         }
-     // JA  listening
-    case ERROR_PIPE_LISTENING:
+
+        case ERROR_PIPE_LISTENING:
         {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "in NamedPipe::_connectToNamedPipe server in connected and listening" << endl;
-}
-#endif
             break;
         }
 
         //ABB: If an error occurs during the connect operation...
-       default:
-       {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-          AutoMutex automut(Monitor::_cout_mut);
-          cout << "ConnectNamedPipe failed with " << GetLastError() << "." << endl;
-}
-#endif
-          //return -1;
-          ConnectFailed = true;
-          break;
-       }
+        default:
+        {
+            //return -1;
+            ConnectFailed = true;
+            break;
+        }
     }
 
     if (ConnectFailed)
     {
         ::CloseHandle(pipe);
-        //::DisconnectNamedPipe(namedPipes[0].hpipe);
         return ConnectFailed;
     }
-    return fconnected;
+	connected();
+    return bIsconnected;
 
 }
 
@@ -630,41 +419,20 @@ NamedPipeClient::NamedPipeClient(const String & name)
 {
     isConnectionPipe = false;
     _name = (name);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeClient::NamedPipeClient()" << endl;
-}
-#endif
 }
 
 NamedPipeClient::~NamedPipeClient(void)
 {
-    cout << "NamedPipeClient::~NamedPipeClient()" << endl;
 }
 
-//HANDLE NamedPipeClient::connect(void) const
-//HANDLE NamedPipeClient::connect(void)
 NamedPipeClientEndPiont NamedPipeClient::connect(void)
 {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeClient::connect() - " << _PRIMARY_PIPE_NAME(_name) << endl;
-}
-#endif
     // perform handshake
     string request(CONNECT_REQUEST);
     string response(CONNECT_RESPONSE);
 
     DWORD size = 0;
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeClient::connect() - send " << request.data() << endl;
-}
-#endif
     BOOL rc =
         ::CallNamedPipe(
             _PRIMARY_PIPE_NAME(_name).getCString(),
@@ -675,51 +443,25 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
             &size,
             MAX_TIMEOUT);
 
-    if(rc == 0)
+    if (rc == 0)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "NamedPipeClient::connect() - failed to call primary pipe" << endl;
-        cout << "::CallNamedPipe() rc = " << ::GetLastError() << endl;
-}
-#endif
-        throw(Exception("NamedPipeClient::connect() - failed to call primary pipe"));
+        throw(Exception("NamedPipeClient::connect() - failed to call \
+						primary pipe"));
     }
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeClient::connect() - recv " << response.data() << endl;
-}
-#endif
-    if(strcmp(response.data(), CONNECT_RESPONSE))
-   // if(response. != CONNECT_RESPONSE)
+    if (strcmp (response.data(), CONNECT_RESPONSE))
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "NamedPipeClient::connect() - incorrect response" << endl;
-        }
-#endif
-       throw(Exception("NamedPipeClient::connect() - Incorrect response"));
+        throw(Exception("NamedPipeClient::connect() - Incorrect response"));
     }
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeClient::connect() - connecting to " << _SECONDARY_PIPE_NAME(_name) << endl;
-    }
-#endif
-    //HANDLE pipe2 = INVALID_HANDLE_VALUE;
     PEGASUS_NAMEDPIPE* pipe2 = new PEGASUS_NAMEDPIPE;
     pipe2->overlap.Offset = 0;
     pipe2->overlap.OffsetHigh = 0;
-    for( ; ; )
+    for ( ; ; )
     {
         pipe2->hpipe =
             ::CreateFile(
-                _SECONDARY_PIPE_NAME(_name).getCString(), //does this name need to be uniqe for each additiaonl client
+                _SECONDARY_PIPE_NAME(_name).getCString(),
                 GENERIC_READ | GENERIC_WRITE,
                 0,
                 0,
@@ -727,40 +469,22 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
                 FILE_FLAG_OVERLAPPED,
                 0);
 
-        if(pipe2->hpipe != INVALID_HANDLE_VALUE)
+        if (pipe2->hpipe != INVALID_HANDLE_VALUE)
         {
-            //throw(Exception("NamedPipeClient::connect() - failed to connect to secondary pipe - invalid handle"));
             break;
         }
 
-        if(::GetLastError() != ERROR_PIPE_BUSY)
+        if (::GetLastError() != ERROR_PIPE_BUSY)
         {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "NamedPipeClient::connect() - failed to connect to secondary pipe" << endl;
-            cout << "::CreateFile() rc = " << ::GetLastError() << endl;
-            }
-#endif
-            throw(Exception("NamedPipeClient::connect() - failed to connect to secondary pipe"));
+            throw(Exception("NamedPipeClient::connect() - failed to connect \
+							to secondary pipe"));
         }
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+        if (::WaitNamedPipe(_SECONDARY_PIPE_NAME(_name).getCString(),
+			                MAX_TIMEOUT) == FALSE)
         {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "NamedPipeClient::connect() - pipe is busy. waiting..." << endl;
-        }
-#endif
-        if(::WaitNamedPipe(_SECONDARY_PIPE_NAME(_name).getCString(), MAX_TIMEOUT) == FALSE)
-        {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "NamedPipeClient::connect() - timed out waiting for secondary pipe" << endl;
-            cout << "::WaitNamedPipe() rc = " << ::GetLastError() << endl;
-            }
-#endif
-            throw(Exception("NamedPipeClient::connect() - timed out waiting for secondary pipe"));
+            throw(Exception("NamedPipeClient::connect() - timed out waiting\
+							for secondary pipe"));
         }
     }
 
@@ -773,17 +497,9 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
             0,
             0);
 
-    if(rc == FALSE)
+    if (rc == FALSE)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "NamedPipeClient::connect() - failed to set state for primary pipe" << endl;
-        cout << "::SetNamedPipeState() rc = " << ::GetLastError() << endl;
-        }
-#endif
         ::CloseHandle(pipe2->hpipe);
-
         throw(Exception("NamedPipeClient::connect() - failed to set state for primary pipe"));
 
     }
@@ -795,49 +511,24 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
 
     if (pipe2->overlap.hEvent  == NULL)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-         {
-         AutoMutex automut(Monitor::_cout_mut);
-         cout << " NamedPipeServer::connect failed to create event for secondary pipe." << endl;
-         cout << "CreateEvent failed with " << GetLastError() << "."<< endl;
-         }
-#endif
          throw(Exception("NamedPipeServer::connect failed to create event for secondary pipe."));
-
     }
 
     // the caller is responsible for disconnecting the pipe
     // and closing the pipe
     NamedPipeClientEndPiont* nPCEPoint = new NamedPipeClientEndPiont(String("Operationpipe"), *pipe2);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "just creaed a pipe named - " << nPCEPoint->getName() << endl;
-    }
-#endif
+	nPCEPoint->connected();
     return(*nPCEPoint);
 }
 
 void NamedPipeClient::disconnect(HANDLE pipe) const
 {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeClient::disconnect() - " << _SECONDARY_PIPE_NAME(_name) << endl;
-    }
-#endif
     // perform handshake
     string request(DISCONNECT_REQUEST);
     string response(DISCONNECT_RESPONSE);
 
     DWORD size = 0;
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeClient::disconnect() - send " << request.data() << endl;
-    }
-#endif
     BOOL rc =
         ::TransactNamedPipe(
             pipe,
@@ -848,36 +539,18 @@ void NamedPipeClient::disconnect(HANDLE pipe) const
             &size,
             0);
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "NamedPipeClient::disconnect() - recv " << response.data() << endl;
-    }
-#endif
     if(rc = FALSE)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "NamedPipeClient::disconnect() - failed to call primary pipe" << endl;
-        cout << "::TransactNamedPipe() rc = " << ::GetLastError() << endl;
-        }
-#endif
         //return(0);
     }
 
-    ::CloseHandle(pipe);
+
 }
 
 NamedPipeServerEndPiont::NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct)
 {
     isConnectionPipe = false;
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "in NamedPipeServerEndPiont constructor " << endl;
-    }
-#endif
+	connected();
     _name = name;
     _pipe = pipeStruct;
 
@@ -886,12 +559,7 @@ NamedPipeServerEndPiont::NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE 
 NamedPipeClientEndPiont::NamedPipeClientEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct)
 {
     isConnectionPipe = false;
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "in NamedPipeServerEndPiont constructor " << endl;
-    }
-#endif
+    _isConnected = false;
     _name = name;
     _pipe = pipeStruct;
 
@@ -899,6 +567,7 @@ NamedPipeClientEndPiont::NamedPipeClientEndPiont(String name, PEGASUS_NAMEDPIPE 
 
 NamedPipeServerEndPiont::~NamedPipeServerEndPiont()
 {
+	
 }
 
 NamedPipeClientEndPiont::~NamedPipeClientEndPiont()

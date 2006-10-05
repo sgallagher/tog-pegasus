@@ -29,28 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Mike Day (mdday@us.ibm.com)
-//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//              Nag Boranna (nagaraja_boranna@hp.com)
-//              Jenny Yu (jenny_yu@hp.com)
-//              Sushma Fernandes (sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//              Humberto Rivero (hurivero@us.ibm.com)
-//              Steve Hills (steve.hills@ncr.com)
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Amit K Arora, IBM (amitarora@in.ibm.com) - pep 167
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2555
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2032
-//              Heather Sterling, IBM (hsterl@us.ibm.com) - PEP#222
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#3452
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM (aruran.shanmug@in.ibm.com) for Bug# 4183, 4937
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1349,7 +1327,11 @@ MessageLoader::_useProcessLocale = false;
                 "Listening on Export HTTPS port $0.", portNumberExportHttps);
         }
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-        _cimServer->addAcceptor(true, 0, false, false);
+		// To Support multiple NamedPipe Clients create multiple ACCEPTORS
+		for (int pipeInstance = 0; pipeInstance < MAX_PIPE_INSTANCES; pipeInstance++)
+		{
+            _cimServer->addAcceptor(true, 0, false, false);
+		}
         //l10n
         //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                     //"Listening on local connection socket.");

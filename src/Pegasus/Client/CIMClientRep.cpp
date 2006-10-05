@@ -29,20 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
-//
-// Modified By: Dan Gorey (djgorey@us.ibm.com)
-//              Amit Arora (amita@in.ibm.com) for Bug#1170
-//              Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
-//              Seema Gupta (gseema@in.ibm.com) for PEP135
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
-//              Amit Arora (amita@in.ibm.com) for Bug#2040
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Willis White, IBM <whiwill@us.ibm.com)
-//              Josephine Eskaline Joyce, IBM <jojustin@in.ibm.com) for Bug#2108
-//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -81,7 +67,8 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     //
     // Create Monitor and HTTPConnector
     //
-    _monitor.reset(new Monitor());
+
+	_monitor.reset(new Monitor());
     _httpConnector.reset(new HTTPConnector(_monitor.get()));
 
 // l10n
@@ -159,6 +146,7 @@ void CIMClientRep::_connect()
     //
     // Attempt to establish a connection:
     //
+
     AutoPtr<HTTPConnection> httpConnection(_httpConnector->connect(
                                               _connectHost,
                                               _connectPortNumber,
@@ -1071,20 +1059,12 @@ Message* CIMClientRep::_doRequest(
         throw NotConnectedException();
     }
 
-    try
-    {
-        _reconnect();
-    }
-    catch (...)
-    {
-    }
-
     String messageId = XmlWriter::getNextMessageId();
     const_cast<String &>(request->messageId) = messageId;
 
     _authenticator.setRequestMessage(0);
 
-    // ATTN-RK-P2-20020416: We should probably clear out the queue first.
+	// ATTN-RK-P2-20020416: We should probably clear out the queue first.
     PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue
 
     //
@@ -1139,8 +1119,9 @@ Message* CIMClientRep::_doRequest(
             // if Server response contained a Connection: Close Header
             //
             if (response->getCloseConnect() == true){
-                _reconnect();
-                response->setCloseConnect(false);
+
+               _reconnect();
+               response->setCloseConnect(false);
             }
 
             //
@@ -1299,13 +1280,13 @@ Message* CIMClientRep::_doRequest(
     //
     // Reconnect to reset the connection (disregard late response)
     //
-    //try
-    //{
-        //_reconnect();
-    //}
-    //catch (...)
-    //{
-    //}
+    try
+    {
+        _reconnect();
+    }
+    catch (...)
+    {
+    }
 
     //
     // Throw timed out exception:

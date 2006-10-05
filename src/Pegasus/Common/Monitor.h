@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Amit Arora (amita@in.ibm.com) for Bug#1170
-//              Sushma Fernandes (sushma@hp.com) for Bug#2057
-//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 

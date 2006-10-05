@@ -29,24 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//         Dave Rosckes (rosckes@us.ibm.com)
-//         Amit Arora, IBM (amita@in.ibm.com)
-//         Heather Sterling, IBM (hsterl@us.ibm.com)
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
-//         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097
-//         Sushma Fernandes, IBM (sushma@hp.com) for Bug#2057
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
-//         Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
-//         David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//         John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -289,6 +271,7 @@ HTTPConnection::HTTPConnection(
     _contentLength(-1),
     _connectionClosePending(false),
     _acceptPending(false)
+	
 {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
@@ -340,15 +323,6 @@ HTTPConnection::~HTTPConnection()
       {
           if (!_namedPipe.getPipe())
               return;
-          BOOL closeRes = CloseHandle(_namedPipe.getPipe());
-          if (closeRes == 0)
-          {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-              AutoMutex automut(Monitor::_cout_mut);
-              cout << "CloseHandle failed in HTTPConnection::~HTTPConnection() with " <<
-                      "error code " << GetLastError() << endl;
-#endif
-          }
       }
 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
@@ -426,18 +400,25 @@ void HTTPConnection::handleEnqueue(Message *message)
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             if(_namedPipeConnection)
             {
+# ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+
                 {
                     AutoMutex automut(Monitor::_cout_mut);
                     PEGASUS_STD(cout) << " this connection thinks it is a Pipe connection" << endl;
                 }
-            }
+# endif
+			}
             else
 #endif
             {
-                {
+# ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+
+				{
                     AutoMutex automut(Monitor::_cout_mut);
                     PEGASUS_STD(cout) << " this connection thinks it is not a Pipe connection" << endl;
                 }
+
+# endif
             }
 
             _handleWriteEvent(*message);
@@ -459,6 +440,10 @@ void HTTPConnection::handleEnqueue(Message *message)
 #endif
 
             NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
+			if(_isClient())
+			{
+				//Sleep(5000);
+			}
             if (namedPipeMessage->events & NamedPipeMessage::READ)
                 _handleReadEvent();
             break;
@@ -499,23 +484,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     String messageForNamePipe;
 #endif
-    Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "handleWriteEvent");
 
-    if (_namedPipeConnection)
-    {
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            PEGASUS_STD(cout) << "HTTPConnection::_handleWriteEvent at the begining for a named pipe connection" <<
-             PEGASUS_STD(endl);
-        }
-    }
-    else
-    {
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            PEGASUS_STD(cout) << "HTTPConnection::_handleWriteEvent - thinks it's not a named pipe" << endl;
-        }
-    }
 
     try
     {
@@ -553,8 +522,11 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 // this is coming from our own internal code, therefore it is an
                 // internal error. somehow the chunks came out of order.
                 if (_transferEncodingChunkOffset+1 != messageIndex)
-                    _throwEventFailure(httpStatusInternal, "chunk sequence mismatch");
-                _transferEncodingChunkOffset++;
+				{
+				    _throwEventFailure(httpStatusInternal, "chunk sequence mismatch");
+                }                
+				_transferEncodingChunkOffset++;
+				
             }
 
             // save the first error
@@ -572,10 +544,17 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             else if (cimException.getCode() == CIM_ERR_SUCCESS)
             {
                 if (isFirst == true)
+				{
                     contentLanguages = httpMessage.contentLanguages;
+				}
                 else if (httpMessage.contentLanguages != contentLanguages)
+				{
                     contentLanguages.clear();
-                else contentLanguages = httpMessage.contentLanguages;
+				}
+                else 
+				{
+					contentLanguages = httpMessage.contentLanguages;
+				}
             }
             // check to see if the client requested chunking OR trailers. trailers
             // are tightly integrated with chunking, so it can also be used.
@@ -587,7 +566,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             else
             {
                 // we are not sending chunks because the client did not request it
-                // save the entire FIRST error response for non-chunked error responses
+
+				// save the entire FIRST error response for non-chunked error responses
                 // this will be used as the error message
 
                 if (isFirstException == true)
@@ -673,7 +653,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 // Note: this gets the content length from subtracting the header
                 // length from the messageLength, not by parsing the content length
                 // header field
-
                 httpMessage.parse(startLine, headers, contentLength);
                 Uint32 httpStatusCode = 0;
                 String httpVersion;
@@ -749,7 +728,9 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     //  (meaning the data is coming in pieces and we should send chunked)
 
                     if (isChunkRequest == true &&    (contentLength > 0 || isLast == false))
-                        isChunkResponse = true;
+					{
+					    isChunkResponse = true;
+					} 
 
                     save = contentLengthStart[contentLengthLineLengthExpected];
                     contentLengthStart[contentLengthLineLengthExpected] = 0;
@@ -849,7 +830,10 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                         }  // endif kerberos security assoc exists
 #endif
                     } // if this is the last chunk
-                    else bytesRemaining = 0;
+                    else 
+					{
+					    bytesRemaining = 0;
+					}
                 } // if chunk request is false
             } // if this is the first chunk containing the header
             else
@@ -867,27 +851,26 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             // the data is sitting in buffer, but we want to cache it in
             // _incomingBuffer because there may be more chunks to append
             if (isChunkRequest == false)
-                _incomingBuffer.swap(buffer);
+			{
+			    _incomingBuffer.swap(buffer);
+			}
 
         } // if not a client
 
 // Added for NamedPipe implementation for windows
 #ifdef PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-        if(!_namedPipeConnection)
+        if (!_namedPipeConnection)
         {
-           _socket->enableBlocking();
-        }
- #else
+		    _socket->enableBlocking();
+        }// This condition for NamedPipe has been inplemented in 
+		 // NamedPipe::write
+
+#else
         _socket->enableBlocking();
- #endif
+#endif
 
         SignalHandler::ignore(PEGASUS_SIGPIPE);
 
-        // use the next four lines to test the SIGABRT handler
-        //getSigHandle()->registerHandler(PEGASUS_SIGABRT, sig_act);
-        //getSigHandle()->activate(PEGASUS_SIGABRT);
-        //Thread t(sigabrt_generator, NULL, false);
-        //t.run();
 
         static const char errorSocket[] = "socket write error";
 
@@ -899,7 +882,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         Sint32 bytesWritten = 0;
 
         if (isFirst == true && isChunkResponse == true && bytesToWrite > 0)
-        {
+        {    
             // send the header first for chunked reponses.
             // dont include header terminator yet
             Uint32 headerLength = bytesToWrite;
@@ -907,95 +890,79 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-        if(_namedPipeConnection)
-        {
-
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+            if (_namedPipeConnection)
             {
-               AutoMutex automut(Monitor::_cout_mut);
-               PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent append 1" << PEGASUS_STD(endl);
-            }
-#endif
-            DWORD size = 0;
 
-             messageForNamePipe.append(buffer.getData(),bytesToWrite);
-             bytesWritten = bytesToWrite;
-        }
-        else
-        {
+                DWORD size = 0;
+             
+			    // Write to pipe is simulated by copying data into 
+			    // messageForNamePipe buffer. The data is written finally
+
+                messageForNamePipe.append(buffer.getData(),bytesToWrite);
+		        bytesWritten = bytesToWrite;
+            }
+            else
+            {
 #endif
-            bytesWritten = _socket->write(sendStart, bytesToWrite);
-            if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
+                bytesWritten = _socket->write(sendStart, bytesToWrite);
+                if (bytesWritten < 0)
+			    {
+                    _throwEventFailure(httpStatusInternal, errorSocket);
+			    }
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-        }
-#endif
-
-/*#else
-
-            bytesWritten = _socket->write(sendStart, bytesToWrite);
-            if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
-#endif*/
-            totalBytesWritten += bytesWritten;
-            bytesRemaining -= bytesWritten;
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "after first 'bytesRemaining -= bytesWritten;' - bytesWritten = " << bytesWritten <<
-                    " and bytesRemaining = " << bytesRemaining << endl;
             }
 #endif
-            // put in trailer header.
+
+            totalBytesWritten += bytesWritten;
+            bytesRemaining -= bytesWritten;
+
+			// put in trailer header.
             Buffer trailer;
             trailer << headerNameTrailer << headerNameTerminator <<
-                _mpostPrefix << headerNameCode <<    headerValueSeparator <<
-                _mpostPrefix << headerNameDescription << headerValueSeparator <<
-                headerNameContentLanguage << headerLineTerminator;
+                 _mpostPrefix << headerNameCode << headerValueSeparator <<
+                 _mpostPrefix << headerNameDescription << headerValueSeparator
+				 << headerNameContentLanguage << headerLineTerminator;
             sendStart = (char *) trailer.getData();
             bytesToWrite = trailer.size();
 
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-        if(_namedPipeConnection)
-        {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+            if (_namedPipeConnection)
             {
-                AutoMutex automut(Monitor::_cout_mut);
-                PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent append 2" << PEGASUS_STD(endl);
+# ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+                {
+                    AutoMutex automut(Monitor::_cout_mut);
+                    PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent append 2" << PEGASUS_STD(endl);
+                }
+# endif
+                DWORD size = 0;
+			    messageForNamePipe.append (trailer.getData(),trailer.size());
+                bytesWritten = trailer.size();
+# ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+
+               {
+                   AutoMutex automut(Monitor::_cout_mut);
+                   PEGASUS_STD(cout) << " IN HTTPConnection  - messageForNamePipe looks like this" << messageForNamePipe << PEGASUS_STD(endl);
+                   PEGASUS_STD(cout) << "namedpipe = " << _namedPipe.getPipe() << PEGASUS_STD(endl);
+                   PEGASUS_STD(cout) << "Trailer = " << trailer.getData() << "trailer size = " << bytesToWrite << PEGASUS_STD(endl);
+                   PEGASUS_STD(cout) << "sendStart is " << sendStart << PEGASUS_STD(endl);
+               }
+# endif
+
             }
+            else
+            {
 #endif
-            DWORD size = 0;
-              messageForNamePipe.append(trailer.getData(),trailer.size());
-              bytesWritten = trailer.size();
-
-           {
-                AutoMutex automut(Monitor::_cout_mut);
-                PEGASUS_STD(cout) << " IN HTTPConnection  - messageForNamePipe looks like this" << messageForNamePipe << PEGASUS_STD(endl);
-                PEGASUS_STD(cout) << "namedpipe = " << _namedPipe.getPipe() << PEGASUS_STD(endl);
-                PEGASUS_STD(cout) << "Trailer = " << trailer.getData() << "trailer size = " << bytesToWrite << PEGASUS_STD(endl);
-                PEGASUS_STD(cout) << "sendStart is " << sendStart << PEGASUS_STD(endl);
-           }
-
-        }
-        else
-        {
-#endif
-            bytesWritten = _socket->write(sendStart, bytesToWrite);
-            if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
+                bytesWritten = _socket->write(sendStart, bytesToWrite);
+                if (bytesWritten < 0)
+				{
+                    _throwEventFailure(httpStatusInternal, errorSocket);
+				}
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-        }
+            }
 #endif
-/*#else
-
-            bytesWritten = _socket->write(sendStart, bytesToWrite);
-
-            if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
-#endif*/
             totalBytesWritten += bytesWritten;
             // the trailer is outside the header buffer, so dont include in
             // tracking variables
@@ -1006,42 +973,43 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-        if(_namedPipeConnection)
-        {
+            if (_namedPipeConnection)
+            {
+                DWORD size = 0;
+			
+                messageForNamePipe.append(sendStart,headerLineTerminatorLength);
+			    bytesWritten = headerLineTerminatorLength;
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent append 3" << PEGASUS_STD(endl);
-            }
-#endif
-            DWORD size = 0;
+                {
+                    AutoMutex automut(Monitor::_cout_mut);
 
-              messageForNamePipe.append(sendStart,headerLineTerminatorLength);
-              bytesWritten = headerLineTerminatorLength;
+                    PEGASUS_STD(cout) 
+				    <<"IN HTTPConnection - messageForNamePipe looks like this" 
+					                  << messageForNamePipe 
+					                  << PEGASUS_STD(endl);
 
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                PEGASUS_STD(cout) << " IN HTTPConnection  - messageForNamePipe looks like this" << messageForNamePipe << PEGASUS_STD(endl);
-                PEGASUS_STD(cout) << "namedpipe = " << _namedPipe.getPipe() << PEGASUS_STD(endl);
-                PEGASUS_STD(cout) << "sendStart = " << sendStart << "bytesToWrite = " << bytesToWrite << PEGASUS_STD(endl);
-            }
-        }
-        else
-        {
+                    PEGASUS_STD(cout) << "namedpipe = " << _namedPipe.getPipe()
+					                  << PEGASUS_STD(endl);
+                     
+				    PEGASUS_STD(cout) << "sendStart = " << sendStart
+						               << "bytesToWrite = " 
+					                   << bytesToWrite << PEGASUS_STD(endl);
+                }
 #endif
-            bytesWritten = _socket->write(sendStart, bytesToWrite);
-            if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
+		    }
+            else
+            {
+#endif
+                bytesWritten = _socket->write(sendStart, bytesToWrite);
+                if (bytesWritten < 0)
+			    {
+                     _throwEventFailure(httpStatusInternal, errorSocket);
+			    }
 
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-       }
+            }
 #endif
-/*#else
-            bytesWritten = _socket->write(sendStart, bytesToWrite);
-            if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
-#endif*/
             totalBytesWritten += bytesWritten;
             bytesRemaining -= bytesWritten;
             messageStart += headerLength;
@@ -1053,132 +1021,74 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
         // room enough for hex string representing chunk length and terminator
         char chunkLine[sizeof(Uint32)*2 + chunkLineTerminatorLength+1];
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "bytesRemaining = " << bytesRemaining << endl;
-        }
-#endif
         for (; bytesRemaining > 0; )
         {
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "In For Loop : bytesRemaining = " << bytesRemaining << endl;
-                cout << " In for loop before chunkResponse ...byites to write  --- " << bytesToWrite << endl;
-
-            }
 
             if (isChunkResponse == true)
             {
                 // send chunk line containing hex string and chunk line terminator
-                {
-                    AutoMutex automut(Monitor::_cout_mut);
-                    cout << " In for loop_chunkResposne ...byites to write  --- " << bytesToWrite << endl;
-                }
                 sprintf(chunkLine, "%x%s", bytesToWrite, chunkLineTerminator);
                 sendStart = chunkLine;
                 Sint32 chunkBytesToWrite = strlen(sendStart);
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined (PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-                if(_namedPipeConnection)
+                if (_namedPipeConnection)
                 {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                    {
-                        AutoMutex automut(Monitor::_cout_mut);
-                        PEGASUS_STD(cout) << " In .... Chunck response.. --- " << bytesRemaining << PEGASUS_STD(endl);
-                        PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent append 4" << PEGASUS_STD(endl);
-                    }
-#endif
                     DWORD size = 0;
-                    messageForNamePipe.append(chunkLine,chunkBytesToWrite);
-                    bytesWritten = chunkBytesToWrite;
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                    {
-                        AutoMutex automut(Monitor::_cout_mut);
-                        PEGASUS_STD(cout) << "namedpipe = " << _namedPipe.getPipe() << PEGASUS_STD(endl);
-                        PEGASUS_STD(cout) << "chunkLine = " << chunkLine << PEGASUS_STD(endl);
-                        PEGASUS_STD(cout) << "sendStart = " << sendStart << "chunkBytesToWrite = " << chunkBytesToWrite << PEGASUS_STD(endl);
-                        PEGASUS_STD(cout) << " IN HTTPConnection  - messageForNamePipe looks like this" << messageForNamePipe << PEGASUS_STD(endl);
-                    }
+                    messageForNamePipe.append(sendStart,chunkBytesToWrite);
+				    bytesWritten = chunkBytesToWrite;
+                }
+                else
+                {
 #endif
-               }
-               else
-               {
-#endif
-                   bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
-                   if (bytesWritten < 0)
-                       _throwEventFailure(httpStatusInternal, errorSocket);
+                    bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
+                    if (bytesWritten < 0)
+					{
+                        _throwEventFailure(httpStatusInternal, errorSocket);
+					}
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-               }
+                }
 #endif
-/*#else
-
-               bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
-               if (bytesWritten < 0)
-                  _throwEventFailure(httpStatusInternal, errorSocket);
-#endif*/
-                 totalBytesWritten += bytesWritten;
-            }
+                totalBytesWritten += bytesWritten;
+			}
             // for chunking, we will send the entire chunk data in one send, but
             // for non-chunking, we will send incrementally
             else
-                bytesToWrite = _Min(bytesRemaining, bytesToWrite);
-
+			{
+                bytesToWrite = _Min (bytesRemaining, bytesToWrite);
+			} 
             // send non-chunked data
             sendStart = messageStart + messageLength - bytesRemaining;
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                PEGASUS_STD(cout) << "bytesRemaining = " << bytesRemaining << PEGASUS_STD(endl);
-            }
-#endif
 
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-        if(_namedPipeConnection)
-        {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+            if (_namedPipeConnection)
             {
-                AutoMutex automut(Monitor::_cout_mut);
-                PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent append 5" << PEGASUS_STD(endl);
+                DWORD size = 0;
+				messageForNamePipe.append(sendStart,strlen(sendStart));
+			    bytesWritten = strlen(sendStart);
             }
-#endif
-            DWORD size = 0;
-            messageForNamePipe.append(sendStart,strlen(sendStart));
-            bytesWritten = bytesToWrite;
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+            else
             {
-                AutoMutex automut(Monitor::_cout_mut);
-                PEGASUS_STD(cout) << "namedpipe = " << _namedPipe.getPipe() << PEGASUS_STD(endl);
-                PEGASUS_STD(cout) << "sendStart is " << sendStart << "BytesToWrite is " << bytesToWrite << PEGASUS_STD(endl);
-            }
 #endif
-        }
-        else
-        {
-#endif
-            bytesWritten = _socket->write(sendStart, bytesToWrite);
-            if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
+                bytesWritten = _socket->write(sendStart, bytesToWrite);
+                if (bytesWritten < 0)
+			    {
+                    _throwEventFailure(httpStatusInternal, errorSocket);
+				}
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-        }
+            }
 #endif
 
-/*#else
-
-            bytesWritten = _socket->write(sendStart, bytesToWrite);
-            if (bytesWritten < 0)
-                _throwEventFailure(httpStatusInternal, errorSocket);
-#endif*/
             totalBytesWritten += bytesWritten;
             bytesRemaining -= bytesWritten;
 
             if (isChunkResponse == true)
             {
-                // send chunk terminator, on the last chunk, it is the chunk body
-                // terminator
+                // send chunk terminator, on the last chunk, 
+				// it is the chunk body terminator
                 Buffer trailer;
                 trailer << chunkLineTerminator;
 
@@ -1188,32 +1098,41 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 if (isLast == true)
                 {
                     if (bytesRemaining > 0)
-                        _throwEventFailure(httpStatusInternal,
-                            "more bytes after indicated last chunk");
+					{
+					    _throwEventFailure(httpStatusInternal,
+                             "more bytes after indicated last chunk");
+					}
                     trailer << "0" << chunkLineTerminator;
                     Uint32 httpStatus = cimException.getCode();
 
                     if (httpStatus != 0)
                     {
                         char httpStatusP[11];
-                        sprintf(httpStatusP, "%u",httpStatus);
-
-                        trailer << _mpostPrefix << headerNameCode << headerNameTerminator
-                            << httpStatusP << headerLineTerminator;
-                        const String& httpDescription = cimException.getMessage();
+                        sprintf(httpStatusP, "%u", httpStatus);
+                        trailer << _mpostPrefix << headerNameCode 
+						        << headerNameTerminator
+                                << httpStatusP 
+							    << headerLineTerminator;
+                        const String& httpDescription = 
+									    cimException.getMessage();
                         if (httpDescription.size() != 0)
-                            trailer << _mpostPrefix << headerNameDescription <<
-                                headerNameTerminator << httpDescription << headerLineTerminator;
-                    }
+						{
+                            trailer << _mpostPrefix 
+							        << headerNameDescription 
+							        << headerNameTerminator 
+							        << httpDescription 
+								    << headerLineTerminator;
+                        }
 
-                    // Add Content-Language to the trailer if requested
+					}
+                        // Add Content-Language to the trailer if requested
                     if (contentLanguages.size() != 0)
                     {
                         trailer << _mpostPrefix
-                            << headerNameContentLanguage << headerNameTerminator
-                            << LanguageParser::buildContentLanguageHeader(
-                                   contentLanguages)
-                            << headerLineTerminator;
+                                << headerNameContentLanguage 
+                                << headerNameTerminator
+                                << LanguageParser::buildContentLanguageHeader(contentLanguages)
+                                << headerLineTerminator;
                     }
 
                     // now add chunkBodyTerminator
@@ -1225,80 +1144,61 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-                if(_namedPipeConnection)
+                if (_namedPipeConnection)
                 {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                    {
-                        AutoMutex automut(Monitor::_cout_mut);
-                        PEGASUS_STD(cout) << "In HTTPConnection::_handleWriteEvent append 6" << PEGASUS_STD(endl);
-                    }
-#endif
                     DWORD size = 0;
-                    messageForNamePipe.append(sendStart,chunkBytesToWrite);
-                    bytesWritten = chunkBytesToWrite;
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                    {
-                        AutoMutex automut(Monitor::_cout_mut);
-                        cout << "namedpipe = " << _namedPipe.getPipe() << endl;
-                        cout << "sendStart = " << sendStart << "chunkBytesToWrite = " << chunkBytesToWrite << endl;
-                        cout << " IN HTTPConnection  - messageForNamePipe looks like this" << messageForNamePipe << endl;
-                    }
+                    messageForNamePipe.append (sendStart, chunkBytesToWrite);
+	                bytesWritten = chunkBytesToWrite;
+                }
+                else
+                {
 #endif
-               }
-               else
-               {
-#endif
-                     bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
-                     if (bytesWritten < 0)
-                         _throwEventFailure(httpStatusInternal, errorSocket);
+                    bytesWritten = _socket->write(
+					sendStart, chunkBytesToWrite);
+                    if (bytesWritten < 0)
+					{
+                        _throwEventFailure (httpStatusInternal, errorSocket);
+					}
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-               }
+                }
 #endif
-
-/*#else
-
-               bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
-               if (bytesWritten < 0)
-                  _throwEventFailure(httpStatusInternal, errorSocket);
-#endif*/
                 totalBytesWritten += bytesWritten;
             } // isChunkResponse == true
         } // for all bytes in message
 
 // Added for NamedPipe implementation for windows
+
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-        if(_namedPipeConnection)
-        {
-            _writeToNamePipe(messageForNamePipe, messageForNamePipe.size());
+	    if (_namedPipeConnection)
+        {			      
+            if (messageForNamePipe.size() > 0)
+		    {
+                _writeToNamePipe (messageForNamePipe, messageForNamePipe.size());
+		    }
+		    else
+		    {
+		       if (isLast)
+		       {
+		           _writeToNamePipe (messageForNamePipe, 
+					          messageForNamePipe.size());
+			   }
+		    }
+
         }
 #endif
 
-    } // try
-    catch (Exception &e)
-    {
-        httpStatus = e.getMessage();
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "got exception in HTTPConnection - " << e.getMessage() << endl;
-}
-#endif
-        exit (1);
-    }
-    catch (...)
-    {
-        httpStatus = HTTP_STATUS_INTERNALSERVERERROR;
-        String message("Unknown internal error");
-        Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, message);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-{
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "Unknown internal error " << __FILE__ <<  __LINE__ << endl;
-}
-#endif
-        exit(1);
-    }
+   } // try
+   catch (Exception &e)
+   {
+       httpStatus = e.getMessage();
+   }
+   catch (...)
+   {
+       httpStatus = HTTP_STATUS_INTERNALSERVERERROR;
+       String message("Unknown internal error");
+       Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, message);
+   }
 
     if (isLast == true)
     {
@@ -1308,75 +1208,59 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         //
         // decrement request count
         //
-
         _requestCount--;
 
         if (httpStatus.size() == 0)
         {
-            static const char msg[] =
-                "A response has been sent (%d of %d bytes have been written).\n"
+              static const char msg[] =
+                "A response has been sent  (%d of %d bytes have been written).\n"
                 "There are %d requests pending within the CIM Server.\n"
                 "A total of %d requests have been processed on this connection.";
 
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL4, msg, totalBytesWritten,
-                messageLength, _requestCount.get(), _connectionRequestCount);
+                Tracer::trace(TRC_HTTP, Tracer::LEVEL4, msg, totalBytesWritten,
+                  messageLength, _requestCount.get(), _connectionRequestCount);
         }
 
-        //
-        // Since we are done writing, update the status of entry to IDLE
-        // and notify the Monitor.
-        //
-        if (_isClient() == false)
-        {
-            // Check for message to close
-            if(message.getCloseConnect()== true)
-            {
-                Tracer::trace(
-                    TRC_HTTP,
-                    Tracer::LEVEL3,
-                    "HTTPConnection::_handleWriteEvent - Connection: Close in client message.");
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                {
-                    AutoMutex automut(Monitor::_cout_mut);
-                    cout << "HTTPConnection::_handleWriteEvent - Connection: Close in client message." << endl;
-                }
-#endif
-                _closeConnection();
-            }
-            else
-            {
-                Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
-                    "Now setting state to %d", _MonitorEntry::IDLE);
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                {
-                    AutoMutex automut(Monitor::_cout_mut);
-                    cout << "HTTPConnection::_handleWriteEvent about to do a setState (_entry_index, _MonitorEntry::IDLE);" <<
-                        " thisis on _entry_index = " << _entry_index << endl;
-                }
-#endif
-                _monitor->setState (_entry_index, _MonitorEntry::IDLE);
-                _monitor->tickle();
+         //
+         // Since we are done writing, update the status of entry to IDLE
+         // and notify the Monitor.
+         //
+         if (_isClient() == false)
+         {
+             // Check for message to close
+             if (message.getCloseConnect()== true)
+             {
+                 _closeConnection();
+             }
+             else
+             {
+                 Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
+                     "Now setting state to %d", _MonitorEntry::IDLE);
+                 _monitor->setState (_entry_index, _MonitorEntry::IDLE);
+                 _monitor->tickle();
 
              }
              _responsePending = false;
              cimException = CIMException();
-        }
+         }
     }
 
 // Added for NamedPipe implementation for windows
 #ifdef PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-        if(!_namedPipeConnection)
-        {
-            _socket->disableBlocking();
-        }
+    if (!_namedPipeConnection)
+    {
+         _socket->disableBlocking();
+    }
+    /* Reset the Pipe mode to NON-Blocking mode */
+	else
+	{
+	     DWORD dwModeReset= PIPE_READMODE_MESSAGE | PIPE_NOWAIT;
+	     ::SetNamedPipeHandleState( _namedPipe.getPipe(), &dwModeReset, NULL, NULL );
+	}
 #else
         _socket->disableBlocking();
 #endif
 
-        {
-           AutoMutex automut(Monitor::_cout_mut);
-           cout << "Leaving handleWriteEvent() httpStatus.size = " <<  httpStatus.size()  << endl;
-        }
     return httpStatus.size() == 0 ? false : true;
 }
 
@@ -1491,6 +1375,10 @@ void HTTPConnection::_getContentLengthAndContentOffset()
     char* sep;
     Uint32 lineNum = 0;
     Boolean bodylessMessage = false;
+    Boolean gotContentLength = false;
+    Boolean gotTransferEncoding = false;
+    Boolean gotContentLanguage = false;
+    Boolean gotTransferTE = false;
 
     while ((sep = _FindSeparator(line, size - (line - data))))
     {
@@ -1508,10 +1396,23 @@ void HTTPConnection::_getContentLengthAndContentOffset()
             // reserve space for entire non-chunked message
             if (_contentLength > 0)
             {
-                Uint32 capacity = (Uint32)(_contentLength + _contentOffset + 1);
-                _incomingBuffer.reserveCapacity(capacity);
-                data = (char *)_incomingBuffer.getData();
-                data[capacity-1] = 0;
+                try
+                {
+                    Uint32 capacity = (Uint32)(_contentLength + 
+                        _contentOffset + 1);
+                    _incomingBuffer.reserveCapacity(capacity);
+                    data = (char *)_incomingBuffer.getData();
+                    data[capacity-1] = 0;
+                }
+                catch(const PEGASUS_STD(bad_alloc)&)
+                {
+                    _throwEventFailure(HTTP_STATUS_REQUEST_TOO_LARGE,
+                        "Error reserving space for non-chunked message");
+                }
+                catch(...)
+                {
+                    _throwEventFailure(httpStatusInternal, "unexpected exception");
+                }
             }
 
             break;
@@ -1549,12 +1450,42 @@ void HTTPConnection::_getContentLengthAndContentOffset()
 
                 if (System::strcasecmp(line, headerNameContentLength) == 0)
                 {
+                    if (gotContentLength)
+                    {
+                        _throwEventFailure(HTTP_STATUS_BADREQUEST,
+                            "Duplicate Content-Length header detected");
+                    }
+                    gotContentLength = true;
+
                     if (_transferEncodingValues.size() == 0)
-                        _contentLength = atoi(valueStart);
-                    else _contentLength = -1;
+                    {
+                        // Use a dummy character conversion to catch an
+                        // invalid character in the value.
+                        char dummy;
+                        if (sscanf(valueStart, "%d%c",
+                                &_contentLength, &dummy) != 1)
+                        {
+							{
+								//__asm int 3h
+							}
+                            _throwEventFailure(HTTP_STATUS_BADREQUEST,
+                                "Invalid Content-Length header detected");
+                        }
+                    }
+                    else
+                    {
+                        _contentLength = -1;
+                    }
                 }
                 else if (System::strcasecmp(line, headerNameTransferEncoding) == 0)
                 {
+                    if (gotTransferEncoding)
+                    {
+                        _throwEventFailure(HTTP_STATUS_BADREQUEST,
+                            "Duplicate Transfer-Encoding header detected");
+                    }
+                    gotTransferEncoding = true;
+
                     _transferEncodingValues.clear();
 
                     if (strcmp(valueStart,headerValueTransferEncodingChunked) == 0)
@@ -1571,9 +1502,26 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                     String contentLanguagesString(valueStart, valueEnd-valueStart+1);
                     try
                     {
-                        contentLanguages =
+                        ContentLanguageList contentLanguagesValue =
                             LanguageParser::parseContentLanguageHeader(
                                 contentLanguagesString);
+
+                        if (gotContentLanguage)
+                        {
+                            // Append these content languages to the existing
+                            // list.
+                            for (Uint32 i = 0;
+                                 i < contentLanguagesValue.size(); i++)
+                            {
+                                contentLanguages.append(
+                                    contentLanguagesValue.getLanguageTag(i));
+                            }
+                        }
+                        else
+                        {
+                            contentLanguages = contentLanguagesValue;
+                            gotContentLanguage = true;
+                        }
                     }
                     catch(...)
                     {
@@ -1586,6 +1534,13 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                 }
                 else if (System::strcasecmp(line, headerNameTransferTE) == 0)
                 {
+                    if (gotTransferTE)
+                    {
+                        _throwEventFailure(HTTP_STATUS_BADREQUEST,
+                            "Duplicate TE header detected");
+                    }
+                    gotTransferTE = true;
+
                     _transferEncodingTEValues.clear();
                     static const char valueDelimiter = ',';
                     char *valuesStart = valueStart;
@@ -1714,7 +1669,6 @@ Boolean HTTPConnection::isChunkRequested()
         answer = false;
     }
 #endif
-
     return answer;
 }
 
@@ -1742,12 +1696,13 @@ void HTTPConnection::_handleReadEventTransferEncoding()
     PEG_METHOD_ENTER(TRC_HTTP, func);
     Uint32 messageLength = _incomingBuffer.size();
     Uint32 headerLength = (Uint32) _contentOffset;
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
 
     {
         AutoMutex automut(Monitor::_cout_mut);
         cout << " at the begining of HTTPConnection::_handleReadEventTransferEncoding()" << endl;
     }
-
+#endif
     // return immediately under these conditions:
 
     // - Header terminator has not been reached yet (_contentOffset < 0)
@@ -1756,14 +1711,15 @@ void HTTPConnection::_handleReadEventTransferEncoding()
     //   (_contentLength == 0 means bodyless, so return too - section 4.3)
     // - The message read in so far is <= to the header length
     // - No transfer encoding has been declared in the header.
-    if (_contentOffset < 0 || _contentLength >= 0 ||
+//Added by MSA - Cout
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+    cout<<"_contentOffset="<<_contentOffset<<"_contentLength="<<_contentLength
+        <<"messageLength="<<messageLength<<"headerLength="<<headerLength
+        <<"_transferEncodingValues.size()="<<_transferEncodingValues.size()<<endl;
+#endif
+	if (_contentOffset < 0 || _contentLength >= 0 ||
         messageLength <= headerLength || _transferEncodingValues.size() == 0)
     {
-        {
-            //AutoMutex automut(Monitor::_cout_mut);
-            //cout << "retruning from HTTPConnection::_handleReadEventTransferEncoding() without " <<
-            //        "doing anything" << endl;
-        }
         PEG_METHOD_EXIT();
         return;
     }
@@ -2059,10 +2015,6 @@ void HTTPConnection::_handleReadEventTransferEncoding()
             // (as if a non-transfer message arrived)
 
             _transferEncodingChunkOffset = 0;
-            //cout << "in HTTPConnection::_handleReadEventTransferEncoding() - this " <<
-             //   "seems like the place where _contentLength is set:" << endl <<
-             //   "    it is equal to messageLength(" << messageLength <<") - headerLength(" <<
-             //   headerLength << ")" << endl;
             _contentLength = messageLength - headerLength;
 
             if (httpStatusCode != HTTP_STATUSCODE_OK)
@@ -2119,23 +2071,24 @@ void HTTPConnection::_handleReadEventTransferEncoding()
  * detail delimiter.
  */
 
-void HTTPConnection::_handleReadEventFailure(String &httpStatusWithDetail,
-    String cimError)
+void HTTPConnection::_handleReadEventFailure(
+    const String& httpStatusWithDetail,
+    const String& cimError)
 {
     Uint32 delimiterFound = httpStatusWithDetail.find(httpDetailDelimiter);
     String httpDetail;
-    String httpStatus;
+    String httpStatus = httpStatusWithDetail.subString(0, delimiterFound);
 
     if (delimiterFound != PEG_NOT_FOUND)
     {
-        httpDetail = httpStatus.subString(delimiterFound+1);
-        httpStatus = httpStatus.subString(0, delimiterFound);
+        httpDetail = httpStatusWithDetail.subString(
+            delimiterFound + httpDetailDelimiter.size());
     }
 
-    String combined = httpStatus + httpDetailDelimiter + httpDetail +
-        httpDetailDelimiter + cimError;
+    Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2,
+        httpStatus + httpDetailDelimiter + httpDetail +
+            httpDetailDelimiter + cimError);
 
-    Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, combined);
     _requestCount++;
     Buffer message;
     message = XmlWriter::formatHttpErrorRspMessage(httpStatus, cimError,
@@ -2174,17 +2127,12 @@ void HTTPConnection::_handleReadEvent()
 
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-    if (_namedPipeConnection)
-    {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() for a named pipe connection at begin" << PEGASUS_STD(endl);
-        }
+	//Set the pipe state as busy reading so that the peer does not write
+	if (_namedPipeConnection)
+	{
+         _namedPipe.setBusy();
+	}
 #endif
-    }
-#endif
-
     if (_acceptPending)
     {
         PEGASUS_ASSERT(!_isClient());
@@ -2229,140 +2177,106 @@ void HTTPConnection::_handleReadEvent()
     // -- Append all data waiting on socket to incoming buffer:
 
     String httpStatus;
-    Sint32 bytesRead = 0;
+	Sint32 bytesRead = 0;
+
+
     Boolean incompleteSecureReadOccurred = false;
     int readCount= 0;
-
+    
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-    Boolean moreInPipe=false; //WW This is part of the hack described below
-   // HANDLE* hEvents = new HANDLE[PIPE_COUNT];
-#endif
+        
+	DWORD dwPeekSize =0;
+    DWORD srcIndx = 0;
+        if (_namedPipeConnection)  //this clause reads from the namedPipe
+        {
+             _namedPipe.setBusy();		
+	         memset(_namedPipe.raw,'\0',NAMEDPIPE_MAX_BUFFER_SIZE);    
+			 
+			 BOOL bPeekRes = 0;
 
+			 dwPeekSize = 0;
+			 // Double check if the data is available in Pipe and the size.
+			 bPeekRes =	PeekNamedPipe(_namedPipe.getPipe(),
+					          NULL,
+							  NULL,
+							  NULL,
+							  &dwPeekSize,
+							  NULL
+							 );
+			 if (!bPeekRes && !dwPeekSize)
+			 {
+				 Tracer::trace(TRC_HTTP,Tracer::LEVEL2," NO DATA AVAILABLE . PEEK RETURNED 0 at pipe %u ", _namedPipe.getPipe());
+
+			 }
+
+
+		}
+		//Initialise the total data to be read as the remaining data
+		DWORD bytesRemaining = dwPeekSize;
+		
+#endif
     for (;;)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "at begining of for loop in _handleReadEvent" << endl;
-        }
-#endif
         // save one for null
         char buffer[httpTcpBufferSize+1];
         buffer[sizeof(buffer)-1] = 0;
         Sint32 n;
-
-        //this is assuming the whole mesaage is read in one 'ReadFile'. For
-        //for namedPipes this loop will only exicute once. (bytesRead == 0) clause
-        //will casue it to breack on the second time through the loop
-
-        //if (_namedPipeConnection && (bytesRead == 0))  //this clause reads from the namedPipe
+		
+		
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-        if (_namedPipeConnection)  //this clause reads from the namedPipe
+
+		if (_namedPipeConnection)  //this clause reads from the namedPipe
         {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                PEGASUS_STD(cout) << "In HTTPConnection::_handleReadEvent() about to read off the pipe" << PEGASUS_STD(endl);
-                cout << "ReadCount = " << readCount << endl;
-            }
-#endif
-            if (moreInPipe || readCount>0)
-            {
-                Sleep(1000);
-                memset(_namedPipe.raw,'\0',NAMEDPIPE_MAX_BUFFER_SIZE);
-                BOOL rc = ::ReadFile(
-                    _namedPipe.getPipe(),
-                    &_namedPipe.raw,
-                    NAMEDPIPE_MAX_BUFFER_SIZE,
-                    &_namedPipe.bytesRead,
-                    _namedPipe.getOverlap());
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                {
-                    AutoMutex automut(Monitor::_cout_mut);
-                    cout << "just called read #" << readCount << endl;
-                }
-#endif
-                if(!rc)
-                {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                    {
-                        AutoMutex automut(Monitor::_cout_mut);
-                        cout << "ReadFile failed for : "  << GetLastError() << "."<< endl;
-                    }
-#endif
-                }
-                n = strlen(_namedPipe.raw);
-            }
-            else if (readCount==0) //this should only be ture on the first pass where moreInPipe is false and readCount is 0
-            {
-                n = strlen(_namedPipe.raw);
-            }
-#endif
-          /*this clasue should be executed on the last time through the loop.
-          That means something has been read (readCount != 0) and there in nothing
-          else in the pipe (mornInPipe==false ) */
-#ifdef PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-          else
-#endif
-              n=0;
-          readCount++;
 
-          /**************WW
-          This is a hack. It assumes that if the number of char read in (n) is
-          equal to the MAX_BUFFER_SIZE there must be more in the pipe that needs
-          to be read. This is not ture if the message in the buffer is exactly the same
-          size as the MAX_BUFFER_SIZE
-          *****************/
-// Added for NamedPipe implementation for windows
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-          if (n==NAMEDPIPE_MAX_BUFFER_SIZE)
-              moreInPipe = true;
-          else
-              moreInPipe = false;
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-          {
-              AutoMutex automut(Monitor::_cout_mut);
-              cout << "Just incremented ReadCount = " << readCount << endl;
-          }
-#endif
-          //need some kind of string copy here
-          strcpy (buffer,_namedPipe.raw);
-          {
-              // CString cstr = buffer.getCString();
-              const char* p = &buffer[0];
-              for(int i=0; i<=strlen(buffer); i++, p++)
-              {
-                  if (*p =='\0')
-                  {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                      {
-                          AutoMutex automut(Monitor::_cout_mut);
-                          cout<<"FOUND  at  "<<i<<endl;
-                          cout << "number of characters at time of \0 is " << i << endl;
-                      }
-#endif
-                      break;
-                  }
-              }
-          }
+		    // Flush the data in the buffer which is later used to create Message
+            memset(buffer,'\0',NAMEDPIPE_MAX_BUFFER_SIZE);
 
-          {
-              AutoMutex automut(Monitor::_cout_mut);
-              //buffer.append('\0');
-              cout<<__LINE__<<"\t buffer size is "<<strlen(buffer)<<"\t**************************"<<endl;
-              cout<<buffer<<endl;
-              cout<<__LINE__<<"\t****************************************"<<endl;
-          }
+			// Determine the minimum of buffer size and size returned
+			// from Peek api. 
+			DWORD bytesToRead = (bytesRemaining > NAMEDPIPE_MAX_BUFFER_SIZE)?
+				                 NAMEDPIPE_MAX_BUFFER_SIZE : bytesRemaining;
+			
+			//Flush any old data read from pipe
+			memset(_namedPipe.raw,'\0',NAMEDPIPE_MAX_BUFFER_SIZE);
 
-          {
-              AutoMutex automut(Monitor::_cout_mut);
-              cout << buffer << endl;
-              cout << " number of bytes read is =" << n << endl;
-          }
-        }
-        else if (!_namedPipeConnection) //this clause reads from the socket
+            // If we are left with more data to be read         
+			if (bytesRemaining)
+			{
+                  BOOL rc = ::ReadFile(
+                                       _namedPipe.getPipe(),
+                                       &_namedPipe.raw,
+                                       bytesToRead,
+                                       &_namedPipe.bytesRead,
+                                       NULL
+									   );
+				  // In normal situation we should not be encountered with
+				  // error as we have already checked if data is available
+				  // However, if the pipe is closed by server before we read
+				  if(_namedPipe.bytesRead != bytesToRead)
+				  {
+					  return;
+				  }
+
+				  // We have read X more number of bytes. The same same is updated
+				  // by reducing the bytesToRemaining by X
+				  bytesRemaining -= _namedPipe.bytesRead;
+				
+			}
+
+			int indx;
+			// Copy the data from raw to the buffer.
+	        for (indx =0; indx < _namedPipe.bytesRead ; indx++)
+		    {
+			     buffer[indx] = _namedPipe.raw[indx];
+		    }
+
+            buffer[indx] = '\0';
+
+			n = strlen(buffer);
+		}
+        else if (!_namedPipeConnection) // this clause reads from the socket
         {
 #endif
             n = _socket->read(buffer, sizeof(buffer)-1);
@@ -2372,23 +2286,13 @@ void HTTPConnection::_handleReadEvent()
 #endif
         if (n <= 0)
         {
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "in HTTPConnecion::_handleReadEvent at the start of 'if (n <= 0)' " << endl;
-            }
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-            if(!_namedPipeConnection)
+            if (!_namedPipeConnection)
             {
 #endif
                 if (_socket->isSecure())
                 {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-                    {
-                        AutoMutex automut(Monitor::_cout_mut);
-                        cout << " in (_socket->isSecure())"  << endl;
-                    }
-#endif
                 // It is possible that SSL_read was not able to
                 // read the entire SSL record.  This could happen
                 // if the record was send in multiple packets
@@ -2403,16 +2307,12 @@ void HTTPConnection::_handleReadEvent()
                 // disconnect and partial read of an SSL record.
                 //
                 incompleteSecureReadOccurred = _socket->incompleteReadOccurred(n);
-             }
+                }
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             }
 #endif
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "in HTTPConnecion::_handleReadEvent this should breack out of the for loop" << endl;
-            }
-            //closePipe();
+			
             break;
         }
 
@@ -2421,28 +2321,14 @@ void HTTPConnection::_handleReadEvent()
             buffer[n] = 0;
             // important: always keep message buffer null terminated for easy
             // string parsing!
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "n=" << n << endl;
-            }
-#endif
+			
             Uint32 size = _incomingBuffer.size() + n;
             _incomingBuffer.reserveCapacity(size + 1);
             _incomingBuffer.append(buffer, n);
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "In HTTPConnection::_handleReadEvent after append(buffer, n) " << endl;
-                cout <<" buffer is " << buffer << endl << endl << " size is " << size << " and n = " << n << endl;
-            }
-            // put a null on it. This is safe since we have reserved an extra byte
+			// put a null on it. This is safe since we have reserved an extra byte
             char *data = (char *)_incomingBuffer.getData();
             data[size] = 0;
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "size of incoming buffer is " << _incomingBuffer.size() << endl;
-            }
-        }
+		}
         catch(...)
         {
             static const char detailP[] =
@@ -2455,11 +2341,7 @@ void HTTPConnection::_handleReadEvent()
         }
 
         bytesRead += n;
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "bytesRead = " << bytesRead << endl;
-        }
-
+		
 #if defined (PEGASUS_OS_VMS)
         if (n < sizeof(buffer))
         {
@@ -2472,20 +2354,14 @@ void HTTPConnection::_handleReadEvent()
 #endif
     }
 
-    {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "on out side of for loop" << endl;
-    }
-
-    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+	// Reset Pipe state to ready to read next data
+	_namedPipe.resetState();
+#endif
+    Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
         "Total bytesRead = %d; Bytes read this iteration = %d",
         _incomingBuffer.size(), bytesRead);
-
-    {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "before check _contentOffset = " << _contentOffset << endl;
-    }
-
+	
     try
     {
         if (_contentOffset == -1)
@@ -2495,12 +2371,6 @@ void HTTPConnection::_handleReadEvent()
     catch(Exception &e)
     {
         httpStatus = e.getMessage();
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << httpStatus << " contentOffset cluase threw exception" << endl;
-        }
-#endif
     }
 
     if (httpStatus.size() > 0)
@@ -2510,67 +2380,32 @@ void HTTPConnection::_handleReadEvent()
         return;
     }
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-        AutoMutex automut(Monitor::_cout_mut);
-        cout << "_contentOffset = " << _contentOffset << endl;
-    }
-#endif
 
     // -- See if the end of the message was reached (some peers signal end of
     // -- the message by closing the connection; others use the content length
     // -- HTTP header and then there are those messages which have no bodies
     // -- at all).
-   /* {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "This is the IF statment we need to get into: " << endl <<
-           "((bytesRead == 0 && !incompleteSecureReadOccurred) || " << endl <<
-        " (_contentLength != -1 && _contentOffset != -1 && " << endl <<
-        " (Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset)))" << endl;
-
-    cout <<"bytesRead =" << bytesRead << "_contentLength =" << _contentLength << "  _contentOffset=" << _contentOffset <<
-          "  _incomingBuffer.size()=" << _incomingBuffer.size() << endl;
-    }   */
-
-
     if ((bytesRead == 0 && !incompleteSecureReadOccurred) ||
         (_contentLength != -1 && _contentOffset != -1 &&
         (Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset)))
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout <<" in if bytesRead == 0 && !incompleteSecureReadOccurred" << endl;
-        }
-#endif
         HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
         message->authInfo = _authInfo.get();
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << " After createing the HTTPMessgae" << endl;
-        }
-#endif
         // add any content languages
         message->contentLanguages = contentLanguages;
 
         // increment request count
-        if (bytesRead > 0)
+        if (bytesRead > 0 )
         {
             _requestCount++;
             _connectionRequestCount++;
         }
 
-        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-            "_requestCount = %d", _requestCount.get());
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "before  message->dest - _outputMessageQueue->getQueueId()=" << _outputMessageQueue->getQueueId() << endl;
-        }
-
+        Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+            "PIPE = %u _requestCount = %d",_namedPipe.getPipe(), _requestCount.get());
         message->dest = _outputMessageQueue->getQueueId();
-        //SendForget(message);
+        
 
         //
         // Set the entry status to BUSY.
@@ -2583,28 +2418,17 @@ void HTTPConnection::_handleReadEvent()
             _monitor->tickle();
 
         }
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "before enqueue(message) -  _outputMessageQueue= " << _outputMessageQueue->getQueueName() << endl;
-        }
-        _outputMessageQueue->enqueue(message);
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "after enqueue(message) " << endl;
-        }
-        _clearIncoming();
+		_outputMessageQueue->enqueue(message);
+		_clearIncoming();
 
         if (bytesRead == 0)
         {
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
-                "HTTPConnection::_handleReadEvent - bytesRead == 0 - Connection being closed.");
             _closeConnection();
             //
             // decrement request count
             //
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                 "_requestCount = %d", _requestCount.get());
-
             PEG_METHOD_EXIT();
             return;
         }
@@ -2621,152 +2445,106 @@ Uint32 HTTPConnection::getRequestCount()
 Boolean HTTPConnection::run(Uint32 milliseconds)
 {
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-    {
-    AutoMutex automut(Monitor::_cout_mut);
-    cout << "In HTTPConnection::run at the begining" << endl;
-    }
-#endif
 
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-    if(_namedPipeConnection)
+    if (_namedPipeConnection)
     {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "In HTTPConnection::run - if(_namedPipeConnection) " << endl;
-        }
-#endif
         //the following code may need to be put in it's own method
         String buffer;
-        //NamedPipe::read(_namedPipe.getPipe(), buffer);
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-            cout << "In HTTPConnection::run - this is the message that was written to pipe" << endl;
-            cout << buffer << endl;
-        }
-
+ 
         Message *msg = new NamedPipeMessage(this->getNamedPipe(), 1); //'1' is a read event
 
         try
         {
-            handleEnqueue(msg);
+            handleEnqueue (msg);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            cout << e.getMessage() << endl;
+             e.getMessage(); // to avoid compile time warnings
         }
-        catch(...)
+        catch (...)
         {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            {
-                AutoMutex automut(Monitor::_cout_mut);
-                cout << "IN HTTPConnection::run handleEnqueue(msg) threw exception " << endl;
-            }
-#endif
             return false;
         }
-        return true;  //not sure in when the retrun value would be false for namedPipes
+        return true;  // not sure in when the retrun value would be false for 
+		              // namedPipes
 
-        //Message* msg = new Message(NAMEDPIPE_MESSAGE);
     }
     else
     {
 #endif
 
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-        {
-            AutoMutex automut(Monitor::_cout_mut);
-           cout << "HTTPConnection::_namedPipeConnection equals false" << endl;
-        }
-#endif
-    }
 
-    Boolean handled_events = false;
-    int events = 0;
-    fd_set fdread; // , fdwrite;
-    struct timeval tv = { 0, 1 };
-    FD_ZERO(&fdread);
-    FD_SET(getSocket(), &fdread);
-    events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    if(events == SOCKET_ERROR)
+        Boolean handled_events = false;
+        int events = 0;
+        fd_set fdread; // , fdwrite;
+        struct timeval tv = { 0, 1 };
+        FD_ZERO(&fdread);
+        FD_SET(getSocket(), &fdread);
+        events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
+#ifdef  PEGASUS_OS_TYPE_WINDOWS
+        if (events == SOCKET_ERROR)
 #else
-    if(events == -1)
+        if (events == -1)
 #endif
-    {
-        return false;
-    }
-
-    if (events)
-    {
-        events = 0;
-        if( FD_ISSET(getSocket(), &fdread))
         {
-            events |= SocketMessage::READ;
-            Message *msg = new SocketMessage(getSocket(), events);
-            try
-            {
-                handleEnqueue(msg);
-            }
-            catch(...)
-            {
-                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "HTTPConnection::run handleEnqueue(msg) failure");
-                return true;
-            }
-            handled_events = true;
+            return false;
         }
-    }
 
-    return handled_events;
+        if (events)
+        {
+            events = 0;
+            if (FD_ISSET(getSocket(), &fdread))
+            {
+                events |= SocketMessage::READ;
+                Message *msg = new SocketMessage(getSocket(), events);
+                try
+                {
+                    handleEnqueue(msg);
+                }
+                catch (...)
+                {
+                    Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                         "HTTPConnection::run handleEnqueue(msg) failure");
+                    return true;
+                }
+                handled_events = true;
+            }
+        }
+
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+		return handled_events;
+   	}
+#endif
+    
 }
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 Boolean HTTPConnection::_writeToNamePipe(String message, Uint32 messageLength)
 {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
+
+    Boolean writeResult;
+
+    if (writeResult = NamedPipe::write (_namedPipe.getPipe(), message,
+		                                _namedPipe.getOverlap()))
     {
-    AutoMutex automut(Monitor::_cout_mut);
-    PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe trying to write to pipe - " << _namedPipe.getName()  << PEGASUS_STD(endl);
+        return true;
     }
-#endif
-
-   Boolean writeResult;
-
-   if(writeResult = NamedPipe::write(_namedPipe.getPipe(), message,_namedPipe.getOverlap()))
-   {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-       {
-           AutoMutex automut(Monitor::_cout_mut);
-           PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned successfully" << PEGASUS_STD(endl);
-           cout << " just wrote this to named pipe " << endl << message << endl << endl;
-       }
-#endif
-       return true;
-   }
-   else
-   {
-#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-       {
-           AutoMutex automut(Monitor::_cout_mut);
-           PEGASUS_STD(cout) << "in HTTPConnection::_writeToNamePipe NamedPipe::write returned unsuccessfully" << PEGASUS_STD(endl);
-           cout << " just wrote this to named pipe " << endl << message << endl << endl;
-       }
-#endif
-       return false;
-   }
+    else
+    {
+        return false;
+    }
 }
 
 void HTTPConnection::setNamedPipeConnetion()
 {
-   _namedPipeConnection = true;
+    _namedPipeConnection = true;
 }
 
 void HTTPConnection::setNamedPipe(NamedPipe namedPipe)
 {
-   _namedPipe = namedPipe;
+    _namedPipe = namedPipe;
 }
 #endif
 PEGASUS_NAMESPACE_END

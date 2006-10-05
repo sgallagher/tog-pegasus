@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097, #2541
-//         David Dillard, VERITAS Software Corp.  (david.dillard@veritas.com)
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -205,8 +196,8 @@ private:
 
     Boolean _handleWriteEvent(Message &message);
 
-    void _handleReadEventFailure(String &httpStatusWithDetail,
-                                 String cimError = String());
+    void _handleReadEventFailure(const String &httpStatusWithDetail,
+                                 const String& cimError = String());
     void _handleReadEventTransferEncoding();
     Boolean _isClient();
 

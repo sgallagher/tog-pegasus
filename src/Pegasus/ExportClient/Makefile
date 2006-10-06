@@ -47,7 +47,8 @@ PRE_DEPEND_INCLUDES = -I./depends
 SOURCES = \
     CIMExportClient.cpp \
     CIMExportRequestEncoder.cpp \
-    CIMExportResponseDecoder.cpp
+    CIMExportResponseDecoder.cpp \
+    HTTPExportResponseDecoder.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

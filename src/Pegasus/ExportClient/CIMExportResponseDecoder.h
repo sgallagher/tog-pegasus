@@ -29,17 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMExportResponseDecoder_h
@@ -52,6 +41,7 @@
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/CIMClientException.h>
+#include <Pegasus/ExportClient/HTTPExportResponseDecoder.h>
 #include <Pegasus/ExportClient/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -59,33 +49,17 @@ PEGASUS_NAMESPACE_BEGIN
 class XmlParser;
 
 /**
-    This message is sent from the response decoder to the CIMClient, indicating
-    an error in issuing a CIM request.
-*/
-class ClientExceptionMessage : public Message
-{
-public:
-    ClientExceptionMessage(Exception* clientException_)
-        :
-        Message(CLIENT_EXCEPTION_MESSAGE),
-        clientException(clientException_)
-    {
-    }
-
-    Exception* clientException;
-};
-
-/** This class receives HTTP messages and decodes them into CIM Operation
-    Responses messages which it places on its output queue.
+    The CIMExportResponseDecoder class receives HTTP messages and decodes them
+    into CIM Export Response messages which it places on its output queue.
 */
 class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQueue
 {
 
    public:
 
-      /** Constuctor.
+      /** Constructor.
           @param outputQueue queue to receive decoded HTTP messages.
-          @param encoderQueue queue to receive CIM Operation Response messages.
+          @param encoderQueue queue to receive CIM Export Response messages.
           @param authenticator client authenticator.
       */
       CIMExportResponseDecoder(
@@ -105,15 +79,6 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQu
 
       void _handleHTTPMessage(
          HTTPMessage* message);
-
-      void _handleMethodResponse(
-         char* content,
-         Boolean cimReconnect);
-
-      CIMExportIndicationResponseMessage* _decodeExportIndicationResponse(
-         XmlParser& parser,
-         const String& messageId,
-         Boolean isEmptyMethodresponseTag);
 
       AutoPtr<MessageQueue>        _outputQueue; //PEP101
       AutoPtr<MessageQueue>        _encoderQueue; //PEP101

@@ -28,11 +28,24 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT=../../../..
+ROOT = ../../../../..
+DIR = Pegasus/ExportClient/tests/HTTPExportResponseDecoder
 
 include $(ROOT)/mak/config.mak
 
-DIRS = ExportClient \
-       HTTPExportResponseDecoder
+include ../libraries.mak
 
-include $(ROOT)/mak/recurse.mak
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
+PROGRAM = TestHTTPExportResponseDecoder
+
+SOURCES = HTTPExportResponseDecoder.cpp
+
+include $(ROOT)/mak/program.mak
+
+tests:
+	$(PROGRAM)
+
+poststarttests:

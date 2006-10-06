@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -165,7 +165,7 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc) 
          default: ;
       }
    }
-   else if (type ==CMPI_instance) 
+   else if (type ==CMPI_instance)
 	{
 		v.set(*((CIMObject*) data->inst->hdl));
 	}
@@ -304,7 +304,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
              return CMPI_RC_ERR_NOT_SUPPORTED;
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
          }
-         
+
          data->value.inst=(CMPIInstance*)new CMPI_Object(new CIMInstance(inst));
       }
       break;
@@ -383,24 +383,21 @@ CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data) {
    data->state=CMPI_keyValue;
    switch (t) {
    case CIMKeyBinding::NUMERIC: {
- //        const char *vp=v.getCString();
          CString vp=v.getCString();
 
-        //#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-          //data->value.sint64=strtoll((const char*)vp, NULL, 10);
-        //#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-          //data->value.sint64 = 0;
-          //sscanf((const char*)vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
-                 //&data->value.sint64);
-        //#else
-          //data->value.sint64=atoll((const char*)vp);
-        //#endif
-
          data->value.sint64 = 0;
-         sscanf((const char*)vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
-                 &data->value.sint64);
-         data->type=CMPI_sint64;
-//         delete vp;
+         if (*((const char*)vp)=='-')
+         {
+             sscanf((const char*)vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                     &data->value.sint64);
+             data->type=CMPI_sint64;
+         }
+         else
+         {
+             sscanf((const char*)vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+                     &data->value.uint64);
+             data->type=CMPI_uint64;
+         }
       }
       break;
    case CIMKeyBinding::STRING:

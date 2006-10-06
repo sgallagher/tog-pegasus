@@ -832,24 +832,18 @@ void ProviderAgentContainer::_initialize()
         if (_isInitialized)
         {
             // Harvest the status of the agent process to prevent a zombie
-            Boolean keepWaiting = false;
+            pid_t status = 0;
             do
             {
-                pid_t status = waitpid(_pid, 0, 0);
-                if (status == -1)
-                {
-                    if (errno == EINTR)
-                    {
-                        keepWaiting = true;
-                    }
-                    else
-                    {
-                        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                            "ProviderAgentContainer::_initialize(): "
-                                "waitpid failed; errno = %d.", errno);
-                    }
-                }
-            } while (keepWaiting);
+                status = waitpid(_pid, 0, 0);
+            } while ((status == -1) && (errno == EINTR));
+
+            if (status == -1)
+            {
+                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "ProviderAgentContainer::_initialize(): "
+                        "waitpid failed; errno = %d.", errno);
+            }
         }
 #endif
 
@@ -901,24 +895,18 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 
 #if defined(PEGASUS_HAS_SIGNALS)
         // Harvest the status of the agent process to prevent a zombie
-        Boolean keepWaiting = false;
+        pid_t status = 0;
         do
         {
-            pid_t status = waitpid(_pid, 0, 0);
-            if (status == -1)
-            {
-                if (errno == EINTR)
-                {
-                    keepWaiting = true;
-                }
-                else
-                {
-                    Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                        "ProviderAgentContainer::_uninitialize(): "
-                            "waitpid failed; errno = %d.", errno);
-                }
-            }
-        } while (keepWaiting);
+            status = waitpid(_pid, 0, 0);
+        } while ((status == -1) && (errno == EINTR));
+
+        if (status == -1)
+        {
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "ProviderAgentContainer::_uninitialize(): "
+                    "waitpid failed; errno = %d.", errno);
+        }
 #endif
 
         _isInitialized = false;

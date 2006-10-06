@@ -51,8 +51,7 @@ MP_Socket::MP_Socket(SocketHandle socket)
 MP_Socket::MP_Socket(
     SocketHandle socket,
     SSLContext * sslcontext,
-    ReadWriteSem * sslContextObjectLock,
-    Boolean exportConnection)
+    ReadWriteSem * sslContextObjectLock)
     : _socket(socket), 
       _userAuthenticated(false)
 {

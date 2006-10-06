@@ -139,7 +139,7 @@ int main(int argc, char** argv)
 
     try
     {
-#if defined(PEGASUS_OS_TYPE_UNIX)
+#if defined(PEGASUS_OS_TYPE_UNIX) && !defined(PEGASUS_OS_ZOS)
         testForkSafeMutex();
 #endif
     }

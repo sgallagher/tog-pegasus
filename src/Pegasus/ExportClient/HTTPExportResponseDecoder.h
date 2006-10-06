@@ -73,7 +73,7 @@ public:
     The HTTPExportResponseDecoder class provides interfaces to parse and
     validate HTTP headers, and decode an export response message.
 */
-class HTTPExportResponseDecoder
+class PEGASUS_EXPORT_CLIENT_LINKAGE HTTPExportResponseDecoder
 {
 public:
 

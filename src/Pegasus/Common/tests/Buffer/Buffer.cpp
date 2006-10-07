@@ -57,14 +57,14 @@ int main(int argc, char** argv)
 	Buffer b1("abcdefghijklmnopqrstuvwxyz", 26);
 	Buffer b2 = b1;
 	PEGASUS_TEST_ASSERT(b2.size() == 26);
-	PEGASUS_TEST_ASSERT(memcmp(b2.getData(), "abcdefghijklmnopqrstuvwxyz", 26) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b2.getData(), "abcdefghijklmnopqrstuvwxyz") == 0);
     }
 
     // Test Buffer(const char*, size_t)
     {
 	Buffer b1("abcdefghijklmnopqrstuvwxyz", 26);
 	PEGASUS_TEST_ASSERT(b1.size() == 26);
-	PEGASUS_TEST_ASSERT(memcmp(b1.getData(), "abcdefghijklmnopqrstuvwxyz", 26) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b1.getData(), "abcdefghijklmnopqrstuvwxyz") == 0);
     }
 
     // Test operator=(const Buffer& x)
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 	Buffer b2;
 	b2 = b1;
 	PEGASUS_TEST_ASSERT(b2.size() == 26);
-	PEGASUS_TEST_ASSERT(memcmp(b2.getData(), "abcdefghijklmnopqrstuvwxyz", 26) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b2.getData(), "abcdefghijklmnopqrstuvwxyz") == 0);
     }
 
     // Test swap(Buffer& x)
@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 	b2.swap(b1);
 	PEGASUS_TEST_ASSERT(b1.size() == 0);
 	PEGASUS_TEST_ASSERT(b2.size() == 26);
-	PEGASUS_TEST_ASSERT(memcmp(b2.getData(), "abcdefghijklmnopqrstuvwxyz", 26) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b2.getData(), "abcdefghijklmnopqrstuvwxyz") == 0);
     }
 
     // Test size(), append(), and remove()
@@ -95,22 +95,22 @@ int main(int argc, char** argv)
 	b.append("qrstuv", 6);
 	b.append("wxyz", 4);
 	PEGASUS_TEST_ASSERT(b.size() == 26);
-	PEGASUS_TEST_ASSERT(memcmp(b.getData(), "abcdefghijklmnopqrstuvwxyz", 26) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b.getData(), "abcdefghijklmnopqrstuvwxyz") == 0);
 
 	b.remove(0, 4);
-	PEGASUS_TEST_ASSERT(memcmp(b.getData(), "efghijklmnopqrstuvwxyz", 22) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b.getData(), "efghijklmnopqrstuvwxyz") == 0);
 
 	b.remove(0, 3);
-	PEGASUS_TEST_ASSERT(memcmp(b.getData(), "hijklmnopqrstuvwxyz", 19) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b.getData(), "hijklmnopqrstuvwxyz") == 0);
 
 	b.remove(15, 4);
-	PEGASUS_TEST_ASSERT(memcmp(b.getData(), "hijklmnopqrstuv", 15) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b.getData(), "hijklmnopqrstuv") == 0);
 
 	b.remove(4, 5);
-	PEGASUS_TEST_ASSERT(memcmp(b.getData(), "hijkqrstuv", 10) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b.getData(), "hijkqrstuv") == 0);
 
 	b.remove(4, 6);
-	PEGASUS_TEST_ASSERT(memcmp(b.getData(), "hijk", 4) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b.getData(), "hijk") == 0);
 
 	b.remove(0, 4);
 	PEGASUS_TEST_ASSERT(b.size() == 0);
@@ -152,7 +152,7 @@ int main(int argc, char** argv)
 
 	PEGASUS_TEST_ASSERT(b.size() == 26);
 	PEGASUS_TEST_ASSERT(b.capacity() >= 26);
-	PEGASUS_TEST_ASSERT(memcmp(b.getData(), "abcdefghijklmnopqrstuvwxyz", 26) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b.getData(), "abcdefghijklmnopqrstuvwxyz") == 0);
     }
 
     // Test grow()
@@ -176,7 +176,7 @@ int main(int argc, char** argv)
 	b.append('Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y');
 	b.append('X', 'X', 'X', 'X');
 	b.append('Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y');
-	PEGASUS_TEST_ASSERT(memcmp(b.getData(), "XXXXYYYYYYYYXXXXYYYYYYYY", 24) == 0);
+	PEGASUS_TEST_ASSERT(strcmp(b.getData(), "XXXXYYYYYYYYXXXXYYYYYYYY") == 0);
     }
 
     // Test clear()

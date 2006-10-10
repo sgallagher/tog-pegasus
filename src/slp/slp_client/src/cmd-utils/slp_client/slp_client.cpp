@@ -3782,7 +3782,7 @@ BOOL lslpEvaluateAttributes(const lslpAttrList *filter, const lslpAttrList *regi
   /* first ensure they are the same type  */
   switch(filter->type) {
   case opaque:
-  case string:
+  case string_type:
     if(registered->type != string_type && registered->type != opaque)
       return(FALSE);
 

@@ -617,14 +617,22 @@ void CIMServer::runForever()
     static struct timeval lastIdleCleanupTime = {0, 0};
     struct timeval now;
     Time::gettimeofday(&now);
+
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+    static struct timeval lastReregistrationTime = {0, 0};
+    const char * reRegTime = getenv("PEG_SLP_REG_TIMEOUT");
+    if (now.tv_sec - lastReregistrationTime.tv_sec > (atoi(reRegTime) * 60))
+    {
+       lastReregistrationTime.tv_sec = now.tv_sec;
+       startSLPProvider();
+    }
+#endif
+
     if (now.tv_sec - lastIdleCleanupTime.tv_sec >= 100)
     {
       lastIdleCleanupTime.tv_sec = now.tv_sec;
       try
       {
-#ifdef PEGASUS_SLP_REG_TIMEOUT // Re-register after the time period.
-      startSLPProvider();
-#endif
         _providerManager->unloadIdleProviders();
         MessageQueueService::get_thread_pool()->cleanupIdleThreads();
       }

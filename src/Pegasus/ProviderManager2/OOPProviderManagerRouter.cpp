@@ -70,6 +70,7 @@
 # include <unistd.h>  // For fork(), exec(), and _exit()
 # include <errno.h>
 # include <sys/types.h>
+# include <sys/resource.h>
 # if defined(PEGASUS_HAS_SIGNALS)
 #  include <sys/wait.h>
 # endif
@@ -623,6 +624,25 @@ void ProviderAgentContainer::_startAgentProcess()
                 }
             }
 # endif
+
+            // Close all file descriptors except stdin/stdout/stderr
+            // and the pipe handles needed by the Provider Agent process.
+
+            Uint32 readFd = atoi(readHandle);
+            Uint32 writeFd = atoi(writeHandle);
+            struct rlimit fileLimit;
+
+            if (getrlimit(RLIMIT_NOFILE, &fileLimit) == 0)
+            {
+                Uint32 maxFd = (Uint32)fileLimit.rlim_cur;
+                for (Uint32 i = 3; i < maxFd - 1; i++)
+                {
+                    if ((i != readFd) && (i != writeFd))
+                    {
+                        close(i);
+                    }
+                }
+            }
 
             execl(agentCommandPathCString, agentCommandPathCString,
                 readHandle, writeHandle,

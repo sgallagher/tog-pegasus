@@ -782,7 +782,7 @@ int testJVM ()
       } while (winPath.size () > 0);
 #endif
 
-      fileName  = path + "/JMPIExpAssociationProvider.jar";
+      fileName  = FileSystem::getAbsoluteFileName(path, "JMPIExpAssociationProvider.jar");
       className = "Associations/JMPIExpAssociationProvider";
 
       FileSystem::translateSlashes (fileName);

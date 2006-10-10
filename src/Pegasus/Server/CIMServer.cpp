@@ -620,8 +620,7 @@ void CIMServer::runForever()
 
 #ifdef PEGASUS_SLP_REG_TIMEOUT
     static struct timeval lastReregistrationTime = {0, 0};
-    const char * reRegTime = getenv("PEGASUS_SLP_REG_TIMEOUT");
-    if (now.tv_sec - lastReregistrationTime.tv_sec > (atoi((const char*)reRegTime) * 60))
+    if (now.tv_sec - lastReregistrationTime.tv_sec > (PEGASUS_SLP_REG_TIMEOUT * 60))
     {
        lastReregistrationTime.tv_sec = now.tv_sec;
        startSLPProvider();
@@ -1120,7 +1119,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _advertisePegasus(void* parm)
 {
 
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::_advertisePegasus()");
-
+    
     static SLPAttrib SLPHttpAttribObj;
     static SLPAttrib SLPHttpsAttribObj;
     struct slp_client *client;

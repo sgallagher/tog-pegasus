@@ -73,7 +73,6 @@ static const String PROP_ADVERTISETYPES = "AdvertiseTypes";
 //constructor
 SLPAttrib::SLPAttrib():serviceType(SERVICE_TYPE)
 {
-printf("%s\t %d\n", __FUNCTION__,__LINE__);
 }
 
 SLPAttrib::~SLPAttrib()

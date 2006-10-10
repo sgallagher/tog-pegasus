@@ -40,8 +40,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 const char PEGASUS_NAME[] = "CIM Server ";
-const char PEGASUS_VERSION[] = "2.4.3";
-const char PEGASUS_STATUS[] = "" ;
+const char PEGASUS_VERSION[] = "2.4.4";
+const char PEGASUS_STATUS[] = "Development" ;
 
 #if defined(PLATFORM_VERSION_SUPPORTED)
 #  if defined(PEGASUS_PLATFORM_HPUX_ACC)

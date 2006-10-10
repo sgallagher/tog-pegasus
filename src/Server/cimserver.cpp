@@ -1327,11 +1327,16 @@ MessageLoader::_useProcessLocale = false;
                 "Listening on Export HTTPS port $0.", portNumberExportHttps);
         }
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-		// To Support multiple NamedPipe Clients create multiple ACCEPTORS
-		for (int pipeInstance = 0; pipeInstance < MAX_PIPE_INSTANCES; pipeInstance++)
-		{
+	// To Support multiple NamedPipe Clients create multiple ACCEPTORS
+# if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+		
+        for (int pipeInstance = 0; pipeInstance < MAX_PIPE_INSTANCES; pipeInstance++)
+        {
+# endif
             _cimServer->addAcceptor(true, 0, false, false);
-		}
+# if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+        }
+# endif
         //l10n
         //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                     //"Listening on local connection socket.");

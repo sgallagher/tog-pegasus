@@ -430,21 +430,17 @@ Boolean Monitor::run(Uint32 milliseconds)
         {
             if (entries[indx]._type == Monitor::ACCEPTOR)
             {
-				Tracer::trace(TRC_HTTP,Tracer::LEVEL4,"Index = %u is Monitor::ACCEPTOR %u",indx, entries[indx].namedPipe.getPipe());
                 if ( entries[indx]._status.get() != _MonitorEntry::EMPTY)
                 {
-					Tracer::trace(TRC_HTTP,Tracer::LEVEL4,"Index = %u is Monitor is IDLE %u",indx, entries[indx].namedPipe.getPipe());
 					if ( entries[indx]._status.get() == _MonitorEntry::IDLE ||
                         entries[indx]._status.get() == _MonitorEntry::DYING )
                    {
                        // remove the entry
-					   Tracer::trace(TRC_HTTP,Tracer::LEVEL4,"Index = %u SET Monitor is IDLE %u",indx, entries[indx].namedPipe.getPipe());
                        entries[indx]._status = _MonitorEntry::EMPTY;
                    }
                    else
                    {
                        // set status to DYING
-					   Tracer::trace(TRC_HTTP,Tracer::LEVEL4,"Index = %u SET Monitor is DYING %u",indx, entries[indx].namedPipe.getPipe());
                       entries[indx]._status = _MonitorEntry::DYING;
                    }
                }
@@ -580,7 +576,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 #endif
 
     // This loop takes care of setting the namedpipe which has to be used from the list....
-    for ( indx = 0,socketEntryCount=0, pipeEntryCount=0;
+    for ( indx = 0,socketEntryCount=0 ;
 		             indx < (int)entries.size(); indx++)
     {
 

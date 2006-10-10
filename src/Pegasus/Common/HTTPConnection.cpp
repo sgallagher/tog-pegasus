@@ -2402,8 +2402,6 @@ void HTTPConnection::_handleReadEvent()
             _connectionRequestCount++;
         }
 
-        Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
-            "PIPE = %u _requestCount = %d",_namedPipe.getPipe(), _requestCount.get());
         message->dest = _outputMessageQueue->getQueueId();
         
 

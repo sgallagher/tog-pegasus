@@ -535,6 +535,9 @@ ProviderMessageHandler* DefaultProviderManager::_initProvider(
 
     if (initializeError == true)
     {
+        // Allow the provider to clean up
+        provider->terminate();
+
         // delete the cimom handle
         delete cimomHandle;
 

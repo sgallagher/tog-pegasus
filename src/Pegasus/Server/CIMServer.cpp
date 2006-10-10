@@ -623,6 +623,7 @@ void CIMServer::runForever()
     if (now.tv_sec - lastReregistrationTime.tv_sec > (PEGASUS_SLP_REG_TIMEOUT * 60))
     {
        lastReregistrationTime.tv_sec = now.tv_sec;
+       _runSLP = true;    // To allow the Reregistration _runSLP is made true.
        startSLPProvider();
     }
 #endif
@@ -996,29 +997,27 @@ void CIMServer::startSLPProvider()
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CIMServer::startSLPProvider");
 
     // onetime check is not needed for re-registration. 
-    //if(!reRegister)
+    // This is a onetime function.  If already issued, or config is not to use simply
+    // return
+    if (!_runSLP)
     {
-        // This is a onetime function.  If already issued, or config is not to use simply
-        // return
-        if (!_runSLP)
-        {
-            return;
-        }
+       return;
+    }
 
-        // Get Config parameter to determine if we should start SLP.
-        ConfigManager* configManager = ConfigManager::getInstance();
-        _runSLP = ConfigManager::parseBooleanValue(
-                    configManager->getCurrentValue("slp"));
+    // Get Config parameter to determine if we should start SLP.
+    ConfigManager* configManager = ConfigManager::getInstance();
+    _runSLP = ConfigManager::parseBooleanValue(
+                   configManager->getCurrentValue("slp"));
 
-        // If false, do not start slp provider
-       if (!_runSLP)
-       {
-           return;
-       }
-       //SLP startup is onetime function; reset the switch so this
-       // function does not get called a second time.
-       _runSLP = false;
-    }  
+    // If false, do not start slp provider
+    if (!_runSLP)
+    {
+       return;
+    }
+    //SLP startup is onetime function; reset the switch so this
+    // function does not get called a second time.
+    _runSLP = false;
+    
     // Start SLPProvider for Built-in SA and Open SLP SA. if the PEGASUS_SLP_REG_TIMEOUT is defined
     // start a thread which advertises CIMOM with a external SLP SA.
 #ifdef PEGASUS_SLP_REG_TIMEOUT

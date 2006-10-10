@@ -620,8 +620,8 @@ void CIMServer::runForever()
 
 #ifdef PEGASUS_SLP_REG_TIMEOUT
     static struct timeval lastReregistrationTime = {0, 0};
-    const char * reRegTime = getenv("PEG_SLP_REG_TIMEOUT");
-    if (now.tv_sec - lastReregistrationTime.tv_sec > (atoi(reRegTime) * 60))
+    const char * reRegTime = getenv("PEGASUS_SLP_REG_TIMEOUT");
+    if (now.tv_sec - lastReregistrationTime.tv_sec > (atoi((const char*)reRegTime) * 60))
     {
        lastReregistrationTime.tv_sec = now.tv_sec;
        startSLPProvider();

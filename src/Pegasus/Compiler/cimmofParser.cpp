@@ -429,7 +429,6 @@ cimmofParser::log_parse_error(char *token, const char *errmsg) const {
   arglist.append(token);
   cimmofMessages::getMessage(message, cimmofMessages::PARSER_SYNTAX_ERROR,
       arglist);
-  elog(message);
   maybeThrowLexerError(message);
 }
 
@@ -658,14 +657,12 @@ cimmofParser::addClass(CIMClass *classdecl)
       arglist.append(e.getMessage());
       cimmofMessages::getMessage(message, cimmofMessages::ADD_CLASS_ERROR,
           arglist);
-      elog(message);
       maybeThrowParseError(message);
     }
   } catch(Exception &e) {
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::ADD_CLASS_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
 
@@ -694,7 +691,6 @@ cimmofParser::newClassDecl(const CIMName &name, const CIMName &superclassname)
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_CLASS_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
 
@@ -788,7 +784,6 @@ cimmofParser::newQualifierDecl(const String &name, const CIMValue *value,
     cimmofMessages::getMessage(message,
         cimmofMessages::NEW_QUALIFIER_DECLARATION_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
 
@@ -844,7 +839,6 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
       arglist.append(e.getMessage());
       cimmofMessages::getMessage(message, cimmofMessages::ADD_QUALIFIER_ERROR,
           arglist);
-      elog(message);
       maybeThrowParseError(message);
     }
   } catch(Exception& e) {
@@ -853,7 +847,6 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::ADD_QUALIFIER_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   if (_cmdline && _cmdline->trace()) {
@@ -882,7 +875,6 @@ cimmofParser::newQualifier(const String &name, const CIMValue &value,
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_QUALIFIER_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
 
@@ -907,7 +899,6 @@ cimmofParser::newInstance(const CIMName &className)
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_INSTANCE_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   return instance;
@@ -937,7 +928,6 @@ cimmofParser::newProperty(const CIMName &name, const CIMValue &val,
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_PROPERTY_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   return p;
@@ -960,7 +950,6 @@ cimmofParser::applyProperty(CIMClass &c, CIMProperty &p)
     cimmofMessages::getMessage(message,
         cimmofMessages::UNINITIALIZED_PROPERTY_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   } catch(AlreadyExistsException&) {
     cimmofMessages::getMessage(message,
@@ -972,7 +961,6 @@ cimmofParser::applyProperty(CIMClass &c, CIMProperty &p)
     cimmofMessages::getMessage(message,
         cimmofMessages::APPLYING_PROPERTY_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
 
@@ -1018,7 +1006,6 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
     cimmofMessages::getMessage(message,
         cimmofMessages::APPLY_INSTANCE_PROPERTY_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   return 0;
@@ -1044,7 +1031,6 @@ cimmofParser::copyPropertyWithNewValue(const CIMProperty &p,
     cimmofMessages::getMessage(message,
         cimmofMessages::CLONING_PROPERTY_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   return newprop;
@@ -1067,7 +1053,6 @@ cimmofParser::newMethod(const CIMName &name, const CIMType type)
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::NEW_METHOD_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   return m;
@@ -1089,7 +1074,6 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
     cimmofMessages::getMessage(message,
         cimmofMessages::UNINITIALIZED_PARAMETER_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   } catch(AlreadyExistsException&) {
     cimmofMessages::getMessage(message,
@@ -1101,7 +1085,6 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
     cimmofMessages::getMessage(message,
         cimmofMessages::APPLY_METHOD_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
 
@@ -1122,7 +1105,6 @@ cimmofParser::newParameter(const CIMName &name, const CIMType type,
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_PARAMETER_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   return p;
@@ -1140,7 +1122,6 @@ cimmofParser::applyParameter(CIMMethod &m, CIMParameter &p) {
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::APPLY_PARAMETER_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   return 0;
@@ -1165,7 +1146,6 @@ cimmofParser::QualifierValue(const CIMName &qualifierName,
     cimmofMessages::getMessage(message,
         cimmofMessages::GET_QUALIFIER_DECL_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
 
@@ -1207,7 +1187,6 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
     cimmofMessages::getMessage(message,
         cimmofMessages::GET_INSTANCE_PROPERTY_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   // That didn't work.  Try getting the property from the class decl
@@ -1219,7 +1198,6 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
     cimmofMessages::getMessage(message,
         cimmofMessages::FIND_CLASS_OF_INSTANCE_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   // OK, we got the className.  Use it to find the class object.
@@ -1238,7 +1216,6 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
     cimmofMessages::getMessage(message,
         cimmofMessages::GET_CLASS_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   const CIMValue defaultValue(false);
@@ -1263,7 +1240,6 @@ cimmofParser::ValueFromProperty(const CIMProperty &prop) const
     cimmofMessages::getMessage(message,
         cimmofMessages::GET_PROPERTY_VALUE_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   return new CIMValue();
@@ -1301,7 +1277,6 @@ cimmofParser::newReference(const objectName &oname)
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_REFERENCE_ERROR,
         arglist);
-    elog(message);
     maybeThrowParseError(message);
   }
   return ref;
@@ -1454,15 +1429,21 @@ cimmofParser::trace(const String &head, const String &tail) const
 void
 cimmofParser::maybeThrowParseError(const String &msg) const
 {
-  // unless the continue-processing flag is on
+  // If an option is available to allow the MOF compilation to ignore
+  // errors and continue, then the message should be printed using elog() with
+  // no exception thrown.
+
   throw ParseError(msg);
 }
 
 void
 cimmofParser::maybeThrowLexerError(const String &msg) const
 {
-  // ATTN: P1 BB 2001-unless we may want to continue (and that's not possible with the
-  // lexer written as it is now),
+  // If an option is available to allow the MOF compilation to ignore
+  // errors and continue, then the message should be printed using elog() with
+  // no exception thrown.  The current Lexer implementation does not allow
+  // errors to be ignored, though.
+
   throw LexerError(msg);
 }
 

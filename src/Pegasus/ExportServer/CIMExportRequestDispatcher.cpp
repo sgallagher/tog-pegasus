@@ -32,11 +32,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Server/CIMOperationRequestDispatcher.h>
 
 #include "CIMExportRequestDispatcher.h"
@@ -45,23 +42,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMExportRequestDispatcher::CIMExportRequestDispatcher(
-   Boolean dynamicReg, Boolean staticConsumers, Boolean persistence)
-   : Base(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER),
-     _dynamicReg(dynamicReg),
-     _staticConsumers(staticConsumers),
-     _persistence(persistence)
-{
-   PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
-      "CIMExportRequestDispatcher::CIMExportRequestDispatcher");
-   PEG_METHOD_EXIT();
-}
-
 CIMExportRequestDispatcher::CIMExportRequestDispatcher()
-   : Base(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER),
-     _dynamicReg( true ),
-     _staticConsumers( false ),
-     _persistence( false )
+   : Base(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER)
 {
    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
       "CIMExportRequestDispatcher::CIMExportRequestDispatcher");

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-// 	        Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-// 	        Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMExportRequestDispatcher_h
@@ -43,13 +37,14 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Common/AtomicInt.h>
 #include <Pegasus/ExportServer/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class dispatches CIM export requests. For now it simply
+/**
+    The CIMExportRequestDispatcher receives Export Indication requests and
+    dispatches them to the Provider Manager.
  */
 class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
    : public MessageQueueService
@@ -59,11 +54,6 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
       typedef MessageQueueService Base;
 
       CIMExportRequestDispatcher();
-
-      CIMExportRequestDispatcher(
-         Boolean dynamicReg,
-         Boolean staticConsumers,
-         Boolean persistence);
 
       virtual ~CIMExportRequestDispatcher();
 
@@ -81,10 +71,6 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
 
       CIMExportIndicationResponseMessage* _handleExportIndicationRequest(
          CIMExportIndicationRequestMessage* request);
-
-      Boolean _dynamicReg;
-      Boolean _staticConsumers;
-      Boolean _persistence;
 };
 
 PEGASUS_NAMESPACE_END

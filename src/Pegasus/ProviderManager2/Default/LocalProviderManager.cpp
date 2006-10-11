@@ -510,6 +510,15 @@ Provider* LocalProviderManager::_initProvider(
         // library that the program was holding are invalid.
         if (initializeError == true)
         {
+            // Allow the provider to clean up
+            try
+            {
+                provider->terminate();
+            }
+            catch(...)
+            {
+            }
+
             // delete the cimom handle
             delete provider->_cimom_handle;
 

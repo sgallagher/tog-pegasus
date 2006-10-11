@@ -31,70 +31,19 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Time.h>
 #include "CMPI_Version.h"
 
 #include "CMPI_DateTime.h"
 #include "CMPI_Ftabs.h"
 
 #include <time.h>
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC 
-#define SNPRINTF _snprintf
-#else
-#define SNPRINTF snprintf
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC 
 #include <sys/time.h>
 #endif
 #include <string.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
-
-static CIMDateTime *makeCIMDateTime(time_t inTime, unsigned long usec, CMPIBoolean interval)
-{
-   CIMDateTime *dt=new CIMDateTime();
-   char strTime[256];
-   char utcOffset[20];
-   char usTime[32];
-   struct tm tmTime;
-
-   if (interval) {
-     // absolut time values needed
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-     tmTime=*gmtime(&inTime);
-#else 
-     gmtime_r(&inTime,&tmTime);
-#endif
-     if (SNPRINTF(strTime,256,
-		  "%04d%02d%02d%02d%02d%02d.%06ld:000",
-		  tmTime.tm_year-70,
-		  tmTime.tm_mon,
-		  tmTime.tm_mday-1,
-		  tmTime.tm_hour,
-		  tmTime.tm_min,
-		  tmTime.tm_sec,
-		  usec) > 0)
-       *dt=String(strTime);
-   } else {
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-     tmTime=*localtime(&inTime);
-#else
-     localtime_r(&inTime,&tmTime);
-#endif
-     if (strftime(strTime,256,"%Y%m%d%H%M%S.",&tmTime)) {
-      SNPRINTF(usTime,32,"%6.6ld",usec);
-      strcat(strTime,usTime);
-#if defined (PEGASUS_OS_LINUX)
-      SNPRINTF(utcOffset,20,"%+4.3ld",tmTime.tm_gmtoff/60);
-#else
-      SNPRINTF(utcOffset,20,"%+4.3ld",0);
-#endif
-      strncat(strTime,utcOffset,256);
-      *dt=String(strTime);
-      //cout<<"dt = " <<dt->toString()<<endl;
-     }
-   }
-   return dt;
-}
 
 extern "C" {
 
@@ -109,17 +58,14 @@ extern "C" {
    }
 
    CMPIDateTime *newDateTime() {
-      struct timeval tv;
-#if defined (PEGASUS_OS_VMS)
-      Time::gettimeofday(&tv);
-#else
-      Time::gettimeofday(&tv);
-#endif
-      return (CMPIDateTime*)new CMPI_Object(makeCIMDateTime(tv.tv_sec,tv.tv_usec,0));
+      CIMDateTime *dt=new CIMDateTime();
+      *dt=CIMDateTime::getCurrentDateTime();
+      return (CMPIDateTime*)new CMPI_Object(dt);
    }
 
    CMPIDateTime *newDateTimeBin(CMPIUint64 tim, CMPIBoolean interval) {
-      return (CMPIDateTime*)new CMPI_Object(makeCIMDateTime(tim/1000000,tim%1000000,interval));
+      CIMDateTime *dt=new CIMDateTime(tim, interval);
+      return (CMPIDateTime*)new CMPI_Object(dt);
    }
 
    CMPIDateTime *newDateTimeChar(const char *strTime) {

@@ -4559,7 +4559,7 @@ CIM server listening on HTTPS port {0}."}
           * DO NOT TRANSLATE "sslTrustStore" or "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is 'required'. The CIM server is not started."}
+         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is 'required' or 'optional'. The CIM server is not started."}
 
         /*
          * @note  PGS13301:

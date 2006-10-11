@@ -289,6 +289,7 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_G11N_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runCBATestSuites
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SDK_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_ExportClientSSL_TS1
 
 #####################
 #
@@ -645,6 +646,26 @@ run_SDK_TS1: FORCE
 	@ $(ECHO) "+++++ PEGASUS_TEST_SDK is not true: Skipping run_SDK_TS1"	
 endif
 ###############################################################################
+
+###############################################################################
+##  Export Client SSL Test Suite 1:
+##
+##  Configuration Options: enableHttpsConnection=true
+##
+###############################################################################
+ExportClientSSL_TS1_CONFIG_OPTIONS = enableHttpsConnection=true
+ExportClientSSL_TS1_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Pegasus/ExportClient/tests/ExportClient@@-f@@Makefile@@runExportClientSSL_TS1
+
+ifdef PEGASUS_HAS_SSL
+run_ExportClientSSL_TS1:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(ExportClientSSL_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(ExportClientSSL_TS1_TEST_CMDS)"
+else
+run_ExportClientSSL_TS1: FORCE
+	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_ExportClientSSL_TS1"
+endif
 
 ###############################################################################
 

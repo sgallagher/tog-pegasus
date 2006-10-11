@@ -29,17 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:     Dan Gorey, IBM (djgorey@us.ibm.com)
-//                  Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/ExportClient/CIMExportClient.h>
 
 PEGASUS_USING_PEGASUS;
@@ -54,7 +50,9 @@ static void TestSendingToNonExistentConsumer()
     HTTPConnector* httpConnector = new HTTPConnector(monitor);
 
     CIMExportClient client(monitor, httpConnector);
-    client.connect("localhost", 5988);
+    Uint32 port =
+        System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
+    client.connect("localhost", port);
 
     CIMInstance indication(CIMName("My_IndicationClass"));
     indication.addProperty(CIMProperty(CIMName("DeviceName"), String("Disk")));
@@ -114,23 +112,174 @@ static void TestTimeout()
     client.setTimeout(CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
     PEGASUS_TEST_ASSERT(client.getTimeout() ==
         CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
+
+    //
+    //  Test setTimeout while connected
+    //
+    Uint32 port =
+        System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
+    client.connect("localhost", port);
+    PEGASUS_TEST_ASSERT(client.getTimeout() ==
+        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
+    client.setTimeout(CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS+20000);
+    PEGASUS_TEST_ASSERT(client.getTimeout() ==
+        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS+20000);
+    client.setTimeout(CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
+    PEGASUS_TEST_ASSERT(client.getTimeout() ==
+        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
+}
+
+static void testConnect()
+{
+    //
+    //  Create CIMExportClient
+    //
+    Monitor* monitor = new Monitor;
+    HTTPConnector* httpConnector = new HTTPConnector(monitor);
+    CIMExportClient client(monitor, httpConnector);
+
+    //
+    //  Look up port number
+    //
+    Uint32 port =
+        System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
+
+    //
+    //  Test connect with empty string host
+    //
+    Boolean exceptionCaught = false;
+    try
+    {
+        client.connect("", port);
+    }
+    catch(const Exception& e)
+    {
+        exceptionCaught = true;
+    }
+    PEGASUS_TEST_ASSERT(!exceptionCaught);
+
+    //
+    //  Test connect when already connected
+    //
+    Boolean alreadyConnectedCaught = false;
+    try
+    {
+        client.connect("localhost", port);
+    }
+    catch(const AlreadyConnectedException&)
+    {
+        alreadyConnectedCaught = true;
+    }
+    PEGASUS_TEST_ASSERT(alreadyConnectedCaught);
+    client.disconnect();
+}
+
+static void testSSLConnect()
+{
+    //
+    //  Create CIMExportClient
+    //
+    Monitor* monitor = new Monitor;
+    HTTPConnector* httpConnector = new HTTPConnector(monitor);
+    CIMExportClient client(monitor, httpConnector);
+
+    //
+    //  Create SSLContext
+    //
+    const char* pegasusHome = getenv("PEGASUS_HOME");
+    String trustStore = FileSystem::getAbsolutePath(pegasusHome,
+        "client.pem");
+    String certPath = FileSystem::getAbsolutePath(pegasusHome,
+        "cert.pem");
+    String keyPath = FileSystem::getAbsolutePath(pegasusHome,
+        "file.pem");
+    String randPath = String::EMPTY;
+#ifdef PEGASUS_SSL_RANDOMFILE
+    randPath = FileSystem::getAbsolutePath(pegasusHome,
+        PEGASUS_SSLCLIENT_RANDOMFILE);
+#endif
+
+    SSLContext* sslContext = 0;
+    sslContext = new SSLContext(trustStore, certPath, keyPath, 0, randPath);
+
+    //
+    //  Look up port number
+    //
+    Uint32 port =
+        System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
+
+    //
+    //  Test SSL connect with empty string host
+    //
+    Boolean exceptionCaught = false;
+    try
+    {
+        client.connect("", port, *sslContext);
+    }
+    catch(const Exception& e)
+    {
+        exceptionCaught = true;
+    }
+    PEGASUS_TEST_ASSERT(!exceptionCaught);
+
+    //
+    //  Test SSL connect when already connected
+    //
+    Boolean alreadyConnectedCaught = false;
+    try
+    {
+        client.connect("localhost", port, *sslContext);
+    }
+    catch(const AlreadyConnectedException&)
+    {
+        alreadyConnectedCaught = true;
+    }
+    PEGASUS_TEST_ASSERT(alreadyConnectedCaught);
+    client.disconnect();
+
+    //
+    //  Test SSL connect with bad hostname to cause exception
+    //
+    Boolean invalidLocatorCaught = false;
+    try
+    {
+        client.connect("invalid", port, *sslContext);
+    }
+    catch(const InvalidLocatorException& e)
+    {
+        invalidLocatorCaught = true;
+    }
+    PEGASUS_TEST_ASSERT(invalidLocatorCaught);
 }
 
 int main(int argc, char** argv)
 {
     try
     {
-        TestExceptionHandling();
-        TestTimeout();
-        TestSendingToNonExistentConsumer();
+        if ((argc == 2) && !strcmp(argv[1], "ssl"))
+        {
+            testSSLConnect();
+        }
+        else if (argc == 1)
+        {
+            TestExceptionHandling();
+            TestTimeout();
+            TestSendingToNonExistentConsumer();
+            testConnect();
+        }
+        else
+        {
+            cerr << "Error: unexpected test arguments" << endl;
+            return 1;
+        }
     }
-    catch(Exception& e)
+    catch(const Exception& e)
     {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
+        cerr << "Exception: " << e.getMessage() << endl;
+        return 1;
     }
 
-    PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
+    cout << "+++++ passed all tests" << endl;
 
     return 0;
 }

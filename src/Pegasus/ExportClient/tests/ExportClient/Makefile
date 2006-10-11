@@ -44,3 +44,6 @@ tests:
 
 poststarttests:
 	$(PROGRAM)
+
+runExportClientSSL_TS1:
+	$(PROGRAM) ssl

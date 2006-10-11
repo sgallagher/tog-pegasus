@@ -30,8 +30,24 @@
 #//==============================================================================
 ROOT = ../../../..
 
+DIR = Pegasus/Server/tests
+
 include $(ROOT)/mak/config.mak
+include $(ROOT)/mak/test.mak
+include $(ROOT)/mak/commands.mak
 
-DIRS = \
+RESULTFILE = $(TMP_DIR)/result
+MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 
-include $(ROOT)/mak/recurse.mak
+tests:
+ifdef PEGASUS_HAS_SSL
+	cimserver enableHttpsConnection=true sslTrustStore= sslClientVerificationMode=optional 2>$(RESULTFILE) &
+	$(SLEEP) 5
+	$(DIFF) $(RESULTFILE) $(MASTERRESULTFILE)
+	$(RM) $(RESULTFILE)
+endif
+poststarttests:
+
+depend:
+
+clean:

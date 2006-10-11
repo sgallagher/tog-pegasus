@@ -813,26 +813,16 @@ SSLContext* CIMServer::_getSSLContext()
     if (!String::equal(verifyClient, "disabled"))
     {
         //
-        // 'required' setting must have a valid truststore
-        // 'optional' setting can be used with or without a truststore;
-        // log a warning if a truststore is not specified
+        // 'required' and 'optional' settings must have a valid truststore
         //
         if (trustStore == String::EMPTY)
         {
-            if (String::equal(verifyClient, "required"))
-            {
-                MessageLoaderParms parms(
-                    "Pegasus.Server.CIMServer.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE",
-                    "The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is 'required'. cimserver not started.");
-                PEG_METHOD_EXIT();
-                throw SSLException(parms);
-            }
-            else if (String::equal(verifyClient, "optional"))
-            {
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
-                    Logger::WARNING,
-                    "SSL client verification is enabled but no truststore was specified.");
-            }
+            MessageLoaderParms parms(
+            "Pegasus.Server.CIMServer.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE",
+                "The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is 'required' or 'optional'. cimserver not started.");
+            PEG_METHOD_EXIT();
+            throw SSLException(parms);
+
         }
 
 #ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET

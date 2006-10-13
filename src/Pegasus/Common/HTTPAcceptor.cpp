@@ -407,7 +407,9 @@ void HTTPAcceptor::_bind()
    //
    //  Change permissions on Linux local domain socket to allow writes by others.
    //
-#if !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET) && defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET) && \
+     ( defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
+       defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) )
    if (_localConnection)
    {
      if (::chmod( PEGASUS_LOCAL_DOMAIN_SOCKET_PATH,

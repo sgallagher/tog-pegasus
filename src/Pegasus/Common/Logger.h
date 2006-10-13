@@ -109,7 +109,7 @@ public:
         @param Arg0 - Arg 9 - Up to 9 arguments representing the variables
         that go into the log entry.
         <pre>
-        Logger::put(Logger::TRACE_LOG, "CIMServer", Logger::WARNING,
+        Logger::put(Logger::TRACE_LOG, System::CIMSERVER, Logger::WARNING,
             "X=$0, Y=$1, Z=$2", 88,  "Hello World", 7.5);
         </pre>
     */
@@ -183,7 +183,7 @@ public:
         @param Arg0 - Arg 9 - Up to 9 arguments representing the variables
         that go into the log entry.
         <pre>
-        Logger::put(Logger::TRACE_LOG, "CIMServer", Logger::WARNING,
+        Logger::put(Logger::TRACE_LOG, System::CIMSERVER, Logger::WARNING,
             "X=$0, Y=$1, Z=$2", 88,  "Hello World", 7.5);
         </pre>
     */

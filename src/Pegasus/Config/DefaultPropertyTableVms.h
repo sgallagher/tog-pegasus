@@ -29,42 +29,26 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
-// Modified By: Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DefaultPropertyTableVms_h
 #define Pegasus_DefaultPropertyTableVms_h
 
-#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"home", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableAssociationTraversal", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
-    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # else
     {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
 # endif
-    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
+    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE},
+#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+    {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
-    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
+    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"home", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -74,13 +58,6 @@
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-# ifdef PEGASUS_DEFAULT_ENABLE_OOP
-    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-# else
-    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-# endif
-    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
-#endif
+    {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE}
 
 #endif /* Pegasus_DefaultPropertyTableVms_h */

@@ -59,6 +59,9 @@
     {"logdir",              "/wbem_var/opt/wbem/logs"},
     {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
     {"providerDir",         "/wbem_lib"},
+#else
+    {"traceFilePath",       "trace/cimserver.trc"},
+    {"logdir",              "logs"},
 #endif
 
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)

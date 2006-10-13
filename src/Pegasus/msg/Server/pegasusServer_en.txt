@@ -3852,6 +3852,17 @@ CIM server listening on HTTPS port {0}."}
         */
         ExportServer.CIMExportRequestDecoder.MISSING_HOST_HEADER:string {"PGS11204: HTTP request message lacks a Host header field."}
 
+        /**
+        * @note PGS11205:
+        *    Do not translate the word 'EXPPARAMVALUE' since it is a standard
+        *        element for CIM in XML
+        *    Do not translate the word 'Name' since it is a standard element for
+        *        CIM in XML
+        *    Substitution {0} is a string containing the export indication
+        *        parameter name
+        */
+        ExportServer.CIMExportRequestDecoder.UNRECOGNIZED_EXPPARAMVALUE_NAME:string {"PGS11205: Unrecognized EXPPARAMVALUE Name {0}."}
+
         // ==========================================================
         // Messages for CIMExportResponseDecoder
         //  Please use message prefix "PGS11400"

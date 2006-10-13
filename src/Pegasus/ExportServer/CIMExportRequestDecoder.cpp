@@ -910,7 +910,17 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
    for (const char* name; XmlReader::getEParamValueTag(parser, name);)
    {
       if (System::strcasecmp(name, "NewIndication") == 0)
+      {
 	 XmlReader::getInstanceElement(parser, instanceName);
+      }
+      else
+      {
+         MessageLoaderParms mlParms(
+            "ExportServer.CIMExportRequestDecoder."
+               "UNRECOGNIZED_EXPPARAMVALUE_NAME",
+            "Unrecognized EXPPARAMVALUE Name $0", name);
+         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, mlParms);
+      }
 
       XmlReader::expectEndTag(parser, "EXPPARAMVALUE");
    }

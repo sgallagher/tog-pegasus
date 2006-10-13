@@ -44,7 +44,9 @@ XMLSCRIPTS = \
     BadProtocolVersion03 \
     BadProtocolVersion04 \
     BadProtocolVersion05 \
-    BadProtocolVersion06
-
+    BadProtocolVersion06 \
+    MissingMessage01 \
+    MissingExpMethodCall01 \
+    BadParamValueName01
 
 include $(ROOT)/test/configend.mak

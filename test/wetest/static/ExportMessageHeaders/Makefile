@@ -42,6 +42,10 @@ XMLSCRIPTS = \
    EMBadContentType01 \
    EMMissingContentType01 \
    EMMissingHost01 \
-   EMTextContentType01
+   EMMissingCIMExportMethod01 \
+   EMIncorrectMultiExpReq01 \
+   EMExpMethodNameMismatch01 \
+   EMExpMethodNameMismatch02 \
+   EMSuccess01
 
 include $(ROOT)/test/configend.mak

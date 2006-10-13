@@ -277,7 +277,7 @@ ifeq ($(OS),VMS)
     REDIRECTERROR = $(MUEXE) echo "REDIRECTERROR not defined in commands.mak"
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
-    SLEEP = wait
+    SLEEP = $(MUEXE) sleep
     TIME_CMD =
     REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
     MUEXE = mu

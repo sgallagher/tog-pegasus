@@ -759,7 +759,7 @@ String System::getEffectiveUserName()
     if (pwd == NULL)
     {
          // L10N TODO - This message needs to be added.
-         //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+         //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
          //  "getpwuid_r failure, user may have been removed just after login");
          Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL4,
              "getpwuid_r failure, user may have been removed just after login");
@@ -987,7 +987,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
         String errorMsg = String("getpwnam_r failure : ") +
                             String(strerror(errno));
         PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                                   errorMsg);
         throw InternalSystemError();
     }
@@ -1005,7 +1005,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
             String errorMsg = String("getgrgid_r failure : ") +
                                  String(strerror(errno));
             PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
-            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                                   errorMsg);
             throw InternalSystemError();
         }
@@ -1029,7 +1029,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
             String(strerror(errno));
         PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
         Logger::put(
-            Logger::STANDARD_LOG, "CIMServer", Logger::WARNING, errorMsg);
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, errorMsg);
         throw InternalSystemError();
     }
 

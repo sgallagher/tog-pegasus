@@ -350,7 +350,7 @@ void ConsumerManager::_initConsumer(const String& consumerName, DynamicConsumer*
                                           _worker_routine,
                                           semaphore) != PEGASUS_THREAD_OK)
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        Logger::put(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::TRACE,
         "Not enough threads for consumer.");
  
         Tracer::trace(TRC_LISTENER, Tracer::LEVEL2,
@@ -980,7 +980,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *par
 
                             Logger::put(
                                        Logger::ERROR_LOG,
-                                       "ConsumerManager",
+                                       System::CIMLISTENER,
                                        Logger::SEVERE,
                                        "The following indication did not get processed successfully: $0", 
                                        event->getIndicationInstance().getPath().toString());

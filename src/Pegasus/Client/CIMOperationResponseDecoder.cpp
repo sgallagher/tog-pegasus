@@ -216,7 +216,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         strncpy( tmpBuf, httpMessage->message.getData(), size );
         tmpBuf[size] = '\0';
         Logger::put(Logger::STANDARD_LOG,
-            "CIMCLIENT",
+            System::CIMSERVER,
             Logger::TRACE,
             "CIMOperationRequestDecoder::Response, XML content: $1",
             tmpBuf);

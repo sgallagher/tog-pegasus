@@ -777,7 +777,7 @@ Uint32 RepositoryUpgrade::execute (
                                   REPOSITORY_DOES_NOT_EXIST,
                                   _oldRepositoryPath ) << endl;
 #ifdef PEGASUS_OS_OS400
-        Logger::put(Logger::STANDARD_LOG,"RepositoryUpgrade",Logger::SEVERE,
+        Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,
 	           localizeMessage ( MSG_PATH,
                                   REPOSITORY_DOES_NOT_EXIST_KEY,
                                   REPOSITORY_DOES_NOT_EXIST,
@@ -795,7 +795,7 @@ Uint32 RepositoryUpgrade::execute (
                                  REPOSITORY_DOES_NOT_EXIST,
                                  _newRepositoryPath ) << endl;
 #ifdef PEGASUS_OS_OS400
-	Logger::put(Logger::STANDARD_LOG,"RepositoryUpgrade",Logger::SEVERE,
+	Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,
 	           localizeMessage ( MSG_PATH,
                                   REPOSITORY_DOES_NOT_EXIST_KEY,
                                   REPOSITORY_DOES_NOT_EXIST,
@@ -840,7 +840,7 @@ Uint32 RepositoryUpgrade::execute (
     {
         errPrintWriter << rue.getMessage() << endl;
 #ifdef PEGASUS_OS_OS400
-        Logger::put(Logger::STANDARD_LOG,"RepositoryUpgrade",Logger::SEVERE,rue.getMessage());
+        Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,rue.getMessage());
 	throw rue;
 #endif
         return 1;
@@ -849,7 +849,7 @@ Uint32 RepositoryUpgrade::execute (
     {
         errPrintWriter << e.getMessage() << endl;
 #ifdef PEGASUS_OS_OS400
-        Logger::put(Logger::STANDARD_LOG,"RepositoryUpgrade",Logger::SEVERE,e.getMessage());
+        Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,e.getMessage());
 	throw e;
 #endif
         return 1;
@@ -863,12 +863,12 @@ Uint32 RepositoryUpgrade::execute (
                                   REPOSITORY_UPGRADE_FAILURE_KEY,
                                   REPOSITORY_UPGRADE_FAILURE );
 #ifdef PEGASUS_OS_OS400
-        Logger::put(Logger::STANDARD_LOG,"RepositoryUpgrade",Logger::SEVERE,
+        Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,
 	           localizeMessage ( MSG_PATH,
                                   REPOSITORY_UPGRADE_UNKNOWN_ERROR_KEY,
                                   REPOSITORY_UPGRADE_UNKNOWN_ERROR ));
 
-        Logger::put(Logger::STANDARD_LOG,"RepositoryUpgrade",Logger::SEVERE,
+        Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,
                 localizeMessage ( MSG_PATH,
                                   REPOSITORY_UPGRADE_FAILURE_KEY,
                                   REPOSITORY_UPGRADE_FAILURE ));

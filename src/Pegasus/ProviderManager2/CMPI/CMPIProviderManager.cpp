@@ -2607,7 +2607,7 @@ ProviderName CMPIProviderManager::_resolveProviderName(
     {
           genericValue.get(location);
           String fullName = FileSystem::buildLibraryFileName(location);
-          Logger::put_l(Logger::ERROR_LOG, "CIM Server", Logger::SEVERE,
+          Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
               "ProviderManager.CMPI.CMPIProviderManager.CANNOT_FIND_LIBRARY",
               "For provider $0 library $1 was not found.", providerName, fullName);
 

@@ -101,7 +101,8 @@ void TraceFileHandler::handleMessage(
         if (!FileSystem::
             changeFilePermissions(String(_fileName), (S_IRUSR | S_IWUSR)))
         {
-            Logger::put_l(Logger::DEBUG_LOG, "Tracer", Logger::WARNING,
+            Logger::put_l(Logger::DEBUG_LOG, System::CIMSERVER, 
+			  Logger::WARNING,
                           "Common.TraceFileHandlerVms.FAILED_TO_SET_FILE_PERMISSIONS",
                           "Failed to set permissions on file $0", _fileName);
             return;
@@ -180,7 +181,8 @@ void TraceFileHandler::handleMessage(
             // Unable to open file, log a message
             if (!_wroteToLog)
             {
-                Logger::put_l(Logger::DEBUG_LOG, "Tracer", Logger::WARNING,
+                Logger::put_l(Logger::DEBUG_LOG, System::CIMSERVER, 
+			      Logger::WARNING,
                               "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
                               "Failed to open File $0", _fileName);
                 _wroteToLog = true;

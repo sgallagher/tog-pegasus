@@ -246,7 +246,7 @@ void Logger::_putInternal(
 #if defined(PEGASUS_USE_SYSLOGS)
 
         // Log the message
-        System::syslog(System::CIMSERVER, logLevel, localizedMsg.getCString());
+        System::syslog(systemId, logLevel, localizedMsg.getCString());
 
 #else
 

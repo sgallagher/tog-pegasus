@@ -193,7 +193,7 @@ String LocalAuthFile::create()
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
             "Failed to create local auth file: " + 
              filePath + ", " + strerror(errno));
-        Logger::put_l(Logger::ERROR_LOG, "Authentication", Logger::SEVERE,
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Security.Authentication.LocalAuthFile.NO_CREATE",
             "Creation of the local authentication security file"
             " $0 failed: $1",filePath,strerror(errno));
@@ -224,7 +224,7 @@ String LocalAuthFile::create()
         
         // Unable to change the local auth file permissions, remove the file 
         // and throw CannotOpenFile error.
-        Logger::put_l(Logger::ERROR_LOG, "Authentication", Logger::SEVERE,
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Security.Authentication.LocalAuthFile.NO_CHMOD",
             "Changing permissions of the local authentication security file"
             " $0 failed: $1",filePath,strerror(errno));
@@ -254,7 +254,7 @@ String LocalAuthFile::create()
             "Failed to write security token to file: " 
             + filePath );
 
-        Logger::put_l(Logger::ERROR_LOG, "Authentication", Logger::SEVERE,
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Security.Authentication.LocalAuthFile.NO_WRITE",
             "Cannot write security token to the local authentication"
             " security file $0.",filePath);
@@ -295,7 +295,7 @@ String LocalAuthFile::create()
         
         // Unable to change the local auth file permissions, remove the file 
         // and throw CannotOpenFile error.
-        Logger::put_l(Logger::ERROR_LOG, "Authentication", Logger::SEVERE,
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Security.Authentication.LocalAuthFile.NO_CHMOD",
             "Changing permissions of the local authentication security file"
             " $0 failed: $1",filePath,strerror(errno));
@@ -327,7 +327,7 @@ String LocalAuthFile::create()
         // Unable to change owner on local auth file, remove the file
         // and throw CannotOpenFile error.
 
-        Logger::put_l(Logger::ERROR_LOG, "Authentication", Logger::SEVERE,
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Security.Authentication.LocalAuthFile.NO_CHOWN_REQUSER",
             "Changing ownership of the local authentication"
             " security file $0 to the requesting user failed: $1"
@@ -381,7 +381,7 @@ Boolean LocalAuthFile::remove()
 #endif
         if(rc == -1 )
         {  
-            Logger::put_l(Logger::ERROR_LOG, "Authentication", Logger::WARNING,
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
                 "Security.Authentication.LocalAuthFile.NO_CHOWN",
                 "Changing ownership of the local authentication"
                 " security file back to the CIMServer UserId failed.");

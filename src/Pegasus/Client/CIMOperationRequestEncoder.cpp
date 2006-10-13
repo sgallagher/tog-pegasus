@@ -866,7 +866,7 @@ void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
     {
         buffer.append('\0');
         Logger::put(Logger::STANDARD_LOG,
-					"CIMCLIENT",
+                                        System::CIMSERVER,
 					Logger::TRACE,
 					"CIMOperationRequestEncoder::SendRequest, XML content: $1",
 					buffer.getData());

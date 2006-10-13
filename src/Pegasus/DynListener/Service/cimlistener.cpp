@@ -612,7 +612,7 @@ int CIMListenerProcess::cimserver_run(
     }
     catch (Exception& e)
     {
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+        Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
             "src.Server.cimserver.SERVER_NOT_STARTED",
             "cimserver not started:  $0", e.getMessage());
 
@@ -700,7 +700,7 @@ int CIMListenerProcess::cimserver_run(
     //l10n
     //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
         //"CIM Server stopped.");
-    Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+    Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::INFORMATION,
         "src.Server.cimserver.SERVER_STOPPED",
         "CIM Server stopped.");
         cimserver_exitRC(0);
@@ -859,10 +859,10 @@ MessageLoader::_useProcessLocale = false;
          default_al = LanguageParser::getDefaultAcceptLanguages();
          Thread::setLanguages(new AcceptLanguageList(default_al));
     }catch(InvalidAcceptLanguageHeader& e){
-          Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+          Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
                   "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
                   "Could not convert the system process locale into a valid AcceptLanguage format.");
-          Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+          Logger::put(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
                              e.getMessage());
     }
 
@@ -876,7 +876,7 @@ MessageLoader::_useProcessLocale = false;
     //l10n
     //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             //"CIM Server failed to initialize");
-    Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+    Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
                   "src.Server.cimserver.SERVER_FAILED_TO_INITIALIZE",
                   "CIM Server failed to initialize");
     return(-1);
@@ -929,7 +929,7 @@ MessageLoader::_useProcessLocale = false;
 
         _cimListener->start();
 
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::INFORMATION,
                 "src.Server.cimserver.LISTENING_ON_PORT",
                 "Listening on port $0.", listenerPort);
 
@@ -986,7 +986,7 @@ MessageLoader::_useProcessLocale = false;
 //#endif
 
         // Put server started message to the logger
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMLISTENER,
             Logger::INFORMATION,
             "src.Server.cimserver.STARTED_VERSION",
             "Started $0 version $1.",
@@ -1067,7 +1067,7 @@ MessageLoader::_useProcessLocale = false;
         //
 
         // Put server shutdown message to the logger
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMLISTENER,
             Logger::INFORMATION, "src.Server.cimserver.STOPPED",
             "$0 stopped.", _cimListenerProcess->getProductName());
 
@@ -1087,7 +1087,7 @@ MessageLoader::_useProcessLocale = false;
     //l10n
     //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             //"Error: $0", e.getMessage());
-    Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+    Logger::put_l(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::WARNING,
             "src.Server.cimserver.ERROR",
             "Error: $0", e.getMessage());
 

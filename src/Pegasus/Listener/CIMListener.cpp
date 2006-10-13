@@ -450,7 +450,7 @@ void CIMListenerRep::start()
             != PEGASUS_THREAD_OK)
         {
             Logger::put(
-                Logger::STANDARD_LOG, System::CIMSERVER,
+                Logger::STANDARD_LOG, System::CIMLISTENER,
                 Logger::TRACE,
                 "Not enough threads to start CIMListernerService.");
 

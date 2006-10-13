@@ -105,7 +105,7 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
 
                     Logger::put(
                                Logger::ERROR_LOG,
-                               "DynamicListenerIndicationDispatcher",
+                               System::CIMLISTENER,
                                Logger::SEVERE,
                                "Exception getting consumer: $0", 
                                ex.getMessage());
@@ -117,7 +117,7 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
 
                     Logger::put(
                                Logger::ERROR_LOG,
-                               "DynamicListenerIndicationDispatcher",
+                               System::CIMLISTENER,
                                Logger::SEVERE,
                                "Unknown Exception getting consumer");
                 }
@@ -181,7 +181,7 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(CIMExportIndi
     {
         Logger::put(
                    Logger::ERROR_LOG,
-                   "DynamicListenerIndicationDispatcher",
+                   System::CIMLISTENER,
                    Logger::SEVERE,
                    "Invalid URL $0", 
                    url);

@@ -579,7 +579,7 @@ PAMBasicAuthenticatorStandAlone::_Status
         if (printed_err_since_success == false)
         {
             printed_err_since_success = true;
-            Logger::put(Logger::ERROR_LOG, "CIMServer",
+            Logger::put(Logger::ERROR_LOG, System::CIMSERVER, 
                         Logger::SEVERE,
                        "Error processing PAM Authentication request (write).");
         }
@@ -608,7 +608,7 @@ String PAMBasicAuthenticatorStandAlone::_readString()
         {
             printed_err_since_success = true;
             //L10N TODO
-            Logger::put(Logger::ERROR_LOG, "CIMServer",
+            Logger::put(Logger::ERROR_LOG, System::CIMSERVER,
               Logger::SEVERE,
              "Error processing PAM Authentication request (read).");
         }
@@ -642,7 +642,7 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
         {
             printed_err_since_success = true;
             //L10N TODO
-            Logger::put(Logger::ERROR_LOG, "CIMServer",
+            Logger::put(Logger::ERROR_LOG, System::CIMSERVER,
                   Logger::SEVERE,
                   "Error processing PAM Authentication request (pipe).");
         }
@@ -656,7 +656,7 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
             {
                 printed_err_since_success = true;
                 //L10N TODO
-                Logger::put(Logger::ERROR_LOG, "CIMServer",
+                Logger::put(Logger::ERROR_LOG, System::CIMSERVER,
                       Logger::SEVERE,
                       "Error processing PAM Authentication request (pipe).");
             }
@@ -672,7 +672,7 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
             {
                 printed_err_since_success = true;
                 //L10N TODO
-                Logger::put(Logger::ERROR_LOG, "CIMServer",
+                Logger::put(Logger::ERROR_LOG, System::CIMSERVER,
                       Logger::SEVERE,
                       "Error processing PAM Authentication request (fork).");
             }
@@ -698,7 +698,7 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
                     {
                         printed_err_since_success = true;
                         //L10N TODO
-                        Logger::put(Logger::ERROR_LOG, "CIMServer",
+                        Logger::put(Logger::ERROR_LOG, System::CIMSERVER,
                               Logger::SEVERE,
                               "Error processing PAM Authentication request (dup2).");
                     }
@@ -716,7 +716,7 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
                         {
                             printed_err_since_success = true;
                             //L10N TODO
-                            Logger::put(Logger::ERROR_LOG, "CIMServer",
+                            Logger::put(Logger::ERROR_LOG, System::CIMSERVER,
                                 Logger::SEVERE,
                                 "Error processing PAM Authentication request (dup2).");
                         }
@@ -738,7 +738,7 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
                         {
                             printed_err_since_success = true;
                             //L10N TODO
-                            Logger::put(Logger::ERROR_LOG, "CIMServer",
+                            Logger::put(Logger::ERROR_LOG, System::CIMSERVER,
                                 Logger::SEVERE,
                                 "Error creating PAM Authentication process (execl).");
                         }

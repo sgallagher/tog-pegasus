@@ -305,7 +305,7 @@ IndicationHandlerService::_handleIndication(
     // time to write the error message to the log
     if (!handleIndicationSuccess)
     {
-        Logger::put(Logger::ERROR_LOG, "HandlerService" , Logger::WARNING,
+        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             MessageLoaderParms("HandlerService.IndicationHandlerService."
                                "INDICATION_DELIVERY_FAILED",
                                "Failed to deliver an indication. Reason: "

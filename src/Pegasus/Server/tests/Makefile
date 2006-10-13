@@ -41,8 +41,7 @@ MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 
 tests:
 ifdef PEGASUS_HAS_SSL
-	cimserver enableHttpsConnection=true sslTrustStore= sslClientVerificationMode=optional 2>$(RESULTFILE) &
-	$(SLEEP) 5
+	- cimserver "enableHttpsConnection=true" "sslTrustStore=" "sslClientVerificationMode=optional" 2>$(RESULTFILE) 
 	$(DIFF) $(RESULTFILE) $(MASTERRESULTFILE)
 	$(RM) $(RESULTFILE)
 endif

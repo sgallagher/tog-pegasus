@@ -62,7 +62,7 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/TestProvider");
+const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/TestProvider");
 const CIMName CMPI_TEST_PERSON = CIMName ("CMPI_TEST_Person");
 const CIMName CMPI_TEST_VEHICLE = CIMName ("CMPI_TEST_Vehicle");
 const CIMName CMPI_TEST_RACING = CIMName ("CMPI_TEST_Racing");
@@ -423,26 +423,26 @@ int main(int argc, char** argv)
     //
     // Check command line option
     //
-    int i;
-
-    if (argc > 3)
+    if (argc > 2)
     {
-        cerr << "Usage: TestCMPIAssosiation [-v] [namespace]" << endl;
+        cerr << "Usage: cmpiAssociationTestClient [-v]" << endl;
         return(1);
     }
 
-    for(i = 1; i < argc ; ++i)
+    if (argc == 2)
     {
-        const char *opt = argv[i];
+        const char *opt = argv[1];
         if (strcmp(opt, "-v") == 0)
         {
             verbose = true;
-        }          
+        }
         else
         {
-            NAMESPACE = CIMNamespaceName (argv[i]);
+            cerr << "Usage: cmpiAssociationTestClient [-v]" << endl;
+            return(1);
         }
     }
+
     CIMClient client;
 
     // Connect to server

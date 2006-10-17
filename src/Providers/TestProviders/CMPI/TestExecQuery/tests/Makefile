@@ -29,6 +29,7 @@
 #//
 #//==============================================================================
 ROOT = ../../../../../../
+DIR = Providers/TestProviders/CMPI/TestExecQuery/tests
 
 include $(ROOT)/mak/config.mak
 

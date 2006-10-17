@@ -29,6 +29,8 @@
 #//
 #//==============================================================================
 ROOT = ../../../../../../
+DIR = Providers/TestProviders/CMPI/TestProviderThreaded/tests
+
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \

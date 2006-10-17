@@ -30,6 +30,8 @@
 #//==============================================================================
 
 ROOT = ../../../../../../
+DIR = Providers/TestProviders/CMPI/TestFail_4/tests
+
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 

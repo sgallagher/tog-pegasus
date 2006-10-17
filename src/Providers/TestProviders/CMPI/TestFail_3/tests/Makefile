@@ -29,6 +29,8 @@
 #//
 #//==============================================================================
 ROOT = ../../../../../../
+DIR = Providers/TestProviders/CMPI/TestFail_3/tests
+
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \

@@ -91,7 +91,7 @@ void TraceFileHandler::handleMessage(
 	//l10n
 	//Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
             //"Invalid file handle for file $0",_fileName);
-      Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,"Logger::WARNING,
+      Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
       		"Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
             "Invalid file handle for file $0",_fileName);
     }

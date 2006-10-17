@@ -62,7 +62,7 @@ CIMQualifier d(CIMName("description"), String("*REMOVED*"));
 
 const char *ProgName;
 
-void TestOpenRepo(CIMRepository_Mode mode)
+void TestOpenRepo(Uint32 mode)
 {
   if (verbose) cout << ProgName << "-TestOpenRepo()" << endl;
   // -- Create repository and "xyz" namespace:
@@ -396,35 +396,35 @@ int main(int argc, char** argv)
 
     try 
     {
-      CIMRepository_Mode mode;
-      CIMRepository_Mode modeother;
+      Uint32 mode;
+      Uint32 modeother;
       int mixed_mode;
 
       if (!strcmp(argv[1],"XML") )
 	{
-	  mode.flag = CIMRepository_Mode::NONE;
-	  modeother.flag = CIMRepository_Mode::BIN;
+	  mode = CIMRepository::MODE_XML;
+	  modeother = CIMRepository::MODE_BIN;
 	  mixed_mode = 0;
 	  if (verbose) cout << ProgName<< ": Single test using XML mode repository" << endl;
 	}
       else if (!strcmp(argv[1],"BIN") )
 	{
-	  mode.flag = CIMRepository_Mode::BIN;
-	  modeother.flag = CIMRepository_Mode::NONE;
+	  mode = CIMRepository::MODE_BIN;
+	  modeother = CIMRepository::MODE_XML;
 	  mixed_mode = 0;
 	  if (verbose) cout << ProgName<< ": Single test using BIN mode repository" << endl;
 	}
       else if (!strcmp(argv[1],"XMLMIX") )
 	{
-	  mode.flag = CIMRepository_Mode::NONE;
-	  modeother.flag = CIMRepository_Mode::BIN;
+	  mode = CIMRepository::MODE_XML;
+	  modeother = CIMRepository::MODE_BIN;
 	  mixed_mode = 1;
 	  if (verbose) cout << ProgName<< ": Mixed test using XML mode repository first" << endl;
 	}
       else if (!strcmp(argv[1],"BINMIX") )
 	{
-	  mode.flag = CIMRepository_Mode::BIN;
-	  modeother.flag = CIMRepository_Mode::NONE;
+	  mode = CIMRepository::MODE_BIN;
+	  modeother = CIMRepository::MODE_XML;
 	  mixed_mode = 1;
 	  if (verbose) cout << ProgName<< ": Mixed test using BIN mode repository first" << endl;
 	}

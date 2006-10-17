@@ -154,13 +154,12 @@ cimmofParser::setRepository(void) {
         String combined = rep + "/";
         combined = combined + rep_name;
 
-        CIMRepository_Mode Mode;
-        Mode.flag = CIMRepository_Mode::NONE;
-
-        String mode = _cmdline->get_repository_mode();
-        if (String::equalNoCase(mode, "BIN") )
-          Mode.flag |= CIMRepository_Mode::BIN;
-        _repository.init(rt, combined, Mode,  _ot);
+        Uint32 mode = CIMRepository::MODE_XML;
+        if (String::equalNoCase(_cmdline->get_repository_mode(), "BIN"))
+        {
+          mode = CIMRepository::MODE_BIN;
+        }
+        _repository.init(rt, combined, mode, _ot);
       } catch(Exception &e) {
         arglist.append(rep);
         arglist.append(e.getMessage());

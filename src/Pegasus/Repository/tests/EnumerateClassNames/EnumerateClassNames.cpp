@@ -223,7 +223,7 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
-    CIMRepository_Mode mode;
+    Uint32 mode;
     if(argc==1)
     {
 	  cout << argv[0] << ": No argument provided: " << endl;
@@ -231,22 +231,22 @@ int main(int argc, char** argv)
 	  return 1;	
     }
     
-    if (!strcmp(argv[1],"XML") )
-      {
-	mode.flag = CIMRepository_Mode::NONE;
-	if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
-      }
-      else if (!strcmp(argv[1],"BIN") )
-	{
-	  mode.flag = CIMRepository_Mode::BIN;
-	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
-	}
-      else
-	{
-	  cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-          cout <<"Usage: EnumerateClassNames [XML | BIN]" << endl;
-	  return 1;
-	}
+    if (!strcmp(argv[1], "XML"))
+    {
+        mode = CIMRepository::MODE_XML;
+        if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
+    }
+    else if (!strcmp(argv[1], "BIN"))
+    {
+        mode = CIMRepository::MODE_BIN;
+        if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
+    }
+    else
+    {
+        cout << argv[0] << ": invalid argument: " << argv[1] << endl;
+        cout <<"Usage: EnumerateClassNames [XML | BIN]" << endl;
+        return 1;
+    }
 
     CIMRepository r (repositoryRoot, mode);
 

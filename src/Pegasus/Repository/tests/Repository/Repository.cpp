@@ -55,7 +55,7 @@ static char * verbose;
 
 String repositoryRoot;
 
-void test01(CIMRepository_Mode mode)
+void test01(Uint32 mode)
 {
   CIMRepository r (repositoryRoot, mode);
 
@@ -91,7 +91,7 @@ void test01(CIMRepository_Mode mode)
 
 }
 
-void test02(CIMRepository_Mode mode)
+void test02(Uint32 mode)
 {
     //--------------------------------------------------------------------------
     // Create repository:
@@ -201,7 +201,7 @@ void test02(CIMRepository_Mode mode)
     PEGASUS_TEST_ASSERT(superClassNames[0] == SUPERCLASS);
 }
 
-void test03(CIMRepository_Mode mode)
+void test03(Uint32 mode)
 {
     const char* home = getenv("PEGASUS_HOME");
 
@@ -246,15 +246,15 @@ int main(int argc, char** argv)
 
     try 
     {
-      CIMRepository_Mode mode;
+      Uint32 mode;
       if (!strcmp(argv[1],"XML") )
 	{
-	  mode.flag = CIMRepository_Mode::NONE;
+	  mode = CIMRepository::MODE_XML;
 	  if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
 	}
       else if (!strcmp(argv[1],"BIN") )
 	{
-	  mode.flag = CIMRepository_Mode::BIN;
+	  mode = CIMRepository::MODE_BIN;
 	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
 	}
       else

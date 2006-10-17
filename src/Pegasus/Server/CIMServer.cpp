@@ -169,25 +169,20 @@ void CIMServer::tickle_monitor(){
 
 void CIMServer::_init(void)
 {
-
-    String repositoryRootPath = String::EMPTY;
-    int binaryMode;
-    CIMRepository_Mode Mode;
-
 #ifdef PEGASUS_ENABLE_SLP
     _runSLP = true;         // Boolean cannot be set in definition.
-
 #endif
 
 #if (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)) \
     && defined(PEGASUS_USE_RELEASE_DIRS)
     chdir(PEGASUS_CORE_DIR);
 #endif
-    // -- Save the monitor or create a new one:
-    repositoryRootPath =
-        ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 
     // -- Create a repository:
+
+    String repositoryRootPath =
+        ConfigManager::getHomedPath(
+            ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 
 #ifdef DO_NOT_CREATE_REPOSITORY_ON_STARTUP
     // If this code is enable, the CIMServer will fail to start
@@ -204,15 +199,7 @@ void CIMServer::_init(void)
     }
 #endif
 
-    binaryMode = ConfigManager::parseBooleanValue(
-        ConfigManager::getInstance()->getCurrentValue(
-            "enableBinaryRepository"));
-
-    Mode.flag = CIMRepository_Mode::NONE;
-    if (binaryMode) 
-      Mode.flag |= CIMRepository_Mode::BIN;
-
-    _repository = new CIMRepository(repositoryRootPath, Mode);
+    _repository = new CIMRepository(repositoryRootPath);
 
     // -- Create a UserManager object:
 

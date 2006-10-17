@@ -65,7 +65,7 @@ cimmofRepositoryInterface::~cimmofRepositoryInterface() {
 
 void
 cimmofRepositoryInterface::init(_repositoryType type, String location,
-				const CIMRepository_Mode Mode,
+				Uint32 mode,
 				compilerCommonDefs::operationType ot)
 {
   String message;
@@ -77,7 +77,7 @@ cimmofRepositoryInterface::init(_repositoryType type, String location,
     const String NameSpace = p->getDefaultNamespacePath();
     if (location != "") {
       try { 
-	_repository = new cimmofRepository(location, Mode,  _ot);
+	_repository = new cimmofRepository(location, mode, _ot);
       } catch(Exception &e) {
         arglist.append(location);
         arglist.append(e.getMessage());

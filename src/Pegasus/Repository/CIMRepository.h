@@ -62,23 +62,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMRepository_Mode {
- public:
-  int flag;
-  enum {
-    NONE = 0,
-    BIN = 1,
-    COMPRESSED = 2,
-    INDEXED = 4,
-    UNUSED1 = 8,
-    UNUSED2 = 16,
-    UNUSED3 = 32,
-    UNUSED4 = 64,
-    ANY = 0xFF
-  };
-};
-
-
 class RepositoryDeclContext;
 class compilerDeclContext;
 
@@ -89,9 +72,18 @@ class PEGASUS_REPOSITORY_LINKAGE CIMRepository : public CIMRepositoryBase
 {
 public:
 
+    enum CIMRepositoryMode
+    {
+        MODE_DEFAULT = 0,
+        MODE_XML = 1,
+        MODE_BIN = 2,
+        MODE_COMPRESSED = 4
+    };
+
     /// Constructor
-    CIMRepository(const String& repositoryRoot);
-    CIMRepository(const String& repositoryRoot, const CIMRepository_Mode Mode);
+    CIMRepository(
+        const String& repositoryRoot,
+        Uint32 mode = CIMRepository::MODE_DEFAULT);
 
     /// Descructor
     virtual ~CIMRepository();

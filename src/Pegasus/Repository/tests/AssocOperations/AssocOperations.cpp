@@ -262,17 +262,17 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
-    CIMRepository_Mode mode;
+    Uint32 mode;
     try 
     {
         if (!strcmp(argv[1],"XML") )
         {
-            mode.flag = CIMRepository_Mode::NONE;
+            mode = CIMRepository::MODE_XML;
             if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
         }
         else if (!strcmp(argv[1],"BIN") )
         {
-            mode.flag = CIMRepository_Mode::BIN;
+            mode = CIMRepository::MODE_BIN;
             if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
         }
         else

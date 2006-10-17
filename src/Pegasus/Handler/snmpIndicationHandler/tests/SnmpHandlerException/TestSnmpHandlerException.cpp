@@ -412,9 +412,8 @@ int main(int argc, char** argv)
     String repositoryRoot = pegasusHome;
     repositoryRoot.append("/repository");
 
-    CIMRepository_Mode mode;
-    mode.flag = CIMRepository_Mode::BIN;
-    CIMRepository* repository = new CIMRepository(repositoryRoot, mode);
+    CIMRepository* repository = new CIMRepository(
+        repositoryRoot, CIMRepository::MODE_BIN);
 
     ConfigManager::setPegasusHome(pegasusHome);
 

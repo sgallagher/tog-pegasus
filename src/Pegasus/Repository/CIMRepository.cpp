@@ -101,7 +101,6 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static const Uint32 _MAX_FREE_COUNT = 16;
-static int binaryMode = -1; // PEP 164
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 static int compressMode = 0; // PEP214
@@ -669,72 +668,25 @@ void _rollbackInstanceTransaction(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-CIMRepository::CIMRepository(const String& repositoryRoot, const CIMRepository_Mode mode)
+CIMRepository::CIMRepository(
+    const String& repositoryRoot,
+    Uint32 mode)
    : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot),
      _lock(), _resolveInstance(true)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
 
-    binaryMode = mode.flag & CIMRepository_Mode::BIN;
+    Boolean binaryMode = mode & CIMRepository::MODE_BIN;
 
-#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY    // PEP214
-    // FUTURE?? -  compressMode = mode.flag & CIMRepository_Mode::COMPRESSED;
-    compressMode=1;
-
-    char *s = getenv("PEGASUS_ENABLE_COMPRESSED_REPOSITORY");
-    if (s && (strcmp(s, "build_non_compressed") == 0))
+    if (mode == CIMRepository::MODE_DEFAULT)
     {
-        compressMode =0;
-#ifdef TEST_OUTPUT
-        cout << "In Compress mode: build_non_compresed found" << endl;
-#endif /* TEST_OUTPUT */
-    }
-#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */
-
-#ifdef TEST_OUTPUT
-    cout << "repositoryRoot = " << repositoryRoot << endl;
-    cout << "CIMRepository: binaryMode="  << binaryMode << "mode.flag=" << mode.flag << "\n";
-    cout << "CIMRepository: compressMode= " << compressMode << endl;
-#endif /* TEST_OUTPUT */
-
-    if (binaryMode>0) { // PEP 164
-      // BUILD BINARY
-       streamer=new AutoStreamer(new BinaryStreamer(),BINREP_MARKER);
-       ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
-    }
-    else { // streamer=new XmlStreamer();
-      // BUILD XML
-       streamer=new AutoStreamer(new XmlStreamer(),0xff);
-       ((AutoStreamer*)streamer)->addReader(new BinaryStreamer(),BINREP_MARKER);
-       ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
-    }
-
-    _context = new RepositoryDeclContext(this);
-    _isDefaultInstanceProvider = ConfigManager::parseBooleanValue(
-        ConfigManager::getInstance()->getCurrentValue(
-            "repositoryIsDefaultInstanceProvider"));
-
-    _lockFile = ConfigManager::getInstance()->getHomedPath(
-        PEGASUS_REPOSITORY_LOCK_FILE).getCString();
-
-    PEG_METHOD_EXIT();
-}
-
-CIMRepository::CIMRepository(const String& repositoryRoot)
-   : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot),
-     _lock(), _resolveInstance(true)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
-
-    if (binaryMode==-1) { // PEP 164
         binaryMode = ConfigManager::parseBooleanValue(
             ConfigManager::getInstance()->getCurrentValue(
                 "enableBinaryRepository"));
     }
 
-
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY    // PEP214
-    // FUTURE?? -  compressMode = mode.flag & CIMRepository_Mode::COMPRESSED;
+    // FUTURE?? -  compressMode = mode & CIMRepository::MODE_COMPRESSED;
     compressMode=1;
 
     char *s = getenv("PEGASUS_ENABLE_COMPRESSED_REPOSITORY");
@@ -749,7 +701,8 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
 
 #ifdef TEST_OUTPUT
     cout << "repositoryRoot = " << repositoryRoot << endl;
-    cout << "CIMRepository: binaryMode="  << binaryMode << endl;
+    cout << "CIMRepository: binaryMode="  << binaryMode <<
+        ", mode=" << mode << endl;
     cout << "CIMRepository: compressMode= " << compressMode << endl;
 #endif /* TEST_OUTPUT */
 
@@ -775,7 +728,6 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
 
     PEG_METHOD_EXIT();
 }
-
 
 CIMRepository::~CIMRepository()
 {

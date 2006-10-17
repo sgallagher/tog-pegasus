@@ -52,7 +52,7 @@ static char * verbose;
 
 String repositoryRoot;
 
-void TestNameSpaces(CIMRepository_Mode mode)
+void TestNameSpaces(Uint32 mode)
 {
   CIMRepository r (repositoryRoot, mode);
 
@@ -95,7 +95,7 @@ void TestNameSpaces(CIMRepository_Mode mode)
 
 
 
-void TestCreateClass(CIMRepository_Mode mode)
+void TestCreateClass(Uint32 mode)
 {
   //
   // -- Create repository and "xyz" namespace:
@@ -692,7 +692,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     r.deleteNameSpace(NS);
 }
 
-void TestQualifiers(CIMRepository_Mode mode)
+void TestQualifiers(Uint32 mode)
 {
   //
   // -- Create repository and "xyz" namespace:
@@ -750,15 +750,15 @@ int main(int argc, char** argv)
 
     try 
     {
-      CIMRepository_Mode mode;
+      Uint32 mode;
       if (!strcmp(argv[1],"XML") )
 	{
-	  mode.flag = CIMRepository_Mode::NONE;
+	  mode = CIMRepository::MODE_XML;
 	  if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
 	}
       else if (!strcmp(argv[1],"BIN") )
 	{
-	  mode.flag = CIMRepository_Mode::BIN;
+	  mode = CIMRepository::MODE_BIN;
 	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
 	}
       else

@@ -50,6 +50,7 @@
     {"sslClientVerificationMode", "optional", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpAuthType","Basic",IS_STATIC, 0, 0, IS_VISIBLE},
     {"messageDir","/QIBM/ProdData/OS400/CIM/msg",IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # else

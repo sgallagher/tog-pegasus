@@ -28,86 +28,23 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
 
-DIRS = \
-    Abstract \
-    AnonymousPipe \
-    Array \
-    AutoPtr \
-    AuditLogger \
-    async_callback \
-    AtomicInt \
-    AuthenticationInfo \
-    Base64 \
-    Buffer \
-    Cimom \
-    ClassDecl \
-    Compare \
-    Config \
-    DateTime \
-    Dir \
-    DynLib \
-    DynamicLibrary \
-    FileLock \
-    FileSystem \
-    Flavor \
-    Formatter \
-    HashTable \
-    InstanceDecl \
-    IndicationFormatter \
-    L10N \
-    L10N/msg \
-    Logger \
-    MessageQueue \
-    MessageQueueService \
-    MessageSerializer \
-    Method \
-    ModuleController \
-    Mutex \
-    Object \
-    ObjectNormalizer \
-    OperationContext \
-    OptionManager \
-    ParamValue \
-    Parameter \
-    Property \
-    Qualifier \
-    QualifierDecl \
-    QualifierList \
-    Reference \
-    Resolve \
-    Scope \
-    SpinLock \
-    Stack \
-    Stopwatch \
-    StrToInstName \
-    String \
-    System \
-    Thread \
-    ThreadPool \
-    TimeValue \
-    ToMof \
-    Tracer \
-    ValidateClass \
-    Value \
-    XmlDump \
-    XmlParser \
-    XmlPrint \
-    XmlReader \
-    List \
-    AsyncQueue \
-    IDFactory
-    
+ROOT = ../../../../..
+DIR = Pegasus/Common/tests/AuditLogger
+include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-ifndef PEGASUS_DISABLE_PERFINST
-DIRS += \
-	StatisticalData
-endif
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-DIRS += \
-	Attribute
-endif
+PROGRAM = TestAuditLogger
+SOURCES = AuditLogger.cpp
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/mak/program.mak
+
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+tests:
+	$(PROGRAM)
+#endif
+
+poststarttests:
+

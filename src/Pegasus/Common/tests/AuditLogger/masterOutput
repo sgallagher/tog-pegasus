@@ -1,0 +1,22 @@
+The current configuration properties are:
+AuditLogProperty1=AuditLogValue1
+AuditLogProperty2=AuditLogValue2
+AuditLogProperty3=AuditLogValue3
+The current registered provider modules are:
+AuditLogProviderModule0=Unknown
+AuditLogProviderModule1=Other
+AuditLogProviderModule2=OK
+AuditLogProviderModule3=Degraded
+AuditLogProviderModule4=Stressed
+AuditLogProviderModule5=Predictive Failure
+AuditLogProviderModule6=Error
+AuditLogProviderModule7=Non-Recoverable Error
+AuditLogProviderModule8=Starting
+AuditLogProviderModule9=Stopping
+AuditLogProviderModule10=Stopped
+AuditLogProviderModule11=In Service
+AuditLogProviderModule12=No Contact
+AuditLogProviderModule13=Lost Communication
+The planned value of property "logdir" is modified from value "./logs" to value "/tmp" by user "guest".
+The current value of property "logdir" is modified from value "./logs" to value "/tmp" by user "guest".
+Audit logging is disabled.

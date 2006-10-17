@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By: Yi Zhou (yi_zhou@hp.com)
-//              Warren Otsuka (warren.otsuka@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company
-//                     (sushma_fernandes@hp.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
-//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -48,7 +39,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "DefaultPropertyOwner.h"
-
+#include "ConfigManager.h"
+#include <Pegasus/Common/AuditLogger.h>
 
 PEGASUS_USING_STD;
 
@@ -263,6 +255,17 @@ void DefaultPropertyOwner::updateCurrentValue(
     // initCurrrentValue.
     //
     initCurrentValue(name, value);
+
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+
+    if (String::equal(name, "enableAuditLog") && isValid(name, value))
+    {
+        Boolean enableAuditLog = ConfigManager::parseBooleanValue(value);
+        AuditLogger::setEnabled(enableAuditLog);
+    }
+
+#endif
+
 }
 
 
@@ -300,6 +303,17 @@ const
             sscanf(value.getCString(), "%u%c", &timeoutValue, &dummyChar);
         return ((timeoutValue != 0) && (numConversions == 1));
     }
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+    else if (String::equal(name, "enableAuditLog"))
+    {
+        if (!(String::equalNoCase(value, "true")) &&
+            !(String::equalNoCase(value, "false")))
+        {
+            return (false);
+        }
+    }
+#endif
+
     return(true);
 }
 

@@ -90,17 +90,6 @@ static const char MSG_PATH [] = "pegasus/pegasusCLI";
 static const char COMMAND_NAME []              = "cimprovider";
 
 /**
-    The name of the Name property for PG_ProviderModule class
-*/
-static const CIMName _PROPERTY_PROVIDERMODULE_NAME = CIMName ("Name");
-
-/**
-   The name of the operational status property
-*/
-static const CIMName _PROPERTY_OPERATIONALSTATUS  =
-    CIMName ("OperationalStatus");
-
-/**
    The name of the provider module name  property for PG_Provider class
 */
 static const CIMName _PROPERTY_PROVIDERMODULENAME =

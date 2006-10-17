@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company
-//                                (sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -70,6 +61,7 @@
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/AuditLogger.h>
 
 
 PEGASUS_USING_STD;
@@ -293,6 +285,7 @@ void ConfigSettingProvider::modifyInstance(
             }
         }
 
+        String preValue = String::EMPTY;
         String currentValue = String::EMPTY;
         String plannedValue = String::EMPTY;
         Boolean currentValueIsNull = false;
@@ -352,6 +345,8 @@ void ConfigSettingProvider::modifyInstance(
             //
             if (currentValueModified)
             {
+                preValue = _configManager->getCurrentValue(configPropertyName);
+
                 if ( !_configManager->updateCurrentValue(
                     configPropertyName, currentValue, currentValueIsNull) )
                 {
@@ -378,6 +373,9 @@ void ConfigSettingProvider::modifyInstance(
                 _sendNotifyConfigChangeMessage(configPropertyName, 
                                                currentValue,
                                                true);
+
+               PEG_AUDIT_LOG(logSetConfigProperty(userName, configPropertyName,
+                   preValue, currentValue, false));
             }
 
             //
@@ -385,6 +383,8 @@ void ConfigSettingProvider::modifyInstance(
             //
             if (plannedValueModified)
             {
+                preValue = _configManager->getPlannedValue(configPropertyName);
+
                 if ( !_configManager->updatePlannedValue(
                     configPropertyName, plannedValue, plannedValueIsNull) )
                 {
@@ -411,6 +411,9 @@ void ConfigSettingProvider::modifyInstance(
                 _sendNotifyConfigChangeMessage(configPropertyName, 
                                                plannedValue,
                                                false);
+
+               PEG_AUDIT_LOG(logSetConfigProperty(userName, configPropertyName,
+                   preValue, plannedValue, true));
             }
         }
         catch (const NonDynamicConfigProperty& ndcp)

@@ -127,6 +127,7 @@ static struct OwnerEntry _properties[] =
 #endif
     {"forceProviderProcesses", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"maxProviderProcesses", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"enableAuditLog", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"socketWriteTimeout", (ConfigPropertyOwner* )ConfigManager::defaultOwner}
 };
 

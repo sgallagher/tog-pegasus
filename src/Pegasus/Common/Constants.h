@@ -214,6 +214,16 @@ PEGASUS_COMMON_LINKAGE
 */
     PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_TEXTFORMATPARAMETERS;
 
+/**
+    The name of the Name property for PG_ProviderModule class
+*/
+    PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_PROVIDERMODULE_NAME;
+
+/**
+    The name of the operational status property 
+*/
+    PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_OPERATIONALSTATUS;
+
 //
 // CIM Namespace Names
 //

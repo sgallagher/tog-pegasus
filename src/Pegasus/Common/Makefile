@@ -117,6 +117,7 @@ SOURCES1 = \
     List.cpp \
     AsyncQueue.cpp \
     IDFactory.cpp \
+    AuditLogger.cpp \
     Magic.cpp
 
 SOURCES2 = \

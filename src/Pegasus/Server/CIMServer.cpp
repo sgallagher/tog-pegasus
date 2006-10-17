@@ -63,6 +63,10 @@
 #include <Pegasus/ProviderManagerService/ProviderManagerService.h>
 #include <Pegasus/ProviderManager2/Default/DefaultProviderManager.h>
 
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#include <Pegasus/Common/AuditLogger.h>
+#endif
+
 #ifdef PEGASUS_ENABLE_SLP
 #include <Pegasus/Client/CIMClient.h>
 #endif
@@ -152,8 +156,9 @@ CIMServer::CIMServer(Monitor* monitor)
   : _dieNow(false), _monitor(monitor)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
-    _init();
     _cimserver = this;
+    _init();
+
     PEG_METHOD_EXIT();
 }
 
@@ -427,6 +432,20 @@ void CIMServer::_init(void)
     // Load and initialize providers registed with AutoStart = true
     _providerRegistrationManager->initializeProviders();
 
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+
+    // Register audit logger initialize callback
+    AuditLogger::setInitializeCallback(auditLogInitializeCallback);
+
+    Boolean enableAuditLog = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableAuditLog"));
+
+    if (enableAuditLog)
+    {
+        AuditLogger::setEnabled(enableAuditLog);
+    }
+
+#endif
 }
 
 
@@ -946,6 +965,39 @@ SSLContext* CIMServer::_getSSLContext()
 
     PEG_METHOD_EXIT();
     return sslContext;
+}
+
+void CIMServer::auditLogInitializeCallback()
+{
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+
+    Array<String> propertyNames;
+    Array<String> propertyValues;
+
+    // Get all current property names and values
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    configManager->getAllPropertyNames(propertyNames, false);
+    
+    for (Uint32 i = 0; i < propertyNames.size(); i++)
+    {  
+        propertyValues.append(configManager->getCurrentValue(propertyNames[i]));
+    }
+
+    AuditLogger::logCurrentConfig(propertyNames, propertyValues);
+
+    // get currently registered provider module instances
+    Array<CIMInstance> moduleInstances;
+
+    moduleInstances = 
+        _cimserver->_providerRegistrationManager->enumerateInstancesForClass(
+        CIMObjectPath("PG_ProviderModule"));
+
+    AuditLogger::logCurrentRegProvider(moduleInstances);
+
+    AuditLogger::logCurrentEnvironmentVar();
+
+#endif
 }
 
 #ifdef PEGASUS_ENABLE_SLP

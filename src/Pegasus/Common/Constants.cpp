@@ -177,6 +177,18 @@ const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST =
     const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC =
         CIMName ("MailCc");
 
+/**
+    The name of the Name property for PG_ProviderModule class 
+*/
+    const CIMName _PROPERTY_PROVIDERMODULE_NAME =
+        CIMName ("Name");
+
+/**
+    The name of the operational status property
+*/
+    const CIMName _PROPERTY_OPERATIONALSTATUS =
+        CIMName ("OperationalStatus");
+
 //
 // CIM Namespace Names
 //

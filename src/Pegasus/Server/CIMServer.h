@@ -147,6 +147,14 @@ public:
     */
     void startSLPProvider();
 
+    /**
+        This function gets the current environment variables, the current
+        configuration properties, and the currently registered provider
+        modules whent the CIM Server starts with the configuration
+        property "enableAuditLog" set to true.    
+    */
+    static void auditLogInitializeCallback();
+
 private:
     Boolean _dieNow;
 

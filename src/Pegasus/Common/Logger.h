@@ -78,11 +78,12 @@ public:
     {
         TRACE_LOG,
         STANDARD_LOG,
+        AUDIT_LOG,
         ERROR_LOG,
         DEBUG_LOG
     };
 
-    enum { NUM_LOGS = 4 };
+    enum { NUM_LOGS = 5 };
 
     /** Log file Level - Defines the loglevel of the log entry irrespective of
         which log file it goes into. This is actually a bit mask as defined in

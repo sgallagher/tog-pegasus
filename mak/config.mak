@@ -570,6 +570,21 @@ endif
 endif
 
 #
+# PEP 258
+# Allow Audit Logger to be disabled
+#
+ifdef PEGASUS_DISABLE_AUDIT_LOGGER
+  ifeq ($(PEGASUS_DISABLE_AUDIT_LOGGER),true)
+    DEFINES += -DPEGASUS_DISABLE_AUDIT_LOGGER 
+  else
+    ifneq ($(PEGASUS_DISABLE_AUDIT_LOGGER),false)
+      $(error PEGASUS_DISABLE_AUDIT_LOGGER ($(PEGASUS_DISABLE_AUDIT_LOGGER)) \
+       invalid, must be true or false)
+    endif 
+  endif 
+endif
+
+#
 # PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP
 #
 # PEGASUS_DISABLE_SLP has been depracated. New use model is:

@@ -6074,6 +6074,58 @@ CIM server listening on HTTPS port {0}."}
         */
         Security.Authentication.LocalAuthFile.NO_CHOWN_REQUSER:string {"PGS17604: Changing ownership of the local authentication security file {0} to the requesting user failed: {1}"}
 
+        // ==========================================================
+        // Messages for Audit Logger
+        //  Please use message prefix "PGS17800"
+        // ==========================================================
+        
+        /**
+        * @note PGS17800:
+        *    Substitution {0} is a string containing property names and values
+        *     
+        */
+        Common.AuditLogger.CURRENT_CONFIG:string {"PGS17800: The current configuration properties are:\n{0}"}
+
+        /**
+        * @note PGS17801:
+        *    Substitution {0} is a string containing the provider module name 
+        *     
+        */
+        Common.AuditLogger.CURRENT_PROVIDER_REGISTRATION:string {"PGS17801: The current registered provider modules are: \n{0}"}
+
+        /**
+        * @note PGS17802:
+        *    Substitution {0} is a string containing the environment variables 
+        *     
+        */
+        Common.AuditLogger.CURRENT_ENV:string {"PGS17802: The current environment variables are: \n{0}"}
+
+        /**
+        * @note PGS17803:
+        *    Substitution {0} is a string containing a property name 
+        *    Substitution {1} is a string containing a property value 
+        *    Substitution {2} is a string containing a property value 
+        *    Substitution {3} is a string containing a user name 
+        *     
+        */
+        Common.AuditLogger.SET_PLANNED_CONFIG_PROPERTY:string {"PGS17803: The planned value of property \"{0}\" is modified from value \"{1}\" to value \"{2}\" by user \"{3}\"."}
+
+        /**
+        * @note PGS17804:
+        *    Substitution {0} is a string containing a property name 
+        *    Substitution {1} is a string containing a property value 
+        *    Substitution {2} is a string containing a property value 
+        *    Substitution {3} is a string containing a user name 
+        *     
+        */
+        Common.AuditLogger.SET_CURRENT_CONFIG_PROPERTY:string {"PGS17804: The current value of property \"{0}\" is modified from value \"{1}\" to value \"{2}\" by user \"{3}\"."}
+
+        /**
+        * @note PGS17805:
+        *     
+        */
+        Common.AuditLogger.DISABLE_AUDIT_LOG:string {"PGS17805: Audit logging is disabled.\n"} 
+
 // ==============================================================================
 // END OF RESOURCE BUNDLE
 // DO NOT ADD MESSAGES AFTER THE FOLLOWING '}'

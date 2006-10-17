@@ -97,6 +97,7 @@ static CString _allocLogFileName(
     {
         "PegasusTrace.log",
         "PegasusStandard.log",
+        "PegasusAudit.log",
         "PegasusError.log",
         "PegasusDebug.log"
     };

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
-// Modified By: Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja.boranna@hp.com)
-//            
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_FixedPropertyTableVms_h
@@ -46,7 +40,10 @@
     {"home",                ""},
     {"daemon",              "false"},
     {"slp",                 "false"},
+    {"enableIndicationService", "true"},
+    {"sslClientVerificationMode", "disabled"},
     {"httpAuthType",        "Basic"},
+    {"repositoryIsDefaultInstanceProvider", "false"},
 #endif
 
 #ifdef PEGASUS_USE_RELEASE_DIRS
@@ -61,12 +58,12 @@
 //
     {"tempLocalAuthDir",    PEGASUS_LOCAL_AUTH_DIR},
     {"logdir",              "/wbem_var/opt/wbem/logs"},
-    {"repositoryDir",       "/wbem_var/opt/wbem/repository"},
+    {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
+    {"providerDir",         "/wbem_lib"},
 #else
     {"traceFilePath",       "trace/cimserver.trc"},
     {"logdir",              "logs"},
 #endif
-    {"providerDir",         "/wbem_provider"},
 
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)
     {"bogus", "MyBogusValue"}      // Remove this line if others are added

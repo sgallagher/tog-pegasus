@@ -1,4 +1,3 @@
-
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -30,70 +29,35 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
-// Modified By: Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DefaultPropertyTableVms_h
 #define Pegasus_DefaultPropertyTableVms_h
 
+# ifdef PEGASUS_DEFAULT_ENABLE_OOP
+    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+# else
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+# endif
+    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"logLevel", "SEVERE", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+#else
+    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
+    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"home", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableNamespaceAuthorization", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableSubscriptionsForNonprivilegedUsers", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    // Removed for now because unresolved PEP 66 {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
-    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"repositoryIsDefaultInstanceProvider", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableBinaryRepository", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-# ifdef PEGASUS_DEFAULT_ENABLE_OOP
-    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-# else
-    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-# endif
-    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
-#else
-    {"logLevel", "INFORMATION", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableAuthentication", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableNamespaceAuthorization", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableSubscriptionsForNonprivilegedUsers", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
+    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"repositoryIsDefaultInstanceProvider", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableBinaryRepository", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-# ifdef PEGASUS_DEFAULT_ENABLE_OOP
-    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-# else
-    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-# endif
-    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
-#endif
+    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE}
 
 #endif /* Pegasus_DefaultPropertyTableVms_h */

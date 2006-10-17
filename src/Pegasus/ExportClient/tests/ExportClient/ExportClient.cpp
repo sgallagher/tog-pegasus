@@ -258,7 +258,13 @@ int main(int argc, char** argv)
     {
         if ((argc == 2) && !strcmp(argv[1], "ssl"))
         {
+#ifdef PEGASUS_HAS_SSL
             testSSLConnect();
+#else
+            cout << argv [0] <<
+                ": Export Client SSL tests skipped because"
+                " PEGASUS_HAS_SSL is not defined" << endl;
+#endif
         }
         else if (argc == 1)
         {

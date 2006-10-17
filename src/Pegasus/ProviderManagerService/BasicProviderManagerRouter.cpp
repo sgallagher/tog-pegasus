@@ -315,7 +315,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         try
         {
             // Look up the appropriate ProviderManager by InterfaceType
-            pm = _lookupProviderManager(interfaceType);
+            pm = _getProviderManager(interfaceType);
         }
         catch (const CIMException& e)
         {
@@ -351,11 +351,11 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
 }
 
 // ATTN: May need to add interfaceVersion parameter to further constrain lookup
-ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
+ProviderManager* BasicProviderManagerRouter::_getProviderManager(
     const String& interfaceType)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "BasicProviderManagerRouter::_lookupProviderManager");
+        "BasicProviderManagerRouter::_getProviderManager");
 
     //
     // Search for this InterfaceType in the table of loaded ProviderManagers
@@ -363,15 +363,11 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
     {
         ReadLock tableLock(_providerManagerTableLock);
 
-        // find provider manager for specified provider interface type
-        for(Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
+        ProviderManager* pm = _lookupProviderManager(interfaceType);
+        if (pm)
         {
-            if (interfaceType == _providerManagerTable[i]->getInterfaceName())
-            {
-                ProviderManagerContainer* pmc=_providerManagerTable[i];
-                PEG_METHOD_EXIT();
-                return pmc->getProviderManager();
-            }
+            PEG_METHOD_EXIT();
+            return pm;
         }
     }
 
@@ -380,6 +376,13 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
     //
     {
         WriteLock tableLock(_providerManagerTableLock);
+
+        ProviderManager* pm = _lookupProviderManager(interfaceType);
+        if (pm)
+        {
+            PEG_METHOD_EXIT();
+            return pm;
+        }
 
         // ATTN: this section is a temporary solution to populate the list of
         // enabled provider managers for a given distribution.  It includes
@@ -394,7 +397,7 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
 	if (interfaceType == "C++Default" && 
 	    _createDefaultProviderManagerCallback)
         {
-	    ProviderManager* pm = (*_createDefaultProviderManagerCallback)();
+	    pm = (*_createDefaultProviderManagerCallback)();
             ProviderManagerContainer* pmc = new ProviderManagerContainer(
                 "C++Default",
                 _indicationCallback,
@@ -442,6 +445,32 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
 
     // Error: ProviderManager not found for the specified interface type
     PEGASUS_ASSERT(0);
+    PEG_METHOD_EXIT();
+    return 0;
+}
+
+// NOTE: The caller must lock _providerManagerTableLock before calling this
+// method.
+ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
+    const String& interfaceType)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "BasicProviderManagerRouter::_lookupProviderManager");
+
+    //
+    // Search for this InterfaceType in the table of loaded ProviderManagers
+    //
+    for (Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
+    {
+        if (interfaceType == _providerManagerTable[i]->getInterfaceName())
+        {
+            ProviderManagerContainer* pmc = _providerManagerTable[i];
+            PEG_METHOD_EXIT();
+            return pmc->getProviderManager();
+        }
+    }
+
+    // Not found
     PEG_METHOD_EXIT();
     return 0;
 }

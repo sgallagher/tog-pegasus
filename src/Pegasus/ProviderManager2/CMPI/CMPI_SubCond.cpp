@@ -51,7 +51,7 @@ extern "C" {
 	  CMPI_SubCond *sbc = (CMPI_SubCond*)sc->hdl;
       if (sbc) {
          delete sbc;
-         ((CMPI_Object*)sc)->unlinkAndDelete();
+         reinterpret_cast<CMPI_Object*>(sc)->unlinkAndDelete();
       }
 
       CMReturn(CMPI_RC_OK);

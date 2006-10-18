@@ -52,7 +52,7 @@ extern "C" {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
       if (dt) {
          delete dt;
-         ((CMPI_Object*)eDt)->unlinkAndDelete();
+         (reinterpret_cast<CMPI_Object*>(eDt))->unlinkAndDelete();
       }
       CMReturn(CMPI_RC_OK);
    }
@@ -60,12 +60,12 @@ extern "C" {
    CMPIDateTime *newDateTime() {
       CIMDateTime *dt=new CIMDateTime();
       *dt=CIMDateTime::getCurrentDateTime();
-      return (CMPIDateTime*)new CMPI_Object(dt);
+      return reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
    }
 
    CMPIDateTime *newDateTimeBin(CMPIUint64 tim, CMPIBoolean interval) {
       CIMDateTime *dt=new CIMDateTime(tim, interval);
-      return (CMPIDateTime*)new CMPI_Object(dt);
+      return reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
    }
 
    CMPIDateTime *newDateTimeChar(const char *strTime) {
@@ -77,7 +77,7 @@ extern "C" {
 			delete dt;
 			return NULL;
 		}
-      return (CMPIDateTime*)new CMPI_Object(dt);
+      return reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
    }
 
    static CMPIDateTime* dtClone(const CMPIDateTime* eDt, CMPIStatus* rc) {
@@ -89,7 +89,7 @@ extern "C" {
       CIMDateTime* cDt=new CIMDateTime(dt->toString());
       CMPI_Object* obj=new CMPI_Object(cDt);
       obj->unlink();
-      CMPIDateTime* neDt=(CMPIDateTime*)obj;
+      CMPIDateTime* neDt=reinterpret_cast<CMPIDateTime*>(obj);
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return neDt;
    }
@@ -111,7 +111,7 @@ extern "C" {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	    return NULL;
       }
-      CMPIString *str=(CMPIString*)new CMPI_Object(dt->toString());
+      CMPIString *str=reinterpret_cast<CMPIString*>(new CMPI_Object(dt->toString()));
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return str;
    }

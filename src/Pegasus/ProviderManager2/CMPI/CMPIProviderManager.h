@@ -121,10 +121,10 @@ protected:
     Message * handleAssociatorNamesRequest(const Message * message);
     Message * handleReferencesRequest(const Message * message);
     Message * handleReferenceNamesRequest(const Message * message);
-/*
+
     Message * handleGetPropertyRequest(const Message * message);
     Message * handleSetPropertyRequest(const Message * message);
-*/
+
     Message * handleInvokeMethodRequest(const Message * message);
 
     Message * handleCreateSubscriptionRequest(const Message * message);

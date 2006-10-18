@@ -264,6 +264,14 @@ Message * CMPIProviderManager::processMessage(Message * request)
         response = handleSubscriptionInitCompleteRequest (request);
 
         break;
+    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+        response = handleGetPropertyRequest(request);
+
+        break;
+    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+        response = handleSetPropertyRequest(request);
+
+        break;
     default:
         response = handleUnsupportedRequest(request);
 
@@ -2565,6 +2573,355 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest
 
     PEG_METHOD_EXIT ();
     return (response);
+}
+
+Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleGetPropertyRequest");
+
+    HandlerIntro(GetProperty,message,request,response,handler);
+
+    // We're only going to be interested in the specific property from this
+    // instance.
+    Array<CIMName> localPropertyListArray;
+    localPropertyListArray.append(request->propertyName);
+    CIMPropertyList localPropertyList(localPropertyListArray);
+
+    // NOTE: GetProperty will use the CIMInstanceProvider interface, so we
+    // must manually define a request, response, and handler (emulate 
+    // HandlerIntro macro)
+    CIMGetInstanceRequestMessage * GI_request = 
+        new CIMGetInstanceRequestMessage(
+            request->messageId, 
+            request->nameSpace,
+            request->instanceName,
+            false,
+            false,
+            false,
+            localPropertyList,
+            request->queueIds,
+            request->authType,
+            request->userName
+            );
+
+    PEGASUS_ASSERT(GI_request != 0); 
+
+    CIMGetInstanceResponseMessage * GI_response = 
+        dynamic_cast<CIMGetInstanceResponseMessage*>(GI_request->buildResponse());
+
+    PEGASUS_ASSERT(GI_response != 0); 
+
+    GetInstanceResponseHandler GI_handler(GI_request, GI_response, _responseChunkCallback);
+
+    try 
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "CmpiProviderManager::handleGetPropertyRequest - Host name: $0  Name space: $1  Class name: $2  Property name: $3",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->instanceName.getClassName().getString(),
+            request->propertyName.getString());
+
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->instanceName.getClassName(),
+            request->instanceName.getKeyBindings());
+
+        Boolean remote=false;
+        CMPIProvider::OpProviderHolder ph;
+
+        // resolve provider name
+        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderName name = _resolveProviderName(pidc);
+
+        if ((remote=pidc.isRemoteNameSpace())) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        }
+        else {
+        // get cached or load new provider module
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
+
+        // convert arguments
+        OperationContext context;
+
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        // forward request
+        CMPIProvider & pr=ph.GetProvider();
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        // If normalization is enabled, then the normalizer will take care of
+        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
+        // to add a NormalizerContextContainer. The presence of an
+        // ObjectNormalizer is determined by the presence of the
+        // CachedClassDefinitionContainer
+        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        {
+            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+        }
+        else
+#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        {
+            // If a mechanism is needed to correct mismatches between the
+            // EmbeddedInstance and EmbeddedObject types, then insert
+            // containers for the class definition and a NormalizerContext.
+            AutoPtr<NormalizerContext> tmpNormalizerContext(
+                new CIMOMHandleContext(*pr._cimom_handle));
+            CIMClass classDef(tmpNormalizerContext->getClass(
+                request->nameSpace, request->className));
+            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                NormalizerContextContainer(tmpNormalizerContext));
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Calling provider.getInstance via getProperty: " + pr.getName());
+
+        DDD(cerr<<"--- CMPIProviderManager::getInstance via getProperty"<<endl);
+
+        CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPI_ContextOnStack eCtx(context);
+        CMPI_ObjectPathOnStack eRef(objectPath);
+        CMPI_ResultOnStack eRes(GI_handler,&pr.broker);
+        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+
+        // For the getInstance provider call, use the property list that we 
+        // created containing the single property from the getProperty call.
+        CMPIPropertyList props(localPropertyList);
+
+        CMPIFlags flgs=0;
+        // Leave includeQualifiers and includeClassOrigin as false for this call to getInstance
+        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
+
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
+
+        eCtx.ft->addEntry(
+            &eCtx,
+            "AcceptLanguage",
+            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
+                acceptLangs).getCString(),
+            CMPI_chars);
+ 
+        if (remote) {
+           CString info=pidc.getRemoteInfo().getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
+
+        CMPIProvider::pm_service_op_lock op_lock(&pr);
+
+        AutoPThreadSecurity threadLevelSecurity(context);
+
+        if (pr.miVector.instMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
+
+        {
+            StatProviderTimeMeasurement providerTime(response);
+
+            rc = pr.miVector.instMI->ft->getInstance(
+                pr.miVector.instMI,&eCtx,&eRes,&eRef,
+                (const char **)props.getList());
+        }
+
+        if (rc.rc!=CMPI_RC_OK)
+            throw CIMException((CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+
+        // Copy property value from instance to getProperty response
+        if(!(GI_response->cimInstance.isUninitialized()))
+        {
+            Uint32 pos = GI_response->cimInstance.findProperty(request->propertyName);
+
+            if(pos != PEG_NOT_FOUND)
+            {
+                response->value = GI_response->cimInstance.getProperty(pos).getValue();
+            }
+            // Else property not found. Return CIM_ERR_NO_SUCH_PROPERTY.
+            else
+            {
+                throw PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_NO_SUCH_PROPERTY,
+                    request->propertyName.getString()
+                    );
+            }
+        }
+    }
+    HandlerCatch(handler);
+
+    delete GI_request;
+    delete GI_response;
+
+    PEG_METHOD_EXIT();
+
+    return(response);
+}
+
+Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+       "CMPIProviderManager::handleSetPropertyRequest");
+
+    HandlerIntro(SetProperty,message,request,response,handler);
+
+    // We're only going to be interested in the specific property from this instance.
+    Array<CIMName> localPropertyListArray;
+    localPropertyListArray.append(request->propertyName);
+    CIMPropertyList localPropertyList(localPropertyListArray);
+
+    // Build a modified instance with just the specific property and its new value.
+    CIMInstance localModifiedInstance(request->instanceName.getClassName());
+    localModifiedInstance.setPath(request->instanceName);
+    localModifiedInstance.addProperty(CIMProperty(request->propertyName, request->newValue));
+
+    // NOTE: SetProperty will use the CIMInstanceProvider interface, so we must manually
+    //       define a request, response, and handler.
+    CIMModifyInstanceRequestMessage * MI_request = 
+        new CIMModifyInstanceRequestMessage(
+            request->messageId, 
+            request->nameSpace,
+            localModifiedInstance,
+            false,
+            localPropertyList,
+            request->queueIds,
+            request->authType,
+            request->userName
+            );
+
+    PEGASUS_ASSERT(MI_request != 0); 
+
+    CIMModifyInstanceResponseMessage * MI_response = 
+        dynamic_cast<CIMModifyInstanceResponseMessage*>(MI_request->buildResponse());
+
+    PEGASUS_ASSERT(MI_response != 0); 
+
+    ModifyInstanceResponseHandler MI_handler(MI_request, MI_response, _responseChunkCallback);
+
+    try 
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "CmpiProviderManager::handleSetPropertyRequest - Host name: $0  Name space: $1  Class name: $2  Property name: $3",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->instanceName.getClassName().getString(),
+            request->propertyName.getString());
+
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->instanceName.getClassName(),
+            request->instanceName.getKeyBindings());
+
+        Boolean remote=false;
+        CMPIProvider::OpProviderHolder ph;
+
+        // resolve provider name
+        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderName name = _resolveProviderName(pidc);
+
+        if ((remote=pidc.isRemoteNameSpace())) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        }
+        else {
+        // get cached or load new provider module
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
+
+        // convert arguments
+        OperationContext context;
+
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        // forward request
+        CMPIProvider & pr=ph.GetProvider();
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Calling provider.modifyInstance via setProperty: " + pr.getName());
+
+        DDD(cerr<<"--- CMPIProviderManager::modifyInstance via setProperty"<<endl);
+
+        CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPI_ContextOnStack eCtx(context);
+        CMPI_ObjectPathOnStack eRef(objectPath);
+        CMPI_ResultOnStack eRes(MI_handler,&pr.broker);
+        CMPI_InstanceOnStack eInst(localModifiedInstance);
+        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+
+        CMPIPropertyList props(localPropertyList);
+
+        CMPIFlags flgs=0;
+        // Leave includeQualifiers as false for this call to modifyInstance
+        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        const IdentityContainer container =
+           request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(&eCtx,
+                          CMPIPrincipal,
+                          (CMPIValue*)(const char*)container.getUserName().getCString(),
+                          CMPI_chars);
+
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
+        eCtx.ft->addEntry(
+            &eCtx,
+            "AcceptLanguage",
+            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
+                acceptLangs).getCString(),
+            CMPI_chars);
+ 
+        if (remote) {
+           CString info=pidc.getRemoteInfo().getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
+
+        CMPIProvider::pm_service_op_lock op_lock(&pr);
+
+        AutoPThreadSecurity threadLevelSecurity(context);
+
+        if (pr.miVector.instMI==0)
+        {
+            _throw_MINotInitializedException();
+        }  
+
+        {
+            StatProviderTimeMeasurement providerTime(response);
+
+            rc = pr.miVector.instMI->ft->modifyInstance(
+                pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,
+                (const char **)props.getList());
+        }
+
+        if (rc.rc!=CMPI_RC_OK)
+           throw CIMException((CIMStatusCode)rc.rc,
+               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+    }
+    HandlerCatch(handler);
+
+    delete MI_request;
+    delete MI_response;
+
+    PEG_METHOD_EXIT();
+
+    return(response);
 }
 
 Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message)

@@ -51,7 +51,7 @@
 #define _ProviderLocation "/src/Providers/TestProviders/CMPI/TestAssociation/tests/"
 #define _LogExtension ".log"
 
-static CMPIBroker *_broker;
+static const CMPIBroker *_broker;
 
 unsigned char CMPI_true = 1;
 unsigned char CMPI_false = 0;
@@ -65,7 +65,7 @@ static FILE *fd = NULL;
 void PROV_LOG (const char *fmt, ...)
 {
 
-    va_list ap;
+    va_list ap=NULL;
     if (!fd)
         fd = stderr;
 
@@ -184,7 +184,7 @@ strCMPIStatus (CMPIStatus *rc)
 /*                       CMPI Helper function                                 */
 /* ---------------------------------------------------------------------------*/
 
-const char * get_assoc_targetClass_Name( CMPIBroker * _broker,
+const char * get_assoc_targetClass_Name( const CMPIBroker * _broker,
                                 const CMPIObjectPath * ref,
                                 const char * _RefLeftClass,
                                 const char * _RefRightClass,
@@ -192,7 +192,6 @@ const char * get_assoc_targetClass_Name( CMPIBroker * _broker,
 {
     CMPIString * sourceClass = NULL;
     CMPIObjectPath * op = NULL;
-    CMPIData data;
 
     /* get name of source class */
     sourceClass = CMGetClassName(ref, rc);
@@ -215,14 +214,14 @@ const char * get_assoc_targetClass_Name( CMPIBroker * _broker,
 }
 
 
-CMPIObjectPath * get_assoc_targetClass_ObjectPath( CMPIBroker * _broker,
+CMPIObjectPath * get_assoc_targetClass_ObjectPath( const CMPIBroker * _broker,
                                         const CMPIObjectPath * ref,
                                         const char * _RefLeftClass,
                                         const char * _RefRightClass,
                                         CMPIStatus * rc ) 
 {
     CMPIObjectPath * op = NULL;
-    char * targetName = NULL;
+    const char * targetName = NULL;
     
     /* get name of the target class */
     targetName = get_assoc_targetClass_Name( _broker, ref, _RefLeftClass,_RefRightClass, rc);
@@ -369,7 +368,7 @@ TestCMPIAssociationProviderReferences (CMPIAssociationMI * mi,
     CMPIEnumeration * en = NULL;
     CMPIData data ;
 
-    char * targetName = NULL;
+    const char * targetName = NULL;
     char * _thisClassName;
     char * _RefLeftClass = NULL;    
     char * _RefRightClass = NULL; 
@@ -447,7 +446,7 @@ TestCMPIAssociationProviderReferenceNames (CMPIAssociationMI * mi,
     CMPIEnumeration * en = NULL;
     CMPIData data ;
 
-    char * targetName = NULL;
+    const char * targetName = NULL;
     const char * _thisClassName;
     const char * _RefLeftClass = NULL;    
     const char * _RefRightClass = NULL;   

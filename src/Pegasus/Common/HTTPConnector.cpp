@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-// Modified By: Sushma Fernandes, Hewlett-Packard Company
-//                (sushma_fernandes@hp.com)
-// Modified By: Dan Gorey, IBM (djgorey@us.ibm.com)
-// Modified By: Amit Arora (amita@in.ibm.com) for Bug#1170
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
-//              Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, Symantec Corp (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -603,13 +591,18 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
  HTTPConnection* HTTPConnector::_connectNamedPipe(MessageQueue* outputMessageQueue)
 {
-    NamedPipeClient client(PEGASUS_NAMEDPIPE_PATH);
+    //Create a temporary named pipe of  client 
+	NamedPipeClient client(PEGASUS_NAMEDPIPE_PATH);
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
         AutoMutex automut(Monitor::_cout_mut);
         PEGASUS_STD(cout) << "In HTTPConnector::_connectNamedPipe after client constuctor" << PEGASUS_STD(endl);
     }
 #endif
+    // Make the connect request. This would challenge the server for handshake by writing the data    
+    // “<connect-request>” . If the server responds by writing “<connect-response>”, a 
+    // NamedPipeClientEndPoint pipe is created by the client.
+
     NamedPipeClientEndPiont nPCEndPoint = client.connect();
 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG

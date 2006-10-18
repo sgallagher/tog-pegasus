@@ -749,6 +749,8 @@ Boolean Monitor::run(Uint32 milliseconds)
 						entries.reset(_entries);
 						entries[indx]._status = _MonitorEntry::IDLE;
 						handled_events = true;
+						delete [] hPipeList;
+						return handled_events;
 
 					}
 				}
@@ -758,7 +760,8 @@ Boolean Monitor::run(Uint32 milliseconds)
 			  	handled_events = true;
 			}
         }
-	    return(handled_events);
+		delete [] hPipeList;
+		return handled_events;
     }
 
 
@@ -790,7 +793,6 @@ Boolean Monitor::run(Uint32 milliseconds)
         for (int pipeIndex = 0; pipeIndex < pipeEntryCount; pipeIndex++)
 	    {
             dwBytesAvail = 0;
-		    Tracer::trace(TRC_HTTP,Tracer::LEVEL4," PIPE_PEEKING for PIPE = %u ", hPipeList[pipeIndex]);
 		    bPeekPipe = ::PeekNamedPipe(hPipeList[pipeIndex],
 			                            NULL,
 							            NULL,
@@ -806,7 +808,6 @@ Boolean Monitor::run(Uint32 milliseconds)
 			    Tracer::trace(TRC_HTTP,Tracer::LEVEL4," PIPE_PEEKING FOUND = %u BYTES", dwBytesAvail);
 
 			    pEvents = 1;
-			    Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "EVENT TRIGGERED in Pipe = %u ",entries[indexPipeCountAssociator[pipeIndex]].namedPipe.getPipe());
 	            entries[indexPipeCountAssociator[pipeIndex]].pipeSet = true;
 			    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                     "Monitor::run select event received events = %d, \
@@ -905,7 +906,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 					        autoEntryMutex.lock();
 		                    entries.reset(_entries);
 		                    entries[pIndx]._status = _MonitorEntry::IDLE;
-					        return true;
+							delete [] hPipeList;
+	                        return(handled_events);
+					        
 				        }
 
 

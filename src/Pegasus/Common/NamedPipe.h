@@ -43,7 +43,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const DWORD NAMEDPIPE_MAX_BUFFER_SIZE = 8192; 
+const DWORD NAMEDPIPE_MAX_BUFFER_SIZE = 8192;
 
 typedef struct
 {
@@ -57,27 +57,55 @@ class PEGASUS_COMMON_LINKAGE NamedPipe
 public:
     static bool read(HANDLE pipe, String & buffer);
     static bool write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap = NULL);
-    String getName(void) {return _name;}
+    String getName(void)
+    {
+        return _name;
+    }
 
-    HANDLE getPipe(void){ return _pipe.hpipe;}
-    LPOVERLAPPED getOverlap(void){ return &_pipe.overlap;}
+    HANDLE getPipe(void)
+    {
+        return _pipe.hpipe;
+    }
+
+    LPOVERLAPPED getOverlap(void)
+    {
+        return &_pipe.overlap;
+    }
 
     Boolean isConnectionPipe;
     char raw[NAMEDPIPE_MAX_BUFFER_SIZE];
-    
+
     DWORD bytesRead;
-	
-    void setPipeHandle()
+
+	void setPipeHandle()
 	{
 		_pipe.hpipe=INVALID_HANDLE_VALUE;
 	}
-	bool _isUnderUse(){ return _isBusy; }
-	void resetState() { _isBusy = false; }
-	void setBusy() { _isBusy = true; }
+	bool _isUnderUse()
+	{
+		return _isBusy;
+	}
+	void resetState()
+	{
+		_isBusy = false;
+	}
+	void setBusy()
+	{
+		_isBusy = true;
+	}
 
-	bool isConnected(){ return _isConnected; }
-	void disconnect() { _isConnected = false; }
-	void connected() { _isConnected = true; }
+	bool isConnected()
+	{
+		return _isConnected;
+	}
+	void disconnect()
+	{
+		_isConnected = false;
+	}
+	void connected()
+	{
+		_isConnected = true;
+	}
 
 protected:
    String _name;
@@ -125,7 +153,7 @@ public:
 
     NamedPipeClientEndPiont connect(void);
     void disconnect(HANDLE pipe) const;
-    
+
 
 private:
 

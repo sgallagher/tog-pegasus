@@ -152,15 +152,11 @@ bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
             printf("WriteFile in NamedPipe::write failed with error \
 				   %d: %s", dw, lpMsgBuf);
  #endif
-            //LocalFree(lpMsgBuf);
             LocalFree(lpDisplayBuf);
-            //ExitProcess(dw);
             return false;
         }
     }
-	// Wait for the client peer to read the data. This must be enabled
-	// for Chunking support
-    ::FlushFileBuffers (pipe);
+
     return(true);
 }
 
@@ -179,13 +175,13 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
     _pipe.hpipe  =
         ::CreateNamedPipe(
             _PRIMARY_PIPE_NAME(_name).getCString(),
-            PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,   // read/write
+            PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,  
             PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
-            MAX_PIPE_INSTANCES,                   //  PIPE_UNLIMITED_INSTANCES, // max. instances??
+            MAX_PIPE_INSTANCES,                   
             NAMEDPIPE_MAX_BUFFER_SIZE,
             NAMEDPIPE_MAX_BUFFER_SIZE,
             MAX_TIMEOUT,
-            0);   // NULL ??
+            0);   
         
 	if (_pipe.hpipe == INVALID_HANDLE_VALUE)
     {
@@ -214,6 +210,9 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
     if (bIsconnected)
     {
             //SHOULD THROW AN EXCEPTION HERE
+        throw(Exception("NamedPipeServer::accept Primary - Pipe Failed to \
+			             reconnect."));
+
     }
 
 }

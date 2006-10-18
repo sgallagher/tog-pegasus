@@ -862,8 +862,14 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         if (!_namedPipeConnection)
         {
 		    _socket->enableBlocking();
-        }// This condition for NamedPipe has been inplemented in 
-		 // NamedPipe::write
+        }
+		else
+		{
+			// Wait for the client peer to read the data. This must be enabled
+	        // for Chunking support.
+		    ::FlushFileBuffers (_namedPipe.getPipe());
+
+		}
 
 #else
         _socket->enableBlocking();
@@ -1251,12 +1257,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
     {
          _socket->disableBlocking();
     }
-    /* Reset the Pipe mode to NON-Blocking mode */
-	else
-	{
-	     DWORD dwModeReset= PIPE_READMODE_MESSAGE | PIPE_NOWAIT;
-	     ::SetNamedPipeHandleState( _namedPipe.getPipe(), &dwModeReset, NULL, NULL );
-	}
 #else
         _socket->disableBlocking();
 #endif

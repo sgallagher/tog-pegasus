@@ -768,9 +768,6 @@ void HTTPAcceptor::destroyConnections()
         {
             NamedPipe namedPipe = connection->getNamedPipe();
             _monitor->unsolicitPipeMessages(namedPipe);
-            ::FlushFileBuffers(namedPipe.getPipe());
-            ::DisconnectNamedPipe(namedPipe.getPipe());
-            ::CloseHandle(namedPipe.getPipe());
         }
 #endif
         while (connection->refcount.get()) { }
@@ -938,7 +935,6 @@ void HTTPAcceptor::_createNamedPipe()
        delete _rep;
        _rep = 0;
        //l10n
-       //throw BindFailedException("Failed to solicit socket messaeges");
        MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SOLICIT_SOCKET_MESSAGES",
                     "Failed to solicit socket messaeges");
        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -974,8 +970,6 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
     }
 #endif
 
-   // shouldnt we be using the private var....
-     //                 _namedPipeServer->accept()
 
     NamedPipeServerEndPiont nPSEndPoint = _rep->namedPipeServer->accept();
     // Register to receive Messages on Connection pipe:
@@ -987,15 +981,6 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
 #endif
     HTTPConnection* connection = new HTTPConnection(_monitor, nPSEndPoint,
         this, static_cast<MessageQueue *>(_outputMessageQueue), _exportConnection);
-
-    /*  NOT SURE WHAT TO DO HERE  ....
-    if (socketAcceptStatus == 0)
-    {
-        PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
-            "HTTPAcceptor: SSL_accept() pending");
-        connection->_acceptPending = true;
-    }
-    */
 
     // Solicit events on this new connection's socket:
     int index;
@@ -1016,8 +1001,6 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
            "HTTPAcceptor::_acceptPipeConnection: Attempt to allocate entry in _entries table failed.");
        delete connection;
-       //  May have to close the PIPE here...
-       //Socket::close(socket);
        return;
     }
 

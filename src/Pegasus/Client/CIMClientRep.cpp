@@ -1096,12 +1096,25 @@ Message* CIMClientRep::_doRequest(
     Uint64 nowMilliseconds = startMilliseconds;
     Uint64 stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
 
-    while (nowMilliseconds < stopMilliseconds)
+	while (nowMilliseconds < stopMilliseconds)
     {
         //
         // Wait until the timeout expires or an event occurs:
         //
-        _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+		// if it is a local connection and NamedPipe feature is supported
+		// run monitor for timeout in a period of 1000 milliseconds
+		if (!_connectHost.size())
+		{
+			_monitor->run(Uint32(1000));
+		}
+		else
+		{
+#endif
+            _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+		}
+#endif
 
         //
         // Check to see if incoming queue has a message

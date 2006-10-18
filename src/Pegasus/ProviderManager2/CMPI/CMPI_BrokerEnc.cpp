@@ -288,7 +288,7 @@ extern "C" {
    static CMPIString* mbEncNewString(const CMPIBroker* mb, const char *cStr, CMPIStatus *rc) {
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
 	  if (cStr == NULL)
-      	return reinterpret_cast<CMPIString*>(new CMPI_Object(""));
+      	return reinterpret_cast<CMPIString*>(new CMPI_Object((char*)NULL));
       return reinterpret_cast<CMPIString*>(new CMPI_Object(cStr));
    }
 

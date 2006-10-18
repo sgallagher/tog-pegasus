@@ -74,7 +74,7 @@ extern "C" {
       }
       CMPI_Object* obj=new CMPI_Object(cArg);
       obj->unlink();
-      CMPIArgs* neArg=(CMPIArgs*)obj;
+      CMPIArgs* neArg=reinterpret_cast<CMPIArgs*>(obj);
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return neArg;
    }
@@ -182,16 +182,16 @@ static CMPIStatus contextReleaseNop(CMPIContext* eCtx) {
 }
 
    static CMPIData contextGetEntry(const CMPIContext* eCtx, const char *name, CMPIStatus* rc) {
-      return argsGetArg((CMPIArgs*)eCtx,name,rc);
+      return argsGetArg(reinterpret_cast<const CMPIArgs*>(eCtx),name,rc);
    }
 
    CMPIData contextGetEntryAt(const CMPIContext* eCtx, CMPICount pos,
                CMPIString** name, CMPIStatus* rc) {
-      return argsGetArgAt((CMPIArgs*)eCtx,pos,name,rc);
+      return argsGetArgAt(reinterpret_cast<const CMPIArgs*>(eCtx),pos,name,rc);
    }
 
    static CMPICount contextGetEntryCount(const CMPIContext* eCtx, CMPIStatus* rc) {
-      return argsGetArgCount((CMPIArgs*)eCtx,rc);
+      return argsGetArgCount(reinterpret_cast<const CMPIArgs*>(eCtx),rc);
    }
 
    static CMPIStatus contextAddEntry(const CMPIContext* eCtx, const char *name,
@@ -207,7 +207,7 @@ static CMPIStatus contextReleaseNop(CMPIContext* eCtx) {
             CMReturn(CMPI_RC_OK);
          }
       }
-      return argsAddArg((CMPIArgs*)eCtx,name,data,type);
+      return argsAddArg(reinterpret_cast<const CMPIArgs*>(eCtx),name,data,type);
    }
 
 }

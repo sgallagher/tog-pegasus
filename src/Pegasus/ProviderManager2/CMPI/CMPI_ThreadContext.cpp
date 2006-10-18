@@ -116,7 +116,7 @@ CMPI_ThreadContext::CMPI_ThreadContext(const CMPIBroker *mb, const CMPIContext *
 CMPI_ThreadContext::~CMPI_ThreadContext() {
    for (CMPI_Object *nxt,*cur=CIMfirst; cur; cur=nxt) {
       nxt=cur->next;
-      ((CMPIInstance*)cur)->ft->release((CMPIInstance*)cur);
+      (reinterpret_cast<CMPIInstance*>(cur))->ft->release(reinterpret_cast<CMPIInstance*>(cur));
    }
 
    TSDKeyType k=getContextKey();

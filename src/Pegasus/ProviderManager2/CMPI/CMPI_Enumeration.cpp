@@ -112,8 +112,8 @@ extern "C" {
          data.type=CMPI_instance;
          Array<CIMInstance>* ia=(Array<CIMInstance>*)ie->hdl;
          if (ie->cursor<ie->max) {
-            data.value.inst=(CMPIInstance*)
-         new CMPI_Object(new CIMInstance((*ia)[ie->cursor++]));
+            data.value.inst=reinterpret_cast<CMPIInstance*>
+         (new CMPI_Object(new CIMInstance((*ia)[ie->cursor++])));
             if (rc) CMSetStatus(rc,CMPI_RC_OK);
          }
          else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -124,8 +124,8 @@ extern "C" {
          data.type=CMPI_instance;
          Array<CIMInstance>* ia=(Array<CIMInstance>*)ie->hdl;
          if (ie->cursor<ie->max) {
-            data.value.inst=(CMPIInstance*)
-         new CMPI_Object(new CIMInstance((*ia)[ie->cursor++]));
+            data.value.inst=reinterpret_cast<CMPIInstance*>
+         (new CMPI_Object(new CIMInstance((*ia)[ie->cursor++])));
             if (rc) CMSetStatus(rc,CMPI_RC_OK);
          }
          else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -136,8 +136,8 @@ extern "C" {
          data.type=CMPI_ref;
          Array<CIMObjectPath>* opa=(Array<CIMObjectPath>*)oe->hdl;
          if (oe->cursor<oe->max) {
-            data.value.ref=(CMPIObjectPath*)
-         new CMPI_Object(new CIMObjectPath((*opa)[oe->cursor++]));
+            data.value.ref=reinterpret_cast<CMPIObjectPath*>
+         (new CMPI_Object(new CIMObjectPath((*opa)[oe->cursor++])));
             if (rc) CMSetStatus(rc,CMPI_RC_OK);
          }
          else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);

@@ -51,7 +51,7 @@ extern "C" {
 	  CMPI_Predicate *pred = (CMPI_Predicate*)sc->hdl;
       if (pred) {
          delete pred;
-         ((CMPI_Object*)sc)->unlinkAndDelete();
+         reinterpret_cast<CMPI_Object*>(sc)->unlinkAndDelete();
       }
       CMReturn(CMPI_RC_OK);
    }

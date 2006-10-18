@@ -53,7 +53,7 @@ extern "C" {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
       if (ref) {
          delete ref;
-         ((CMPI_Object*)eRef)->unlinkAndDelete();
+         (reinterpret_cast<CMPI_Object*>(eRef))->unlinkAndDelete();
       }
       CMReturn(CMPI_RC_OK);
    }
@@ -76,7 +76,7 @@ extern "C" {
       nRef->setKeyBindings(kb);
       CMPI_Object* obj=new CMPI_Object(nRef);
       obj->unlink();
-      CMPIObjectPath* neRef=(CMPIObjectPath*)obj;
+      CMPIObjectPath* neRef=reinterpret_cast<CMPIObjectPath*>(obj);
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return neRef;
    }
@@ -260,7 +260,7 @@ extern "C" {
       }
       String str=ref->toString();
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      return (CMPIString*) new CMPI_Object(str);
+      return reinterpret_cast<CMPIString*>(new CMPI_Object(str));
    }
 
 }

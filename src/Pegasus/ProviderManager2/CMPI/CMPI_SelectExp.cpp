@@ -466,7 +466,7 @@ CMPI_SelectExp::CMPI_SelectExp (WQLSelectStatement * st):ctx (OperationContext (
 wql_stmt (st), persistent(false)
 {
   // Adding the object to the garbage collector.
-  CMPI_ThreadContext::addObject ((CMPI_Object *)this);
+  CMPI_ThreadContext::addObject (reinterpret_cast<CMPI_Object *>(this));
   hdl = NULL;
   ft = CMPI_SelectExp_Ftab;
   props = NULL;
@@ -486,7 +486,7 @@ CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st):ctx (OperationContext (
 cql_stmt (st), persistent(false)
 {
   // Adding the object to the garbage collector.
-  CMPI_ThreadContext::addObject ((CMPI_Object *)this);
+  CMPI_ThreadContext::addObject (reinterpret_cast<CMPI_Object *>(this));
   hdl = NULL;
   ft = CMPI_SelectExp_Ftab;
   props = NULL;

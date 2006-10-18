@@ -54,7 +54,7 @@ extern "C" {
 		 if (data) 
 		 	delete data;
          delete sc;
-         ((CMPI_Object*)eSc)->unlinkAndDelete();
+         reinterpret_cast<CMPI_Object*>(eSc)->unlinkAndDelete();
       }
  
       CMReturn(CMPI_RC_OK);

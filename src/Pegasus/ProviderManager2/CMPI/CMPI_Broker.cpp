@@ -132,7 +132,7 @@ extern "C" {
          props);
          ci.setPath(*CM_ObjectPath(cop));
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return (CMPIInstance*)new CMPI_Object(new CIMInstance(ci));
+         return reinterpret_cast<CMPIInstance*>(new CMPI_Object(new CIMInstance(ci)));
       }
       catch (const CIMException &e) {
          DDD(cout<<"### exception: mbGetInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -155,7 +155,7 @@ extern "C" {
          CM_ObjectPath(cop)->getNameSpace(),
                      *CM_Instance(ci));
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return (CMPIObjectPath*)new CMPI_Object(new CIMObjectPath(ncop));
+         return reinterpret_cast<CMPIObjectPath*>(new CMPI_Object(new CIMObjectPath(ncop)));
       }
       catch (const CIMException &e) {
          DDD(cout<<"### exception: mbCreateInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -631,9 +631,9 @@ extern "C" {
       OperationContext nctx=*ctx;
       CMPIContext* neCtx=new CMPI_Context(*(new OperationContext(nctx)));
       CMPIString *name;
-      for (int i=0,s=CMPI_Args_Ftab->getArgCount((CMPIArgs*)eCtx,NULL); i<s; i++) {
-         CMPIData data=CMPI_Args_Ftab->getArgAt((CMPIArgs*)eCtx,i,&name,NULL);
-         CMPI_Args_Ftab->addArg((CMPIArgs*)neCtx,CMGetCharPtr(name),&data.value,data.type);
+      for (int i=0,s=CMPI_Args_Ftab->getArgCount(reinterpret_cast<const CMPIArgs*>(eCtx),NULL); i<s; i++) {
+         CMPIData data=CMPI_Args_Ftab->getArgAt(reinterpret_cast<const CMPIArgs*>(eCtx),i,&name,NULL);
+         CMPI_Args_Ftab->addArg(reinterpret_cast<CMPIArgs*>(neCtx),CMGetCharPtr(name),&data.value,data.type);
       }
    return neCtx;
    }

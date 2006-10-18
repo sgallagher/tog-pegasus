@@ -136,6 +136,19 @@ int CWS_Update_File(CWS_FILE* cwsf)
   return 0;
 }
 
+int CWS_Update_FileSize(CWS_FILE* cwsf, const char *fn)
+{ 
+    int n;  
+
+    /* only change filesize */
+    if (cwsf && (n=locateFile(fn))>=0)
+    {
+        files[n].size=(long)cwsf->cws_size;
+        return 1;
+    }
+    return 0;
+}
+
 int CWS_Create_Directory(CWS_FILE* cwsf)
 {
   return 0;
@@ -249,6 +262,12 @@ int CWS_Update_File(CWS_FILE* cwsf)
     state=chmod(cwsf->cws_name,mode)==0;
   }
   return state;
+}
+
+int CWS_Update_FileSize(CWS_FILE* cwsf, const char *fn)
+{ 
+    /* can't change filesize for non-simulated case */
+    return 0;
 }
 
 int CWS_Create_Directory(CWS_FILE* cwsf)

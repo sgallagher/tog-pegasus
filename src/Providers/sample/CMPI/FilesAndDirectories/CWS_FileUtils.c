@@ -149,25 +149,50 @@ CMPIInstance   *makeInstance(const CMPIBroker *broker, const char * classname,
 int makeFileBuf(const CMPIInstance *instance, CWS_FILE *cwsf)
 {
   CMPIData dt;
+  CMPIStatus rc = {CMPI_RC_OK,NULL};
   if (instance && cwsf) {
-    dt=CMGetProperty(instance,"Name",NULL);
-    strcpy(cwsf->cws_name,CMGetCharPtr(dt.value.string));
-    dt=CMGetProperty(instance,"FileSize",NULL);
-    cwsf->cws_size=dt.value.uint64;
+    dt=CMGetProperty(instance,"Name",&rc);
+    if (rc.rc == CMPI_RC_OK)
+    {
+        strcpy(cwsf->cws_name,CMGetCharPtr(dt.value.string));
+    }
+    dt=CMGetProperty(instance,"FileSize",&rc);
+    if (rc.rc == CMPI_RC_OK)
+    {
+        cwsf->cws_size=dt.value.uint64;
+    }
 #ifndef SIMULATED
-     dt=CMGetProperty(instance,"CreationDate",NULL);
-    cwsf->cws_ctime=CMGetBinaryFormat(dt.value.dateTime,NULL);
-    dt=CMGetProperty(instance,"LastModified",NULL);
-    cwsf->cws_mtime=CMGetBinaryFormat(dt.value.dateTime,NULL);
-    dt=CMGetProperty(instance,"LastAccessed",NULL);
-    cwsf->cws_atime=CMGetBinaryFormat(dt.value.dateTime,NULL);
+     dt=CMGetProperty(instance,"CreationDate",&rc);
+     if (rc.rc == CMPI_RC_OK)
+     {
+         cwsf->cws_ctime=CMGetBinaryFormat(dt.value.dateTime,NULL);
+     }
+    dt=CMGetProperty(instance,"LastModified",&rc);
+    if (rc.rc == CMPI_RC_OK)
+    {
+        cwsf->cws_mtime=CMGetBinaryFormat(dt.value.dateTime,NULL);
+    }
+    dt=CMGetProperty(instance,"LastAccessed",&rc);
+    if (rc.rc == CMPI_RC_OK)
+    {
+        cwsf->cws_atime=CMGetBinaryFormat(dt.value.dateTime,NULL);
+    }
 #endif
-    dt=CMGetProperty(instance,"Readable",NULL);
-    cwsf->cws_mode=dt.value.boolean ? 0400 : 0;
-    dt=CMGetProperty(instance,"Writeable",NULL);
-    cwsf->cws_mode+=(dt.value.boolean ? 0200 : 0);
-    dt=CMGetProperty(instance,"Executable",NULL);
-    cwsf->cws_mode+=(dt.value.boolean ? 0100 : 0);
+    dt=CMGetProperty(instance,"Readable",&rc);
+    if (rc.rc == CMPI_RC_OK)
+    {
+        cwsf->cws_mode=dt.value.boolean ? 0400 : 0;
+    }
+    dt=CMGetProperty(instance,"Writeable",&rc);
+    if (rc.rc == CMPI_RC_OK)
+    {
+        cwsf->cws_mode+=(dt.value.boolean ? 0200 : 0);
+    }
+    dt=CMGetProperty(instance,"Executable",&rc);
+    if (rc.rc == CMPI_RC_OK)
+    {
+        cwsf->cws_mode+=(dt.value.boolean ? 0100 : 0);
+    }
     return 1;
   }
   return 0;

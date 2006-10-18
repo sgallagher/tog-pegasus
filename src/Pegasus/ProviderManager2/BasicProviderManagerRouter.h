@@ -67,8 +67,11 @@ public:
     virtual void unloadIdleProviders();
 
 private:
-    BasicProviderManagerRouter();    // Unimplemented
+    BasicProviderManagerRouter();
+    BasicProviderManagerRouter(const BasicProviderManagerRouter&);
+    BasicProviderManagerRouter& operator=(const BasicProviderManagerRouter&);
 
+    ProviderManager* _getProviderManager(const String& interfaceType);
     ProviderManager* _lookupProviderManager(const String& interfaceType);
 
     Array<ProviderManagerContainer*> _providerManagerTable;

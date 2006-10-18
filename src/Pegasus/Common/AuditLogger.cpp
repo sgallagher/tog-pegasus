@@ -37,7 +37,11 @@
 #include <Pegasus/Common/Formatter.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/InternalException.h>
-#include <unistd.h>
+
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+# include <unistd.h>
+#endif
+
 #include <stdlib.h>
 
 #ifndef PEGASUS_DISABLE_AUDIT_LOGGER

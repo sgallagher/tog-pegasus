@@ -48,6 +48,8 @@
 
 #include <Pegasus/Common/AuditLogger.h>
 
+extern char ** environ;
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN

@@ -1,43 +1,47 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Chip Vincent (cvincent@us.ibm.com)
+//
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "OperationContext.h"
 #include "ArrayInternal.h"
-#include <Pegasus/Common/MessageLoader.h>
-
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_IX86_GNU)
-# define PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
-#endif
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -48,46 +52,46 @@ PEGASUS_NAMESPACE_BEGIN
 class OperationContextRep
 {
 public:
-    Array<OperationContext::Container*> containers;
+    Array<OperationContext::Container *> containers;
 };
 
-OperationContext::OperationContext()
+OperationContext::OperationContext(void)
 {
     _rep = new OperationContextRep;
 }
 
-OperationContext::OperationContext(const OperationContext& context)
+OperationContext::OperationContext(const OperationContext & context)
 {
     _rep = new OperationContextRep;
     *this = context;
 }
 
-OperationContext::~OperationContext()
+OperationContext::~OperationContext(void)
 {
     clear();
     delete _rep;
 }
 
-OperationContext& OperationContext::operator=(const OperationContext& context)
+OperationContext & OperationContext::operator=(const OperationContext & context)
 {
-    if (this == &context)
+    if(this == &context)
     {
-        return *this;
+        return(*this);
     }
 
     clear();
 
-    for (Uint32 i = 0, n = context._rep->containers.size(); i < n; i++)
+    for(Uint32 i = 0, n = context._rep->containers.size(); i < n; i++)
     {
         _rep->containers.append(context._rep->containers[i]->clone());
     }
 
-    return *this;
+    return(*this);
 }
 
-void OperationContext::clear()
+void OperationContext::clear(void)
 {
-    for (Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
+    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
         _rep->containers[i]->destroy();
     }
@@ -95,7 +99,7 @@ void OperationContext::clear()
     _rep->containers.clear();
 }
 
-const OperationContext::Container& OperationContext::get(
+const OperationContext::Container & OperationContext::get(
     const String& containerName) const
 {
     Uint32 size = _rep->containers.size();
@@ -126,11 +130,11 @@ Boolean OperationContext::contains(
     return false;
 }
 
-void OperationContext::set(const OperationContext::Container& container)
+void OperationContext::set(const OperationContext::Container & container)
 {
-    for (Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
+    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
-        if (container.getName() == _rep->containers[i]->getName())
+        if(container.getName() == _rep->containers[i]->getName())
         {
             // delete previous container
             _rep->containers[i]->destroy();
@@ -143,22 +147,24 @@ void OperationContext::set(const OperationContext::Container& container)
         }
     }
 
-    MessageLoaderParms parms(
-        "Common.OperationContext.OBJECT_NOT_FOUND",
-        "object not found");
+        //l10n
+        MessageLoaderParms parms("Common.OperationContext.OBJECT_NOT_FOUND",
+                                                         "object not found");
     throw Exception(parms);
+    //throw Exception("object not found");
 }
 
-void OperationContext::insert(const OperationContext::Container& container)
+void OperationContext::insert(const OperationContext::Container & container)
 {
-    for (Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
+    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
-        if (container.getName() == _rep->containers[i]->getName())
+        if(container.getName() == _rep->containers[i]->getName())
         {
-            MessageLoaderParms parms(
-                "Common.OperationContext.OBJECT_ALREADY_EXISTS",
-                "object already exists.");
-            throw Exception(parms);
+                //l10n
+                        MessageLoaderParms parms("Common.OperationContext.OBJECT_ALREADY_EXISTS",
+                                                         "object already exists.");
+                throw Exception(parms);
+            //throw Exception("object already exists.");
         }
     }
 
@@ -167,9 +173,9 @@ void OperationContext::insert(const OperationContext::Container& container)
 
 void OperationContext::remove(const String& containerName)
 {
-    for (Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
+    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
-        if (containerName == _rep->containers[i]->getName())
+        if(containerName == _rep->containers[i]->getName())
         {
             _rep->containers[i]->destroy();
             _rep->containers.remove(i);
@@ -178,10 +184,11 @@ void OperationContext::remove(const String& containerName)
         }
     }
 
-    MessageLoaderParms parms(
-        "Common.OperationContext.OBJECT_NOT_FOUND",
-        "object not found");
+        //l10n
+        MessageLoaderParms parms("Common.OperationContext.OBJECT_NOT_FOUND",
+                                                         "object not found");
     throw Exception(parms);
+    //throw Exception("object not found");
 }
 
 
@@ -189,7 +196,7 @@ void OperationContext::remove(const String& containerName)
 // OperationContext::Container
 //
 
-OperationContext::Container::~Container()
+OperationContext::Container::~Container(void)
 {
 }
 
@@ -206,13 +213,11 @@ public:
 
 const String IdentityContainer::NAME = "IdentityContainer";
 
-IdentityContainer::IdentityContainer(
-    const OperationContext::Container& container)
+IdentityContainer::IdentityContainer(const OperationContext::Container & container)
 {
-    const IdentityContainer* p =
-        dynamic_cast<const IdentityContainer*>(&container);
+    const IdentityContainer * p = dynamic_cast<const IdentityContainer *>(&container);
 
-    if (p == 0)
+    if(p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -221,57 +226,57 @@ IdentityContainer::IdentityContainer(
     _rep->userName = p->_rep->userName;
 }
 
-IdentityContainer::IdentityContainer(const IdentityContainer& container)
-#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
-    : OperationContext::Container()
+IdentityContainer::IdentityContainer(const IdentityContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined (PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+     : OperationContext::Container()
 #endif
 {
     _rep = new IdentityContainerRep();
     _rep->userName = container._rep->userName;
 }
 
-IdentityContainer::IdentityContainer(const String& userName)
+IdentityContainer::IdentityContainer(const String & userName)
 {
     _rep = new IdentityContainerRep();
     _rep->userName = userName;
 }
 
-IdentityContainer::~IdentityContainer()
+IdentityContainer::~IdentityContainer(void)
 {
     delete _rep;
 }
 
-IdentityContainer& IdentityContainer::operator=(
-    const IdentityContainer& container)
+IdentityContainer & IdentityContainer::operator=(
+    const IdentityContainer & container)
 {
     if (this == &container)
     {
-        return *this;
+        return (*this);
     }
 
     _rep->userName = container._rep->userName;
 
-    return *this;
+    return (*this);
 }
 
-String IdentityContainer::getName() const
+String IdentityContainer::getName(void) const
 {
-    return NAME;
+    return(NAME);
 }
 
-OperationContext::Container* IdentityContainer::clone() const
+OperationContext::Container * IdentityContainer::clone(void) const
 {
-    return new IdentityContainer(_rep->userName);
+    return(new IdentityContainer(_rep->userName));
 }
 
-void IdentityContainer::destroy()
+void IdentityContainer::destroy(void)
 {
     delete this;
 }
 
-String IdentityContainer::getUserName() const
+String IdentityContainer::getUserName(void) const
 {
-    return _rep->userName;
+    return(_rep->userName);
 }
 
 
@@ -288,13 +293,13 @@ public:
 const String SubscriptionInstanceContainer::NAME =
     "SubscriptionInstanceContainer";
 
-SubscriptionInstanceContainer::SubscriptionInstanceContainer(
-    const OperationContext::Container& container)
+SubscriptionInstanceContainer::SubscriptionInstanceContainer
+    (const OperationContext::Container & container)
 {
-    const SubscriptionInstanceContainer* p =
-        dynamic_cast<const SubscriptionInstanceContainer*>(&container);
+    const SubscriptionInstanceContainer * p =
+        dynamic_cast<const SubscriptionInstanceContainer *>(&container);
 
-    if (p == 0)
+    if(p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -303,59 +308,59 @@ SubscriptionInstanceContainer::SubscriptionInstanceContainer(
     _rep->subscriptionInstance = p->_rep->subscriptionInstance;
 }
 
-SubscriptionInstanceContainer::SubscriptionInstanceContainer(
-    const SubscriptionInstanceContainer& container)
-#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
-    : OperationContext::Container()
+SubscriptionInstanceContainer::SubscriptionInstanceContainer
+    (const SubscriptionInstanceContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+     : OperationContext::Container()
 #endif
 {
     _rep = new SubscriptionInstanceContainerRep();
     _rep->subscriptionInstance = container._rep->subscriptionInstance;
 }
 
-SubscriptionInstanceContainer::SubscriptionInstanceContainer(
-    const CIMInstance& subscriptionInstance)
+SubscriptionInstanceContainer::SubscriptionInstanceContainer
+    (const CIMInstance & subscriptionInstance)
 {
     _rep = new SubscriptionInstanceContainerRep();
     _rep->subscriptionInstance = subscriptionInstance;
 }
 
-SubscriptionInstanceContainer::~SubscriptionInstanceContainer()
+SubscriptionInstanceContainer::~SubscriptionInstanceContainer(void)
 {
     delete _rep;
 }
 
-SubscriptionInstanceContainer& SubscriptionInstanceContainer::operator=(
-    const SubscriptionInstanceContainer& container)
+SubscriptionInstanceContainer & SubscriptionInstanceContainer::operator=(
+    const SubscriptionInstanceContainer & container)
 {
     if (this == &container)
     {
-        return *this;
+        return (*this);
     }
 
     _rep->subscriptionInstance = container._rep->subscriptionInstance;
 
-    return *this;
+    return (*this);
 }
 
-String SubscriptionInstanceContainer::getName() const
+String SubscriptionInstanceContainer::getName(void) const
 {
-    return NAME;
+    return(NAME);
 }
 
-OperationContext::Container* SubscriptionInstanceContainer::clone() const
+OperationContext::Container * SubscriptionInstanceContainer::clone(void) const
 {
-    return new SubscriptionInstanceContainer(_rep->subscriptionInstance);
+    return(new SubscriptionInstanceContainer(_rep->subscriptionInstance));
 }
 
-void SubscriptionInstanceContainer::destroy()
+void SubscriptionInstanceContainer::destroy(void)
 {
     delete this;
 }
 
-CIMInstance SubscriptionInstanceContainer::getInstance() const
+CIMInstance SubscriptionInstanceContainer::getInstance(void) const
 {
-    return _rep->subscriptionInstance;
+    return(_rep->subscriptionInstance);
 }
 
 
@@ -372,13 +377,13 @@ public:
 const String SubscriptionInstanceNamesContainer::NAME =
     "SubscriptionInstanceNamesContainer";
 
-SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer(
-    const OperationContext::Container& container)
+SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
+    (const OperationContext::Container & container)
 {
-    const SubscriptionInstanceNamesContainer* p =
-        dynamic_cast<const SubscriptionInstanceNamesContainer*>(&container);
+    const SubscriptionInstanceNamesContainer * p =
+        dynamic_cast<const SubscriptionInstanceNamesContainer *>(&container);
 
-    if (p == 0)
+    if(p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -387,63 +392,63 @@ SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer(
     _rep->subscriptionInstanceNames = p->_rep->subscriptionInstanceNames;
 }
 
-SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer(
-    const SubscriptionInstanceNamesContainer& container)
-#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
-    : OperationContext::Container()
+SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
+    (const SubscriptionInstanceNamesContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+     : OperationContext::Container()
 #endif
 {
     _rep = new SubscriptionInstanceNamesContainerRep();
     _rep->subscriptionInstanceNames = container._rep->subscriptionInstanceNames;
 }
 
-SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer(
-    const Array<CIMObjectPath>& subscriptionInstanceNames)
+SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer
+    (const Array<CIMObjectPath> & subscriptionInstanceNames)
 {
     _rep = new SubscriptionInstanceNamesContainerRep();
     _rep->subscriptionInstanceNames = subscriptionInstanceNames;
 }
 
-SubscriptionInstanceNamesContainer::~SubscriptionInstanceNamesContainer()
+SubscriptionInstanceNamesContainer::~SubscriptionInstanceNamesContainer(void)
 {
     delete _rep;
 }
 
-SubscriptionInstanceNamesContainer&
+SubscriptionInstanceNamesContainer &
     SubscriptionInstanceNamesContainer::operator=(
-        const SubscriptionInstanceNamesContainer& container)
+    const SubscriptionInstanceNamesContainer & container)
 {
     if (this == &container)
     {
-        return *this;
+        return (*this);
     }
 
     _rep->subscriptionInstanceNames = container._rep->subscriptionInstanceNames;
 
-    return *this;
+    return (*this);
 }
 
-String SubscriptionInstanceNamesContainer::getName() const
+String SubscriptionInstanceNamesContainer::getName(void) const
 {
-    return NAME;
+    return(NAME);
 }
 
-OperationContext::Container*
-    SubscriptionInstanceNamesContainer::clone() const
+OperationContext::Container *
+    SubscriptionInstanceNamesContainer::clone(void) const
 {
-    return new SubscriptionInstanceNamesContainer(
-        _rep->subscriptionInstanceNames);
+    return(new SubscriptionInstanceNamesContainer
+        (_rep->subscriptionInstanceNames));
 }
 
-void SubscriptionInstanceNamesContainer::destroy()
+void SubscriptionInstanceNamesContainer::destroy(void)
 {
     delete this;
 }
 
 Array<CIMObjectPath>
-    SubscriptionInstanceNamesContainer::getInstanceNames() const
+    SubscriptionInstanceNamesContainer::getInstanceNames(void) const
 {
-    return _rep->subscriptionInstanceNames;
+    return(_rep->subscriptionInstanceNames);
 }
 
 
@@ -461,13 +466,13 @@ public:
 const String SubscriptionFilterConditionContainer::NAME =
     "SubscriptionFilterConditionContainer";
 
-SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer(
-    const OperationContext::Container& container)
+SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer
+    (const OperationContext::Container & container)
 {
-    const SubscriptionFilterConditionContainer* p =
-        dynamic_cast<const SubscriptionFilterConditionContainer*>(&container);
+    const SubscriptionFilterConditionContainer * p =
+        dynamic_cast<const SubscriptionFilterConditionContainer *>(&container);
 
-    if (p == 0)
+    if(p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -477,10 +482,10 @@ SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer(
     _rep->queryLanguage = p->_rep->queryLanguage;
 }
 
-SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer(
-    const SubscriptionFilterConditionContainer& container)
-#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
-    : OperationContext::Container()
+SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer
+    (const SubscriptionFilterConditionContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+     : OperationContext::Container()
 #endif
 {
     _rep = new SubscriptionFilterConditionContainerRep();
@@ -489,58 +494,59 @@ SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer(
 }
 
 SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer(
-    const String& filterCondition,
-    const String& queryLanguage)
+    const String & filterCondition,
+    const String & queryLanguage)
 {
     _rep = new SubscriptionFilterConditionContainerRep();
     _rep->filterCondition = filterCondition;
     _rep->queryLanguage = queryLanguage;
 }
 
-SubscriptionFilterConditionContainer::~SubscriptionFilterConditionContainer()
+SubscriptionFilterConditionContainer::~SubscriptionFilterConditionContainer
+    (void)
 {
     delete _rep;
 }
 
-SubscriptionFilterConditionContainer&
+SubscriptionFilterConditionContainer &
     SubscriptionFilterConditionContainer::operator=(
-        const SubscriptionFilterConditionContainer& container)
+    const SubscriptionFilterConditionContainer & container)
 {
     if (this == &container)
     {
-        return *this;
+        return (*this);
     }
 
     _rep->filterCondition = container._rep->filterCondition;
     _rep->queryLanguage = container._rep->queryLanguage;
 
-    return *this;
+    return (*this);
 }
 
-String SubscriptionFilterConditionContainer::getName() const
+String SubscriptionFilterConditionContainer::getName(void) const
 {
-    return NAME;
+    return(NAME);
 }
 
-OperationContext::Container* SubscriptionFilterConditionContainer::clone() const
+OperationContext::Container * SubscriptionFilterConditionContainer::clone(void) const
 {
-    return new SubscriptionFilterConditionContainer(
-        _rep->filterCondition, _rep->queryLanguage);
+    return(new SubscriptionFilterConditionContainer(_rep->filterCondition,
+        _rep->queryLanguage));
 }
 
-void SubscriptionFilterConditionContainer::destroy()
+void SubscriptionFilterConditionContainer::destroy(void)
 {
     delete this;
 }
 
-String SubscriptionFilterConditionContainer::getFilterCondition() const
+String SubscriptionFilterConditionContainer::getFilterCondition(void) const
 {
-    return _rep->filterCondition;
+    return(_rep->filterCondition);
 }
 
-String SubscriptionFilterConditionContainer::getQueryLanguage() const
+String SubscriptionFilterConditionContainer::getQueryLanguage(void) const
 {
-    return _rep->queryLanguage;
+    return(_rep->queryLanguage);
 }
 
 
@@ -559,13 +565,13 @@ public:
 const String SubscriptionFilterQueryContainer::NAME =
     "SubscriptionFilterQueryContainer";
 
-SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer(
-    const OperationContext::Container& container)
+SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer
+    (const OperationContext::Container & container)
 {
-    const SubscriptionFilterQueryContainer* p =
-        dynamic_cast<const SubscriptionFilterQueryContainer*>(&container);
+    const SubscriptionFilterQueryContainer * p =
+        dynamic_cast<const SubscriptionFilterQueryContainer *>(&container);
 
-    if (p == 0)
+    if(p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -576,10 +582,10 @@ SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer(
     _rep->sourceNameSpace = p->_rep->sourceNameSpace;
 }
 
-SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer(
-    const SubscriptionFilterQueryContainer& container)
-#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
-    : OperationContext::Container()
+SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer
+    (const SubscriptionFilterQueryContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+     : OperationContext::Container()
 #endif
 {
     _rep = new SubscriptionFilterQueryContainerRep();
@@ -589,9 +595,9 @@ SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer(
 }
 
 SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer(
-    const String& filterQuery,
-    const String& queryLanguage,
-    const CIMNamespaceName& sourceNameSpace)
+    const String & filterQuery,
+    const String & queryLanguage,
+    const CIMNamespaceName & sourceNameSpace)
 {
     _rep = new SubscriptionFilterQueryContainerRep();
     _rep->filterQuery = filterQuery;
@@ -599,58 +605,57 @@ SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer(
     _rep->sourceNameSpace = sourceNameSpace;
 }
 
-SubscriptionFilterQueryContainer::~SubscriptionFilterQueryContainer()
+SubscriptionFilterQueryContainer::~SubscriptionFilterQueryContainer
+    (void)
 {
     delete _rep;
 }
-
-SubscriptionFilterQueryContainer&
+SubscriptionFilterQueryContainer &
     SubscriptionFilterQueryContainer::operator=(
-        const SubscriptionFilterQueryContainer& container)
+    const SubscriptionFilterQueryContainer & container)
 {
     if (this == &container)
     {
-        return *this;
+        return (*this);
     }
 
     _rep->filterQuery = container._rep->filterQuery;
     _rep->queryLanguage = container._rep->queryLanguage;
     _rep->sourceNameSpace = container._rep->sourceNameSpace;
 
-    return *this;
+    return (*this);
 }
 
-String SubscriptionFilterQueryContainer::getName() const
+String SubscriptionFilterQueryContainer::getName(void) const
 {
-    return NAME;
+    return(NAME);
 }
 
-OperationContext::Container* SubscriptionFilterQueryContainer::clone() const
+OperationContext::Container * SubscriptionFilterQueryContainer::clone(void) const
 {
-    return new SubscriptionFilterQueryContainer(
-        _rep->filterQuery,
-        _rep->queryLanguage,
-        _rep->sourceNameSpace);
+    return(new SubscriptionFilterQueryContainer(_rep->filterQuery,
+                                                _rep->queryLanguage,
+                                                _rep->sourceNameSpace));
 }
 
-void SubscriptionFilterQueryContainer::destroy()
+void SubscriptionFilterQueryContainer::destroy(void)
 {
     delete this;
 }
 
-String SubscriptionFilterQueryContainer::getFilterQuery() const
+String SubscriptionFilterQueryContainer::getFilterQuery(void) const
 {
-    return _rep->filterQuery;
+    return(_rep->filterQuery);
 }
 
-String SubscriptionFilterQueryContainer::getQueryLanguage() const
+String SubscriptionFilterQueryContainer::getQueryLanguage(void) const
 {
-    return _rep->queryLanguage;
+    return(_rep->queryLanguage);
 }
 
-CIMNamespaceName SubscriptionFilterQueryContainer::getSourceNameSpace() const
+CIMNamespaceName SubscriptionFilterQueryContainer::getSourceNameSpace(void) const
 {
-    return _rep->sourceNameSpace;
+    return(_rep->sourceNameSpace);
 }
 
 
@@ -660,40 +665,39 @@ CIMNamespaceName SubscriptionFilterQueryContainer::getSourceNameSpace() const
 
 const String TimeoutContainer::NAME = "TimeoutContainer";
 
-TimeoutContainer::TimeoutContainer(const OperationContext::Container& container)
+TimeoutContainer::TimeoutContainer(const OperationContext::Container & container)
 {
-    const TimeoutContainer* p =
-        dynamic_cast<const TimeoutContainer*>(&container);
-    if (p == 0)
-    {
-        throw DynamicCastFailedException();
-    }
-    _value = p->_value;
+   const TimeoutContainer * p = dynamic_cast<const TimeoutContainer *>(&container);
+   if(p == 0)
+   {
+      throw DynamicCastFailedException();
+   }
+   _value = p->_value;
 }
 
 TimeoutContainer::TimeoutContainer(Uint32 timeout)
 {
-    _value = timeout;
+   _value = timeout;
 }
 
-String TimeoutContainer::getName() const
+String TimeoutContainer::getName(void) const
 {
-    return NAME;
+   return (NAME);
 }
 
-OperationContext::Container* TimeoutContainer::clone() const
+OperationContext::Container * TimeoutContainer::clone(void) const
 {
-    return new TimeoutContainer(_value);
+   return (new TimeoutContainer(_value));
 }
 
-void TimeoutContainer::destroy()
+void TimeoutContainer::destroy(void)
 {
-    delete this;
+   delete this;
 }
 
-Uint32 TimeoutContainer::getTimeOut() const
+Uint32 TimeoutContainer::getTimeOut(void) const
 {
-    return _value;
+   return _value;
 }
 
 
@@ -710,13 +714,13 @@ public:
 const String AcceptLanguageListContainer::NAME =
     "AcceptLanguageListContainer";
 
-AcceptLanguageListContainer::AcceptLanguageListContainer(
-    const OperationContext::Container& container)
+AcceptLanguageListContainer::AcceptLanguageListContainer
+    (const OperationContext::Container & container)
 {
-    const AcceptLanguageListContainer* p =
-        dynamic_cast<const AcceptLanguageListContainer*>(&container);
+    const AcceptLanguageListContainer * p =
+        dynamic_cast<const AcceptLanguageListContainer *>(&container);
 
-    if (p == 0)
+    if(p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -725,59 +729,59 @@ AcceptLanguageListContainer::AcceptLanguageListContainer(
     _rep->languages = p->_rep->languages;
 }
 
-AcceptLanguageListContainer::AcceptLanguageListContainer(
-    const AcceptLanguageListContainer& container)
-#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
-    : OperationContext::Container()
+AcceptLanguageListContainer::AcceptLanguageListContainer
+    (const AcceptLanguageListContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+     : OperationContext::Container()
 #endif
 {
     _rep = new AcceptLanguageListContainerRep();
     _rep->languages = container._rep->languages;
 }
 
-AcceptLanguageListContainer::AcceptLanguageListContainer(
-    const AcceptLanguageList& languages)
+AcceptLanguageListContainer::AcceptLanguageListContainer
+    (const AcceptLanguageList & languages)
 {
     _rep = new AcceptLanguageListContainerRep();
     _rep->languages = languages;
 }
 
-AcceptLanguageListContainer::~AcceptLanguageListContainer()
+AcceptLanguageListContainer::~AcceptLanguageListContainer(void)
 {
     delete _rep;
 }
 
-AcceptLanguageListContainer& AcceptLanguageListContainer::operator=(
-    const AcceptLanguageListContainer& container)
+AcceptLanguageListContainer & AcceptLanguageListContainer::operator=(
+    const AcceptLanguageListContainer & container)
 {
     if (this == &container)
     {
-        return *this;
+        return (*this);
     }
 
     _rep->languages = container._rep->languages;
 
-    return *this;
+    return (*this);
 }
 
-String AcceptLanguageListContainer::getName() const
+String AcceptLanguageListContainer::getName(void) const
 {
-    return NAME;
+    return(NAME);
 }
 
-OperationContext::Container* AcceptLanguageListContainer::clone() const
+OperationContext::Container * AcceptLanguageListContainer::clone(void) const
 {
-    return new AcceptLanguageListContainer(_rep->languages);
+    return(new AcceptLanguageListContainer(_rep->languages));
 }
 
-void AcceptLanguageListContainer::destroy()
+void AcceptLanguageListContainer::destroy(void)
 {
     delete this;
 }
 
-AcceptLanguageList AcceptLanguageListContainer::getLanguages() const
+AcceptLanguageList AcceptLanguageListContainer::getLanguages(void) const
 {
-    return _rep->languages;
+    return(_rep->languages);
 }
 
 
@@ -794,13 +798,13 @@ public:
 const String ContentLanguageListContainer::NAME =
     "ContentLanguageListContainer";
 
-ContentLanguageListContainer::ContentLanguageListContainer(
-    const OperationContext::Container& container)
+ContentLanguageListContainer::ContentLanguageListContainer
+    (const OperationContext::Container & container)
 {
-    const ContentLanguageListContainer* p =
-        dynamic_cast<const ContentLanguageListContainer*>(&container);
+    const ContentLanguageListContainer * p =
+        dynamic_cast<const ContentLanguageListContainer *>(&container);
 
-    if (p == 0)
+    if(p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -809,60 +813,61 @@ ContentLanguageListContainer::ContentLanguageListContainer(
     _rep->languages = p->_rep->languages;
 }
 
-ContentLanguageListContainer::ContentLanguageListContainer(
-    const ContentLanguageListContainer& container)
-#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
-    : OperationContext::Container()
+ContentLanguageListContainer::ContentLanguageListContainer
+    (const ContentLanguageListContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+     : OperationContext::Container()
 #endif
 {
     _rep = new ContentLanguageListContainerRep();
     _rep->languages = container._rep->languages;
 }
 
-ContentLanguageListContainer::ContentLanguageListContainer(
-    const ContentLanguageList& languages)
+ContentLanguageListContainer::ContentLanguageListContainer
+    (const ContentLanguageList & languages)
 {
     _rep = new ContentLanguageListContainerRep();
     _rep->languages = languages;
 }
 
-ContentLanguageListContainer::~ContentLanguageListContainer()
+ContentLanguageListContainer::~ContentLanguageListContainer(void)
 {
     delete _rep;
 }
 
-ContentLanguageListContainer& ContentLanguageListContainer::operator=(
-    const ContentLanguageListContainer& container)
+ContentLanguageListContainer & ContentLanguageListContainer::operator=(
+    const ContentLanguageListContainer & container)
 {
     if (this == &container)
     {
-        return *this;
+        return (*this);
     }
 
     _rep->languages = container._rep->languages;
 
-    return *this;
+    return (*this);
 }
 
-String ContentLanguageListContainer::getName() const
+String ContentLanguageListContainer::getName(void) const
 {
-    return NAME;
+    return(NAME);
 }
 
-OperationContext::Container* ContentLanguageListContainer::clone() const
+OperationContext::Container * ContentLanguageListContainer::clone(void) const
 {
-    return new ContentLanguageListContainer(_rep->languages);
+    return(new ContentLanguageListContainer(_rep->languages));
 }
 
-void ContentLanguageListContainer::destroy()
+void ContentLanguageListContainer::destroy(void)
 {
     delete this;
 }
 
-ContentLanguageList ContentLanguageListContainer::getLanguages() const
+ContentLanguageList ContentLanguageListContainer::getLanguages(void) const
 {
-    return _rep->languages;
+    return(_rep->languages);
 }
+
 
 
 //
@@ -878,13 +883,13 @@ public:
 const String SnmpTrapOidContainer::NAME =
     "SnmpTrapOidContainer";
 
-SnmpTrapOidContainer::SnmpTrapOidContainer(
-    const OperationContext::Container& container)
+SnmpTrapOidContainer::SnmpTrapOidContainer
+    (const OperationContext::Container & container)
 {
-    const SnmpTrapOidContainer* p =
-        dynamic_cast<const SnmpTrapOidContainer*>(&container);
+    const SnmpTrapOidContainer * p =
+        dynamic_cast<const SnmpTrapOidContainer *>(&container);
 
-    if (p == 0)
+    if(p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -893,58 +898,141 @@ SnmpTrapOidContainer::SnmpTrapOidContainer(
     _rep->snmpTrapOid = p->_rep->snmpTrapOid;
 }
 
-SnmpTrapOidContainer::SnmpTrapOidContainer(
-    const SnmpTrapOidContainer& container)
-#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
-    : OperationContext::Container()
+SnmpTrapOidContainer::SnmpTrapOidContainer
+    (const SnmpTrapOidContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+     : OperationContext::Container()
 #endif
 {
     _rep = new SnmpTrapOidContainerRep();
     _rep->snmpTrapOid = container._rep->snmpTrapOid;
 }
 
-SnmpTrapOidContainer::SnmpTrapOidContainer(const String& snmpTrapOid)
+SnmpTrapOidContainer::SnmpTrapOidContainer
+    (const String & snmpTrapOid)
 {
     _rep = new SnmpTrapOidContainerRep();
     _rep->snmpTrapOid = snmpTrapOid;
 }
 
-SnmpTrapOidContainer::~SnmpTrapOidContainer()
+SnmpTrapOidContainer::~SnmpTrapOidContainer(void)
 {
     delete _rep;
 }
 
-SnmpTrapOidContainer& SnmpTrapOidContainer::operator=(
-    const SnmpTrapOidContainer& container)
+SnmpTrapOidContainer & SnmpTrapOidContainer::operator=(
+    const SnmpTrapOidContainer & container)
 {
     if (this == &container)
     {
-        return *this;
+        return (*this);
     }
 
     _rep->snmpTrapOid = container._rep->snmpTrapOid;
 
-    return *this;
+    return (*this);
 }
 
-String SnmpTrapOidContainer::getName() const
+String SnmpTrapOidContainer::getName(void) const
 {
-    return NAME;
+    return(NAME);
 }
 
-OperationContext::Container* SnmpTrapOidContainer::clone() const
+OperationContext::Container * SnmpTrapOidContainer::clone(void) const
 {
-    return new SnmpTrapOidContainer(_rep->snmpTrapOid);
+    return(new SnmpTrapOidContainer(_rep->snmpTrapOid));
 }
 
-void SnmpTrapOidContainer::destroy()
+void SnmpTrapOidContainer::destroy(void)
 {
     delete this;
 }
 
-String SnmpTrapOidContainer::getSnmpTrapOid() const
+String SnmpTrapOidContainer::getSnmpTrapOid(void) const
 {
-    return _rep->snmpTrapOid;
+    return(_rep->snmpTrapOid);
+}
+
+//
+// SSLCertificateChainContainerRep
+//
+
+class SSLCertificateChainContainerRep
+{
+public:
+    Array<SSLCertificateInfo*> userCert;
+};
+
+//
+// SSLCertificateChainContainer
+//
+
+const String SSLCertificateChainContainer::NAME = "SSLCertificateChainContainer";
+
+SSLCertificateChainContainer::SSLCertificateChainContainer(const OperationContext::Container & container)
+{
+    const SSLCertificateChainContainer *p = dynamic_cast<const SSLCertificateChainContainer *>(&container);
+
+    if(p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+
+    _rep = new SSLCertificateChainContainerRep();
+    _rep->userCert = p->_rep->userCert;
+}
+
+SSLCertificateChainContainer::SSLCertificateChainContainer(const SSLCertificateChainContainer & container)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+     : OperationContext::Container()
+#endif
+{
+    _rep = new SSLCertificateChainContainerRep();
+    _rep->userCert = container._rep->userCert;
+}
+
+SSLCertificateChainContainer::SSLCertificateChainContainer(Array<SSLCertificateInfo*> userCert)
+{
+    _rep = new SSLCertificateChainContainerRep();
+    _rep->userCert = userCert;
+}
+
+SSLCertificateChainContainer::~SSLCertificateChainContainer(void)
+{
+    delete _rep;
+}
+
+SSLCertificateChainContainer & SSLCertificateChainContainer::operator=(
+    const SSLCertificateChainContainer & container)
+{
+    if (this == &container)
+    {
+        return (*this);
+    }
+
+    _rep->userCert = container._rep->userCert;
+
+    return (*this);
+}
+
+String SSLCertificateChainContainer::getName(void) const
+{
+    return(NAME);
+}
+
+OperationContext::Container * SSLCertificateChainContainer::clone(void) const
+{
+    return(new SSLCertificateChainContainer(_rep->userCert));
+}
+
+void SSLCertificateChainContainer::destroy(void)
+{
+    delete this;
+}
+
+Array<SSLCertificateInfo*> SSLCertificateChainContainer::getUserCert(void) const
+{
+    return(_rep->userCert);
 }
 
 PEGASUS_NAMESPACE_END

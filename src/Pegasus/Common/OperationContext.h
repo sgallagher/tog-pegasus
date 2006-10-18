@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +40,7 @@
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/SSLContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -161,9 +164,6 @@ public:
     void remove(const String& containerName);
 
 protected:
-    /**
-        An internal representation of the OperationContext attributes.
-    */
     OperationContextRep* _rep;
 };
 
@@ -243,9 +243,6 @@ public:
     String getUserName() const;
 
 protected:
-    /**
-        An internal representation of the IdentityContainer attributes.
-    */
     IdentityContainerRep* _rep;
 
 private:
@@ -333,10 +330,6 @@ public:
     CIMInstance getInstance() const;
 
 protected:
-    /**
-        An internal representation of the SubscriptionInstanceContainer
-        attributes.
-    */
     SubscriptionInstanceContainerRep* _rep;
 
 private:
@@ -443,10 +436,6 @@ public:
     String getQueryLanguage() const;
 
 protected:
-    /**
-        An internal representation of the SubscriptionFilterConditionContainer
-        attributes.
-    */
     SubscriptionFilterConditionContainerRep* _rep;
 
 private:
@@ -562,10 +551,6 @@ public:
     CIMNamespaceName getSourceNameSpace() const;
 
 protected:
-    /**
-        An internal representation of the SubscriptionFilterQueryContainer
-        attributes.
-    */
     SubscriptionFilterQueryContainerRep* _rep;
 
 private:
@@ -660,10 +645,6 @@ public:
     Array<CIMObjectPath> getInstanceNames() const;
 
 protected:
-    /**
-        An internal representation of the SubscriptionInstanceNamesContainer
-        attributes.
-    */
     SubscriptionInstanceNamesContainerRep* _rep;
 
 private:
@@ -725,9 +706,6 @@ public:
     Uint32 getTimeOut() const;
 
 protected:
-    /**
-        An internal representation of the TimeoutContainer timeout value.
-    */
     Uint32 _value;
 
 private:
@@ -816,10 +794,6 @@ public:
     AcceptLanguageList getLanguages() const;
 
 protected:
-    /**
-        An internal representation of the AcceptLanguageListContainer
-        attributes.
-    */
     AcceptLanguageListContainerRep* _rep;
 
 private:
@@ -909,10 +883,6 @@ public:
     ContentLanguageList getLanguages() const;
 
 protected:
-    /**
-        An internal representation of the ContentLanguageListContainer
-        attributes.
-    */
     ContentLanguageListContainerRep* _rep;
 
 private:
@@ -995,15 +965,94 @@ public:
     String getSnmpTrapOid() const;
 
 protected:
-    /**
-        An internal representation of the SnmpTrapOidContainer attributes.
-    */
     SnmpTrapOidContainerRep* _rep;
 
 private:
     SnmpTrapOidContainer();    // Unimplemented
 };
 
+class SSLCertificateChainContainerRep;
+
+/*
+    An SSL Certificate Chain Container holds information about the client certificate chain that
+    was used to authenticate the request.  Specifically, this container hold a representation of all of
+    the certificates that were in the client's SSL certificate chain.  A provider
+    must explicitly register for this container in its provider registration.
+*/
+
+class PEGASUS_COMMON_LINKAGE SSLCertificateChainContainer
+    : virtual public OperationContext::Container
+{
+public:
+    /**
+        The unique name for this container type.
+    */
+    static const String NAME;
+
+    /**
+        Constructs an SSLCertificateChainContainer object from the specified Container.
+        @param container The Container object to copy.
+        @exception DynamicCastFailedException If the specified Container
+        object is not an SSLCertificateChainContainer object.
+    */
+    SSLCertificateChainContainer(const OperationContext::Container& container);
+
+    /**
+        Constructs a copy of the specified SSLCertificateChainContainer.
+        @param container The SSLCertificateChainContainer object to copy.
+    */
+    SSLCertificateChainContainer(const SSLCertificateChainContainer& container);
+
+    /**
+        Constructs an SSLCertificateChainContainer with a specified user name.
+        @param userCert the certificate associated with the user's request, null if the user was not authenticated via
+         a trusted client certificate
+    */
+    SSLCertificateChainContainer(Array<SSLCertificateInfo*> userCert);
+
+    /**
+        Destructs the SSLCertificateChainContainer.
+    */
+    virtual ~SSLCertificateChainContainer();
+
+    /**
+        Assigns the value of the specified SSLCertificateChainContainer object to this
+        object.
+        @param container The SSLCertificateChainContainer object to copy.
+    */
+    SSLCertificateChainContainer& operator=(const SSLCertificateChainContainer& container);
+
+    /**
+        Returns the unique name for this Container type.
+        @return The String name of the Container type.
+    */
+    virtual String getName() const;
+
+    /**
+        Makes a copy of this SSLCertificateChainContainer object.  The caller is
+        responsible for cleaning up the copy by calling destroy() method.
+        @return A pointer to the new Container object.
+    */
+    virtual OperationContext::Container* clone() const;
+
+    /**
+        Cleans up an SSLCertificateChainContainer object that was created by the
+        clone() method.
+    */
+    virtual void destroy();
+
+    /**
+      * Gets the chain of SSL certificates from the SSLCertificateChainContainer object
+      * @return The chain of client certificates if the user was authenticated via SSL, an empty array if not
+      */
+      Array<SSLCertificateInfo*> getUserCert() const;
+
+protected:
+    SSLCertificateChainContainerRep* _rep;
+
+private:
+    SSLCertificateChainContainer();    // Unimplemented
+};
 
 PEGASUS_NAMESPACE_END
 

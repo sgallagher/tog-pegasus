@@ -136,7 +136,7 @@ public:
     typedef void (*PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T)();
 
     typedef void (*PEGASUS_AUDITLOG_CALLBACK_T) (AuditType, 
-        AuditSubType, AuditEvent, const Uint32, MessageLoaderParms &); 
+        AuditSubType, AuditEvent, Uint32, MessageLoaderParms &); 
 
     /**
         Registers an audit log initialize callback

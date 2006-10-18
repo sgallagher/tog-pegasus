@@ -87,7 +87,7 @@ void testLogCurrentConf()
 static void writeAuditLogToFile(
     AuditLogger::AuditType auditType, AuditLogger::AuditSubType auditSubType,
     AuditLogger::AuditEvent auditEvent,
-    const Uint32 logLevel, MessageLoaderParms & msgParms)
+    Uint32 logLevel, MessageLoaderParms & msgParms)
 {
     const char* pegasusHomeDir = getenv ("PEGASUS_HOME");
     

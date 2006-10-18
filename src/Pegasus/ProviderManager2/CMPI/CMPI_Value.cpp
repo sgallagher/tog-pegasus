@@ -191,12 +191,12 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc) 
 #define CopyFromStringArray(pt,ct) { Array<pt> ar##pt; \
    v.get(ar##pt); \
    for (int i=0; i<aSize; i++) { \
-      aData[i].value.ct=(CMPIString*)new CMPI_Object(ar##pt[i]); } }
+      aData[i].value.ct=reinterpret_cast<CMPIString*>(new CMPI_Object(ar##pt[i])); } }
 
 #define CopyFromEncArray(pt,ct,cn) { Array<pt> ar##pt; \
    v.get(ar##pt); \
    for (int i=0; i<aSize; i++) { \
-     aData[i].value.cn=(ct*)new CMPI_Object(new pt(ar##pt[i])); } }
+     aData[i].value.cn=reinterpret_cast<ct*>(new CMPI_Object(new pt(ar##pt[i]))); } }
 
 
 CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
@@ -252,7 +252,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
          default:
          return CMPI_RC_ERR_NOT_SUPPORTED;
       }
-      data->value.array=(CMPIArray*)new CMPI_Object(aData-1);
+      data->value.array=reinterpret_cast<CMPIArray*>(new CMPI_Object(aData-1));
    }  // end of array porocessing
 
    else if ((t & (CMPI_UINT|CMPI_SINT))==CMPI_SINT) {
@@ -285,7 +285,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
    case CMPI_ref: {
          CIMObjectPath ref;
          v.get(ref);
-         data->value.ref=(CMPIObjectPath*)new CMPI_Object(new CIMObjectPath(ref));
+         data->value.ref=reinterpret_cast<CMPIObjectPath*>(new CMPI_Object(new CIMObjectPath(ref)));
       }
       break;
    case CMPI_instance: {
@@ -311,7 +311,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
    case CMPI_dateTime: {
          CIMDateTime dt;
          v.get(dt);
-         data->value.dateTime=(CMPIDateTime*)new CMPI_Object(new CIMDateTime(dt));
+         data->value.dateTime=reinterpret_cast<CMPIDateTime*>(new CMPI_Object(new CIMDateTime(dt)));
       }
       break;
    case CMPI_boolean:      v.get((Boolean&)data->value.boolean); break;
@@ -409,7 +409,7 @@ CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data) {
       data->type=CMPI_boolean;
       break;
    case CIMKeyBinding::REFERENCE:
-      data->value.ref=(CMPIObjectPath*)new CMPI_Object(new CIMObjectPath(v));
+      data->value.ref=reinterpret_cast<CMPIObjectPath*>(new CMPI_Object(new CIMObjectPath(v)));
       data->type=CMPI_ref;
       break;
    default:

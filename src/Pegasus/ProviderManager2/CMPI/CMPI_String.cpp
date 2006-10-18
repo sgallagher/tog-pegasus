@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 CMPI_String* string2CMPIString(const String &s) {
   const CString st=s.getCString();
   CMPI_Object *obj= new CMPI_Object((const char*)st);
-  return (CMPI_String*)obj;
+  return reinterpret_cast<CMPI_String*>(obj);
 }
 
 extern "C" {
@@ -72,7 +72,7 @@ PEGASUS_STATIC CMPIStatus stringRelease(CMPIString *eStr) {
       CMPI_Object* obj=new CMPI_Object(str);
       obj->unlink();
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      return (CMPIString*)obj;
+      return reinterpret_cast<CMPIString*>(obj);
    }
 
    PEGASUS_STATIC char * stringGetCharPtr(const CMPIString *eStr, CMPIStatus* rc) {

@@ -62,7 +62,7 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/TestProvider");
+CIMNamespaceName ProviderNamespace;
 const CIMName CMPI_TEST_PERSON = CIMName ("CMPI_TEST_Person");
 const CIMName CMPI_TEST_VEHICLE = CIMName ("CMPI_TEST_Vehicle");
 const CIMName CMPI_TEST_RACING = CIMName ("CMPI_TEST_Racing");
@@ -171,7 +171,7 @@ void _testAssociators(CIMClient& client, CIMName assocClass, CIMObjectPath insta
         //
 
         Array<CIMObject> resultObjects =
-            client.associators(NAMESPACE, instancePath, assocClass,
+            client.associators(ProviderNamespace, instancePath, assocClass,
                                resultClass, role, resultRole);
 
         // verify result
@@ -210,7 +210,7 @@ void _testAssociatorNames(CIMClient& client, CIMName assocClass,
         String resultRole = String::EMPTY;
 
         Array<CIMObjectPath> resultObjectPaths =
-            client.associatorNames(NAMESPACE, instancePath,
+            client.associatorNames(ProviderNamespace, instancePath,
                                    assocClass, resultClass, role, resultRole);
         // verify result
         _verifyResult(resultObjectPaths.size(), numExpectedObjects);
@@ -244,7 +244,7 @@ void _testReferences(CIMClient& client, CIMObjectPath instancePath,
         CIMName resultClass = CIMName();
         String role = String::EMPTY;
 
-        resultObjects = client.references(NAMESPACE, instancePath,
+        resultObjects = client.references(ProviderNamespace, instancePath,
                                           resultClass,role);
         // verify result
         _verifyResult(resultObjects.size(), numExpectedObjects);
@@ -279,7 +279,7 @@ void _testReferenceNames(CIMClient& client, CIMObjectPath instancePath,
         String role = String::EMPTY;
 
         resultObjectPaths =
-            client.referenceNames(NAMESPACE, instancePath, resultClass, role);
+            client.referenceNames(ProviderNamespace, instancePath, resultClass, role);
 
         // verify result
         _verifyResult(resultObjectPaths.size(), numExpectedObjects);
@@ -323,7 +323,7 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
     try
     {
         // get the association classes
-        resultObjects = client.associators(NAMESPACE, op, assocClass,
+        resultObjects = client.associators(ProviderNamespace, op, assocClass,
             resultClass, role, resultRole);
 
         // display result
@@ -350,7 +350,7 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
 
     try
     {
-        resultObjectPaths = client.associatorNames(NAMESPACE, op, assocClass,
+        resultObjectPaths = client.associatorNames(ProviderNamespace, op, assocClass,
             resultClass, role, resultRole);
 
         // display result
@@ -375,7 +375,7 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
 
     try
     {
-        resultObjects = client.references(NAMESPACE, op, resultClass, role);
+        resultObjects = client.references(ProviderNamespace, op, resultClass, role);
 
         // display result
         _displayResult(resultObjects);
@@ -402,7 +402,7 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
     try
     {
         resultObjectPaths =
-            client.referenceNames(NAMESPACE, op, resultClass, role);
+            client.referenceNames(ProviderNamespace, op, resultClass, role);
 
         // display result
         _displayResult(resultObjectPaths);
@@ -425,9 +425,9 @@ int main(int argc, char** argv)
     //
     int i;
 
-    if (argc > 3)
+    if (argc < 2 || argc > 3)
     {
-        cerr << "Usage: TestCMPIAssosiation [-v] [namespace]" << endl;
+        cerr << "Usage: TestCMPIAssosiation [-v] namespace" << endl;
         return(1);
     }
 
@@ -440,7 +440,7 @@ int main(int argc, char** argv)
         }          
         else
         {
-            NAMESPACE = CIMNamespaceName (argv[i]);
+            ProviderNamespace = CIMNamespaceName (argv[i]);
         }
     }
     CIMClient client;
@@ -468,9 +468,9 @@ int main(int argc, char** argv)
     try
     {
         personRefs =
-            client.enumerateInstanceNames(NAMESPACE, CMPI_TEST_PERSON);
+            client.enumerateInstanceNames(ProviderNamespace, CMPI_TEST_PERSON);
         vehicleRefs =
-            client.enumerateInstanceNames(NAMESPACE, CMPI_TEST_VEHICLE);
+            client.enumerateInstanceNames(ProviderNamespace, CMPI_TEST_VEHICLE);
     }
     catch (Exception& e)
     {

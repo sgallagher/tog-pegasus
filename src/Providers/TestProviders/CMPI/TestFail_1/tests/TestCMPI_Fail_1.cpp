@@ -48,7 +48,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-CIMNamespaceName PROVIDERNAMESPACE = CIMNamespaceName ("test/TestProvider");
+CIMNamespaceName ProviderNamespace;
 const CIMName CLASSNAME = CIMName ("TestCMPI_Fail_1");
 const String ERROR = "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: \"ProviderInitFailure: Error initializing TestCMPIFail_1Provider the following API(s): TestCMPIFail_1Provider_Create_InstanceMI, TestCMPIFail_1Provider_Create_AssociationMI, TestCMPIFail_1Provider_Create_MethodMI, TestCMPIFail_1Provider_Create_PropertyMI, TestCMPIFail_1Provider_Create_IndicationMI\"";
 const String RCMPI_ERROR = "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: \"ProviderInitFailure: Error initializing the API's _Create<mi-type>MI\"";
@@ -66,7 +66,7 @@ test01 (CIMClient & client)
 {
 
   try { 
-  	Array<CIMObjectPath> array = client.enumerateInstanceNames (PROVIDERNAMESPACE,
+  	Array<CIMObjectPath> array = client.enumerateInstanceNames (ProviderNamespace,
 					   CLASSNAME);
   } catch (const CIMException &e) 
   {
@@ -111,7 +111,7 @@ main (int argc, char **argv)
     return -1;
   }
 
-  if (argc < 2 || argc > 3)
+  if (argc != 3)
     {
       _usage ();
       return 1;
@@ -123,10 +123,7 @@ main (int argc, char **argv)
 
       if (String::equalNoCase (opt, "test"))
 	{
-          if (argc == 3)
-            {
-              PROVIDERNAMESPACE = CIMNamespaceName (argv[2]);
-            }
+          ProviderNamespace = CIMNamespaceName (argv[2]);
 	  _test (client);
 	}
       else

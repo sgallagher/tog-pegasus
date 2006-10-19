@@ -123,10 +123,7 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
             ProviderManager2/CMPIR/native \
             ProviderManager2/CMPIR/tcpcommrem \
             ProviderManager2/CMPIR/daemon \
-            ProviderManager2/CMPIR/tools/CreateExtNS \
-            ProviderManager2/CMPIR/tools/AppendNS \
-            ProviderManager2/CMPIR/tools/ReplaceNS
-
+            ProviderManager2/CMPIR/tools
     endif
 endif
 

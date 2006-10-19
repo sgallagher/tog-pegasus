@@ -58,7 +58,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "CMPI Test ExecQuery Provider";
    // Name of the CIM Class as defined in the mof.
    ClassName = "TestCMPI_ExecQuery";
-   Namespaces = { "test/TestProvider", "test/local" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 2, 7 }; // Instance and Execute Query.
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods

@@ -30,21 +30,17 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-DIR = Pegasus/ProviderManagaer2/CMPIR/tools
-
 include $(ROOT)/mak/config.mak
+
+DIR = Pegasus/ProviderManagaer2/CMPIR/tools/AppendNS
+
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
     CXX = cc
     FLAGS += -W"c,SSCOMM"
 endif
 
-#LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DPEGASUS_DEFAULT_CMPIR -DDEBUG
-
-PROGRAM = AppendNs
-
-PROGRAM_NAME = AppendNS
-
+PROGRAM = AppendNS
 
 SOURCES = \
    AppendNs.cpp
@@ -54,5 +50,3 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-
-

@@ -58,7 +58,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "CMPI Test Indication Provider";
    // Name of the CIM Class as defined in the mof.
    ClassName = "TestCMPI_Indication";
-   Namespaces = { "test/TestProvider", "test/local" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 4 }; // Indication
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
@@ -94,7 +94,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "CMPI Test Method Provider";
    // Name of the CIM Class as defined in the mof.
    ClassName = "TestCMPI_Method";
-   Namespaces = { "test/TestProvider", "test/local" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 5 }; // Method
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
@@ -130,7 +130,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "CMPI Test Instance Fail 1 Provider";
    // Name of the CIM Class as defined in the mof.
    ClassName = "TestCMPI_Fail_1";
-   Namespaces = { "test/TestProvider", "test/local" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 2,3,4, 5}; //All the different types
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
@@ -167,7 +167,7 @@ instance of PG_ProviderCapabilities
    // Name of the CIM Class as defined in the mof.
 
    ClassName = "TestCMPI_Fail_2";
-   Namespaces = { "test/TestProvider", "test/local" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 2 }; //Instance
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
@@ -204,7 +204,7 @@ instance of PG_ProviderCapabilities
    // Name of the CIM Class as defined in the mof.
 
    ClassName = "TestCMPI_Fail_3";
-   Namespaces = { "test/TestProvider", "test/local" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 2 }; //Instance
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
@@ -240,7 +240,7 @@ instance of PG_ProviderCapabilities
    // Name of the CIM Class as defined in the mof.
 
    ClassName = "TestCMPI_Fail_4";
-   Namespaces = { "test/TestProvider", "test/local" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 2 }; //Instance
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
@@ -276,7 +276,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "CMPI Test newThread Provider";
    // Name of the CIM Class as defined in the mof.
    ClassName = "TestCMPI_Thread";
-   Namespaces = { "test/TestProvider", "test/local" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 2 }; // Instance
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods

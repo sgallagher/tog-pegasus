@@ -48,7 +48,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-CIMNamespaceName PROVIDERNAMESPACE = CIMNamespaceName ("test/TestProvider");
+CIMNamespaceName ProviderNamespace;
 const char *queries[] = {
   "select n32,s,ElementName,n64,n16,r32, r64,d from TestCMPI_ExecQuery where n32=42",  // 0
   "SELECT * FROM TestCMPI_ExecQuery",   // 1
@@ -238,7 +238,7 @@ _test1 (CIMClient & client)
         if (verbose)
           cerr << "Querying " << queries[i] << endl;
 
-        Array < CIMObject > objects = client.execQuery (PROVIDERNAMESPACE,
+        Array < CIMObject > objects = client.execQuery (ProviderNamespace,
                                                         wql, queries[i]);
 
         if (objects.size () == 0)
@@ -299,14 +299,14 @@ _test2 (CIMClient & client)
                                      "TestCMPI_ExecQuery",
                                      CIMKeyBinding::STRING));
 
-  instanceName.setNameSpace (PROVIDERNAMESPACE);
+  instanceName.setNameSpace (ProviderNamespace);
   instanceName.setClassName ("TestCMPI_ExecQuery");
   instanceName.setKeyBindings (keyBindings);
 
   /* Call the unsupported functions of the provider. */
   try
   {
-    CIMInstance instance (client.getInstance (PROVIDERNAMESPACE,
+    CIMInstance instance (client.getInstance (ProviderNamespace,
                                               instanceName));
   } catch (const CIMException &)
   {
@@ -316,14 +316,14 @@ _test2 (CIMClient & client)
 
   try
   {
-    client.deleteInstance (PROVIDERNAMESPACE, instanceName);
+    client.deleteInstance (ProviderNamespace, instanceName);
 
   } catch (const CIMException & )
   {
 	 exceptions ++;
   }
   CIMClass thisClass =
-        client.getClass(PROVIDERNAMESPACE,"TestCMPI_ExecQuery",false,true,true,CIMPropertyList());
+        client.getClass(ProviderNamespace,"TestCMPI_ExecQuery",false,true,true,CIMPropertyList());
   Array<CIMName> propertyNameList;
   propertyNameList.append(CIMName("ElementName"));
   CIMPropertyList myPropertyList(propertyNameList);
@@ -333,7 +333,7 @@ _test2 (CIMClient & client)
   try
   {
 
-    CIMObjectPath objectPath (client.createInstance (PROVIDERNAMESPACE,
+    CIMObjectPath objectPath (client.createInstance (ProviderNamespace,
                                                      newInstance));
 
 
@@ -344,7 +344,7 @@ _test2 (CIMClient & client)
 
   try
   {
-    client.modifyInstance (PROVIDERNAMESPACE, newInstance);
+    client.modifyInstance (ProviderNamespace, newInstance);
 
   } catch (const CIMException &)
   {
@@ -354,7 +354,7 @@ _test2 (CIMClient & client)
   {
 
     Array < CIMInstance > instances =
-      client.enumerateInstances (PROVIDERNAMESPACE,
+      client.enumerateInstances (ProviderNamespace,
                                  CIMName ("TestCMPI_ExecQuery"));
   } catch (const CIMException &)
   {
@@ -364,7 +364,7 @@ _test2 (CIMClient & client)
   try
   {
     Array < CIMObjectPath > objectPaths =
-      client.enumerateInstanceNames (PROVIDERNAMESPACE,
+      client.enumerateInstanceNames (ProviderNamespace,
                                      CIMName ("TestCMPI_ExecQuery"));
   } catch (const CIMException &)
   {
@@ -390,7 +390,7 @@ main (int argc, char **argv)
     return -1;
   }
 
-  if (argc < 2 || argc > 3)
+  if (argc != 3)
     {
       _usage ();
       return 1;
@@ -402,10 +402,7 @@ main (int argc, char **argv)
 
       if (String::equalNoCase (opt, "test"))
         {
-          if (argc == 3)
-            {
-              PROVIDERNAMESPACE = CIMNamespaceName (argv[2]);
-            }
+          ProviderNamespace = CIMNamespaceName (argv[2]);
           _test1 (client);
           _test2 (client);
           cout << "+++++ test completed successfully" << endl;

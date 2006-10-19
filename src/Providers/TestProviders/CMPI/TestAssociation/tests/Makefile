@@ -55,10 +55,10 @@ include $(ROOT)/test/config.mak
 tests:
 
 poststarttests:
-	$(PROGRAM)
+	$(PROGRAM) test/TestProvider
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@$(ECHO)  Testing with remote namespace 
-	@$(PROGRAM) test/local
+	@$(PROGRAM) test/Remote/Localhost
 	@$(ECHO) +++ $(PROGRAM) passed successfully +++
 #endif
 

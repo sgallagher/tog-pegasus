@@ -59,13 +59,13 @@ tests:
 poststarttests: 
 	@$(RM) $(LOGFILES).log
 	@$(ECHO) $(PROGRAM) test
-	@$(PROGRAM) test
+	@$(PROGRAM) test test/TestProvider
 	@$(ECHO) +++ $(PROGRAM) passed successfully +++
 	@$(DIFF) $(LOGFILES).loggood $(LOGFILES).log
 	@$(ECHO) +++ $(LOGFILES) passed successfully +++
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@$(ECHO)  Testing with remote namespace
-	@$(PROGRAM) test test/local
+	@$(PROGRAM) test test/Remote/Localhost
 	@$(ECHO) +++ $(PROGRAM) passed successfully +++
 endif
 install:

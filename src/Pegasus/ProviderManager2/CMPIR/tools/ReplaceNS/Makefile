@@ -30,20 +30,16 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-DIR = Pegasus/ProviderManagaer2/CMPIR/tools
-
 include $(ROOT)/mak/config.mak
+
+DIR = Pegasus/ProviderManagaer2/CMPIR/tools/ReplaceNS
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
     CXX = cc
     FLAGS += -W"c,SSCOMM"
 endif
 
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DPEGASUS_DEFAULT_CMPIR -DDEBUG
-
-PROGRAM_NAME = ReplaceNS
-
-PROGRAM = ReplaceNs
+PROGRAM = ReplaceNS
 
 SOURCES = \
    ReplaceNs.cpp

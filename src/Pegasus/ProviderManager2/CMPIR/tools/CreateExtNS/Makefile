@@ -29,17 +29,17 @@
 #//
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
-#ROOT = ../../../../../..
 
-
-PROGRAM_NAME = CreateExtNS
-
-PROGRAM = CreateExtNS
-
-DIR = Pegasus/ProviderManagaer2/CMPIR/tools/$(PROGRAM_NAME)
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DEBUG
+DIR = Pegasus/ProviderManagaer2/CMPIR/tools/CreateExtNS
+
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+    CXX = cc
+    FLAGS += -W"c,SSCOMM"
+endif
+
+PROGRAM = CreateExtNS
 
 SOURCES = CreateExtNs.c
 

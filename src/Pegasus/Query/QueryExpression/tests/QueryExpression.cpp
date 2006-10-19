@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -343,22 +336,22 @@ int main(int argc, char ** argv)
 	Array<CQLSelectStatement> _statements;
 
 	// setup test environment
+
 	// get the configuration variable PEGASUS_HOME
 	const char* peg_home = getenv("PEGASUS_HOME");
+    if (peg_home == NULL)
+    {
+        cout << "PEGASUS_HOME needs to be set to run this test." << endl;
+        exit(-1);
+    }
+   	String repositoryDir(peg_home);
+	repositoryDir.append("/");
 	
 	// get the makefile build config variable REPOSITORY_NAME
 	const char* repo_name = getenv("REPOSITORY_NAME");
-
-
-   if (peg_home == NULL)
-     exit(-1);
-
-   if (repo_name == NULL)
-     repo_name = "repository";
-
-
-   	String repositoryDir(peg_home);
-	repositoryDir.append("/");
+    if (repo_name == NULL)
+        repositoryDir.append("repository");
+    else
 	repositoryDir.append(repo_name);
 
 	CIMNamespaceName _ns;
@@ -368,9 +361,18 @@ int main(int argc, char ** argv)
 		cout << "Using root/SampleProvider as default namespace." << endl;
       _ns = String("root/SampleProvider");
 	}
-
-   CIMRepository* _rep = new CIMRepository(repositoryDir);
-   RepositoryQueryContext _ctx(_ns, _rep);
+    CIMRepository* _rep;
+    try
+    {
+        _rep = new CIMRepository(repositoryDir);
+    } catch(Exception &e)
+    {
+        cout << endl << endl
+             << "Invalid Repository: Exception: " << e.getMessage()
+             << endl << endl;
+        exit(-1);
+    }
+    RepositoryQueryContext _ctx(_ns, _rep);
 
 	char text[1024];
 	char* _text;

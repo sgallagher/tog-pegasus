@@ -110,5 +110,7 @@ tests: $(ERROR)
 
 #l10n
 
+messages : $(ERROR)
+
 poststarttests: $(ERROR)
 

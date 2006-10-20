@@ -39,8 +39,6 @@ LIBRARIES = \
      pegconfig \
      pegcommon
 
-LOGFILES = TestCMPIInstanceExecQuery
-
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
@@ -58,14 +56,17 @@ tests:
 
 poststarttests: 
 	@$(RM) $(LOGFILES).log
-	@$(ECHO) $(PROGRAM) test
-	@$(PROGRAM) test test/TestProvider
-	@$(ECHO) +++ $(PROGRAM) passed successfully +++
+	$(PROGRAM) test test/TestProvider
 	@$(DIFF) $(LOGFILES).loggood $(LOGFILES).log
-	@$(ECHO) +++ $(LOGFILES) passed successfully +++
+	@$(ECHO) $(PROGRAM) "+++++ passed all tests"
+	@$(RM) $(LOGFILES).log
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@$(ECHO)  Testing with remote namespace
-	@$(PROGRAM) test test/Remote/Localhost
-	@$(ECHO) +++ $(PROGRAM) passed successfully +++
+	$(PROGRAM) test test/Remote/Localhost
+	@$(ECHO) $(PROGRAM) "+++++ passed all tests"
+	@$(RM) $(LOGFILES).log
+else
+	@$(ECHO) "+++++ PEGASUS_ENABLE_REMOTE_CMPI is NOT defined: Skipping remote CMPI tests"
 endif
+
 install:

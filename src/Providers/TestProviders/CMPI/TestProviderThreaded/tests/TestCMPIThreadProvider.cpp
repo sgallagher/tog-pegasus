@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -47,14 +45,14 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-CIMNamespaceName ProviderNamespace;
+CIMNamespaceName providerNamespace;
 
 Boolean verbose;
 
 void
 _usage ()
 {
-  cerr << "Usage: TestCMPIThreadProvider " << "{test} {namespace}" << endl;
+  cerr << "Usage: TestCMPIThreadProvider {test} {namespace}" << endl;
 }
 
 void
@@ -62,7 +60,7 @@ test01( CIMClient & client)
 {  
   try {
    Array<CIMInstance> instances = client.enumerateInstances(
-		   ProviderNamespace,
+		   providerNamespace,
 		CIMName("TestCMPI_Thread"));
   } catch (const CIMException &e)
   {
@@ -83,14 +81,14 @@ test02 (CIMClient & client)
                                      "TestCMPI_Thread",
                                      CIMKeyBinding::STRING));
 
-  instanceName.setNameSpace (ProviderNamespace);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName ("TestCMPI_Thread");
   instanceName.setKeyBindings (keyBindings);
 
   /* Call the unsupported functions of the provider. */
   try
   {
-    CIMInstance instance (client.getInstance (ProviderNamespace,
+    CIMInstance instance (client.getInstance (providerNamespace,
                                               instanceName));
   } catch (const CIMException &)
   {
@@ -100,7 +98,7 @@ test02 (CIMClient & client)
 
   try
   {
-    client.deleteInstance (ProviderNamespace, instanceName);
+    client.deleteInstance (providerNamespace, instanceName);
 
   } catch (const CIMException & )
   {
@@ -111,7 +109,7 @@ test02 (CIMClient & client)
   try
   {
 
-    CIMObjectPath objectPath (client.createInstance (ProviderNamespace,
+    CIMObjectPath objectPath (client.createInstance (providerNamespace,
                                                      newInstance));
 
 
@@ -122,7 +120,7 @@ test02 (CIMClient & client)
 
   try
   {
-    client.modifyInstance (ProviderNamespace, newInstance);
+    client.modifyInstance (providerNamespace, newInstance);
 
   } catch (const CIMException &)
   {
@@ -132,7 +130,7 @@ test02 (CIMClient & client)
   {
 
     Array < CIMInstance > instances =
-      client.enumerateInstances (ProviderNamespace,
+      client.enumerateInstances (providerNamespace,
                                  CIMName ("TestCMPI_Thread"));
   } catch (const CIMException &)
   {
@@ -142,7 +140,7 @@ test02 (CIMClient & client)
   try
   {
     Array < CIMObjectPath > objectPaths =
-      client.enumerateInstanceNames (ProviderNamespace,
+      client.enumerateInstanceNames (providerNamespace,
                                      CIMName ("TestCMPI_Thread"));
   } catch (const CIMException &)
   {
@@ -190,8 +188,6 @@ _test (CIMClient & client)
     cerr << "test failed: " << e.getMessage () << endl;
     exit (-1);
   }
-
-  cout << "+++++ test completed successfully" << endl;
 }
 
 
@@ -222,7 +218,7 @@ main (int argc, char **argv)
 
       if (String::equalNoCase (opt, "test"))
 	{
-          ProviderNamespace = CIMNamespaceName (argv[2]);
+          providerNamespace = CIMNamespaceName (argv[2]);
 	  _test (client);
 	}
       else
@@ -232,6 +228,8 @@ main (int argc, char **argv)
 	  return -1;
 	}
     }
+
+  cout << argv[0] << " +++++ passed all tests" << endl;
 
   return 0;
 }

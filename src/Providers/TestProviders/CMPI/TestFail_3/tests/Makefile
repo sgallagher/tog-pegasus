@@ -49,13 +49,12 @@ include $(ROOT)/test/config.mak
 tests:
 
 poststarttests: 
-	@$(PROGRAM) test test/TestProvider
-	@$(ECHO) +++ $(PROGRAM) passed successfully +++
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-	@$(ECHO) Testing with remote namespace 
-	@$(PROGRAM) test test/Remote/Localhost
-	@$(ECHO) +++ $(PROGRAM) passed successfully +++
-#endif
-
+	$(PROGRAM) test test/TestProvider
+ifdef PEGASUS_ENABLE_REMOTE_CMPI
+	@$(ECHO)  Testing with remote namespace
+	$(PROGRAM) test test/Remote/Localhost
+else
+	@$(ECHO) "+++++ PEGASUS_ENABLE_REMOTE_CMPI is NOT defined: Skipping remote CMPI tests"
+endif
 
 install:

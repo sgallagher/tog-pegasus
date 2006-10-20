@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -48,7 +46,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-CIMNamespaceName ProviderNamespace;
+CIMNamespaceName providerNamespace;
 const CIMName CLASSNAME = CIMName ("TestCMPI_Method");
 
 Boolean verbose;
@@ -114,7 +112,7 @@ _checkUint32Value (CIMValue & theValue, Uint32 value)
 void
 _usage ()
 {
-  cerr << "Usage: TestCMPIMethod " << "{test}" << endl;
+  cerr << "Usage: TestCMPIMethod {test} {namespace}" << endl;
 }
 
 void
@@ -122,7 +120,7 @@ test01 (CIMClient & client)
 {
   CIMObjectPath instanceName;
 
-  instanceName.setNameSpace (ProviderNamespace);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
 
   Array < CIMParamValue > inParams;
@@ -130,7 +128,7 @@ test01 (CIMClient & client)
 
   /*     String returnUint32(); */
 
-  CIMValue retValue = client.invokeMethod (ProviderNamespace,
+  CIMValue retValue = client.invokeMethod (providerNamespace,
 					   instanceName,
 					   "returnUint32",
 					   inParams,
@@ -143,7 +141,7 @@ test02 (CIMClient & client)
 {
   CIMObjectPath instanceName;
 
-  instanceName.setNameSpace (ProviderNamespace);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
 
   Array < CIMParamValue > inParams;
@@ -151,7 +149,7 @@ test02 (CIMClient & client)
 
   /*     String returnString(); */
 
-  CIMValue retValue = client.invokeMethod (ProviderNamespace,
+  CIMValue retValue = client.invokeMethod (providerNamespace,
 					   instanceName,
 					   "returnString",
 					   inParams,
@@ -166,7 +164,7 @@ test03 (CIMClient & client)
 {
   CIMObjectPath instanceName;
 
-  instanceName.setNameSpace (ProviderNamespace);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
 
   Array < CIMParamValue > inParams;
@@ -186,7 +184,7 @@ test03 (CIMClient & client)
   {
     /* CDGetType */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (1))));
-    CIMValue retValue = client.invokeMethod (ProviderNamespace,
+    CIMValue retValue = client.invokeMethod (providerNamespace,
 					     instanceName,
 					     "TestCMPIBroker",
 					     inParams,
@@ -203,7 +201,7 @@ test03 (CIMClient & client)
   {
     /* CDToString */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (2))));
-    CIMValue retValue = client.invokeMethod (ProviderNamespace,
+    CIMValue retValue = client.invokeMethod (providerNamespace,
 					     instanceName,
 					     "TestCMPIBroker",
 					     inParams,
@@ -220,7 +218,7 @@ test03 (CIMClient & client)
   {
     /* CDIsOfType */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (3))));
-    CIMValue retValue = client.invokeMethod (ProviderNamespace,
+    CIMValue retValue = client.invokeMethod (providerNamespace,
 					     instanceName,
 					     "TestCMPIBroker",
 					     inParams,
@@ -237,7 +235,7 @@ test03 (CIMClient & client)
   {
     /* CDGetMessage */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (4))));
-    CIMValue retValue = client.invokeMethod (ProviderNamespace,
+    CIMValue retValue = client.invokeMethod (providerNamespace,
 					     instanceName,
 					     "TestCMPIBroker",
 					     inParams,
@@ -254,7 +252,7 @@ test03 (CIMClient & client)
   {
     /* CDLogMessage */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (5))));
-    CIMValue retValue = client.invokeMethod (ProviderNamespace,
+    CIMValue retValue = client.invokeMethod (providerNamespace,
 					     instanceName,
 					     "TestCMPIBroker",
 					     inParams,
@@ -273,7 +271,7 @@ test03 (CIMClient & client)
   {
     /* CDTraceMessage */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (6))));
-    CIMValue retValue = client.invokeMethod (ProviderNamespace,
+    CIMValue retValue = client.invokeMethod (providerNamespace,
 					     instanceName,
 					     "TestCMPIBroker",
 					     inParams,
@@ -293,7 +291,7 @@ test04 (CIMClient & client)
 {
   CIMObjectPath instanceName;
 
-  instanceName.setNameSpace (ProviderNamespace);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
 
   Array < CIMParamValue > inParams;
@@ -301,7 +299,7 @@ test04 (CIMClient & client)
 
   /*     [EmbeddedObject] String returnInstance(); */
 
-  CIMValue retValue = client.invokeMethod (ProviderNamespace,
+  CIMValue retValue = client.invokeMethod (providerNamespace,
 					   instanceName,
 					   "returnInstance",
 					   inParams,
@@ -323,7 +321,7 @@ test05 (CIMClient & client)
 {
   CIMObjectPath instanceName;
 
-  instanceName.setNameSpace (ProviderNamespace);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
 
   Array < CIMParamValue > inParams;
@@ -331,7 +329,7 @@ test05 (CIMClient & client)
 
   /*     String returnDateTime(); */
 
-  CIMValue retValue = client.invokeMethod (ProviderNamespace,
+  CIMValue retValue = client.invokeMethod (providerNamespace,
 					   instanceName,
 					   "returnDateTime",
 					   inParams,
@@ -346,7 +344,7 @@ test06 (CIMClient & client)
 {
   CIMObjectPath instanceName;
   Uint32 exception  =0;
-  instanceName.setNameSpace (ProviderNamespace);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
 
   Array < CIMParamValue > inParams;
@@ -354,7 +352,7 @@ test06 (CIMClient & client)
 
   /*     String returnDateTime(); */
   try {
-  CIMValue retValue = client.invokeMethod (ProviderNamespace,
+  CIMValue retValue = client.invokeMethod (providerNamespace,
 					   instanceName,
 					   "noSuchFunction",
 					   inParams,
@@ -371,14 +369,14 @@ test07 (CIMClient & client)
 {
   CIMObjectPath instanceName;
   Uint32 exception  =0;
-  instanceName.setNameSpace (ProviderNamespace);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
 
   Array < CIMParamValue > inParams;
   Array < CIMParamValue > outParams;
 
     inParams.append (CIMParamValue ("Operation", CIMValue (String ("Boom"))));
-  CIMValue retValue = client.invokeMethod (ProviderNamespace,
+  CIMValue retValue = client.invokeMethod (providerNamespace,
 					   instanceName,
 					   "TestCMPIBroker",
 					   inParams,
@@ -390,14 +388,14 @@ test08 (CIMClient & client)
 {
   CIMObjectPath instanceName;
   Uint32 exception  =0;
-  instanceName.setNameSpace (ProviderNamespace);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
 
   Array < CIMParamValue > inParams;
   Array < CIMParamValue > outParams;
 
   inParams.append (CIMParamValue ("Operation", CIMValue (Uint64 (1))));
-  CIMValue retValue = client.invokeMethod (ProviderNamespace,
+  CIMValue retValue = client.invokeMethod (providerNamespace,
 					   instanceName,
 					   "TestCMPIBroker",
 					   inParams,
@@ -415,7 +413,7 @@ void test09 (CIMClient & client)
 {
   CIMObjectPath instanceName;
 
-  instanceName.setNameSpace (ProviderNamespace);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
 
   Array < CIMParamValue > inParams;
@@ -423,7 +421,7 @@ void test09 (CIMClient & client)
 
   /*     [EmbeddedObject] String returnInstance(); */
 
-  CIMValue retValue = client.invokeMethod (ProviderNamespace,
+  CIMValue retValue = client.invokeMethod (providerNamespace,
 					   instanceName,
 					   "returnInstance",
 					   inParams,
@@ -444,7 +442,7 @@ void test09 (CIMClient & client)
   inParams.append(
       CIMParamValue(String("inputInstance"), CIMValue(inputInstance)));
 
-  retValue = client.invokeMethod (ProviderNamespace,
+  retValue = client.invokeMethod (providerNamespace,
       instanceName,
       "processEmbeddedInstance",
       inParams,
@@ -507,7 +505,7 @@ _test (CIMClient & client)
     test08 (client);
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     // Don't run against the remote-namespace, not yet suppoted. 
-    if (ProviderNamespace == "test/TestProvider")
+    if (providerNamespace == "test/TestProvider")
     {
         test09 (client); // Embedded Instance Test
     }
@@ -519,8 +517,6 @@ _test (CIMClient & client)
     cerr << "test failed: " << e.getMessage () << endl;
     exit (-1);
   }
-
-  cout << "+++++ test completed successfully" << endl;
 }
 
 
@@ -551,7 +547,7 @@ main (int argc, char **argv)
 
       if (String::equalNoCase (opt, "test"))
 	{
-          ProviderNamespace = CIMNamespaceName (argv[2]);
+          providerNamespace = CIMNamespaceName (argv[2]);
 	  _test (client);
 	}
       else
@@ -561,6 +557,8 @@ main (int argc, char **argv)
 	  return -1;
 	}
     }
+
+  cout << argv[0] << " +++++ completed" << endl;
 
   return 0;
 }

@@ -714,19 +714,10 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             request->operationContext.get(ProviderIdContainer::NAME);
             if (pidc1.isRemoteNameSpace() )
             {
-                if (_basicProviderManagerRouter)
-                {
-                    Tracer::trace ( TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                    "Processing Remote NameSpace request ");
-                    response = _basicProviderManagerRouter->processMessage (request);
-                    return response;
-                }
-                else
-                {
-                    throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_FAILED,
-                                                   "Basic Provider Manager Router is not"
-                                                   " Initialized for Remote CMPI.");
-                }
+                Tracer::trace ( TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                                "Processing Remote NameSpace request ");
+                response = _basicProviderManagerRouter->processMessage (request);
+                return response;
             }
         }
 #endif

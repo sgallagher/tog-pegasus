@@ -378,8 +378,8 @@ CMDSFORCE:
 ##
 
 cimstop: CMDSFORCE
+	-$(CMPIR_STOP_DAEMON)
 	$(CIMSERVER_STOP_SERVICE)
-	$(CMPIR_STOP_DAEMON)
 
 cimstart: CMDSFORCE
 	$(CIMSERVER_START_SERVICE)
@@ -468,13 +468,11 @@ mkdirhier_IgnoreError: CMDSFORCE
 ##       cimstart command.
 ##
 runTestSuite: CMDSFORCE
-	-$(CIMSERVER_STOP_SERVICE)
-	$(CIMSERVER_START_SERVICE)
-	$(CMPIR_START_DAEMON)
+	make -f TestMakefile -i cimstop
+	make -f TestMakefile cimstart
 	$(WINDOWS_ONLY_SLEEP)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))
-	$(CIMSERVER_STOP_SERVICE)
-	$(CMPIR_STOP_DAEMON)
+	make -f TestMakefile cimstop
 
 ifndef PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN
   PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN=$(GET_HOSTNAME)

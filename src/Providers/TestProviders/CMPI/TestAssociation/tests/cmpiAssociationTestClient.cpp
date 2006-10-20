@@ -43,8 +43,8 @@
 //     CMPI_TEST_Racing  (association class)
 //     
 // The executable for this CIM client application is:  cmpiAssociationTestClient.
-// To display the test results (returned instances or classes), use the -v
-// (verbose) option in the command line:  'cmpiAssociationTestClient -v'.
+// To display the test results (returned instances or classes), define the
+// environment variable PEGASUS_TEST_VERBOSE.
 //
 // Test results are verified by comparing the number of returned objects
 // with the expected number of returned objects.  Any unexpected result
@@ -62,13 +62,13 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-CIMNamespaceName ProviderNamespace;
+CIMNamespaceName providerNamespace;
 const CIMName CMPI_TEST_PERSON = CIMName ("CMPI_TEST_Person");
 const CIMName CMPI_TEST_VEHICLE = CIMName ("CMPI_TEST_Vehicle");
 const CIMName CMPI_TEST_RACING = CIMName ("CMPI_TEST_Racing");
 
 
-static Boolean verbose = false;
+Boolean verbose = false;
 
 // exepected results - number of returned objects expected for each test
 
@@ -102,9 +102,9 @@ void _verifyResult(const Uint32 numObjects, const Uint32 numExpectedObjects)
 {   
     if (numObjects != numExpectedObjects)
     {
-        cout << "Error: Unexpected number of objects returned.  ";
-        cout << "Expected " << numExpectedObjects << " object(s), but ";
-        cout << numObjects << " object(s) were returned." << endl;
+        cerr << "Error: Unexpected number of objects returned. " << endl;;
+        cerr << "Expected " << numExpectedObjects << " object(s), but ";
+        cerr << numObjects << " object(s) were returned." << endl;
         exit(1);
     }
 }
@@ -156,8 +156,8 @@ void _testAssociators(CIMClient& client, CIMName assocClass, CIMObjectPath insta
 {
     if (verbose)
     {
-        cout << "\nAssociation Class: " << assocClass.getString() << endl;
-        cout << "\nObject Name: " << instancePath.toString() << endl;
+        cout << "Association Class: " << assocClass.getString() << endl;
+        cout << "Object Name: " << instancePath.toString() << endl;
     }
 
     try
@@ -171,7 +171,7 @@ void _testAssociators(CIMClient& client, CIMName assocClass, CIMObjectPath insta
         //
 
         Array<CIMObject> resultObjects =
-            client.associators(ProviderNamespace, instancePath, assocClass,
+            client.associators(providerNamespace, instancePath, assocClass,
                                resultClass, role, resultRole);
 
         // verify result
@@ -195,8 +195,8 @@ void _testAssociatorNames(CIMClient& client, CIMName assocClass,
 {
     if (verbose)
     {
-        cout << "\nAssociation Class: " << assocClass.getString() << endl;
-        cout << "\nObject Name: " << instancePath.toString() << endl;
+        cout << "Association Class: " << assocClass.getString() << endl;
+        cout << "Object Name: " << instancePath.toString() << endl;
     }
 
     try
@@ -210,7 +210,7 @@ void _testAssociatorNames(CIMClient& client, CIMName assocClass,
         String resultRole = String::EMPTY;
 
         Array<CIMObjectPath> resultObjectPaths =
-            client.associatorNames(ProviderNamespace, instancePath,
+            client.associatorNames(providerNamespace, instancePath,
                                    assocClass, resultClass, role, resultRole);
         // verify result
         _verifyResult(resultObjectPaths.size(), numExpectedObjects);
@@ -233,7 +233,7 @@ void _testReferences(CIMClient& client, CIMObjectPath instancePath,
 {
     if (verbose)
     {
-        cout << "\nObject Name: " << instancePath.toString() << endl;
+        cout << "Object Name: " << instancePath.toString() << endl;
     }
 
     try
@@ -244,7 +244,7 @@ void _testReferences(CIMClient& client, CIMObjectPath instancePath,
         CIMName resultClass = CIMName();
         String role = String::EMPTY;
 
-        resultObjects = client.references(ProviderNamespace, instancePath,
+        resultObjects = client.references(providerNamespace, instancePath,
                                           resultClass,role);
         // verify result
         _verifyResult(resultObjects.size(), numExpectedObjects);
@@ -267,7 +267,7 @@ void _testReferenceNames(CIMClient& client, CIMObjectPath instancePath,
 {
     if (verbose)
     {
-        cout << "\nObject Name: " << instancePath.toString() << endl;
+        cout << "Object Name: " << instancePath.toString() << endl;
     }
 
     try
@@ -279,7 +279,7 @@ void _testReferenceNames(CIMClient& client, CIMObjectPath instancePath,
         String role = String::EMPTY;
 
         resultObjectPaths =
-            client.referenceNames(ProviderNamespace, instancePath, resultClass, role);
+            client.referenceNames(providerNamespace, instancePath, resultClass, role);
 
         // verify result
         _verifyResult(resultObjectPaths.size(), numExpectedObjects);
@@ -316,14 +316,14 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
 
     if (verbose)
     {
-        cout << "\n+++++ Test associators for (" << className.getString();
+        cout << "+++++ Test associators for (" << className.getString();
         cout << ")" << endl;
     }
 
     try
     {
         // get the association classes
-        resultObjects = client.associators(ProviderNamespace, op, assocClass,
+        resultObjects = client.associators(providerNamespace, op, assocClass,
             resultClass, role, resultRole);
 
         // display result
@@ -344,13 +344,13 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
 
     if (verbose)
     {
-        cout << "\n+++++ Test associatorNames for (" << className.getString();
+        cout << "+++++ Test associatorNames for (" << className.getString();
         cout << ")" << endl;
     }
 
     try
     {
-        resultObjectPaths = client.associatorNames(ProviderNamespace, op, assocClass,
+        resultObjectPaths = client.associatorNames(providerNamespace, op, assocClass,
             resultClass, role, resultRole);
 
         // display result
@@ -370,12 +370,12 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
 
     if (verbose)
     {
-        cout << "\n+++++ Test references for (" << className.getString() << ")" << endl;
+        cout << "+++++ Test references for (" << className.getString() << ")" << endl;
     }
 
     try
     {
-        resultObjects = client.references(ProviderNamespace, op, resultClass, role);
+        resultObjects = client.references(providerNamespace, op, resultClass, role);
 
         // display result
         _displayResult(resultObjects);
@@ -395,14 +395,14 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
 
     if (verbose)
     {
-        cout << "\n+++++ Test referenceNames for (" << className.getString();
+        cout << "+++++ Test referenceNames for (" << className.getString();
         cout << ")" << endl;
     }
 
     try
     {
         resultObjectPaths =
-            client.referenceNames(ProviderNamespace, op, resultClass, role);
+            client.referenceNames(providerNamespace, op, resultClass, role);
 
         // display result
         _displayResult(resultObjectPaths);
@@ -420,29 +420,19 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
 
 int main(int argc, char** argv)
 {
-    //
-    // Check command line option
-    //
-    int i;
+    verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 
-    if (argc < 2 || argc > 3)
+    //
+    // Check for command line option
+    //
+    if (argc != 2)
     {
-        cerr << "Usage: TestCMPIAssosiation [-v] namespace" << endl;
+        cerr << "Usage: TestCMPIAssociation {namespace}" << endl;
         return(1);
     }
 
-    for(i = 1; i < argc ; ++i)
-    {
-        const char *opt = argv[i];
-        if (strcmp(opt, "-v") == 0)
-        {
-            verbose = true;
-        }          
-        else
-        {
-            ProviderNamespace = CIMNamespaceName (argv[i]);
-        }
-    }
+    providerNamespace = CIMNamespaceName (argv[1]);
+
     CIMClient client;
 
     // Connect to server
@@ -459,8 +449,6 @@ int main(int argc, char** argv)
     // Test passing Instance object path to the Association Methods
     // =======================================================================
 
-    cout << "+++++ Test CMPI Association Provider" << endl;
-
     // Get the instance object paths for the Person and Vehicle class
     //
     Array<CIMObjectPath> personRefs;
@@ -468,13 +456,13 @@ int main(int argc, char** argv)
     try
     {
         personRefs =
-            client.enumerateInstanceNames(ProviderNamespace, CMPI_TEST_PERSON);
+            client.enumerateInstanceNames(providerNamespace, CMPI_TEST_PERSON);
         vehicleRefs =
-            client.enumerateInstanceNames(ProviderNamespace, CMPI_TEST_VEHICLE);
+            client.enumerateInstanceNames(providerNamespace, CMPI_TEST_VEHICLE);
     }
     catch (Exception& e)
     {
-        cout << "enumerateInstanceNames() failed." << endl;
+        cerr << "enumerateInstanceNames() failed." << endl;
         _errorExit(e.getMessage());
     }
 
@@ -503,7 +491,11 @@ int main(int argc, char** argv)
     // instance via an instance of a specified association class.
     // =======================================================================
 
-    cout << "\n+++++ Test associators" << endl;
+    if (verbose) 
+    {
+        cout << "+++++ Test associators" << endl;
+    }
+
     for (Uint32 i = 0; i < numPersonInstances; i++)
     {
 	_testAssociators(client, CMPI_TEST_RACING, personRefs[i],
@@ -523,7 +515,11 @@ int main(int argc, char** argv)
     // source CIM instance via an instance of a association class.
     // =======================================================================
 
-    cout << "\n+++++ Test associatorNames" << endl;
+    if (verbose) 
+    {
+        cout << "+++++ Test associatorNames" << endl;
+    }
+
     for (Uint32 i = 0; i < numPersonInstances; i++)
     {
         _testAssociatorNames(client, CMPI_TEST_RACING, personRefs[i],
@@ -542,7 +538,11 @@ int main(int argc, char** argv)
     // instance.
     // =======================================================================
 
-    cout << "\n+++++ Test references" << endl;
+    if (verbose)
+    {
+        cout << "+++++ Test references" << endl;
+    }
+
     for (Uint32 i = 0; i < numPersonInstances; i++)
     {
         _testReferences(client, personRefs[i], resultArray_ref_P[i]);
@@ -559,7 +559,11 @@ int main(int argc, char** argv)
     // source CIM instance.
     // =======================================================================
 
-    cout << "\n+++++ Test referenceNames" << endl;
+    if (verbose)
+    {
+        cout << "+++++ Test referenceNames" << endl;
+    }
+
     for (Uint32 i = 0; i < numPersonInstances; i++)
     {
         _testReferenceNames(client, personRefs[i], resultArray_ref_P[i]);
@@ -573,7 +577,11 @@ int main(int argc, char** argv)
     // Test passing Class object path to the Association Methods
     // =======================================================================
 
-    cout << "\n+++++ Test association class operations" << endl;
+    if (verbose)
+    {
+        cout << "+++++ Test association class operations" << endl;
+    }
+
     _testCMPIAssociationClassOperations(client, CMPI_TEST_PERSON);
     _testCMPIAssociationClassOperations(client, CMPI_TEST_VEHICLE);
 
@@ -581,6 +589,6 @@ int main(int argc, char** argv)
     // Association tests completed
     // =======================================================================
 
-    cout << "\n+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
     return(0);
 }

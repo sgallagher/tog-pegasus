@@ -51,16 +51,20 @@ SOURCES = cmpiAssociationTestClient.cpp
 include $(ROOT)/mak/program.mak
 include $(ROOT)/test/config.mak
 
+LOGFILES = CMPITESTRacing
 
 tests:
 
 poststarttests:
+	@$(RM) $(LOGFILES).log
 	$(PROGRAM) test/TestProvider
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+	@$(RM) $(LOGFILES).log
+ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@$(ECHO)  Testing with remote namespace 
-	@$(PROGRAM) test/Remote/Localhost
-	@$(ECHO) +++ $(PROGRAM) passed successfully +++
-#endif
+	$(PROGRAM) test/Remote/Localhost
+else
+	@$(ECHO) "+++++ PEGASUS_ENABLE_REMOTE_CMPI is NOT defined: Skipping remote CMPI tests"
+endif
 
 install:
 

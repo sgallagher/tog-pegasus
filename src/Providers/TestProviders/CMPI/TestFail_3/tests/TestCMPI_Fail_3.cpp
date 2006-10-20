@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -48,7 +46,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-CIMNamespaceName ProviderNamespace;
+CIMNamespaceName providerNamespace;
 const CIMName CLASSNAME = CIMName ("TestCMPI_Fail_3");
 const String ERROR_SUBSTRING = "TestCMPIFail_3Provider) conflicting generic/specfic CMPI style provider.";
 const String RCMPI_ERROR = "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: \"ProviderInitFailure: Error initializing the API's _Create<mi-type>MI\"";
@@ -58,7 +56,7 @@ Boolean verbose;
 void
 _usage ()
 {
-  cerr << "Usage: TestCMPI_Fail_3 " << "{test} {namespace}" << endl;
+  cerr << "Usage: TestCMPI_Fail_3 {test} {namespace}" << endl;
 }
 
 void
@@ -66,7 +64,7 @@ test01 (CIMClient & client)
 {
 
   try { 
-  	Array<CIMObjectPath> array = client.enumerateInstanceNames (ProviderNamespace,
+  	Array<CIMObjectPath> array = client.enumerateInstanceNames (providerNamespace,
 					   CLASSNAME);
   } catch (const CIMException &e) 
   {
@@ -91,8 +89,6 @@ _test (CIMClient & client)
     cerr << "test failed: " << e.getMessage () << endl;
     exit (-1);
   }
-
-  cout << "+++++ test completed successfully" << endl;
 }
 
 
@@ -123,7 +119,7 @@ main (int argc, char **argv)
 
       if (String::equalNoCase (opt, "test"))
 	{
-          ProviderNamespace = CIMNamespaceName (argv[2]);
+          providerNamespace = CIMNamespaceName (argv[2]);
 	  _test (client);
 	}
       else
@@ -133,6 +129,8 @@ main (int argc, char **argv)
 	  return -1;
 	}
     }
+
+  cout << argv[0] << " +++++ passed all tests" << endl;
 
   return 0;
 }

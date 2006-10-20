@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -48,7 +46,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-CIMNamespaceName ProviderNamespace;
+CIMNamespaceName providerNamespace;
 const char *queries[] = {
   "select n32,s,ElementName,n64,n16,r32, r64,d from TestCMPI_ExecQuery where n32=42",  // 0
   "SELECT * FROM TestCMPI_ExecQuery",   // 1
@@ -212,17 +210,11 @@ void _checkUint64Property
   PEGASUS_TEST_ASSERT (result == value);
 }
 
-
-
 void
 _usage ()
 {
-  cerr << "Usage: TestCMPIInstanceExecQuery " << "{test} {namespace}" << endl;
+  cerr << "Usage: TestCMPIInstanceExecQuery {test} {namespace}" << endl;
 }
-
-
-
-
 
 static void
 _test1 (CIMClient & client)
@@ -238,7 +230,7 @@ _test1 (CIMClient & client)
         if (verbose)
           cerr << "Querying " << queries[i] << endl;
 
-        Array < CIMObject > objects = client.execQuery (ProviderNamespace,
+        Array < CIMObject > objects = client.execQuery (providerNamespace,
                                                         wql, queries[i]);
 
         if (objects.size () == 0)
@@ -299,14 +291,14 @@ _test2 (CIMClient & client)
                                      "TestCMPI_ExecQuery",
                                      CIMKeyBinding::STRING));
 
-  instanceName.setNameSpace (ProviderNamespace);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName ("TestCMPI_ExecQuery");
   instanceName.setKeyBindings (keyBindings);
 
   /* Call the unsupported functions of the provider. */
   try
   {
-    CIMInstance instance (client.getInstance (ProviderNamespace,
+    CIMInstance instance (client.getInstance (providerNamespace,
                                               instanceName));
   } catch (const CIMException &)
   {
@@ -316,14 +308,14 @@ _test2 (CIMClient & client)
 
   try
   {
-    client.deleteInstance (ProviderNamespace, instanceName);
+    client.deleteInstance (providerNamespace, instanceName);
 
   } catch (const CIMException & )
   {
 	 exceptions ++;
   }
   CIMClass thisClass =
-        client.getClass(ProviderNamespace,"TestCMPI_ExecQuery",false,true,true,CIMPropertyList());
+        client.getClass(providerNamespace,"TestCMPI_ExecQuery",false,true,true,CIMPropertyList());
   Array<CIMName> propertyNameList;
   propertyNameList.append(CIMName("ElementName"));
   CIMPropertyList myPropertyList(propertyNameList);
@@ -333,7 +325,7 @@ _test2 (CIMClient & client)
   try
   {
 
-    CIMObjectPath objectPath (client.createInstance (ProviderNamespace,
+    CIMObjectPath objectPath (client.createInstance (providerNamespace,
                                                      newInstance));
 
 
@@ -344,7 +336,7 @@ _test2 (CIMClient & client)
 
   try
   {
-    client.modifyInstance (ProviderNamespace, newInstance);
+    client.modifyInstance (providerNamespace, newInstance);
 
   } catch (const CIMException &)
   {
@@ -354,7 +346,7 @@ _test2 (CIMClient & client)
   {
 
     Array < CIMInstance > instances =
-      client.enumerateInstances (ProviderNamespace,
+      client.enumerateInstances (providerNamespace,
                                  CIMName ("TestCMPI_ExecQuery"));
   } catch (const CIMException &)
   {
@@ -364,7 +356,7 @@ _test2 (CIMClient & client)
   try
   {
     Array < CIMObjectPath > objectPaths =
-      client.enumerateInstanceNames (ProviderNamespace,
+      client.enumerateInstanceNames (providerNamespace,
                                      CIMName ("TestCMPI_ExecQuery"));
   } catch (const CIMException &)
   {
@@ -402,10 +394,9 @@ main (int argc, char **argv)
 
       if (String::equalNoCase (opt, "test"))
         {
-          ProviderNamespace = CIMNamespaceName (argv[2]);
+          providerNamespace = CIMNamespaceName (argv[2]);
           _test1 (client);
           _test2 (client);
-          cout << "+++++ test completed successfully" << endl;
         }
       else
         {
@@ -414,6 +405,7 @@ main (int argc, char **argv)
           return -1;
         }
     }
+    cout << argv[0] << " +++++ completed" << endl;
 
   return 0;
 }

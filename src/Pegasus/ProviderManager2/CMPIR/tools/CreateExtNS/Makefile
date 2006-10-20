@@ -28,11 +28,11 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../../../..
 
 include $(ROOT)/mak/config.mak
 
-DIR = Pegasus/ProviderManagaer2/CMPIR/tools/CreateExtNS
+DIR = Pegasus/ProviderManager2/CMPIR/tools/CreateExtNS
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
     CXX = cc
@@ -41,7 +41,8 @@ endif
 
 PROGRAM = CreateExtNS
 
-SOURCES = CreateExtNs.c
+SOURCES = \
+   CreateExtNs.c
 
 include $(ROOT)/mak/program.mak
 

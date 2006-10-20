@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -1004,21 +997,20 @@ int main(int argc, char ** argv)
 
   // get the configuration variable PEGASUS_HOME
   const char* peg_home = getenv("PEGASUS_HOME");
-	
+   if (peg_home == NULL)
+  {
+      cout << "PEGASUS_HOME needs to be set to run this test." << endl;
+     exit(-1);
+  }
+  String repositoryDir(peg_home);
+  repositoryDir.append("/");
+
   // get the makefile build config variable REPOSITORY_NAME
   const char* repo_name = getenv("REPOSITORY_NAME");
-
-
-   if (peg_home == NULL)
-     exit(-1);
-
-   if (repo_name == NULL)
-     repo_name = "repository";
-
-
-   	String repositoryDir(peg_home);
-	repositoryDir.append("/");
-	repositoryDir.append(repo_name);
+  if (repo_name == NULL)
+      repositoryDir.append("repository");
+  else
+      repositoryDir.append(repo_name);
 
   //
   // Comment out the above 3 lines and umcomment the line below when testing with Rational Purify

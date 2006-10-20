@@ -118,6 +118,15 @@ void test01()
 
     /**
         Added to cover the Function
+        void AuthenticationInfo::setIpAddress(String ipAddress)
+    */
+#define TEST_IP "127.0.0.1"
+    PEGASUS_TEST_ASSERT(authInfo.getIpAddress() == String::EMPTY);
+    authInfo.setIpAddress(TEST_IP);
+    PEGASUS_TEST_ASSERT(authInfo.getIpAddress() == TEST_IP);
+
+    /**
+        Added to cover the Function
         void AuthenticationInfo::setClientCertificateChain(
         Array<SSLCertificateInfo*> clientCertificate)
     */

@@ -260,6 +260,8 @@ HTTPConnection::HTTPConnection(
     PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
         "Connection IP address = " + _ipAddress);
 
+    _authInfo->setIpAddress(_ipAddress);
+
     PEG_METHOD_EXIT();
 }
 

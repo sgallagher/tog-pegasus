@@ -275,6 +275,31 @@ public:
         return _rep->getAuthType();
     }
 
+    /** 
+        Set the IP address to the specified IP address
+        @param string containing the IP address
+    */
+    void setIpAddress(const String& ipAddress)
+    {
+        _checkRep();
+        _rep->setIpAddress(ipAddress);
+    }
+
+    /** 
+        Get the IP address of the connection
+
+        NOTE: The IP address is for debug use only. 
+        It should not be used for authentication purposes.
+
+        @return string containing the IP address
+    */
+    String getIpAddress() const
+    {
+        _checkRep();
+        return _rep->getIpAddress();
+    }
+
+
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     /** Get the CIM Security Association 
         @return a pointer to the CIM Security Association

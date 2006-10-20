@@ -122,12 +122,22 @@ public:
 
     void   setAuthType(const String& authType);
 
+    void setIpAddress(const String& ipAddress)
+    {
+        _ipAddress = ipAddress;
+    }
+
+    String getIpAddress()
+    {
+        return _ipAddress;
+    }
+
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     CIMKerberosSecurityAssociation* getSecurityAssociation() const 
     { 
         return _securityAssoc.get();
     }
- 
+
     void setSecurityAssociation();
 #endif
 
@@ -157,6 +167,7 @@ private:
     Boolean _privileged;
     String  _authType;
     AuthStatus _authStatus;
+    String  _ipAddress;
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     AutoPtr<CIMKerberosSecurityAssociation> _securityAssoc;//PEP101
 #endif

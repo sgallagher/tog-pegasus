@@ -49,6 +49,55 @@ PEGASUS_USING_STD;
 # define TEMP_NAME_LEN L_tmpnam
 # include <unistd.h>
 #endif
+#if defined(PEGASUS_OS_VMS)
+# define MAX_SENDMAIL_CMD_LEN 100
+# define TEMP_NAME_LEN L_tmpnam
+
+char
+  mailFileVms[TEMP_NAME_LEN];
+
+long
+  file_len = 0,
+  subject_line_len = 0,
+  to_user_len = 0;
+
+int
+  send_context = 0,
+  status = SS$_NORMAL;
+
+typedef struct itmlst
+{
+  short buffer_length;
+  short item_code;
+  long buffer_address;
+  long return_length_address;
+}
+ITMLST;
+
+ITMLST
+  nulllist[] = 
+    { {0, 0, 0, 0} 
+    },
+  address_itmlst[] = 
+    { {0, MAIL$_SEND_USERNAME, 0, 0},
+      {0, MAIL$_SEND_USERNAME_TYPE, MAIL$_TO, 0},
+      {0, 0, 0, 0}
+    },
+  address_cc_itmlst[] =
+    { {0, MAIL$_SEND_USERNAME, 0, 0},
+      {0, MAIL$_SEND_USERNAME_TYPE, MAIL$_CC, 0},
+      {0, 0, 0, 0}
+    },
+  bodypart_itmlst[] =
+    { {0, MAIL$_SEND_FILENAME, 0, 0},
+      {0, 0, 0, 0}
+    },
+  attribute_itmlst[] =
+    { {0, MAIL$_SEND_SUBJECT, 0, 0},
+      {0, 0, 0, 0}
+    };
+
+#endif
 
 class PEGASUS_HANDLER_LINKAGE EmailListenerDestination: public CIMHandler
 {
@@ -121,6 +170,18 @@ private:
     String _buildMailAddrStr(
 	const Array<String> & mailAddr);
 
+#ifdef PEGASUS_OS_VMS
+    /**
+        Build the mail cc address string from address array 
+
+        @param  mailAddr       the array of the mail cc addresses 
+
+        @return the string of the mail addresses 
+    */
+    String _buildMailAddrCcStr(
+	const Array<String> & mailAddr);
+
+#endif
     /**
         Write the mail header string to file 
 

@@ -48,10 +48,10 @@ OPT_DIR = $(HOME_DIR)/opt
 LFLAGS =  /Threads_Enable=Upcalls/symbol_table=$(BIN_VMSDIRA)]$(PROGRAM)/map=$(BIN_VMSDIRA)]$(PROGRAM)/full/cross_reference
 CFLAGS =  /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
 CCFLAGS = /OPT=INLINE=ALL
+
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 CFLAGS += /show=include/lis=$(OBJ_VMSDIRA)]/debug/noopt
 CCFLAGS = /show=include/lis=$(OBJ_VMSDIRA)]/debug/noopt
-
 LFLAGS += /debug
 endif
 
@@ -64,8 +64,10 @@ PEGASUS_HAS_SSL = yes
 OPENSSL_SET_SERIAL_SUPPORTED = true
 
 PEGASUS_ARCHITECTURE_64BIT = yes
-
+ 
 PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = true
+PEGASUS_ENABLE_SYSTEM_LOG_HANDLER = true
+PEGASUS_ENABLE_EMAIL_HANDLER = true
 
 # Local domain sockets, or an equivalent, is not currently supported on OpenVMS. Bug 2147
 PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1

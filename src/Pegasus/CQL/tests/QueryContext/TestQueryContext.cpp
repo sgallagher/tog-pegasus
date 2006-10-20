@@ -211,20 +211,20 @@ void drive_RepositoryQueryContext()
 {
   // get the configuration variable PEGASUS_HOME
   const char* peg_home = getenv("PEGASUS_HOME");
-
-  // get the makefile build config variable REPOSITORY_NAME
-  const char* repo_name = getenv("REPOSITORY_NAME");
-
    if (peg_home == NULL)
-     exit(-1);
-
-   if (repo_name == NULL)
-     repo_name = "repository";
-
-
+    {
+        cout << "PEGASUS_HOME needs to be set to run this test." << endl;
+        exit(-1);
+    }
    	String repositoryDir(peg_home);
 	repositoryDir.append("/");
-	repositoryDir.append(repo_name);
+	
+	// get the makefile build config variable REPOSITORY_NAME
+	const char* repo_name = getenv("REPOSITORY_NAME");
+    if (repo_name == NULL)
+        repositoryDir.append("repository");
+    else
+        repositoryDir.append(repo_name);
 
 	CIMNamespaceName _ns("root/SampleProvider");
 	CIMRepository *_rep = new CIMRepository(repositoryDir);

@@ -5945,7 +5945,57 @@ CIM server listening on HTTPS port {0}."}
          */
          Handler.EmailListenerDestination.EmailListenerDestination._MSG_NO_ASSOCIATED_STREAM:string {"PGS16609: No associated stream with this popen command."}
 
-        Handler.EmailListenerDestination.EmailListenerDestination._MSG_SHELL_CAN_NOT_BE_EXECUTED:string {"PGS16610: /usr/bin/sh could not be executed."}
+         Handler.EmailListenerDestination.EmailListenerDestination._MSG_SHELL_CAN_NOT_BE_EXECUTED:string {"PGS16610: /usr/bin/sh could not be executed."}
+
+        /**
+         * @note PGS16611:
+         * DO NOT TRANSLATE "mail_send_begin"
+         */
+
+        Handler.EmailListenerDestination.EmailListenerDestination.ROUTINE_MAIL_SEND_BEGIN_FAILED.PEGASUS_OS_VMS:string {"PGS16611: Routine mail$send_begin failed."}
+
+        /**
+         * @note PGS16612:
+         * DO NOT TRANSLATE "MAIL_send_add_attribute"
+         */
+
+        Handler.EmailListenerDestination.EmailListenerDestination.ROUTINE_MAIL_SEND_ADD_ATTRIBUTE_FAILED.PEGASUS_OS_VMS:string {"PGS16612: Routine mail$send_add_attribute failed."}
+
+        /**
+         * @note PGS16613:
+         * DO NOT TRANSLATE "MAIL_send_add_bodypart"
+         */
+
+        Handler.EmailListenerDestination.EmailListenerDestination.ROUTINE_MAIL_SEND_ADD_BODYPART_FAILED.PEGASUS_OS_VMS:string {"PGS16613: Routine mail$send_add_bodypart failed."}
+
+        /**
+         * @note PGS16614:
+         * DO NOT TRANSLATE "MAIL_send_add_address"
+         */
+
+        Handler.EmailListenerDestination.EmailListenerDestination.ROUTINE_MAIL_SEND_ADD_ADDRESS_FAILED.PEGASUS_OS_VMS:string {"PGS16614: Routine mail$send_add_address failed."}
+
+        /**
+         * @note PGS16615:
+         * DO NOT TRANSLATE "MAIL_send_add_address"
+         */
+
+        Handler.EmailListenerDestination.EmailListenerDestination.ROUTINE_MAIL_SEND_ADD_ADDRESS_FAC.PEGASUS_OS_VMS:string {"PGS16615: Routine mail$send_add_address failed (cc)."}
+
+        /**
+         * @note PGS16616:
+         * DO NOT TRANSLATE "MAIL_send_message"
+         */
+
+        Handler.EmailListenerDesination.EmailListenerDestination.ROUTINE_MAIL_SEND_MESSAGE_FAILED.PEGASUS_OS_VMS:string {"PGS16616: Routine mail$send_message failed."}
+
+        /**
+         * @note PGS16617:
+         * DO NOT TRANSLATE "MAIL_send_end"
+         */
+
+        Handler.EmailListenerDestination.EmailListenerDestination.ROUTINE_MAIL_SEND_END_FAILED.PEGASUS_OS_VMS:string {"PGS16617: Routine mail$send_end failed."}
+       
 
         // ==========================================================
         // Messages for InteropProvider

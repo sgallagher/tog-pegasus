@@ -83,8 +83,9 @@ void AuditLogger::logCurrentConfig(
     MessageLoaderParms msgParms("Common.AuditLogger.CURRENT_CONFIG",
        "The current configuration properties are:\n$0", properties);
 
-    _writeAuditMessageToFile(CONFIGURATION, CURRENT_CONFIGURATION,
-        START_UP, Logger::INFORMATION, msgParms); 
+    _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+        SUBTYPE_CURRENT_CONFIGURATION,
+        EVENT_START_UP, Logger::INFORMATION, msgParms); 
     
 }
 
@@ -135,8 +136,9 @@ void AuditLogger::logCurrentRegProvider(
         "Common.AuditLogger.CURRENT_PROVIDER_REGISTRATION",
         "The current registered provider modules are:\n$0", registeredModules);
         
-    _writeAuditMessageToFile(CONFIGURATION, CURRENT_PROVIDER_REGISTRATION,
-        START_UP, Logger::INFORMATION, msgParms); 
+    _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+        SUBTYPE_CURRENT_PROVIDER_REGISTRATION,
+        EVENT_START_UP, Logger::INFORMATION, msgParms); 
 }
 
 void AuditLogger::logCurrentEnvironmentVar()
@@ -158,8 +160,9 @@ void AuditLogger::logCurrentEnvironmentVar()
     MessageLoaderParms msgParms("Common.AuditLogger.CURRENT_ENV",
        "The current environment variables are:\n$0", envList);
 
-    _writeAuditMessageToFile(CONFIGURATION, CURRENT_ENVIRONMENT_VARIABLES,
-        START_UP, Logger::INFORMATION, msgParms); 
+    _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+        SUBTYPE_CURRENT_ENVIRONMENT_VARIABLES,
+        EVENT_START_UP, Logger::INFORMATION, msgParms); 
 }
 
 void AuditLogger::logSetConfigProperty(
@@ -176,8 +179,9 @@ void AuditLogger::logSetConfigProperty(
             "The planned value of property \"$0\" is modified from value \"$1\""                 " to value \"$2\" by user \"$3\".\n",
            propertyName, prePropertyValue, newPropertyValue, userName);
 
-        _writeAuditMessageToFile(CONFIGURATION, CONFIGURATION_CHANGE,
-            UPDATE, Logger::INFORMATION, msgParms); 
+        _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+            SUBTYPE_CONFIGURATION_CHANGE,
+            EVENT_UPDATE, Logger::INFORMATION, msgParms); 
     }
     else
     {
@@ -187,8 +191,9 @@ void AuditLogger::logSetConfigProperty(
             "\"$1\" to value \"$2\" by user \"$3\".\n",
            propertyName, prePropertyValue, newPropertyValue, userName);
 
-        _writeAuditMessageToFile(CONFIGURATION, CONFIGURATION_CHANGE,
-            UPDATE, Logger::INFORMATION, msgParms); 
+        _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+            SUBTYPE_CONFIGURATION_CHANGE,
+            EVENT_UPDATE, Logger::INFORMATION, msgParms); 
     }
 }
 
@@ -215,8 +220,9 @@ void AuditLogger::setEnabled(Boolean enabled)
                 "Common.AuditLogger.DISABLE_AUDIT_LOG",
                 "Audit logging is disabled.\n"); 
 
-            _writeAuditMessageToFile(CONFIGURATION, CONFIGURATION_CHANGE,
-                UPDATE, Logger::INFORMATION, msgParms); 
+            _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+                SUBTYPE_CONFIGURATION_CHANGE,
+                EVENT_UPDATE, Logger::INFORMATION, msgParms); 
         }
     }
 

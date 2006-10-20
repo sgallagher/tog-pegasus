@@ -65,7 +65,7 @@ static FILE *fd = NULL;
 void PROV_LOG (const char *fmt, ...)
 {
 
-    va_list ap=NULL;
+    va_list ap;
     if (!fd)
         fd = stderr;
 

@@ -127,7 +127,9 @@ static struct OwnerEntry _properties[] =
 #endif
     {"forceProviderProcesses", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"maxProviderProcesses", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
     {"enableAuditLog", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+#endif
     {"socketWriteTimeout", (ConfigPropertyOwner* )ConfigManager::defaultOwner}
 };
 

@@ -853,6 +853,77 @@ en:table {
         Clients.cimcrl.CIMCRLCommand.CONNECTION_TIMEOUT:string {"PGC01306: Connection timed out."}
 
         // ==========================================================
+        // Messages for CIMSubCommand
+        // Please use message prefix "PGC01400"
+        // ==========================================================
+
+        /**
+        * @note Clients.cimsub.CIMSubCommand.MENU.STANDARD:
+        *    Do not translate the cimsub command or options, translate the text
+        *    that explains the options.
+        *    When translating this message, make sure that each line fits in 80 characters,
+        *    preserves the indenting,
+        *    and ends with a newline character (\n).
+        */
+        Clients.cimsub.CIMSubCommand.MENU.STANDARD:string {
+        "Usage: cimsub -l s|f|h [-v] [-n namespace] [-F [fnamespace:]filtername] \n"
+        "                  [-H [hnamespace:][hclassname.]handlername] \n"
+        "cimsub -e [-n namespace] -F [fnamespace:]filtername \n"
+        "                  -H [hnamespace:][hclassname.]handlername \n"
+        "cimsub -d [-n namespace] -F [fnamespace:]filtername \n"
+        "                  -H [hnamespace:][hclassname.]handlername \n"
+        "cimsub -r s|f|h|a [-n namespace] [-F[fnamespace:]filtername] \n"
+        "                  [-H[hnamespace:][hclassname.]handlername] \n"
+        "cimsub -h \n"
+        "cimsub --help \n"
+        "cimsub --version \n"
+        "Options :\n"
+        "    -l         - List and display information\n"
+        "    -e         - Enable specified subscription \n"
+        "                   (set SubscriptionState to Enabled)\n"
+        "    -d         - Disable specified subscription \n"
+        "                   (set SubscriptionState to Disabled)\n"
+        "    -r         - Remove specified subscription, handler, filter\n"
+        "    -v         - Include verbose information\n"
+        "    -F         - Specify Filter Name of subscription for the operation\n"
+        "    -H         - Specify Handler Name of subscription for the operation\n"
+        "    -n         - Specify namespace of subscription \n"
+        "                   (root/PG_InterOp, if not specified)\n"
+        "    -h, --help - Display this help message\n"
+        "    --version  - Display CIM Server version number\n"
+        "\n"
+        "Usage note: The cimsub command requires that the CIM Server is running.\n"
+        "\n"
+        }
+
+        Clients.cimsub.CIMSubCommand.REQUIRED_ARGS_MISSING:string {"PGC01400: Required arguments missing."}
+
+        Clients.cimsub.CIMSubCommand.CIMOM_NOT_RUNNING:string {"PGC01401: Cannot connect to CIM Server, CIM Server may not be running."}
+
+        Clients.cimsub.CIMSubCommand.ENABLE_SUBSCRIPTION_FAILURE:string {"PGC01402: Failed to enable subscription."}
+
+        Clients.cimsub.CIMSubCommand.DISABLE_SUBSCRIPTION_FAILURE:string {"PGC01403: Failed to disable subscription."}
+
+        Clients.cimsub.CIMSubCommand.SUBSCRIPTION_NOT_FOUND_FAILURE:string {"PGC01404: The requested subscription could not be found."}
+
+        Clients.cimsub.CIMSubCommand.HANDLER_NOT_FOUND_FAILURE:string {"PGC01405: The requested handler could not be found."}
+
+        Clients.cimsub.CIMSubCommand.FILTER_NOT_FOUND_FAILURE:string {"PGC01406: The requested filter could not be found."}
+
+        Clients.cimsub.CIMSubCommand.SUBSCRIPTION_ALREADY_DISABLED:string {"PGC01407: The subscription is already disabled."}
+
+        Clients.cimsub.CIMSubCommand.SUBSCRIPTION_ALREADY_ENABLED:string {"PGC01408: The subscription is already enabled."}
+
+        Clients.cimsub.CIMSubCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC01409: Invalid option. Use '--help' to obtain command syntax."}
+
+        Clients.cimsub.CIMSubCommand.INVALID_ARGS:string {"PGC01410: Invalid arguments."}
+
+        Clients.cimsub.CIMSubCommand.UNEXPECTED_OPTION:string {"PGC01411: Unexpected Option."}
+
+        Clients.cimsub.CIMSubCommand.ERR_USAGE:string {"PGC01412: Incorrect usage. Use '--help' to obtain command syntax."}
+
+
+        // ==========================================================
         // Start of messages from platform-specific files
         // ==========================================================
                         

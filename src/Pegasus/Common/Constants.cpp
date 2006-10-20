@@ -189,6 +189,64 @@ const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST =
     const CIMName _PROPERTY_OPERATIONALSTATUS =
         CIMName ("OperationalStatus");
 
+/**
+    The name of the Filter reference property for indication subscription class
+ */
+    const CIMName PEGASUS_PROPERTYNAME_FILTER =
+        CIMName ("Filter");
+
+/**
+    The name of the Handler reference property for indication subscription class
+ */
+    const CIMName PEGASUS_PROPERTYNAME_HANDLER =
+        CIMName ("Handler");
+
+/**
+    The name of the Subscription State property for indication subscription 
+    class
+ */
+    
+    const CIMName PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE =
+        CIMName ("SubscriptionState");
+
+/**
+    The name of the Query property for indication filter class
+ */
+    const CIMName PEGASUS_PROPERTYNAME_QUERY =
+        CIMName ("Query");
+
+/**
+    The name of the Query Language property for indication filter class
+ */
+const CIMName PEGASUS_PROPERTYNAME_QUERYLANGUAGE =
+    CIMName ("QueryLanguage");
+
+/**
+    The name of the Name property for indication filter and indications handler     classes
+ */
+    const CIMName PEGASUS_PROPERTYNAME_NAME =
+        CIMName ("Name");
+
+/**
+    The name of the Creation Class Name property for indication filter and 
+    indications handler classes
+ */
+    const CIMName PEGASUS_PROPERTYNAME_CREATIONCLASSNAME =
+        CIMName ("CreationClassName");
+
+/**
+    The name of the Persistence Type property for Indication Handler class
+ */
+    const CIMName PEGASUS_PROPERTYNAME_PERSISTENCETYPE =
+        CIMName ("PersistenceType");
+
+/**
+    The name of the SNMP Version property for SNMP Mapper Indication Handler 
+    subclass
+ */
+    const CIMName PEGASUS_PROPERTYNAME_SNMPVERSION =
+        CIMName ("SNMPVersion");
+
 //
 // CIM Namespace Names
 //

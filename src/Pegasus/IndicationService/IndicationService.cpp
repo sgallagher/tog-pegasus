@@ -454,13 +454,13 @@ void IndicationService::_initialize (void)
     //  Some valid values, as defined in the MOF, are not currently supported
     //  by the Pegasus IndicationService
     //
-    _validStates.append (_STATE_UNKNOWN);
-    _validStates.append (_STATE_OTHER);
-    _validStates.append (_STATE_ENABLED);
-    _validStates.append (_STATE_ENABLEDDEGRADED);
-    _validStates.append (_STATE_DISABLED);
-    _supportedStates.append (_STATE_ENABLED);
-    _supportedStates.append (_STATE_DISABLED);
+    _validStates.append (STATE_UNKNOWN);
+    _validStates.append (STATE_OTHER);
+    _validStates.append (STATE_ENABLED);
+    _validStates.append (STATE_ENABLEDDEGRADED);
+    _validStates.append (STATE_DISABLED);
+    _supportedStates.append (STATE_ENABLED);
+    _supportedStates.append (STATE_DISABLED);
     _validRepeatPolicies.append (_POLICY_UNKNOWN);
     _validRepeatPolicies.append (_POLICY_OTHER);
     _validRepeatPolicies.append (_POLICY_NONE);
@@ -478,18 +478,18 @@ void IndicationService::_initialize (void)
     _supportedErrorPolicies.append (_ERRORPOLICY_IGNORE);
     _supportedErrorPolicies.append (_ERRORPOLICY_DISABLE);
     _supportedErrorPolicies.append (_ERRORPOLICY_REMOVE);
-    _validPersistenceTypes.append (_PERSISTENCE_OTHER);
-    _validPersistenceTypes.append (_PERSISTENCE_PERMANENT);
-    _validPersistenceTypes.append (_PERSISTENCE_TRANSIENT);
-    _supportedPersistenceTypes.append (_PERSISTENCE_PERMANENT);
-    _supportedPersistenceTypes.append (_PERSISTENCE_TRANSIENT);
-    _validSNMPVersion.append (_SNMPV1_TRAP);
-    _validSNMPVersion.append (_SNMPV2C_TRAP);
-    _validSNMPVersion.append (_SNMPV2C_INFORM);
-    _validSNMPVersion.append (_SNMPV3_TRAP);
-    _validSNMPVersion.append (_SNMPV3_INFORM);
-    _supportedSNMPVersion.append (_SNMPV1_TRAP);
-    _supportedSNMPVersion.append (_SNMPV2C_TRAP);
+    _validPersistenceTypes.append (PERSISTENCE_OTHER);
+    _validPersistenceTypes.append (PERSISTENCE_PERMANENT);
+    _validPersistenceTypes.append (PERSISTENCE_TRANSIENT);
+    _supportedPersistenceTypes.append (PERSISTENCE_PERMANENT);
+    _supportedPersistenceTypes.append (PERSISTENCE_TRANSIENT);
+    _validSNMPVersion.append (SNMPV1_TRAP);
+    _validSNMPVersion.append (SNMPV2C_TRAP);
+    _validSNMPVersion.append (SNMPV2C_INFORM);
+    _validSNMPVersion.append (SNMPV3_TRAP);
+    _validSNMPVersion.append (SNMPV3_INFORM);
+    _supportedSNMPVersion.append (SNMPV1_TRAP);
+    _supportedSNMPVersion.append (SNMPV2C_TRAP);
 
     //
     //  Set arrays of names of supported properties for each class
@@ -501,13 +501,13 @@ void IndicationService::_initialize (void)
     //  must be appended here.  When support for a new property is added, the
     //  property name must be appended to the appropriate array(s) here.
     //
-    _supportedSubscriptionProperties.append (_PROPERTY_FILTER);
-    _supportedSubscriptionProperties.append (_PROPERTY_HANDLER);
+    _supportedSubscriptionProperties.append (PEGASUS_PROPERTYNAME_FILTER);
+    _supportedSubscriptionProperties.append (PEGASUS_PROPERTYNAME_HANDLER);
     _supportedSubscriptionProperties.append (_PROPERTY_ONFATALERRORPOLICY);
     _supportedSubscriptionProperties.append (_PROPERTY_OTHERONFATALERRORPOLICY);
     _supportedSubscriptionProperties.append
         (_PROPERTY_FAILURETRIGGERTIMEINTERVAL);
-    _supportedSubscriptionProperties.append (_PROPERTY_STATE);
+    _supportedSubscriptionProperties.append (PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE);
     _supportedSubscriptionProperties.append (_PROPERTY_OTHERSTATE);
     _supportedSubscriptionProperties.append (_PROPERTY_LASTCHANGE);
     _supportedSubscriptionProperties.append (_PROPERTY_DURATION);
@@ -538,11 +538,11 @@ void IndicationService::_initialize (void)
     _supportedFilterProperties.append (_PROPERTY_ELEMENTNAME);
     _supportedFilterProperties.append (_PROPERTY_SYSTEMCREATIONCLASSNAME);
     _supportedFilterProperties.append (_PROPERTY_SYSTEMNAME);
-    _supportedFilterProperties.append (_PROPERTY_CREATIONCLASSNAME);
-    _supportedFilterProperties.append (_PROPERTY_NAME);
+    _supportedFilterProperties.append (PEGASUS_PROPERTYNAME_CREATIONCLASSNAME);
+    _supportedFilterProperties.append (PEGASUS_PROPERTYNAME_NAME);
     _supportedFilterProperties.append (_PROPERTY_SOURCENAMESPACE);
-    _supportedFilterProperties.append (_PROPERTY_QUERY);
-    _supportedFilterProperties.append (_PROPERTY_QUERYLANGUAGE);
+    _supportedFilterProperties.append (PEGASUS_PROPERTYNAME_QUERY);
+    _supportedFilterProperties.append (PEGASUS_PROPERTYNAME_QUERYLANGUAGE);
 
     Array <CIMName> commonListenerDestinationProperties;
     commonListenerDestinationProperties.append (_PROPERTY_CAPTION);
@@ -551,9 +551,9 @@ void IndicationService::_initialize (void)
     commonListenerDestinationProperties.append
         (_PROPERTY_SYSTEMCREATIONCLASSNAME);
     commonListenerDestinationProperties.append (_PROPERTY_SYSTEMNAME);
-    commonListenerDestinationProperties.append (_PROPERTY_CREATIONCLASSNAME);
-    commonListenerDestinationProperties.append (_PROPERTY_NAME);
-    commonListenerDestinationProperties.append (_PROPERTY_PERSISTENCETYPE);
+    commonListenerDestinationProperties.append (PEGASUS_PROPERTYNAME_CREATIONCLASSNAME);
+    commonListenerDestinationProperties.append (PEGASUS_PROPERTYNAME_NAME);
+    commonListenerDestinationProperties.append (PEGASUS_PROPERTYNAME_PERSISTENCETYPE);
     commonListenerDestinationProperties.append (_PROPERTY_OTHERPERSISTENCETYPE);
 
     _supportedCIMXMLHandlerProperties = commonListenerDestinationProperties;
@@ -573,7 +573,7 @@ void IndicationService::_initialize (void)
     _supportedSNMPHandlerProperties.append (_PROPERTY_TARGETHOSTFORMAT);
     _supportedSNMPHandlerProperties.append (_PROPERTY_OTHERTARGETHOSTFORMAT);
     _supportedSNMPHandlerProperties.append (_PROPERTY_PORTNUMBER);
-    _supportedSNMPHandlerProperties.append (_PROPERTY_SNMPVERSION);
+    _supportedSNMPHandlerProperties.append (PEGASUS_PROPERTYNAME_SNMPVERSION);
     _supportedSNMPHandlerProperties.append (_PROPERTY_SNMPSECURITYNAME);
     _supportedSNMPHandlerProperties.append (_PROPERTY_SNMPENGINEID);
 
@@ -1025,11 +1025,11 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 //
                 CIMValue subscriptionStateValue;
                 subscriptionStateValue = instance.getProperty
-                    (instance.findProperty (_PROPERTY_STATE)).getValue ();
+                    (instance.findProperty (PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE)).getValue ();
                 subscriptionStateValue.get (subscriptionState);
 
-                if ((subscriptionState == _STATE_ENABLED) ||
-                    (subscriptionState == _STATE_ENABLEDDEGRADED))
+                if ((subscriptionState == STATE_ENABLED) ||
+                    (subscriptionState == STATE_ENABLEDDEGRADED))
                 {
                     _getCreateParams (instance, indicationSubclasses,
                         indicationProviders, requiredProperties,
@@ -1576,7 +1576,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 //
                 Uint16 newState;
                 modifiedInstance.getProperty (modifiedInstance.findProperty
-                    (_PROPERTY_STATE)).getValue ().get (newState);
+                    (PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE)).getValue ().get (newState);
 
                 //
                 //  If Subscription State has changed,
@@ -1609,8 +1609,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 //  If Subscription is to be enabled, and this is the first
                 //  time, set Subscription Start Time
                 //
-                if ((newState == _STATE_ENABLED) ||
-                    (newState == _STATE_ENABLEDDEGRADED))
+                if ((newState == STATE_ENABLED) ||
+                    (newState == STATE_ENABLEDDEGRADED))
                 {
                     //
                     //  If Subscription Start Time is null, set value
@@ -1701,10 +1701,10 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 String queryLanguage;
                 Array <CIMName> indicationSubclasses;
 
-                if (((newState == _STATE_ENABLED) ||
-                     (newState == _STATE_ENABLEDDEGRADED))
-                    && ((currentState != _STATE_ENABLED) &&
-                        (currentState != _STATE_ENABLEDDEGRADED)))
+                if (((newState == STATE_ENABLED) ||
+                     (newState == STATE_ENABLEDDEGRADED))
+                    && ((currentState != STATE_ENABLED) &&
+                        (currentState != STATE_ENABLEDDEGRADED)))
                 {
                     //
                     //  Subscription was previously not enabled but is now to
@@ -1774,10 +1774,10 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 //  If subscription is newly enabled, send Create requests
                 //  and enable providers
                 //
-                if (((newState == _STATE_ENABLED) ||
-                     (newState == _STATE_ENABLEDDEGRADED))
-                    && ((currentState != _STATE_ENABLED) &&
-                        (currentState != _STATE_ENABLEDDEGRADED)))
+                if (((newState == STATE_ENABLED) ||
+                     (newState == STATE_ENABLEDDEGRADED))
+                    && ((currentState != STATE_ENABLED) &&
+                        (currentState != STATE_ENABLEDDEGRADED)))
                 {
                     instanceReference.setNameSpace (request->nameSpace);
                     instance.setPath (instanceReference);
@@ -1798,9 +1798,9 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     //
                     responseSent = true;
                 }
-                else if ((newState == _STATE_DISABLED) &&
-                         ((currentState == _STATE_ENABLED) ||
-                          (currentState == _STATE_ENABLEDDEGRADED)))
+                else if ((newState == STATE_DISABLED) &&
+                         ((currentState == STATE_ENABLED) ||
+                          (currentState == STATE_ENABLEDDEGRADED)))
                 {
                     //
                     //  Subscription was previously enabled but is now to be
@@ -1949,11 +1949,11 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 CIMValue subscriptionStateValue;
                 subscriptionStateValue = subscriptionInstance.getProperty
                     (subscriptionInstance.findProperty
-                    (_PROPERTY_STATE)).getValue ();
+                    (PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE)).getValue ();
                 subscriptionStateValue.get (subscriptionState);
 
-                if ((subscriptionState == _STATE_ENABLED) ||
-                    (subscriptionState == _STATE_ENABLEDDEGRADED))
+                if ((subscriptionState == STATE_ENABLED) ||
+                    (subscriptionState == STATE_ENABLEDDEGRADED))
                 {
                     Array <ProviderClassList> indicationProviders;
                     Array <CIMName> indicationSubclasses;
@@ -3323,22 +3323,22 @@ Boolean IndicationService::_canCreate (
         //  Filter and Handler are key properties for Subscription
         //  No other properties are required
         //
-        _checkRequiredProperty (instance, _PROPERTY_FILTER, CIMTYPE_REFERENCE,
+        _checkRequiredProperty (instance, PEGASUS_PROPERTYNAME_FILTER, CIMTYPE_REFERENCE,
             _MSG_KEY_PROPERTY);
-        _checkRequiredProperty (instance, _PROPERTY_HANDLER, CIMTYPE_REFERENCE,
+        _checkRequiredProperty (instance, PEGASUS_PROPERTYNAME_HANDLER, CIMTYPE_REFERENCE,
             _MSG_KEY_PROPERTY);
 
         //
         //  Get filter and handler property values
         //
         CIMProperty filterProperty = instance.getProperty
-            (instance.findProperty (_PROPERTY_FILTER));
+            (instance.findProperty (PEGASUS_PROPERTYNAME_FILTER));
         CIMValue filterValue = filterProperty.getValue ();
         CIMObjectPath filterPath;
         filterValue.get (filterPath);
 
         CIMProperty handlerProperty = instance.getProperty
-            (instance.findProperty (_PROPERTY_HANDLER));
+            (instance.findProperty (PEGASUS_PROPERTYNAME_HANDLER));
         CIMValue handlerValue = handlerProperty.getValue ();
         CIMObjectPath handlerPath;
         handlerValue.get (handlerPath);
@@ -3373,7 +3373,7 @@ Boolean IndicationService::_canCreate (
                 throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
                     MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
                     exceptionStr,
-                    origFilterPath.toString(), _PROPERTY_FILTER.getString()));
+                    origFilterPath.toString(), PEGASUS_PROPERTYNAME_FILTER.getString()));
             }
         }
 
@@ -3394,7 +3394,7 @@ Boolean IndicationService::_canCreate (
                 throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
                     MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
                     exceptionStr,
-                    origHandlerPath.toString(), _PROPERTY_HANDLER.getString()));
+                    origHandlerPath.toString(), PEGASUS_PROPERTYNAME_HANDLER.getString()));
             }
         }
 
@@ -3435,8 +3435,8 @@ Boolean IndicationService::_canCreate (
         //  Set the key bindings in the subscription instance
         //
         Array <CIMKeyBinding> kb;
-        kb.append (CIMKeyBinding (_PROPERTY_FILTER, filterValue));
-        kb.append (CIMKeyBinding (_PROPERTY_HANDLER, handlerValue));
+        kb.append (CIMKeyBinding (PEGASUS_PROPERTYNAME_FILTER, filterValue));
+        kb.append (CIMKeyBinding (PEGASUS_PROPERTYNAME_HANDLER, handlerValue));
 
         CIMObjectPath instanceRef = instance.getPath ();
         instanceRef.setKeyBindings (kb);
@@ -3448,9 +3448,9 @@ Boolean IndicationService::_canCreate (
         //  Policy properties each has a default value, a corresponding
         //  Other___ property, and a set of valid values
         //
-        _checkPropertyWithOther (instance, _PROPERTY_STATE,
-            _PROPERTY_OTHERSTATE, (Uint16) _STATE_ENABLED,
-            (Uint16) _STATE_OTHER, _validStates, _supportedStates);
+        _checkPropertyWithOther (instance, PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE,
+            _PROPERTY_OTHERSTATE, (Uint16) STATE_ENABLED,
+            (Uint16) STATE_OTHER, _validStates, _supportedStates);
 
         _checkPropertyWithOther (instance, _PROPERTY_REPEATNOTIFICATIONPOLICY,
             _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY, (Uint16) _POLICY_NONE,
@@ -3565,10 +3565,10 @@ Boolean IndicationService::_canCreate (
         //  If they exist but are NULL, set value to the default
         //  If they exist and are not NULL, validate the value
         //
-        _checkRequiredProperty (instance, _PROPERTY_NAME, CIMTYPE_STRING,
+        _checkRequiredProperty (instance, PEGASUS_PROPERTYNAME_NAME, CIMTYPE_STRING,
             _MSG_KEY_PROPERTY);
 
-        _initOrValidateStringProperty (instance, _PROPERTY_CREATIONCLASSNAME,
+        _initOrValidateStringProperty (instance,PEGASUS_PROPERTYNAME_CREATIONCLASSNAME,
             instance.getClassName ().getString ());
 
         _initOrValidateStringProperty (instance, _PROPERTY_SYSTEMNAME,
@@ -3583,9 +3583,9 @@ Boolean IndicationService::_canCreate (
             //
             //  Query and QueryLanguage properties are required for Filter
             //
-            _checkRequiredProperty (instance, _PROPERTY_QUERY, CIMTYPE_STRING,
+            _checkRequiredProperty (instance, PEGASUS_PROPERTYNAME_QUERY, CIMTYPE_STRING,
                 _MSG_PROPERTY);
-            _checkRequiredProperty (instance, _PROPERTY_QUERYLANGUAGE,
+            _checkRequiredProperty (instance, PEGASUS_PROPERTYNAME_QUERYLANGUAGE,
                 CIMTYPE_STRING, _MSG_PROPERTY);
 
             //
@@ -3593,7 +3593,7 @@ Boolean IndicationService::_canCreate (
             //
             String queryLanguage;
             instance.getProperty (instance.findProperty
-                (_PROPERTY_QUERYLANGUAGE)).getValue ().get (queryLanguage);
+                (PEGASUS_PROPERTYNAME_QUERYLANGUAGE)).getValue ().get (queryLanguage);
 
 #ifdef PEGASUS_DISABLE_CQL
             // Special code to block CQL, if CQL is disabled
@@ -3620,7 +3620,7 @@ Boolean IndicationService::_canCreate (
             //  is not an indication class
             //
             String filterQuery = instance.getProperty (instance.findProperty
-                (_PROPERTY_QUERY)).getValue ().toString ();
+                (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
 
             QueryExpression queryExpression;
             try
@@ -3720,9 +3720,9 @@ Boolean IndicationService::_canCreate (
                    _MSG_CLASS_NOT_SERVED));
         }
 #endif
-            _checkPropertyWithOther (instance, _PROPERTY_PERSISTENCETYPE,
-                _PROPERTY_OTHERPERSISTENCETYPE, (Uint16) _PERSISTENCE_PERMANENT,
-                (Uint16) _PERSISTENCE_OTHER, _validPersistenceTypes,
+            _checkPropertyWithOther (instance, PEGASUS_PROPERTYNAME_PERSISTENCETYPE,
+                _PROPERTY_OTHERPERSISTENCETYPE, (Uint16) PERSISTENCE_PERMANENT,
+                (Uint16) PERSISTENCE_OTHER, _validPersistenceTypes,
                 _supportedPersistenceTypes);
 
             //
@@ -3766,13 +3766,13 @@ Boolean IndicationService::_canCreate (
                 //
                 //  SNMPVersion property is required for SNMP Handler
                 //
-                _checkRequiredProperty (instance, _PROPERTY_SNMPVERSION,
+                _checkRequiredProperty (instance, PEGASUS_PROPERTYNAME_SNMPVERSION,
                     CIMTYPE_UINT16, _MSG_PROPERTY);
                                                                       
                 // Currently, only SNMPv1 trap and SNMPv2C trap are supported,
                 // verify if the value of SNMPVersion is one of them
 
-                _checkValue(instance, _PROPERTY_SNMPVERSION,
+                _checkValue(instance, PEGASUS_PROPERTYNAME_SNMPVERSION,
                     _validSNMPVersion, _supportedSNMPVersion); 
 
                 //
@@ -4600,7 +4600,7 @@ Boolean IndicationService::_canModify (
     //  If one property specified, it must be Subscription State property
     //
     else if ((request->propertyList.size () == 1) &&
-             (!request->propertyList[0].equal (_PROPERTY_STATE)))
+             (!request->propertyList[0].equal (PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE)))
     {
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
@@ -4609,8 +4609,8 @@ Boolean IndicationService::_canModify (
     //
     //  Check the SubscriptionState property in the modified instance
     //
-    _checkPropertyWithOther (modifiedInstance, _PROPERTY_STATE,
-        _PROPERTY_OTHERSTATE, (Uint16) _STATE_ENABLED, (Uint16) _STATE_OTHER,
+    _checkPropertyWithOther (modifiedInstance, PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE,
+        _PROPERTY_OTHERSTATE, (Uint16) STATE_ENABLED, (Uint16) STATE_OTHER,
         _validStates, _supportedStates);
 
     //
@@ -4726,12 +4726,12 @@ Boolean IndicationService::_canDelete (
         if (instanceReference.getClassName ().equal
                (PEGASUS_CLASSNAME_INDFILTER))
         {
-            propName = _PROPERTY_FILTER;
+            propName = PEGASUS_PROPERTYNAME_FILTER;
         }
         else if ((superClass.equal (PEGASUS_CLASSNAME_INDHANDLER)) ||
             (superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)))
         {
-            propName = _PROPERTY_HANDLER;
+            propName = PEGASUS_PROPERTYNAME_HANDLER;
 
             //
             //  If deleting transient handler, first delete any referencing
@@ -5241,7 +5241,7 @@ CIMName IndicationService::_getIndicationClassName (
         // exceptionStr.append (PEGASUS_CLASSNAME_INDFILTER.getString());
         exceptionStr.append ("$1");
         exceptionStr.append (" ");
-        // exceptionStr.append (_PROPERTY_QUERY.getString());
+        // exceptionStr.append (PEGASUS_PROPERTYNAME_QUERY.getString());
         exceptionStr.append ("$2");
         exceptionStr.append (_MSG_PROPERTY);
 
@@ -5257,7 +5257,7 @@ CIMName IndicationService::_getIndicationClassName (
             _MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY_KEY, exceptionStr,
             indicationClassName.getString (),
             PEGASUS_CLASSNAME_INDFILTER.getString (),
-            _PROPERTY_QUERY.getString ()));
+            PEGASUS_PROPERTYNAME_QUERY.getString ()));
     }
 
     PEG_METHOD_EXIT ();
@@ -5630,11 +5630,11 @@ void IndicationService::_deleteExpiredSubscription (
         CIMValue subscriptionStateValue;
         subscriptionStateValue = subscriptionInstance.getProperty
             (subscriptionInstance.findProperty
-            (_PROPERTY_STATE)).getValue ();
+            (PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE)).getValue ();
         subscriptionStateValue.get (subscriptionState);
 
-        if ((subscriptionState == _STATE_ENABLED) ||
-            (subscriptionState == _STATE_ENABLEDDEGRADED))
+        if ((subscriptionState == STATE_ENABLED) ||
+            (subscriptionState == STATE_ENABLEDDEGRADED))
         {
             Array <ProviderClassList> indicationProviders;
             Array <CIMName> indicationSubclasses;
@@ -7308,7 +7308,7 @@ String IndicationService::_getSubscriptionLogString
     CIMNamespaceName handlerNS;
     Array <CIMKeyBinding> handlerKeyBindings;
     filterValue = subscription.getProperty (subscription.findProperty
-        (_PROPERTY_FILTER)).getValue ();
+        (PEGASUS_PROPERTYNAME_FILTER)).getValue ();
     filterValue.get (filterPath);
 
     //
@@ -7325,7 +7325,7 @@ String IndicationService::_getSubscriptionLogString
     filterKeyBindings = filterPath.getKeyBindings ();
     for (Uint32 i = 0; i < filterKeyBindings.size (); i++)
     {
-        if (filterKeyBindings [i].getName ().equal (_PROPERTY_NAME))
+        if (filterKeyBindings [i].getName ().equal (PEGASUS_PROPERTYNAME_NAME))
         {
             logString.append (filterKeyBindings [i].getValue ());
             logString.append (", ");
@@ -7334,7 +7334,7 @@ String IndicationService::_getSubscriptionLogString
     }
     handlerValue = subscription.getProperty
         (subscription.findProperty
-        (_PROPERTY_HANDLER)).getValue ();
+        (PEGASUS_PROPERTYNAME_HANDLER)).getValue ();
     handlerValue.get (handlerPath);
 
     //
@@ -7351,7 +7351,7 @@ String IndicationService::_getSubscriptionLogString
     handlerKeyBindings = handlerPath.getKeyBindings ();
     for (Uint32 j = 0; j < handlerKeyBindings.size (); j++)
     {
-        if (handlerKeyBindings [j].getName ().equal (_PROPERTY_NAME))
+        if (handlerKeyBindings [j].getName ().equal (PEGASUS_PROPERTYNAME_NAME))
         {
             logString.append (handlerKeyBindings [j].getValue ());
             break;
@@ -7367,7 +7367,7 @@ String IndicationService::getProviderLogString
     String logString;
 
     logString = provider.getProperty (provider.findProperty
-        (_PROPERTY_NAME)).getValue ().toString ();
+        (PEGASUS_PROPERTYNAME_NAME)).getValue ().toString ();
 
     return logString;
 }

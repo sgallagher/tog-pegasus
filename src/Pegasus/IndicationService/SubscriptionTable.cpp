@@ -317,7 +317,7 @@ SubscriptionTable::reflectProviderModuleFailure
                 CIMValue nameValue =
                     tableValue.providers [j].providerModule.getProperty
                     (tableValue.providers [j].providerModule.findProperty
-                    (_PROPERTY_NAME)).getValue ();
+                    (PEGASUS_PROPERTYNAME_NAME)).getValue ();
                 nameValue.get (providerModuleName);
 
                 //
@@ -392,7 +392,7 @@ SubscriptionTable::reflectProviderModuleFailure
                     CIMValue nameValue =
                         tableValue.providers [l].providerModule.getProperty
                         (tableValue.providers [l].providerModule.findProperty
-                        (_PROPERTY_NAME)).getValue ();
+                        (PEGASUS_PROPERTYNAME_NAME)).getValue ();
                     nameValue.get (providerModuleName);
                     if (providerModuleName != moduleName)
                     {
@@ -427,12 +427,12 @@ CIMObjectPath SubscriptionTable::_generateActiveSubscriptionsKey (
     CIMObjectPath handlerPath;
     for (Uint32 i = 0; i < subscriptionKB.size (); i++)
     {
-        if ((subscriptionKB [i].getName () == _PROPERTY_FILTER) &&
+        if ((subscriptionKB [i].getName () == PEGASUS_PROPERTYNAME_FILTER) &&
             (subscriptionKB [i].getType () == CIMKeyBinding::REFERENCE))
         {
             filterPath = subscriptionKB [i].getValue ();
         }
-        if ((subscriptionKB [i].getName () == _PROPERTY_HANDLER) &&
+        if ((subscriptionKB [i].getName () == PEGASUS_PROPERTYNAME_HANDLER) &&
             (subscriptionKB [i].getType () == CIMKeyBinding::REFERENCE))
         {
             handlerPath = subscriptionKB [i].getValue ();
@@ -445,8 +445,8 @@ CIMObjectPath SubscriptionTable::_generateActiveSubscriptionsKey (
     filterPath.setHost (String::EMPTY);
     handlerPath.setHost (String::EMPTY);
     Array <CIMKeyBinding> kb;
-    kb.append (CIMKeyBinding (_PROPERTY_FILTER, CIMValue (filterPath)));
-    kb.append (CIMKeyBinding (_PROPERTY_HANDLER, CIMValue (handlerPath)));
+    kb.append (CIMKeyBinding (PEGASUS_PROPERTYNAME_FILTER, CIMValue (filterPath)));
+    kb.append (CIMKeyBinding (PEGASUS_PROPERTYNAME_HANDLER, CIMValue (handlerPath)));
     CIMObjectPath activeSubscriptionsKey ("", subscription.getNameSpace (),
         subscription.getClassName (), kb);
 
@@ -490,7 +490,7 @@ void SubscriptionTable::_insertActiveSubscriptionsEntry (
     {
         String providerName = providers [i].provider.getProperty
             (providers [i].provider.findProperty
-            (_PROPERTY_NAME)).getValue ().toString ();
+            (PEGASUS_PROPERTYNAME_NAME)).getValue ().toString ();
         traceString.append (providerName);
         traceString.append ("  Classes: ");
         for (Uint32 j = 0; j < providers[i].classList.size (); j++)

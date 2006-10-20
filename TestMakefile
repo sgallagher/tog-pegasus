@@ -254,6 +254,10 @@ ifdef PEGASUS_HAS_SSL
 # the trust store directories. Otherwise, the truststore content will be 
 # out-of-sync with the mapping stored in the repository.
 #
+#  NOTE: Tests that require their own test namespaces to run poststarttests
+#  should add their namespace creation make commands to pegasus/Makefile
+#  under the testrepository tag.
+#
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile removeSSLTrustDirectories
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile createSSLTrustDirectories
 endif
@@ -279,6 +283,7 @@ servertests: servertestsclean servertestssetup serversuite
 serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinRepository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cimsub_InterOp
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_IndInit_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOPProvFail_TS1
@@ -666,6 +671,27 @@ else
 run_ExportClientSSL_TS1: FORCE
 	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_ExportClientSSL_TS1"
 endif
+
+###############################################################################
+
+
+
+###############################################################################
+##  cimsub CLI Test Suite 1:  PG_InterOp Tests
+##
+##  Configuration Options: (none)
+##
+###############################################################################
+CIMSUB_INTEROP_CONFIG_OPTIONS =
+CIMSUB_INTEROP_TEST_CMDS = \
+	$(MAKE) --directory \
+            $(PEGASUS_ROOT)/src/Clients/cimsub/tests/testscriptInterOp \
+            -f Makefile cimsubTest_InterOp
+run_Cimsub_InterOp: FORCE
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(CIMSUB_INTEROP_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(CIMSUB_INTEROP_TEST_CMDS)"
+###############################################################################
 
 ###############################################################################
 

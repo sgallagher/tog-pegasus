@@ -28,77 +28,21 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
- ROOT = $(PEGASUS_ROOT)
-
+ROOT = ../../../../..
+DIR = Client/cimsub/tests/testclientInterOp
 include $(ROOT)/mak/config.mak
+include ../../../libraries.mak
 
-DIRS = \
-    CLITestClients \
-    CGIClient \
-    CGIClient/tests \
-    TestClient \
-    cliutils \
-    cimconfig \
-    cimuser \
-    cimauth \
-    cimprovider \
-    cimprovider/tests \
-    osinfo \
-    wbemexec \
-    tomof \
-    ipinfo \
-    g11ntest \
-    benchmarkTest \
-    cimperf \
-    MCCATestClient \
-    repupgrade  \
-    cimsub \
-    cimsub/tests \
-    repupgrade/SSPModules/SampleSSPModule \
-    SendTestIndications \
-    repupgrade/tests \
-    wbemexec/tests
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY 
 
-ifeq ($(OS),HPUX)
-  DIRS += \
-    ntpinfo \
-    dnsinfo \
-    nisinfo
-endif
+PROGRAM = TestCimsubInterOp
 
-ifeq ($(OS),VMS)
-  DIRS += \
-    ntpinfo \
-    dnsinfo \
-    nisinfo
-endif
+SOURCES = CimsubInterOp.cpp
 
-ifdef PEGASUS_HAS_SSL
-  DIRS += \
-    TestCertClient \
-    cimtrust \
-    cimtrust/tests
-ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION),true)
-  DIRS += \
-    cimcrl \
-    cimcrl/tests
-endif
-endif
+include $(ROOT)/mak/program.mak
 
-ifeq ($(OS_TYPE),unix)
-  DIRS += \
-    cimreparchive \
-    cimreparchive/tests
-endif
+tests:
 
-#The following tests are NOT included as part of the standard
-#regession test.  The cimuser tests require PrivilegedUser
-#access to execute successfully.  The cimconfig tests modify
-#configuration files.
-
-XDIRS = \
-    cimconfig/tests \
-    cimuser/tests 
-
-include $(ROOT)/mak/recurse.mak
+poststarttests:

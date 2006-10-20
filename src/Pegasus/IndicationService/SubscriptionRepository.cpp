@@ -256,8 +256,8 @@ Boolean SubscriptionRepository::getActiveSubscriptions (
             //
             //  Process each enabled subscription
             //
-            if ((subscriptionState == _STATE_ENABLED) ||
-                (subscriptionState == _STATE_ENABLEDDEGRADED))
+            if ((subscriptionState == STATE_ENABLED) ||
+                (subscriptionState == STATE_ENABLEDDEGRADED))
             {
                 //
                 //  CIMInstances returned from repository do not include
@@ -370,7 +370,7 @@ Boolean SubscriptionRepository::getState (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getState");
 
-    Uint32 stateIndex = instance.findProperty (_PROPERTY_STATE);
+    Uint32 stateIndex = instance.findProperty (PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE);
     if (stateIndex != PEG_NOT_FOUND)
     {
         CIMValue stateValue = instance.getProperty
@@ -602,7 +602,7 @@ CIMInstance SubscriptionRepository::getHandler (
     //  Get Handler reference from subscription instance
     //
     handlerValue = subscription.getProperty (subscription.findProperty
-        (_PROPERTY_HANDLER)).getValue ();
+        (PEGASUS_PROPERTYNAME_HANDLER)).getValue ();
 
     handlerValue.get (handlerRef);
 
@@ -675,10 +675,10 @@ Boolean SubscriptionRepository::isTransient (
     //  Get Persistence Type
     //
     persistenceValue = instance.getProperty (instance.findProperty
-        (_PROPERTY_PERSISTENCETYPE)).getValue ();
+        (PEGASUS_PROPERTYNAME_PERSISTENCETYPE)).getValue ();
     persistenceValue.get (persistenceType);
 
-    if (persistenceType == _PERSISTENCE_TRANSIENT)
+    if (persistenceType == PERSISTENCE_TRANSIENT)
     {
         PEG_METHOD_EXIT ();
         return true;
@@ -705,7 +705,7 @@ void SubscriptionRepository::getFilterProperties (
     CIMNamespaceName nameSpaceName;
 
     filterValue = subscription.getProperty (subscription.findProperty
-        (_PROPERTY_FILTER)).getValue ();
+        (PEGASUS_PROPERTYNAME_FILTER)).getValue ();
 
     filterValue.get (filterReference);
 
@@ -735,13 +735,13 @@ void SubscriptionRepository::getFilterProperties (
     }
 
     query = filterInstance.getProperty (filterInstance.findProperty
-        (_PROPERTY_QUERY)).getValue ().toString ();
+        (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
 
     sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty
         (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
 
     queryLanguage = filterInstance.getProperty
-        (filterInstance.findProperty (_PROPERTY_QUERYLANGUAGE)).
+        (filterInstance.findProperty (PEGASUS_PROPERTYNAME_QUERYLANGUAGE)).
         getValue ().toString ();
 
     PEG_METHOD_EXIT ();
@@ -761,7 +761,7 @@ void SubscriptionRepository::getFilterProperties (
     CIMNamespaceName nameSpaceName;
 
     filterValue = subscription.getProperty (subscription.findProperty
-        (_PROPERTY_FILTER)).getValue ();
+        (PEGASUS_PROPERTYNAME_FILTER)).getValue ();
 
     filterValue.get (filterReference);
 
@@ -791,7 +791,7 @@ void SubscriptionRepository::getFilterProperties (
     }
 
     query = filterInstance.getProperty (filterInstance.findProperty
-        (_PROPERTY_QUERY)).getValue ().toString ();
+        (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
 
     sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty
         (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
@@ -812,7 +812,7 @@ void SubscriptionRepository::getFilterProperties (
     CIMNamespaceName nameSpaceName;
 
     filterValue = subscription.getProperty (subscription.findProperty
-        (_PROPERTY_FILTER)).getValue ();
+        (PEGASUS_PROPERTYNAME_FILTER)).getValue ();
 
     filterValue.get (filterReference);
 
@@ -842,7 +842,7 @@ void SubscriptionRepository::getFilterProperties (
     }
 
     query = filterInstance.getProperty (filterInstance.findProperty
-        (_PROPERTY_QUERY)).getValue ().toString ();
+        (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
 
     PEG_METHOD_EXIT ();
 }
@@ -1046,7 +1046,7 @@ void SubscriptionRepository::_disableSubscription (
     //
     CIMPropertyList propertyList;
     Array <CIMName> properties;
-    properties.append (_PROPERTY_STATE);
+    properties.append (PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE);
     propertyList = CIMPropertyList (properties);
 
     //
@@ -1070,8 +1070,8 @@ void SubscriptionRepository::_disableSubscription (
     //  Set Subscription State to Disabled
     //
     CIMProperty state = instance.getProperty (instance.findProperty
-        (_PROPERTY_STATE));
-    state.setValue (CIMValue (_STATE_DISABLED));
+        (PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE));
+    state.setValue (CIMValue (STATE_DISABLED));
 
     //
     //  Modify the instance in the repository

@@ -286,6 +286,8 @@ testrepository: FORCE
 ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
 	@ $(MAKE) "-SC" src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests repository
 endif
+	@ $(MAKE) --directory=$(PEGASUS_ROOT)/src/Clients/cimsub/tests/testscript \
+            -f Makefile repository
 
 testrepositoryServer: FORCE
 	@ $(MAKE) "-SC" src/Providers/sample/Load repositoryServer
@@ -298,12 +300,15 @@ testrepositoryServer: FORCE
 ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
 	@ $(MAKE) "-SC" src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests repositoryServer
 endif
+	@ $(MAKE) --directory=$(PEGASUS_ROOT)/src/Clients/cimsub/tests/testscript \
+            -f Makefile repositoryServer
 
 removetestrepository: FORCE
 	@ $(MAKE) "-SC" src/Providers/sample/Load removerepository
 	@ $(MAKE) "-SC" test/wetest removerepository
 	@ $(MAKE) "-SC" src/Clients/benchmarkTest/Load removerepository
 	@ $(MAKE) "-SC" src/Providers/TestProviders/Load removerepository
+	@ $(MAKE) "-SC" src/Clients/cimsub/tests/testscript removerepository
 
 config:
 	@ $(ROOT)/SetConfig_EnvVar

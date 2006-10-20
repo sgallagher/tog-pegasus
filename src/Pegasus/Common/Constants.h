@@ -113,6 +113,28 @@ PEGASUS_NAMESPACE_BEGIN
      PEGASUS_QUEUENAME_CONTROLSERVICE "::CIMQueryCapabilitiesProvider"
 #endif
 
+/**
+    Values for the Subscription State property of the Subscription class,
+    as defined in the CIM Events MOF
+ */
+enum SubscriptionState {STATE_UNKNOWN = 0, STATE_OTHER = 1, 
+     STATE_ENABLED = 2, STATE_ENABLEDDEGRADED = 3,
+     STATE_DISABLED = 4};
+
+/**
+    Values for the Persistence Type property of the Handler class, 
+    as defined in the CIM Events MOF
+ */
+enum PersistenceType {PERSISTENCE_OTHER = 1, PERSISTENCE_PERMANENT = 2, 
+    PERSISTENCE_TRANSIENT = 3};
+
+/**
+    Values for the SNMPVersion property of the PG_IndicationHandlerSNMPMapper 
+    class, as defined in the PG Events MOF
+ */
+enum SnmpVersion {SNMPV1_TRAP = 2, SNMPV2C_TRAP = 3, SNMPV2C_INFORM = 4,
+     SNMPV3_TRAP = 5, SNMPV3_INFORM = 6};
+
 //
 // CIM Class Names
 //
@@ -223,6 +245,55 @@ PEGASUS_COMMON_LINKAGE
     The name of the operational status property 
 */
     PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_OPERATIONALSTATUS;
+
+/**
+    The name of the Filter reference property for indication subscription class
+ */
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_FILTER;
+
+/**
+    The name of the Handler reference property for indication subscription class
+ */
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_HANDLER;
+
+/**
+    The name of the Subscription State property for indication subscription 
+    class
+ */
+PEGASUS_COMMON_LINKAGE 
+    extern const CIMName PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE;
+
+/**
+    The name of the Query property for indication filter class
+ */
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_QUERY;
+
+/**
+    The name of the Query Language property for indication filter class
+ */
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_QUERYLANGUAGE;
+
+/**
+    The name of the Name property for indication filter and indications handler     classes
+ */
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_NAME;
+
+/**
+    The name of the Creation Class Name property for indication filter and 
+    indications handler classes
+ */
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_CREATIONCLASSNAME;
+
+/**
+    The name of the Persistence Type property for Indication Handler class
+ */
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_PERSISTENCETYPE;
+
+/**
+    The name of the SNMP Version property for SNMP Mapper Indication Handler 
+    subclass
+ */
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_SNMPVERSION;
 
 //
 // CIM Namespace Names

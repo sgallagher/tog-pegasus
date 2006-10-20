@@ -41,13 +41,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    Values for the Subscription State property of the Subscription class,
-    as defined in the CIM Events MOF
- */
-enum SubscriptionState {_STATE_UNKNOWN = 0, _STATE_OTHER = 1, 
-     _STATE_ENABLED = 2, _STATE_ENABLEDDEGRADED = 3, _STATE_DISABLED = 4};
-
-/**
     Values for the Repeat Notification Policy property of the Subscription 
     class, as defined in the CIM Events MOF
  */
@@ -60,13 +53,6 @@ enum RepeatNotificationPolicy {_POLICY_UNKNOWN = 0, _POLICY_OTHER = 1,
  */
 enum OnFatalErrorPolicy {_ERRORPOLICY_OTHER = 1, _ERRORPOLICY_IGNORE = 2, 
     _ERRORPOLICY_DISABLE = 3, _ERRORPOLICY_REMOVE = 4};
-
-/**
-    Values for the Persistence Type property of the Handler class, 
-    as defined in the CIM Events MOF
- */
-enum PersistenceType {_PERSISTENCE_OTHER = 1, _PERSISTENCE_PERMANENT = 2, 
-    _PERSISTENCE_TRANSIENT = 3};
 
 /**
     Values for the Probable Cause property of the Alert Indication 
@@ -83,12 +69,6 @@ enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
      _TYPE_PROCESSING = 4, _TYPE_DEVICE = 5, _TYPE_ENVIRONMENTAL = 6,
      _TYPE_MODELCHANGE = 7, _TYPE_SECURITY = 8};
 
-/**
-    Values for the SNMPVersion property of the PG_IndicationHandlerSNMPMapper 
-    class, as defined in the PG Events MOF
- */
-enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
-     _SNMPV3_TRAP = 5, _SNMPV3_INFORM = 6};
 
 //
 //  Class names
@@ -122,22 +102,6 @@ enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
 //
 //  Property names
 //
-
-/**
-    The name of the Filter reference property for indication subscription class
- */
- extern const CIMName _PROPERTY_FILTER;
-
-/**
-    The name of the Handler reference property for indication subscription class
- */
- extern const CIMName _PROPERTY_HANDLER;
-
-/**
-    The name of the Subscription State property for indication subscription 
-    class
- */
- extern const CIMName _PROPERTY_STATE;
 
 /**
     The name of the Other Subscription State property for Indication 
@@ -245,30 +209,9 @@ enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
  extern const CIMName _PROPERTY_ELEMENTNAME;
 
 /**
-    The name of the Query property for indication filter class
- */
- extern const CIMName _PROPERTY_QUERY;
-
-/**
-    The name of the Query Language property for indication filter class
- */
- extern const CIMName _PROPERTY_QUERYLANGUAGE;
-
-/**
     The name of the Source Namespace property for indication filter class
  */
  extern const CIMName _PROPERTY_SOURCENAMESPACE;
-
-/**
-    The name of the Name property for indication filter and indications handler     classes
- */
- extern const CIMName _PROPERTY_NAME;
-
-/**
-    The name of the Creation Class Name property for indication filter and 
-    indications handler classes
- */
- extern const CIMName _PROPERTY_CREATIONCLASSNAME;
 
 /**
     The name of the System Name property for indication filter and indications 
@@ -281,11 +224,6 @@ enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
     and indications handler classes
  */
  extern const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME;
-
-/**
-    The name of the Persistence Type property for Indication Handler class
- */
- extern const CIMName _PROPERTY_PERSISTENCETYPE;
 
 /**
     The name of the Other Persistence Type property for Indication Handler 
@@ -309,12 +247,6 @@ enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
     Handler subclass
  */
  extern const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT;
-
-/**
-    The name of the SNMP Version property for SNMP Mapper Indication Handler 
-    subclass
- */
- extern const CIMName _PROPERTY_SNMPVERSION;
 
 /**
     The name of the Port Number property for SNMP Mapper Indication Handler 

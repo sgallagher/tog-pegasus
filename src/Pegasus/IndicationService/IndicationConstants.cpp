@@ -68,22 +68,6 @@ const CIMName _CLASS_PROVIDER_TERMINATED_ALERT =
 //
 
 /**
-    The name of the Filter reference property for indication subscription class
- */
-const CIMName _PROPERTY_FILTER = CIMName ("Filter");
-
-/**
-    The name of the Handler reference property for indication subscription class
- */
-const CIMName _PROPERTY_HANDLER = CIMName ("Handler");
-
-/**
-    The name of the Subscription State property for indication subscription 
-    class
- */
-const CIMName _PROPERTY_STATE = CIMName ("SubscriptionState");
-
-/**
     The name of the Other Subscription State property for Indication 
     Subscription class
  */
@@ -199,31 +183,9 @@ const CIMName _PROPERTY_DESCRIPTION = CIMName ("Description");
 const CIMName _PROPERTY_ELEMENTNAME = CIMName ("ElementName");
 
 /**
-    The name of the Query property for indication filter class
- */
-const CIMName _PROPERTY_QUERY = CIMName ("Query");
-
-/**
-    The name of the Query Language property for indication filter class
- */
-const CIMName _PROPERTY_QUERYLANGUAGE = CIMName ("QueryLanguage");
-
-/**
     The name of the Source Namespace property for indication filter class
  */
 const CIMName _PROPERTY_SOURCENAMESPACE = CIMName ("SourceNamespace");
-
-/**
-    The name of the Name property for indication filter and indications handler     classes
- */
-const CIMName _PROPERTY_NAME = CIMName ("Name");
-
-/**
-    The name of the Creation Class Name property for indication filter and 
-    indications handler classes
- */
-const CIMName _PROPERTY_CREATIONCLASSNAME = 
-    CIMName ("CreationClassName");
 
 /**
     The name of the System Name property for indication filter and indications 
@@ -237,11 +199,6 @@ const CIMName _PROPERTY_SYSTEMNAME = CIMName ("SystemName");
  */
 const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME = 
     CIMName ("SystemCreationClassName");
-
-/**
-    The name of the Persistence Type property for Indication Handler class
- */
-const CIMName _PROPERTY_PERSISTENCETYPE = CIMName ("PersistenceType");
 
 /**
     The name of the Other Persistence Type property for Indication Handler 
@@ -267,12 +224,6 @@ const CIMName _PROPERTY_TARGETHOSTFORMAT = CIMName ("TargetHostFormat");
  */
 const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT =
     CIMName ("OtherTargetHostFormat");
-
-/**
-    The name of the SNMP Version property for SNMP Mapper Indication Handler 
-    subclass
- */
-const CIMName _PROPERTY_SNMPVERSION = CIMName ("SNMPVersion");
 
 /**
     The name of the Port Number property for SNMP Mapper Indication Handler 

@@ -33,72 +33,9 @@
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    CLITestClients \
-    CGIClient \
-    CGIClient/tests \
-    TestClient \
-    cliutils \
-    cimconfig \
-    cimuser \
-    cimauth \
-    cimprovider \
-    cimprovider/tests \
-    osinfo \
-    wbemexec \
-    tomof \
-    ipinfo \
-    g11ntest \
-    benchmarkTest \
-    cimperf \
-    MCCATestClient \
-    repupgrade  \
-    cimsub \
-    cimsub/tests \
-    repupgrade/SSPModules/SampleSSPModule \
-    SendTestIndications \
-    repupgrade/tests \
-    wbemexec/tests
-
-
-ifeq ($(OS),HPUX)
-  DIRS += \
-    ntpinfo \
-    dnsinfo \
-    nisinfo
-endif
-
-ifeq ($(OS),VMS)
-  DIRS += \
-    ntpinfo \
-    dnsinfo \
-    nisinfo
-endif
-
-ifdef PEGASUS_HAS_SSL
-  DIRS += \
-    TestCertClient \
-    cimtrust \
-    cimtrust/tests
-ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION),true)
-  DIRS += \
-    cimcrl \
-    cimcrl/tests
-endif
-endif
-
-ifeq ($(OS_TYPE),unix)
-  DIRS += \
-    cimreparchive \
-    cimreparchive/tests
-endif
-
-#The following tests are NOT included as part of the standard
-#regession test.  The cimuser tests require PrivilegedUser
-#access to execute successfully.  The cimconfig tests modify
-#configuration files.
-
-XDIRS = \
-    cimconfig/tests \
-    cimuser/tests 
+    testclient  \
+    testclientInterOp \
+    testscript \
+    testscriptInterOp
 
 include $(ROOT)/mak/recurse.mak

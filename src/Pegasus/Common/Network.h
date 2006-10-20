@@ -85,7 +85,9 @@
 #   include <arpa/inet.h>
 #   include <sys/socket.h>
 #   include <sys/time.h>
-#   include <net/if.h>
+#   ifndef PEGASUS_OS_HPUX
+#       include <net/if.h>
+#   endif
 #   include <sys/ioctl.h>
 #   ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 #       include <unistd.h>

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,6 +34,7 @@
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # define _OPEN_SYS_EXT
 # include <sys/ps.h>
+# include <sys/__messag.h>
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 # include <fcntl.h>
 # include <qycmutilu2.H>
@@ -326,8 +327,8 @@ String System::getHostName()
 }
 
 static int _getHostByName(
-    const char* hostName, 
-    char* hostNameOut, 
+    const char* hostName,
+    char* hostNameOut,
     size_t hostNameOutSize)
 {
     struct hostent *hostEntry;
@@ -556,52 +557,52 @@ String System::getPassword(const char* prompt)
     tahead;
 
     typedef struct
-    {                           // I/O status block 
-        short i_cond;           // Condition value 
-        short i_xfer;           // Transfer count 
-        long i_info;            // Device information 
+    {                           // I/O status block
+        short i_cond;           // Condition value
+        short i_xfer;           // Transfer count
+        long i_info;            // Device information
     }
     iosb;
 
     typedef struct
-    {                           // Terminal characteristics 
-        char t_class;           // Terminal class 
-        char t_type;            // Terminal type 
-        short t_width;          // Terminal width in characters 
-        long t_mandl;           // Terminal's mode and length 
-        long t_extend;          // Extended terminal characteristics 
+    {                           // Terminal characteristics
+        char t_class;           // Terminal class
+        char t_type;            // Terminal type
+        short t_width;          // Terminal width in characters
+        long t_mandl;           // Terminal's mode and length
+        long t_extend;          // Extended terminal characteristics
     }
     termb;
 
     termb otermb;
     termb ntermb;
 
-    static long ichan;          // Gets channel number for TT: 
+    static long ichan;          // Gets channel number for TT:
 
     register int errorcode;
-    int kbdflgs;                // saved keyboard fd flags 
-    int kbdpoll;                // in O_NDELAY mode 
-    int kbdqp = false;          // there is a char in kbdq 
-    int psize;                  // size of the prompt 
+    int kbdflgs;                // saved keyboard fd flags
+    int kbdpoll;                // in O_NDELAY mode
+    int kbdqp = false;          // there is a char in kbdq
+    int psize;                  // size of the prompt
 
     const size_t MAX_PASS_LEN = 32;
     static char buf[MAX_PASS_LEN];
-    char kbdq;                  // char we've already read 
+    char kbdq;                  // char we've already read
 
     iosb iostatus;
 
-    static long termset[2] = { 0, 0 };  // No terminator 
+    static long termset[2] = { 0, 0 };  // No terminator
 
-    $DESCRIPTOR(inpdev, "TT");  // Terminal to use for input 
+    $DESCRIPTOR(inpdev, "TT");  // Terminal to use for input
 
     // Get a channel for the terminal
 
     buf[0] = 0;
 
-    errorcode = sys$assign(&inpdev,     // Device name 
-                           &ichan,      // Channel assigned 
-                           0,   // request KERNEL mode access 
-                           0);  // No mailbox assigned 
+    errorcode = sys$assign(&inpdev,     // Device name
+                           &ichan,      // Channel assigned
+                           0,   // request KERNEL mode access
+                           0);  // No mailbox assigned
 
     if (errorcode != SS$_NORMAL)
     {
@@ -610,39 +611,39 @@ String System::getPassword(const char* prompt)
 
     // Read current terminal settings
 
-    errorcode = sys$qiow(0,     // Wait on event flag zero 
-                         ichan, // Channel to input terminal 
-                         IO$_SENSEMODE, // Function - Sense Mode 
-                         &iostatus,     // Status after operation 
-                         0, 0,  // No AST service 
-                         &otermb,       // [P1] Address of Char Buffer 
-                         sizeof (otermb),       // [P2] Size of Char Buffer 
-                         0, 0, 0, 0);   // [P3] - [P6] 
+    errorcode = sys$qiow(0,     // Wait on event flag zero
+                         ichan, // Channel to input terminal
+                         IO$_SENSEMODE, // Function - Sense Mode
+                         &iostatus,     // Status after operation
+                         0, 0,  // No AST service
+                         &otermb,       // [P1] Address of Char Buffer
+                         sizeof (otermb),       // [P2] Size of Char Buffer
+                         0, 0, 0, 0);   // [P3] - [P6]
 
     if (errorcode != SS$_NORMAL)
     {
         return buf;
     }
 
-    // setup new settings 
+    // setup new settings
 
     ntermb = otermb;
 
-    // turn on passthru and nobroadcast 
+    // turn on passthru and nobroadcast
 
     ntermb.t_extend |= TT2$M_PASTHRU;
     ntermb.t_mandl |= TT$M_NOBRDCST;
 
-    // Write out new terminal settings 
+    // Write out new terminal settings
 
-    errorcode = sys$qiow(0,     // Wait on event flag zero 
-                         ichan, // Channel to input terminal 
-                         IO$_SETMODE,   // Function - Set Mode 
-                         &iostatus,     // Status after operation 
-                         0, 0,  // No AST service 
-                         &ntermb,       // [P1] Address of Char Buffer 
-                         sizeof (ntermb),       // [P2] Size of Char Buffer 
-                         0, 0, 0, 0);   // [P3] - [P6] 
+    errorcode = sys$qiow(0,     // Wait on event flag zero
+                         ichan, // Channel to input terminal
+                         IO$_SETMODE,   // Function - Set Mode
+                         &iostatus,     // Status after operation
+                         0, 0,  // No AST service
+                         &ntermb,       // [P1] Address of Char Buffer
+                         sizeof (ntermb),       // [P2] Size of Char Buffer
+                         0, 0, 0, 0);   // [P3] - [P6]
 
     if (errorcode != SS$_NORMAL)
     {
@@ -655,36 +656,36 @@ String System::getPassword(const char* prompt)
 
     psize = strlen(prompt);
 
-    errorcode = sys$qiow(0,     // Event flag 
-                         ichan, // Input channel 
+    errorcode = sys$qiow(0,     // Event flag
+                         ichan, // Input channel
                          IO$_READPROMPT | IO$M_NOECHO | IO$M_NOFILTR |
                          IO$M_TRMNOECHO,
                          // Read with prompt, no echo, no translate, no
                          // termination character echo
-                         &iostatus,     // I/O status block 
-                         NULL,  // AST block (none) 
-                         0,     // AST parameter 
-                         &buf,  // P1 - input buffer 
-                         MAX_PASS_LEN,  // P2 - buffer length 
-                         0,     // P3 - ignored (timeout) 
-                         0,     // P4 - ignored (terminator char set) 
-                         prompt,        // P5 - prompt buffer 
-                         psize);        // P6 - prompt size 
+                         &iostatus,     // I/O status block
+                         NULL,  // AST block (none)
+                         0,     // AST parameter
+                         &buf,  // P1 - input buffer
+                         MAX_PASS_LEN,  // P2 - buffer length
+                         0,     // P3 - ignored (timeout)
+                         0,     // P4 - ignored (terminator char set)
+                         prompt,        // P5 - prompt buffer
+                         psize);        // P6 - prompt size
 
     if (errorcode != SS$_NORMAL)
     {
         return buf;
     }
 
-    // Write out old terminal settings 
-    errorcode = sys$qiow(0,     // Wait on event flag zero 
-                         ichan, // Channel to input terminal 
-                         IO$_SETMODE,   // Function - Set Mode 
-                         &iostatus,     // Status after operation 
-                         0, 0,  // No AST service 
-                         &otermb,       // [P1] Address of Char Buffer 
-                         sizeof (otermb),       // [P2] Size of Char Buffer 
-                         0, 0, 0, 0);   // [P3] - [P6] 
+    // Write out old terminal settings
+    errorcode = sys$qiow(0,     // Wait on event flag zero
+                         ichan, // Channel to input terminal
+                         IO$_SETMODE,   // Function - Set Mode
+                         &iostatus,     // Status after operation
+                         0, 0,  // No AST service
+                         &otermb,       // [P1] Address of Char Buffer
+                         sizeof (otermb),       // [P2] Size of Char Buffer
+                         0, 0, 0, 0);   // [P3] - [P6]
 
     if (errorcode != SS$_NORMAL)
     {
@@ -692,7 +693,7 @@ String System::getPassword(const char* prompt)
     }
 
     // Start new line
-    
+
     const int CR = 0x0d;
     const int LF = 0x0a;
     fputc(CR, stdout);
@@ -798,7 +799,7 @@ String System::encryptPassword(const char* password, const char* salt)
 
     return String(pcSalt) + String((char *)pbBuffer);
 
-#elif !defined(PEGASUS_OS_OS400) 
+#elif !defined(PEGASUS_OS_OS400)
 
     return ( String(crypt( password,salt)) );
 
@@ -1290,6 +1291,77 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
         theMessage.joblogIt(UnitOfWorkError,
                             ycmMessage::Diagnostic);
     }
+
+#elif defined(PEGASUS_OS_ZOS)
+
+    const char   * zosMessageString = message;
+    unsigned int   zosMessageStringLength = strlen(message);
+    char         * tmpMessageString = NULL;
+    Uint32         syslogLevel = LOG_DEBUG;
+
+    if (strncmp(message, "CFZ", 3) != 0)
+    {
+        // Message is not z/OS message that already has the right prefix.
+        // Prepend the generic z/OS message ids to Pegasus message
+        const char* zos_msgid;
+        if (severity & Logger::TRACE)
+        {
+            syslogLevel = LOG_DEBUG;
+            zos_msgid = "CFZ00001I: ";
+        }
+        if (severity & Logger::INFORMATION)
+        {
+            syslogLevel = LOG_INFO;
+            zos_msgid = "CFZ00001I: ";
+        }
+        if (severity & Logger::WARNING)
+        {
+            syslogLevel = LOG_WARNING;
+            zos_msgid = "CFZ00002W: ";
+        }
+        if ((severity & Logger::SEVERE) || (severity & Logger::FATAL) )
+        {
+            syslogLevel = LOG_ERR;
+            zos_msgid = "CFZ00004E: ";
+        }
+
+        zosMessageStringLength += strlen(zos_msgid);
+        tmpMessageString = (char*)calloc(zosMessageStringLength,1);
+        strcpy(tmpMessageString, zos_msgid);
+        strcat(tmpMessageString, message);
+
+        zosMessageString = tmpMessageString;
+    }
+
+    // Issue important messages to the z/OS console
+    if (!(severity & Logger::TRACE))
+    {
+        struct __cons_msg   cons;
+        int                 concmd=0;
+        int                 rc;
+
+
+        memset(&cons,0,sizeof(cons));
+
+        cons.__format.__f1.__msg_length = zosMessageStringLength;
+        cons.__format.__f1.__msg = (char*)zosMessageString;
+
+        rc = __console(&cons, NULL, &concmd );
+    }
+
+    // In addition all messages go to the syslog
+    static Mutex logMutex;
+
+    AutoMutex loglock(logMutex);
+
+    CString identCString = ident.getCString();
+    openlog(identCString, LOG_PID, LOG_DAEMON);
+    ::syslog(syslogLevel, "%s", zosMessageString);
+    closelog();
+
+    if (tmpMessageString)
+        delete tmpMessageString;
+
 
 #else /* default */
 

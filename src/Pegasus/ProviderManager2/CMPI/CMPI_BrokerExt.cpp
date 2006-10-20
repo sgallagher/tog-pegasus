@@ -175,7 +175,7 @@ extern "C" {
 
    static int threadSleep(CMPIUint32 msec)
    {
-      Thread::getCurrent()->sleep(msec);
+      Threads::sleep(msec);
       return 0;
    }
 
@@ -284,7 +284,7 @@ extern "C" {
       msec=(next.tv_sec-now.tv_sec)*1000;
       msec+=(next.tv_nsec/1000000)-(now.tv_usec/1000);
 
-      Thread::getCurrent()->sleep(msec);
+      Threads::sleep(msec);
       return 0;
    }
 

@@ -109,7 +109,7 @@ PEGASUS_NAMESPACE_BEGIN
 #ifdef PEGASUS_SLP_REG_TIMEOUT
 ThreadReturnType PEGASUS_THREAD_CDECL _advertisePegasus(void *parm);
 //Definig maximum life of registration as the reregistration interval
-# define MAX_LIFE PEGASUS_SLP_REG_TIMEOUT  
+# define MAX_LIFE PEGASUS_SLP_REG_TIMEOUT * 60 
 # define SLP_PORT 427
 # define LOCALHOST_IP "127.0.0.1"
 #endif
@@ -1169,11 +1169,11 @@ ThreadReturnType PEGASUS_THREAD_CDECL _advertisePegasus(void* parm)
           int rc_https = client->srv_reg_local(client, httpsUrl, httpsAttrs, type, scopes, life);
           if (!rc_http)
           {
-             PEGASUS_STD(cerr) << "CIMServer http registration is FAILED with External SLP" << PEGASUS_STD(endl);
+              PEGASUS_STD(cerr) << "CIMServer http registration is FAILED with External SLP" << PEGASUS_STD(endl);
           } 
           if (!rc_https)
           {
-             PEGASUS_STD(cerr) << "CIMServer https registration is FAILED with External SLP" << PEGASUS_STD(endl);
+              PEGASUS_STD(cerr) << "CIMServer https registration is FAILED with External SLP" << PEGASUS_STD(endl);
           } 
        }
        destroy_slp_client(client);

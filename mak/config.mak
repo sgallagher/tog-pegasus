@@ -57,7 +57,6 @@ else
     $(error PEGASUS_ROOT environment variable undefined)
 endif
 
-
 # l10n
 ifdef ICU_ROOT
     ICUROOT =  $(subst \,/,$(ICU_ROOT))
@@ -594,12 +593,6 @@ ifdef PEGASUS_ENABLE_SLP
   endif
 endif
 
-ifdef PEGASUS_USE_OPENSLP
-  ifdef PEGASUS_SLP_REG_TIMEOUT
-    $(error Conflicting defines PEGASUS_USE_OPENSLP and PEGASUS_SLP_REG_TIMEOUT both set)
-  endif
-endif
-
 ifdef PEGASUS_DISABLE_SLP
     $(error PEGASUS_DISABLE_SLP has been deprecated. Please use PEGASUS_ENABLE_SLP=[true/false] )
 
@@ -607,9 +600,11 @@ PEGASUS_ENABLE_SLP=false
 
 endif
 
+# PEP 267
+# SLP reregistration support. 
 ifdef PEGASUS_SLP_REG_TIMEOUT
    ifeq ($(PEGASUS_ENABLE_SLP),true)
-      DEFINES += -DPEGASUS_SLP_REG_TIMEOUT
+      DEFINES += -DPEGASUS_SLP_REG_TIMEOUT=$(PEGASUS_SLP_REG_TIMEOUT) 
     else
       $(error PEGASUS_SLP_REG_TIMEOUT defined but PEGASUS_ENABLE_SLP is not true. Please correct this inconsistency)
     endif

@@ -105,12 +105,11 @@
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 
-#include <Pegasus/Common/Threads.h>
-
 PEGASUS_NAMESPACE_BEGIN
 #ifdef PEGASUS_SLP_REG_TIMEOUT
 ThreadReturnType PEGASUS_THREAD_CDECL _advertisePegasus(void *parm);
-# define MAX_LIFE 0x0fff
+//Definig maximum life of registration as the reregistration interval
+# define MAX_LIFE PEGASUS_SLP_REG_TIMEOUT  
 # define SLP_PORT 427
 # define LOCALHOST_IP "127.0.0.1"
 #endif
@@ -618,17 +617,23 @@ void CIMServer::runForever()
     struct timeval now;
     Time::gettimeofday(&now);
 
-#ifdef PEGASUS_SLP_REG_TIMEOUT
-    static struct timeval lastReregistrationTime = {0, 0};
+#ifdef PEGASUS_SLP_REG_TIMEOUT 
+    static struct timeval lastReregistrationTime = now;
+    // units of PEGASUS_SLP_REG_TIMEOUT is minutes. Multiplying PEGASUS_SLP_REG_TIMEOUT
+    // to convert in to seconds. 
     if (now.tv_sec - lastReregistrationTime.tv_sec > (PEGASUS_SLP_REG_TIMEOUT * 60))
     {
        lastReregistrationTime.tv_sec = now.tv_sec;
-       _runSLP = true;    // To allow the Reregistration _runSLP is made true.
+       // To allow the Reregistration _runSLP is made true. This flag is checked
+       // in startSLPProvider()
+       _runSLP = true;
        startSLPProvider();
+       //To disallow the registration call being made from the start of this routine.
+       _runSLP = false; 
     }
 #endif
 
-    if (now.tv_sec - lastIdleCleanupTime.tv_sec >= 100)
+    if (now.tv_sec - lastIdleCleanupTime.tv_sec >= 300)
     {
       lastIdleCleanupTime.tv_sec = now.tv_sec;
       try
@@ -995,10 +1000,8 @@ void CIMServer::startSLPProvider()
 {
 
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CIMServer::startSLPProvider");
-
     // onetime check is not needed for re-registration. 
     // This is a onetime function.  If already issued, or config is not to use simply
-    // return
     if (!_runSLP)
     {
        return;
@@ -1018,9 +1021,10 @@ void CIMServer::startSLPProvider()
     // function does not get called a second time.
     _runSLP = false;
     
-    // Start SLPProvider for Built-in SA and Open SLP SA. if the PEGASUS_SLP_REG_TIMEOUT is defined
-    // start a thread which advertises CIMOM with a external SLP SA.
-#ifdef PEGASUS_SLP_REG_TIMEOUT
+    // Start SLPProvider for Built-in SA and Open SLP SA. If the 
+    // PEGASUS_SLP_REG_TIMEOUT is defined and if Open SLP is not used, start a
+    // thread which advertises CIMOM with a external SLP SA( i.e . IBM SA).
+#if defined( PEGASUS_SLP_REG_TIMEOUT ) && !defined( PEGASUS_USE_OPENSLP )
     _startAdvThread = true;
     Thread SLPThread(_advertisePegasus,0,true);
     SLPThread.run();
@@ -1033,6 +1037,7 @@ void CIMServer::startSLPProvider()
     PEG_METHOD_EXIT();
     return;
 }
+
 
 
 // startSLPProvider is a function to get the slp provider kicked off
@@ -1055,7 +1060,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm )
     // open connection to CIMOM 
     //
     String hostStr = System::getHostName();
-
     try
     {
         //
@@ -1118,9 +1122,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _advertisePegasus(void* parm)
 {
 
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::_advertisePegasus()");
-    
-    static SLPAttrib SLPHttpAttribObj;
-    static SLPAttrib SLPHttpsAttribObj;
+    SLPAttrib SLPHttpAttribObj;
+    SLPAttrib SLPHttpsAttribObj;
     struct slp_client *client;
     time_t now,last;
     lslpMsg msg_list;
@@ -1146,6 +1149,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _advertisePegasus(void* parm)
 
     scopes = strdup("DEFAULT");
 
+    //Populate datastructures required for registering  a service with External SLP SA (i.e IBM SLP SA)
     type = strdup(SLPHttpAttribObj.getServiceType().getCString());
     httpUrl = strdup(SLPHttpAttribObj.getServiceUrl().getCString());
     httpsUrl = strdup(SLPHttpsAttribObj.getServiceUrl().getCString());
@@ -1161,8 +1165,16 @@ ThreadReturnType PEGASUS_THREAD_CDECL _advertisePegasus(void* parm)
     {
        if (!handleCloseSLPThread)
        {
-          client->srv_reg_local(client, httpUrl, httpAttrs, type, scopes, life);
-          client->srv_reg_local(client, httpsUrl, httpsAttrs, type, scopes, life);
+          int rc_http = client->srv_reg_local(client, httpUrl, httpAttrs, type, scopes, life);
+          int rc_https = client->srv_reg_local(client, httpsUrl, httpsAttrs, type, scopes, life);
+          if (!rc_http)
+          {
+             PEGASUS_STD(cerr) << "CIMServer http registration is FAILED with External SLP" << PEGASUS_STD(endl);
+          } 
+          if (!rc_https)
+          {
+             PEGASUS_STD(cerr) << "CIMServer https registration is FAILED with External SLP" << PEGASUS_STD(endl);
+          } 
        }
        destroy_slp_client(client);
     }
@@ -1195,8 +1207,8 @@ int   _deregPegasus()
 
    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::deregPegasus()");
 
-   static SLPAttrib SLPHttpAttribObj1;
-   static SLPAttrib SLPHttpsAttribObj1;
+   SLPAttrib SLPHttpAttribObj1;
+   SLPAttrib SLPHttpsAttribObj1;
    struct slp_client *client;
    time_t now,last;
    lslpMsg msg_list;

@@ -346,6 +346,18 @@ ifeq ($(OS),darwin)
     CURRENT_USER=`whoami`		
 endif
 
+ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    ifeq ($(OS),win32)
+        $(error Error: Remote CMPI is not currently supported on Windows.)
+    else
+        CMPIR_START_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon
+        CMPIR_STOP_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon --stop
+    endif
+else
+    CMPIR_START_DAEMON = 
+    CMPIR_STOP_DAEMON = 
+endif
+
 ifndef TMP_DIR
     ifdef PEGASUS_TMP
         TMP_DIR = $(subst \,/,$(PEGASUS_TMP))
@@ -367,10 +379,12 @@ CMDSFORCE:
 ##
 
 cimstop: CMDSFORCE
+	-$(CMPIR_STOP_DAEMON)
 	$(CIMSERVER_STOP_SERVICE)
 
 cimstart: CMDSFORCE
 	$(CIMSERVER_START_SERVICE)
+	$(CMPIR_START_DAEMON)
 
 sleep: CMDSFORCE
 	$(SLEEP) $(TIME)
@@ -455,11 +469,11 @@ mkdirhier_IgnoreError: CMDSFORCE
 ##       cimstart command.
 ##
 runTestSuite: CMDSFORCE
-	-$(CIMSERVER_STOP_SERVICE)
-	$(CIMSERVER_START_SERVICE)
+	make -f TestMakefile -i cimstop
+	make -f TestMakefile cimstart
 	$(WINDOWS_ONLY_SLEEP)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))
-	$(CIMSERVER_STOP_SERVICE)
+	make -f TestMakefile cimstop
 
 ifndef PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN
   PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN=$(GET_HOSTNAME)

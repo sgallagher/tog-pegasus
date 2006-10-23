@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -42,7 +38,7 @@
   This is the native CMPIArray implementation as used for remote
   providers. It reflects the well-defined interface of a regular
   CMPIArray object, however, it works independently from the management broker.
-  
+
   It is part of a native broker implementation that simulates CMPI data
   types rather than interacting with the entities in a full-grown CIMOM.
 
@@ -204,7 +200,7 @@ static CMPIStatus __aft_setElementAt ( CMPIArray * array,
 
 		if ( type == CMPI_chars && a->type == CMPI_string ) {
 
-			v.string = native_new_CMPIString ( val->chars, NULL );
+			v.string = native_new_CMPIString ((char*)val, NULL );
 			type = CMPI_string;
 			val  = &v;
 		}
@@ -214,8 +210,8 @@ static CMPIStatus __aft_setElementAt ( CMPIArray * array,
 			CMPIStatus rc = {CMPI_RC_OK, NULL};
 
 			a->data[index].state = 0;
-			a->data[index].value = 
-				( a->mem_state == TOOL_MM_ADD )? 
+			a->data[index].value =
+				( a->mem_state == TOOL_MM_ADD )?
 				*val:
 				native_clone_CMPIValue ( type, val, &rc );
 
@@ -246,8 +242,8 @@ void native_array_increase_size ( CMPIArray * array,
 {
 	struct native_array * a = (struct native_array *) array;
 
-	a->data = 
-		(struct native_array_item *) 
+	a->data =
+		(struct native_array_item *)
 		tool_mm_realloc ( a->data,
 				  ( a->size + increment ) *
 				  sizeof ( struct native_array_item ) );
@@ -259,7 +255,7 @@ void native_array_increase_size ( CMPIArray * array,
 }
 
 
-static struct native_array * __new_empty_array ( int mm_add, 
+static struct native_array * __new_empty_array ( int mm_add,
 						 CMPICount size,
 						 CMPIType type,
 						 CMPIStatus * rc )
@@ -288,8 +284,8 @@ static struct native_array * __new_empty_array ( int mm_add,
 	type        &= ~CMPI_ARRAY;
 	array->type  = ( type == CMPI_chars )? CMPI_string: type;
 	array->size  = size;
-	array->data  = 
-		(struct native_array_item *) 
+	array->data  =
+		(struct native_array_item *)
 		tool_mm_alloc ( mm_add,
 				size * sizeof ( struct native_array_item ) );
 

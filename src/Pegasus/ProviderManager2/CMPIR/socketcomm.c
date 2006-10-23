@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -106,7 +102,7 @@ void socketcomm_copy_args ( CMPIArgs * src, CMPIArgs * dst )
 void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result )
 {
 	TRACE_VERBOSE(("entered function."));
-
+        CMPIStatus rc;
 	if ( array != NULL && result != NULL ) {
 
 		CMPICount size = CMGetArrayCount ( array, NULL );
@@ -122,7 +118,15 @@ void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result )
 			if ( data.type == CMPI_instance ) {
 
 				TRACE_INFO(("transferring instance."));
-				CMReturnInstance ( result, data.value.inst );
+				// EmbeddedObjects or EmbeddedInstances returned
+				// from MethodProviders can not use CMReturnInstance
+				// because it is not supported, return
+				// these type of data with CMReturnData.
+				rc = CMReturnInstance ( result, data.value.inst );
+				if( rc.rc  == CMPI_RC_ERR_NOT_SUPPORTED )
+				{
+				    CMReturnData ( result, &data.value, data.type );
+				}
 			} else if ( data.type == CMPI_ref ) {
 
 				TRACE_INFO(("transferring object path."));

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -106,13 +106,13 @@ static struct hostent * _getHostByName (
 #else
         hstrerror (h_errno));
 #endif
-    }   
+    }
 
     return hptr;
 }
 
 
-int open_connection ( const char * address, int port )
+int open_connection ( const char * address, int port, int print_errmsg)
 {
     int sockfd;
     struct sockaddr_in sin;
@@ -132,8 +132,11 @@ if ( broker_ip_address != INADDR_NONE )
 	server_host_name = gethostbyaddr( &(broker_ip_address), sizeof(broker_ip_address), AF_INET);
 	if (server_host_name == NULL )
 	{
-		error_at_line ( 0, 0, __FILE__, __LINE__,strerror(h_errno));
-		return -1;
+	        if (print_errmsg == PEGASUS_PRINT_ERROR_MESSAGE)
+		{
+		    error_at_line ( 0, 0, __FILE__, __LINE__,strerror(h_errno));
+		    return -1;
+		}
 	}
 } else {
 #endif
@@ -141,7 +144,7 @@ if ( broker_ip_address != INADDR_NONE )
         address,
         &hbuf,
         tempbuf,
-        sizeof(tempbuf))) == NULL) 
+        sizeof(tempbuf))) == NULL)
     {
         return -1;
     }
@@ -162,9 +165,11 @@ if ( broker_ip_address != INADDR_NONE )
 #else
 				 IPPROTO_TCP ) ) == -1 ) {
 #endif
-
-		error_at_line ( 0, errno, __FILE__, __LINE__,
-				"failed to create socket" );
+                if (print_errmsg == PEGASUS_PRINT_ERROR_MESSAGE)
+		{
+		    error_at_line ( 0, errno, __FILE__, __LINE__,
+				    "failed to create socket" );
+		}
 		return -1;
 	}
 
@@ -179,10 +184,13 @@ if ( broker_ip_address != INADDR_NONE )
 		       sizeof ( sin ) ) == -1 ) {
 
                 close(sockfd);
-		error_at_line ( 0, errno, __FILE__, __LINE__,
-				"could not connect to %s:%d",
-				address,
-				port );
+                if (print_errmsg == PEGASUS_PRINT_ERROR_MESSAGE)
+                {
+		    error_at_line ( 0, errno, __FILE__, __LINE__,
+				    "could not connect to %s:%d",
+				    address,
+				    port );
+		}
 		return -1;
 	}
 
@@ -259,14 +267,15 @@ void accept_connections ( int port,
 }
 
 
-int close_connection (int port ) 
+int close_connection (int port )
 {
 	int socket = 0;
 
 	_die = 1;
 
 	// "tickle" the connection.
-	socket = open_connection("127.0.0.1", port);
+	socket = open_connection ( "127.0.0.1", port,
+	                           PEGASUS_PRINT_ERROR_MESSAGE);
 	if (socket)
 	{
 		close (socket);
@@ -277,7 +286,7 @@ int close_connection (int port )
 		}
 	}
 	return _die;
-	
+
 }
 void get_peer_address ( int socket, char * buf )
 {

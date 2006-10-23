@@ -235,10 +235,10 @@ char * value2Chars ( CMPIType type, CMPIValue * value )
 		        sprintf(str,"%d",value->sint16);
 			return strdup(str);
 		case CMPI_uint32:
-		        sprintf(str,"%lu",value->uint32);
+		        sprintf(str,"%u",value->uint32);
 			return strdup(str);
 		case CMPI_sint32:
-		        sprintf(str,"%ld",value->sint32);
+		        sprintf(str,"%d",value->sint32);
 			return strdup(str);
 		case CMPI_uint64:
 #if defined CMPI_PLATFORM_WIN32_IX86_MSVC

@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -48,8 +46,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-const CIMNamespaceName PROVIDERNAMESPACE =
-CIMNamespaceName ("test/TestProvider");
+CIMNamespaceName providerNamespace;
 const char *queries[] = {
   "select n32,s,ElementName,n64,n16,r32, r64,d from TestCMPI_ExecQuery where n32=42",  // 0
   "SELECT * FROM TestCMPI_ExecQuery",   // 1
@@ -213,17 +210,11 @@ void _checkUint64Property
   PEGASUS_TEST_ASSERT (result == value);
 }
 
-
-
 void
 _usage ()
 {
-  cerr << "Usage: TestCMPIIndicationSubscription " << "{test}" << endl;
+  cerr << "Usage: TestCMPIInstanceExecQuery {test} {namespace}" << endl;
 }
-
-
-
-
 
 static void
 _test1 (CIMClient & client)
@@ -239,7 +230,7 @@ _test1 (CIMClient & client)
         if (verbose)
           cerr << "Querying " << queries[i] << endl;
 
-        Array < CIMObject > objects = client.execQuery (PROVIDERNAMESPACE,
+        Array < CIMObject > objects = client.execQuery (providerNamespace,
                                                         wql, queries[i]);
 
         if (objects.size () == 0)
@@ -300,14 +291,14 @@ _test2 (CIMClient & client)
                                      "TestCMPI_ExecQuery",
                                      CIMKeyBinding::STRING));
 
-  instanceName.setNameSpace (PROVIDERNAMESPACE);
+  instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName ("TestCMPI_ExecQuery");
   instanceName.setKeyBindings (keyBindings);
 
   /* Call the unsupported functions of the provider. */
   try
   {
-    CIMInstance instance (client.getInstance (PROVIDERNAMESPACE,
+    CIMInstance instance (client.getInstance (providerNamespace,
                                               instanceName));
   } catch (const CIMException &)
   {
@@ -317,18 +308,24 @@ _test2 (CIMClient & client)
 
   try
   {
-    client.deleteInstance (PROVIDERNAMESPACE, instanceName);
+    client.deleteInstance (providerNamespace, instanceName);
 
   } catch (const CIMException & )
   {
 	 exceptions ++;
   }
-  CIMInstance newInstance ("TestCMPI_ExecQuery");
-  newInstance.setPath (instanceName);
+  CIMClass thisClass =
+        client.getClass(providerNamespace,"TestCMPI_ExecQuery",false,true,true,CIMPropertyList());
+  Array<CIMName> propertyNameList;
+  propertyNameList.append(CIMName("ElementName"));
+  CIMPropertyList myPropertyList(propertyNameList);
+  // create the instance with the defined properties
+  CIMInstance newInstance = thisClass.buildInstance(true, true, myPropertyList);
+  newInstance.getProperty(0).setValue(CIMValue(String("TestCMPI_execQuery") ));
   try
   {
 
-    CIMObjectPath objectPath (client.createInstance (PROVIDERNAMESPACE,
+    CIMObjectPath objectPath (client.createInstance (providerNamespace,
                                                      newInstance));
 
 
@@ -339,7 +336,7 @@ _test2 (CIMClient & client)
 
   try
   {
-    client.modifyInstance (PROVIDERNAMESPACE, newInstance);
+    client.modifyInstance (providerNamespace, newInstance);
 
   } catch (const CIMException &)
   {
@@ -349,7 +346,7 @@ _test2 (CIMClient & client)
   {
 
     Array < CIMInstance > instances =
-      client.enumerateInstances (PROVIDERNAMESPACE,
+      client.enumerateInstances (providerNamespace,
                                  CIMName ("TestCMPI_ExecQuery"));
   } catch (const CIMException &)
   {
@@ -359,7 +356,7 @@ _test2 (CIMClient & client)
   try
   {
     Array < CIMObjectPath > objectPaths =
-      client.enumerateInstanceNames (PROVIDERNAMESPACE,
+      client.enumerateInstanceNames (providerNamespace,
                                      CIMName ("TestCMPI_ExecQuery"));
   } catch (const CIMException &)
   {
@@ -385,7 +382,7 @@ main (int argc, char **argv)
     return -1;
   }
 
-  if (argc != 2)
+  if (argc != 3)
     {
       _usage ();
       return 1;
@@ -397,9 +394,9 @@ main (int argc, char **argv)
 
       if (String::equalNoCase (opt, "test"))
         {
+          providerNamespace = CIMNamespaceName (argv[2]);
           _test1 (client);
           _test2 (client);
-          cout << "+++++ test completed successfully" << endl;
         }
       else
         {
@@ -408,6 +405,7 @@ main (int argc, char **argv)
           return -1;
         }
     }
+    cout << argv[0] << " +++++ completed" << endl;
 
   return 0;
 }

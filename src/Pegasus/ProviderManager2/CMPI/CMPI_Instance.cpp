@@ -227,9 +227,23 @@ extern "C" {
       try {
             if (clsRef.getKeyBindings().size()==0) {
               CIMClass *cc=mbGetClass(CMPI_ThreadContext::getBroker(),clsRef);
-              const CIMObjectPath &ref=inst->buildPath(
-                      *(reinterpret_cast<const CIMConstClass*>(cc)));
-              objPath.reset(new CIMObjectPath(ref));
+              // It seems that when converting the CIMInstnace to XML form, we miss
+              // CIMObjectPath from it. When we don't have namespace we may not get
+              // class, so make ObjectPath with class-name only.
+              // TODO: This will create problems when passing the EmbeddedInstances
+              // as arguements to MethodProviders, where it needs to get ObjectPath
+              // from instance. Shall we need to include CIMObjectPath in CIMInstance
+              // while converting to XML form ??? ...  
+              if (!cc)
+              {
+                  objPath.reset(new CIMObjectPath(clsRef));
+              }
+              else
+              {  
+                  const CIMObjectPath &ref=inst->buildPath(
+                          *(reinterpret_cast<const CIMConstClass*>(cc)));
+                  objPath.reset(new CIMObjectPath(ref));
+              }
             }
             else 
               objPath.reset(new CIMObjectPath(clsRef));

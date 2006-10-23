@@ -52,6 +52,12 @@ include $(ROOT)/mak/configschema.mak
 TESTPROVIDERNS=test/TestProvider
 TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/test\#TestProvider
 
+ifdef PEGASUS_ENABLE_REMOTE_CMPI
+CREATE_REMOTE_NAMESPACE = CreateExtNS
+REMOTE_TESTPROVIDERNS = test/Remote/Localhost
+REMOTE_TESTPROVIDERNSDIRECTORY = $(REPOSITORY_ROOT)/test\#Remote\#Localhost
+endif
+
 EI_SCHEMA_DIR = $(ROOT)/Schemas/CIM2101
 EI_DYNAMIC_TEST_NAMESPACE = test/EmbeddedInstance/Dynamic
 EI_STATIC_TEST_NAMESPACE = test/EmbeddedInstance/Static
@@ -61,6 +67,10 @@ EI_STATIC_TEST_NAMESPACE = test/EmbeddedInstance/Static
 repository:
 	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
 	@$(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
+ifdef PEGASUS_ENABLE_REMOTE_CMPI
+	@ $(ECHO) +++++ Removing existing repository named $(REMOTE_TESTPROVIDERNS)
+	@$(RMREPOSITORY) $(REMOTE_TESTPROVIDERNSDIRECTORY)
+endif
 	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(TESTPROVIDERNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTPROVIDERNS) namespace ...
@@ -166,6 +176,11 @@ ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-nroot/PG_InterOp" EmbeddedInstanceProviderR.mof
 endif
+# create remote namespace for Remote CMPI test providers
+ifdef PEGASUS_ENABLE_REMOTE_CMPI
+	@ echo +++++ Creating remote namespace ...
+	@ $(CREATE_REMOTE_NAMESPACE) -r $(REPOSITORY_NAME) -n $(REMOTE_TESTPROVIDERNS) -p $(TESTPROVIDERNS) -l localhost
+endif
 
 ##
 ## Load the test MOF with cimmof.  (Do not remove the existing repository.)
@@ -255,13 +270,19 @@ ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-nroot/PG_InterOp" EmbeddedInstanceProviderR.mof
 endif
+# create remote namespace for Remote CMPI test providers
+ifdef PEGASUS_ENABLE_REMOTE_CMPI
+	@ echo +++++ Creating remote namespace ...
+	@ $(CREATE_REMOTE_NAMESPACE) -r $(REPOSITORY_NAME) -n $(REMOTE_TESTPROVIDERNS) -p $(TESTPROVIDERNS) -l localhost
+endif
 
 ##
 ##
 ##
 removerepository:
-	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS), $(EI_DYNAMIC_TEST_NAMESPACE), and $(EI_STATIC_TEST_NAMESPACE)
+	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS), $(REMOTE_TESTPROVIDERNS), $(EI_DYNAMIC_TEST_NAMESPACE), and $(EI_STATIC_TEST_NAMESPACE)
 	@ $(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
+	@ $(RMREPOSITORY) $(REMOTE_TESTPROVIDERNSDIRECTORY)
 	@ $(RMREPOSITORY) $(EI_DYNAMIC_TEST_NAMESPACE) 
 	@ $(RMREPOSITORY) $(EI_STATIC_TEST_NAMESPACE)
 

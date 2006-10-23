@@ -658,7 +658,7 @@ displayCBATestCertificates: FORCE
                 TEST_CERT_NAME=$($(i)) $(NL))
 
 registerInvalidCBATestCertificates:
-	-$(CIMSERVER_STOP_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(foreach i, $(PEGASUS_NOT_VALIDATED_REG_CERT_NAME_SYMBOLS), \
             $(MAKESH) $(MAKE) -f TestMakefile \
                 registerInvalidCBATestCertificate \

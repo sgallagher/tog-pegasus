@@ -42,6 +42,9 @@
 
 #include "proxy.h"
 
+#define PEGASUS_SUPPRESS_ERROR_MESSAGE 0
+#define PEGASUS_PRINT_ERROR_MESSAGE 1
+
 static struct hostent * _getHostByName (
     const char *hname,
     struct hostent *hbuf,
@@ -51,7 +54,7 @@ static struct hostent * _getHostByName (
 void accept_connections ( int port,
 			  void (* __connection_handler) ( int ),
 			  int multithreaded );
-int open_connection ( const char * address, int port );
+int open_connection ( const char * address, int port, int print_errmsg );
 
 int close_connection( int port );
 void get_peer_address ( int socket, char * buf );

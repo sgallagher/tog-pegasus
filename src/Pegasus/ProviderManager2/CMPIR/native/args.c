@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -42,7 +38,7 @@
   This is the native CMPIArgs implementation as used for remote
   providers. It reflects the well-defined interface of a regular
   CMPIArgs object, however, it works independently from the management broker.
-  
+
   It is part of a native broker implementation that simulates CMPI data
   types rather than interacting with the entities in a full-grown CIMOM.
 
@@ -50,6 +46,8 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "native.h"
 #include "mm.h"
@@ -121,7 +119,7 @@ static CMPIStatus __aft_addArg ( CONST CMPIArgs * args,
 					      type,
 					      0,
 					      value ) )?
-		   CMPI_RC_ERR_ALREADY_EXISTS: 
+		   CMPI_RC_ERR_ALREADY_EXISTS:
 		   CMPI_RC_OK );
 }
 
@@ -158,18 +156,20 @@ static unsigned int __aft_getArgCount ( CONST CMPIArgs * args, CMPIStatus * rc )
 	return propertyFT.getPropertyCount ( a->data, rc );
 }
 
+static CMPIArgsFT aft = {
+    NATIVE_FT_VERSION,
+    __aft_release,
+    __aft_clone,
+    __aft_addArg,
+    __aft_getArg,
+    __aft_getArgAt,
+    __aft_getArgCount
+};
+
+CMPIArgsFT *CMPI_Args_FT = &aft;
 
 static struct native_args * __new_empty_args ( int mm_add, CMPIStatus * rc )
 {
-	static CMPIArgsFT aft = {
-		NATIVE_FT_VERSION,
-		__aft_release,
-		__aft_clone,
-		__aft_addArg,
-		__aft_getArg,
-		__aft_getArgAt,
-		__aft_getArgCount
-	};
 	static CMPIArgs a = {
 		"CMPIArgs",
 		&aft
@@ -186,6 +186,28 @@ static struct native_args * __new_empty_args ( int mm_add, CMPIStatus * rc )
 	return args;
 }
 
+extern char * value2Chars ( CMPIType type, CMPIValue * value );
+
+CMPIString *args2String( CONST CMPIArgs *args, CMPIStatus *rc)
+{
+   char str[2048];
+   CMPIData data;
+   unsigned int i,m;
+   CMPIString *name;
+   char *v;
+
+   sprintf(str,"%p: ",args);
+   for (i=0,m=__aft_getArgCount(args,rc); i<m; i++) {
+        data=__aft_getArgAt(args,i,&name,rc);
+	strcat(str,(char*)name->hdl);
+        strcat(str,":");
+	v=value2Chars(data.type,&data.value);
+	strcat(str,v);
+	strcat(str,"\n");
+	free(v);
+   }
+   return native_new_CMPIString ( str, rc );
+}
 
 CMPIArgs * native_new_CMPIArgs ( CMPIStatus * rc )
 {

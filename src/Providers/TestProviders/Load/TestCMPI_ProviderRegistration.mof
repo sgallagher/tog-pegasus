@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -37,7 +37,7 @@ instance of PG_ProviderModule
    Description = "CMPI Test Indication provider";
    Name = "TestCMPIIndicationProviderModule";
   // The library name on disk
-   Location = "cmpiTestIndicationProvider"; 
+   Location = "cmpiTestIndicationProvider";
    Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
@@ -48,7 +48,7 @@ instance of PG_Provider
 {
    ProviderModuleName = "TestCMPIIndicationProviderModule";
    // The provider name as referenced in the code!
-   Name = "TestCMPIIndicationProvider";	
+   Name = "TestCMPIIndicationProvider";
 };
 
 instance of PG_ProviderCapabilities
@@ -58,7 +58,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "CMPI Test Indication Provider";
    // Name of the CIM Class as defined in the mof.
    ClassName = "TestCMPI_Indication";
-   Namespaces = { "test/TestProvider" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 4 }; // Indication
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
@@ -73,7 +73,7 @@ instance of PG_ProviderModule
    Description = "CMPI Test Method provider";
    Name = "TestCMPIMethodProviderModule";
   // The library name on disk
-   Location = "cmpiTestMethodProvider"; 
+   Location = "cmpiTestMethodProvider";
    Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
@@ -84,7 +84,7 @@ instance of PG_Provider
 {
    ProviderModuleName = "TestCMPIMethodProviderModule";
    // The provider name as referenced in the code!
-   Name = "TestCMPIMethodProvider";	
+   Name = "TestCMPIMethodProvider";
 };
 
 instance of PG_ProviderCapabilities
@@ -94,7 +94,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "CMPI Test Method Provider";
    // Name of the CIM Class as defined in the mof.
    ClassName = "TestCMPI_Method";
-   Namespaces = { "test/TestProvider" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 5 }; // Method
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
@@ -109,7 +109,7 @@ instance of PG_ProviderModule
    Description = "CMPI Test Fail_1 provider";
    Name = "TestCMPIFail_1ProviderModule";
   // The library name on disk
-   Location = "cmpiTestFail_1Provider"; 
+   Location = "cmpiTestFail_1Provider";
    Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
@@ -120,7 +120,7 @@ instance of PG_Provider
 {
    ProviderModuleName = "TestCMPIFail_1ProviderModule";
    // The provider name as referenced in the code!
-   Name = "TestCMPIFail_1Provider";	
+   Name = "TestCMPIFail_1Provider";
 };
 
 instance of PG_ProviderCapabilities
@@ -130,22 +130,22 @@ instance of PG_ProviderCapabilities
    CapabilityID = "CMPI Test Instance Fail 1 Provider";
    // Name of the CIM Class as defined in the mof.
    ClassName = "TestCMPI_Fail_1";
-   Namespaces = { "test/TestProvider" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 2,3,4, 5}; //All the different types
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };
 
 // ===================================================================
-// Instance provider that fails loading. The provider has the symbolic 
-// name for the _CreateInstance function mistyped. 
+// Instance provider that fails loading. The provider has the symbolic
+// name for the _CreateInstance function mistyped.
 // ===================================================================
 instance of PG_ProviderModule
 {
    Description = "CMPI Test Fail_2 provider";
    Name = "TestCMPIFail_2ProviderModule";
   // The library name on disk
-   Location = "cmpiTestFail_2Provider"; 
+   Location = "cmpiTestFail_2Provider";
    Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
@@ -156,7 +156,7 @@ instance of PG_Provider
 {
    ProviderModuleName = "TestCMPIFail_2ProviderModule";
    // The provider name as referenced in the code!
-   Name = "TestCMPIFail_2Provider";	
+   Name = "TestCMPIFail_2Provider";
 };
 
 instance of PG_ProviderCapabilities
@@ -167,8 +167,8 @@ instance of PG_ProviderCapabilities
    // Name of the CIM Class as defined in the mof.
 
    ClassName = "TestCMPI_Fail_2";
-   Namespaces = { "test/TestProvider" };
-   ProviderType = { 2 }; //Instance 
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+   ProviderType = { 2 }; //Instance
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };
@@ -182,7 +182,7 @@ instance of PG_ProviderModule
    Description = "CMPI Test Fail_3 provider";
    Name = "TestCMPIFail_3ProviderModule";
   // The library name on disk
-   Location = "cmpiTestFail_3Provider"; 
+   Location = "cmpiTestFail_3Provider";
    Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
@@ -193,7 +193,7 @@ instance of PG_Provider
 {
    ProviderModuleName = "TestCMPIFail_3ProviderModule";
    // The provider name as referenced in the code!
-   Name = "TestCMPIFail_3Provider";	
+   Name = "TestCMPIFail_3Provider";
 };
 
 instance of PG_ProviderCapabilities
@@ -204,8 +204,8 @@ instance of PG_ProviderCapabilities
    // Name of the CIM Class as defined in the mof.
 
    ClassName = "TestCMPI_Fail_3";
-   Namespaces = { "test/TestProvider" };
-   ProviderType = { 2 }; //Instance 
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+   ProviderType = { 2 }; //Instance
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };
@@ -218,7 +218,7 @@ instance of PG_ProviderModule
    Description = "CMPI Test Fail_4 provider";
    Name = "TestCMPIFail_4ProviderModule";
   // The library name on disk
-   Location = "cmpiTestFail_4Provider"; 
+   Location = "cmpiTestFail_4Provider";
    Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
@@ -229,7 +229,7 @@ instance of PG_Provider
 {
    ProviderModuleName = "TestCMPIFail_4ProviderModule";
    // The provider name as referenced in the code!
-   Name = "TestCMPIFail_4Provider";	
+   Name = "TestCMPIFail_4Provider";
 };
 
 instance of PG_ProviderCapabilities
@@ -240,8 +240,8 @@ instance of PG_ProviderCapabilities
    // Name of the CIM Class as defined in the mof.
 
    ClassName = "TestCMPI_Fail_4";
-   Namespaces = { "test/TestProvider" };
-   ProviderType = { 2 }; //Instance 
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+   ProviderType = { 2 }; //Instance
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };
@@ -266,7 +266,7 @@ instance of PG_Provider
 {
    ProviderModuleName = "TestCMPIThreadProviderModule";
    // The provider name as referenced in the code!
-   Name = "TestCMPIThreadProvider";	
+   Name = "TestCMPIThreadProvider";
 };
 
 instance of PG_ProviderCapabilities
@@ -276,7 +276,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "CMPI Test newThread Provider";
    // Name of the CIM Class as defined in the mof.
    ClassName = "TestCMPI_Thread";
-   Namespaces = { "test/TestProvider" };
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
    ProviderType = { 2 }; // Instance
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +63,7 @@ struct native_cop {
 };
 
 
-static struct native_cop * __new_empty_cop ( int, 
+static struct native_cop * __new_empty_cop ( int,
 					     const char *,
 					     const char *,
 					     CMPIStatus * );
@@ -121,7 +117,7 @@ static CMPIStatus __oft_setNameSpace ( CMPIObjectPath * cop,
 	struct native_cop * o = (struct native_cop *) cop;
 
 	char * ns = ( namespace )? strdup ( namespace ): NULL;
-  
+
 	if ( o->mem_state == TOOL_MM_NO_ADD ) {
 		free ( o->namespace );
 	} else {
@@ -162,7 +158,7 @@ static CMPIStatus __oft_setClassName ( CMPIObjectPath * cop,
 	struct native_cop * o = (struct native_cop *) cop;
 
 	char * cn = ( classname )? strdup ( classname ): NULL;
-  
+
 	if ( o->mem_state == TOOL_MM_NO_ADD ) {
 		free ( o->classname );
 	} else {
@@ -254,7 +250,17 @@ CMPIString *__oft_toString( CONST CMPIObjectPath * cop,
    char *v;
 
    hn=__oft_getHostName(cop,rc);
+   if(hn)
+   {
+       strcat(str,(char*)hn->hdl);
+       strcat(str,":");
+   }
    ns=__oft_getNameSpace(cop,rc);
+   if(ns)
+   {
+       strcat(str,(char*)ns->hdl);
+       strcat(str,":");
+   }
    cn=__oft_getClassName(cop,rc);
    strcat(str,(char*)cn->hdl);
    for (i=0,m=__oft_getKeyCount(cop,rc); i<m; i++) {
@@ -307,7 +313,7 @@ static struct native_cop * __new_empty_cop ( int mm_add,
 	};
 
 	struct native_cop * cop =
-		(struct native_cop *) 
+		(struct native_cop *)
 		tool_mm_alloc ( mm_add, sizeof ( struct native_cop ) );
 
 	cop->cop       = o;
@@ -326,7 +332,7 @@ static struct native_cop * __new_empty_cop ( int mm_add,
 
 
 
-CMPIObjectPath * native_new_CMPIObjectPath ( const char * namespace, 
+CMPIObjectPath * native_new_CMPIObjectPath ( const char * namespace,
 					     const char * classname,
 					     CMPIStatus * rc )
 {

@@ -125,6 +125,14 @@ ProviderManagerService::ProviderManagerService(
             createDefaultProviderManagerCallback);
     }
 #endif
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+   if (!_basicProviderManagerRouter)
+   {
+       _basicProviderManagerRouter = new BasicProviderManagerRouter(
+           indicationCallback, responseChunkCallback,
+           createDefaultProviderManagerCallback);
+   }
+#endif
 }
 
 ProviderManagerService::~ProviderManagerService(void)
@@ -695,6 +703,24 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             providerModule.getProperty(pos).getValue().get(userContext);
         }
 
+        // Load proxy-provider into CIMServer, in case of remote namespace
+        // requests. (ie through _basicProviderManagerRouter). -V 3913
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+        if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
+                (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE) ||
+                (request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
+        {
+            ProviderIdContainer pidc1 =
+            request->operationContext.get(ProviderIdContainer::NAME);
+            if (pidc1.isRemoteNameSpace() )
+            {
+                Tracer::trace ( TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                                "Processing Remote NameSpace request ");
+                response = _basicProviderManagerRouter->processMessage (request);
+                return response;
+            }
+        }
+#endif
         // Forward the request to the appropriate ProviderManagerRouter, based
         // on the CIM Server configuration and the UserContext setting.
 

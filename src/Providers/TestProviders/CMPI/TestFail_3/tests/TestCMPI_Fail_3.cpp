@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -48,18 +46,17 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-const CIMNamespaceName PROVIDERNAMESPACE =
-CIMNamespaceName ("test/TestProvider");
+CIMNamespaceName providerNamespace;
 const CIMName CLASSNAME = CIMName ("TestCMPI_Fail_3");
 const String ERROR_SUBSTRING = "TestCMPIFail_3Provider) conflicting generic/specfic CMPI style provider.";
-
+const String RCMPI_ERROR = "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: \"ProviderInitFailure: Error initializing the API's _Create<mi-type>MI\"";
 
 Boolean verbose;
 
 void
 _usage ()
 {
-  cerr << "Usage: TestCMPIMethod " << "{test}" << endl;
+  cerr << "Usage: TestCMPI_Fail_3 {test} {namespace}" << endl;
 }
 
 void
@@ -67,11 +64,11 @@ test01 (CIMClient & client)
 {
 
   try { 
-  	Array<CIMObjectPath> array = client.enumerateInstanceNames (PROVIDERNAMESPACE,
+  	Array<CIMObjectPath> array = client.enumerateInstanceNames (providerNamespace,
 					   CLASSNAME);
   } catch (const CIMException &e) 
   {
-	if (e.getMessage().find(ERROR_SUBSTRING) == PEG_NOT_FOUND)
+	if (e.getMessage().find(ERROR_SUBSTRING) == PEG_NOT_FOUND && e.getMessage() != RCMPI_ERROR)
 	{
 		throw e;
 	}
@@ -92,8 +89,6 @@ _test (CIMClient & client)
     cerr << "test failed: " << e.getMessage () << endl;
     exit (-1);
   }
-
-  cout << "+++++ test completed successfully" << endl;
 }
 
 
@@ -112,7 +107,7 @@ main (int argc, char **argv)
     return -1;
   }
 
-  if (argc != 2)
+  if (argc != 3)
     {
       _usage ();
       return 1;
@@ -124,6 +119,7 @@ main (int argc, char **argv)
 
       if (String::equalNoCase (opt, "test"))
 	{
+          providerNamespace = CIMNamespaceName (argv[2]);
 	  _test (client);
 	}
       else
@@ -133,6 +129,8 @@ main (int argc, char **argv)
 	  return -1;
 	}
     }
+
+  cout << argv[0] << " +++++ passed all tests" << endl;
 
   return 0;
 }

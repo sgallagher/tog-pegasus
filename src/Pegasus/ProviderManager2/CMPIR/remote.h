@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -72,6 +68,8 @@
 #define RBGetIndicationMI(rb) \
         (rb)->ft->get_indicationMI((rb))
 
+#define PEGASUS_CMPIR_DAEMON_STOP "04PEGASUS_CMPIR_DAEMON_STOP"
+#define PEGASUS_CMPIR_DAEMON_IS_RUNNING "04PEGASUS_CMPIR_DAEMON_IS_RUNNING"
 
 typedef struct remote_broker remote_broker;
 

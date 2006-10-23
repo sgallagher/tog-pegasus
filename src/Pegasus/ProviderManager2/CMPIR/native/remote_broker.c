@@ -684,6 +684,7 @@ __new_remote_broker ( const char * comm_layer_id,
 	__rb->rb.ft         = &rbFT;
 	__rb->rb.broker.bft = brokerFT;
 	__rb->rb.broker.eft = &native_brokerEncFT;
+	__rb->rb.broker.xft = CMPI_BrokerExt_Ftab;
 
 	__rb->comm_layer_id =
 		( comm_layer_id )? strdup ( comm_layer_id ): NULL;

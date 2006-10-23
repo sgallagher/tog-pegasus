@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,108 +29,71 @@
 //
 //==============================================================================
 //
+// Author: Venkateswara Rao Puvvada, IBM, vpuvvada@in.ibm.com
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/CIMType.h>
-#include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMProperty.h>
-#include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Client/CIMClient.h>
+/*!
+   \file tokenizer.h
+   \brief Defines gettoken function.
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+*/
+
+#ifndef _REMOTE_CMPI_TOKENIZER_H
+#define _REMOTE_CMPI_TOKENIZER_H
+
+#include <ctype.h>
+
+#define EOL   0
+#define EQUAL 100
+#define LB    101
+#define RB    102
+#define COMMA 103
+#define ALNUM 104
+
+#define BUFFLEN  4096
+#define TOKENLEN 1024
 
 
-CIMNamespaceName providerNamespace;
-const CIMName CLASSNAME = CIMName ("TestCMPI_Fail_2");
-const String ERROR_SUBSTRING = "Provider is not a CMPI style provider. Cannot find TestCMPIFail_2Provider_Create<mi-type>MI symbol.";
-const String RCMPI_ERROR = "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: \"ProviderInitFailure: Error initializing the API's _Create<mi-type>MI\"";
-
-Boolean verbose;
-
-void
-_usage ()
+int gettoken(char **buff,char *token)
 {
-  cerr << "Usage: TestCMPI_Fail_2 {test} {namespace}" << endl;
-}
+    int tokentype;
 
-void
-test01 (CIMClient & client)
-{
-
-  try { 
-  	Array<CIMObjectPath> array = client.enumerateInstanceNames (providerNamespace,
-					   CLASSNAME);
-  } catch (const CIMException &e) 
-  {
-	if (e.getMessage().find(ERROR_SUBSTRING) == PEG_NOT_FOUND && e.getMessage() != RCMPI_ERROR)
-	{
-		throw e;
-	}
-  }
-}
-
-
-void
-_test (CIMClient & client)
-{
-  try
-  {
-
-    test01 (client);
-  }
-  catch (Exception & e)
-  {
-    cerr << "test failed: " << e.getMessage () << endl;
-    exit (-1);
-  }
-}
-
-
-int
-main (int argc, char **argv)
-{
-  verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-  CIMClient client;
-  try
-  {
-    client.connectLocal ();
-  }
-  catch (Exception & e)
-  {
-    cerr << e.getMessage () << endl;
-    return -1;
-  }
-
-  if (argc != 3)
+    while (**buff && isspace(**buff))
     {
-      _usage ();
-      return 1;
+        ++*buff;
     }
 
-  else
+    if (!**buff)
     {
-      const char *opt = argv[1];
-
-      if (String::equalNoCase (opt, "test"))
-	{
-          providerNamespace = CIMNamespaceName (argv[2]);
-	  _test (client);
-	}
-      else
-	{
-	  cerr << "Invalid option: " << opt << endl;
-	  _usage ();
-	  return -1;
-	}
+        return *token = EOL;
     }
 
-  cout << argv[0] << " +++++ passed all tests" << endl;
+    *token = *(*buff)++;
+    switch (*token++)
+    {
+        case '=':
+            tokentype = EQUAL;
+            break;
+        case '{':
+            tokentype = LB;
+            break;
+        case '}':
+            tokentype = RB;
+            break;
+        case ',':
+            tokentype = COMMA;
+            break;
+        default:
+            while (**buff && !isspace(**buff) && (isalnum(**buff)|| **buff=='_'))
+            {
+                *token++ = *(*buff)++;
+            }
+            tokentype = ALNUM;
+    }
+    *token ='\0';
 
-  return 0;
+    return tokentype;
 }
+
+#endif

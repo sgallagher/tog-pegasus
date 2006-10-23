@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -98,25 +94,26 @@ static CMPIData __convert2CMPIData ( struct native_property * prop,
  * returns non-zero if already existant
  */
 static int __addProperty ( struct native_property ** prop,
-			   int mm_add, 
+			   int mm_add,
 			   const char * name,
-			   CONST CMPIType type,  
-			   CMPIValueState state, 
+			   CONST CMPIType type,
+			   CMPIValueState state,
 			   CONST CMPIValue * value )
 {
 	CMPIValue v;
-	
+
 	if ( *prop == NULL ) {
 		struct native_property * tmp = *prop =
-			(struct native_property *) 
+			(struct native_property *)
 			tool_mm_alloc ( mm_add,
 					sizeof ( struct native_property ) );
-  
+
 		tmp->name = strdup ( name );
 
 		if ( mm_add == TOOL_MM_ADD ) tool_mm_add ( tmp->name );
 
 		tmp->type  = type;
+		tmp->state = value ? state : CMPI_nullValue;
 		if ( type == CMPI_chars ) {
 
 			tmp->type = CMPI_string;
@@ -125,16 +122,12 @@ static int __addProperty ( struct native_property ** prop,
 			value = &v;
 		}
 
-
-
 		if ( type != CMPI_null ) {
-			tmp->state = state;
-
 			if ( mm_add == TOOL_MM_ADD ) {
 
 				tmp->value = *value;
 			} else {
-			
+
 				CMPIStatus rc;
 				tmp->value = native_clone_CMPIValue ( type,
 								      value,
@@ -146,11 +139,11 @@ static int __addProperty ( struct native_property ** prop,
 		return 0;
 	}
 	return ( strcmp ( (*prop)->name, name ) == 0 ||
-		 __addProperty ( &( (*prop)->next ), 
-				 mm_add, 
-				 name, 
-				 type, 
-				 state, 
+		 __addProperty ( &( (*prop)->next ),
+				 mm_add,
+				 name,
+				 type,
+				 state,
 				 value ) );
 }
 
@@ -158,9 +151,9 @@ static int __addProperty ( struct native_property ** prop,
 /**
  * returns -1 if non-existant
  */
-static int __setProperty ( struct native_property * prop, 
+static int __setProperty ( struct native_property * prop,
 			   int mm_add,
-			   const char * name, 
+			   const char * name,
 			   CMPIType type,
 			   CONST CMPIValue * value )
 {
@@ -202,7 +195,7 @@ static int __setProperty ( struct native_property * prop,
 }
 
 
-static struct native_property * __getProperty ( struct native_property * prop, 
+static struct native_property * __getProperty ( struct native_property * prop,
 						const char * name )
 {
 	if ( ! prop || ! name ) {
@@ -213,7 +206,7 @@ static struct native_property * __getProperty ( struct native_property * prop,
 }
 
 
-static CMPIData __getDataProperty ( struct native_property * prop, 
+static CMPIData __getDataProperty ( struct native_property * prop,
 				    const char * name,
 				    CMPIStatus * rc )
 {
@@ -233,14 +226,14 @@ static struct native_property * __getPropertyAt
 {
 	if ( ! prop ) {
 		return NULL;
-	} 
+	}
 
 	return ( pos == 0 )?
 		prop: __getPropertyAt ( prop->next, --pos );
 }
 
 
-static CMPIData __getDataPropertyAt ( struct native_property * prop, 
+static CMPIData __getDataPropertyAt ( struct native_property * prop,
 				      unsigned int pos,
 				      CMPIString ** propname,
 				      CMPIStatus * rc )
@@ -294,8 +287,8 @@ static struct native_property * __clone ( struct native_property * prop,
 		return NULL;
 	}
 
-	result = 
-		(struct native_property * ) 
+	result =
+		(struct native_property * )
 		tool_mm_alloc ( TOOL_MM_NO_ADD,
 				sizeof ( struct native_property ) );
 
@@ -310,7 +303,7 @@ static struct native_property * __clone ( struct native_property * prop,
 
 		result->state = CMPI_nullValue;
 	}
-  
+
 	result->next  = __clone ( prop->next, rc );
 	return result;
 }

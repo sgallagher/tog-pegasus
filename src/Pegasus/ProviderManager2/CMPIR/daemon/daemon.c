@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,11 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +40,6 @@
   them. Afterwards the remote daemon thread enters the cleanup procedure
   that checks for unused remote providers to be unloaded.
 
-  \author Frank Scheffler
 
   \sa remote_broker.c
 */
@@ -53,18 +47,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <string.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+#include <signal.h>
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <dlfcn.h>
 #else
 #include <dll.h>
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
 #endif
 
 #include "../native/mm.h"
 #include "remote.h"
 #include "native.h"
+#include "../ip.h"
+#include "../io.h"
+#include "../tcpcomm.h"
+#include "../serialization.h"
+#include "debug.h"
+#include <Pegasus/Common/Config.h>
 
 typedef int (* START_DAEMON) ();
 
@@ -81,6 +84,8 @@ static comm_lib __libs[] = {
 };
 
 int nativeSide=1;
+
+static const struct BinarySerializerFT *__sft = &binarySerializerFT;
 
 /***************************************************************************/
 
@@ -118,6 +123,13 @@ static void __init_remote_comm_lib ( comm_lib * comm )
 #endif
 }
 
+void _usage()
+{
+    printf ( "Usage: CMPIRDaemon [--foreground | --stop | --help]\n" );
+    printf ( "--foreground : Runs the daemon in the foreground.\n");
+    printf ( "--stop       : Stops the daemon.\n" );
+    printf ( "--help       : Prints this message.\n" );
+}
 
 //! Loads all communication libraries.
 /*!
@@ -128,9 +140,88 @@ static void __init_remote_comm_lib ( comm_lib * comm )
   \sa init_activation_context()
   \sa cleanup_remote_brokers()
  */
-int main ()
+int main (int argc, char *argv[])
 {
 	unsigned int i;
+        int foreground = 0;
+        int unix_platform = 0;
+        int daemon_stop = 0;
+        char* message_code;
+        pid_t pid, sid;
+        int socket;
+
+        if (argc > 2)
+        {
+            _usage();
+            return 0;
+        }
+        if (argc == 2)
+        {
+            if (!strcmp (argv[1], "--foreground" ))
+            {
+                foreground = 1;
+            }
+            else if (!strcmp (argv[1], "--stop" ))
+            {
+                daemon_stop = 1;
+            }
+            else
+            {
+                _usage();
+                return 0;
+            }
+        }
+        // "tickle" the connection.
+        socket = open_connection ( "127.0.0.1", REMOTE_LISTEN_PORT,
+                                   PEGASUS_SUPPRESS_ERROR_MESSAGE);
+        if (socket >= 0)
+        {
+            if( daemon_stop)
+            {
+                message_code = PEGASUS_CMPIR_DAEMON_STOP;
+                printf ("CMPIRDaemon stopped.\n");
+            }
+            else
+            {
+                message_code = PEGASUS_CMPIR_DAEMON_IS_RUNNING;
+                printf ("CMPIRDaemon is already started.\n");
+            }
+            __sft->serialize_string (socket, message_code );
+            close (socket);
+            return 0;
+        }
+        else if (daemon_stop)
+        {
+                printf ("CMPIRDaemon is not running.\n");
+                return 0;
+        }
+
+        // Start daemon on unix platforms
+        if (!foreground)
+        {
+#if defined(PEGASUS_OS_TYPE_UNIX)
+            unix_platform = 1;
+            pid = fork ();
+            if (pid > 0)
+            {
+                exit(0); // Parent, die now...
+            }
+            if (pid < 0 || setsid() < 0 || chdir("/") < 0)
+            {
+                printf ("CMPIRDaemon: Can't run as daemon.\n");
+                return -1;
+            }
+            printf ("CMPIRDaemon started.\n");
+            /* Close out the standard file descriptors */
+            close (STDIN_FILENO);
+            close (STDOUT_FILENO);
+            close (STDERR_FILENO);
+#endif
+        }
+        if (!unix_platform && !foreground)
+        {
+            printf ("Daemon is supported only on UNIX platforms, running in foreground.\n" );
+        }
 	CMPIContext * ctx = native_new_CMPIContext ( TOOL_MM_NO_ADD );
 
 	init_activation_context ( ctx );
@@ -141,10 +232,11 @@ int main ()
 
 		__init_remote_comm_lib ( __libs + i );
 	}
-
-	printf ( "All remote daemons started.\n" );
-	printf ( "Entering provider cleanup loop ...\n" );
-
+        if (foreground || !unix_platform)
+        {
+	    TRACE_NORMAL(("All remote daemons started.\n"));
+	    TRACE_NORMAL(("Entering provider cleanup loop ...\n"));
+        }
 	cleanup_remote_brokers ( 100, 30 );
 	return 0;
 }

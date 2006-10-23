@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,6 +95,11 @@ static const struct BinarySerializerFT *__sft = &binarySerializerFT;
 
 #define NOCLEAN(mi,ctx)
 
+static const char* mierrMsg = "ProviderInitFailure: Error initializing the API's _Create<mi-type>MI";
+#define SET_STATUS_INIT_FAILED(rc) \
+        rc.msg = native_new_CMPIString (mierrMsg, NULL); \
+        rc.rc = CMPI_RC_ERR_FAILED; \
+        TRACE_CRITICAL((mierrMsg));
 
 static void TCPCOMM_InstanceMI_enumInstanceNames(int socket,
 						 CONST CMPIBroker * broker,
@@ -112,7 +113,14 @@ static void TCPCOMM_InstanceMI_enumInstanceNames(int socket,
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->enumInstanceNames(mi, ctx, result, cop);;
+    if (mi)
+    {
+        rc = mi->ft->enumInstanceNames(mi, ctx, result, cop);;
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -131,7 +139,14 @@ static void TCPCOMM_InstanceMI_enumInstances(int socket, CONST CMPIBroker * brok
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->enumInstances(mi, ctx, result, cop, (CONST char **)props);
+    if (mi)
+    {
+        rc = mi->ft->enumInstances(mi, ctx, result, cop, (CONST char **)props);
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -151,7 +166,14 @@ static void TCPCOMM_InstanceMI_getInstance(int socket, CONST CMPIBroker * broker
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->getInstance(mi, ctx, result, cop, (CONST char **)props);
+    if (mi)
+    {
+        rc = mi->ft->getInstance(mi, ctx, result, cop, (CONST char **)props);
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -171,7 +193,14 @@ static void TCPCOMM_InstanceMI_createInstance(int socket, CONST CMPIBroker * bro
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->createInstance(mi, ctx, result, cop, inst);;
+    if (mi)
+    {
+        rc = mi->ft->createInstance(mi, ctx, result, cop, inst);;
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -191,11 +220,18 @@ static void TCPCOMM_InstanceMI_setInstance(int socket, CONST CMPIBroker * broker
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
+    if (mi)
+    {
 #ifdef CMPI_VER_100
     rc = mi->ft->modifyInstance(mi, ctx, result, cop, inst, (const char **)props);
 #else
     rc = mi->ft->setInstance(mi, ctx, result, cop, inst, (CONST char **)props);
 #endif
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -214,7 +250,14 @@ static void TCPCOMM_InstanceMI_deleteInstance(int socket,CONST  CMPIBroker * bro
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker,(CMPIContext *) ctx);
     START_DEBUGGER;
-    rc = mi->ft->deleteInstance(mi, ctx, result, cop);;
+    if (mi)
+    {
+        rc = mi->ft->deleteInstance(mi, ctx, result, cop);;
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -234,7 +277,14 @@ static void TCPCOMM_InstanceMI_execQuery(int socket, CONST CMPIBroker * broker,
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->execQuery(mi, ctx, result, cop, lang, query);;
+    if (mi)
+    {
+        rc = mi->ft->execQuery(mi, ctx, result, cop, lang, query);;
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -258,8 +308,15 @@ static void TCPCOMM_AssociationMI_associators(int socket, CONST CMPIBroker * bro
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->associators(mi, ctx, result, cop, assocclass, resultclass,
-			     role, resultrole, (CONST char **)props);
+    if (mi)
+    {
+        rc = mi->ft->associators(mi, ctx, result, cop, assocclass, resultclass,
+			         role, resultrole, (CONST char **)props);
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -284,8 +341,15 @@ static void TCPCOMM_AssociationMI_associatorNames(int socket,
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->associatorNames(mi, ctx, result, cop, assocclass, resultclass,
-				 role, resultrole);
+    if (mi)
+    {
+        rc = mi->ft->associatorNames(mi, ctx, result, cop, assocclass, resultclass,
+				     role, resultrole);
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -307,7 +371,14 @@ static void TCPCOMM_AssociationMI_references(int socket, CONST CMPIBroker * brok
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->references(mi, ctx, result, cop, assocclass, role, (CONST char **)props);
+    if (mi)
+    {
+        rc = mi->ft->references(mi, ctx, result, cop, assocclass, role, (CONST char **)props);
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -330,7 +401,14 @@ static void TCPCOMM_AssociationMI_referenceNames(int socket,
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->referenceNames(mi, ctx, result, cop, assocclass, role);
+    if (mi)
+    {
+        rc = mi->ft->referenceNames(mi, ctx, result, cop, assocclass, role);
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -352,7 +430,14 @@ static void TCPCOMM_MethodMI_invokeMethod(int socket, CONST CMPIBroker * broker,
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->invokeMethod(mi, ctx, result, cop, method, in, out);
+    if(mi)
+    {
+        rc = mi->ft->invokeMethod(mi, ctx, result, cop, method, in, out);
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -373,7 +458,14 @@ static void TCPCOMM_PropertyMI_getProperty(int socket, CONST CMPIBroker * broker
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->getProperty(mi, ctx, result, cop, name);;
+    if (mi)
+    {
+        rc = mi->ft->getProperty(mi, ctx, result, cop, name);;
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -393,7 +485,14 @@ static void TCPCOMM_PropertyMI_setProperty(int socket, CONST CMPIBroker * broker
     TRACE_NORMAL(("Executing remote MI request."));
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
-    rc = mi->ft->setProperty(mi, ctx, result, cop, name, data);
+    if (mi)
+    {
+        rc = mi->ft->setProperty(mi, ctx, result, cop, name, data);
+    }
+    else
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket, r);;
@@ -420,12 +519,22 @@ static void TCPCOMM_IndicationMI_authorizeFilter(int socket,
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
 #ifdef CMPI_VER_100
-    rc = mi->ft->authorizeFilter(mi, ctx, filter, indType, cop, owner);
+    if (mi)
+    {
+        rc = mi->ft->authorizeFilter(mi, ctx, filter, indType, cop, owner);
+    }
 #else
-    rc = mi->ft->authorizeFilter(mi, ctx, result, filter, indType, cop, owner);
+    if (mi)
+    {
+        rc = mi->ft->authorizeFilter(mi, ctx, result, filter, indType, cop, owner);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIArray(socket, r);;
 #endif
+    if (!mi)
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     (__sft)->serialize_CMPIStatus(socket, &rc);
 }
 
@@ -447,12 +556,22 @@ static void TCPCOMM_IndicationMI_mustPoll(int socket, CONST CMPIBroker * broker,
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
 #ifdef CMPI_VER_100
-    rc = mi->ft->mustPoll(mi, ctx,  filter, indType, cop);
+    if (mi)
+    {
+        rc = mi->ft->mustPoll(mi, ctx,  filter, indType, cop);
+    }
 #else
-    rc = mi->ft->mustPoll(mi, ctx, result, filter, indType, cop);
+    if (mi)
+    {
+        rc = mi->ft->mustPoll(mi, ctx, result, filter, indType, cop);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIArray(socket, r);
 #endif
+    if (!mi)
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     (__sft)->serialize_CMPIStatus(socket, &rc);
 }
 
@@ -476,14 +595,24 @@ static void TCPCOMM_IndicationMI_activateFilter(int socket,
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
 #ifdef CMPI_VER_100
-    rc = mi->ft->activateFilter(mi, ctx, filter, indType, cop,
-				firstActivation);;
+    if (mi)
+    {
+        rc = mi->ft->activateFilter(mi, ctx, filter, indType, cop,
+				    firstActivation);;
+    }
 #else
-    rc = mi->ft->activateFilter(mi, ctx, result, filter, indType, cop,
-				firstActivation);;
+    if (mi)
+    {
+        rc = mi->ft->activateFilter(mi, ctx, result, filter, indType, cop,
+				    firstActivation);;
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIArray(socket, r);
 #endif
+    if (!mi)
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     (__sft)->serialize_CMPIStatus(socket, &rc);
 }
 
@@ -507,14 +636,24 @@ static void TCPCOMM_IndicationMI_deActivateFilter(int socket,
     tool_mm_set_broker((CMPIBroker *)broker, (CMPIContext *)ctx);
     START_DEBUGGER;
 #ifdef CMPI_VER_100
-    rc = mi->ft->deActivateFilter(mi, ctx,  filter, indType, cop,
-				  lastActivation);
+    if (mi)
+    {
+        rc = mi->ft->deActivateFilter(mi, ctx,  filter, indType, cop,
+				      lastActivation);
+    }
 #else
-    rc = mi->ft->deActivateFilter(mi, ctx, result, filter, indType, cop,
-				  lastActivation);
+    if (mi)
+    {
+        rc = mi->ft->deActivateFilter(mi, ctx, result, filter, indType, cop,
+				      lastActivation);
+    }
     r = native_result2array(result);
     (__sft)->serialize_CMPIArray(socket, r);
 #endif
+    if (!mi)
+    {
+        SET_STATUS_INIT_FAILED(rc);
+    }
     (__sft)->serialize_CMPIStatus(socket, &rc);
 };
 
@@ -1337,7 +1476,8 @@ static int __broker_connect(CONST CMPIBroker * broker,
     comm_ticket *ticket = RBGetTicket(rb);
 
     CMPIData d;
-    int socket = open_connection(broker_address, CIMOM_LISTEN_PORT);
+    int socket = open_connection ( broker_address, CIMOM_LISTEN_PORT,
+                                   PEGASUS_PRINT_ERROR_MESSAGE);
 
     if (socket < 0)
 	return -1;
@@ -1352,6 +1492,21 @@ static int __broker_connect(CONST CMPIBroker * broker,
     return socket;
 }
 
+static void __handle_daemon_stop_request()
+{
+    // TODO: need to close all active connections ???
+    // Don't send any response, remote-end already closed the connection.
+    exit(0);
+}
+
+static void __handle_daemon_is_running_request(int socket)
+{
+    //As of now do nothing, Don't send any response,
+    //remote end already closed the connection...
+    close(socket);
+
+    return;
+}
 
 //! Sets up the minimal environment for handling an MI request.
 /*!
@@ -1382,8 +1537,22 @@ static void __handle_MI_call(int socket)
     get_peer_address(socket, broker_address);
 
     TRACE_NORMAL(("Handling MI request from: %s", broker_address));
-
     provider = __sft->deserialize_string(socket, &__broker);
+
+    // PEGASUS_CMPIR_DAEMON_STOP, PEGASUS_CMPIR_DAEMON_IS_RUNNING are not
+    // really provider-names. These are the messages sent to daemon.
+    // Filter these messages out and handle them.
+    if (!strcmp (provider, PEGASUS_CMPIR_DAEMON_STOP) )
+    {
+        __handle_daemon_stop_request ();
+        return; // we should never reach here...
+    }
+    if (!strcmp (provider, PEGASUS_CMPIR_DAEMON_IS_RUNNING) )
+    {
+        __handle_daemon_is_running_request (socket);
+        return;
+    }
+
     provider_module = __sft->deserialize_string(socket, &__broker);
     io_read_fixed_length(socket, &ticket, sizeof(comm_ticket));
     function = __sft->deserialize_string(socket, &__broker);

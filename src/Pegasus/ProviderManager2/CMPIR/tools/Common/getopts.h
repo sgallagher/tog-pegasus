@@ -28,58 +28,77 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-#pragma locale ("en_US")
+//
+// Author: Venkateswara Rao Puvvada, IBM, vpuvvada@in.ibm.com
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
-instance of PG_ProviderModule
-{
-    Description = "The Test CMPI Association Provider Module implements the CMPI_TEST_PERSON, Class";
-    Caption = "Test CMPI Association Pegasus Provider Module";
-    Name = "TestCMPIAssociationProviderModule";
-    Vendor = "OpenPegasus";
-    Version = "2.0.0";
-    InterfaceType = "CMPI";
-    InterfaceVersion = "2.0.0";
-    Location = "TestCMPIAssociationProvider";
-};
+/*!
+   \file getopts.h
+   \brief defines getopts function
+*/
 
-instance of PG_Provider
-{
-    ProviderModuleName = "TestCMPIAssociationProviderModule";
-    Name = "TestCMPIAssociationProvider";
-};
+#ifndef _REMOTE_CMPI_GETOPTS_H
+#define _REMOTE_CMPI_GETOPTS_H
 
-instance of PG_ProviderCapabilities
-{
-    ProviderModuleName = "TestCMPIAssociationProviderModule";
-    ProviderName = "TestCMPIAssociationProvider";
-    CapabilityID = "TestCMPIAssociationProviderPerson";
-    ClassName = "CMPI_TEST_Person";
-    Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
-    ProviderType = { 3 };
-    SupportedProperties = NULL;
-    SupportedMethods = NULL;
-};
+#include <string.h>
 
-instance of PG_ProviderCapabilities
-{
-    ProviderModuleName = "TestCMPIAssociationProviderModule";
-    ProviderName = "TestCMPIAssociationProvider";
-    CapabilityID = "TestCMPIAssociationProviderVehicle";
-    ClassName = "CMPI_TEST_Vehicle";
-    Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
-    ProviderType = { 3 };
-    SupportedProperties = NULL;
-    SupportedMethods = NULL;
-};
+/*
+    Retrives the options like UNIX getopts command
+    opts (in) - option list.
+    n    (in) - Should be initialized to zero when calling this function for the first time.
+                This value should not be changed elsewhere in the program until getopts
+                function finishes parsing the arguements. Using this value getopts knows
+                the next argument to be parsed.
+    optsarg (out) - A pointer to the argument of the option is stored in this.
+    argc (in) - number of arguments.
+    argv (in) - Actual arguments list.
+*/
 
-instance of PG_ProviderCapabilities
+char* getopts(char *opts,int *n,char **optsarg,int argc, char *argv[])
 {
-    ProviderModuleName = "TestCMPIAssociationProviderModule";
-    ProviderName = "TestCMPIAssociationProvider";
-    CapabilityID = "TestCMPIAssociationProviderRacing";
-    ClassName = "CMPI_TEST_Racing";
-    Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
-    ProviderType = { 3 };
-    SupportedProperties = NULL;
-    SupportedMethods = NULL;
-};
+    int i;
+    char *arg,*tmp;
+
+    if (*n + 1 >= argc)
+    {
+        return 0;
+    }
+
+    ++*n;
+    arg = argv[*n];
+    *optsarg = "Unknown option.";
+    if (*arg++ == '-')
+    {
+        while ((tmp = strchr(opts,':')))
+        {
+            i = tmp-opts;
+            if (!strncmp(arg,opts,i))
+            {
+                arg += i;
+                if (*arg)
+                {
+                   *optsarg = arg;
+                }
+                else if (*n + 1 <argc)
+                {
+                   *optsarg = argv[++*n];
+                }
+                else
+                {
+                   *optsarg = "Option requires value.";
+                   break;
+                }
+                return (char*)opts;
+            }
+            else
+            {
+                opts += i+1;
+            }
+        }
+    }
+
+    return "";   /* return an empty string, an error has occured */
+}
+
+#endif

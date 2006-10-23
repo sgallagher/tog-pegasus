@@ -297,7 +297,71 @@ static int condWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
 #endif
 }
 
+static void threadSleep(int msec)
+{
+#if defined(PEGASUS_HAVE_NANOSLEEP)
 
+    struct timespec wait;
+    wait.tv_sec = msec / 1000;
+    wait.tv_nsec = (msec % 1000) * 1000000;
+    nanosleep(&wait, NULL);
+
+#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+
+   int loop;
+   int microsecs = msec * 1000; /* convert from milliseconds to microseconds */
+
+   if (microsecs < 1000000)
+       usleep(microsecs);
+   else
+   {
+       loop = microsecs / 1000000;
+       for(int i = 0; i < loop; i++)
+           usleep(1000000);
+       if ((loop*1000000) < microsecs)
+           usleep(microsecs - (loop*1000000));
+   }
+
+#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+
+    if (msec == 0)
+    {         
+        Sleep(0);
+        return;
+    }
+
+    struct _timeb end, now;
+    _ftime( &end );
+    end.time += (msec / 1000);
+    msec -= (msec / 1000);
+    end.millitm += msec;
+
+    do
+    {
+        Sleep(0);
+        _ftime(&now);
+    } 
+    while( end.millitm > now.millitm && end.time >= now.time);
+
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    int seconds;
+    if (msec < 1000)
+    {
+        usleep(msec*1000);
+    }
+    else
+    {
+        // sleep for loop seconds
+        ::sleep(msec / 1000);
+        // Usleep the remaining micro seconds
+        usleep( (msec*1000) % 1000000 );
+    }
+#elif defined(PEGASUS_OS_VMS)
+
+    ::sleep(msec / 1000);
+
+#endif
+}
 
 static CMPIBrokerExtFT brokerExt_FT={
      CMPICurrentVersion,
@@ -306,7 +370,7 @@ static CMPIBrokerExtFT brokerExt_FT={
      NULL,                      // Join not implemented yet
      NULL,                      // exit not implemented yet
      NULL,                      // cancel not implemented yet
-     NULL,                      // sleep not implemented yet
+     threadSleep,              
      threadOnce,
 
      createThreadKey,

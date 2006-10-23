@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,31 +28,26 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../../..
-
-DIR = Pegasus/ProviderManager2/CMPIR/daemon
+ROOT = ../../../../../..
 
 include $(ROOT)/mak/config.mak
+
+DIR = Pegasus/ProviderManager2/CMPIR/tools/CreateExtNS
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
     CXX = cc
     FLAGS += -W"c,SSCOMM"
 endif
 
-EXTRA_INCLUDES = $(SYS_INCLUDES) -I .. -I ../native
-
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DPEGASUS_DEFAULT_CMPIR -DDEBUG
-
-PROGRAM = CMPIRDaemon
-
-LIBRARIES = CMPIRNative CMPIRTCPCommRemote
+PROGRAM = CreateExtNS
 
 SOURCES = \
-   daemon.c
+   CreateExtNs.c
 
 include $(ROOT)/mak/program.mak
 
 tests:
 
 poststarttests:
+
 

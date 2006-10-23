@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,11 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -275,7 +270,7 @@ static void TCPCOMM_references(int socket, CONST CMPIBroker * broker,
     resultClass = (__sft)->deserialize_string(socket, broker);
     role = (__sft)->deserialize_string(socket, broker);
     props = socketcomm_deserialize_props(socket, (__sft), broker);
-    e = CBReferences(broker, context, cop, resultClass, role, 
+    e = CBReferences(broker, context, cop, resultClass, role,
 		     (CONST char **) props,   &rc);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket,
@@ -374,7 +369,7 @@ static void TCPCOMM_getMessage (int socket, CONST CMPIBroker * broker,
     } value[10];
     CMPIType type[10];
 
-    CMPIStatus rc;
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
     CMPIString *result;
     char *msgId,*defMsg;
     CMPIUint32 count,i;
@@ -469,6 +464,38 @@ static void TCPCOMM_getMessage (int socket, CONST CMPIBroker * broker,
     (__sft)->serialize_CMPIString(socket, result);
 }
 
+static void TCPCOMM_logMessage (int socket, CONST CMPIBroker * broker,
+		    CONST CMPIContext * context)
+{
+    CMPIUint32 severity;
+    char *id,*text;
+    CMPIString *string;
+    CMPIStatus rc = { CMPI_RC_OK,NULL };
+
+    severity = (__sft)->deserialize_UINT32(socket);
+    id = (__sft)->deserialize_string(socket, broker);
+    text = (__sft)->deserialize_string(socket, broker);
+    string = (__sft)->deserialize_CMPIString(socket, broker);
+    rc = broker->eft->logMessage(broker,severity,id,text,string);
+    (__sft)->serialize_CMPIStatus(socket, &rc);
+}
+
+static void TCPCOMM_trace (int socket, CONST CMPIBroker * broker,
+		    CONST CMPIContext * context)
+{
+    CMPIUint32 level;
+    char *component,*text;
+    CMPIString *string;
+    CMPIStatus rc = { CMPI_RC_OK,NULL };
+
+    level = (__sft)->deserialize_UINT32(socket);
+    component = (__sft)->deserialize_string(socket, broker);
+    text = (__sft)->deserialize_string(socket, broker);
+    string = (__sft)->deserialize_CMPIString(socket, broker);
+    rc = broker->eft->trace(broker,level,component,text,string);
+    (__sft)->serialize_CMPIStatus(socket, &rc);
+}
+
 static void TCPCOMM_classPathIsA (int socket, CONST CMPIBroker * broker,
 		    CONST CMPIContext * context)
 {
@@ -513,7 +540,10 @@ static struct socket_mb_function __mb_functions[] = {
 #ifndef CMPI_VER_100
     { "TCPCOMM_getKeyNames",            TCPCOMM_getKeyNames },
 #endif
-    { "TCPCOMM_classPathIsA",           TCPCOMM_classPathIsA }
+    { "TCPCOMM_classPathIsA",           TCPCOMM_classPathIsA },
+    { "TCPCOMM_getMessage",             TCPCOMM_getMessage },
+    { "TCPCOMM_logMessage",             TCPCOMM_logMessage },
+    { "TCPCOMM_trace",                  TCPCOMM_trace }
 };
 
 
@@ -541,7 +571,6 @@ static void __dispatch_MB_function(struct accept_thread *athread)
     CBAttachThread(athread->broker, athread->context);
     function =
 	__sft->deserialize_string(athread->socket, athread->broker);
-
     socketcomm_deserialize_context(athread->socket,  __sft, athread->broker,
 				   athread->context);
 
@@ -553,7 +582,6 @@ static void __dispatch_MB_function(struct accept_thread *athread)
 
 	    TRACE_INFO(("calling %s to handle request.",
 			__mb_functions[i].name));
-
 	    __mb_functions[i].function(athread->socket, athread->broker,
 				       athread->context);
 	    break;
@@ -563,7 +591,7 @@ static void __dispatch_MB_function(struct accept_thread *athread)
     CBDetachThread(athread->broker, athread->context);
     close(athread->socket);
     free(athread);
-	
+
     TRACE_VERBOSE(("leaving function."));
 }
 
@@ -657,13 +685,13 @@ __provider_connect(provider_address * addr,
 		   const char *function, CONST CMPIContext * ctx,
 		   CONST CMPIObjectPath * cop)
 {
-    int socket = open_connection(addr->dst_address,
-				 REMOTE_LISTEN_PORT);
+    int socket = open_connection ( addr->dst_address,
+				   REMOTE_LISTEN_PORT,
+				   PEGASUS_PRINT_ERROR_MESSAGE);
     char *pnp;
 
     if (socket < 0)
 	return -1;
-
     if ((pnp = strchr(provider, ':')))
 	__sft->serialize_string(socket, pnp + 1);
     else __sft->serialize_string(socket, provider);
@@ -714,7 +742,7 @@ static void __start_proxy_daemon(CMPIContext * ctx)
 static void __launch_proxy_daemon()
 {
     CMPIContext *ctx = CBPrepareAttachThread(__init_broker, __init_context);
-    if (!(__init_context && __init_broker)) 
+    if (!(__init_context && __init_broker))
 	{
 		CMRelease(ctx);
 		ctx = NULL;
@@ -745,7 +773,7 @@ static CMPIStatus TCPCOMM_InstanceMI_enumInstanceNames(provider_address * addr,
 	r = (__sft)->deserialize_CMPIArray(socket, cThis->broker);
 	close(socket);
 	remove_context(ctxid);
-	socketcomm_array2result(r, result);
+        socketcomm_array2result(r, result);
 	return rc;
     };
 }
@@ -783,7 +811,7 @@ static CMPIStatus TCPCOMM_InstanceMI_getInstance(provider_address * addr,
 			       RemoteCMPIInstanceMI * cThis,
 			       CONST CMPIContext * context,
 			       CONST CMPIResult * result,
-			       CONST CMPIObjectPath * cop, 
+			       CONST CMPIObjectPath * cop,
 						 CONST char **props)
 {
     int socket;
@@ -842,7 +870,7 @@ static CMPIStatus TCPCOMM_InstanceMI_setInstance(provider_address * addr,
 			       CONST CMPIContext * context,
 			       CONST CMPIResult * result,
 			       CONST CMPIObjectPath * cop,
-			       CONST CMPIInstance * inst, 
+			       CONST CMPIInstance * inst,
 						 CONST char **props)
 {
     int socket;
@@ -896,7 +924,7 @@ static CMPIStatus TCPCOMM_InstanceMI_deleteInstance(provider_address * addr,
 
 static CMPIStatus TCPCOMM_InstanceMI_execQuery(provider_address * addr,
 			     RemoteCMPIInstanceMI * cThis,
-			     CONST CMPIContext * context, 
+			     CONST CMPIContext * context,
 					       CONST CMPIResult * result,
 			     CONST CMPIObjectPath * cop, CONST char *lang,
 			     CONST char *query)
@@ -929,9 +957,9 @@ static CMPIStatus TCPCOMM_AssociationMI_associators(provider_address * addr,
 				  CONST CMPIContext * context,
 				  CONST CMPIResult * result,
 				  CONST CMPIObjectPath * cop,
-				  const char *assocclass, 
+				  const char *assocclass,
 				  const char *resultclass,
-				  const char *role, 
+				  const char *role,
                                   const char *resultrole,
 				  CONST char **props)
 {
@@ -967,7 +995,7 @@ static CMPIStatus TCPCOMM_AssociationMI_associatorNames(provider_address * addr,
 				      CONST CMPIResult * result,
 				      CONST CMPIObjectPath * cop,
 				      const char *assocclass,
-				      const char *resultclass, 
+				      const char *resultclass,
 				      const char *role,
 				      const char *resultrole)
 {
@@ -1000,9 +1028,9 @@ static CMPIStatus TCPCOMM_AssociationMI_references(provider_address * addr,
 				 RemoteCMPIAssociationMI * cThis,
 				 CONST CMPIContext * context,
 				 CONST CMPIResult * result,
-				 CONST CMPIObjectPath * cop, 
+				 CONST CMPIObjectPath * cop,
                                  const char *assocclass,
-				 const char *role, 
+				 const char *role,
                                  CONST char **props)
 {
     int socket;
@@ -1199,7 +1227,7 @@ static CMPIStatus TCPCOMM_IndicationMI_authorizeFilter(provider_address * addr,
 static CMPIStatus TCPCOMM_IndicationMI_mustPoll(provider_address * addr,
 			      RemoteCMPIIndicationMI * cThis,
 			      const CMPIContext * context,
-			      const CMPISelectExp * filter, 
+			      const CMPISelectExp * filter,
 			      const char *indType,
 			      const CMPIObjectPath * cop)
 #else
@@ -1324,7 +1352,7 @@ static CMPIStatus TCPCOMM_IndicationMI_deActivateFilter(provider_address * addr,
 };
 
 static CMPIStatus
-TCPCOMM_cleanup() 
+TCPCOMM_cleanup()
 {
 	CMPIStatus rc = {CMPI_RC_OK,NULL};
 
@@ -1370,7 +1398,6 @@ provider_comm *CMPIRTCPComm_InitCommLayer(CONST CMPIBroker * broker,
         NULL,
 	NULL
    };
-
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES
     static int  __once = 0;
 #else

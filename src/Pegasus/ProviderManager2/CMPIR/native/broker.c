@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,13 +29,9 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-/*! 
+/*!
   \file broker.c
   \brief Native CMPI broker encapsulated functionality.
 
@@ -176,10 +172,11 @@ static CMPIBoolean __beft_classPathIsA ( CONST CMPIBroker * broker,
 
 extern CMPIObjectPathFT *CMPI_ObjectPath_FT;
 extern CMPIInstanceFT *CMPI_Instance_FT;
-
+extern CMPIArgsFT *CMPI_Args_FT;
 
 extern CMPIString *__oft_toString( CONST CMPIObjectPath * cop, CMPIStatus *rc);
 extern CMPIString *instance2String( CONST CMPIInstance *inst, CMPIStatus *rc);
+extern CMPIString *args2String( CONST CMPIArgs *args, CMPIStatus *rc);
 
 static CMPIString * __beft_toString ( CONST CMPIBroker * broker,
 				      CONST void * object,
@@ -193,6 +190,8 @@ static CMPIString * __beft_toString ( CONST CMPIBroker * broker,
 	         return __oft_toString((CMPIObjectPath*)object,rc);
 	      if (((CMPIInstance*)object)->ft==CMPI_Instance_FT)
 	         return instance2String((CMPIInstance*)object,rc);
+	      if (((CMPIInstance*)object)->ft==CMPI_Args_FT)
+	         return args2String((CMPIInstance*)object,rc);
 	   }
 	}
 	TRACE_CRITICAL(("This operation is not yet supported."));

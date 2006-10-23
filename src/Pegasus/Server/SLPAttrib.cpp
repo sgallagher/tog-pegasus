@@ -27,9 +27,6 @@
 //
 //==============================================================================
 //
-// Author: carolyne Edward (cshyla@us.ibm.com)
-//
-// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -335,7 +332,6 @@ void SLPAttrib::fillData(String protocol)
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             "SLP Registration Failed Startup: CIMException exception. $0", e.getMessage());
     }
-
     client.disconnect();
     return;
 } 

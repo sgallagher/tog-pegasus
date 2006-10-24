@@ -29,7 +29,7 @@
 #//
 #//==============================================================================
 ROOT = ../../../../..
-DIR = Client/cimsub/tests/testclientInterOp
+DIR = Clients/cimsub/tests/testclientInterOp
 include $(ROOT)/mak/config.mak
 include ../../../libraries.mak
 

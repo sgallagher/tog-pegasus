@@ -438,7 +438,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -463,6 +463,19 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
             rc = pr.miVector.instMI->ft->getInstance(
                 pr.miVector.instMI,&eCtx,&eRes,&eRef,
                 (const char **)props.getList());
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -580,7 +593,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -604,6 +617,19 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             rc = pr.miVector.instMI->ft->enumInstances(
                 pr.miVector.instMI,&eCtx,&eRes,&eRef,
                 (const char **)props.getList());
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -686,7 +712,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -709,6 +735,19 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             rc = pr.miVector.instMI->ft->enumInstanceNames(
                 pr.miVector.instMI,&eCtx,&eRes,&eRef);
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -795,7 +834,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -818,6 +857,19 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
             rc = pr.miVector.instMI->ft->createInstance(
                 pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst);
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -905,7 +957,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -930,6 +982,19 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
             rc = pr.miVector.instMI->ft->modifyInstance(
                 pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,
                 (const char **)props.getList());
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1012,7 +1077,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -1035,6 +1100,19 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
             rc = pr.miVector.instMI->ft->deleteInstance(
                 pr.miVector.instMI,&eCtx,&eRes,&eRef);
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1129,7 +1207,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -1153,6 +1231,19 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             rc = pr.miVector.instMI->ft->execQuery(
                 pr.miVector.instMI,&eCtx,&eRes,&eRef,
                 CHARS(queryLan),CHARS(query));
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1281,7 +1372,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -1307,6 +1398,19 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
                 pr.miVector.assocMI,&eCtx,&eRes,&eRef,
                 CHARS(aClass),CHARS(rClass),CHARS(rRole),CHARS(resRole),
                 (const char **)props.getList());
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1402,7 +1506,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -1427,6 +1531,19 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             rc = pr.miVector.assocMI->ft->associatorNames(
                 pr.miVector.assocMI,&eCtx,&eRes,&eRef,CHARS(aClass),
                 CHARS(rClass),CHARS(rRole),CHARS(resRole));
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1550,7 +1667,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -1575,6 +1692,19 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             rc = pr.miVector.assocMI->ft->references(
                 pr.miVector.assocMI,&eCtx,&eRes,&eRef,
                 CHARS(rClass),CHARS(rRole),(const char **)props.getList());
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1667,7 +1797,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -1691,6 +1821,19 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             rc = pr.miVector.assocMI->ft->referenceNames(
                 pr.miVector.assocMI,&eCtx,&eRes,&eRef,
                 CHARS(rClass),CHARS(rRole));
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1812,7 +1955,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -1836,6 +1979,19 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
             rc = pr.miVector.methMI->ft->invokeMethod(
                 pr.miVector.methMI,&eCtx,&eRes,&eRef,
                 CHARS(mName),&eArgsIn,&eArgsOut);
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -2081,7 +2237,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -2121,6 +2277,19 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                         CHARS(eSelx->classNames[0].getClassName().getString().
                     getCString()),&eRef,false);
             }
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -2268,7 +2437,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -2316,6 +2485,19 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         delete qContext;
         delete eSelx;
         delete srec;
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -2713,7 +2895,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
 
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -2738,6 +2920,19 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
             rc = pr.miVector.instMI->ft->getInstance(
                 pr.miVector.instMI,&eCtx,&eRes,&eRef,
                 (const char **)props.getList());
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -2883,7 +3078,7 @@ Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
-            "AcceptLanguage",
+            CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
@@ -2908,6 +3103,19 @@ Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
             rc = pr.miVector.instMI->ft->modifyInstance(
                 pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,
                 (const char **)props.getList());
+        }
+
+//      Need to save ContentLanguage value into operation context of response
+//      Do this before checking rc from provider to throw exception in case 
+//      rc.msg is also localized.
+        CMPIStatus tmprc={CMPI_RC_OK,NULL};
+        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        if (tmprc.rc == CMPI_RC_OK)
+        {
+            response->operationContext.set(
+                ContentLanguageListContainer(
+                    ContentLanguageList(
+                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)

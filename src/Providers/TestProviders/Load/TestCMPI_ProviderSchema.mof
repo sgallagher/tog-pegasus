@@ -57,6 +57,7 @@ class TestCMPI_Indication
 
 class TestCMPI_Parent
 {
+    string parentProperty;
 };
 
 class TestCMPI_Instance : TestCMPI_Parent
@@ -77,6 +78,7 @@ class TestCMPI_Instance : TestCMPI_Parent
     sint16 s16;
     boolean b;
 
+    string childProperty;
 };
 
 class TestCMPI_ExecQuery : TestCMPI_Instance

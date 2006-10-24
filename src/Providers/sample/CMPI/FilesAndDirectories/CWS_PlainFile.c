@@ -31,6 +31,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <stdio.h>
 #include <string.h>
 #include "CWS_FileUtils.h"
 #include "../CWS_Util/cwsutil.h"

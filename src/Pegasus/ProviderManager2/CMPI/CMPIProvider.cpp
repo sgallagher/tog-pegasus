@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
-//              Dan Gorey, IBM djgorey@us.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -153,6 +146,7 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
         broker.bft=CMPI_Broker_Ftab;
         broker.eft=CMPI_BrokerEnc_Ftab;
         broker.xft=CMPI_BrokerExt_Ftab;
+        broker.mft=NULL;    // CMPI memory services not supported
         {
             WriteLock writeLock (broker.rwsemClassCache);
 

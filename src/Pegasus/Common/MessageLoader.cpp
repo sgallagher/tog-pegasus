@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3032
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/MessageLoader.h>
@@ -59,6 +54,13 @@ AcceptLanguageList MessageLoader::_acceptlanguages;
 
 	String MessageLoader::getMessage(MessageLoaderParms &parms){
 		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage");
+                // when openMessageFile / getMessage2 / closeMessageFile are fully tested, then
+                // this method become just the following:
+                //   openMessageFile(parms);
+                //   String msg = getMessage2(parms);
+                //   closeMessageFile(parms);
+                //   return msg;
+                // Everything else can be deleted, including the loadICUMessage() method.
 		try{
 		        parms.contentlanguages.clear();
 
@@ -92,13 +94,316 @@ AcceptLanguageList MessageLoader::_acceptlanguages;
 		}
 	}
 
+	String MessageLoader::getMessage2(MessageLoaderParms &parms){
+
+		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage2");
+		try
+                {
+#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
+                    if (!_useDefaultMsg && (parms._resbundl != NO_ICU_MAGIC))
+                    {
+                        String msg = extractICUMessage(parms._resbundl,parms);
+                        if (msg.size() > 0)
+                        {
+                            PEG_METHOD_EXIT();
+                            return (msg);
+                        }
+                    }
+#endif
+		    // NOTE: the default message is returned if:
+                    // 1) The previous call to openMessageFile() set _useDefaultMsg
+                    // 2) parms._resbundl is set to NO_ICU_MAGIC from a previous
+                    //    call to openMessageFile() indicating an error
+                    //    (eg. InitializeICU::initICUSuccessful() failed)
+		    // 3) Message loading is DISABLED
+		    // 4) Did not get a message from ICU
+
+		    PEG_METHOD_EXIT();
+		    return formatDefaultMessage(parms);
+
+		} 
+                catch(Exception&)
+                {
+			PEG_METHOD_EXIT();
+			return String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER::GETMESSAGE2: ").append(parms.default_msg);
+		}
+	}
+
+	void MessageLoader::openMessageFile(MessageLoaderParms &parms) {
+		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::openMessageFile");
+		try
+                {
+		        parms.contentlanguages.clear();
+
+#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
+		        if (InitializeICU::initICUSuccessful())
+                        {
+                            openICUMessageFile(parms);
+                        }
+#else
+                        parms._resbundl = NO_ICU_MAGIC; // magic number to indicate no ICU resource bundle to use
+#endif
+			PEG_METHOD_EXIT();
+			return;
+                }
+                catch(Exception&)
+                {
+                    parms._resbundl = NO_ICU_MAGIC; // magic number to indicate no ICU resource bundle to use
+                    PEG_METHOD_EXIT();
+                    return;
+		}
+	}
+
+	void MessageLoader::closeMessageFile(MessageLoaderParms &parms) {
+            PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::closeMessageFile");
+#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
+            if (parms._resbundl != NO_ICU_MAGIC)
+            {
+                ures_close(parms._resbundl);
+            }
+#endif
+            PEG_METHOD_EXIT();
+            return;
+        }
+
 #ifdef PEGASUS_HAS_ICU
+
+	void MessageLoader::openICUMessageFile(MessageLoaderParms &parms) {
+
+		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::openICUMessageFile");
+		UErrorCode status = U_ZERO_ERROR;
+		//String resbundl_path_ICU;
+		CString resbundl_path_ICU;
+
+		const int size_locale_ICU = 50;
+
+		// the static AcceptLangauges takes precedence over what parms.acceptlangauges has
+		AcceptLanguageList acceptlanguages;
+		acceptlanguages = (_acceptlanguages.size() > 0) ? _acceptlanguages : parms.acceptlanguages;
+
+		// get the correct path to the resource bundles
+		resbundl_path_ICU = getQualifiedMsgPath(parms.msg_src_path).getCString();
+
+		//cout << "USING PACKAGE PATH: " << endl;
+		//cout << resbundl_path_ICU << endl;
+		PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using resource bundle path:");
+		PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, resbundl_path_ICU);
+#ifdef PEGASUS_OS_OS400
+		const char *atoe = resbundl_path_ICU;
+		AtoE((char*)atoe);
+#endif
+
+		if(_useProcessLocale || (acceptlanguages.size() == 0 && parms.useProcessLocale)){ // use the system default resource bundle
+
+			parms._resbundl = ures_open((const char*)resbundl_path_ICU, uloc_getDefault() , &status);
+
+			if(U_SUCCESS(status)) {
+				//cout << "PROCESS_LOCALE: opened resource bundle" << endl;
+				UErrorCode _status = U_ZERO_ERROR;
+				//cout << "PROCESS_LOCALE = " << ures_getLocale(resbundl, &_status) << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using process locale:");
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, ures_getLocale(parms._resbundl, &_status));
+				if(status == U_USING_FALLBACK_WARNING || status == U_USING_DEFAULT_WARNING){
+					//cout << "PROCESS_LOCALE: using fallback or default" << endl;
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using process locale fallback or default");
+				}
+                                const char * _locale = ures_getLocale(parms._resbundl,&status);
+        #ifdef PEGASUS_OS_OS400
+                                char tmplcl[size_locale_ICU];	
+                                strcpy(tmplcl, _locale);		
+                                EtoA(tmplcl);			
+                                String localeStr(tmplcl);	
+        #else
+                                String localeStr(_locale);	
+        #endif
+                                parms.contentlanguages.append(LanguageTag(
+                                    LanguageParser::convertLocaleIdToLanguageTag(localeStr)));
+			} else {
+				//cout << "PROCESS_LOCALE: could not open resouce, formatting default message" << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using process locale.  Could not open resource, formatting default message.");
+                                parms._resbundl = NO_ICU_MAGIC; // magic number to indicate no ICU resource bundle to use
+			}
+                        PEG_METHOD_EXIT();
+			return;
+		} else if (acceptlanguages.size() == 0 && parms.useThreadLocale){ // get AcceptLanguageList from the current Thread
+			AcceptLanguageList *al = Thread::getLanguages();
+			if(al != NULL){
+				acceptlanguages = *al;
+				//cout << "THREAD_LOCALE: got acceptlanguages from thread" << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using thread locale: got AcceptLanguageList from thread.");
+			}else {
+				//cout << "THREAD_LOCALE: thread returned NULL for acceptlanguages" << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using thread locale: thread returned NULL for AcceptLanguageList.");
+			 }
+		}
+
+		char locale_ICU[size_locale_ICU];
+		LanguageTag languageTag;
+
+		// iterate through AcceptLanguageList, use the first resource bundle match
+		//cout << "LOOPING THROUGH ACCEPTLANGUAGES..." << endl;
+		PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Looping through AcceptLanguageList...");
+		for (Uint32 index = 0; index < acceptlanguages.size(); index++)
+		{
+			languageTag = acceptlanguages.getLanguageTag(index);
+#ifdef PEGASUS_OS_OS400
+		        CString cstr = languageTag.toString().getCString();
+			const char *atoe = cstr;
+			AtoE((char*)atoe);
+		
+                        uloc_getName(atoe, locale_ICU, size_locale_ICU, &status);
+#else
+			uloc_getName((const char*)(languageTag.toString()).getCString(), locale_ICU, size_locale_ICU, &status);
+#endif
+			//cout << "locale_ICU = " << locale_ICU << endl;
+			// TODO: check to see if we have previously cached the resource bundle
+
+			parms._resbundl = ures_open((const char*)resbundl_path_ICU, locale_ICU, &status);
+
+			if(U_SUCCESS(status)) {
+				//cout << "ACCEPTLANGUAGES LOOP: opened resource bundle with " << languageTag.toString() << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "ACCEPTLANGUAGES LOOP: opened resource bundle with:");
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, languageTag.toString());
+				if(status == U_USING_FALLBACK_WARNING || status == U_USING_DEFAULT_WARNING){
+					//we want to use the ICU fallback behaviour in the following cases ONLY
+					//cout << "ACCEPTLANGUAGES LOOP: ICU warns using FALLBACK or DEFAULT" << endl;
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"ACCEPTLANGUAGES LOOP: ICU warns using FALLBACK or DEFAULT");
+					if((acceptlanguages.size() == 1) && (!parms.useICUfallback) && (status == U_USING_DEFAULT_WARNING)){
+						// in this case we want to return messages from the root bundle
+						status = U_ZERO_ERROR;
+						//cout << "ML::acceptlang.size =1 && !parms.useICUfallback && U_USING_DEFAULT_WARNING" << endl;
+						PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"acceptlang.size =1 && !parms.useICUfallback && U_USING_DEFAULT_WARNING, using root bundle.");
+
+                  // Reopen the bundle in the root locale
+                  ures_close(parms._resbundl);
+                  parms._resbundl = ures_open((const char*)resbundl_path_ICU, "", &status);
+                  if(U_SUCCESS(status)) {
+                    PEG_METHOD_EXIT();
+                    return;
+                  }
+					}
+					else if(acceptlanguages.size() == 1 || parms.useICUfallback){
+						//cout << "ACCEPTLANGUAGES LOOP: acceptlanguages.size == 1 or useICUfallback true, using ICU fallback behaviour..." << endl;
+						PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"ACCEPTLANGUAGES LOOP: acceptlanguages.size == 1 or useICUfallback true, using ICU fallback behaviour...");
+						const char * _locale = ures_getLocale(parms._resbundl,&status);
+					
+#ifdef PEGASUS_OS_OS400
+						char tmplcl[size_locale_ICU];	
+						strcpy(tmplcl, _locale);		
+						EtoA(tmplcl);			
+						String localeStr(tmplcl);
+#else
+						String localeStr(_locale);
+#endif
+
+                        parms.contentlanguages.append(LanguageTag(
+                            LanguageParser::convertLocaleIdToLanguageTag(
+                                localeStr)));
+                                                PEG_METHOD_EXIT();
+						return;
+					}
+				}
+				else{  // we found an exact resource bundle match, extract, and set ContentLanguage
+					//cout << "ACCEPTLANGUAGES LOOP: found an EXACT resource bundle MATCH" << endl;
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"ACCEPTLANGUAGES LOOP: found an EXACT resource bundle MATCH:");
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,languageTag.toString());
+					parms.contentlanguages.append(LanguageTag(languageTag.toString()));
+                                        PEG_METHOD_EXIT();
+    				        return;
+				}
+			} else { // possible errors, ex: message path incorrect
+    			// for now do nothing, let the while loop continue
+    			//cout << "ACCEPTLANGUAGES LOOP: could NOT open a resource for: " << languageTag.toString() << endl;
+			}
+			status = U_ZERO_ERROR;  // reset status
+		}
+
+		// now if we DIDNT open a resource bundle, we want to enable ICU fallback for the highest priority language
+		if(acceptlanguages.size() > 0){
+			//cout << "USING ICU FALLBACK" << endl;
+			PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"No message was loaded, using ICU fallback behaviour.");
+			languageTag = acceptlanguages.getLanguageTag(0);
+
+#ifdef PEGASUS_OS_OS400
+		        CString cstr = languageTag.toString().getCString();
+			const char *atoe = cstr;
+			AtoE((char*)atoe);
+			
+			uloc_getName(atoe, locale_ICU, size_locale_ICU, &status);
+#else
+			uloc_getName((const char*)(languageTag.toString()).getCString(), locale_ICU, size_locale_ICU, &status);
+#endif
+			//cout << "locale_ICU in fallback = " << locale_ICU << endl;
+			status = U_ZERO_ERROR;
+			parms._resbundl = ures_open((const char*)resbundl_path_ICU, locale_ICU, &status);
+			const char * _locale = NULL;
+			if(U_SUCCESS(status)) {
+				if(status == U_USING_DEFAULT_WARNING){
+					//cout << "PRIORITY ICU FALLBACK: using default resource bundle with " << languageTag.toString() << endl;
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"PRIORITY ICU FALLBACK: using default resource bundle with ");
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, languageTag.toString());
+					status = U_ZERO_ERROR;
+
+               // Reopen the bundle in the root locale
+               ures_close(parms._resbundl);
+					parms._resbundl = ures_open((const char*)resbundl_path_ICU, "", &status);
+					if(U_SUCCESS(status)) {
+			    		_locale = ures_getLocale(parms._resbundl,&status);
+					}
+				}else{
+			    	_locale = ures_getLocale(parms._resbundl,&status);
+			    }
+				String localeStr;	
+
+				if (_locale != NULL)	
+				{
+#ifdef PEGASUS_OS_OS400
+				    char tmplcl[size_locale_ICU];	
+				    strcpy(tmplcl, _locale);			
+				    EtoA(tmplcl);			
+				    localeStr.assign(tmplcl);		
+#else
+				    localeStr.assign(_locale);
+#endif
+				}
+				    if(localeStr != "root")					   
+                    {
+                        parms.contentlanguages.append(LanguageTag(
+                            LanguageParser::convertLocaleIdToLanguageTag(
+                                localeStr)));
+                    }
+                     if (_locale != NULL)
+                     {
+                         PEG_METHOD_EXIT();
+                         return;
+                     }
+			}
+		}
+
+		{ 			// else if no message, load message from root bundle explicitly
+			//cout << "EXHAUSTED ACCEPTLANGUAGES: using root bundle to extract message" << endl;
+			PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"EXHAUSTED ACCEPTLANGUAGES: using root bundle to extract message");
+			status = U_ZERO_ERROR;
+			parms._resbundl = ures_open((const char*)resbundl_path_ICU, "", &status);
+			if(U_SUCCESS(status)){
+				//cout << "EXHAUSTED ACCEPTLANGUAGES: opened root resource bundle" << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"EXHAUSTED ACCEPTLANGUAGES: opened root resource bundle");
+			}else {
+				//cout << "EXHAUSTED ACCEPTLANGUAGES: could NOT open root resource bundle" << endl;
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"EXHAUSTED ACCEPTLANGUAGES: could NOT open root resource bundle");
+                                parms._resbundl = NO_ICU_MAGIC;
+			}
+
+		}
+		PEG_METHOD_EXIT();
+		return;
+	}
 
 	String MessageLoader::loadICUMessage(MessageLoaderParms &parms){
 
 		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::loadICUMessage");
 		String msg;
-		UResourceBundle* resbundl;
+        UResourceBundle* resbundl;
 		UErrorCode status = U_ZERO_ERROR;
 		//String resbundl_path_ICU;
 		CString resbundl_path_ICU;
@@ -727,6 +1032,8 @@ MessageLoaderParms::MessageLoaderParms()
 
 	acceptlanguages = AcceptLanguageList();
 	contentlanguages = ContentLanguageList();
+
+        _resbundl = NO_ICU_MAGIC;
 }
 
 MessageLoaderParms::MessageLoaderParms(
@@ -878,6 +1185,8 @@ void MessageLoaderParms::_init()
     arg7 = Formatter::DEFAULT_ARG;
     arg8 = Formatter::DEFAULT_ARG;
     arg9 = Formatter::DEFAULT_ARG;
+
+    _resbundl = NO_ICU_MAGIC;
 }
 
 String MessageLoaderParms::toString()

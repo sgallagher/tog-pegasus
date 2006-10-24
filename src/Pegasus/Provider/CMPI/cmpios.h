@@ -32,35 +32,53 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPIOS_H_
-#define _CMPIOS_H_
+#   define _CMPIOS_H_
 
-#define CMPI_THREAD_RETURN      void*
-#define CMPI_THREAD_TYPE        void*
-#define CMPI_MUTEX_TYPE         void*
-#define CMPI_COND_TYPE          void*
+#   include "cmpipl.h"
+#   include <stdlib.h>          // To get the size_t
+#   define CMPI_THREAD_RETURN      void*
+#   define CMPI_THREAD_TYPE        void*
+#   define CMPI_MUTEX_TYPE         void*
+#   define CMPI_COND_TYPE          void*
 
-#if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
-   #define CMPI_THREAD_CDECL    __stdcall
-   #define CMPI_THREAD_KEY_TYPE unsigned long int
+#   if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+#      define CMPI_THREAD_CDECL    __stdcall
+#      define CMPI_THREAD_KEY_TYPE unsigned long int
+#   ifndef HAVE_STRUCT_TIMESPEC
+#       define HAVE_STRUCT_TIMESPEC
+	    struct timespec
+	    {
+	    long tv_sec;
+	    long tv_nsec;
+	    };
+#   endif /* HAVE_STRUCT_TIMESPEC */
 
-struct timespec {
-   long tv_sec;
-   long tv_nsec;
-};
+#   elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+#      ifndef __cplusplus
+#         define CMPI_THREAD_CDECL
+#      else
+#         define CMPI_THREAD_CDECL    __cdecl
+#      endif
+#      define CMPI_THREAD_KEY_TYPE  pthread_key_t
+#   else
+#      define CMPI_THREAD_CDECL
+#      define CMPI_THREAD_KEY_TYPE unsigned long int
+#   endif
 
-#elif defined( CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+/* Define CMPI_EXPORT */
+#   if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+#      define CMPI_EXPORT __declspec(dllexport)
+#   elif defined(CMPI_PLATFORM_LINUX_GENERIC_GNU) && (__GNUC__ >= 4)
+#      define CMPI_EXPORT __attribute__((visibility("default")))
+#   else
+#      define CMPI_EXPORT /* empty */
+#   endif
 
-#ifndef __cplusplus
-   #define CMPI_THREAD_CDECL
-#else
-   #define CMPI_THREAD_CDECL    __cdecl
-#endif
-
-   #define CMPI_THREAD_KEY_TYPE  pthread_key_t
-#else
-   #define CMPI_THREAD_CDECL
-   #define CMPI_THREAD_KEY_TYPE unsigned long int
-#endif
-
+/* Define CMPI_EXTERN_C */
+#   ifdef __cplusplus
+#      define CMPI_EXTERN_C extern "C" CMPI_EXPORT
+#   else
+#      define CMPI_EXTERN_C CMPI_EXPORT
+#   endif
 
 #endif

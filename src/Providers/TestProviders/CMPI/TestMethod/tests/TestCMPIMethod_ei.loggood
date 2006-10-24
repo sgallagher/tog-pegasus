@@ -113,6 +113,38 @@
  InvokeMethod: checking for correct classname [TestCMPI_Method]
  Calling CMGetArgCount
  ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 5 arguments for operation [TestCMPIBroker]: 
+ Calling CMGetArgAt
+ #0: Operation (uint32), value: 7
+ #1: msgFile (string) value: test/pegasusTest
+ #2: msgId (string) value: CIMStatusCode.CIM_ERR_SUCCESS
+ #3: insert1 (string) value: rab oof is foo bar backwards
+ #4: insert2 (uint32), value: 64001
+ ++++ Calling CMGetArg
+ ++++ (CMPI_RC_OK)
+ ++++ Calling CMGetArg for msgFile
+ ++++ (CMPI_RC_OK)
+ ++++ Calling CMGetArg for msgId
+ ++++ (CMPI_RC_OK)
+ ++++ Calling CMGetArg for insert1
+ ++++ (CMPI_RC_OK)
+ ++++ Calling CMGetArg for insert2
+ ++++ (CMPI_RC_OK)
+ ++++ #A CMOpenMessageFile
+ ++++ (CMPI_RC_OK)
+ ++++ #B CMGetMessage2
+ ++++ (CMPI_RC_OK)
+ ++++ [CIM_ERR_SUCCESS: Successful.]
+ ++++ #C CMCloseMessageFile
+ ++++ (CMPI_RC_OK)
+ ++++ Calling CMReturnData+Done
+ ++++ Calling CMAddArg
+ ++++ (CMPI_RC_OK)
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
  InvokeMethod: We have 0 arguments for operation [returnInstance]: 
  Calling CMNewObjectPath for TestCMPI_Method
  ---- (rc:CMPI_RC_OK)

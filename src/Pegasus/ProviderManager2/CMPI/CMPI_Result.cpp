@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Robert Kieninger, kieningr@de.ibm.com  bug#2259
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -588,6 +584,7 @@ static CMPIResultFT resultMethOnStack_FT={
      resultBadReturnInstance,
      resultBadReturnObjectPath,
      resultReturnMethDone,
+     NULL // reserved for returnError
 };
 
 static CMPIResultFT resultObjOnStack_FT={
@@ -598,6 +595,7 @@ static CMPIResultFT resultObjOnStack_FT={
      resultReturnObject,
      resultBadReturnObjectPath,
      resultReturnObjDone,
+     NULL // reserved for returnError
 };
 
 static CMPIResultFT resultExecQueryOnStack_FT={
@@ -608,6 +606,7 @@ static CMPIResultFT resultExecQueryOnStack_FT={
      resultReturnExecQuery,
      resultBadReturnObjectPath,
      resultReturnExecQueryDone,
+     NULL // reserved for returnError
 };
 
 static CMPIResultFT resultData_FT={
@@ -618,6 +617,7 @@ static CMPIResultFT resultData_FT={
      resultBadReturnInstance,
      resultBadReturnObjectPath,
      resultReturnDataDone,
+     NULL // reserved for returnError
 };
 
 static CMPIResultFT resultInstOnStack_FT={
@@ -628,6 +628,7 @@ static CMPIResultFT resultInstOnStack_FT={
      resultReturnInstance,
      resultBadReturnObjectPath,
      resultReturnInstDone,
+     NULL // reserved for returnError
 };
 
 static CMPIResultFT resultRefOnStack_FT={
@@ -638,6 +639,7 @@ static CMPIResultFT resultRefOnStack_FT={
      resultBadReturnInstance,
      resultReturnObjectPath,
      resultReturnRefDone,
+     NULL // reserved for returnError
 };
 
 static CMPIResultFT resultResponseOnStack_FT={
@@ -648,6 +650,7 @@ static CMPIResultFT resultResponseOnStack_FT={
      resultBadReturnInstance,
      resultBadReturnObjectPath,
      resultReturnDataDone,
+     NULL // reserved for returnError
 };
 
 CMPIResultFT *CMPI_ResultMeth_Ftab=&resultMethOnStack_FT;

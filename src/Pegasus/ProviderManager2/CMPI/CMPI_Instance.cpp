@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM, (vijayeli@in.ibm.com) bug#3495
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3496
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/CIMNameUnchecked.h>
@@ -153,8 +146,10 @@ extern "C" {
       return inst->getPropertyCount();
    }
 
-   static CMPIStatus instSetProperty(const CMPIInstance* eInst, const char *name,
-                           const CMPIValue* data, CMPIType type) {
+   static CMPIStatus instSetPropertyWithOrigin(const CMPIInstance* eInst, 
+     const char* name, const CMPIValue* data, const CMPIType type,
+     const char* origin)
+   {
       CIMInstance *inst=(CIMInstance*)eInst->hdl;
       if (!inst)  {
         CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -180,6 +175,11 @@ extern "C" {
          CIMProperty cp=inst->getProperty(pos);
          try {
             cp.setValue(v);
+            if (origin)
+            {
+                CIMName oName(origin);
+                cp.setClassOrigin(oName);
+            }
          }
          catch (const TypeMismatchException &) {
 	     if (_cmpi_trace) {
@@ -190,6 +190,12 @@ extern "C" {
              }
 		    }
             CMReturn(CMPI_RC_ERR_TYPE_MISMATCH);
+         }
+         catch (const InvalidNameException &) {
+	     if (_cmpi_trace) {
+           cerr<<"-+- InvalidName exception for: "<<origin<<endl;
+		    }
+            CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
          }
          catch (const Exception &e) {
 		    if (_cmpi_trace) {
@@ -204,14 +210,41 @@ extern "C" {
          }
       }
       else {
-         if (type==CMPI_ref) {
-         CIMObjectPath *ref=(CIMObjectPath*)(data->ref->hdl);
-         inst->addProperty(CIMProperty(sName,v,count,ref->getClassName()));
+         if (type==CMPI_ref) 
+         {
+             CIMObjectPath *ref=(CIMObjectPath*)(data->ref->hdl);
+             if (origin)
+             {
+                 CIMName oName(origin);
+                 inst->addProperty(CIMProperty(sName,v,count,
+                                   ref->getClassName(),oName));
+             }
+             else
+             {
+                 inst->addProperty(CIMProperty(sName,v,count,
+                                   ref->getClassName()));
+             }
          }
-
-         else inst->addProperty(CIMProperty(sName,v,count));
+         else 
+         {
+             if (origin)
+             {
+                 CIMName oName(origin);
+                 inst->addProperty(CIMProperty(sName,v,count,CIMName(),oName));
+             }
+             else
+             {
+                 inst->addProperty(CIMProperty(sName,v,count));
+             }
+         }
       }
       CMReturn(CMPI_RC_OK);
+   }
+
+   static CMPIStatus instSetProperty(const CMPIInstance* eInst,
+     const char *name, const CMPIValue* data, CMPIType type) 
+   {
+      return instSetPropertyWithOrigin(eInst, name, data, type, NULL);
    }
 
    static CMPIObjectPath* instGetObjectPath(const CMPIInstance* eInst,
@@ -257,7 +290,7 @@ extern "C" {
       }
    }
 
-   static CMPIStatus instSetObjectPath( CMPIInstance* eInst, const CMPIObjectPath *obj)
+   static CMPIStatus instSetObjectPath(CMPIInstance* eInst, const CMPIObjectPath *obj)
    {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       if ((inst==NULL) || (obj==NULL))  {
@@ -312,6 +345,7 @@ extern "C" {
      CMReturn ( CMPI_RC_OK);
    }
 
+
 }
 
 static CMPIInstanceFT instance_FT={
@@ -327,6 +361,9 @@ static CMPIInstanceFT instance_FT={
 #if defined(CMPI_VER_100)
      instSetObjectPath,
 #endif
+#if defined(CMPI_VER_200)
+     instSetPropertyWithOrigin,
+#endif
 };
 
 static CMPIInstanceFT instanceOnStack_FT={
@@ -341,6 +378,9 @@ static CMPIInstanceFT instanceOnStack_FT={
      instSetPropertyFilterIgnore,
 #if defined(CMPI_VER_100)
      instSetObjectPath,
+#endif
+#if defined(CMPI_VER_200)
+     instSetPropertyWithOrigin,
 #endif
 };
 

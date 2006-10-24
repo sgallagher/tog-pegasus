@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//              Viktor Mihajlovski, mihajlov@de.ibm.com
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CmpiInstance.h"
@@ -2325,7 +2317,9 @@ CmpiBooleanData CmpiFalse(false);
 //--
 //-----------------------------------------------------------
 
-#ifdef CMPI_VER_100
+#ifdef CMPI_VER_200
+static  CMPIBroker __providerBaseBroker = {0,0,0,0,0};
+#elif CMPI_VER_100
 static  CMPIBroker __providerBaseBroker = {0,0,0,0};
 #else
 static CMPIBroker __providerBaseBroker = {0,0,0};

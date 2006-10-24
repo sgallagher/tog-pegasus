@@ -53,6 +53,12 @@
 #include <unicode/msgfmt.h>
 #endif
 
+#ifdef PEGASUS_HAS_ICU
+#define NO_ICU_MAGIC (UResourceBundle*)0xDEADBEEF
+#else
+#define NO_ICU_MAGIC (void*)0xDEADBEEF
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -62,7 +68,9 @@ PEGASUS_NAMESPACE_BEGIN
  */
 
 class PEGASUS_COMMON_LINKAGE MessageLoaderParms{
-	
+
+    friend class MessageLoader;
+
 public:
 	
 	/*
@@ -83,19 +91,21 @@ public:
 	
 	/*
 	 * AcceptLanguageList acceptlanguages: This contains the languages that are acceptable by the caller
-	 * of MessageLoader::getMessage(). That is, MessageLoader will do its best to return a message in 
-	 * a language that was specified in this container.  This container is naturally ordered using the quality 
-	 * values attached to the languages and MessageLoader iterates through this container in its natural 
-	 * ordering.  This container is used by MessageLoader to load messages if it is not empty.
+	 * of MessageLoader::getMessage() or openMessageFile(). That is, MessageLoader will do its best to return 
+         * a message in a language that was specified in this container.  This container is naturally ordered 
+         * using the quality values attached to the languages and MessageLoader iterates through this container 
+         * in its natural ordering.  This container is used by MessageLoader to load messages if it is not empty.
 	 */
 	AcceptLanguageList acceptlanguages;
 	
 	/*
-	 * ContentLanguageList contentlanguages: This is set by MessageLoader::getMessage() after a message has
-	 * been loaded from either a message resource or the default message.  After the call to MessageLoader::getMessage()
-	 * the caller can check the MessageLoaderParms.contentlanguages object to see what MessageLoader set it to.
-	 * In all cases where a message is returned from MessageLoader::getMessage(), this field will be set to match the
-	 * language that the message was found in.
+	 * ContentLanguageList contentlanguages: This is set by MessageLoader::getMessage() and after a message has
+	 * been loaded from either a message resource or the default message, or by MessageLoader::openMessageFile()
+         * after it has identified and opened a message resource. After the call to MessageLoader::getMessage() or
+         * MessageLoader::openMessageFile(), the caller can check the MessageLoaderParms.contentlanguages object to 
+         * see what MessageLoader set it to. In all cases where a message is returned from MessageLoader::getMessage()
+         * or will be returned from MessageLoader::getMessage2(), this field will be set to match the language that 
+         * the message was (or will be) found in.
 	 */
 	ContentLanguageList contentlanguages;
 	
@@ -211,6 +221,11 @@ public:
     ~MessageLoaderParms();
 
 private:
+#ifdef PEGASUS_HAS_ICU
+        UResourceBundle* _resbundl;
+#else
+        void* _resbundl;
+#endif
 
     void _init();
 }; // end MessageLoaderParms
@@ -231,7 +246,32 @@ public:
 	 * @return String - the formatted message
 	 */
 	static String getMessage(MessageLoaderParms &parms);
+
+	/*
+	 * Opens a message resource bundle.
+	 * @param parms MessageLoaderParms - controls the behaviour of how a message is retrieved, this
+         * parameter should be used *ONLY* on subsequent calls to getMessage2() and closeMessageFile()
+         * If this method fails for some reason, it will set parms.resbundl to NO_ICU_MAGIC, and a
+         * subsequent call to getMessage2() will result in the default message being formatted.
+         * ATTN: Do we want *real* error codes for this?
+	 */
+        static void openMessageFile(MessageLoaderParms &parms);
 	
+	/*
+	 * Closes a message resource bundle.
+	 * @param parms MessageLoaderParms - identifies a previously opened resource bundle returned
+         * from openMessageFile().
+	 */
+        static void closeMessageFile(MessageLoaderParms &parms);
+	
+	/*
+	 * Retrieves a message from a message resource previously opened by openMessageFile()
+	 * @param parms MessageLoaderParms - controls the behaviour of how a message is retrieved, and
+         * is the same MessageLoaderParms parameter that was passed to openMessageFile().
+	 * @return String - the formatted message
+	 */
+	static String getMessage2(MessageLoaderParms &parms);
+
 	static void setPegasusMsgHome(String home);
 
     static void setPegasusMsgHomeRelative(const String& argv0);
@@ -255,15 +295,16 @@ private:
 	static String pegasus_MSG_HOME;
 	
 	#ifdef PEGASUS_HAS_ICU
-		static String loadICUMessage(MessageLoaderParms &parms);
+        static void openICUMessageFile(MessageLoaderParms &parms);
+	static String loadICUMessage(MessageLoaderParms &parms);
 		
-		static String extractICUMessage(UResourceBundle * resbundl, MessageLoaderParms &parms);
+	static String extractICUMessage(UResourceBundle * resbundl, MessageLoaderParms &parms);
 		
-		static String formatICUMessage(UResourceBundle * resbundl, const UChar *msg, int msg_len, MessageLoaderParms &parms);
+	static String formatICUMessage(UResourceBundle * resbundl, const UChar *msg, int msg_len, MessageLoaderParms &parms);
 		
-		static String uChar2String(UChar * uchar_str);
+	static String uChar2String(UChar * uchar_str);
 		
-		static String uChar2String(UChar * uchar_str, int len);
+	static String uChar2String(UChar * uchar_str, int len);
 		
         static void xferFormattable(Formatter::Arg& arg, Formattable &formattable);
 	#endif

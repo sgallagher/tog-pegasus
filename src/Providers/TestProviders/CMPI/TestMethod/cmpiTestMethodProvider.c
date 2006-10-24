@@ -265,6 +265,37 @@ _CMGetMessage (char **result)
   return 1;
 }
 
+static int _CMGetMessage2 (char **result, char* msgFile, char* msgId, 
+    char* insert1, CMPIUint32 insert2)
+{
+    CMPIString *str = NULL;
+    CMPIStatus rc = { CMPI_RC_OK, NULL};
+    CMPIMsgFileHandle msgFileHandle;
+
+    PROV_LOG ("++++ #A CMOpenMessageFile");
+    rc = CMOpenMessageFile(_broker, msgFile, &msgFileHandle);
+    PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++ #B CMGetMessage2");
+    /* Gets the internationalized string */
+    str = CMGetMessage2 (_broker, msgId, msgFileHandle,
+        "CIM_ERR_SUCCESS: Successful.", &rc,
+        CMFmtArgs2(CMFmtChars(insert1),CMFmtUint(insert2)));
+    PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
+    if (str)
+    {
+        PROV_LOG ("++++ [%s]", CMGetCharPtr (str));
+        *result = strdup (CMGetCharPtr (str));
+    }
+
+    PROV_LOG ("++++ #C CMCloseMessageFile");
+    rc = CMCloseMessageFile(_broker, msgFileHandle);
+    PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
+
+    if (rc.rc == CMPI_RC_OK)
+        return 0;
+    return 1;
+}
+
 static int
 _CMLogMessage (char **result)
 {
@@ -466,8 +497,8 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         {
           // Parse the CMPIArgs in to figure out which operation it is.
           // There are six of them:
-          //   ValueMap { "1", "2", "3", "4", "5", "6"},
-          //        Values {"CDGetType", "CDToString", "CDIsOfType", "CMGetMessage",  "CMLogMessage","CDTraceMessage"}]
+          //   ValueMap { "1", "2", "3", "4", "5", "6", "7"},
+          //        Values {"CDGetType", "CDToString", "CDIsOfType", "CMGetMessage",  "CMLogMessage","CDTraceMessage","CMGetMessage2"}]
           //    uint32 Operation,
           //    [OUT]string Result);
           PROV_LOG ("++++ Calling CMGetArg");
@@ -496,6 +527,32 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
                 case 6:
                   oper_rc = _CMTraceMessage (&result);
                   break;
+                case 7:
+                  {
+                      PROV_LOG ("++++ Calling CMGetArg for msgFile");
+                      CMPIData msgFileData;
+                      msgFileData = CMGetArg (in, "msgFile", &rc);
+                      PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
+                      PROV_LOG ("++++ Calling CMGetArg for msgId");
+                      CMPIData msgIdData;
+                      msgIdData = CMGetArg (in, "msgId", &rc);
+                      PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
+                      PROV_LOG ("++++ Calling CMGetArg for insert1");
+                      CMPIData insert1Data;
+                      insert1Data = CMGetArg (in, "insert1", &rc);
+                      PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
+                      PROV_LOG ("++++ Calling CMGetArg for insert2");
+                      CMPIData insert2Data;
+                      insert2Data = CMGetArg (in, "insert2", &rc);
+                      PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
+                      oper_rc = _CMGetMessage2 (&result,
+                          CMGetCharPtr(msgFileData.value.string),
+                          CMGetCharPtr(msgIdData.value.string),
+                          CMGetCharPtr(insert1Data.value.string),
+                          insert2Data.value.uint32
+                          ); 
+                      break;
+                  }
                 default:
                   break;
                 }

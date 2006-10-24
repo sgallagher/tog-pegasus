@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -119,7 +115,7 @@ struct _NativeCMPIBrokerFT {
    CMPIBrokerFT brokerFt;
    CMPIString* (*getMessage) (const CMPIBroker* mb,
         const char *msgId, const char *defMsg, CMPIStatus* rc,
-	unsigned int count, va_list);
+	unsigned int count, ...);
    CMPIStatus (*logMessage)
        (const CMPIBroker*,int severity ,const char *id,const char *text,
     const CMPIString *string);

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/CIMNameUnchecked.h>
@@ -48,6 +44,7 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #if defined (CMPI_VER_85)
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/LanguageParser.h>
 #endif
 #if defined(CMPI_VER_100)
 #include <Pegasus/Common/Logger.h>
@@ -255,7 +252,6 @@ extern "C" {
 
       ci->setPath(*cop);
       CMPIInstance* neInst=reinterpret_cast<CMPIInstance*>(new CMPI_Object(ci));
-      neInst->ft->ftVersion = 100;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
    //   CMPIString *str=mbEncToString(mb,neInst,NULL);
       return neInst;
@@ -555,7 +551,7 @@ extern "C" {
       return 0;
    }
 
-   #if defined (CMPI_VER_85)
+#if defined (CMPI_VER_85)
 
    static CMPIString* mbEncGetMessage(const CMPIBroker *mb, const char *msgId, const char *defMsg,
                CMPIStatus* rc, unsigned int count, ...) {
@@ -597,10 +593,93 @@ extern "C" {
    }
 #endif
 
+#ifdef CMPI_VER_200
+   static CMPIStatus mbEncOpenMessageFile(const CMPIBroker *mb,
+               const char* msgFile, CMPIMsgFileHandle* msgFileHandle) {
+      CMPIStatus rc = { CMPI_RC_OK, NULL };
+      MessageLoaderParms *parms = new MessageLoaderParms();
+      parms->msg_src_path = String(msgFile);
+      // Get the AcceptLanguage entry
+      const CMPIContext *ctx = CMPI_ThreadContext::getContext ();
+      CMPIData data = ctx->ft->getEntry (ctx, CMPIAcceptLanguage, &rc);
+      if (rc.rc != CMPI_RC_ERR_NO_SUCH_PROPERTY)
+      {
+          if (rc.rc == CMPI_RC_OK)
+          {
+              parms->acceptlanguages = LanguageParser::parseAcceptLanguageHeader(CMGetCharPtr(data.value.string));
+          }
+          else
+          {
+              return rc; // should be CMPI_RC_ERR_INVALID_HANDLE
+          }
+      }
+      MessageLoader::openMessageFile(*parms);
+      ctx->ft->addEntry (ctx, 
+          CMPIContentLanguage,
+          (CMPIValue*)(const char*)LanguageParser::buildContentLanguageHeader(parms->contentlanguages).getCString(),
+          CMPI_chars);
+
+      *msgFileHandle = (void *)parms;
+      CMReturn(CMPI_RC_OK);
+   }
+
+   static CMPIStatus mbEncCloseMessageFile(const CMPIBroker *mb,
+               const CMPIMsgFileHandle msgFileHandle) {
+      MessageLoaderParms* parms;
+      parms = (MessageLoaderParms*)msgFileHandle;
+      MessageLoader::closeMessageFile(*parms);
+      delete parms;
+      CMReturn(CMPI_RC_OK);
+   }
+
+   static CMPIString* mbEncGetMessage2(const CMPIBroker *mb, const char *msgId, 
+               const CMPIMsgFileHandle msgFileHandle, const char *defMsg,
+               CMPIStatus* rc, unsigned int count, ...) {
+
+      MessageLoaderParms* parms;
+      parms = (MessageLoaderParms*)msgFileHandle;
+      parms->msg_id = String(msgId);
+      parms->default_msg = String(defMsg);
+      DDD(cout<<"--- mbEncGetMessage2() count: "<<count<<endl);
+      int err=0;
+      if (rc) rc->rc=CMPI_RC_OK;
+
+      if (count>0) {
+         va_list argptr;
+         va_start(argptr,count);
+         for (;;) {
+            if (count>0) parms->arg0=formatValue(&argptr,rc,&err);
+            else break;
+            if (count>1) parms->arg1=formatValue(&argptr,rc,&err);
+            else break;
+            if (count>2) parms->arg2=formatValue(&argptr,rc,&err);
+            else break;
+            if (count>3) parms->arg3=formatValue(&argptr,rc,&err);
+            else break;
+            if (count>4) parms->arg4=formatValue(&argptr,rc,&err);
+            else break;
+            if (count>5) parms->arg5=formatValue(&argptr,rc,&err);
+            else break;
+            if (count>6) parms->arg6=formatValue(&argptr,rc,&err);
+            else break;
+            if (count>7) parms->arg7=formatValue(&argptr,rc,&err);
+            else break;
+            if (count>8) parms->arg8=formatValue(&argptr,rc,&err);
+            else break;
+            if (count>9) parms->arg9=formatValue(&argptr,rc,&err);
+            break;
+         }
+         va_end(argptr);
+      }
+      String nMsg=MessageLoader::getMessage2(*parms);
+      return string2CMPIString(nMsg);
+   }
+#endif
+
 #if defined(CMPI_VER_100)
   CMPIStatus mbEncLogMessage
-       (const CMPIBroker*,int severity ,const char *id,const char *text,
-	const CMPIString *string) {
+       (const CMPIBroker*,int severity ,const char *id,
+        const char *text, const CMPIString *string) {
 
 	  if ( !id || !(text || string))
 			  CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -687,6 +766,18 @@ extern "C" {
     CMReturn ( CMPI_RC_OK);
   }
 #endif
+
+#if defined(CMPI_VER_200)
+  CMPIError* mbEncNewCMPIError (const CMPIBroker* mb, 
+      const char* owner, const char* msgID, const char* msg,
+      const CMPIErrorSeverity sev, const CMPIErrorProbableCause pc,
+      const CMPIrc cimStatusCode, CMPIStatus* rc)
+  {
+      CMPIError* cmpiError = new CMPIError;
+      return cmpiError;
+  }
+#endif
+
 
   static CMPISelectExp *mbEncNewSelectExp (const CMPIBroker * mb, const char *query,
                                            const char *lang,
@@ -917,29 +1008,35 @@ extern "C" {
 }
 
 static CMPIBrokerEncFT brokerEnc_FT={
-     CMPICurrentVersion,
-     mbEncNewInstance,
-     mbEncNewObjectPath,
-     mbEncNewArgs,
-     mbEncNewString,
-     mbEncNewArray,
-     mbEncNewDateTime,
-     mbEncNewDateTimeFromBinary,
-     mbEncNewDateTimeFromString,
-     mbEncNewSelectExp,
-     mbEncClassPathIsA,
-     mbEncToString,
-     mbEncIsOfType,
-     mbEncGetType,
+     CMPICurrentVersion
+     ,mbEncNewInstance
+     ,mbEncNewObjectPath
+     ,mbEncNewArgs
+     ,mbEncNewString
+     ,mbEncNewArray
+     ,mbEncNewDateTime
+     ,mbEncNewDateTimeFromBinary
+     ,mbEncNewDateTimeFromString
+     ,mbEncNewSelectExp
+     ,mbEncClassPathIsA
+     ,mbEncToString
+     ,mbEncIsOfType
+     ,mbEncGetType
 #if defined (CMPI_VER_85)
-     mbEncGetMessage,
+     ,mbEncGetMessage
 #endif
 #if defined (CMPI_VER_90) && !defined(CMPI_VER_100)
-     mbEncGetKeyList
+     ,mbEncGetKeyList
 #endif
 #if defined (CMPI_VER_100)
-     mbEncLogMessage,
-     mbEncTracer
+     ,mbEncLogMessage
+     ,mbEncTracer
+#endif
+#if defined (CMPI_VER_200)
+     ,mbEncNewCMPIError
+     ,mbEncOpenMessageFile
+     ,mbEncCloseMessageFile
+     ,mbEncGetMessage2
 #endif
 };
 

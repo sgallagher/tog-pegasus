@@ -40,6 +40,8 @@
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
@@ -50,6 +52,7 @@ CIMNamespaceName providerNamespace;
 const CIMName CLASSNAME = CIMName ("TestCMPI_Method");
 
 Boolean verbose;
+Boolean useDefaultMsg;
 
 
 void _checkStringValue
@@ -233,7 +236,7 @@ test03 (CIMClient & client)
   inParams.clear ();
   outParams.clear ();
   {
-    /* CDGetMessage */
+    /* CMGetMessage */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (4))));
     CIMValue retValue = client.invokeMethod (providerNamespace,
 					     instanceName,
@@ -245,12 +248,17 @@ test03 (CIMClient & client)
 
     PEGASUS_TEST_ASSERT (outParams.size () == 1);
     CIMValue paramValue = outParams[0].getValue ();
-    _checkStringValue (paramValue, "CIM_ERR_SUCCESS: Successful.");
+    // If PEGASUS_USE_DEFAULT_MESSAGES is not set, we can't make an
+    // assumption about what the value of the msg will be.
+    if (useDefaultMsg)
+    {
+        _checkStringValue (paramValue, "CIM_ERR_SUCCESS: Successful.");
+    }
   }
   inParams.clear ();
   outParams.clear ();
   {
-    /* CDLogMessage */
+    /* CMLogMessage */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (5))));
     CIMValue retValue = client.invokeMethod (providerNamespace,
 					     instanceName,
@@ -269,7 +277,7 @@ test03 (CIMClient & client)
   inParams.clear ();
   outParams.clear ();
   {
-    /* CDTraceMessage */
+    /* CMTraceMessage */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (6))));
     CIMValue retValue = client.invokeMethod (providerNamespace,
 					     instanceName,
@@ -284,6 +292,51 @@ test03 (CIMClient & client)
     CIMValue paramValue = outParams[0].getValue ();
     PEGASUS_TEST_ASSERT (paramValue.isNull ());
 
+  }
+  inParams.clear ();
+  outParams.clear ();
+  {
+      /* CMGetMessage2 */
+      inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (7))));
+      inParams.append (CIMParamValue ("msgFile", CIMValue (String ("test/pegasusTest"))));
+      inParams.append (CIMParamValue ("msgId", CIMValue (String ("CIMStatusCode.CIM_ERR_SUCCESS"))));
+      inParams.append (CIMParamValue ("insert1", CIMValue (String ("rab oof is foo bar backwards"))));
+      inParams.append (CIMParamValue ("insert2", CIMValue (Uint32 (64001))));
+
+      AcceptLanguageList accLangs;
+      accLangs.insert(LanguageTag("en-US"),1.0);
+      accLangs.insert(LanguageTag("fr"),0.8);
+      client.setRequestAcceptLanguages(accLangs);
+
+      CIMValue retValue = client.invokeMethod (providerNamespace,
+          instanceName,
+          "TestCMPIBroker",
+          inParams,
+          outParams);
+      // Check the return value. Make sure it is 0.
+      _checkUint32Value (retValue, 0);
+
+      PEGASUS_TEST_ASSERT (outParams.size () == 1);
+      CIMValue paramValue = outParams[0].getValue ();
+      // If PEGASUS_USE_DEFAULT_MESSAGES is not set, we can't make an
+      // assumption about what the value of the msg will be, or the
+      // ContentLanguage.
+      if (useDefaultMsg)
+      {
+          _checkStringValue (paramValue, "CIM_ERR_SUCCESS: Successful.");
+      }
+      else
+      {
+          ContentLanguageList contLangs;
+          contLangs = client.getResponseContentLanguages();
+          cout << "ContentLanguage size == " << contLangs.size() << endl;
+          PEGASUS_TEST_ASSERT (contLangs.size() == 1);
+          cout << "ContentLanguage == " << contLangs.getLanguageTag(0).toString();
+          PEGASUS_TEST_ASSERT (contLangs.getLanguageTag(0).toString() == "en-US");
+      }
+      // Reset client
+      accLangs.clear();
+      client.setRequestAcceptLanguages(accLangs);
   }
 }
 void
@@ -524,6 +577,7 @@ int
 main (int argc, char **argv)
 {
   verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+  useDefaultMsg = (getenv("PEGASUS_USE_DEFAULT_MESSAGES")) ? true : false;
   CIMClient client;
   try
   {

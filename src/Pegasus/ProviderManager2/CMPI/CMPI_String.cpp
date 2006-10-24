@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -75,7 +71,7 @@ PEGASUS_STATIC CMPIStatus stringRelease(CMPIString *eStr) {
       return reinterpret_cast<CMPIString*>(obj);
    }
 
-   PEGASUS_STATIC char * stringGetCharPtr(const CMPIString *eStr, CMPIStatus* rc) {
+   PEGASUS_STATIC const char * stringGetCharPtr(const CMPIString *eStr, CMPIStatus* rc) {
       char* ptr=(char*)eStr->hdl;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return ptr;

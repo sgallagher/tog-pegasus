@@ -1325,7 +1325,7 @@ CMPIStatus  TCPCOMM_trace(const CMPIBroker* broker,
 
 CMPIString* TCPCOMM_getMessage(CONST CMPIBroker* broker,
         const char *msgId, const char *defMsg, CMPIStatus* rc,
-	unsigned int count, va_list argptr)
+	unsigned int count, ...)
 {
     CMPIString *result=NULL;
     CMPIContext *context;
@@ -1350,6 +1350,8 @@ CMPIString* TCPCOMM_getMessage(CONST CMPIBroker* broker,
     (__sft)->serialize_string(socket,defMsg);
     (__sft)->serialize_UINT32(socket,count);
 
+    va_list argptr;
+    va_start(argptr,count);
     for (i=0; i<count; i++) {
        type=va_arg(argptr,int);
        (__sft)->serialize_CMPIType(socket,type);
@@ -1402,6 +1404,7 @@ CMPIString* TCPCOMM_getMessage(CONST CMPIBroker* broker,
        default: ;
        }
     }
+    va_end(argptr);
 
     if (rc) CMSetStatus(rc,CMPI_RC_OK);
     {
@@ -1524,7 +1527,8 @@ static void __handle_MI_call(int socket)
 	NULL,
 	NULL,
 	&native_brokerEncFT,
-	NULL // CMPI_BrokerExt_Ftab
+	NULL, // CMPI_BrokerExt_Ftab
+        NULL  // CMPI_BrokerMem_Ftab
     };
 
     char *provider, *provider_module, *function, broker_address[256];

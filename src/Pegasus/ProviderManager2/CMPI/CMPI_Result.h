@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPI_Result_H_
@@ -58,14 +54,14 @@ PEGASUS_NAMESPACE_BEGIN
 #define RESULT_set        128
 #define RESULT_done       256
 
-typedef struct _CMPIResultRefFT : public CMPIResultFT {
-} CMPIResultRefFT;
-typedef struct _CMPIResultInstFT : public CMPIResultFT {
-} CMPIResultInstFT;
-typedef struct _CMPIResultDataFT : public CMPIResultFT {
-} CMPIResultDataFT;
-typedef struct _CMPIResultMethFT : public CMPIResultFT {
-} CMPIResultMethFT;
+//typedef struct _CMPIResultRefFT : public CMPIResultFT {
+//} CMPIResultRefFT;
+//typedef struct _CMPIResultInstFT : public CMPIResultFT {
+//} CMPIResultInstFT;
+//typedef struct _CMPIResultDataFT : public CMPIResultFT {
+//} CMPIResultDataFT;
+//typedef struct _CMPIResultMethFT : public CMPIResultFT {
+//} CMPIResultMethFT;
 
 struct CMPI_Result : CMPIResult {
    CMPI_Object *next,*prev;

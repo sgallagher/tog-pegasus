@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // This file sets the CMPI implementation version.
@@ -42,4 +38,4 @@
 #else
 #define PEGASUS_STATIC static
 #endif
-// By default, cmpidt.h sets it to the 100 - the CMPI standard.
+// By default, cmpidt.h sets it to the 200 - the latest CMPI standard.

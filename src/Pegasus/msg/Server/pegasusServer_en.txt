@@ -1321,6 +1321,14 @@ not be valid."}
         */
         ProviderManager.ProviderManagerService.OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED:string {"PGS04009:  The generation of indications by providers in module {0} may be affected.  To ensure these providers are serving active subscriptions, disable and then re-enable this module using the cimprovider command."}
 
+        /**
+        * @note  PGS04010
+        *    Substitution {0} is a file name string
+        *    Substitution {1} is the name of a provider module (a string)
+        * @version 2.6
+        */
+        ProviderManager.ProviderManagerService.PROVIDER_FILE_NOT_FOUND:string {"PGS04010:  File \"{0}\" was not found for provider module \"{1}\"."}
+
 
         // ==========================================================
         // Messages for ProviderModule

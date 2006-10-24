@@ -40,6 +40,7 @@
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/Constants.h>
 
@@ -221,10 +222,6 @@ CIMResponseMessage* DefaultProviderManager::_handleDisableModuleRequest(
         //
         Array<CIMInstance> providerInstances = request->providers;
 
-        String physicalName = _resolvePhysicalName(
-            mInstance.getProperty(
-                mInstance.findProperty("Location")).getValue().toString());
-
         for (Uint32 i = 0, n = providerInstances.size(); i < n; i++)
         {
             String pName;
@@ -387,14 +384,29 @@ ProviderName DefaultProviderManager::_resolveProviderName(
     genericValue = providerId.getModule().getProperty(
         providerId.getModule().findProperty("Location")).getValue();
     genericValue.get(fileName);
-    fileName = _resolvePhysicalName(fileName);
 
     // ATTN: This attribute is probably not required
     genericValue = providerId.getModule().getProperty(
         providerId.getModule().findProperty("InterfaceType")).getValue();
     genericValue.get(interfaceName);
 
-    return ProviderName(providerName, fileName, interfaceName, 0);
+    String resolvedFileName = _resolvePhysicalName(fileName);
+
+    if (resolvedFileName == String::EMPTY)
+    {
+        // Provider library not found
+        String moduleName;
+        genericValue = providerId.getModule().getProperty(
+            providerId.getModule().findProperty("Name")).getValue();
+        genericValue.get(moduleName);
+
+        throw Exception(MessageLoaderParms(
+            "ProviderManager.ProviderManagerService.PROVIDER_FILE_NOT_FOUND",
+            "File \"$0\" was not found for provider module \"$1\".",
+            FileSystem::buildLibraryFileName(fileName), moduleName));
+    }
+
+    return ProviderName(providerName, resolvedFileName, interfaceName, 0);
 }
 
 ProviderOperationCounter DefaultProviderManager::_getProvider(

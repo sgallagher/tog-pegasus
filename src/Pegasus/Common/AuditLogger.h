@@ -86,7 +86,8 @@ public:
         EVENT_AUTH_FAILURE,
         EVENT_CREATE,
         EVENT_UPDATE,
-        EVENT_DELETE
+        EVENT_DELETE,
+        EVENT_INVOKE
     };
 
     /** Constructs and logs audit message of the current configurations
@@ -132,6 +133,88 @@ public:
         const String & prePropertyValue,
         const String & newPropertyValue,
         Boolean isPlanned);
+
+    /**
+        Constructs and logs audit message of a CIM class update operation
+        @param cimMethodName - The name of the CIM operation performed
+        @param eventType - The AuditEvent associated with the CIM operation
+        @param userName - User name for this operation
+        @param ipAddr - Client IP address for this operation 
+        @param nameSpace - The namespace for the operation
+        @param className - The name of the class
+        @param statusCode - The CIM status code for the operation
+    */
+    static void logUpdateClassOperation(
+        const char* cimMethodName,
+        AuditEvent eventType,
+        const String& userName,
+        const String& ipAddr,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        CIMStatusCode statusCode);
+
+    /**
+        Constructs and logs audit message of a CIM qualifier update operation
+        @param cimMethodName - The name of the CIM operation performed
+        @param eventType - The AuditEvent associated with the CIM operation
+        @param userName - User name for this operation
+        @param ipAddr - Client IP address for this operation 
+        @param nameSpace - The namespace for the operation
+        @param name - The name of the qualifier 
+        @param statusCode - The CIM status code for the operation
+    */
+    static void logUpdateQualifierOperation(
+        const char* cimMethodName,
+        AuditEvent eventType,
+        const String& userName,
+        const String& ipAddr,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& name,
+        CIMStatusCode statusCode);
+
+    /**
+        Constructs and logs audit message of a CIM instance update operation
+        @param cimMethodName - The name of the CIM operation performed
+        @param eventType - The AuditEvent associated with the CIM operation
+        @param userName - The user name for this operation
+        @param ipAddr - Client IP address for this operation 
+        @param nameSpace - The namespace for the operation
+        @param className - The name of the class
+        @param moduleName - The provider module name that serves the request
+        @param providerName - The provider name that serves the request
+        @param statusCode - The CIM status code for the operation
+    */
+    static void logUpdateInstanceOperation(
+        const char* cimMethodName,
+        AuditEvent eventType,
+        const String& userName,
+        const String& ipAddr,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const String& moduleName,
+        const String& providerName,
+        CIMStatusCode statusCode);
+
+    /**
+        Constructs and logs audit message of a CIM InvokeMethod operation
+        @param userName - The user name for this operation
+        @param ipAddr - Client IP address for this operation 
+        @param nameSpace - The namespace for the operation
+        @param className - The name of the class
+        @param methodName - The name of the method to be executed 
+        @param moduleName - The provider module name that serves the request
+        @param providerName - The provider name that serves the request
+        @param statusCode - The CIM status code for the operation
+    */
+    static void logInvokeMethodOperation(
+        const String& userName,
+        const String& ipAddr,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const CIMName& methodName,
+        const String& moduleName,
+        const String& providerName,
+        CIMStatusCode statusCode);
 
     typedef void (*PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T)();
 

@@ -176,8 +176,9 @@ void AuditLogger::logSetConfigProperty(
     {
         MessageLoaderParms msgParms(
             "Common.AuditLogger.SET_PLANNED_CONFIG_PROPERTY",
-            "The planned value of property \"$0\" is modified from value \"$1\""                 " to value \"$2\" by user \"$3\".\n",
-           propertyName, prePropertyValue, newPropertyValue, userName);
+            "The planned value of property \"$0\" is modified from "
+                "value \"$1\" to value \"$2\" by user \"$3\".",
+            propertyName, prePropertyValue, newPropertyValue, userName);
 
         _writeAuditMessageToFile(TYPE_CONFIGURATION, 
             SUBTYPE_CONFIGURATION_CHANGE,
@@ -187,13 +188,160 @@ void AuditLogger::logSetConfigProperty(
     {
         MessageLoaderParms msgParms(
             "Common.AuditLogger.SET_CURRENT_CONFIG_PROPERTY",
-            "The current value of property \"$0\" is modified from value "
-            "\"$1\" to value \"$2\" by user \"$3\".\n",
-           propertyName, prePropertyValue, newPropertyValue, userName);
+            "The current value of property \"$0\" is modified from "
+                "value \"$1\" to value \"$2\" by user \"$3\".",
+            propertyName, prePropertyValue, newPropertyValue, userName);
 
         _writeAuditMessageToFile(TYPE_CONFIGURATION, 
             SUBTYPE_CONFIGURATION_CHANGE,
             EVENT_UPDATE, Logger::INFORMATION, msgParms); 
+    }
+}
+
+void AuditLogger::logUpdateClassOperation(
+    const char* cimMethodName,
+    AuditEvent eventType,
+    const String& userName,
+    const String& ipAddr,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    CIMStatusCode statusCode)
+{
+    MessageLoaderParms msgParms(
+        "Common.AuditLogger.OPERATION_UPDATE_CLASS",
+        "A CIM $0 operation on class \"$1\" in namespace \"$2\" by "
+            "user \"$3\" from system \"$4\" resulted in status \"$5\".",
+        cimMethodName,
+        className.getString(),
+        nameSpace.getString(),
+        userName,
+        ipAddr,
+        cimStatusCodeToString(statusCode));
+
+    _writeAuditMessageToFile(TYPE_CIMOPERATION, SUBTYPE_SCHEMA_OPERATION,
+        eventType, Logger::INFORMATION, msgParms);
+}
+
+void AuditLogger::logUpdateQualifierOperation(
+    const char* cimMethodName,
+    AuditEvent eventType,
+    const String& userName,
+    const String& ipAddr,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    CIMStatusCode statusCode)
+{
+    MessageLoaderParms msgParms(
+        "Common.AuditLogger.OPERATION_UPDATE_QUALIFIER",
+        "A CIM $0 operation on qualifier \"$1\" in namespace \"$2\" by "
+            "user \"$3\" from system \"$4\" resulted in status \"$5\".",
+        cimMethodName,
+        className.getString(),
+        nameSpace.getString(),
+        userName,
+        ipAddr,
+        cimStatusCodeToString(statusCode));
+
+    _writeAuditMessageToFile(TYPE_CIMOPERATION, SUBTYPE_SCHEMA_OPERATION,
+        eventType, Logger::INFORMATION, msgParms);
+}
+
+void AuditLogger::logUpdateInstanceOperation(
+    const char* cimMethodName,
+    AuditEvent eventType,
+    const String& userName,
+    const String& ipAddr,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    const String& moduleName,
+    const String& providerName,
+    CIMStatusCode statusCode)
+{
+    if (providerName != String::EMPTY)
+    {
+        MessageLoaderParms msgParms(
+            "Common.AuditLogger.OPERATION_UPDATE_INSTANCE_WITH_PROVIDER",
+            "A CIM $0 operation on an instance of class \"$1\" in "
+                "namespace \"$2\" by user \"$3\" from system \"$4\" "
+                "resulted in status \"$5\".  The provider for this operation "
+                "is \"$6\" in module \"$7\".",
+            cimMethodName,
+            className.getString(),
+            nameSpace.getString(),
+            userName,
+            ipAddr,
+            cimStatusCodeToString(statusCode),
+            providerName,
+            moduleName);
+
+        _writeAuditMessageToFile(TYPE_CIMOPERATION, SUBTYPE_INSTANCE_OPERATION,
+            eventType, Logger::INFORMATION, msgParms);
+    }
+    else
+    {
+        MessageLoaderParms msgParms(
+            "Common.AuditLogger.OPERATION_UPDATE_INSTANCE",
+            "A CIM $0 operation on an instance of class \"$1\" in "
+                "namespace \"$2\" by user \"$3\" from system \"$4\" "
+                "resulted in status \"$5\".",
+            cimMethodName,
+            className.getString(),
+            nameSpace.getString(),
+            userName,
+            ipAddr,
+            cimStatusCodeToString(statusCode));
+
+        _writeAuditMessageToFile(TYPE_CIMOPERATION, SUBTYPE_INSTANCE_OPERATION,
+            eventType, Logger::INFORMATION, msgParms);
+    }
+}
+
+void AuditLogger::logInvokeMethodOperation(
+    const String& userName,
+    const String& ipAddr,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    const CIMName& methodName,
+    const String& moduleName,
+    const String& providerName,
+    CIMStatusCode statusCode)
+{
+    if (providerName != String::EMPTY)
+    {
+        MessageLoaderParms msgParms(
+            "Common.AuditLogger.OPERATION_INVOKE_METHOD_WITH_PROVIDER",
+            "A CIM InvokeMethod operation on method \"$0\" of CIM class "
+                "\"$1\" in namespace \"$2\" by user \"$3\" from system "
+                "\"$4\" resulted in status \"$5\".  The provider for this "
+                "operation is \"$6\" in module \"$7\".",
+            methodName.getString(),
+            className.getString(),
+            nameSpace.getString(),
+            userName,
+            ipAddr,
+            cimStatusCodeToString(statusCode),
+            providerName,
+            moduleName);
+
+        _writeAuditMessageToFile(TYPE_CIMOPERATION, SUBTYPE_INSTANCE_OPERATION,
+            EVENT_INVOKE, Logger::INFORMATION, msgParms);
+    }
+    else
+    {
+        MessageLoaderParms msgParms(
+            "Common.AuditLogger.OPERATION_INVOKE_METHOD",
+            "A CIM InvokeMethod operation on method \"$0\" of CIM class "
+                "\"$1\" in namespace \"$2\" by user \"$3\" from system "
+                "\"$4\" resulted in status \"$5\".",
+            methodName.getString(),
+            className.getString(),
+            nameSpace.getString(),
+            userName,
+            ipAddr,
+            cimStatusCodeToString(statusCode));
+
+        _writeAuditMessageToFile(TYPE_CIMOPERATION, SUBTYPE_INSTANCE_OPERATION,
+            EVENT_INVOKE, Logger::INFORMATION, msgParms);
     }
 }
 
@@ -218,7 +366,7 @@ void AuditLogger::setEnabled(Boolean enabled)
         {
             MessageLoaderParms msgParms(
                 "Common.AuditLogger.DISABLE_AUDIT_LOG",
-                "Audit logging is disabled.\n"); 
+                "Audit logging is disabled."); 
 
             _writeAuditMessageToFile(TYPE_CONFIGURATION, 
                 SUBTYPE_CONFIGURATION_CHANGE,

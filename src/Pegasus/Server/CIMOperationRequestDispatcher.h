@@ -431,7 +431,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
       void _forwardRequestToService(
         const String& serviceName,
         CIMRequestMessage* request,
-        CIMResponseMessage*& response);
+        CIMRequestMessage* requestCopy);
 
       void _forwardRequestForAggregation(
         const String& serviceName,
@@ -444,13 +444,25 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
         const CIMName& className,
         const String& serviceName,
         const String& controlProviderName,
-        CIMRequestMessage* request);
+        CIMRequestMessage* request,
+        CIMRequestMessage* requestCopy);
 
-			Boolean _enqueueResponse(OperationAggregate *&poA,
-															 CIMResponseMessage *&response);
+      void _getProviderName(
+          const OperationContext& context,
+          String& moduleName,
+          String& providerName);
+
+      void _logOperation(
+          const CIMRequestMessage* request,
+          const CIMResponseMessage* response);
+
+      Boolean _enqueueResponse(
+          OperationAggregate*& poA,
+          CIMResponseMessage*& response);
 
       void _enqueueResponse(
-          CIMRequestMessage* request, CIMResponseMessage* response);
+          CIMRequestMessage* request,
+          CIMResponseMessage* response);
 
       CIMValue _convertValueType(const CIMValue& value, CIMType type);
 

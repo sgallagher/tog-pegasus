@@ -102,7 +102,7 @@ static void writeAuditLogToFile(
     FILE * _auditTestLogFileHandle =
         fopen(auditTestLogFile.getCString(), "a+");
 
-    fprintf(_auditTestLogFileHandle, "%s",
+    fprintf(_auditTestLogFileHandle, "%s\n",
         (const char *)MessageLoader::getMessage(msgParms).getCString());
 
    fclose(_auditTestLogFileHandle);
@@ -175,6 +175,65 @@ void testLogSetConfigProperty()
         "./logs", "/tmp", false);
 }
 
+void testLogSchemaOperations()
+{
+    AuditLogger::logUpdateClassOperation(
+        "CreateClass", AuditLogger::EVENT_CREATE,
+        "user1", "127.0.0.1", "root/test", "class1", CIM_ERR_FAILED);
+    AuditLogger::logUpdateClassOperation(
+        "ModifyClass", AuditLogger::EVENT_UPDATE,
+        "", "localhost", "test", "CIM_MyClass", CIM_ERR_ACCESS_DENIED);
+    AuditLogger::logUpdateClassOperation(
+        "DeleteClass", AuditLogger::EVENT_DELETE,
+        "guest", "1.1.1.1", "a/b/c/d", "ByeByeClass", CIM_ERR_SUCCESS);
+    AuditLogger::logUpdateQualifierOperation(
+        "SetQualifier", AuditLogger::EVENT_UPDATE,
+        "rootabc", "255.0.0.255", "test2", "Test", CIM_ERR_NOT_SUPPORTED);
+    AuditLogger::logUpdateQualifierOperation(
+        "DeleteQualifier", AuditLogger::EVENT_DELETE,
+        "r", "4.3.2.1", "test1/test2", "Bogus", CIM_ERR_NOT_FOUND);
+}
+
+void testLogInstanceOperations()
+{
+    AuditLogger::logUpdateInstanceOperation(
+        "CreateInstance", AuditLogger::EVENT_CREATE,
+        "user1", "127.0.0.9", "root/test", "class1", "", "", CIM_ERR_SUCCESS);
+    AuditLogger::logUpdateInstanceOperation(
+        "CreateInstance", AuditLogger::EVENT_CREATE,
+        "user1", "127.0.0.9", "root/test", "class1", "Module1", "Provider1",
+        CIM_ERR_SUCCESS);
+
+    AuditLogger::logUpdateInstanceOperation(
+        "ModifyInstance", AuditLogger::EVENT_UPDATE,
+        "", "localhost", "test", "CIM_MyClass", "", "", CIM_ERR_INVALID_CLASS);
+    AuditLogger::logUpdateInstanceOperation(
+        "ModifyInstance", AuditLogger::EVENT_UPDATE,
+        "", "localhost", "test", "CIM_MyClass", "TheModule", "TheProvider",
+        CIM_ERR_INVALID_CLASS);
+
+    AuditLogger::logUpdateInstanceOperation(
+        "DeleteInstance", AuditLogger::EVENT_DELETE,
+        "guest", "127.0.0.1", "a/b/c", "THE_Class", "", "", CIM_ERR_NOT_FOUND);
+    AuditLogger::logUpdateInstanceOperation(
+        "DeleteInstance", AuditLogger::EVENT_DELETE,
+        "guest", "127.0.0.1", "a/b/c", "THE_Class",
+        "AHappyModule", "AHappyProvider", CIM_ERR_NOT_FOUND);
+
+    AuditLogger::logUpdateInstanceOperation(
+        "SetProperty", AuditLogger::EVENT_UPDATE,
+        "me", "1.0.0.0", "a/b/c/d/e/f/g", "Z", "", "", CIM_ERR_INVALID_CLASS);
+    AuditLogger::logUpdateInstanceOperation(
+        "SetProperty", AuditLogger::EVENT_UPDATE,
+        "me", "1.0.0.0", "a/b/c/d/e/f/g", "Z", "InstModule", "InstProv",
+        CIM_ERR_INVALID_CLASS);
+
+    AuditLogger::logInvokeMethodOperation(
+        "guest", "1.1.1.1", "t", "Test", "MyMethod", "", "", CIM_ERR_FAILED);
+    AuditLogger::logInvokeMethodOperation(
+        "guest", "1.1.1.1", "t", "Test", "MyMethod", "m", "p", CIM_ERR_FAILED);
+}
+
 void auditLogInitializeCallback()
 {
     PEGASUS_TEST_ASSERT(!AuditLogger::isEnabled());
@@ -227,6 +286,8 @@ int main(int argc, char** argv)
         testLogCurrentConf();
         testLogCurrentRegProvider();
         testLogSetConfigProperty();
+        testLogSchemaOperations();
+        testLogInstanceOperations();
         testSetEnabled(false);
         testDisabled();
 

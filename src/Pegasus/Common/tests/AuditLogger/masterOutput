@@ -2,6 +2,7 @@ The current configuration properties are:
 AuditLogProperty1=AuditLogValue1
 AuditLogProperty2=AuditLogValue2
 AuditLogProperty3=AuditLogValue3
+
 The current registered provider modules are:
 AuditLogProviderModule0=Unknown
 AuditLogProviderModule1=Other
@@ -17,6 +18,22 @@ AuditLogProviderModule10=Stopped
 AuditLogProviderModule11=In Service
 AuditLogProviderModule12=No Contact
 AuditLogProviderModule13=Lost Communication
+
 The planned value of property "logdir" is modified from value "./logs" to value "/tmp" by user "guest".
 The current value of property "logdir" is modified from value "./logs" to value "/tmp" by user "guest".
+A CIM CreateClass operation on class "class1" in namespace "root/test" by user "user1" from system "127.0.0.1" resulted in status "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code".
+A CIM ModifyClass operation on class "CIM_MyClass" in namespace "test" by user "" from system "localhost" resulted in status "CIM_ERR_ACCESS_DENIED: Access to a CIM resource was not available to the client".
+A CIM DeleteClass operation on class "ByeByeClass" in namespace "a/b/c/d" by user "guest" from system "1.1.1.1" resulted in status "CIM_ERR_SUCCESS: successful".
+A CIM SetQualifier operation on qualifier "Test" in namespace "test2" by user "rootabc" from system "255.0.0.255" resulted in status "CIM_ERR_NOT_SUPPORTED: The requested operation is not supported".
+A CIM DeleteQualifier operation on qualifier "Bogus" in namespace "test1/test2" by user "r" from system "4.3.2.1" resulted in status "CIM_ERR_NOT_FOUND: The requested object could not be found".
+A CIM CreateInstance operation on an instance of class "class1" in namespace "root/test" by user "user1" from system "127.0.0.9" resulted in status "CIM_ERR_SUCCESS: successful".
+A CIM CreateInstance operation on an instance of class "class1" in namespace "root/test" by user "user1" from system "127.0.0.9" resulted in status "CIM_ERR_SUCCESS: successful".  The provider for this operation is "Provider1" in module "Module1".
+A CIM ModifyInstance operation on an instance of class "CIM_MyClass" in namespace "test" by user "" from system "localhost" resulted in status "CIM_ERR_INVALID_CLASS: The specified class does not exist".
+A CIM ModifyInstance operation on an instance of class "CIM_MyClass" in namespace "test" by user "" from system "localhost" resulted in status "CIM_ERR_INVALID_CLASS: The specified class does not exist".  The provider for this operation is "TheProvider" in module "TheModule".
+A CIM DeleteInstance operation on an instance of class "THE_Class" in namespace "a/b/c" by user "guest" from system "127.0.0.1" resulted in status "CIM_ERR_NOT_FOUND: The requested object could not be found".
+A CIM DeleteInstance operation on an instance of class "THE_Class" in namespace "a/b/c" by user "guest" from system "127.0.0.1" resulted in status "CIM_ERR_NOT_FOUND: The requested object could not be found".  The provider for this operation is "AHappyProvider" in module "AHappyModule".
+A CIM SetProperty operation on an instance of class "Z" in namespace "a/b/c/d/e/f/g" by user "me" from system "1.0.0.0" resulted in status "CIM_ERR_INVALID_CLASS: The specified class does not exist".
+A CIM SetProperty operation on an instance of class "Z" in namespace "a/b/c/d/e/f/g" by user "me" from system "1.0.0.0" resulted in status "CIM_ERR_INVALID_CLASS: The specified class does not exist".  The provider for this operation is "InstProv" in module "InstModule".
+A CIM InvokeMethod operation on method "MyMethod" of CIM class "Test" in namespace "t" by user "guest" from system "1.1.1.1" resulted in status "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code".
+A CIM InvokeMethod operation on method "MyMethod" of CIM class "Test" in namespace "t" by user "guest" from system "1.1.1.1" resulted in status "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code".  The provider for this operation is "p" in module "m".
 Audit logging is disabled.

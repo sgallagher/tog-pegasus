@@ -37,14 +37,13 @@
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Formatter.h>
 #include <Pegasus/Server/reg_table.h>
 
 #include <Pegasus/Server/QuerySupportRouter.h>
-
-// l10n
-#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -376,6 +375,251 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)
    PEG_METHOD_EXIT();
 }
 
+void CIMOperationRequestDispatcher::_getProviderName(
+    const OperationContext& context,
+    String& moduleName,
+    String& providerName)
+{
+    moduleName.clear();
+    providerName.clear();
+
+    if (context.contains(ProviderIdContainer::NAME))
+    {
+        const ProviderIdContainer pidc =
+            (const ProviderIdContainer) context.get(ProviderIdContainer::NAME);
+
+        CIMConstInstance module = pidc.getModule();
+        Uint32 pos = module.findProperty(_PROPERTY_PROVIDERMODULE_NAME);
+        if (pos != PEG_NOT_FOUND)
+        {
+            module.getProperty(pos).getValue().get(moduleName);
+        }
+
+        CIMConstInstance provider = pidc.getProvider();
+        pos = provider.findProperty("Name");
+        if (pos != PEG_NOT_FOUND)
+        {
+            provider.getProperty(pos).getValue().get(providerName);
+        }
+    }
+}
+
+void CIMOperationRequestDispatcher::_logOperation(
+    const CIMRequestMessage* request,
+    const CIMResponseMessage* response)
+{
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::_logOperation");
+
+    String moduleName;
+    String providerName;
+
+    if (AuditLogger::isEnabled())
+    {
+        switch (request->getType())
+        {
+            case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+            {
+                const CIMCreateClassRequestMessage* req =
+                    reinterpret_cast<const CIMCreateClassRequestMessage*>(
+                        request);
+                AuditLogger::logUpdateClassOperation(
+                    "CreateClass",
+                    AuditLogger::EVENT_CREATE,
+                    req->userName,
+                    req->ipAddress, 
+                    req->nameSpace,
+                    req->className,
+                    response->cimException.getCode());
+                break;
+            }
+
+            case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+            {
+                const CIMModifyClassRequestMessage* req =
+                    reinterpret_cast<const CIMModifyClassRequestMessage*>(
+                        request);
+                AuditLogger::logUpdateClassOperation(
+                    "ModifyClass",
+                    AuditLogger::EVENT_UPDATE,
+                    req->userName,
+                    req->ipAddress, 
+                    req->nameSpace,
+                    req->className,
+                    response->cimException.getCode());
+                break;
+            }
+
+            case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+            {
+                const CIMDeleteClassRequestMessage* req =
+                    reinterpret_cast<const CIMDeleteClassRequestMessage*>(
+                        request);
+                AuditLogger::logUpdateClassOperation(
+                    "DeleteClass",
+                    AuditLogger::EVENT_DELETE,
+                    req->userName,
+                    req->ipAddress, 
+                    req->nameSpace,
+                    req->className,
+                    response->cimException.getCode());
+                break;
+            }
+
+            case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
+            {
+                const CIMSetQualifierRequestMessage* req =
+                    reinterpret_cast<const CIMSetQualifierRequestMessage*>(
+                        request);
+                AuditLogger::logUpdateQualifierOperation(
+                    "SetQualifier",
+                    AuditLogger::EVENT_UPDATE,
+                    req->userName,
+                    req->ipAddress, 
+                    req->nameSpace,
+                    req->qualifierDeclaration.getName(),
+                    response->cimException.getCode());
+                break;
+            }
+
+            case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
+            {
+                const CIMDeleteQualifierRequestMessage* req =
+                    reinterpret_cast<const CIMDeleteQualifierRequestMessage*>(
+                        request);
+                AuditLogger::logUpdateQualifierOperation(
+                    "DeleteQualifier",
+                    AuditLogger::EVENT_DELETE,
+                    req->userName,
+                    req->ipAddress, 
+                    req->nameSpace,
+                    req->qualifierName,
+                    response->cimException.getCode());
+                break;
+            }
+
+            case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+            {
+                const CIMCreateInstanceRequestMessage* req =
+                    reinterpret_cast<const CIMCreateInstanceRequestMessage*>(
+                        request);
+
+                _getProviderName(
+                    req->operationContext, moduleName, providerName);
+
+                AuditLogger::logUpdateInstanceOperation(
+                    "CreateInstance",
+                    AuditLogger::EVENT_CREATE,
+                    req->userName,
+                    req->ipAddress, 
+                    req->nameSpace,
+                    req->className,
+                    moduleName,
+                    providerName,
+                    response->cimException.getCode());
+                break;
+            }
+
+            case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+            {
+                const CIMModifyInstanceRequestMessage* req =
+                    reinterpret_cast<const CIMModifyInstanceRequestMessage*>(
+                        request);
+
+                _getProviderName(
+                    req->operationContext, moduleName, providerName);
+
+                AuditLogger::logUpdateInstanceOperation(
+                    "ModifyInstance",
+                    AuditLogger::EVENT_UPDATE,
+                    req->userName,
+                    req->ipAddress, 
+                    req->nameSpace,
+                    req->className,
+                    moduleName,
+                    providerName,
+                    response->cimException.getCode());
+                break;
+            }
+
+            case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+            {
+                const CIMDeleteInstanceRequestMessage* req =
+                    reinterpret_cast<const CIMDeleteInstanceRequestMessage*>(
+                        request);
+
+                _getProviderName(
+                    req->operationContext, moduleName, providerName);
+
+                AuditLogger::logUpdateInstanceOperation(
+                    "DeleteInstance",
+                    AuditLogger::EVENT_DELETE,
+                    req->userName,
+                    req->ipAddress, 
+                    req->nameSpace,
+                    req->className,
+                    moduleName,
+                    providerName,
+                    response->cimException.getCode());
+                break;
+            }
+
+            case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+            {
+                const CIMSetPropertyRequestMessage* req =
+                    reinterpret_cast<const CIMSetPropertyRequestMessage*>(
+                        request);
+
+                _getProviderName(
+                    req->operationContext, moduleName, providerName);
+
+                AuditLogger::logUpdateInstanceOperation(
+                    "SetProperty",
+                    AuditLogger::EVENT_UPDATE,
+                    req->userName,
+                    req->ipAddress, 
+                    req->nameSpace,
+                    req->className,
+                    moduleName,
+                    providerName,
+                    response->cimException.getCode());
+                break;
+            }
+
+            case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+            {
+                const CIMInvokeMethodRequestMessage* req =
+                    reinterpret_cast<const CIMInvokeMethodRequestMessage*>(
+                        request);
+
+                _getProviderName(
+                    req->operationContext, moduleName, providerName);
+
+                AuditLogger::logInvokeMethodOperation(
+                    req->userName,
+                    req->ipAddress, 
+                    req->nameSpace,
+                    req->className,
+                    req->methodName,
+                    moduleName,
+                    providerName,
+                    response->cimException.getCode());
+                break;
+            }
+
+            default:
+                // Other operations are not logged.
+                break;
+        }
+    }
+
+    PEG_METHOD_EXIT();
+
+#endif
+}
+
 /*
  * send the given response synchronously using the given aggregation object.
  * return whether the sent message was complete or not. The parameters are
@@ -504,6 +748,11 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
             response->setComplete(true);
             response->setIndex(0);
 
+        }
+
+        if (isComplete)
+        {
+            _logOperation(poA->getRequest(), response);
         }
 
         // send it syncronously so that multiple responses will show up in the
@@ -1780,6 +2029,10 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
         static_cast<AsyncRequest *>(op->removeRequest());
     AsyncReply *asyncReply = static_cast<AsyncReply *>(op->removeResponse());
 
+    CIMRequestMessage *request =
+        reinterpret_cast<CIMRequestMessage*>(userParameter);
+    PEGASUS_ASSERT(request != 0);
+
     CIMResponseMessage *response = 0;
 
     Uint32 msgType = asyncReply->getType();
@@ -1801,35 +2054,17 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
 
     PEGASUS_ASSERT(response != 0);
 
-    // ensure that the destination queue is in response->dest
-#ifdef PEGASUS_POINTER_64BIT
-    response->dest = (Uint64)userParameter;
-#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
-    response->dest = (unsigned long)userParameter;   //Cast to size 32/64 bit safe
-#else
-    response->dest = (Uint32)userParameter;
-#endif
-
-    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3,
-        "Forwarding " + String(MessageTypeToString(response->getType())) +
-        " via Callback to " +
-        ((MessageQueue::lookup(response->dest)) ?
-         String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) :
-         String("BAD queue name")));
-
     Boolean isComplete = response->isComplete();
 
-    if (userParameter)
-        service->SendForget(response);
+    service->_enqueueResponse(request, response);
 
     if (isComplete == true)
     {
+        delete request;
         delete asyncRequest;
         delete asyncReply;
         op->release();
         service->return_op(op);
-        if (! userParameter)
-            delete response;
     }
 
     PEG_METHOD_EXIT();
@@ -1839,7 +2074,7 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
 void CIMOperationRequestDispatcher::_forwardRequestToService(
     const String& serviceName,
     CIMRequestMessage* request,
-    CIMResponseMessage*& response)
+    CIMRequestMessage* requestCopy)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToService");
@@ -1870,13 +2105,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
               serviceIds[0],
               CIMOperationRequestDispatcher::_forwardRequestCallback,
               this,
-#ifdef PEGASUS_POINTER_64BIT
-              (void *)(Uint64)request->queueIds.top());
-#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
-              (void *)(unsigned long)request->queueIds.top());
-#else
-              (void *)(Uint32)request->queueIds.top());
-#endif
+              requestCopy);
 
     PEG_METHOD_EXIT();
 }
@@ -1982,7 +2211,8 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
     const CIMName& className,        // only for diagnostic
     const String& serviceName,
     const String& controlProviderName,
-    CIMRequestMessage* request)
+    CIMRequestMessage* request,
+    CIMRequestMessage* requestCopy)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToProviderManager");
@@ -2017,13 +2247,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
                   serviceIds[0],
                   CIMOperationRequestDispatcher::_forwardRequestCallback,
                   this,
-#ifdef PEGASUS_POINTER_64BIT
-                  (void *)(Uint64)request->queueIds.top());
-#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
-                  (void *)(unsigned long)request->queueIds.top());
-#else
-                  (void *)(Uint32)request->queueIds.top());
-#endif
+                  requestCopy);
     }
     else
     {
@@ -2050,13 +2274,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
                  serviceIds[0],
                  CIMOperationRequestDispatcher::_forwardRequestCallback,
                  this,
-#ifdef PEGASUS_POINTER_64BIT
-                 (void *)(Uint64)request->queueIds.top());
-#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
-                 (void *)(unsigned long)request->queueIds.top());
-#else
-                 (void *)(Uint32)request->queueIds.top());
-#endif
+                 requestCopy);
     }
 
     PEG_METHOD_EXIT();
@@ -2077,6 +2295,8 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
        Tracer::LEVEL3,
        "_CIMOperationRequestDispatcher::_enqueueResponse - request->getCloseConnect() returned %d",
        request->getCloseConnect());
+
+   _logOperation(request, response);
 
    if( true == Base::_enqueueResponse(request, response))
    {
@@ -2406,11 +2626,15 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
        }
 #endif
 
+       CIMGetInstanceRequestMessage* requestCallbackCopy =
+           new CIMGetInstanceRequestMessage(*requestCopy);
+
        _forwardRequestToProviderManager(
            providerInfo.className,
            providerInfo.serviceName,
            providerInfo.controlProviderName,
-           requestCopy);
+           requestCopy,
+           requestCallbackCopy);
 
         PEG_METHOD_EXIT();
 
@@ -2584,11 +2808,15 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
            //providerIdContainer = 0;
        }
 
+       CIMDeleteInstanceRequestMessage* requestCallbackCopy =
+           new CIMDeleteInstanceRequestMessage(*requestCopy);
+
        _forwardRequestToProviderManager(
            providerInfo.className,
            providerInfo.serviceName,
            providerInfo.controlProviderName,
-           requestCopy);
+           requestCopy,
+           requestCallbackCopy);
 
        PEG_METHOD_EXIT();
 
@@ -2768,11 +2996,15 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
            //providerIdContainer = 0;
        }
 
+       CIMCreateInstanceRequestMessage* requestCallbackCopy =
+           new CIMCreateInstanceRequestMessage(*requestCopy);
+
        _forwardRequestToProviderManager(
            providerInfo.className,
            providerInfo.serviceName,
            providerInfo.controlProviderName,
-           requestCopy);
+           requestCopy,
+           requestCallbackCopy);
 
        PEG_METHOD_EXIT();
 
@@ -2956,11 +3188,15 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
            //providerIdContainer = 0;
        }
 
+       CIMModifyInstanceRequestMessage* requestCallbackCopy =
+           new CIMModifyInstanceRequestMessage(*requestCopy);
+
        _forwardRequestToProviderManager(
            providerInfo.className,
            providerInfo.serviceName,
            providerInfo.controlProviderName,
-           requestCopy);
+           requestCopy,
+           requestCallbackCopy);
 
        PEG_METHOD_EXIT();
 
@@ -4984,20 +5220,17 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
        if(providerInfo.providerIdContainer.get() != 0)
        {
            requestCopy->operationContext.insert(*providerInfo.providerIdContainer.get());
-
-           //delete providerIdContainer;
-           //providerIdContainer = NULL;
        }
 
-       CIMResponseMessage * response = 0;
+       CIMGetPropertyRequestMessage* requestCallbackCopy =
+           new CIMGetPropertyRequestMessage(*requestCopy);
 
        _forwardRequestToService(
-          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,
-          requestCopy,
-          response);
+           PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,
+           requestCopy,
+           requestCallbackCopy);
 
        PEG_METHOD_EXIT();
-
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -5107,20 +5340,17 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
        if(providerInfo.providerIdContainer.get() != 0)
        {
            requestCopy->operationContext.insert(*providerInfo.providerIdContainer.get());
-
-           //delete providerIdContainer;
-           //providerIdContainer = NULL;
        }
 
-       CIMResponseMessage * response = 0;
+       CIMSetPropertyRequestMessage* requestCallbackCopy =
+           new CIMSetPropertyRequestMessage(*requestCopy);
 
        _forwardRequestToService(
            PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,
            requestCopy,
-           response);
+           requestCallbackCopy);
 
        PEG_METHOD_EXIT();
-
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -5433,8 +5663,6 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleInvokeMethodRequest");
 
-   CIMResponseMessage* response;
-
    {
       CIMException cimException;
       try
@@ -5510,8 +5738,15 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
       CIMInvokeMethodRequestMessage* requestCopy =
          new CIMInvokeMethodRequestMessage(*request);
 
-      _forwardRequestToProviderManager(className, serviceName, controlProviderName,
-          requestCopy);
+       CIMInvokeMethodRequestMessage* requestCallbackCopy =
+           new CIMInvokeMethodRequestMessage(*requestCopy);
+
+       _forwardRequestToProviderManager(
+           className,
+           serviceName,
+           controlProviderName,
+           requestCopy,
+           requestCallbackCopy);
 
       PEG_METHOD_EXIT();
       return;
@@ -5536,14 +5771,19 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
          providerIdContainer = NULL;
       }
 
+      CIMInvokeMethodRequestMessage* requestCallbackCopy =
+          new CIMInvokeMethodRequestMessage(*requestCopy);
+
       _forwardRequestToService(
-          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,
+          requestCopy,
+          requestCallbackCopy);
 
       PEG_METHOD_EXIT();
       return;
    }
 
-   response = request->buildResponse();
+   CIMResponseMessage* response = request->buildResponse();
    response->cimException =
        PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE,
            request->methodName.getString());

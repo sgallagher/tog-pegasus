@@ -46,11 +46,11 @@
 
 #include <Pegasus/Config/ConfigManager.h>
 
-#include <Pegasus/ProviderManagerService/BasicProviderManagerRouter.h>
-#include <Pegasus/ProviderManagerService/OOPProviderManagerRouter.h>
-
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Common/String.h>
+
+#include <Pegasus/ProviderManagerService/BasicProviderManagerRouter.h>
+#include <Pegasus/ProviderManagerService/OOPProviderManagerRouter.h>
 
 #ifdef PEGASUS_ZOS_SECURITY
 // This include file will not be provided in the OpenGroup CVS for now.
@@ -654,6 +654,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
     else
     {
         CIMInstance providerModule;
+        CIMInstance provider;
 
         if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
         {
@@ -672,6 +673,8 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             ProviderIdContainer pidc =
                 request->operationContext.get(ProviderIdContainer::NAME);
             providerModule = pidc.getModule();
+            provider = pidc.getProvider();
+
 #ifdef PEGASUS_ZOS_SECURITY
             if (request->getType() != CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
             {
@@ -698,43 +701,26 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             providerModule.getProperty(pos).getValue().get(userContext);
         }
 
-        String _moduleName = String::EMPTY;
-        String _providerName = String::EMPTY;
-
-        CIMKeyBinding kb(_PROPERTY_PROVIDERMODULENAME,
-                    _moduleName, CIMKeyBinding::STRING);
-
-        CIMKeyBinding kb2(_PROPERTY_PROVIDER_NAME,
-                     _providerName, CIMKeyBinding::STRING);
-
-        Array<CIMKeyBinding> kbArray;
-        kbArray.append(kb);
-        kbArray.append(kb2);
-
-        CIMObjectPath providerRef("", PEGASUS_NAMESPACENAME_PROVIDERREG,
-                            PEGASUS_CLASSNAME_PROVIDER,
-                            kbArray);
-        ProviderRegistrationManager* providerRegManger;
-        CIMInstance provider = providerRegManger->getInstance(providerRef,false,false,CIMPropertyList());
-
-        Boolean userCert = false;
-        Uint32 pos1 =provider.findProperty(PEGASUS_PROPERTYNAME_PROVIDERCERTINFO);
-
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "Got Value for provider certificate info as : $0",pos1);
+        Array<Uint16> operationContextContainers;
+        Uint32 pos1 = provider.findProperty(PEGASUS_PROPERTYNAME_PROVIDERCERTINFO);
 
         if (pos1 != PEG_NOT_FOUND)
         {
-            provider.getProperty(pos1).getValue().get(userCert);
+            provider.getProperty(pos1).getValue().get(operationContextContainers);
         }
 
-        if (!userCert)
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+             "Got Value for provider certificate info as : $0",operationContextContainers);
+        for (Uint32 i=0; i<operationContextContainers.size(); i++)
         {
-           /**
-               remove the SSL client certificate container unless the provider
-               explicitly registered for it
-           */
-           request->operationContext.remove(SSLCertificateChainContainer::NAME);
+            if (operationContextContainers[i] != 0)
+            {
+                /**
+                    remove the SSL client certificate container unless the provider
+                    explicitly registered for it
+                */
+                request->operationContext.remove(SSLCertificateChainContainer::NAME);
+            }
         }
 
         // Forward the request to the appropriate ProviderManagerRouter, based

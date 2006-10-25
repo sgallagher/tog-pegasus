@@ -209,8 +209,8 @@ void AuditLogger::logUpdateClassOperation(
 {
     MessageLoaderParms msgParms(
         "Common.AuditLogger.OPERATION_UPDATE_CLASS",
-        "A CIM $0 operation on class \"$1\" in namespace \"$2\" by "
-            "user \"$3\" from system \"$4\" resulted in status \"$5\".",
+        "A CIM $0 operation on class \"$1\" in namespace \"$2\" by user "
+            "\"$3\" connected from system \"$4\" resulted in status \"$5\".",
         cimMethodName,
         className.getString(),
         nameSpace.getString(),
@@ -233,8 +233,8 @@ void AuditLogger::logUpdateQualifierOperation(
 {
     MessageLoaderParms msgParms(
         "Common.AuditLogger.OPERATION_UPDATE_QUALIFIER",
-        "A CIM $0 operation on qualifier \"$1\" in namespace \"$2\" by "
-            "user \"$3\" from system \"$4\" resulted in status \"$5\".",
+        "A CIM $0 operation on qualifier \"$1\" in namespace \"$2\" by user "
+            "\"$3\" connected from system \"$4\" resulted in status \"$5\".",
         cimMethodName,
         className.getString(),
         nameSpace.getString(),
@@ -252,7 +252,7 @@ void AuditLogger::logUpdateInstanceOperation(
     const String& userName,
     const String& ipAddr,
     const CIMNamespaceName& nameSpace,
-    const CIMName& className,
+    const CIMObjectPath& instanceName,
     const String& moduleName,
     const String& providerName,
     CIMStatusCode statusCode)
@@ -261,12 +261,13 @@ void AuditLogger::logUpdateInstanceOperation(
     {
         MessageLoaderParms msgParms(
             "Common.AuditLogger.OPERATION_UPDATE_INSTANCE_WITH_PROVIDER",
-            "A CIM $0 operation on an instance of class \"$1\" in "
-                "namespace \"$2\" by user \"$3\" from system \"$4\" "
-                "resulted in status \"$5\".  The provider for this operation "
-                "is \"$6\" in module \"$7\".",
+            "A CIM $0 operation on instance \"$1\" in namespace \"$2\" by "
+                "user \"$3\" connected from system \"$4\" resulted in "
+                "status \"$5\".  "
+                "The provider for this operation is \"$6\" in module \"$7\".",
             cimMethodName,
-            className.getString(),
+            CIMObjectPath("", CIMNamespaceName(), instanceName.getClassName(),
+                instanceName.getKeyBindings()).toString(),
             nameSpace.getString(),
             userName,
             ipAddr,
@@ -281,11 +282,12 @@ void AuditLogger::logUpdateInstanceOperation(
     {
         MessageLoaderParms msgParms(
             "Common.AuditLogger.OPERATION_UPDATE_INSTANCE",
-            "A CIM $0 operation on an instance of class \"$1\" in "
-                "namespace \"$2\" by user \"$3\" from system \"$4\" "
-                "resulted in status \"$5\".",
+            "A CIM $0 operation on instance \"$1\" in namespace \"$2\" by "
+                "user \"$3\" connected from system \"$4\" resulted in "
+                "status \"$5\".  ",
             cimMethodName,
-            className.getString(),
+            CIMObjectPath("", CIMNamespaceName(), instanceName.getClassName(),
+                instanceName.getKeyBindings()).toString(),
             nameSpace.getString(),
             userName,
             ipAddr,
@@ -300,7 +302,7 @@ void AuditLogger::logInvokeMethodOperation(
     const String& userName,
     const String& ipAddr,
     const CIMNamespaceName& nameSpace,
-    const CIMName& className,
+    const CIMObjectPath& objectName,
     const CIMName& methodName,
     const String& moduleName,
     const String& providerName,
@@ -310,12 +312,13 @@ void AuditLogger::logInvokeMethodOperation(
     {
         MessageLoaderParms msgParms(
             "Common.AuditLogger.OPERATION_INVOKE_METHOD_WITH_PROVIDER",
-            "A CIM InvokeMethod operation on method \"$0\" of CIM class "
-                "\"$1\" in namespace \"$2\" by user \"$3\" from system "
+            "A CIM InvokeMethod operation on method \"$0\" of object \"$1\" "
+                "in namespace \"$2\" by user \"$3\" connected from system "
                 "\"$4\" resulted in status \"$5\".  The provider for this "
                 "operation is \"$6\" in module \"$7\".",
             methodName.getString(),
-            className.getString(),
+            CIMObjectPath("", CIMNamespaceName(), objectName.getClassName(),
+                objectName.getKeyBindings()).toString(),
             nameSpace.getString(),
             userName,
             ipAddr,
@@ -330,11 +333,12 @@ void AuditLogger::logInvokeMethodOperation(
     {
         MessageLoaderParms msgParms(
             "Common.AuditLogger.OPERATION_INVOKE_METHOD",
-            "A CIM InvokeMethod operation on method \"$0\" of CIM class "
-                "\"$1\" in namespace \"$2\" by user \"$3\" from system "
+            "A CIM InvokeMethod operation on method \"$0\" of object \"$1\" "
+                "in namespace \"$2\" by user \"$3\" connected from system "
                 "\"$4\" resulted in status \"$5\".",
             methodName.getString(),
-            className.getString(),
+            CIMObjectPath("", CIMNamespaceName(), objectName.getClassName(),
+                objectName.getKeyBindings()).toString(),
             nameSpace.getString(),
             userName,
             ipAddr,

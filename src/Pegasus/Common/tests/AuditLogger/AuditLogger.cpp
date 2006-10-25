@@ -198,40 +198,46 @@ void testLogInstanceOperations()
 {
     AuditLogger::logUpdateInstanceOperation(
         "CreateInstance", AuditLogger::EVENT_CREATE,
-        "user1", "127.0.0.9", "root/test", "class1", "", "", CIM_ERR_SUCCESS);
+        "user1", "127.0.0.9", "root/test", CIMObjectPath("class1"),
+        "", "", CIM_ERR_FAILED);
     AuditLogger::logUpdateInstanceOperation(
         "CreateInstance", AuditLogger::EVENT_CREATE,
-        "user1", "127.0.0.9", "root/test", "class1", "Module1", "Provider1",
-        CIM_ERR_SUCCESS);
+        "user1", "127.0.0.9", "root/test", CIMObjectPath("class1.id=\"v1\""),
+        "Module1", "Provider1", CIM_ERR_SUCCESS);
 
     AuditLogger::logUpdateInstanceOperation(
         "ModifyInstance", AuditLogger::EVENT_UPDATE,
-        "", "localhost", "test", "CIM_MyClass", "", "", CIM_ERR_INVALID_CLASS);
+        "", "localhost", "test", CIMObjectPath("CIM_MyClass.id=1"),
+        "", "", CIM_ERR_INVALID_CLASS);
     AuditLogger::logUpdateInstanceOperation(
         "ModifyInstance", AuditLogger::EVENT_UPDATE,
-        "", "localhost", "test", "CIM_MyClass", "TheModule", "TheProvider",
-        CIM_ERR_INVALID_CLASS);
+        "", "localhost", "test", CIMObjectPath("CIM_MyClass.id=1"),
+        "TheModule", "TheProvider", CIM_ERR_INVALID_CLASS);
 
     AuditLogger::logUpdateInstanceOperation(
         "DeleteInstance", AuditLogger::EVENT_DELETE,
-        "guest", "127.0.0.1", "a/b/c", "THE_Class", "", "", CIM_ERR_NOT_FOUND);
+        "guest", "127.0.0.1", "a/b/c", CIMObjectPath("THE_Class.a=\"A\",z=10"),
+        "", "", CIM_ERR_NOT_FOUND);
     AuditLogger::logUpdateInstanceOperation(
         "DeleteInstance", AuditLogger::EVENT_DELETE,
-        "guest", "127.0.0.1", "a/b/c", "THE_Class",
+        "guest", "127.0.0.1", "a/b/c", CIMObjectPath("THE_Class.a=\"A\",z=10"),
         "AHappyModule", "AHappyProvider", CIM_ERR_NOT_FOUND);
 
     AuditLogger::logUpdateInstanceOperation(
         "SetProperty", AuditLogger::EVENT_UPDATE,
-        "me", "1.0.0.0", "a/b/c/d/e/f/g", "Z", "", "", CIM_ERR_INVALID_CLASS);
+        "me", "1.0.0.0", "a/b/c/d/e/f/g", CIMObjectPath("Z.x=0"),
+        "", "", CIM_ERR_INVALID_CLASS);
     AuditLogger::logUpdateInstanceOperation(
         "SetProperty", AuditLogger::EVENT_UPDATE,
-        "me", "1.0.0.0", "a/b/c/d/e/f/g", "Z", "InstModule", "InstProv",
-        CIM_ERR_INVALID_CLASS);
+        "me", "1.0.0.0", "a/b/c/d/e/f/g", CIMObjectPath("Z.x=0"),
+        "InstModule", "InstProv", CIM_ERR_INVALID_CLASS);
 
     AuditLogger::logInvokeMethodOperation(
-        "guest", "1.1.1.1", "t", "Test", "MyMethod", "", "", CIM_ERR_FAILED);
+        "guest", "1.1.1.1", "t", CIMObjectPath("Test"), "MyMethod",
+        "", "", CIM_ERR_FAILED);
     AuditLogger::logInvokeMethodOperation(
-        "guest", "1.1.1.1", "t", "Test", "MyMethod", "m", "p", CIM_ERR_FAILED);
+        "guest", "1.1.1.1", "t", CIMObjectPath("Test.a=1,b=2,c=3"), "MyMethod",
+        "m", "p", CIM_ERR_FAILED);
 }
 
 void auditLogInitializeCallback()

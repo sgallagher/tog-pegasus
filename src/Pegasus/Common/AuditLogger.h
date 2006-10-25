@@ -179,7 +179,7 @@ public:
         @param userName - The user name for this operation
         @param ipAddr - Client IP address for this operation 
         @param nameSpace - The namespace for the operation
-        @param className - The name of the class
+        @param instanceName - The name of the affected instance
         @param moduleName - The provider module name that serves the request
         @param providerName - The provider name that serves the request
         @param statusCode - The CIM status code for the operation
@@ -190,7 +190,7 @@ public:
         const String& userName,
         const String& ipAddr,
         const CIMNamespaceName& nameSpace,
-        const CIMName& className,
+        const CIMObjectPath& instanceName,
         const String& moduleName,
         const String& providerName,
         CIMStatusCode statusCode);
@@ -200,7 +200,8 @@ public:
         @param userName - The user name for this operation
         @param ipAddr - Client IP address for this operation 
         @param nameSpace - The namespace for the operation
-        @param className - The name of the class
+        @param objectName - The name of the object on which the method is
+            invoked
         @param methodName - The name of the method to be executed 
         @param moduleName - The provider module name that serves the request
         @param providerName - The provider name that serves the request
@@ -210,7 +211,7 @@ public:
         const String& userName,
         const String& ipAddr,
         const CIMNamespaceName& nameSpace,
-        const CIMName& className,
+        const CIMObjectPath& objectName,
         const CIMName& methodName,
         const String& moduleName,
         const String& providerName,

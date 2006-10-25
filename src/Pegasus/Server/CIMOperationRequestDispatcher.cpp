@@ -506,6 +506,10 @@ void CIMOperationRequestDispatcher::_logOperation(
                     reinterpret_cast<const CIMCreateInstanceRequestMessage*>(
                         request);
 
+                const CIMCreateInstanceResponseMessage* resp =
+                    reinterpret_cast<const CIMCreateInstanceResponseMessage*>(
+                        response);
+
                 _getProviderName(
                     req->operationContext, moduleName, providerName);
 
@@ -515,7 +519,9 @@ void CIMOperationRequestDispatcher::_logOperation(
                     req->userName,
                     req->ipAddress, 
                     req->nameSpace,
-                    req->className,
+                    (response->cimException.getCode() == CIM_ERR_SUCCESS) ?
+                        resp->instanceName :
+                        CIMObjectPath(req->className.getString()),
                     moduleName,
                     providerName,
                     response->cimException.getCode());
@@ -537,7 +543,7 @@ void CIMOperationRequestDispatcher::_logOperation(
                     req->userName,
                     req->ipAddress, 
                     req->nameSpace,
-                    req->className,
+                    req->modifiedInstance.getPath(),
                     moduleName,
                     providerName,
                     response->cimException.getCode());
@@ -559,7 +565,7 @@ void CIMOperationRequestDispatcher::_logOperation(
                     req->userName,
                     req->ipAddress, 
                     req->nameSpace,
-                    req->className,
+                    req->instanceName,
                     moduleName,
                     providerName,
                     response->cimException.getCode());
@@ -581,7 +587,7 @@ void CIMOperationRequestDispatcher::_logOperation(
                     req->userName,
                     req->ipAddress, 
                     req->nameSpace,
-                    req->className,
+                    req->instanceName,
                     moduleName,
                     providerName,
                     response->cimException.getCode());
@@ -601,7 +607,7 @@ void CIMOperationRequestDispatcher::_logOperation(
                     req->userName,
                     req->ipAddress, 
                     req->nameSpace,
-                    req->className,
+                    req->instanceName,
                     req->methodName,
                     moduleName,
                     providerName,

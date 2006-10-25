@@ -296,7 +296,6 @@ private:
 	
 	#ifdef PEGASUS_HAS_ICU
         static void openICUMessageFile(MessageLoaderParms &parms);
-	static String loadICUMessage(MessageLoaderParms &parms);
 		
 	static String extractICUMessage(UResourceBundle * resbundl, MessageLoaderParms &parms);
 		

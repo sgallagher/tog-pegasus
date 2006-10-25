@@ -54,6 +54,7 @@
 #   endif /* HAVE_STRUCT_TIMESPEC */
 
 #   elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+#      include <pthread.h>
 #      ifndef __cplusplus
 #         define CMPI_THREAD_CDECL
 #      else

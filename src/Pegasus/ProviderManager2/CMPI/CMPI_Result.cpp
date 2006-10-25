@@ -122,7 +122,9 @@ CMPIStatus resolveEmbeddedInstanceTypes(
 
 extern "C" {
 
-   PEGASUS_STATIC CMPIStatus resultReturnData(const CMPIResult* eRes, const CMPIValue* data,  CMPIType type) {
+   PEGASUS_STATIC CMPIStatus resultReturnData(
+       const CMPIResult* eRes, const CMPIValue* data,  const CMPIType type) 
+   {
       CMPIrc rc;
       if ((eRes->hdl == NULL) || (data == NULL))
 	     CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -562,7 +564,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   PEGASUS_STATIC CMPIStatus resultBadReturnData(const CMPIResult* eRes, const CMPIValue* data,  CMPIType type) {
+   PEGASUS_STATIC CMPIStatus resultBadReturnData(const CMPIResult* eRes, const CMPIValue* data,  const CMPIType type) {
       CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
    }
 

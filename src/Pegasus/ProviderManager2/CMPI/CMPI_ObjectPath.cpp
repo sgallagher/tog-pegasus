@@ -152,7 +152,7 @@ extern "C" {
    }
 
    static CMPIStatus refAddKey(CMPIObjectPath* eRef, const char *name,
-            const CMPIValue* data,  CMPIType type) {
+            const CMPIValue* data,  const CMPIType type) {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
 	  if (!ref) 
 		CMReturn( CMPI_RC_ERR_INVALID_PARAMETER);

@@ -61,6 +61,7 @@ const CIMNamespaceName NAMESPACE2 = CIMNamespaceName ("test/CimsubTestNS2");
 const CIMNamespaceName NAMESPACE3 = CIMNamespaceName ("test/CimsubTestNS3");
 const CIMNamespaceName SOURCENAMESPACE =
     CIMNamespaceName ("root/SampleProvider");
+const CIMNamespaceName NULL_NAMESPACE;
 
 Boolean verbose;
 
@@ -324,7 +325,7 @@ CIMObjectPath _buildSubscriptionPath(
     const String & handlerName,
     const String & filterHost = String::EMPTY,
     const String & handlerHost = String::EMPTY,
-    const CIMNamespaceName & filterNS = CIMNamespaceName(),
+    const CIMNamespaceName & filterNS = NULL_NAMESPACE,
     const CIMNamespaceName & handlerNS = CIMNamespaceName())
 {
     CIMObjectPath filterPath = _buildFilterOrHandlerPath(
@@ -366,7 +367,7 @@ void _deleteSubscriptionInstance(
      const String & handlerName,
      const String & filterHost = String::EMPTY,
      const String & handlerHost = String::EMPTY,
-     const CIMNamespaceName & filterNS = CIMNamespaceName(),
+     const CIMNamespaceName & filterNS = NULL_NAMESPACE,
      const CIMNamespaceName & handlerNS = CIMNamespaceName(),
      const CIMNamespaceName & subscriptionNS = NAMESPACE)
 {

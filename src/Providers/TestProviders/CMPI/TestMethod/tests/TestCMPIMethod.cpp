@@ -321,9 +321,12 @@ test03 (CIMClient & client)
       // If PEGASUS_USE_DEFAULT_MESSAGES is not set, we can't make an
       // assumption about what the value of the msg will be, or the
       // ContentLanguage.
+#ifdef PEGASUS_HAS_MESSAGES
       if (useDefaultMsg)
       {
+#endif
           _checkStringValue (paramValue, "CIM_ERR_SUCCESS: Successful.");
+#ifdef PEGASUS_HAS_MESSAGES
       }
       else
       {
@@ -334,6 +337,7 @@ test03 (CIMClient & client)
           cout << "ContentLanguage == " << contLangs.getLanguageTag(0).toString();
           PEGASUS_TEST_ASSERT (contLangs.getLanguageTag(0).toString() == "en-US");
       }
+#endif
       // Reset client
       accLangs.clear();
       client.setRequestAcceptLanguages(accLangs);

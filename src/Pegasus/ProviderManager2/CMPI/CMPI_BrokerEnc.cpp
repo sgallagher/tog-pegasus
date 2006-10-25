@@ -614,10 +614,18 @@ extern "C" {
           }
       }
       MessageLoader::openMessageFile(*parms);
-      ctx->ft->addEntry (ctx, 
-          CMPIContentLanguage,
-          (CMPIValue*)(const char*)LanguageParser::buildContentLanguageHeader(parms->contentlanguages).getCString(),
-          CMPI_chars);
+      
+      ContentLanguageList cll = parms->contentlanguages;
+      // Check that we have at least one content language (ie. matching 
+      // resource bundle was found) before adding to Invocation Context.
+      if (cll.size() > 0)
+      {
+          ctx->ft->addEntry (ctx, 
+              CMPIContentLanguage,
+              (CMPIValue*)(const char*)
+                  LanguageParser::buildContentLanguageHeader(cll).getCString(),
+              CMPI_chars);
+      }
 
       *msgFileHandle = (void *)parms;
       CMReturn(CMPI_RC_OK);

@@ -4455,7 +4455,7 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate 'CIMSERV', 'CLASS WBEM' since they are RACF names
         *    Do not translate 'UPDATE' since it is the name of a specific access right
         */
-        Server.checkAuthorizationzOS_include.NOUPDATE_CIMSERV_ACCESS:string {"PGS12535W: Authorization failed: UserID $0 misses UPDATE permission to profile CIMSERV CL(WBEM) to execute a writing CIM operation."}
+        Server.checkAuthorizationzOS_include.NOUPDATE_CIMSERV_ACCESS:string {"PGS12535W: Authorization failed: UserID {0} misses UPDATE permission to profile CIMSERV CL(WBEM) to execute a writing CIM operation."}
 
         /**
         * @note PGS12540:
@@ -4770,7 +4770,7 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is a string ID for the cimprovagt process instance
         *    Do not translate the word 'cimprovagt' since it is a command name.
         */
-        ProviderManager.ProviderAgent.ProviderAgent.PROVIDERAGENT_NOT_INITIALIZED: string {"PGS14003: cimprovagt \"$0\" was not yet initialised prior to receiving a request message. Exiting."}
+        ProviderManager.ProviderAgent.ProviderAgent.PROVIDERAGENT_NOT_INITIALIZED: string {"PGS14003: cimprovagt \"{0}\" was not yet initialised prior to receiving a request message. Exiting."}
 
         
 

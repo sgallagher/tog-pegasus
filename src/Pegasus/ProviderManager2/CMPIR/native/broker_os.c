@@ -1,61 +1,69 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "cmpir_common.h"
-#include "tool.h"
+#include <Pegasus/ProviderManager2/CMPIR/cmpir_common.h>
+#include <Pegasus/ProviderManager2/CMPIR/tool.h>
 #include "native.h"
-#include "debug.h"
+#include <Pegasus/ProviderManager2/CMPIR/debug.h>
 #include <Pegasus/Provider/CMPI/cmpipl.h>
 #include <errno.h>
 #include <stdlib.h>
 
+#ifdef PEGASUS_OS_TYPE_UNIX
+#include <pthread.h>
+#endif
 
-#if defined PEGASUS_OS_TYPE_WINDOWS
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 //
 // PLEASE DO NOT REMOVE THE DEFINITION OF FD_SETSIZE!
 //
 # ifndef FD_SETSIZE
-#  define FD_SETSIZE 1024
+#define FD_SETSIZE 1024
 # endif
-# include <winsock2.h>
-# include <process.h>
-# include <winbase.h>
-# include <sys/types.h>
-# include <sys/timeb.h>
-# include <winuser.h>
-#else
-# include <pthread.h>
-#endif
 
-PEGASUS_EXPORT CMPI_MUTEX_TYPE pegthreadOnceMutex = NULL;
+#include <process.h>
+#include <windows.h>
+
+# ifndef _WINSOCKAPI_
+#include <winsock2.h>
+# endif
+
+#include <winbase.h>
+#include <sys/types.h>
+#include <sys/timeb.h>
+#include <winuser.h>
+
+#endif
 
 static char *resolveFileName (const char *filename)
 {
@@ -63,14 +71,22 @@ static char *resolveFileName (const char *filename)
 #if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
     strcpy(dlName,filename);
     strcat(dlName,".dll");
-#elif defined(CMPI_PLATFORM_HPUX_PARISC_ACC)
+#elif defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+    strcpy(dlName,"lib");
+    strcat(dlName,filename);
+    strcat(dlName,".so");
+#elif defined(CMPI_OS_HPUX)
+# ifdef CMPI_PLATFORM_HPUX_PARISC_ACC
     strcpy(dlName,"lib");
     strcat(dlName,filename);
     strcat(dlName,".sl");
-#elif defined(CMPI_OS_VMS)
-    strcpy(dlName,"/wbem_lib");
+# else
+    strcpy(dlName,"lib");
     strcat(dlName,filename);
-    strcat(dlName,".exe");
+    strcat(dlName,".so");
+# endif
+#elif defined(CMPI_OS_OS400)
+    strcpy(dlName,filename);
 #elif defined(CMPI_OS_DARWIN)
     strcpy(dlName,"lib");
     strcat(dlName,filename);
@@ -84,140 +100,43 @@ static char *resolveFileName (const char *filename)
     return strdup(dlName);
 }
 
-/*
-    We need to have wrapper for newthread. When we invoke newThread from
-    current thread, new thread is not managed by memeory management and may
-    not have CMPIBroker and CMPIContext assosiated with that.
-    Add them in wrapper. -V 5245
-*/
-struct startWrapperArg
-{
-    void *(CMPI_THREAD_CDECL * start) (void *);
-    void *arg;
-    CMPIBroker *broker;
-    CMPIContext *ctx;
-};
-
-typedef struct startWrapperArg startWrapperArg;
-
-void *_start_wrapper(void *arg_)
-{
-    startWrapperArg *arg = (startWrapperArg *) arg_;
-    void* return_value;
-
-    return_value = (*arg->start) (arg->arg);
-    free (arg);
-
-    return return_value;
-}
-
-static CMPI_THREAD_TYPE newThread(
-    CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *),
-    void *parm, int detached)
+static CMPI_THREAD_TYPE newThread
+        (CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *), void *parm, int detached)
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
-    pthread_t t;
+   pthread_t t;
     pthread_attr_t tattr;
-    startWrapperArg *wparm =
-        (startWrapperArg*)malloc ( sizeof ( struct startWrapperArg ) );
-    wparm->start = start;
-    wparm->arg = parm;
-    wparm->broker = NULL;
-    wparm->ctx = NULL;
-    if (detached)
-    {
-        pthread_attr_init(&tattr);
-        pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
-        pthread_create(&t, &tattr, (void *(*)(void *)) _start_wrapper, wparm);
+    if (detached) {
+       pthread_attr_init(&tattr);
+       pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
+       pthread_create(&t, &tattr, (void *(*)(void *)) start, parm);
     }
-    else
-    {
-        pthread_create(&t, NULL, (void *(*)(void *)) _start_wrapper, wparm);
-    }
-    return(CMPI_THREAD_TYPE)t;
+    else pthread_create(&t, NULL, (void *(*)(void *)) start, parm);
+    return (CMPI_THREAD_TYPE)t;
 
 #elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
-
-# define PTHREAD_CREATE_DETACHED 0
-
+    #define PTHREAD_CREATE_DETACHED 0
     pthread_t t;
     pthread_attr_t tattr;
-    startWrapperArg *wparm =
-        (startWrapperArg*)malloc ( sizeof ( struct startWrapperArg ) );
-    wparm->start = start;
-    wparm->arg = parm;
-    wparm->broker = NULL;
-    wparm->ctx = NULL;
-    if (detached)
-    {
+    if (detached) {
         pthread_attr_init(&tattr);
         pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
-        pthread_create(&t, &tattr, (void *(*)(void *)) _start_wrapper, wparm);
+        pthread_create(&t, &tattr, (void *(*)(void *)) start, parm);
     }
-    else
-    {
-        pthread_create(&t, NULL, (void *(*)(void *)) _start_wrapper, wparm);
-    }
+    else pthread_create(&t, NULL, (void *(*)(void *)) start, parm);
 
-    return(CMPI_THREAD_TYPE) t;
+    return (CMPI_THREAD_TYPE) &t;
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-
     unsigned threadid = 0;
     HANDLE hThread;
-    startWrapperArg *wparm =
-        (startWrapperArg*)malloc ( sizeof ( struct startWrapperArg ) );
-    wparm->start = start;
-    wparm->arg = parm;
-    wparm->broker = NULL;
-    wparm->ctx = NULL;
-    hThread = (HANDLE)_beginthread( (void *)_start_wrapper, 0, wparm);
-    return(CMPI_THREAD_TYPE) hThread;
+    hThread = (HANDLE)_beginthread( (void *)start, 0, parm);
+    return (CMPI_THREAD_TYPE) hThread;
 #else
-# error Platform for Remote CMPI daemon not yet supported
+   #error Platform no yet supported
+   #error Platform for Remote CMPI daemon no yet supported
+
 #endif
 }
-
-static int joinThread (
-    CMPI_THREAD_TYPE hdlThread,
-    CMPI_THREAD_RETURN *returnCode)
-{
-#if defined(PEGASUS_OS_TYPE_UNIX)
-   return pthread_join((pthread_t)hdlThread, returnCode);
-#elif defined(PEGASUS_OS_TYPE_WINDOWS)
-   WaitForSingleObject(hdlThread,INFINITE);
-   GetExitCodeThread(hdlThread,returnCode);
-   return CloseHandle(hdlThread);
-#else
-   #error Platform for Remote CMPI daemon not yet supported
-#endif
-}
-
-static int exitThread (CMPI_THREAD_RETURN returnCode)
-{
-
-#if defined(PEGASUS_OS_TYPE_UNIX)
-    pthread_exit (returnCode);
-    return 0;
-#elif defined(PEGASUS_OS_TYPE_WINDOWS)
-    returnCode=0;
-    _endthread();
-    return 0;  /* should never reach here */
-#else
-   #error Platform for Remote CMPI daemon not yet supported
-#endif
-}
-
-static int cancelThread (CMPI_THREAD_TYPE hdlThread)
-{
-#if defined(PEGASUS_OS_TYPE_UNIX)
-    return pthread_cancel ((pthread_t)hdlThread);
-#elif defined(PEGASUS_OS_TYPE_WINDOWS)
-    return TerminateThread(hdlThread,0);
-#else
-   #error Platform for Remote CMPI daemon not yet supported
-#endif
-}
-
 
 #ifdef CMPI_PLATFORM_ZOS_ZSERIES_IBM
 static int threadOnce (pthread_once_t *once, void (*init)(void))
@@ -225,25 +144,21 @@ static int threadOnce (pthread_once_t *once, void (*init)(void))
     return pthread_once ( once, init );
 }
 #else
+
 static int threadOnce (int *once, void (*init)(void))
 {
-# if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
     return pthread_once ( once, init );
-# elif defined PEGASUS_OS_TYPE_WINDOWS
-    if (*once==0)
+#elif defined PEGASUS_OS_TYPE_WINDOWS
+    if (*once==0) 
     {
-        WaitForSingleObject(pegthreadOnceMutex,INFINITE);
-        if ((*once)++ == 0)
-        {
-            (init)();
-        }
-        ReleaseMutex(pegthreadOnceMutex);
+        *once=1;
+        (init)();
     }
-
     return *once;
-# else
-#  error Platform for Remote CMPI daemon not yet supported
-# endif
+#else
+#error Platform for Remote CMPI daemon no yet supported
+#endif
 }
 #endif /* endif of #ifdef CMPI_PLATFORM_ZOS_ZSERIES_IBM */
 
@@ -258,18 +173,21 @@ static int createThreadKey(CMPI_THREAD_KEY_TYPE *key, void (*cleanup)(void*))
     key = (CMPI_THREAD_KEY_TYPE*) key1;
     return TlsSetValue(key1,cleanup);
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
 static int destroyThreadKey(CMPI_THREAD_KEY_TYPE key)
 {
-#if defined(PEGASUS_OS_TYPE_UNIX)
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
     return pthread_key_delete (key);
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+    // thread keys get deleted at thread-end by system
+    return 0;
 #elif defined PEGASUS_OS_TYPE_WINDOWS
     return TlsFree(key);
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
@@ -278,11 +196,11 @@ static void *getThreadSpecific(CMPI_THREAD_KEY_TYPE key)
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
     return pthread_getspecific(key);
 #elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
-    return(void*) pthread_getspecific_d8_np(key);
+    return (void*) pthread_getspecific_d8_np(key);
 #elif defined PEGASUS_OS_TYPE_WINDOWS
     return TlsGetValue(key);
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
@@ -295,7 +213,7 @@ static int setThreadSpecific(CMPI_THREAD_KEY_TYPE key, void * value)
 #elif defined PEGASUS_OS_TYPE_WINDOWS
     return TlsSetValue(key,value);
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
@@ -308,8 +226,7 @@ static CMPI_MUTEX_TYPE newMutex (int opt)
     return m;
 #elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
     // pthread_mutex_t init_m;
-    pthread_mutex_t *new_mutex =
-        (pthread_mutex_t*) calloc(1,sizeof(pthread_mutex_t));
+    pthread_mutex_t *new_mutex = (pthread_mutex_t*) calloc(1,sizeof(pthread_mutex_t));
     // PTHREAD_MUTEX_INITIALIZER;
     errno = 0;
 
@@ -318,19 +235,11 @@ static CMPI_MUTEX_TYPE newMutex (int opt)
         TRACE_CRITICAL(("pthread_mutex_init failed: %s",strerror(errno)));
         return NULL;
     }
-    return(CMPI_MUTEX_TYPE) new_mutex;
+    return (CMPI_MUTEX_TYPE) new_mutex;
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-    HANDLE new_mutex;
-    new_mutex = CreateMutex(NULL,FALSE,NULL);
-    if (new_mutex == NULL)
-    {
-        TRACE_CRITICAL(("CreateMutex failed: Error code %d",
-            GetLastError()));
-        return NULL;
-    }
-    return(CMPI_MUTEX_TYPE) new_mutex;
+    return CreateMutex(NULL,FALSE,NULL);
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
@@ -345,10 +254,9 @@ static void destroyMutex (CMPI_MUTEX_TYPE m)
     }
     free((pthread_mutex_t*) m);
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-    WaitForSingleObject(m, INFINITE);
     CloseHandle(m);
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
@@ -361,7 +269,7 @@ static void lockMutex (CMPI_MUTEX_TYPE m)
 #elif defined PEGASUS_OS_TYPE_WINDOWS
     WaitForSingleObject(m,INFINITE);
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
@@ -374,7 +282,7 @@ static void unlockMutex (CMPI_MUTEX_TYPE m)
 #elif defined PEGASUS_OS_TYPE_WINDOWS
     ReleaseMutex(m);
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
@@ -391,18 +299,13 @@ static CMPI_COND_TYPE newCondition (int opt)
     {
         TRACE_CRITICAL(("pthread_cond_init failed: %s",strerror(errno)));
     }
-    return(CMPI_COND_TYPE) c;
+    return (CMPI_COND_TYPE) c;
 #elif defined PEGASUS_OS_TYPE_WINDOWS
     HANDLE c;
-    c = CreateEvent( NULL, FALSE, FALSE, NULL );
-    if (c == NULL)
-    {
-        TRACE_CRITICAL(("CreateEvent failed: Error code: %d",
-            GetLastError()));
-    }
+    c = CreateEvent( NULL, TRUE, TRUE, NULL );
     return c;
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
@@ -419,29 +322,19 @@ static void destroyCondition (CMPI_COND_TYPE c)
 #elif defined PEGASUS_OS_TYPE_WINDOWS
     CloseHandle(c);
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
-static int timedCondWait(
-    CMPI_COND_TYPE c,
-    CMPI_MUTEX_TYPE m,
-    struct timespec *wait)
+static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *wait)
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
-    return pthread_cond_timedwait(
-        (pthread_cond_t*)c,
-        (pthread_mutex_t*)m,
-        wait);
+    return pthread_cond_timedwait((pthread_cond_t*)c, (pthread_mutex_t*)m, wait );
 #elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
-    return pthread_cond_timedwait(
-        (pthread_cond_t*)c,
-        (pthread_mutex_t*)m,
-        wait);
+    return pthread_cond_timedwait((pthread_cond_t*)c, (pthread_mutex_t*)m, wait );
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-
-    int rc;
-    int msec;
+ 
+	int msec;
     struct timespec next=*wait;
     struct timeval
     {
@@ -450,9 +343,9 @@ static int timedCondWait(
     }now;
     //struct _timeb timebuffer;
 
-    /*  this is not truely mapping to pthread_timed_wait
-        but will work for the time beeing
-    */
+   /* this is not truely mapping to pthread_timed_wait
+      but will work for the time beeing
+   */
 
     gettimeofday(&now, NULL);
 
@@ -464,16 +357,11 @@ static int timedCondWait(
     msec=(next.tv_sec-now.tv_sec)*1000;
     msec+=(next.tv_nsec/1000000)-(now.tv_usec/1000);
 
-    if ((rc = SignalObjectAndWait(m,c,msec,FALSE))==WAIT_OBJECT_0)
-    {
-        if (WaitForSingleObject(m,INFINITE)==WAIT_OBJECT_0)
-        {
-            return 0;
-        }
-    }
+    Sleep(msec);
+
     return 1;
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
@@ -484,45 +372,46 @@ static int condWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
 #elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
     return pthread_cond_wait((pthread_cond_t*)c, (pthread_mutex_t*)m);
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-    if (SignalObjectAndWait(m,c,INFINITE,FALSE)==WAIT_OBJECT_0)
-    {
-        if (WaitForSingleObject(m,INFINITE)==WAIT_OBJECT_0)
-        {
-            return 0;
-        }
-    }
     return 1;
 #else
-# error Platform for Remote CMPI daemon not yet supported
+#error Platform for Remote CMPI daemon no yet supported
 #endif
 }
 
-static int threadSleep(CMPIUint32 msec)
+static void threadSleep(int msec)
 {
 #if defined(PEGASUS_HAVE_NANOSLEEP)
 
-    struct timespec wait,remwait;
+    struct timespec wait;
     wait.tv_sec = msec / 1000;
     wait.tv_nsec = (msec % 1000) * 1000000;
+    nanosleep(&wait, NULL);
 
-    while ((nanosleep(&wait, &remwait) == -1) && (errno == EINTR))
-    {
-        wait.tv_sec = remwait.tv_sec;
-        wait.tv_nsec = remwait.tv_nsec;
-    }
+#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 
-#elif defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
-      defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
-      defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    struct _timeb end, now;
+   int loop;
+   int microsecs = msec * 1000; /* convert from milliseconds to microseconds */
 
+   if (microsecs < 1000000)
+       usleep(microsecs);
+   else
+   {
+       loop = microsecs / 1000000;
+       for(int i = 0; i < loop; i++)
+           usleep(1000000);
+       if ((loop*1000000) < microsecs)
+           usleep(microsecs - (loop*1000000));
+   }
+
+#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+  struct _timeb end, now;
     if (msec == 0)
-    {
+    {         
         Sleep(0);
-        return 0;
+        return;
     }
 
-
+  
     _ftime( &end );
     end.time += (msec / 1000);
     msec -= (msec / 1000);
@@ -532,10 +421,10 @@ static int threadSleep(CMPIUint32 msec)
     {
         Sleep(0);
         _ftime(&now);
-    }
-    while (end.millitm > now.millitm && end.time >= now.time);
+    } 
+    while( end.millitm > now.millitm && end.time >= now.time);
 
-#elif defined(PEGASUS_OS_ZOS)
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     int seconds;
     if (msec < 1000)
     {
@@ -544,26 +433,25 @@ static int threadSleep(CMPIUint32 msec)
     else
     {
         // sleep for loop seconds
-        sleep(msec / 1000);
+        ::sleep(msec / 1000);
         // Usleep the remaining micro seconds
         usleep( (msec*1000) % 1000000 );
     }
 #elif defined(PEGASUS_OS_VMS)
 
-    sleep(msec / 1000);
+    ::sleep(msec / 1000);
 
 #endif
-    return 0;
 }
 
 static CMPIBrokerExtFT brokerExt_FT={
     CMPICurrentVersion,
     resolveFileName,
     newThread,
-    joinThread,
-    exitThread,
-    cancelThread,
-    threadSleep,
+    NULL,                      // Join not implemented yet
+    NULL,                      // exit not implemented yet
+    NULL,                      // cancel not implemented yet
+    threadSleep,                      // sleep not implemented yet
     threadOnce,
 
     createThreadKey,
@@ -583,5 +471,5 @@ static CMPIBrokerExtFT brokerExt_FT={
     NULL                       // Signal not supported yet
 };
 
-PEGASUS_EXPORT CMPIBrokerExtFT *CMPI_BrokerExt_Ftab = &brokerExt_FT;
+CMPIBrokerExtFT *CMPI_BrokerExt_Ftab=&brokerExt_FT;
 

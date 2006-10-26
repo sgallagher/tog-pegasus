@@ -529,20 +529,20 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
                   break;
                 case 7:
                   {
-                      PROV_LOG ("++++ Calling CMGetArg for msgFile");
                       CMPIData msgFileData;
+                      CMPIData msgIdData;
+                      CMPIData insert1Data;
+                      CMPIData insert2Data;
+                      PROV_LOG ("++++ Calling CMGetArg for msgFile");
                       msgFileData = CMGetArg (in, "msgFile", &rc);
                       PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
                       PROV_LOG ("++++ Calling CMGetArg for msgId");
-                      CMPIData msgIdData;
                       msgIdData = CMGetArg (in, "msgId", &rc);
                       PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
                       PROV_LOG ("++++ Calling CMGetArg for insert1");
-                      CMPIData insert1Data;
                       insert1Data = CMGetArg (in, "insert1", &rc);
                       PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
                       PROV_LOG ("++++ Calling CMGetArg for insert2");
-                      CMPIData insert2Data;
                       insert2Data = CMGetArg (in, "insert2", &rc);
                       PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
                       oper_rc = _CMGetMessage2 (&result,
@@ -550,7 +550,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
                           CMGetCharPtr(msgIdData.value.string),
                           CMGetCharPtr(insert1Data.value.string),
                           insert2Data.value.uint32
-                          ); 
+                          );
                       break;
                   }
                 default:

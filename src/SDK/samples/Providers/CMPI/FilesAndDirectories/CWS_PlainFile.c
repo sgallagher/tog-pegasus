@@ -31,6 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <stdio.h>
+#include <string.h>
 #include "CWS_FileUtils.h"
 #include "../CWS_Util/cwsutil.h"
 #include <Pegasus/Provider/CMPI/cmpidt.h>
@@ -230,13 +232,39 @@ CMPIStatus CWS_PlainFileSetInstance( CMPIInstanceMI * mi,
 #endif
 {
   CMPIStatus st = {CMPI_RC_OK,NULL};
+  CMPIData   dt;
   CWS_FILE   filebuf;
 
   if (!silentMode()) fprintf(stderr,"--- CWS_PlainFileSetInstance() \n");
 
-  if (!makeFileBuf(ci,&filebuf) || !CWS_Update_File(&filebuf))
+  if (makeFileBuf(ci,&filebuf))
+  {
+      // TestCMPIProperty will update the FileSize property
+      if ((properties!=NULL)&&(strcmp(properties[0],"FileSize")==0))
+      {
+          dt=CMGetKey(cop,"Name",&st);
+          if (st.rc != CMPI_RC_OK) {
+            CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
+                     "Could not get instance name");
+          }
+          else if (!CWS_Update_FileSize(&filebuf, CMGetCharPtr(dt.value.string)))
+          {
+              CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
+                       "Could not update filesize in instance");
+          }
+
+      }
+      else if (!CWS_Update_File(&filebuf))
+      {
     CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
 			 "Could not update instance");
+      }
+  }
+  else
+  {
+      CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
+               "Internal test provider error");
+  }
 
   return st;
 }

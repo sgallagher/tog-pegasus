@@ -31,12 +31,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <stdio.h>
+#include <string.h>
 #include "CWS_FileUtils.h"
 #include "../CWS_Util/cwsutil.h"
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <string.h>
 #ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
 #include <libgen.h>
 #endif

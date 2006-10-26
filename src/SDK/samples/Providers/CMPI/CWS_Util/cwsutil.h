@@ -86,6 +86,7 @@ CMPI_EXTERN_C void CWS_End_Enum(void *handle);
 
 CMPI_EXTERN_C int CWS_Get_File(const char *file, CWS_FILE* cwsf);
 CMPI_EXTERN_C int CWS_Update_File(CWS_FILE* cwsf);
+CMPI_EXTERN_C int CWS_Update_FileSize(CWS_FILE* cwsf, const char *fn);
 CMPI_EXTERN_C int CWS_Create_Directory(CWS_FILE* cwsf);
 CMPI_EXTERN_C int CWS_Get_FileType(const char *file, char* typestring, size_t tslen);
 

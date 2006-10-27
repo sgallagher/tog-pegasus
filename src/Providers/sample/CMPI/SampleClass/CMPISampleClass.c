@@ -321,10 +321,10 @@ CMPIStatus testProvInvokeMethod
 //---
 //----------------------------------------------------------
 
-CMInstanceMIStub (testProv, CMPISample, broker, CMNoHook);
+CMInstanceMIStub (testProv, CMPISample, broker, CMNoHook)
 
 //----------------------------------------------------------
 
-CMMethodMIStub (testProv, CMPISample, broker, CMNoHook);
+CMMethodMIStub (testProv, CMPISample, broker, CMNoHook)
 
 //----------------------------------------------------------//----------------------------------------------------------

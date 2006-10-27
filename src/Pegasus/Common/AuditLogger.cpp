@@ -37,18 +37,19 @@
 #include <Pegasus/Common/Formatter.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/AuditLogger.h>
 
 #ifndef PEGASUS_OS_TYPE_WINDOWS
 # include <unistd.h>
 #endif
 
+#ifdef PEGASUS_OS_VMS
+# include <unixlib.h>
+#endif
+
 #include <stdlib.h>
 
 #ifndef PEGASUS_DISABLE_AUDIT_LOGGER
-
-#include <Pegasus/Common/AuditLogger.h>
-
-extern char ** environ;
 
 PEGASUS_USING_STD;
 

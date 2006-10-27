@@ -361,10 +361,10 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
 CMInstanceMIStub( CWS_DirectoryContainsFile,
 		  CWS_DirectoryContainsFileProvider,
 		  _broker,
-		  CMNoHook);
+		  CMNoHook)
 
 CMAssociationMIStub( CWS_DirectoryContainsFile,
 		  CWS_DirectoryContainsFileProvider,
 		  _broker,
-		  CMNoHook);
+		  CMNoHook)
 

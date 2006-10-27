@@ -372,7 +372,7 @@ CMPIStatus CWS_PlainFileInvokeMethod( CMPIMethodMI * mi,
 CMInstanceMIStub( CWS_PlainFile,
 		  CWS_PlainFileProvider,
 		  _broker,
-		  CMNoHook);
+		  CMNoHook)
 
 /* ------------------------------------------------------------------ *
  * Method MI Factory
@@ -382,6 +382,6 @@ CMInstanceMIStub( CWS_PlainFile,
 CMMethodMIStub( CWS_PlainFile,
 		CWS_PlainFileProvider,
 		_broker,
-		CMNoHook);
+		CMNoHook)
 
 

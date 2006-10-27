@@ -241,4 +241,4 @@ CMPIStatus CWS_DirectoryExecQuery( CMPIInstanceMI * mi,
 CMInstanceMIStub( CWS_Directory,
 		  CWS_DirectoryProvider,
 		  _broker,
-		  CMNoHook);
+		  CMNoHook)

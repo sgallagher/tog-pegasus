@@ -1155,11 +1155,10 @@ Boolean SLPProvider::populateRegistrationData(
         (const char *)CfullServiceName,
         "DEFAULT",
 #if defined( PEGASUS_USE_OPENSLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
-        PEGASUS_SLP_REG_TIMEOUT  * 60
+        PEGASUS_SLP_REG_TIMEOUT  * 60);
 #else
-        0xffff
+        0xffff);
 #endif
-             );
 
     if (!goodRtn)
     {
@@ -1516,6 +1515,7 @@ void SLPProvider::invokeMethod(
                 if (issueSLPRegistrations())
                 {
                 // PEP 267 ifdef is added to allow reregistrations.
+                // issueRegistration sets initFlag to flase.   
 #if defined( PEGASUS_USE_OPENSLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
                    initFlag = false;
 #endif

@@ -39,42 +39,22 @@
 #define MAX_LIFE PEGASUS_SLP_REG_TIMEOUT * 60
 #define LOCALHOST_IP "127.0.0.1"
 #include <Pegasus/Server/SLPAttrib.h>
-int find(char *,char *);
-char* replac(char *,char *);
-BOOL  parseFind1(lslpMsg* ,  char * );
+static char * verbose;
+
 PEGASUS_USING_PEGASUS;
-//using namespace Pegasus;
 static char *predicate;
 static BOOL parsable= TRUE;
 static char fs='\t', rs='\n';
+char *scopes = "DEFAULT";
+int life = MAX_LIFE, port=SLP_PORT;
+char *addr = strdup(LOCALHOST_IP);
+char *iface = NULL;
 char *httpAttrs1 = "(template-url-syntax=service:wbemtest:http://127.0.0.1:5988),(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM Server Version 2.6.0 Development),(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/benchmark,root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,test/EmbeddedInstance/Static,test/TestProvider,test/EmbeddedInstance/Dynamic,root/cimv2,root,test/cimv2,test/static),(Classinfo=Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown),(CommunicationMechanism=CIM-XML),(OtherCommunicationMechanismDescription=),(InteropSchemaNamespace=root/PG_InterOp),(ProtocolVersion=1.0),(FunctionalProfilesSupported=Basic Read,Basic Write,Schema Manipulation,Instance Manipulation,Association Traversal,Qualifier Declaration,Indications),(FunctionalProfileDescriptions=),(MultipleOperationsSupported=FALSE),(AuthenticationMechanismsSupported=Basic),(AuthenticationMechanismDescriptions=)";
 char *type = "service:wbemtest";
 char *httpUrl1 = "service:wbemtest:http://127.0.0.1:5988";
 char *httpUrl3 = "service:wbemtest:https://127.0.0.2:5989";
 char *httpAttrs2 = "(template-url-syntax=service:wbemtest:https://127.0.0.1:5988),(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM Server Version 2.6.0 Development),(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/benchmark,root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,test/EmbeddedInstance/Static,test/TestProvider,test/EmbeddedInstance/Dynamic,root/cimv2,root,test/cimv2,test/static),(Classinfo=Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown),(CommunicationMechanism=CIM-XML),(OtherCommunicationMechanismDescription=),(InteropSchemaNamespace=root/PG_InterOp),(ProtocolVersion=1.0),(FunctionalProfilesSupported=Basic Read,Basic Write,Schema Manipulation,Instance Manipulation,Association Traversal,Qualifier Declaration,Indications),(FunctionalProfileDescriptions=),(MultipleOperationsSupported=FALSE),(AuthenticationMechanismsSupported=Basic),(AuthenticationMechanismDescriptions=)";
 char *httpUrl2 = "service:wbemtest:https://127.0.0.1:5988";
-char *scopes = "DEFAULT";
-int life = MAX_LIFE, port=SLP_PORT;
-char *addr = strdup(LOCALHOST_IP);
-char *iface = NULL;
-int no_of_regs =0;
-char* replac (char *s,char *t, char *substitute)
-{
-    char *substr = (char *)malloc(sizeof(char) * (strlen(s)));
-    int len = strlen(t);
-    int index = find(s,t);
-    if (s == NULL || s == 0)
-    {
-        return(NULL);
-    }
-    strncpy(substr,s,index);
-    substr[index]='\0';
-    strcat(substr,substitute);
-    char *finalstr = s + index + strlen(substitute);
-    strcat(substr,finalstr);
-    return(substr);
-}
-
 
 int find (char *str,char *t)
 {
@@ -120,6 +100,23 @@ int find (char *str,char *t)
     }
     return(-1);
 }
+char* replace (char *s,char *t, char *substitute)
+{
+    char *substr = (char *)malloc(sizeof(char) * (strlen(s)));
+    int len = strlen(t);
+    int index = find(s,t);
+    if (s == NULL || s == 0)
+    {
+        return(NULL);
+    }
+    strncpy(substr,s,index);
+    substr[index]='\0';
+    strcat(substr,substitute);
+    char *finalstr = s + index + strlen(substitute);
+    strcat(substr,finalstr);
+    return(substr);
+}
+
 
 // Parse the list and check for the required data. 
 // Returns 'true' if the required data is found otherwise
@@ -462,7 +459,7 @@ void  test8()
                                     if(!String::compare(attrs->str,httpAttrs1))
                                     {
                                         // service-hi-name is changed from "Pegasus" to "Changed" 
-                                        changedata = replac(attrs->str,"Pegasus", "Changed");
+                                        changedata = replace(attrs->str,"Pegasus", "Changed");
                                     }
                                     attrs = attrs->next;
                             }  //while traversing attr list
@@ -518,7 +515,9 @@ void test9 ()
 
 int main()
 {
-PEGASUS_STD(cout)<<"+++++ start of SLP tests +++"<<PEGASUS_STD(endl);
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    if(verbose)
+        PEGASUS_STD(cout)<<"+++++ start of SLP tests +++"<<PEGASUS_STD(endl);
     test1();
     test2();
     test3();
@@ -528,6 +527,7 @@ PEGASUS_STD(cout)<<"+++++ start of SLP tests +++"<<PEGASUS_STD(endl);
     test7();
     test8();
     test9();
-PEGASUS_STD(cout)<<"+++++  SLP tests passed ++"<<PEGASUS_STD(endl);
+    if(verbose)
+        PEGASUS_STD(cout)<<"+++++  SLP tests passed ++"<<PEGASUS_STD(endl);
     return 0;
 }

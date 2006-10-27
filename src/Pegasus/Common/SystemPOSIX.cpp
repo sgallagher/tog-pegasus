@@ -1298,33 +1298,33 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
     unsigned int   zosMessageStringLength = strlen(message);
     char         * tmpMessageString = NULL;
     Uint32         syslogLevel = LOG_DEBUG;
+    const char   * zos_msgid;
+
+    if ((severity & Logger::SEVERE) || (severity & Logger::FATAL) )
+    {
+        syslogLevel = LOG_ERR;
+        zos_msgid = "CFZ00004E: ";
+    }
+    else if (severity & Logger::WARNING)
+    {
+        syslogLevel = LOG_WARNING;
+        zos_msgid = "CFZ00002W: ";
+    }
+    else if (severity & Logger::INFORMATION)
+    {
+        syslogLevel = LOG_INFO;
+        zos_msgid = "CFZ00001I: ";
+    }
+    else
+    {
+        syslogLevel = LOG_DEBUG;
+        zos_msgid = "CFZ00001I: ";
+    }
 
     if (strncmp(message, "CFZ", 3) != 0)
     {
         // Message is not z/OS message that already has the right prefix.
         // Prepend the generic z/OS message ids to Pegasus message
-        const char* zos_msgid;
-        if (severity & Logger::TRACE)
-        {
-            syslogLevel = LOG_DEBUG;
-            zos_msgid = "CFZ00001I: ";
-        }
-        if (severity & Logger::INFORMATION)
-        {
-            syslogLevel = LOG_INFO;
-            zos_msgid = "CFZ00001I: ";
-        }
-        if (severity & Logger::WARNING)
-        {
-            syslogLevel = LOG_WARNING;
-            zos_msgid = "CFZ00002W: ";
-        }
-        if ((severity & Logger::SEVERE) || (severity & Logger::FATAL) )
-        {
-            syslogLevel = LOG_ERR;
-            zos_msgid = "CFZ00004E: ";
-        }
-
         zosMessageStringLength += strlen(zos_msgid);
         tmpMessageString = (char*)calloc(zosMessageStringLength,1);
         strcpy(tmpMessageString, zos_msgid);
@@ -1360,7 +1360,7 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
     closelog();
 
     if (tmpMessageString)
-        delete tmpMessageString;
+        free(tmpMessageString);
 
 
 #else /* default */

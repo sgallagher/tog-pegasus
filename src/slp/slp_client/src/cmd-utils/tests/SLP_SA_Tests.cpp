@@ -51,10 +51,12 @@ char *addr = strdup(LOCALHOST_IP);
 char *iface = NULL;
 char *httpAttrs1 = "(template-url-syntax=service:wbemtest:http://127.0.0.1:5988),(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM Server Version 2.6.0 Development),(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/benchmark,root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,test/EmbeddedInstance/Static,test/TestProvider,test/EmbeddedInstance/Dynamic,root/cimv2,root,test/cimv2,test/static),(Classinfo=Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown),(CommunicationMechanism=CIM-XML),(OtherCommunicationMechanismDescription=),(InteropSchemaNamespace=root/PG_InterOp),(ProtocolVersion=1.0),(FunctionalProfilesSupported=Basic Read,Basic Write,Schema Manipulation,Instance Manipulation,Association Traversal,Qualifier Declaration,Indications),(FunctionalProfileDescriptions=),(MultipleOperationsSupported=FALSE),(AuthenticationMechanismsSupported=Basic),(AuthenticationMechanismDescriptions=)";
 char *type = "service:wbemtest";
+char *type1 = "service:wbem";
 char *httpUrl1 = "service:wbemtest:http://127.0.0.1:5988";
 char *httpUrl3 = "service:wbemtest:https://127.0.0.2:5989";
 char *httpAttrs2 = "(template-url-syntax=service:wbemtest:https://127.0.0.1:5988),(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM Server Version 2.6.0 Development),(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/benchmark,root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,test/EmbeddedInstance/Static,test/TestProvider,test/EmbeddedInstance/Dynamic,root/cimv2,root,test/cimv2,test/static),(Classinfo=Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown),(CommunicationMechanism=CIM-XML),(OtherCommunicationMechanismDescription=),(InteropSchemaNamespace=root/PG_InterOp),(ProtocolVersion=1.0),(FunctionalProfilesSupported=Basic Read,Basic Write,Schema Manipulation,Instance Manipulation,Association Traversal,Qualifier Declaration,Indications),(FunctionalProfileDescriptions=),(MultipleOperationsSupported=FALSE),(AuthenticationMechanismsSupported=Basic),(AuthenticationMechanismDescriptions=)";
 char *httpUrl2 = "service:wbemtest:https://127.0.0.1:5988";
+char *httpAttrs3 = "(template-url-syntax=service:wbem:http://127.0.0.1:5988),(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM Server Version 2.6.0 Development),(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/benchmark,root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,test/EmbeddedInstance/Static,test/TestProvider,test/EmbeddedInstance/Dynamic,root/cimv2,root,test/cimv2,test/static),(Classinfo=Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown),(CommunicationMechanism=CIM-XML),(OtherCommunicationMechanismDescription=),(InteropSchemaNamespace=root/PG_InterOp),(ProtocolVersion=1.0),(FunctionalProfilesSupported=Basic Read,Basic Write,Schema Manipulation,Instance Manipulation,Association Traversal,Qualifier Declaration,Indications),(FunctionalProfileDescriptions=),(MultipleOperationsSupported=FALSE),(AuthenticationMechanismsSupported=Basic),(AuthenticationMechanismDescriptions=),(RegisteredProfilesSupported=)";
 
 int find (char *str,char *t)
 {
@@ -161,6 +163,36 @@ BOOL parseFind1(lslpMsg *temp,  char* httpAttr)
     return found;
 }
 
+// To execute the below test, CIMServer should be running.
+// All other test in this file are independent of CIMServer running status.
+// Testcase for testing registration made in the CIMServer.cpp
+// This testcase would fail if not executed prior to expiration of
+// registration time ( i.e. 2 * PEGASUS_SLP_REG_TIME_OUT)
+
+void testSLPReg_fromCIMServer ()
+{
+    struct slp_client *client;
+    lslpMsg responses,*temp;
+    
+    //Create slp client  
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA", scopes,FALSE, FALSE);
+    PEGASUS_TEST_ASSERT(NULL != client);
+    
+    // discover all responses 
+    client->converge_srv_req(client, type1, predicate, scopes);
+    responses.isHead = TRUE;
+    responses.next = responses.prev = &responses;
+    
+    // retrieve the response head.
+    PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
+    temp = responses.next;
+    
+    // parse the response list and check for the required response.
+    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs3));
+    
+    destroy_slp_client(client);
+    return;
+}
 // Registration and verification for http
 // This testcase register cimserver with http port and  checks if the registration is
 // succesful or not. If the registration fails tests are terminated.
@@ -518,6 +550,9 @@ int main()
     verbose = getenv("PEGASUS_TEST_VERBOSE");
     if(verbose)
         PEGASUS_STD(cout)<<"+++++ start of SLP tests +++"<<PEGASUS_STD(endl);
+    testSLPReg_fromCIMServer ();
+    if(verbose)
+        PEGASUS_STD(cout)<<"+++++ Testcase for testing SLP Reg from CIMServer is passed. +++"<<PEGASUS_STD(endl);
     test1();
     test2();
     test3();

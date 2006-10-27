@@ -1,3 +1,4 @@
+Audit logging is enabled.
 The current configuration properties are:
 AuditLogProperty1=AuditLogValue1
 AuditLogProperty2=AuditLogValue2

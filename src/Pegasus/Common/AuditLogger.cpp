@@ -62,7 +62,8 @@ static const String providerModuleStatus [] = {"Unknown", "Other", "OK", "Degrad
 
 Boolean AuditLogger::_auditLogFlag = false;
 
-AuditLogger::PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T AuditLogger::_auditLogInitializeCallback;
+AuditLogger::PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T
+    AuditLogger::_auditLogInitializeCallback = 0;
 
 AuditLogger::PEGASUS_AUDITLOG_CALLBACK_T AuditLogger::_writeAuditMessageToFile =
     AuditLogger::_writeAuditMessage;
@@ -358,24 +359,36 @@ void AuditLogger::setInitializeCallback(
 
 void AuditLogger::setEnabled(Boolean enabled)
 {
-    if (enabled)
+    // Only write the enable/disable messages if we are set up to handle them
+    if (_auditLogInitializeCallback != 0)
     {
-        if (!_auditLogFlag)
+        if (enabled)
         {
-            _auditLogInitializeCallback();
-        }
-    }
-    else
-    {
-        if (_auditLogFlag)
-        {
-            MessageLoaderParms msgParms(
-                "Common.AuditLogger.DISABLE_AUDIT_LOG",
-                "Audit logging is disabled."); 
+            if (!_auditLogFlag)
+            {
+                _auditLogInitializeCallback();
 
-            _writeAuditMessageToFile(TYPE_CONFIGURATION, 
-                SUBTYPE_CONFIGURATION_CHANGE,
-                EVENT_UPDATE, Logger::INFORMATION, msgParms); 
+                MessageLoaderParms msgParms(
+                    "Common.AuditLogger.ENABLE_AUDIT_LOG",
+                    "Audit logging is enabled."); 
+
+                _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+                    SUBTYPE_CONFIGURATION_CHANGE,
+                    EVENT_UPDATE, Logger::INFORMATION, msgParms); 
+            }
+        }
+        else
+        {
+            if (_auditLogFlag)
+            {
+                MessageLoaderParms msgParms(
+                    "Common.AuditLogger.DISABLE_AUDIT_LOG",
+                    "Audit logging is disabled."); 
+
+                _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+                    SUBTYPE_CONFIGURATION_CHANGE,
+                    EVENT_UPDATE, Logger::INFORMATION, msgParms); 
+            }
         }
     }
 

@@ -6180,12 +6180,17 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note PGS17805:
-        *     
         */
-        Common.AuditLogger.DISABLE_AUDIT_LOG:string {"PGS17805: Audit logging is disabled.\n"} 
+        Common.AuditLogger.ENABLE_AUDIT_LOG:string {"PGS17805: Audit logging is enabled.\n"} 
 
         /**
         * @note PGS17806:
+        *     
+        */
+        Common.AuditLogger.DISABLE_AUDIT_LOG:string {"PGS17806: Audit logging is disabled.\n"} 
+
+        /**
+        * @note PGS17807:
         *    Substitution {0} is a string containing a CIM operation name
         *    Substitution {1} is a string containing a CIM class name
         *    Substitution {2} is a string containing a CIM namespace name
@@ -6193,10 +6198,10 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {4} is a string containing a system identifier
         *    Substitution {5} is a string containing a status code and description
         */
-        Common.AuditLogger.OPERATION_UPDATE_CLASS:string {"PGS17806: A CIM {0} operation on class \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\"."}
+        Common.AuditLogger.OPERATION_UPDATE_CLASS:string {"PGS17807: A CIM {0} operation on class \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\"."}
 
         /**
-        * @note PGS17807:
+        * @note PGS17808:
         *    Substitution {0} is a string containing a CIM operation name
         *    Substitution {1} is a string containing a CIM qualifier name
         *    Substitution {2} is a string containing a CIM namespace name
@@ -6204,18 +6209,7 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {4} is a string containing a system identifier
         *    Substitution {5} is a string containing a status code and description
         */
-        Common.AuditLogger.OPERATION_UPDATE_QUALIFIER:string {"PGS17807: A CIM {0} operation on qualifier \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\"."}
-
-        /**
-        * @note PGS17808:
-        *    Substitution {0} is a string containing a CIM operation name
-        *    Substitution {1} is a string containing a CIM instance name
-        *    Substitution {2} is a string containing a CIM namespace name
-        *    Substitution {3} is a string containing a user name
-        *    Substitution {4} is a string containing a system identifier
-        *    Substitution {5} is a string containing a status code and description
-        */
-        Common.AuditLogger.OPERATION_UPDATE_INSTANCE:string {"PGS17808: A CIM {0} operation on instance \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\"."}
+        Common.AuditLogger.OPERATION_UPDATE_QUALIFIER:string {"PGS17808: A CIM {0} operation on qualifier \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\"."}
 
         /**
         * @note PGS17809:
@@ -6225,21 +6219,21 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {3} is a string containing a user name
         *    Substitution {4} is a string containing a system identifier
         *    Substitution {5} is a string containing a status code and description
-        *    Substitution {6} is a string containing a provider name
-        *    Substitution {7} is a string containing a provider module name
         */
-        Common.AuditLogger.OPERATION_UPDATE_INSTANCE_WITH_PROVIDER:string {"PGS17809: A CIM {0} operation on instance \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\".  The provider for this operation is \"{6}\" in module \"{7}\"."}
+        Common.AuditLogger.OPERATION_UPDATE_INSTANCE:string {"PGS17809: A CIM {0} operation on instance \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\"."}
 
         /**
         * @note PGS17810:
-        *    Substitution {0} is a string containing a CIM method name
-        *    Substitution {1} is a string containing a CIM object name
+        *    Substitution {0} is a string containing a CIM operation name
+        *    Substitution {1} is a string containing a CIM instance name
         *    Substitution {2} is a string containing a CIM namespace name
         *    Substitution {3} is a string containing a user name
         *    Substitution {4} is a string containing a system identifier
         *    Substitution {5} is a string containing a status code and description
+        *    Substitution {6} is a string containing a provider name
+        *    Substitution {7} is a string containing a provider module name
         */
-        Common.AuditLogger.OPERATION_INVOKE_METHOD:string {"PGS17810: A CIM InvokeMethod operation on method \"{0}\" of object \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\"."}
+        Common.AuditLogger.OPERATION_UPDATE_INSTANCE_WITH_PROVIDER:string {"PGS17810: A CIM {0} operation on instance \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\".  The provider for this operation is \"{6}\" in module \"{7}\"."}
 
         /**
         * @note PGS17811:
@@ -6249,10 +6243,21 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {3} is a string containing a user name
         *    Substitution {4} is a string containing a system identifier
         *    Substitution {5} is a string containing a status code and description
+        */
+        Common.AuditLogger.OPERATION_INVOKE_METHOD:string {"PGS17811: A CIM InvokeMethod operation on method \"{0}\" of object \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\"."}
+
+        /**
+        * @note PGS17812:
+        *    Substitution {0} is a string containing a CIM method name
+        *    Substitution {1} is a string containing a CIM object name
+        *    Substitution {2} is a string containing a CIM namespace name
+        *    Substitution {3} is a string containing a user name
+        *    Substitution {4} is a string containing a system identifier
+        *    Substitution {5} is a string containing a status code and description
         *    Substitution {6} is a string containing a provider name
         *    Substitution {7} is a string containing a provider module name
         */
-        Common.AuditLogger.OPERATION_INVOKE_METHOD_WITH_PROVIDER:string {"PGS17811: A CIM InvokeMethod operation on method \"{0}\" of object \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\".  The provider for this operation is \"{6}\" in module \"{7}\"."}
+        Common.AuditLogger.OPERATION_INVOKE_METHOD_WITH_PROVIDER:string {"PGS17812: A CIM InvokeMethod operation on method \"{0}\" of object \"{1}\" in namespace \"{2}\" by user \"{3}\" connected from system \"{4}\" resulted in status \"{5}\".  The provider for this operation is \"{6}\" in module \"{7}\"."}
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

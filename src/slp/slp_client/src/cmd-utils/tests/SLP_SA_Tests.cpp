@@ -42,8 +42,8 @@
 int find(char *,char *);
 char* replac(char *,char *);
 BOOL  parseFind1(lslpMsg* ,  char * );
-
-using namespace Pegasus;
+PEGASUS_USING_PEGASUS;
+//using namespace Pegasus;
 static char *predicate;
 static BOOL parsable= TRUE;
 static char fs='\t', rs='\n';

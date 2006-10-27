@@ -792,7 +792,7 @@ extern "C"
   struct _CMPIBrokerMemFT
   {
 
-    const int ftVersion;
+    int ftVersion;
 
     /** Returns a marker. Invoking this function marks subsequent newly
 	created CMPI objects to be released when release() function is invoked.

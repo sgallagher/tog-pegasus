@@ -45,14 +45,10 @@
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-struct ServerRep;
-#ifdef PEGASUS_ENABLE_SLP
-#include <slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h>
-#include <slp/slp_client/src/cmd-utils/slp_client/lslp.h>
-#include <slp/slp_client/src/cmd-utils/slp_client/lslp-common-defs.h>
-#include <slp/slp_client/src/cmd-utils/slp_client/slp_client.h>
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+void deregPegasus();
 #endif
+struct ServerRep;
 
 class Monitor;
 class CIMOperationRequestDispatcher;
@@ -72,9 +68,6 @@ class ProviderManagerService;
 class ProviderRegistrationManager;
 class BinaryMessageHandler;
 class SSLContextManager;
-#ifdef PEGASUS_SLP_REG_TIMEOUT
-int _deregPegasus();
-#endif
 class PEGASUS_SERVER_LINKAGE CIMServer
 {
 public:
@@ -159,10 +152,6 @@ private:
 
 #ifdef PEGASUS_ENABLE_SLP
     Boolean _runSLP;
-# ifdef PEGASUS_SLP_REG_TIMEOUT
-    Boolean _startAdvThread;
-    Thread *SLPThread;
-# endif
 #endif
 
     Monitor* _monitor;

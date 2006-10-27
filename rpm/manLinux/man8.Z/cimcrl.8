@@ -1,6 +1,5 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1m.Z/Attic/cimcrl.1m,v 1.1 2006/09/29 17:38:10 sushma.fernandes Exp $
 .TA c \" lowercase initial letter of .TH name
-.TH cimcrl 1M
+.TH cimcrl 8 
 .SH NAME
 cimcrl \- Add, remove or list X509 Certificate Revocation Lists in a PEM format CRL store.
 .SH SYNOPSIS
@@ -24,7 +23,7 @@ cimcrl \- Add, remove or list X509 Certificate Revocation Lists in a PEM format 
 The cimcrl command requires that the cimserver is running. This command operates on a CRL store on the local system only.
 
 .SH DESCRIPTION
-The cimcrl command provides a command line interface to manage X509 CRLs in the CRL store. The CRL store contains the CRLs used to revoke certificates in the CIM Server truststore. For more information on truststore operations see the cimtrust(1m)  command.
+The cimcrl command provides a command line interface to manage X509 CRLs in the CRL store. The CRL store contains the CRLs used to revoke certificates in the CIM Server truststore. For more information on truststore operations see the cimtrust(8)  command.
 
 The add option of the cimcrl command adds an X509 CRL from the specified 
 \fPfile \fP to the CRL store. If a CRL for the specified issuer already exists in the CRL store, the CRL is replaced with the specified CRL.
@@ -110,4 +109,4 @@ cimcrl -l
 
 .SH SEE ALSO
 .PP
-cimserver(8), cimtrust(1m), cimconfig(1m).
+cimserver(8), cimtrust(8), cimconfig(8).

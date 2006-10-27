@@ -1,6 +1,5 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1m.Z/Attic/cimtrust.1m,v 1.1 2006/09/29 17:38:10 sushma.fernandes Exp $
 .TA c \" lowercase initial letter of .TH name
-.TH cimtrust 1M
+.TH cimtrust 8 
 .SH NAME
 cimtrust \- Add, remove or list X509 certificates in a PEM format trust store.
 .SH SYNOPSIS
@@ -50,7 +49,7 @@ or
 Certificates in the trust store may be revoked by adding a 
 Certificate Revocation List to the CRL store. For more information 
 on CRL operations see the 
-.B cimcrl(1m)
+.B cimcrl(8)
 command.
 .SS Options
 .B cimtrust 
@@ -180,4 +179,4 @@ cimtrust -l
 
 .SH SEE ALSO
 .PP
-cimserver(8), cimcrl(1m), cimconfig(1m).
+cimserver(8), cimcrl(8), cimconfig(8).

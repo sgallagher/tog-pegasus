@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -325,7 +325,7 @@ static void threadSleep(int msec)
 #elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
     if (msec == 0)
-    {         
+    {
         Sleep(0);
         return;
     }
@@ -340,7 +340,7 @@ static void threadSleep(int msec)
     {
         Sleep(0);
         _ftime(&now);
-    } 
+    }
     while( end.millitm > now.millitm && end.time >= now.time);
 
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
@@ -352,7 +352,7 @@ static void threadSleep(int msec)
     else
     {
         // sleep for loop seconds
-        ::sleep(msec / 1000);
+        sleep(msec / 1000);
         // Usleep the remaining micro seconds
         usleep( (msec*1000) % 1000000 );
     }
@@ -370,7 +370,7 @@ static CMPIBrokerExtFT brokerExt_FT={
      NULL,                      // Join not implemented yet
      NULL,                      // exit not implemented yet
      NULL,                      // cancel not implemented yet
-     threadSleep,              
+     threadSleep,
      threadOnce,
 
      createThreadKey,

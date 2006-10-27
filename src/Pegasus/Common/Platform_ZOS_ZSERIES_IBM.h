@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -103,6 +103,7 @@
 // to avoid lots of ifdefs for z/OS
 #define pthread_getspecific(x) pthread_getspecific_d8_np(x);
 
+#ifndef _REMOTE_CMPI_REMOTE_H
 // use my own snprintf implementation using sprintf mapping
 // until the Java SDK is fixed to work with _ISOC99_SOURCE
 inline int snprintf(char *sptr, size_t len, const char* form, ...)
@@ -114,5 +115,6 @@ inline int snprintf(char *sptr, size_t len, const char* form, ...)
     va_end(arguments);
     return returnvalue;
 }
+#endif
 
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

@@ -1,25 +1,21 @@
 Audit logging is enabled.
-The current configuration properties are:
-AuditLogProperty1=AuditLogValue1
-AuditLogProperty2=AuditLogValue2
-AuditLogProperty3=AuditLogValue3
-
-The current registered provider modules are:
-AuditLogProviderModule0=Unknown
-AuditLogProviderModule1=Other
-AuditLogProviderModule2=OK
-AuditLogProviderModule3=Degraded
-AuditLogProviderModule4=Stressed
-AuditLogProviderModule5=Predictive Failure
-AuditLogProviderModule6=Error
-AuditLogProviderModule7=Non-Recoverable Error
-AuditLogProviderModule8=Starting
-AuditLogProviderModule9=Stopping
-AuditLogProviderModule10=Stopped
-AuditLogProviderModule11=In Service
-AuditLogProviderModule12=No Contact
-AuditLogProviderModule13=Lost Communication
-
+cimserver configuration AuditLogProperty1=AuditLogValue1
+cimserver configuration AuditLogProperty2=AuditLogValue2
+cimserver configuration AuditLogProperty3=AuditLogValue3
+Provider module "AuditLogProviderModule0" has status "Unknown".
+Provider module "AuditLogProviderModule1" has status "Other".
+Provider module "AuditLogProviderModule2" has status "OK".
+Provider module "AuditLogProviderModule3" has status "Degraded".
+Provider module "AuditLogProviderModule4" has status "Stressed".
+Provider module "AuditLogProviderModule5" has status "Predictive Failure".
+Provider module "AuditLogProviderModule6" has status "Error".
+Provider module "AuditLogProviderModule7" has status "Non-Recoverable Error".
+Provider module "AuditLogProviderModule8" has status "Starting".
+Provider module "AuditLogProviderModule9" has status "Stopping".
+Provider module "AuditLogProviderModule10" has status "Stopped".
+Provider module "AuditLogProviderModule11" has status "In Service".
+Provider module "AuditLogProviderModule12" has status "No Contact".
+Provider module "AuditLogProviderModule13" has status "Lost Communication".
 The planned value of property "logdir" is modified from value "./logs" to value "/tmp" by user "guest".
 The current value of property "logdir" is modified from value "./logs" to value "/tmp" by user "guest".
 A CIM CreateClass operation on class "class1" in namespace "root/test" by user "user1" connected from system "127.0.0.1" resulted in status "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code".
@@ -37,4 +33,7 @@ A CIM SetProperty operation on instance "Z.x=0" in namespace "a/b/c/d/e/f/g" by 
 A CIM SetProperty operation on instance "Z.x=0" in namespace "a/b/c/d/e/f/g" by user "me" connected from system "1.0.0.0" resulted in status "CIM_ERR_INVALID_CLASS: The specified class does not exist".  The provider for this operation is "InstProv" in module "InstModule".
 A CIM InvokeMethod operation on method "MyMethod" of object "Test" in namespace "t" by user "guest" connected from system "1.1.1.1" resulted in status "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code".
 A CIM InvokeMethod operation on method "MyMethod" of object "Test.a=1,b=2,c=3" in namespace "t" by user "guest" connected from system "1.1.1.1" resulted in status "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code".  The provider for this operation is "p" in module "m".
+The operational status of module "AuditLogUpdateModuleStatus" has changed from "Stopped" to "OK".
+The operational status of module "AuditLogUpdateModuleStatus" has changed from "Stopped" to "Stopped".
+The operational status of module "AuditLogUpdateModuleStatus" has changed from "Stopping,Stopped" to "Starting,OK".
 Audit logging is disabled.

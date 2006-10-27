@@ -45,6 +45,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/AuditLogger.h>
 
 #include "ProviderRegistrationTable.h"
 
@@ -1768,6 +1769,8 @@ Boolean ProviderRegistrationManager::updateProviderModuleStatus(
 
     outStatus = _getProviderModuleStatus (providerModuleName);
 
+    Array<Uint16> currentStatus = outStatus;
+
     //
     //  Remove any status elements to be removed
     //
@@ -1851,6 +1854,9 @@ Boolean ProviderRegistrationManager::updateProviderModuleStatus(
     {
         return (false);
     }
+
+    PEG_AUDIT_LOG(logUpdateProvModuleStatus(providerModuleName, currentStatus,
+        outStatus));
 
     return (true);
 }

@@ -240,6 +240,33 @@ void testLogInstanceOperations()
         "m", "p", CIM_ERR_FAILED);
 }
 
+void testLogUpdateProvModuleStatus()
+{
+    Array<Uint16> currentModuleStatus, newModuleStatus;
+
+    currentModuleStatus.append(10);
+    newModuleStatus.append(2);
+
+    // module status is updated successfully
+    AuditLogger::logUpdateProvModuleStatus("AuditLogUpdateModuleStatus",
+        currentModuleStatus, newModuleStatus);
+
+    // Failed to update the module status
+    newModuleStatus.clear();
+    newModuleStatus.append(10);
+    AuditLogger::logUpdateProvModuleStatus("AuditLogUpdateModuleStatus",
+        currentModuleStatus, newModuleStatus);
+
+    currentModuleStatus.clear();
+    newModuleStatus.clear();
+    currentModuleStatus.append(9);
+    currentModuleStatus.append(10);
+    newModuleStatus.append(8);
+    newModuleStatus.append(2);
+    AuditLogger::logUpdateProvModuleStatus("AuditLogUpdateModuleStatus",
+        currentModuleStatus, newModuleStatus);
+}
+
 void auditLogInitializeCallback()
 {
     PEGASUS_TEST_ASSERT(!AuditLogger::isEnabled());
@@ -294,6 +321,7 @@ int main(int argc, char** argv)
         testLogSetConfigProperty();
         testLogSchemaOperations();
         testLogInstanceOperations();
+        testLogUpdateProvModuleStatus();
         testSetEnabled(false);
         testDisabled();
 

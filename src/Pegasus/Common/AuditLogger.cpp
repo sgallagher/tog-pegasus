@@ -72,29 +72,23 @@ void AuditLogger::logCurrentConfig(
     const Array<String> & propertyNames,
     const Array<String> & propertyValues)
 {
-    String properties;
-
     for (Uint32 i = 0; i < propertyNames.size(); i++)
     {
-        properties.append(propertyNames[i]);
-        properties.append("=");
-        properties.append(propertyValues[i]);
-        properties.append("\n");
+        String propertyStr = propertyNames[i] + "=" + propertyValues[i];       
+
+        MessageLoaderParms msgParms("Common.AuditLogger.CURRENT_CONFIG",
+            "cimserver configuration $0", propertyStr);
+
+        _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+            SUBTYPE_CURRENT_CONFIGURATION,
+            EVENT_START_UP, Logger::INFORMATION, msgParms); 
     }
-
-    MessageLoaderParms msgParms("Common.AuditLogger.CURRENT_CONFIG",
-       "The current configuration properties are:\n$0", properties);
-
-    _writeAuditMessageToFile(TYPE_CONFIGURATION, 
-        SUBTYPE_CURRENT_CONFIGURATION,
-        EVENT_START_UP, Logger::INFORMATION, msgParms); 
-    
 }
 
 void AuditLogger::logCurrentRegProvider(
     const Array < CIMInstance > & instances)
 {
-    String moduleName, registeredModules;
+    String moduleName;
     Array<Uint16> moduleStatus;
     String statusValue;
     Uint32 pos;
@@ -104,9 +98,6 @@ void AuditLogger::logCurrentRegProvider(
     {
         instances[i].getProperty(instances[i].findProperty(
             _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(moduleName);    
-
-        registeredModules.append(moduleName);
-        registeredModules.append("=");
 
         pos = instances[i].findProperty(_PROPERTY_OPERATIONALSTATUS);
 
@@ -130,41 +121,34 @@ void AuditLogger::logCurrentRegProvider(
 
         statusValue = _getModuleStatusValue(moduleStatus);
 
-        registeredModules.append(statusValue);
-        registeredModules.append("\n");
-    }
-
-    MessageLoaderParms msgParms(
-        "Common.AuditLogger.CURRENT_PROVIDER_REGISTRATION",
-        "The current registered provider modules are:\n$0", registeredModules);
+        MessageLoaderParms msgParms(
+            "Common.AuditLogger.CURRENT_PROVIDER_REGISTRATION",
+            "Provider module \"$0\" has status \"$1\".", 
+            moduleName, statusValue);
         
-    _writeAuditMessageToFile(TYPE_CONFIGURATION, 
-        SUBTYPE_CURRENT_PROVIDER_REGISTRATION,
-        EVENT_START_UP, Logger::INFORMATION, msgParms); 
+        _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+            SUBTYPE_CURRENT_PROVIDER_REGISTRATION,
+            EVENT_START_UP, Logger::INFORMATION, msgParms); 
+    }
 }
 
 void AuditLogger::logCurrentEnvironmentVar()
 {
 
-    String envList;
     char ** envp = environ;
-
     Uint32 i = 0;
 
     while (envp[i])
     {
-        envList.append(envp[i]);
-        envList.append("\n");
-   
+        MessageLoaderParms msgParms("Common.AuditLogger.CURRENT_ENV",
+           "cimserver environment variable: $0", envp[i]);
+
+        _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+            SUBTYPE_CURRENT_ENVIRONMENT_VARIABLES,
+            EVENT_START_UP, Logger::INFORMATION, msgParms); 
+
         i++;
     }
-
-    MessageLoaderParms msgParms("Common.AuditLogger.CURRENT_ENV",
-       "The current environment variables are:\n$0", envList);
-
-    _writeAuditMessageToFile(TYPE_CONFIGURATION, 
-        SUBTYPE_CURRENT_ENVIRONMENT_VARIABLES,
-        EVENT_START_UP, Logger::INFORMATION, msgParms); 
 }
 
 void AuditLogger::logSetConfigProperty(
@@ -351,6 +335,28 @@ void AuditLogger::logInvokeMethodOperation(
     }
 }
 
+void AuditLogger::logUpdateProvModuleStatus(
+    const String & moduleName,
+    const Array<Uint16> currentModuleStatus,
+    const Array<Uint16> newModuleStatus)
+{
+    String currentModuleStatusValue = 
+        _getModuleStatusValue(currentModuleStatus);
+
+    String newModuleStatusValue = _getModuleStatusValue(newModuleStatus);
+
+    MessageLoaderParms msgParms(
+        "Common.AuditLogger.UPDATE_PROVIDER_MODULE_STATUS",
+        "The operational status of module \"$0\" has changed from \"$1\""
+        " to \"$2\".", 
+        moduleName, currentModuleStatusValue, newModuleStatusValue); 
+
+    _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+        SUBTYPE_PROVIDER_MODULE_STATUS_CHANGE,
+        EVENT_UPDATE, Logger::INFORMATION, msgParms); 
+}
+
+
 void AuditLogger::setInitializeCallback(
     PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T auditLogInitializeCallback)
 {
@@ -410,7 +416,7 @@ void AuditLogger::_writeAuditMessage(
 {
     String localizedMsg = MessageLoader::getMessage(msgParms);
 
-    String identifier = "CIM Server Audit";
+    String identifier = "cimserver audit";
 
     Logger::put(Logger::AUDIT_LOG, identifier, logLevel, localizedMsg);
 }

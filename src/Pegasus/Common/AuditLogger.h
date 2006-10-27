@@ -74,6 +74,7 @@ public:
         SUBTYPE_CURRENT_ENVIRONMENT_VARIABLES,
         SUBTYPE_CONFIGURATION_CHANGE,
         SUBTYPE_PROVIDER_REGISTRATION_CHANGE,
+        SUBTYPE_PROVIDER_MODULE_STATUS_CHANGE,
         SUBTYPE_SCHEMA_OPERATION,
         SUBTYPE_INSTANCE_OPERATION,
         SUBTYPE_INDICATION_OPERATION
@@ -216,6 +217,17 @@ public:
         const String& moduleName,
         const String& providerName,
         CIMStatusCode statusCode);
+
+    /** Constructs and logs audit message of a provider module status change 
+        @param moduleName - The name of the provider module
+        @param currentModuleStatus - The current status of the provider module
+        @param newModuleStatus - The new status of the provider module
+    */
+    static void logUpdateProvModuleStatus(
+        const String & moduleName,
+        const Array<Uint16> currentModuleStatus,
+        const Array<Uint16> newModuleStatus);
+
 
     typedef void (*PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T)();
 

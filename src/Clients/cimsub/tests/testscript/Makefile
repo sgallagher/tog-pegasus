@@ -97,6 +97,7 @@ repository:
 
 	@ $(ECHO) +++++ Loading PG_Events$(PG_INTEROP_SCHEMA_VER) into $(CIMSUBTESTNS3) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_INTEROP_MOF_PATH)" "-n$(CIMSUBTESTNS3)" $(ALLOW_EXPERIMENTAL) $(PG_INTEROP_MOF_PATH)/PG_Events$(PG_INTEROP_SCHEMA_VER).mof
+
 ##
 ## Load the test MOF with cimmof. Do not remove the current version.
 ##
@@ -183,7 +184,7 @@ ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
 endif
 	@$(ECHO) +++ Test passed +++
 	@TestCimsub cleanup
-	#@$(RM) $(RESULTFILE) Leaving this file here for now, so we have it to debug any poststarttest failures
+	@$(RM) $(RESULTFILE) $(RESULTFILE_EMAIL) $(RESULTFILE_SYSLOG)
 
 cimsubTest1_ignoreerror:
 	@$(ECHO) ++++cimsub tests

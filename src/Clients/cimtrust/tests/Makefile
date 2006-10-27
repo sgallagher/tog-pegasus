@@ -252,7 +252,7 @@ else
 	$(COMPARERESULTS)
 endif
 	@$(ECHO) +++ Test passed +++
-	#@$(RM) $(RESULTFILE) Leaving this file here for now, so we have it to debug any poststarttest failures
+	@$(RM) $(RESULTFILE)
 endif
 
 SSLCertificateTest1_ignoreerror:

@@ -59,14 +59,14 @@ test_setup:
 	@TestCimsubInterOp register
 	@TestCimsubInterOp test
 
-cimsubTest_InterOp:test_setup
-	@$(RM) $(RESULTFILE) $(RESULTFILE_EMAIL) $(RESULTFILE_SYSLOG)
+cimsubTest_InterOp: test_setup
+	@$(RM) $(RESULTFILE)
 	@$(MAKE) -i -s cimsubTest1_ignoreerror
 	@$(STRIPCRS)
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++
 	@TestCimsubInterOp cleanup
-	#@$(RM) $(RESULTFILE) Leaving this file here for now, so we have it to debug any poststarttest failures
+	@$(RM) $(RESULTFILE)
 
 cimsubTest1_ignoreerror:
 	@$(ECHO) ++++cimsub PG_InterOp tests

@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
-//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3601
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Tracer.h>
@@ -185,6 +175,10 @@ ProviderClassList IndicationOperationAggregate::findProvider(
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+                    provider.isRemoteNameSpace = pidc.isRemoteNameSpace();
+                    provider.remoteInfo = pidc.getRemoteInfo();
+#endif
                     break;
                 }
 
@@ -197,6 +191,10 @@ ProviderClassList IndicationOperationAggregate::findProvider(
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+                    provider.isRemoteNameSpace = pidc.isRemoteNameSpace();
+                    provider.remoteInfo = pidc.getRemoteInfo();
+#endif
                     break;
                 }
 

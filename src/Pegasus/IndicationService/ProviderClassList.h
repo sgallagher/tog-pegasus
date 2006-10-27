@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By:  
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ProviderClassList_h
@@ -54,6 +49,11 @@ struct providerClassList
     CIMInstance provider;
     CIMInstance providerModule;
     Array <CIMName> classList;
+   // Enabling Indications on Remote CMPI -V 5245
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    Boolean isRemoteNameSpace;
+    String remoteInfo;
+#endif
 
     providerClassList () 
     {
@@ -63,6 +63,11 @@ struct providerClassList
     :   provider (rh.provider),
         providerModule (rh.providerModule),
         classList (rh.classList)
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+        ,
+        isRemoteNameSpace (rh.isRemoteNameSpace),
+        remoteInfo (rh.remoteInfo)
+#endif
     {
     }
 
@@ -73,6 +78,10 @@ struct providerClassList
             provider = rh.provider;
             providerModule = rh.providerModule;
             classList = rh.classList;
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+            isRemoteNameSpace = rh.isRemoteNameSpace;
+            remoteInfo = rh.remoteInfo;
+#endif
         }
         return * this;
     }

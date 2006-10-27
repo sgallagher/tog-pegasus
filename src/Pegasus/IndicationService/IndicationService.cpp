@@ -29,23 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//                   (carolann_graves@hp.com)
-//               Ben Heilbronn, Hewlett-Packard Company (ben_heilbronn@hp.com)
-//               Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//               Dave Rosckes (rosckes@us.ibm.com)
-//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//               Seema Gupta (gseema@in.ibm.com for PEP135)
-//               Dan Gorey, IBM (djgorey@us.ibm.com)
-//               Amit K Arora, IBM (amita@in.ibm.com) for Bug#1730
-//               Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
-//               Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//               David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//               Aruran, IBM (ashanmug@in.ibm.com) for Bug#3603
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -2443,6 +2426,11 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         (ProviderIdContainer::NAME);
     CIMInstance provider = pidc.getProvider();
     CIMInstance providerModule = pidc.getModule();
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    Boolean isRemoteNameSpace = pidc.isRemoteNameSpace();
+    String remoteInfo = pidc.getRemoteInfo();
+#endif
+
     CIMName className = request->className;
     Array <CIMNamespaceName> newNameSpaces = request->newNamespaces;
     Array <CIMNamespaceName> oldNameSpaces = request->oldNamespaces;
@@ -2507,6 +2495,10 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     indicationProvider.provider = provider;
     indicationProvider.providerModule = providerModule;
     indicationProvider.classList.append (className);
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    indicationProvider.isRemoteNameSpace = isRemoteNameSpace;
+    indicationProvider.remoteInfo = remoteInfo;
+#endif
     indicationProviders.append (indicationProvider);
 
     if (newSubscriptions.size () > 0)
@@ -2973,6 +2965,10 @@ void IndicationService::_handleNotifyProviderEnableRequest
         (ProviderIdContainer::NAME);
     CIMInstance providerModule = pidc.getModule();
     CIMInstance provider = pidc.getProvider();
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    Boolean isRemoteNameSpace = pidc.isRemoteNameSpace();
+    String remoteInfo = pidc.getRemoteInfo();
+#endif
     Array <CIMInstance> capabilities = request->capInstances;
 
     CIMException cimException;
@@ -3090,6 +3086,10 @@ void IndicationService::_handleNotifyProviderEnableRequest
                 indicationProvider.provider = provider;
                 indicationProvider.providerModule = providerModule;
                 indicationProvider.classList.append (className);
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+                indicationProvider.isRemoteNameSpace = isRemoteNameSpace;
+                indicationProvider.remoteInfo = remoteInfo;
+#endif
                 indicationProviders.append (indicationProvider);
             }
         }
@@ -5351,6 +5351,12 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
                     provider.provider = providerInstances [j];
                     provider.providerModule = providerModuleInstances [j];
                     provider.classList.append (indicationSubclasses [i]);
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+                    String remoteInformation;
+                    Boolean isRemote = _cimRepository->isRemoteNameSpace(nameSpace,remoteInformation);
+                    provider.isRemoteNameSpace = isRemote;
+                    provider.remoteInfo = remoteInformation;  
+#endif
                     indicationProviders.append (provider);
                 }
             }  // for each indication provider instance
@@ -6133,13 +6139,22 @@ void IndicationService::_sendAsyncCreateRequests
         CIMCreateSubscriptionRequestMessage * requestCopy =
             new CIMCreateSubscriptionRequestMessage (* request);
         requestCopy->operationContext.insert(ProviderIdContainer
-            (indicationProviders [i].providerModule,
-            indicationProviders [i].provider));
+            (indicationProviders [i].providerModule
+            ,indicationProviders [i].provider
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+            ,indicationProviders [i].isRemoteNameSpace
+            ,indicationProviders [i].remoteInfo
+#endif
+            ));
         operationAggregate->appendRequest (requestCopy);
-
         request->operationContext.insert(ProviderIdContainer
-            (indicationProviders [i].providerModule,
-            indicationProviders [i].provider));
+            (indicationProviders [i].providerModule
+            ,indicationProviders [i].provider
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+            ,indicationProviders [i].isRemoteNameSpace
+            ,indicationProviders [i].remoteInfo
+#endif
+            ));
         request->operationContext.insert(SubscriptionInstanceContainer
             (subscription));
         request->operationContext.insert(SubscriptionFilterConditionContainer
@@ -6232,8 +6247,13 @@ Array <ProviderClassList> IndicationService::_sendWaitCreateRequests
         //  Set operation context
         //
         request->operationContext.insert(ProviderIdContainer
-            (indicationProviders [i].providerModule,
-            indicationProviders [i].provider));
+            (indicationProviders [i].providerModule
+            ,indicationProviders [i].provider
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+            ,indicationProviders [i].isRemoteNameSpace
+            ,indicationProviders [i].remoteInfo
+#endif
+            ));
         request->operationContext.insert(SubscriptionInstanceContainer
             (subscription));
         request->operationContext.insert(SubscriptionFilterConditionContainer
@@ -6344,8 +6364,13 @@ void IndicationService::_sendWaitModifyRequests
         //  Set operation context
         //
         request->operationContext.insert(ProviderIdContainer
-            (indicationProviders [i].providerModule,
-            indicationProviders [i].provider));
+            (indicationProviders [i].providerModule
+            ,indicationProviders [i].provider
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+            ,indicationProviders [i].isRemoteNameSpace
+            ,indicationProviders [i].remoteInfo
+#endif
+            ));
         request->operationContext.insert(SubscriptionInstanceContainer
             (subscription));
         request->operationContext.insert(SubscriptionFilterConditionContainer
@@ -6501,13 +6526,23 @@ void IndicationService::_sendAsyncDeleteRequests
         CIMDeleteSubscriptionRequestMessage * requestCopy =
             new CIMDeleteSubscriptionRequestMessage (* request);
         requestCopy->operationContext.insert(ProviderIdContainer
-            (indicationProviders [i].providerModule,
-            indicationProviders [i].provider));
+            (indicationProviders [i].providerModule
+            ,indicationProviders [i].provider
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+            ,indicationProviders [i].isRemoteNameSpace
+            ,indicationProviders [i].remoteInfo
+#endif
+             ));
         operationAggregate->appendRequest (requestCopy);
-
         request->operationContext.insert(ProviderIdContainer
-            (indicationProviders [i].providerModule,
-            indicationProviders [i].provider));
+            (indicationProviders [i].providerModule
+            ,indicationProviders [i].provider
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+            ,indicationProviders [i].isRemoteNameSpace
+            ,indicationProviders [i].remoteInfo
+#endif
+            ));
+
         request->operationContext.insert(SubscriptionInstanceContainer
             (subscription));
         request->operationContext.insert(IdentityContainer(userName));
@@ -6573,8 +6608,13 @@ void IndicationService::_sendWaitDeleteRequests
         //  Set operation context
         //
         request->operationContext.insert(ProviderIdContainer
-            (indicationProviders [i].providerModule,
-            indicationProviders [i].provider));
+            (indicationProviders [i].providerModule
+            ,indicationProviders [i].provider
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+            ,indicationProviders [i].isRemoteNameSpace
+            ,indicationProviders [i].remoteInfo
+#endif
+            ));
         request->operationContext.insert(SubscriptionInstanceContainer
             (subscription));
         request->operationContext.insert(IdentityContainer(userName));

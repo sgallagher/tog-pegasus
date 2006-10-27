@@ -58,7 +58,7 @@
 //
     {"tempLocalAuthDir",    PEGASUS_LOCAL_AUTH_DIR},
     {"logdir",              "/wbem_var/opt/wbem/logs"},
-    {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
+    {"repositoryDir",       "/wbem_var/opt/wbem/repository"},
     {"providerDir",         "/wbem_lib"},
 #else
     {"traceFilePath",       "trace/cimserver.trc"},

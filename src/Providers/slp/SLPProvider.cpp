@@ -1515,7 +1515,7 @@ void SLPProvider::invokeMethod(
                 if (issueSLPRegistrations())
                 {
                 // PEP 267 ifdef is added to allow reregistrations.
-                // issueRegistration sets initFlag to flase.   
+                // issueRegistration sets initFlag to true.   
 #if defined( PEGASUS_USE_OPENSLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
                    initFlag = false;
 #endif

@@ -621,7 +621,7 @@ void CIMServer::runForever()
 
     static struct timeval lastIdleCleanupTime = {0, 0};
 
-    if (now.tv_sec - lastIdleCleanupTime.tv_sec >= 300)
+    if (now.tv_sec - lastIdleCleanupTime.tv_sec > 300)
     {
       lastIdleCleanupTime.tv_sec = now.tv_sec;
       try
@@ -1019,7 +1019,6 @@ void CIMServer::startSLPProvider()
     SLPThread.run();
 #else 
     // Create a separate thread, detach and call function to execute the startup.
-    printf("%s %d\n", __FUNCTION__, __LINE__);
     Thread t( _callSLPProvider, 0, true );
     t.run();
 #endif

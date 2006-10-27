@@ -29,7 +29,7 @@
 #//
 #//==============================================================================
 ROOT=$(PEGASUS_ROOT)
-
+SSH = @
 DIR = slp/slp_client/src/cmd-utils/tests
 
 include $(ROOT)/mak/config.mak
@@ -52,8 +52,8 @@ endif
 
 include $(ROOT)/mak/program.mak
 
-tests:
-
+slptests:
+	$(SSH) $(PROGRAM)
 poststarttests:
 
 # DO NOT DELETE

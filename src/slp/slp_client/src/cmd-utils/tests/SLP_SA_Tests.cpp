@@ -36,27 +36,64 @@
 #include "../slp_client/slp_client.h"
 #include <Pegasus/Client/CIMClient.h>
 #define SLP_PORT 427
-#define MAX_LIFE PEGASUS_SLP_REG_TIMEOUT * 60
 #define LOCALHOST_IP "127.0.0.1"
 #include <Pegasus/Server/SLPAttrib.h>
 static char * verbose;
 
 PEGASUS_USING_PEGASUS;
+//Global variables used for SLP registrations and registration tests.
 static char *predicate;
 static BOOL parsable= TRUE;
 static char fs='\t', rs='\n';
 char *scopes = "DEFAULT";
-int life = MAX_LIFE, port=SLP_PORT;
+int life = PEGASUS_SLP_REG_TIMEOUT * 60, port=SLP_PORT;
 char *addr = strdup(LOCALHOST_IP);
 char *iface = NULL;
-char *httpAttrs1 = "(template-url-syntax=service:wbemtest:http://127.0.0.1:5988),(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM Server Version 2.6.0 Development),(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/benchmark,root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,test/EmbeddedInstance/Static,test/TestProvider,test/EmbeddedInstance/Dynamic,root/cimv2,root,test/cimv2,test/static),(Classinfo=Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown),(CommunicationMechanism=CIM-XML),(OtherCommunicationMechanismDescription=),(InteropSchemaNamespace=root/PG_InterOp),(ProtocolVersion=1.0),(FunctionalProfilesSupported=Basic Read,Basic Write,Schema Manipulation,Instance Manipulation,Association Traversal,Qualifier Declaration,Indications),(FunctionalProfileDescriptions=),(MultipleOperationsSupported=FALSE),(AuthenticationMechanismsSupported=Basic),(AuthenticationMechanismDescriptions=)";
+
+//httpAttrs1 is test data used for registration of  http port.
+char *httpAttrs1 = "(template-url-syntax=service:wbemtest:http://127.0.0.1:5988)"
+",(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM Server Version 2.6.0 Development)"
+",(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/benchmark,"
+"root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,test/EmbeddedInstance/Static,"
+"test/TestProvider,test/EmbeddedInstance/Dynamic,root/cimv2,root,test/cimv2,test/static),"
+"(Classinfo=Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,"
+"Unknown,Unknown),(CommunicationMechanism=CIM-XML),(OtherCommunicationMechanismDescription=),"
+"(InteropSchemaNamespace=root/PG_InterOp),(ProtocolVersion=1.0),"
+"(FunctionalProfilesSupported=Basic Read,Basic Write,Schema Manipulation,Instance Manipulation,"
+"Association Traversal,Qualifier Declaration,Indications),(FunctionalProfileDescriptions=),"
+"(MultipleOperationsSupported=FALSE),(AuthenticationMechanismsSupported=Basic),(AuthenticationMechanismDescriptions=)";
 char *type = "service:wbemtest";
 char *type1 = "service:wbem";
 char *httpUrl1 = "service:wbemtest:http://127.0.0.1:5988";
-char *httpUrl3 = "service:wbemtest:https://127.0.0.2:5989";
-char *httpAttrs2 = "(template-url-syntax=service:wbemtest:https://127.0.0.1:5988),(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM Server Version 2.6.0 Development),(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/benchmark,root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,test/EmbeddedInstance/Static,test/TestProvider,test/EmbeddedInstance/Dynamic,root/cimv2,root,test/cimv2,test/static),(Classinfo=Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown),(CommunicationMechanism=CIM-XML),(OtherCommunicationMechanismDescription=),(InteropSchemaNamespace=root/PG_InterOp),(ProtocolVersion=1.0),(FunctionalProfilesSupported=Basic Read,Basic Write,Schema Manipulation,Instance Manipulation,Association Traversal,Qualifier Declaration,Indications),(FunctionalProfileDescriptions=),(MultipleOperationsSupported=FALSE),(AuthenticationMechanismsSupported=Basic),(AuthenticationMechanismDescriptions=)";
-char *httpUrl2 = "service:wbemtest:https://127.0.0.1:5988";
-char *httpAttrs3 = "(template-url-syntax=service:wbem:http://127.0.0.1:5988),(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM Server Version 2.6.0 Development),(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/benchmark,root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,test/EmbeddedInstance/Static,test/TestProvider,test/EmbeddedInstance/Dynamic,root/cimv2,root,test/cimv2,test/static),(Classinfo=Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown),(CommunicationMechanism=CIM-XML),(OtherCommunicationMechanismDescription=),(InteropSchemaNamespace=root/PG_InterOp),(ProtocolVersion=1.0),(FunctionalProfilesSupported=Basic Read,Basic Write,Schema Manipulation,Instance Manipulation,Association Traversal,Qualifier Declaration,Indications),(FunctionalProfileDescriptions=),(MultipleOperationsSupported=FALSE),(AuthenticationMechanismsSupported=Basic),(AuthenticationMechanismDescriptions=),(RegisteredProfilesSupported=)";
+
+//httpAttrs2 is test data used for registration of  https port.
+char *httpAttrs2 = "(template-url-syntax=service:wbemtest:https//127.0.0.1:5989)"
+",(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM Server Version 2.6.0 Development)"
+",(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/benchmark,"
+"root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,test/EmbeddedInstance/Static,"
+"test/TestProvider,test/EmbeddedInstance/Dynamic,root/cimv2,root,test/cimv2,test/static),"
+"(Classinfo=Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,"
+"Unknown,Unknown),(CommunicationMechanism=CIM-XML),(OtherCommunicationMechanismDescription=),"
+"(InteropSchemaNamespace=root/PG_InterOp),(ProtocolVersion=1.0),"
+"(FunctionalProfilesSupported=Basic Read,Basic Write,Schema Manipulation,Instance Manipulation,"
+"Association Traversal,Qualifier Declaration,Indications),(FunctionalProfileDescriptions=),"
+"(MultipleOperationsSupported=FALSE),(AuthenticationMechanismsSupported=Basic),(AuthenticationMechanismDescriptions=)";
+char *httpUrl2 = "service:wbemtest:https://127.0.0.1:5989";
+
+// httpAttrs3 is actual data used by CIMServer to register itself with SLP SA 
+// at http port.
+char *httpAttrs3 = "(template-url-syntax=service:wbem:http://127.0.0.1:5988),"
+"(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM Server Version 2.6.0 Development),"
+"(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/benchmark,"
+"root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,test/EmbeddedInstance/Static,"
+"test/TestProvider,test/EmbeddedInstance/Dynamic,root/cimv2,root,test/cimv2,test/static),"
+"(Classinfo=Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,"
+"Unknown,Unknown,Unknown),(CommunicationMechanism=CIM-XML),(OtherCommunicationMechanismDescription=)"
+",(InteropSchemaNamespace=root/PG_InterOp),(ProtocolVersion=1.0),(FunctionalProfilesSupported=Basic "
+"Read,Basic Write,Schema Manipulation,Instance Manipulation,Association Traversal,"
+"Qualifier Declaration,Indications),(FunctionalProfileDescriptions=),"
+"(MultipleOperationsSupported=FALSE),(AuthenticationMechanismsSupported=Basic),"
+"(AuthenticationMechanismDescriptions=),(RegisteredProfilesSupported=)";
 
 int find (char *str,char *t)
 {
@@ -123,7 +160,7 @@ char* replace (char *s,char *t, char *substitute)
 // Parse the list and check for the required data. 
 // Returns 'true' if the required data is found otherwise
 // returns 'false'
-BOOL parseFind1(lslpMsg *temp,  char* httpAttr)
+BOOL parseFind(lslpMsg *temp,  char* httpAttr)
 {
     BOOL  found = false;
     lslpURL    *url_list;
@@ -167,7 +204,7 @@ BOOL parseFind1(lslpMsg *temp,  char* httpAttr)
 // All other test in this file are independent of CIMServer running status.
 // Testcase for testing registration made in the CIMServer.cpp
 // This testcase would fail if not executed prior to expiration of
-// registration time ( i.e. 2 * PEGASUS_SLP_REG_TIME_OUT)
+// registration time ( i.e. 60 * PEGASUS_SLP_REG_TIME_OUT seconds)
 
 void testSLPReg_fromCIMServer ()
 {
@@ -188,7 +225,7 @@ void testSLPReg_fromCIMServer ()
     temp = responses.next;
     
     // parse the response list and check for the required response.
-    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs3));
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs3));
     
     destroy_slp_client(client);
     return;
@@ -207,7 +244,7 @@ void test1 ()
     client = create_slp_client (addr,iface,SLP_PORT,"DSA", scopes,FALSE, FALSE);
     PEGASUS_TEST_ASSERT(NULL != client);
     
-    //Register with SLP. This assert would fail if SLP SA is not running
+    //Register with SLP using http. This assert would fail if SLP SA is not running
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl1, httpAttrs1, type, scopes,life ));
     
     // discover all responses 
@@ -220,7 +257,7 @@ void test1 ()
     temp = responses.next;
     
     // parse the response list and check for the required response.
-    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs1));
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
     
     destroy_slp_client(client);
     return;
@@ -251,7 +288,7 @@ void test2 ()
     temp = responses.next;
     
     //check if the registered data is same ot not.
-    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs1));
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
 
     //Register http with SLP. This assert would fail if SLP SA is not running
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl2, httpAttrs2, type, scopes,life ));
@@ -260,8 +297,9 @@ void test2 ()
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
     temp = responses.next;
+    
     //check if the registered data is same ot not.
-    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs2));
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs2));
 
     // Unregister http
     PEGASUS_TEST_ASSERT(client->srv_reg_local (client, httpUrl1, httpAttrs1, type, scopes,0));
@@ -273,7 +311,7 @@ void test2 ()
     client->get_response (client, &responses);
     temp1 = responses.next;
     // Check if unregister service can be found
-    PEGASUS_TEST_ASSERT(!parseFind1(temp1, httpAttrs1));
+    PEGASUS_TEST_ASSERT(!parseFind(temp1, httpAttrs1));
     
     //Unregister https	
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl2, httpAttrs2, type, scopes,0));
@@ -284,8 +322,9 @@ void test2 ()
     responses.next = responses.prev = &responses;
     client->get_response (client, &responses);
     temp1 = responses.next;
+
     // Check if unregister service can be found
-    PEGASUS_TEST_ASSERT(!parseFind1(temp1, httpAttrs2));
+    PEGASUS_TEST_ASSERT(!parseFind(temp1, httpAttrs2));
    
     destroy_slp_client(client);
     return;
@@ -304,17 +343,19 @@ void test3 ()
     // Creates slp client
     client = create_slp_client (addr,iface,SLP_PORT,"DSA", scopes,FALSE, FALSE);
     PEGASUS_TEST_ASSERT(NULL != client);
-    // register http
+
+    //Register with SLP using http. This assert would fail if SLP SA is not running
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl1, httpAttrs1, type, scopes,life ));
     client->converge_srv_req(client, type, predicate, scopes);
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
     temp = responses.next;
-    //check if the registered data is same ot not.
-    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs1));
 
-    //deregister http
+    //check if the registered data is same ot not.
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
+
+    //Unregister http
     PEGASUS_TEST_ASSERT(client->srv_reg_local (client, httpUrl1, httpAttrs1, type, scopes,0));
     sleep(1);  //This gives time to SA to clean up it datastructures
 
@@ -323,8 +364,9 @@ void test3 ()
     responses.next = responses.prev = &responses;
     client->get_response (client, &responses);
     temp = responses.next;
+
     // Check if unregister service can be found
-    PEGASUS_TEST_ASSERT(!parseFind1(temp, httpAttrs1));
+    PEGASUS_TEST_ASSERT(!parseFind(temp, httpAttrs1));
     
     destroy_slp_client(client);
     return;
@@ -343,17 +385,20 @@ int test4()
     // Creates slp client
     client = create_slp_client (addr,iface,SLP_PORT,"DSA", scopes,FALSE, FALSE);
     PEGASUS_TEST_ASSERT(NULL != client);
-    // register http
+
+    //Register with SLP using http. This assert would fail if SLP SA is not running
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl1, httpAttrs1, type, scopes,life ));
     client->converge_srv_req(client, type, predicate, scopes);
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
     temp = responses.next;
+
     //check if the registered data is same ot not.
-    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs1));
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
+
     //Check if unregistered data can can be found
-    PEGASUS_TEST_ASSERT (!parseFind1(temp, httpAttrs2));
+    PEGASUS_TEST_ASSERT (!parseFind(temp, httpAttrs2));
     
     destroy_slp_client(client);
     return( 32 );
@@ -369,25 +414,28 @@ void test5()
     // Creates slp client
     client = create_slp_client (addr,iface,SLP_PORT,"DSA", scopes,FALSE, FALSE);
     PEGASUS_TEST_ASSERT(NULL != client);
-    // register http
+
+    //Register with SLP using http. This assert would fail if SLP SA is not running
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl1, httpAttrs1, type, scopes,life ));
     client->converge_srv_req(client, type, predicate, scopes);
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
     temp = responses.next;
-    //check if the registered data is same ot not.
-    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs1));
 
-    //register https
+    //check if the registered data is same ot not.
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
+
+    //Register with SLP using https. This assert would fail if SLP SA is not running
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl2, httpAttrs2, type, scopes,life ));
     client->converge_srv_req(client, type, predicate, scopes);
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
     temp = responses.next;
+
     //check if the registered data is same ot not.
-    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs2));
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs2));
     
     destroy_slp_client(client);
     return;
@@ -410,8 +458,9 @@ void  test6()
     responses.next = responses.prev = &responses;
     client->get_response (client, &responses);
     temp = responses.next;
+
     // Check if unregister service can be found
-    PEGASUS_TEST_ASSERT(!parseFind1(temp, httpAttrs1));
+    PEGASUS_TEST_ASSERT(!parseFind(temp, httpAttrs1));
     
     destroy_slp_client(client);
     return;
@@ -427,15 +476,17 @@ void  test7()
     // Creates slp client
     client = create_slp_client (addr,iface,SLP_PORT,"DSA", scopes,FALSE, FALSE);
     PEGASUS_TEST_ASSERT(NULL != client);
-    // register http
+    
+    //Register with SLP using http. This assert would fail if SLP SA is not running
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl1, httpAttrs1, type, scopes,life ));
     client->converge_srv_req(client, type, predicate, scopes);
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
     temp = responses.next;
+
     //check if the registered data is same ot not.
-    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs1));
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
 
     //Register with same data, as used in earlier registrtion.
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl1, httpAttrs1, type, scopes,life ));
@@ -444,8 +495,9 @@ void  test7()
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
     temp = responses.next;
+
     //check if the registered data is same ot not.
-    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs1));
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
     
     destroy_slp_client(client);
     return;
@@ -462,7 +514,8 @@ void  test8()
     // Creates slp client
     client = create_slp_client (addr,iface,SLP_PORT,"DSA", scopes,FALSE, FALSE);
     PEGASUS_TEST_ASSERT(NULL != client);
-    // register http
+    
+    //Register with SLP using http. This assert would fail if SLP SA is not running
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl1, httpAttrs1, type, scopes,life ));
     client->converge_srv_req(client, type, predicate, scopes);
     responses.isHead = TRUE;
@@ -470,6 +523,7 @@ void  test8()
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
     lslpURL *url_list;
     temp = responses.next;
+
     // Parse through the list of registrations, identify the registration intended to be 
     // modified. Replace the service-hi-name in the registration data with "Changed".
     // Register with the modified data and check for success case and failure case.
@@ -505,16 +559,21 @@ void  test8()
             } // if there are urls to print
             printf("%c", rs);
         }
+
+    // Register with SLP using http with modified data. This assert would fail 
+    // if SLP SA is not running
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl1, changedata, type, scopes,life ));
     client->converge_srv_req(client, type, predicate, scopes);
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
     temp = responses.next;
+
     // Check for the correctness of the modified data
-    PEGASUS_TEST_ASSERT (parseFind1(temp, changedata));
+    PEGASUS_TEST_ASSERT (parseFind(temp, changedata));
+
     //Failure case -- Check for data prior to modification .
-    PEGASUS_TEST_ASSERT (!parseFind1(temp, httpAttrs1));
+    PEGASUS_TEST_ASSERT (!parseFind(temp, httpAttrs1));
     
     destroy_slp_client(client);
     return;
@@ -530,15 +589,18 @@ void test9 ()
     struct slp_client *client;
     lslpMsg responses,*temp;
    
+    // Create SLP Client
     client = create_slp_client (addr,iface,SLP_PORT,"DSA", scopes,FALSE, FALSE);
     PEGASUS_TEST_ASSERT(NULL != client);
+    
+    // Register with SLP using https. This assert would fail if SLP SA is not running
     PEGASUS_TEST_ASSERT(client->srv_reg_local(client, httpUrl2, httpAttrs2, type, scopes,life ));
     client->converge_srv_req(client, type, predicate, scopes);
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
     temp = responses.next;
-    PEGASUS_TEST_ASSERT (parseFind1(temp, httpAttrs2));
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs2));
     
     destroy_slp_client(client);
     return;

@@ -63,7 +63,7 @@ void
 PROV_LOG (const char *fmt, ...)
 {
 
-  va_list ap;
+  va_list ap = NULL;
   if (!fd)
     fd = stderr;
 

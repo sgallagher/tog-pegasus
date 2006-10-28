@@ -57,7 +57,7 @@ extern "C" {
                }
                delete ie;
            }
-           ((CMPI_Object*)eObj)->unlinkAndDelete();
+           (reinterpret_cast<CMPI_Object*>(eObj))->unlinkAndDelete();
        }
        else if ((void*)eObj->ft==(void*)CMPI_ObjEnumeration_Ftab)
        {
@@ -69,7 +69,7 @@ extern "C" {
                }
                delete ie;
            }
-           ((CMPI_Object*)eObj)->unlinkAndDelete();
+           (reinterpret_cast<CMPI_Object*>(eObj))->unlinkAndDelete();
        }
        else if ((void*)eObj->ft==(void*)CMPI_OpEnumeration_Ftab)
        {
@@ -81,7 +81,7 @@ extern "C" {
                }
                delete ie;
            }
-           ((CMPI_Object*)eObj)->unlinkAndDelete();
+           (reinterpret_cast<CMPI_Object*>(eObj))->unlinkAndDelete();
        }
 
       CMReturn(CMPI_RC_OK);

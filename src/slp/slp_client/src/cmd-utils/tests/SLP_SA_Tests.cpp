@@ -403,7 +403,9 @@ int test4()
     destroy_slp_client(client);
     return( 32 );
 }
-//
+
+// This testcase would test registration of http and https ports
+// together.
 void test5()
 {
     struct slp_client *client;
@@ -441,7 +443,7 @@ void test5()
     return;
 }
 
-// This testcase unregister a service and  and check for the empty response for the SA.
+// This testcase unregister a service and check for the empty response from the SA.
 void  test6()
 {
     struct slp_client *client;

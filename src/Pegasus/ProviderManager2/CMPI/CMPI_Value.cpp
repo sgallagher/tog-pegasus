@@ -305,7 +305,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
          }
 
-         data->value.inst=(CMPIInstance*)new CMPI_Object(new CIMInstance(inst));
+         data->value.inst=reinterpret_cast<CMPIInstance*>(new CMPI_Object(new CIMInstance(inst)));
       }
       break;
    case CMPI_dateTime: {

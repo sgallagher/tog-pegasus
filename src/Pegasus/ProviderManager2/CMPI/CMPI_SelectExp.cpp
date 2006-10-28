@@ -72,7 +72,7 @@ extern "C"
                 // CMPI_SelectExp structure so not all of the variables get deleted. Hence
                 // we delete them here.
          	//((CMPI_Object*)se)->unlinkAndDelete();
-         	((CMPI_Object*)se)->unlink();
+                (reinterpret_cast<CMPI_Object*>(se))->unlink();
 	 	delete se;
         }
 

@@ -36,8 +36,7 @@ include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
     pegslp_client \
-    pegserver \
-    pegclient
+    pegcommon 
 
 PROGRAM = TestSLP_SA
 FLAGS += "-g"

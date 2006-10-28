@@ -988,14 +988,14 @@ void CIMServer::startSLPProvider()
 {
 
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CIMServer::startSLPProvider");
-   #ifndef PEGASUS_SLP_REG_TIMEOUT
+#ifndef PEGASUS_SLP_REG_TIMEOUT
    // This is a onetime function.  If already issued, or config is not to use simply
    // return
    if (!_runSLP)
    {
       return;
    }
-   #endif 
+#endif 
     // Get Config parameter to determine if we should start SLP.
     ConfigManager* configManager = ConfigManager::getInstance();
     _runSLP = ConfigManager::parseBooleanValue(
@@ -1006,11 +1006,11 @@ void CIMServer::startSLPProvider()
     {
        return;
     }
-    #ifndef PEGASUS_SLP_REG_TIMEOUT
+#ifndef PEGASUS_SLP_REG_TIMEOUT
     //SLP startup is onetime function; reset the switch so this
     // function does not get called a second time.
     _runSLP = false;
-    #endif
+#endif
     // Start SLPProvider for Built-in SA and Open SLP SA. If the 
     // PEGASUS_SLP_REG_TIMEOUT is defined and if Open SLP is not used, start a
     // thread which advertises CIMOM with a external SLP SA( i.e . IBM SA).
@@ -1126,12 +1126,12 @@ ThreadReturnType PEGASUS_THREAD_CDECL _advertisePegasus(void* parm)
     char *httpAttrs  = (char *)NULL;
     char *httpsAttrs  = (char *)NULL;
 
-       // Comes here only if the cimserver is not terminated.
-       // Get all the SLP attributes and data for the Pegasus cimserver.
-       SLPHttpAttribObj.fillData("http");
-       SLPHttpsAttribObj.fillData("https");
-       SLPHttpAttribObj.formAttributes();
-       SLPHttpsAttribObj.formAttributes();
+    // Comes here only if the cimserver is not terminated.
+    // Get all the SLP attributes and data for the Pegasus cimserver.
+    SLPHttpAttribObj.fillData("http");
+    SLPHttpsAttribObj.fillData("https");
+    SLPHttpAttribObj.formAttributes();
+    SLPHttpsAttribObj.formAttributes();
 
     scopes = strdup("DEFAULT");
 
@@ -1164,22 +1164,14 @@ ThreadReturnType PEGASUS_THREAD_CDECL _advertisePegasus(void* parm)
        destroy_slp_client(client);
     }
     
-    if(type != NULL)
-       free(type);
-    if(httpUrl != NULL)
-        free(httpUrl);
-    if(httpsUrl != NULL)
-        free(httpsUrl);
-    if(httpAttrs != NULL)
-        free(httpAttrs);
-    if(httpsAttrs != NULL)
-        free(httpsAttrs);
-    if(addr != NULL)
-        free(addr);
-    if(scopes != NULL)
-        free(scopes);
-    if(iface != NULL)
-        free(iface);
+    free(type);
+    free(httpUrl);
+    free(httpsUrl);
+    free(httpAttrs);
+    free(httpsAttrs);
+    free(addr);
+    free(scopes);
+    free(iface);
 
     PEG_METHOD_EXIT();
     return( (ThreadReturnType)32 );
@@ -1190,7 +1182,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _advertisePegasus(void* parm)
 void  deregPegasus()
 {
 
-   PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::deregPegasus()");
+   PEG_METHOD_ENTER(TRC_SERVER, "deregPegasus()");
 
    SLPAttrib SLPHttpAttribObj1;
    SLPAttrib SLPHttpsAttribObj1;
@@ -1233,22 +1225,15 @@ void  deregPegasus()
       client->srv_reg_local(client, httpsUrl, httpsAttrs, type, scopes,0);
       destroy_slp_client(client);
    }
-   if(type != NULL)
-      free(type);
-   if(httpUrl != NULL)
-      free(httpUrl);
-   if(httpsUrl != NULL)
-      free(httpsUrl);
-   if(httpAttrs != NULL)
-      free(httpAttrs);
-   if(httpsAttrs != NULL)
-      free(httpsAttrs);
-   if(addr != NULL)
-      free(addr);
-   if(scopes != NULL)
-      free(scopes);
-   if(iface != NULL)
-      free(iface);
+   
+   free(type);
+   free(httpUrl);
+   free(httpsUrl);
+   free(httpAttrs);
+   free(httpsAttrs);
+   free(addr);
+   free(scopes);
+   free(iface);
 
    PEG_METHOD_EXIT();
    return;

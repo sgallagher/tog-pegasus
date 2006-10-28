@@ -330,14 +330,7 @@ CIMSubCommand::CIMSubCommand()
         Initialize the instance variables.
     */
     _operationType = OPERATION_TYPE_UNINITIALIZED;
-    _filterName;
-    _filterNamespace;
-    _handlerName;
-    _handlerNamespace;
-    _handlerCreationClass;
-    _subscriptionNamespace;
     _verbose = false;
-    _operationArg;
 
 
     /**

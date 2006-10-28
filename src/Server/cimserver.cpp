@@ -995,7 +995,7 @@ int CIMServerProcess::cimserver_run(
                 configManager->getCurrentValue("shutdownTimeout");
             Uint32 timeoutValue = strtol(configTimeout.getCString(), (char **)0, 10);
 #ifdef PEGASUS_SLP_REG_TIMEOUT            
-            _deregPegasus();
+            deregPegasus();
 #endif
             shutdownCIMOM(timeoutValue);
 

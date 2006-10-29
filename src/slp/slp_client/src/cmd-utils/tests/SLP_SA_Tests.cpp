@@ -225,6 +225,13 @@ void testSLPReg_fromCIMServer ()
     temp = responses.next;
     
     // parse the response list and check for the required response.
+    // This test case would fail if there a difference between the registered data and
+    // data retrieved from the SLP SA. Registered data is framed based on the repository.
+    // httpAttrs3 is the data that is tested when this testcase was written. To make this 
+    // testcase successfull alway, the test data ( i.e. httpAttrs3) has to be framed using 
+    //     SLPHttpAttribObj.fillData("http");
+    //     httpAttrs3 = SLPHttpAttribObj.formAttributes();
+
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs3));
     
     destroy_slp_client(client);

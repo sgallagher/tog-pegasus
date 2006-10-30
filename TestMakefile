@@ -274,7 +274,7 @@ ifeq ($(PEGASUS_TEST_SDK),true)
 endif
 
 slptests:
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/slp/slp_client/src/cmd-utils/tests -f Makefile slptests 
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/slp/tests/slptests -f Makefile slptests 
 	@ $(ECHO) "+++++ TestMakefile slp test suite completed"
 
 servertests: servertestsclean servertestssetup serversuite

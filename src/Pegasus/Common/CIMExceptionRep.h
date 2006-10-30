@@ -43,6 +43,7 @@
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/ExceptionRep.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,6 +53,7 @@ public:
     CIMStatusCode code;
     String        file;
     Uint32        line;
+    Array<CIMInstance> errors;
 };
 
 PEGASUS_NAMESPACE_END

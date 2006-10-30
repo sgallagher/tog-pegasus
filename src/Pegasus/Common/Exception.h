@@ -39,6 +39,7 @@
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/ContentLanguageList.h>
+#include <Pegasus/Common/Array.h>
 
 #ifdef PEGASUS_INTERNALONLY
 # include <Pegasus/Common/MessageLoader.h>
@@ -46,6 +47,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 class ExceptionRep;
+class CIMInstance;
+class CIMConstInstance;
+
 
 /** 
 <p>The <tt>Exception</tt> class is the parent class for all
@@ -283,15 +287,59 @@ class PEGASUS_COMMON_LINKAGE CIMException : public Exception
 {
 public:
 
-    ///
+    /**  Construct a CIMException with status code and Error description
+         message.
+         @param code CIMStatus code defining the error
+         @param message String defining the message text
+         @param instance CIMInstance containing the CIM_Error
+         instance
+    */ 
     CIMException(
 	CIMStatusCode code = CIM_ERR_SUCCESS,
 	const String& message = String::EMPTY);
 	
+    /**  Construct a CIMException with status code, message
+         and a CIM_Error instance attached to the exception. Note that
+         this allows the CIMStatusCode and Description in the CIMError
+         to be different than those attached to the call.
+         @param code CIMStatus code defining the error
+         @param message String defining the message text
+         @param instance CIMInstance containing the CIM_Error
+         instance.
+    */ 
+    CIMException(
+	CIMStatusCode code,
+	const String& message,
+        const CIMInstance& instance);
+
+    /**  Construct a CIMException with status code, message
+         and an Array of CIM_Error instances attached to the exception.
+         Note that this allows the CIMStatusCode and Description in the
+         CIMErrors to be different than those attached to the call.
+         @param code CIMStatus code defining the error
+         @param message String defining the message text
+         @param instances Array<CIMInstance> containing  CIM_Error
+         instances.
+    */
+
+    CIMException(
+	CIMStatusCode code,
+	const String& message,
+        const Array<CIMInstance>& instances);
+
 #ifdef PEGASUS_INTERNALONLY
     CIMException(
 	CIMStatusCode code,
 	const MessageLoaderParms& msgParms);
+
+    CIMException(
+	CIMStatusCode code,
+	const MessageLoaderParms& msgParms,
+        const CIMInstance& instance);
+    CIMException(
+	CIMStatusCode code,
+	const MessageLoaderParms& msgParms,
+        const Array<CIMInstance>& instances);
 #endif	
 
     ///
@@ -303,8 +351,67 @@ public:
     ///
     virtual ~CIMException();
 
-    ///
-    CIMStatusCode getCode() const;
+    /** gets the CIMStatusCode for the current CIMException. This is the
+        code that defines the ERROR that was executed and transmitted
+        to the Client.
+        @return a single CIMStatusCode
+        @SeeAlso CIMStatusCode
+        EXAMPLE
+            try
+            { .. Execute CIM Operation
+            }
+            catch(CIMExcepton e)
+            {
+                if (e.getCode() == CIM_ERR_ACCESS_DENIED )
+                    ....
+            }
+     */ 
+     CIMStatusCode getCode() const;
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
+    /* get the count of CIM_Error instances attached to the CIMException.
+       Normally this method is used by the client to determine if any
+       CIM_Error instances are attached to a CIMException and as the 
+       end test if the user decides to get the exception instances.
+       @return Uint32 count of CIM_Error instances attached to a CIMException.
+       0 indicates that there are no instances attached.
+    */
+    Uint32 getErrorCount() const;
+
+    /* get a single CIM_Error instance that is attached to a CIMException.
+       @param Uint32 index that defines the index to a particular CIMInstance
+       attached to the CIMException. The index must be less than the value of
+       the return from getErrorCount()
+       Return CIMInstance the instance defined by the index.
+       exception: returns out-of-range exception if the index is outside the
+       range of the array of CIM_Instances attached to the CIMExcepton.
+       EXAMPLE
+            try
+            { .. Execute CIM Operation
+            }
+            catch(CIMExcepton e)
+            {
+                if (e.getErrorCount() > 0 )
+                {
+                    for (Uint32 i = 0 ; i < getErrorCount() ; i++)
+                       ... get and process each CIM_Error instance
+                }
+            }
+    */
+
+    CIMConstInstance getError(Uint32 index) const;
+
+    //CIMInstance getError(Uint32 index);
+
+    /* Adds a single error instance to a CIMException
+       @param instance CIMInstance is the instance of CIM_Error
+       that is to be added to the CIMException. This instance is
+       NOT checked by the infrastructure for correct type.
+    */
+    void addError(const CIMInstance& instance);
+
+#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 };
 
 

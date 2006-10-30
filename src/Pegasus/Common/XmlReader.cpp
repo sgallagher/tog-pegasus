@@ -4487,20 +4487,23 @@ Boolean XmlReader::getErrorElement(
 
     entry.getAttributeValue("DESCRIPTION", tmpDescription);
 
+    cimException = 
+	PEGASUS_CIM_EXCEPTION(CIMStatusCode(tmpCode), tmpDescription);
+
     if (!empty)
     {
-	while (testStartTagOrEmptyTag(parser, entry))
+	CIMInstance instance;
+
+	while (getInstanceElement(parser, instance))
 	{
-	    skipElement(parser, entry);
+	    cimException.addError(instance);
 	}
 
 	expectEndTag(parser, "ERROR");
     }
 
-    cimException = PEGASUS_CIM_EXCEPTION(CIMStatusCode(tmpCode), tmpDescription);
     return true;
 }
-
 
 //------------------------------------------------------------------------------
 // getValueObjectElement()
@@ -5318,4 +5321,3 @@ Boolean XmlReader::getReturnValueElement(
 }
 
 PEGASUS_NAMESPACE_END
-

@@ -43,12 +43,16 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMError.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static const char * verbose;
 
+
+// Tests getting error Element and determing if data matches the predefined
+// error elemement xml.
 static void testGetErrorElement()
 {
     CIMException cimException;
@@ -58,18 +62,36 @@ static void testGetErrorElement()
 
     CIMStatusCode errorCode = CIM_ERR_NO_SUCH_PROPERTY;
     String errorDescription = " The specified Property does not exist.";
-
     XmlParser parser((char*)text.getData());
-
     XmlReader::getErrorElement(parser, cimException);
 
     if (((unsigned)cimException.getCode() != (unsigned)errorCode) ||
-        (cimException.getMessage() == errorDescription)
-       )
+        (cimException.getMessage() == errorDescription) )
     {
         throw cimException;
     }
+    PEGASUS_TEST_ASSERT(cimException.getErrorCount() == 1);
+
+    CIMInstance errorInstance = cimException.getError(0);
+
+    // Convert it back to a CIM_Error for analysis
+    CIMError err1;
+    err1.setInstance(errorInstance);
+
+    // Test for correct property data.
+    CIMError::CIMStatusCodeEnum statusCodeRtn;
+    PEGASUS_TEST_ASSERT(err1.getCIMStatusCode(statusCodeRtn));
+    PEGASUS_TEST_ASSERT(statusCodeRtn == CIMError::CIM_STATUS_CODE_CIM_ERR_INVALID_PARAMETER);
+
+    String OwningEntity;
+    PEGASUS_TEST_ASSERT(err1.getOwningEntity(OwningEntity));
+    PEGASUS_TEST_ASSERT(OwningEntity == "OpenPegasus");
+
+    String messageIDrtn;
+    PEGASUS_TEST_ASSERT(err1.getMessageID(messageIDrtn));
+    PEGASUS_TEST_ASSERT(messageIDrtn == "2206");
 }
+
 
 // Tests PROPERTY as an embedded object.
 static void testGetInstanceElement(const char* testDataFile)
@@ -225,34 +247,28 @@ int main(int argc, char** argv)
 
     try
     {
+        if (verbose)
+            cout << "Testing GetErrorElement." << endl;
         testGetErrorElement();
 
         //
         if (verbose)
-        {
             cout << "Testing EmbeddedObject VALUE Property with XML entity references." << endl;
-        }
         testGetInstanceElement("./getInstanceElement.xml");
 
         //
         if (verbose)
-        {
             cout << "Testing EmbeddedObject VALUE.ARRAY Property with XML entity references." << endl;
-        }
         testGetInstanceElement2("./getInstanceElement2.xml");
 
         //
         if (verbose)
-        {
             cout << "Testing EmbeddedObject VALUE Property with <![CDATA[...]]> escaping." << endl;
-        }
         testGetInstanceElement("./getInstanceElementCDATA.xml");
 
         //
         if (verbose)
-        {
             cout << "Testing EmbeddedObject VALUE.ARRAY Property with <![CDATA[...]]> escaping." << endl;
-        }
         testGetInstanceElement2("./getInstanceElementCDATA2.xml");
     }
     catch(Exception& e)

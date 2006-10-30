@@ -70,7 +70,7 @@ Exception::Exception(const MessageLoaderParms& msgParms)
     _rep = new ExceptionRep();
     _rep->message = MessageLoader::getMessage(
     	const_cast<MessageLoaderParms &>(msgParms));
-    // Must be after MessageLoader::getMessage call    
+    // Must be after MessageLoader::getMessage call
     _rep->contentLanguages = msgParms.contentlanguages;
 }
 
@@ -93,13 +93,13 @@ const String& Exception::getMessage() const
 const ContentLanguageList& Exception::getContentLanguages() const
 {
 	return _rep->contentLanguages;
-} 
+}
 
 // l10n
 void Exception::setContentLanguages(const ContentLanguageList& langs)
 {
 	_rep->contentLanguages = langs;
-} 
+}
 
 /*
 IndexOutOfBoundsException::IndexOutOfBoundsException()
@@ -122,14 +122,14 @@ AlreadyExistsException::AlreadyExistsException(const String& message)
 
 AlreadyExistsException::AlreadyExistsException(const String& message)
     : Exception(MessageLoaderParms("Common.Exception.ALREADY_EXISTS_EXCEPTION",
-    								"already exists: $0",    								
-    								 message))
+    						"already exists: $0",
+    				 		message))
 {
 }
 
 AlreadyExistsException::AlreadyExistsException(MessageLoaderParms& msgParms)
     : Exception(MessageLoaderParms("Common.Exception.ALREADY_EXISTS_EXCEPTION",
-    								"already exists: "))
+    							"already exists: "))
 {
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
@@ -413,7 +413,6 @@ DateTimeOutOfRangeException::DateTimeOutOfRangeException(MessageLoaderParms& msg
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMException
@@ -434,10 +433,51 @@ CIMException::CIMException(
     tmp->file = "";
     tmp->line = 0;
     tmp->contentLanguages.clear();
+    tmp->cimMessage = String::EMPTY;
+    _rep = tmp;
+}
+
+
+// l10n - note - use this when you have an exception 
+// an untranslated detail message and an attached CIM_Error
+// The pegasus message associated with code will be translated.
+CIMException::CIMException(
+    CIMStatusCode code,
+    const String& message,
+    const CIMInstance& instance)
+    : Exception()
+{
+    CIMExceptionRep * tmp = new CIMExceptionRep ();
+    tmp->message = message;
+    tmp->code = code;
+    tmp->file = "";
+    tmp->errors.append(instance);
+    tmp->line = 0;
+    tmp->contentLanguages.clear();
     tmp->cimMessage = String::EMPTY;    
     _rep = tmp;
 }
 
+// l10n - note - use this when you have an exception 
+// an untranslated detail message and an attached CIM_Error
+// array
+// The pegasus message associated with code will be translated.
+CIMException::CIMException(
+    CIMStatusCode code,
+    const String& message,
+    const Array<CIMInstance>& instances)
+    : Exception()
+{
+    CIMExceptionRep * tmp = new CIMExceptionRep ();
+    tmp->message = message;
+    tmp->code = code;
+    tmp->file = "";
+    tmp->errors.appendArray(instances);
+    tmp->line = 0;
+    tmp->contentLanguages.clear();
+    tmp->cimMessage = String::EMPTY;    
+    _rep = tmp;
+}
 // l10n - note use this when you have an exception with a translated
 // detail message
 // l10n
@@ -450,7 +490,7 @@ CIMException::CIMException(
     tmp->message = MessageLoader::getMessage(
     	const_cast<MessageLoaderParms &>(msgParms));
     // Must be after MessageLoader::getMessage call
-    tmp->contentLanguages = msgParms.contentlanguages;     
+    tmp->contentLanguages = msgParms.contentlanguages;
     tmp->cimMessage = String::EMPTY;
     tmp->code = code;
     tmp->file = "";
@@ -458,6 +498,43 @@ CIMException::CIMException(
     _rep = tmp;
 }
 
+CIMException::CIMException(
+    CIMStatusCode code,
+    const MessageLoaderParms& msgParms,
+    const CIMInstance& instance)
+    : Exception()
+{
+    CIMExceptionRep * tmp = new CIMExceptionRep ();
+    tmp->message = MessageLoader::getMessage(
+    	const_cast<MessageLoaderParms &>(msgParms));
+    // Must be after MessageLoader::getMessage call
+    tmp->contentLanguages = msgParms.contentlanguages;     
+    tmp->cimMessage = String::EMPTY;
+    tmp->errors.append(instance);
+    tmp->code = code;
+    tmp->file = "";
+    tmp->line = 0;
+    _rep = tmp;
+}
+
+CIMException::CIMException(
+    CIMStatusCode code,
+    const MessageLoaderParms& msgParms,
+    const Array<CIMInstance>& instances)
+    : Exception()
+{
+    CIMExceptionRep * tmp = new CIMExceptionRep ();
+    tmp->message = MessageLoader::getMessage(
+    	const_cast<MessageLoaderParms &>(msgParms));
+    // Must be after MessageLoader::getMessage call
+    tmp->contentLanguages = msgParms.contentlanguages;     
+    tmp->cimMessage = String::EMPTY;
+    tmp->errors.appendArray(instances);
+    tmp->code = code;
+    tmp->file = "";
+    tmp->line = 0;
+    _rep = tmp;
+}
 CIMException::CIMException(const CIMException & cimException)
     : Exception()
 {
@@ -466,10 +543,11 @@ CIMException::CIMException(const CIMException & cimException)
     rep = reinterpret_cast<CIMExceptionRep*>(cimException._rep);
     tmp->message = rep->message;
     tmp->contentLanguages = rep->contentLanguages;  // l10n
-    tmp->cimMessage = rep->cimMessage;  // l10n    
+    tmp->cimMessage = rep->cimMessage;  // l10n
     tmp->code = rep->code;
     tmp->file = rep->file;
     tmp->line = rep->line;
+    tmp->errors = rep->errors;
     _rep = tmp;
 }
 
@@ -482,17 +560,39 @@ CIMException& CIMException::operator=(const CIMException & cimException)
         left = reinterpret_cast<CIMExceptionRep*>(this->_rep);
         right = reinterpret_cast<CIMExceptionRep*>(cimException._rep);
         left->message = right->message;
-        left->contentLanguages = right->contentLanguages;  // l10n    
+        left->contentLanguages = right->contentLanguages;  // l10n
         left->cimMessage = right->cimMessage;  // l10n
         left->code = right->code;
         left->file = right->file;
         left->line = right->line;
+	    left->errors = right->errors;
     }
     return *this;
 }
 
 CIMException::~CIMException()
 {
+}
+
+Uint32 CIMException::getErrorCount() const
+{
+    return reinterpret_cast<CIMExceptionRep*>(_rep)->errors.size();
+}
+/**************
+CIMInstance CIMException::getError(Uint32 index)
+{
+    return reinterpret_cast<CIMExceptionRep*>(_rep)->errors[index];
+}
+***************/
+
+CIMConstInstance CIMException::getError(Uint32 index) const
+{
+    return reinterpret_cast<CIMExceptionRep*>(_rep)->errors[index];
+}
+
+void CIMException::addError(const CIMInstance& instance)
+{
+    return reinterpret_cast<CIMExceptionRep*>(_rep)->errors.append(instance);
 }
 
 CIMStatusCode CIMException::getCode() const

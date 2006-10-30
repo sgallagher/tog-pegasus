@@ -4,7 +4,6 @@ not exist.">
 <PROPERTY NAME="ErrorType" TYPE="uint16">
 <VALUE>4</VALUE>
 </PROPERTY>
-<NAMESPACE NAME="root"/>
 <PROPERTY NAME="CIMStatusCode" TYPE="uint32">
 <VALUE>4</VALUE>
 </PROPERTY>

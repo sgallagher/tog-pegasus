@@ -43,6 +43,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/ContentLanguageList.h>
+#include <Pegasus/Common/CIMInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

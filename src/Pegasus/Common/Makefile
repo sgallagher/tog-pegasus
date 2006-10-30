@@ -52,6 +52,8 @@ LIBRARY = pegcommon
 ##
 
 SOURCES1 = \
+    CIMError.cpp \
+    PropertyAccessor.cpp \
     Once.cpp \
     Time.cpp \
     Threads.cpp \

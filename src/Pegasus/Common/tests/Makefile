@@ -41,6 +41,7 @@ DIRS = \
     AuthenticationInfo \
     Base64 \
     Buffer \
+	CIMError\
     Cimom \
     ClassDecl \
     Compare \

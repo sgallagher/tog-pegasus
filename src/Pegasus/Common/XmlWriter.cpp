@@ -51,6 +51,7 @@
 #include <cstdio>
 #include "Constants.h"
 #include "CIMClass.h"
+#include "CIMError.h"
 #include "CIMClassRep.h"
 #include "CIMInstance.h"
 #include "CIMInstanceRep.h"
@@ -1943,6 +1944,7 @@ void XmlWriter::appendMethodCallHeader(
 
 		static const char *clientTransferEncodingOff =
 			getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
+
 		if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
 #endif
 
@@ -2334,6 +2336,7 @@ void XmlWriter::_appendErrorElement(
 
     out << STRLIT("<ERROR");
     out << STRLIT(" CODE=\"") << Uint32(cimException.getCode());
+
     out.append('"');
     String description = TraceableCIMException(cimException).getDescription();
     if (description != String::EMPTY)
@@ -2342,7 +2345,16 @@ void XmlWriter::_appendErrorElement(
         appendSpecial(out, description);
 	out.append('"');
     }
-    out << STRLIT("/>");
+    out << STRLIT(">");
+
+    ((CIMException*)&cimException)->addError(CIMError().getInstance());
+
+    for (Uint32 i = 0, n = cimException.getErrorCount(); i < n; i++)
+    {
+	appendInstanceElement(out, cimException.getError(i));
+    }
+
+    out << STRLIT("</ERROR>");
 }
 
 //------------------------------------------------------------------------------

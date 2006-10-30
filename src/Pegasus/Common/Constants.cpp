@@ -92,14 +92,15 @@ const CIMName PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES   =
     CIMName ("CIM_QueryCapabilities");
 #endif
 
+const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE = 
+    CIMName ("CIM_Namespace");
+
 // Interop Classes Accessed through Interop Control Provider
 #if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
 const CIMName PEGASUS_CLASSNAME_OBJECTMANAGER            = 
     CIMName ("CIM_ObjectManager");
 const CIMName PEGASUS_CLASSNAME_PGNAMESPACE            = 
     CIMName ("PG_Namespace");
-const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE = 
-    CIMName ("CIM_Namespace");
 const CIMName PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM  = 
     CIMName ("CIM_ObjectManagerCommunicationMechanism");
 const CIMName PEGASUS_CLASSNAME_CIMXMLCOMMUNICATIONMECHANISM  = 

@@ -72,7 +72,7 @@ static void testGetErrorElement()
     }
     PEGASUS_TEST_ASSERT(cimException.getErrorCount() == 1);
 
-    CIMInstance errorInstance = cimException.getError(0);
+    CIMInstance errorInstance = cimException.getError(0).clone();
 
     // Convert it back to a CIM_Error for analysis
     CIMError err1;

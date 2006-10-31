@@ -89,6 +89,8 @@
 # include <stdlib.h>
 #endif
 
+#include <net/if.h>
+
 #include "Once.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -1368,6 +1370,39 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
     // Not implemented!
 
 #endif /* default */
+}
+
+// check if a given IP address is defined on the local network interfaces
+Boolean System::isIpOnNetworkInterface(Uint32 inIP)
+{
+    // Function compares all IP addresses defined on
+    // local network interface with a given IP address
+    #define PEGASUS_MAX_NETWORK_INTERFACES 32
+    struct ifconf conf;
+
+    conf.ifc_buf = (char *)calloc( PEGASUS_MAX_NETWORK_INTERFACES, sizeof(struct ifreq ) );
+    conf.ifc_len = PEGASUS_MAX_NETWORK_INTERFACES * sizeof( struct ifreq ) ;
+        
+    if( -1 < ioctl(AF_INET, SIOCGIFCONF, &conf ) )
+    {
+      struct ifreq *r = conf.ifc_req;
+      sockaddr_in *addr ;
+      addr = (sockaddr_in *)&r->ifr_addr;
+      while(  addr->sin_addr.s_addr != 0 )
+      {
+          Uint32 ip = addr->sin_addr.s_addr;
+          if (ip == inIP)
+          {
+              free(conf.ifc_buf);
+              return true;
+          }
+          // next interface
+          r++;
+          addr = (sockaddr_in *) &r->ifr_addr;
+      }
+    }
+    free(conf.ifc_buf);
+    return false;
 }
 
 

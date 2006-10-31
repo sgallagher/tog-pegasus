@@ -447,6 +447,165 @@ Boolean System::sameHost (const String & hostName)
     return true;
 }
 
+Boolean System::resolveHostNameAtDNS(const char* hostname, Uint32 * resolvedNameIP)
+{
+    // ask the DNS for hostname resolution to IP address
+    // this can mean a time delay for as long as the DNS
+    // takes to answer    
+    struct hostent* hostEntry;
+
+#if defined(PEGASUS_OS_LINUX)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+        int hostEntryErrno;
+
+        gethostbyname_r(
+            hostname,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &hostEntry,
+            &hostEntryErrno);
+#elif defined(PEGASUS_OS_SOLARIS)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+        int hostEntryErrno;
+
+        hostEntry = gethostbyname_r(
+            (char *)hostname,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &hostEntryErrno);
+#else
+        hostEntry = gethostbyname((char *)hostname);
+#endif
+    if (hostEntry == 0)
+    {
+        // error, couldn't resolve the hostname to an ip address
+        return false;
+    } else
+    {
+        unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
+        ip_part1 = hostEntry->h_addr[0];
+        ip_part2 = hostEntry->h_addr[1];
+        ip_part3 = hostEntry->h_addr[2];
+        ip_part4 = hostEntry->h_addr[3];
+        *resolvedNameIP = ip_part1;
+        *resolvedNameIP = (*resolvedNameIP << 8) + ip_part2;
+        *resolvedNameIP = (*resolvedNameIP << 8) + ip_part3;
+        *resolvedNameIP = (*resolvedNameIP << 8) + ip_part4;
+    }
+    return true;
+}
+
+Boolean System::resolveIPAtDNS(Uint32 ip_addr, Uint32 * resolvedIP)
+{
+        struct hostent *entry;
+
+#ifndef PEGASUS_OS_OS400
+        entry = gethostbyaddr((const char *) &ip_addr, sizeof(ip_addr), AF_INET);
+#else
+		entry = gethostbyaddr((char *) &ip_addr, sizeof(ip_addr), AF_INET);
+#endif
+		if (entry == 0)
+		{
+			// error, couldn't resolve the ip
+			return false;
+		} else
+		{
+			unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
+			ip_part1 = entry->h_addr[0];
+			ip_part2 = entry->h_addr[1];
+			ip_part3 = entry->h_addr[2];
+			ip_part4 = entry->h_addr[3];
+			*resolvedIP = ip_part1;
+			*resolvedIP = (*resolvedIP << 8) + ip_part2;
+			*resolvedIP = (*resolvedIP << 8) + ip_part3;
+			*resolvedIP = (*resolvedIP << 8) + ip_part4;
+		}
+        return true;
+}
+
+
+Boolean System::isLocalHost(const String &hostName)
+{
+    // differentiate between a dotted IP address given
+    // and a real hostname given
+    CString csName = hostName.getCString();
+    char * cc_hostname = strdup((const char*) csName);
+    Uint32 tmp_addr = 0xFFFFFFFF;
+    Boolean hostNameIsIPNotation;
+
+#ifdef PEGASUS_OS_OS400
+    AtoE(cc_hostname);
+#endif
+
+    // Note: Platforms already supporting the inet_aton()
+    //       should define their platform here,
+    //        as this is the superior way to work
+#if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_AIX)
+    
+    struct in_addr inaddr;
+    // if inet_aton failed(return=0),
+    // we do not have a valip IP address (x.x.x.x)
+    int atonSuccess = inet_aton(cc_hostname, &inaddr);
+    if (atonSuccess == 0) hostNameIsIPNotation = false;
+    else
+    {
+        hostNameIsIPNotation = true;
+        tmp_addr = inaddr.s_addr;
+    }
+#else
+    // Note: 0xFFFFFFFF is actually a valid IP address (255.255.255.255).
+    //       A better solution would be to use inet_aton() or equivalent, as
+    //       inet_addr() is now considered "obsolete".
+    // Note: inet_aton() not yet supported on all Pegasus platforms
+	tmp_addr = inet_addr((char *) cc_hostname);
+    if (tmp_addr == 0xFFFFFFFF) hostNameIsIPNotation = false;
+    else hostNameIsIPNotation = true;
+#endif
+    
+    if (!hostNameIsIPNotation)  // if hostname is not an IP address
+	{
+        // localhost ?
+        if (String::equalNoCase(hostName,String("localhost"))) return true;
+        char* localHostName = strdup( (const char *) System::getHostName ().getCString() );
+        // given hostname equals what system returns as local hostname ?
+        if (String::equalNoCase(hostName,localHostName)) return true;
+        Uint32 hostIP;
+        // bail out if hostname unresolveable
+        if (!System::resolveHostNameAtDNS(cc_hostname, &hostIP)) return false;
+        // lets see if the IP is defined on one of the network interfaces
+        // this can help us avoid another call to DNS
+        if (System::isIpOnNetworkInterface(hostIP)) return true;
+        // need to check if the local hosts name is possibly
+        // registered at the DNS with the IP address equal resolvedNameIP
+        Uint32 localHostIP;
+        if (!System::resolveHostNameAtDNS(localHostName, &localHostIP)) return false;
+        if (localHostIP == hostIP) return true;
+    } else
+    {   // hostname is an IP address
+        // 127.0.0.1 is always the loopback
+        // inet_addr returns network byte order
+        if (tmp_addr == htonl(0x7F000001)) return true;
+        // IP defined on a local AF_INET network interface
+        if (System::isIpOnNetworkInterface(tmp_addr)) return true;
+        // out of luck so far, lets ask the DNS what our IP is
+        // and check against what we got
+        Uint32 localHostIP;
+        if (!System::resolveHostNameAtDNS((const char *) System::getHostName().getCString(), &localHostIP)) return false;
+        if (localHostIP == tmp_addr) return true;
+        // not yet, sometimes resolving the IP address we got against the DNS
+        // can solve the problem
+		// casting to (const char *) as (char *) will work as (void *) too, those it fits all platforms
+        Uint32 hostIP;
+        if (!System::resolveIPAtDNS(tmp_addr, &hostIP)) return false;
+        if (hostIP == localHostIP) return true;
+    }
+    return false;
+}
+
 // System ID constants for Logger::put and Logger::trace
 const String System::CIMLISTENER = "cimlistener"; // Listener systme ID
 

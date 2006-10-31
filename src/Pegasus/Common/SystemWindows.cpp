@@ -883,6 +883,63 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
 // System ID constants for Logger::put and Logger::trace
 const String System::CIMSERVER = "cimserver";  // Server system ID
 
+// check if a given IP address is defined on the local network interfaces
+Boolean System::isIpOnNetworkInterface(Uint32 inIP)
+{
+    SOCKET sock;
+    int interfaces = 0;
+    int errcode;
+
+    if ( SOCKET_ERROR != ( sock  = WSASocket(AF_INET,
+                         SOCK_RAW, 0, NULL, 0, 0) ) )
+    {
+        unsigned long *bytes_returned=0;
+        char *output_buf = (char *)calloc(1, 256);
+        int buf_size = 256;
+    
+        if ( 0 == (errcode = WSAIoctl(sock,
+                                      SIO_ADDRESS_LIST_QUERY,
+                                      NULL,
+                                      0,
+                                      output_buf,
+                                      256,
+                                      bytes_returned,
+                                      NULL,
+                                      NULL)) )
+        {
+            SOCKET_ADDRESS_LIST *addr_list;
+            SOCKET_ADDRESS *addr;
+            Uint32 ip;
+            struct sockaddr_in *sin;
+        
+            addr_list = (SOCKET_ADDRESS_LIST *)output_buf;        
+            addr = addr_list->Address;
+        
+            sin = (struct sockaddr_in *)addr->lpSockaddr;
+        
+            for( ; interfaces < addr_list->iAddressCount; interfaces++)
+            {
+                ip = sin->sin_addr.s_addr;
+                addr++;
+                sin = (struct sockaddr_in *)addr->lpSockaddr;
+                if (ip == inIP)
+                {
+                    free(output_buf);
+                    closesocket(sock);
+                    return(true);
+                }
+            }
+        } else {
+            free(output_buf);
+            return false;
+        }
+        free(output_buf);
+        closesocket(sock);
+    }
+    return false;
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // AutoFileLock class

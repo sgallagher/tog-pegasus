@@ -3359,7 +3359,7 @@ Boolean IndicationService::_canCreate (
         CIMObjectPath origFilterPath = filterPath;
         if (filterPath.getHost () != String::EMPTY)
         {
-            if (!System::sameHost (filterPath.getHost ()))
+            if (!System::isLocalHost (filterPath.getHost()))
             {
                 //
                 //  Reject subscription creation
@@ -3380,7 +3380,7 @@ Boolean IndicationService::_canCreate (
         CIMObjectPath origHandlerPath = handlerPath;
         if (handlerPath.getHost () != String::EMPTY)
         {
-            if (!System::sameHost (handlerPath.getHost ()))
+            if (!System::isLocalHost (handlerPath.getHost()))
             {
                 //
                 //  Reject subscription creation

@@ -146,6 +146,39 @@ public:
      */
     static Boolean sameHost (const String & hostName);
 
+    /**
+     *  Attempts to find the given IP address(32bit) on any of the local defined
+     *  network interfaces
+     */
+    static Boolean isIpOnNetworkInterface(Uint32 inIP);
+    
+    /**
+     *  Attempts to resolve a given hostname
+     *  this function possibly can take some as it can request information
+     *  from the DNS
+     * 
+     *  Return: return value == true if successful, false if not successful
+     *          the IP address that was determined resides in resolvedNameIP
+     */
+    static Boolean resolveHostNameAtDNS(const char* hostname, Uint32 * resolvedNameIP);
+
+    /**
+     *  Attempts to resolve a given IP address
+     *  this function possibly can take some as it can request information
+     *  from the DNS
+     *  Return: return value == true if successful, false if not successful
+     *          the IP address that was determined resides in resolvedNameIP
+     */
+    static Boolean resolveIPAtDNS(Uint32 ip_addr, Uint32 * resolvedIP);
+
+    /** 
+     * Bundling function used to determine if a given hostname or IP address
+     * belongs to the local host
+     * this function has the potential to take some time as it will possibly
+     * use the DNS
+     */
+    static Boolean isLocalHost(const String &hostName);
+
     static String getEffectiveUserName();
 
     /**

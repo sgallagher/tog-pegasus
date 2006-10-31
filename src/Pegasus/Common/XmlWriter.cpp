@@ -51,7 +51,6 @@
 #include <cstdio>
 #include "Constants.h"
 #include "CIMClass.h"
-#include "CIMError.h"
 #include "CIMClassRep.h"
 #include "CIMInstance.h"
 #include "CIMInstanceRep.h"

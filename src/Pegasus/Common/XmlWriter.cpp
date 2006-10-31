@@ -2347,8 +2347,6 @@ void XmlWriter::_appendErrorElement(
     }
     out << STRLIT(">");
 
-    ((CIMException*)&cimException)->addError(CIMError().getInstance());
-
     for (Uint32 i = 0, n = cimException.getErrorCount(); i < n; i++)
     {
 	appendInstanceElement(out, cimException.getError(i));

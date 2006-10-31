@@ -289,7 +289,7 @@ TestCMPIThreadProvider_Create_InstanceMI (const CMPIBroker * brkr,
   _broker = brkr;
   initThreads ();
   return &mi;
-};
+}
 
 /* ---------------------------------------------------------------------------*/
 /*             end of TestCMPIProvider                      */

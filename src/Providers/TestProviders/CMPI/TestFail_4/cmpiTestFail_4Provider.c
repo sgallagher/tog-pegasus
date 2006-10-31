@@ -181,7 +181,7 @@ TestCMPIFail_4Provider_Create_InstanceMI (const CMPIBroker * brkr,
   static CMPIInstanceMI mi = { ((void *) 0), &instMIFT__, };
   _broker = brkr;
   return &mi;
-};
+}
 
 /* ---------------------------------------------------------------------------*/
 /*             end of TestCMPIProvider                      */

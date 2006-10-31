@@ -525,7 +525,7 @@ TestCMPIAssociationProviderReferenceNames (CMPIAssociationMI * mi,
 /* ---------------------------------------------------------------------------*/
 
 CMAssociationMIStub (TestCMPIAssociationProvider,
-                  TestCMPIAssociationProvider, _broker, CMNoHook);
+                  TestCMPIAssociationProvider, _broker, CMNoHook)
 
 /* ---------------------------------------------------------------------------*/
 /*             end of TestCMPIProvider                      */

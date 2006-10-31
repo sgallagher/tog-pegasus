@@ -673,7 +673,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
 
 
 CMMethodMIStub (TestCMPIMethodProvider,
-                TestCMPIMethodProvider, _broker, CMNoHook);
+                TestCMPIMethodProvider, _broker, CMNoHook)
 
 /* ---------------------------------------------------------------------------*/
 /*             end of TestCMPIProvider                      */

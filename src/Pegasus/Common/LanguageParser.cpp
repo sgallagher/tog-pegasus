@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702, 3703, 3704
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/LanguageParser.h>
@@ -161,7 +155,9 @@ void LanguageParser::parseLanguageTag(
             "Common.LanguageParser.INVALID_LANGUAGE_TAG",
             "Invalid language tag \"$0\".", languageTagString);
         PEG_METHOD_EXIT();
-        throw Exception(MessageLoader::getMessage(parms));
+        // do not localize message, requires a language tag for this
+        // localization can cause recursion here
+        throw Exception(parms.toString());
     }
 
     if (subtags.size() == 1)
@@ -182,7 +178,9 @@ void LanguageParser::parseLanguageTag(
             "Common.LanguageParser.INVALID_LANGUAGE_TAG",
             "Invalid language tag \"$0\".", languageTagString);
         PEG_METHOD_EXIT();
-        throw Exception(MessageLoader::getMessage(parms));
+        // do not localize message, requires a language tag for this
+        // localization can cause recursion here
+        throw Exception(parms.toString());
     }
 
     if (isStandardFormat)
@@ -465,7 +463,9 @@ void LanguageParser::_parseLanguageSubtags(
                 "Common.LanguageParser.MALFORMED_LANGUAGE_TAG",
                 "Malformed language tag \"$0\".", languageTagString);
             PEG_METHOD_EXIT();
-            throw Exception(MessageLoader::getMessage(parms));
+            // do not localize message, requires a language tag for this
+            // localization can cause recursion here
+            throw Exception(parms.toString());
         }
     }
 

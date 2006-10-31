@@ -820,7 +820,7 @@ TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi)
 /* Note that we call 'init()' function
 */
 CMIndicationMIStub (TestCMPIIndicationProvider,
-                    TestCMPIIndicationProvider, _broker, init ());
+                    TestCMPIIndicationProvider, _broker, init ())
 /* ---------------------------------------------------------------------------*/
 /*             end of TestCMPIProvider                      */
 /* ---------------------------------------------------------------------------*/

@@ -228,6 +228,25 @@ public:
         const Array<Uint16> currentModuleStatus,
         const Array<Uint16> newModuleStatus);
 
+    /** Constructs and logs audit message of local authentication
+        @param userName - The user name for this operation
+        @param successful - True on successful basic authentication,
+                            false otherwise
+    */
+    static void logLocalAuthentication(
+        const String& userName,
+        Boolean successful);
+
+    /** Constructs and logs audit message of basic authentication
+        @param userName - The user name for this operation
+        @param ipAddr - Client IP address for this operation
+        @param successful - True on successful basic authentication,
+                            false otherwise
+    */
+    static void logBasicAuthentication(
+        const String& userName,
+        const String& ipAddr,
+        Boolean successful);
 
     typedef void (*PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T)();
 

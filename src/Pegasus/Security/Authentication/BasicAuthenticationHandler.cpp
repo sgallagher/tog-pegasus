@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
+#include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Base64.h>
@@ -133,6 +134,12 @@ Boolean BasicAuthenticationHandler::authenticate(
 #else
 
     authenticated = _basicAuthenticator->authenticate(userName, password);
+
+    // Log audit message.
+    PEG_AUDIT_LOG(logBasicAuthentication(
+        userName,
+        authInfo->getIpAddress(),
+        authenticated));
 
     if (authenticated)
     {

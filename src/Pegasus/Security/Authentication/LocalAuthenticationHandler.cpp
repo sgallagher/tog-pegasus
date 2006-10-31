@@ -29,13 +29,9 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By:  Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 
@@ -135,6 +131,10 @@ Boolean LocalAuthenticationHandler::authenticate(
 
     authenticated = _localAuthenticator->authenticate(filePath, 
         secretReceived, authInfo->getAuthChallenge());
+
+    PEG_AUDIT_LOG(logLocalAuthentication(
+                     userName,
+                     authenticated));
 
     if (authenticated)
     {

@@ -356,6 +356,48 @@ void AuditLogger::logUpdateProvModuleStatus(
         EVENT_UPDATE, Logger::INFORMATION, msgParms); 
 }
 
+void AuditLogger::logLocalAuthentication(
+        const String& userName,
+        Boolean successful)
+{
+    CIMValue result(successful);
+
+    MessageLoaderParms msgParms(
+       "Common.AuditLogger.LOCAL_AUTHENTICATION",
+       "Local authentication attempt: "
+       "successful = $0, user = $1. ",
+       result.toString(), 
+       userName);
+
+    _writeAuditMessageToFile(
+        TYPE_AUTHENTICATION,
+        SUBTYPE_LOCAL_AUTHENTICATION,
+        successful ? EVENT_AUTH_SUCCESS : EVENT_AUTH_FAILURE,
+        successful ? Logger::INFORMATION : Logger::WARNING,
+        msgParms);
+}
+
+void AuditLogger::logBasicAuthentication(
+        const String& userName,
+        const String& ipAddr,
+        Boolean successful)
+{
+    CIMValue result(successful);
+
+    MessageLoaderParms msgParms(
+       "Common.AuditLogger.BASIC_AUTHENTICATION",
+       "Basic authentication attempt: "
+       "successful = $0, user = $1, IP address = $2.",
+       result.toString(),
+       userName,
+       ipAddr);
+
+    _writeAuditMessageToFile( TYPE_AUTHENTICATION,
+        SUBTYPE_BASIC_AUTHENTICATION,
+        successful ? EVENT_AUTH_SUCCESS : EVENT_AUTH_FAILURE,
+        successful ? Logger::INFORMATION: Logger::WARNING,
+        msgParms);
+}
 
 void AuditLogger::setInitializeCallback(
     PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T auditLogInitializeCallback)

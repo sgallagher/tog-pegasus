@@ -6269,6 +6269,21 @@ CIM server listening on HTTPS port {0}."}
         */
         Common.AuditLogger.UPDATE_PROVIDER_MODULE_STATUS:string {"PGS17813: The operational status of module {0} has changed from {1} to {2}."} 
 
+        /**
+        * @note PGS17814:
+        *    Substitution {0} is a string containing result
+        *    Substitution {1} is a string containing a user name
+        */
+        Common.AuditLogger.LOCAL_AUTHENTICATION:string {"PGS17814: Local authentication attempt: successful = {0}, user name = {1}."}
+
+        /**
+        * @note PGS17815:
+        *    Substitution {0} is a string containing result
+        *    Substitution {1} is a string containing a user name
+        *    Substitution {2} is a string containing a ip address
+        */
+        Common.AuditLogger.BASIC_AUTHENTICATION:string {"PGS17815: Basic authentication attempt: successful = {0}, user name = {1}, IP address = {2}."}
+
 // ==============================================================================
 // END OF RESOURCE BUNDLE
 // DO NOT ADD MESSAGES AFTER THE FOLLOWING '}'

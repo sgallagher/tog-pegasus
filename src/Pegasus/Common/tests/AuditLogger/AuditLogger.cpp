@@ -46,6 +46,9 @@ PEGASUS_USING_STD;
 
 typedef void (*PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T)();
 
+const String TEST_USER("guest");
+const String TEST_IP("127.0.0.1");
+
 CIMInstance _createModuleInstance(
     const String & name,
     const String & location,
@@ -267,6 +270,34 @@ void testLogUpdateProvModuleStatus()
         currentModuleStatus, newModuleStatus);
 }
 
+void testLogLocalAuthentication()
+{
+    // log success message
+    AuditLogger::logLocalAuthentication(
+                    TEST_USER,
+                    true);
+
+    // log failure message
+    AuditLogger::logLocalAuthentication(
+                    TEST_USER,
+                    false);
+}
+
+void testLogBasicAuthentication()
+{
+    // log success message
+    AuditLogger::logBasicAuthentication(
+                    TEST_USER,
+                    TEST_IP,
+                    true);
+
+    // log failure message
+    AuditLogger::logBasicAuthentication(
+                    TEST_USER,
+                    TEST_IP,
+                    false);
+}
+
 void auditLogInitializeCallback()
 {
     PEGASUS_TEST_ASSERT(!AuditLogger::isEnabled());
@@ -322,6 +353,8 @@ int main(int argc, char** argv)
         testLogSchemaOperations();
         testLogInstanceOperations();
         testLogUpdateProvModuleStatus();
+        testLogLocalAuthentication();
+        testLogBasicAuthentication();
         testSetEnabled(false);
         testDisabled();
 

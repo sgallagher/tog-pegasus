@@ -36,4 +36,8 @@ A CIM InvokeMethod operation on method "MyMethod" of object "Test.a=1,b=2,c=3" i
 The operational status of module "AuditLogUpdateModuleStatus" has changed from "Stopped" to "OK".
 The operational status of module "AuditLogUpdateModuleStatus" has changed from "Stopped" to "Stopped".
 The operational status of module "AuditLogUpdateModuleStatus" has changed from "Stopping,Stopped" to "Starting,OK".
+Local authentication attempt: successful = TRUE, user = guest. 
+Local authentication attempt: successful = FALSE, user = guest. 
+Basic authentication attempt: successful = TRUE, user = guest, IP address = 127.0.0.1.
+Basic authentication attempt: successful = FALSE, user = guest, IP address = 127.0.0.1.
 Audit logging is disabled.

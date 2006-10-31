@@ -421,12 +421,8 @@ void Thread::cleanup_pop(Boolean execute)
 
 void Thread::exit_self(ThreadReturnType exit_code)
 {
-#if defined(PEGASUS_PLATFORM_HPUX_ACC) || \
-    defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    // NOTE: pthread_exit exhibits unusual behavior on RHEL 3 U2, as
-    // documented in Bugzilla 3836.  Where feasible, it may be advantageous
-    // to avoid using this function.
-    pthread_exit(exit_code);
+#ifndef PEGASUS_PLATFORM_AIX_RS_IBMCXX
+    Threads::exit(exit_code);
 #else
     // execute the cleanup stack and then return
     while (_cleanup.size())

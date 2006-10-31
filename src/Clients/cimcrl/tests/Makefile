@@ -89,27 +89,25 @@ $(PEGASUS_HOME)/crltest_setup: $(OPENSSL_CNF)
 	@$(TOUCH) $(PEGASUS_HOME)/crltest_setup
 ifdef PEGASUS_HAS_SSL
 ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), true)
-	@#
-	@# Copy certs and CRLs to PEGASUS_HOME
-	@#
+        #
+        # Copy certs and CRLs to PEGASUS_HOME
+        #
 	@$(COPY) testcrlca1.cert $(PEGASUS_HOME)
 	@$(COPY) testcrlca1.key  $(PEGASUS_HOME)
-	@#
+
 	@$(COPY) testcert2.cert $(PEGASUS_HOME)
 	@$(COPY) testcert2.key  $(PEGASUS_HOME)
-	@#
+
 	@$(COPY) testcert3.cert $(PEGASUS_HOME)
 	@$(COPY) testcert3.key  $(PEGASUS_HOME)
-	@#
+
 	@$(COPY) testcert4.cert $(PEGASUS_HOME)
 	@$(COPY) testcert4.key  $(PEGASUS_HOME)
-	@#
-	@#
+
 	@$(COPY) testca1.crl  $(PEGASUS_HOME)
 	@$(COPY) testca2.crl  $(PEGASUS_HOME)
 	@$(COPY) invalid.crl  $(PEGASUS_HOME)
-	@#
-	@#
+
 	@$(COPY) testmonth1.crl $(PEGASUS_HOME)
 	@$(COPY) testmonth2.crl  $(PEGASUS_HOME)
 	@$(COPY) testmonth3.crl $(PEGASUS_HOME)
@@ -122,7 +120,6 @@ ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), true)
 	@$(COPY) testmonth10.crl $(PEGASUS_HOME)
 	@$(COPY) testmonth11.crl $(PEGASUS_HOME)
 	@$(COPY) testmonth12.crl $(PEGASUS_HOME)
-	@#
 endif
 endif
 

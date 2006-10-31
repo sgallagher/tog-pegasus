@@ -130,44 +130,42 @@ $(PEGASUS_HOME)/ssltest_setup: $(OPENSSL_CNF) testca1.txt testdn1.txt testdn2.tx
 	@$(MAKE) -i -s clean
 	@$(TOUCH) $(PEGASUS_HOME)/ssltest_setup
 ifdef PEGASUS_HAS_SSL
-	@#
-	@# Copy the file containing multiple certificates to the staging area
-	@#
+        #
+        # Copy the file containing multiple certificates to the staging area
+        #
 	@$(COPY) testmulti.cert $(PEGASUS_HOME)/testmulti.cert
-	@#
-	@#
-	@# Copy the expired certificate to the staging area
-	@#
+        #
+        # Copy the expired certificate to the staging area
+        #
 	@$(COPY) testexpired1.cert $(PEGASUS_HOME)/testexpired1.cert
 	@$(COPY) testexpired1.key $(PEGASUS_HOME)/testexpired1.key
-	@#
-	@# Create the not yet valid certificate to the staging area
-	@#   
+        #
+        # Create the not yet valid certificate to the staging area
+        #   
 	@$(COPY) testnotyetvalid1.cert $(PEGASUS_HOME)/testnotyetvalid1.cert
 	@$(COPY) testnotyetvalid1.key $(PEGASUS_HOME)/testnotyetvalid1.key
-	@#
-	@# Copy the test chain root certificate to the staging area
-	@#
+        #
+        # Copy the test chain root certificate to the staging area
+        #
 	@$(COPY) testchca.cert $(PEGASUS_HOME)/testchca.cert
 	@$(COPY) testchca.key $(PEGASUS_HOME)/testchca.key
-	@#
-	@# Copy the test chain intermediate certificate to the staging area
-	@#   
+        #
+        # Copy the test chain intermediate certificate to the staging area
+        #   
 	@$(COPY) testinter.cert $(PEGASUS_HOME)/testinter.cert
 	@$(COPY) testinter.key $(PEGASUS_HOME)/testinter.key
-	@#
-	@# Copy the leaf certificate to the staging area
-	@#   
+        #
+        # Copy the leaf certificate to the staging area
+        #   
 	@$(COPY) testleaf.cert $(PEGASUS_HOME)/testleaf.cert
 	@$(COPY) testleaf.key $(PEGASUS_HOME)/testleaf.key
-	@#
-	@# Copy the invalid X509 certificate to the staging area
-	@#   
+        #
+        # Copy the invalid X509 certificate to the staging area
+        #   
 	@$(COPY) testinvalid_x509.cert $(PEGASUS_HOME)/testinvalid_x509.cert
-	@#   
-	@#
-	@# Copy the test month certificates to the staging area
-	@#   
+        #
+        # Copy the test month certificates to the staging area
+        #   
 	@$(COPY) testmonth1.cert $(PEGASUS_HOME)/testmonth1.cert
 	@$(COPY) testmonth1.key $(PEGASUS_HOME)/testmonth1.key
 	@$(COPY) testmonth2.cert $(PEGASUS_HOME)/testmonth2.cert
@@ -192,53 +190,51 @@ ifdef PEGASUS_HAS_SSL
 	@$(COPY) testmonth11.key $(PEGASUS_HOME)/testmonth11.key
 	@$(COPY) testmonth12.cert $(PEGASUS_HOME)/testmonth12.cert
 	@$(COPY) testmonth12.key $(PEGASUS_HOME)/testmonth12.key
-	@#
-	@# Create a self-signed certificate
-	@#
+        #
+        # Create a self-signed certificate
+        #
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdn1.key 1024
 	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn1.key -out $(PEGASUS_HOME)/testdn1.csr < testdn1.txt
 	@$(OPENSSL_COMMAND) x509 -in $(PEGASUS_HOME)/testdn1.csr -out $(PEGASUS_HOME)/testdn1.cert -req -signkey $(PEGASUS_HOME)/testdn1.key $(SETSERIAL_0) -days 356
 	@$(RM) $(PEGASUS_HOME)/testdn1.csr
-	@#
-	@# Create a self-signed CA
-	@#
+        #
+        # Create a self-signed CA
+        #
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testca1.key 1024
 	@$(OPENSSL_COMMAND) req -new -key $(PEGASUS_HOME)/testca1.key -x509 -config $(OPENSSL_CNF) $(SETSERIAL_0) -days 365 -out $(PEGASUS_HOME)/testca1.cert < testca1.txt
-	@#
-	@# Create a certificate signed by the CA
-	@#
+        #
+        # Create a certificate signed by the CA
+        #
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdn2.key 1024
 	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn2.key -out $(PEGASUS_HOME)/testdn2.csr < testdn2.txt
 	@$(OPENSSL_COMMAND) x509 -req $(SETSERIAL_1) -days 365 -in $(PEGASUS_HOME)/testdn2.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn2.cert
 	@$(RM) $(PEGASUS_HOME)/testdn2.csr
-	@#
-	@# Create a second test certificate signed by the CA
-	@#
+        #
+        # Create a second test certificate signed by the CA
+        #
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdn3.key 1024
 	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn3.key -out $(PEGASUS_HOME)/testdn3.csr < testdn3.txt
 	@$(OPENSSL_COMMAND) x509 -req $(SETSERIAL_2) -days 365 -in $(PEGASUS_HOME)/testdn3.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn3.cert
 	@$(RM) $(PEGASUS_HOME)/testdn3.csr
-	@#
-	@# Create a third test certificate signed by the CA
-	@#
+        #
+        # Create a third test certificate signed by the CA
+        #
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdn4.key 1024
 	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn4.key -out $(PEGASUS_HOME)/testdn4.csr < testdn4.txt
 	@$(OPENSSL_COMMAND) x509 -req $(SETSERIAL_3) -days 365 -in $(PEGASUS_HOME)/testdn4.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn4.cert
 	@$(RM) $(PEGASUS_HOME)/testdn4.csr
-	@#
-	@# Create a self-signed CA2
-	@#
+        #
+        # Create a self-signed CA2
+        #
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testca2.key 1024
 	@$(OPENSSL_COMMAND) req -new -key $(PEGASUS_HOME)/testca2.key -x509 -config $(OPENSSL_CNF) $(SETSERIAL_0) -days 365 -out $(PEGASUS_HOME)/testca2.cert < testca2.txt
-	@#
-	@# Create a certificate signed by the CA
-	@#
+        #
+        # Create a certificate signed by the CA
+        #
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdup.key 1024
 	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdup.key -out $(PEGASUS_HOME)/testdup.csr < testdn1.txt
 	@$(OPENSSL_COMMAND) x509 -req $(SETSERIAL_1) -days 365 -in $(PEGASUS_HOME)/testdup.csr -CA $(PEGASUS_HOME)/testca2.cert -CAkey $(PEGASUS_HOME)/testca2.key -CAcreateserial -out $(PEGASUS_HOME)/testdup.cert
 	@$(RM) $(PEGASUS_HOME)/testdup.csr
-	@#
-	@#
 endif
 
 SSLCertificateTest1: test_setup

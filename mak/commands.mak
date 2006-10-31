@@ -354,8 +354,9 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
         CMPIR_STOP_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon --stop
     endif
 else
-    CMPIR_START_DAEMON = 
-    CMPIR_STOP_DAEMON = 
+    CMPIR_START_DAEMON = $(ECHO) "(CMPIR_STOP_DAEMON command ignored)"
+    CMPIR_STOP_DAEMON =  $(ECHO) "(CMPIR_STOP_DAEMON command ignored)"
+
 endif
 
 ifndef TMP_DIR

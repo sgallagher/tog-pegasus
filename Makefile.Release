@@ -161,6 +161,7 @@ PEGASUS_ADMIN_CMDS = \
    cimuser \
    cimprovagt \
    cimservera \
+   cimreparchive \
    repupgrade
 
 PEGASUS_USER_CMDS = \
@@ -199,6 +200,7 @@ PEGASUS_UNIX_MAN_USER_PAGES = \
 PEGASUS_UNIX_MAN_ADMIN_PAGES = \
    cimauth.8 \
    cimconfig.8 \
+   cimreparchive.8 \
    cimserver.8
 
 PEGASUS_DOC_FILES = \

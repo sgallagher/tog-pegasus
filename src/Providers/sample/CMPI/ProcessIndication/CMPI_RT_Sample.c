@@ -250,10 +250,10 @@ testProvDisableIndications (CMPIIndicationMI * cThis, const CMPIContext * ctx)
 //---
 //----------------------------------------------------------
 
-CMMethodMIStub (testProv, CMPI_RT_SampleProvider, broker, CMNoHook);
+CMMethodMIStub (testProv, CMPI_RT_SampleProvider, broker, CMNoHook)
 //----------------------------------------------------------
 
 
-CMIndicationMIStub (testProv, CMPI_RT_SampleProvider, broker, CMNoHook);
+CMIndicationMIStub (testProv, CMPI_RT_SampleProvider, broker, CMNoHook)
 
 //----------------------------------------------------------

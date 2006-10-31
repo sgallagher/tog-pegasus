@@ -34,7 +34,11 @@ DIR = Providers/TestProviders/CMPI/TestAssociation
 
 include $(ROOT)/mak/config.mak
 
+ifeq ($(OS),VMS)
+LOCAL_DEFINES = -DPEGASUS_ROOT="""$(PEGASUS_ROOT)"""
+else
 LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\"
+endif
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
     CXX = cc

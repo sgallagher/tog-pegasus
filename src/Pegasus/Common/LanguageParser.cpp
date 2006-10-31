@@ -155,6 +155,7 @@ void LanguageParser::parseLanguageTag(
             "Common.LanguageParser.INVALID_LANGUAGE_TAG",
             "Invalid language tag \"$0\".", languageTagString);
         PEG_METHOD_EXIT();
+        // throw Exception(MessageLoader::getMessage(parms));
         // do not localize message, requires a language tag for this
         // localization can cause recursion here
         throw Exception(parms.toString());
@@ -178,6 +179,7 @@ void LanguageParser::parseLanguageTag(
             "Common.LanguageParser.INVALID_LANGUAGE_TAG",
             "Invalid language tag \"$0\".", languageTagString);
         PEG_METHOD_EXIT();
+        // throw Exception(MessageLoader::getMessage(parms));
         // do not localize message, requires a language tag for this
         // localization can cause recursion here
         throw Exception(parms.toString());
@@ -463,6 +465,7 @@ void LanguageParser::_parseLanguageSubtags(
                 "Common.LanguageParser.MALFORMED_LANGUAGE_TAG",
                 "Malformed language tag \"$0\".", languageTagString);
             PEG_METHOD_EXIT();
+            // throw Exception(MessageLoader::getMessage(parms));
             // do not localize message, requires a language tag for this
             // localization can cause recursion here
             throw Exception(parms.toString());

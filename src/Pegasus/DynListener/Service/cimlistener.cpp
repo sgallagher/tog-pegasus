@@ -29,28 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Mike Day (mdday@us.ibm.com)
-//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//              Nag Boranna (nagaraja_boranna@hp.com)
-//              Jenny Yu (jenny_yu@hp.com)
-//              Sushma Fernandes (sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//              Humberto Rivero (hurivero@us.ibm.com)
-//              Steve Hills (steve.hills@ncr.com)
-//              Amit K Arora, IBM (amitarora@in.ibm.com) - pep 167
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2555
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2032
-//              Heather Sterling, IBM (hsterl@us.ibm.com) - PEP#197 CIMListener,
-//                      PEP#222 Service Refactoring
-//              Amit K Arora, IBM (amita@in.ibm.com) Bug#3028
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -665,7 +643,28 @@ int CIMListenerProcess::cimserver_run(
            return (-1);
         }
 
-        kill(pid, PEGASUS_SIGTERM);
+        int rc = kill(pid, PEGASUS_SIGTERM);
+        // check for success or failure of the kill operation
+        if (rc == -1)
+        {
+
+            if (errno == EPERM)
+            {
+                MessageLoaderParms parms(
+                    "DynListener.cimlistener.KILL_PERM_DENIED",
+                    "Permission denied: Not permitted to shutdown cimlistener process.");
+                cout << MessageLoader::getMessage(parms) << endl;
+            } else
+            {
+                MessageLoaderParms parms(
+                    "DynListener.cimlistener.KILL_FAILED",
+                    "Failed to shutdown cimlistener process. Error: \"$1\"",
+                    strerror(errno));
+                cout << MessageLoader::getMessage(parms) << endl;
+            }
+            return(rc);
+        }
+
         //cimserver_kill(1);
 #else
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) \

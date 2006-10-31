@@ -6268,6 +6268,23 @@ CIM server listening on HTTPS port {0}."}
         *     
         */
         Common.AuditLogger.UPDATE_PROVIDER_MODULE_STATUS:string {"PGS17813: The operational status of module {0} has changed from {1} to {2}."} 
+        // ==========================================================
+        // Messages for DynListener.cimlistener 
+        //  Please use message prefix "PGS18000"
+        // ==========================================================
+        
+        /**
+        * @note PGS17800:
+        *     
+        */
+        DynListener.cimlistener.KILL_PERM_DENIED:string {"PGS18000: Permission denied: Not permitted to shutdown cimlistener process."}
+
+        /**
+        * @note PGS18000:
+        *    Substitution {0} is a system error message (a string)
+        */
+        DynListener.cimlistener.KILL_FAILED:string {"PGS18001: Failed to shutdown cimlistener process. Error: \"{1}\""}
+
 
         /**
         * @note PGS17814:

@@ -592,7 +592,7 @@ CIMConstInstance CIMException::getError(Uint32 index) const
 
 void CIMException::addError(const CIMInstance& instance)
 {
-    return reinterpret_cast<CIMExceptionRep*>(_rep)->errors.append(instance);
+    reinterpret_cast<CIMExceptionRep*>(_rep)->errors.append(instance);
 }
 
 CIMStatusCode CIMException::getCode() const

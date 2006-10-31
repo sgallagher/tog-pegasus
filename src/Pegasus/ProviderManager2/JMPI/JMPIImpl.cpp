@@ -3119,14 +3119,6 @@ JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMDataType__1isArray
    return dt->_array == true;
 }
 
-JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMDataType__1isreference
-  (JNIEnv *jEnv, jobject jThs, jint jDt)
-{
-   _dataType *dt = DEBUG_ConvertJavaToC (jint, _dataType*, jDt);
-
-   return dt->_reference == true;
-}
-
 JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMDataType__1isReference
   (JNIEnv *jEnv, jobject jThs, jint jDt)
 {
@@ -3717,7 +3709,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMProperty__1findQualifier
 {
    CIMProperty  *cp    = DEBUG_ConvertJavaToC (jint, CIMProperty*, jP);
    const char   *str   = jEnv->GetStringUTFChars (jQualifier, NULL);
-   int           index = PEG_NOT_FOUND;
+   Uint32        index = PEG_NOT_FOUND;
 
    try
    {

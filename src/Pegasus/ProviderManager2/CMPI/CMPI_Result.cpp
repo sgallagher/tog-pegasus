@@ -564,6 +564,10 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
+   PEGASUS_STATIC CMPIStatus resultReturnError(const CMPIResult* eRes, const CMPIError* er) {
+      CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
+   }
+
    PEGASUS_STATIC CMPIStatus resultBadReturnData(const CMPIResult* eRes, const CMPIValue* data,  const CMPIType type) {
       CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
    }
@@ -586,7 +590,7 @@ static CMPIResultFT resultMethOnStack_FT={
      resultBadReturnInstance,
      resultBadReturnObjectPath,
      resultReturnMethDone,
-     NULL // reserved for returnError
+     resultReturnError
 };
 
 static CMPIResultFT resultObjOnStack_FT={
@@ -597,7 +601,7 @@ static CMPIResultFT resultObjOnStack_FT={
      resultReturnObject,
      resultBadReturnObjectPath,
      resultReturnObjDone,
-     NULL // reserved for returnError
+     resultReturnError
 };
 
 static CMPIResultFT resultExecQueryOnStack_FT={
@@ -608,7 +612,7 @@ static CMPIResultFT resultExecQueryOnStack_FT={
      resultReturnExecQuery,
      resultBadReturnObjectPath,
      resultReturnExecQueryDone,
-     NULL // reserved for returnError
+     resultReturnError
 };
 
 static CMPIResultFT resultData_FT={
@@ -619,7 +623,7 @@ static CMPIResultFT resultData_FT={
      resultBadReturnInstance,
      resultBadReturnObjectPath,
      resultReturnDataDone,
-     NULL // reserved for returnError
+     resultReturnError
 };
 
 static CMPIResultFT resultInstOnStack_FT={
@@ -630,7 +634,7 @@ static CMPIResultFT resultInstOnStack_FT={
      resultReturnInstance,
      resultBadReturnObjectPath,
      resultReturnInstDone,
-     NULL // reserved for returnError
+     resultReturnError
 };
 
 static CMPIResultFT resultRefOnStack_FT={
@@ -641,7 +645,7 @@ static CMPIResultFT resultRefOnStack_FT={
      resultBadReturnInstance,
      resultReturnObjectPath,
      resultReturnRefDone,
-     NULL // reserved for returnError
+     resultReturnError
 };
 
 static CMPIResultFT resultResponseOnStack_FT={
@@ -652,7 +656,7 @@ static CMPIResultFT resultResponseOnStack_FT={
      resultBadReturnInstance,
      resultBadReturnObjectPath,
      resultReturnDataDone,
-     NULL // reserved for returnError
+     resultReturnError
 };
 
 CMPIResultFT *CMPI_ResultMeth_Ftab=&resultMethOnStack_FT;

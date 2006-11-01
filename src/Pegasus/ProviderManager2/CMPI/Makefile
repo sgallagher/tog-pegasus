@@ -76,6 +76,7 @@ SOURCES = \
 	CMPI_BrokerExt.cpp \
 	CMPI_Array.cpp \
 	CMPI_DateTime.cpp \
+	CMPI_Error.cpp \
 	CMPI_Enumeration.cpp \
 	CMPI_Instance.cpp \
 	CMPI_ObjectPath.cpp \

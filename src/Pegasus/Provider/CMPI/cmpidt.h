@@ -634,25 +634,25 @@ typedef enum _CMPIErrorType {
 	/** Unkown */
     UnknownErrorType = 0,
 	/** Other */
-    OtherErrorType,
+    OtherErrorType = 1,
 	/** Communications error */
-    CommunicationsError,
+    CommunicationsError = 2,
 	/** QoS error */
-    QualityOfServiceError,
+    QualityOfServiceError = 3,
 	/** Software error */
-    SoftwareError,
+    SoftwareError = 4,
 	/** Hardware error */
-    HardwareError,
+    HardwareError = 5,
 	/** Environmental error */
-    EnvironmentalError,
+    EnvironmentalError = 6,
 	/** Security error */
-    SecurityError,
+    SecurityError = 7,
 	/** over subscription error */
-    Oversubscription_Error,
+    Oversubscription_Error = 8,
 	/** Unavailable resource */
-    UnavailableResourceError,
+    UnavailableResourceError = 9,
 	/** Unsupported operation */
-    UnsupportedOperationError,
+    UnsupportedOperationError = 10,
 } CMPIErrorType;
 
 /** Possible values an Error object can use to indicate severity */
@@ -940,9 +940,9 @@ typedef enum _CMPIErrorSrcFormat {
 	/** Unknown source */
     CMPIErrSrcUnknown = 0,
 	/** Other source */
-    CMPIErrSrcOther,
+    CMPIErrSrcOther = 1,
 	/* Object handle */
-    CIMObjectHandle,
+    CIMObjectHandle = 2,
 } CMPIErrorSrcFormat;
 
 #endif /* CMPI_VER_200 */

@@ -78,6 +78,8 @@ DIRS += \
 	CMPI/TestUtilLib \
 	CMPI/TestMethod \
 	CMPI/TestMethod/tests \
+	CMPI/TestError \
+	CMPI/TestError/tests \
 	CMPI/TestProperty/tests \
 	CMPI/TestFail_1 \
 	CMPI/TestFail_1/tests \

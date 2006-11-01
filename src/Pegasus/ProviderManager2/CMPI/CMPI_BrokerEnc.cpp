@@ -335,6 +335,27 @@ extern "C" {
 	  return date;
    }
 
+#if defined(CMPI_VER_200)
+  extern CMPIError *newCMPIError(const char*, const char*, const char*,
+      const CMPIErrorSeverity, const CMPIErrorProbableCause, const CMPIrc);
+
+  static CMPIError* mbEncNewCMPIError (const CMPIBroker* mb, 
+      const char* owner, const char* msgID, const char* msg,
+      const CMPIErrorSeverity sev, const CMPIErrorProbableCause pc,
+      const CMPIrc cimStatusCode, CMPIStatus* rc)
+  {
+      CMPIError* cmpiError;
+      if (rc)
+      {
+          CMSetStatus(rc,CMPI_RC_OK);
+      }
+      cmpiError = newCMPIError(owner, msgID, msg, sev, pc, cimStatusCode);
+	  if (!cmpiError)
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      return cmpiError;
+  }
+#endif
+
    static CMPIString* mbEncToString(const CMPIBroker*,const void *o, CMPIStatus *rc) {
       CMPI_Object *obj=(CMPI_Object*)o;
       String str;
@@ -554,7 +575,7 @@ extern "C" {
 #if defined (CMPI_VER_85)
 
    static CMPIString* mbEncGetMessage(const CMPIBroker *mb, const char *msgId, const char *defMsg,
-               CMPIStatus* rc, unsigned int count, ...) {
+               CMPIStatus* rc, CMPICount count, ...) {
 
       MessageLoaderParms parms(msgId,defMsg);
       DDD(cout<<"--- mbEncGetMessage() count: "<<count<<endl);
@@ -642,7 +663,7 @@ extern "C" {
 
    static CMPIString* mbEncGetMessage2(const CMPIBroker *mb, const char *msgId, 
                const CMPIMsgFileHandle msgFileHandle, const char *defMsg,
-               CMPIStatus* rc, unsigned int count, ...) {
+               CMPIStatus* rc, CMPICount count, ...) {
 
       MessageLoaderParms* parms;
       parms = (MessageLoaderParms*)msgFileHandle;
@@ -772,17 +793,6 @@ extern "C" {
 
 	Tracer::trace(traceComponent, traceLevel, traceString.getCString());
     CMReturn ( CMPI_RC_OK);
-  }
-#endif
-
-#if defined(CMPI_VER_200)
-  CMPIError* mbEncNewCMPIError (const CMPIBroker* mb, 
-      const char* owner, const char* msgID, const char* msg,
-      const CMPIErrorSeverity sev, const CMPIErrorProbableCause pc,
-      const CMPIrc cimStatusCode, CMPIStatus* rc)
-  {
-      CMPIError* cmpiError = new CMPIError;
-      return cmpiError;
   }
 #endif
 

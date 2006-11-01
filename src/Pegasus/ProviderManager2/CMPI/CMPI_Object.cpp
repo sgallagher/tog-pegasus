@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -69,6 +65,12 @@ CMPI_Object::CMPI_Object(CIMDateTime* cdt) {
    CMPI_ThreadContext::addObject(this);
    hdl=(void*)cdt;
    ftab=CMPI_DateTime_Ftab;
+}
+
+CMPI_Object::CMPI_Object(CIMError* cer) {
+   CMPI_ThreadContext::addObject(this);
+   hdl=(void*)cer;
+   ftab=CMPI_Error_Ftab;
 }
 
 CMPI_Object::CMPI_Object(const String& str) {

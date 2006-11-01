@@ -1242,7 +1242,7 @@ extern "C"
 		@param rc Output: Service return status (suppressed when NULL).
 		@return A probable cause value
 	*/
-    CMPIErrorProbableCause (*getProbablyCause)(const CMPIError*, CMPIStatus*);
+    CMPIErrorProbableCause (*getProbableCause)(const CMPIError*, CMPIStatus*);
 	/** Returns a string which describes the probable cause.
 		@param er Error this pointer
 		@param rc Output: Service return status (suppressed when NULL).

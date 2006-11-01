@@ -1297,6 +1297,405 @@ inline static CMPIBoolean CMIsInterval
 #   endif
 
 
+
+    // CMPIError macros
+
+
+#   ifdef CMPI_INLINE
+/** Gets the type of this Error
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return the error type this Error object conatins
+ */
+inline static CMPIErrorType (*getErrorType)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getErrorType ((er), (rc)));
+}
+#   else
+#      define CMGetErrorType(e,rc)                                     \
+              ((e)->ft->getErrorType((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns a string which describes the alternate error type.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A string, which can be NULL
+ */
+inline static CMPIString* (*getOtherErrorType)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getOtherErrorType ((er), (rc)));
+}
+#   else
+#      define CMGetOtherErrorType(e,rc)                                \
+              ((e)->ft->getOtherErrorType((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns a string which describes the owneing entity
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A string, which can be NULL
+ */
+inline static CMPIString* (*getOwningEntity)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getOwningEntity ((er), (rc)));
+}
+#   else
+#      define CMGetOwningEntity(e,rc)                                  \
+              ((e)->ft->getOwningEntity((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns a string which is the message ID.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A string, which can be NULL
+ */
+inline static CMPIString* (*getMessageID)(const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getMessageID ((er), (rc)));
+}
+#   else
+#      define CMGetMessageID(e,rc)                                     \
+              ((e)->ft->getMessageID((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns a string comnating an error message.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A string, which can be NULL
+ */
+inline static CMPIString* (*getMessage)(const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getMessage ((er), (rc)));
+}
+#   else
+#      define CMGetErrorMessage(e,rc)                                       \
+              ((e)->ft->getMessage((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns the perceieved severity of this error.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return the perceived severity
+ */
+inline static CMPIErrorSeverity (*getPerceivedSeverity)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getPerceivedSeverity ((er), (rc)));
+}
+#   else
+#      define CMGetPerceivedSeverity(e,rc)                             \
+              ((e)->ft->getPerceivedSeverity((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns the probable cause of this error.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A probable cause value
+ */
+inline static CMPIErrorProbableCause (*getProbableCause)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getProbableCause ((er), (rc)));
+}
+#   else
+#      define CMGetProbableCause(e,rc)                                 \
+              ((e)->ft->getProbableCause((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns a string which describes the probable cause.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A string, which can be NULL
+ */
+inline static CMPIString* (*getProbableCauseDescription)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getProbableCauseDescription ((er), (rc)));
+}
+#   else
+#      define CMGetProbableCauseDescription(e,rc)                      \
+              ((e)->ft->getProbableCauseDescription((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns an array of strings which describes recomended actions.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A array of strings, which can be NULL
+ */
+inline static CMPIArray* (*getRecommendedActions)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getRecommendedActions ((er), (rc)));
+}
+#   else
+#      define CMGetRecommendedActions(e,rc)                            \
+              ((e)->ft->getRecommendedActions((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns a string which describes the Error source.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A string, which can be NULL
+ */
+inline static CMPIString* (*getErrorSource)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getErrorSource ((er), (rc)));
+}
+#   else
+#      define CMGetErrorSource(e,rc)                                   \
+              ((e)->ft->getErrorSource((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns a the format that the error src is in.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A error source format  code
+ */
+inline static CMPIErrorSrcFormat (*getErrorSourceFormat)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getErrorSourceFormat ((er), (rc)));
+}
+#   else
+#      define CMGetErrorSourceFormat(e,rc)                             \
+              ((e)->ft->getErrorSourceFormat((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns a string which describes the 'other' format, only available if the error source is OTHER.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A string, which can be NULL
+ */
+inline static CMPIString* (*getOtherErrorSourceFormat)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getOtherErrorSourceFormat ((er), (rc)));
+}
+#   else
+#      define CMGetOtherErrorSourceFormat(e,rc)                        \
+              ((e)->ft->getOtherErrorSourceFormat((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns the status code of this error.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A CMPI Status code
+*/
+inline static CMPIrc (*getCIMStatusCode)(const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getCIMStatusCode ((er), (rc)));
+}
+#   else
+#      define CMGetCIMStatusCode(e,rc)                                 \
+              ((e)->ft->getCIMStatusCode((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns a string which describes the status code error.
+    @param er Error this pointer
+    @param rc Output: Service return status (suppressed when NULL).
+    @return A string, which can be NULL
+ */
+inline static CMPIString* (*getCIMStatusCodeDescription)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getCIMStatusCodeDescription ((er), (rc)));
+}
+#   else
+#      define CMGetCIMStatusCodeDescription(e,rc)                      \
+              ((e)->ft->getCIMStatusCodeDescription((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Returns an array which contains the dynamic content of the message.
+    @param er The Error this pointer
+    @param rc Output: Serbice return status (surpressed when NULL)
+    @return An array of CMPIStrings which represents the dynamic values
+*/
+inline static CMPIArray* (*getMessageArguments)(
+    const CMPIError* er, CMPIStatus* rc)
+{
+  return ((er)->ft->getMessageArguments ((er), (rc)));
+}
+#   else
+#      define CMGetMessageArguments(e,rc)                              \
+              ((e)->ft->getMessageArguments((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Sets the error type of this error object.
+    @param er Error this pointer
+    @param et The error type
+    @return Output: Service return status
+ */
+inline static CMPIStatus (*setErrorType)(
+    CMPIError* er, const CMPIErrorType et)
+{
+  return ((er)->ft->setErrorType ((er), (et)));
+}
+#   else
+#      define CMSetErrorType(e,et)                                     \
+              ((e)->ft->setErrorType((e),(et)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Sets the 'other' error type of this error object.
+    @param er Error this pointer
+    @param oet A string which describes the error type, it is only valis when error type is "OTHER"
+    @return Output: Service return status
+ */
+inline static CMPIStatus (*setOtherErrorType)(CMPIError* er, const char * oet)
+{
+  return ((er)->ft->setOtherErrorType ((er), (oet)));
+}
+#   else
+#      define CMSetOtherErrorType(e,oet)                               \
+              ((e)->ft->setOtherErrorType((e),(oet)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Sets the description of the probable cause.
+    @param er Error this pointer
+    @param pc The probable cause string
+    @return Output: Service return status
+ */
+inline static CMPIStatus (*setProbableCauseDescription)(
+    CMPIError* er, const char * pcd)
+{
+  return ((er)->ft->setProbableCauseDescription ((er), (pcd)));
+}
+#   else
+#      define CMSetProbableCauseDescription(e,pcd)                     \
+              ((e)->ft->setProbableCauseDescription((e),(pcd)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Sets the recomended actions array.
+    @param er Error this pointer
+    @param ar An array of strings describing actions that shoudl be taken to deal with this error
+    @return Output: Service return status
+ */
+inline static CMPIStatus (*setRecommendedActions)(
+    CMPIError* er, const CMPIArray* ra)
+{
+  return ((er)->ft->setRecommendedActions ((er), (ra)));
+}
+#   else
+#      define CMSetRecommendedActions(e,ra)                            \
+              ((e)->ft->setRecommendedActions((e),(ra)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Specifies a string which specifes The identifying information of the entity (i.e., the instance) generating the error..
+    @param er Error this pointer
+    @param es the string which describes the source
+    @return Output: Service return status
+ */
+inline static CMPIStatus (*setErrorSource)(CMPIError* er, const char* es);
+{
+  return ((er)->ft->setErrorSource ((er), (es)));
+}
+#   else
+#      define CMSetErrorSource(e,es)                                   \
+              ((e)->ft->setErrorSource((e),(es)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Sets the source format of the error object
+    @param er Error this pointer
+    @param esf the string which describes the source format
+    @return Output: Service return status
+ */
+inline static CMPIStatus (*setErrorSourceFormat)(
+    CMPIError* er, const CMPIErrorSrcFormat esf);
+{
+  return ((er)->ft->setErrorSourceFormat ((er), (esf)));
+}
+#   else
+#      define CMSetErrorSourceFormat(e,esf)                            \
+              ((e)->ft->setErrorSourceFormat((e),(esf)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** specifies A string defining "Other" values for ErrorSourceFormat
+    @param er Error this pointer
+    @param oef the string which describes the other source format
+    @return Output: Service return status
+ */
+inline static CMPIStatus (*setOtherErrorSourceFormat)(
+    CMPIError* er, const char* oesf)
+{
+  return ((er)->ft->setOtherErrorSourceFormat ((er), (oesf)));
+}
+#   else
+#      define CMSetOtherErrorSourceFormat(e,oesf)                      \
+              ((e)->ft->setOtherErrorSourceFormat((e),(oesf)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Sets the status code.
+    @param er Error this pointer
+    @param rc The CMPIrc value of the error
+    @return Output: Service return status
+ */
+inline static CMPIStatus (*setCIMStatusCode)(CMPIError* er, const CMPIrc rc);
+{
+  return ((er)->ft->setCIMStatusCode ((er), (rc)));
+}
+#   else
+#      define CMSetCIMStatusCode(e,rc)                                 \
+              ((e)->ft->setCIMStatusCode((e),(rc)))
+#   endif
+
+#   ifdef CMPI_INLINE
+/** Sets the description of the status code.
+    @param er Error this pointer
+    @param scd A string whcih describes the status code.
+    @return Output: Service return status
+ */
+inline static CMPIStatus (*setCIMStatusCodeDescription)(
+    CMPIError* er, const char* cd);
+{
+  return ((er)->ft->setCIMStatusCodeDescription ((er), (cd)));
+}
+#   else
+#      define CMSetCIMStatusCodeDescription(e,cd)                      \
+              ((e)->ft->setCIMStatusCodeDescription((e),(cd)))
+#   endif
+#   ifdef CMPI_INLINE
+/** Sets an array of strings for the dynamic content of the message
+    @param er Error this pointer
+    @param values Specifies an array of CMPIStrings containing the dynamic
+    content of the message.
+    @return Service return status
+ */
+inline static CMPIStatus (*setMessageArguments)(CMPIError* er, CMPIArray* ma)
+{
+  return ((er)->ft->setMessageArguments ((er), (ma)));
+}
+#   else
+#      define CMSetMessageArguments(e,ma)                              \
+              ((e)->ft->setMessageArguments((e),(ma)))
+#   endif
+
+
+
     // CMPIEnumeration Macros
 
 

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -69,6 +65,7 @@ extern CMPIResultFT *CMPI_ResultResponseOnStack_Ftab;
 extern CMPIResultFT *CMPI_ResultExecQueryOnStack_Ftab;
 
 extern CMPIDateTimeFT *CMPI_DateTime_Ftab;
+extern CMPIErrorFT *CMPI_Error_Ftab;
 extern CMPIArrayFT *CMPI_Array_Ftab;
 extern CMPIStringFT *CMPI_String_Ftab;
 

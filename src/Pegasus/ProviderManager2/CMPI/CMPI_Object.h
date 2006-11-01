@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPI_Object_H_
@@ -47,6 +43,7 @@
 #include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/CIMError.h>
 
 #include "CMPI_ThreadContext.h"
 #include "CMPI_Enumeration.h"
@@ -65,6 +62,7 @@ class CMPI_Object {
    CMPI_Object(CIMInstance*);
    CMPI_Object(CIMObjectPath*);
    CMPI_Object(CIMDateTime*);
+   CMPI_Object(CIMError*);
    CMPI_Object(OperationContext*);
    CMPI_Object(const String&);
    CMPI_Object(const char*);

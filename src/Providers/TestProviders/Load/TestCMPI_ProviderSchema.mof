@@ -133,3 +133,11 @@ class TestCMPI_Fail_4: TestCMPI_Parent
 class TestCMPI_Thread: TestCMPI_Parent
 {
 };
+
+class TestCMPI_Error : TestCMPI_Parent
+{
+	uint32 TestCMPIError (
+	  [OUT, Description (
+		" The result of what the operation carried out.")]
+			string Result);
+};

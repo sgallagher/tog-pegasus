@@ -101,6 +101,41 @@ instance of PG_ProviderCapabilities
 };
 
 // ===================================================================
+// Method provider for testing CMPIError
+// ===================================================================
+instance of PG_ProviderModule
+{
+   Description = "CMPI Test Error provider";
+   Name = "TestCMPIErrorProviderModule";
+  // The library name on disk
+   Location = "cmpiTestErrorProvider";
+   Vendor = "OpenPegasus";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIErrorProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIErrorProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIErrorProviderModule";
+   ProviderName = "TestCMPIErrorProvider";
+   CapabilityID = "CMPI Test Error Provider";
+   // Name of the CIM Class as defined in the mof.
+   ClassName = "TestCMPI_Error";
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+   ProviderType = { 5 }; // Method
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};
+
+// ===================================================================
 // Instance provider that fails loading. The provider returns a NULL pointer
 // when _CreateInstance function is called. (the entry point)
 // ===================================================================

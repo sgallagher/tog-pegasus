@@ -64,7 +64,8 @@ DIRS = \
 	CIMOMHandleTestProvider \
 	CIMOMHandleTestProvider/testclient \
 	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient
+	TestAggregationOutputProvider/testclient \
+	TestServerProfileProviders
 
 ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 DIRS += \

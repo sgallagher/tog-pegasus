@@ -28,19 +28,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Al Stone <ahs3@fc.hp.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              Mike Glantz         <michael_glantz@hp.com>
-//
-//%////////////////////////////////////////////////////////////////////////////
+
 
 #include "ComputerSystemProvider.h"
 #include "ComputerSystem.h"
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Constants.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -56,12 +49,16 @@ ComputerSystem::~ComputerSystem()
 
 Boolean ComputerSystem::getCaption(CIMProperty& p)
 {
-  return false;
+    // hardcoded
+    p = CIMProperty("ElementName", String(CAPTION));
+    return true;
 }
 
 Boolean ComputerSystem::getDescription(CIMProperty& p)
 {
-  return false;
+    // hardcoded
+    p = CIMProperty(PROPERTY_DESCRIPTION, String(CAPTION));
+    return true;
 }
 
 Boolean ComputerSystem::getInstallDate(CIMProperty& p)
@@ -71,17 +68,23 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
 
 Boolean ComputerSystem::getCreationClassName(CIMProperty& p)
 {
-  return false;
+    // can vary, depending on class
+    p = CIMProperty(PROPERTY_CREATION_CLASS_NAME,
+        PEGASUS_CLASSNAME_PG_COMPUTERSYSTEM.getString());
+    return true;
 }
 
 Boolean ComputerSystem::getName(CIMProperty& p)
 {
-  return false;
+    p = CIMProperty(PROPERTY_NAME,String(getHostName()));
+    return true;
 }
 
 Boolean ComputerSystem::getStatus(CIMProperty& p)
 {
-  return false;
+  // hardcoded 
+  p = CIMProperty(PROPERTY_STATUS,String(STATUS));
+  return true;
 }
 
 Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
@@ -96,7 +99,8 @@ Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
 
 Boolean ComputerSystem::getNameFormat(CIMProperty& p)
 {
-  return false;
+  p = CIMProperty(PROPERTY_NAME_FORMAT,String(NAME_FORMAT));
+  return true;
 }
 
 Boolean ComputerSystem::getPrimaryOwnerName(CIMProperty& p)
@@ -230,6 +234,6 @@ void ComputerSystem::initialize(void)
 
 String ComputerSystem::getHostName(void)
 {
-  return String::EMPTY;
+    return System::getHostName();
 }
 

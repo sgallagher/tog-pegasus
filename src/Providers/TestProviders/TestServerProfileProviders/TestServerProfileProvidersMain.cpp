@@ -29,14 +29,14 @@
 //
 //==============================================================================
 
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
 
-#pragma include ("PG_Events20.mof")
-#pragma include ("PG_ProviderModule20.mof")
-#pragma include ("PG_ServerProfile20.mof")
-// PEGASUS_ENABLE_SLP.  Bug 1222 The following should be enabled when
-// The interop classes and support are made permanent.
-// It is removed here and placed as a separate item in the
-// Makefile because there is no way to do a conditional in
-// a MOF file.
-// #pragma include ("PG_CIMXMLCommunicationMechanism20.mof")
-// #pragma include ("PG_Namespace20.mof")
+#include "TestServerProfileProvider.h"
+
+PEGASUS_USING_PEGASUS;
+
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+{
+    return new TestServerProfileProvider(name);
+}

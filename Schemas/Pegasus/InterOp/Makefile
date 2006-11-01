@@ -39,6 +39,10 @@ ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 
+PG_SCHEMA_VER=20
+PG_SCHEMA_DIR=VER$(PG_SCHEMA_VER)
+PG_COMPUTERSYSTEM_MOF_PATH=$(ROOT)/Schemas/Pegasus/ManagedSystem/$(PG_SCHEMA_DIR)
+
 # Create a single variable to control schema compile
 ifeq ($(PEGASUS_ENABLE_SLP),true)
 	PEGASUS_BUILD_INTEROP=TRUE
@@ -78,6 +82,9 @@ ifdef PEGASUS_BUILD_INTEROP
 	@$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_INTEROP_MOF_PATH)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(PG_INTEROP_MOF_PATH)/PG_CIMXMLCommunicationMechanism$(PG_INTEROP_SCHEMA_VER).mof" 
 	@$(ECHO) +++++ Loading PG_Namespace$(PG_INTEROP_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_INTEROP_MOF_PATH)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(PG_INTEROP_MOF_PATH)/PG_Namespace$(PG_INTEROP_SCHEMA_VER).mof"
+	@$(ECHO) +++++ Loading Computer System schema into $(INTEROPNS) namespace ...
+	@$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_COMPUTERSYSTEM_MOF_PATH)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(PG_COMPUTERSYSTEM_MOF_PATH)/PG_ComputerSystem$(PG_SCHEMA_VER).mof"
+
 endif
 
 repositoryServer:
@@ -89,6 +96,8 @@ repositoryServer:
 ifdef PEGASUS_BUILD_INTEROP 
 	@$(ECHO) +++++ Loading CIM_Interop$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(CIM_SCHEMA_DIR)/CIM_Interop$(CIM_SCHEMA_VER).mof"
+	@$(ECHO) +++++ Loading Computer System schema into $(INTEROPNS) namespace ...
+	@$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_COMPUTERSYSTEM_MOF_PATH)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(PG_COMPUTERSYSTEM_MOF_PATH)/PG_ComputerSystem$(PG_SCHEMA_VER).mof"
 endif
 
 	@$(ECHO) +++++ Loading PG_InterOpSchema$(PG_INTEROP_SCHEMA_VER).mof into $(INTEROPNS) namespace...

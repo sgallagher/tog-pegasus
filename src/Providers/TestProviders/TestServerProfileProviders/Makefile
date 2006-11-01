@@ -28,45 +28,23 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-# Makes the dynamic load libs for the files named in DIR
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 
-MODULE_NAME=InteropProvider
-
-DIR = Pegasus/ControlProviders/$(MODULE_NAME)
+DIR = Providers/TestProviders/TestServerProfileProviders
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_INTEROPPROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
-
-STATIC=1
-LIBRARY = $(MODULE_NAME)
+LIBRARY = TestServerProfileProviders
 
 LIBRARIES = \
-    pegcommon \
-    pegconfig \
-    pegprovider
-
+    pegprovider \
+    pegclient \
+    pegcommon
+	
 SOURCES = \
-    ElementConformsToProfile.cpp \
-    Guid.cpp \
-    InteropAssociationProvider.cpp \
-    InteropInstanceProvider.cpp \
-    InteropProvider.cpp \
-    InteropProviderUtils.cpp \
-    Namespace.cpp \
-    RegisteredProfile.cpp \
-    Server.cpp \
-    Software.cpp
-    
+    TestServerProfileProvidersMain.cpp \
+    TestServerProfileProvider.cpp
 
-ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpegconfig -lpegprovider
-endif
+include $(ROOT)/mak/dynamic-library.mak
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-SYS_LIBS = ole32.lib ws2_32.lib advapi32.lib
-endif
-
-
-include $(ROOT)/mak/library.mak
+tests:

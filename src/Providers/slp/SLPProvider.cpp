@@ -28,17 +28,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Authors: Alagaraja Ramasubramanian, IBM Corporation
-//          Seema Gupta, IBM Corporation
-//          Subodh Soni, IBM Corporation
-//
-// Modified By: Karl Schopmeyer, (k.schopmeyer@opengroup.org)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Marek Szermutzky, IBM, (MSzermutzky@de.ibm.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////
+
 
 /* Description: this provider manages the SLP advertisements for Pegasus.  It gets
    information from other sources within the Pegasus environment (primarily the
@@ -122,14 +112,6 @@ PEGASUS_USING_STD;
 
 const char SlpProvider[] = "SlpProvider";
 const char SlpTemplateClassName[] = "PG_WBEMSLPTemplate";
-const char CIMObjectManagerClassName[] = "CIM_ObjectManager";
-const char CIMObjectManagerCommMechName[] = "CIM_ObjectManagerCommunicationMechanism";
-const char PGObjectManagerCommMechName[] = "PG_CIMXMLCommunicationMechanism";
-const char CIMNamespaceClassName[] = "CIM_Namespace";
-const char CIMCommMechanismForObjectManagerAdapterName[] =
-    "CIM_CommMechanismForObjectManagerAdapterName";
-
-const char CIM_NamespaceInManager[] = "CIM_NamespaceInManager";
 
 // This SLP service is named wbem.
 // Internally the serviceName is wbem (in the template) and the serviceID is
@@ -615,6 +597,7 @@ String SLPProvider::getRegisteredProfileList()
     String                  reglist = String::EMPTY;
 
     Array<CIMInstance>  cimInstances;
+    CIMName registeredProfileClassName("CIM_RegisteredProfile");
     CIMClass RO_Class;
 
     Array<String> regarray;
@@ -772,7 +755,7 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
         CIMNamespaceInstances = _cimomHandle.enumerateInstances(
             OperationContext(),
             PEGASUS_NAMESPACENAME_INTEROP,
-            CIMName(CIMNamespaceClassName),
+            PEGASUS_CLASSNAME_PGNAMESPACE,
             true, true, true, true,
             CIMPropertyList());
     }
@@ -1192,7 +1175,7 @@ Boolean SLPProvider::issueSLPRegistrations()
     CIMClass pg_CIMXMLClass = _cimomHandle.getClass(
         OperationContext(),
         PEGASUS_NAMESPACENAME_INTEROP,
-        CIMName(PGObjectManagerCommMechName),
+        PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
         false, true, true, CIMPropertyList());
 
     // Get the CIM_ObjectManager instance
@@ -1202,7 +1185,7 @@ Boolean SLPProvider::issueSLPRegistrations()
         instancesObjMgr = _cimomHandle.enumerateInstances(
             OperationContext(),
             PEGASUS_NAMESPACENAME_INTEROP,
-            CIMName(CIMObjectManagerClassName),
+            PEGASUS_CLASSNAME_PG_OBJECTMANAGER,
             false, false, false,false, CIMPropertyList());
     }
     catch (const Exception & e)
@@ -1214,7 +1197,7 @@ Boolean SLPProvider::issueSLPRegistrations()
     /*
     Array<CIMObjectPath> pathsObjMgr = _cimHandle.enumerateInstanceNames(
                                         OperationContext(),
-                                        PEGASUS_NAMESPACENAME_INTEROP,
+                                        PEGASUS_CLASSNAME_PG_OBJECTMANAGER,
                                         CIMName(CIMObjectManagerClassName));
     CIMObjectPath objectManagerPath =  pathsObjMgr[0];
     try
@@ -1242,7 +1225,7 @@ Boolean SLPProvider::issueSLPRegistrations()
     Array<CIMInstance> instancesObjMgrComm = _cimomHandle.enumerateInstances(
         OperationContext(),
         PEGASUS_NAMESPACENAME_INTEROP,
-        CIMName(CIMObjectManagerCommMechName),
+        PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM,
         true, false, true,true, CIMPropertyList());
 
     //Loop to create an SLP registration for each communication mechanism

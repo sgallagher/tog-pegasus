@@ -145,13 +145,13 @@ class PG_Provider : CIM_LogicalElement {
 };
 
 // ==================================================================
-// PG_CapabilitiesRegistration
+// PG_Capabilities
 // ==================================================================
         [Abstract,
-	 Version ("2.5.0"), Description ("PG_CapabilitiesRegistration is an "
-	 "abstract superclass which contains required properties for both "
-	 "provider and consumer.")]
-class PG_CapabilitiesRegistration : CIM_ManagedElement {
+	 Version ("2.6.0"), Description ("PG_Capabilities is an "
+	 "abstract superclass which contains key properties for both "
+	 "provider and consumer capabilities.")]
+class PG_Capabilities : CIM_ManagedElement {
       [Key, Propagated ("PG_Provider.ProviderModuleName"), 
        Description ("The scoping PG_ProviderModule name.") ]
    string ProviderModuleName;
@@ -162,6 +162,17 @@ class PG_CapabilitiesRegistration : CIM_ManagedElement {
        "this Capabilities instance within the set of Capabilities for "
        "the designated Provider or consumer.") ]
    string CapabilityID;
+};
+
+
+// ==================================================================
+// PG_CapabilitiesRegistration
+// ==================================================================
+        [Abstract,
+	 Version ("2.6.0"), Description ("PG_CapabilitiesRegistration is an "
+	 "abstract superclass which contains required properties for both "
+	 "provider and consumer.")]
+class PG_CapabilitiesRegistration : PG_Capabilities {
       [Required, Description (
        "ProviderType enumerates the kind of provider "
        "capabilities defined for the associated Provider. "),

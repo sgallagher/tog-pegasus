@@ -282,4 +282,44 @@ const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
     PEGASUS_NAMESPACENAME_CIMV2;
 #endif
 
+//
+// Server Profile-related class names
+//
+const CIMName PEGASUS_CLASSNAME_PG_OBJECTMANAGER =
+    CIMName ("PG_ObjectManager");
+const CIMName PEGASUS_CLASSNAME_PG_COMMMECHANISMFORMANAGER =
+    CIMName ("PG_CommMechanismForManager");
+const CIMName PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER =
+    CIMName ("PG_NamespaceInManager");
+const CIMName PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE =
+    CIMName ("PG_RegisteredProfile");
+const CIMName PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE =
+    CIMName ("PG_RegisteredSubProfile");
+const CIMName PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE =
+    CIMName ("PG_ReferencedProfile");
+const CIMName PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE =
+    CIMName ("CIM_ElementConformsToProfile");
+const CIMName PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE =
+    CIMName ("PG_ElementConformsToProfile");
+const CIMName PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE =
+    CIMName ("PG_SubProfileRequiresProfile");
+const CIMName PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY =
+    CIMName ("PG_SoftwareIdentity");
+const CIMName PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY =
+    CIMName ("PG_ElementSoftwareIdentity");
+const CIMName PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY =
+    CIMName ("PG_InstalledSoftwareIdentity");
+const CIMName PEGASUS_CLASSNAME_PG_COMPUTERSYSTEM =
+    CIMName ("PG_ComputerSystem");
+const CIMName PEGASUS_CLASSNAME_PG_HOSTEDOBJECTMANAGER =
+    CIMName ("PG_HostedObjectManager");
+const CIMName PEGASUS_CLASSNAME_PG_HOSTEDACCESSPOINT =
+    CIMName ("PG_HostedAccessPoint");
+
+// Registration classes
+const CIMName PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES =
+    CIMName ("PG_ProviderProfileCapabilities");
+const CIMName PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES =
+    CIMName ("PG_ProviderReferencedProfiles");
+
 PEGASUS_NAMESPACE_END

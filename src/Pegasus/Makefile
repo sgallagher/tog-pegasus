@@ -146,7 +146,8 @@ endif
 ifeq ($(PEGASUS_ENABLE_SLP),true)
     DIRS += \
         ControlProviders/InteropProvider \
-        ControlProviders/InteropProvider/tests
+        ControlProviders/InteropProvider/tests \
+        ControlProviders/InteropProvider/ServerProfileTests
 else
     ifndef PEGASUS_DISABLE_PERFINST
         DIRS += \

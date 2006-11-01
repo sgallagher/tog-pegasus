@@ -1,0 +1,493 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+
+// ==================================================================
+// PG_ProviderProfileCapabilities
+// ==================================================================
+[Version ("2.6.0"), Description(
+    "Instances of this class are used by the Pegasus implementation "
+    "the SMI-S Server Profile to create the instances of and "
+    "associations between Registered Profiles and Subprofiles, as "
+    "as the associations between those profile instances and other "
+    "elements of the Server Profile and the top-level Managed "
+    "Elements surfaced by the providers which these capabilities "
+    "apply.")]
+class PG_ProviderProfileCapabilities : PG_Capabilities {
+    [Required, Description(
+        "A Registered Profile that this provider implements. If "
+        "this property is set to Other, then the "
+        "OtherRegisteredProfileOrganization and "
+        "OtherRegisteredProfile properties must not be NULL."),
+      ValueMap{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                "10", "11", "12", "13", "14", ".." },
+      Values{ "Other", "SNIA:Server", "SNIA:Security",
+              "SNIA:Fabric", "SNIA:Switch", "SNIA:Extender",//5
+              "SNIA:FC HBA", "SNIA:iSCSI Initiator",
+              "SNIA:Host Discovered Resources", "SNIA:Array",
+              "SNIA:Storage Virtualizer", "SNIA:Volume Management",//11
+              "SNIA:Storage Library", "SNIA:NAS Head",
+              "SNIA:Self-contained NAS System",
+              "OpenPegasus Reserved" }]
+    uint16 RegisteredProfile;
+
+    [Required, Description(
+        "The subprofiles that are implemented in this provider as "
+        "part of the profile specified in the RegisteredProfile "
+        "property. If any of the entries in this array are "
+        "\"Other\", then there must be a corresponding entry in "
+        "the OtherRegisteredSubProfiles property. For each of the "
+        "subprofiles in this property, there will be an instance "
+        "of CIM_RegisteredSubProfile present in the Interop "
+        "namespace to describe that subprofile."),
+      ValueMap{ "0", "1..1000",
+                "1001", "1002", "1003", "1004", "1005", "1006", "1007",
+                "1008", "1009", "1010", "1011", "1012", "1013", "1014", "1015",
+                "1016", "1017", "1018", "1019", "1020", "1021", "1022", "1023",
+                "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031",
+                "1032", "1033", "1034", "1035", "1036", "1037", "1038", "1039",
+                "1040", "1041", "1042", "1043", "1044", "1045", "1046", "1047",
+                "1048", "1049", "1050", "1051",
+                ".."},
+      Values{ "Other", "OpenPegasus Reserved For Profiles",
+              "SNIA:Access Points", "SNIA:Backend Ports",//1002
+              "SNIA:Blades", "SNIA:Block Server Performance",//1004
+              "SNIA:Block Storage Resource Ownership ",//1005
+              "SNIA:Cascading", "SNIA:Cluster", "SNIA:Copy Services",//1008
+              "SNIA:Device Credentials", "SNIA:Disk Drive",//1010
+              "SNIA:Disk Drive Lite", "SNIA:Disk Partition",//1012
+              "SNIA:Disk Sparing",//1013
+              "SNIA:Enhanced Zoning and Enhanced Zoning Control",//1014
+              "SNIA:Extent Composition", "SNIA:Extent Mapping",//1016
+              "SNIA:Extra Capacity Set", "SNIA:Fabric Path Performance",//1018
+              "SNIA:FC Initiator Ports", "SNIA:FC Target Ports",//1020
+              "SNIA:FDMI", "SNIA:File Export Manipulation", //1022
+              "SNIA:File System Manipulation",//1023
+              "SNIA:Indication", "SNIA:iSCSI Initiator Ports",//1025
+              "SNIA:Job Control", "SNIA:Location", "SNIA:LUN Creation",//1028
+              "SNIA:LUN Mapping and Masking", "SNIA:Masking and Mapping",//1030
+              "SNIA:Multi System", "SNIA:Multiple Computer System",//1032
+              "SNIA:Object Manager Adapter",//1033
+              "SNIA:Pool Manipulation Capabilities and Settings",//1034
+              "SNIA:SCSI Multipath Management", //1035
+              "SNIA:Security Authorization", //1036
+              "SNIA:Security CredentialManagement",//1037
+              "SNIA:Security IdentityManagement", "SNIA:Software",//1039
+              "SNIA:Software Installation", "SNIA:SPI Initiator Ports",//1041
+              "SNIA:SPI Target Ports", "SNIA:Storage Library Capacity",//1043
+              "SNIA:Storage Library Element Counting",//1044
+              "SNIA:Storage Library InterLibraryPort Connection",//1045
+              "SNIA:Storage Library Limited Access Port Elements",//1046
+              "SNIA:Storage Library Media Movement",//1047
+              "SNIA:Storage Library Partitioned Library",//1048
+              "SNIA:Switch Configuration Data", "SNIA:Zone Control",//1050
+              "SNIA:iSCSI Target Ports", "OpenPegasus Reserved" }]
+    uint16 RegisteredSubProfiles[];
+
+    [Required, Description(
+        "The version of the RegisteredProfile as specified by the "
+        "profile\'s defining organization.")]
+    string ProfileVersion;
+    
+    [Description(
+        "The versions of the RegisteredSubProfiles as specified by the "
+        "subprofile\'s defining organization. If this property is not present "
+        "then the version of the subprofiles is presumed to be the same as "
+        "the version of the scoping RegisteredProfile (i.e. the same as the "
+        "ProfileVersion property).")]
+    string SubProfileVersions[];
+
+    [Description(
+        "If the value of the RegisteredProfile property is "
+        "\"Other\", then this property must not be NULL and "
+        "should contain the name of a valied Profile defined "
+        "by the organization specified by the "
+        "OtherRegisteredProfileOrganization property.")]
+    string OtherRegisteredProfile;
+
+    [Description(
+        "If the value of the RegisteredProfile property is "
+        "\"Other\", then this property must not be NULL and "
+        "must contain the name of the organization that defined "
+        "the profile specified by the OtherRegisteredProfile "
+        "property.")]
+    string OtherProfileOrganization;
+
+    [Description(
+        "If any of the entries in the RegisteredSubProfile "
+        "property have a value of \"Other\", then this property "
+        "must contain a corresponding entry specifying the name "
+        "of the subprofile implemented by this provider and "
+        "associated with the RegisteredProfile.")]
+    string OtherRegisteredSubProfiles[];
+    
+    [Description(
+        "If any of the entries in the RegisteredSubProfile "
+        "property have a value of \"Other\", then this property "
+        "must contain a corresponding entry specifying the name "
+        "of the organization defining the subprofile implemented by "
+        "this provider and associated with the RegisteredProfile.")]
+    string OtherSubProfileOrganizations[];
+
+    [Description(
+        "This optional property contains a list of class names, "
+        "instances of which are exposed by this provider. For "
+        "each of the instances of these classes exposed by this "
+        "provider, the Pegasus Server Profile implementation "
+        "will create an instance of the "
+        "ElementConformsToProfile association, which associates "
+        "those instances with the instance of "
+        "CIM_RegisteredProfile that describes the profile "
+        "specified by the RegisteredProfile property. If this "
+        "property is NULL, then the provider is expected to "
+        "implement the ElementConformsToProfile association "
+        "within its namespace. The Server Profile "
+        "will discover those association instances and expose "
+        "a corresponding instance in the Interop namespace.")]
+    string ConformingElements[];
+};
+
+
+// ==================================================================
+// PG_ProviderReferencedProfiles
+// ==================================================================
+[Version ("2.6.0"), Description(
+    "This class is used in order to implement the ReferencedProfile "
+    "association between profiles and subprofiles implemented by a "
+    "vendor\'s providers. Where those associations are necessary is "
+    "specified by the profiles\' defining standard (e.g. SNIA\'s "
+    "SMI-S). The Pegasus Server Profile implementation supplies the "
+    "ReferencedProfile associations related to the "
+    "RegisteredProfile instances corresponding to the Server "
+    "profile.")]
+class PG_ProviderReferencedProfiles : PG_Capabilities {
+    [Required, Description(
+        "Array of profiles and subprofiles implemented by this provider that "
+        "have a dependent profile also implemented by this provider. There "
+        "could be cases where one profile has more than one dependent "
+        "profile, in which case there would be multiple entries in this "
+        "property corresponding to that antecedent profile. Each entry in this "
+        "property will form the \"Antecedent\" property in an instance of the "
+        "ReferencedProfile class. The \"Dependent\" in those instances are "
+        "determined by the relative entries in the \"DependentProfiles\" "
+        "property of this class."),
+      ValueMap{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                "10", "11", "12", "13", "14",
+                "15..1000",
+                "1001", "1002", "1003", "1004", "1005", "1006", "1007",
+                "1008", "1009", "1010", "1011", "1012", "1013", "1014", "1015",
+                "1016", "1017", "1018", "1019", "1020", "1021", "1022", "1023",
+                "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031",
+                "1032", "1033", "1034", "1035", "1036", "1037", "1038", "1039",
+                "1040", "1041", "1042", "1043", "1044", "1045", "1046", "1047",
+                "1048", "1049", "1050", "1051",
+                ".."},
+      Values{ "Other", "SNIA:Server", "SNIA:Security",
+              "SNIA:Fabric", "SNIA:Switch", "SNIA:Extender",//5
+              "SNIA:FC HBA", "SNIA:iSCSI Initiator",
+              "SNIA:Host Discovered Resources", "SNIA:Array",
+              "SNIA:Storage Virtualizer", "SNIA:Volume Management",//11
+              "SNIA:Storage Library", "SNIA:NAS Head",
+              "SNIA:Self-contained NAS System", //14
+              "OpenPegasus Reserved For Profiles",
+              "SNIA:Access Points", "SNIA:Backend Ports",//1002
+              "SNIA:Blades", "SNIA:Block Server Performance",//1004
+              "SNIA:Block Storage Resource Ownership ",//1005
+              "SNIA:Cascading", "SNIA:Cluster", "SNIA:Copy Services",//1008
+              "SNIA:Device Credentials", "SNIA:Disk Drive",//1010
+              "SNIA:Disk Drive Lite", "SNIA:Disk Partition",//1012
+              "SNIA:Disk Sparing",//1013
+              "SNIA:Enhanced Zoning and Enhanced Zoning Control",//1014
+              "SNIA:Extent Composition", "SNIA:Extent Mapping",//1016
+              "SNIA:Extra Capacity Set", "SNIA:Fabric Path Performance",//1018
+              "SNIA:FC Initiator Ports", "SNIA:FC Target Ports",//1020
+              "SNIA:FDMI", "SNIA:File Export Manipulation", //1022
+              "SNIA:File System Manipulation",//1023
+              "SNIA:Indication", "SNIA:iSCSI Initiator Ports",//1025
+              "SNIA:Job Control", "SNIA:Location", "SNIA:LUN Creation",//1028
+              "SNIA:LUN Mapping and Masking", "SNIA:Masking and Mapping",//1030
+              "SNIA:Multi System", "SNIA:Multiple Computer System",//1032
+              "SNIA:Object Manager Adapter",//1033
+              "SNIA:Pool Manipulation Capabilities and Settings",//1034
+              "SNIA:SCSI Multipath Management", //1035
+              "SNIA:Security Authorization", //1036
+              "SNIA:Security CredentialManagement",//1037
+              "SNIA:Security IdentityManagement", "SNIA:Software",//1039
+              "SNIA:Software Installation", "SNIA:SPI Initiator Ports",//1041
+              "SNIA:SPI Target Ports", "SNIA:Storage Library Capacity",//1043
+              "SNIA:Storage Library Element Counting",//1044
+              "SNIA:Storage Library InterLibraryPort Connection",//1045
+              "SNIA:Storage Library Limited Access Port Elements",//1046
+              "SNIA:Storage Library Media Movement",//1047
+              "SNIA:Storage Library Partitioned Library",//1048
+              "SNIA:Switch Configuration Data", "SNIA:Zone Control",//1050
+              "SNIA:iSCSI Target Ports", "OpenPegasus Reserved" }]
+    uint16 RegisteredProfiles[];
+
+    [Required, Description(
+        "Array of profiles and subprofiles implemented by this provider that "
+        "are dependents of profiles also implemented by this provider. There "
+        "could be cases where one profile depends on more than one other "
+        "profile, in which case there would be multiple entries in this "
+        "property corresponding to that dependent profile. Each entry in this "
+        "property will form the \"Dependent\" property in an instance of the "
+        "ReferencedProfile class. The \"Antecedent\" in those instances are "
+        "determined by the relative entries in the \"RegisteredProfiles\" "
+        "property of this class."),
+      ValueMap{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                "10", "11", "12", "13", "14",
+                "15..1000",
+                "1001", "1002", "1003", "1004", "1005", "1006", "1007",
+                "1008", "1009", "1010", "1011", "1012", "1013", "1014", "1015",
+                "1016", "1017", "1018", "1019", "1020", "1021", "1022", "1023",
+                "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031",
+                "1032", "1033", "1034", "1035", "1036", "1037", "1038", "1039",
+                "1040", "1041", "1042", "1043", "1044", "1045", "1046", "1047",
+                "1048", "1049", "1050", "1051",
+                ".."},
+      Values{ "Other", "SNIA:Server", "SNIA:Security",
+              "SNIA:Fabric", "SNIA:Switch", "SNIA:Extender",//5
+              "SNIA:FC HBA", "SNIA:iSCSI Initiator",
+              "SNIA:Host Discovered Resources", "SNIA:Array",
+              "SNIA:Storage Virtualizer", "SNIA:Volume Management",//11
+              "SNIA:Storage Library", "SNIA:NAS Head",
+              "SNIA:Self-contained NAS System", //14
+              "OpenPegasus Reserved For Profiles",
+              "SNIA:Access Points", "SNIA:Backend Ports",//1002
+              "SNIA:Blades", "SNIA:Block Server Performance",//1004
+              "SNIA:Block Storage Resource Ownership ",//1005
+              "SNIA:Cascading", "SNIA:Cluster", "SNIA:Copy Services",//1008
+              "SNIA:Device Credentials", "SNIA:Disk Drive",//1010
+              "SNIA:Disk Drive Lite", "SNIA:Disk Partition",//1012
+              "SNIA:Disk Sparing",//1013
+              "SNIA:Enhanced Zoning and Enhanced Zoning Control",//1014
+              "SNIA:Extent Composition", "SNIA:Extent Mapping",//1016
+              "SNIA:Extra Capacity Set", "SNIA:Fabric Path Performance",//1018
+              "SNIA:FC Initiator Ports", "SNIA:FC Target Ports",//1020
+              "SNIA:FDMI", "SNIA:File Export Manipulation", //1022
+              "SNIA:File System Manipulation",//1023
+              "SNIA:Indication", "SNIA:iSCSI Initiator Ports",//1025
+              "SNIA:Job Control", "SNIA:Location", "SNIA:LUN Creation",//1028
+              "SNIA:LUN Mapping and Masking", "SNIA:Masking and Mapping",//1030
+              "SNIA:Multi System", "SNIA:Multiple Computer System",//1032
+              "SNIA:Object Manager Adapter",//1033
+              "SNIA:Pool Manipulation Capabilities and Settings",//1034
+              "SNIA:SCSI Multipath Management", //1035
+              "SNIA:Security Authorization", //1036
+              "SNIA:Security CredentialManagement",//1037
+              "SNIA:Security IdentityManagement", "SNIA:Software",//1039
+              "SNIA:Software Installation", "SNIA:SPI Initiator Ports",//1041
+              "SNIA:SPI Target Ports", "SNIA:Storage Library Capacity",//1043
+              "SNIA:Storage Library Element Counting",//1044
+              "SNIA:Storage Library InterLibraryPort Connection",//1045
+              "SNIA:Storage Library Limited Access Port Elements",//1046
+              "SNIA:Storage Library Media Movement",//1047
+              "SNIA:Storage Library Partitioned Library",//1048
+              "SNIA:Switch Configuration Data", "SNIA:Zone Control",//1050
+              "SNIA:iSCSI Target Ports", "OpenPegasus Reserved" }]
+    uint16 DependentProfiles[];
+
+    [Required, Description(
+        "The versions of the antecedent and dependent profiles as specified "
+        "by the profiles\' defining organization.")]
+    string RegisteredProfileVersions[];
+
+    [Required, Description(
+        "The versions of the antecedent and dependent profiles as specified "
+        "by the profiles\' defining organization.")]
+    string DependentProfileVersions[];
+
+    [Description(
+        "If any of the entries in the RegisteredProfile "
+        "property have a value of \"Other\", then this property "
+        "must contain a corresponding entry specifying the name "
+        "of the antecedent profile implemented by this provider.")]
+    string OtherRegisteredProfiles[];
+
+    [Description(
+        "If any of the entries in the RegisteredProfile "
+        "property have a value of \"Other\", then this property "
+        "must contain a corresponding entry specifying the name "
+        "of the dependent profile implemented by this provider.")]
+    string OtherDependentProfiles[];
+
+    [Description(
+        "If any of the values of the RegisteredProfiles property are "
+        "\"Other\", then this property must not be NULL and "
+        "must contain the names of the organizations that defined "
+        "the profiles specified by the OtherRegisteredProfiles "
+        "property.")]
+    string OtherRegisteredProfileOrganizations[];
+
+    [Description(
+        "If any of the values of the RegisteredProfiles property are "
+        "\"Other\", then this property must not be NULL and "
+        "must contain the names of the organizations that defined "
+        "the profiles specified by the OtherDependentProfiles "
+        "property.")]
+    string OtherDependentProfileOrganizations[];
+};
+
+// ==================================================================
+// PG_RegisteredProfile
+// ==================================================================
+[Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_RegisteredProfile : CIM_RegisteredProfile {
+};
+
+// ==================================================================
+// PG_RegisteredSubProfile
+// ==================================================================
+[Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_RegisteredSubProfile : CIM_RegisteredSubProfile {
+};
+
+// ==================================================================
+// PG_ReferencedProfile
+// ==================================================================
+[Association, Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_ReferencedProfile : CIM_ReferencedProfile {
+};
+
+// ==================================================================
+// PG_ElementConformsToProfile
+// ==================================================================
+[Association, Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_ElementConformsToProfile : CIM_ElementConformsToProfile {
+};
+
+// ==================================================================
+// PG_SubProfileRequiresProfile
+// ==================================================================
+[Association, Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_SubProfileRequiresProfile : CIM_SubProfileRequiresProfile {
+};
+
+// ==================================================================
+// PG_SoftwareIdentity
+// ==================================================================
+[Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_SoftwareIdentity : CIM_SoftwareIdentity {
+};
+
+// ==================================================================
+// PG_ElementSoftwareIdentity
+// ==================================================================
+[Association, Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_ElementSoftwareIdentity : CIM_ElementSoftwareIdentity {
+};
+
+// ==================================================================
+// PG_ObjectManager
+// ==================================================================
+[Association, Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_ObjectManager : CIM_ObjectManager {
+};
+
+// ==================================================================
+// PG_CIMXMLCommunicationMechanism
+// ==================================================================
+
+//
+// Class definition for PG_CIMXMLCommunicationMechanism is commented out
+// because it is already defined by another MOF file, but it is here to help
+// clarify the elements comprising the Server Profile implementation.
+//
+//   [Version ("2.6.0"), Description (
+//       "This class specializes CIM_CIMXMLCommunicationMechanism, "
+//       "adding properties required for Pegasus. This class "
+//       "provides additional properties required for the SLP "
+//       "discovery template, primarily information on the cimserver "
+//       "address. ")]
+       
+//class PG_CIMXMLCommunicationMechanism : CIM_CIMXMLCommunicationMechanism {
+
+//        [Deprecated { 
+//            "PG_CIMXMLCommunicationMechanism.namespaceAccessProtocol" },
+//        Description ( "Is this link encrypted or not. http or https. "
+//        "This field is deprecated because a string is too vague.") ]
+//    String namespaceType;
+    
+//        [Description ( "NamespaceType definition. Note that namespaceType"
+//        "is the official name of this field in the CIM specification "
+//        "Object Name defintion."),
+//       ValueMap {"0", "2", "3", "4..100" }, 
+//       Values { "Unknown", "http", "https", "Pegasus Reserved" }] 
+//    Uint16 namespaceAccessProtocol;
+//    
+//        [Description ( "IP Address for this comm mechanism. This MUST "
+//        "BE the complete address so that the CIM Server can be "
+//        "addressed from the network. It must include the port "
+//        "number unless the DMTF defined default ports are used." )]
+//    String IPAddress;
+//};
+
+
+// ==================================================================
+// PG_CommMechanismForManager
+// ==================================================================
+[Association, Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_CommMechanismForManager : CIM_CommMechanismForManager {
+};
+
+// ==================================================================
+// PG_NamespaceInManager
+// ==================================================================
+[Association, Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_NamespaceInManager : CIM_NamespaceInManager {
+};
+
+// ==================================================================
+// PG_HostedObjectManager
+// ==================================================================
+[Association, Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_HostedObjectManager : CIM_HostedService {
+};
+
+// ==================================================================
+// PG_HostedAccessPoint
+// ==================================================================
+[Association, Version ("2.6.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_HostedAccessPoint : CIM_HostedAccessPoint {
+};
+
+

@@ -2354,9 +2354,11 @@ void InteropTest::testStatisticsEnable()
         PEGASUS_TEST_ASSERT(!getStatisticsState());
 
         // Try with includequalifiers and include qualifiers. Should fail
-        if(!testStatisticsSetOperationError(sendInstance, myPropertyList,
-                                    false, true, CIM_ERR_NOT_SUPPORTED))
-           TERMINATE("Set Should fail. includeQualifiers = true");
+        // NOTE: This test is disabled as the server simply ignores the
+        // depricated parameter.
+        //if(!testStatisticsSetOperationError(sendInstance, myPropertyList,
+        //                            false, true, CIM_ERR_NOT_SUPPORTED))
+        //   TERMINATE("Set Should fail. includeQualifiers = true");
         PEGASUS_TEST_ASSERT(!getStatisticsState());
 
         // try with propertylist that has extra properties.

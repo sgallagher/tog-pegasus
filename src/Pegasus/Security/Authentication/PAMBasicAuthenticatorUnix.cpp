@@ -687,6 +687,12 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
         }
         else                     // This is the CHILD side of the fork
         {
+
+            // Direct standard error to /dev/null,
+            // since we are running as a daemon.
+            close(2);
+            open("/dev/null", O_RDWR);
+
             close(fd_1[1]);      // close write end on 1st pipe
             close(fd_2[0]);      // close read end on 2nd pipe
             if (fd_1[0] != STDIN_FILENO)

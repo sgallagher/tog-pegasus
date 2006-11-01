@@ -2335,23 +2335,28 @@ void XmlWriter::_appendErrorElement(
 
     out << STRLIT("<ERROR");
     out << STRLIT(" CODE=\"") << Uint32(cimException.getCode());
-
     out.append('"');
+
     String description = TraceableCIMException(cimException).getDescription();
+
     if (description != String::EMPTY)
     {
         out << STRLIT(" DESCRIPTION=\"");
         appendSpecial(out, description);
 	out.append('"');
     }
-    out << STRLIT(">");
 
-    for (Uint32 i = 0, n = cimException.getErrorCount(); i < n; i++)
+    if (cimException.getErrorCount())
     {
-	appendInstanceElement(out, cimException.getError(i));
-    }
+        out << STRLIT(">");
 
-    out << STRLIT("</ERROR>");
+        for (Uint32 i = 0, n = cimException.getErrorCount(); i < n; i++)
+            appendInstanceElement(out, cimException.getError(i));
+
+        out << STRLIT("</ERROR>");
+    }
+    else
+        out << STRLIT("/>");
 }
 
 //------------------------------------------------------------------------------

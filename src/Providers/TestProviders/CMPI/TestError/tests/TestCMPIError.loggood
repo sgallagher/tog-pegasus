@@ -1,0 +1,74 @@
+ --- TestCMPI_Error CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Error]
+ Calling CMNewCMPIError
+ ++++ (CMPI_RC_OK) CMNewCMPIError
+ Calling CMSetErrorType
+ ++++ (CMPI_RC_OK) CMSetErrorType
+ Calling CMSetOtherErrorType
+ ++++ (CMPI_RC_OK) CMSetOtherErrorType
+ Calling CMSetProbableCauseDescription
+ ++++ (CMPI_RC_OK) CMSetProbableCauseDescription
+ ++++ (CMPI_RC_OK) CMNewArray
+ ++++ (CMPI_RC_OK) CMNewString
+ ++++ (CMPI_RC_OK) CMSetArrayElementAt [0]
+ ++++ (CMPI_RC_OK) CMNewString
+ ++++ (CMPI_RC_OK) CMSetArrayElementAt [1]
+ Calling CMSetRecommendedActions
+ ++++ (CMPI_RC_OK) CMSetRecommendedActions
+ Calling CMSetErrorSource
+ ++++ (CMPI_RC_OK) CMSetErrorSource
+ Calling CMSetErrorSourceFormat
+ ++++ (CMPI_RC_OK) CMSetErrorSourceFormat
+ Calling CMSetOtherErrorSourceFormat
+ ++++ (CMPI_RC_OK) CMSetOtherErrorSourceFormat
+ Calling CMSetCIMStatusCodeDescription
+ ++++ (CMPI_RC_OK) CMSetCIMStatusCodeDescription
+ ++++ (CMPI_RC_OK) CMNewArray
+ ++++ (CMPI_RC_OK) CMNewString
+ ++++ (CMPI_RC_OK) CMSetArrayElementAt [0]
+ Calling CMSetMessageArguments
+ ++++ (CMPI_RC_OK) CMSetMessageArguments
+ First clone the CMPIError.
+ ++++ (CMPI_RC_OK) CMClone
+ Ok, reading back fields to verify
+ Calling CMGetErrorType
+ ++++ (CMPI_RC_OK) CMGetErrorType (1)
+ Calling CMGetOtherErrorType
+ ++++ (CMPI_RC_OK) CMGetOtherErrorType (Pervasive Coyote Incompetance)
+ Calling CMGetOwningEntity
+ ++++ (CMPI_RC_OK) CMGetOwningEntity (ACME)
+ Calling CMGetMessageID
+ ++++ (CMPI_RC_OK) CMGetMessageID (ACME0023)
+ Calling CMGetErrorMessage
+ ++++ (CMPI_RC_OK) CMGetErrorMessage (ACME0023 Need to restock Road Runner bait and traps.)
+ Calling CMGetPerceivedSeverity
+ ++++ (CMPI_RC_OK) CMGetPerceivedSeverity (3)
+ Calling CMGetProbableCause
+ ++++ (CMPI_RC_OK) CMGetProbableCause (16)
+ Calling CMGetProbableCauseDescription
+ ++++ (CMPI_RC_OK) CMGetProbableCauseDescription (Incorrect use of equipment)
+ Calling CMGetRecommendedActions
+ ++++ (CMPI_RC_OK) CMGetRecommendedActions
+ ++++ (CMPI_RC_OK) CMGetArrayCount (2)
+ ++++ (CMPI_RC_OK) CMGetArrayElementAt (0:Fire coyote.)
+ ++++ (CMPI_RC_OK) CMGetArrayElementAt (1:Give peace a chance.)
+ Calling CMGetErrorSource
+ ++++ (CMPI_RC_OK) CMGetErrorSource (Acme bomb)
+ Calling CMGetErrorSourceFormat
+ ++++ (CMPI_RC_OK) CMGetErrorSourceFormat (1)
+ Calling CMGetOtherErrorSourceFormat
+ ++++ (CMPI_RC_OK) CMGetOtherErrorSourceFormat (no idea)
+ Calling CMGetCIMStatusCode
+ ++++ (CMPI_RC_OK) CMGetCIMStatusCode (1)
+ Calling CMGetCIMStatusCodeDescription
+ ++++ (CMPI_RC_OK) CMGetCIMStatusCodeDescription (another failed attempt at road runner elimination)
+ Calling CMGetMessageArguments
+ ++++ (CMPI_RC_OK) CMGetMessageArguments
+ ++++ (CMPI_RC_OK) CMGetArrayCount (1)
+ ++++ (CMPI_RC_OK) CMGetArrayElementAt (0:no real inserts)
+ Calling CMPIResultFT.returnData (should return not supported)
+ ++++ (CMPI_RC_ERR_NOT_SUPPORTED) returnData
+ Releasing cloned CMPIError
+ ++++ (CMPI_RC_OK) CMClone
+ ++++ Calling CMReturnData+Done
+ --- TestCMPI_Error CMPI InvokeMethod() exited

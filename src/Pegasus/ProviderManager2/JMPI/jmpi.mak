@@ -34,7 +34,15 @@ DIR = Pegasus/ProviderManager2/JMPI
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+   JAVALIBS=$(JAVA_SDK)/jre/lib/
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/win32
+   EXTRA_LIBRARIES += $(JAVA_SDK)/lib/jvm.lib
+else
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+   SYS_INCLUDES += -I${JAVA_SDK}/include
+   EXTRA_LIBRARIES += ${JAVA_SDK}/bin/classic/libjvm.x
+else
 ifndef PEGASUS_JVM
    PEGASUS_JVM=sun
 endif
@@ -57,14 +65,6 @@ ifeq ($(PEGASUS_JVM),gcj)
    EXTRA_LIBRARIES += -lgcj
 endif
 endif
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-   JAVALIBS=$(JAVA_SDK)/jre/lib/
-   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/win32
-   EXTRA_LIBRARIES += $(JAVA_SDK)/lib/jvm.lib
-endif
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-   SYS_INCLUDES += -I${JAVA_SDK}/include
-   EXTRA_LIBRARIES += ${JAVA_SDK}/bin/classic/libjvm.x
 endif
 
 LOCAL_DEFINES = -DPEGASUS_JMPIPM_INTERNAL -DPEGASUS_INTERNALONLY

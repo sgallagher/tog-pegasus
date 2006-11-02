@@ -39,7 +39,15 @@ DIR = Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/JRE
 
 include $(PEGASUS_ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+   JAVALIBS=$(JAVA_SDK)/jre/lib/
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/win32
+   EXTRA_LIBRARIES += $(JAVA_SDK)/lib/jvm.lib
+else
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+   SYS_INCLUDES += -I${JAVA_SDK}/include
+   EXTRA_LIBRARIES += ${JAVA_SDK}/bin/classic/libjvm.x
+else
 ifndef PEGASUS_JVM
    PEGASUS_JVM=sun
 endif
@@ -58,16 +66,10 @@ ifeq ($(PEGASUS_JVM),bea)
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include/ -I$(JAVA_SDK)/include/linux/
    EXTRA_LIBRARIES += -L$(JAVALIBS)/ -L$(JAVALIBS)/jrockit/ -L$(JAVALIBS)/native_threads/ -ljvm -lhpi -lcrypt -lpegclient
 endif
+ifeq ($(PEGASUS_JVM),gcj)
+   EXTRA_LIBRARIES += -lgcj
 endif
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-   JAVALIBS=$(JAVA_SDK)/jre/lib/
-   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/win32
-   EXTRA_LIBRARIES += $(JAVA_SDK)/lib/jvm.lib
 endif
-
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-   SYS_INCLUDES += -I${JAVA_SDK}/include
-   EXTRA_LIBRARIES += ${JAVA_SDK}/bin/classic/libjvm.x
 endif
 
 LIBRARIES = \

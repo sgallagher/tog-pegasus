@@ -38,29 +38,29 @@ package org.pegasus.jmpi;
 
 public class CIMArgument
 {
-   private int cInst;
+   private long cInst;
 
-   private native int            _new           ();
-   private native int            _newS          (String name);
-   private native int            _newSV         (String name, int ciValue);
-   private native int            _getType       (int ciInst);
-   private native void           _setValue      (int ciInst, int ciValue);
-   private native int            _getValue      (int ciInst);
-   private native String         _getName       (int ciInst);
-   private native void           _setName       (int ciInst, String n);
-   private native void           _finalize      (int ciInst);
+   private native long           _new           ();
+   private native long           _newS          (String name);
+   private native long           _newSV         (String name, long ciValue);
+   private native long           _getType       (long ciInst);
+   private native void           _setValue      (long ciInst, long ciValue);
+   private native long           _getValue      (long ciInst);
+   private native String         _getName       (long ciInst);
+   private native void           _setName       (long ciInst, String n);
+   private native void           _finalize      (long ciInst);
 
    protected void finalize ()
    {
       _finalize (cInst);
    }
 
-   CIMArgument (int ci)
+   CIMArgument (long ci)
    {
       cInst = ci;
    }
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }
@@ -82,7 +82,7 @@ public class CIMArgument
 
    public CIMValue getValue ()
    {
-      int ciValue = 0;
+      long ciValue = 0;
 
       if (cInst != 0)
       {
@@ -121,7 +121,7 @@ public class CIMArgument
 
    public CIMDataType getType ()
    {
-      int ciDataType = 0;
+      long ciDataType = 0;
 
       if (cInst != 0)
       {

@@ -52,50 +52,50 @@ import java.util.Vector;
 
 public class CIMClass implements CIMElement
 {
-   private int cInst;
+   private long cInst;
 
-   private native int     _newInstance      (int      cInst);
-   private native int     _filterProperties (int      cInst,
+   private native long    _newInstance      (long     cInst);
+   private native long    _filterProperties (long     cInst,
                                              String[] pl,
                                              boolean  iq,
                                              boolean  ic,
                                              boolean  lo);
-   private native String  _getName          (int      cInst);
-   private native int     _getQualifier     (int      cInst,
+   private native String  _getName          (long     cInst);
+   private native long    _getQualifier     (long     cInst,
                                              String   n);
-   private native Vector  _getQualifiers    (int      cInst,
+   private native Vector  _getQualifiers    (long     cInst,
                                              Vector   vec);
-   private native boolean _hasQualifier     (int      cInst,
+   private native boolean _hasQualifier     (long     cInst,
                                              String   n);
-   private native int     _addProperty      (int      cInst,
-                                             int      p);
-   private native void    _setProperties    (int      cInst,
+   private native long    _addProperty      (long     cInst,
+                                             long     p);
+   private native void    _setProperties    (long     cInst,
                                              Vector   vec);
-   private native int     _getProperty      (int      cInst,
+   private native long    _getProperty      (long     cInst,
                                              String   n);
-   private native Vector  _getProperties    (int      cInst,
+   private native Vector  _getProperties    (long     cInst,
                                              Vector   vec);
-   private native int     _new              (String   n);
-   private native String  _getSuperClass    (int      cInst);
-   private native Vector  _getKeys          (int      cInst,
+   private native long    _new              (String   n);
+   private native String  _getSuperClass    (long     cInst);
+   private native Vector  _getKeys          (long     cInst,
                                              Vector   vec);
-   private native int     _getMethod        (int      cInst,
+   private native long    _getMethod        (long     cInst,
                                              String   n);
-   private native boolean _equals           (int      cInst,
-                                             int      cInst1);
-   private native void    _finalize         (int      cInst);
+   private native boolean _equals           (long     cInst,
+                                             long     cInst1);
+   private native void    _finalize         (long     cInst);
 
    protected void finalize ()
    {
       _finalize (cInst);
    }
 
-   CIMClass (int ci)
+   CIMClass (long ci)
    {
       cInst = ci;
    }
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }
@@ -110,7 +110,7 @@ public class CIMClass implements CIMElement
      */
    public CIMInstance newInstance ()
    {
-      int ciInst = 0;
+      long ciInst = 0;
 
       if (cInst != 0)
       {
@@ -131,7 +131,7 @@ public class CIMClass implements CIMElement
                                      boolean includeQualifier,
                                      boolean includeClassOrigin)
    {
-      int ciClass = 0;
+      long ciClass = 0;
 
       if (cInst != 0)
       {
@@ -154,7 +154,7 @@ public class CIMClass implements CIMElement
 
    public CIMClass localElements ()
    {
-      int ciClass = 0;
+      long ciClass = 0;
 
       if (cInst != 0)
       {
@@ -177,7 +177,7 @@ public class CIMClass implements CIMElement
 
    /**
     * getName - returns the name of this class
-    * 
+    *
     * @return String with class name.
     */
    public String getName ()
@@ -205,13 +205,13 @@ public class CIMClass implements CIMElement
     */
    public CIMQualifier getQualifier (String n)
    {
-      int ciQualifier = 0;
+      long ciQualifier = 0;
 
       if (cInst != 0)
       {
          ciQualifier = _getQualifier (cInst, n);
       }
-      
+
       if (ciQualifier != 0)
       {
          return new CIMQualifier (ciQualifier);
@@ -236,7 +236,7 @@ public class CIMClass implements CIMElement
 
    /**
     * Checks whether this class has the specified qualifier
-    * 
+    *
     * @return true if qualifier defined
     */
    public boolean hasQualifier (String n)
@@ -273,14 +273,14 @@ public class CIMClass implements CIMElement
 
    /**
     * getProperty - get the CIMProperty for the specified class
-    * 
+    *
     * @param String name - name of the property to get.
     * @return CIMProperty return the CIM property else if exist else Null
     * if the property does not exist
     */
    public CIMProperty getProperty (String n)
    {
-      int ciProperty = 0;
+      long ciProperty = 0;
 
       if (cInst != 0)
       {
@@ -316,7 +316,7 @@ public class CIMClass implements CIMElement
 
    /**
     * getSuperClass - returns the name of the parent for this class
-    * 
+    *
     * @return String with parent class name.
     */
    public String getSuperClass ()
@@ -333,7 +333,7 @@ public class CIMClass implements CIMElement
 
    /**
     * getKeys - Returns the properties that are keys for this class
-    * 
+    *
     * @return  Vector containing the list of key properties
     */
    public Vector getKeys ()
@@ -355,7 +355,7 @@ public class CIMClass implements CIMElement
     */
    public CIMMethod getMethod (String n)
    {
-      int ciMethod = 0;
+      long ciMethod = 0;
 
       if (cInst != 0)
       {
@@ -374,7 +374,7 @@ public class CIMClass implements CIMElement
 
    /**
     * Returns a String representation of the CIMClass.
-    * 
+    *
     * @return String empty or cimclass string
     */
    public String toString ()

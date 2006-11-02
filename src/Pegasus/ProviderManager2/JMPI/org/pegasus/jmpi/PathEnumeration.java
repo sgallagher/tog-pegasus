@@ -40,18 +40,18 @@ import java.util.*;
 
 class PathEnumeration implements Enumeration
 {
-   private int cInst;
-   private int cur, max;
+   private long cInst;
+   private int  cur, max;
 
-   private native int _getObjectPath (int cInst, int pos);
-   private native int _size          (int cInst);
+   private native long _getObjectPath (long cInst, int pos);
+   private native int  _size          (long cInst);
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }
 
-   PathEnumeration (int ci)
+   PathEnumeration (long ci)
    {
       cInst = ci;
       max   = 0;
@@ -72,7 +72,7 @@ class PathEnumeration implements Enumeration
       if (cur >= max)
          return null;
 
-      int ciObjectPath = 0;
+      long ciObjectPath = 0;
 
       if (cInst != 0)
       {
@@ -87,5 +87,9 @@ class PathEnumeration implements Enumeration
       {
          return null;
       }
+   }
+
+   static {
+      System.loadLibrary("JMPIProviderManager");
    }
 }

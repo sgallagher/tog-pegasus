@@ -142,7 +142,7 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
     DDD(PEGASUS_STD(cout)
         <<"--- JMPIProvider::Initialize:id = "
         <<PEGASUS_STD(hex)
-        <<(int)id
+        <<(long)id
         <<PEGASUS_STD(dec)
         <<PEGASUS_STD(endl));
 
@@ -154,9 +154,9 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
 
        JMPIjvm::checkException(env);
 
-       jint    jCimomRef = DEBUG_ConvertCToJava (CIMOMHandle*, jint, _java_cimom_handle);
+       jlong    jCimomRef = DEBUG_ConvertCToJava (CIMOMHandle*, jlong, _java_cimom_handle);
        jobject jch       = env->NewObject(jv->CIMOMHandleClassRef,
-                                          JMPIjvm::jv.CIMOMHandleNewISt,
+                                          JMPIjvm::jv.CIMOMHandleNewJSt,
                                           jCimomRef,
                                           jName);
 

@@ -49,133 +49,133 @@ public class CIMClient
     public static final boolean DEEP = true;
 
     private CIMNameSpace ns;
-    private int          cInst;
-    private int          cNsInst;
+    private long         cInst;
+    private long         cNsInst;
 
-    private native int    _newNaUnPw              (int           name,
+    private native long   _newNaUnPw              (long          name,
                                                    String        userName,
                                                    String        passWord);
 
-    private native void   _disconnect             (int           cc);
-    private native int    _getClass               (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native void   _disconnect             (long          cc);
+    private native long   _getClass               (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    boolean       localOnly,
                                                    boolean       includeQualifiers,
                                                    boolean       includeClassOrigin,
                                                    String        propertyList[]);
-    private native int    _deleteClass            (int           cc,
-                                                   int           ns,
-                                                   int           path);
-    private native void   _createClass            (int           cc,
-                                                   int           ns,
-                                                   int           path,
-                                                   int           ci);
-    private native void   _setClass               (int           cc,
-                                                   int           ns,
-                                                   int           path,
-                                                   int           ci);
+    private native long   _deleteClass            (long          cc,
+                                                   long          ns,
+                                                   long          path);
+    private native void   _createClass            (long          cc,
+                                                   long          ns,
+                                                   long          path,
+                                                   long          ci);
+    private native void   _setClass               (long          cc,
+                                                   long          ns,
+                                                   long          path,
+                                                   long          ci);
 
-    private native int    _getInstance            (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _getInstance            (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    boolean       localOnly,
                                                    boolean       includeQualifiers,
                                                    boolean       includeClassOrigin,
                                                    String        propertyList[]);
-    private native void   _deleteInstance         (int           cc,
-                                                   int           ns,
-                                                   int           path);
-    private native int    _createInstance         (int           cc,
-                                                   int           ns,
-                                                   int           path,
-                                                   int           ci);
-    private native void   _modifyInstance         (int           cc,
-                                                   int           ns,
-                                                   int           path,
-                                                   int           ci,
+    private native void   _deleteInstance         (long          cc,
+                                                   long          ns,
+                                                   long          path);
+    private native long   _createInstance         (long          cc,
+                                                   long          ns,
+                                                   long          path,
+                                                   long          ci);
+    private native void   _modifyInstance         (long          cc,
+                                                   long          ns,
+                                                   long          path,
+                                                   long          ci,
                                                    boolean       includeQualifiers,
                                                    String        propertyList[]);
 
-    private native int    _enumerateClasses       (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _enumerateClasses       (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    boolean       deep,
                                                    boolean       localOnly,
                                                    boolean       includeQualifiers,
                                                    boolean       includeClassOrigin);
-    private native int    _enumerateClassNames    (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _enumerateClassNames    (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    boolean       deep);
-    private native int    _enumerateInstanceNames (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _enumerateInstanceNames (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    boolean       deep);
-    private native int    _enumerateInstances     (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _enumerateInstances     (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    boolean       deep,
                                                    boolean       localOnly,
                                                    boolean       includeQualifiers,
                                                    boolean       includeClassOrigin,
                                                    String        propertyList[]);
-    private native int    _enumerateQualifiers    (int           cc,
-                                                   int           ns,
-                                                   int           path);
+    private native long   _enumerateQualifiers    (long          cc,
+                                                   long          ns,
+                                                   long          path);
 
-    private native int    _getQualifier           (int           cc,
-                                                   int           ns,
-                                                   int           path);
-    private native void   _setQualifier           (int           cc,
-                                                   int           ns,
-                                                   int           path,
-                                                   int           type);
-    private native void   _deleteQualifier        (int           cc,
-                                                   int           ns,
-                                                   int           path);
+    private native long   _getQualifier           (long          cc,
+                                                   long          ns,
+                                                   long          path);
+    private native void   _setQualifier           (long          cc,
+                                                   long          ns,
+                                                   long          path,
+                                                   long          type);
+    private native void   _deleteQualifier        (long          cc,
+                                                   long          ns,
+                                                   long          path);
 
-    private native int    _getProperty            (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _getProperty            (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    String        propertyName);
-    private native void   _setProperty            (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native void   _setProperty            (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    String        propertyName,
-                                                   int           newValue);
+                                                   long          newValue);
 
-    private native int    _execQuery              (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _execQuery              (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    String        query,
                                                    String        ql);
 
-    private native int    _invokeMethod           (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _invokeMethod           (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    String        methodName,
                                                    Vector        inParams,
                                                    Vector        outParams)
           throws CIMException;
-    private native int    _invokeMethod24         (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _invokeMethod24         (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    String        methodName,
                                                    CIMArgument[] inParams,
                                                    CIMArgument[] outParams)
           throws CIMException;
 
-    private native int    _associatorNames        (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _associatorNames        (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    String        assocClass,
                                                    String        resultClass,
                                                    String        role,
                                                    String        resultRole);
-    private native int    _associators            (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _associators            (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    String        assocClass,
                                                    String        resultClass,
                                                    String        role,
@@ -183,37 +183,37 @@ public class CIMClient
                                                    boolean       includeQualifiers,
                                                    boolean       includeClassOrigin,
                                                    String        propertyList[]);
-    private native int    _referenceNames         (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _referenceNames         (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    String        resultClass,
                                                    String        role);
-    private native int    _references             (int           cc,
-                                                   int           ns,
-                                                   int           path,
+    private native long   _references             (long          cc,
+                                                   long          ns,
+                                                   long          path,
                                                    String        resultClass,
                                                    String        role,
                                                    boolean       includeQualifiers,
                                                    boolean       includeClassOrigin,
                                                    String        propertyList[]);
 
-    private native void   _createNameSpace        (int           cc,
+    private native void   _createNameSpace        (long          cc,
                                                    String        ns);
-    private native Vector _enumerateNameSpaces    (int           cc,
-                                                   int           path,
+    private native Vector _enumerateNameSpaces    (long          cc,
+                                                   long          path,
                                                    boolean       deep,
                                                    Vector        v);
-    private native void   _deleteNameSpace        (int           cc,
+    private native void   _deleteNameSpace        (long          cc,
                                                    String        ns);
 
-    private native void   _finalize               (int           cInst);
+    private native void   _finalize               (long          cInst);
 
     protected void finalize ()
     {
         _finalize (cInst);
     }
 
-    protected int cInst ()
+    protected long cInst ()
     {
         return cInst;
     }
@@ -236,7 +236,7 @@ public class CIMClient
     public CIMClient (CIMNameSpace nameSpace,
                       String       userName,
                       String       pword,
-                      int          type)
+                      long         type)
          throws CIMException
     {
         if (type != HTTP)
@@ -261,7 +261,7 @@ public class CIMClient
                       String       pword,
                       String       roleName,
                       String       rolePwd,
-                      int          type)
+                      long         type)
          throws CIMException
     {
     }
@@ -338,7 +338,7 @@ public class CIMClient
                                   boolean       local)
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {
@@ -368,7 +368,7 @@ public class CIMClient
                                          boolean       includeClassOrigin)
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {
@@ -395,7 +395,7 @@ public class CIMClient
                                   boolean       deep)
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {
@@ -426,7 +426,7 @@ public class CIMClient
                                       boolean       deep)
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {
@@ -473,7 +473,7 @@ public class CIMClient
                                            String        propertyList[])
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {
@@ -511,7 +511,7 @@ public class CIMClient
                               String        propertyList[])
          throws CIMException
     {
-       int ciClass = 0;
+       long ciClass = 0;
 
        if (cInst != 0)
        {
@@ -548,7 +548,7 @@ public class CIMClient
                                     String        propertyList[])
          throws CIMException
     {
-       int ciInstance = 0;
+       long ciInstance = 0;
 
        if (cInst != 0)
        {
@@ -577,7 +577,7 @@ public class CIMClient
                                   Vector        outParams)
          throws CIMException
     {
-       int ciValue = 0;
+       long ciValue = 0;
 
        if (cInst != 0)
        {
@@ -605,7 +605,7 @@ public class CIMClient
                                   CIMArgument[] outParams)
          throws CIMException
     {
-       int ciValue = 0;
+       long ciValue = 0;
 
        if (cInst != 0)
        {
@@ -631,7 +631,7 @@ public class CIMClient
 
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {
@@ -654,7 +654,7 @@ public class CIMClient
 
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {
@@ -695,7 +695,7 @@ public class CIMClient
 
          throws CIMException
     {
-       int ciQualifier = 0;
+       long ciQualifier = 0;
 
        if (cInst != 0)
        {
@@ -718,7 +718,7 @@ public class CIMClient
 
          throws CIMException
     {
-       int ciQualifier = 0;
+       long ciQualifier = 0;
 
        if (cInst != 0)
        {
@@ -795,7 +795,7 @@ public class CIMClient
                                          CIMInstance   ci)
          throws CIMException
     {
-       int ciObjectPath = 0;
+       long ciObjectPath = 0;
 
        if (cInst != 0)
        {
@@ -843,7 +843,7 @@ public class CIMClient
                                  String        propertyName)
          throws CIMException
     {
-       int ciValue = 0;
+       long ciValue = 0;
 
        if (cInst != 0)
        {
@@ -879,7 +879,7 @@ public class CIMClient
                                   String        ql)
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {
@@ -908,7 +908,7 @@ public class CIMClient
 
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {
@@ -942,7 +942,7 @@ public class CIMClient
 
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {
@@ -974,7 +974,7 @@ public class CIMClient
 
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {
@@ -1004,7 +1004,7 @@ public class CIMClient
 
          throws CIMException
     {
-       int ciEnumeration = 0;
+       long ciEnumeration = 0;
 
        if (cInst != 0)
        {

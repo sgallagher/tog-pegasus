@@ -41,96 +41,96 @@ import java.util.*;
 
 public class CIMOMHandle implements ProviderCIMOMHandle
 {
-   private int    cInst;
+   private long   cInst;
    private String providerName;
 
-   private native int  _getClass               (int           inst,
-                                                int           cop,
+   private native long _getClass               (long          cInst,
+                                                long          ciCop,
                                                 boolean       localOnly,
                                                 boolean       includeQualifiers,
                                                 boolean       includeClassOrigin,
                                                 String[]      propertyList)
       throws CIMException;
-   private native int  _deleteClass            (int           cInst,
-                                                int           cop)
+   private native long _deleteClass            (long          cInst,
+                                                long          ciCop)
       throws CIMException;
-   private native int  _createClass            (int           inst,
-                                                int           cop,
-                                                int           cls)
+   private native long _createClass            (long          cInst,
+                                                long          ciCop,
+                                                long          ciClass)
       throws CIMException;
-   private native void _setClass               (int           inst,
-                                                int           cop,
-                                                int           cls)
+   private native void _setClass               (long          cInst,
+                                                long          ciCop,
+                                                long          ciClass)
       throws CIMException;
-   private native int  _enumerateClassNames    (int           inst,
-                                                int           cop,
+   private native long _enumerateClassNames    (long          cInst,
+                                                long          ciCop,
                                                 boolean       deep)
       throws CIMException;
-   private native int  _enumerateClasses       (int           inst,
-                                                int           cop,
+   private native long _enumerateClasses       (long          cInst,
+                                                long          ciCop,
                                                 boolean       deep,
                                                 boolean       localOnly,
                                                 boolean       includeQualifier,
                                                 boolean       includeClassOrigin)
       throws CIMException;
 
-   private native int  _getInstance            (int           cInst,
-                                                int           cop,
+   private native long _getInstance            (long          cInst,
+                                                long          ciCop,
                                                 boolean       localOnly,
                                                 boolean       includeQualifiers,
                                                 boolean       includeClassOrigin,
                                                 String[]      propertyList)
       throws CIMException;
-   private native int  _deleteInstance         (int           cInst,
-                                                int           cop)
+   private native long _deleteInstance         (long          cInst,
+                                                long          ciCop)
       throws CIMException;
-   private native int  _createInstance         (int           cc,
-                                                int           path,
-                                                int           ci)
+   private native long _createInstance         (long          cInst,
+                                                long          ciCop,
+                                                long          ciInst)
       throws CIMException;
-   private native void _modifyInstance         (int           cc,
-                                                int           path,
-                                                int           ci,
+   private native void _modifyInstance         (long          cInst,
+                                                long          ciCop,
+                                                long          ciInst,
                                                 boolean       includeQualifiers,
                                                 String[]      propertyList)
       throws CIMException;
-   private native int  _enumerateInstanceNames (int           inst,
-                                                int           cop,
+   private native long _enumerateInstanceNames (long          cInst,
+                                                long          ciCop,
                                                 boolean       deep)
       throws CIMException;
-   private native int  _enumerateInstances     (int           inst,
-                                                int           cop,
+   private native long _enumerateInstances     (long          cInst,
+                                                long          ciCop,
                                                 boolean       deep,
                                                 boolean       localOnly,
                                                 boolean       includeQualifiers,
                                                 boolean       includeClassOrigin,
                                                 String[]      propertyList)
       throws CIMException;
-   private native int _execQuery               (int           inst,
-                                                int           cop,
+   private native long _execQuery              (long          cInst,
+                                                long          ciCop,
                                                 String        query,
                                                 String        ql)
       throws CIMException;
 
-   private native int _getProperty             (int           inst,
-                                                int           cop,
+   private native long _getProperty            (long          cInst,
+                                                long          ciCop,
                                                 String        n)
       throws CIMException;
-   private native void _setProperty            (int           inst,
-                                                int           cop,
+   private native void _setProperty            (long          cInst,
+                                                long          ciCop,
                                                 String        nm,
-                                                int           val)
+                                                long          val)
       throws CIMException;
 
-   private native int  _associatorNames        (int           cc,
-                                                int           path,
+   private native long _associatorNames        (long          cInst,
+                                                long          ciCop,
                                                 String        assocClass,
                                                 String        resultClass,
                                                 String        role,
                                                 String        resultRole)
       throws CIMException;
-   private native int  _associators            (int           cc,
-                                                int           path,
+   private native long _associators            (long          cInst,
+                                                long          ciCop,
                                                 String        assocClass,
                                                 String        resultClass,
                                                 String        role,
@@ -139,49 +139,49 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                                 boolean       includeClassOrigin,
                                                 String[]      propertyList)
       throws CIMException;
-   private native int  _referenceNames         (int           cc,
-                                                int           path,
+   private native long _referenceNames         (long          cInst,
+                                                long          ciCop,
                                                 String        resultClass,
                                                 String        role)
       throws CIMException;
-   private native int  _references             (int           cc,
-                                                int           path,
+   private native long _references             (long          cInst,
+                                                long          ciCop,
                                                 String        resultClass,
                                                 String        role,
                                                 boolean       includeQualifiers,
                                                 boolean       includeClassOrigin,
                                                 String[]      propertyList)
       throws CIMException;
-   private native int  _invokeMethod           (int           cc,
-                                                int           path,
+   private native long _invokeMethod           (long          cInst,
+                                                long          ciCop,
                                                 String        methodName,
                                                 Vector        inParams,
                                                 Vector        outParams)
       throws CIMException;
-   private native int  _invokeMethod24         (int           cc,
-                                                int           path,
+   private native long _invokeMethod24         (long          cInst,
+                                                long          ciCop,
                                                 String        methodName,
                                                 CIMArgument[] inParams,
                                                 CIMArgument[] outParams)
        throws CIMException;
-   private native void _deliverEvent           (int           cInst,
-                                                String        nm,
-                                                String        ns,
-                                                int           ind)
+   private native void _deliverEvent           (long          cInst,
+                                                String        providerName,
+                                                String        nameSpace,
+                                                long          ciIndication)
       throws CIMException;
-   private native void _finalize               (int           cInst);
+   private native void _finalize               (long          cInst);
 
    protected void finalize ()
    {
       _finalize(cInst);
    }
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }
 
-   CIMOMHandle (int    ci,
+   CIMOMHandle (long   ci,
                 String name)
    {
       cInst        = ci;
@@ -197,7 +197,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                              boolean       localOnly)
         throws CIMException
    {
-      int ciClass = 0;
+      long ciClass = 0;
 
       if (cInst != 0)
       {
@@ -226,7 +226,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                              String[]      propertyList)
         throws CIMException
    {
-      int ciClass = 0;
+      long ciClass = 0;
 
       if (cInst != 0)
       {
@@ -295,7 +295,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                  boolean       localOnly)
         throws CIMException
    {
-      int ciEnumeration = 0;
+      long ciEnumeration = 0;
 
       if (cInst != 0)
       {
@@ -324,7 +324,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                         boolean       includeClassOrigin)
         throws CIMException
    {
-      int ciEnumeration = 0;
+      long ciEnumeration = 0;
 
       if (cInst != 0)
       {
@@ -358,7 +358,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                            boolean       deepInheritance)
         throws CIMException
    {
-      int ciEnumeration = 0;
+      long ciEnumeration = 0;
 
       if (cInst != 0)
       {
@@ -395,7 +395,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                    String[]      propertyList)
         throws CIMException
    {
-      int ciInstance = 0;
+      long ciInstance = 0;
 
       if (cInst != 0)
       {
@@ -431,7 +431,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                         CIMInstance   ci)
         throws CIMException
    {
-      int ciObjectPath = 0;
+      long ciObjectPath = 0;
 
       if (cInst != 0)
       {
@@ -480,7 +480,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                      boolean       deep)
         throws CIMException
    {
-      int ciEnumeration = 0;
+      long ciEnumeration = 0;
 
       if (cInst != 0)
       {
@@ -527,7 +527,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                           String[]      propertyList)
         throws CIMException
    {
-      int ciEnumeration = 0;
+      long ciEnumeration = 0;
 
       if (cInst != 0)
       {
@@ -555,7 +555,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                  String        ql)
         throws CIMException
    {
-      int ciEnumeration = 0;
+      long ciEnumeration = 0;
 
       if (cInst != 0)
       {
@@ -579,7 +579,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                 String        propertyName)
         throws CIMException
    {
-      int ciValue = 0;
+      long ciValue = 0;
 
       if (cInst != 0)
       {
@@ -619,7 +619,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                        String        resultRole)
         throws CIMException
    {
-      int ciEnumeration = 0;
+      long ciEnumeration = 0;
 
       if (cInst != 0)
       {
@@ -651,7 +651,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                   String[]      propertyList)
           throws CIMException
    {
-      int ciEnumeration = 0;
+      long ciEnumeration = 0;
 
       if (cInst != 0)
       {
@@ -681,7 +681,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                       String        role)
         throws CIMException
    {
-      int ciEnumeration = 0;
+      long ciEnumeration = 0;
 
       if (cInst != 0)
       {
@@ -709,7 +709,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                   String[]      propertyList)
         throws CIMException
    {
-      int ciEnumeration = 0;
+      long ciEnumeration = 0;
 
       if (cInst != 0)
       {
@@ -738,7 +738,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                  Vector        outParams)
         throws CIMException
    {
-      int ciValue = 0;
+      long ciValue = 0;
 
       if (cInst != 0)
       {

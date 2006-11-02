@@ -45,15 +45,15 @@ import java.util.TimeZone;
  */
 public class CIMDateTime
 {
-   private int cInst;
+   private long cInst;
 
-   private native int     _datetime      (String n);
-   private native int     _datetimeempty ();
-   private native boolean _after         (int    c,
-                                          int    d);
-   private native boolean _before        (int    c,
-                                          int    d);
-   private native void    _finalize      (int    cInst);
+   private native long    _datetime      (String n);
+   private native long    _datetimeempty ();
+   private native boolean _after         (long   c,
+                                          long   d);
+   private native boolean _before        (long   c,
+                                          long   d);
+   private native void    _finalize      (long   cInst);
 
    private static String  GMT            = "GMT";
    private static int     UTC_MULTIPLIER = 60000;
@@ -63,12 +63,12 @@ public class CIMDateTime
       _finalize (cInst);
    }
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }
 
-   CIMDateTime (int ci)
+   CIMDateTime (long ci)
    {
       cInst = ci;
    }

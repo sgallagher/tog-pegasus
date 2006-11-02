@@ -39,24 +39,24 @@ package org.pegasus.jmpi;
 
 public class CIMMethod {
 
-   private int cInst;
+   private long cInst;
 
-   private native int  _getType  (int p);
-   private native void _finalize (int cInst);
+   private native int  _getType  (long cInst);
+   private native void _finalize (long cInst);
 
    protected void finalize ()
    {
       _finalize(cInst);
    }
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }
 
-   public CIMMethod (int p)
+   public CIMMethod (long ci)
    {
-      cInst=p;
+      cInst=ci;
    }
 
    public int getType ()

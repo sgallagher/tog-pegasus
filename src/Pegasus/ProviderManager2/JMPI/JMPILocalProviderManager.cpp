@@ -136,7 +136,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                        <<"--- JMPILocalProviderManager::_provider_ctrl:"
                          " setting provider to "
                        <<PEGASUS_STD(hex)
-                       <<(int)provider
+                       <<(long)provider
                        <<PEGASUS_STD(dec)
                        <<PEGASUS_STD(endl));
 
@@ -290,7 +290,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                             " Exception caught calling initialize!"
                             <<PEGASUS_STD(endl));
                       throw;
-                  }                      
+                  }
                   catch(Exception &except)
                   {
                       PEG_TRACE_STRING(
@@ -303,7 +303,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                           <<"--- JMPILocalProviderManager::_provider_ctrl:"
                             " Exception caught calling initialize!"
                             <<PEGASUS_STD(endl));
-                      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                   except.getMessage());
                   }
                   catch(...)
@@ -347,7 +347,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                 <<"--- JMPILocalProviderManager::_provider_ctrl:"
                   "setting provider to "
                   <<PEGASUS_STD(hex)
-                  <<(int)provider
+                  <<(long)provider
                   <<PEGASUS_STD(dec)
                   <<PEGASUS_STD(endl));
 

@@ -156,7 +156,7 @@ void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
    for (int i = 0; i < (int)(sizeof (methodNames)/sizeof (methodNames[0])); i++)
    {
       jmethodID id = env->GetMethodID(jc,methodNames[i][1], methodNames[i][2]);
-      DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::debugPrintMethodPointers: "<<methodNames[i][0]<<", "<<methodNames[i][1]<<", id = "<<PEGASUS_STD(hex)<<(int)id<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::debugPrintMethodPointers: "<<methodNames[i][0]<<", "<<methodNames[i][1]<<", id = "<<PEGASUS_STD(hex)<<(long)id<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
       env->ExceptionClear();
    }
 
@@ -720,8 +720,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
         {
         case METHOD_CIMINSTANCEPROVIDER:
         {
-            jint    jopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jopRef);
+            jlong   jopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jopRef);
 
             JMPIjvm::checkException(env);
 
@@ -751,8 +751,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            jint    jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
-            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -774,8 +774,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
             handler.processing();
 
             if (jciRet) {
-               jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-               CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+               jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+               CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                handler.deliver(*ciRet);
             }
@@ -786,11 +786,11 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
         /* Fix for 4238 */
         case METHOD_INSTANCEPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jopRef);
+            jlong   jopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jopRef);
 
             JMPIjvm::checkException(env);
 
@@ -820,8 +820,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            jint    jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
-            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -850,8 +850,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
             handler.processing();
 
             if (jciRet) {
-               jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-               CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+               jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+               CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                handler.deliver(*ciRet);
             }
@@ -862,8 +862,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jint    jopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jopRef);
+            jlong   jopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jopRef);
 
             JMPIjvm::checkException(env);
 
@@ -893,8 +893,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            jint    jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
-            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -912,8 +912,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
             handler.processing();
 
             if (jciRet) {
-               jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-               CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+               jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+               CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                handler.deliver(*ciRet);
             }
@@ -1113,8 +1113,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         {
         case METHOD_CIMINSTANCEPROVIDER:
         {
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1144,8 +1144,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
-            jint    jccRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
-            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jccRef);
+            jlong   jccRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jccRef);
 
             JMPIjvm::checkException(env);
 
@@ -1173,8 +1173,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
                     JMPIjvm::checkException(env);
 
-                    jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     /* Fix for 4237 */
                     CIMClass cls;
@@ -1213,11 +1213,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         case METHOD_CIMINSTANCEPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1247,8 +1247,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
-            jint    jccRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
-            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jccRef);
+            jlong   jccRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jccRef);
 
             JMPIjvm::checkException(env);
 
@@ -1283,8 +1283,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
                     JMPIjvm::checkException(env);
 
-                    jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     /* Fix for 4237 */
                     CIMClass cls;
@@ -1324,11 +1324,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         /* Fix for 4189 */
         case METHOD_INSTANCEPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1358,8 +1358,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
-            jint    jccRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
-            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jccRef);
+            jlong   jccRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jccRef);
 
             JMPIjvm::checkException(env);
 
@@ -1394,8 +1394,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
                     JMPIjvm::checkException(env);
 
-                    jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     /* Fix for 4237 */
                     CIMClass             cls;
@@ -1440,8 +1440,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1471,8 +1471,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
-            jint    jccRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
-            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jccRef);
+            jlong   jccRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jccRef);
 
             JMPIjvm::checkException(env);
 
@@ -1497,8 +1497,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
                     JMPIjvm::checkException(env);
 
-                    jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     /* Fix for 4237 */
                     CIMClass cls;
@@ -1717,8 +1717,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         {
         case METHOD_CIMINSTANCEPROVIDER:
         {
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1748,8 +1748,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             JMPIjvm::checkException(env);
 
-            jint    jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
-            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -1771,8 +1771,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
                     JMPIjvm::checkException(env);
 
-                    jint           jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -1785,11 +1785,11 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         case METHOD_CIMINSTANCEPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1819,8 +1819,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             JMPIjvm::checkException(env);
 
-            jint    jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
-            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -1850,8 +1850,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
                     JMPIjvm::checkException(env);
 
-                    jint           jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -1864,11 +1864,11 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         case METHOD_INSTANCEPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1898,8 +1898,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             JMPIjvm::checkException(env);
 
-            jint    jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
-            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -1929,8 +1929,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
                     JMPIjvm::checkException(env);
 
-                    jint           jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -1943,8 +1943,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1974,8 +1974,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             JMPIjvm::checkException(env);
 
-            jint    jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
-            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -1998,8 +1998,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
                     JMPIjvm::checkException(env);
 
-                    jint           jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -2143,14 +2143,14 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         {
         case METHOD_INSTANCEPROVIDER:
         {
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
             CIMInstance *ci     = new CIMInstance (request->newInstance);
-            jint         jciRef = DEBUG_ConvertCToJava (CIMInstance*, jint, ci);
-            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewI,jciRef);
+            jlong        jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
+            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewJ,jciRef);
 
             JMPIjvm::checkException(env);
 
@@ -2168,8 +2168,8 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             handler.processing();
 
             if (jcopRet) {
-                jint           jCopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jCopRetRef);
+                jlong          jCopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jCopRetRef);
 
                 handler.deliver(*copRet);
             }
@@ -2179,17 +2179,17 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
         case METHOD_INSTANCEPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
             CIMInstance *ci     = new CIMInstance (request->newInstance);
-            jint         jciRef = DEBUG_ConvertCToJava (CIMInstance*, jint, ci);
-            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewI,jciRef);
+            jlong        jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
+            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewJ,jciRef);
 
             JMPIjvm::checkException(env);
 
@@ -2215,8 +2215,8 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             handler.processing();
 
             if (jcopRet) {
-                jint           jCopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jCopRetRef);
+                jlong          jCopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jCopRetRef);
 
                 handler.deliver(*copRet);
             }
@@ -2286,7 +2286,7 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Calling provider.modifyInstance: " + pr.getName());
 
-        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: Calling provider "<<PEGASUS_STD(hex)<<(int)&pr<<PEGASUS_STD(dec)<<", name = "<<pr.getName ()<<", module = "<<pr.getModule()<<" modifyInstance: "<<pr.getName()<<PEGASUS_STD(endl));
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: Calling provider "<<PEGASUS_STD(hex)<<(long)&pr<<PEGASUS_STD(dec)<<", name = "<<pr.getName ()<<", module = "<<pr.getModule()<<" modifyInstance: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -2380,17 +2380,17 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         {
         case METHOD_INSTANCEPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
             CIMInstance *ci     = new CIMInstance (request->modifiedInstance);
-            jint         jciRef = DEBUG_ConvertCToJava (CIMInstance*, jint, ci);
-            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewI,jciRef);
+            jlong        jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
+            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewJ,jciRef);
 
             JMPIjvm::checkException(env);
 
@@ -2417,14 +2417,14 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         case METHOD_CIMINSTANCEPROVIDER:
         {
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
             CIMInstance *ci     = new CIMInstance (request->modifiedInstance);
-            jint         jciRef = DEBUG_ConvertCToJava (CIMInstance*, jint, ci);
-            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewI,jciRef);
+            jlong        jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
+            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewJ,jciRef);
 
             JMPIjvm::checkException(env);
 
@@ -2445,14 +2445,14 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
             CIMInstance *ci     = new CIMInstance (request->modifiedInstance);
-            jint         jciRef = DEBUG_ConvertCToJava (CIMInstance*, jint, ci);
-            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewI,jciRef);
+            jlong        jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
+            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewJ,jciRef);
 
             JMPIjvm::checkException(env);
 
@@ -2598,11 +2598,11 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         {
         case METHOD_INSTANCEPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -2626,8 +2626,8 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -2828,8 +2828,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
         {
         case METHOD_CIMINSTANCEPROVIDER:
         {
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
@@ -2862,9 +2862,9 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             JMPIjvm::checkException(env);
 
-            jint jcls = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
+            jlong jcls = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
 
-            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcls);
+            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcls);
 
             JMPIjvm::checkException(env);
 
@@ -2888,8 +2888,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
                     JMPIjvm::checkException(env);
 
-                    jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -2902,11 +2902,11 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
         case METHOD_CIMINSTANCEPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
@@ -2939,9 +2939,9 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             JMPIjvm::checkException(env);
 
-            jint jcls = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
+            jlong jcls = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
 
-            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcls);
+            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcls);
 
             JMPIjvm::checkException(env);
 
@@ -2973,8 +2973,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
                     JMPIjvm::checkException(env);
 
-                    jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -2987,11 +2987,11 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
         case METHOD_INSTANCEPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
@@ -3022,9 +3022,9 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             CIMClass *pcls = new CIMClass (cls);
 
-            jint jcls = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
+            jlong jcls = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
 
-            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcls);
+            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcls);
 
             JMPIjvm::checkException(env);
 
@@ -3059,8 +3059,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
                     JMPIjvm::checkException(env);
 
-                    jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -3074,8 +3074,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
@@ -3108,13 +3108,13 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
             JMPIjvm::checkException(env);
 
-            jint jcls = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
+            jlong jcls = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
 
-            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcls);
+            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcls);
 
             JMPIjvm::checkException(env);
 
-            jint jql = 0; // @BUG - how to convert?
+            jlong jql = 0; // @BUG - how to convert?
 
             StatProviderTimeMeasurement providerTime(response);
 
@@ -3136,8 +3136,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
                     JMPIjvm::checkException(env);
 
-                    jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -3358,13 +3358,13 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
         {
         case METHOD_CIMASSOCIATORPROVIDER:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, assocPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -3410,11 +3410,11 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
                     JMPIjvm::checkException(env);
 
-                    jint jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    jlong jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
                     CIMClass             cls;
 
                     try
@@ -3454,16 +3454,16 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         case METHOD_CIMASSOCIATORPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, assocPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -3517,11 +3517,11 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
                     JMPIjvm::checkException(env);
 
-                    jint jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    jlong jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
                     CIMClass             cls;
 
                     try
@@ -3561,16 +3561,16 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         case METHOD_ASSOCIATORPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, assocPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -3624,11 +3624,11 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
                     JMPIjvm::checkException(env);
 
-                    jint jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    jlong jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
                     CIMClass             cls;
 
                     try
@@ -3668,13 +3668,13 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         case METHOD_ASSOCIATORPROVIDER:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, assocPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -3720,8 +3720,8 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
                     JMPIjvm::checkException(env);
 
-                    jint                 jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance         *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    jlong                jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance         *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
                     CIMClass             cls;
 
                     try
@@ -3946,13 +3946,13 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         {
         case METHOD_CIMASSOCIATORPROVIDER:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, assocPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -3990,8 +3990,8 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
                     JMPIjvm::checkException(env);
 
-                    jint           jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -4004,15 +4004,15 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         case METHOD_CIMASSOCIATORPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, assocPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -4058,8 +4058,8 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
                     JMPIjvm::checkException(env);
 
-                    jint           jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -4072,13 +4072,13 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         case METHOD_ASSOCIATORPROVIDER:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, assocPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -4117,8 +4117,8 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
                     JMPIjvm::checkException(env);
 
-                    jint           jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -4131,16 +4131,16 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         case METHOD_ASSOCIATORPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, assocPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -4187,8 +4187,8 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
                     JMPIjvm::checkException(env);
 
-                    jint           jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -4397,13 +4397,13 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
         {
         case METHOD_CIMASSOCIATORPROVIDER:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, resultPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -4442,11 +4442,11 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
                     JMPIjvm::checkException(env);
 
-                    jint jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    jlong jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
                     CIMClass             cls;
 
                     try
@@ -4486,16 +4486,16 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
         case METHOD_CIMASSOCIATORPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, resultPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -4542,11 +4542,11 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
                     JMPIjvm::checkException(env);
 
-                    jint jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    jlong jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
                     CIMClass             cls;
 
                     try
@@ -4586,13 +4586,13 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
         case METHOD_ASSOCIATORPROVIDER:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, resultPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -4632,8 +4632,8 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
                     JMPIjvm::checkException(env);
 
-                    jint                 jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance         *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    jlong                jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance         *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
                     CIMClass             cls;
 
                     try
@@ -4673,16 +4673,16 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
         case METHOD_ASSOCIATORPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, resultPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -4730,8 +4730,8 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
                     JMPIjvm::checkException(env);
 
-                    jint                 jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance         *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+                    jlong                jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance         *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
                     CIMClass             cls;
 
                     try
@@ -4947,13 +4947,13 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         {
         case METHOD_CIMASSOCIATORPROVIDER:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, resultPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -4985,11 +4985,11 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
                     JMPIjvm::checkException(env);
 
-                    jint jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    jlong jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     handler.deliver(*copRet);
                 }
@@ -5000,16 +5000,16 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         case METHOD_CIMASSOCIATORPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, resultPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -5049,11 +5049,11 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
                     JMPIjvm::checkException(env);
 
-                    jint jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    jlong jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     handler.deliver(*copRet);
                 }
@@ -5064,13 +5064,13 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         case METHOD_ASSOCIATORPROVIDER:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, resultPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -5103,11 +5103,11 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
                     JMPIjvm::checkException(env);
 
-                    jint jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    jlong jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     handler.deliver(*copRet);
                 }
@@ -5118,16 +5118,16 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         case METHOD_ASSOCIATORPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, resultPath);
-            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -5168,11 +5168,11 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
                     JMPIjvm::checkException(env);
 
-                    jint jcopRetRef = env->CallIntMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    jlong jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jcopRetRef);
+                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     handler.deliver(*copRet);
                 }
@@ -5318,8 +5318,8 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
         {
         case METHOD_PROPERTYPROVIDER:
         {
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
@@ -5345,8 +5345,8 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
 
             if (jvalRet)
             {
-               jint      jvalRetRef = env->CallIntMethod(jvalRet,JMPIjvm::jv.CIMValueCInst);
-               CIMValue *valRet     = DEBUG_ConvertJavaToC (jint, CIMValue*, jvalRetRef);
+               jlong     jvalRetRef = env->CallLongMethod(jvalRet,JMPIjvm::jv.CIMValueCInst);
+               CIMValue *valRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jvalRetRef);
 
                JMPIjvm::checkException(env);
 
@@ -5358,11 +5358,11 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
 
         case METHOD_PROPERTYPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
@@ -5396,8 +5396,8 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
 
             if (jvalRet)
             {
-               jint      jvalRetRef = env->CallIntMethod(jvalRet,JMPIjvm::jv.CIMValueCInst);
-               CIMValue *valRet     = DEBUG_ConvertJavaToC (jint, CIMValue*, jvalRetRef);
+               jlong     jvalRetRef = env->CallLongMethod(jvalRet,JMPIjvm::jv.CIMValueCInst);
+               CIMValue *valRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jvalRetRef);
 
                JMPIjvm::checkException(env);
 
@@ -5546,8 +5546,8 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
         {
         case METHOD_PROPERTYPROVIDER:
         {
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
@@ -5563,8 +5563,8 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            jint    jvalref = DEBUG_ConvertCToJava (CIMValue*, jint, val);
-            jobject jval    = env->NewObject(jv->CIMValueClassRef, jv->CIMValueNewI, jvalref);
+            jlong   jvalref = DEBUG_ConvertCToJava (CIMValue*, jlong, val);
+            jobject jval    = env->NewObject(jv->CIMValueClassRef, jv->CIMValueNewJ, jvalref);
 
             JMPIjvm::checkException(env);
 
@@ -5583,11 +5583,11 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
         case METHOD_PROPERTYPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
@@ -5603,8 +5603,8 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            jint    jvalref = DEBUG_ConvertCToJava (CIMValue*, jint, val);
-            jobject jval    = env->NewObject(jv->CIMValueClassRef, jv->CIMValueNewI, jvalref);
+            jlong   jvalref = DEBUG_ConvertCToJava (CIMValue*, jlong, val);
+            jobject jval    = env->NewObject(jv->CIMValueClassRef, jv->CIMValueNewJ, jvalref);
 
             JMPIjvm::checkException(env);
 
@@ -5808,8 +5808,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
         {
         case METHOD_CIMMETHODPROVIDER:
         {
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -5823,8 +5823,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
             for (Uint32 i=0; i<m; i++) {
               CIMParamValue *parm    = new CIMParamValue(request->inParameters[i]);
-              jint           jArgRef = DEBUG_ConvertCToJava (CIMParamValue*, jint, parm);
-              jobject        jArg    = env->NewObject(jv->CIMArgumentClassRef,jv->CIMArgumentNewI,jArgRef);
+              jlong          jArgRef = DEBUG_ConvertCToJava (CIMParamValue*, jlong, parm);
+              jobject        jArg    = env->NewObject(jv->CIMArgumentClassRef,jv->CIMArgumentNewJ,jArgRef);
 
               env->SetObjectArrayElement(jArIn,i,jArg);
             }
@@ -5843,8 +5843,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
             handler.processing();
 
-            jint      jValueRetRef = env->CallIntMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
-            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jint, CIMValue*, jValueRetRef);
+            jlong     jValueRetRef = env->CallLongMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
+            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jValueRetRef);
 
             handler.deliver(*valueRet);
 
@@ -5856,8 +5856,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
                 if (jArg==NULL)
                    break;
 
-                jint           jpRef = env->CallIntMethod(jArg,JMPIjvm::jv.CIMArgumentCInst);
-                CIMParamValue *p     = DEBUG_ConvertJavaToC (jint, CIMParamValue*, jpRef);
+                jlong          jpRef = env->CallLongMethod(jArg,JMPIjvm::jv.CIMArgumentCInst);
+                CIMParamValue *p     = DEBUG_ConvertJavaToC (jlong, CIMParamValue*, jpRef);
 
                 JMPIjvm::checkException(env);
 
@@ -5870,11 +5870,11 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         case METHOD_CIMMETHODPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -5888,8 +5888,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
             for (Uint32 i=0; i<m; i++) {
               CIMParamValue *parm    = new CIMParamValue(request->inParameters[i]);
-              jint           jArgRef = DEBUG_ConvertCToJava (CIMParamValue*, jint, parm);
-              jobject        jArg    = env->NewObject(jv->CIMArgumentClassRef,jv->CIMArgumentNewI,jArgRef);
+              jlong          jArgRef = DEBUG_ConvertCToJava (CIMParamValue*, jlong, parm);
+              jobject        jArg    = env->NewObject(jv->CIMArgumentClassRef,jv->CIMArgumentNewJ,jArgRef);
 
               env->SetObjectArrayElement(jArIn,i,jArg);
             }
@@ -5916,8 +5916,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
             handler.processing();
 
-            jint      jValueRetRef = env->CallIntMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
-            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jint, CIMValue*, jValueRetRef);
+            jlong     jValueRetRef = env->CallLongMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
+            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jValueRetRef);
 
             handler.deliver(*valueRet);
 
@@ -5929,8 +5929,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
                 if (jArg==NULL)
                    break;
 
-                jint           jpRef = env->CallIntMethod(jArg,JMPIjvm::jv.CIMArgumentCInst);
-                CIMParamValue *p     = DEBUG_ConvertJavaToC (jint, CIMParamValue*, jpRef);
+                jlong          jpRef = env->CallLongMethod(jArg,JMPIjvm::jv.CIMArgumentCInst);
+                CIMParamValue *p     = DEBUG_ConvertJavaToC (jlong, CIMParamValue*, jpRef);
 
                 JMPIjvm::checkException(env);
 
@@ -5943,8 +5943,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         case METHOD_METHODPROVIDER:
         {
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -5961,8 +5961,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
                 const CIMParamValue &parm  = request->inParameters[i];
                 const CIMValue       v     = parm.getValue();
                 CIMProperty         *p     = new CIMProperty(parm.getParameterName(),v,v.getArraySize());
-                jint                 jpRef = DEBUG_ConvertCToJava (CIMProperty*, jint, p);
-                jobject              jp    = env->NewObject(jv->CIMPropertyClassRef,jv->CIMPropertyNewI,jpRef);
+                jlong                jpRef = DEBUG_ConvertCToJava (CIMProperty*, jlong, p);
+                jobject              jp    = env->NewObject(jv->CIMPropertyClassRef,jv->CIMPropertyNewJ,jpRef);
 
                 env->CallVoidMethod(jVecIn,jv->VectorAddElement,jp);
              }
@@ -5982,8 +5982,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
             handler.processing();
 
-            jint      jValueRetRef = env->CallIntMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
-            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jint, CIMValue*, jValueRetRef);
+            jlong     jValueRetRef = env->CallLongMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
+            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jValueRetRef);
 
             handler.deliver(*valueRet);
 
@@ -5995,8 +5995,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
                 JMPIjvm::checkException(env);
 
-                jint         jpRef = env->CallIntMethod(jProp,JMPIjvm::jv.CIMPropertyCInst);
-                CIMProperty *p     = DEBUG_ConvertJavaToC (jint, CIMProperty*, jpRef);
+                jlong        jpRef = env->CallLongMethod(jProp,JMPIjvm::jv.CIMPropertyCInst);
+                CIMProperty *p     = DEBUG_ConvertJavaToC (jlong, CIMProperty*, jpRef);
 
                 JMPIjvm::checkException(env);
 
@@ -6009,11 +6009,11 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         case METHOD_METHODPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
-            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -6030,8 +6030,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
                 const CIMParamValue &parm  = request->inParameters[i];
                 const CIMValue       v     = parm.getValue();
                 CIMProperty         *p     = new CIMProperty(parm.getParameterName(),v,v.getArraySize());
-                jint                 jpRef = DEBUG_ConvertCToJava (CIMProperty*, jint, p);
-                jobject              jp    = env->NewObject(jv->CIMPropertyClassRef,jv->CIMPropertyNewI,jpRef);
+                jlong                jpRef = DEBUG_ConvertCToJava (CIMProperty*, jlong, p);
+                jobject              jp    = env->NewObject(jv->CIMPropertyClassRef,jv->CIMPropertyNewJ,jpRef);
 
                 env->CallVoidMethod(jVecIn,jv->VectorAddElement,jp);
              }
@@ -6059,8 +6059,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
             handler.processing();
 
-            jint      jValueRetRef = env->CallIntMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
-            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jint, CIMValue*, jValueRetRef);
+            jlong     jValueRetRef = env->CallLongMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
+            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jValueRetRef);
 
             handler.deliver(*valueRet);
 
@@ -6072,8 +6072,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
                 JMPIjvm::checkException(env);
 
-                jint         jpRef = env->CallIntMethod(jProp,JMPIjvm::jv.CIMPropertyCInst);
-                CIMProperty *p     = DEBUG_ConvertJavaToC (jint, CIMProperty*, jpRef);
+                jlong        jpRef = env->CallLongMethod(jProp,JMPIjvm::jv.CIMPropertyCInst);
+                CIMProperty *p     = DEBUG_ConvertJavaToC (jlong, CIMProperty*, jpRef);
 
                 JMPIjvm::checkException(env);
 
@@ -6262,7 +6262,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
            selxTab.insert (sPath.toString (), srec);
 
-           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: For selxTab "<<sPath.toString ()<<", srec = "<<PEGASUS_STD(hex)<<(int)srec<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(int)qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: For selxTab "<<sPath.toString ()<<", srec = "<<PEGASUS_STD(hex)<<(long)srec<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(long)qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
         }
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.createSubscriptionRequest: " + pr.getName());
@@ -6347,8 +6347,8 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         {
             WQLSelectStatement *stmt       = newSelectExp (srec->query,
                                                            srec->queryLanguage);
-            jint                jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jint, stmt);
-            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
+            jlong               jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jlong, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewJ,jStmtRef);
 
             JMPIjvm::checkException(env);
 
@@ -6359,8 +6359,8 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
                                                         request->nameSpace,
                                                         request->classNames[0]);
-            jint           jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, cop);
-            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong          jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -6379,13 +6379,13 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         case METHOD_EVENTPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
             WQLSelectStatement *stmt       = newSelectExp (srec->query,
                                                            srec->queryLanguage);
-            jint                jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jint, stmt);
-            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
+            jlong               jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jlong, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewJ,jStmtRef);
 
             JMPIjvm::checkException(env);
 
@@ -6396,8 +6396,8 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
                                                         request->nameSpace,
                                                         request->classNames[0]);
-            jint           jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, cop);
-            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong          jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -6530,7 +6530,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
            selxTab.lookup (sPathString, srec);
 
-           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: For selxTab "<<sPathString<<", srec = "<<PEGASUS_STD(hex)<<(int)srec<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(int)srec->qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: For selxTab "<<sPathString<<", srec = "<<PEGASUS_STD(hex)<<(long)srec<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(long)srec->qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 
            selxTab.remove (sPathString);
         }
@@ -6617,8 +6617,8 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         {
             WQLSelectStatement *stmt       = newSelectExp (srec->query,
                                                            srec->queryLanguage);
-            jint                jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jint, stmt);
-            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
+            jlong               jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jlong, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewJ,jStmtRef);
 
             JMPIjvm::checkException(env);
 
@@ -6629,8 +6629,8 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
                                                         request->nameSpace,
                                                         request->classNames[0]);
-            jint           jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, cop);
-            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong          jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -6649,13 +6649,13 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         case METHOD_EVENTPROVIDER2:
         {
-            jint    jocRef = DEBUG_ConvertCToJava (OperationContext*, jint, &request->operationContext);
-            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewI,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
             WQLSelectStatement *stmt       = newSelectExp (srec->query,
                                                            srec->queryLanguage);
-            jint                jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jint, stmt);
-            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewI,jStmtRef);
+            jlong               jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jlong, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewJ,jStmtRef);
 
             JMPIjvm::checkException(env);
 
@@ -6666,8 +6666,8 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
                                                         request->nameSpace,
                                                         request->classNames[0]);
-            jint           jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, cop);
-            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+            jlong          jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 

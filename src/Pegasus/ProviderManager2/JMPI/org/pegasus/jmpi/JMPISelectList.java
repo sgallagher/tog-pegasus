@@ -41,12 +41,12 @@ import java.util.Enumeration;
 public class JMPISelectList
              extends SelectList
 {
-   private int ciSelectExp;
+   private long ciSelectExp;
 
-   private native int _applyInstance (int ciSelectExp, int ciInstance);
-   private native int _applyClass    (int ciSelectExp, int ciClass);
+   private native long _applyInstance (long ciSelectExp, long ciInstance);
+   private native long _applyClass    (long ciSelectExp, long ciClass);
 
-   JMPISelectList (int ciSelectExp)
+   JMPISelectList (long ciSelectExp)
    {
       this.ciSelectExp = ciSelectExp;
    }
@@ -65,7 +65,7 @@ public class JMPISelectList
       if (elm instanceof CIMInstance)
       {
          CIMInstance ci     = (CIMInstance)elm;
-         int         ciInst = 0;
+         long        ciInst = 0;
 
          ciInst = _applyInstance (ciSelectExp, ci.cInst ());
 
@@ -77,7 +77,7 @@ public class JMPISelectList
       else if (elm instanceof CIMClass)
       {
          CIMClass cc      = (CIMClass)elm;
-         int      ciClass = 0;
+         long     ciClass = 0;
 
          ciClass = _applyClass (ciSelectExp, cc.cInst ());
 

@@ -41,37 +41,37 @@ public class CIMProperty
 {
     public static final int PEG_NOT_FOUND = -1;
 
-    private int cInst;
+    private long cInst;
 
-    private native int     _getValue        (int    ci);
-    private native String  _getName         (int    ci);
-    private native void    _setName         (int    ci,   String n);
-    private native int     _property        (String name, int    v);
-    private native int     _new             ();
-    private native boolean _isReference     (int    ci);
-    private native String  _getRefClassName (int    ci);
-    private native int     _getType         (int    ci);
-    private native int     _setType         (int    ci,   int    t);
-    private native void    _setValue        (int    ci,   int    v);
-    private native boolean _isArray         (int    ci);
-    private native String  _getIdentifier   (int    ci);
-    private native void    _addValue        (int    ci,   int    v);
-    private native void    _addQualifier    (int    ci,   int    v);
-    private native void    _finalize        (int    ci);
-    private native int     _findQualifier   (int    ci,   String qualifier);
-    private native int     _getQualifier    (int    ci,   int    index);
+    private native long    _getValue        (long   ci);
+    private native String  _getName         (long   ci);
+    private native void    _setName         (long   ci,   String n);
+    private native long    _property        (String name, long   v);
+    private native long    _new             ();
+    private native boolean _isReference     (long   ci);
+    private native String  _getRefClassName (long   ci);
+    private native long    _getType         (long   ci);
+    private native long    _setType         (long   ci,   long   t);
+    private native void    _setValue        (long   ci,   long   v);
+    private native boolean _isArray         (long   ci);
+    private native String  _getIdentifier   (long   ci);
+    private native void    _addValue        (long   ci,   long   v);
+    private native void    _addQualifier    (long   ci,   long   v);
+    private native void    _finalize        (long   ci);
+    private native int     _findQualifier   (long   ci,   String qualifier);
+    private native int     _getQualifier    (long   ci,   int    index);
 
     protected void finalize ()
     {
        _finalize (cInst);
     }
 
-    CIMProperty (int ci)
+    CIMProperty (long ci)
     {
        cInst = ci;
     }
 
-    protected int cInst ()
+    protected long cInst ()
     {
        return cInst;
     }
@@ -96,7 +96,7 @@ public class CIMProperty
         if (cInst == 0)
             return null;
 
-        int ciValue = _getValue (cInst);
+        long ciValue = _getValue (cInst);
 
         if (ciValue != 0)
         {
@@ -137,7 +137,7 @@ public class CIMProperty
         if (cInst == 0)
             return null;
 
-        int ciDataType = _getType (cInst);
+        long ciDataType = _getType (cInst);
 
         if (ciDataType != 0)
         {
@@ -226,7 +226,7 @@ public class CIMProperty
 
     public CIMQualifier getQualifier (int index)
     {
-       int ciQualifier = _getQualifier (cInst, index);
+       long ciQualifier = _getQualifier (cInst, index);
 
        if (ciQualifier != 0)
        {

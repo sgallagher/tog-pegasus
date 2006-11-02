@@ -91,32 +91,32 @@ public class CIMDataType
 
    public static final int  REFERENCE      = OTHER + 1;
 
-   private int cInst;
+   private long cInst;
 
-   private native int     _new             (int    type);
-   private native int     _newAr           (int    type,
+   private native long    _new             (int    type);
+   private native long    _newAr           (int    type,
                                             int    size);
-   private native int     _newRef          (int    type,
+   private native long    _newRef          (int    type,
                                             String ref);
-   private native boolean _isReference     (int    ci);
-   private native boolean _isArray         (int    ci);
-   private native int     _getType         (int    ci);
-   private native int     _getSize         (int    ci);
-   private native String  _getRefClassName (int    ci);
-   private native String  _toString        (int    ci);
-   private native void    _finalize        (int    cInst);
+   private native boolean _isReference     (long   ci);
+   private native boolean _isArray         (long   ci);
+   private native int     _getType         (long   ci);
+   private native int     _getSize         (long   ci);
+   private native String  _getRefClassName (long   ci);
+   private native String  _toString        (long   ci);
+   private native void    _finalize        (long   cInst);
 
    protected void finalize ()
    {
       _finalize (cInst);
    }
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }
 
-   CIMDataType (int     ci,
+   CIMDataType (long    ci,
                 boolean dmy)
    {
       cInst=ci;

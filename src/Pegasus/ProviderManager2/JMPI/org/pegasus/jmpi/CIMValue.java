@@ -42,40 +42,40 @@ import java.math.BigInteger;
 
 public class CIMValue
 {
-   private int cInst;
+   private long cInst;
 
-   private native int     _byte          (short   v,    boolean unsigned);
-   private native int     _short         (int     v,    boolean unsigned);
-   private native int     _makeInt       (long    v,    boolean unsigned);
-   private native int     _long          (long    v,    boolean unsigned);
-   private native int     _string        (String  v);
-   private native int     _boolean       (boolean v);
-   private native int     _float         (float   v);
-   private native int     _double        (double  v);
-   private native int     _cop           (int     v);
-   private native int     _datetime      (int     v);
-   private native int     _char16        (char    v);
-   private native int     _object        (int     v);
+   private native long    _byte          (short   v,    boolean unsigned);
+   private native long    _short         (int     v,    boolean unsigned);
+   private native long    _makeInt       (long    v,    boolean unsigned);
+   private native long    _long          (long    v,    boolean unsigned);
+   private native long    _string        (String  v);
+   private native long    _boolean       (boolean v);
+   private native long    _float         (float   v);
+   private native long    _double        (double  v);
+   private native long    _cop           (long    v);
+   private native long    _datetime      (long    v);
+   private native long    _char16        (char    v);
+   private native long    _object        (long    v);
 
-   private native int     _byteArray     (short   v[],  boolean unsigned);
-   private native int     _shortArray    (int     v[],  boolean unsigned);
-   private native int     _intArray      (long    v[],  boolean unsigned);
-   private native int     _longArray     (long    v[],  boolean unsigned);
-   private native int     _stringArray   (String  v[]);
-   private native int     _booleanArray  (boolean v[]);
-   private native int     _floatArray    (float   v[]);
-   private native int     _doubleArray   (double  v[]);
-   private native int     _copArray      (int     v[]);
-   private native int     _datetimeArray (int     v[]);
-   private native int     _objectArray   (int     v[]);
-   private native int     _char16Array   (char    v[]);
+   private native long    _byteArray     (short   v[],  boolean unsigned);
+   private native long    _shortArray    (int     v[],  boolean unsigned);
+   private native long    _intArray      (long    v[],  boolean unsigned);
+   private native long    _longArray     (long    v[],  boolean unsigned);
+   private native long    _stringArray   (String  v[]);
+   private native long    _booleanArray  (boolean v[]);
+   private native long    _floatArray    (float   v[]);
+   private native long    _doubleArray   (double  v[]);
+   private native long    _copArray      (long    v[]);
+   private native long    _datetimeArray (long    v[]);
+   private native long    _objectArray   (long    v[]);
+   private native long    _char16Array   (char    v[]);
 
-   private native Object  _getValue      (int     v) throws CIMException;
-   private native int     _getType       (int     v);
-   private native boolean _isArray       (int     v);
-   private native String  _toString      (int     v);
+   private native Object  _getValue      (long    v) throws CIMException;
+   private native int     _getType       (long    v);
+   private native boolean _isArray       (long    v);
+   private native String  _toString      (long    v);
 
-   private native void    _finalize      (int     cv);
+   private native void    _finalize      (long    cv);
 
    protected void finalize ()
    {
@@ -83,7 +83,7 @@ public class CIMValue
    }
 
    // This constructor should be public as well.
-   public CIMValue (int v)
+   public CIMValue (long v)
    {
       cInst = v;
    }
@@ -99,10 +99,10 @@ public class CIMValue
       cInst = calculateCInst (o);
    }
 
-   private int calculateCInst (Object o)
+   private long calculateCInst (Object o)
       throws CIMException
    {
-      int ciRet = 0;
+      long ciRet = 0;
 
       if (o == null)
          return 0;
@@ -225,7 +225,7 @@ public class CIMValue
          }
          else if (o0 instanceof CIMObjectPath)
          {
-            int c[]=new int[size];
+            long c[]=new long[size];
 
             for (int i=0; i<size; i++)
                c[i]=((CIMObjectPath)v.elementAt (i)).cInst ();
@@ -234,7 +234,7 @@ public class CIMValue
          }
          else if (o0 instanceof CIMDateTime)
          {
-             int c[]=new int[size];
+             long c[]=new long[size];
 
              for (int i=0; i<size; i++)
                 c[i]=((CIMDateTime)v.elementAt (i)).cInst ();
@@ -243,7 +243,7 @@ public class CIMValue
          }
          else if (o0 instanceof CIMObject)
          {
-             int c[]=new int[size];
+             long c[]=new long[size];
 
              for (int i=0; i<size; i++)
                 c[i]=((CIMObject)v.elementAt (i)).cInst ();
@@ -670,7 +670,7 @@ public class CIMValue
       return _toString (cInst);
    }
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }

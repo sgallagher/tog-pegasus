@@ -49,40 +49,40 @@ import java.util.*;
 public class CIMInstance
              implements CIMElement
 {
-    private int    cInst;
+    private long   cInst;
     private String name;
 
-    private native int    _new              ();
-    private native int    _newCn            (String   n);
-    private native int    _filterProperties (int      cInst,
+    private native long   _new              ();
+    private native long   _newCn            (String   n);
+    private native long   _filterProperties (long     cInst,
                                              String[] pl,
                                              boolean  iq,
                                              boolean  ic,
                                              boolean  lo);
-    private native void   _setName          (int      cInst,
+    private native void   _setName          (long     cInst,
                                              String   n);
-    private native void   _setProperty      (int      cInst,
+    private native void   _setProperty      (long     cInst,
                                              String   n,
-                                             int      vInst);
-    private native void   _setProperties    (int      cInst,
+                                             long     vInst);
+    private native void   _setProperties    (long     cInst,
                                              Vector   v);
-    private native int    _getProperty      (int      cInst,
+    private native long   _getProperty      (long     cInst,
                                              String   n);
-    private native Vector _getKeyValuePairs (int      cInst,
+    private native Vector _getKeyValuePairs (long     cInst,
                                              Vector   vec);
-    private native Vector _getProperties    (int      cInst,
+    private native Vector _getProperties    (long     cInst,
                                              Vector   vec);
-    private native String _getClassName     (int      cInst);
-    private native int    _getQualifier     (int      cInst,
+    private native String _getClassName     (long     cInst);
+    private native long   _getQualifier     (long     cInst,
                                              String   n);
-    private native int    _clone            (int      cInst);
-    private native String _toString         (int      cInst);
-    private native void   _finalize         (int      ci);
-    private native int    _getObjectPath    (int      cInst);
-    private native void   _setObjectPath    (int      cInst,
-                                             int      ciCop);
-    private native int    _getPropertyCount (int      cInst);
-    private native int    _getPropertyI     (int      cInst,
+    private native long   _clone            (long     cInst);
+    private native String _toString         (long     cInst);
+    private native void   _finalize         (long     ci);
+    private native long   _getObjectPath    (long     cInst);
+    private native void   _setObjectPath    (long     cInst,
+                                             long     ciCop);
+    private native int    _getPropertyCount (long     cInst);
+    private native long   _getPropertyI     (long     cInst,
                                              int      i);
 
     protected void finalize ()
@@ -90,12 +90,12 @@ public class CIMInstance
         _finalize (cInst);
     }
 
-    CIMInstance (int ci)
+    CIMInstance (long ci)
     {
         cInst = ci;
     }
 
-    protected int cInst ()
+    protected long cInst ()
     {
         return cInst;
     }
@@ -110,7 +110,7 @@ public class CIMInstance
                                          boolean includeQualifier,
                                          boolean includeClassOrigin)
     {
-       int ciInstance = 0;
+       long ciInstance = 0;
 
        if (cInst != 0)
        {
@@ -133,7 +133,7 @@ public class CIMInstance
 
     public CIMInstance localElements ()
     {
-       int ciInstance = 0;
+       long ciInstance = 0;
 
        if (cInst != 0)
        {
@@ -209,7 +209,7 @@ public class CIMInstance
         if (cInst == 0)
             return null;
 
-        int ciProperty = _getProperty (cInst, n);
+        long ciProperty = _getProperty (cInst, n);
 
         if (ciProperty != 0)
            return new CIMProperty (ciProperty);
@@ -263,7 +263,7 @@ public class CIMInstance
         if (cInst == 0)
             return null;
 
-        int ciQualifier = _getQualifier(cInst,n);
+        long ciQualifier = _getQualifier(cInst,n);
 
         if (ciQualifier != 0)
             return new CIMQualifier(ciQualifier);
@@ -299,7 +299,7 @@ public class CIMInstance
         if (cInst == 0)
             return null;
 
-        int ciNew = _clone (cInst);
+        long ciNew = _clone (cInst);
 
         if (ciNew != 0)
         {
@@ -313,7 +313,7 @@ public class CIMInstance
 
     public CIMObjectPath getObjectPath ()
     {
-        int ciCop = _getObjectPath (cInst);
+        long ciCop = _getObjectPath (cInst);
 
         if (ciCop != 0)
         {
@@ -347,7 +347,7 @@ public class CIMInstance
 
     public CIMProperty getProperty (int i)
     {
-        int ciProperty = _getPropertyI (cInst, i);
+        long ciProperty = _getPropertyI (cInst, i);
 
         if (ciProperty != 0)
         {

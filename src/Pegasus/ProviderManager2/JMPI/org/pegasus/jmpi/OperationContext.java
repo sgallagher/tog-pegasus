@@ -63,16 +63,16 @@ public class OperationContext
    public final static String CachedClassDefinitionContainer       = "CachedClassDefinitionContainer";
    //                            CIMClass:        class
 
-   private int cInst;
+   private long cInst;
 
-   private native Object _get (int cInst, String container, String key);
+   private native Object _get (long cInst, String container, String key);
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }
 
-   public OperationContext (int cInst)
+   public OperationContext (long cInst)
    {
       this.cInst = cInst;
    }

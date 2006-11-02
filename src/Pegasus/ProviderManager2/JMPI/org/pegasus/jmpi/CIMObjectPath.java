@@ -40,44 +40,44 @@ import java.util.*;
 
 public class CIMObjectPath
 {
-   private int cInst;
+   private long cInst;
 
-   private native int        _new           ();
-   private native int        _newCn         (String cn);
-   private native int        _newCnNs       (String cn,
-                                             String ns);
-   private native int        _newCi         (int    cInst);
-   private native int        _newCiNs       (int    cInst,
-                                             String ns);
-   private native void       _finalize      (int    cInst);
-   private native String     _getNameSpace  (int    cInst);
-   private native void       _setNameSpace  (int    cInst,
-                                             String ns);
-   private native String     _getHost       (int    cInst);
-   private native void       _setHost       (int    cInst,
-                                             String hn);
-   private native String     _getObjectName (int    cInst);
-   private native void       _setObjectName (int    cInst,
-                                             String objectName);
-   private native Vector     _getKeys       (int    cInst,
-                                             Vector v);
-   private native void       _setKeys       (int    cInst,
-                                             Vector v);
-   private native void       _addKey        (int    cInst,
-                                             String key,
-                                             int    vInst);
-   private native String     _getKeyValue   (int    cInst,
-                                             String keyValue);
-   private native String     _toString      (int    cInst);
-   private native int        _clone         (int    cInst);
-   private static native int _set           (String copStr);
+   private native long        _new           ();
+   private native long        _newCn         (String cn);
+   private native long        _newCnNs       (String cn,
+                                              String ns);
+   private native long        _newCi         (long   cInst);
+   private native long        _newCiNs       (long   cInst,
+                                              String ns);
+   private native void        _finalize      (long   cInst);
+   private native String      _getNameSpace  (long   cInst);
+   private native void        _setNameSpace  (long   cInst,
+                                              String ns);
+   private native String      _getHost       (long   cInst);
+   private native void        _setHost       (long   cInst,
+                                              String hn);
+   private native String      _getObjectName (long   cInst);
+   private native void        _setObjectName (long   cInst,
+                                              String objectName);
+   private native Vector      _getKeys       (long   cInst,
+                                              Vector v);
+   private native void        _setKeys       (long   cInst,
+                                              Vector v);
+   private native void        _addKey        (long   cInst,
+                                              String key,
+                                              long   vInst);
+   private native String      _getKeyValue   (long   cInst,
+                                              String keyValue);
+   private native String      _toString      (long   cInst);
+   private native long        _clone         (long   cInst);
+   private static native long _set           (String copStr);
 
-   CIMObjectPath (int ci)
+   CIMObjectPath (long ci)
    {
       cInst = ci;
    }
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }
@@ -132,7 +132,7 @@ public class CIMObjectPath
 
    public Object clone ()
    {
-      int ciNew = _clone (cInst);
+      long ciNew = _clone (cInst);
 
       if (ciNew != 0)
       {
@@ -258,7 +258,7 @@ public class CIMObjectPath
 
    public static CIMObjectPath toCop (String copStr)
    {
-      int ciObjectPath = _set (copStr);
+      long ciObjectPath = _set (copStr);
 
       if (ciObjectPath != 0)
       {

@@ -41,11 +41,11 @@ import java.util.List;
 public class JMPIQueryExp
              extends QueryExp
 {
-   private int ciSelectExp;
+   private long ciSelectExp;
 
-   private native boolean _applyInstance (int ciSelectExp, int ciInstance);
+   private native boolean _applyInstance (long ciSelectExp, long ciInstance);
 
-   JMPIQueryExp (int ciSelectExp)
+   JMPIQueryExp (long ciSelectExp)
    {
       this.ciSelectExp = ciSelectExp;
    }

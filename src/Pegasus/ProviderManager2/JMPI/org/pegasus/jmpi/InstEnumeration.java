@@ -1,6 +1,6 @@
-//%2006////////////////////////////////////////////////////////////////////////
-//
-// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+ //%2006////////////////////////////////////////////////////////////////////////
+ //
+ // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
 // Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation, The Open Group.
@@ -41,19 +41,19 @@ import java.util.*;
 
 class InstEnumeration implements Enumeration
 {
-   private int cInst;
-   private int cur;
-   private int max;
+   private long cInst;
+   private int  cur;
+   private int  max;
 
-   private native int _getInstance (int cInst, int pos);
-   private native int _size        (int cInst);
+   private native long _getInstance (long cInst, int pos);
+   private native int  _size        (long cInst);
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }
 
-   InstEnumeration (int ci)
+   InstEnumeration (long ci)
    {
       cInst = ci;
       max   = 0;
@@ -74,7 +74,7 @@ class InstEnumeration implements Enumeration
       if (cur >= max)
           return null;
 
-      int ciInstance = 0;
+      long ciInstance = 0;
 
       if (cInst != 0)
       {

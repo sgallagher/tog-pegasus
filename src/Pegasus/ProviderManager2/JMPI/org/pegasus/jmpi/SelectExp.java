@@ -39,23 +39,23 @@ package org.pegasus.jmpi;
 public class SelectExp
              extends WQLExp
 {
-   private int cInst;
+   private long cInst;
 
-   private native void   _finalize        (int    cInst);
-   private native int    _newSelectExp    (String query);
-   private native String _getSelectString (int    cInst);
+   private native void   _finalize        (long   cInst);
+   private native long   _newSelectExp    (String query);
+   private native String _getSelectString (long   cInst);
 
    protected void finalize ()
    {
       _finalize (cInst);
    }
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }
 
-   protected SelectExp (int ci)
+   protected SelectExp (long ci)
    {
       cInst = ci;
    }

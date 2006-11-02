@@ -42,19 +42,19 @@ public class CIMNameSpace {
    static public final int DEFAULT_PORT=5988;
    static public final String DEFAULT_NAMESPACE="root/cimv2";
 
-   private int cInst;
+   private long cInst;
 
-   private native int    _new          ();
-   private native int    _newHn        (String hn);
-   private native int    _newHnNs      (String hn,
+   private native long   _new          ();
+   private native long   _newHn        (String hn);
+   private native long   _newHnNs      (String hn,
                                         String ns);
-   private native String _getNameSpace (int    cInst);
-   private native String _getHost      (int    cInst);
-   private native void   _setNameSpace (int    cInst,
+   private native String _getNameSpace (long   cInst);
+   private native String _getHost      (long   cInst);
+   private native void   _setNameSpace (long   cInst,
                                         String ns);
-   private native void   _setHost      (int    cInst,
+   private native void   _setHost      (long   cInst,
                                         String h);
-   private native void   _finalize     (int    cInst);
+   private native void   _finalize     (long   cInst);
 
    public CIMNameSpace ()
    {
@@ -66,7 +66,7 @@ public class CIMNameSpace {
       _finalize(cInst);
    }
 
-   protected int cInst ()
+   protected long cInst ()
    {
       return cInst;
    }

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPI_SelectExp_H_
@@ -61,9 +57,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp {
    CMPI_SelectExp(const OperationContext& ct, QueryContext *context, String cond_, String lang_);
-   CMPI_SelectExp(WQLSelectStatement*);
+   CMPI_SelectExp(WQLSelectStatement*, Boolean persistent_ = false);
 #ifndef PEGASUS_DISABLE_CQL
-   CMPI_SelectExp(CQLSelectStatement*);
+   CMPI_SelectExp(CQLSelectStatement*, Boolean persistent_ = false);
 #endif
    ~CMPI_SelectExp();
    CMPI_Object *next,*prev;

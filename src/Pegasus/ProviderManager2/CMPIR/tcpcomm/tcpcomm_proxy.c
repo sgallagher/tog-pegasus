@@ -64,6 +64,8 @@
 #include "io.h"
 #include "debug.h"
 #include "socketcomm.h"
+#include "tcpcomm_select_exp.h"
+#include "indication_objects.h"
 
 /**************************************************************************/
 
@@ -100,6 +102,8 @@ static void TCPCOMM_detachThread(int socket, CONST CMPIBroker * broker,
 {
     CMPIStatus rc;
     CMPIData ctxid = CMGetContextEntry(context, RCMPI_CTX_ID, NULL);
+    // cleanup all indication object created -V 5245
+    cleanup_indicationObjects(ctxid.value.uint32);
     CONST CMPIContext *ctx = get_context(ctxid.value.uint32);
     remove_context(ctxid.value.uint32);
     rc = CBDetachThread(broker, ctx);
@@ -545,8 +549,6 @@ static struct socket_mb_function __mb_functions[] = {
     { "TCPCOMM_logMessage",             TCPCOMM_logMessage },
     { "TCPCOMM_trace",                  TCPCOMM_trace }
 };
-
-
 /****************************************************************************/
 
 //! Dispatches the broker service request handler.
@@ -588,6 +590,19 @@ static void __dispatch_MB_function(struct accept_thread *athread)
 	}
     }
 
+    // Now check for CMPISelectExp functions. -V 5245
+    for (i = 0; i < SOCKET_SELECT_EXP_FUNCTIONS_SIZE ; i++) {
+
+        if (strcmp(function, select_exp_functions[i].name) == 0) {
+
+            TRACE_INFO(("calling %s to handle request.",
+                        select_exp_functions[i].name));
+            select_exp_functions[i].function(athread->socket, athread->broker,
+                                       athread->context, athread->ctx_id);
+            break;
+        }
+    }
+
     CBDetachThread(athread->broker, athread->context);
     close(athread->socket);
     free(athread);
@@ -611,6 +626,7 @@ static void __dispatch_MB_function(struct accept_thread *athread)
 static void __handle_MB_call(int socket, CONST CMPIBroker * broker)
 {
     CONST CMPIContext *ctx;
+    CMPIUint32 ctx_id;
 
     struct accept_thread *athread = (struct accept_thread *)
 	malloc(sizeof(struct accept_thread));
@@ -618,11 +634,15 @@ static void __handle_MB_call(int socket, CONST CMPIBroker * broker)
     TRACE_VERBOSE(("entered function."));
     TRACE_NORMAL(("handling incoming broker service request."));
 
-    ctx = get_context(__sft->deserialize_UINT32(socket));
+    // This ctx_id is used to create indication objects for a
+    // particular context. -V 5245
+    ctx_id = __sft->deserialize_UINT32 (socket);
+    ctx = get_context (ctx_id);
 
     athread->socket = socket;
     athread->broker = broker;
     athread->context = CBPrepareAttachThread(broker, ctx);
+    athread->ctx_id = ctx_id;
 
     CMPI_BrokerExt_Ftab->newThread((void*(*)(void*))__dispatch_MB_function,athread,1);
 
@@ -1205,14 +1225,17 @@ static CMPIStatus TCPCOMM_IndicationMI_authorizeFilter(provider_address * addr,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
 	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
-    (__sft)->serialize_CMPISelectExp(socket, filter);
+    (__sft)->serialize_CMPISelectExp(socket, filter,
+                                     PEGASUS_INDICATION_GLOBAL_CONTEXT );
     (__sft)->serialize_string(socket, indType);
     (__sft)->serialize_string(socket, owner);
     {
 	CMPIStatus rc;
 	CMPIArray *r;
 	rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
+#ifndef CMPI_VER_100
 	r = (__sft)->deserialize_CMPIArray(socket, cThis->broker);
+#endif
 	close(socket);
 	remove_context(ctxid);
 #ifndef CMPI_VER_100
@@ -1246,13 +1269,16 @@ static CMPIStatus TCPCOMM_IndicationMI_mustPoll(provider_address * addr,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
 	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
-    (__sft)->serialize_CMPISelectExp(socket, filter);
+    (__sft)->serialize_CMPISelectExp(socket, filter,
+                                     PEGASUS_INDICATION_GLOBAL_CONTEXT);
     (__sft)->serialize_string(socket, indType);
     {
 	CMPIStatus rc;
 	CMPIArray *r;
 	rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
+#ifndef CMPI_VER_100
 	r = (__sft)->deserialize_CMPIArray(socket, cThis->broker);
+#endif
 	close(socket);
 	remove_context(ctxid);
 #ifndef CMPI_VER_100
@@ -1280,6 +1306,7 @@ static CMPIStatus TCPCOMM_IndicationMI_activateFilter(provider_address * addr,
 				    const char *indType,
 				    CMPIBoolean firstActivation)
 #endif
+
 {
     int socket;
     unsigned long int ctxid = save_context(context);
@@ -1289,14 +1316,17 @@ static CMPIStatus TCPCOMM_IndicationMI_activateFilter(provider_address * addr,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
 	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
-    (__sft)->serialize_CMPISelectExp(socket, filter);
+    (__sft)->serialize_CMPISelectExp(socket, filter,
+                                             PEGASUS_INDICATION_GLOBAL_CONTEXT);
     (__sft)->serialize_string(socket, indType);
     (__sft)->serialize_UINT8(socket, firstActivation);
     {
 	CMPIStatus rc;
 	CMPIArray *r;
 	rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
+#ifndef CMPI_VER_100
 	r = (__sft)->deserialize_CMPIArray(socket, cThis->broker);
+#endif
 	close(socket);
 	remove_context(ctxid);
 #ifndef CMPI_VER_100
@@ -1305,7 +1335,6 @@ static CMPIStatus TCPCOMM_IndicationMI_activateFilter(provider_address * addr,
 	return rc;
     };
 }
-
 
 #ifdef CMPI_VER_100
 static CMPIStatus TCPCOMM_IndicationMI_deActivateFilter(provider_address * addr,
@@ -1332,16 +1361,20 @@ static CMPIStatus TCPCOMM_IndicationMI_deActivateFilter(provider_address * addr,
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
+
     if (socket < 0)
 	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
-    (__sft)->serialize_CMPISelectExp(socket, filter);
+    (__sft)->serialize_CMPISelectExp(socket, filter,
+                                             PEGASUS_INDICATION_GLOBAL_CONTEXT);
     (__sft)->serialize_string(socket, indType);
     (__sft)->serialize_UINT8(socket, lastActivation);
     {
 	CMPIStatus rc;
 	CMPIArray *r;
 	rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
+#ifndef CMPI_VER_100
 	r = (__sft)->deserialize_CMPIArray(socket, cThis->broker);
+#endif
 	close(socket);
 	remove_context(ctxid);
 #ifndef CMPI_VER_100
@@ -1350,6 +1383,65 @@ static CMPIStatus TCPCOMM_IndicationMI_deActivateFilter(provider_address * addr,
 	return rc;
     };
 };
+
+#ifdef CMPI_VER_100
+static CMPIStatus TCPCOMM_IndicationMI_enableIndications(provider_address * addr,
+                                      RemoteCMPIIndicationMI * cThis,
+                                      const CMPIContext * context)
+#else
+static CMPIStatus TCPCOMM_IndicationMI_enableIndications(provider_address * addr,
+                                      RemoteCMPIIndicationMI * cThis);
+#endif
+{
+    int socket;
+    unsigned long int ctxid = save_context(context);
+    CMPIObjectPath *cop = NULL;
+    TRACE_NORMAL(("Executing remote MI call."));
+    CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
+    socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
+                           __FUNCTION__, context, cop);
+    if (socket < 0)
+        CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
+    {
+        CMPIStatus rc;
+        CMPIArray *r;
+        rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
+        close(socket);
+        remove_context(ctxid);
+        return rc;
+    };
+};
+
+
+#ifdef CMPI_VER_100
+static CMPIStatus TCPCOMM_IndicationMI_disableIndications(provider_address * addr,
+                                      RemoteCMPIIndicationMI * cThis,
+                                      const CMPIContext * context)
+#else
+static CMPIStatus TCPCOMM_IndicationMI_disableIndications(provider_address * addr,
+                                      RemoteCMPIIndicationMI * cThis);
+#endif
+{
+    int socket;
+    unsigned long int ctxid = save_context(context);
+    CMPIObjectPath *cop = NULL;
+    TRACE_NORMAL(("Executing remote MI call."));
+
+    CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
+    socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
+                           __FUNCTION__, context, cop);
+    if (socket < 0)
+        CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
+    {
+        CMPIStatus rc;
+        CMPIArray *r;
+        rc = (__sft)->deserialize_CMPIStatus(socket, cThis->broker);
+        close(socket);
+        remove_context(ctxid);
+        return rc;
+    };
+};
+
 
 static CMPIStatus
 TCPCOMM_cleanup()
@@ -1395,6 +1487,8 @@ provider_comm *CMPIRTCPComm_InitCommLayer(CONST CMPIBroker * broker,
         TCPCOMM_IndicationMI_activateFilter,
         TCPCOMM_IndicationMI_deActivateFilter,
 		TCPCOMM_cleanup,
+	TCPCOMM_IndicationMI_enableIndications,
+	TCPCOMM_IndicationMI_disableIndications,
         NULL,
 	NULL
    };

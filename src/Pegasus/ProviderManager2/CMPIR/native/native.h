@@ -126,6 +126,23 @@ struct _NativeCMPIBrokerFT {
 
    CMPIBoolean (*classPathIsA) ( const CMPIBroker * broker,
         const CMPIObjectPath * cop, const char * type, CMPIStatus * rc );
+   // Added for Remote CMPI support for indications.
+   // TODO: We need to remove these functions, once we done with
+   // complete implementation of these functionalities on remote side.
+   // As of now we are taking help of MB by making UP calls. -V 5245
+   CMPIBoolean (*selExp_evaluate) ( CONST CMPISelectExp * exp,
+                             CONST CMPIInstance *inst, CMPIStatus *rc);
+   CMPISelectCond* (*selExp_getDOC) ( CONST CMPISelectExp * exp, CMPIStatus * rc);
+   CMPISelectCond* (*selExp_getCOD) ( CONST CMPISelectExp * exp, CMPIStatus * rc);
+   CMPIBoolean (*selExp_evaluateUsingAccessor) ( CONST CMPISelectExp * exp,
+                             CMPIAccessor *accessor, void *parm, CMPIStatus *rc);
+   CMPISelectExp* (*selExp_clone) ( CONST CMPISelectExp * exp, CMPIStatus * rc);
+   CMPIString* (*selExp_getString) ( CONST CMPISelectExp * exp, CMPIStatus * rc);
+   CMPIStatus  (*selExp_release) (CONST CMPISelectExp* se);
+   CMPISelectExp* (*selExp_newSelExp) (const char * queryString,
+                                      const char * language,
+                                      CMPIArray ** projection,
+                                      CMPIStatus * rc );
 };
 #else
 #define CONST
@@ -178,6 +195,23 @@ struct _NativeCMPIBrokerFT {
 	unsigned int count, va_list);
    CMPIBoolean (*classPathIsA) ( CMPIBroker * broker,
         CMPIObjectPath * cop, const char * type, CMPIStatus * rc );
+   // Added for Remote CMPI support for indications.
+   // TODO: We need to remove these functions, once we done with
+   // complete implementation of these functionalities on remote side.
+   // As of now we are taking help of MB by making UP calls. -V 5245
+   CMPIBoolean (*selExp_evaluate) ( CONST CMPISelectExp * exp,
+                             CONST CMPIInstance *inst, CMPIStatus *rc);
+   CMPISelectCond* (*selExp_getDOC) ( CONST CMPISelectExp * exp, CMPIStatus * rc);
+   CMPISelectCond* (*selExp_getCOD) ( CONST CMPISelectExp * exp, CMPIStatus * rc);
+   CMPIBoolean (*selExp_evaluateUsingAccessor) ( CONST CMPISelectExp * exp,
+                             CMPIAccessor *accessor, void *parm, CMPIStatus *rc);
+   CMPISelectExp* (*selExp_clone) ( CONST CMPISelectExp * exp, CMPIStatus * rc);
+   CMPIString* (*selExp_getString) ( CONST CMPISelectExp * exp, CMPIStatus * rc);
+   CMPIStatus  (*selExp_release) (CONST CMPISelectExp* se);
+   CMPISelectExp* (*selExp_newSelExp) (const char * queryString,
+                                      const char * language,
+                                      CMPIArray ** projection,
+                                      CMPIStatus * rc );
 };
 #endif
 typedef struct _NativeCMPIBrokerFT NativeCMPIBrokerFT;
@@ -206,20 +240,17 @@ CMPIDateTime * native_new_CMPIDateTime_fromBinary ( CMPIUint64,
 						    CMPIStatus * );
 CMPIDateTime * native_new_CMPIDateTime_fromChars ( const char *,
 						   CMPIStatus * );
-CMPISelectExp * native_new_CMPISelectExp ( const char *,
-					   const char *,
-					   CMPIArray **,
+CMPISelectExp * native_new_CMPISelectExp ( CMPIUint32,
 					   CMPIStatus * );
 CMPIContext * native_new_CMPIContext ( int mem_state );
 void native_release_CMPIContext ( CONST CMPIContext * );
-
+void native_release_CMPISelectExp ( CONST CMPISelectExp *);
 extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 
 /****************************************************************************/
 
 extern CMPIBrokerEncFT  native_brokerEncFT;
 extern struct native_propertyFT propertyFT;
-
 #endif
 
 /*** Local Variables:  ***/

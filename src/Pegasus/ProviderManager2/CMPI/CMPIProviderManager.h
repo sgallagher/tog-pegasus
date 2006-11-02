@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CMPIProviderManager_h
@@ -154,20 +150,23 @@ protected:
         @param  _indicationCallback  PEGASUS_INDICATION_CALLBACK_T for
             indications
         @param  ph  OpProviderHolder for the provider to be enabled
+        @param remoteInfo Remote Information
      */
     void _callEnableIndications
         (CIMInstance & req_provider,
          PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
-         CMPIProvider::OpProviderHolder & ph);
+         CMPIProvider::OpProviderHolder & ph,
+         const char *remoteInfo);
 
     /**
         Calls the provider's disableIndications() method, if the provider
         version supports disableIndications().
 
         @param  ph  OpProviderHolder for the provider to be enabled
+        @param remoteInfo Remote Information
      */
     void _callDisableIndications
-        (CMPIProvider::OpProviderHolder & ph);
+        (CMPIProvider::OpProviderHolder & ph, const char *remoteInfo);
 
 
 };

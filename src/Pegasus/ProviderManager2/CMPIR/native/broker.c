@@ -45,7 +45,7 @@
 #include "tool.h"
 #include "native.h"
 #include "debug.h"
-
+#include "mm.h"
 
 static CMPIInstance * __beft_newInstance ( CONST CMPIBroker * broker,
 					   CONST CMPIObjectPath * cop,
@@ -134,7 +134,6 @@ static CMPIDateTime * __beft_newDateTimeFromChars ( CONST CMPIBroker * broker,
 }
 
 
-
 static CMPISelectExp * __beft_newSelectExp ( CONST CMPIBroker * broker,
 					     const char * queryString,
 					     const char * language,
@@ -142,8 +141,15 @@ static CMPISelectExp * __beft_newSelectExp ( CONST CMPIBroker * broker,
 					     CMPIStatus * rc )
 
 {
+        CMPIBroker *brk;
+        CMPIContext *ctx;
+        CMPIUint32 id;
+
 	TRACE_NORMAL(("Creating new native CMPISelectExp."));
-	return native_new_CMPISelectExp ( queryString,
+        brk = tool_mm_get_broker ( (void**)&ctx);    
+             
+        return ( ( (NativeCMPIBrokerFT*)broker->bft) )->
+                                      selExp_newSelExp(queryString,
 					  language,
 					  projection,
 					  rc );
@@ -169,7 +175,6 @@ static CMPIBoolean __beft_classPathIsA ( CONST CMPIBroker * broker,
 
      return ((NativeCMPIBrokerFT*)(broker->bft))->classPathIsA(broker,cop,type,rc);
 }
-
 extern CMPIObjectPathFT *CMPI_ObjectPath_FT;
 extern CMPIInstanceFT *CMPI_Instance_FT;
 extern CMPIArgsFT *CMPI_Args_FT;

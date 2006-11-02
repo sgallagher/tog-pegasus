@@ -52,6 +52,7 @@ SOURCES = \
    proxy_provider.c \
    namespace_resolver.c \
    ticket.c \
-   tool.c
+   tool.c \
+   indication_objects.c
 
 include $(ROOT)/mak/library.mak

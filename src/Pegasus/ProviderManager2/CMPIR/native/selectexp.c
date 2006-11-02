@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -62,17 +58,13 @@
 struct native_selectexp {
 	CMPISelectExp exp;
 	int mem_state;
-
-	char * queryString;
-	char * language;
+    CMPIUint32 id;
 };
 
 
-static struct native_selectexp * __new_exp ( int, 
-					     const char *,
-					     const char *,
-					     CMPIArray **,
-					     CMPIStatus * );
+static struct native_selectexp * __new_exp ( int mem_state,
+                                             CMPIUint32 id,
+					     CMPIStatus *rc);
 
 
 /*****************************************************************************/
@@ -80,15 +72,21 @@ static struct native_selectexp * __new_exp ( int,
 static CMPIStatus __eft_release ( CMPISelectExp * exp )
 {
 	struct native_selectexp * e = (struct native_selectexp *) exp;
+    CMPIContext *ctx;
+    CMPIBroker *broker;
+    CMPIStatus rc;
 
-	if ( e->mem_state == TOOL_MM_NO_ADD ) {
+    broker = tool_mm_get_broker ( (void**)&ctx);
 
+    if ( e->mem_state == TOOL_MM_NO_ADD )
+    {
+        rc = ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_release (exp);
+        if (rc.rc == CMPI_RC_OK)
+        {
 		tool_mm_add ( e );
-		tool_mm_add ( e->queryString );
-		tool_mm_add ( e->language );
-
 		CMReturn ( CMPI_RC_OK );
 	}
+   }
 
 	CMReturn ( CMPI_RC_ERR_FAILED );
 }
@@ -96,13 +94,12 @@ static CMPIStatus __eft_release ( CMPISelectExp * exp )
 
 static CMPISelectExp * __eft_clone ( CONST CMPISelectExp * exp, CMPIStatus * rc )
 {
-	struct native_selectexp * e   = (struct native_selectexp *) exp;
+    CMPIContext *ctx;
+    CMPIBroker *broker;
 
-	return (CMPISelectExp *) __new_exp ( TOOL_MM_NO_ADD,
-					     e->queryString,
-					     e->language,
-					     NULL,
-					     rc );
+    broker = tool_mm_get_broker ( (void**)&ctx);
+
+    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_clone (exp, rc);
 }
 
 
@@ -111,42 +108,61 @@ CMPIBoolean __eft_evaluate ( CONST CMPISelectExp * exp,
 			     CONST CMPIInstance * inst,
 			     CMPIStatus * rc )
 {
-	if (rc) rc->rc = CMPI_RC_ERR_NOT_SUPPORTED;
-	return 0;
+    CMPIContext *ctx;
+    CMPIBroker *broker;
+
+    broker = tool_mm_get_broker ( (void**)&ctx);
+
+    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_evaluate (exp, inst ,rc);
 }
 
 
 CMPIString * __eft_getString ( CONST CMPISelectExp * exp, CMPIStatus * rc )
 {
-	if (rc) rc->rc = CMPI_RC_ERR_NOT_SUPPORTED;
-	return NULL;
+    CMPIContext *ctx;
+    CMPIBroker *broker;
+
+    broker = tool_mm_get_broker ( (void**)&ctx);
+
+    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getString (exp, rc);
 }
 
 
 CMPISelectCond * __eft_getDOC ( CONST CMPISelectExp * exp, CMPIStatus * rc )
 {
-	if (rc) rc->rc = CMPI_RC_ERR_NOT_SUPPORTED;
-	return NULL;
+    CMPIContext *ctx;
+    CMPIBroker *broker;
+
+    broker = tool_mm_get_broker ( (void**)&ctx);
+
+    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getDOC (exp, rc);
 }
 
 
 CMPISelectCond * __eft_getCOD ( CONST CMPISelectExp * exp, CMPIStatus * rc )
 {
-	if (rc) rc->rc = CMPI_RC_ERR_NOT_SUPPORTED;
-	return NULL;
+    CMPIContext *ctx;
+    CMPIBroker *broker;
+
+    broker = tool_mm_get_broker ( (void**)&ctx);
+
+    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getCOD (exp, rc);
 }
 
 CMPIBoolean __eft_evaluateUsingAccessor (CONST CMPISelectExp* se,
         CMPIAccessor *accessor, void *parm, CMPIStatus* rc)
 {
-	if (rc) rc->rc = CMPI_RC_ERR_NOT_SUPPORTED;
-	return 0;
+    CMPIContext *ctx;
+    CMPIBroker *broker;
+
+    broker = tool_mm_get_broker ( (void**)&ctx);
+
+    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->
+                selExp_evaluateUsingAccessor (se, accessor ,parm, rc);
 }
 
 static struct native_selectexp * __new_exp ( int mm_add,
-					     const char * queryString,
-					     const char * language,
-					     CMPIArray ** projection,
+                                             CMPIUint32 id,
 					     CMPIStatus * rc )
 {
 	static CMPISelectExpFT eft = {
@@ -171,31 +187,62 @@ static struct native_selectexp * __new_exp ( int mm_add,
 
 	exp->exp         = e;
 	exp->mem_state   = mm_add;
-	exp->queryString = strdup ( queryString );
-	exp->language    = strdup ( language );
+        exp->id = id;
 
-	if ( mm_add == TOOL_MM_ADD ) {
-		tool_mm_add ( exp->queryString );
-		tool_mm_add ( exp->language );
+	if (rc)
+        {
+             CMSetStatus ( rc, CMPI_RC_OK );
 	}
-
-	if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
 	return exp;
 }
 
 
-CMPISelectExp * native_new_CMPISelectExp ( const char * queryString, 
-					   const char * language, 
-					   CMPIArray ** projection,
-					   CMPIStatus * rc )
+CMPISelectExp * native_new_CMPISelectExp ( CMPIUint32 id,
+					   CMPIStatus * rc)
 {
-	return (CMPISelectExp *) __new_exp ( TOOL_MM_ADD, 
-					     queryString,
-					     language,
-					     projection,
+	return (CMPISelectExp *) __new_exp ( TOOL_MM_NO_ADD,
+                                             id,
 					     rc );
 }
 
+CMPISelectExp * native_new_CMPISelectExp_add ( CMPIUint32 id,
+					   CMPIStatus * rc )
+{
+	return (CMPISelectExp *) __new_exp ( TOOL_MM_ADD, 
+                                             id,
+					     rc );
+}
+
+void native_release_CMPISelectExp( CONST CMPISelectExp *filter)
+{
+    struct native_selectexp * exp = (struct native_selectexp *) filter;
+
+   if (exp->mem_state == TOOL_MM_NO_ADD)
+   {
+       tool_mm_add(exp);
+   }
+}
+
+
+// These functions help in serializing and deserializing the
+// CMPISelectExp -V 5245
+
+CMPIUint32 create_indicationObject (CMPISelectExp *se, CMPIUint32 ctx_id, CMPIUint8 type)
+{
+    struct native_selectexp *e = (struct native_selectexp*)se;
+
+    return e->id;
+}
+
+CMPISelectExp *get_indicationObject (CMPIUint32 id, CMPIUint32 ctx_id)
+{
+    if (ctx_id)
+    {
+        return native_new_CMPISelectExp_add (id, NULL);
+    }
+
+    return native_new_CMPISelectExp (id, NULL);
+}
 
 /****************************************************************************/
 

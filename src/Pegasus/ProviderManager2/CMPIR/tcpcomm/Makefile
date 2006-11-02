@@ -49,10 +49,11 @@ LIBRARIES = CMPIRProxyProvider
 
 SOURCES = \
    tcpcomm_proxy.c \
+   tcpcomm_select_exp.c \
    proxy_attach.c \
    ../serialization.c \
    ../socketcomm.c \
    ../io.c \
-   ../ip.c \
+   ../ip.c 
 
 include $(ROOT)/mak/library.mak

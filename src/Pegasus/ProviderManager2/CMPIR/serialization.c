@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -49,8 +44,6 @@
   The serialization functions return the length of a successfully serialized
   object or data type, whereas the deserialization parts return the
   recreated data.
-
-  \author Frank Scheffler
 
   \sa serialization.h
   \sa io.c
@@ -76,6 +69,7 @@
 #include "io.h"
 #include "serialization.h"
 #include "tool.h"
+#include "indication_objects.h"
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
@@ -128,8 +122,8 @@ static CMPIArray * __deserialize_CMPIArray ( int, CONST CMPIBroker * );
 static ssize_t __serialize_CMPIInstance ( int, CONST CMPIInstance * );
 static CMPIInstance * __deserialize_CMPIInstance ( int, CONST CMPIBroker * );
 
-static ssize_t __serialize_CMPISelectExp ( int, CONST CMPISelectExp * );
-static CMPISelectExp * __deserialize_CMPISelectExp ( int, CONST CMPIBroker * );
+static ssize_t __serialize_CMPISelectExp ( int, CONST CMPISelectExp *, CMPIUint32);
+static CMPISelectExp * __deserialize_CMPISelectExp ( int, CONST CMPIBroker *, CMPIUint32);
 
 static ssize_t __serialize_CMPIDateTime ( int, CMPIDateTime * );
 static CMPIDateTime * __deserialize_CMPIDateTime ( int, CONST CMPIBroker * );
@@ -325,7 +319,9 @@ static ssize_t __serialize_CMPIValue ( int fd,
 			return __serialize_CMPIArgs ( fd, value->args );
 
 		case CMPI_filter:
-			return __serialize_CMPISelectExp ( fd, value->filter );
+			return __serialize_CMPISelectExp ( fd,
+                                                           value->filter,
+                                                           PEGASUS_INDICATION_GLOBAL_CONTEXT);
 
 		case CMPI_string:
 		case CMPI_numericString:
@@ -440,7 +436,10 @@ static CMPIValue __deserialize_CMPIValue ( int fd,
 			break;
 
 		case CMPI_filter:
-			v.filter = __deserialize_CMPISelectExp ( fd, broker );
+			v.filter = __deserialize_CMPISelectExp (
+                                          fd,
+                                          broker,
+                                          PEGASUS_INDICATION_GLOBAL_CONTEXT);
 			break;
 
 		case CMPI_string:
@@ -1042,29 +1041,33 @@ static CMPIInstance * __deserialize_CMPIInstance ( int fd,
 	return inst;
 }
 
-
-static ssize_t __serialize_CMPISelectExp ( int fd, CONST CMPISelectExp * sexp )
+static ssize_t __serialize_CMPISelectExp ( int fd, CONST CMPISelectExp * sexp,
+                                                   CMPIUint32 ctx_id)
 {
-	if ( __serialized_NULL ( fd, sexp ) ) return 0;
 
-	error_at_line ( -1, 0, __FILE__, __LINE__,
-			"unable to serialize CMPISelectExp." );
-
-	return -1;
+    if (__serialized_NULL (fd, sexp) )
+    {
+         return 0;
 }
 
+    return __serialize_UINT32 (fd,
+                        create_indicationObject (
+                           (CMPISelectExp*)sexp,
+                           ctx_id,
+                           PEGASUS_INDICATION_OBJECT_TYPE_CMPI_SELECT_EXP) );
+}
 
 static CMPISelectExp * __deserialize_CMPISelectExp ( int fd,
-						     CONST CMPIBroker * broker )
+                                                     CONST CMPIBroker *broker,
+                                                     CONST CMPIUint32 ctx_id)
 {
-	if ( __deserialized_NULL ( fd ) ) return NULL;
-
-	error_at_line ( -1, 0, __FILE__, __LINE__,
-			"unable to deserialize CMPISelectExp." );
-
+    if (__deserialized_NULL (fd) )
+{
 	return NULL;
 }
 
+   return  (CMPISelectExp*) get_indicationObject (__deserialize_UINT32 (fd), ctx_id);
+}
 
 static ssize_t __serialize_CMPIDateTime ( int fd, CMPIDateTime * dt )
 {

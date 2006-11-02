@@ -67,6 +67,7 @@
 #include "resolver.h"
 #include "ticket.h"
 #include "debug.h"
+#include "indication_objects.h"
 
 CMPIBrokerExtFT *CMPI_BrokerExt_Ftab=NULL;
 int nativeSide=0;
@@ -1024,6 +1025,7 @@ static CMPIStatus __IndicationMI_activateFilter(CMPIIndicationMI * cThis,
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIIndicationMI *rcThis = (RemoteCMPIIndicationMI *) cThis;
     provider_address *addr, *tmp;
+
     TRACE_NORMAL(("Executing fan-out remote provider call " "for: %s.",
 		   rcThis->provider));
     tmp = addr =
@@ -1128,23 +1130,92 @@ static CMPIStatus __IndicationMI_deActivateFilter(CMPIIndicationMI * cThis,
 
 
 #ifdef CMPI_VER_100
-static void __IndicationMI_enableIndications(CMPIIndicationMI * cThis, const CMPIContext *ctx)
+static CMPIStatus __IndicationMI_enableIndications(CMPIIndicationMI * cThis, const CMPIContext *ctx)
 #else
-static void __IndicationMI_enableIndications(CMPIIndicationMI * cThis)
+static CMPIStatus __IndicationMI_enableIndications(CMPIIndicationMI * cThis)
 #endif
 {
-    TRACE_NORMAL(("enableIndications ignored"));
+    CMPIObjectPath *cop = NULL;
+    CMPIStatus rc;
+    RemoteCMPIIndicationMI *rcThis = (RemoteCMPIIndicationMI *) cThis;
+    provider_address *addr, *tmp;
+    TRACE_NORMAL(("Executing fan-out remote provider call " "for: %s.",
+		   rcThis->provider));
+    tmp = addr =
+	resolve_class (rcThis->broker, ctx, cop, rcThis->provider, NULL);
+    for (; addr != NULL; addr = addr->next)
+    {
+	provider_comm *comm =
+	    load_provider_comm (addr->comm_layer_id, rcThis->broker, ctx);
+	if (comm != NULL)
+	{
+#if defined (CMPI_VER_100)
+	    rc = comm->IndicationMI_enableIndications (addr, rcThis, ctx);
+#else
+	    rc = comm->IndicationMI_enableIndications (addr, rcThis);
+#endif
+	}
+	else
+	{
+	    tmp->destructor (tmp);
+            TRACE_CRITICAL(( "comm-layer not found"));
+	}
+    }
+    if (tmp)
+{
+	tmp->destructor (tmp);
+    }
+    else
+    {
+        TRACE_CRITICAL(( "could not resolve location"));
 }
 
+    return rc;
+}
 
 #ifdef CMPI_VER_100
-static void __IndicationMI_disableIndications(CMPIIndicationMI * cThis,const CMPIContext *ctx)
+static CMPIStatus __IndicationMI_disableIndications(CMPIIndicationMI * cThis, const CMPIContext *ctx)
 #else
-static void __IndicationMI_disableIndications(CMPIIndicationMI * cThis)
+static CMPIStatus __IndicationMI_disableIndications(CMPIIndicationMI * cThis)
 #endif
 {
-    TRACE_NORMAL(("disableIndications ignored"));
+    CMPIObjectPath *cop = NULL;
+    CMPIStatus rc;
+    RemoteCMPIIndicationMI *rcThis = (RemoteCMPIIndicationMI *) cThis;
+    provider_address *addr, *tmp;
+    TRACE_NORMAL(("Executing fan-out remote provider call " "for: %s.",
+                   rcThis->provider));
+    tmp = addr =
+        resolve_class (rcThis->broker, ctx, cop, rcThis->provider, NULL);
+    for (; addr != NULL; addr = addr->next)
+    {
+        provider_comm *comm =
+            load_provider_comm (addr->comm_layer_id, rcThis->broker, ctx);
+        if (comm != NULL)
+        {
+#if defined (CMPI_VER_100)
+            rc = comm->IndicationMI_disableIndications (addr, rcThis, ctx);
+#else
+            rc = comm->IndicationMI_disableIndications (addr, rcThis);
+#endif
+        }
+        else
+        {
+            tmp->destructor (tmp);
+            TRACE_CRITICAL(( "comm-layer not found"));
+        }
+    }
+    if (tmp)
+    {
+        tmp->destructor (tmp);
+    }
+    else
+    {
+        TRACE_CRITICAL(( "could not resolve location"));
 }
+    return rc;
+}
+
 
 
 #ifdef CMPI_VER_100

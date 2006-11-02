@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -73,17 +69,56 @@ extern "C"
                 // we delete them here.
          	//((CMPI_Object*)se)->unlinkAndDelete();
                 (reinterpret_cast<CMPI_Object*>(se))->unlink();
-	 	delete se;
         }
+	delete se;
 
     CMReturn (CMPI_RC_OK);
   }
 
+  // This will not clone all the CMPISelectExp objects. It clones only when
+  // original object has either CQLSelectStatement or WQLSelectStatement.
+  // Any other properties of original object may cause clone to retun error
+  // CMPI_RC_ERR_NOT_SUPPORTED. Use this only when you have just created
+  // CMPISelectExp object with CMNewselectExp (broker,query,lang,projection,rc)
   PEGASUS_STATIC CMPISelectExp *selxClone (const CMPISelectExp * eSx, CMPIStatus * rc)
   {
+      CMPI_SelectExp *new_se;
+      CMPI_SelectExp *se = (CMPI_SelectExp*) eSx;
+
+      if (
+#ifndef PEGASUS_DISABLE_CQL
+          !se->cql_stmt &&
+#endif
+          !se->wql_stmt || se->_context || se->hdl)
+      {
     if (rc)
       CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
     return NULL;
+  }
+
+#ifndef PEGASUS_DISABLE_CQL
+      CQLSelectStatement *cql_stmt;
+#endif
+
+      WQLSelectStatement *wql_stmt;
+      Boolean  disable_cql = true;
+
+#ifndef PEGASUS_DISABLE_CQL
+      if (se->cql_stmt)
+      {
+          cql_stmt = new CQLSelectStatement (*se->cql_stmt);
+          new_se = new CMPI_SelectExp (cql_stmt, true);
+          disable_cql = false;
+      }
+#endif
+
+      if (disable_cql)
+      {
+          wql_stmt = new WQLSelectStatement (*se->wql_stmt);
+          new_se = new CMPI_SelectExp (wql_stmt, true);
+      }
+
+      return (CMPISelectExp*) new_se;
   }
 
   /* Helper functions */
@@ -462,11 +497,14 @@ persistent(true)
   tableau = NULL;
 }
 
-CMPI_SelectExp::CMPI_SelectExp (WQLSelectStatement * st):ctx (OperationContext ()),
-wql_stmt (st), persistent(false)
+CMPI_SelectExp::CMPI_SelectExp (WQLSelectStatement * st, Boolean persistent_)
+   :ctx (OperationContext ()), wql_stmt (st), persistent (persistent_)
 {
   // Adding the object to the garbage collector.
+  if (!persistent_)
+  {
   CMPI_ThreadContext::addObject (reinterpret_cast<CMPI_Object *>(this));
+  }
   hdl = NULL;
   ft = CMPI_SelectExp_Ftab;
   props = NULL;
@@ -482,11 +520,14 @@ wql_stmt (st), persistent(false)
 }
 
 #ifndef PEGASUS_DISABLE_CQL
-CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st):ctx (OperationContext ()),
-cql_stmt (st), persistent(false)
+CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st, Boolean persistent_)
+          :ctx (OperationContext ()),cql_stmt (st), persistent (persistent_)
 {
   // Adding the object to the garbage collector.
+  if (!persistent_)
+  {
   CMPI_ThreadContext::addObject (reinterpret_cast<CMPI_Object *>(this));
+  }
   hdl = NULL;
   ft = CMPI_SelectExp_Ftab;
   props = NULL;

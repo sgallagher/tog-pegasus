@@ -2175,7 +2175,6 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
-
 		SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get
 								(SubscriptionFilterConditionContainer::NAME);
 
@@ -2241,8 +2240,9 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
+        CString info;
         if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
+           info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
         }
 
@@ -2321,7 +2321,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                 if (_subscriptionInitComplete)
                 {
                     _callEnableIndications (req_provider, _indicationCallback,
-                        ph);
+                        ph, (const char*)info);
                 }
             }
         }
@@ -2441,9 +2441,9 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
                 acceptLangs).getCString(),
             CMPI_chars);
- 
+        CString info;
         if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
+           info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
         }
 
@@ -2519,7 +2519,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
                 //
                 if (_subscriptionInitComplete)
                 {
-                    _callDisableIndications (ph);
+                    _callDisableIndications (ph, (const char*)info);
                 }
             }
         }
@@ -2733,8 +2733,17 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest
             CMPIProvider::OpProviderHolder ph = providerManager.getProvider
                 (enableProviders [i]->getModule ()->getFileName (),
                  enableProviders [i]->getName ());
-
-            _callEnableIndications (provider, _indicationCallback, ph);
+            // Add remote info
+            CString info;
+            {
+                ProviderIdContainer pidc = (ProviderIdContainer)
+                  request->operationContext.get(ProviderIdContainer::NAME);
+                if (pidc.isRemoteNameSpace() )
+                {
+                    info = pidc.getRemoteInfo().getCString();
+                }
+            }
+            _callEnableIndications (provider, _indicationCallback, ph, (const char*)info);
         }
         catch (const CIMException & e)
         {
@@ -3186,7 +3195,8 @@ ProviderName CMPIProviderManager::_resolveProviderName(
 void CMPIProviderManager::_callEnableIndications
     (CIMInstance & req_provider,
      PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
-     CMPIProvider::OpProviderHolder & ph)
+     CMPIProvider::OpProviderHolder & ph,
+     const char* remoteInfo)
 {
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
         "CMPIProviderManager::_callEnableIndications");
@@ -3235,6 +3245,13 @@ void CMPIProviderManager::_callEnableIndications
             CMPIStatus rc={CMPI_RC_OK,NULL};
             CMPI_ContextOnStack eCtx(context);
             CMPI_ThreadContext thr(&pr.broker,&eCtx);
+
+            // Add RemoteInformation -V 5245
+            if (remoteInfo)
+            {
+                eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",
+                                  (CMPIValue*)(const char*)remoteInfo,CMPI_chars);
+            }
 
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                 "Calling provider.enableIndications: " + pr.getName());
@@ -3295,7 +3312,7 @@ void CMPIProviderManager::_callEnableIndications
 }
 
 void CMPIProviderManager::_callDisableIndications
-    (CMPIProvider::OpProviderHolder & ph)
+    (CMPIProvider::OpProviderHolder & ph, const char *remoteInfo)
 {
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
         "CMPIProviderManager::_callDisableIndications");
@@ -3326,6 +3343,12 @@ void CMPIProviderManager::_callDisableIndications
         OperationContext context;
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
+
+        if (remoteInfo)
+        {
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",
+                             (CMPIValue*)(const char*)remoteInfo,CMPI_chars);
+        }
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,

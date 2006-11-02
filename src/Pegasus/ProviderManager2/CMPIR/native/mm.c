@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -240,7 +235,10 @@ void tool_mm_set_broker (  void * broker,  void * ctx )
 
 	mt = (managed_thread *)
 	   CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key);
-
+        if (mt == NULL)
+        {
+            mt = __init_mt ();
+        }
 	mt->broker=broker;
 	mt->ctx=ctx;
 }
@@ -254,8 +252,16 @@ void * tool_mm_get_broker ( void **ctx )
 	mt = (managed_thread *)
 	   CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key);
 
-	if (ctx) *ctx=mt->ctx;
+        if (mt)
+        {
+            if (ctx)
+            {
+                *ctx=mt->ctx;
+            }
 	return mt->broker;
+}
+
+        return NULL;
 }
 
 

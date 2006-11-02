@@ -29,17 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
   \file proxy.h
   \brief Proxy Provider header file.
-
-  \author Frank Scheffler
 */
 
 #ifndef _REMOTE_CMPI_PROXY_H
@@ -236,6 +230,13 @@ struct provider_comm {
   // IBMKR: General terminate function
   CMPIStatus  (* terminate) ();
 
+  // Adding enable and disable indications -V 5245
+  CMPIStatus (* IndicationMI_enableIndications) ( provider_address *,
+                                                 RemoteCMPIIndicationMI *,
+                                                 const CMPIContext *);
+  CMPIStatus (* IndicationMI_disableIndications) ( provider_address *,
+                                                 RemoteCMPIIndicationMI *,
+                                                 const CMPIContext *);
   struct provider_comm * next;
   void * handle;
 };
@@ -388,6 +389,11 @@ struct provider_comm {
   // IBMKR: General terminate function
   CMPIStatus  (* terminate) ();
 						
+  // Adding enable and disable indications -V 5245
+  CMPIStatus (* IndicationMI_enableIndications) ( provider_address *,
+                                                 RemoteCMPIIndicationMI *);
+  CMPIStatus (* IndicationMI_disableIndications) ( provider_address *,
+                                                 RemoteCMPIIndicationMI *);
   struct provider_comm * next;
   void * handle;
 };

@@ -29,7 +29,6 @@
 //
 //==============================================================================
 //
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -336,20 +335,42 @@ static CMPIStatus __indication_deactivateFilter ( CMPIIndicationMI * mi,
 						      ns, cop, last );
 }
 
+static CMPIStatus __indication_enableIndications (CMPIIndicationMI* mi
 #ifdef CMPI_VER_100
-void __indication_enableIndications (CMPIIndicationMI* mi, const CMPIContext *ctx)
-#else
-void __indication_enableIndications (CMPIIndicationMI* mi)
+      , const CMPIContext *ctx
 #endif
+     )
 {
+    struct tracked_indication * __mi =
+        (struct tracked_indication *) mi;
+
+    TRACE_VERBOSE(("entered function."));
+
+    TRACE_INFO(("relaying call to real provider."));
+    return __mi->saved_mi->ft->enableIndications (__mi->saved_mi
+#ifdef CMPI_VER_100
+    ,ctx
+#endif
+    );
 }
 
+static CMPIStatus __indication_disableIndications (CMPIIndicationMI* mi
 #ifdef CMPI_VER_100
-void __indication_disableIndications (CMPIIndicationMI* mi, const CMPIContext *ctx)
-#else
-void __indication_disableIndications (CMPIIndicationMI* mi)
+      , const CMPIContext *ctx
 #endif
+     )
 {
+    struct tracked_indication * __mi =
+         (struct tracked_indication *) mi;
+
+    TRACE_VERBOSE(("entered function."));
+
+    TRACE_INFO(("relaying call to real provider."));
+    return __mi->saved_mi->ft->disableIndications ( __mi->saved_mi
+#ifdef CMPI_VER_100
+    ,ctx
+#endif
+    );
 }
 
 
@@ -889,7 +910,6 @@ void init_activation_context ( CMPIContext * ctx )
 {
 	__remote_brokers_context = ctx;
 }
-
 
 /****************************************************************************/
 

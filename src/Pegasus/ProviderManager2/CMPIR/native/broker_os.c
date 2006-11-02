@@ -29,13 +29,13 @@
 //
 //==============================================================================
 //
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <pthread.h>
 #include "tool.h"
 #include "native.h"
 #include "debug.h"
+#include "mm.h"
 #include <stdlib.h>
 #include <Pegasus/Provider/CMPI/cmpipl.h>
 #ifdef CMPI_PLATFORM_ZOS_ZSERIES_IBM
@@ -78,18 +78,51 @@ static char *resolveFileName (const char *filename)
    return strdup(dlName);
 }
 
+/*
+   We need to have wrapper for newthread. When we invoke newThread from current
+   thread, new thread is not managed by memeory management and may not have
+   CMPIBroker and CMPIContext assosiated with that. Add them in wrapper. -V 5245
+*/
+struct startWrapperArg
+{
+    void *(CMPI_THREAD_CDECL * start) (void *);
+    void *arg;
+    CMPIBroker *broker;
+    CMPIContext *ctx;
+};
+
+typedef struct startWrapperArg startWrapperArg;
+
+void *_start_wrapper(void *arg_)
+{
+    startWrapperArg *arg = (startWrapperArg *) arg_;
+    void* return_value;
+
+    return_value = (*arg->start) (arg->arg);
+    free (arg);
+
+    return return_value;
+}
+
 static CMPI_THREAD_TYPE newThread
         (CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *), void *parm, int detached)
 {
+    startWrapperArg *wparm = (startWrapperArg*)
+                             malloc ( sizeof ( struct startWrapperArg ) );
+    wparm->start = start;
+    wparm->arg = parm;
+    wparm->broker = NULL;
+    wparm->ctx = NULL;
+
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
    pthread_t t;
     pthread_attr_t tattr;
     if (detached) {
        pthread_attr_init(&tattr);
        pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
-       pthread_create(&t, &tattr, (void *(*)(void *)) start, parm);
+       pthread_create(&t, &tattr, (void *(*)(void *)) _start_wrapper, wparm);
     }
-    else pthread_create(&t, NULL, (void *(*)(void *)) start, parm);
+    else pthread_create(&t, NULL, (void *(*)(void *)) _start_wrapper, wparm);
     return (CMPI_THREAD_TYPE)t;
 
 #elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
@@ -99,9 +132,9 @@ static CMPI_THREAD_TYPE newThread
 	if (detached) {
 		pthread_attr_init(&tattr);
 		pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
-		pthread_create(&t, &tattr, (void *(*)(void *)) start, parm);
+		pthread_create(&t, &tattr, (void *(*)(void *)) _start_wrapper, wparm);
 	}
-	else pthread_create(&t, NULL, (void *(*)(void *)) start, parm);
+	else pthread_create(&t, NULL, (void *(*)(void *)) _start_wrapper, wparm);
 
 	return (CMPI_THREAD_TYPE) &t;
 #else

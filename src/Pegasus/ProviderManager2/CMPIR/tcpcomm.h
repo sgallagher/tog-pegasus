@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -68,6 +64,7 @@ struct accept_thread {
         int socket;
         CONST CMPIBroker * broker;
         CONST CMPIContext * context;
+        CMPIUint32 ctx_id; // Context ID for indication objects -V 5245
 };
 
 #endif

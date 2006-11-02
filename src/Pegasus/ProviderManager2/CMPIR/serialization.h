@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -44,8 +40,6 @@
   data types, however, those which cannot be fully serialized or
   deserialized due to API restrictions are not included, e.g. CMPIResult,
   CMPIContext or CMPIEnumeration.
-
-  \author Frank Scheffler
 */
 
 #ifndef _SERIALIZATION_H
@@ -111,8 +105,10 @@ struct BinarySerializerFT {
 	ssize_t (* serialize_CMPIInstance) ( int, CONST CMPIInstance * );
 	CMPIInstance * (* deserialize_CMPIInstance) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPISelectExp) ( int, CONST CMPISelectExp * );
-	CMPISelectExp * (* deserialize_CMPISelectExp) ( int, CONST CMPIBroker * );
+	ssize_t (* serialize_CMPISelectExp) ( int, CONST CMPISelectExp *,
+                                          CMPIUint32);
+	CMPISelectExp * (* deserialize_CMPISelectExp) ( int, CONST CMPIBroker *,
+                                          CMPIUint32);
 
 	ssize_t (* serialize_CMPIDateTime) ( int, CMPIDateTime * );
 	CMPIDateTime * (* deserialize_CMPIDateTime) ( int, CONST CMPIBroker * );

@@ -55,7 +55,7 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 /**
  * The InteropProvider services the Interop classes of the DMTF CIM Schema
@@ -199,6 +199,8 @@ public:
 
 private:
 
+    void initProvider();
+
     CIMInstance buildInstanceSkeleton(
         const CIMNamespaceName & nameSpace,
         const CIMName& className,
@@ -335,7 +337,7 @@ private:
     CIMClass softwareIdentityClass;
     Array<Uint16> providerClassifications;
     Mutex interopMut;
-    //bool namespacesInitialized; - currently unused
+    bool providerInitialized;
 
     // Registration info to cache
     Array<String> profileIds;
@@ -343,6 +345,6 @@ private:
     Array<CIMNamespaceArray> elementNamespaces;
 };
 
-PEGASUS_NAMESPACE_END;
+PEGASUS_NAMESPACE_END
 
 #endif // InteropProvider_h

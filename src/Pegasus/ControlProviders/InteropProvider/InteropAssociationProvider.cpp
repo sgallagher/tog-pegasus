@@ -52,7 +52,7 @@
 #include "InteropConstants.h"
 
 PEGASUS_USING_STD;
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 /*****************************************************************************
  *
@@ -73,6 +73,7 @@ void InteropProvider::associators(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::associators()");
+    initProvider();
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s associators. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole %includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
         thisProvider,
@@ -128,7 +129,7 @@ void InteropProvider::associatorNames(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::associatorNames()");
-
+    initProvider();
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s associatorNames. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole",
         thisProvider,
@@ -178,7 +179,7 @@ void InteropProvider::references(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::references()");
-
+    initProvider();
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s references. objectName= %s , resultClass= %s role= %s includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
         thisProvider,
@@ -218,7 +219,7 @@ void InteropProvider::referenceNames(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::referenceNames()");
-
+    initProvider();
     handler.processing();
 
     String tmpRole = role;
@@ -240,5 +241,5 @@ void InteropProvider::referenceNames(
 }
 
 
-PEGASUS_NAMESPACE_END;
+PEGASUS_NAMESPACE_END
 // END_OF_FILE

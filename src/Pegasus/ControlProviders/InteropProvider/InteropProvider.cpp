@@ -59,7 +59,7 @@
 #include <Pegasus/Common/StatisticalData.h>
 
 PEGASUS_USING_STD;
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 /*****************************************************************************
  *
@@ -75,135 +75,24 @@ PEGASUS_NAMESPACE_BEGIN;
 // Constructor for the InteropProvider control provider
 //
 InteropProvider::InteropProvider(CIMRepository * rep) : repository(rep),
-    hostName(System::getHostName())//, namespacesInitialized(false)
+    hostName(System::getHostName()), providerInitialized(false),
+    profileIds(Array<String>()), conformingElements(Array<CIMNameArray>()),
+    elementNamespaces(Array<CIMNamespaceArray>())
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,"InteropProvider::InteropProvider");
 
-    //
-    // Initialize the object manager instance for the CIM Server, and retrieve
-    // the object manager's name property. This is retrieved once and stored
-    // for use in constructing other instances requiring its value.
-    //
-    CIMInstance objectManager = getObjectManagerInstance();
-    objectManager.getProperty(objectManager.findProperty(
-        OM_PROPERTY_NAME)).getValue().get(objectManagerName);
-
-    //
-    // Determine whether or not the CIMOM should be gathering statistical data
-    // based on the GatherStatisticalData property in the object manager.
-    //
-    Uint32 gatherDataIndex = objectManager.findProperty(
-        OM_PROPERTY_GATHERSTATISTICALDATA);
-    if(gatherDataIndex != PEG_NOT_FOUND)
+#ifndef PEGASUS_DISABLE_PERFINST
+    try
     {
-        CIMConstProperty gatherDataProp =
-            objectManager.getProperty(gatherDataIndex);
-        if (gatherDataProp.getType() == CIMTYPE_BOOLEAN)
-        {
-            CIMValue gatherDataVal  = gatherDataProp.getValue();
-            if (!gatherDataVal.isNull())
-            {
-                Boolean gatherData;
-                gatherDataVal.get(gatherData);
-                if (gatherData == true) 
-                {
-                    StatisticalData* sd = StatisticalData::current();
-                    sd->setCopyGSD(true);
-                }
-            }
-        }
+        initProvider();
     }
-
-    // Cache this class definition for use later.
-    profileCapabilitiesClass = repository->getClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false, true, false);
-    providerClassifications.append(Uint16(5)); // "Instrumentation"
-
-    //
-    // Initialize the namespaces so that all namespaces with the
-    // CIM_ElementConformsToProfile class also have the
-    // PG_ElementConformsToProfile class. This is needed in order to implement
-    // the cross-namespace ElementConformsToProfile association in both
-    // directions.
-    //
-    //if(!namespacesInitialized)
+    catch(const Exception & e)
     {
-        Array<CIMNamespaceName> namespaceNames = 
-            repository->enumerateNameSpaces();
-        CIMClass conformsClass = repository->getClass(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE);
-        CIMClass profileClass = repository->getClass(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
-        for(Uint32 i = 0, n = namespaceNames.size(); i < n; ++i)
-        {
-            // Check if the PG_ElementConformsToProfile class is present
-            CIMNamespaceName & currentNamespace = namespaceNames[i];
-
-            CIMClass tmpCimClass;
-            CIMClass tmpPgClass;
-            CIMClass tmpPgProfileClass;
-            try
-            {
-                // Look for these classes in the same try-block since the
-                // second depends on the first
-                tmpCimClass = repository->getClass(currentNamespace,
-                    PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE);
-                tmpPgClass = repository->getClass(currentNamespace,
-                    PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE);
-            }
-            catch(...)
-            {
-            }
-            try
-            {
-                tmpPgProfileClass = repository->getClass(currentNamespace,
-                    PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
-            }
-            catch(...)
-            {
-                // Note: if any of the above three classes aren't found,
-                // an exception will be thrown, which we can ignore since it's
-                // an expected case
-                // TBD: Log trace message?
-            }
-
-            // If the CIM_ElementConformsToProfile class is present, but
-            // the PG_ElementConformsToProfile or PG_RegisteredProfile
-            // class is not, then add it to that namespace.
-            //
-            // Note that we don't have to check for the
-            // CIM_RegisteredProfile class because if the
-            // CIM_ElementConformsToProfile class is present, the
-            // CIM_RegisteredProfile class must also be present.
-            if(!tmpCimClass.isUninitialized())
-            {
-                if(tmpPgClass.isUninitialized())
-                {
-                    CIMObjectPath newPath = conformsClass.getPath();
-                    newPath.setNameSpace(currentNamespace);
-                    conformsClass.setPath(newPath);
-                    repository->createClass(currentNamespace,
-                        conformsClass);
-                }
-                if(tmpPgProfileClass.isUninitialized())
-                {
-                    CIMObjectPath newPath = conformsClass.getPath();
-                    newPath.setNameSpace(currentNamespace);
-                    conformsClass.setPath(newPath);
-                    repository->createClass(currentNamespace,
-                        profileClass);
-                }
-            }
-        }
-
-        //namespacesInitialized = true; - currently unused
+        // Provider initialization may fail if the repository is not
+        // populated
     }
-
-    // Now cache the Registration info used for ElementConformsToProfile assoc
-    cacheProfileRegistrationInfo();
+#endif
+    
     PEG_METHOD_EXIT();
 }
 
@@ -781,6 +670,148 @@ CIMInstance InteropProvider::buildDependencyInstance(
         dependencyClass);
 }
 
-PEGASUS_NAMESPACE_END;
+void InteropProvider::initProvider()
+{
+    if(providerInitialized)
+        return;
+    // Placed METHOD_ENTER trace statement after checking whether the
+    // provider is initialized because this method will be called for every
+    // operation through the InteropProvider, and this method is only
+    // interesting the first time it is successfully run.
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "InteropProvider::initProvider()");
+
+    AutoMutex lock(interopMut);
+    if(!providerInitialized)
+    {
+        //
+        // Initialize the object manager instance for the CIM Server, and
+        // retrieve the object manager's name property. This is retrieved once
+        // and stored for use in constructing other instances requiring its
+        // value.
+        //
+        CIMInstance objectManager = getObjectManagerInstance();
+        objectManager.getProperty(objectManager.findProperty(
+            OM_PROPERTY_NAME)).getValue().get(objectManagerName);
+
+        //
+        // Determine whether or not the CIMOM should be gathering statistical data
+        // based on the GatherStatisticalData property in the object manager.
+        //
+        Uint32 gatherDataIndex = objectManager.findProperty(
+            OM_PROPERTY_GATHERSTATISTICALDATA);
+        if(gatherDataIndex != PEG_NOT_FOUND)
+        {
+            CIMConstProperty gatherDataProp =
+                objectManager.getProperty(gatherDataIndex);
+            if (gatherDataProp.getType() == CIMTYPE_BOOLEAN)
+            {
+                CIMValue gatherDataVal  = gatherDataProp.getValue();
+                if (!gatherDataVal.isNull())
+                {
+                    Boolean gatherData;
+                    gatherDataVal.get(gatherData);
+                    if (gatherData == true) 
+                    {
+                        StatisticalData* sd = StatisticalData::current();
+                        sd->setCopyGSD(true);
+                    }
+                }
+            }
+        }
+
+        // Cache this class definition for use later.
+        profileCapabilitiesClass = repository->getClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false, true, false);
+        providerClassifications.append(Uint16(5)); // "Instrumentation"
+
+        //
+        // Initialize the namespaces so that all namespaces with the
+        // CIM_ElementConformsToProfile class also have the
+        // PG_ElementConformsToProfile class. This is needed in order to implement
+        // the cross-namespace ElementConformsToProfile association in both
+        // directions.
+        //
+        Array<CIMNamespaceName> namespaceNames = 
+            repository->enumerateNameSpaces();
+        CIMClass conformsClass = repository->getClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE);
+        CIMClass profileClass = repository->getClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
+        for(Uint32 i = 0, n = namespaceNames.size(); i < n; ++i)
+        {
+            // Check if the PG_ElementConformsToProfile class is present
+            CIMNamespaceName & currentNamespace = namespaceNames[i];
+
+            CIMClass tmpCimClass;
+            CIMClass tmpPgClass;
+            CIMClass tmpPgProfileClass;
+            try
+            {
+                // Look for these classes in the same try-block since the
+                // second depends on the first
+                tmpCimClass = repository->getClass(currentNamespace,
+                    PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE);
+                tmpPgClass = repository->getClass(currentNamespace,
+                    PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE);
+            }
+            catch(const Exception &)
+            {
+            }
+            try
+            {
+                tmpPgProfileClass = repository->getClass(currentNamespace,
+                    PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
+            }
+            catch(const Exception &)
+            {
+                // Note: if any of the above three classes aren't found,
+                // an exception will be thrown, which we can ignore since it's
+                // an expected case
+                // TBD: Log trace message?
+            }
+
+            // If the CIM_ElementConformsToProfile class is present, but
+            // the PG_ElementConformsToProfile or PG_RegisteredProfile
+            // class is not, then add it to that namespace.
+            //
+            // Note that we don't have to check for the
+            // CIM_RegisteredProfile class because if the
+            // CIM_ElementConformsToProfile class is present, the
+            // CIM_RegisteredProfile class must also be present.
+            if(!tmpCimClass.isUninitialized())
+            {
+                if(tmpPgClass.isUninitialized())
+                {
+                    CIMObjectPath newPath = conformsClass.getPath();
+                    newPath.setNameSpace(currentNamespace);
+                    conformsClass.setPath(newPath);
+                    repository->createClass(currentNamespace,
+                        conformsClass);
+                }
+                if(tmpPgProfileClass.isUninitialized())
+                {
+                    CIMObjectPath newPath = conformsClass.getPath();
+                    newPath.setNameSpace(currentNamespace);
+                    conformsClass.setPath(newPath);
+                    repository->createClass(currentNamespace,
+                        profileClass);
+                }
+            }
+        }
+
+        // Now cache the Registration info used for ElementConformsToProfile
+        cacheProfileRegistrationInfo();
+
+        providerInitialized = true;
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+PEGASUS_NAMESPACE_END
 
 // END OF FILE

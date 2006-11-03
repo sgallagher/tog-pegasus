@@ -59,7 +59,7 @@
 #include "InteropConstants.h"
 
 PEGASUS_USING_STD;
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 // This Mutex serializes access to the instance change CIM requests. Keeps from
 // mixing instance creates, modifications, and deletes. This keeps the provider
@@ -81,7 +81,7 @@ void InteropProvider::createInstance(
     ObjectPathResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::createInstance()");
-
+    initProvider();
     AutoMutex autoMut(changeControlMutex);
 
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
@@ -150,6 +150,9 @@ void InteropProvider::deleteInstance(
     ResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::deleteInstance");
+
+    initProvider();
+
     const CIMName instClassName = instanceName.getClassName();
 #ifndef PEGASUS_OS_OS400
     AutoMutex autoMut(changeControlMutex);
@@ -192,6 +195,9 @@ void InteropProvider::getInstance(
     InstanceResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::getInstance");
+
+    initProvider();
+
     // test for legal namespace for this provider. Exception if not
     //namespaceSupported(instanceName);
     // NOTE: Above is commented out because the routing tables will always
@@ -231,6 +237,8 @@ void InteropProvider::enumerateInstances(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::enumerateInstances()");
 
+    initProvider();
+
     // test for legal namespace for this provider. Exception if not
     //namespaceSupported(ref);
     // NOTE: Above is commented out because the routing tables will always
@@ -261,6 +269,8 @@ void InteropProvider::modifyInstance(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::modifyInstance");
+
+    initProvider();
 
     AutoMutex autoMut(changeControlMutex);
 
@@ -310,6 +320,8 @@ void InteropProvider::enumerateInstanceNames(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::enumerateInstanceNames()");
 
+    initProvider();
+
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s enumerateInstanceNames. classReference= %s",
         thisProvider,
@@ -339,5 +351,5 @@ void InteropProvider::enumerateInstanceNames(
     PEG_METHOD_EXIT();
 }
 
-PEGASUS_NAMESPACE_END;
+PEGASUS_NAMESPACE_END
 // END_OF_FILE

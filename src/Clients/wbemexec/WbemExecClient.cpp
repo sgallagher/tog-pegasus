@@ -1,31 +1,34 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,8 +62,6 @@ static const char PASSWORD_BLANK []  =
 static const Uint32 MAX_PW_RETRIES =  3;
 
 
-#ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-// This callback is used when using SSL for a "local" connection.
 static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
 {
     //
@@ -76,14 +77,14 @@ static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
         return false;
     }
 }
-#endif
 
 WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     :
     MessageQueue(PEGASUS_QUEUENAME_WBEMEXECCLIENT),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
-    _isRemote(false)
+    _isRemote( false ),
+    _password(String::EMPTY)
 {
     // CAUTION:
     //    Using private AutoPtr<> data members for these objects causes linker
@@ -108,30 +109,48 @@ WbemExecClient::~WbemExecClient()
 
 void WbemExecClient::handleEnqueue()
 {
+
 }
 
-void WbemExecClient::_connect()
+void WbemExecClient::_connect(
+    const String& host,
+    const Uint32 portNumber,
+    AutoPtr<SSLContext>& sslContext
+) throw(CannotCreateSocketException, CannotConnectException,
+        InvalidLocatorException)
 {
     //
     // Attempt to establish a connection:
     //
+    //try
+    //{
     _httpConnection = _httpConnector->connect(
-        _connectHost,
-        _connectPortNumber,
-        _connectSSLContext.get(),
-        _timeoutMilliseconds,
-        this);
+         host, portNumber, sslContext.get(), this);
+    sslContext.release();
+
+    //}
+    // Could catch CannotCreateSocketException, CannotConnectException,
+    // or InvalidLocatorException
+    //catch (Exception& e)
+    //{
+    //    throw;
+    //}
 
     _connected = true;
-    _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+    if (_isRemote)
+    {
+        _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+    }
 }
 
 void WbemExecClient::connect(
     const String& host,
-    Uint32 portNumber,
-    const SSLContext* sslContext,
+    const Uint32 portNumber,
+    AutoPtr<SSLContext>& sslContext,
     const String& userName,
-    const String& password)
+    const String& password
+) throw(AlreadyConnectedException, InvalidLocatorException,
+        CannotCreateSocketException, CannotConnectException)
 {
     //
     // If already connected, bail out!
@@ -161,25 +180,20 @@ void WbemExecClient::connect(
     if (password.size())
     {
         _authenticator.setPassword(password);
-        _password = password;
+    _password = password;
     }
 
-    if (sslContext)
-    {
-        _connectSSLContext.reset(new SSLContext(*sslContext));
-    }
+    if (_getLocalHostName() == hostName || hostName == "localhost")
+        _isRemote = false;
     else
-    {
-        _connectSSLContext.reset();
-    }
-    _connectHost = hostName;
-    _connectPortNumber = portNumber;
-
-    _connect();
-    _isRemote = true;
+        _isRemote  = true;
+    _connect(hostName, portNumber, sslContext);
 }
 
+
 void WbemExecClient::connectLocal()
+    throw(AlreadyConnectedException, InvalidLocatorException,
+          CannotCreateSocketException, CannotConnectException)
 {
     //
     // If already connected, bail out!
@@ -187,17 +201,19 @@ void WbemExecClient::connectLocal()
     if (_connected)
         throw AlreadyConnectedException();
 
+    String host = String::EMPTY;
+    Uint32 portNumber = 0;
+
     //
     // Set authentication type
     //
     _authenticator.clear();
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
+    _isRemote = false;
 
+    AutoPtr<SSLContext>  sslContext;
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-    _connectSSLContext.reset();
-    _connectHost = String::EMPTY;
-    _connectPortNumber = 0;
-    _connect();
+    _connect(host, portNumber, sslContext);
 #else
 
     try
@@ -205,31 +221,28 @@ void WbemExecClient::connectLocal()
         //
         // Look up the WBEM HTTP port number for the local system
         //
-        _connectPortNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
+        portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
             WBEM_DEFAULT_HTTP_PORT);
 
         //
         //  Assign host
         //
-        _connectHost.assign(System::getHostName());
+        host.assign(_getLocalHostName());
 
-        _connectSSLContext.reset();
-
-        _connect();
+        _connect(host, portNumber, sslContext);
     }
-    catch (CannotConnectException&)
+    catch(CannotConnectException &)
     {
-#ifdef PEGASUS_HAS_SSL
         //
         // Look up the WBEM HTTPS port number for the local system
         //
-        _connectPortNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
+        portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
             WBEM_DEFAULT_HTTPS_PORT);
 
         //
         //  Assign host
         //
-        _connectHost.assign(System::getHostName());
+        host.assign(_getLocalHostName());
 
         //
         // Create SSLContext
@@ -240,23 +253,18 @@ void WbemExecClient::connectLocal()
         String certpath = FileSystem::getAbsolutePath(
             pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-        String randFile;
+        String randFile = String::EMPTY;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
         randFile = FileSystem::getAbsolutePath(
             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
-        _connectSSLContext.reset(
-            new SSLContext(certpath, verifyServerCertificate, randFile));
+        AutoPtr<SSLContext> sslContext(new SSLContext(certpath, verifyServerCertificate, randFile));//PEP101
 
-        _connect();
-#else
-        throw;
-#endif // PEGASUS_HAS_SSL
+        _connect(host, portNumber, sslContext);
     }
-#endif // PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-    _isRemote = false;
+#endif
 }
 
 void WbemExecClient::disconnect()
@@ -275,15 +283,6 @@ void WbemExecClient::disconnect()
     }
 }
 
-void WbemExecClient::_reconnect()
-{
-    PEGASUS_ASSERT(_connected);
-    _httpConnector->disconnect(_httpConnection);
-    _httpConnection = 0;
-    _connected = false;
-    _connect();
-}
-
 /**
 
     Prompt for password.
@@ -293,35 +292,39 @@ void WbemExecClient::_reconnect()
  */
 String WbemExecClient::_promptForPassword()
 {
-    //
-    // Password is not set, prompt for the old password once
-    //
-    String pw;
-    Uint32 retries = 1;
-    do
+  //
+  // Password is not set, prompt for the old password once
+  //
+  String pw = String::EMPTY;
+  Uint32 retries = 1;
+  do
     {
-        pw = System::getPassword(PASSWORD_PROMPT);
+      pw = System::getPassword( PASSWORD_PROMPT );
 
-        if (pw == String::EMPTY)
+      if ( pw == String::EMPTY || pw == "" )
+    {
+      if( retries < MAX_PW_RETRIES )
         {
-            if (retries < MAX_PW_RETRIES)
-            {
-                retries++;
-            }
-            else
-            {
-                break;
-            }
-            cerr << PASSWORD_BLANK << endl;
-            continue;
+          retries++;
+
         }
+      else
+        {
+          break;
+        }
+      cerr << PASSWORD_BLANK << endl;
+      pw = String::EMPTY;
+      continue;
     }
-    while (pw == String::EMPTY);
-    return pw;
+    }
+  while ( pw == String::EMPTY );
+  return( pw );
 }
 
 
-Buffer WbemExecClient::issueRequest(const Buffer& request)
+Buffer WbemExecClient::issueRequest(
+    const Buffer& request
+)
 {
     if (!_connected)
     {
@@ -330,19 +333,12 @@ Buffer WbemExecClient::issueRequest(const Buffer& request)
 
     HTTPMessage* httpRequest = new HTTPMessage(request);
 
-    // Note:  A historical defect in the calculation of the Content-Length
-    // header makes it possible that wbemexec input files exist with a
-    // Content-Length value one larger than the actual content size.  Adding
-    // and extra newline character to the end of the message keeps those old
-    // scripts working.
-    httpRequest->message << "\n";
-
     _authenticator.setRequestMessage(httpRequest);
 
-    Boolean haveBeenChallenged = false;
+    Boolean finished = false;
+    Boolean challenge = false;
     HTTPMessage* httpResponse;
-
-    while (1)
+    do
     {
         HTTPMessage* httpRequestCopy =
             new HTTPMessage(*(HTTPMessage*)_authenticator.getRequestMessage());
@@ -352,51 +348,32 @@ Buffer WbemExecClient::issueRequest(const Buffer& request)
         PEGASUS_ASSERT(response->getType() == HTTP_MESSAGE);
         httpResponse = (HTTPMessage*)response;
 
-        // If we've already been challenged or if the response does not
-        // contain a challenge, there is nothing more to do.
-
-        String startLine;
-        Array<HTTPHeader> headers;
-        Uint32 contentLength;
-
-        httpResponse->parse(startLine, headers, contentLength);
-
-        if (haveBeenChallenged || !_checkNeedToResend(headers))
+        finished = !_checkNeedToResend(httpResponse);
+        if (!finished)
         {
-            break;
-        }
-
-        // If the challenge contains a Connection: Close header, reestablish
-        // the connection.
-
-        String connectionHeader;
-
-        if (HTTPMessage::lookupHeader(
-                headers, "Connection", connectionHeader, false))
-        {
-            if (String::equalNoCase(connectionHeader, "Close"))
+            if (!challenge)
             {
-                _reconnect();
-            }
-        }
-
-        // Prompt for a password, if necessary
-
-        if ((_password == String::EMPTY) && _isRemote)
-        {
+                challenge = true;
+        if( ( _password == String::EMPTY ) && _isRemote )
+          {
             _password = _promptForPassword();
-            _authenticator.setPassword(_password);
+            _authenticator.setPassword( _password );
+          }
+            }
+            else
+            {
+                break;
+            }
+            delete httpResponse;
         }
-        haveBeenChallenged = true;
-        delete httpResponse;
-    }
+    } while (!finished);
 
     AutoPtr<HTTPMessage> origRequest(
         (HTTPMessage*)_authenticator.releaseRequestMessage());
 
     AutoPtr<HTTPMessage> destroyer(httpResponse);
 
-    return httpResponse->message;
+    return(httpResponse->message);
 }
 
 Message* WbemExecClient::_doRequest(HTTPMessage * request)
@@ -412,21 +389,33 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request)
 
     while (nowMilliseconds < stopMilliseconds)
     {
-        //
-        // Wait until the timeout expires or an event occurs:
-        //
-        _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+    //
+    // Wait until the timeout expires or an event occurs:
+    //
 
-        //
-        // Check to see if incoming queue has a message
-        //
-
-        Message* response = dequeue();
-
-        if (response)
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+        if (!_isRemote)
         {
-            return response;
+            _monitor->handlePipe();
         }
+        else
+        {
+#endif
+    _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+        }
+#endif
+
+    //
+    // Check to see if incoming queue has a message
+    //
+
+    Message* response = dequeue();
+
+    if (response)
+    {
+            return response;
+    }
 
         nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     }
@@ -436,6 +425,18 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request)
     //
 
     throw ConnectionTimeoutException();
+}
+
+String WbemExecClient::_getLocalHostName()
+{
+    static String hostname;
+
+    if (!hostname.size())
+    {
+        hostname.assign(System::getHostName());
+    }
+
+    return hostname;
 }
 
 void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
@@ -449,7 +450,8 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
         // Find the separator between the start line and the headers, so we
         // can add the authorization header there.
 
-        const char* messageStart = httpMessage->message.getData();
+        httpMessage->message.append('\0');
+        char* messageStart = (char*) httpMessage->message.getData();
         char* headerStart =
             (char*)memchr(messageStart, '\n', httpMessage->message.size());
 
@@ -473,7 +475,7 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
             Buffer newMessageBuffer;
             newMessageBuffer << messageStart << HTTP_CRLF;
             newMessageBuffer << authHeader << HTTP_CRLF;
-            newMessageBuffer << headerStart;
+            newMessageBuffer << headerStart << HTTP_CRLF;
 
             HTTPMessage* newMessage = new HTTPMessage(newMessageBuffer);
             delete httpMessage;
@@ -482,11 +484,21 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
     }
 }
 
-Boolean WbemExecClient::_checkNeedToResend(const Array<HTTPHeader>& httpHeaders)
+Boolean WbemExecClient::_checkNeedToResend(HTTPMessage* httpMessage)
 {
+    //
+    // Parse the HTTP message:
+    //
+
+    String startLine;
+    Array<HTTPHeader> headers;
+    Uint32 contentLength;
+
+    httpMessage->parse(startLine, headers, contentLength);
+
     try
     {
-        return _authenticator.checkResponseHeaderForChallenge(httpHeaders);
+        return _authenticator.checkResponseHeaderForChallenge(headers);
     }
     catch(InvalidAuthHeader&)
     {

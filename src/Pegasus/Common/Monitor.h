@@ -1,31 +1,34 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,58 +45,83 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+ #include <Pegasus/Common/NamedPipe.h>
+#endif
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE MonitorEntry
+class PEGASUS_COMMON_LINKAGE _MonitorEntry
 {
 public:
-    enum Status
+  SocketHandle socket;
+  Uint32 queueId;
+  AtomicInt _status;
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+  NamedPipe namedPipe; //WW not sure if I need to change any of the construcotrs
+  Boolean namedPipeConnection;
+  Boolean pipeSet;
+#endif
+  // This copy constructor is inecessary since AtomicInt does not support
+  // copy construction.
+  _MonitorEntry(const _MonitorEntry& x) :
+      socket(x.socket),
+      queueId(x.queueId),
+      _status(x._status.get()),
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+      namedPipeConnection(false),
+      pipeSet(false),
+#endif
+      _type(x._type)
+  {
+  }
+  int _type;
+
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+  _MonitorEntry(SocketHandle sock, Uint32 q, int Type)
+    : socket(sock), queueId(q), _status(EMPTY), _type(Type), namedPipeConnection(false), pipeSet(false)
+  {
+  }
+
+ _MonitorEntry() : socket(0), queueId(0), _status(EMPTY), _type(0), namedPipeConnection(false), pipeSet(false)
+  {
+  }
+
+#else
+_MonitorEntry(SocketHandle sock, Uint32 q, int Type)
+    : socket(sock), queueId(q), _status(EMPTY), _type(Type)
+  {
+  }
+
+  _MonitorEntry() : socket(0), queueId(0), _status(EMPTY), _type(0)
+  {
+  }
+
+#endif
+  _MonitorEntry & operator =(const _MonitorEntry & entry)
+  {
+    if( this != &entry )
+      {
+    this->socket = entry.socket;
+    this->queueId = entry.queueId;
+    this->_status = entry._status.get();
+    this->_type = entry._type;
+      }
+
+    return *this;
+  }
+
+  enum entry_status
     {
-        STATUS_IDLE,
-        STATUS_BUSY,
-        STATUS_DYING,
-        STATUS_EMPTY
+      IDLE,
+      BUSY,
+      DYING,
+      EMPTY
     };
-
-    enum Type
-    {
-        TYPE_ACCEPTOR,
-        TYPE_CONNECTION,
-        TYPE_TICKLER
-    };
-
-    MonitorEntry()
-    {
-        reset();
-    }
-
-    MonitorEntry(
-        SocketHandle socket_,
-        Uint32 queueId_,
-        Uint32 status_,
-        Uint32 type_)
-        : socket(socket_),
-          queueId(queueId_),
-          status(status_),
-          type(type_)
-    {
-    }
-
-    // NOTE: Using the default implementation of the copy constructor and
-    // assignment operator.
-
-    void reset()
-    {
-        socket = PEGASUS_INVALID_SOCKET;
-        queueId = 0;
-        status = STATUS_EMPTY;
-        type = TYPE_TICKLER;
-    }
-
-    SocketHandle socket;
-    Uint32 queueId;
-    Uint32 status;
-    Uint32 type;
 };
 
 /** This message occurs when there is activity on a socket. */
@@ -101,81 +129,40 @@ class SocketMessage : public Message
 {
 public:
 
-    enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
+  enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
 
-    SocketMessage(SocketHandle socket_, Uint32 events_)
-        : Message(SOCKET_MESSAGE), socket(socket_), events(events_)
-    {
-    }
 
-    SocketHandle socket;
-    Uint32 events;
+  SocketMessage(SocketHandle socket_, Uint32 events_) :
+    Message(SOCKET_MESSAGE), socket(socket_), events(events_)
+  {
+  }
+
+  SocketHandle socket;
+  Uint32 events;
 };
-
-/**
-    This message is sent to a connection owner (HTTPAcceptor) so it can do
-    any necessary cleanup of the connection.
-*/
-class CloseConnectionMessage : public Message
-{
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+/** This message occurs when there is activity on a NamedPipe. */
+class NamedPipeMessage : public Message
+{       //NOTE: this class is not really needed it is just used for clarity -
+        // the same functionality could be achived by add a constructor of the
+       //SocketMessage class
 public:
 
-    CloseConnectionMessage(SocketHandle socket_)
-        : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_)
-    {
-    }
+  enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
 
-    SocketHandle socket;
+
+  NamedPipeMessage(NamedPipe namedPipe_, Uint32 events_) :
+     Message(NAMEDPIPE_MESSAGE)
+  {
+      namedPipe = namedPipe_;
+      events = events_;
+  }
+
+  NamedPipe namedPipe;
+  Uint32 events;
 };
-
-/**
-    The Tickler class provides a loopback socket connection that can be
-    included in a select() socket array to allow the select() call to return
-    on demand.
-*/
-class Tickler
-{
-public:
-    /**
-        Constructs a Tickler object and initializes its connection.
-        @exception Exception if the initialization fails.
-    */
-    Tickler();
-
-    ~Tickler();
-
-    /**
-        Causes a read event on the tickle socket.
-    */
-    void notify();
-
-    /**
-        Consumes all read events on the tickle socket.
-    */
-    void reset();
-
-    SocketHandle getReadHandle()
-    {
-        return _serverSocket;
-    }
-
-private:
-    /**
-        Initializes the Tickler connection.
-        @exception Exception if the initialization fails.
-    */
-    void _initialize();
-
-    /**
-        Uninitializes the Tickler connection.
-    */
-    void _uninitialize();
-
-    SocketHandle _listenSocket;
-    SocketHandle _clientSocket;
-    SocketHandle _serverSocket;
-};
-
+#endif
 /** This class monitors system-level events and notifies its clients of these
     events by posting messages to their queues.
 
@@ -229,69 +216,117 @@ private:
 class PEGASUS_COMMON_LINKAGE Monitor
 {
 public:
-    /** Default constructor. */
-    Monitor();
+  enum Type
+    {
+      UNTYPED, ACCEPTOR, CONNECTOR, CONNECTION, INTERNAL
+    };
 
-    /** This destruct deletes all handlers which were installed. */
-    ~Monitor();
+  static Mutex _cout_mut;
 
-    /** Sets the state of the monitor entry to the specified state.
-        This is used to synchronize the monitor and the worker
-        thread. Bug# 2057 */
-    void setState(
-        Uint32 index,
-        MonitorEntry::Status status);
+  /** Default constructor. */
+  Monitor();
 
-    void tickle();
+  /** This destruct deletes all handlers which were installed. */
+  ~Monitor();
 
-    /** Monitor system-level for the given number of milliseconds. Post a
-        message to the corresponding queue when such an event occurs.
-        Return after the time has elapsed or a single event has occurred,
-        whichever occurs first.
+  /** Sets the state of the monitor entry to the specified state.
+      This is used to synchronize the monitor and the worker
+      thread. Bug# 2057 */
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    void setState( Uint32 index, _MonitorEntry::entry_status status );
+    void setPipeState( Uint32 index, _MonitorEntry::entry_status status );
+#endif
 
-        @param timeoutMsec the number of milliseconds to wait for an event.
-    */
-    void run(Uint32 timeoutMsec);
+  void initializeTickler();
+  void uninitializeTickler();
 
-    /** Solicit interest in SocketMessages. Note that there may only
-        be one solicitor per socket.
+  void tickle();
+  /** Monitor system-level for the given number of milliseconds. Post a
+      message to the corresponding queue when such an event occurs.
+      Return after the time has elapsed or a single event has occurred,
+      whichever occurs first.
 
-        @param socket the socket to monitor for activity.
-        @param queueId of queue on which to post socket messages.
-        @return false if messages have already been solicited on this socket.
-    */
-    int solicitSocketMessages(
-        SocketHandle socket,
-        Uint32 queueId,
-        Uint32 type);
+      @param timeoutMsec the number of milliseconds to wait for an event.
+      @return true if an event occured.
+  */
+  void run(Uint32 timeoutMsec);
 
-    /** Unsolicit messages on the given socket.
+  /** Solicit interest in SocketMessages. Note that there may only
+      be one solicitor per socket.
 
-        @param socket on which to unsolicit messages.
-        @return false if no such solicitation has been made on the given socket.
-    */
-    void unsolicitSocketMessages(SocketHandle);
+      @param socket the socket to monitor for activity.
+      @param events socket events to monitor (see the SocketMessage::Events
+      enumeration for details).
+      @param queueId of queue on which to post socket messages.
+      @return false if messages have already been solicited on this socket.
+  */
+  int solicitSocketMessages(
+                SocketHandle socket,
+                Uint32 events,
+                Uint32 queueId,
+                int type);
 
-    /** stop listening for client connections
-     */
-    void stopListeningForConnections(Boolean wait);
+// Added for NamedPipe implementation for windows
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+  /**Solicit interest in NamedPipe Messages. Note that there may only
+      be one solicitor per pipe.This method is the same as solicitSocketMessages
+      but for Named Pipes
+
+      @param namedPipeHandle handle to named pipe to monitor for activity.
+      @param events pipe events to monitor (see the SocketMessage::Events
+      enumeration for details).
+      @param queueId of queue on which to post pipe messages.
+      @return false if messages have already been solicited on this pipe.
+  */
+  int  Monitor::solicitPipeMessages(
+    NamedPipe namedPipe,
+    Uint32 events,   //not sure what has to change for this enum
+    Uint32 queueId,
+    int type);
+
+  void unsolicitPipeMessages(NamedPipe namedPipe);
+  int handlePipe();
+  Uint32 _solicitPipeCount;
+  Mutex _entry_pipe_mut; // Monitor Entries for Pipe
+#endif
+  /** Unsolicit messages on the given socket.
+
+  @param socket on which to unsolicit messages.
+  @return false if no such solicitation has been made on the given socket.
+  */
+  void unsolicitSocketMessages(SocketHandle);
+
+  /** dispatch a message to the cimom on an independent thread
+      Note: The Monitor class uses the MessageQueueService ThreadPool.
+      This ThreadPool is only available if it has been initialized by
+      the MessageQueueService.  Therefore, the Monitor class should
+      only be used when the MessageQueueService is active in the
+      system.
+   */
+  static ThreadReturnType PEGASUS_THREAD_CDECL _dispatch(void *);
+
+  /** stop listening for client connections
+   */
+  void stopListeningForConnections(Boolean wait);
 
 private:
 
-    Array<MonitorEntry> _entries;
-    /**
-        This mutex must be locked when accessing the _entries array or any
-        of its MonitorEntry objects.
-    */
-    Mutex _entriesMutex;
-
-    AtomicInt _stopConnections;
-    Semaphore _stopConnectionsSem;
-
-    /** tracks how many times solicitSocketCount() has been called */
-    Uint32 _solicitSocketCount;
-
-    Tickler _tickler;
+  Array<_MonitorEntry> _entries;
+  Mutex _entry_mut;
+  AtomicInt _stopConnections;
+  Semaphore _stopConnectionsSem;
+  Uint32 _solicitSocketCount;  // tracks how many times solicitSocketCount() has been called
+  friend class HTTPConnection;
+  struct sockaddr_in _tickle_server_addr;
+  struct sockaddr_in _tickle_client_addr;
+  struct sockaddr_in _tickle_peer_addr;
+  SocketHandle _tickle_client_socket;
+  SocketHandle _tickle_server_socket;
+  SocketHandle _tickle_peer_socket;
+  Mutex _tickle_mutex;
+#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+  Array<_MonitorEntry> _entries_pipe;
+#endif
 };
 
 PEGASUS_NAMESPACE_END

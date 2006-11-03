@@ -441,6 +441,7 @@ int main(int argc, char** argv)
     testAssociationClass(client, CIMName("CIM_CommMechanismForManager"));
 
     //testAssociationTraversal(client);
+    return 0;
 }
 
 // END OF FILE

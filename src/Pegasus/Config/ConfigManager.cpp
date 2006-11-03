@@ -37,6 +37,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Constants.h>
@@ -681,7 +682,18 @@ void ConfigManager::_loadConfigProperties()
             }
             else
             {
-                throw UnrecognizedConfigProperty(propertyName);
+                // if the property is a fixed property then just log that this property
+                // is not supported and continue. In all other cases terminate the cimserver
+                if (_propertyTable->fixedValueTable.contains(propertyName))
+                {
+                  Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+                         "Config.ConfigManager.NOTSUPPORTED_CONFIG_PROPERTY",
+                         "Configuration property $0 is not supported. "
+                         "Setting ignored.", propertyName);
+                } else 
+                {
+                  throw UnrecognizedConfigProperty(propertyName);
+                }
             }
         }
         catch(UnrecognizedConfigProperty& ucp)

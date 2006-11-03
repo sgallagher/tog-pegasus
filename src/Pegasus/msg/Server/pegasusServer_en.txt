@@ -809,6 +809,18 @@ not be valid."}
 
         Config.ConfigExceptions.CONFIG_FILE_SYNTAX_ERR:string {"PGS02208: Syntax error is found in the configuration file: "}
 
+        // ==========================================================
+        // Messages for ConfigManager
+        //  Please use message prefix "PGS02300"
+        // ==========================================================
+  
+        /**
+        * @note  PGS02300:
+        *    Substitution {0} is the name of a property (a string)
+        */        
+        Config.ConfigManager.NOTSUPPORTED_CONFIG_PROPERTY:string {"PSG02300: Configuration property {0} is not supported. Setting ignored."}
+
+
 
         // ==========================================================
         // Messages for TracePropertyOwner

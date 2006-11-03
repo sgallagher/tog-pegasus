@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Sushma Fernandes (Hewlett-Packard Company)
-//              sushma_fernandes@hp.com
-// Modified By: Dave Rosckes (IBM)
-//              rosckes@us.ibm.com
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -148,6 +140,11 @@ public:
 
         fileName = _allocLogFileName(homeDirectory, Logger::STANDARD_LOG);
         _logs[Logger::STANDARD_LOG].open(fileName, ios::app);
+
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+        fileName = _allocLogFileName(homeDirectory, Logger::AUDIT_LOG);
+        _logs[Logger::AUDIT_LOG].open(fileName, ios::app);
+#endif
 
         fileName = _allocLogFileName(homeDirectory, Logger::ERROR_LOG);
         _logs[Logger::ERROR_LOG].open(fileName, ios::app);

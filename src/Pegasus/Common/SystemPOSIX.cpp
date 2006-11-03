@@ -1294,7 +1294,7 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
                             ycmMessage::Diagnostic);
     }
 
-#elif defined(PEGASUS_OS_ZOS)
+#elif defined(PEGASUS_OS_ZOS) && defined(PEGASUS_USE_SYSLOGS)
 
     const char   * zosMessageString = message;
     unsigned int   zosMessageStringLength = strlen(message);

@@ -53,7 +53,7 @@
 
 
 PEGASUS_USING_STD;
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 //
 // Values and ValueMap qualifier names
@@ -848,6 +848,6 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
     return buildProfileInstanceId(organizationName, name, version);
 }
 
-PEGASUS_NAMESPACE_END;
+PEGASUS_NAMESPACE_END
 
 // END_OF_FILE

@@ -39,7 +39,7 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/String.h>
 
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 // Enum for class selection for instance operations.
 enum TARGET_CLASS {
@@ -336,6 +336,6 @@ String extractProfileInfo(
     Array<String> & subprofileOrganizationNames,
     bool noSubProfileInfo = true);
 
-PEGASUS_NAMESPACE_END;
+PEGASUS_NAMESPACE_END
 
 #endif // InteropProviderUtils_h

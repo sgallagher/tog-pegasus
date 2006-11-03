@@ -53,7 +53,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 
 PEGASUS_USING_STD;
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 // Property names for SoftwareIdentity
 #define SOFTWAREIDENTITY_PROPERTY_NAME  COMMON_PROPERTY_NAME
@@ -504,5 +504,5 @@ Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances()
     return instances;
 }
 
-PEGASUS_NAMESPACE_END;
+PEGASUS_NAMESPACE_END
 // END_OF_FILE

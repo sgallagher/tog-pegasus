@@ -35,7 +35,7 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 //
 // Some Commonly shared property names
@@ -122,6 +122,6 @@ const CIMNamespaceName PEGASUS_NAMESPACENAME_ROOT("root");
 
 #define thisProvider "InteropProvider"
 
-PEGASUS_NAMESPACE_END;
+PEGASUS_NAMESPACE_END
 
 #endif // InteropConstants_h

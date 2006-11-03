@@ -52,7 +52,7 @@
 #include "InteropConstants.h"
 
 PEGASUS_USING_STD;
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 //
 // Property names for CIM_Namespace Class
@@ -539,6 +539,6 @@ CIMObjectPath InteropProvider::createNamespace(
     return newInstanceReference;
 }
 
-PEGASUS_NAMESPACE_END;
+PEGASUS_NAMESPACE_END
 
 // END OF FILE

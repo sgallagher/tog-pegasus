@@ -62,7 +62,7 @@
 #include <Pegasus/Common/StatisticalData.h>
 
 PEGASUS_USING_STD;
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 const String CIMXMLProtocolVersion = "1.0";
 
@@ -694,6 +694,6 @@ Array<CIMInstance> InteropProvider::enumCommMechanismForManagerInstances()
     return assocInstances;
 }
 
-PEGASUS_NAMESPACE_END;
+PEGASUS_NAMESPACE_END
 
 // END OF FILE

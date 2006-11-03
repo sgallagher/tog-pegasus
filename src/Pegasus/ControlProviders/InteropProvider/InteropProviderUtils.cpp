@@ -77,7 +77,7 @@
 #endif
 
 PEGASUS_USING_STD;
-PEGASUS_NAMESPACE_BEGIN;
+PEGASUS_NAMESPACE_BEGIN
 
 /***************************************************************
  *                                                             *
@@ -712,6 +712,6 @@ String buildProfileInstanceId(const String & organization,
     return organization + "+" + name + "+" + version;
 }
 
-PEGASUS_NAMESPACE_END;
+PEGASUS_NAMESPACE_END
 
 // END_OF_FILE

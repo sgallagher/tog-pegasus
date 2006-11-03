@@ -132,7 +132,7 @@ const CIMName PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT =
 const CIMName PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER =
     CIMName ("DesignatedUserContext");
 const CIMName PEGASUS_PROPERTYNAME_PROVIDERCERTINFO =
-    CIMName ("OperationContextContainers");
+    CIMName ("RequestedOperationContextContainers");
 
 /**
     The name of the Destination property for CIM XML Indication Handler

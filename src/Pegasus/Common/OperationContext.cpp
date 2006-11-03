@@ -960,7 +960,7 @@ String SnmpTrapOidContainer::getSnmpTrapOid(void) const
 class SSLCertificateChainContainerRep
 {
 public:
-    Array<SSLCertificateInfo*> userCert;
+    Array<SSLCertificateInfo> userCert;
 };
 
 //
@@ -969,9 +969,11 @@ public:
 
 const String SSLCertificateChainContainer::NAME = "SSLCertificateChainContainer";
 
-SSLCertificateChainContainer::SSLCertificateChainContainer(const OperationContext::Container & container)
+SSLCertificateChainContainer::SSLCertificateChainContainer(
+    const OperationContext::Container & container)
 {
-    const SSLCertificateChainContainer *p = dynamic_cast<const SSLCertificateChainContainer *>(&container);
+    const SSLCertificateChainContainer *p =
+        dynamic_cast<const SSLCertificateChainContainer *>(&container);
 
     if(p == 0)
     {
@@ -982,7 +984,8 @@ SSLCertificateChainContainer::SSLCertificateChainContainer(const OperationContex
     _rep->userCert = p->_rep->userCert;
 }
 
-SSLCertificateChainContainer::SSLCertificateChainContainer(const SSLCertificateChainContainer & container)
+SSLCertificateChainContainer::SSLCertificateChainContainer(
+    const SSLCertificateChainContainer & container)
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
      : OperationContext::Container()
 #endif
@@ -991,7 +994,8 @@ SSLCertificateChainContainer::SSLCertificateChainContainer(const SSLCertificateC
     _rep->userCert = container._rep->userCert;
 }
 
-SSLCertificateChainContainer::SSLCertificateChainContainer(Array<SSLCertificateInfo*> userCert)
+SSLCertificateChainContainer::SSLCertificateChainContainer(
+    const Array<SSLCertificateInfo>& userCert)
 {
     _rep = new SSLCertificateChainContainerRep();
     _rep->userCert = userCert;
@@ -1030,7 +1034,7 @@ void SSLCertificateChainContainer::destroy(void)
     delete this;
 }
 
-Array<SSLCertificateInfo*> SSLCertificateChainContainer::getUserCert(void) const
+Array<SSLCertificateInfo> SSLCertificateChainContainer::getUserCert(void) const
 {
     return(_rep->userCert);
 }

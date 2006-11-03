@@ -202,7 +202,8 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String userName;
    String authType = String::EMPTY;
    Boolean closeConnect = httpMessage->getCloseConnect();
-   Array<SSLCertificateInfo*> userCert;
+   Array<SSLCertificateInfo> userCert;
+   Array<SSLCertificateInfo*> tempUserCert;
 
    PEG_TRACE((
        TRC_HTTP,
@@ -215,7 +216,16 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    {
       userName = httpMessage->authInfo->getAuthenticatedUser();
       authType = httpMessage->authInfo->getAuthType();
-      userCert = httpMessage->authInfo->getClientCertificateChain();
+      tempUserCert = httpMessage->authInfo->getClientCertificateChain();
+      for (Uint32 i=0; i<tempUserCert.size(); i++)
+      {
+          userCert.append(*tempUserCert[i]) ;
+      }
+      PEG_TRACE((
+          TRC_HTTP,
+          Tracer::LEVEL3,
+          "CIMOperationRequestDecoder::handleHTTPMessage user cert chain size is %d", userCert.size()));
+
    }
 
    // Parse the HTTP message:
@@ -558,7 +568,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
    const AcceptLanguageList& httpAcceptLanguages,
    const ContentLanguageList& httpContentLanguages,
    Boolean closeConnect,
-   Array<SSLCertificateInfo*> userCert)
+   Array<SSLCertificateInfo> userCert)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDecoder::handleMethodCall()");
@@ -1455,7 +1465,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
             cimmsg->operationContext.insert(IdentityContainer(userName));
             cimmsg->operationContext.set(AcceptLanguageListContainer(httpAcceptLanguages));
             cimmsg->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
-            if (userCert.size() != 0)
+            if (userCert.size() != NULL)
             {
                 cimmsg->operationContext.insert(SSLCertificateChainContainer(userCert));
             }

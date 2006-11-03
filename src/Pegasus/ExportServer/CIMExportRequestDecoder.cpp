@@ -173,7 +173,8 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // Save userName:
 
    String userName;
-   Array<SSLCertificateInfo*> userCert;
+   Array<SSLCertificateInfo> userCert;
+   Array<SSLCertificateInfo*> tempUserCert;
 
    // Bug #351:
    if ( httpMessage->message.size() == 0 )
@@ -186,7 +187,17 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    if ( httpMessage->authInfo->isAuthenticated() )
    {
       userName = httpMessage->authInfo->getAuthenticatedUser();
-      userCert = httpMessage->authInfo->getClientCertificateChain();
+
+      tempUserCert = httpMessage->authInfo->getClientCertificateChain();
+      for (Uint32 i=0; i<tempUserCert.size(); i++)
+      {
+          userCert.append(*tempUserCert[i]) ;
+      }
+      PEG_TRACE((
+          TRC_HTTP,
+          Tracer::LEVEL3,
+          "CIMExportRequestDecoder::handleHTTPMessage user cert chain size is %d", userCert.size()));
+
    }
 
    Boolean closeConnect = httpMessage->getCloseConnect();
@@ -521,7 +532,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
     const AcceptLanguageList& httpAcceptLanguages,
     const ContentLanguageList& httpContentLanguages,
     Boolean closeConnect,
-    Array<SSLCertificateInfo*> userCert)
+    Array<SSLCertificateInfo> userCert)
 {
 // l10n
         // Set the Accept-Language into the thread for this service.

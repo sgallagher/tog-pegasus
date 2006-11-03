@@ -701,19 +701,17 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             providerModule.getProperty(pos).getValue().get(userContext);
         }
 
-        Array<Uint16> operationContextContainers;
+        Array<Uint16> requestedOperationContextContainers;
         Uint32 pos1 = provider.findProperty(PEGASUS_PROPERTYNAME_PROVIDERCERTINFO);
 
         if (pos1 != PEG_NOT_FOUND)
         {
-            provider.getProperty(pos1).getValue().get(operationContextContainers);
+            provider.getProperty(pos1).getValue().get(requestedOperationContextContainers);
         }
 
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-             "Got Value for provider certificate info as : $0",operationContextContainers);
-        for (Uint32 i=0; i<operationContextContainers.size(); i++)
+        for (Uint32 i=0; i<requestedOperationContextContainers.size(); i++)
         {
-            if (operationContextContainers[i] != 0)
+            if (requestedOperationContextContainers[i] != 0)
             {
                 /**
                     remove the SSL client certificate container unless the provider

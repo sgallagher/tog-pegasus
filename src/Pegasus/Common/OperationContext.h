@@ -993,7 +993,7 @@ public:
         Constructs an SSLCertificateChainContainer object from the specified Container.
         @param container The Container object to copy.
         @exception DynamicCastFailedException If the specified Container
-        object is not an SSLCertificateChainContainer object.
+         object is not an SSLCertificateChainContainer object.
     */
     SSLCertificateChainContainer(const OperationContext::Container& container);
 
@@ -1005,10 +1005,11 @@ public:
 
     /**
         Constructs an SSLCertificateChainContainer with a specified user name.
-        @param userCert the certificate associated with the user's request, null if the user was not authenticated via
+        @param userCert the certificate associated with the user's request,
+         null if the user was not authenticated via
          a trusted client certificate
     */
-    SSLCertificateChainContainer(Array<SSLCertificateInfo*> userCert);
+    SSLCertificateChainContainer(const Array<SSLCertificateInfo>& userCert);
 
     /**
         Destructs the SSLCertificateChainContainer.
@@ -1016,11 +1017,11 @@ public:
     virtual ~SSLCertificateChainContainer();
 
     /**
-        Assigns the value of the specified SSLCertificateChainContainer object to this
-        object.
+        Assigns the value of the specified SSLCertificateChainContainer object
+        to this object.
         @param container The SSLCertificateChainContainer object to copy.
     */
-    SSLCertificateChainContainer& operator=(const SSLCertificateChainContainer& container);
+    SSLCertificateChainContainer & operator=(const SSLCertificateChainContainer& container);
 
     /**
         Returns the unique name for this Container type.
@@ -1033,7 +1034,7 @@ public:
         responsible for cleaning up the copy by calling destroy() method.
         @return A pointer to the new Container object.
     */
-    virtual OperationContext::Container* clone() const;
+    virtual OperationContext::Container * clone() const;
 
     /**
         Cleans up an SSLCertificateChainContainer object that was created by the
@@ -1043,9 +1044,10 @@ public:
 
     /**
       * Gets the chain of SSL certificates from the SSLCertificateChainContainer object
-      * @return The chain of client certificates if the user was authenticated via SSL, an empty array if not
-      */
-      Array<SSLCertificateInfo*> getUserCert() const;
+      * @return The chain of client certificates if the user was authenticated via SSL,
+         an empty array if not
+    */
+      Array<SSLCertificateInfo> getUserCert() const;
 
 protected:
     SSLCertificateChainContainerRep* _rep;

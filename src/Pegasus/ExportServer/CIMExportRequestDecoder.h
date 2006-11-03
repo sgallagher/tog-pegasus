@@ -101,7 +101,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
           const AcceptLanguageList& httpAcceptLanguages,
           const ContentLanguageList& httpContentLanguages,
           Boolean closeConnect,
-          Array<SSLCertificateInfo*> userCert);
+          Array<SSLCertificateInfo> userCert);
 
       CIMExportIndicationRequestMessage* decodeExportIndicationRequest(
          Uint32 queueId,

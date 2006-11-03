@@ -142,11 +142,11 @@ class PG_Provider : CIM_LogicalElement {
       [Key, Override("Name"), Description ("A human-readable name that"
        "uniquely identifies the provider within the Provider Module.")]
    string Name;
-   [ Description ("Indicates the OperationContext containers that"
-     "are supported by the provider."),
-      ValueMap {"0"}, 	
-      Values {"SSLCertificateChainContainer"} ] 
-   uint16 OperationContextContainers[];
+      [Description ("Indicates the OperationContext containers that "
+       "are requested by the provider."),
+       ValueMap {"0", "1", "2", "3"}, 	
+       Values {"SSLCertificateChainContainer", "Reserved1", "Reserved2", "Reserved3"}]
+   uint16 RequestedOperationContextContainers[];
 };
 
 // ==================================================================

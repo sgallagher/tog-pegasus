@@ -108,7 +108,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
          const AcceptLanguageList& httpAcceptLanguages,
          const ContentLanguageList& httpContentLanguages,
          Boolean closeConnect,
-         Array<SSLCertificateInfo*> userCert);
+         Array<SSLCertificateInfo> userCert);
 
       CIMCreateClassRequestMessage* decodeCreateClassRequest(
          Uint32 queueId,

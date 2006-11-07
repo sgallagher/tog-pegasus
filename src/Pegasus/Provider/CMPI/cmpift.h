@@ -800,7 +800,7 @@ extern "C"
 	@param mb The broker.
 	@param rc Output: Service return status (suppressed when NULL).
 	@return Handle to be provided to releae() function.
-    */
+    */
     CMPIGcStat *(*mark) (const CMPIBroker * mb, CMPIStatus * rc);
 
         /** Release all CMPI objects created since last mark() operation
@@ -813,7 +813,7 @@ extern "C"
 
     /** Allocates uninitalized memory of the specified size.        
  	@param mb Specifies the broker.
-	@param size Specifies the amount of memory to allocate.
+	@param size Specifies the amount of memory to allocate.
 	@return Returns a pointer to the allocated memory, or NULL if the memory 
 	could not be allocated
 	*/
@@ -854,7 +854,7 @@ extern "C"
 
         /** This function frees memory allocated via the cmpiMalloc, cmpiCalloc 
 	or cmpiRealloc functions.
-	@param mb The broker.
+	@param mb The broker.
 	@param ptr The memory to free. This memory MUST have been allocated via the 
 	cmpiMalloc, cmpiCalloc or cmpiRealloc functions.
 	@return None
@@ -1189,18 +1189,18 @@ extern "C"
        /** Function table version
        */
     CMPISint32 ftVersion;
-       /** Create an independent copy of this Error object.
-	 @param er Error this pointer.
-	 @param rc Output: Service return status (suppressed when NULL).
-	 @return Pointer to copied Error object.
-      */
-    CMPIError* (*clone)(const CMPIError*, CMPIStatus*);
        /** The Error object will not be used any further and may be freed by
            CMPI run time system.
 	 @param er Error this pointer.
 	 @return Service return status.
       */
     CMPIStatus (*release)(CMPIError*);
+       /** Create an independent copy of this Error object.
+	 @param er Error this pointer.
+	 @param rc Output: Service return status (suppressed when NULL).
+	 @return Pointer to copied Error object.
+      */
+    CMPIError* (*clone)(const CMPIError*, CMPIStatus*);
 	/** Gets the type of this Error
 		@param er Error this pointer
 		@param rc Output: Service return status (suppressed when NULL).
@@ -1333,12 +1333,6 @@ extern "C"
 		@return Output: Service return status
 	*/
     CMPIStatus (*setOtherErrorSourceFormat)(CMPIError*, const char*);
-	/** Sets the status code.
-		@param er Error this pointer
-		@param rc The CMPIrc value of the error
-		@return Output: Service return status
-	*/
-    CMPIStatus (*setCIMStatusCode)(CMPIError*, const CMPIrc);
 	/** Sets the description of the status code.
 		@param er Error this pointer
 		@param scd A string whcih describes the status code.

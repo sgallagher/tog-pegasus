@@ -49,13 +49,7 @@ extern "C"
         const CMPIErrorSeverity sev, const CMPIErrorProbableCause pc, 
         const CMPIrc cimStatusCode)
     {
-        // CMPIErrorSeverity (incorrectly) does not skip '1'
-        int tmpSev = sev;
-        if (tmpSev>0)
-        {
-            tmpSev++;
-        }
-        CIMError::PerceivedSeverityEnum pgSev = (CIMError::PerceivedSeverityEnum)tmpSev;
+        CIMError::PerceivedSeverityEnum pgSev = (CIMError::PerceivedSeverityEnum)sev;
         CIMError::ProbableCauseEnum pgPc = (CIMError::ProbableCauseEnum)pc;
         CIMError::CIMStatusCodeEnum pgSc = (CIMError::CIMStatusCodeEnum)cimStatusCode;
 
@@ -274,13 +268,7 @@ extern "C"
         }
 
         if (rc) CMSetStatus(rc,CMPI_RC_OK);
-        // CMPIErrorSeverity (incorrectly) does not skip '1'
-        int tmpSev = pgPerceivedSeverity;
-        if (tmpSev>1)
-        {
-            tmpSev--;
-        }
-        return (CMPIErrorSeverity)tmpSev;
+        return (CMPIErrorSeverity)pgPerceivedSeverity;
     }
 
     static CMPIErrorProbableCause errGetProbableCause(
@@ -791,30 +779,6 @@ extern "C"
         CMReturn(CMPI_RC_OK);
     }
 
-    static CMPIStatus errSetCIMStatusCode(
-        CMPIError* eErr, const CMPIrc cimStatusCode)
-    {
-        CIMError* cer=(CIMError*)eErr->hdl;
-        if (!cer)
-        {
-            CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
-        }
-
-        CIMError::CIMStatusCodeEnum pgCIMStatusCode;
-        pgCIMStatusCode = (CIMError::CIMStatusCodeEnum)cimStatusCode;
-
-        try
-        {
-            cer->setCIMStatusCode(pgCIMStatusCode);
-        }
-        catch (...)
-        {
-            CMReturn(CMPI_RC_ERR_FAILED);
-        }
-
-        CMReturn(CMPI_RC_OK);
-    }
-
     static CMPIStatus errSetCIMStatusCodeDescription(
         CMPIError* eErr, const char* cimStatusCodeDescription)
     {
@@ -901,8 +865,8 @@ extern "C"
 
 static CMPIErrorFT error_FT={
     CMPICurrentVersion,
-    errClone,
     errRelease,
+    errClone,
     errGetErrorType,
     errGetOtherErrorType,
     errGetOwningEntity,
@@ -925,7 +889,6 @@ static CMPIErrorFT error_FT={
     errSetErrorSource,
     errSetErrorSourceFormat,
     errSetOtherErrorSourceFormat,
-    errSetCIMStatusCode,
     errSetCIMStatusCodeDescription,
     errSetMessageArguments,
 };

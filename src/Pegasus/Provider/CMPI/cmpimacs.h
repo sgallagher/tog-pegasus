@@ -796,6 +796,30 @@ inline static CMPIStatus CMSetPropertyFilter
 #      define CMSetPropertyFilter(i,pl,k) ((i)->ft->setPropertyFilter((i),(pl),(k)))
 #   endif
 
+#   ifdef CMPI_VER_200
+#   ifdef CMPI_INLINE
+	  /** Add/replace a named Property value and origin
+		  @param inst is a pointer to the CMPIInstance structure.
+		  @param name is a string containing the Property name.
+		  @param value points to a CMPIValue structure containing the value
+		  to be assigned to the Property.
+		  @param type is a CMPIType structure defining the type of the value.
+		  @param origin specifies the instance origin.  If NULL, then
+		  no origin is attached to  the property
+		  @return Service return status
+	  */
+inline static CMPIStatus CMSetPropertyWithOrigin
+  (const CMPIInstance * inst, const char *name,
+   const CMPIValue * value, CMPIType type, const char * origin)
+{
+  return ((inst)->ft->setPropertyWithOrigin (
+      (inst), (name), (value), (type), (origin)));
+}
+#   else
+#      define CMSetPropertyWithOrigin(i,n,v,t,o) \
+                      ((i)->ft->setPropertyWithOrigin((i),(n),(CMPIValue*)(v),(t),(o)))
+#   endif
+#   endif /* CMPI_VER_200 */
 
 
    // CMPIObjectPath macros
@@ -1649,21 +1673,6 @@ inline static CMPIStatus (*setOtherErrorSourceFormat)(
 #   endif
 
 #   ifdef CMPI_INLINE
-/** Sets the status code.
-    @param er Error this pointer
-    @param rc The CMPIrc value of the error
-    @return Output: Service return status
- */
-inline static CMPIStatus (*setCIMStatusCode)(CMPIError* er, const CMPIrc rc);
-{
-  return ((er)->ft->setCIMStatusCode ((er), (rc)));
-}
-#   else
-#      define CMSetCIMStatusCode(e,rc)                                 \
-              ((e)->ft->setCIMStatusCode((e),(rc)))
-#   endif
-
-#   ifdef CMPI_INLINE
 /** Sets the description of the status code.
     @param er Error this pointer
     @param scd A string whcih describes the status code.
@@ -1809,6 +1818,23 @@ CMReturnDone (const CMPIResult * rslt)
 #      define CMReturnDone(r)                      ((r)->ft->returnDone((r)))
 #   endif
 
+#   ifdef CMPI_VER_200
+#   ifdef CMPI_INLINE
+	  /** Return a CMPIError object instance
+	 @param rslt Result this pointer.
+	 @param er Error to be returned.
+	 @return Service return status.
+	  */
+inline static CMPIStatus CMReturnError
+  (const CMPIResult* rslt, const CMPIError* er)
+{
+  return ((rslt)->ft->returnError ((rslt), (er)));
+}
+#   else
+#      define CMReturnError(r,e) \
+                           ((r)->ft->returnError((r),(e)))
+#   endif
+#   endif /* CMPI_VER_200 */
 
 
     // CMPIContext Macros

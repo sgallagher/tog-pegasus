@@ -227,20 +227,22 @@ CMPIStatus testProvDeActivateFilter
   CMReturn (CMPI_RC_OK);
 }
 
-void
+CMPIStatus
 testProvEnableIndications (CMPIIndicationMI * cThis, const CMPIContext * ctx)
 {
 #ifdef PEGASUS_DEBUG
   fprintf (stderr, "+++ testProvEnableIndications\n");
 #endif
+  CMReturn (CMPI_RC_OK);
 }
 
-void
+CMPIStatus
 testProvDisableIndications (CMPIIndicationMI * cThis, const CMPIContext * ctx)
 {
 #ifdef PEGASUS_DEBUG
   fprintf (stderr, "+++ testProvDisableIndications\n");
 #endif
+  CMReturn (CMPI_RC_OK);
 }
 
 

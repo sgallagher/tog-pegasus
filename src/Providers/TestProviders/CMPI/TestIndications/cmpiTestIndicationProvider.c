@@ -244,7 +244,7 @@ make_InstanceWithProperties (const CMPIBroker * broker, const CMPIObjectPath * o
   CMPIValue       val;
   unsigned int idx;
   CMPIString *name = NULL;
-  char *_name = NULL;
+  const char *_name = NULL;
   PROV_LOG ("-- make_Instance");
   inst = CMNewInstance (broker, objPath, &rc_Inst);
 
@@ -471,7 +471,7 @@ thread (void *args)
   CMPIContext *ctx;
   CMPISelectExp *se;
   char *ns;
-  char *query = NULL;
+  const char *query = NULL;
   CMPIBroker *broker;
 
   // Copy over the CMPISelectExp, CMPIContext, CMPIBroker and the ns from the argument. 
@@ -779,11 +779,11 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
 }
 
 #ifdef CMPI_VER_100
-void
+CMPIStatus
 TestCMPIIndicationProviderEnableIndications (CMPIIndicationMI * mi,
                                              const CMPIContext * ctx)
 #else
-void
+CMPIStatus
 TestCMPIIndicationProviderEnableIndications (CMPIIndicationMI * mi)
 #endif
 {
@@ -794,13 +794,16 @@ TestCMPIIndicationProviderEnableIndications (CMPIIndicationMI * mi)
 
   waitUntilThreadIsDone ();
   PROV_LOG ("--- %s CMPI EnableIndication() exited", _IndClassName);
+  CMReturn (CMPI_RC_OK);
 }
 
 #ifdef CMPI_VER_100
+//CMPIStatus
 void
 TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi,
                                               const CMPIContext * ctx)
 #else
+//CMPIStatus
 void
 TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi)
 #endif
@@ -811,6 +814,12 @@ TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi)
   waitUntilThreadIsDone ();
   PROV_LOG ("--- %s CMPI DisableIndication() exited", _IndClassName);
   PROV_LOG_CLOSE ();
+// This CMReturn is commented out to provide a sort of "compatibility"
+// test for older CMPI indication providers that were written when Pegasus
+// had incorrectly defined the return type of enableIndications() and
+// disableIndications() as void instead of CMPIStatus. See bug 4985.
+// A warning message is currently expected when building this test provider.
+//  CMReturn (CMPI_RC_OK);
 }
 
 /* ---------------------------------------------------------------------------*/

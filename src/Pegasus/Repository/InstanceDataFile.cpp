@@ -29,20 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By: Michael E. Brasher (mbrasher@bmc.com)
-//
-//              Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
-//                      replaced instances of "| ios::binary" with
-//                      PEGASUS_OR_IOS_BINARY
-//
-//              Sushma Fernandes. Hewlett-Packard Company
-//                     sushma_fernandes@hp.com
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <fstream>
@@ -365,13 +351,10 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     rollbackFs.close();
 
     //
-    // Now truncate the data file to that size:
+    // If the instance data file does not yet exist, create it
     //
 
-    //
-    // If the fileSize is zero, then create the InstanceDataFile and exit.
-    //
-    if ( fileSize == 0 )
+    if (fileSize == 0)
     {
         fstream ofs;
 
@@ -382,9 +365,11 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
         }
 
         ofs.close();
-        PEG_METHOD_EXIT();
-        return true;
     }
+
+    //
+    // Truncate the data file to its initial size
+    //
 
     if (!System::truncateFile(path.getCString(), fileSize))
     {

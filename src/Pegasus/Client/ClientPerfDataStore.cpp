@@ -148,7 +148,7 @@ String ClientPerfDataStore::toString() const
         out << "the error condition is true " << "\r\n";
     }
     else{
-        out << " he error condition is false" << "\r\n";
+        out << "the error condition is false" << "\r\n";
     }
     if (_classRegistered) {
         out << "there is a class registered" << "\r\n";

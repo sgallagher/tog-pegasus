@@ -72,7 +72,6 @@ usage: FORCE
 	$(USAGE)"DEFAULT RULE        - all, setupdevserver"
 	$(USAGE)"new                 - clean repositoryclean"
 	$(USAGE)"build               - depend all, setupdevserver"
-	$(USAGE)"smallworld          - build unittests serverquicktests"
 	$(USAGE)"world               - build unittests servertests"
 	$(USAGE)
 	$(USAGE)"Functional rules - Other rules to achieve specified results"
@@ -94,7 +93,6 @@ usage: FORCE
 	$(USAGE)"Test rules (accessable here but implemented in TestMakefile)"
 	$(USAGE)"alltests            - unittests and servertests"
 	$(USAGE)"unittests           - runs the unit functional test"
-	$(USAGE)"serverquicktests    - runs quick server tests"
 	$(USAGE)"servertests         - runs basic server tests"
 	$(USAGE)"perftests           - runs basic server performance tests"
 	$(USAGE)"standardtests       - runs server extended tests"
@@ -109,24 +107,20 @@ usage: FORCE
 	$(USAGE)"  set PEGASUS_PLATFORM=<your platofrm>"
 	$(USAGE)"  set PEGASUS_ROOT=<location of your pegasus source>"
 	$(USAGE)"  set PEGASUS_HOME=<build output location"
-	$(USAGE)"  make smallworld"
+	$(USAGE)"  make world"
 	$(USAGE)
 	$(USAGE)"  This will build everthing with a default configuration"
-	$(USAGE)"  and run some tests."
-	$(USAGE)
-	$(USAGE)"  For a more extensive test use \"make world\""
+	$(USAGE)"  and run the automated tests."
 	$(USAGE)
 	$(USAGE)"--------------------"
 	$(USAGE)"Examples:"
-	$(USAGE)"  After \"cvs checkout\" of new tree:    make smallworld"
-	$(USAGE)"                          OR           make world"
+	$(USAGE)"  After \"cvs checkout\" of new tree:    make world"
 	$(USAGE)
 	$(USAGE)"  After changes to include files:      make"
 	$(USAGE)
 	$(USAGE)"  After changes to the files included: make build"
 	$(USAGE)
-	$(USAGE)"  After \"cvs update\" or to start over: make new smallworld" 
-	$(USAGE)"                          OR           make new world"
+	$(USAGE)"  After \"cvs update\" or to start over: make new world" 
 	$(USAGE)
 
 listplatforms: FORCE
@@ -165,7 +159,7 @@ rebuild_msg: FORCE
 	@$(ECHO) "==============================================================================="
 	@$(ECHO) "Makefile: The rebuild target is being deprecated." 
 	@$(ECHO) "          Use \"make usage\" for a description of the usage model."
-	@$(ECHO) "          Consider using \"make new smallworld\" ."
+	@$(ECHO) "          Consider using \"make new world\" ."
 	@$(ECHO) "          Invoking the old rebuild rule now."
 	@$(ECHO) "==============================================================================="
 
@@ -185,8 +179,6 @@ new: clean repositoryclean
 # world targets: builds everything and dependent on which target may do testing
 #
 #       Typically used after a fresh checkout from CVS 
-
-smallworld: build s_unittests serverquicktests
 
 world: build s_unittests servertests
 
@@ -212,9 +204,6 @@ unittests: FORCE
 
 standardtests: FORCE
 	@ $(MAKE) -f TestMakefile standardtests
-
-serverquicktests: FORCE
-	@ $(MAKE) -f TestMakefile serverquicktests
 
 alltests: FORCE
 	@ $(MAKE) -f TestMakefile alltests

@@ -29,17 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company 
-//                  (carolann_graves@hp.com)
-//              Adrian Schuur (schuur@de.ibm.com) - PEP 129
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef PegasusRepository_Repository_h
@@ -458,6 +447,14 @@ protected:
 
 private:
 
+    /**
+        Searches for incomplete instance transactions for all classes in all
+        namespaces.  Restores instance index and data files to void an
+        incomplete operation.  If no incomplete instance transactions are
+        outstanding, this method has no effect.
+     */
+    void _rollbackIncompleteTransactions();
+
     void _createAssocInstEntries(
         const CIMNamespaceName& nameSpace,
         const CIMConstClass& cimClass,
@@ -578,26 +575,6 @@ private:
         Uint32 oldSize,
         Uint32& newIndex,
         Uint32& newSize);
-
-    /** Renames the temporary instance and instance index files back to the
-        original files.  The temporary files were created for an insert,
-        remove, or modify operation (to avoid data inconsistency between
-        the two files in case of unexpected system termination or failure).
-        This method is called after a successful insert, remove, or modify
-        operation on BOTH the index file and the instance file.  Returns
-        true on success.
-
-        @param   indexFilePath   the file path of the instance index file
-        @param   instancePath    the file path of the instance file
-
-        @return  true      if successful
-                 false     if an error occurs in removing the original files
-                           or renaming the temporary files.
-     */
-    Boolean _renameTempInstanceAndIndexFiles(
-        const String& indexFilePath,
-        const String& instanceFilePath);
-
 
     String _repositoryRoot;
     NameSpaceManager _nameSpaceManager;

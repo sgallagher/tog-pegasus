@@ -29,23 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Karl Schopmeyer(k.schopmeyer@opengroup.org) - extend ref function.
-//              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383,1508,1813,667
-//              Seema Gupta (gseema@in.ibm.com) - Bugzilla 281, Bugzilla 1313
-//              Adrian Schuur (schuur@de.ibm.com) - PEP 129 & 164
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//              David Dillard, VERITAS Software Corp.
-//                   (david.dillard@veritas.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3347
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -656,6 +639,108 @@ void _rollbackInstanceTransaction(
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// InstanceTransactionHandler
+//
+//      This class is used to manage a repository instance transaction.  The
+//      transaction is started when the class is instantiated, committed when
+//      the complete() method is called, and rolled back if the destructor is
+//      called without a prior call to complete().
+//
+//      The appropriate repository write locks must be owned while an
+//      InstanceTransactionHandler instance exists.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+class InstanceTransactionHandler
+{
+public:
+    InstanceTransactionHandler(
+        const String& indexFilePath,
+        const String& dataFilePath)
+    : _indexFilePath(indexFilePath),
+      _dataFilePath(dataFilePath),
+      _isComplete(false)
+    {
+        _rollbackInstanceTransaction(_indexFilePath, _dataFilePath);
+        _beginInstanceTransaction(_indexFilePath, _dataFilePath);
+    }
+
+    ~InstanceTransactionHandler()
+    {
+        if (!_isComplete)
+        {
+            _rollbackInstanceTransaction(_indexFilePath, _dataFilePath);
+        }
+    }
+
+    void complete()
+    {
+        _commitInstanceTransaction(_indexFilePath, _dataFilePath);
+        _isComplete = true;
+    }
+
+private:
+    String _indexFilePath;
+    String _dataFilePath;
+    Boolean _isComplete;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMRepository::_rollbackIncompleteTransactions()
+//
+//      Searches for incomplete instance transactions for all classes in all
+//      namespaces.  Restores instance index and data files to void an
+//      incomplete operation.  If no incomplete instance transactions are
+//      outstanding, this method has no effect.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void CIMRepository::_rollbackIncompleteTransactions()
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "CIMRepository::_rollbackIncompleteTransactions");
+
+    WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
+
+    Array<CIMNamespaceName> namespaceNames;
+    _nameSpaceManager.getNameSpaceNames(namespaceNames);
+
+    for (Uint32 i = 0; i < namespaceNames.size(); i++)
+    {
+        Array<CIMName> classNames;
+        _nameSpaceManager.getSubClassNames(
+            namespaceNames[i], CIMName(), true, classNames);
+
+        for (Uint32 j = 0; j < classNames.size(); j++)
+        {
+            //
+            // Get paths of index and data files:
+            //
+
+            String indexFilePath = _getInstanceIndexFilePath(
+                namespaceNames[i], classNames[j]);
+
+            String dataFilePath = _getInstanceDataFilePath(
+                namespaceNames[i], classNames[j]);
+
+            //
+            // Attempt rollback (if there are no rollback files, this will
+            // have no effect). This code is here to rollback uncommitted
+            // changes left over from last time an instance-oriented function
+            // was called.
+            //
+
+            _rollbackInstanceTransaction(indexFilePath, dataFilePath);
+        }
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // CIMRepository
 //
 //     The following are not implemented:
@@ -725,6 +810,8 @@ CIMRepository::CIMRepository(
 
     _lockFile = ConfigManager::getInstance()->getHomedPath(
         PEGASUS_REPOSITORY_LOCK_FILE).getCString();
+
+    _rollbackIncompleteTransactions();
 
     PEG_METHOD_EXIT();
 }
@@ -1187,12 +1274,11 @@ void CIMRepository::deleteInstance(
         nameSpace, instanceName.getClassName());
 
     //
-    // Attempt rollback (if there are no rollback files, this will have no
-    // effect). This code is here to rollback uncommitted changes left over
-    // from last time an instance-oriented function was called.
+    // Perform the operation in a transaction scope to enable rollback on
+    // failure.
     //
 
-    _rollbackInstanceTransaction(indexFilePath, dataFilePath);
+    InstanceTransactionHandler transaction(indexFilePath, dataFilePath);
 
     //
     // Lookup instance from the index file (raise error if not found).
@@ -1212,8 +1298,6 @@ void CIMRepository::deleteInstance(
     // Remove entry from index file.
     //
 
-    _beginInstanceTransaction(indexFilePath, dataFilePath);
-
     Uint32 freeCount;
 
     if (!InstanceIndexFile::deleteEntry(indexFilePath, instanceName, freeCount))
@@ -1231,7 +1315,7 @@ void CIMRepository::deleteInstance(
         //l10n end
     }
 
-    _commitInstanceTransaction(indexFilePath, dataFilePath);
+    transaction.complete();
 
     //
     // Compact the index and data files if the free count max was
@@ -1529,24 +1613,6 @@ CIMObjectPath CIMRepository::_createInstance(
     String errMessage;
 
     //
-    // Get paths to data and index files:
-    //
-
-    String indexFilePath = _getInstanceIndexFilePath(
-        nameSpace, newInstance.getClassName());
-
-    String dataFilePath = _getInstanceDataFilePath(
-        nameSpace, newInstance.getClassName());
-
-    //
-    // Attempt rollback (if there are no rollback files, this will have no
-    // effect). This code is here to rollback uncommitted changes left over
-    // from last time an instance-oriented function was called.
-    //
-
-    _rollbackInstanceTransaction(indexFilePath, dataFilePath);
-
-    //
     // Resolve the instance. Looks up class and fills out properties but
     // not the qualifiers.
     //
@@ -1594,10 +1660,25 @@ CIMObjectPath CIMRepository::_createInstance(
         _createAssocInstEntries(nameSpace, cimClass, cimInstance, instanceName);
 
     //
-    // Save instance to file:
+    // Get paths to data and index files:
     //
 
-    _beginInstanceTransaction(indexFilePath, dataFilePath);
+    String indexFilePath = _getInstanceIndexFilePath(
+        nameSpace, newInstance.getClassName());
+
+    String dataFilePath = _getInstanceDataFilePath(
+        nameSpace, newInstance.getClassName());
+
+    //
+    // Perform the operation in a transaction scope to enable rollback on
+    // failure.
+    //
+
+    InstanceTransactionHandler transaction(indexFilePath, dataFilePath);
+
+    //
+    // Save instance to file:
+    //
 
     Uint32 index;
     Uint32 size;
@@ -1633,7 +1714,7 @@ CIMObjectPath CIMRepository::_createInstance(
                 instanceName.toString()));
     }
 
-    _commitInstanceTransaction(indexFilePath, dataFilePath);
+    transaction.complete();
 
     Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass,
         true);
@@ -1760,26 +1841,6 @@ void CIMRepository::modifyInstance(
 
     WriteLock lock(_lock);
     AutoFileLock fileLock(_lockFile);
-
-    //
-    // Get paths of index and data files:
-    //
-
-    const CIMInstance& instance = modifiedInstance;
-
-    String indexFilePath = _getInstanceIndexFilePath(
-        nameSpace, instance.getClassName());
-
-    String dataFilePath = _getInstanceDataFilePath(
-        nameSpace, instance.getClassName());
-
-    //
-    // Attempt rollback (if there are no rollback files, this will have no
-    // effect). This code is here to rollback uncommitted changes left over
-    // from last time an instance-oriented function was called.
-    //
-
-    _rollbackInstanceTransaction(indexFilePath, dataFilePath);
 
     //
     // Do this:
@@ -2014,6 +2075,20 @@ void CIMRepository::modifyInstance(
                 "Attempted to modify a key property"));
     }
 
+    //
+    // Get paths of index and data files:
+    //
+
+    String indexFilePath = _getInstanceIndexFilePath(
+        nameSpace, modifiedInstance.getClassName());
+
+    String dataFilePath = _getInstanceDataFilePath(
+        nameSpace, modifiedInstance.getClassName());
+
+    //
+    // Look up the specified instance
+    //
+
     Uint32 oldSize;
     Uint32 oldIndex;
     Uint32 newSize;
@@ -2027,10 +2102,15 @@ void CIMRepository::modifyInstance(
     }
 
     //
-    // Modify the data file:
+    // Perform the operation in a transaction scope to enable rollback on
+    // failure.
     //
 
-    _beginInstanceTransaction(indexFilePath, dataFilePath);
+    InstanceTransactionHandler transaction(indexFilePath, dataFilePath);
+
+    //
+    // Modify the data file:
+    //
 
     {
         Buffer out;
@@ -2067,7 +2147,7 @@ void CIMRepository::modifyInstance(
                 instanceName.toString()));
     }
 
-    _commitInstanceTransaction(indexFilePath, dataFilePath);
+    transaction.complete();
 
     //
     // Compact the index and data files if the free count max was

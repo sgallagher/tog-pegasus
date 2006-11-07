@@ -364,6 +364,7 @@ void ProviderManagerService::handleCimRequest(
         // Get the provider module instance to check for a disabled module
         //
         CIMInstance providerModule;
+        CIMInstance provider;
 
         // The provider ID container is added to the OperationContext
         // by the CIMOperationRequestDispatcher for all CIM operation
@@ -373,6 +374,27 @@ void ProviderManagerService::handleCimRequest(
         ProviderIdContainer pidc =
             request->operationContext.get(ProviderIdContainer::NAME);
         providerModule = pidc.getModule();
+        provider = pidc.getProvider();
+
+        Array<Uint16> requestedOperationContextContainers;
+        Uint32 pos1 = provider.findProperty(PEGASUS_PROPERTYNAME_PROVIDERCERTINFO);
+
+        if (pos1 != PEG_NOT_FOUND)
+        {
+            provider.getProperty(pos1).getValue().get(requestedOperationContextContainers);
+        }
+
+        for (Uint32 i=0; i<requestedOperationContextContainers.size(); i++)
+        {
+            if (requestedOperationContextContainers[i] != 0)
+            {
+                /**
+                    remove the SSL client certificate container unless the provider
+                    explicitly registered for it
+                */
+                request->operationContext.remove(SSLCertificateChainContainer::NAME);
+            }
+        }
 
         //
         // Check if the target provider is disabled
@@ -654,7 +676,6 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
     else
     {
         CIMInstance providerModule;
-        CIMInstance provider;
 
         if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
         {
@@ -673,7 +694,6 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             ProviderIdContainer pidc =
                 request->operationContext.get(ProviderIdContainer::NAME);
             providerModule = pidc.getModule();
-            provider = pidc.getProvider();
 
 #ifdef PEGASUS_ZOS_SECURITY
             if (request->getType() != CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
@@ -699,26 +719,6 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
         if (pos != PEG_NOT_FOUND)
         {
             providerModule.getProperty(pos).getValue().get(userContext);
-        }
-
-        Array<Uint16> requestedOperationContextContainers;
-        Uint32 pos1 = provider.findProperty(PEGASUS_PROPERTYNAME_PROVIDERCERTINFO);
-
-        if (pos1 != PEG_NOT_FOUND)
-        {
-            provider.getProperty(pos1).getValue().get(requestedOperationContextContainers);
-        }
-
-        for (Uint32 i=0; i<requestedOperationContextContainers.size(); i++)
-        {
-            if (requestedOperationContextContainers[i] != 0)
-            {
-                /**
-                    remove the SSL client certificate container unless the provider
-                    explicitly registered for it
-                */
-                request->operationContext.remove(SSLCertificateChainContainer::NAME);
-            }
         }
 
         // Forward the request to the appropriate ProviderManagerRouter, based

@@ -3261,6 +3261,16 @@ void CMPIProviderManager::_callEnableIndications
             CMPIProvider::pm_service_op_lock op_lock(&pr);
             ph.GetProvider().protect();
 
+            // enableIndications() is defined by the CMPI standard as
+            // returning a CMPIStatus return value. Unfortunately, Pegasus
+            // originally implemented enableIndications() with a void
+            // return type, and this incompatibility was not detected for 
+            // some time. Since exceptions thrown from enableIndications() 
+            // are not reported (other than via logging), it was decided to
+            // discard the returned CMPIStatus here. This will prevent us from
+            // breaking existing CMPI Indication providers. This is ok since
+            // there really isn't a user to which the problem should be
+            // reported.
             pr.miVector.indMI->ft->enableIndications(pr.miVector.indMI,&eCtx);
         }
         else
@@ -3274,21 +3284,10 @@ void CMPIProviderManager::_callEnableIndications
                 "that does not support this function"<<endl);
         }
     }
-    catch (const CIMException & e)
-    {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "CIMException: " + e.getMessage ());
-
-        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.CMPI.CMPIProviderManager."
-                "ENABLE_INDICATIONS_FAILED",
-            "Failed to enable indications for provider $0: $1.",
-            ph.GetProvider ().getName (), e.getMessage ());
-    }
     catch (const Exception & e)
     {
         PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "Exception: " + e.getMessage ());
+            "Exception in _callEnableIndications: " + e.getMessage ());
 
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.CMPI.CMPIProviderManager."
@@ -3317,61 +3316,95 @@ void CMPIProviderManager::_callDisableIndications
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
         "CMPIProviderManager::_callDisableIndications");
 
-    indProvRecord * provRec = 0;
+    try
     {
-        WriteLock writeLock(rwSemProvTab);
-    if (provTab.lookup (ph.GetProvider ().getName (), provRec))
-    {
-        provRec->enabled = false;
-        if (provRec->handler) delete provRec->handler;
-        provRec->handler = NULL;
-    }
-    }
-
-    CMPIProvider & pr=ph.GetProvider();
-
-    if (pr.miVector.indMI==0)
-    {
-        _throw_MINotInitializedException();
-    }
-
-    //
-    //  Versions prior to 86 did not include disableIndications routine
-    //
-    if (pr.miVector.indMI->ft->ftVersion >= 86)
-    {
-        OperationContext context;
-        CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
-
-        if (remoteInfo)
+        indProvRecord * provRec = 0;
         {
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",
-                             (CMPIValue*)(const char*)remoteInfo,CMPI_chars);
+            WriteLock writeLock(rwSemProvTab);
+        if (provTab.lookup (ph.GetProvider ().getName (), provRec))
+        {
+            provRec->enabled = false;
+            if (provRec->handler) delete provRec->handler;
+            provRec->handler = NULL;
         }
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        }
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.disableIndications: " + pr.getName());
+        CMPIProvider & pr=ph.GetProvider();
 
-        DDD(cerr<<"--- provider.disableIndications"<<endl);
+        if (pr.miVector.indMI==0)
+        {
+            _throw_MINotInitializedException();
+        }
 
-        CMPIProvider::pm_service_op_lock op_lock(&pr);
+        //
+        //  Versions prior to 86 did not include disableIndications routine
+        //
+        if (pr.miVector.indMI->ft->ftVersion >= 86)
+        {
+            OperationContext context;
+            CMPIStatus rc={CMPI_RC_OK,NULL};
+            CMPI_ContextOnStack eCtx(context);
 
-        pr.miVector.indMI->ft->disableIndications(pr.miVector.indMI, &eCtx);
+            if (remoteInfo)
+            {
+               eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",
+                                 (CMPIValue*)(const char*)remoteInfo,CMPI_chars);
+            }
+            CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        ph.GetProvider().unprotect();
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Calling provider.disableIndications: " + pr.getName());
+
+            DDD(cerr<<"--- provider.disableIndications"<<endl);
+
+            CMPIProvider::pm_service_op_lock op_lock(&pr);
+
+            // disableIndications() is defined by the CMPI standard as
+            // returning a CMPIStatus return value. Unfortunately, Pegasus
+            // originally implemented disableIndications() with a void
+            // return type, and this incompatibility was not detected for 
+            // some time. For consistency with the enableIndications()
+            // interface, it was decided to discard the returned CMPIStatus 
+            // here. This will prevent us from breaking existing CMPI 
+            // Indication providers. This is ok since there really isn't a 
+            // user to which the problem should be reported.
+            pr.miVector.indMI->ft->disableIndications(pr.miVector.indMI, &eCtx);
+
+            ph.GetProvider().unprotect();
+        }
+        else
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Not calling provider.disableIndications: "
+                + pr.getName() +
+                " routine as it is an earlier version that does not support this function");
+
+            DDD(cerr<<"--- provider.disableIndications " \
+                "cannot be called as the provider uses an earlier version " \
+                "that does not support this function"<<endl);
+        }
     }
-    else
+    catch (const Exception & e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Not calling provider.disableIndications: "
-            + pr.getName() +
-            " routine as it is an earlier version that does not support this function");
+        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Exception in _callDisableIndications: " + e.getMessage ());
 
-        DDD(cerr<<"--- provider.disableIndications " \
-            "cannot be called as the provider uses an earlier version " \
-            "that does not support this function"<<endl);
+        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            "ProviderManager.CMPI.CMPIProviderManager."
+                "DISABLE_INDICATIONS_FAILED",
+            "Failed to disable indications for provider $0: $1.",
+            ph.GetProvider ().getName (), e.getMessage ());
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Unexpected error in _callDisableIndications");
+
+        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            "ProviderManager.CMPI.CMPIProviderManager."
+                "DISABLE_INDICATIONS_FAILED_UNKNOWN",
+            "Failed to disable indications for provider $0.",
+            ph.GetProvider ().getName ());
     }
 
     PEG_METHOD_EXIT ();

@@ -240,18 +240,16 @@ void CIMQualifierList::resolve(
         {   // Qualifier does not exist in superclass
             /* If from declaration, we can override the default value.
               However, we need some way to get the value if we have a Null.
-            if (!(qd.getFlavor ().hasFlavor
-                              (CIMFlavor::OVERRIDABLE))
-                            && qd.getFlavor ().hasFlavor
-                              (CIMFlavor::TOSUBCLASS))
+            if (!qd.getFlavor().hasFlavor(CIMFlavor::OVERRIDABLE) &&
+                qd.getFlavor().hasFlavor(CIMFlavor::TOSUBCLASS))
             {
                 //throw BadQualifierOverride(q.getName());
             }
+            */
             // Do not allow change from disable override to enable override.
             if ((!qd.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE))
                   && (q.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE)))
                 throw BadQualifierOverride(q.getName().getString ());
-            */
 
             Resolver::resolveQualifierFlavor(
                 q, CIMFlavor (qd.getFlavor ()), false);

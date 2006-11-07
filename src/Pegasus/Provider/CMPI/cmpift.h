@@ -3308,6 +3308,12 @@ extern "C"
 	   @param ctx The ctx argument is a pointer to a CMPIContext structure containing the Invocation
 	      Context.
 	   @return The function shall return a CMPIStatus structure containing the service return status.
+         * WARNING: The original Pegasus implementation of enableIndications()
+         * was defined with return type void, which deviated from the standard.
+         * Existing providers that do not return CMPIStatus will continue to
+         * run on Pegasus, but should be updated to return a valid CMPIStatus
+         * so that the do not fail on other CIM Servers. Until that time, they
+         * will most likely receive a compile error due to the type mismatch.
  		The following CMPIrc codes shall be recognized:
  		CMPI_RC_OK Operation successful.
  		CMPI_RC_ERR_FAILED Unspecific error occurred.
@@ -3322,6 +3328,12 @@ extern "C"
 	   @param ctx The ctx argument is a pointer to a CMPIContext structure containing the Invocation
 	      Context.
 	   @return The function shall return a CMPIStatus structure containing the service return status.
+         * WARNING: The original Pegasus implementation of disableIndications()
+         * was defined with return type void, which deviated from the standard.
+         * Existing providers that do not return CMPIStatus will continue to
+         * run on Pegasus, but should be updated to return a valid CMPIStatus
+         * so that the do not fail on other CIM Servers. Until that time, they
+         * will most likely receive a compile error due to the type mismatch.
  		The following CMPIrc codes shall be recognized:
  		CMPI_RC_OK Operation successful.
  		CMPI_RC_ERR_FAILED Unspecific error occurred.

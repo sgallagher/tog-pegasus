@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/AutoPtr.h>
@@ -195,7 +187,8 @@ CIMResponseMessage* CIMEnumerateInstancesRequestMessage::buildResponse() const
     return response.release();
 }
 
-CIMResponseMessage* CIMEnumerateInstanceNamesRequestMessage::buildResponse() const
+CIMResponseMessage*
+    CIMEnumerateInstanceNamesRequestMessage::buildResponse() const
 {
     AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
         new CIMEnumerateInstanceNamesResponseMessage(
@@ -361,7 +354,8 @@ CIMResponseMessage* CIMProcessIndicationRequestMessage::buildResponse() const
     return response.release();
 }
 
-CIMResponseMessage* CIMNotifyProviderRegistrationRequestMessage::buildResponse() const
+CIMResponseMessage*
+    CIMNotifyProviderRegistrationRequestMessage::buildResponse() const
 {
     AutoPtr<CIMNotifyProviderRegistrationResponseMessage> response(
         new CIMNotifyProviderRegistrationResponseMessage(
@@ -372,7 +366,8 @@ CIMResponseMessage* CIMNotifyProviderRegistrationRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMNotifyProviderTerminationRequestMessage::buildResponse() const
+CIMResponseMessage*
+    CIMNotifyProviderTerminationRequestMessage::buildResponse() const
 {
     AutoPtr<CIMNotifyProviderTerminationResponseMessage> response(
         new CIMNotifyProviderTerminationResponseMessage(
@@ -427,7 +422,7 @@ CIMResponseMessage* CIMDeleteSubscriptionRequestMessage::buildResponse() const
     return response.release();
 }
 
-CIMResponseMessage* 
+CIMResponseMessage*
     CIMSubscriptionInitCompleteRequestMessage::buildResponse() const
 {
     AutoPtr<CIMSubscriptionInitCompleteResponseMessage> response(
@@ -507,7 +502,8 @@ CIMResponseMessage* CIMInitializeProviderRequestMessage::buildResponse() const
     return response.release();
 }
 
-CIMResponseMessage* CIMInitializeProviderAgentRequestMessage::buildResponse() const
+CIMResponseMessage*
+    CIMInitializeProviderAgentRequestMessage::buildResponse() const
 {
     AutoPtr<CIMInitializeProviderAgentResponseMessage> response(
         new CIMInitializeProviderAgentResponseMessage(
@@ -533,9 +529,9 @@ CIMMessage::CIMMessage(Uint32 type, const String& messageId_)
     : Message(type), messageId(messageId_)
 {
     operationContext.insert(
-        AcceptLanguageListContainer(AcceptLanguageList())); 
+        AcceptLanguageListContainer(AcceptLanguageList()));
     operationContext.insert(
-        ContentLanguageListContainer(ContentLanguageList())); 
+        ContentLanguageListContainer(ContentLanguageList()));
 }
 
 CIMRequestMessage::CIMRequestMessage(
@@ -549,7 +545,7 @@ CIMResponseMessage::CIMResponseMessage(
     const String& messageId_,
     const CIMException& cimException_,
     const QueueIdStack& queueIds_)
-    : 
+    :
     CIMMessage(type_, messageId_),
     queueIds(queueIds_),
     cimException(cimException_)
@@ -565,7 +561,7 @@ CIMOperationRequestMessage::CIMOperationRequestMessage(
     const CIMNamespaceName& nameSpace_,
     const CIMName& className_,
     Uint32 providerType_)
-    : 
+    :
     CIMRequestMessage(type_, messageId_, queueIds_),
     authType(authType_),
     userName(userName_),

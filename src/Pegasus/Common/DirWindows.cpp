@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Dir.h"
@@ -49,17 +45,17 @@ Dir::Dir(const String& path)
 
     if (_dirRep.file == -1)
     {
-	_more = false;
-	throw CannotOpenDirectory(path);
+        _more = false;
+        throw CannotOpenDirectory(path);
     }
     else
-	_more = true;
+        _more = true;
 }
 
 Dir::~Dir()
 {
     if (_dirRep.file != -1)
-	_findclose(_dirRep.file);
+        _findclose(_dirRep.file);
 
 }
 
@@ -71,7 +67,7 @@ const char* Dir::getName() const
 void Dir::next()
 {
     if (!_more)
-	return;
+        return;
 
     _more = _findnext(_dirRep.file, &_dirRep.findData) == 0;
 }

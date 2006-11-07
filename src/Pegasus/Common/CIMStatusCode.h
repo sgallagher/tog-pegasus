@@ -155,7 +155,7 @@ PEGASUS_COMMON_LINKAGE String cimStatusCodeToString(
 PEGASUS_COMMON_LINKAGE ContentLanguageList cimStatusCodeToString_Thread(
     String & message,
     CIMStatusCode code);
-#endif  //    PEGASUS_USE_EXPERIMENTAL_INTERFACES			
+#endif  //    PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_END
 

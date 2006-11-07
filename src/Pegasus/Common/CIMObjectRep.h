@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Adriann Schuur (schuur@de.ibm.com) PEP 164
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMObjectRep_h
@@ -72,12 +63,12 @@ public:
 
     const CIMName& getClassName() const
     {
-	return _reference.getClassName();
+        return _reference.getClassName();
     }
 
     const CIMObjectPath& getPath() const
     {
-	return _reference;
+        return _reference;
     }
 
     /**
@@ -88,37 +79,37 @@ public:
 
     void addQualifier(const CIMQualifier& qualifier)
     {
-	_qualifiers.add(qualifier);
+        _qualifiers.add(qualifier);
     }
 
     Uint32 findQualifier(const CIMName& name) const
     {
-	return _qualifiers.find(name);
+        return _qualifiers.find(name);
     }
 
     CIMQualifier getQualifier(Uint32 index)
     {
-	return _qualifiers.getQualifier(index);
+        return _qualifiers.getQualifier(index);
     }
 
     CIMConstQualifier getQualifier(Uint32 index) const
     {
-	return _qualifiers.getQualifier(index);
+        return _qualifiers.getQualifier(index);
     }
 
     Boolean isTrueQualifer(CIMName& name) const
     {
-	return _qualifiers.isTrue(name);
+        return _qualifiers.isTrue(name);
     }
 
     Uint32 getQualifierCount() const
     {
-	return _qualifiers.getCount();
+        return _qualifiers.getCount();
     }
 
     void removeQualifier(Uint32 index)
     {
-	_qualifiers.removeQualifier(index);
+        _qualifiers.removeQualifier(index);
     }
 
     virtual void addProperty(const CIMProperty& x);
@@ -129,7 +120,7 @@ public:
 
     CIMConstProperty getProperty(Uint32 index) const
     {
-	return ((CIMObjectRep*)this)->getProperty(index);
+        return ((CIMObjectRep*)this)->getProperty(index);
     }
 
     void removeProperty(Uint32 index);
@@ -161,8 +152,8 @@ private:
     // not implicitly define a default copy constructor.
     CIMObjectRep& operator=(const CIMObjectRep& x)
     {
-	//PEGASUS_ASSERT(0);
-	return *this;
+        //PEGASUS_ASSERT(0);
+        return *this;
     }
 
     friend class CIMObject;

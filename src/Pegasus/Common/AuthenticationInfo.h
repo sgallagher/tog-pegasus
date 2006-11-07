@@ -49,14 +49,14 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /**
-    This class keeps the authentication information of a connection 
-    persistent until the connection is destroyed. 
+    This class keeps the authentication information of a connection
+    persistent until the connection is destroyed.
 
-    The HTTPConnection object creates a AuthenticationInfo object on a new 
-    socket connection and includes this object reference in the HTTPMessage 
+    The HTTPConnection object creates a AuthenticationInfo object on a new
+    socket connection and includes this object reference in the HTTPMessage
     that gets passed to the Delegator and in turn to the AuthenticationManager.
-    The AuthenticationManager and the related authentication classes use the 
-    AuthenticationInfo to store and access the persistent authentication 
+    The AuthenticationManager and the related authentication classes use the
+    AuthenticationInfo to store and access the persistent authentication
     information for a connection.
 */
 class PEGASUS_COMMON_LINKAGE AuthenticationInfo
@@ -64,14 +64,14 @@ class PEGASUS_COMMON_LINKAGE AuthenticationInfo
 public:
 
     /** Constructor - Creates an uninitiated new AuthenticationInfo
-        object reprenting a AuthenticationInfo class. The class object 
+        object reprenting a AuthenticationInfo class. The class object
         created by this constructor can only be used in an operation such as the
         copy constructor.  It cannot be used to do method calls like
         setAuthStatus, getAuthType, etc. since it is unitiated.
 
-        Use one of the other constructors to create an initiated new 
-        AuthenticationInfo class object. Throws an exception 
-        "unitialized handle" if this unitialized handle is used for 
+        Use one of the other constructors to create an initiated new
+        AuthenticationInfo class object. Throws an exception
+        "unitialized handle" if this unitialized handle is used for
         method calls.
     */
     AuthenticationInfo() : _rep(0)
@@ -83,7 +83,7 @@ public:
         PEG_METHOD_EXIT();
     }
 
-    /** Creates and instantiates a AuthenticationInfo from another 
+    /** Creates and instantiates a AuthenticationInfo from another
         AuthenticationInfo instance
         @return pointer to the new AuthenticationInfo instance
     */
@@ -113,7 +113,7 @@ public:
         return *this;
     }
 
-    /** Constructor - Instantiates a AuthenticationInfo object. 
+    /** Constructor - Instantiates a AuthenticationInfo object.
     @param flag - used only to distinguish from the default constructor.
     */
     AuthenticationInfo(Boolean flag)
@@ -140,10 +140,10 @@ public:
     /** Get the authentication status of the request
         @return the current authentication status
     */
-    AuthenticationInfoRep::AuthStatus getAuthStatus() const 
-    { 
+    AuthenticationInfoRep::AuthStatus getAuthStatus() const
+    {
         _checkRep();
-        return _rep->getAuthStatus(); 
+        return _rep->getAuthStatus();
     }
 
     /** Sets the authentication status of the request to the status
@@ -151,52 +151,52 @@ public:
         @param status - the new authentication status
     */
     void   setAuthStatus(AuthenticationInfoRep::AuthStatus status)
-    { 
+    {
         _checkRep();
-        _rep->setAuthStatus(status); 
+        _rep->setAuthStatus(status);
     }
 
     /** Get the previously authenticated user name
         @return the authenticated user name
     */
-    String getAuthenticatedUser() const 
-    { 
+    String getAuthenticatedUser() const
+    {
         _checkRep();
-        return _rep->getAuthenticatedUser(); 
+        return _rep->getAuthenticatedUser();
     }
 
     /** Sets the authenticated user name
         @param userName - string containing the authenticated user name
     */
     void   setAuthenticatedUser(const String& userName)
-    { 
+    {
         _checkRep();
-        _rep->setAuthenticatedUser(userName); 
+        _rep->setAuthenticatedUser(userName);
     }
 
     /** Get the previously authenticated password
         @return the authenticated password
     */
-    String getAuthenticatedPassword() const 
-    { 
+    String getAuthenticatedPassword() const
+    {
         _checkRep();
-        return _rep->getAuthenticatedPassword(); 
+        return _rep->getAuthenticatedPassword();
     }
 
     /** Sets the authenticated password
         @param password - string containing the authenticated password
     */
     void   setAuthenticatedPassword(const String& password)
-    { 
+    {
         _checkRep();
-        _rep->setAuthenticatedPassword(password); 
+        _rep->setAuthenticatedPassword(password);
     }
-    
+
     /** Get the authentication challenge that was sent to the client
         @return string containing the authentication challenge
     */
-    String getAuthChallenge() const 
-    { 
+    String getAuthChallenge() const
+    {
         _checkRep();
         return _rep->getAuthChallenge();
     }
@@ -205,16 +205,16 @@ public:
         @param challenge - string containing the authentication challenge
     */
     void   setAuthChallenge(const String& challenge)
-    { 
+    {
         _checkRep();
-        _rep->setAuthChallenge(challenge); 
+        _rep->setAuthChallenge(challenge);
     }
 
     /** Get the authentication secret that was sent to client
         @return string containing the authentication secret
     */
-    String getAuthSecret() const 
-    { 
+    String getAuthSecret() const
+    {
         _checkRep();
         return _rep->getAuthSecret();
     }
@@ -223,16 +223,16 @@ public:
         @param secret - string containing the authentication secret
     */
     void   setAuthSecret(const String& secret)
-    { 
+    {
         _checkRep();
-        _rep->setAuthSecret(secret); 
+        _rep->setAuthSecret(secret);
     }
 
-    /** Returns the connection type of the previous authenticated request 
+    /** Returns the connection type of the previous authenticated request
         @return true if the connection is privileged, false otherwise
     */
-    Boolean isPrivileged() const 
-    { 
+    Boolean isPrivileged() const
+    {
         _checkRep();
         return _rep->isPrivileged();
     }
@@ -241,9 +241,9 @@ public:
         @param privileged - boolean flag indicating the connection type
     */
     void   setPrivileged(Boolean privileged)
-    { 
+    {
         _checkRep();
-        _rep->setPrivileged(privileged); 
+        _rep->setPrivileged(privileged);
     }
 
     /** Is the request authenticated
@@ -251,8 +251,8 @@ public:
     /** Returns the authentication status of the current connection.
         @return true if the connection was authenticated, false otherwise
     */
-    Boolean isAuthenticated() const 
-    { 
+    Boolean isAuthenticated() const
+    {
         _checkRep();
         return _rep->isAuthenticated();
     }
@@ -261,7 +261,7 @@ public:
         @param string containing the authentication type
     */
     void   setAuthType(const String& authType)
-    { 
+    {
         _checkRep();
         _rep->setAuthType(authType);
     }
@@ -269,13 +269,13 @@ public:
     /** Get the authentication type of the connection
         @return string containing the authentication type
     */
-    String getAuthType() const 
-    { 
+    String getAuthType() const
+    {
         _checkRep();
         return _rep->getAuthType();
     }
 
-    /** 
+    /**
         Set the IP address to the specified IP address
         @param string containing the IP address
     */
@@ -285,10 +285,10 @@ public:
         _rep->setIpAddress(ipAddress);
     }
 
-    /** 
+    /**
         Get the IP address of the connection
 
-        NOTE: The IP address is for debug use only. 
+        NOTE: The IP address is for debug use only.
         It should not be used for authentication purposes.
 
         @return string containing the IP address
@@ -301,39 +301,37 @@ public:
 
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    /** Get the CIM Security Association 
+    /** Get the CIM Security Association
         @return a pointer to the CIM Security Association
     */
-    CIMKerberosSecurityAssociation* getSecurityAssociation() const 
-    { 
+    CIMKerberosSecurityAssociation* getSecurityAssociation() const
+    {
         _checkRep();
-        return _rep->getSecurityAssociation(); 
+        return _rep->getSecurityAssociation();
     }
 
-    /** Set the CIM Security Association 
+    /** Set the CIM Security Association
         The pointer will only be set once. If it is already set it will
         not reset it.
     */
     void setSecurityAssociation()
-    { 
+    {
         _checkRep();
-        _rep->setSecurityAssociation(); 
+        _rep->setSecurityAssociation();
     }
 #endif
 
-	//PEP187
     Array<SSLCertificateInfo*> getClientCertificateChain()
-	{
-	    _checkRep();
+    {
+        _checkRep();
         return _rep->getClientCertificateChain();
-	}
+    }
 
-	//PEP187
-	void setClientCertificateChain(Array<SSLCertificateInfo*> clientCertificate)
-	{
+    void setClientCertificateChain(Array<SSLCertificateInfo*> clientCertificate)
+    {
         _checkRep();
         _rep->setClientCertificateChain(clientCertificate);
-	}
+    }
 
 private:
 

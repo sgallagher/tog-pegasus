@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -136,12 +129,12 @@ void CIMParameterRep::resolve(
     CIMQualifierList dummy;
 
     _qualifiers.resolve(
-	declContext,
-	nameSpace,
-	CIMScope::PARAMETER,
-	false,
-	dummy,
-	true);
+        declContext,
+        nameSpace,
+        CIMScope::PARAMETER,
+        false,
+        dummy,
+        true);
 }
 
 void CIMParameterRep::toXml(Buffer& out) const
@@ -151,22 +144,22 @@ void CIMParameterRep::toXml(Buffer& out) const
         if (_type == CIMTYPE_REFERENCE)
         {
             out << STRLIT("<PARAMETER.REFARRAY NAME=\"") << _name;
-	    out.append('"');
+            out.append('"');
 
             if (!_referenceClassName.isNull())
             {
                 out << STRLIT(" REFERENCECLASS=\"");
-		out << _referenceClassName.getString();
-		out.append('"');
+                out << _referenceClassName.getString();
+                out.append('"');
             }
 
-	    if (_arraySize)
+            if (_arraySize)
             {
                 char buffer[32];
                 int n = sprintf(buffer, "%d", _arraySize);
                 out << STRLIT(" ARRAYSIZE=\"");
-		out.append(buffer, n);
-		out.append('"');
+                out.append(buffer, n);
+                out.append('"');
             }
 
             out << STRLIT(">\n");
@@ -179,16 +172,16 @@ void CIMParameterRep::toXml(Buffer& out) const
         {
             out << STRLIT("<PARAMETER.ARRAY");
             out << STRLIT(" NAME=\"") << _name;
-	    out << STRLIT("\" ");
+            out << STRLIT("\" ");
             out << STRLIT(" TYPE=\"") << cimTypeToString(_type);
-	    out.append('"');
+            out.append('"');
 
             if (_arraySize)
             {
                 char buffer[32];
                 sprintf(buffer, "%d", _arraySize);
                 out << STRLIT(" ARRAYSIZE=\"") << buffer;
-		out.append('"');
+                out.append('"');
             }
 
             out << STRLIT(">\n");
@@ -200,57 +193,57 @@ void CIMParameterRep::toXml(Buffer& out) const
     }
     else if (_type == CIMTYPE_REFERENCE)
     {
-	out << STRLIT("<PARAMETER.REFERENCE");
-	out << STRLIT(" NAME=\"") << _name;
-	out.append('"');
+        out << STRLIT("<PARAMETER.REFERENCE");
+        out << STRLIT(" NAME=\"") << _name;
+        out.append('"');
 
         if (!_referenceClassName.isNull())
         {
-	    out << STRLIT(" REFERENCECLASS=\"");
-	    out << _referenceClassName.getString();
-	    out.append('"');
+            out << STRLIT(" REFERENCECLASS=\"");
+            out << _referenceClassName.getString();
+            out.append('"');
         }
-	out << STRLIT(">\n");
+        out << STRLIT(">\n");
 
-	_qualifiers.toXml(out);
+        _qualifiers.toXml(out);
 
-	out << STRLIT("</PARAMETER.REFERENCE>\n");
+        out << STRLIT("</PARAMETER.REFERENCE>\n");
     }
     else
     {
-	out << STRLIT("<PARAMETER");
-	out << STRLIT(" NAME=\"") << _name;
-	out << STRLIT("\" ");
-	out << STRLIT(" TYPE=\"") << cimTypeToString(_type);
-	out << STRLIT("\">\n");
+        out << STRLIT("<PARAMETER");
+        out << STRLIT(" NAME=\"") << _name;
+        out << STRLIT("\" ");
+        out << STRLIT(" TYPE=\"") << cimTypeToString(_type);
+        out << STRLIT("\">\n");
 
-	_qualifiers.toXml(out);
+        _qualifiers.toXml(out);
 
-	out << STRLIT("</PARAMETER>\n");
+        out << STRLIT("</PARAMETER>\n");
     }
 }
 
 /** toMof - puts the Mof representation of teh Parameter object to
     the output parameter array
     The BNF for this conversion is:
-    parameterList    = 	parameter *( "," parameter )
+    parameterList    =  parameter *( "," parameter )
 
-	parameter    = 	[ qualifierList ] (dataType|objectRef) parameterName
-				[ array ]
+        parameter    =  [ qualifierList ] (dataType|objectRef) parameterName
+                        [ array ]
 
-	parameterName= 	IDENTIFIER
+        parameterName=  IDENTIFIER
 
-	array 	     = 	"[" [positiveDecimalValue] "]"
+        array        =  "[" [positiveDecimalValue] "]"
 
     Format on a single line.
-    */
+*/
 void CIMParameterRep::toMof(Buffer& out) const
 {
     // Output the qualifiers for the parameter
     _qualifiers.toMof(out);
 
     if (_qualifiers.getCount())
-	out.append(' ');
+        out.append(' ');
 
     // Output the data type and name
     out << cimTypeToString(_type);
@@ -259,15 +252,15 @@ void CIMParameterRep::toMof(Buffer& out) const
 
     if (_isArray)
     {
-	//Output the array indicator "[ [arraysize] ]"
-	if (_arraySize)
-	{
-	    char buffer[32];
-	    int n = sprintf(buffer, "[%d]", _arraySize);
-	    out.append(buffer, n);
-	}
-	else
-	    out << STRLIT("[]");
+        //Output the array indicator "[ [arraysize] ]"
+        if (_arraySize)
+        {
+            char buffer[32];
+            int n = sprintf(buffer, "[%d]", _arraySize);
+            out.append(buffer, n);
+        }
+        else
+            out << STRLIT("[]");
     }
 }
 
@@ -275,16 +268,16 @@ void CIMParameterRep::toMof(Buffer& out) const
 Boolean CIMParameterRep::identical(const CIMParameterRep* x) const
 {
     if (!_name.equal (x->_name))
-	return false;
+        return false;
 
     if (_type != x->_type)
-	return false;
+        return false;
 
     if (!_referenceClassName.equal (x->_referenceClassName))
-	return false;
+        return false;
 
     if (!_qualifiers.identical(x->_qualifiers))
-	return false;
+        return false;
 
     return true;
 }

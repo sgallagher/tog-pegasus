@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -113,13 +106,11 @@ void CIMMethodRep::addParameter(const CIMParameter& x)
     if (x.isUninitialized())
         throw UninitializedObjectException();
 
-    if (findParameter(x.getName()) != PEG_NOT_FOUND){
-        //l10n
-                //throw AlreadyExistsException
-            //("parameter \"" + x.getName().getString () + "\"");
+    if (findParameter(x.getName()) != PEG_NOT_FOUND)
+    {
         MessageLoaderParms parms("Common.CIMMethodRep.PARAMETER",
-                                                         "parameter \"$0\"",
-                                                         x.getName().getString());
+            "parameter \"$0\"",
+            x.getName().getString());
         throw AlreadyExistsException(parms);
     }
 
@@ -228,13 +219,13 @@ void CIMMethodRep::toXml(Buffer& out) const
     if (!_classOrigin.isNull())
     {
         out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
-	out.append('"');
+        out.append('"');
     }
 
     if (_propagated != false)
     {
         out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
-	out.append('"');
+        out.append('"');
     }
 
     out << STRLIT(">\n");

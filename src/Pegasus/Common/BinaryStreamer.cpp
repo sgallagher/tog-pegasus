@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
-//
-// Modified By:
-//     Dave Sudlik (dsudlik@us.ibm.com)
-//     David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//     Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3666
-//     Michael Brasher (mike-brasher@austin.rr.com)
-//     Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "XmlWriter.h"
@@ -196,7 +187,7 @@ void _unpack(const Buffer& in, Uint32& pos, CIMObject& x)
 {
     String tmp_String;
     Packer::unpackString(in, pos, tmp_String);
-    
+
     if (tmp_String.size() == 0)
     {
         // This should not occur since _unpackValue() won't call _unpack()
@@ -207,14 +198,15 @@ void _unpack(const Buffer& in, Uint32& pos, CIMObject& x)
     {
         // Convert the non-NULL string to a CIMObject (containing either a
         // CIMInstance or a CIMClass).
-                
+
         // First we need to create a new "temporary" XmlParser that is
         // just the value of the Embedded Object in String representation.
         CString cstr = tmp_String.getCString();
         char* tmp_buffer = (char*)(const char*)cstr;
         XmlParser tmp_parser(tmp_buffer);
 
-        // The next bit of logic constructs a CIMObject from the Embedded Object String.
+        // The next bit of logic constructs a CIMObject from the Embedded
+        // Object String.
         // It is similar to the method XmlReader::getValueObjectElement().
         CIMInstance cimInstance;
         CIMClass cimClass;
@@ -229,16 +221,12 @@ void _unpack(const Buffer& in, Uint32& pos, CIMObject& x)
         }
         else
         {
-            // l10n
-
-            // throw XmlValidationError(parser.getLine(),
-            //   "Expected INSTANCE or CLASS element");
-
-            MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCE_OR_CLASS_ELEMENT",
-                       "Expected INSTANCE or CLASS element"); // change "element" to "embedded object"
+            // change "element" to "embedded object"
+            MessageLoaderParms mlParms(
+                "Common.XmlReader.EXPECTED_INSTANCE_OR_CLASS_ELEMENT",
+                "Expected INSTANCE or CLASS element");
 
             throw XmlValidationError(0, mlParms);
-
         }
     }
 }
@@ -475,20 +463,20 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
 
             case CIMTYPE_OBJECT:
             {
-                const Array<CIMObject>& a = 
+                const Array<CIMObject>& a =
                     CIMValueType<CIMObject>::aref(rep);
- 
-                for (Uint32 i = 0; i < n; i++) 
+
+                for (Uint32 i = 0; i < n; i++)
                     Packer::packString(out, a[i].toString());
                 break;
             }
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
-                const Array<CIMInstance>& a = 
+                const Array<CIMInstance>& a =
                     CIMValueType<CIMInstance>::aref(rep);
- 
-                for (Uint32 i = 0; i < n; i++) 
+
+                for (Uint32 i = 0; i < n; i++)
                 {
                     CIMObject tmp(a[i]);
                     Packer::packString(out, tmp.toString());

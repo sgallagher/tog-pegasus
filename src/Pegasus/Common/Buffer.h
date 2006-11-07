@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Michael E. Brasher (mike-brasher@austin.rr.com -- Inova Europe)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Buffer_h
@@ -93,7 +91,7 @@ public:
     void append(char c1, char c2, char c3, char c4);
 
     void append(
-	char c1, char c2, char c3, char c4, char c5, char c6, char c7, char c8);
+        char c1, char c2, char c3, char c4, char c5, char c6, char c7, char c8);
 
     void insert(size_t pos, const char* data, size_t size);
 
@@ -120,7 +118,7 @@ inline Buffer::Buffer() : _rep(&_empty_rep)
 inline Buffer::~Buffer()
 {
     if (_rep->cap != 0)
-	free(_rep);
+        free(_rep);
 }
 
 inline void Buffer::swap(Buffer& x)
@@ -170,7 +168,7 @@ inline const char& Buffer::operator[](size_t i) const
 inline void Buffer::reserveCapacity(size_t cap)
 {
     if (cap > _rep->cap)
-	_reserve_aux(cap);
+        _reserve_aux(cap);
 }
 
 inline void Buffer::grow(size_t size, char x)
@@ -178,7 +176,7 @@ inline void Buffer::grow(size_t size, char x)
     size_t cap = _rep->size + size;
 
     if (cap > _rep->cap)
-	_reserve_aux(cap);
+        _reserve_aux(cap);
 
     memset(_rep->data + _rep->size, x, size);
     _rep->size += size;
@@ -187,7 +185,7 @@ inline void Buffer::grow(size_t size, char x)
 inline void Buffer::append(char x)
 {
     if (_rep->size == _rep->cap)
-	_append_char_aux();
+        _append_char_aux();
 
     _rep->data[_rep->size++] = x;
 }
@@ -197,7 +195,7 @@ inline void Buffer::append(const char* data, size_t size)
     size_t cap = _rep->size + size;
 
     if (cap > _rep->cap)
-	_reserve_aux(cap);
+        _reserve_aux(cap);
 
     memcpy(_rep->data + _rep->size, data, size);
     _rep->size += size;
@@ -206,7 +204,7 @@ inline void Buffer::append(const char* data, size_t size)
 inline void Buffer::clear()
 {
     if (_rep->cap != 0)
-	_rep->size = 0;
+        _rep->size = 0;
 }
 
 inline void Buffer::remove(size_t pos)
@@ -219,7 +217,7 @@ inline void Buffer::append(char c1, char c2, char c3, char c4)
     size_t cap = _rep->size + 4;
 
     if (cap > _rep->cap)
-	_reserve_aux(cap);
+        _reserve_aux(cap);
 
     char* p = _rep->data + _rep->size;
     p[0] = c1;
@@ -235,7 +233,7 @@ inline void Buffer::append(
     size_t cap = _rep->size + 8;
 
     if (cap > _rep->cap)
-	_reserve_aux(cap);
+        _reserve_aux(cap);
 
     char* p = _rep->data + _rep->size;
     p[0] = c1;

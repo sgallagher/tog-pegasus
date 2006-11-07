@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ArrayRep_h
@@ -76,8 +71,8 @@ struct PEGASUS_COMMON_LINKAGE ArrayRepBase
 
     union
     {
-	Uint32 capacity;
-	Uint64 alignment;
+        Uint32 capacity;
+        Uint64 alignment;
     };
 
     // Called only only _empty_rep object. We set the reference count to
@@ -127,7 +122,7 @@ ArrayRep<T>* ArrayRep<T>::alloc(Uint32 size)
     // logic in reserveCapacity().
 
     if (!size)
-	return (ArrayRep<T>*)&ArrayRepBase::_empty_rep;
+        return (ArrayRep<T>*)&ArrayRepBase::_empty_rep;
 
     // Calculate capacity (size rounded to the next power of two).
 
@@ -167,7 +162,7 @@ template<class T>
 inline void ArrayRep<T>::ref(const ArrayRep<T>* rep)
 {
     if ((void*)rep != (void*)&ArrayRepBase::_empty_rep)
-	((ArrayRep<T>*)rep)->refs.inc();
+        ((ArrayRep<T>*)rep)->refs.inc();
 }
 
 template<class T>
@@ -178,8 +173,8 @@ inline void ArrayRep<T>::unref(const ArrayRep<T>* rep_)
     if (rep != &ArrayRepBase::_empty_rep && rep->refs.decAndTestIfZero())
     {
         Destroy(rep->data(), rep->size);
-	rep->refs.~AtomicInt();
-	::operator delete(rep);
+        rep->refs.~AtomicInt();
+        ::operator delete(rep);
     }
 }
 

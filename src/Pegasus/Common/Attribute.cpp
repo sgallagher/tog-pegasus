@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Tony Fiorentino (fiorentino_tony@emc.com)
-//
-// Modified By: Keith Petley (keithp@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Attribute.h"
@@ -50,7 +46,7 @@ Attribute::~Attribute()
 {
     if (_vals.size())
     {
-        _vals.clear();	
+        _vals.clear();
     }
 }
 

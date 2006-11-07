@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMClassRep.h"
@@ -90,7 +81,7 @@ CIMObject& CIMObject::operator=(const CIMObject& x)
     if (x._rep != _rep)
     {
         Dec(_rep);
-	Inc(_rep = x._rep);
+        Inc(_rep = x._rep);
     }
     return *this;
 }

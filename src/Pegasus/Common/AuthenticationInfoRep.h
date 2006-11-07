@@ -50,7 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 class AuthenticationInfo;
 
 /**
-    This class keeps the authentication information of a connection 
+    This class keeps the authentication information of a connection
     persistent until the connection is destroyed.
 */
 class PEGASUS_COMMON_LINKAGE AuthenticationInfoRep :  public Sharable
@@ -58,67 +58,68 @@ class PEGASUS_COMMON_LINKAGE AuthenticationInfoRep :  public Sharable
 public:
     enum AuthStatus { NEW_REQUEST, CHALLENGE_SENT, AUTHENTICATED };
 
-	//ATTN: we should be using an enumeration for the authtype instead of a string.
-	//In the AuthenticationManager, the authtype is set to Basic, Digest, etc
-	//We also need to be able to check whether the type is SSL, so I'm adding a 
-	//string here to make it less arbitrary.  PEP165
-	static const String AUTH_TYPE_SSL;
-    
+    //ATTN: we should be using an enumeration for the authtype instead of a
+    //string.
+    //In the AuthenticationManager, the authtype is set to Basic, Digest, etc
+    //We also need to be able to check whether the type is SSL, so I'm adding a
+    //string here to make it less arbitrary.  PEP165
+    static const String AUTH_TYPE_SSL;
+
     AuthenticationInfoRep(Boolean flag);
 
     ~AuthenticationInfoRep();
 
-    AuthStatus getAuthStatus() const 
-    { 
+    AuthStatus getAuthStatus() const
+    {
         return _authStatus;
-    } 
+    }
 
     void   setAuthStatus(AuthStatus status);
 
-    String getAuthenticatedUser() const 
-    { 
+    String getAuthenticatedUser() const
+    {
         return _authUser;
-    } 
+    }
 
     void   setAuthenticatedUser(const String& userName);
 
-    String getAuthenticatedPassword() const 
-    { 
+    String getAuthenticatedPassword() const
+    {
         return _authPassword;
-    } 
+    }
 
     void   setAuthenticatedPassword(const String& password);
 
-    String getAuthChallenge() const 
-    { 
+    String getAuthChallenge() const
+    {
         return _authChallenge;
-    } 
+    }
 
     void   setAuthChallenge(const String& challenge);
 
-    String getAuthSecret() const 
-    { 
+    String getAuthSecret() const
+    {
         return _authSecret;
-    } 
+    }
 
     void   setAuthSecret(const String& secret);
 
-    Boolean isPrivileged() const 
-    { 
+    Boolean isPrivileged() const
+    {
         return _privileged;
-    } 
+    }
 
     void   setPrivileged(Boolean privileged);
 
-    Boolean isAuthenticated() const 
-    { 
+    Boolean isAuthenticated() const
+    {
         return (_authStatus == AUTHENTICATED) ? true : false;
-    } 
+    }
 
-    String getAuthType() const 
-    { 
+    String getAuthType() const
+    {
         return _authType;
-    } 
+    }
 
     void   setAuthType(const String& authType);
 
@@ -133,8 +134,8 @@ public:
     }
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    CIMKerberosSecurityAssociation* getSecurityAssociation() const 
-    { 
+    CIMKerberosSecurityAssociation* getSecurityAssociation() const
+    {
         return _securityAssoc.get();
     }
 
@@ -148,7 +149,7 @@ public:
     }
 
     //PEP187
-    void setClientCertificateChain(Array<SSLCertificateInfo*> 
+    void setClientCertificateChain(Array<SSLCertificateInfo*>
                                       clientCertificate);
 
 private:

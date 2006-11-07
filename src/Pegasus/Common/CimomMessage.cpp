@@ -65,9 +65,12 @@ const Uint32 async_results::CIM_STOPPED =               0x00000015;
 
 const Uint32 async_messages::HEARTBEAT =                DUMMY_MESSAGE;
 const Uint32 async_messages::REPLY =                    DUMMY_MESSAGE;
-const Uint32 async_messages::REGISTER_CIM_SERVICE =     ASYNC_REGISTER_CIM_SERVICE;
-const Uint32 async_messages::DEREGISTER_CIM_SERVICE =   ASYNC_DEREGISTER_CIM_SERVICE;
-const Uint32 async_messages::UPDATE_CIM_SERVICE =       ASYNC_UPDATE_CIM_SERVICE;
+const Uint32 async_messages::REGISTER_CIM_SERVICE =
+    ASYNC_REGISTER_CIM_SERVICE;
+const Uint32 async_messages::DEREGISTER_CIM_SERVICE =
+    ASYNC_DEREGISTER_CIM_SERVICE;
+const Uint32 async_messages::UPDATE_CIM_SERVICE =
+    ASYNC_UPDATE_CIM_SERVICE;
 const Uint32 async_messages::IOCTL =                    ASYNC_IOCTL;
 const Uint32 async_messages::CIMSERVICE_START =         ASYNC_CIMSERVICE_START;
 const Uint32 async_messages::CIMSERVICE_STOP =          ASYNC_CIMSERVICE_STOP;
@@ -76,20 +79,32 @@ const Uint32 async_messages::CIMSERVICE_RESUME =        ASYNC_CIMSERVICE_RESUME;
 
 const Uint32 async_messages::ASYNC_OP_START =           ASYNC_ASYNC_OP_START;
 const Uint32 async_messages::ASYNC_OP_RESULT =          ASYNC_ASYNC_OP_RESULT;
-const Uint32 async_messages::ASYNC_LEGACY_OP_START =    ASYNC_ASYNC_LEGACY_OP_START;
-const Uint32 async_messages::ASYNC_LEGACY_OP_RESULT =   ASYNC_ASYNC_LEGACY_OP_RESULT;
+const Uint32 async_messages::ASYNC_LEGACY_OP_START =
+    ASYNC_ASYNC_LEGACY_OP_START;
+const Uint32 async_messages::ASYNC_LEGACY_OP_RESULT =
+    ASYNC_ASYNC_LEGACY_OP_RESULT;
 
-const Uint32 async_messages::FIND_SERVICE_Q =           ASYNC_FIND_SERVICE_Q;
-const Uint32 async_messages::FIND_SERVICE_Q_RESULT =    ASYNC_FIND_SERVICE_Q_RESULT;
-const Uint32 async_messages::ENUMERATE_SERVICE =        ASYNC_ENUMERATE_SERVICE;
-const Uint32 async_messages::ENUMERATE_SERVICE_RESULT = ASYNC_ENUMERATE_SERVICE_RESULT;
+const Uint32 async_messages::FIND_SERVICE_Q =
+    ASYNC_FIND_SERVICE_Q;
+const Uint32 async_messages::FIND_SERVICE_Q_RESULT =
+    ASYNC_FIND_SERVICE_Q_RESULT;
+const Uint32 async_messages::ENUMERATE_SERVICE =
+    ASYNC_ENUMERATE_SERVICE;
+const Uint32 async_messages::ENUMERATE_SERVICE_RESULT =
+    ASYNC_ENUMERATE_SERVICE_RESULT;
 
-const Uint32 async_messages::REGISTERED_MODULE =        ASYNC_REGISTERED_MODULE;
-const Uint32 async_messages::DEREGISTERED_MODULE =      ASYNC_DEREGISTERED_MODULE;
-const Uint32 async_messages::FIND_MODULE_IN_SERVICE =   ASYNC_FIND_MODULE_IN_SERVICE;
-const Uint32 async_messages::FIND_MODULE_IN_SERVICE_RESPONSE = ASYNC_FIND_MODULE_IN_SERVICE_RESPONSE;
-const Uint32 async_messages::ASYNC_MODULE_OP_START =    ASYNC_ASYNC_MODULE_OP_START;
-const Uint32 async_messages::ASYNC_MODULE_OP_RESULT  =  ASYNC_ASYNC_MODULE_OP_RESULT;
+const Uint32 async_messages::REGISTERED_MODULE =
+    ASYNC_REGISTERED_MODULE;
+const Uint32 async_messages::DEREGISTERED_MODULE =
+    ASYNC_DEREGISTERED_MODULE;
+const Uint32 async_messages::FIND_MODULE_IN_SERVICE =
+    ASYNC_FIND_MODULE_IN_SERVICE;
+const Uint32 async_messages::FIND_MODULE_IN_SERVICE_RESPONSE =
+    ASYNC_FIND_MODULE_IN_SERVICE_RESPONSE;
+const Uint32 async_messages::ASYNC_MODULE_OP_START =
+    ASYNC_ASYNC_MODULE_OP_START;
+const Uint32 async_messages::ASYNC_MODULE_OP_RESULT  =
+    ASYNC_ASYNC_MODULE_OP_RESULT;
 
 
 AsyncMessage::AsyncMessage(

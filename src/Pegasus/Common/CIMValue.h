@@ -63,7 +63,7 @@ class CIMInstance;
 class PEGASUS_COMMON_LINKAGE CIMValue
 {
 public:
-    /** Constructor - Creates an NULL CIMValue object set to null and 
+    /** Constructor - Creates an NULL CIMValue object set to null and
         with type CIMType:none and !arraytype.
     */
     CIMValue();
@@ -121,11 +121,11 @@ public:
     CIMValue(const CIMObjectPath& x);
 
     /** Constructor.
-        Note: Constructing a CIMValue with an uninitialized CIMObject is not 
+        Note: Constructing a CIMValue with an uninitialized CIMObject is not
         defined and results in a thrown UninitializedObjectException.
         Note: The input CIMObject will be cloned before putting it into the
         value of the constructed CIMValue. This is because CIMObjects use a
-        shared representation model, but we don't want CIMObjects inside a 
+        shared representation model, but we don't want CIMObjects inside a
         CIMValue to be altered by other external changes.
     */
     CIMValue(const CIMObject& x);
@@ -184,18 +184,18 @@ public:
 
     /** Constructor.
         Note: Constructing a CIMValue with an uninitialized CIMObject anywhere
-        in the input array is not defined and results in a thrown 
+        in the input array is not defined and results in a thrown
         UninitializedObjectException.
-        Note: Each CIMObject in the input Array will be cloned before putting 
+        Note: Each CIMObject in the input Array will be cloned before putting
         the Array into the value of the constructed CIMValue. This is because
-        CIMObjects use a shared representation model, but we don't want 
+        CIMObjects use a shared representation model, but we don't want
         CIMObjects inside a CIMValue to be altered by other external changes.
     */
     CIMValue(const Array<CIMObject>& x);
 
     /// Constructor.
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT    
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     CIMValue(const Array<CIMInstance>& x);
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 #endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
@@ -203,7 +203,7 @@ public:
     /** Constructor.
         Note: If the input type is CIMObject, it/they will be cloned before
         putting it into the value of the constructed CIMValue. This is because
-        CIMObjects use a shared representation model, but we don't want 
+        CIMObjects use a shared representation model, but we don't want
         CIMObjects inside a CIMValue to be altered by other external changes.
     */
     CIMValue(const CIMValue& x);
@@ -214,16 +214,16 @@ public:
     /** Operator =
         Note: If the right hand side type is CIMObject, it/they will be cloned
         before putting it into the value of the target CIMValue. This is because
-        CIMObjects use a shared representation model, but we don't want 
+        CIMObjects use a shared representation model, but we don't want
         CIMObjects inside a CIMValue to be altered by other external changes.
     */
     CIMValue& operator=(const CIMValue& x);
 
     /** Assigns one CIMValue object to another CIMValue object.
         @param x - CIMValue object to be used for assignment.
-        Note: If the input type is CIMObject, it/they will be cloned before 
-        putting it into the value of the target CIMValue. This is because 
-        CIMObjects use a shared representation model, but we don't want  
+        Note: If the input type is CIMObject, it/they will be cloned before
+        putting it into the value of the target CIMValue. This is because
+        CIMObjects use a shared representation model, but we don't want
         CIMObjects inside a CIMValue to be altered by other external changes.
     */
     void assign(const CIMValue& x);
@@ -250,9 +250,9 @@ public:
     */
     Boolean isArray() const;
 
-    /** Determines whether the CIMvalue object is Null. 
+    /** Determines whether the CIMvalue object is Null.
         Null is the specific condition where no value has
-        yet been set. If a CIMValue object is Null, any get on that 
+        yet been set. If a CIMValue object is Null, any get on that
         object will create an exception.
         @return true if the CIMValue object is Null, false otherwise.
     */
@@ -268,35 +268,35 @@ public:
     */
     CIMType getType() const;
 
-    /** Sets the CIMValue a NULL, but with valid CIMType and array 
+    /** Sets the CIMValue a NULL, but with valid CIMType and array
         characteristics.
         @param type - CIMType for this CIMValue.
         @param isArray - Boolean indicating whether this is an array CIMValue.
         @param arraySize - Optional parameter indicating the array size.
         <pre>
-            CIMValue value;             
-            value.setNullValue(CIMType::BOOLEAN, false); 
+            CIMValue value;
+            value.setNullValue(CIMType::BOOLEAN, false);
         </pre>
     */
     void setNullValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
 
     /** Sets the type, Array attribute and puts the value provided
-        into the value of the target CIMValue. 
+        into the value of the target CIMValue.
         <pre>
             CIMValue x;
             x.set(Uint16(9));
         </pre>
-        @exception UninitializedObjectException If the given type is CIMObject, 
-        and the input CIMObject parameter is uninitialized or at least one entry 
-        in the Array of CIMObjects is uninitialized.
+        @exception UninitializedObjectException If the given type is CIMObject,
+        and the input CIMObject parameter is uninitialized or at least one
+        entry in the Array of CIMObjects is uninitialized.
         Note: If the input type is CIMObject, it/they will be cloned before
-        putting it into the value of the target CIMValue. This is because 
+        putting it into the value of the target CIMValue. This is because
         CIMObjects use a shared representation model, but we don't want
         CIMObjects inside a CIMValue to be altered by other external changes.
-    */    
+    */
     void set(Boolean x);
 
-    /// 
+    ///
     void set(Uint8 x);
     ///
     void set(Sint8 x);
@@ -374,7 +374,7 @@ public:
     /** Gets the value of a CIMValue.
         Note: Before using get, the caller should use getType () and isNull ()
         to ensure that the value is not null, and is of the correct type.
-     
+
         The behavior of get is undefined when the value is null.
 
         @param Variable in which to return the value.
@@ -457,15 +457,15 @@ public:
     ///
     void get(Array<String>& x) const;
     ///
-    void get(Array<CIMDateTime>& x) const; 
+    void get(Array<CIMDateTime>& x) const;
     ///
-    void get(Array<CIMObjectPath>& x) const; 
+    void get(Array<CIMObjectPath>& x) const;
     ///
-    void get(Array<CIMObject>& x) const; 
+    void get(Array<CIMObject>& x) const;
     ///
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    void get(Array<CIMInstance>& x) const; 
+    void get(Array<CIMInstance>& x) const;
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 #endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 

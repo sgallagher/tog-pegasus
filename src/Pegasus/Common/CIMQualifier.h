@@ -101,10 +101,10 @@ public:
         @exception UninitializedObjectException If the qualifier name is null.
     */
     CIMQualifier(
-	const CIMName& name, 
-	const CIMValue& value, 
-	const CIMFlavor & flavor = CIMFlavor (CIMFlavor::NONE),
-	Boolean propagated = false);
+        const CIMName& name,
+        const CIMValue& value,
+        const CIMFlavor & flavor = CIMFlavor (CIMFlavor::NONE),
+        Boolean propagated = false);
 
     /**
         Destructs the CIMQualifier object.
@@ -315,10 +315,10 @@ public:
         @exception UninitializedObjectException If the qualifier name is null.
     */
     CIMConstQualifier(
-	const CIMName& name, 
-	const CIMValue& value, 
-	const CIMFlavor & flavor = CIMFlavor (CIMFlavor::NONE),
-	Boolean propagated = false);
+        const CIMName& name,
+        const CIMValue& value,
+        const CIMFlavor & flavor = CIMFlavor (CIMFlavor::NONE),
+        Boolean propagated = false);
 
     /**
         Destructs the CIMQualifier object.

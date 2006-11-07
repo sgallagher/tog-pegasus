@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -83,8 +75,8 @@ void CIMParamValueRep::toXml(Buffer& out) const
     if (_isTyped)
     {
         // If the property type is CIMObject, then
-        //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT attribute
-        //   (there is not currently a CIM-XML "object" datatype)
+        //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT
+        //   attribute (there is not currently a CIM-XML "object" datatype)
         // else
         //   output the real type
         if (type == CIMTYPE_OBJECT)
@@ -101,7 +93,7 @@ void CIMParamValueRep::toXml(Buffer& out) const
         else
         {
             out << STRLIT(" PARAMTYPE=\"") << cimTypeToString (type);
-	    out.append('"');
+            out.append('"');
         }
     }
 

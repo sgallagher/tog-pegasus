@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Dir_h
@@ -114,24 +108,24 @@ class PEGASUS_COMMON_LINKAGE Dir
 public:
 
     /** Starts this iterator class on the given path.
-	@param String path is the path to the target directory
-	@return
-	@exception throws CannotOpenDirectory if invalid directory.
+        @param String path is the path to the target directory
+        @return
+        @exception throws CannotOpenDirectory if invalid directory.
 
-	<pre>
-	char* path = "."
-	try
-	{
-	   for (Dir dir(path); dir.more(); dir.next())
-	   {
-	       cout << "name: " << dir.getName() << endl;
-	   }
-	}
-	catch(CannotOpenDirectory&)
-	{
-	   // Error!
-	}
-	</pre>
+        <pre>
+        char* path = "."
+        try
+        {
+           for (Dir dir(path); dir.more(); dir.next())
+           {
+               cout << "name: " << dir.getName() << endl;
+           }
+        }
+        catch(CannotOpenDirectory&)
+        {
+           // Error!
+        }
+        </pre>
     */
     Dir(const String& path);
 

@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_MethodRep_h
@@ -62,74 +55,74 @@ class CIMMethodRep : public Sharable
 public:
 
     CIMMethodRep(
-	const CIMName& name,
-	CIMType type,
-	const CIMName& classOrigin,
-	Boolean propagated);
+        const CIMName& name,
+        CIMType type,
+        const CIMName& classOrigin,
+        Boolean propagated);
 
     ~CIMMethodRep();
 
     virtual const CIMName& getName() const
     {
-	return _name;
+        return _name;
     }
 
     void setName(const CIMName& name);
 
     CIMType getType() const
     {
-	return _type;
+        return _type;
     }
 
     void setType(CIMType type);
 
     const CIMName& getClassOrigin() const
     {
-	return _classOrigin;
+        return _classOrigin;
     }
 
     void setClassOrigin(const CIMName& classOrigin);
 
     Boolean getPropagated() const
     {
-	return _propagated;
+        return _propagated;
     }
 
     void setPropagated(Boolean propagated)
     {
-	_propagated = propagated;
+        _propagated = propagated;
     }
 
     void addQualifier(const CIMQualifier& qualifier)
     {
-	_qualifiers.add(qualifier);
+        _qualifiers.add(qualifier);
     }
 
     Uint32 findQualifier(const CIMName& name) const
     {
-	return _qualifiers.find(name);
+        return _qualifiers.find(name);
     }
 
     CIMQualifier getQualifier(Uint32 index)
     {
-	return _qualifiers.getQualifier(index);
+        return _qualifiers.getQualifier(index);
     }
 
 
     CIMConstQualifier getQualifier(Uint32 index) const
     {
-	return _qualifiers.getQualifier(index);
+        return _qualifiers.getQualifier(index);
     }
 
     void removeQualifier(Uint32 index)
     {
-	_qualifiers.removeQualifier(index);
+        _qualifiers.removeQualifier(index);
     }
 
 
     Uint32 getQualifierCount() const
     {
-	return _qualifiers.getCount();
+        return _qualifiers.getCount();
     }
 
     void addParameter(const CIMParameter& x);
@@ -140,7 +133,7 @@ public:
 
     CIMConstParameter getParameter(Uint32 index) const
     {
-	return ((CIMMethodRep*)this)->getParameter(index);
+        return ((CIMMethodRep*)this)->getParameter(index);
     }
 
     void removeParameter (Uint32 index);
@@ -148,13 +141,13 @@ public:
     Uint32 getParameterCount() const;
 
     void resolve(
-	DeclContext* declContext,
-	const CIMNamespaceName& nameSpace,
-	const CIMConstMethod& method);
+        DeclContext* declContext,
+        const CIMNamespaceName& nameSpace,
+        const CIMConstMethod& method);
 
     void resolve(
-	DeclContext* declContext,
-	const CIMNamespaceName& nameSpace);
+        DeclContext* declContext,
+        const CIMNamespaceName& nameSpace);
 
     void toXml(Buffer& out) const;
 
@@ -164,7 +157,7 @@ public:
 
     CIMMethodRep* clone() const
     {
-	return new CIMMethodRep(*this);
+        return new CIMMethodRep(*this);
     }
 
 private:

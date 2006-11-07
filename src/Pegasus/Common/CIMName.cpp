@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cctype>
@@ -95,7 +87,7 @@ Boolean CIMName::legal(const String& name)
 
     if (!(*p < 128 && CharSet::isAlphaUnder(*p)))
     {
-	if (!(*p >= 0x0080 && *p <= 0xFFEF))
+        if (!(*p >= 0x0080 && *p <= 0xFFEF))
             return false;
     }
 
@@ -106,30 +98,30 @@ Boolean CIMName::legal(const String& name)
 
     while (n >= 4)
     {
-	if (p[0] < 128 && CharSet::isAlNumUnder(p[0]) &&
-	    p[1] < 128 && CharSet::isAlNumUnder(p[1]) &&
-	    p[2] < 128 && CharSet::isAlNumUnder(p[2]) &&
-	    p[3] < 128 && CharSet::isAlNumUnder(p[3]))
-	{
-	    p += 4;
-	    n -= 4;
-	    continue;
-	}
+        if (p[0] < 128 && CharSet::isAlNumUnder(p[0]) &&
+            p[1] < 128 && CharSet::isAlNumUnder(p[1]) &&
+            p[2] < 128 && CharSet::isAlNumUnder(p[2]) &&
+            p[3] < 128 && CharSet::isAlNumUnder(p[3]))
+        {
+            p += 4;
+            n -= 4;
+            continue;
+        }
 
-	break;
+        break;
     }
 
     // Process remaining charcters.
 
     while (n)
     {
-	if (!(*p < 128 && CharSet::isAlNumUnder(*p)))
-	{
-	    if (!(*p >= 0x0080 && *p <= 0xFFEF))
-		return false;
-	}
-	p++;
-	n--;
+        if (!(*p < 128 && CharSet::isAlNumUnder(*p)))
+        {
+            if (!(*p >= 0x0080 && *p <= 0xFFEF))
+                return false;
+        }
+        p++;
+        n--;
     }
 
     return true;
@@ -154,13 +146,13 @@ inline void _check_namespace_name(String& name)
         name.remove(0, 1);
 }
 
-CIMNamespaceName::CIMNamespaceName(const String& name) 
+CIMNamespaceName::CIMNamespaceName(const String& name)
     : cimNamespaceName(name)
 {
     _check_namespace_name(cimNamespaceName);
 }
 
-CIMNamespaceName::CIMNamespaceName(const char* name) 
+CIMNamespaceName::CIMNamespaceName(const char* name)
     : cimNamespaceName(name)
 {
     _check_namespace_name(cimNamespaceName);
@@ -228,7 +220,7 @@ Boolean CIMNamespaceName::legal(const String& name)
                 break;
             }
 
-	    if(!((ch >= 0x0080 && ch <= 0xFFEF) || CharSet::isAlNumUnder(ch)))
+            if (!((ch >= 0x0080 && ch <= 0xFFEF) || CharSet::isAlNumUnder(ch)))
                 return false;
         }
     }

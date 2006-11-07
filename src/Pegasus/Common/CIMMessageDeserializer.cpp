@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
-//              Jenny Yu, Hewlett-Packard company (jenny.yu@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/XmlReader.h>
@@ -175,19 +168,24 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
             cimOpReqMessage = _deserializeCIMGetInstanceRequestMessage(parser);
             break;
         case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-            cimOpReqMessage = _deserializeCIMDeleteInstanceRequestMessage(parser);
+            cimOpReqMessage =
+                _deserializeCIMDeleteInstanceRequestMessage(parser);
             break;
         case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-            cimOpReqMessage = _deserializeCIMCreateInstanceRequestMessage(parser);
+            cimOpReqMessage =
+                _deserializeCIMCreateInstanceRequestMessage(parser);
             break;
         case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-            cimOpReqMessage = _deserializeCIMModifyInstanceRequestMessage(parser);
+            cimOpReqMessage =
+                _deserializeCIMModifyInstanceRequestMessage(parser);
             break;
         case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-            cimOpReqMessage = _deserializeCIMEnumerateInstancesRequestMessage(parser);
+            cimOpReqMessage =
+                _deserializeCIMEnumerateInstancesRequestMessage(parser);
             break;
         case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-            cimOpReqMessage = _deserializeCIMEnumerateInstanceNamesRequestMessage(parser);
+            cimOpReqMessage =
+                _deserializeCIMEnumerateInstanceNamesRequestMessage(parser);
             break;
         case CIM_EXEC_QUERY_REQUEST_MESSAGE:
             cimOpReqMessage = _deserializeCIMExecQueryRequestMessage(parser);
@@ -206,13 +204,15 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
             cimOpReqMessage = _deserializeCIMAssociatorsRequestMessage(parser);
             break;
         case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-            cimOpReqMessage = _deserializeCIMAssociatorNamesRequestMessage(parser);
+            cimOpReqMessage =
+                _deserializeCIMAssociatorNamesRequestMessage(parser);
             break;
         case CIM_REFERENCES_REQUEST_MESSAGE:
             cimOpReqMessage = _deserializeCIMReferencesRequestMessage(parser);
             break;
         case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-            cimOpReqMessage = _deserializeCIMReferenceNamesRequestMessage(parser);
+            cimOpReqMessage =
+                _deserializeCIMReferenceNamesRequestMessage(parser);
             break;
 
         // Method operations
@@ -243,13 +243,16 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         switch (type)
         {
         case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-            cimIndReqMessage = _deserializeCIMCreateSubscriptionRequestMessage(parser);
+            cimIndReqMessage =
+                _deserializeCIMCreateSubscriptionRequestMessage(parser);
             break;
         case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-            cimIndReqMessage = _deserializeCIMModifySubscriptionRequestMessage(parser);
+            cimIndReqMessage =
+                _deserializeCIMModifySubscriptionRequestMessage(parser);
             break;
         case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-            cimIndReqMessage = _deserializeCIMDeleteSubscriptionRequestMessage(parser);
+            cimIndReqMessage =
+                _deserializeCIMDeleteSubscriptionRequestMessage(parser);
             break;
         }
         PEGASUS_ASSERT(cimIndReqMessage != 0);
@@ -275,11 +278,13 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
             break;
         //case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
-            //message = _deserializeCIMNotifyProviderRegistrationRequestMessage(parser);
+            //message =
+            //  _deserializeCIMNotifyProviderRegistrationRequestMessage(parser);
             break;
         //case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
-            //message = _deserializeCIMNotifyProviderTerminationRequestMessage(parser);
+            //message =
+            //  _deserializeCIMNotifyProviderTerminationRequestMessage(parser);
             break;
         //case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
@@ -293,7 +298,8 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
             break;
         //case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
-            //message = _deserializeCIMNotifyProviderEnableRequestMessage(parser);
+            //message =
+            //    _deserializeCIMNotifyProviderEnableRequestMessage(parser);
             break;
         //case CIM_NOTIFY_PROVIDER_FAIL_REQUEST_MESSAGE:
             // ATTN: No need to deserialize this yet
@@ -313,7 +319,7 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
             message = _deserializeCIMNotifyConfigChangeRequestMessage(parser);
             break;
         case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
-            message = 
+            message =
                 _deserializeCIMSubscriptionInitCompleteRequestMessage
                     (parser);
             break;
@@ -378,7 +384,8 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
             message = _deserializeCIMEnumerateInstancesResponseMessage(parser);
             break;
         case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
-            message = _deserializeCIMEnumerateInstanceNamesResponseMessage(parser);
+            message =
+                _deserializeCIMEnumerateInstanceNamesResponseMessage(parser);
             break;
         case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
             message = _deserializeCIMExecQueryResponseMessage(parser);
@@ -437,11 +444,14 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
             break;
         //case CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
-            //message = _deserializeCIMNotifyProviderRegistrationResponseMessage(parser);
+            //message =
+            //    _deserializeCIMNotifyProviderRegistrationResponseMessage(
+            //        parser);
             //break;
         //case CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
-            //message = _deserializeCIMNotifyProviderTerminationResponseMessage(parser);
+            //message =
+            //  _deserializeCIMNotifyProviderTerminationResponseMessage(parser);
             //break;
         //case CIM_HANDLE_INDICATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
@@ -455,11 +465,13 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
             break;
         //case CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
-            //message = _deserializeCIMNotifyProviderEnableResponseMessage(parser);
+            //message =
+            //    _deserializeCIMNotifyProviderEnableResponseMessage(parser);
             //break;
         //case CIM_NOTIFY_PROVIDER_FAIL_RESPONSE_MESSAGE:
             // ATTN: No need to deserialize this yet
-            //message = _deserializeCIMNotifyProviderFailResponseMessage(parser);
+            //message =
+            //    _deserializeCIMNotifyProviderFailResponseMessage(parser);
             //break;
         case CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE:
             message = _deserializeCIMStopAllProvidersResponseMessage(parser);
@@ -475,7 +487,7 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
             message = _deserializeCIMNotifyConfigChangeResponseMessage(parser);
             break;
         case CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE:
-            message = 
+            message =
                 _deserializeCIMSubscriptionInitCompleteResponseMessage
                     (parser);
             break;

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Dir.h"
@@ -89,33 +85,33 @@ Dir::Dir(const String& path)
     if (_dirRep.dir)
     {
 #ifdef PEGASUS_HAS_READDIR_R
-	// Need to use readdir_r since we are multithreaded
+        // Need to use readdir_r since we are multithreaded
 #ifdef PEGASUS_OS_OS400
-	if (QlgReaddir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
+        if (QlgReaddir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
 #else
-	if (readdir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
+        if (readdir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
 #endif
         {
-	    _more = false;
+            _more = false;
             closedir(_dirRep.dir);
-	    throw CannotOpenDirectory(_path);
+            throw CannotOpenDirectory(_path);
         }
 #else
-	_dirRep.entry = readdir(_dirRep.dir);
+        _dirRep.entry = readdir(_dirRep.dir);
 #endif
-	_more = _dirRep.entry != NULL;
+        _more = _dirRep.entry != NULL;
     }
     else
     {
-	_more = false;
-	throw CannotOpenDirectory(_path);
+        _more = false;
+        throw CannotOpenDirectory(_path);
     }
 }
 
 Dir::~Dir()
 {
     if (_dirRep.dir)
-	closedir(_dirRep.dir);
+        closedir(_dirRep.dir);
 
 }
 
@@ -135,9 +131,9 @@ void Dir::next()
     if (_more)
     {
 #ifdef PEGASUS_HAS_READDIR_R
-	// Need to use readdir_r since we are multithreaded
+        // Need to use readdir_r since we are multithreaded
 #ifdef PEGASUS_OS_OS400
-	if (QlgReaddir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
+        if (QlgReaddir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
 #else
 #ifdef PEGASUS_OS_ZOS
     errno=0;
@@ -145,13 +141,13 @@ void Dir::next()
     if (readdir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
 #endif
         {
-	    _more = false;
-	    throw CannotOpenDirectory(_path);
+            _more = false;
+            throw CannotOpenDirectory(_path);
         }
 #else
-	_dirRep.entry = readdir(_dirRep.dir);
+        _dirRep.entry = readdir(_dirRep.dir);
 #endif
-	_more = _dirRep.entry != NULL;
+        _more = _dirRep.entry != NULL;
     }
 }
 

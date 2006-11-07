@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Adriann Schuur (schuur@de.ibm.com) PEP 164
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMClassRep_h
@@ -65,8 +57,8 @@ class CIMClassRep : public CIMObjectRep
 public:
 
     CIMClassRep(
-	const CIMName& className,
-	const CIMName& superClassName);
+        const CIMName& className,
+        const CIMName& superClassName);
 
     virtual ~CIMClassRep();
 
@@ -88,7 +80,7 @@ public:
 
     CIMConstMethod getMethod(Uint32 index) const
     {
-	return ((CIMClassRep*)this)->getMethod(index);
+        return ((CIMClassRep*)this)->getMethod(index);
     }
 
     void removeMethod(Uint32 index);
@@ -96,8 +88,8 @@ public:
     Uint32 getMethodCount() const;
 
     void resolve(
-	DeclContext* context,
-	const CIMNamespaceName& nameSpace);
+        DeclContext* context,
+        const CIMNamespaceName& nameSpace);
 
     virtual Boolean identical(const CIMObjectRep* x) const;
 
@@ -107,7 +99,7 @@ public:
 
     virtual CIMObjectRep* clone() const
     {
-	return new CIMClassRep(*this);
+        return new CIMClassRep(*this);
     }
 
     void getKeyNames(Array<CIMName>& keyNames) const;

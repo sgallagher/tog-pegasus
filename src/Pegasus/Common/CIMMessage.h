@@ -58,7 +58,7 @@
    #define TYPE_METHOD      ProviderType::METHOD
    #define TYPE_ASSOCIATION ProviderType::ASSOCIATION
    #define TYPE_QUERY       ProviderType::QUERY
-*/ 
+*/
 // using these equations instead      PEP# 99
    #define TYPE_CLASS       1
    #define TYPE_INSTANCE    2
@@ -78,25 +78,25 @@ public:
 #ifdef PEGASUS_DEBUG
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
     {
-	if (printHeader)
-	{
-	    os << "CIMMessage\n";
-	    os << "{";
-	}
+        if (printHeader)
+        {
+            os << "CIMMessage\n";
+            os << "{";
+        }
 
-	Message::print(os, false);
+        Message::print(os, false);
 
-	os << "    messageId=" << messageId << PEGASUS_STD(endl);
+        os << "    messageId=" << messageId << PEGASUS_STD(endl);
 
-	if (printHeader)
-	{
-	    os << "}";
-	}
+        if (printHeader)
+        {
+            os << "}";
+        }
     }
 #endif
 
     String messageId;
-	OperationContext operationContext;
+        OperationContext operationContext;
 };
 
 
@@ -113,20 +113,20 @@ public:
 #ifdef PEGASUS_DEBUG
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
     {
-	if (printHeader)
-	{
-	    os << "CIMRequestMessage\n";
-	    os << "{";
-	}
+        if (printHeader)
+        {
+            os << "CIMRequestMessage\n";
+            os << "{";
+        }
 
-	CIMMessage::print(os, false);
+        CIMMessage::print(os, false);
 
-	os << "    queueIds=" << "<not shown for now>" << PEGASUS_STD(endl);
+        os << "    queueIds=" << "<not shown for now>" << PEGASUS_STD(endl);
 
-	if (printHeader)
-	{
-	    os << "}";
-	}
+        if (printHeader)
+        {
+            os << "}";
+        }
     }
 #endif
 
@@ -155,18 +155,18 @@ public:
 //
 class PEGASUS_COMMON_LINKAGE CIMOperationRequestMessage
     : public CIMRequestMessage
-{	// PEP# 99
+{
 public:
 
     CIMOperationRequestMessage(
         Uint32 type_,
-	const String& messageId_,
-	const QueueIdStack& queueIds_,
+        const String& messageId_,
+        const QueueIdStack& queueIds_,
         const String& authType_,
         const String& userName_,
         const CIMNamespaceName& nameSpace_,
-	const CIMName& className_,
-	Uint32 providerType_ = TYPE_INSTANCE);
+        const CIMName& className_,
+        Uint32 providerType_ = TYPE_INSTANCE);
 
     String authType;
     String userName;
@@ -178,7 +178,7 @@ public:
 
 class PEGASUS_COMMON_LINKAGE CIMIndicationRequestMessage
     : public CIMRequestMessage
-{	// PEP# 99
+{
 public:
     CIMIndicationRequestMessage(
         Uint32 type_,
@@ -186,8 +186,8 @@ public:
         const QueueIdStack& queueIds_,
         const String& authType_,
         const String& userName_)
-	: 
-	CIMRequestMessage(type_, messageId_, queueIds_),
+        :
+        CIMRequestMessage(type_, messageId_, queueIds_),
         authType(authType_),
         userName(userName_)
     {
@@ -212,10 +212,11 @@ public:
         const QueueIdStack& queueIds_,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY)
-    : CIMOperationRequestMessage(CIM_GET_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
+    : CIMOperationRequestMessage(CIM_GET_CLASS_REQUEST_MESSAGE,
+         messageId_, queueIds_,
          authType_, userName_,
          nameSpace_,className_,
-	 TYPE_CLASS),
+         TYPE_CLASS),
         localOnly(localOnly_),
         includeQualifiers(includeQualifiers_),
         includeClassOrigin(includeClassOrigin_),
@@ -250,7 +251,7 @@ public:
         CIM_GET_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
          nameSpace_,instanceName_.getClassName()),
-	instanceName(instanceName_),
+        instanceName(instanceName_),
         localOnly(localOnly_),
         includeQualifiers(includeQualifiers_),
         includeClassOrigin(includeClassOrigin_),
@@ -311,7 +312,7 @@ public:
         CIM_DELETE_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
          nameSpace_,className_,
-	 TYPE_CLASS)
+         TYPE_CLASS)
     {
     }
 
@@ -356,8 +357,8 @@ public:
     : CIMOperationRequestMessage(
         CIM_CREATE_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,newClass_.getClassName(),
-	 TYPE_CLASS),
+         nameSpace_,newClass_.getClassName(),
+         TYPE_CLASS),
         newClass(newClass_)
     {
     }
@@ -381,7 +382,7 @@ public:
     : CIMOperationRequestMessage(
         CIM_CREATE_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,newInstance_.getClassName()),
+         nameSpace_,newInstance_.getClassName()),
         newInstance(newInstance_)
     {
     }
@@ -406,7 +407,7 @@ public:
         CIM_MODIFY_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
          nameSpace_,modifiedClass_.getClassName(),
-	 TYPE_CLASS),
+         TYPE_CLASS),
         modifiedClass(modifiedClass_)
     {
     }
@@ -464,8 +465,8 @@ public:
     : CIMOperationRequestMessage(
         CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,className_,
-	 TYPE_CLASS),
+         nameSpace_,className_,
+         TYPE_CLASS),
         deepInheritance(deepInheritance_),
         localOnly(localOnly_),
         includeQualifiers(includeQualifiers_),
@@ -496,8 +497,8 @@ public:
     : CIMOperationRequestMessage(
         CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,className_,
-	 TYPE_CLASS),
+         nameSpace_,className_,
+         TYPE_CLASS),
         deepInheritance(deepInheritance_)
     {
     }
@@ -526,7 +527,7 @@ public:
     : CIMOperationRequestMessage(
         CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,className_),
+         nameSpace_,className_),
         deepInheritance(deepInheritance_),
         localOnly(localOnly_),
         includeQualifiers(includeQualifiers_),
@@ -558,30 +559,30 @@ public:
     : CIMOperationRequestMessage(
         CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_, className_)
+         nameSpace_, className_)
     {
     }
 
 #ifdef PEGASUS_DEBUG
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
     {
-	if (printHeader)
-	{
-	    os << "CIMEnumerateInstanceNamesRequestMessage\n";
-	    os << "{";
-	}
+        if (printHeader)
+        {
+            os << "CIMEnumerateInstanceNamesRequestMessage\n";
+            os << "{";
+        }
 
-	CIMRequestMessage::print(os, false);
+        CIMRequestMessage::print(os, false);
 
-	os << "    nameSpace=" << nameSpace << PEGASUS_STD(endl);
-	os << "    className=" << className << PEGASUS_STD(endl);
-	os << "    authType=" << authType << PEGASUS_STD(endl);
-	os << "    userName=" << userName << PEGASUS_STD(endl);
+        os << "    nameSpace=" << nameSpace << PEGASUS_STD(endl);
+        os << "    className=" << className << PEGASUS_STD(endl);
+        os << "    authType=" << authType << PEGASUS_STD(endl);
+        os << "    userName=" << userName << PEGASUS_STD(endl);
 
-	if (printHeader)
-	{
-	    os << "}";
-	}
+        if (printHeader)
+        {
+            os << "}";
+        }
     }
 #endif
 
@@ -601,10 +602,11 @@ public:
         const QueueIdStack& queueIds_,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY)
-    : CIMOperationRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE, messageId_, queueIds_,
+    : CIMOperationRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE,
+         messageId_, queueIds_,
          authType_, userName_,
          nameSpace_,CIMName(),
-	 TYPE_QUERY),
+         TYPE_QUERY),
         queryLanguage(queryLanguage_),
         query(query_)
     {
@@ -637,8 +639,8 @@ public:
     : CIMOperationRequestMessage(
         CIM_ASSOCIATORS_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,objectName_.getClassName(),
-	 TYPE_ASSOCIATION),
+         nameSpace_,objectName_.getClassName(),
+         TYPE_ASSOCIATION),
         objectName(objectName_),
         assocClass(assocClass_),
         resultClass(resultClass_),
@@ -680,8 +682,8 @@ public:
     : CIMOperationRequestMessage(
         CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,objectName_.getClassName(),
-	 TYPE_ASSOCIATION),
+         nameSpace_,objectName_.getClassName(),
+         TYPE_ASSOCIATION),
         objectName(objectName_),
         assocClass(assocClass_),
         resultClass(resultClass_),
@@ -719,7 +721,7 @@ public:
          CIM_REFERENCES_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
          nameSpace_,objectName_.getClassName(),
-	 TYPE_ASSOCIATION),
+         TYPE_ASSOCIATION),
         objectName(objectName_),
         resultClass(resultClass_),
         role(role_),
@@ -755,8 +757,8 @@ public:
     : CIMOperationRequestMessage(
         CIM_REFERENCE_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,objectName_.getClassName(),
-	 TYPE_ASSOCIATION),
+         nameSpace_,objectName_.getClassName(),
+         TYPE_ASSOCIATION),
         objectName(objectName_),
         resultClass(resultClass_),
         role(role_)
@@ -785,7 +787,7 @@ public:
     : CIMOperationRequestMessage(
         CIM_GET_PROPERTY_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,instanceName_.getClassName()),
+         nameSpace_,instanceName_.getClassName()),
         instanceName(instanceName_),
         propertyName(propertyName_)
     {
@@ -813,7 +815,7 @@ public:
     : CIMOperationRequestMessage(
         CIM_SET_PROPERTY_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,instanceName_.getClassName()),
+         nameSpace_,instanceName_.getClassName()),
         instanceName(instanceName_),
         propertyName(propertyName_),
         newValue(newValue_)
@@ -841,8 +843,8 @@ public:
     : CIMOperationRequestMessage(
         CIM_GET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,CIMName(),
-	 TYPE_CLASS),
+         nameSpace_,CIMName(),
+         TYPE_CLASS),
         qualifierName(qualifierName_)
     {
     }
@@ -866,8 +868,8 @@ public:
     : CIMOperationRequestMessage(
         CIM_SET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,CIMName(),
-	 TYPE_CLASS),
+         nameSpace_,CIMName(),
+         TYPE_CLASS),
         qualifierDeclaration(qualifierDeclaration_)
     {
     }
@@ -891,8 +893,8 @@ public:
     : CIMOperationRequestMessage(
         CIM_DELETE_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,CIMName(),
-	 TYPE_CLASS),
+         nameSpace_,CIMName(),
+         TYPE_CLASS),
         qualifierName(qualifierName_)
     {
     }
@@ -915,8 +917,8 @@ public:
     : CIMOperationRequestMessage(
         CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,CIMName(),
-	 TYPE_CLASS)
+         nameSpace_,CIMName(),
+         TYPE_CLASS)
     {
     }
 
@@ -939,8 +941,8 @@ public:
     : CIMOperationRequestMessage(
         CIM_INVOKE_METHOD_REQUEST_MESSAGE, messageId_, queueIds_,
          authType_, userName_,
-	 nameSpace_,instanceName_.getClassName(),
-	 TYPE_METHOD),
+         nameSpace_,instanceName_.getClassName(),
+         TYPE_METHOD),
         instanceName(instanceName_),
         methodName(methodName_),
         inParameters(inParameters_)
@@ -1051,7 +1053,7 @@ public:
         const CIMNamespaceName & nameSpace_,
         const CIMInstance& handlerInstance_,
         const CIMInstance& indicationInstance_,
-	const CIMInstance& subscriptionInstance_,
+        const CIMInstance& subscriptionInstance_,
         const QueueIdStack& queueIds_,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY)
@@ -1060,7 +1062,7 @@ public:
         nameSpace(nameSpace_),
         handlerInstance(handlerInstance_),
         indicationInstance(indicationInstance_),
-	subscriptionInstance(subscriptionInstance_),
+        subscriptionInstance(subscriptionInstance_),
         authType(authType_),
         userName(userName_)
     {
@@ -1187,7 +1189,7 @@ public:
     Array<CIMName> classNames;
 };
 
-class PEGASUS_COMMON_LINKAGE 
+class PEGASUS_COMMON_LINKAGE
     CIMSubscriptionInitCompleteRequestMessage
     : public CIMRequestMessage
 {
@@ -1213,8 +1215,8 @@ public:
         const String& messageId_,
         const CIMInstance& providerModule_,
         const Array<CIMInstance>& providers_,
-	Boolean disableProviderOnly_,
-	const Array<Boolean>& indicationProviders_,
+        Boolean disableProviderOnly_,
+        const Array<Boolean>& indicationProviders_,
         const QueueIdStack& queueIds_,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY)
@@ -1224,8 +1226,8 @@ public:
         queueIds_),
         providerModule(providerModule_),
         providers(providers_),
-	disableProviderOnly(disableProviderOnly_),
-	indicationProviders(indicationProviders_),
+        disableProviderOnly(disableProviderOnly_),
+        indicationProviders(indicationProviders_),
         authType(authType_),
         userName(userName_)
     {
@@ -1273,19 +1275,19 @@ class PEGASUS_COMMON_LINKAGE CIMNotifyProviderEnableRequestMessage
 {
 public:
     CIMNotifyProviderEnableRequestMessage(
-	const String & messageId_,
-	const Array <CIMInstance> & capInstances_,
+        const String & messageId_,
+        const Array <CIMInstance> & capInstances_,
         const QueueIdStack& queueIds_)
     : CIMRequestMessage(
-	CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE,
-	messageId_,
+        CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE,
+        messageId_,
         queueIds_),
-	capInstances(capInstances_)
+        capInstances(capInstances_)
     {
     }
 
     virtual CIMResponseMessage* buildResponse() const;
-    
+
     Array <CIMInstance> capInstances;
 };
 
@@ -1308,7 +1310,7 @@ public:
     }
 
     virtual CIMResponseMessage* buildResponse() const;
-    
+
     String moduleName;
     String userName;
 };
@@ -1335,11 +1337,11 @@ class PEGASUS_COMMON_LINKAGE CIMInitializeProviderRequestMessage
 {
 public:
     CIMInitializeProviderRequestMessage(
-	const String & messageId_,
+        const String & messageId_,
         const QueueIdStack& queueIds_)
     : CIMRequestMessage(
-	CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE,
-	messageId_,
+        CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE,
+        messageId_,
         queueIds_)
     {
     }
@@ -1353,15 +1355,15 @@ class PEGASUS_COMMON_LINKAGE CIMInitializeProviderAgentRequestMessage
 {
 public:
     CIMInitializeProviderAgentRequestMessage(
-	const String & messageId_,
+        const String & messageId_,
         const String& pegasusHome_,
         const Array<Pair<String, String> >& configProperties_,
         Boolean bindVerbose_,
         Boolean subscriptionInitComplete_,
         const QueueIdStack& queueIds_)
     : CIMRequestMessage(
-	CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE,
-	messageId_,
+        CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE,
+        messageId_,
         queueIds_),
       pegasusHome(pegasusHome_),
       configProperties(configProperties_),
@@ -1399,7 +1401,7 @@ public:
     }
 
     virtual CIMResponseMessage* buildResponse() const;
-    
+
     String propertyName;
     String newPropertyValue;
     Boolean currentValueModified;
@@ -1939,7 +1941,7 @@ public:
     }
 };
 
-class PEGASUS_COMMON_LINKAGE 
+class PEGASUS_COMMON_LINKAGE
 CIMSubscriptionInitCompleteResponseMessage
     : public CIMResponseMessage
 {

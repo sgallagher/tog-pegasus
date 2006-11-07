@@ -55,9 +55,10 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const String providerModuleStatus [] = {"Unknown", "Other", "OK", "Degraded",
+static const String providerModuleStatus [] = {
+    "Unknown", "Other", "OK", "Degraded",
     "Stressed", "Predictive Failure", "Error", "Non-Recoverable Error",
-    "Starting", "Stopping", "Stopped", "In Service", "No Contact", 
+    "Starting", "Stopping", "Stopped", "In Service", "No Contact",
     "Lost Communication"};
 
 Boolean AuditLogger::_auditLogFlag = false;
@@ -74,14 +75,14 @@ void AuditLogger::logCurrentConfig(
 {
     for (Uint32 i = 0; i < propertyNames.size(); i++)
     {
-        String propertyStr = propertyNames[i] + "=" + propertyValues[i];       
+        String propertyStr = propertyNames[i] + "=" + propertyValues[i];
 
         MessageLoaderParms msgParms("Common.AuditLogger.CURRENT_CONFIG",
             "cimserver configuration $0", propertyStr);
 
-        _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+        _writeAuditMessageToFile(TYPE_CONFIGURATION,
             SUBTYPE_CURRENT_CONFIGURATION,
-            EVENT_START_UP, Logger::INFORMATION, msgParms); 
+            EVENT_START_UP, Logger::INFORMATION, msgParms);
     }
 }
 
@@ -97,7 +98,7 @@ void AuditLogger::logCurrentRegProvider(
     for (Uint32 i = 0; i <instances.size(); i++)
     {
         instances[i].getProperty(instances[i].findProperty(
-            _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(moduleName);    
+            _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(moduleName);
 
         pos = instances[i].findProperty(_PROPERTY_OPERATIONALSTATUS);
 
@@ -123,12 +124,12 @@ void AuditLogger::logCurrentRegProvider(
 
         MessageLoaderParms msgParms(
             "Common.AuditLogger.CURRENT_PROVIDER_REGISTRATION",
-            "Provider module \"$0\" has status \"$1\".", 
+            "Provider module \"$0\" has status \"$1\".",
             moduleName, statusValue);
-        
-        _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+
+        _writeAuditMessageToFile(TYPE_CONFIGURATION,
             SUBTYPE_CURRENT_PROVIDER_REGISTRATION,
-            EVENT_START_UP, Logger::INFORMATION, msgParms); 
+            EVENT_START_UP, Logger::INFORMATION, msgParms);
     }
 }
 
@@ -143,9 +144,9 @@ void AuditLogger::logCurrentEnvironmentVar()
         MessageLoaderParms msgParms("Common.AuditLogger.CURRENT_ENV",
            "cimserver environment variable: $0", envp[i]);
 
-        _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+        _writeAuditMessageToFile(TYPE_CONFIGURATION,
             SUBTYPE_CURRENT_ENVIRONMENT_VARIABLES,
-            EVENT_START_UP, Logger::INFORMATION, msgParms); 
+            EVENT_START_UP, Logger::INFORMATION, msgParms);
 
         i++;
     }
@@ -166,9 +167,9 @@ void AuditLogger::logSetConfigProperty(
                 "value \"$1\" to value \"$2\" by user \"$3\".",
             propertyName, prePropertyValue, newPropertyValue, userName);
 
-        _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+        _writeAuditMessageToFile(TYPE_CONFIGURATION,
             SUBTYPE_CONFIGURATION_CHANGE,
-            EVENT_UPDATE, Logger::INFORMATION, msgParms); 
+            EVENT_UPDATE, Logger::INFORMATION, msgParms);
     }
     else
     {
@@ -178,9 +179,9 @@ void AuditLogger::logSetConfigProperty(
                 "value \"$1\" to value \"$2\" by user \"$3\".",
             propertyName, prePropertyValue, newPropertyValue, userName);
 
-        _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+        _writeAuditMessageToFile(TYPE_CONFIGURATION,
             SUBTYPE_CONFIGURATION_CHANGE,
-            EVENT_UPDATE, Logger::INFORMATION, msgParms); 
+            EVENT_UPDATE, Logger::INFORMATION, msgParms);
     }
 }
 
@@ -340,7 +341,7 @@ void AuditLogger::logUpdateProvModuleStatus(
     const Array<Uint16> currentModuleStatus,
     const Array<Uint16> newModuleStatus)
 {
-    String currentModuleStatusValue = 
+    String currentModuleStatusValue =
         _getModuleStatusValue(currentModuleStatus);
 
     String newModuleStatusValue = _getModuleStatusValue(newModuleStatus);
@@ -348,12 +349,12 @@ void AuditLogger::logUpdateProvModuleStatus(
     MessageLoaderParms msgParms(
         "Common.AuditLogger.UPDATE_PROVIDER_MODULE_STATUS",
         "The operational status of module \"$0\" has changed from \"$1\""
-        " to \"$2\".", 
-        moduleName, currentModuleStatusValue, newModuleStatusValue); 
+        " to \"$2\".",
+        moduleName, currentModuleStatusValue, newModuleStatusValue);
 
-    _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+    _writeAuditMessageToFile(TYPE_CONFIGURATION,
         SUBTYPE_PROVIDER_MODULE_STATUS_CHANGE,
-        EVENT_UPDATE, Logger::INFORMATION, msgParms); 
+        EVENT_UPDATE, Logger::INFORMATION, msgParms);
 }
 
 void AuditLogger::logLocalAuthentication(
@@ -366,7 +367,7 @@ void AuditLogger::logLocalAuthentication(
        "Common.AuditLogger.LOCAL_AUTHENTICATION",
        "Local authentication attempt: "
        "successful = $0, user = $1. ",
-       result.toString(), 
+       result.toString(),
        userName);
 
     _writeAuditMessageToFile(
@@ -402,7 +403,7 @@ void AuditLogger::logBasicAuthentication(
 void AuditLogger::setInitializeCallback(
     PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T auditLogInitializeCallback)
 {
-    _auditLogInitializeCallback = auditLogInitializeCallback; 
+    _auditLogInitializeCallback = auditLogInitializeCallback;
 }
 
 void AuditLogger::setEnabled(Boolean enabled)
@@ -418,11 +419,11 @@ void AuditLogger::setEnabled(Boolean enabled)
 
                 MessageLoaderParms msgParms(
                     "Common.AuditLogger.ENABLE_AUDIT_LOG",
-                    "Audit logging is enabled."); 
+                    "Audit logging is enabled.");
 
-                _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+                _writeAuditMessageToFile(TYPE_CONFIGURATION,
                     SUBTYPE_CONFIGURATION_CHANGE,
-                    EVENT_UPDATE, Logger::INFORMATION, msgParms); 
+                    EVENT_UPDATE, Logger::INFORMATION, msgParms);
             }
         }
         else
@@ -431,11 +432,11 @@ void AuditLogger::setEnabled(Boolean enabled)
             {
                 MessageLoaderParms msgParms(
                     "Common.AuditLogger.DISABLE_AUDIT_LOG",
-                    "Audit logging is disabled."); 
+                    "Audit logging is disabled.");
 
-                _writeAuditMessageToFile(TYPE_CONFIGURATION, 
+                _writeAuditMessageToFile(TYPE_CONFIGURATION,
                     SUBTYPE_CONFIGURATION_CHANGE,
-                    EVENT_UPDATE, Logger::INFORMATION, msgParms); 
+                    EVENT_UPDATE, Logger::INFORMATION, msgParms);
             }
         }
     }
@@ -473,7 +474,7 @@ String AuditLogger::_getModuleStatusValue(
     {
         statusValue = providerModuleStatus[moduleStatus[j]];
         moduleStatusValue.append(statusValue);
-       
+
         if (j < moduleStatusSize - 1)
         {
             moduleStatusValue.append(",");

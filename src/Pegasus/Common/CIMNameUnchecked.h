@@ -28,6 +28,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #ifndef _Pegasus_CIMNameUnchecked_h
 #define _Pegasus_CIMNameUnchecked_h
 
@@ -44,15 +47,15 @@ public:
 
     CIMNameUnchecked(const String& str) : CIMName(str)
     {
-	// Call base class constructor for force CIMName::legal() call.
+        // Call base class constructor for force CIMName::legal() call.
     }
 
 #else /* PEGASUS_DEBUG */
 
     CIMNameUnchecked(const String& str)
     {
-	// Bypass CIMName::legal() call. Must be friend to do this.
-	cimName = str;
+        // Bypass CIMName::legal() call. Must be friend to do this.
+        cimName = str;
     }
 
 #endif /* PEGASUS_DEBUG */

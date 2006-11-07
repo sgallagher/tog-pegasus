@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_InstanceDeclRep_h
@@ -58,15 +51,15 @@ class CIMInstanceRep : public CIMObjectRep
 public:
 
     CIMInstanceRep(
-	const CIMObjectPath& reference);
+        const CIMObjectPath& reference);
 
     virtual ~CIMInstanceRep();
 
     void resolve(
-	DeclContext* declContext,
-	const CIMNamespaceName& nameSpace,
-	CIMConstClass& cimClassOut,
-	Boolean propagateQualifiers);
+        DeclContext* declContext,
+        const CIMNamespaceName& nameSpace,
+        CIMConstClass& cimClassOut,
+        Boolean propagateQualifiers);
 
     virtual void toXml(Buffer& out) const;
 
@@ -74,7 +67,7 @@ public:
 
     virtual CIMObjectRep* clone() const
     {
-	return new CIMInstanceRep(*this);
+        return new CIMInstanceRep(*this);
     }
 
     CIMObjectPath buildPath(const CIMConstClass& cimClass) const;

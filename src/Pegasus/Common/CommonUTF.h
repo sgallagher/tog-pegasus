@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Rosckes   (rosckes@us.ibm.com)
-//
-// Modified By: Yi Zhou Hewlett-Packard Company (yi.zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CommonUTF_h
@@ -61,7 +57,8 @@ PEGASUS_COMMON_LINKAGE extern  const Uint32 offsetsFromUTF8[];
 
 PEGASUS_COMMON_LINKAGE extern  const char trailingBytesForUTF8[];
 
-#define UTF_8_COUNT_TRAIL_BYTES(leadByte) (trailingBytesForUTF8[(Uint8)leadByte])
+#define UTF_8_COUNT_TRAIL_BYTES(leadByte) \
+    (trailingBytesForUTF8[(Uint8)leadByte])
 
 #define UTF8_NEXT(s, i) { \
     (i)=((i) + UTF_8_COUNT_TRAIL_BYTES((s)[(i)]) + 1); \
@@ -106,12 +103,12 @@ PEGASUS_COMMON_LINKAGE String escapeStringEncoder(const String& Str);
 PEGASUS_COMMON_LINKAGE String escapeStringDecoder(const String& Str);
 
 /**
-    The InitializeICU class loads and initializes data items that are required 
-    internally by various ICU functions. It makes sure that ICU function u_init 
-    is only called once by a process. A module which is using ICU APIs needs 
-    to call InitializeICU::initICUSuccessful first before it calls other ICU 
-    APIs. If InitializeICU::initICUSuccessful is failed, the module should not 
-    call other ICU APIs. 
+    The InitializeICU class loads and initializes data items that are required
+    internally by various ICU functions. It makes sure that ICU function u_init
+    is only called once by a process. A module which is using ICU APIs needs
+    to call InitializeICU::initICUSuccessful first before it calls other ICU
+    APIs. If InitializeICU::initICUSuccessful is failed, the module should not
+    call other ICU APIs.
 */
 
 #ifdef PEGASUS_HAS_ICU
@@ -120,10 +117,10 @@ class PEGASUS_COMMON_LINKAGE InitializeICU
 public:
 
     /**
-	Determines if ICU initialization is successful.
+        Determines if ICU initialization is successful.
 
-	@return  true, if u_init is called and success
-	         false otherwise
+        @return  true, if u_init is called and success
+                 false otherwise
     */
 
     static Boolean initICUSuccessful();

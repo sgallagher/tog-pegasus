@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_QualifierRep_h
@@ -62,62 +55,62 @@ class CIMQualifierRep : public Sharable
 public:
 
     CIMQualifierRep(
-	const CIMName& name, 
-	const CIMValue& value, 
-	const CIMFlavor & flavor,
-	Boolean propagated);
+        const CIMName& name,
+        const CIMValue& value,
+        const CIMFlavor& flavor,
+        Boolean propagated);
 
     virtual ~CIMQualifierRep();
 
-    const CIMName& getName() const 
-    { 
-	return _name; 
+    const CIMName& getName() const
+    {
+        return _name;
     }
 
     void setName(const CIMName& name);
 
-    CIMType getType() const 
-    { 
-	return _value.getType(); 
-    }
-
-    Boolean isArray() const 
+    CIMType getType() const
     {
-	return _value.isArray();
+        return _value.getType();
     }
 
-    const CIMValue& getValue() const 
-    { 
-	return _value; 
+    Boolean isArray() const
+    {
+        return _value.isArray();
+    }
+
+    const CIMValue& getValue() const
+    {
+        return _value;
     }
 
     void setValue(const CIMValue& value);
 
-    const CIMFlavor & getFlavor() const 
+    const CIMFlavor & getFlavor() const
     {
-	return _flavor; 
+        return _flavor;
     }
 
-    void setFlavor(const CIMFlavor & flavor) 
+    void setFlavor(const CIMFlavor & flavor)
     {
-	_flavor = flavor; 
+        _flavor = flavor;
     }
 
-    void unsetFlavor(const CIMFlavor & flavor) 
+    void unsetFlavor(const CIMFlavor & flavor)
     {
         _flavor.removeFlavor (flavor);
     }
 
     void resolveFlavor (const CIMFlavor & inheritedFlavor, Boolean inherited);
 
-    Boolean getPropagated() const 
-    { 
-	return _propagated; 
+    Boolean getPropagated() const
+    {
+        return _propagated;
     }
 
-    void setPropagated(Boolean propagated) 
+    void setPropagated(Boolean propagated)
     {
-	_propagated = propagated; 
+        _propagated = propagated;
     }
 
     void toXml(Buffer& out) const;
@@ -128,7 +121,7 @@ public:
 
     CIMQualifierRep* clone() const
     {
-	return new CIMQualifierRep(*this);
+        return new CIMQualifierRep(*this);
     }
 
 private:

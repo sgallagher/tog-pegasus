@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/MofWriter.h>
@@ -53,7 +51,7 @@ static const char* _requiredProperties[] =
     "CIMStatusCode",
 };
 
-static const size_t _numRequiredProperties = 
+static const size_t _numRequiredProperties =
     sizeof(_requiredProperties) / sizeof(_requiredProperties[0]);
 
 /*
@@ -93,7 +91,7 @@ static TableEntry _ErrorTypeTable[] =
     { 8, "Oversubscription Error" },
     { 9, "Unavailable Resource Error" },
     { 10, "Unsupported Operation Error" }
-}; 
+};
 
 static TableEntry _PerceivedSeverityTable[] =
 {
@@ -274,39 +272,39 @@ static TableEntry _CIMStatusCodeTable[] =
 CIMError::CIMError() : _inst("CIM_Error")
 {
     _inst.addProperty(CIMProperty(
-	"ErrorType", CIMValue(CIMTYPE_UINT16, false)));
+        "ErrorType", CIMValue(CIMTYPE_UINT16, false)));
     _inst.addProperty(CIMProperty(
-	"OtherErrorType", CIMValue(CIMTYPE_STRING, false)));
+        "OtherErrorType", CIMValue(CIMTYPE_STRING, false)));
     _inst.addProperty(CIMProperty(
-	"OwningEntity", CIMValue(CIMTYPE_STRING, false)));
+        "OwningEntity", CIMValue(CIMTYPE_STRING, false)));
     _inst.addProperty(CIMProperty(
-	"MessageID", CIMValue(CIMTYPE_STRING, false)));
+        "MessageID", CIMValue(CIMTYPE_STRING, false)));
     _inst.addProperty(CIMProperty(
-	"Message", CIMValue(CIMTYPE_STRING, false)));
+        "Message", CIMValue(CIMTYPE_STRING, false)));
     _inst.addProperty(CIMProperty(
-	"MessageArguments", CIMValue(CIMTYPE_STRING, true)));
+        "MessageArguments", CIMValue(CIMTYPE_STRING, true)));
     _inst.addProperty(CIMProperty(
-	"PerceivedSeverity", CIMValue(CIMTYPE_UINT16, false)));
+        "PerceivedSeverity", CIMValue(CIMTYPE_UINT16, false)));
     _inst.addProperty(CIMProperty(
-	"ProbableCause", CIMValue(CIMTYPE_UINT16, false)));
+        "ProbableCause", CIMValue(CIMTYPE_UINT16, false)));
     _inst.addProperty(CIMProperty(
-	"ProbableCauseDescription", CIMValue(CIMTYPE_STRING, false)));
+        "ProbableCauseDescription", CIMValue(CIMTYPE_STRING, false)));
     _inst.addProperty(CIMProperty(
-	"RecommendedActions", CIMValue(CIMTYPE_STRING, true)));
+        "RecommendedActions", CIMValue(CIMTYPE_STRING, true)));
     _inst.addProperty(CIMProperty(
-	"ErrorSource", CIMValue(CIMTYPE_STRING, false)));
+        "ErrorSource", CIMValue(CIMTYPE_STRING, false)));
     _inst.addProperty(CIMProperty(
-	"ErrorSourceFormat", CIMValue(CIMTYPE_UINT16, false)));
+        "ErrorSourceFormat", CIMValue(CIMTYPE_UINT16, false)));
     _inst.addProperty(CIMProperty(
-	"OtherErrorSourceFormat", CIMValue(CIMTYPE_STRING, false)));
+        "OtherErrorSourceFormat", CIMValue(CIMTYPE_STRING, false)));
     _inst.addProperty(CIMProperty(
-	"CIMStatusCode", CIMValue(CIMTYPE_UINT32, false)));
+        "CIMStatusCode", CIMValue(CIMTYPE_UINT32, false)));
     _inst.addProperty(CIMProperty(
-	"CIMStatusCodeDescription", CIMValue(CIMTYPE_STRING, false)));
+        "CIMStatusCodeDescription", CIMValue(CIMTYPE_STRING, false)));
 }
 
 CIMError::CIMError(const String& owningEntity,
-                   const String& messageID, 
+                   const String& messageID,
                    const String& message,
                    const PerceivedSeverityEnum& perceivedSeverity,
                    const ProbableCauseEnum& probableCause,
@@ -314,35 +312,35 @@ CIMError::CIMError(const String& owningEntity,
 : _inst("CIM_Error")
 {
     _inst.addProperty(CIMProperty(
-	"ErrorType", CIMValue(CIMTYPE_UINT16, false)));
+        "ErrorType", CIMValue(CIMTYPE_UINT16, false)));
     _inst.addProperty(CIMProperty(
-	"OtherErrorType", CIMValue(CIMTYPE_STRING, false)));
+        "OtherErrorType", CIMValue(CIMTYPE_STRING, false)));
     _inst.addProperty(CIMProperty(
-	"OwningEntity", CIMValue(owningEntity)));
+        "OwningEntity", CIMValue(owningEntity)));
     _inst.addProperty(CIMProperty(
-	"MessageID", CIMValue(messageID)));
+        "MessageID", CIMValue(messageID)));
     _inst.addProperty(CIMProperty(
-	"Message", CIMValue(message)));
+        "Message", CIMValue(message)));
     _inst.addProperty(CIMProperty(
-	"MessageArguments", CIMValue(CIMTYPE_STRING, true)));
+        "MessageArguments", CIMValue(CIMTYPE_STRING, true)));
     _inst.addProperty(CIMProperty(
-	"PerceivedSeverity", CIMValue(Uint16(perceivedSeverity))));
+        "PerceivedSeverity", CIMValue(Uint16(perceivedSeverity))));
     _inst.addProperty(CIMProperty(
-	"ProbableCause", CIMValue(Uint16(probableCause))));
+        "ProbableCause", CIMValue(Uint16(probableCause))));
     _inst.addProperty(CIMProperty(
-	"ProbableCauseDescription", CIMValue(CIMTYPE_STRING, false)));
+        "ProbableCauseDescription", CIMValue(CIMTYPE_STRING, false)));
     _inst.addProperty(CIMProperty(
-	"RecommendedActions", CIMValue(CIMTYPE_STRING, true)));
+        "RecommendedActions", CIMValue(CIMTYPE_STRING, true)));
     _inst.addProperty(CIMProperty(
-	"ErrorSource", CIMValue(CIMTYPE_STRING, false)));
+        "ErrorSource", CIMValue(CIMTYPE_STRING, false)));
     _inst.addProperty(CIMProperty(
-	"ErrorSourceFormat", CIMValue(CIMTYPE_UINT16, false)));
+        "ErrorSourceFormat", CIMValue(CIMTYPE_UINT16, false)));
     _inst.addProperty(CIMProperty(
-	"OtherErrorSourceFormat", CIMValue(CIMTYPE_STRING, false)));
+        "OtherErrorSourceFormat", CIMValue(CIMTYPE_STRING, false)));
     _inst.addProperty(CIMProperty(
-	"CIMStatusCode", CIMValue(Uint32(cimStatusCode))));
+        "CIMStatusCode", CIMValue(Uint32(cimStatusCode))));
     _inst.addProperty(CIMProperty(
-	"CIMStatusCodeDescription", CIMValue(CIMTYPE_STRING, false)));
+        "CIMStatusCodeDescription", CIMValue(CIMTYPE_STRING, false)));
 }
 
 CIMError::CIMError(const CIMError& x) : _inst(x._inst)
@@ -531,8 +529,8 @@ void _Check(const String& name, CIMConstProperty& p, T* tag)
 {
     if (p.getName() == name)
     {
-	if (IsArray(tag) != p.isArray() || GetType(tag) != p.getType())
-	    throw CIMException(CIM_ERR_TYPE_MISMATCH, name);
+        if (IsArray(tag) != p.isArray() || GetType(tag) != p.getType())
+            throw CIMException(CIM_ERR_TYPE_MISMATCH, name);
     }
 }
 
@@ -540,49 +538,49 @@ const void CIMError::setInstance(const CIMInstance& instance)
 {
     for (Uint32 i = 0; i < instance.getPropertyCount(); i++)
     {
-	CIMConstProperty p = instance.getProperty(i);
+        CIMConstProperty p = instance.getProperty(i);
 
-	_Check("ErrorType", p, (Uint16*)0);
-	_Check("OtherErrorType", p, (String*)0);
-	_Check("OwningEntity", p, (String*)0);
-	_Check("MessageID", p, (String*)0);
-	_Check("Message", p, (String*)0);
-	_Check("MessageArguments", p, (Array<String>*)0);
-	_Check("PerceivedSeverity", p, (Uint16*)0);
-	_Check("ProbableCause", p, (Uint16*)0);
-	_Check("ProbableCauseDescription", p, (String*)0);
-	_Check("RecommendedActions", p, (Array<String>*)0);
-	_Check("ErrorSource", p, (String*)0);
-	_Check("ErrorSourceFormat", p, (Uint16*)0);
-	_Check("OtherErrorSourceFormat", p, (String*)0);
-	_Check("CIMStatusCode", p, (Uint32*)0);
-	_Check("CIMStatusCodeDescription", p, (String*)0);
+        _Check("ErrorType", p, (Uint16*)0);
+        _Check("OtherErrorType", p, (String*)0);
+        _Check("OwningEntity", p, (String*)0);
+        _Check("MessageID", p, (String*)0);
+        _Check("Message", p, (String*)0);
+        _Check("MessageArguments", p, (Array<String>*)0);
+        _Check("PerceivedSeverity", p, (Uint16*)0);
+        _Check("ProbableCause", p, (Uint16*)0);
+        _Check("ProbableCauseDescription", p, (String*)0);
+        _Check("RecommendedActions", p, (Array<String>*)0);
+        _Check("ErrorSource", p, (String*)0);
+        _Check("ErrorSourceFormat", p, (Uint16*)0);
+        _Check("OtherErrorSourceFormat", p, (String*)0);
+        _Check("CIMStatusCode", p, (Uint32*)0);
+        _Check("CIMStatusCodeDescription", p, (String*)0);
     }
 
     // Verify that the instance contains all of the required properties.
 
     for (Uint32 i = 0; i < _numRequiredProperties; i++)
     {
-	// Does inst have this property?
+        // Does inst have this property?
 
-	Uint32 pos = instance.findProperty(_requiredProperties[i]);
+        Uint32 pos = instance.findProperty(_requiredProperties[i]);
 
-	if (pos == PEG_NOT_FOUND)
-	{
-	    char buffer[80];
-	    sprintf(buffer, "required property does not exist: %s", 
-		_requiredProperties[i]);
-	    throw CIMException(CIM_ERR_NO_SUCH_PROPERTY, buffer);
-	}
+        if (pos == PEG_NOT_FOUND)
+        {
+            char buffer[80];
+            sprintf(buffer, "required property does not exist: %s",
+                _requiredProperties[i]);
+            throw CIMException(CIM_ERR_NO_SUCH_PROPERTY, buffer);
+        }
         // is required property non-null?
         CIMConstProperty p = instance.getProperty(pos);
         CIMValue v = p.getValue();
         if (v.isNull())
         {
             char buffer[80];
-	    sprintf(buffer, "required property MUST NOT be Null: %s", 
-		_requiredProperties[i]);
-	    throw CIMException(CIM_ERR_FAILED, buffer);
+            sprintf(buffer, "required property MUST NOT be Null: %s",
+                _requiredProperties[i]);
+            throw CIMException(CIM_ERR_FAILED, buffer);
         }
     }
     _inst = instance;

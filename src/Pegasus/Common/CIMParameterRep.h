@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ParameterRep_h
@@ -59,66 +54,66 @@ class CIMParameterRep : public Sharable
 public:
 
     CIMParameterRep(
-	const CIMName& name, 
-	CIMType type,
-	Boolean isArray,
-	Uint32 arraySize,
-	const CIMName& referenceClassName);
+        const CIMName& name,
+        CIMType type,
+        Boolean isArray,
+        Uint32 arraySize,
+        const CIMName& referenceClassName);
 
     ~CIMParameterRep();
 
-    const CIMName& getName() const 
-    { 
-	return _name; 
+    const CIMName& getName() const
+    {
+        return _name;
     }
 
     void setName(const CIMName& name);
 
     Boolean isArray() const
     {
-	return _isArray;
+        return _isArray;
     }
 
     Uint32 getArraySize() const
     {
-	return _arraySize;
+        return _arraySize;
     }
 
-    const CIMName& getReferenceClassName() const 
+    const CIMName& getReferenceClassName() const
     {
-	return _referenceClassName; 
+        return _referenceClassName;
     }
 
-    const CIMType getType() const 
-    { 
-	return _type; 
+    const CIMType getType() const
+    {
+        return _type;
     }
 
     void addQualifier(const CIMQualifier& qualifier)
     {
-	_qualifiers.add(qualifier);
+        _qualifiers.add(qualifier);
     }
 
     Uint32 findQualifier(const CIMName& name) const
     {
-	return _qualifiers.find(name);
+        return _qualifiers.find(name);
     }
 
     CIMQualifier getQualifier(Uint32 index)
     {
-	return _qualifiers.getQualifier(index);
+        return _qualifiers.getQualifier(index);
     }
 
     CIMConstQualifier getQualifier(Uint32 index) const
     {
-	return _qualifiers.getQualifier(index);
+        return _qualifiers.getQualifier(index);
     }
 
     void removeQualifier (Uint32 index);
 
     Uint32 getQualifierCount() const
     {
-	return _qualifiers.getCount();
+        return _qualifiers.getCount();
     }
 
     void resolve(DeclContext* declContext, const CIMNamespaceName& nameSpace);
@@ -131,7 +126,7 @@ public:
 
     CIMParameterRep* clone() const
     {
-	return new CIMParameterRep(*this);
+        return new CIMParameterRep(*this);
     }
 
 private:

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstring>
@@ -103,28 +97,28 @@ String CIMScope::toString () const
     String tmp;
 
     if (this->hasScope (CIMScope::CLASS))
-	tmp.append("CLASS ");
+        tmp.append("CLASS ");
 
     if (this->hasScope (CIMScope::ASSOCIATION))
-	tmp.append("ASSOCIATION ");
+        tmp.append("ASSOCIATION ");
 
     if (this->hasScope (CIMScope::INDICATION))
-	tmp.append("INDICATION ");
+        tmp.append("INDICATION ");
 
     if (this->hasScope (CIMScope::PROPERTY))
-	tmp.append("PROPERTY ");
+        tmp.append("PROPERTY ");
 
     if (this->hasScope (CIMScope::REFERENCE))
-	tmp.append("REFERENCE ");
+        tmp.append("REFERENCE ");
 
     if (this->hasScope (CIMScope::METHOD))
-	tmp.append("METHOD ");
+        tmp.append("METHOD ");
 
     if (this->hasScope (CIMScope::PARAMETER))
-	tmp.append("PARAMETER ");
+        tmp.append("PARAMETER ");
 
     if (tmp.size())
-	tmp.remove(tmp.size() - 1);
+        tmp.remove(tmp.size() - 1);
 
     return tmp;
 }

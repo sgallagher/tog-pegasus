@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_QualifierDeclRep_h
@@ -62,51 +55,51 @@ class CIMQualifierDeclRep : public Sharable
 public:
 
     CIMQualifierDeclRep(
-	const CIMName& name, 
-	const CIMValue& value, 
-	const CIMScope & scope,
-	const CIMFlavor & flavor,
-	Uint32 arraySize);
+        const CIMName& name,
+        const CIMValue& value,
+        const CIMScope & scope,
+        const CIMFlavor & flavor,
+        Uint32 arraySize);
 
     virtual ~CIMQualifierDeclRep();
 
-    const CIMName& getName() const 
-    { 
-	return _name; 
+    const CIMName& getName() const
+    {
+        return _name;
     }
 
     void setName(const CIMName& name);
 
-    CIMType getType() const 
+    CIMType getType() const
     {
-	return _value.getType(); 
+        return _value.getType();
     }
 
-    Boolean isArray() const 
+    Boolean isArray() const
     {
-	return _value.isArray(); 
+        return _value.isArray();
     }
 
-    const CIMValue& getValue() const 
-    { 
-	return _value; 
+    const CIMValue& getValue() const
+    {
+        return _value;
     }
 
     void setValue(const CIMValue& value);
 
-    const CIMScope & getScope () const 
+    const CIMScope & getScope () const
     {
-	return _scope; 
+        return _scope;
     }
 
-    const CIMFlavor & getFlavor() const 
+    const CIMFlavor & getFlavor() const
     {
-	return _flavor; 
+        return _flavor;
     }
 
-    Uint32 getArraySize() const 
+    Uint32 getArraySize() const
     {
-	return _arraySize; 
+        return _arraySize;
     }
 
     void toXml(Buffer& out) const;
@@ -117,7 +110,7 @@ public:
 
     CIMQualifierDeclRep* clone() const
     {
-	return new CIMQualifierDeclRep(*this);
+        return new CIMQualifierDeclRep(*this);
     }
 
 private:

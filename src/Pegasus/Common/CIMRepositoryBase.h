@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Common_RepositoryBase_h
@@ -56,7 +50,7 @@ class RepositoryDeclContext;
 /** This class declares the interface for a CIM repository implementation.
 
     CIMRepositoryBase is a pure virtual base class (all the method signatures
-    must 
+    must be implemented).
 */
 class CIMRepositoryBase
 {
@@ -91,24 +85,24 @@ public:
     virtual void createClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& newClass,
-	const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
+        const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
 
     virtual CIMObjectPath createInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& newInstance,
-	const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
+        const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
 
     virtual void modifyClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass,
-	const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
+        const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
 
     virtual void modifyInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
         const CIMPropertyList& propertyList = CIMPropertyList(),
-	const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
+        const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
 
     virtual Array<CIMClass> enumerateClasses(
         const CIMNamespaceName& nameSpace,
@@ -183,7 +177,7 @@ public:
         const CIMObjectPath& instanceName,
         const CIMName& propertyName,
         const CIMValue& newValue = CIMValue(),
-	const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
+        const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
 
     virtual CIMQualifierDecl getQualifier(
         const CIMNamespaceName& nameSpace,
@@ -192,7 +186,7 @@ public:
     virtual void setQualifier(
         const CIMNamespaceName& nameSpace,
         const CIMQualifierDecl& qualifierDecl,
-	const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
+        const ContentLanguageList& contentLangs = ContentLanguageList()) = 0;
 
     virtual void deleteQualifier(
         const CIMNamespaceName& nameSpace,
@@ -201,10 +195,12 @@ public:
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
         const CIMNamespaceName& nameSpace) = 0;
 
-    typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc> NameSpaceAttributes;
+    typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc>
+        NameSpaceAttributes;
 
-    virtual void createNameSpace(const CIMNamespaceName& nameSpace,
-	 const NameSpaceAttributes &attributes=NameSpaceAttributes()) = 0;
+    virtual void createNameSpace(
+        const CIMNamespaceName& nameSpace,
+        const NameSpaceAttributes& attributes = NameSpaceAttributes()) = 0;
 
     virtual Array<CIMNamespaceName> enumerateNameSpaces() const = 0;
 

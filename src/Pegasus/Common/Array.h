@@ -32,11 +32,12 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Array_h
-/**
-This class provides a list of object types that are supported by the the ArrayInter object.
-The Array class contains parameter names for all Array objects.
-*/
 #define Pegasus_Array_h
+
+/**
+    Explicit instantiations of the Array template are used to define the Array
+    interface for the element types that may be stored in an Array.
+*/
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Char16.h>

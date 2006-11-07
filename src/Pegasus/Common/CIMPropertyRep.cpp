@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
@@ -69,7 +62,7 @@ CIMPropertyRep::CIMPropertyRep(
     _propagated(x._propagated)
 {
     if (propagateQualifiers)
-	x._qualifiers.cloneTo(_qualifiers);
+        x._qualifiers.cloneTo(_qualifiers);
 }
 
 CIMPropertyRep::CIMPropertyRep(
@@ -90,7 +83,8 @@ CIMPropertyRep::CIMPropertyRep(
         throw UninitializedObjectException();
     }
 
-    if((arraySize != 0) && (!value.isArray() || value.getArraySize() != arraySize))
+    if ((arraySize != 0) &&
+        (!value.isArray() || value.getArraySize() != arraySize))
     {
         throw TypeMismatchException();
     }
@@ -216,7 +210,7 @@ void CIMPropertyRep::resolve(
             CIMName referenceClass;
             if (_referenceClassName.isNull())
             {
-     	          CIMObjectPath reference;
+                CIMObjectPath reference;
                 _value.get(reference);
                 referenceClass = reference.getClassName();
             }
@@ -316,256 +310,269 @@ void CIMPropertyRep::toXml(Buffer& out) const
 {
     if (_value.isArray())
     {
-	out << STRLIT("<PROPERTY.ARRAY NAME=\"") << _name << STRLIT("\" ");
+        out << STRLIT("<PROPERTY.ARRAY NAME=\"") << _name << STRLIT("\" ");
 
-    // If the property array type is CIMObject, then
-    //   encode the property in CIM-XML as a string array with the EMBEDDEDOBJECT attribute
-    //   (there is not currently a CIM-XML "object" datatype)
-    // else
-    //   output the real type
-    if (_value.getType() == CIMTYPE_OBJECT)
-    {
-        Array<CIMObject> a;
-        _value.get(a);
-        out << STRLIT(" TYPE=\"string\"");
-        // If the Embedded Object is an instance, always add the EMBEDDEDOBJECT attribute.
-        if (a.size() > 0 && a[0].isInstance())
-            out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
-        // Else the Embedded Object is a class, always add the EmbeddedObject qualifier.
-        // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
-        // the EmbeddedObject qualifier will always be added, whether it's a class or
-        // an instance.
+        if (_value.getType() == CIMTYPE_OBJECT)
+        {
+            // If the property array type is CIMObject, then
+            //     encode the property in CIM-XML as a string array with the
+            //     EMBEDDEDOBJECT attribute (there is not currently a CIM-XML
+            //     "object" datatype)
+
+            Array<CIMObject> a;
+            _value.get(a);
+            out << STRLIT(" TYPE=\"string\"");
+            // If the Embedded Object is an instance, always add the
+            // EMBEDDEDOBJECT attribute.
+            if (a.size() > 0 && a[0].isInstance())
+                out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
 #ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+            else
+            {
+#endif
+                // Else the Embedded Object is a class, always add the
+                // EmbeddedObject qualifier.  Note that if the macro
+                // PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
+                // the EmbeddedObject qualifier will always be added,
+                // whether it's a class or an instance.
+                if (_qualifiers.find(CIMName("EmbeddedObject")) ==
+                    PEG_NOT_FOUND)
+                {
+                    // Note that _qualifiers is not defined as const, and
+                    // neither is add(), but this method toXml() *is* const.
+                    // However, in this case we really do want to add the
+                    // EmbeddedObject qualifier, so we cast away the implied
+                    // const-ness of _qualifiers.
+                    CIMQualifierList * tmpQualifiers =
+                        const_cast<CIMQualifierList *>(&_qualifiers);
+                    tmpQualifiers->add(
+                        CIMQualifier(CIMName("EmbeddedObject"), true));
+                }
+#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+            }
+#endif
+        }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        else if(_value.getType() == CIMTYPE_INSTANCE)
+        {
+            // If the property array type is CIMInstance, then
+            //   encode the property in CIM-XML as a string array with the
+            //   EMBEDDEDOBJECT attribute (there is not currently a CIM-XML
+            //   "instance" datatype)
+
+            Array<CIMInstance> a;
+            _value.get(a);
+            out << " TYPE=\"string\"";
+
+            // add the EMBEDDEDOBJECT attribute
+            if (a.size() > 0)
+            {
+                out << " EMBEDDEDOBJECT=\"instance\"";
+
+                // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is
+                // defined, then the EmbeddedInstance qualifier will be added
+#ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+                if (_qualifiers.find(CIMName("EmbeddedInstance")) ==
+                    PEG_NOT_FOUND)
+                {
+                    // Note that _qualifiers is not defined as const, and
+                    // neither is add(), but this method toXml() *is* const.
+                    // However, in this case we really do want to add the
+                    // EmbeddedObject qualifier, so we cast away the implied
+                    // const-ness of _qualifiers.
+
+                    // For now, we assume that all the embedded instances in
+                    // the array are of the same type
+                    CIMQualifierList * tmpQualifiers =
+                        const_cast<CIMQualifierList *>(&_qualifiers);
+                    tmpQualifiers->add(CIMQualifier(
+                        CIMName("EmbeddedInstance"),
+                        a[0].getClassName().getString()));
+                }
+#endif
+            }
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         else
         {
-#endif
-            if (_qualifiers.find(CIMName("EmbeddedObject")) == PEG_NOT_FOUND)
-            {
-                // Note that _qualifiers is not defined as const, and neither is add(),
-                // but this method toXml() *is* const. However, in this case we really
-                // do want to add the EmbeddedObject qualifier, so we cast away the
-                // implied const-ness of _qualifiers.
-                CIMQualifierList * tmpQualifiers =
-                    const_cast<CIMQualifierList *>(&_qualifiers);
-                tmpQualifiers->add(
-                    CIMQualifier(CIMName("EmbeddedObject"), true));
-            }
-#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+            out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType ());
+            out.append('"');
         }
-#endif
-    }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    // If the property array type is CIMInstance, then
-    //   encode the property in CIM-XML as a string array with the
-    //   EMBEDDEDOBJECT attribute (there is not currently a CIM-XML "instance"
-    //   datatype)
-    // else
-    //   output the real type
-    else if(_value.getType() == CIMTYPE_INSTANCE)
-    {
-      Array<CIMInstance> a;
-      _value.get(a);
-      out << " TYPE=\"string\"";
-      // add the EMBEDDEDOBJECT	attribute
-      if (a.size() > 0)
-      {
-        out << " EMBEDDEDOBJECT=\"instance\"";
-        // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined,
-        // then the EmbeddedInstance qualifier will be added
-#ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-        if (_qualifiers.find(CIMName("EmbeddedInstance")) == PEG_NOT_FOUND)
+
+        if (_arraySize)
         {
-          // Note that _qualifiers is not defined as const, and neither isadd(),
-          // but this method toXml() *is* const. However, in this case we really
-          // do want to add the EmbeddedObject qualifier, so we cast away the
-          // implied const-ness of _qualifiers.
-
-          // For now, we assume that all the embedded instances in the
-          // array are of the same type
-          CIMQualifierList * tmpQualifiers =
-              const_cast<CIMQualifierList *>(&_qualifiers);
-          tmpQualifiers->add(CIMQualifier(
-              CIMName("EmbeddedInstance"),
-              a[0].getClassName().getString()));
+            char buffer[32];
+            sprintf(buffer, "%d", _arraySize);
+            out << STRLIT(" ARRAYSIZE=\"") << buffer;
+            out.append('"');
         }
-#endif
-      }
-    }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    else
-    {
-        out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType ());
-	out.append('"');
-    }
 
-    if (_arraySize)
-	{
-	    char buffer[32];
-	    sprintf(buffer, "%d", _arraySize);
-	    out << STRLIT(" ARRAYSIZE=\"") << buffer;
-	    out.append('"');
-	}
+        if (!_classOrigin.isNull())
+        {
+            out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
+            out.append('"');
+        }
 
-	if (!_classOrigin.isNull())
-	{
-	    out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
-	    out.append('"');
-	}
+        if (_propagated != false)
+        {
+            out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
+            out.append('"');
+        }
 
-	if (_propagated != false)
-	{
-	    out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
-	    out.append('"');
-	}
+        out << STRLIT(">\n");
 
-	out << STRLIT(">\n");
+        _qualifiers.toXml(out);
 
-	_qualifiers.toXml(out);
+        XmlWriter::appendValueElement(out, _value);
 
-	XmlWriter::appendValueElement(out, _value);
-
-	out << STRLIT("</PROPERTY.ARRAY>\n");
+        out << STRLIT("</PROPERTY.ARRAY>\n");
     }
     else if (_value.getType() == CIMTYPE_REFERENCE)
     {
-	out << STRLIT("<PROPERTY.REFERENCE");
+        out << STRLIT("<PROPERTY.REFERENCE");
 
-	out << STRLIT(" NAME=\"") << _name << STRLIT("\" ");
+        out << STRLIT(" NAME=\"") << _name << STRLIT("\" ");
 
         if (!_referenceClassName.isNull())
         {
             out << STRLIT(" REFERENCECLASS=\"") << _referenceClassName;
-	    out.append('"');
+            out.append('"');
         }
 
-	if (!_classOrigin.isNull())
-	{
-	    out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
-	    out.append('"');
-	}
+        if (!_classOrigin.isNull())
+        {
+            out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
+            out.append('"');
+        }
 
-	if (_propagated != false)
-	{
-	    out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
-	    out.append('"');
-	}
+        if (_propagated != false)
+        {
+            out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
+            out.append('"');
+        }
 
-	out << STRLIT(">\n");
+        out << STRLIT(">\n");
 
-	_qualifiers.toXml(out);
+        _qualifiers.toXml(out);
 
-	XmlWriter::appendValueElement(out, _value);
+        XmlWriter::appendValueElement(out, _value);
 
-	out << STRLIT("</PROPERTY.REFERENCE>\n");
+        out << STRLIT("</PROPERTY.REFERENCE>\n");
     }
     else
     {
-	out << STRLIT("<PROPERTY NAME=\"") << _name << STRLIT("\" ");
+        out << STRLIT("<PROPERTY NAME=\"") << _name << STRLIT("\" ");
 
-	if (!_classOrigin.isNull())
-	{
-	    out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
-	    out.append('"');
-	}
-
-	if (_propagated != false)
-	{
-	    out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
-	    out.append('"');
-	}
-
-    // If the property type is CIMObject, then
-    //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT attribute
-    //   (there is not currently a CIM-XML "object" datatype)
-    // else
-    //   output the real type
-    if (_value.getType() == CIMTYPE_OBJECT)
-    {
-        CIMObject a;
-        _value.get(a);
-        out << STRLIT(" TYPE=\"string\"");
-        // If the Embedded Object is an instance, always add the EMBEDDEDOBJECT attribute.
-        if (a.isInstance())
-            out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
-        // Else the Embedded Object is a class, always add the EmbeddedObject qualifier.
-        // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
-        // the EmbeddedObject qualifier will always be added, whether it's a class or
-        // an instance.
-#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-        else
+        if (!_classOrigin.isNull())
         {
+            out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
+            out.append('"');
+        }
+
+        if (_propagated != false)
+        {
+            out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
+            out.append('"');
+        }
+
+        if (_value.getType() == CIMTYPE_OBJECT)
+        {
+            // If the property type is CIMObject, then
+            //   encode the property in CIM-XML as a string with the
+            //   EMBEDDEDOBJECT attribute (there is not currently a CIM-XML
+            //   "object" datatype)
+
+            CIMObject a;
+            _value.get(a);
+            out << STRLIT(" TYPE=\"string\"");
+
+            // If the Embedded Object is an instance, always add the
+            // EMBEDDEDOBJECT attribute.
+            if (a.isInstance())
+                out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
+            // Else the Embedded Object is a class, always add the
+            // EmbeddedObject qualifier.
+#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+            else
+            {
 #endif
+                // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY
+                // is defined, then the EmbeddedObject qualifier will always
+                // be added, whether it's a class or an instance.
+                if (_qualifiers.find(CIMName("EmbeddedObject")) ==
+                    PEG_NOT_FOUND)
+                {
+                    // Note that _qualifiers is not defined as const, and
+                    // neither is add(), but this method toXml() *is* const.
+                    // However, in this case we really do want to add the
+                    // EmbeddedObject qualifier, so we cast away the implied
+                    // const-ness of _qualifiers.
+                    CIMQualifierList * tmpQualifiers =
+                        const_cast<CIMQualifierList *>(&_qualifiers);
+                    tmpQualifiers->add(
+                        CIMQualifier(CIMName("EmbeddedObject"), true));
+                }
+#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+            }
+#endif
+        }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        else if (_value.getType() == CIMTYPE_INSTANCE)
+        {
+            CIMInstance a;
+            _value.get(a);
+            out << " TYPE=\"string\"";
+            out << " EMBEDDEDOBJECT=\"instance\"";
+
+#ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
             if (_qualifiers.find(CIMName("EmbeddedObject")) == PEG_NOT_FOUND)
             {
-                // Note that _qualifiers is not defined as const, and neither is add(),
-                // but this method toXml() *is* const. However, in this case we really
-                // do want to add the EmbeddedObject qualifier, so we cast away the
-                // implied const-ness of _qualifiers.
+                // Note that _qualifiers is not defined as const, and neither
+                // is add(), but this method toXml() *is* const. However, in
+                // this case we really do want to add the EmbeddedObject
+                // qualifier, so we cast away the implied const-ness of
+                // _qualifiers.
                 CIMQualifierList * tmpQualifiers =
                     const_cast<CIMQualifierList *>(&_qualifiers);
                 tmpQualifiers->add(
-                    CIMQualifier(CIMName("EmbeddedObject"), true));
+                  CIMQualifier(CIMName("EmbeddedInstance"),
+                  a.getClassName.getString()));
             }
-#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+#endif
         }
-#endif
-    }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    else if	(_value.getType()	== CIMTYPE_INSTANCE)
-    {
-      CIMInstance	a;
-      _value.get(a);
-      out	<< " TYPE=\"string\"";
-      out	<< " EMBEDDEDOBJECT=\"instance\"";
-
-#ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-      if (_qualifiers.find(CIMName("EmbeddedObject"))	== PEG_NOT_FOUND)
-      {
-        // Note	that _qualifiers is	not	defined	as const,	and	neither	is add(),
-        // but this	method toXml() *is*	const. However,	in this	case we	really
-        // do	want to	add	the	EmbeddedObject qualifier,	so we	cast away	the
-        // implied const-ness	of _qualifiers.
-        CIMQualifierList * tmpQualifiers =
-            const_cast<CIMQualifierList *>(&_qualifiers);
-        tmpQualifiers->add(
-          CIMQualifier(CIMName("EmbeddedInstance"),
-          a.getClassName.getString()));
-      }
-#endif
-    }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    else
-    {
-        out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType());
-	out.append('"');
-    }
+        else
+        {
+            out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType());
+            out.append('"');
+        }
 
-	out << STRLIT(">\n");
+        out << STRLIT(">\n");
 
-	_qualifiers.toXml(out);
+        _qualifiers.toXml(out);
 
-	XmlWriter::appendValueElement(out, _value);
+        XmlWriter::appendValueElement(out, _value);
 
-	out << STRLIT("</PROPERTY>\n");
+        out << STRLIT("</PROPERTY>\n");
     }
 }
 
 /** toMof - returns the MOF for the CIM Property Object in the parameter.
-    The MOF for property declaration in a class and value presentation in 
+    The MOF for property declaration in a class and value presentation in
     an instance are different.
-    
+
     The BNF for the property Declaration MOF is:
     <pre>
-    propertyDeclaration     = 	[ qualifierList ] dataType propertyName
-				[ array ] [ defaultValue ] ";"
+    propertyDeclaration     =   [ qualifierList ] dataType propertyName
+                                [ array ] [ defaultValue ] ";"
 
-    array 		    = 	"[" [positiveDecimalValue] "]"
+    array                   =   "[" [positiveDecimalValue] "]"
 
-    defaultValue 	    = 	"=" initializer
+    defaultValue            =   "=" initializer
     </pre>
     Format with qualifiers on one line and declaration on another. Start
     with newline but none at the end.
- 
+
     Note that instances have a different format that propertyDeclarations:
     instanceDeclaration = [ qualifiersList ] INSTANCE OF className | alias
          "["valueInitializer "]" ";"
@@ -576,11 +583,11 @@ void CIMPropertyRep::toMof(Boolean isDeclaration, Buffer& out) const
 {
     //Output the qualifier list
     if (_qualifiers.getCount())
-	out.append('\n');
+        out.append('\n');
     _qualifiers.toMof(out);
 
     // Output the Type and name on a new line
-    out << '\n'; 
+    out << '\n';
     if (isDeclaration)
     {
         out << cimTypeToString(_value.getType ());
@@ -607,20 +614,20 @@ void CIMPropertyRep::toMof(Boolean isDeclaration, Buffer& out) const
     // If the property value is not Null, add value after "="
     if (!_value.isNull())
     {
-	out << STRLIT(" = ");
-	if (_value.isArray())
-	{
-	    // Insert any property values
-	    MofWriter::appendValueElement(out, _value);
-	}
-	else if (_value.getType() == CIMTYPE_REFERENCE)
-	{
-	    MofWriter::appendValueElement(out, _value);
-	}
-	else
-	{
-	    MofWriter::appendValueElement(out, _value);
-	}
+        out << STRLIT(" = ");
+        if (_value.isArray())
+        {
+            // Insert any property values
+            MofWriter::appendValueElement(out, _value);
+        }
+        else if (_value.getType() == CIMTYPE_REFERENCE)
+        {
+            MofWriter::appendValueElement(out, _value);
+        }
+        else
+        {
+            MofWriter::appendValueElement(out, _value);
+        }
     }
     else if (!isDeclaration)
             out << STRLIT(" = NULL");
@@ -633,22 +640,22 @@ void CIMPropertyRep::toMof(Boolean isDeclaration, Buffer& out) const
 Boolean CIMPropertyRep::identical(const CIMPropertyRep* x) const
 {
     if (!_name.equal (x->_name))
-	return false;
+        return false;
 
     if (_value != x->_value)
-	return false;
+        return false;
 
     if (!_referenceClassName.equal (x->_referenceClassName))
-	return false;
+        return false;
 
     if (!_qualifiers.identical(x->_qualifiers))
-	return false;
+        return false;
 
     if (!_classOrigin.equal (x->_classOrigin))
-	return false;
+        return false;
 
     if (_propagated != x->_propagated)
-	return false;
+        return false;
 
     return true;
 }
@@ -658,10 +665,10 @@ void CIMPropertyRep::setValue(const CIMValue& value)
     // CIMType of value is immutable:
 
     if (!value.typeCompatible(_value))
-	throw TypeMismatchException();
+        throw TypeMismatchException();
 
     if (_arraySize && _arraySize != value.getArraySize())
-	throw TypeMismatchException();
+        throw TypeMismatchException();
 
     // A CIM Property may not be of reference array type
     if (value.isArray() && (value.getType() == CIMTYPE_REFERENCE))

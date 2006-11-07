@@ -29,19 +29,12 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
-//      Chip Vincent (cvincent@us.ibm.com)
-//      Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3476
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMObjectRep.h"
 
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -130,7 +123,7 @@ CIMProperty CIMObjectRep::getProperty(Uint32 index)
 
 void CIMObjectRep::removeProperty(Uint32 index)
 {
-	if (index >= _properties.size())
+    if (index >= _properties.size())
     {
         throw IndexOutOfBoundsException();
     }

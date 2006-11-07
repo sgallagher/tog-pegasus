@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
@@ -76,13 +69,14 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
     }
 
     // Set the flavor defaults. Must actively set them in case input flavor
-	// sets some but not all the defaults.	Also Make sure no conflicts. This covers
-	// the fact that we have separate flags for on and off for the toelement
-	// and override functions. Something must be set on creation and the
-	// default in the .h file only covers the case where there is no input.
-	// This also assures that there are no conflicts. Note that it favors
-	// restricted and disable override
-	//ATTN: This should become an exception in case conflicting entities are set.
+    // sets some but not all the defaults.  Also Make sure no conflicts.  This
+    // covers the fact that we have separate flags for on and off for the
+    // toelement and override functions.  Something must be set on creation
+    // and the default in the .h file only covers the case where there is no
+    // input.  This also assures that there are no conflicts.  Note that it
+    // favors restricted and disable override
+    //ATTN: This should become an exception in case conflicting entities are
+    // set.
     if(!(_flavor.hasFlavor (CIMFlavor::RESTRICTED)))
         _flavor.addFlavor (CIMFlavor::TOSUBCLASS);
     else
@@ -125,14 +119,14 @@ void CIMQualifierDeclRep::toXml(Buffer& out) const
 
     if (_value.isArray())
     {
-	out << STRLIT(" ISARRAY=\"true\"");
+        out << STRLIT(" ISARRAY=\"true\"");
 
-	if (_arraySize)
-	{
-	    char buffer[64];
-	    int n = sprintf(buffer, " ARRAYSIZE=\"%d\"", _arraySize);
-	    out.append(buffer, n);
-	}
+        if (_arraySize)
+        {
+            char buffer[64];
+            int n = sprintf(buffer, " ARRAYSIZE=\"%d\"", _arraySize);
+            out.append(buffer, n);
+        }
     }
 
     XmlWriter::appendQualifierFlavorEntity(out, _flavor);
@@ -149,14 +143,14 @@ void CIMQualifierDeclRep::toXml(Buffer& out) const
 
     The BNF for this output is:
     <pre>
-    qualifierDeclaration   = 	QUALIFIER qualifierName qualifierType scope
-				[ defaultFlavor ] ";"
+    qualifierDeclaration   =    QUALIFIER qualifierName qualifierType scope
+                                [ defaultFlavor ] ";"
 
-    qualifierName 	   = 	IDENTIFIER
+    qualifierName          =    IDENTIFIER
 
-    qualifierType 	   = 	":" dataType [ array ] [ defaultValue ]
+    qualifierType          =    ":" dataType [ array ] [ defaultValue ]
 
-    scope 		   = 	"," SCOPE "(" metaElement *( "," metaElement )
+    scope                  =    "," SCOPE "(" metaElement *( "," metaElement )
     ")"
     </pre>
 */
@@ -173,14 +167,14 @@ void CIMQualifierDeclRep::toMof(Buffer& out) const
     // If array put the Array indicator "[]" and possible size after name.
     if (_value.isArray())
     {
-	if (_arraySize)
-	{
-	    char buffer[32];
-	    int n = sprintf(buffer, "[%d]", _arraySize);
-	    out.append(buffer, n);
-	}
-	else
-	    out << STRLIT("[]");
+        if (_arraySize)
+        {
+            char buffer[32];
+            int n = sprintf(buffer, "[%d]", _arraySize);
+            out.append(buffer, n);
+        }
+        else
+            out << STRLIT("[]");
     }
 
     Boolean hasValueField = false;
@@ -188,9 +182,9 @@ void CIMQualifierDeclRep::toMof(Buffer& out) const
     //if (!_value.isNull() || !(_value.getType() == CIMTYPE_BOOLEAN) )
     //{
         // KS With CIM Qualifier, this should be =
-	out << STRLIT(" = ");
-	hasValueField = true;
-	MofWriter::appendValueElement(out, _value);
+        out << STRLIT(" = ");
+        hasValueField = true;
+        MofWriter::appendValueElement(out, _value);
     //}
 
     // Output Scope Information
@@ -198,16 +192,16 @@ void CIMQualifierDeclRep::toMof(Buffer& out) const
     scopeString = MofWriter::getQualifierScope(_scope);
     //if (scopeString.size())
     //{
-	out << STRLIT(", Scope(") << scopeString;
-	out.append(')');
+        out << STRLIT(", Scope(") << scopeString;
+        out.append(')');
     //}
     // Output Flavor Information
     String flavorString;
     flavorString = MofWriter::getQualifierFlavor(_flavor);
     if (flavorString.size())
     {
-	out << STRLIT(", Flavor(") << flavorString;
-	out.append(')');
+        out << STRLIT(", Flavor(") << flavorString;
+        out.append(')');
     }
     // End each qualifier declaration with newline
     out << STRLIT(";\n");
@@ -233,12 +227,12 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(const CIMQualifierDeclRep& x) :
 Boolean CIMQualifierDeclRep::identical(const CIMQualifierDeclRep* x) const
 {
     return
-	this == x ||
-	_name.equal(x->_name) &&
-	_value == x->_value &&
-	(_scope.equal (x->_scope)) &&
-	(_flavor.equal (x->_flavor)) &&
-	_arraySize == x->_arraySize;
+        this == x ||
+        _name.equal(x->_name) &&
+        _value == x->_value &&
+        (_scope.equal (x->_scope)) &&
+        (_flavor.equal (x->_flavor)) &&
+        _arraySize == x->_arraySize;
 }
 
 void CIMQualifierDeclRep::setValue(const CIMValue& value)

@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By:  Amit K Arora, IBM (amita@in.ibm.com) for Bug#1188
-//               David Dillard, VERITAS Software Corp.
-//                   (david.dillard@veritas.com)
-//		 Sean Keenan (sean.keenan@hp.com)
-//		 Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/AsyncOpNode.h>

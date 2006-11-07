@@ -29,15 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef CIMOM_include
-#define CIMOM_include
+#ifndef Pegasus_Cimom_h
+#define Pegasus_Cimom_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
@@ -62,130 +57,126 @@ extern const Uint32 CIMOM_Q_ID;
 
 class PEGASUS_COMMON_LINKAGE module_capabilities
 {
-   public:
-      static Uint32 async;
-      static Uint32 remote;
-      static Uint32 trusted;
-      static Uint32 paused;
-      static Uint32 stopped;
-      static Uint32 module_controller;
-
-} ;
+public:
+    static Uint32 async;
+    static Uint32 remote;
+    static Uint32 trusted;
+    static Uint32 paused;
+    static Uint32 stopped;
+    static Uint32 module_controller;
+};
 
 class PEGASUS_COMMON_LINKAGE message_module : public Linkable
 {
-   public:
-      message_module()
-	 : _name(), _capabilities(0),
-	   _mask(0), _q_id(0) { }
+public:
+    message_module() : _name(), _capabilities(0), _mask(0), _q_id(0) { }
 
-      message_module(const String & name,
-		     Uint32 capabilities,
-		     Uint32 mask,
-		     Uint32 queue)
-      	 : _name(name), _modules(), _capabilities(capabilities),
-	   _mask(mask), _q_id(queue)  { }
+    message_module(
+        const String & name,
+        Uint32 capabilities,
+        Uint32 mask,
+        Uint32 queue)
+        : _name(name), _modules(), _capabilities(capabilities),
+          _mask(mask), _q_id(queue)  { }
 
-      Boolean operator == (const message_module *mm) const;
-      Boolean operator == (const String & name ) const ;
-      Boolean operator == (Uint32) const;
-      const String & get_name() const ;
-      Uint32 get_capabilities() const ;
-      Uint32 get_mask() const ;
-      Uint32 get_queue() const ;
+    Boolean operator==(const message_module* mm) const;
+    Boolean operator==(const String& name) const;
+    Boolean operator==(Uint32) const;
+    const String& get_name() const;
+    Uint32 get_capabilities() const;
+    Uint32 get_mask() const;
+    Uint32 get_queue() const;
 
-      void put_name(String & name);
-      void put_capabilities(Uint32 capabilities);
-      void put_mask(Uint32 mask);
-      void put_queue(Uint32 queue) ;
+    void put_name(String& name);
+    void put_capabilities(Uint32 capabilities);
+    void put_mask(Uint32 mask);
+    void put_queue(Uint32 queue);
 
-   private:
-      String _name;
-      Array<String> _modules;
-      Uint32 _capabilities;
-      Uint32 _mask;
-      struct timeval _heartbeat;
+private:
+    String _name;
+    Array<String> _modules;
+    Uint32 _capabilities;
+    Uint32 _mask;
+    struct timeval _heartbeat;
 
-
-      Uint32 _q_id;
-      friend class cimom;
+    Uint32 _q_id;
+    friend class cimom;
 };
 
 class MessageQueueService;
 
-
 class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
 {
-   public :
-      cimom();
+public:
+    cimom();
+    virtual ~cimom();
 
-      virtual ~cimom() ;
+    Boolean moduleChange(struct timeval last);
 
-      Boolean moduleChange(struct timeval last);
+    Uint32 getModuleCount();
+    Uint32 getModuleIDs(Uint32* ids, Uint32 count);
 
-      Uint32 getModuleCount();
-      Uint32 getModuleIDs(Uint32 *ids, Uint32 count);
+    AsyncOpNode* get_cached_op();
+    void cache_op(AsyncOpNode* op);
 
-      AsyncOpNode *get_cached_op();
-      void cache_op(AsyncOpNode *op);
+    void set_default_op_timeout(const struct timeval* buffer);
+    void get_default_op_timeout(struct timeval* timeout) const;
 
-      void set_default_op_timeout(const struct timeval *buffer);
-      void get_default_op_timeout(struct timeval *timeout) const ;
+protected:
+      Uint32 get_module_q(const String& name);
+      static void _make_response(Message* req, Uint32 code);
+      static void _completeAsyncResponse(
+          AsyncRequest* request,
+          AsyncReply* reply,
+          Uint32 state,
+          Uint32 flag);
+      static void _complete_op_node(
+          AsyncOpNode* op,
+          Uint32 state,
+          Uint32 flag,
+          Uint32 code);
+      static void _default_callback(AsyncOpNode*, MessageQueue*, void*);
 
+private:
+    struct timeval _default_op_timeout;
+    struct timeval _last_module_change;
+    List<message_module, Mutex> _modules;
 
+    AsyncQueue<AsyncOpNode> _routed_ops;
 
-   protected:
-      Uint32 get_module_q(const String & name);
-      static void _make_response(Message *req, Uint32 code);
-      static void _completeAsyncResponse(AsyncRequest *request,
-				  AsyncReply *reply,
-				  Uint32 state,
-				  Uint32 flag);
-      static void _complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32 code);
-      static void _default_callback(AsyncOpNode *, MessageQueue *, void *);
+    static ThreadReturnType PEGASUS_THREAD_CDECL _routing_proc(void*);
 
-   private:
-      struct timeval _default_op_timeout;
-      struct timeval _last_module_change;
-      List<message_module, Mutex> _modules;
+    Thread _routing_thread;
 
-      AsyncQueue<AsyncOpNode> _routed_ops;
+    void _handle_cimom_op(
+        AsyncOpNode* op,
+        Thread* thread,
+        MessageQueue* queue);
+    Uint32 _ioctl(Uint32, Uint32, void*);
 
-      static ThreadReturnType PEGASUS_THREAD_CDECL _routing_proc(void *);
+    virtual void handleEnqueue();
+    void register_module(RegisterCimService* msg);
+    void deregister_module(Uint32 quid);
+    void update_module(UpdateCimService* msg);
+    void ioctl(AsyncIoctl* msg);
 
-      Thread _routing_thread;
+    void find_service_q(FindServiceQueue* msg);
+    void enumerate_service(EnumerateService* msg);
+    Boolean route_async(AsyncOpNode* operation);
+    void _shutdown_routed_queue();
 
-      void _handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queue);
-      Uint32 _ioctl(Uint32, Uint32, void *);
+    void _registered_module_in_service(RegisteredModule* msg);
+    void _deregistered_module_in_service(DeRegisteredModule* msg);
+    void _find_module_in_service(FindModuleInService* msg);
 
-      virtual void handleEnqueue();
-      void register_module(RegisterCimService *msg);
-      void deregister_module(Uint32 quid);
-      void update_module(UpdateCimService *msg );
-      void ioctl(AsyncIoctl *msg );
+    AtomicInt _die;
+    AtomicInt _routed_queue_shutdown;
 
-      void find_service_q(FindServiceQueue *msg );
-      void enumerate_service(EnumerateService *msg );
-      Boolean route_async(AsyncOpNode *operation);
-      void _shutdown_routed_queue();
+    static cimom *_global_this;
 
-      void _registered_module_in_service(RegisteredModule *msg);
-      void _deregistered_module_in_service(DeRegisteredModule *msg);
-      void _find_module_in_service(FindModuleInService *msg);
-
-
-      AtomicInt _die;
-      AtomicInt _routed_queue_shutdown;
-
-      static cimom *_global_this;
-
-      friend class MessageQueueService;
+    friend class MessageQueueService;
 };
-
-
-
-
 
 PEGASUS_NAMESPACE_END
 
-#endif // CIMOM_include
+#endif // Pegasus_Cimom_h

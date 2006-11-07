@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMPropertyList.h"
@@ -115,8 +111,8 @@ CIMPropertyList& CIMPropertyList::operator=(const CIMPropertyList& x)
 {
     if (&x != this)
     {
-	_rep->propertyNames = x._rep->propertyNames;
-	_rep->isNull = x._rep->isNull;
+        _rep->propertyNames = x._rep->propertyNames;
+        _rep->isNull = x._rep->isNull;
     }
 
     return *this;

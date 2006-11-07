@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CharSet_h
@@ -41,27 +39,27 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/*  This class provides fast methods for checking whether a character is a 
-    member of a given character set (e.g., isAlpha()) and for translating 
-    characters (e.g., toUpper()). These functions are faster than their system 
-    library counterparts since they restrict their arguments to Uint8. For 
-    example, the system isupper() takes an int argument and must check to see 
-    if the int is between 0 and 128 before using it as an index into a table. 
-    Also, nearly all system implementation require an extra AND operation since 
+/*  This class provides fast methods for checking whether a character is a
+    member of a given character set (e.g., isAlpha()) and for translating
+    characters (e.g., toUpper()). These functions are faster than their system
+    library counterparts since they restrict their arguments to Uint8. For
+    example, the system isupper() takes an int argument and must check to see
+    if the int is between 0 and 128 before using it as an index into a table.
+    Also, nearly all system implementation require an extra AND operation since
     a single table is used to implement all of the ctype functions (one bit
     per function).
 
-    This class also implements additional functions not supported by the 
+    This class also implements additional functions not supported by the
     system library, like isAlphaUnder(), and isAlNumUnder(). Expression like
     this:
 
-	if (isalpha(c) || c == '_')
-	    ...
+        if (isalpha(c) || c == '_')
+            ...
 
     Become this:
 
-	if (CharSet::isAlphaUnder(c))
-	    ...
+        if (CharSet::isAlphaUnder(c))
+            ...
 
     The optimization is even faster than it looks. Recall that isalpha() incurs
     an extra branch and an extra AND operation, as explained above.

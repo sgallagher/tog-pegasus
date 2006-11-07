@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Michael E. Brasher (mike-brasher@austin.rr.com -- Inova Europe)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstring>
@@ -42,11 +40,11 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // Note: _empty_rep is the only BufferRep object that may have a zero capacity.
 // So "_rep->cap == 0" implies "_rep == _empty_rep". But some platforms produce
-// more than one instance of _empty_rep (strangely). Therefore, it is safer to 
+// more than one instance of _empty_rep (strangely). Therefore, it is safer to
 // use the former test rather than the latter.
 //
-BufferRep Buffer::_empty_rep = 
-{ 
+BufferRep Buffer::_empty_rep =
+{
     0, /* size */
     0, /* cap (zero implies it is the _empty_rep) */
     {0} /* data[0] */
@@ -60,7 +58,7 @@ static Uint32 _next_pow_2(Uint32 x)
     PEGASUS_CHECK_CAPACITY_OVERFLOW(x);
 
     if (x < MIN_CAPACITY)
-	return MIN_CAPACITY;
+        return MIN_CAPACITY;
 
     x--;
     x |= (x >> 1);
@@ -76,7 +74,7 @@ static Uint32 _next_pow_2(Uint32 x)
 static inline BufferRep* _allocate(size_t cap)
 {
     if (cap < MIN_CAPACITY)
-	cap = MIN_CAPACITY;
+        cap = MIN_CAPACITY;
 
     // Allocate an extra byte for null-termination performed by getData().
     BufferRep* rep = (BufferRep*)malloc(sizeof(BufferRep) + cap + 1);
@@ -120,16 +118,16 @@ Buffer& Buffer::operator=(const Buffer& x)
 {
     if (&x != this)
     {
-	if (x._rep->size > _rep->cap)
-	{
-	    if (_rep->cap != 0)
-		free(_rep);
+        if (x._rep->size > _rep->cap)
+        {
+            if (_rep->cap != 0)
+                free(_rep);
 
-	    _rep = _allocate(x._rep->cap);
-	}
+            _rep = _allocate(x._rep->cap);
+        }
 
-	memcpy(_rep->data, x._rep->data, x._rep->size);
-	_rep->size = x._rep->size;
+        memcpy(_rep->data, x._rep->data, x._rep->size);
+        _rep->size = x._rep->size;
     }
     return *this;
 }
@@ -138,19 +136,19 @@ void Buffer::_reserve_aux(size_t cap)
 {
     if (_rep->cap == 0)
     {
-	_rep = _allocate(cap);
-	_rep->size = 0;
+        _rep = _allocate(cap);
+        _rep->size = 0;
     }
     else
-	_rep = _reallocate(_rep, _next_pow_2(cap));
+        _rep = _reallocate(_rep, _next_pow_2(cap));
 }
 
 void Buffer::_append_char_aux()
 {
     if (_rep->cap == 0)
     {
-	_rep = _allocate(MIN_CAPACITY);
-	_rep->size = 0;
+        _rep = _allocate(MIN_CAPACITY);
+        _rep->size = 0;
     }
     else
     {
@@ -163,42 +161,42 @@ void Buffer::_append_char_aux()
 void Buffer::insert(size_t pos, const char* data, size_t size)
 {
     if (pos > _rep->size)
-	return;
+        return;
 
-    size_t cap = _rep->size + size;	
+    size_t cap = _rep->size + size;
     size_t rem = _rep->size - pos;
 
     if (cap > _rep->cap)
     {
-	BufferRep* rep = _allocate(cap);
-	rep->size = cap;
+        BufferRep* rep = _allocate(cap);
+        rep->size = cap;
 
-	memcpy(rep->data, _rep->data, pos);
-	memcpy(rep->data + pos, data, size);
-	memcpy(rep->data + pos + size, _rep->data + pos, rem);
+        memcpy(rep->data, _rep->data, pos);
+        memcpy(rep->data + pos, data, size);
+        memcpy(rep->data + pos + size, _rep->data + pos, rem);
 
-	if (_rep->cap != 0)
-	    free(_rep);
+        if (_rep->cap != 0)
+            free(_rep);
 
-	_rep = rep;
+        _rep = rep;
     }
     else
     {
         memmove(_rep->data + pos + size, _rep->data + pos, rem);
-	memcpy(_rep->data + pos, data, size);
-	_rep->size += size;
+        memcpy(_rep->data + pos, data, size);
+        _rep->size += size;
     }
 }
 
 void Buffer::remove(size_t pos, size_t size)
 {
     if (pos + size > _rep->size)
-	return;
+        return;
 
     size_t rem = _rep->size - (pos + size);
 
     if (rem)
-	memmove(_rep->data + pos, _rep->data + pos + size, rem);
+        memmove(_rep->data + pos, _rep->data + pos + size, rem);
 
     _rep->size -= size;
 }

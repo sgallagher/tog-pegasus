@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Rosckes   (rosckes@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -160,17 +154,17 @@ int UTF16toUTF8(const Uint16** srcHead,
     Uint8* tgt = *tgtHead;
     while (src < srcEnd)
     {
-	if (*src < 128)
-	{
-	    if (tgt == tgtEnd)
-	    {
-		returnCode = -1;
-		break;
-	    }
+        if (*src < 128)
+        {
+            if (tgt == tgtEnd)
+            {
+                returnCode = -1;
+                break;
+            }
 
-	    *tgt++ = *src++;
-	    continue;
-	}
+            *tgt++ = *src++;
+            continue;
+        }
 
     Uint32 tempchar;
     Uint16 numberOfBytes = 0;
@@ -453,31 +447,32 @@ Boolean InitializeICU::initICUSuccessful()
 {
     if (!_initAttempted)
     {
-	{
+        {
             AutoMutex lock(_initMutex);
 
-	    if (!_initAttempted)
-	    {
+            if (!_initAttempted)
+            {
                 UErrorCode _status = U_ZERO_ERROR;
 
-		// Initialize ICU
+                // Initialize ICU
                 u_init(&_status);
 
                 if (U_FAILURE(_status))
                 {
                     _initSuccessful = false;
-                    Logger::put (Logger::STANDARD_LOG , System::CIMSERVER,
-				 Logger::WARNING,
-                                 "ICU initialization failed with error: $0.", 
-				 _status);
+                    Logger::put(
+                        Logger::STANDARD_LOG , System::CIMSERVER,
+                        Logger::WARNING,
+                        "ICU initialization failed with error: $0.",
+                        _status);
                 }
                 else
                 {
                     _initSuccessful = true;
                 }
                 _initAttempted = true;
-	    }
-	}
+            }
+        }
     }
 
     return _initSuccessful;

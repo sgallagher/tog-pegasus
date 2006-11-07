@@ -104,9 +104,9 @@ public:
             empty String.
     */
     CIMParamValue(
-	String parameterName,
-	CIMValue value,
-	Boolean isTyped=true);
+        String parameterName,
+        CIMValue value,
+        Boolean isTyped=true);
 
     /**
         Destructs the CIMParamValue object.

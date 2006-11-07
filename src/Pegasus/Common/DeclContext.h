@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DeclContext_h
@@ -52,10 +47,10 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     This class is used internally as a source of CIM declarations.
     It is passed to the resolve[objectType] () methods of the Resolver class
-    (where [objectType] is Class, Instance, Property, Method, Parameter), and 
-    in turn to the resolve () methods of the CIM[objectType]Rep classes. 
-    Methods are provided for looking up class, qualifier, and instance 
-    declarations.  This is an abstract base class: implementations must be 
+    (where [objectType] is Class, Instance, Property, Method, Parameter), and
+    in turn to the resolve () methods of the CIM[objectType]Rep classes.
+    Methods are provided for looking up class, qualifier, and instance
+    declarations.  This is an abstract base class: implementations must be
     provided by derived classes.
 */
 class PEGASUS_COMMON_LINKAGE DeclContext
@@ -65,12 +60,12 @@ public:
     virtual ~DeclContext();
 
     virtual CIMQualifierDecl lookupQualifierDecl(
-	const CIMNamespaceName& nameSpace,
-	const CIMName& name) const = 0;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& name) const = 0;
 
     virtual CIMClass lookupClass(
-	const CIMNamespaceName& nameSpace,
-	const CIMName& name) const = 0;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& name) const = 0;
 };
 
 typedef Pair<CIMNamespaceName, CIMClass> CPair;
@@ -83,20 +78,20 @@ public:
     virtual ~SimpleDeclContext();
 
     void addQualifierDecl(
-	const CIMNamespaceName& nameSpace,
-	const CIMQualifierDecl& x);
+        const CIMNamespaceName& nameSpace,
+        const CIMQualifierDecl& x);
 
     void addClass(
-	const CIMNamespaceName& nameSpace,
-	const CIMClass& x);
+        const CIMNamespaceName& nameSpace,
+        const CIMClass& x);
 
     virtual CIMQualifierDecl lookupQualifierDecl(
-	const CIMNamespaceName& nameSpace,
-	const CIMName& name) const;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& name) const;
 
     virtual CIMClass lookupClass(
-	const CIMNamespaceName& nameSpace,
-	const CIMName& name) const;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& name) const;
 
 private:
 

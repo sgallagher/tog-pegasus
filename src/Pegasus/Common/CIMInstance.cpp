@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-// 				Karl Schopmeyer, (k.schopmeyer@opengroup.org)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMInstanceRep.h"
@@ -72,13 +65,14 @@ CIMInstance::CIMInstance(const CIMInstance& x)
 CIMInstance::CIMInstance(const CIMObject& x)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
-	throw DynamicCastFailedException();
+        throw DynamicCastFailedException();
     Inc(_rep);
 }
 
 CIMInstance::CIMInstance(const CIMName& className)
 {
-    _rep = new CIMInstanceRep(CIMObjectPath(String::EMPTY, CIMNamespaceName(), className));
+    _rep = new CIMInstanceRep(
+        CIMObjectPath(String::EMPTY, CIMNamespaceName(), className));
 }
 
 CIMInstance::CIMInstance(CIMInstanceRep* rep)
@@ -254,20 +248,21 @@ CIMConstInstance::CIMConstInstance(const CIMInstance& x)
 CIMConstInstance::CIMConstInstance(const CIMObject& x)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
-	throw DynamicCastFailedException();
+        throw DynamicCastFailedException();
     Inc(_rep);
 }
 
 CIMConstInstance::CIMConstInstance(const CIMConstObject& x)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
-	throw DynamicCastFailedException();
+        throw DynamicCastFailedException();
     Inc(_rep);
 }
 
 CIMConstInstance::CIMConstInstance(const CIMName& className)
 {
-    _rep = new CIMInstanceRep(CIMObjectPath(String::EMPTY, CIMNamespaceName(), className));
+    _rep = new CIMInstanceRep(
+        CIMObjectPath(String::EMPTY, CIMNamespaceName(), className));
 }
 
 CIMConstInstance& CIMConstInstance::operator=(const CIMConstInstance& x)

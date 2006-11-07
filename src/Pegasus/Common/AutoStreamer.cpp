@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for BUG#3348
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -44,31 +38,36 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-AutoStreamer::AutoStreamer(ObjectStreamer *primary, Uint8 marker) {
-   _readerCount=0;
-   if (marker) {
-      _readers[_readerCount].reader=primary;
-      _readers[_readerCount++].marker=marker;
-   }
-   else _defaultReader=primary;
-   _primary=primary; 
+AutoStreamer::AutoStreamer(ObjectStreamer *primary, Uint8 marker)
+{
+    _readerCount=0;
+    if (marker)
+    {
+        _readers[_readerCount].reader=primary;
+        _readers[_readerCount++].marker=marker;
+    }
+    else _defaultReader=primary;
+    _primary=primary;
 }
 
-AutoStreamer::~AutoStreamer() {
+AutoStreamer::~AutoStreamer()
+{
     for (Uint32 i=0; i<=_readerCount; ++i)
     {
-	if (_defaultReader != _readers[i].reader)
-        	delete _readers[i].reader;
+        if (_defaultReader != _readers[i].reader)
+            delete _readers[i].reader;
     }
     delete _defaultReader;
 }
 
-void AutoStreamer::addReader(ObjectStreamer *reader, Uint8 marker) {
-   if (marker) {
-      _readers[_readerCount].reader=reader;
-      _readers[_readerCount++].marker=marker;
-   }
-   else _defaultReader=reader;
+void AutoStreamer::addReader(ObjectStreamer *reader, Uint8 marker)
+{
+    if (marker)
+    {
+        _readers[_readerCount].reader=reader;
+        _readers[_readerCount++].marker=marker;
+    }
+    else _defaultReader=reader;
 }
 
 
@@ -93,38 +92,52 @@ void AutoStreamer::write(PEGASUS_STD(ostream)& os, Buffer& in)
 }
 
 
-void AutoStreamer::decode(const Buffer& in, unsigned int pos, CIMClass& cls)
+void AutoStreamer::decode(
+    const Buffer& in,
+    unsigned int pos,
+    CIMClass& cls)
 {
-   for (Uint16 i=0,m=_readerCount; i<m; i++) {
-      if (_readers[i].marker==in[pos]) {
-         _readers[i].reader->decode(in,pos,cls);
-         return;
-      }
-   }
-   _defaultReader->decode(in,pos,cls);
+    for (Uint16 i=0,m=_readerCount; i<m; i++)
+    {
+        if (_readers[i].marker==in[pos])
+        {
+            _readers[i].reader->decode(in,pos,cls);
+            return;
+        }
+    }
+    _defaultReader->decode(in,pos,cls);
 }
 
-void AutoStreamer::decode(const Buffer& in, unsigned int pos, CIMInstance& inst)
+void AutoStreamer::decode(
+    const Buffer& in,
+    unsigned int pos,
+    CIMInstance& inst)
 {
-   for (Uint16 i=0,m=_readerCount; i<m; i++) {
-      if (_readers[i].marker==in[pos]) {
-         _readers[i].reader->decode(in,pos,inst);
-         return;
-      }
-   }
-   _defaultReader->decode(in,pos,inst);
+    for (Uint16 i=0,m=_readerCount; i<m; i++)
+    {
+        if (_readers[i].marker==in[pos])
+        {
+            _readers[i].reader->decode(in,pos,inst);
+            return;
+        }
+    }
+    _defaultReader->decode(in,pos,inst);
 }
 
-void AutoStreamer::decode(const Buffer& in, unsigned int pos, CIMQualifierDecl& qual)
+void AutoStreamer::decode(
+    const Buffer& in,
+    unsigned int pos,
+    CIMQualifierDecl& qual)
 {
-   for (Uint16 i=0,m=_readerCount; i<m; i++) {
-      if (_readers[i].marker==in[pos]) {
-         _readers[i].reader->decode(in,pos,qual);
-         return;
-      }
-   }
-   _defaultReader->decode(in,pos,qual);
+    for (Uint16 i=0,m=_readerCount; i<m; i++)
+    {
+        if (_readers[i].marker==in[pos])
+        {
+            _readers[i].reader->decode(in,pos,qual);
+            return;
+        }
+    }
+    _defaultReader->decode(in,pos,qual);
 }
 
 PEGASUS_NAMESPACE_END
-

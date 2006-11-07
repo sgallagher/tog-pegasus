@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/XmlWriter.h>
@@ -256,7 +247,8 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
         //case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
             //_serializeCIMNotifyProviderRegistrationRequestMessage(
-            //    out, (CIMNotifyProviderRegistrationRequestMessage*)cimMessage);
+            //    out,
+            //    (CIMNotifyProviderRegistrationRequestMessage*)cimMessage);
             break;
         //case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
             // ATTN: No need to serialize this yet
@@ -306,7 +298,7 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
 
         case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
             _serializeCIMSubscriptionInitCompleteRequestMessage(
-                out, 
+                out,
                 (CIMSubscriptionInitCompleteRequestMessage *)
                 cimMessage);
             break;
@@ -450,12 +442,14 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
         //case CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
             //_serializeCIMNotifyProviderRegistrationResponseMessage(
-            //    out, (CIMNotifyProviderRegistrationResponseMessage*)cimMessage);
+            //    out,
+            //    (CIMNotifyProviderRegistrationResponseMessage*)cimMessage);
             break;
         //case CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
             //_serializeCIMNotifyProviderTerminationResponseMessage(
-            //    out, (CIMNotifyProviderTerminationResponseMessage*)cimMessage);
+            //    out,
+            //    (CIMNotifyProviderTerminationResponseMessage*)cimMessage);
             break;
         //case CIM_HANDLE_INDICATION_RESPONSE_MESSAGE:
             // ATTN: No need to serialize this yet
@@ -498,7 +492,7 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
             break;
         case CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE:
             _serializeCIMSubscriptionInitCompleteResponseMessage(
-                out, 
+                out,
                 (CIMSubscriptionInitCompleteResponseMessage *)
                 cimMessage);
             break;
@@ -1250,8 +1244,7 @@ void CIMMessageSerializer::_serializeCIMNotifyConfigChangeRequestMessage(
 //
 // _serializeCIMSubscriptionInitCompleteRequestMessage
 //
-void 
-CIMMessageSerializer::_serializeCIMSubscriptionInitCompleteRequestMessage(
+void CIMMessageSerializer::_serializeCIMSubscriptionInitCompleteRequestMessage(
     Buffer& out,
     CIMSubscriptionInitCompleteRequestMessage* message)
 {
@@ -1607,9 +1600,8 @@ void CIMMessageSerializer::_serializeCIMNotifyConfigChangeResponseMessage(
 //
 // _serializeCIMSubscriptionInitCompleteResponseMessage
 //
-void 
-CIMMessageSerializer::_serializeCIMSubscriptionInitCompleteResponseMessage
-   (Buffer& out,
+void CIMMessageSerializer::_serializeCIMSubscriptionInitCompleteResponseMessage(
+    Buffer& out,
     CIMSubscriptionInitCompleteResponseMessage* message)
 {
     // No additional attributes to serialize!

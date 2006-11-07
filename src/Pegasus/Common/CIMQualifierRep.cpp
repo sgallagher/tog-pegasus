@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMQualifier.h"
@@ -137,8 +130,8 @@ void CIMQualifierRep::toXml(Buffer& out) const
 
     if (_propagated != false)
     {
-	out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
-	out.append('"');
+        out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
+        out.append('"');
     }
 
     XmlWriter::appendQualifierFlavorEntity(out, _flavor);
@@ -153,7 +146,7 @@ void CIMQualifierRep::toXml(Buffer& out) const
 /** toMof Generates MOF output for a qualifier.
     The BNF for this is:
     <pre>
-    qualifier 	       = qualifierName [ qualifierParameter ] [ ":" 1*flavor]
+    qualifier          = qualifierName [ qualifierParameter ] [ ":" 1*flavor]
 
     qualifierParameter = "(" constantValue ")" | arrayInitializer
 
@@ -175,20 +168,20 @@ void CIMQualifierRep::toMof(Buffer& out) const
     Boolean hasValueField = false;
     if (!_value.isNull())
     {
-	   if (_value.getType() == CIMTYPE_BOOLEAN)
-	   {
-		    Boolean b;
-			_value.get(b);
-		    if(!b)
-			out << STRLIT(" (false)");
-	   }
-	   else
-	   {
-		   out << STRLIT(" (");
-		   hasValueField = true;
-		   MofWriter::appendValueElement(out, _value);
-		   out.append(')');
-	   }
+        if (_value.getType() == CIMTYPE_BOOLEAN)
+        {
+            Boolean b;
+            _value.get(b);
+            if(!b)
+                out << STRLIT(" (false)");
+        }
+        else
+        {
+            out << STRLIT(" (");
+            hasValueField = true;
+            MofWriter::appendValueElement(out, _value);
+            out.append(')');
+        }
     }
 
     // output the flavors
@@ -196,8 +189,8 @@ void CIMQualifierRep::toMof(Buffer& out) const
     flavorString = MofWriter::getQualifierFlavor(_flavor);
     if (flavorString.size())
     {
-		out << STRLIT(" : ");
-		out << flavorString;
+        out << STRLIT(" : ");
+        out << flavorString;
     }
 }
 
@@ -205,11 +198,11 @@ void CIMQualifierRep::toMof(Buffer& out) const
 Boolean CIMQualifierRep::identical(const CIMQualifierRep* x) const
 {
     return
-	this == x ||
-	_name.equal(x->_name) &&
-	_value == x->_value &&
-	(_flavor.equal (x->_flavor)) &&
-	_propagated == x->_propagated;
+        this == x ||
+        _name.equal(x->_name) &&
+        _value == x->_value &&
+        (_flavor.equal (x->_flavor)) &&
+        _propagated == x->_propagated;
 }
 
 void CIMQualifierRep::setValue(const CIMValue& value)

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "DeclContext.h"
@@ -56,14 +51,13 @@ void SimpleDeclContext::addQualifierDecl(
     const CIMNamespaceName& nameSpace,
     const CIMQualifierDecl& x)
 {
-    if (!lookupQualifierDecl(nameSpace, x.getName()).isUninitialized()){
-    	//l10n
-		//throw AlreadyExistsException("declaration of qualifier \"" +
-                       //x.getName().getString () + "\"");
-        MessageLoaderParms parms("Common.DeclContext.DECLARATION_OF_QUALIFIER",
-        						 "declaration of qualifier \"$0\"",
-        						 x.getName().getString());
-        throw AlreadyExistsException(parms);                
+    if (!lookupQualifierDecl(nameSpace, x.getName()).isUninitialized())
+    {
+        MessageLoaderParms parms(
+            "Common.DeclContext.DECLARATION_OF_QUALIFIER",
+            "declaration of qualifier \"$0\"",
+            x.getName().getString());
+        throw AlreadyExistsException(parms);
     }
 
     _qualifierDeclarations.append(QPair(nameSpace, x));
@@ -73,13 +67,12 @@ void SimpleDeclContext::addClass(
     const CIMNamespaceName& nameSpace,
     const CIMClass& x)
 {
-    if (!lookupClass(nameSpace, x.getClassName()).isUninitialized()){
-    	//l10n
-		//throw AlreadyExistsException
-            //("class \"" + x.getClassName().getString () + "\"");
-        MessageLoaderParms parms("Common.DeclContext.CLASS",
-        						 "class \"$0\"",
-        						 x.getClassName().getString());
+    if (!lookupClass(nameSpace, x.getClassName()).isUninitialized())
+    {
+        MessageLoaderParms parms(
+            "Common.DeclContext.CLASS",
+            "class \"$0\"",
+            x.getClassName().getString());
         throw AlreadyExistsException(parms);
     }
 
@@ -92,14 +85,14 @@ CIMQualifierDecl SimpleDeclContext::lookupQualifierDecl(
 {
     for (Uint32 i = 0, n = _qualifierDeclarations.size(); i < n; i++)
     {
-	const CIMNamespaceName& first = _qualifierDeclarations[i].first;
-	const CIMQualifierDecl& second = _qualifierDeclarations[i].second;
+        const CIMNamespaceName& first = _qualifierDeclarations[i].first;
+        const CIMQualifierDecl& second = _qualifierDeclarations[i].second;
 
-	if (first.equal(nameSpace) && 
-	    second.getName().equal(name))
-	{
-	    return second;
-	}
+        if (first.equal(nameSpace) &&
+            second.getName().equal(name))
+        {
+            return second;
+        }
     }
 
     // Not found:
@@ -112,14 +105,14 @@ CIMClass SimpleDeclContext::lookupClass(
 {
     for (Uint32 i = 0, n = _classDeclarations.size(); i < n; i++)
     {
-	const CIMNamespaceName& first = _classDeclarations[i].first;
-	const CIMClass& second = _classDeclarations[i].second;
+        const CIMNamespaceName& first = _classDeclarations[i].first;
+        const CIMClass& second = _classDeclarations[i].second;
 
-	if (first.equal(nameSpace) && 
-	    second.getClassName().equal(name))
-	{
-	    return second;
-	}
+        if (first.equal(nameSpace) &&
+            second.getClassName().equal(name))
+        {
+            return second;
+        }
     }
 
     // Not found:

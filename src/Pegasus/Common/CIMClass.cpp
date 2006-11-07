@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMClassRep.h"
@@ -65,7 +59,7 @@ CIMClass::CIMClass(const CIMClass& x)
 CIMClass::CIMClass(const CIMObject& x)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
-	throw DynamicCastFailedException();
+        throw DynamicCastFailedException();
     Inc(_rep);
 }
 
@@ -289,7 +283,7 @@ CIMInstance CIMClass::buildInstance(Boolean includeQualifiers,
     const CIMPropertyList& propertyList) const
 {
     _checkRep();
-    return _rep->buildInstance(includeQualifiers, 
+    return _rep->buildInstance(includeQualifiers,
         includeClassOrigin,
         propertyList);
 }
@@ -318,14 +312,14 @@ CIMConstClass::CIMConstClass(const CIMClass& x)
 CIMConstClass::CIMConstClass(const CIMObject& x)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
-	throw DynamicCastFailedException();
+        throw DynamicCastFailedException();
     Inc(_rep);
 }
 
 CIMConstClass::CIMConstClass(const CIMConstObject& x)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
-	throw DynamicCastFailedException();
+        throw DynamicCastFailedException();
     Inc(_rep);
 }
 

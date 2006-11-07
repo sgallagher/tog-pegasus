@@ -43,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 const String AuthenticationInfoRep::AUTH_TYPE_SSL = "SSL";
 
 AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
-    : 
+    :
     _authUser(String::EMPTY),
     _authPassword(String::EMPTY),
     _authChallenge(String::EMPTY),
@@ -51,7 +51,7 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     _privileged(false),
     _authType(String::EMPTY),
     _authStatus(NEW_REQUEST)
-{ 
+{
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");
 
@@ -152,8 +152,8 @@ void   AuthenticationInfoRep::setSecurityAssociation()
 }
 #endif
 
-//PEP187
-void AuthenticationInfoRep::setClientCertificateChain(Array<SSLCertificateInfo*> clientCertificate)
+void AuthenticationInfoRep::setClientCertificateChain(
+    Array<SSLCertificateInfo*> clientCertificate)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "AuthenticationInfoRep::setClientCertificateChain");

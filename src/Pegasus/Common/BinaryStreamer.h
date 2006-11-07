@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
-//
-// Modified By: 
-//     David Dillard, VERITAS Software Corp.  (david.dillard@veritas.com)
-//     Mike Brasher (mike-brasher@austin.rr.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef BinaryStreamer_h
@@ -52,7 +46,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE BinaryStreamer : public ObjectStreamer 
+class PEGASUS_COMMON_LINKAGE BinaryStreamer : public ObjectStreamer
 {
 public:
 
@@ -82,18 +76,18 @@ public:
 
     PEGASUS_HIDDEN_LINKAGE
     static void _unpackQualifier(
-	const Buffer& in, Uint32& pos, CIMQualifier& x);
+        const Buffer& in, Uint32& pos, CIMQualifier& x);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _packQualifier(Buffer& out, const CIMQualifier& x);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _unpackProperty(
-	const Buffer& in, Uint32& pos, CIMProperty& x);
+        const Buffer& in, Uint32& pos, CIMProperty& x);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _unpackMethod(
-	const Buffer& in, Uint32& pos, CIMMethod& x);
+        const Buffer& in, Uint32& pos, CIMMethod& x);
 
 private:
 
@@ -117,14 +111,14 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static void _unpackParameter(
-	const Buffer& in, Uint32& pos, CIMParameter& x);
+        const Buffer& in, Uint32& pos, CIMParameter& x);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _packParameters(Buffer& out, CIMMethodRep* rep);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _unpackParameters(
-	const Buffer& in, Uint32& pos, CIMMethod& x);
+        const Buffer& in, Uint32& pos, CIMMethod& x);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _packMethod(Buffer& out, const CIMMethod& x);
@@ -134,7 +128,7 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static void _unpackObjectPath(
-	const Buffer& in, Uint32& pos, CIMObjectPath& x);
+        const Buffer& in, Uint32& pos, CIMObjectPath& x);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _packProperties(Buffer& out, CIMObjectRep* rep);
@@ -147,21 +141,21 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static void _unpackScope(
-	const Buffer& in, Uint32& pos, CIMScope& x);
+        const Buffer& in, Uint32& pos, CIMScope& x);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _packFlavor(Buffer& out, const CIMFlavor& x);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _unpackFlavor(
-	const Buffer& in, Uint32& pos, CIMFlavor& x);
+        const Buffer& in, Uint32& pos, CIMFlavor& x);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _packType(Buffer& out, const CIMType& x);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _unpackType(
-	const Buffer& in, Uint32& pos, CIMType& x);
+        const Buffer& in, Uint32& pos, CIMType& x);
 };
 
 class PEGASUS_COMMON_LINKAGE BinException : public Exception

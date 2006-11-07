@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-// 		Sean Keenan (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/CIMMessageSerializer.h>
@@ -89,12 +82,12 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
         Uint32 messageLength = messageBuffer.size ();
         const char * messageData = messageBuffer.getData ();
 
-        writeStatus = writeBuffer ((const char *) &messageLength, 
+        writeStatus = writeBuffer ((const char *) &messageLength,
             sizeof (Uint32));
 
         if (writeStatus == STATUS_SUCCESS)
         {
-            writeStatus = writeBuffer (messageBuffer.getData (), 
+            writeStatus = writeBuffer (messageBuffer.getData (),
                 messageLength);
         }
     }

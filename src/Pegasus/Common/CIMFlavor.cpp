@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMFlavor.h"
@@ -70,13 +64,13 @@ CIMFlavor::CIMFlavor (const Uint32 flavor)
     : cimFlavor (flavor)
 {
     //
-    //  Test that no undefined bits are set 
+    //  Test that no undefined bits are set
     //
     //  Note that conflicting bits may be set in the Uint32 flavor
     //  For example, OVERRIDABLE and DISABLEOVERRIDE may both be set
     //  or TOSUBCLASS and RESTRICTED may both be set
     //  Currently, the flavor is not checked for these conflicts
-    //  That is corrected later when a CIMQualifierDecl object is constructed 
+    //  That is corrected later when a CIMQualifierDecl object is constructed
     //  with the CIMFlavor object
     //
     PEGASUS_ASSERT (flavor < 64);
@@ -100,7 +94,7 @@ void CIMFlavor::removeFlavor (const CIMFlavor & flavor)
 
 Boolean CIMFlavor::hasFlavor (const CIMFlavor & flavor) const
 {
-    return ((this->cimFlavor & flavor.cimFlavor) == flavor.cimFlavor) ? 
+    return ((this->cimFlavor & flavor.cimFlavor) == flavor.cimFlavor) ?
         true : false;
 }
 
@@ -119,25 +113,25 @@ String CIMFlavor::toString () const
     String tmp;
 
     if (this->hasFlavor (CIMFlavor::OVERRIDABLE))
-	tmp.append("OVERRIDABLE ");
+        tmp.append("OVERRIDABLE ");
 
     if (this->hasFlavor (CIMFlavor::TOSUBCLASS))
-	tmp.append("TOSUBCLASS ");
+        tmp.append("TOSUBCLASS ");
 
     if (this->hasFlavor (CIMFlavor::TOINSTANCE))
-	tmp.append("TOINSTANCE ");
+        tmp.append("TOINSTANCE ");
 
     if (this->hasFlavor (CIMFlavor::TRANSLATABLE))
-	tmp.append("TRANSLATABLE ");
+        tmp.append("TRANSLATABLE ");
 
     if (this->hasFlavor (CIMFlavor::DISABLEOVERRIDE))
-	tmp.append("DISABLEOVERRIDE ");
+        tmp.append("DISABLEOVERRIDE ");
 
     if (this->hasFlavor (CIMFlavor::RESTRICTED))
-	tmp.append("RESTRICTED ");
+        tmp.append("RESTRICTED ");
 
     if (tmp.size ())
-	tmp.remove (tmp.size () - 1);
+        tmp.remove (tmp.size () - 1);
 
     return tmp;
 }

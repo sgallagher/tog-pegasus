@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Base64.h"
@@ -50,7 +45,6 @@ PEGASUS_USING_STD;
 //**********************************************************
 /*  Encode thanslates one six-bit pattern into a base-64 character.
     Unsigned char is used to represent a six-bit stream of date.
-    
 */
 inline PEGASUS_COMMON_LINKAGE char Base64::_Encode(Uint8 uc)
 {
@@ -69,7 +63,8 @@ inline PEGASUS_COMMON_LINKAGE char Base64::_Encode(Uint8 uc)
     return '/';
 };
 
- //Helper function returns true is a character is a valid base-64 character and false otherwise.
+// Helper function returns true is a character is a valid base-64 character
+// and false otherwise.
 
 inline Boolean Base64::_IsBase64(char c)
 {
@@ -94,7 +89,7 @@ inline Boolean Base64::_IsBase64(char c)
 
     return false;
 };
- 
+
  // Translate one base-64 character into a six bit pattern
 inline Uint8 Base64::_Decode(char c)
 {
@@ -129,7 +124,6 @@ Buffer Base64::encode(const Buffer& vby)
     // for every character in the input array taken 3 bytes at a time
     for (Uint32 i=0; i < vby.size(); i+=3)
     {
-        
         // Create from 3 8 bit values to 4 6 bit values
         Uint8 by1=0,by2=0,by3=0;
         by1 = vby[i];
@@ -154,7 +148,7 @@ Buffer Base64::encode(const Buffer& vby)
         if (i+1<vby.size())
             retArray.append( _Encode(by6));
         else
-            retArray.append('='); 
+            retArray.append('=');
 
 
         if (i+2<vby.size())
@@ -174,11 +168,21 @@ Buffer Base64::encode(const Buffer& vby)
 
     return retArray;
 };
-/*I checked for the zero length. The algorithm would also work for zero length input stream, but I知 pretty adamant about handling border conditions. They are often the culprits of run-time production failures.
-The algorithm goes thru each three bytes of data at a time. The first thing I do is to shift the bits around from three 8-bit values to four 6-bit values. Then I encode the 6-bit values and add then one at a time to the output stream. This is actually quite inefficient. The STL character array is being allocated one byte at a time. The algorithm would be much faster, if I pre-allocated that array. I値l leave that as an optimization practical exercise for the reader.
+
+/*
+    I checked for the zero length. The algorithm would also work for zero
+    length input stream, but I知 pretty adamant about handling border
+    conditions. They are often the culprits of run-time production failures.
+    The algorithm goes thru each three bytes of data at a time. The first
+    thing I do is to shift the bits around from three 8-bit values to four
+    6-bit values. Then I encode the 6-bit values and add then one at a time
+    to the output stream. This is actually quite inefficient. The STL
+    character array is being allocated one byte at a time. The algorithm
+    would be much faster, if I pre-allocated that array. I値l leave that as
+    an optimization practical exercise for the reader.
 */
 
-/*  The decode static method takes a base-64 stream and converts it 
+/*  The decode static method takes a base-64 stream and converts it
     to an array of 8-bit values.
 */
 Buffer Base64::decode(const Buffer& strInput)
@@ -220,7 +224,7 @@ Buffer Base64::decode(const Buffer& strInput)
         //      " 2 " << c2 << " " << by2 <<
         //      " 3 " << c3 << " " << by3 <<
         //      " 4 " << c4 << " " << by4 << endl;
-        
+
         // append first byte by shifting
         retArray.append( static_cast<char>((by1<<2)|(by2>>4)) );
 

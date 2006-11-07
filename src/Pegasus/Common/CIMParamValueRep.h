@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ParamValueRep_h
@@ -55,25 +49,25 @@ class CIMParamValueRep : public Sharable
 public:
 
     CIMParamValueRep(
-	String parameterName,
-	CIMValue value,
-	Boolean isTyped=true);
+        String parameterName,
+        CIMValue value,
+        Boolean isTyped=true);
 
     ~CIMParamValueRep();
 
-    const String & getParameterName() const 
-    { 
-	return _parameterName; 
+    const String & getParameterName() const
+    {
+        return _parameterName;
     }
 
-    const CIMValue & getValue() const 
-    { 
-	return _value; 
+    const CIMValue & getValue() const
+    {
+        return _value;
     }
 
-    Boolean isTyped() const 
-    { 
-	return _isTyped; 
+    Boolean isTyped() const
+    {
+        return _isTyped;
     }
 
     void setParameterName(String& parameterName);
@@ -86,7 +80,7 @@ public:
 
     CIMParamValueRep* clone() const
     {
-	return new CIMParamValueRep(*this);
+        return new CIMParamValueRep(*this);
     }
 
 private:

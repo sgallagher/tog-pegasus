@@ -29,17 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company 
-//              (sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMInstanceRep.h"
@@ -80,28 +69,28 @@ void CIMInstanceRep::resolve(
 
 #if 0
     if (_resolved)
-	throw InstanceAlreadyResolved();
+        throw InstanceAlreadyResolved();
 #endif
 
     if (!context)
-	throw NullPointer();
+        throw NullPointer();
 
     //----------------------------------------------------------------------
     // First obtain the class:
     //----------------------------------------------------------------------
 
     CIMConstClass cimClass =
-	context->lookupClass(nameSpace, _reference.getClassName());
+        context->lookupClass(nameSpace, _reference.getClassName());
 
     if (cimClass.isUninitialized())
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS,
             _reference.getClassName().getString ());
 
     cimClassOut = cimClass;
 
 #if 0
     if (!cimClass._rep->_resolved)
-	throw ClassNotResolved(_reference.getClassName());
+        throw ClassNotResolved(_reference.getClassName());
 #endif
 
     //----------------------------------------------------------------------
@@ -109,18 +98,18 @@ void CIMInstanceRep::resolve(
     //----------------------------------------------------------------------
 
     if (cimClass.isAbstract())
-	throw InstantiatedAbstractClass(_reference.getClassName().getString ());
+        throw InstantiatedAbstractClass(_reference.getClassName().getString ());
 
     //----------------------------------------------------------------------
     // Validate and propagate qualifiers.
     //----------------------------------------------------------------------
     _qualifiers.resolve(
-	context,
-	nameSpace,
+        context,
+        nameSpace,
         (cimClass.isAssociation()) ? CIMScope::ASSOCIATION : CIMScope::CLASS,
-	false,
-	cimClass._rep->_qualifiers,
-	propagateQualifiers);
+        false,
+        cimClass._rep->_qualifiers,
+        propagateQualifiers);
 
     //----------------------------------------------------------------------
     // First iterate the properties of this instance and verify that
@@ -131,50 +120,50 @@ void CIMInstanceRep::resolve(
 
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
-	CIMProperty& property = _properties[i];
+        CIMProperty& property = _properties[i];
 
-	Uint32 index = cimClass.findProperty(property.getName());
+        Uint32 index = cimClass.findProperty(property.getName());
 
-	if (index == PEG_NOT_FOUND)
+        if (index == PEG_NOT_FOUND)
         {
             //
             //  Allow addition of Creator property to Indication Subscription,
             //  Filter and Handler instances
             //
-// l10n add language property support           
-            if (!(((className.equal 
+// l10n add language property support
+            if (!(((className.equal
                     (CIMName (PEGASUS_CLASSNAME_INDSUBSCRIPTION))) ||
-                (className.equal 
+                (className.equal
                     (CIMName (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))) ||
-                (className.equal 
+                (className.equal
                     (CIMName (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))) ||
-								(className.equal 
+                (className.equal
                     (CIMName (PEGASUS_CLASSNAME_LSTNRDST_CIMXML))) ||
-                (className.equal 
+                (className.equal
                     (CIMName (PEGASUS_CLASSNAME_INDHANDLER_SNMP))) ||
 #ifdef  PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
-                (className.equal 
+                (className.equal
                     (CIMName (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))) ||
 #endif
 #ifdef  PEGASUS_ENABLE_EMAIL_HANDLER
-                (className.equal 
+                (className.equal
                     (CIMName (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))) ||
 #endif
                 (className.equal (CIMName (PEGASUS_CLASSNAME_INDFILTER)))) &&
-                ((property.getName ().equal 
+                ((property.getName ().equal
                     (CIMName (PEGASUS_PROPERTYNAME_INDSUB_CREATOR))) ||
-                (property.getName ().equal 
+                (property.getName ().equal
                     (CIMName (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS))) ||
-                (property.getName ().equal 
+                (property.getName ().equal
                     (CIMName (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS))))))
             {
-	        throw NoSuchProperty(property.getName().getString ());
+                throw NoSuchProperty(property.getName().getString ());
             }
         }
         else
         {
-	    // resolve the property
-	    Resolver::resolveProperty (property, context, nameSpace, true, 
+            // resolve the property
+            Resolver::resolveProperty (property, context, nameSpace, true,
                 cimClass.getProperty (index), propagateQualifiers);
         // Ensure that the PROPAGATED attribute is false
         property.setPropagated(false);
@@ -186,33 +175,33 @@ void CIMInstanceRep::resolve(
     // instance. Copy over the class-origin and set the propagated flag
     // to true. NOTE: The propagated flag indicates that the property
     // was not part of the property set input with the create and
-    // was inherited from the default in the class (see cimxml spec sect 3.1.5) 
+    // was inherited from the default in the class (see cimxml spec sect 3.1.5)
     //----------------------------------------------------------------------
 
     for (Uint32 i = 0, m = 0, n = cimClass.getPropertyCount(); i < n; i++)
     {
-    	CIMConstProperty property = cimClass.getProperty(i);
-    	const CIMName& name = property.getName();
-    
-    	// See if this instance already contains a property with this name:
-    
-    	Boolean found = false;
-    
-    	for (Uint32 j = m, n = _properties.size(); j < n; j++)
-    	{
-    	    if (name.equal(_properties[j].getName()))
-    	    {
-        		found = true;
-        		break;
-    	    }
-	}
+        CIMConstProperty property = cimClass.getProperty(i);
+        const CIMName& name = property.getName();
 
-		if (!found)
-		{
-			CIMProperty p = property.clone();
-			p.setPropagated(true);
-			_properties.insert(m++, p);
-		}
+        // See if this instance already contains a property with this name:
+
+        Boolean found = false;
+
+        for (Uint32 j = m, n = _properties.size(); j < n; j++)
+        {
+            if (name.equal(_properties[j].getName()))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            CIMProperty p = property.clone();
+            p.setPropagated(true);
+            _properties.insert(m++, p);
+        }
     }
 
 #if 0
@@ -246,7 +235,7 @@ void CIMInstanceRep::toXml(Buffer& out) const
     // Parameters:
 
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-	XmlWriter::appendPropertyElement(out, _properties[i]);
+        XmlWriter::appendPropertyElement(out, _properties[i]);
 
     // Class closing element:
 
@@ -258,7 +247,7 @@ void CIMInstanceRep::toMof(Buffer& out) const
     // Get and format the class qualifiers
     out << STRLIT("\n//Instance of ") << _reference.getClassName();
     if (_qualifiers.getCount())
-	out.append('\n');
+        out.append('\n');
     _qualifiers.toMof(out);
 
     // Separate qualifiers from Class Name
@@ -272,14 +261,14 @@ void CIMInstanceRep::toMof(Buffer& out) const
     // format the Properties:
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
-    	// Generate MOF if this property not propagated
-    	// Note that the test is required only because
-    	// there is an error in getclass that does not
-    	// test the localOnly flag.
+        // Generate MOF if this property not propagated
+        // Note that the test is required only because
+        // there is an error in getclass that does not
+        // test the localOnly flag.
         // The false identifies this as value initializer, not
         // property definition.
-    	if (!_properties[i].getPropagated())
-    	    MofWriter::appendPropertyElement(false,out, _properties[i]);
+        if (!_properties[i].getPropagated())
+            MofWriter::appendPropertyElement(false,out, _properties[i]);
     }
 
     // Class closing element:
@@ -303,7 +292,7 @@ CIMObjectPath CIMInstanceRep::buildPath(
     cimClass.getKeyNames(keyNames);
 
     if (keyNames.size() == 0)
-	return CIMObjectPath("", CIMNamespaceName(), className);
+        return CIMObjectPath("", CIMNamespaceName(), className);
 
     //--------------------------------------------------------------------------
     // Get type and value for each key (building up key bindings):
@@ -313,20 +302,20 @@ CIMObjectPath CIMInstanceRep::buildPath(
 
     for (Uint32 i = 0, n = keyNames.size(); i < n; i++)
     {
-	const CIMName& keyName = keyNames[i];
+        const CIMName& keyName = keyNames[i];
 
-	Uint32 index = findProperty(keyName);
+        Uint32 index = findProperty(keyName);
         if (index == PEG_NOT_FOUND)
         {
             throw NoSuchProperty(keyName.getString());
         }
 
-	CIMConstProperty tmp = getProperty(index);
+        CIMConstProperty tmp = getProperty(index);
 
-	if (keyName.equal(tmp.getName()))
-	{
-	    keyBindings.append(CIMKeyBinding(keyName, tmp.getValue()));
-	}
+        if (keyName.equal(tmp.getName()))
+        {
+            keyBindings.append(CIMKeyBinding(keyName, tmp.getValue()));
+        }
     }
 
     return CIMObjectPath(String(), CIMNamespaceName(), className, keyBindings);
@@ -335,8 +324,10 @@ CIMObjectPath CIMInstanceRep::buildPath(
 // KS Mar 05 - The following removal functions are very inefficient and should
 // be optimized to avoid the multiple memory moves.  Actually, the remove
 // qualifiers should be added as a function and optimized that once.
-void CIMInstanceRep::filter(Boolean includeQualifiers, Boolean includeClassOrigin,
-                        const CIMPropertyList& propertyList)
+void CIMInstanceRep::filter(
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
     // Filter any qualifiers from this instance.
     if (!includeQualifiers && _qualifiers.getCount() > 0)

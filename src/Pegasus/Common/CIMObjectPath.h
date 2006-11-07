@@ -307,7 +307,8 @@ class XmlWriter;
 
     <pre>
     Array<CIMKeyBinding> keyBindings;
-    keyBindings.append(CIMKeyBinding("first", "Patrick", CIMKeyBinding::STRING));
+    keyBindings.append(
+        CIMKeyBinding("first", "Patrick", CIMKeyBinding::STRING));
     keyBindings.append(CIMKeyBinding("last", "Rafter", CIMKeyBinding::STRING));
     </pre>
 

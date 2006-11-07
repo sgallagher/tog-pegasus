@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com), bug#2556.
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -193,7 +185,10 @@ CIMKeyBinding::CIMKeyBinding(const CIMKeyBinding& x)
     _rep = new CIMKeyBindingRep(*x._rep);
 }
 
-CIMKeyBinding::CIMKeyBinding(const CIMName& name, const String& value, Type type)
+CIMKeyBinding::CIMKeyBinding(
+    const CIMName& name,
+    const String& value,
+    Type type)
 {
     _rep = new CIMKeyBindingRep(name, value, type);
 }
@@ -521,7 +516,8 @@ public:
 
                 // Check for the case where it's a valid host name that happens
                 // to have 4 (or more) leading all-numeric host segments.
-                if ((octet == 4) && (hostname[i] != ':') && hostname[i] != char(0))
+                if ((octet == 4) && (hostname[i] != ':') &&
+                    hostname[i] != char(0))
                 {
                     isValid = false;
                     break;
@@ -1083,12 +1079,14 @@ String CIMObjectPath::toString() const
 
             CIMKeyBinding::Type type = keyBindings[i].getType();
 
-            if (type == CIMKeyBinding::STRING || type == CIMKeyBinding::REFERENCE)
+            if (type == CIMKeyBinding::STRING ||
+                type == CIMKeyBinding::REFERENCE)
                 objectName.append('"');
 
             objectName.append(value);
 
-            if (type == CIMKeyBinding::STRING || type == CIMKeyBinding::REFERENCE)
+            if (type == CIMKeyBinding::STRING ||
+                type == CIMKeyBinding::REFERENCE)
                 objectName.append('"');
 
             if (i + 1 != n)

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // Only include if not included as general template or if explicit instantiation
@@ -132,9 +127,9 @@ Array<PEGASUS_ARRAY_T>& Array<PEGASUS_ARRAY_T>::operator=(
 {
     if (x._rep != Array_rep)
     {
-	ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
-	_rep = x._rep;
-	ArrayRep<PEGASUS_ARRAY_T>::ref(Array_rep);
+        ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
+        _rep = x._rep;
+        ArrayRep<PEGASUS_ARRAY_T>::ref(Array_rep);
     }
 
     return *this;
@@ -147,16 +142,16 @@ void Array<PEGASUS_ARRAY_T>::clear()
 {
     if (Array_size)
     {
-	if (Array_refs.get() == 1)
-	{
-	    Destroy(Array_data, Array_size);
-	    Array_size = 0;
-	}
-	else
-	{
-	    ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
-	    _rep = &ArrayRepBase::_empty_rep;
-	}
+        if (Array_refs.get() == 1)
+        {
+            Destroy(Array_data, Array_size);
+            Array_size = 0;
+        }
+        else
+        {
+            ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
+            _rep = &ArrayRepBase::_empty_rep;
+        }
     }
 }
 
@@ -167,24 +162,24 @@ void Array<PEGASUS_ARRAY_T>::reserveCapacity(Uint32 capacity)
 {
     if (capacity > Array_capacity || Array_refs.get() != 1)
     {
-        ArrayRep<PEGASUS_ARRAY_T>* rep = 
-	    ArrayRep<PEGASUS_ARRAY_T>::alloc(capacity);
+        ArrayRep<PEGASUS_ARRAY_T>* rep =
+            ArrayRep<PEGASUS_ARRAY_T>::alloc(capacity);
 
         // ArrayRep<PEGASUS_ARRAY_T>::alloc() throws a bad_alloc exception if
         // storage could not be obtained.
 
-	rep->size = Array_size;
+        rep->size = Array_size;
 
-	if (Array_refs.get() == 1)
-	{
-	    memcpy(rep->data(), Array_data, Array_size*sizeof(PEGASUS_ARRAY_T));
-	    Array_size = 0;
-	}
-	else
-	    CopyToRaw(rep->data(), Array_data, Array_size);
+        if (Array_refs.get() == 1)
+        {
+            memcpy(rep->data(), Array_data, Array_size*sizeof(PEGASUS_ARRAY_T));
+            Array_size = 0;
+        }
+        else
+            CopyToRaw(rep->data(), Array_data, Array_size);
 
-	ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
-	_rep = rep;
+        ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
+        _rep = rep;
     }
 }
 
@@ -261,9 +256,9 @@ void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
     reserveCapacity(Array_size + size);
     memmove(
-	Array_data + size, 
-	Array_data, 
-	sizeof(PEGASUS_ARRAY_T) * Array_size);
+        Array_data + size,
+        Array_data,
+        sizeof(PEGASUS_ARRAY_T) * Array_size);
     CopyToRaw(Array_data, x, size);
     Array_size += size;
 }
@@ -294,7 +289,7 @@ void Array<PEGASUS_ARRAY_T>::insert(
     if (n)
     {
         memmove(
-	    Array_data + index + size,
+            Array_data + index + size,
             Array_data + index,
             sizeof(PEGASUS_ARRAY_T) * n);
     }
@@ -317,16 +312,16 @@ template<class PEGASUS_ARRAY_T>
 void Array<PEGASUS_ARRAY_T>::remove(Uint32 index, Uint32 size)
 {
     if (Array_refs.get() != 1)
-	_rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
+        _rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
 
     // Case 1: attempting to remove last element (this is an optimization
     // for when the array is used as a stack; see Stack class).
 
     if (index + 1 == Array_size)
     {
-	Destroy(Array_data + index, 1);
-	Array_size--;
-	return;
+        Destroy(Array_data + index, 1);
+        Array_size--;
+        return;
     }
 
     // Case 2: not attempting to remove last element:
@@ -342,9 +337,9 @@ void Array<PEGASUS_ARRAY_T>::remove(Uint32 index, Uint32 size)
     if (rem)
     {
         memmove(
-	    Array_data + index, 
-	    Array_data + index + size, 
-	    sizeof(PEGASUS_ARRAY_T) * rem);
+            Array_data + index,
+            Array_data + index + size,
+            sizeof(PEGASUS_ARRAY_T) * rem);
     }
 
     Array_size -= size;
@@ -368,7 +363,7 @@ PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](
         ArrayThrowIndexOutOfBoundsException();
 
     if (Array_refs.get() != 1)
-	_rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
+        _rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
 
     return Array_data[index];
 }

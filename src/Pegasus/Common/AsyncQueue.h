@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#2322
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#2960
-//
-// Reworked By:
-//              Mike Brasher (m.brasher@inovadevelopment.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AsyncQueue_h
@@ -54,7 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 /** AsyncQueue implementation (formerly AsyncDQueue).
 */
-template<class ElemType> 
+template<class ElemType>
 class AsyncQueue
 {
 public:
@@ -81,7 +69,7 @@ public:
     void enqueue_wait(ElemType *element);
 
     /** Dequeue an element from the front of the queue. Return null immediately
-	if queue is empty.
+        if queue is empty.
     */
     ElemType *dequeue();
 
@@ -131,20 +119,20 @@ private:
     Rep _rep;
 };
 
-template<class ElemType> 
-AsyncQueue<ElemType>::AsyncQueue(size_t capacity) : 
+template<class ElemType>
+AsyncQueue<ElemType>::AsyncQueue(size_t capacity) :
     _mutex(Mutex::NON_RECURSIVE), _capacity(capacity)
 {
     if (capacity == 0)
         _capacity.set(0x7FFFFFFF);
 }
 
-template<class ElemType> 
+template<class ElemType>
 AsyncQueue<ElemType>::~AsyncQueue()
 {
 }
 
-template<class ElemType> 
+template<class ElemType>
 void AsyncQueue<ElemType>::close()
 {
     AutoMutex auto_mutex(_mutex);
@@ -157,7 +145,7 @@ void AsyncQueue<ElemType>::close()
     }
 }
 
-template<class ElemType> 
+template<class ElemType>
 void AsyncQueue<ElemType>::enqueue(ElemType *element)
 {
     if (element)
@@ -176,7 +164,7 @@ void AsyncQueue<ElemType>::enqueue(ElemType *element)
     }
 }
 
-template<class ElemType> 
+template<class ElemType>
 void AsyncQueue<ElemType>::enqueue_wait(ElemType *element)
 {
     if (element)
@@ -200,7 +188,7 @@ void AsyncQueue<ElemType>::enqueue_wait(ElemType *element)
     }
 }
 
-template<class ElemType> 
+template<class ElemType>
 void AsyncQueue<ElemType>::clear()
 {
     AutoMutex auto_mutex(_mutex);
@@ -209,7 +197,7 @@ void AsyncQueue<ElemType>::clear()
     _not_full.signal();
 }
 
-template<class ElemType> 
+template<class ElemType>
 ElemType* AsyncQueue<ElemType>::dequeue()
 {
     AutoMutex auto_mutex(_mutex);
@@ -228,7 +216,7 @@ ElemType* AsyncQueue<ElemType>::dequeue()
     return p;
 }
 
-template<class ElemType> 
+template<class ElemType>
 ElemType* AsyncQueue<ElemType>::dequeue_wait()
 {
     AutoMutex auto_mutex(_mutex);

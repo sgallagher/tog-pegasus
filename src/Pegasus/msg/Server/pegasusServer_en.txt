@@ -5867,6 +5867,19 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.CMPI.CMPIProviderManager.PROVIDER_LOAD_FAILURE:string {"PGS16508: ProviderLoadFailure: Cannot find _Create<mi-type>MI symbol."}
 
+        /**
+        * @note PGS16509
+        *    Substitution {0} is the name of the provider
+        *    Substitution {1} is another message string
+        */
+        ProviderManager.CMPI.CMPIProviderManager.DISABLE_INDICATIONS_FAILED:string {"PGS16509: Failed to disable indications for provider {0}: {1}."}
+
+        /**
+        * @note  PGS16510
+        *    Substitution {0} is the name of the provider
+        */
+        ProviderManager.CMPI.CMPIProviderManager.DISABLE_INDICATIONS_FAILED_UNKNOWN:string {"PGS16510: Failed to disable indications for provider {0}."}
+
 
         // ==========================================================
         // Messages for JMPIProviderManager

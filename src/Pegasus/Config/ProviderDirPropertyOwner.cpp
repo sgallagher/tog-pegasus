@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
-// Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
-//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -93,50 +87,51 @@ Checks if the given directory is existing and writable
 */
 Boolean isProviderDirValid(const String& dirName)
 {
-      String temp = dirName;
-      String path = String::EMPTY;
-      Uint32 pos =0;
-      Uint32 token=0;
+    String path;
+    Uint32 pos=0;
+    Uint32 token=0;
 
-      do {
-	if (( pos = temp.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND) {
-		pos = temp.size();
-		token = 0;
-	}
-	else {
-		token = 1;
-	}
-	path = temp.subString(0,pos);
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-    path.assign(ConfigManager::getHomedPath(path));
+    // make multiple, relative paths absolute for check
+    String temp = ConfigManager::getHomedPath(dirName);
+    do
+    {
+        if (( pos = temp.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND)
+        {
+            pos = temp.size();
+            token = 0;
+        } else
+        {
+            token = 1;
+        }
+        path = temp.subString(0,pos);
+        if (!FileSystem::isDirectory(path))
+        {
+            Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
+                          Logger::SEVERE,
+                          "$0 is not a directory!",
+                          path);
+            return false;
+        }
+        if (!FileSystem::canRead(path))
+        {
+            Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
+                          Logger::SEVERE,
+                          "Cannot $0 is not readable!",
+                          path);
+            return false;
+        }
+#ifndef PEGASUS_OS_ZOS
+        if (FileSystem::canWrite(path))
+        {
+            Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
+                          Logger::WARNING,
+                          "$0 is writeable! Possible security risk.",
+                          path);
+        }
 #endif
-	if (FileSystem::canWrite(path)) {
-		Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
-                        Logger::WARNING,
-                        "$0 is writeable! Possible security risk.",
-                        path);
-	}
-	if ( !FileSystem::isDirectory(path)  ||
-	     !FileSystem::canRead(path)) {
-		if (!FileSystem::isDirectory(path)) {
- 			Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
-                        Logger::SEVERE,
-                        "$0 is not a directory!",
-                        path);
-		}
-		if (!FileSystem::canRead(path)) {
-		 	Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
-                        Logger::SEVERE,
-                        "Cannot $0 is not readable!",
-                        path);
-		}
-		//cerr << "Not a good directory.\n";
-		return false;
-	}	
-	temp.remove(0,pos+token);	
-      }
-      while ( temp.size() > 0 );	
-      
+        temp.remove(0,pos+token);   
+    }
+    while ( temp.size() > 0 );    
     return true;
 }
  

@@ -50,7 +50,8 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     _authSecret(String::EMPTY),
     _privileged(false),
     _authType(String::EMPTY),
-    _authStatus(NEW_REQUEST)
+    _authStatus(NEW_REQUEST),
+    _wasRemotePrivilegedUserAccessChecked(false)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");

@@ -333,6 +333,24 @@ public:
         _rep->setClientCertificateChain(clientCertificate);
     }
 
+    /** Set flag to show that isRemotePrivilegedUserAccess check has been done
+        this function should only be used by OpenPegasus AuthenticationHandlers
+    */
+    void setRemotePrivilegedUserAccessChecked()
+    {
+        _checkRep();
+        _rep->setRemotePrivilegedUserAccessChecked();
+    }
+
+    /** Get flag that shows if the isRemotePrivilegedUserAccess check has been done
+        this function should only be used by OpenPegasus AuthenticationHandlers
+    */
+    Boolean getRemotePrivilegedUserAccessChecked()
+    {
+        _checkRep();
+        return _rep->getRemotePrivilegedUserAccessChecked();
+    }
+
 private:
 
     AuthenticationInfo(AuthenticationInfoRep* rep) : _rep(rep)

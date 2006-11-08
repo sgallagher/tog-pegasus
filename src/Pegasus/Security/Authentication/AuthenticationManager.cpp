@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By: Dave Rosckes (rosckes@us.ibm.com)
-//                Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//              Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/System.h>
@@ -92,6 +86,33 @@ AuthenticationManager::~AuthenticationManager()
     delete _httpAuthHandler;
 
     PEG_METHOD_EXIT();
+}
+
+Boolean AuthenticationManager::isRemotePrivilegedUserAccessAllowed(
+        String & userName)
+{
+    //
+    // Reject access if the user is privileged and remote privileged user
+    // access is not enabled.
+    //
+    if (!ConfigManager::parseBooleanValue(ConfigManager::getInstance()->
+            getCurrentValue("enableRemotePrivilegedUserAccess"))
+        && System::isPrivilegedUser(userName))
+    {
+        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL2,
+            "Authentication failed for user '%s' because "
+            "enableRemotePrivilegedUserAccess is not set to 'true'.",
+            (const char*) userName.getCString());
+        Logger::put_l(
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            "Security.Authentication.BasicAuthenticationHandler."
+                "PRIVILEGED_ACCESS_DISABLED",
+            "Authentication failed for user '$0' because "
+                "enableRemotePrivilegedUserAccess is not set to 'true'.",
+            userName);
+        return false;
+    }
+    return true;
 }
 
 //

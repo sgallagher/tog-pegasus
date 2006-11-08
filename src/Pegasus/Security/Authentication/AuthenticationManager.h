@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By:
-//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AuthenticationManager_h
@@ -112,6 +107,9 @@ public:
 #else
     String getHttpAuthResponseHeader();
 #endif
+
+    static Boolean isRemotePrivilegedUserAccessAllowed(
+        String & userName);
 
 private:
 

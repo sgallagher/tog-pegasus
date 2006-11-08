@@ -152,6 +152,17 @@ public:
     void setClientCertificateChain(Array<SSLCertificateInfo*>
                                       clientCertificate);
 
+    void setRemotePrivilegedUserAccessChecked()
+    {
+        _wasRemotePrivilegedUserAccessChecked = true;
+    }
+    
+    Boolean getRemotePrivilegedUserAccessChecked()
+    {
+        return _wasRemotePrivilegedUserAccessChecked;
+    }
+
+
 private:
 
     /** Constructors  */
@@ -172,6 +183,7 @@ private:
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     AutoPtr<CIMKerberosSecurityAssociation> _securityAssoc;//PEP101
 #endif
+    Boolean _wasRemotePrivilegedUserAccessChecked;
 
     Array<SSLCertificateInfo*> _clientCertificate;
 };

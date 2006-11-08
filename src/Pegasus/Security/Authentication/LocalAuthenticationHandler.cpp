@@ -129,6 +129,10 @@ Boolean LocalAuthenticationHandler::authenticate(
     }
 #endif
 
+    // it is not necessary to check remote privileged user access local
+    // set the flag to "check done"
+    authInfo->setRemotePrivilegedUserAccessChecked();
+
     authenticated = _localAuthenticator->authenticate(filePath, 
         secretReceived, authInfo->getAuthChallenge());
 

@@ -41,7 +41,7 @@
 #include "SecureBasicAuthenticator.h"
 #include "PAMBasicAuthenticator.h"
 #include "BasicAuthenticationHandler.h"
-
+#include "AuthenticationManager.h"
 
 PEGASUS_USING_STD;
 
@@ -132,6 +132,12 @@ Boolean BasicAuthenticationHandler::authenticate(
     authInfo->setAuthenticatedUser(userName);
     authInfo->setAuthenticatedPassword(password);
 #else
+
+    if (!AuthenticationManager::isRemotePrivilegedUserAccessAllowed(userName))
+    {
+        return false;
+    }
+    authInfo->setRemotePrivilegedUserAccessChecked();
 
     authenticated = _basicAuthenticator->authenticate(userName, password);
 

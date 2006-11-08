@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Nag Boranna,   Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By: Dave Rosckes (rosckes@us.ibm.com)
-//              Sushma Fernandes (sushma_fernandes@hp.com)
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Constants.h>
@@ -815,6 +805,36 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
         if ( authenticated || !enableAuthentication )
         {
+            // Final bastion to ensure the remote privileged user access
+            // check is done as it should be
+            // check for remote privileged User Access
+            if (!httpMessage->authInfo->getRemotePrivilegedUserAccessChecked())
+            {
+                // the AuthenticationHandler did not process the
+                // enableRemotePrivilegedUserAccess check
+                // time to do it ourselves
+                String userName = httpMessage->authInfo->getAuthenticatedUser();
+                if (! AuthenticationManager::isRemotePrivilegedUserAccessAllowed(userName))
+                {
+                    // Send client a message that we can't proceed to talk to him
+                    // HTTP 401 ?
+                    MessageLoaderParms msgParms(
+                   "Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED", 
+                   "Remote privileged user access is not enabled.");
+                    String msg(MessageLoader::getMessage(msgParms));
+                    _sendHttpError(
+                                  queueId,
+                                  HTTP_STATUS_UNAUTHORIZED,
+                                  String::EMPTY,
+                                  msg,
+                                  closeConnect);
+                    PEG_METHOD_EXIT();
+                    return;
+                }
+                httpMessage->authInfo->setRemotePrivilegedUserAccessChecked();
+            }
+
+
             //
             // Search for "CIMOperation" header:
             //

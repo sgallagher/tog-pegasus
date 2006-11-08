@@ -513,49 +513,6 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    }
 
    //
-   // If the user is privileged, and remote privileged user access is not 
-   // enabled and the auth type is not Local then reject access.
-   //
-   if (!String::equalNoCase(authType, "Local") &&
-       !ConfigManager::parseBooleanValue(
-           configManager->getCurrentValue("enableRemotePrivilegedUserAccess")) &&
-       System::isPrivilegedUser(userName))
-   {
-
-      if (cimMethodName == "InvokeMethod")
-      {
-
-	// l10n
-
-         sendMethodError(
-            queueId,
-            req->getHttpMethod(),
-            req->messageId,
-            ((CIMInvokeMethodRequestMessage*)req.get())->methodName,
-           PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
-                   "Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED", 
-                   "Remote privileged user access is not enabled.")));
-      }
-      else
-      {
-	// l10n
-
-         sendIMethodError(
-            queueId,
-            req->getHttpMethod(),
-            req->messageId,
-            cimMethodName,
-           PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
-              "Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED", 
-              "Remote privileged user access is not enabled.")));
-      }
-
-      PEG_METHOD_EXIT();
-
-      return;
-   }
-
-   //
    // Enqueue the request
    //
    _outputQueue->enqueue(req.release());

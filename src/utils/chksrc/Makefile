@@ -37,6 +37,8 @@ include $(ROOT)/mak/config.mak
 PROGRAM = chksrc
 SOURCES = chksrc.c
 
+VMS_HAS_CC = yes
+
 include $(ROOT)/mak/program.mak
 
 tests:

@@ -135,6 +135,8 @@ QlgPath::QlgPath(const char* path) : pn(path)
 // System ID constants for Logger::put and Logger::trace
 #if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 const String System::CIMSERVER = "qycmcimom";  // Server system ID
+#elif defined(PEGASUS_OS_ZOS)
+const String System::CIMSERVER = "CFZCIM";  // Server system ID
 #else
 const String System::CIMSERVER = "cimserver";  // Server system ID
 #endif
@@ -1335,8 +1337,30 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
         zosMessageString = tmpMessageString;
     }
 
+    // if message greater then 4096 bytes results are undefined !
+    if(zosMessageStringLength > 4095)
+    {
+        // the temp buffer is already used !
+        if (tmpMessageString)
+        {
+            // the zosMessageSting and the tmpMessageString are pointing
+            // to the same storage but the tmpMessageString is not const !
+            tmpMessageString[4095] = 0;
+
+        } else {
+            // allocate an appropriate buffer, init with 0
+            tmpMessageString = (char*)calloc(4096,1);
+            memcpy(tmpMessageString,zosMessageString,4095);
+            zosMessageString = tmpMessageString;
+        }
+
+    }
+
+    CString identCString = ident.getCString();
     // Issue important messages to the z/OS console
-    if (!(severity & Logger::TRACE))
+    // and audit messages are not important
+    if (!(severity & Logger::TRACE) && 
+        !(strcmp("cimserver audit",identCString) == 0))
     {
         struct __cons_msg   cons;
         int                 concmd=0;
@@ -1351,15 +1375,8 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
         rc = __console(&cons, NULL, &concmd );
     }
 
-    // In addition all messages go to the syslog
-    static Mutex logMutex;
-
-    AutoMutex loglock(logMutex);
-
-    CString identCString = ident.getCString();
-    openlog(identCString, LOG_PID, LOG_DAEMON);
     ::syslog(syslogLevel, "%s", zosMessageString);
-    closelog();
+
 
     if (tmpMessageString)
         free(tmpMessageString);
@@ -1371,6 +1388,35 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
 
 #endif /* default */
 }
+
+void System::openlog(const char *ident, int logopt, int facility)
+{
+
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || \
+    (defined(PEGASUS_OS_ZOS) && defined(PEGASUS_USE_SYSLOGS))
+    ::openlog(ident, logopt, facility);
+#else /* default */
+
+    // Not implemented!
+
+#endif /* default */
+
+}
+
+void System::closelog()
+{
+
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) ||  \
+    (defined(PEGASUS_OS_ZOS) && defined(PEGASUS_USE_SYSLOGS))
+    ::closelog();
+#else /* default */
+
+    // Not implemented!
+
+#endif /* default */
+
+}
+
 
 // check if a given IP address is defined on the local network interfaces
 Boolean System::isIpOnNetworkInterface(Uint32 inIP)

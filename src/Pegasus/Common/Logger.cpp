@@ -38,6 +38,10 @@
 #include "System.h"
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
+#if defined(PEGASUS_USE_SYSLOGS)
+# include <syslog.h>
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -151,6 +155,38 @@ public:
 
         fileName = _allocLogFileName(homeDirectory, Logger::DEBUG_LOG);
         _logs[Logger::DEBUG_LOG].open(fileName, ios::app);
+#else
+
+#ifdef PEGASUS_OS_ZOS
+       logIdendity = System::CIMSERVER.getCString();
+        // If System Log is used open it
+        System::openlog(logIdendity, LOG_PID, LOG_DAEMON);
+#endif
+
+#endif
+
+    }
+
+    ~LoggerRep()
+    {
+#if !defined(PEGASUS_USE_SYSLOGS)
+        _logs[Logger::TRACE_LOG].close();
+        _logs[Logger::STANDARD_LOG].close();
+
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+        _logs[Logger::AUDIT_LOG].close();
+#endif
+
+        _logs[Logger::ERROR_LOG].close();
+        _logs[Logger::DEBUG_LOG].close();
+
+#else
+
+#ifdef PEGASUS_OS_ZOS
+        System::closelog();
+
+#endif
+
 #endif
 
     }
@@ -167,6 +203,9 @@ public:
 
 private:
 
+#ifdef PEGASUS_OS_ZOS
+    CString logIdendity;
+#endif
     ofstream _logs[int(Logger::NUM_LOGS)];
 };
 

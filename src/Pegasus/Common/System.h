@@ -347,6 +347,13 @@ public:
         Uint32 severity,
         const char* message);
 
+    static void openlog(
+        const char *ident, 
+        int logopt, 
+        int facility);
+
+    static void closelog();
+
     // System ID constants for Logger::put and Logger::trace
     static const String CIMSERVER;
 

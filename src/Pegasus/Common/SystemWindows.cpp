@@ -880,6 +880,18 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
     // Not implemented
 }
 
+void System::openlog(const char *ident, int logopt, int facility)
+{
+    // Not implemented
+}
+
+void System::closelog()
+{
+    // Not implemented
+}
+
+
+
 // System ID constants for Logger::put and Logger::trace
 const String System::CIMSERVER = "cimserver";  // Server system ID
 

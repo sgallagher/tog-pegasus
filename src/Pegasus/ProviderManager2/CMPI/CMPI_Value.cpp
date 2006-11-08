@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -112,6 +108,9 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc) 
       else switch (aType) {
          case CMPI_ref:      CopyToEncArray(CIMObjectPath,ref); break;
          case CMPI_dateTime: CopyToEncArray(CIMDateTime,dateTime); break;
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+         case CMPI_instance: CopyToEncArray(CIMInstance,inst); break;
+#endif
          case CMPI_boolean:  CopyToArray(Boolean,boolean); break;
          case CMPI_char16:   CopyToArray(Char16,char16); break;
          case CMPI_real32:   CopyToArray(Real32,real32); break;
@@ -245,6 +244,9 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
       else switch (aType) {
          case CMPI_ref:      CopyFromEncArray(CIMObjectPath,CMPIObjectPath,ref); break;
          case CMPI_dateTime: CopyFromEncArray(CIMDateTime,CMPIDateTime,dateTime); break;
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+         case CMPI_instance: CopyFromEncArray(CIMInstance,CMPIInstance,inst); break;
+#endif
          case CMPI_boolean:  CopyFromArray(Boolean,boolean); break;
          case CMPI_char16:   CopyFromArray(Char16,char16); break;
          case CMPI_real32:   CopyFromArray(Real32,real32); break;

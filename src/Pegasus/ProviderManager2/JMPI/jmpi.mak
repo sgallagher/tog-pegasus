@@ -47,22 +47,23 @@ ifndef PEGASUS_JVM
    PEGASUS_JVM=sun
 endif
 ifeq ($(PEGASUS_JVM),sun)
-   JAVALIBS=$(JAVA_SDK)/jre/lib/i386
+   JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/linux
-   EXTRA_LIBRARIES += -L$(JAVALIBS)/native_threads -L$(JAVALIBS)/client -ljvm -lhpi -lcrypt -lpegclient
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/native_threads -L$(JAVALIBS)/client -ljvm -lhpi -lcrypt
 endif
 ifeq ($(PEGASUS_JVM),ibm)
    JAVALIBS=$(JAVA_SDK)/jre/bin
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include
-   EXTRA_LIBRARIES += -L$(JAVALIBS)/classic/ -L$(JAVALIBS)/ -ljvm -lhpi -lcrypt -lpegclient
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/classic/ -L$(JAVALIBS)/ -ljvm -lhpi -lcrypt
 endif
 ifeq ($(PEGASUS_JVM),bea)
-   JAVALIBS=$(JAVA_SDK)/jre/lib/i386
+   JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include/ -I$(JAVA_SDK)/include/linux/
-   EXTRA_LIBRARIES += -L$(JAVALIBS)/ -L$(JAVALIBS)/jrockit/ -L$(JAVALIBS)/native_threads/ -ljvm -lhpi -lcrypt -lpegclient
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/ -L$(JAVALIBS)/jrockit/ -L$(JAVALIBS)/native_threads/ -ljvm -lhpi -lcrypt
 endif
 ifeq ($(PEGASUS_JVM),gcj)
-   EXTRA_LIBRARIES += -lgcj
+   JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/client -ljvm
 endif
 endif
 endif

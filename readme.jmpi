@@ -51,21 +51,45 @@ You might need to adjust this to your system layout.
    export PEGASUS_ROOT=${PEGASUS_HOME}
    export PEGASUS_PLATFORM=LINUX_IX86_GNU
    export PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=true
-   export PEGASUS_DEBUG=1
+   export PEGASUS_JVM=sun
    export JAVA_SDK=/usr/java/j2sdk1.4.2_08
    export JAVA_SDKINC=${JAVA_SDK}/include
-   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JAVA_SDK}/jre/lib/i386/server:${JAVA_SDK}/jre/lib/i386/native_threads:${JAVA_SDK}/jre/lib/i386
+   export PEGASUS_JAVA_ARCH=i386
+   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/server:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/native_threads:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}
    export PATH=${JAVA_SDK}/bin/:${PEGASUS_HOME}/bin:${PATH}
    export CLASSPATH=${CLASSPATH}:${PEGASUS_HOME}/lib/JMPIImpl.jar
 
-There is now a new variable to determine which JVM to link with.  The choices are as follows:
-     PEGASUS_JVM	gcj     Gnu's jvm (ex: gij (GNU libgcj) version 4.1.1 20060525 (Red Hat 4.1.1-1))
-     PEGASUS_JVM	sun	Sun's jvm (ex: j2sdk1.4.2_07)
-     PEGASUS_JVM	ibm	IBM's jvm (ex: IBMJava2-142)
-     PEGASUS_JVM	bea	Suse's IBM jvm (ex: BEAJava2-1.4.2)
+Lets walk through the manditory environment variables.  The first tells Pegasus to build the
+Java provider manager.
+   export PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=true
+
+The second says which JRE to use.  The choices are as follows:
+   export PEGASUS_JVM=gcj     Gnu's jvm (ex: gcj (GCC) 4.1.1 20061011 (Red Hat 4.1.1-30))
+   export PEGASUS_JVM=sun	Sun's jvm (ex: j2sdk1.4.2_07)
+   export PEGASUS_JVM=ibm	IBM's jvm (ex: IBMJava2-142)
+   export PEGASUS_JVM=bea	Suse's IBM jvm (ex: BEAJava2-1.4.2)
 So, pick one and export that variable to the environment.  For example,
-     export PEGASUS_JVM=sun
+   export PEGASUS_JVM=sun
 NOTE: The gcj and sun options were the only tested JVMs.
+NOTE: gcj is only supported using gcc version 4.1.1 or later.
+
+The third and fourth say where the JRE libraries and header files are located.  This may or may not
+be necessary depending upon the compiler's default search paths.
+Since we are using Sun's JRE, point to Sun's paths.
+   export JAVA_SDK=/usr/java/j2sdk1.4.2_08
+   export JAVA_SDKINC=${JAVA_SDK}/include
+
+The fifth variable defines the Java architecture of the JMV
+   export PEGASUS_JAVA_ARCH=i386
+
+The sixth may be necessary to tell the linker where to load the JRE libraries.
+   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/server:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/native_threads:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}
+
+The seventh one may be necessary to get the JVM's executable files into the PATH.
+   export PATH=${JAVA_SDK}/bin/:${PEGASUS_HOME}/bin:${PATH}
+
+The eight tells the JRE to include JMPI's Java classes.
+   export CLASSPATH=${CLASSPATH}:${PEGASUS_HOME}/lib/JMPIImpl.jar
 
 There are a couple of optional environment variables to determine how the JRE is initialized.  These are
 as follows (the variable name and what JRE option that it corresponds to):

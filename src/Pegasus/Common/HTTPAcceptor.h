@@ -51,98 +51,98 @@ class Monitor;
 */
 class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 {
-   public:
-      typedef MessageQueue Base;
+public:
+    typedef MessageQueue Base;
   
-      /** Constructor.
-	  @param monitor pointer to monitor object which this class uses to
-	  solicit SocketMessages on the server port (socket).
-	  @param outputMessageQueue output message queue for connections
-	  created by this acceptor.
-	  @param localConnection Boolean indicating whether this acceptor is
-	  only for local connections.  If true, the portNumber argument is
-	  ignored.
-	  @param portNumber Specifies which port number this acceptor is to
-	  listen on.  If this value is 0 then a port is automatically selected
-	  by bind().  In this case, the actual port number used can be retrieved
-	  using getPortNumber().
-	  @param sslcontext If null, this acceptor does not create SSL
-	  connections.  If non-null, the argument specifies an SSL context to
-	  use for connections established by this acceptor.
-      */
-      HTTPAcceptor(Monitor* monitor,
-                   MessageQueue* outputMessageQueue,
-                   Boolean localConnection,
-                   Uint32 portNumber,
-                   SSLContext * sslcontext,
-                   ReadWriteSem* sslContextObjectLock=0);
+    /** Constructor.
+        @param monitor pointer to monitor object which this class uses to
+        solicit SocketMessages on the server port (socket).
+        @param outputMessageQueue output message queue for connections
+        created by this acceptor.
+        @param localConnection Boolean indicating whether this acceptor is
+        only for local connections.  If true, the portNumber argument is
+        ignored.
+        @param portNumber Specifies which port number this acceptor is to
+        listen on.  If this value is 0 then a port is automatically selected
+        by bind().  In this case, the actual port number used can be retrieved
+        using getPortNumber().
+        @param sslcontext If null, this acceptor does not create SSL
+        connections.  If non-null, the argument specifies an SSL context to
+        use for connections established by this acceptor.
+    */
+    HTTPAcceptor(
+        Monitor* monitor,
+        MessageQueue* outputMessageQueue,
+        Boolean localConnection,
+        Uint32 portNumber,
+        SSLContext * sslcontext,
+        ReadWriteSem* sslContextObjectLock = 0);
 
-      /** Destructor. */
-      ~HTTPAcceptor();
+    /** Destructor. */
+    ~HTTPAcceptor();
 
-      /** This method is called whenever a SocketMessage is enqueued
-	  on the input queue of the HTTPAcceptor object.
-      */ 
+    /** This method is called whenever a SocketMessage is enqueued
+        on the input queue of the HTTPAcceptor object.
+    */ 
 
-      virtual void handleEnqueue(Message *);
+    virtual void handleEnqueue(Message *);
     
-      virtual void handleEnqueue();
+    virtual void handleEnqueue();
 
-      /** Bind the specified listen socket.
-          @exception throws BindFailedException if unable to bind (either
-          because the listen socket is invalid or the socket is in use).
-      */
-      void bind();
+    /** Bind the specified listen socket.
+        @exception throws BindFailedException if unable to bind (either
+        because the listen socket is invalid or the socket is in use).
+    */
+    void bind();
 
-      /** Unbind from the given port.
-       */
-      void unbind();
+    /** Unbind from the given port.
+    */
+    void unbind();
 
-      /** Close the connection socket.
-       */
-      void closeConnectionSocket();
+    /** Close the connection socket.
+    */
+    void closeConnectionSocket();
 
-      /** Reopen the connection socket.
-       */
-      void reopenConnectionSocket();
+    /** Reopen the connection socket.
+    */
+    void reopenConnectionSocket();
 
-      /** Destroys all the connections created by this acceptor. */
-      void destroyConnections();
+    /** Destroys all the connections created by this acceptor. */
+    void destroyConnections();
 
-      /** Close and Reopen the connection socket.
-        */
-      void reconnectConnectionSocket();
+    /** Close and Reopen the connection socket.
+    */
+    void reconnectConnectionSocket();
 
-      /** Returns the number of outstanding requests
-       */
-      Uint32 getOutstandingRequestCount() const;
+    /** Returns the number of outstanding requests
+    */
+    Uint32 getOutstandingRequestCount() const;
 
-      /** Returns the port number used for the connection.  If the number
-          is 0 that means that the socket is not bound.
-      */
-      Uint32 getPortNumber() const;
+    /** Returns the port number used for the connection.  If the number
+        is 0 that means that the socket is not bound.
+    */
+    Uint32 getPortNumber() const;
 
-      void setSocketWriteTimeout(Uint32 socketWriteTimeout);
+    void setSocketWriteTimeout(Uint32 socketWriteTimeout);
 
-   private:
+private:
 
-      void _acceptConnection();
-      void _bind();
+    void _acceptConnection();
+    void _bind();
 
-      cimom *_meta_dispatcher;
-    
+    cimom *_meta_dispatcher;
 
-      Monitor* _monitor;
-      MessageQueue* _outputMessageQueue;
-      HTTPAcceptorRep* _rep;
+    Monitor* _monitor;
+    MessageQueue* _outputMessageQueue;
+    HTTPAcceptorRep* _rep;
 
-      int _entry_index;
+    int _entry_index;
 
-      Boolean _localConnection;
-      Uint32  _portNumber;
-      SSLContext * _sslcontext;
-      ReadWriteSem*  _sslContextObjectLock;
-      Uint32  _socketWriteTimeout;
+    Boolean _localConnection;
+    Uint32 _portNumber;
+    SSLContext* _sslcontext;
+    ReadWriteSem*  _sslContextObjectLock;
+    Uint32 _socketWriteTimeout;
 };
 
 PEGASUS_NAMESPACE_END

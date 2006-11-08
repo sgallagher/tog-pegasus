@@ -56,18 +56,18 @@ Uint32 IDFactory::getID() const
 
     self->_mutex.lock();
     {
-	if (_pool.isEmpty())
-	{
-	    if (self->_nextID < _firstID)
-		self->_nextID = _firstID;
+        if (_pool.isEmpty())
+        {
+            if (self->_nextID < _firstID)
+                self->_nextID = _firstID;
 
-	    id = self->_nextID++;
-	}
-	else
-	{
-	    id = _pool.top();
-	    self->_pool.pop();
-	}
+            id = self->_nextID++;
+        }
+        else
+        {
+            id = _pool.top();
+            self->_pool.pop();
+        }
     }
     self->_mutex.unlock();
 
@@ -80,11 +80,11 @@ void IDFactory::putID(Uint32 id)
     PEGASUS_DEBUG_ASSERT(id >= _firstID);
 
     if (id < _firstID)
-	return;
+        return;
 
     _mutex.lock();
     {
-	_pool.push(id);
+        _pool.push(id);
     }
     _mutex.unlock();
 }

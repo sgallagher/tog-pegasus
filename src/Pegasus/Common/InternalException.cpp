@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By: Jenny Yu (jenny_yu@am.exch.hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-// 
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
@@ -71,125 +63,133 @@ AssertionFailureException::~AssertionFailureException()
 const char NullPointer::MSG[] = "null pointer";
 const char NullPointer::KEY[] = "Common.InternalException.NULL_POINTER";
 
-//l10n 
 const char UndeclaredQualifier::MSG[] = "undeclared qualifier: $0";
-const char UndeclaredQualifier::KEY[] = "Common.InternalException.UNDECLARED_QUALIFIER";
+const char UndeclaredQualifier::KEY[] =
+    "Common.InternalException.UNDECLARED_QUALIFIER";
 
-//l10n 
-const char BadQualifierScope::MSG[] = "qualifier invalid in this scope: $0 scope=$1";
-const char BadQualifierScope::KEY[] = "Common.InternalException.BAD_QUALIFIER_SCOPE";
+const char BadQualifierScope::MSG[] =
+    "qualifier invalid in this scope: $0 scope=$1";
+const char BadQualifierScope::KEY[] =
+    "Common.InternalException.BAD_QUALIFIER_SCOPE";
 
-//l10n 
 const char BadQualifierOverride::MSG[] = "qualifier not overridable: $0";
-const char BadQualifierOverride::KEY[] = "Common.InternalException.BAD_QUALIFIER_OVERRIDE"; 
+const char BadQualifierOverride::KEY[] =
+    "Common.InternalException.BAD_QUALIFIER_OVERRIDE";
 
-//l10n 
-const char BadQualifierType::MSG[] = "CIMType of qualifier different than its declaration: $0";
-const char BadQualifierType::KEY[] = "Common.InternalException.BAD_QUALIFIER_TYPE";
+const char BadQualifierType::MSG[] =
+    "CIMType of qualifier different than its declaration: $0";
+const char BadQualifierType::KEY[] =
+    "Common.InternalException.BAD_QUALIFIER_TYPE";
 
-const char ClassAlreadyResolved::MSG[] = "attempt to resolve a class that is already resolved: $0";
-const char ClassAlreadyResolved::KEY[] = "Common.InternalException.CLASS_ALREADY_RESOLVED";
+const char ClassAlreadyResolved::MSG[] =
+    "attempt to resolve a class that is already resolved: $0";
+const char ClassAlreadyResolved::KEY[] =
+    "Common.InternalException.CLASS_ALREADY_RESOLVED";
 
-//l10n 
 const char ClassNotResolved::MSG[] = "class is not yet resolved: $0";
-const char ClassNotResolved::KEY[] = "Common.InternalException.CLASS_NOT_RESOLVED";
+const char ClassNotResolved::KEY[] =
+    "Common.InternalException.CLASS_NOT_RESOLVED";
 
-const char InstanceAlreadyResolved::MSG[] = "attempted to resolve a instance that is already resolved";
-const char InstanceAlreadyResolved::KEY[] = "Common.InternalException.INSTANCE_ALREADY_RESOLVED"; 
+const char InstanceAlreadyResolved::MSG[] =
+    "attempted to resolve a instance that is already resolved";
+const char InstanceAlreadyResolved::KEY[] =
+    "Common.InternalException.INSTANCE_ALREADY_RESOLVED";
 
-//l10n 
-const char InstantiatedAbstractClass::MSG[] = "attempted to instantiate an abstract class $0";
-const char InstantiatedAbstractClass::KEY[] = "Common.InternalException.INSTANTIATED_ABSTRACT_CLASS"; 
+const char InstantiatedAbstractClass::MSG[] =
+    "attempted to instantiate an abstract class $0";
+const char InstantiatedAbstractClass::KEY[] =
+    "Common.InternalException.INSTANTIATED_ABSTRACT_CLASS";
 
-//l10n 
 const char NoSuchProperty::MSG[] = "no such property: $0";
 const char NoSuchProperty::KEY[] = "Common.InternalException.NO_SUCH_PROPERTY";
 
-//l10n 
 const char NoSuchFile::MSG[] = "no such file: $0";
 const char NoSuchFile::KEY[] = "Common.InternalException.NO_SUCH_FILE";
 
-//l10n 
 const char FileNotReadable::MSG[] = "file not readable: $0";
-const char FileNotReadable::KEY[] = "Common.InternalException.FILE_NOT_READABLE";
+const char FileNotReadable::KEY[] =
+    "Common.InternalException.FILE_NOT_READABLE";
 
-//l10n 
 const char CannotRemoveDirectory::MSG[] = "cannot remove directory: $0";
-const char CannotRemoveDirectory::KEY[] = "Common.InternalException.CANNOT_REMOVE_DIRECTORY";  
+const char CannotRemoveDirectory::KEY[] =
+    "Common.InternalException.CANNOT_REMOVE_DIRECTORY";
 
-//l10n 
 const char CannotRemoveFile::MSG[] = "cannot remove file: $0";
-const char CannotRemoveFile::KEY[] = "Common.InternalException.CANNOT_REMOVE_FILE"; 
+const char CannotRemoveFile::KEY[] =
+    "Common.InternalException.CANNOT_REMOVE_FILE";
 
-//l10n 
 const char CannotRenameFile::MSG[] = "cannot rename file: $0";
-const char CannotRenameFile::KEY[] = "Common.InternalException.CANNOT_RENAME_FILE";
+const char CannotRenameFile::KEY[] =
+    "Common.InternalException.CANNOT_RENAME_FILE";
 
-//l10n 
 const char NoSuchDirectory::MSG[] = "no such directory: $0";
-const char NoSuchDirectory::KEY[] = "Common.InternalException.NO_SUCH_DIRECTORY";  
+const char NoSuchDirectory::KEY[] =
+    "Common.InternalException.NO_SUCH_DIRECTORY";
 
-//l10n 
 const char CannotCreateDirectory::MSG[] = "cannot create directory: $0";
-const char CannotCreateDirectory::KEY[] = "Common.InternalException.CANNOT_CREATE_DIRECTORY";
+const char CannotCreateDirectory::KEY[] =
+    "Common.InternalException.CANNOT_CREATE_DIRECTORY";
 
-//l10n 
 const char CannotOpenFile::MSG[] = "cannot open file: $0";
 const char CannotOpenFile::KEY[] = "Common.InternalException.CANNOT_OPEN_FILE";
 
-//l10n 
 const char NotImplemented::MSG[] = "not implemented: $0";
-const char NotImplemented::KEY[] = "Common.InternalException.NOT_IMPLEMENTED"; 
+const char NotImplemented::KEY[] = "Common.InternalException.NOT_IMPLEMENTED";
 
 const char StackUnderflow::MSG[] = "stack underflow";
 const char StackUnderflow::KEY[] = "Common.InternalException.STACK_UNDERFLOW";
 
 const char StackOverflow::MSG[] = "stack overflow";
-const char StackOverflow::KEY[] = "Common.InternalException.STACK_OVERFLOW"; 
+const char StackOverflow::KEY[] = "Common.InternalException.STACK_OVERFLOW";
 
 const char BadFormat::MSG[] = "bad format passed to Formatter::format()";
 const char BadFormat::KEY[] = "Common.InternalException.BAD_FORMAT";
 
 const char BadlyFormedCGIQueryString::MSG[] = "badly formed CGI query string";
-const char BadlyFormedCGIQueryString::KEY[] = "Common.InternalException.BADLY_FORMED_CGI_QUERY_STRING"; 
+const char BadlyFormedCGIQueryString::KEY[] =
+    "Common.InternalException.BADLY_FORMED_CGI_QUERY_STRING";
 
-//l10n 
 const char DynamicLoadFailed::MSG[] = "load of dynamic library failed: $0";
-const char DynamicLoadFailed::KEY[] = "Common.InternalException.DYNAMIC_LOAD_FAILED";
+const char DynamicLoadFailed::KEY[] =
+    "Common.InternalException.DYNAMIC_LOAD_FAILED";
 
-//l10n 
-const char DynamicLookupFailed::MSG[] = "lookup of symbol in dynamic library failed: $0";
-const char DynamicLookupFailed::KEY[] = "Common.InternalException.DYNAMIC_LOOKUP_FAILED";
+const char DynamicLookupFailed::MSG[] =
+    "lookup of symbol in dynamic library failed: $0";
+const char DynamicLookupFailed::KEY[] =
+    "Common.InternalException.DYNAMIC_LOOKUP_FAILED";
 
-//l10n 
 const char CannotOpenDirectory::MSG[] = "cannot open directory: $0";
-const char CannotOpenDirectory::KEY[] = "Common.InternalException.CANNOT_OPEN_DIRECTORY"; 
+const char CannotOpenDirectory::KEY[] =
+    "Common.InternalException.CANNOT_OPEN_DIRECTORY";
 
-//l10n 
 const char ParseError::MSG[] = "parse error: $0";
 const char ParseError::KEY[] = "Common.InternalException.PARSE_ERROR";
 
-//l10n 
 const char MissingNullTerminator::MSG[] = "missing null terminator: $0";
-const char MissingNullTerminator::KEY[] = "Common.InternalException.MISSING_NULL_TERMINATOR";
+const char MissingNullTerminator::KEY[] =
+    "Common.InternalException.MISSING_NULL_TERMINATOR";
 
-//l10n
 const char MalformedLanguageHeader::MSG[] = "malformed language header: $0";
-const char MalformedLanguageHeader::KEY[] = "Common.InternalException.MALFORMED_LANGUAGE_HEADER";
+const char MalformedLanguageHeader::KEY[] =
+    "Common.InternalException.MALFORMED_LANGUAGE_HEADER";
 
-//l10n 
-const char InvalidAcceptLanguageHeader::MSG[] = "invalid acceptlanguage header: $0";
-const char InvalidAcceptLanguageHeader::KEY[] = "Common.InternalException.INVALID_ACCEPTLANGUAGE_HEADER";
+const char InvalidAcceptLanguageHeader::MSG[] =
+    "invalid acceptlanguage header: $0";
+const char InvalidAcceptLanguageHeader::KEY[] =
+    "Common.InternalException.INVALID_ACCEPTLANGUAGE_HEADER";
 
-//l10n 
-const char InvalidContentLanguageHeader::MSG[] = "invalid contentlanguage header: $0";
-const char InvalidContentLanguageHeader::KEY[] = "Common.InternalException.INVALID_CONTENTLANGUAGE_HEADER";
+const char InvalidContentLanguageHeader::MSG[] =
+    "invalid contentlanguage header: $0";
+const char InvalidContentLanguageHeader::KEY[] =
+    "Common.InternalException.INVALID_CONTENTLANGUAGE_HEADER";
 
 const char InvalidAuthHeader::MSG[] = "Invalid Authorization header";
-const char InvalidAuthHeader::KEY[] = "Common.InternalException.INVALID_AUTH_HEADER"; 
+const char InvalidAuthHeader::KEY[] =
+    "Common.InternalException.INVALID_AUTH_HEADER";
 
 const char UnauthorizedAccess::MSG[] = "Unauthorized access";
-const char UnauthorizedAccess::KEY[] = "Common.InternalException.UNAUTHORIZED_ACCESS";  
+const char UnauthorizedAccess::KEY[] =
+    "Common.InternalException.UNAUTHORIZED_ACCESS";
 
 const char InternalSystemError::MSG[] = "Unable to authenticate user";
 
@@ -275,24 +275,21 @@ static String _makeCIMExceptionDescription(
     return tmp;
 }
 
-//l10n 
 TraceableCIMException::TraceableCIMException(
     CIMStatusCode code,
     MessageLoaderParms parms,
     const String& file,
     Uint32 line)
-    :
-    CIMException(code, parms)
+    : CIMException(code, parms)
 {
     CIMExceptionRep* rep;
     rep = reinterpret_cast<CIMExceptionRep*>(_rep);
     rep->file = file;
     rep->line = line;
 
-// l10n
-	// Localize the cim message from the code.  Use the language of
-	// the current thread.
-	rep->contentLanguages = cimStatusCodeToString_Thread(rep->cimMessage, code);
+    // Localize the cim message from the code.  Use the language of
+    // the current thread.
+    rep->contentLanguages = cimStatusCodeToString_Thread(rep->cimMessage, code);
 }
 
 TraceableCIMException::TraceableCIMException(
@@ -300,37 +297,32 @@ TraceableCIMException::TraceableCIMException(
     const String& message,
     const String& file,
     Uint32 line)
-    :
-    CIMException(code, message)
+    : CIMException(code, message)
 {
     CIMExceptionRep* rep;
     rep = reinterpret_cast<CIMExceptionRep*>(_rep);
     rep->file = file;
     rep->line = line;
 
-// l10n
-	// Localize the cim message from the code.  Use the language of
-	// the current thread.
-	rep->contentLanguages = cimStatusCodeToString_Thread(rep->cimMessage, code);
+    // Localize the cim message from the code.  Use the language of
+    // the current thread.
+    rep->contentLanguages = cimStatusCodeToString_Thread(rep->cimMessage, code);
 }
 
-// l10n
 TraceableCIMException::TraceableCIMException(
-	const ContentLanguageList& langs,
+    const ContentLanguageList& langs,
     CIMStatusCode code,
     const String& message,
     const String& file,
     Uint32 line)
-    :
-    CIMException(code, message)
+    : CIMException(code, message)
 {
     CIMExceptionRep* rep;
     rep = reinterpret_cast<CIMExceptionRep*>(_rep);
     rep->file = file;
     rep->line = line;
 
-// l10n
-	rep->contentLanguages = langs;
+    rep->contentLanguages = langs;
 }
 
 TraceableCIMException::TraceableCIMException(const CIMException & cimException)
@@ -343,8 +335,7 @@ TraceableCIMException::TraceableCIMException(const CIMException & cimException)
     right = reinterpret_cast<CIMExceptionRep*>(t->_rep);
     left->file = right->file;
     left->line = right->line;
-// l10n    
-    left->contentLanguages = right->contentLanguages;    
+    left->contentLanguages = right->contentLanguages;
     left->cimMessage = right->cimMessage;
 }
 
@@ -358,19 +349,16 @@ String TraceableCIMException::getDescription() const
 #else
     CIMExceptionRep* rep;
     rep = reinterpret_cast<CIMExceptionRep*>(_rep);
-	
-	if (rep->cimMessage == String::EMPTY)
-	{
-	    return _makeCIMExceptionDescription(rep->code, 
-    										getMessage(),
-    										rep->contentLanguages);    		
-	}
-	else
-	{
-		return _makeCIMExceptionDescription(rep->cimMessage,
-											getMessage());
-	}
 
+    if (rep->cimMessage == String::EMPTY)
+    {
+        return _makeCIMExceptionDescription(
+            rep->code, getMessage(), rep->contentLanguages);
+    }
+    else
+    {
+        return _makeCIMExceptionDescription(rep->cimMessage, getMessage());
+    }
 #endif
 }
 
@@ -430,12 +418,12 @@ const ContentLanguageList& TraceableCIMException::getContentLanguages() const
 //
 //==============================================================================
 
-NullPointer::NullPointer() : 
-    Exception(MessageLoaderParms(
-    NullPointer::KEY, 
-    NullPointer::MSG))
+NullPointer::NullPointer()
+    : Exception(MessageLoaderParms(
+          NullPointer::KEY,
+          NullPointer::MSG))
 {
-}    
+}
 
 NullPointer::~NullPointer()
 {
@@ -447,13 +435,13 @@ NullPointer::~NullPointer()
 //
 //==============================================================================
 
-UndeclaredQualifier::UndeclaredQualifier(const String& qualifierName) : 
-    Exception(MessageLoaderParms(
-    UndeclaredQualifier::KEY, 
-    UndeclaredQualifier::MSG,
-    qualifierName)) 
+UndeclaredQualifier::UndeclaredQualifier(const String& qualifierName)
+    : Exception(MessageLoaderParms(
+          UndeclaredQualifier::KEY,
+          UndeclaredQualifier::MSG,
+          qualifierName))
 {
-}    
+}
 
 UndeclaredQualifier::~UndeclaredQualifier()
 {
@@ -466,14 +454,10 @@ UndeclaredQualifier::~UndeclaredQualifier()
 //==============================================================================
 
 BadQualifierScope::BadQualifierScope(
-    const String& qualifierName, 
-    const String& scopeString) : 
-    Exception(MessageLoaderParms(KEY, 
-	MSG,
-	qualifierName,
-	scopeString)) 
-{ 
-
+    const String& qualifierName,
+    const String& scopeString)
+    : Exception(MessageLoaderParms(KEY, MSG, qualifierName, scopeString))
+{
 }
 
 BadQualifierScope::~BadQualifierScope()
@@ -486,13 +470,13 @@ BadQualifierScope::~BadQualifierScope()
 //
 //==============================================================================
 
-BadQualifierOverride::BadQualifierOverride(const String& qualifierName) : 
-    Exception(MessageLoaderParms(
-	BadQualifierOverride::KEY, 
-	BadQualifierOverride::MSG,
-	qualifierName)) 
+BadQualifierOverride::BadQualifierOverride(const String& qualifierName)
+    : Exception(MessageLoaderParms(
+          BadQualifierOverride::KEY,
+          BadQualifierOverride::MSG,
+          qualifierName))
 {
-}    
+}
 
 BadQualifierOverride::~BadQualifierOverride()
 {
@@ -504,15 +488,13 @@ BadQualifierOverride::~BadQualifierOverride()
 //
 //==============================================================================
 
-BadQualifierType::BadQualifierType(const String& qualifierName) : 
-    Exception(MessageLoaderParms(KEY, MSG, qualifierName))
-{ 
-
-}		
+BadQualifierType::BadQualifierType(const String& qualifierName)
+    : Exception(MessageLoaderParms(KEY, MSG, qualifierName))
+{
+}
 
 BadQualifierType::~BadQualifierType()
 {
-
 }
 
 //==============================================================================
@@ -521,13 +503,13 @@ BadQualifierType::~BadQualifierType()
 //
 //==============================================================================
 
-ClassAlreadyResolved::ClassAlreadyResolved(const String& className) : 
-    Exception(MessageLoaderParms(
-	ClassAlreadyResolved::KEY, 
-	ClassAlreadyResolved::MSG,
-	className)) 
+ClassAlreadyResolved::ClassAlreadyResolved(const String& className)
+    : Exception(MessageLoaderParms(
+          ClassAlreadyResolved::KEY,
+          ClassAlreadyResolved::MSG,
+          className))
 {
-}    
+}
 
 ClassAlreadyResolved::~ClassAlreadyResolved()
 {
@@ -539,11 +521,11 @@ ClassAlreadyResolved::~ClassAlreadyResolved()
 //
 //==============================================================================
 
-ClassNotResolved::ClassNotResolved(const String& className) : 
-    Exception(MessageLoaderParms(
-	ClassNotResolved::KEY, 
-	ClassNotResolved::MSG,
-	className)) 
+ClassNotResolved::ClassNotResolved(const String& className)
+    : Exception(MessageLoaderParms(
+          ClassNotResolved::KEY,
+          ClassNotResolved::MSG,
+          className))
 {
 }
 
@@ -557,12 +539,12 @@ ClassNotResolved::~ClassNotResolved()
 //
 //==============================================================================
 
-InstanceAlreadyResolved::InstanceAlreadyResolved() :
-    Exception(MessageLoaderParms(
-	InstanceAlreadyResolved::KEY, 
-	InstanceAlreadyResolved::MSG))
+InstanceAlreadyResolved::InstanceAlreadyResolved()
+    : Exception(MessageLoaderParms(
+          InstanceAlreadyResolved::KEY,
+          InstanceAlreadyResolved::MSG))
 {
-}    
+}
 
 InstanceAlreadyResolved::~InstanceAlreadyResolved()
 {
@@ -574,13 +556,13 @@ InstanceAlreadyResolved::~InstanceAlreadyResolved()
 //
 //==============================================================================
 
-InstantiatedAbstractClass::InstantiatedAbstractClass(const String& className) : 
-    Exception(MessageLoaderParms(
-    InstantiatedAbstractClass::KEY, 
-    InstantiatedAbstractClass::MSG,
-    className)) 
+InstantiatedAbstractClass::InstantiatedAbstractClass(const String& className)
+    : Exception(MessageLoaderParms(
+          InstantiatedAbstractClass::KEY,
+          InstantiatedAbstractClass::MSG,
+          className))
 {
-}    
+}
 
 InstantiatedAbstractClass::~InstantiatedAbstractClass()
 {
@@ -592,13 +574,13 @@ InstantiatedAbstractClass::~InstantiatedAbstractClass()
 //
 //==============================================================================
 
-NoSuchProperty::NoSuchProperty(const String& propertyName) : 
-    Exception(MessageLoaderParms(
-    NoSuchProperty::KEY, 
-    NoSuchProperty::MSG,
-    propertyName)) 
+NoSuchProperty::NoSuchProperty(const String& propertyName)
+    : Exception(MessageLoaderParms(
+          NoSuchProperty::KEY,
+          NoSuchProperty::MSG,
+          propertyName))
 {
-}    
+}
 
 NoSuchProperty::~NoSuchProperty()
 {
@@ -610,13 +592,13 @@ NoSuchProperty::~NoSuchProperty()
 //
 //==============================================================================
 
-NoSuchFile::NoSuchFile(const String& fileName) : 
-    Exception(MessageLoaderParms(
-    NoSuchFile::KEY, 
-    NoSuchFile::MSG,
-    fileName)) 
+NoSuchFile::NoSuchFile(const String& fileName)
+    : Exception(MessageLoaderParms(
+          NoSuchFile::KEY,
+          NoSuchFile::MSG,
+          fileName))
 {
-}    
+}
 
 NoSuchFile::~NoSuchFile()
 {
@@ -628,13 +610,13 @@ NoSuchFile::~NoSuchFile()
 //
 //==============================================================================
 
-FileNotReadable::FileNotReadable(const String& fileName) : 
-    Exception(MessageLoaderParms(
-    FileNotReadable::KEY, 
-    FileNotReadable::MSG,
-    fileName)) 
+FileNotReadable::FileNotReadable(const String& fileName)
+    : Exception(MessageLoaderParms(
+          FileNotReadable::KEY,
+          FileNotReadable::MSG,
+          fileName))
 {
-}    
+}
 
 FileNotReadable::~FileNotReadable()
 {
@@ -646,13 +628,13 @@ FileNotReadable::~FileNotReadable()
 //
 //==============================================================================
 
-CannotRemoveDirectory::CannotRemoveDirectory(const String& arg) : 
-    Exception(MessageLoaderParms(
-    CannotRemoveDirectory::KEY, 
-    CannotRemoveDirectory::MSG,
-    arg)) 
+CannotRemoveDirectory::CannotRemoveDirectory(const String& arg)
+    : Exception(MessageLoaderParms(
+          CannotRemoveDirectory::KEY,
+          CannotRemoveDirectory::MSG,
+          arg))
 {
-}    
+}
 
 CannotRemoveDirectory::~CannotRemoveDirectory()
 {
@@ -664,13 +646,13 @@ CannotRemoveDirectory::~CannotRemoveDirectory()
 //
 //==============================================================================
 
-CannotRemoveFile::CannotRemoveFile(const String& path) : 
-    Exception(MessageLoaderParms(
-    CannotRemoveFile::KEY, 
-    CannotRemoveFile::MSG,
-    path)) 
+CannotRemoveFile::CannotRemoveFile(const String& path)
+    : Exception(MessageLoaderParms(
+          CannotRemoveFile::KEY,
+          CannotRemoveFile::MSG,
+          path))
 {
-}    
+}
 
 CannotRemoveFile::~CannotRemoveFile()
 {
@@ -682,13 +664,13 @@ CannotRemoveFile::~CannotRemoveFile()
 //
 //==============================================================================
 
-CannotRenameFile::CannotRenameFile(const String& path) : 
-    Exception(MessageLoaderParms(
-    CannotRenameFile::KEY, 
-    CannotRenameFile::MSG,
-    path)) 
+CannotRenameFile::CannotRenameFile(const String& path)
+    : Exception(MessageLoaderParms(
+          CannotRenameFile::KEY,
+          CannotRenameFile::MSG,
+          path))
 {
-}    
+}
 
 CannotRenameFile::~CannotRenameFile()
 {
@@ -700,13 +682,13 @@ CannotRenameFile::~CannotRenameFile()
 //
 //==============================================================================
 
-NoSuchDirectory::NoSuchDirectory(const String& dirName) : 
-    Exception(MessageLoaderParms(
-    NoSuchDirectory::KEY, 
-    NoSuchDirectory::MSG,
-    dirName)) 
+NoSuchDirectory::NoSuchDirectory(const String& dirName)
+    : Exception(MessageLoaderParms(
+          NoSuchDirectory::KEY,
+          NoSuchDirectory::MSG,
+          dirName))
 {
-}    
+}
 
 NoSuchDirectory::~NoSuchDirectory()
 {
@@ -718,13 +700,13 @@ NoSuchDirectory::~NoSuchDirectory()
 //
 //==============================================================================
 
-CannotCreateDirectory::CannotCreateDirectory(const String& path) : 
-    Exception(MessageLoaderParms(
-    CannotCreateDirectory::KEY, 
-    CannotCreateDirectory::MSG,
-    path)) 
+CannotCreateDirectory::CannotCreateDirectory(const String& path)
+    : Exception(MessageLoaderParms(
+          CannotCreateDirectory::KEY,
+          CannotCreateDirectory::MSG,
+          path))
 {
-}    
+}
 
 CannotCreateDirectory::~CannotCreateDirectory()
 {
@@ -736,13 +718,13 @@ CannotCreateDirectory::~CannotCreateDirectory()
 //
 //==============================================================================
 
-CannotOpenFile::CannotOpenFile(const String& path) : 
-    Exception(MessageLoaderParms(
-    CannotOpenFile::KEY, 
-    CannotOpenFile::MSG,
-    path)) 
+CannotOpenFile::CannotOpenFile(const String& path)
+    : Exception(MessageLoaderParms(
+          CannotOpenFile::KEY,
+          CannotOpenFile::MSG,
+          path))
 {
-}    
+}
 
 CannotOpenFile::~CannotOpenFile()
 {
@@ -754,13 +736,13 @@ CannotOpenFile::~CannotOpenFile()
 //
 //==============================================================================
 
-NotImplemented::NotImplemented(const String& method) : 
-    Exception(MessageLoaderParms(
-    NotImplemented::KEY, 
-    NotImplemented::MSG,
-    method)) 
+NotImplemented::NotImplemented(const String& method)
+    : Exception(MessageLoaderParms(
+          NotImplemented::KEY,
+          NotImplemented::MSG,
+          method))
 {
-}    
+}
 
 NotImplemented::~NotImplemented()
 {
@@ -772,10 +754,10 @@ NotImplemented::~NotImplemented()
 //
 //==============================================================================
 
-StackUnderflow::StackUnderflow() :
-    Exception(MessageLoaderParms(StackUnderflow::KEY, StackUnderflow::MSG))
+StackUnderflow::StackUnderflow()
+    : Exception(MessageLoaderParms(StackUnderflow::KEY, StackUnderflow::MSG))
 {
-}    
+}
 
 StackUnderflow::~StackUnderflow()
 {
@@ -787,10 +769,10 @@ StackUnderflow::~StackUnderflow()
 //
 //==============================================================================
 
-StackOverflow::StackOverflow() : 
-    Exception(MessageLoaderParms(StackOverflow::KEY, StackOverflow::MSG))
+StackOverflow::StackOverflow()
+    : Exception(MessageLoaderParms(StackOverflow::KEY, StackOverflow::MSG))
 {
-}    
+}
 
 StackOverflow::~StackOverflow()
 {
@@ -802,10 +784,10 @@ StackOverflow::~StackOverflow()
 //
 //==============================================================================
 
-BadFormat::BadFormat() :
-    Exception(MessageLoaderParms(BadFormat::KEY, BadFormat::MSG))
+BadFormat::BadFormat()
+    : Exception(MessageLoaderParms(BadFormat::KEY, BadFormat::MSG))
 {
-}    
+}
 
 BadFormat::~BadFormat()
 {
@@ -817,10 +799,10 @@ BadFormat::~BadFormat()
 //
 //==============================================================================
 
-BadlyFormedCGIQueryString::BadlyFormedCGIQueryString() :
-    Exception(MessageLoaderParms(BadFormat::KEY, BadFormat::MSG))
+BadlyFormedCGIQueryString::BadlyFormedCGIQueryString()
+    : Exception(MessageLoaderParms(BadFormat::KEY, BadFormat::MSG))
 {
-}    
+}
 
 BadlyFormedCGIQueryString::~BadlyFormedCGIQueryString()
 {
@@ -832,13 +814,13 @@ BadlyFormedCGIQueryString::~BadlyFormedCGIQueryString()
 //
 //==============================================================================
 
-DynamicLoadFailed::DynamicLoadFailed(const String& path) : 
-    Exception(MessageLoaderParms(
-    DynamicLoadFailed::KEY, 
-    DynamicLoadFailed::MSG,
-    path)) 
+DynamicLoadFailed::DynamicLoadFailed(const String& path)
+    : Exception(MessageLoaderParms(
+          DynamicLoadFailed::KEY,
+          DynamicLoadFailed::MSG,
+          path))
 {
-}    
+}
 
 DynamicLoadFailed::~DynamicLoadFailed()
 {
@@ -850,13 +832,13 @@ DynamicLoadFailed::~DynamicLoadFailed()
 //
 //==============================================================================
 
-DynamicLookupFailed::DynamicLookupFailed(const String& symbol) : 
-    Exception(MessageLoaderParms(
-	DynamicLookupFailed::KEY, 
-	DynamicLookupFailed::MSG,
-	symbol)) 
+DynamicLookupFailed::DynamicLookupFailed(const String& symbol)
+    : Exception(MessageLoaderParms(
+          DynamicLookupFailed::KEY,
+          DynamicLookupFailed::MSG,
+          symbol))
 {
-}    
+}
 
 DynamicLookupFailed::~DynamicLookupFailed()
 {
@@ -868,13 +850,13 @@ DynamicLookupFailed::~DynamicLookupFailed()
 //
 //==============================================================================
 
-CannotOpenDirectory::CannotOpenDirectory(const String& path) : 
-    Exception(MessageLoaderParms(
-    CannotOpenDirectory::KEY, 
-    CannotOpenDirectory::MSG,
-    path)) 
+CannotOpenDirectory::CannotOpenDirectory(const String& path)
+    : Exception(MessageLoaderParms(
+          CannotOpenDirectory::KEY,
+          CannotOpenDirectory::MSG,
+          path))
 {
-}    
+}
 
 CannotOpenDirectory::~CannotOpenDirectory()
 {
@@ -886,13 +868,13 @@ CannotOpenDirectory::~CannotOpenDirectory()
 //
 //==============================================================================
 
-ParseError::ParseError(const String& message) : 
-    Exception(MessageLoaderParms(
-    ParseError::KEY, 
-    ParseError::MSG,
-    message)) 
+ParseError::ParseError(const String& message)
+    : Exception(MessageLoaderParms(
+          ParseError::KEY,
+          ParseError::MSG,
+          message))
 {
-}    
+}
 
 ParseError::~ParseError()
 {
@@ -904,12 +886,12 @@ ParseError::~ParseError()
 //
 //==============================================================================
 
-MissingNullTerminator::MissingNullTerminator() : 
-    Exception(MessageLoaderParms(
-	MissingNullTerminator::KEY, 
-	MissingNullTerminator::MSG))
+MissingNullTerminator::MissingNullTerminator()
+    : Exception(MessageLoaderParms(
+          MissingNullTerminator::KEY,
+          MissingNullTerminator::MSG))
 {
-}    
+}
 
 MissingNullTerminator::~MissingNullTerminator()
 {
@@ -921,13 +903,13 @@ MissingNullTerminator::~MissingNullTerminator()
 //
 //==============================================================================
 
-MalformedLanguageHeader::MalformedLanguageHeader(const String& error) : 
-    Exception(MessageLoaderParms(
-    MalformedLanguageHeader::KEY, 
-    MalformedLanguageHeader::MSG,
-    error)) 
+MalformedLanguageHeader::MalformedLanguageHeader(const String& error)
+    : Exception(MessageLoaderParms(
+          MalformedLanguageHeader::KEY,
+          MalformedLanguageHeader::MSG,
+          error))
 {
-}    
+}
 
 MalformedLanguageHeader::~MalformedLanguageHeader()
 {
@@ -939,13 +921,13 @@ MalformedLanguageHeader::~MalformedLanguageHeader()
 //
 //==============================================================================
 
-InvalidAcceptLanguageHeader::InvalidAcceptLanguageHeader(const String& error) : 
-    Exception(MessageLoaderParms(
-	InvalidAcceptLanguageHeader::KEY, 
-	InvalidAcceptLanguageHeader::MSG,
-	error)) 
+InvalidAcceptLanguageHeader::InvalidAcceptLanguageHeader(const String& error)
+    : Exception(MessageLoaderParms(
+          InvalidAcceptLanguageHeader::KEY,
+          InvalidAcceptLanguageHeader::MSG,
+          error))
 {
-}    
+}
 
 InvalidAcceptLanguageHeader::~InvalidAcceptLanguageHeader()
 {
@@ -957,13 +939,13 @@ InvalidAcceptLanguageHeader::~InvalidAcceptLanguageHeader()
 //
 //==============================================================================
 
-InvalidContentLanguageHeader::InvalidContentLanguageHeader(const String& error):
-    Exception(MessageLoaderParms(
-	InvalidContentLanguageHeader::KEY, 
-	InvalidContentLanguageHeader::MSG,
-	error)) 
+InvalidContentLanguageHeader::InvalidContentLanguageHeader(const String& error)
+    : Exception(MessageLoaderParms(
+          InvalidContentLanguageHeader::KEY,
+          InvalidContentLanguageHeader::MSG,
+          error))
 {
-}    
+}
 
 InvalidContentLanguageHeader::~InvalidContentLanguageHeader()
 {
@@ -975,12 +957,12 @@ InvalidContentLanguageHeader::~InvalidContentLanguageHeader()
 //
 //==============================================================================
 
-InvalidAuthHeader::InvalidAuthHeader() : 
-    Exception(MessageLoaderParms(
-    InvalidAuthHeader::KEY, 
-    InvalidAuthHeader::MSG)) 
+InvalidAuthHeader::InvalidAuthHeader()
+    : Exception(MessageLoaderParms(
+          InvalidAuthHeader::KEY,
+          InvalidAuthHeader::MSG))
 {
-}    
+}
 
 InvalidAuthHeader::~InvalidAuthHeader()
 {
@@ -992,12 +974,12 @@ InvalidAuthHeader::~InvalidAuthHeader()
 //
 //==============================================================================
 
-UnauthorizedAccess::UnauthorizedAccess() : 
-    Exception(MessageLoaderParms(
-    UnauthorizedAccess::KEY, 
-    UnauthorizedAccess::MSG)) 
+UnauthorizedAccess::UnauthorizedAccess()
+    : Exception(MessageLoaderParms(
+          UnauthorizedAccess::KEY,
+          UnauthorizedAccess::MSG))
 {
-}    
+}
 
 UnauthorizedAccess::~UnauthorizedAccess()
 {
@@ -1009,8 +991,8 @@ UnauthorizedAccess::~UnauthorizedAccess()
 //
 //==============================================================================
 
-IncompatibleTypesException::IncompatibleTypesException() : 
-    Exception("incompatible types")
+IncompatibleTypesException::IncompatibleTypesException()
+    : Exception("incompatible types")
 {
 }
 
@@ -1024,10 +1006,10 @@ IncompatibleTypesException::~IncompatibleTypesException()
 //
 //==============================================================================
 
-InternalSystemError::InternalSystemError() : 
-    Exception(InternalSystemError::MSG)
+InternalSystemError::InternalSystemError()
+    : Exception(InternalSystemError::MSG)
 {
-}    
+}
 
 InternalSystemError::~InternalSystemError()
 {

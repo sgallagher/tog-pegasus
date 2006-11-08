@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP101
-//              Seema Gupta (gseema@in.ibm.com) for Bug#1096
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -81,7 +71,7 @@ static char* _FindSeparator(const char* data, Uint32 size)
 
     // Short-circuit by using memchr(). This will work whenever there is a
     // "\r\n" sequence. Some clients may send incorrect headers which are
-    // only separated by "\n". In this case the code below this block 
+    // only separated by "\n". In this case the code below this block
     // will handle it.
     {
         const char* q = (char*)memchr(data, '\r', size);
@@ -357,7 +347,8 @@ void HTTPMessage::lookupHeaderPrefix(
         {
             String fieldNameCurrent = h.subString(3);
 
-            // ONLY fields starting with keyword can have prefixed according to spec
+            // ONLY fields starting with keyword can have prefixed according
+            // to spec
             if (String::equalNoCase(fieldNameCurrent, keyword) == false)
                 continue;
 

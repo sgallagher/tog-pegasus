@@ -29,17 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//         Ramnath Ravindran(Ramnath.Ravindran@compaq.com)
-//         Amit K Arora, IBM (amita@in.ibm.com)
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//         David Dillard, VERITAS Software Corp.
-//             (david.dillard@veritas.com)
-//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -392,21 +381,23 @@ void FileSystem::translateSlashes(String& path)
 }
 
 // Return the just the base name from the path.
-String  FileSystem::extractFileName(const String& path)
+String FileSystem::extractFileName(const String& path)
 {
-  AutoArrayPtr<char> p_path(new char[path.size() + 1]);
-  String basename = System::extract_file_name((const char *)path.getCString(), p_path.get());
+    AutoArrayPtr<char> p_path(new char[path.size() + 1]);
+    String basename = System::extract_file_name(
+        (const char*)path.getCString(), p_path.get());
   
-  return basename;
+    return basename;
 }
 
 // Return just the path to the file or directory into path
 String FileSystem::extractFilePath(const String& path)
 {
-  AutoArrayPtr<char> p_path(new char[path.size() + 1]);
-  String newpath = System::extract_file_path((const char *)path.getCString(), p_path.get());
+    AutoArrayPtr<char> p_path(new char[path.size() + 1]);
+    String newpath = System::extract_file_path(
+        (const char*)path.getCString(), p_path.get());
   
-  return newpath;
+    return newpath;
 }
 
 // Changes file permissions on the given file.
@@ -423,35 +414,42 @@ Boolean FileSystem::changeFilePermissions(const String& path, mode_t mode)
     return System::changeFilePermissions(tempPath, mode);
 }
 
-String FileSystem::getAbsoluteFileName(const String &paths, const String &filename) {
+String FileSystem::getAbsoluteFileName(
+    const String& paths,
+    const String& filename)
+{
+    Uint32 pos = 0;
+    Uint32 token = 0;
+    String path;
+    String root;
+    String tempPath = paths;
 
-  Uint32 pos =0;
-  Uint32 token=0;
-  String path = String::EMPTY;
-  String root = String::EMPTY;
-  String tempPath = paths;
-
-
-  do {
-    if (( pos = tempPath.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND) {
-                pos = tempPath.size();
-                token = 0;
+    do
+    {
+        if ((pos = tempPath.find(FileSystem::getPathDelimiter())) ==
+            PEG_NOT_FOUND)
+        {
+            pos = tempPath.size();
+            token = 0;
         }
-        else {
-                token = 1;
+        else
+        {
+            token = 1;
         }
         path = tempPath.subString(0, pos);
         tempPath.remove(0,pos+token);
-        if (FileSystem::exists( path + "/" + filename) == true) {
-          root = path + "/" + filename;
-          break;
-        } else
-          {
-          //  cout << "File does not exist.\n";
-          }
-  } while (tempPath.size() > 0);
+        if (FileSystem::exists(path + "/" + filename) == true)
+        {
+            root = path + "/" + filename;
+            break;
+        }
+        else
+        {
+            //  cout << "File does not exist.\n";
+        }
+    } while (tempPath.size() > 0);
 
-  return root;
+    return root;
 }
 
 String FileSystem::buildLibraryFileName(const String &libraryName)
@@ -511,7 +509,9 @@ Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
 //
 // changes the file owner to one specified
 //
-Boolean FileSystem::changeFileOwner(const String& fileName,const String& userName)
+Boolean FileSystem::changeFileOwner(
+    const String& fileName,
+    const String& userName)
 {
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 
@@ -521,25 +521,25 @@ Boolean FileSystem::changeFileOwner(const String& fileName,const String& userNam
 
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, "FileSystem::changeFileOwner()");
 
-    struct passwd*        userPasswd;
+    struct passwd* userPasswd;
 #if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
     defined(PEGASUS_OS_HPUX) || \
     defined (PEGASUS_OS_LINUX)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
-    struct passwd  pwd;
+    struct passwd pwd;
     struct passwd *result;
     char pwdBuffer[PWD_BUFF_SIZE];
 
     if(getpwnam_r(userName.getCString(), &pwd, pwdBuffer, PWD_BUFF_SIZE,
                   &userPasswd) != 0)
     {
-    userPasswd=(struct passwd *)NULL;
+        userPasswd = (struct passwd*)NULL;
     }
 
 #elif defined(PEGASUS_OS_OS400)
     CString tempName = userName.getCString();
-    const char * tmp = tempName;
+    const char* tmp = tempName;
     AtoE((char *)tmp);
     userPasswd = getpwnam(tmp);
 #else
@@ -547,10 +547,10 @@ Boolean FileSystem::changeFileOwner(const String& fileName,const String& userNam
     userPasswd = getpwnam(userName.getCString());
 #endif
 
-    if ( userPasswd  == NULL)
+    if (userPasswd  == NULL)
     {
         PEG_METHOD_EXIT();
-        return (false);
+        return false;
     }
 
 #if defined(PEGASUS_OS_OS400)
@@ -559,17 +559,18 @@ Boolean FileSystem::changeFileOwner(const String& fileName,const String& userNam
     AtoE((char *)tmp1);
     Sint32 ret = chown(tmp1, userPasswd->pw_uid, userPasswd->pw_gid);
 #else
-    Sint32 ret = chown(fileName.getCString(), userPasswd->pw_uid, userPasswd->pw_gid);
+    Sint32 ret = chown(
+        fileName.getCString(), userPasswd->pw_uid, userPasswd->pw_gid);
 #endif
-    if ( ret == -1)
+    if (ret == -1)
     {
         PEG_METHOD_EXIT();
-        return (false);
+        return false;
     }
 
     PEG_METHOD_EXIT();
 
-    return (true);
+    return true;
 #endif
 }
 PEGASUS_NAMESPACE_END

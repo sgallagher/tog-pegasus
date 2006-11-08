@@ -56,56 +56,58 @@ typedef Pair<String, String> HTTPHeader;
 */
 class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 {
-   public:
+public:
   
-      typedef Message Base;
+    typedef Message Base;
       
-      HTTPMessage(const Buffer& message_, Uint32 queueId_ = 0,
-									const CIMException *cimException_ = 0);
+    HTTPMessage(
+        const Buffer& message_,
+        Uint32 queueId_ = 0,
+        const CIMException* cimException_ = 0);
 
-      HTTPMessage(const HTTPMessage & msg);
+    HTTPMessage(const HTTPMessage & msg);
 
-      Buffer message;
-      Uint32 queueId;
-      String ipAddress;
-      AuthenticationInfo* authInfo;
-      AcceptLanguageList acceptLanguages;
-      ContentLanguageList contentLanguages;
-      Boolean acceptLanguagesDecoded;
-      Boolean contentLanguagesDecoded;
-			CIMException cimException;
+    Buffer message;
+    Uint32 queueId;
+    String ipAddress;
+    AuthenticationInfo* authInfo;
+    AcceptLanguageList acceptLanguages;
+    ContentLanguageList contentLanguages;
+    Boolean acceptLanguagesDecoded;
+    Boolean contentLanguagesDecoded;
+    CIMException cimException;
 
-      void parse(
-	 String& startLine,
-	 Array<HTTPHeader>& headers,
-	 Uint32& contentLength) const;
+    void parse(
+        String& startLine,
+        Array<HTTPHeader>& headers,
+        Uint32& contentLength) const;
 
-      #ifdef PEGASUS_DEBUG
-       void printAll(PEGASUS_STD(ostream)& os) const;
-      #endif
+#ifdef PEGASUS_DEBUG
+    void printAll(PEGASUS_STD(ostream)& os) const;
+#endif
 
-		  static void lookupHeaderPrefix(
-    Array<HTTPHeader>& headers,
-    const String& fieldName,
-    String& prefix);
+    static void lookupHeaderPrefix(
+        Array<HTTPHeader>& headers,
+        const String& fieldName,
+        String& prefix);
 
-      static Boolean lookupHeader(
-	 Array<HTTPHeader>& headers,
-	 const String& fieldName,
-	 String& fieldValue,
-	 Boolean allowNamespacePrefix = false);
+    static Boolean lookupHeader(
+        Array<HTTPHeader>& headers,
+        const String& fieldName,
+        String& fieldValue,
+        Boolean allowNamespacePrefix = false);
 
-      static Boolean parseRequestLine(
-	 const String& startLine,
-	 String& methodName,
-	 String& requestUri,
-	 String& httpVersion);
+    static Boolean parseRequestLine(
+        const String& startLine,
+        String& methodName,
+        String& requestUri,
+        String& httpVersion);
 
-      static Boolean parseStatusLine(
-	 const String& statusLine,
-	 String& httpVersion,
-	 Uint32& statusCode,
-	 String& reasonPhrase);
+    static Boolean parseStatusLine(
+        const String& statusLine,
+        String& httpVersion,
+        Uint32& statusCode,
+        String& reasonPhrase);
 };
 
 PEGASUS_NAMESPACE_END

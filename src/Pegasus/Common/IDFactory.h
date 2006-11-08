@@ -43,8 +43,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-/** The IDFactory provides a thread-safe interface for assigning unique 
-    integer identifiers. The getID() method is used to obtain the next unique 
+/** The IDFactory provides a thread-safe interface for assigning unique
+    integer identifiers. The getID() method is used to obtain the next unique
     identifier. The putID(), returns a unique identifier to the id pool. Note
     that if putID() is never called, then getID() will assigns a sequence of
     monotonically increasing ids.
@@ -54,7 +54,7 @@ class PEGASUS_COMMON_LINKAGE IDFactory
 public:
 
     /** Constructor. The firstID argument is the id that is first returned
-	by getID().
+        by getID().
     */
     IDFactory(Uint32 firstID = 1);
 

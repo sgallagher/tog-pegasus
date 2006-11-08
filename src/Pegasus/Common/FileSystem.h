@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_FileSystem_h
@@ -59,11 +53,11 @@ PEGASUS_NAMESPACE_BEGIN
 
     This class provides an methods for:
     <ul>
-	<li>Manipulating directories (create, remove, change).</li>
-	<li>Checking files for ability to read and write.</li>
-	<li>Removing files.</li>
-	<li>Comparing files.</li>
-	<li>Loading files into memory.</li>
+        <li>Manipulating directories (create, remove, change).</li>
+        <li>Checking files for ability to read and write.</li>
+        <li>Removing files.</li>
+        <li>Comparing files.</li>
+        <li>Loading files into memory.</li>
     </ul>
 
     The methods of this class are all static. So there is no need to
@@ -95,205 +89,205 @@ class PEGASUS_COMMON_LINKAGE FileSystem
 public:
 
     /** Determines whether file exists.
-	@param path path of the file.
-	@return true if the file exists.
+        @param path path of the file.
+        @return true if the file exists.
     */
     static Boolean exists(const String& path);
 
     /** Determine whether the file exists. Ignores case of the file.
-	@param path path of the file.
-	@param pathOut path of the file with actual case.
-	@return true if the file exists; false otherwise.
+        @param path path of the file.
+        @param pathOut path of the file with actual case.
+        @return true if the file exists; false otherwise.
     */
     static Boolean existsNoCase(const String& path, String& pathOut);
 
     /** Determine whether the file exists. Ignores the case of the file.
-	@param path path of the file.
-	@return true if the file exists; false otherwise.
+        @param path path of the file.
+        @return true if the file exists; false otherwise.
     */
     static Boolean existsNoCase(const String& path);
 
     /** Determines whether the file can be read.
-	@param path path of the file.
-	@return true if the file can be read.
+        @param path path of the file.
+        @return true if the file can be read.
     */
     static Boolean canRead(const String& path);
 
     /** Determines whether the file can be read. Ignores case of file.
-	@param path path of the file.
-	@return true if the file can be read.
+        @param path path of the file.
+        @return true if the file can be read.
     */
     static Boolean canReadNoCase(const String& path);
 
     /** Determines whether the file can be written.
-	@param path path of the file.
-	@return true if the file can be written.
+        @param path path of the file.
+        @return true if the file can be written.
     */
     static Boolean canWrite(const String& path);
 
     /** Determines whether the file can be written. Ignores case of file.
-	@param path path of the file.
-	@return true if the file can be written.
+        @param path path of the file.
+        @return true if the file can be written.
     */
     static Boolean canWriteNoCase(const String& path);
 
     /** Get the size of the file in bytes.
-	@param path path of file.
-	@param size set to size of file.
-	@return true on success.
+        @param path path of file.
+        @param size set to size of file.
+        @return true on success.
     */
     static Boolean getFileSize(const String& path, Uint32& size);
 
     /** Get the size of the file in bytes.
-	@param path path of file.
-	@param size set to size of file.
-	@return true on success.
+        @param path path of file.
+        @param size set to size of file.
+        @return true on success.
     */
     static Boolean getFileSizeNoCase(const String& path, Uint32& size);
 
     /** Removes a file.
-	@param path of file to be removed.
-	@return true on sucess.
+        @param path of file to be removed.
+        @return true on sucess.
     */
     static Boolean removeFile(const String& path);
 
     /** Removes a file. Ignores case of file.
-	@param path of file to be removed.
-	@return true on sucess.
+        @param path of file to be removed.
+        @return true on sucess.
     */
     static Boolean removeFileNoCase(const String& path);
 
     /** Loads contents of the file into the array. Note that the file is
-	opened using binary mode (newline sequences are not expanded to
-	carriage-return-line-feed sequences on Windows).
-	@param array set to the contents of the file upon return.
-	@param fileName name of file to be loaded.
-	@exception CannotOpenFile
+        opened using binary mode (newline sequences are not expanded to
+        carriage-return-line-feed sequences on Windows).
+        @param array set to the contents of the file upon return.
+        @param fileName name of file to be loaded.
+        @exception CannotOpenFile
     */
     static void loadFileToMemory(
-	Buffer& array,
-	const String& fileName);
+        Buffer& array,
+        const String& fileName);
 
     /** Determines whether two files have exactly the same content.
-	@param path1 path of first file.
-	@param path2 path of second file.
-	@return true if files are identical.
-	@exception CannotOpenFile
+        @param path1 path of first file.
+        @param path2 path of second file.
+        @return true if files are identical.
+        @exception CannotOpenFile
     */
     static Boolean compareFiles(
-	const String& path1,
-	const String& path2);
+        const String& path1,
+        const String& path2);
 
     /** Renames a file.
-	@param oldPath old name of file.
-	@param newPath new name of file.
-	@return true on success.
+        @param oldPath old name of file.
+        @param newPath new name of file.
+        @return true on success.
     */
     static Boolean renameFile(
-	const String& oldPath,
-	const String& newPath);
+        const String& oldPath,
+        const String& newPath);
 
     /** Same as rename file except that the case of the file referred to
-	by oldPath is ignored.
+        by oldPath is ignored.
     */
     static Boolean renameFileNoCase(
-	const String& oldPath,
-	const String& newPath);
+        const String& oldPath,
+        const String& newPath);
 
     /** Copy a file.
-	@param fromPath name of existing file.
-	@param toPath name of new file.
-	@return true on success.
+        @param fromPath name of existing file.
+        @param toPath name of new file.
+        @return true on success.
     */
     static Boolean copyFile(
-	const String& fromPath,
-	const String& toPath);
+        const String& fromPath,
+        const String& toPath);
 
     /** Opens a file and ignores the case of the file. Note that the file
-	will be opend in binary mode (no translation of carriage-return-line-
-	feed sequences on Windows).
-	@param os file stream to be opend.
-	@param path path of file to be opened.
-	@return true on success.
+        will be opend in binary mode (no translation of carriage-return-line-
+        feed sequences on Windows).
+        @param os file stream to be opend.
+        @param path path of file to be opened.
+        @return true on success.
     */
     static Boolean openNoCase(PEGASUS_STD(ifstream)& is, const String& path);
 
     /** Opens a file and ignores the case of the file. Note that the file
-	open mode of the file must be passed in.
-	@param os file stream to be opend.
-	@param path path of file to be opened.
-	@param mode mode to open the file in.
-	@return true on success.
+        open mode of the file must be passed in.
+        @param os file stream to be opend.
+        @param path path of file to be opened.
+        @param mode mode to open the file in.
+        @return true on success.
     */
     static Boolean openNoCase(
-	PEGASUS_STD(fstream)& fs, 
-	const String& path, 
-	int mode);
+        PEGASUS_STD(fstream)& fs, 
+        const String& path, 
+        int mode);
 
     /** Determines whether the path refers to a directory.
-	@param path path of the directory.
-	@return true if path refers to a directory.
+        @param path path of the directory.
+        @return true if path refers to a directory.
     */
     static Boolean isDirectory(const String& path);
 
     /** Changes the current directory.
-	@param path path of directory to be changed to.
-	@return true on success.
+        @param path path of directory to be changed to.
+        @return true on success.
     */
     static Boolean changeDirectory(const String& path);
 
     /** Creates a directory.
-	@param path path of directory to be created.
-	@return true on success.
+        @param path path of directory to be created.
+        @return true on success.
     */
     static Boolean makeDirectory(const String& path);
 
     /** Get the path of the current working Directory.
-	@param path set to current working directory upon return.
-	@return true on success (operation may fail if the current
-	    working directory becomes stale; this can happen on
-	    Unix if it is removed but is impossible on Windows
-	    due to reference counting).
+        @param path set to current working directory upon return.
+        @return true on success (operation may fail if the current
+            working directory becomes stale; this can happen on
+            Unix if it is removed but is impossible on Windows
+            due to reference counting).
     */
     static Boolean getCurrentDirectory(String& path);
 
     /** Remove the given directory. The directory must be empty
-	to be eligible for removal
-	@param String path is the relative or ablsolute path to
-	the directory to remove
-	@return true if directory removed
+        to be eligible for removal
+        @param String path is the relative or ablsolute path to
+        the directory to remove
+        @return true if directory removed
     */
     static Boolean removeDirectory(const String& path);
 
     /** Remove a directory and all files and directories under it.
-	WARNING: This differs significantly from the <tt>removeDirectory</tt>
-	function in that it removes both directories and files and
-	removes a complete hiearchy.  Use with caution.
-	@param path path of directory to be removed.
-	@return true on success.
+        WARNING: This differs significantly from the <tt>removeDirectory</tt>
+        function in that it removes both directories and files and
+        removes a complete hiearchy.  Use with caution.
+        @param path path of directory to be removed.
+        @return true on success.
     */
     static Boolean removeDirectoryHier(const String& path);
 
     /** Gets names of all entries (files and directories) of a directory.
-	Note that this function excludes the "." and ".." entries.
-	@param path path path of directory.
-	@param paths contains list of entry names upon return. Note that
-	    the entry names only are provided (no path part).
-	@return true on success.
+        Note that this function excludes the "." and ".." entries.
+        @param path path path of directory.
+        @param paths contains list of entry names upon return. Note that
+            the entry names only are provided (no path part).
+        @return true on success.
     */
     static Boolean getDirectoryContents(
-	const String& path,
-	Array<String>& paths);
+        const String& path,
+        Array<String>& paths);
 
     /** Determines whether the given directory is empty. A directory is
-	empty if it contains no files or directories.
-	@param path path of directory.
-	@return true if directory is empty.
+        empty if it contains no files or directories.
+        @param path path of directory.
+        @return true if directory is empty.
     */
     static Boolean isDirectoryEmpty(const String& path);
 
     /** Translate backward slashes to forward slashes.
-	@param path to be translated.
+        @param path to be translated.
     */
     static void translateSlashes(String& path);
 
@@ -313,10 +307,10 @@ public:
     static String extractFilePath(const String& path);
 
     /** Changes file permissions on the given file.
-	@param path path of the file.
-	@param mode the bit-wise inclusive OR of the values for the
+        @param path path of the file.
+        @param mode the bit-wise inclusive OR of the values for the
         desired permissions.
-	@return true on success, false on error and errno is set appropriately.
+        @return true on success, false on error and errno is set appropriately.
     */
     static Boolean changeFilePermissions(const String& path, mode_t mode);
 
@@ -336,7 +330,9 @@ public:
        @return the full absolute pathname to the found filename or an empty
        string on failure.
     */
-    static String getAbsoluteFileName(const String &paths, const String &filename);
+    static String getAbsoluteFileName(
+        const String& paths,
+        const String& filename);
        
     /**
         Convert a library name to its corresponding file name by adding the
@@ -348,7 +344,10 @@ public:
     */
     static String buildLibraryFileName(const String &libraryName);
 
-    static Boolean changeFileOwner(const String& fileName,const String& userName);
+    static Boolean changeFileOwner(
+        const String& fileName,
+        const String& userName);
+
 private:
 
     FileSystem() { }
@@ -365,7 +364,7 @@ inline Boolean FileSystem::canReadNoCase(const String& path)
     String realPath;
 
     if (!existsNoCase(path, realPath))
-	return false;
+        return false;
 
     return FileSystem::canRead(realPath);
 }
@@ -375,7 +374,7 @@ inline Boolean FileSystem::canWriteNoCase(const String& path)
     String realPath;
 
     if (!existsNoCase(path, realPath))
-	return false;
+        return false;
 
     return FileSystem::canWrite(realPath);
 }
@@ -385,7 +384,7 @@ inline Boolean FileSystem::removeFileNoCase(const String& path)
     String realPath;
 
     if (!existsNoCase(path, realPath))
-	return false;
+        return false;
 
     return FileSystem::removeFile(realPath);
 }
@@ -397,7 +396,7 @@ inline Boolean FileSystem::renameFileNoCase(
     String realPath;
 
     if (!existsNoCase(oldPath, realPath))
-	return false;
+        return false;
 
     return FileSystem::renameFile(realPath, newPath);
 }
@@ -407,7 +406,7 @@ inline Boolean FileSystem::getFileSizeNoCase(const String& path, Uint32& size)
     String realPath;
 
     if (!existsNoCase(path, realPath))
-	return false;
+        return false;
 
     return FileSystem::getFileSize(realPath, size);
 }
@@ -455,7 +454,8 @@ inline Boolean Open(PEGASUS_STD(ofstream)& os, const String& path)
 inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
 {
 #if defined(PEGASUS_OS_OS400)
-    os.open(path.getCString(), PEGASUS_STD(ios::app), PEGASUS_STD(_CCSID_T(1208)));
+    os.open(
+        path.getCString(), PEGASUS_STD(ios::app), PEGASUS_STD(_CCSID_T(1208)));
 #else
     os.open(path.getCString(), PEGASUS_STD(ios::app));
 #endif
@@ -465,9 +465,9 @@ inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
 inline String FileSystem::getPathDelimiter() 
 {
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-  return String(";");
+    return String(";");
 #else
-  return String(":");
+    return String(":");
 #endif
 }
 

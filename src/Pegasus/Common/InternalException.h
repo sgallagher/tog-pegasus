@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_InternalException_h
@@ -42,8 +38,6 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/PegasusAssert.h>
-
-
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -57,9 +51,9 @@ class PEGASUS_COMMON_LINKAGE AssertionFailureException : public Exception
 public:
 
     AssertionFailureException(
-	const char* file,
-	size_t line,
-	const String& message);
+        const char* file,
+        size_t line,
+        const String& message);
 
     virtual ~AssertionFailureException();
 };
@@ -76,12 +70,12 @@ public:
 #define ASSERTTEMP(COND) \
     do \
     { \
-	if (!(COND)) \
-	{ \
-	    cerr << "TEMP Assert Error TEMP **********"	\
-		<<__FILE__ << " " << __LINE__ \
-		<< " " << #COND << endl; \
-	} \
+        if (!(COND)) \
+        { \
+            cerr << "TEMP Assert Error TEMP **********" \
+                <<__FILE__ << " " << __LINE__ \
+                << " " << #COND << endl; \
+        } \
     } while (0)
 
 
@@ -120,8 +114,8 @@ public:
     static const char KEY[];     
 
     BadQualifierScope(
-	const String& qualifierName, 
-	const String& scopeString);
+        const String& qualifierName, 
+        const String& scopeString);
 
     virtual ~BadQualifierScope();
 };
@@ -504,25 +498,23 @@ class PEGASUS_COMMON_LINKAGE TraceableCIMException : public CIMException
 public:
 
     TraceableCIMException(
-	CIMStatusCode code,
-	const String& message,
-	const String& file,
-	Uint32 line);
-	
-	//l10n
-	TraceableCIMException(
-	CIMStatusCode code,
-	MessageLoaderParms parms,
-	const String& file,
-	Uint32 line);
+        CIMStatusCode code,
+        const String& message,
+        const String& file,
+        Uint32 line);
 
-// l10n
-	TraceableCIMException(
-	const ContentLanguageList& langs,
-    CIMStatusCode code,
-    const String& message,
-    const String& file,
-    Uint32 line);
+    TraceableCIMException(
+        CIMStatusCode code,
+        MessageLoaderParms parms,
+        const String& file,
+        Uint32 line);
+
+    TraceableCIMException(
+        const ContentLanguageList& langs,
+        CIMStatusCode code,
+        const String& message,
+        const String& file,
+        Uint32 line);
 
     TraceableCIMException(const CIMException & cimException);
 

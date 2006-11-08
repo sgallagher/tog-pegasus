@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_HTTPListener_h
@@ -55,31 +51,31 @@ class PEGASUS_COMMON_LINKAGE HTTPListener : public MessageQueueService
 public:
 
     /** Constructor.
-	@param monitor pointer to monitor object which this class uses to
-	    solicit SocketMessages on the server port (socket).
+        @param monitor pointer to monitor object which this class uses to
+            solicit SocketMessages on the server port (socket).
     */
-  HTTPListener(Monitor* monitor) 
+    HTTPListener(Monitor* monitor)
     {
-      #error "this class is not implemented"
+#error "this class is not implemented"
     }
-  
+
 
     /** Destructor. */
     ~HTTPListener();
 
     /** This method is called whenever a SocketMessage is enqueued
-	on the input queue of the HTTPListener object.
-    */ 
+        on the input queue of the HTTPListener object.
+    */
     virtual void handleEnqueue(Message *);
     virtual void handleEnqueue();
 
     /** Bind to the given port (the port on which this HTTP listener
-	listens for connections).
-	@param portNumber the number of the port used to listen for
-	    connection requests.
-	@exception throws BindFailedException if unable to bind to the given
-	    port (either because the port number is invalid or the
-	    port is in use).
+        listens for connections).
+        @param portNumber the number of the port used to listen for
+            connection requests.
+        @exception throws BindFailedException if unable to bind to the given
+            port (either because the port number is invalid or the
+            port is in use).
     */
     void bind(Uint32 portNumber);
 

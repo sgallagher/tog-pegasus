@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Indentor_h
@@ -49,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
     the print routines in this library. Consider this example:
 
     <pre>
-	cout << Indentor(3) << "name=" << name << endl;
+        cout << Indentor(3) << "name=" << name << endl;
     </pre>
 
     This indents three levels (each level indents four spaces).
@@ -61,7 +57,7 @@ public:
     Indentor(Uint32 level) : _level(level) { }
 
     PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream)& operator<<(
-	PEGASUS_STD(ostream)& os, const Indentor& x);
+        PEGASUS_STD(ostream)& os, const Indentor& x);
 
     Uint32 getLevel() const { return _level; }
 
@@ -70,7 +66,9 @@ private:
     Uint32 _level;
 };
 
-PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Indentor& x);
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const Indentor& x);
 
 PEGASUS_NAMESPACE_END
 

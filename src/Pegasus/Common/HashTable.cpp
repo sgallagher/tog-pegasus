@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstring>
@@ -62,7 +58,7 @@ Uint32 HashFunc<String>::hash(const String& str)
     return h;
 }
 
-static const Uint8 _toLowerTable[256] = 
+static const Uint8 _toLowerTable[256] =
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
     0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -106,16 +102,16 @@ Uint32 HashLowerCaseFunc::hash(const String& str)
 
     while (n >= 4)
     {
-	h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[0] & 0x007F];
-	h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[1] & 0x007F];
-	h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[2] & 0x007F];
-	h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[3] & 0x007F];
-	n -= 4;
-	p += 4;
+        h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[0] & 0x007F];
+        h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[1] & 0x007F];
+        h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[2] & 0x007F];
+        h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[3] & 0x007F];
+        n -= 4;
+        p += 4;
     }
 
     while (*p)
-	h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[*p++ & 0x007F];
+        h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[*p++ & 0x007F];
 
     return h;
 }
@@ -163,19 +159,19 @@ _HashTableIteratorBase& _HashTableIteratorBase::operator++()
     while (_first != _last)
     {
         if (*_first)
-	{
-	    _bucket = *_first++;
-	    break;
-	}
+        {
+            _bucket = *_first++;
+            break;
+        }
 
-	_first++;
+        _first++;
     }
 
     return *this;
 }
 
 _HashTableIteratorBase::_HashTableIteratorBase(
-    _BucketBase** first, 
+    _BucketBase** first,
     _BucketBase** last) : _first(first), _last(last)
 {
     _bucket = 0;
@@ -183,12 +179,12 @@ _HashTableIteratorBase::_HashTableIteratorBase(
     while (_first != last)
     {
         if (*_first)
-	{
-	    _bucket = *_first++;
-	    break;
-	}
+        {
+            _bucket = *_first++;
+            break;
+        }
 
-	_first++;
+        _first++;
     }
 }
 
@@ -201,7 +197,7 @@ _HashTableIteratorBase::_HashTableIteratorBase(
 _HashTableRep::_HashTableRep(Uint32 numChains) : _size(0), _numChains(numChains)
 {
     if (numChains < 8)
-	numChains = 8;
+        numChains = 8;
 
     _chains = new _BucketBase*[_numChains];
     memset(_chains, 0, sizeof(_BucketBase*) * _numChains);
@@ -224,7 +220,7 @@ _HashTableRep::~_HashTableRep()
 _HashTableRep& _HashTableRep::operator=(const _HashTableRep& x)
 {
     if (this == &x)
-	return *this;
+        return *this;
 
     // Destroy the old representation:
 
@@ -242,19 +238,19 @@ _HashTableRep& _HashTableRep::operator=(const _HashTableRep& x)
 
     for (Uint32 i = 0; i < _numChains; i++)
     {
-	if (x._chains[i])
-	{
-	    _chains[i] = x._chains[i]->clone();
+        if (x._chains[i])
+        {
+            _chains[i] = x._chains[i]->clone();
 
-	    _BucketBase* curr = _chains[i];
-	    _BucketBase* next = x._chains[i]->next;
+            _BucketBase* curr = _chains[i];
+            _BucketBase* next = x._chains[i]->next;
 
-	    for (; next; next = next->next)
-	    {
-		curr->next = next->clone();
-		curr = curr->next;
-	    }
-	}
+            for (; next; next = next->next)
+            {
+                curr->next = next->clone();
+                curr = curr->next;
+            }
+        }
     }
 
     return *this;
@@ -264,23 +260,23 @@ void _HashTableRep::clear()
 {
     for (Uint32 i = 0; i < _numChains; i++)
     {
-	for (_BucketBase* bucket = _chains[i]; bucket; )
-	{
-	    _BucketBase* next = bucket->next;
-	    delete bucket;
-	    bucket = next;
-	}
+        for (_BucketBase* bucket = _chains[i]; bucket; )
+        {
+            _BucketBase* next = bucket->next;
+            delete bucket;
+            bucket = next;
+        }
     }
 
     _size = 0;
 
     if (_numChains)
-	memset(_chains, 0, sizeof(_BucketBase*) * _numChains);
+        memset(_chains, 0, sizeof(_BucketBase*) * _numChains);
 }
 
 Boolean _HashTableRep::insert(
-    Uint32 hashCode, 
-    _BucketBase* bucket, 
+    Uint32 hashCode,
+    _BucketBase* bucket,
     const void* key)
 {
     // Check for duplicate entry with same key:
@@ -290,13 +286,13 @@ Boolean _HashTableRep::insert(
 
     for (_BucketBase* b = _chains[i]; b; b = b->next)
     {
-	if (b->equal(key))
-	{
-	    delete bucket;
-	    return false;
-	}
+        if (b->equal(key))
+        {
+            delete bucket;
+            return false;
+        }
 
-	last = b;
+        last = b;
     }
 
     // Insert bucket:
@@ -304,16 +300,16 @@ Boolean _HashTableRep::insert(
     bucket->next = 0;
 
     if (last)
-	last->next = bucket;
+        last->next = bucket;
     else
-	_chains[i] = bucket;
+        _chains[i] = bucket;
 
     _size++;
     return true;
 }
 
 const _BucketBase* _HashTableRep::lookup(
-    Uint32 hashCode, 
+    Uint32 hashCode,
     const void* key) const
 {
 #ifdef PEGASUS_OS_VMS
@@ -330,8 +326,8 @@ const _BucketBase* _HashTableRep::lookup(
 
     for (_BucketBase* bucket = _chains[i]; bucket; bucket = bucket->next)
     {
-	if (bucket->equal(key))
-	    return bucket;
+        if (bucket->equal(key))
+            return bucket;
     }
 
     // Not found!

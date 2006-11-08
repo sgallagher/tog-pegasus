@@ -64,12 +64,13 @@ PEGASUS_NAMESPACE_BEGIN
     int count = 2;
     String name = "Output"
     String output = Formatter::format(
-			"total $0 average $1 on $2", 
-			total,
-			total/count,
-			name);
+        "total $0 average $1 on $2", 
+        total,
+        total/count,
+        name);
+
     produces the string
-	 
+
       "total 4 average 2 on Output"
     
     </pre>
@@ -82,86 +83,87 @@ public:
     {
     public:
 
-	enum Type { VOIDT, STRING, CSTRLIT, BOOLEAN, INTEGER, 
-	    UINTEGER, LINTEGER, ULINTEGER, REAL };
+        enum Type { VOIDT, STRING, CSTRLIT, BOOLEAN, INTEGER, 
+            UINTEGER, LINTEGER, ULINTEGER, REAL };
 
-	Arg() : _type(VOIDT)
-	{
-	}
+        Arg() : _type(VOIDT)
+        {
+        }
 
-	Arg(const String& x) : _string(x), _type(STRING)
-	{
-	}
+        Arg(const String& x) : _string(x), _type(STRING)
+        {
+        }
 
-	Arg(const char* x) : _string(x), _type(STRING)
-	{
-	}
+        Arg(const char* x) : _string(x), _type(STRING)
+        {
+        }
 
-	Arg(const StrLit& x) : _cstrlit(&x), _type(CSTRLIT)
-	{
-	}
+        Arg(const StrLit& x) : _cstrlit(&x), _type(CSTRLIT)
+        {
+        }
 
-	Arg(Boolean x) : _boolean(x), _type(BOOLEAN)
-	{
-	}
+        Arg(Boolean x) : _boolean(x), _type(BOOLEAN)
+        {
+        }
 
-	Arg(Sint32 x) : _integer(x), _type(INTEGER)
-	{
-	}
+        Arg(Sint32 x) : _integer(x), _type(INTEGER)
+        {
+        }
 
-	Arg(Uint32 x) : _uinteger(x), _type(UINTEGER)
-	{
-	}
+        Arg(Uint32 x) : _uinteger(x), _type(UINTEGER)
+        {
+        }
 
-	Arg(Sint64 x) : _lInteger(x), _type(LINTEGER)
-	{
-	}
+        Arg(Sint64 x) : _lInteger(x), _type(LINTEGER)
+        {
+        }
 
-	Arg(Uint64 x) : _lUInteger(x), _type(ULINTEGER)
-	{
-	}
-	Arg(Real64 x) : _real(x), _type(REAL)
-	{
-	}
+        Arg(Uint64 x) : _lUInteger(x), _type(ULINTEGER)
+        {
+        }
 
-	String toString() const;
+        Arg(Real64 x) : _real(x), _type(REAL)
+        {
+        }
 
-	void appendToString(String& out) const;
-	
-	friend class MessageLoader;  //l10n
+        String toString() const;
+
+        void appendToString(String& out) const;
+
+        friend class MessageLoader;
 
     private:
 
-	String _string;
+        String _string;
 
-	union
-	{
-	    Sint32 _integer;
-	    Uint32 _uinteger;
-	    Real64 _real;
-	    int _boolean;
-	    Sint64 _lInteger;
-	    Uint64 _lUInteger;
-	    const StrLit* _cstrlit;
-	};
+        union
+        {
+            Sint32 _integer;
+            Uint32 _uinteger;
+            Real64 _real;
+            int _boolean;
+            Sint64 _lInteger;
+            Uint64 _lUInteger;
+            const StrLit* _cstrlit;
+        };
 
-	Type _type;
+        Type _type;
     };
 
-    /**	 Format function for the formatter
+    /** Format function for the formatter
     */
     static String format(
-	const String& formatString,
-	const Arg& arg0 = Formatter::DEFAULT_ARG,
-	const Arg& arg1 = Formatter::DEFAULT_ARG,
-	const Arg& arg2 = Formatter::DEFAULT_ARG,
-	const Arg& arg3 = Formatter::DEFAULT_ARG,
-	const Arg& arg4 = Formatter::DEFAULT_ARG,
-	const Arg& arg5 = Formatter::DEFAULT_ARG,
-	const Arg& arg6 = Formatter::DEFAULT_ARG,
-	const Arg& arg7 = Formatter::DEFAULT_ARG,
-	const Arg& arg8 = Formatter::DEFAULT_ARG,
-	const Arg& arg9 = Formatter::DEFAULT_ARG);
+        const String& formatString,
+        const Arg& arg0 = Formatter::DEFAULT_ARG,
+        const Arg& arg1 = Formatter::DEFAULT_ARG,
+        const Arg& arg2 = Formatter::DEFAULT_ARG,
+        const Arg& arg3 = Formatter::DEFAULT_ARG,
+        const Arg& arg4 = Formatter::DEFAULT_ARG,
+        const Arg& arg5 = Formatter::DEFAULT_ARG,
+        const Arg& arg6 = Formatter::DEFAULT_ARG,
+        const Arg& arg7 = Formatter::DEFAULT_ARG,
+        const Arg& arg8 = Formatter::DEFAULT_ARG,
+        const Arg& arg9 = Formatter::DEFAULT_ARG);
 
     static const Formatter::Arg DEFAULT_ARG;
 };

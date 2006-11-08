@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Indentor.h"
@@ -42,7 +38,7 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Indentor& x)
 {
     for (Uint32 i = 0; i < 4 * x._level; i++)
-	os << ' ';
+        os << ' ';
 
     return os;
 }

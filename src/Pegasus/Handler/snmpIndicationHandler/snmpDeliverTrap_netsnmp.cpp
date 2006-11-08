@@ -438,7 +438,6 @@ void snmpDeliverTrap_netsnmp::_createPdu(
     PEG_METHOD_EXIT ();
 }
 
-
 // Pack trap information into the PDU
 void snmpDeliverTrap_netsnmp::_packTrapInfoIntoPdu(
     const String & trapOid,
@@ -464,108 +463,120 @@ void snmpDeliverTrap_netsnmp::_packTrapInfoIntoPdu(
     CString trapOidCStr = trapOid.getCString();
 
     char * trapOidCopy = strdup(trapOidCStr);
+    char * numericEntOid = (char *) malloc(strlen(trapOidCStr));
+
+    try
+    {
 
 #if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    char *last;
-    for (const char* p = strtok_r(trapOidCopy, ".", &last); p; 
-         p=strtok_r(NULL, ".", &last))
+        char *last;
+        for (const char* p = strtok_r(trapOidCopy, ".", &last); p; 
+            p=strtok_r(NULL, ".", &last))
 #else
-    for (const char* p = strtok(trapOidCopy, "."); p; p=strtok(NULL, "."))
+        for (const char* p = strtok(trapOidCopy, "."); p; p=strtok(NULL, "."))
 #endif
-    {
-        oidSubIdentifiers.append(p);
-    }
-
-    long genTrap = 0;
-    long specTrap = 0;
-
-    enterpriseOidLength = MAX_OID_LEN;
-
-    char * numericEntOid = (char *) malloc(strlen(trapOidCStr));
-    if (Contains(standard_traps, trapOid))
-    {
-        //
-        // if the trapOid is one of the standard traps,
-        // then the SNMPV1 enterprise parameter must be set
-        // to the value of the trapOid, the generic-trap
-        // parameter must be set to one of (0 - 5), and the
-        // specific-trap parameter must be set to 0
-        //
-
-        // Convert trapOid from numeric form to a list of subidentifiers
-        if (read_objid((const char*)trapOidCStr, enterpriseOid, 
-            &enterpriseOidLength) == 0)
         {
-            // Failed to parse trapOid 
-
-            PEG_METHOD_EXIT ();
-            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-                MessageLoaderParms(_MSG_READ_OBJID_FAILED_KEY,
-                                   _MSG_READ_OBJID_FAILED,
-                                   trapOid));
+            oidSubIdentifiers.append(p);
         }
 
-        // the generic trap is last sub-identifier of the
-        // trapOid minus 1
-        snmpPdu->trap_type = 
-            atoi(oidSubIdentifiers[oidSubIdentifiers.size() - 1]) - 1;
-        snmpPdu->specific_type = 0;
-    }
-    else
-    {
-        //
-        // if the trapOid is not one of the standard traps:
-        // then 1) the generic-trap parameter must be set to 6,
-        // 2) if the next-to-last sub-identifier of the
-        // trapOid is zero, then the SNMPV1 enterprise
-        // parameter is the trapOid with the last 2
-        // sub-identifiers removed, otherwise, the
-        // SNMPV1 enterprise parameter is the trapOid
-        // with the last sub-identifier removed;
-        // 3) the SNMPv1 specific-trap parameter is the last
-        // sub-identifier of the trapOid;
-        //
+        long genTrap = 0;
+        long specTrap = 0;
 
-        snmpPdu->trap_type = 6;
+        enterpriseOidLength = MAX_OID_LEN;
 
-        snmpPdu->specific_type = 
-            atoi(oidSubIdentifiers[oidSubIdentifiers.size()-1]);
-
-        strcpy(numericEntOid, oidSubIdentifiers[0]);
-        for (Uint32 i = 1; i < oidSubIdentifiers.size()-2; i++)
+        if (Contains(standard_traps, trapOid))
         {
-            strcat(numericEntOid, ".");
-            strcat(numericEntOid, oidSubIdentifiers[i]);
+            //
+            // if the trapOid is one of the standard traps,
+            // then the SNMPV1 enterprise parameter must be set
+            // to the value of the trapOid, the generic-trap
+            // parameter must be set to one of (0 - 5), and the
+            // specific-trap parameter must be set to 0
+            //
+
+            // Convert trapOid from numeric form to a list of subidentifiers
+            if (read_objid((const char*)trapOidCStr, enterpriseOid, 
+                &enterpriseOidLength) == 0)
+            {
+                // Failed to parse trapOid 
+
+                PEG_METHOD_EXIT ();
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                    MessageLoaderParms(_MSG_READ_OBJID_FAILED_KEY,
+                                       _MSG_READ_OBJID_FAILED,
+                                       trapOid));
+            }
+
+            // the generic trap is last sub-identifier of the
+            // trapOid minus 1
+            snmpPdu->trap_type = 
+                atoi(oidSubIdentifiers[oidSubIdentifiers.size() - 1]) - 1;
+            snmpPdu->specific_type = 0;
         }
-
-        if (oidSubIdentifiers[oidSubIdentifiers.size()-2] != "0")
+        else
         {
-            strcat(numericEntOid, ".");
-            strcat(numericEntOid, 
+            //
+            // if the trapOid is not one of the standard traps:
+            // then 1) the generic-trap parameter must be set to 6,
+            // 2) if the next-to-last sub-identifier of the
+            // trapOid is zero, then the SNMPV1 enterprise
+            // parameter is the trapOid with the last 2
+            // sub-identifiers removed, otherwise, the
+            // SNMPV1 enterprise parameter is the trapOid
+            // with the last sub-identifier removed;
+            // 3) the SNMPv1 specific-trap parameter is the last
+            // sub-identifier of the trapOid;
+            //
+
+            snmpPdu->trap_type = 6;
+
+            snmpPdu->specific_type = 
+                atoi(oidSubIdentifiers[oidSubIdentifiers.size()-1]);
+
+            strcpy(numericEntOid, oidSubIdentifiers[0]);
+            for (Uint32 i = 1; i < oidSubIdentifiers.size()-2; i++)
+            {
+                strcat(numericEntOid, ".");
+                strcat(numericEntOid, oidSubIdentifiers[i]);
+            }
+
+            if (oidSubIdentifiers[oidSubIdentifiers.size()-2] != "0")
+            {
+                strcat(numericEntOid, ".");
+                strcat(numericEntOid, 
                    oidSubIdentifiers[oidSubIdentifiers.size()-2]);
+            }
+
+            // Convert ent from numeric form to a list of subidentifiers 
+            if (read_objid(numericEntOid, enterpriseOid, 
+                &enterpriseOidLength) == 0)
+            {
+                // Failed to parse numericEntOid
+
+                PEG_METHOD_EXIT ();
+
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                    MessageLoaderParms(_MSG_READ_ENTOID_FAILED_KEY,
+                                       _MSG_READ_ENTOID_FAILED,
+                                       String(numericEntOid)));
+            }
+
         }
 
-        // Convert ent from numeric form to a list of subidentifiers 
-        if (read_objid(numericEntOid, enterpriseOid, 
-            &enterpriseOidLength) == 0)
-        {
-            // Failed to parse numericEntOid
+        snmpPdu->enterprise = (oid*) malloc(enterpriseOidLength * sizeof(oid));
+        memcpy(snmpPdu->enterprise, enterpriseOid, 
+               enterpriseOidLength * sizeof(oid));
 
-            PEG_METHOD_EXIT ();
-
-            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-                MessageLoaderParms(_MSG_READ_ENTOID_FAILED_KEY,
-                                   _MSG_READ_ENTOID_FAILED,
-                                   String(numericEntOid)));
-        }
-
+        snmpPdu->enterprise_length = enterpriseOidLength;
     }
+    catch (...)
+    {
+        free(trapOidCopy);
+        free(numericEntOid);
 
-    snmpPdu->enterprise = (oid*) malloc(enterpriseOidLength * sizeof(oid));
-    memcpy(snmpPdu->enterprise, enterpriseOid, 
-           enterpriseOidLength * sizeof(oid));
-
-    snmpPdu->enterprise_length = enterpriseOidLength;
+        PEG_METHOD_EXIT();
+        throw;
+    }
 
     free(trapOidCopy);
     free(numericEntOid);

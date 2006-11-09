@@ -94,6 +94,8 @@ public:
         const ContentLanguageList & langs,
         const String & message = String::EMPTY);
 
+    virtual void setCIMException(const CIMException& cimException);
+
 protected:
     // the default for all derived handlers. Some handlers may not apply
     // async behavior because their callers cannot handle partial responses.

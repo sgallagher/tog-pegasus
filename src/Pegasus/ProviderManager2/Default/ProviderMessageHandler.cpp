@@ -62,8 +62,7 @@
     {                                                                  \
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,          \
             "Provider Exception: " + e.getMessage());                  \
-        handler.setStatus(                                             \
-            e.getCode(), e.getContentLanguages(), e.getMessage());     \
+        handler.setCIMException(e);                                    \
     }                                                                  \
     catch (Exception& e)                                               \
     {                                                                  \

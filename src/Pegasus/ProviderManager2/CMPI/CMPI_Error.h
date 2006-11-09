@@ -41,6 +41,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_Error : CMPIError {
    CMPI_Object *next,*prev;
+   CMPI_Error *nextError;  // in case provider returns more than 1 CMPIError
 };
 
 PEGASUS_NAMESPACE_END

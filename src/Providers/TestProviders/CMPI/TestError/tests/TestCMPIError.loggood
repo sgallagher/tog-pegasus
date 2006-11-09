@@ -66,9 +66,8 @@
  ++++ (CMPI_RC_OK) CMGetMessageArguments
  ++++ (CMPI_RC_OK) CMGetArrayCount (1)
  ++++ (CMPI_RC_OK) CMGetArrayElementAt (0:no real inserts)
- Calling CMPIResultFT.returnData (should return not supported)
- ++++ (CMPI_RC_ERR_NOT_SUPPORTED) returnData
+ Calling CMPIResultFT.returnData
+ ++++ (CMPI_RC_OK) returnData
  Releasing cloned CMPIError
  ++++ (CMPI_RC_OK) CMClone
- ++++ Calling CMReturnData+Done
- --- TestCMPI_Error CMPI InvokeMethod() exited
+ --- TestCMPI_Error CMPI InvokeMethod() exited with CMPI_RC_ERR_FAILED

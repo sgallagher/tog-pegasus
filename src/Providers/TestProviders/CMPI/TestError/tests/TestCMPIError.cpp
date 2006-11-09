@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
@@ -45,63 +46,6 @@ const CIMName CLASSNAME = CIMName ("TestCMPI_Error");
 Boolean verbose;
 
 
-void _checkStringValue
-  (CIMValue & theValue, const String & value, Boolean null = false)
-{
-  PEGASUS_TEST_ASSERT (theValue.getType () == CIMTYPE_STRING);
-  PEGASUS_TEST_ASSERT (!theValue.isArray ());
-  if (null)
-    {
-      PEGASUS_TEST_ASSERT (theValue.isNull ());
-    }
-  else
-    {
-      PEGASUS_TEST_ASSERT (!theValue.isNull ());
-      String result;
-      theValue.get (result);
-
-      if (verbose)
-	{
-	  if (result != value)
-	    {
-	      cerr << "Property value comparison failed.  ";
-	      cerr << "Expected " << value << "; ";
-	      cerr << "Actual property value was " << result << "." << endl;
-	    }
-	}
-
-      PEGASUS_TEST_ASSERT (result == value);
-    }
-}
-
-
-void
-_checkUint32Value (CIMValue & theValue, Uint32 value)
-{
-
-  PEGASUS_TEST_ASSERT (theValue.getType () == CIMTYPE_UINT32);
-  PEGASUS_TEST_ASSERT (!theValue.isArray ());
-  PEGASUS_TEST_ASSERT (!theValue.isNull ());
-
-  Uint32 result;
-  theValue.get (result);
-
-  if (verbose)
-    {
-      if (result != value)
-	{
-	  cerr << "Property value comparison failed.  ";
-	  cerr << "Expected " << value << "; ";
-	  cerr << "Actual property value was " << result << "." << endl;
-	}
-    }
-
-  PEGASUS_TEST_ASSERT (result == value);
-}
-
-
-
-
 void
 _usage ()
 {
@@ -112,6 +56,7 @@ void
 test01 (CIMClient & client)
 {
   CIMObjectPath instanceName;
+  Boolean caughtException = false;
 
   instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
@@ -119,12 +64,30 @@ test01 (CIMClient & client)
   Array < CIMParamValue > inParams;
   Array < CIMParamValue > outParams;
 
-  CIMValue retValue = client.invokeMethod (providerNamespace,
-					   instanceName,
-					   "TestCMPIError",
-					   inParams,
-					   outParams);
-  _checkUint32Value (retValue, 0);
+  try
+  {
+      CIMValue retValue = client.invokeMethod (providerNamespace,
+                                               instanceName,
+                                              "TestCMPIError",
+                                              inParams,
+                                              outParams);
+  }
+  catch (CIMException & e)
+  {
+      if (verbose)
+      {
+          cout << "Caught this exception from invokeMethod():" << endl;
+          cout << e.getMessage() << endl;
+          cout << "getErrorCount()=" << e.getErrorCount() << endl;
+      }
+
+      PEGASUS_TEST_ASSERT(String::equal(e.getMessage(),
+          "CIM_ERR_FAILED: A general error occurred that is not covered by a "
+          "more specific error code: \"TestError invokeMethod() expected "
+          "failure\""));
+      caughtException=true;
+  }
+  PEGASUS_TEST_ASSERT(caughtException);
 }
 
 void

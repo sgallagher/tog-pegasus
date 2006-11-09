@@ -42,10 +42,13 @@
 #include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMType.h>
+#include <Pegasus/Common/Mutex.h>
 #include <string.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
+
+Mutex errorChainMutex;
 
 #define DDD(X)	if (_cmpi_trace) X;
 extern int _cmpi_trace;
@@ -565,7 +568,24 @@ extern "C" {
    }
 
    PEGASUS_STATIC CMPIStatus resultReturnError(const CMPIResult* eRes, const CMPIError* er) {
-      CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
+
+       CMPIStatus rrc={CMPI_RC_OK,NULL};
+
+       if (eRes->hdl == NULL)
+          CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+       if (er == NULL)
+          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+
+       CMPIError *clonedError = er->ft->clone(er,&rrc);
+       if(rrc.rc != CMPI_RC_OK)
+       {
+           return rrc;
+       }
+
+       AutoMutex mtx(errorChainMutex);
+       ((CMPI_Error*)clonedError)->nextError = ((CMPI_Result*)eRes)->resError;
+       ((CMPI_Result*)eRes)->resError = (CMPI_Error*)clonedError;
+      CMReturn(CMPI_RC_OK);
    }
 
    PEGASUS_STATIC CMPIStatus resultBadReturnData(const CMPIResult* eRes, const CMPIValue* data,  const CMPIType type) {
@@ -674,6 +694,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(const ObjectPathResponseHandler & handler
       xBroker=xMb;
       ft=CMPI_ResultRefOnStack_Ftab;
       flags=RESULT_ObjectPath;
+      resError=NULL;
    }
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(const InstanceResponseHandler& handler,
@@ -682,6 +703,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(const InstanceResponseHandler& handler,
       xBroker=xMb;
       ft=CMPI_ResultInstOnStack_Ftab;
       flags=RESULT_Instance;
+      resError=NULL;
    }
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(const ObjectResponseHandler& handler,
@@ -690,6 +712,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(const ObjectResponseHandler& handler,
       xBroker=xMb;
       ft=CMPI_ResultObjOnStack_Ftab;
       flags=RESULT_Object;
+      resError=NULL;
    }
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(const MethodResultResponseHandler& handler,
@@ -698,6 +721,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(const MethodResultResponseHandler& handle
       xBroker=xMb;
       ft=CMPI_ResultMethOnStack_Ftab;
       flags=RESULT_Method;
+      resError=NULL;
    }
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(const ResponseHandler& handler,
@@ -706,6 +730,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(const ResponseHandler& handler,
       xBroker=xMb;
       ft=CMPI_ResultResponseOnStack_Ftab;
       flags=RESULT_Response;
+      resError=NULL;
    }
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(const ExecQueryResponseHandler& handler,
@@ -714,6 +739,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(const ExecQueryResponseHandler& handler,
       xBroker=xMb;
       ft=CMPI_ResultExecQueryOnStack_Ftab;
       flags=RESULT_Object;
+      resError=NULL;
    }
 
 CMPI_ResultOnStack::~CMPI_ResultOnStack() {

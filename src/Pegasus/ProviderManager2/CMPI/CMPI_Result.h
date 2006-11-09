@@ -39,6 +39,7 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_Object.h"
 #include "CMPI_Broker.h"
+#include "CMPI_Error.h"
 
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
@@ -67,12 +68,14 @@ struct CMPI_Result : CMPIResult {
    CMPI_Object *next,*prev;
    long flags;
    CMPI_Broker *xBroker;
+   CMPI_Error *resError;
 };
 
 struct CMPI_ResultOnStack : CMPIResult {
    CMPI_Object *next,*prev;
    long flags;
    CMPI_Broker *xBroker;
+   CMPI_Error *resError;
    CMPI_ResultOnStack(const ExecQueryResponseHandler&,CMPI_Broker*);
    CMPI_ResultOnStack(const ObjectPathResponseHandler&,CMPI_Broker*);
    CMPI_ResultOnStack(const InstanceResponseHandler&,CMPI_Broker*);

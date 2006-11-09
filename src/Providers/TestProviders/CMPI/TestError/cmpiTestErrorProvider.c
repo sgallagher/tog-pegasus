@@ -71,7 +71,6 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPIError *cmpiError;
   CMPIError *cmpiErrorClone;
-  CMPIUint32 oper_rc = 0;
   CMPICount i, arrSize;
 
   /* CMPIError data */
@@ -270,7 +269,7 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
           i, CMGetCharPtr(dta.value.string));
   }
 
-  PROV_LOG ("Calling CMPIResultFT.returnData (should return not supported)");
+  PROV_LOG ("Calling CMPIResultFT.returnData");
   rc = (rslt)->ft->returnError (rslt, cmpiErrorClone);
   PROV_LOG ("++++ (%s) returnData", strCMPIStatus (rc));
 
@@ -278,14 +277,11 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   rc = CMRelease(cmpiErrorClone);
   PROV_LOG ("++++ (%s) CMClone", strCMPIStatus (rc));
 
-  // Return the oper_rc value via Result
-  PROV_LOG ("++++ Calling CMReturnData+Done");
-  CMReturnData (rslt, (CMPIValue *) & oper_rc, CMPI_uint32);
-  CMReturnDone (rslt);
-
-  PROV_LOG ("--- %s CMPI InvokeMethod() exited", _ClassName);
+  PROV_LOG ("--- %s CMPI InvokeMethod() exited with CMPI_RC_ERR_FAILED", 
+      _ClassName);
   PROV_LOG_CLOSE();
-  return rc;
+  CMReturnWithString(inCIMStatusCode, 
+      CMNewString(_broker, "TestError invokeMethod() expected failure", NULL));
 }
 
 /* ---------------------------------------------------------------------------*/

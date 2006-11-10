@@ -37,20 +37,24 @@
 #include <Pegasus/Common/CIMInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
-/* PropertyAccessor is a set of support functions for property value access within instances.
-   These functions provide the capability to get and set the value of all of the
-   native property types within Pegasus using only the reference to the instance and
-   the property name as identifiers.  The provide, in effect, an associative link to
-   property values as an alternate to the index based reference defined in the CIMInstance
-   object.  Further, they allow directly getting and setting the value in place of the
-   multistep approach in the objects where the the CIMValue must first be retrieved before
-   the value can be accessed.   This reduces the access to a single line of code.
+/*
+    PropertyAccessor is a set of support functions for property value access
+    within instances.  These functions provide the capability to get and set
+    the value of all of the native property types within Pegasus using only
+    the reference to the instance and the property name as identifiers.  They
+    provide, in effect, an associative link to property values as an
+    alternate to the index based reference defined in the CIMInstance
+    object.  Further, they allow directly getting and setting the value in
+    place of the multistep approach in the objects where the the CIMValue
+    must first be retrieved before the value can be accessed.  This reduces
+    the access to a single line of code.
 
-   These functions assume that the property exists in the instance and execute a 
-   Examples:
-       Set(_inst, "ErrorSourceFormat", Uint16(value), null);
-       bool nullStat = Get(_inst, "ErrorSourceFormat", t);
-   These functions are to be used only internally within Open Pegasus
+    These functions assume that the property exists in the instance.
+
+    Examples:
+        Set(_inst, "ErrorSourceFormat", Uint16(value), null);
+        bool nullStat = Get(_inst, "ErrorSourceFormat", t);
+    These functions are to be used only internally within OpenPegasus
 */
 
 /** Get the named property value from the target instance.
@@ -60,12 +64,12 @@ PEGASUS_NAMESPACE_BEGIN
     variable if the NULL attribute is NOT set for the CIMValue for this
     property.
     @return bool returns true if the CIMValue for the property is NOT Null.
-    @exception Returns CIM_ERR_NO_SUCH_PROPERTY if the named property is not in the
-    instance.
-*/    
+    @exception Returns CIM_ERR_NO_SUCH_PROPERTY if the named property is not
+    in the instance.
+*/
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Boolean& value);
 
 /** Get the named property value from the target instance.
@@ -77,310 +81,310 @@ bool Get(
     @param null bool If this is set true, the value parameter is ignored and the
     property is set to NULL.
     @return bool returns true if the CIMValue for the property is NOT Null.
-    @exception Returns CIM_ERR_NO_SUCH_PROPERTY if the named property is not in the
-    instance.
-*/    
+    @exception Returns CIM_ERR_NO_SUCH_PROPERTY if the named property is not
+    in the instance.
+*/
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Boolean& value, 
+    const String& name,
+    const Boolean& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Boolean>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Boolean>& value, 
+    const String& name,
+    const Array<Boolean>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Uint8& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Uint8& value, 
+    const String& name,
+    const Uint8& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Uint8>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Uint8>& value, 
+    const String& name,
+    const Array<Uint8>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Sint8& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Sint8& value, 
+    const String& name,
+    const Sint8& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Sint8>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Sint8>& value, 
+    const String& name,
+    const Array<Sint8>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Uint16& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Uint16& value, 
+    const String& name,
+    const Uint16& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Uint16>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Uint16>& value, 
+    const String& name,
+    const Array<Uint16>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Sint16& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Sint16& value, 
+    const String& name,
+    const Sint16& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Sint16>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Sint16>& value, 
+    const String& name,
+    const Array<Sint16>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Uint32& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Uint32& value, 
+    const String& name,
+    const Uint32& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Uint32>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Uint32>& value, 
+    const String& name,
+    const Array<Uint32>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Sint32& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Sint32& value, 
+    const String& name,
+    const Sint32& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Sint32>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Sint32>& value, 
+    const String& name,
+    const Array<Sint32>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Uint64& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Uint64& value, 
+    const String& name,
+    const Uint64& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Uint64>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Uint64>& value, 
+    const String& name,
+    const Array<Uint64>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Sint64& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Sint64& value, 
+    const String& name,
+    const Sint64& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Sint64>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Sint64>& value, 
+    const String& name,
+    const Array<Sint64>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Real32& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Real32& value, 
+    const String& name,
+    const Real32& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Real32>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Real32>& value, 
+    const String& name,
+    const Array<Real32>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Real64& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Real64& value, 
+    const String& name,
+    const Real64& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Real64>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Real64>& value, 
+    const String& name,
+    const Array<Real64>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Char16& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Char16& value, 
+    const String& name,
+    const Char16& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Char16>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Char16>& value, 
+    const String& name,
+    const Array<Char16>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     String& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const String& value, 
+    const String& name,
+    const String& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<String>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<String>& value, 
+    const String& name,
+    const Array<String>& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     CIMDateTime& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const CIMDateTime& value, 
+    const String& name,
+    const CIMDateTime& value,
     bool null);
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<CIMDateTime>& value);
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<CIMDateTime>& value, 
+    const String& name,
+    const Array<CIMDateTime>& value,
     bool null);
 
 inline CIMType GetType(Boolean*) { return CIMTYPE_BOOLEAN; }

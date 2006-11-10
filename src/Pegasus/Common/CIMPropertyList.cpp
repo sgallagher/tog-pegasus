@@ -68,9 +68,9 @@ CIMPropertyList::CIMPropertyList(const Array<CIMName>& propertyNames)
     // which has a add() method that would validate one at a time.
 
     // ensure names are not null
-    for(Uint32 i = 0, n = propertyNames.size(); i < n; i++)
+    for (Uint32 i = 0, n = propertyNames.size(); i < n; i++)
     {
-        if(propertyNames[i].isNull())
+        if (propertyNames[i].isNull())
         {
             throw UninitializedObjectException();
         }
@@ -95,9 +95,9 @@ void CIMPropertyList::set(const Array<CIMName>& propertyNames)
     // which has a add() method that would validate one at a time.
 
     // ensure names are not null
-    for(Uint32 i = 0, n = propertyNames.size(); i < n; i++)
+    for (Uint32 i = 0, n = propertyNames.size(); i < n; i++)
     {
-        if(propertyNames[i].isNull())
+        if (propertyNames[i].isNull())
         {
             throw UninitializedObjectException();
         }

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Reworked By: Mike Brasher (m.brasher@inovadevelopment.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ReadWriteSem_h
@@ -101,7 +97,7 @@ struct ReadWriteSemRep
     Mutex _wlock;
     Mutex _internal_lock;
     ThreadType _owner;
-    ReadWriteSemRep() : 
+    ReadWriteSemRep() :
         _rlock(10), _wlock(), _internal_lock(), _owner(Threads::self())
     {
     }

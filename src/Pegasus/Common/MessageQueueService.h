@@ -54,7 +54,7 @@ class message_module;
 class cimom;
 
 
-class PEGASUS_COMMON_LINKAGE MessageQueueService : 
+class PEGASUS_COMMON_LINKAGE MessageQueueService :
     public Linkable, public MessageQueue
 {
 public:
@@ -62,7 +62,7 @@ public:
     typedef MessageQueue Base;
 
     MessageQueueService(
-        const char *name,
+        const char* name,
         Uint32 queueID = MessageQueue::getNextQueueId(),
         Uint32 capabilities = 0,
         Uint32 mask = MessageMask::type_cimom |
@@ -78,20 +78,20 @@ public:
     // enqueue may throw an IPCException
     virtual void enqueue(Message *);
 
-    AsyncReply *SendWait(AsyncRequest *request);
-    Boolean SendAsync(AsyncOpNode *op,
-            Uint32 destination,
-            void (*callback)(AsyncOpNode *, MessageQueue *, void *),
-            MessageQueue *callback_q,
-            void *callback_ptr);
+    AsyncReply* SendWait(AsyncRequest* request);
+    Boolean SendAsync(AsyncOpNode* op,
+        Uint32 destination,
+        void (*callback)(AsyncOpNode*, MessageQueue*, void*),
+        MessageQueue* callback_q,
+        void* callback_ptr);
 
     Boolean SendAsync(Message *msg,
-            Uint32 destination,
-            void (*callback)(Message *response, void *handle, void *parameter),
-            void *handle,
-            void *parameter);
+        Uint32 destination,
+        void (*callback)(Message* response, void* handle, void* parameter),
+        void* handle,
+        void* parameter);
 
-    Boolean SendForget(Message *msg);
+    Boolean SendForget(Message* msg);
 
 
     Boolean register_service(String name, Uint32 capabilities, Uint32 mask);
@@ -99,58 +99,65 @@ public:
     Boolean deregister_service();
     virtual void _shutdown_incoming_queue();
 
-    void find_services(String name,
-            Uint32 capabilities,
-            Uint32 mask,
-            Array<Uint32> *results);
-    void enumerate_service(Uint32 queue, message_module *result);
-    static AsyncOpNode *get_op();
-    void return_op(AsyncOpNode *op);
+    void find_services(
+        String name,
+        Uint32 capabilities,
+        Uint32 mask,
+        Array<Uint32>* results);
+    void enumerate_service(Uint32 queue, message_module* result);
+    static AsyncOpNode* get_op();
+    void return_op(AsyncOpNode* op);
 
-    static ThreadPool *get_thread_pool();
+    static ThreadPool* get_thread_pool();
 
     Uint32 _mask;
     AtomicInt _die;
-	AtomicInt _threads;
-        Uint32 getIncomingCount() {return _incoming.count(); }
+    AtomicInt _threads;
+    Uint32 getIncomingCount() {return _incoming.count(); }
 
 protected:
-    virtual Boolean accept_async(AsyncOpNode *op);
-    virtual Boolean messageOK(const Message *msg);
+    virtual Boolean accept_async(AsyncOpNode* op);
+    virtual Boolean messageOK(const Message* msg);
     virtual void handleEnqueue() = 0;
     virtual void handleEnqueue(Message *) = 0;
     Boolean _enqueueResponse(Message *, Message *);
-//      virtual void _handle_incoming_operation(AsyncOpNode *operation, Thread *thread, MessageQueue *queue);
+//  virtual void _handle_incoming_operation(
+//      AsyncOpNode* operation,
+//      Thread* thread,
+//      MessageQueue* queue);
     virtual void _handle_incoming_operation(AsyncOpNode *);
 
-    virtual void _handle_async_request(AsyncRequest *req);
-    virtual void _handle_async_callback(AsyncOpNode *operation);
-    virtual void _make_response(Message *req, Uint32 code);
+    virtual void _handle_async_request(AsyncRequest* req);
+    virtual void _handle_async_callback(AsyncOpNode* operation);
+    virtual void _make_response(Message* req, Uint32 code);
 
-    virtual void handle_heartbeat_request(AsyncRequest *req);
-    virtual void handle_heartbeat_reply(AsyncReply *rep);
+    virtual void handle_heartbeat_request(AsyncRequest* req);
+    virtual void handle_heartbeat_reply(AsyncReply* rep);
 
-    virtual void handle_AsyncIoctl(AsyncIoctl *req);
-    virtual void handle_CimServiceStart(CimServiceStart *req);
-    virtual void handle_CimServiceStop(CimServiceStop *req);
-    virtual void handle_CimServicePause(CimServicePause *req);
-    virtual void handle_CimServiceResume(CimServiceResume *req);
+    virtual void handle_AsyncIoctl(AsyncIoctl* req);
+    virtual void handle_CimServiceStart(CimServiceStart* req);
+    virtual void handle_CimServiceStop(CimServiceStop* req);
+    virtual void handle_CimServicePause(CimServicePause* req);
+    virtual void handle_CimServiceResume(CimServiceResume* req);
 
-    virtual void handle_AsyncOperationStart(AsyncOperationStart *req);
-    virtual void handle_AsyncOperationResult(AsyncOperationResult *rep);
-    virtual void handle_AsyncLegacyOperationStart(AsyncLegacyOperationStart *req);
-    virtual void handle_AsyncLegacyOperationResult(AsyncLegacyOperationResult *rep);
+    virtual void handle_AsyncOperationStart(AsyncOperationStart* req);
+    virtual void handle_AsyncOperationResult(AsyncOperationResult* rep);
+    virtual void handle_AsyncLegacyOperationStart(
+        AsyncLegacyOperationStart* req);
+    virtual void handle_AsyncLegacyOperationResult(
+        AsyncLegacyOperationResult* rep);
 
-    void _completeAsyncResponse(AsyncRequest *request,
-                AsyncReply *reply,
-                Uint32 state,
-                Uint32 flag);
+    void _completeAsyncResponse(
+        AsyncRequest* request,
+        AsyncReply* reply,
+        Uint32 state,
+        Uint32 flag);
     void _complete_op_node(AsyncOpNode *, Uint32, Uint32, Uint32);
 
-    static cimom *_meta_dispatcher;
+    static cimom* _meta_dispatcher;
     static AtomicInt _service_count;
     static Mutex _meta_dispatcher_mutex;
-    static ThreadPool *_thread_pool;
+    static ThreadPool* _thread_pool;
 
 private:
     static ThreadReturnType PEGASUS_THREAD_CDECL polling_routine(void *);

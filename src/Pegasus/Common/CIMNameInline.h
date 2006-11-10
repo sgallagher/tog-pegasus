@@ -67,7 +67,7 @@ PEGASUS_CIMNAME_INLINE const String& CIMName::getString() const
 
 PEGASUS_CIMNAME_INLINE Boolean CIMName::isNull() const
 {
-    return (cimName.size() == 0);
+    return cimName.size() == 0;
 }
 
 PEGASUS_CIMNAME_INLINE void CIMName::clear()
@@ -132,7 +132,7 @@ PEGASUS_CIMNAME_INLINE const String& CIMNamespaceName::getString() const
 
 PEGASUS_CIMNAME_INLINE Boolean CIMNamespaceName::isNull() const
 {
-    return (cimNamespaceName.size() == 0);
+    return cimNamespaceName.size() == 0;
 }
 
 PEGASUS_CIMNAME_INLINE void CIMNamespaceName::clear()

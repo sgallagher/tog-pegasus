@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1527
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -47,10 +42,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** TraceFileHandler implements logging of messages to file 
+/** TraceFileHandler implements logging of messages to file
  */
 
-class PEGASUS_COMMON_LINKAGE TraceFileHandler 
+class PEGASUS_COMMON_LINKAGE TraceFileHandler
 {
 private:
 
@@ -79,7 +74,7 @@ private:
      */
     FILE* _fileHandle;
 
-    /* Flag to track writing of message to log 
+    /* Flag to track writing of message to log
      */
     Boolean _wroteToLog;
 
@@ -95,14 +90,14 @@ public:
 
     /** Sets the filename to the given filename and opens the file in append
         mode
-        @param    fileName full path of the file 
+        @param    fileName full path of the file
         @return   0        if the function is successful in opening the file
                   1        if an error occurs while opening the file
      */
     Uint32 setFileName(const char* fileName);
 
     /** Validates the File Path for the trace File
-        @param    filePath full path of the file 
+        @param    filePath full path of the file
         @return   1        if the file path is valid
                   0        if the file path is invalid
      */

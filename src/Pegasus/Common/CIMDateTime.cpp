@@ -102,16 +102,16 @@ static const Uint64 HOUR = 60 * MINUTE;
 static const Uint64 DAY = 24 * HOUR;
 
 // Number of microseconds in ten thousand years.
-static const Uint64 TEN_THOUSAND_YEARS = 
+static const Uint64 TEN_THOUSAND_YEARS =
     PEGASUS_UINT64_LITERAL(315569520000000000);
 
 // Number of microseconds in one million days.
-static const Uint64 HUNDRED_MILLION_DAYS = 
+static const Uint64 HUNDRED_MILLION_DAYS =
     PEGASUS_UINT64_LITERAL(8640000000000000000);
 
 // Adding this to the POSIX 1970 microseconds epoch produces a 1 BCE epoch
 // as used by this class.
-static const Uint64 POSIX_1970_EPOCH_OFFSET  = 
+static const Uint64 POSIX_1970_EPOCH_OFFSET  =
     PEGASUS_UINT64_LITERAL(62167201200000000);
 
 //==============================================================================
@@ -256,7 +256,7 @@ static inline bool _strToUint32(const Uint16* s, size_t n, Uint32& x)
 
 /** Parse the integer component pointed to by s. Return WILDCARD if s consists
     entirely of '*' characters. Returns the integer if it consists entirely
-    of digits. Throw exception if digits and '*' are mixed. Also throw 
+    of digits. Throw exception if digits and '*' are mixed. Also throw
     exception if digits are encountered when priorWildcards parameter is true.
 */
 static inline Uint32 _parseComponent(
@@ -311,10 +311,10 @@ static inline bool _allAsterisks(const Uint16* s, size_t n)
 }
 
 /** Parse the microseconds component of the given string (6 characters).
-    Set numSignificantMicrosecondDigits to the number of leading significant 
-    digits (non-asterisks). Note that once an asterisk is encountered, all 
-    subsequent characters must be asterisks. Returns the number of 
-    microseconds. Throws an exception if priorWildcards is true and any digits 
+    Set numSignificantMicrosecondDigits to the number of leading significant
+    digits (non-asterisks). Note that once an asterisk is encountered, all
+    subsequent characters must be asterisks. Returns the number of
+    microseconds. Throws an exception if priorWildcards is true and any digits
     are encountered or if digits occurs after asterisks.
 */
 static Uint32 _parseMicroseconds(
@@ -469,7 +469,7 @@ static void _toCStr(const CIMDateTimeRep* rep, char buffer[26])
         // Format the string.
 
         sprintf(
-            buffer, 
+            buffer,
             "%08u%02u%02u%02u.%06u:000",
             Uint32(days),
             Uint32(hours),
@@ -499,7 +499,7 @@ static void _toCStr(const CIMDateTimeRep* rep, char buffer[26])
         // Format the string.
 
         sprintf(
-            buffer, 
+            buffer,
             "%04u%02u%02u%02u%02u%02u.%06u%c%03d",
             Uint32(year),
             Uint32(month),
@@ -989,7 +989,7 @@ void CIMDateTime::set(const String& str)
         // Parse UTF offset.
 
         Uint32 utcOffset;
-        
+
         if (!_strToUint32(s, 3, utcOffset))
             throw InvalidDateTimeFormatException();
 
@@ -1371,7 +1371,7 @@ CIMDateTime CIMDateTime::operator-(const CIMDateTime& dt) const
 
     if (isInterval() == dt.isInterval())
     {
-        // TIMESTAMP - TIMESTAMP 
+        // TIMESTAMP - TIMESTAMP
         // OR
         // INTERVAL - INTERVAL
         return CIMDateTime(x - y, true);
@@ -1441,7 +1441,7 @@ CIMDateTime& CIMDateTime::operator/=(Uint64 x)
         throw TypeMismatchException(parms);
     }
 
-    if (x == 0) 
+    if (x == 0)
     {
         MessageLoaderParms parms(
             "Common.CIMDateTime.INVALID_OPERATION_DIV_ZERO",
@@ -1464,7 +1464,7 @@ Uint64 CIMDateTime::operator/(const CIMDateTime& x) const
         throw TypeMismatchException(parms);
     }
 
-    if (x._rep->usec == 0) 
+    if (x._rep->usec == 0)
     {
         MessageLoaderParms parms(
             "Common.CIMDateTime.INVALID_OPERATION_DIV_ZERO",
@@ -1543,13 +1543,13 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     int tzMinutesEast;
     {
 # if defined(PEGASUS_OS_SOLARIS)
-        tzMinutesEast = 
+        tzMinutesEast =
             -(int)((tmval->tm_isdst > 0 && daylight) ? altzone : timezone) / 60;
 # elif defined(PEGASUS_OS_HPUX)
         tzMinutesEast = - (int) timezone / 60;
         if ((tmval->tm_isdst > 0) && daylight)
         {
-            // ATTN: It is unclear how to determine the DST offset.  
+            // ATTN: It is unclear how to determine the DST offset.
             // Assume 1 hour.
             tzMinutesEast += 60;
         }
@@ -1559,7 +1559,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
         if (tz.tz_dsttime > 0)
             tzMinutesEast = -tz.tz_minuteswest;
         else
-            // ATTN: It is unclear how to determine the DST offset.  
+            // ATTN: It is unclear how to determine the DST offset.
             // Assume 1 hour.
             tzMinutesEast = -tz.tz_minuteswest + 60;
 # endif
@@ -1568,7 +1568,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     // Create the representation object.
 
     CIMDateTimeRep* rep = new CIMDateTimeRep;
-    rep->usec = 
+    rep->usec =
         POSIX_1970_EPOCH_OFFSET + Uint64(sec) * Uint64(1000000) + Uint64(usec);
     rep->sign = tzMinutesEast < 0 ? '-' : '+';
     rep->utcOffset = tzMinutesEast < 0 ? -tzMinutesEast : tzMinutesEast;
@@ -1593,7 +1593,7 @@ Boolean getCurrentTimeZone(Sint16& currentTimeZone)
     TIME_ZONE_INFORMATION timezone;
     ::memset(&timezone, 0, sizeof(timezone));
 
-    switch(::GetTimeZoneInformation(&timezone)) 
+    switch(::GetTimeZoneInformation(&timezone))
     {
         case TIME_ZONE_ID_UNKNOWN:
         {
@@ -1603,14 +1603,14 @@ Boolean getCurrentTimeZone(Sint16& currentTimeZone)
 
         case TIME_ZONE_ID_STANDARD:
         {
-            currentTimeZone = 
+            currentTimeZone =
                 static_cast<Sint16>(timezone.Bias + timezone.StandardBias);
             break;
         }
 
         case TIME_ZONE_ID_DAYLIGHT:
         {
-            currentTimeZone = 
+            currentTimeZone =
                 static_cast<Sint16>(timezone.Bias + timezone.DaylightBias);
             break;
         }
@@ -1619,11 +1619,11 @@ Boolean getCurrentTimeZone(Sint16& currentTimeZone)
             break;
     }
 
-    // the bias used to calculate the time zone is a factor that is used to 
-    // determine the UTC time from the local time. to get the UTC offset from 
+    // the bias used to calculate the time zone is a factor that is used to
+    // determine the UTC time from the local time. to get the UTC offset from
     // the local time, use the inverse.
 
-    if(currentTimeZone != 0) 
+    if (currentTimeZone != 0)
     {
         currentTimeZone *= -1;
     }
@@ -1669,7 +1669,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 Notes:
 
     (1) The legacy implementation added the UTC offset when it was negative and
-        substracted it when it was positive. I preserved this behavior but 
+        substracted it when it was positive. I preserved this behavior but
         suspect it may be wrong.
 
     (2) Evenetually change getCurrentDateTime() to use constructor that takes

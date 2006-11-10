@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef ObjectStreamer_h
@@ -47,26 +42,32 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE ObjectStreamer {
-
+class PEGASUS_COMMON_LINKAGE ObjectStreamer
+{
 public:
 
-   ObjectStreamer() {}
+    ObjectStreamer() {}
 
-   virtual ~ObjectStreamer() {}
+    virtual ~ObjectStreamer() {}
 
-   virtual void encode(Buffer& out, const CIMClass& cls) = 0;
-   virtual void encode(Buffer& out, const CIMInstance& inst) = 0;
-   virtual void encode(Buffer& out, const CIMQualifierDecl& qual) = 0;
+    virtual void encode(Buffer& out, const CIMClass& cls) = 0;
+    virtual void encode(Buffer& out, const CIMInstance& inst) = 0;
+    virtual void encode(Buffer& out, const CIMQualifierDecl& qual) = 0;
 
-   virtual void decode(const Buffer& in, unsigned int pos, CIMClass& cls) = 0;
-   virtual void decode(const Buffer& in, unsigned int pos, CIMInstance& inst) = 0;
-   virtual void decode(const Buffer& in, unsigned int pos, CIMQualifierDecl& qual) = 0;
+    virtual void decode(const Buffer& in, unsigned int pos, CIMClass& cls) = 0;
+    virtual void decode(
+        const Buffer& in,
+        unsigned int pos,
+        CIMInstance& inst) = 0;
+    virtual void decode(
+        const Buffer& in,
+        unsigned int pos,
+        CIMQualifierDecl& qual) = 0;
 
-   virtual void write(PEGASUS_STD(ostream)& os, Buffer& in)
-   {
-      os.write(in.getData(), static_cast<PEGASUS_STD(streamsize)>(in.size()));
-   }
+    virtual void write(PEGASUS_STD(ostream)& os, Buffer& in)
+    {
+        os.write(in.getData(), static_cast<PEGASUS_STD(streamsize)>(in.size()));
+    }
 };
 
 PEGASUS_NAMESPACE_END

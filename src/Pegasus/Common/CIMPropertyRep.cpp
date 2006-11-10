@@ -78,7 +78,7 @@ CIMPropertyRep::CIMPropertyRep(
     _propagated(propagated)
 {
     // ensure name is not null
-    if(name.isNull())
+    if (name.isNull())
     {
         throw UninitializedObjectException();
     }
@@ -117,7 +117,7 @@ CIMPropertyRep::~CIMPropertyRep()
 void CIMPropertyRep::setName(const CIMName& name)
 {
     // ensure name is not null
-    if(name.isNull())
+    if (name.isNull())
     {
         throw UninitializedObjectException();
     }
@@ -179,21 +179,21 @@ void CIMPropertyRep::resolve(
         CIMName inheritedClassName;
         Array<CIMName> classNames;
 
-        if(isEmbeddedInst)
+        if (isEmbeddedInst)
         {
             Uint32 pos = inheritedProperty.findQualifier("EmbeddedInstance");
-            if(pos != PEG_NOT_FOUND)
+            if (pos != PEG_NOT_FOUND)
             {
                 String qualStr;
                 inheritedProperty.getQualifier(pos).getValue().get(qualStr);
                 inheritedClassName = qualStr;
             }
 
-            if(_value.isArray())
+            if (_value.isArray())
             {
                 Array<CIMInstance> embeddedInstances;
                 _value.get(embeddedInstances);
-                for(Uint32 i = 0, n = embeddedInstances.size(); i < n; ++i)
+                for (Uint32 i = 0, n = embeddedInstances.size(); i < n; ++i)
                 {
                     classNames.append(embeddedInstances[i].getClassName());
                 }
@@ -232,28 +232,28 @@ void CIMPropertyRep::resolve(
         // very closely related types.
         Array<CIMName> successTree;
         successTree.append(inheritedClassName);
-        for(Uint32 i = 0, n = classNames.size(); i < n; ++i)
+        for (Uint32 i = 0, n = classNames.size(); i < n; ++i)
         {
             Array<CIMName> traversalHistory;
             CIMName currentName = classNames[i];
             Boolean found = false;
-            while(!found && !currentName.isNull())
+            while (!found && !currentName.isNull())
             {
-                for(Uint32 j = 0, m = successTree.size(); j < m; ++j)
+                for (Uint32 j = 0, m = successTree.size(); j < m; ++j)
                 {
-                    if(currentName == successTree[j])
+                    if (currentName == successTree[j])
                     {
                         found = true;
                         break;
                     }
                 }
 
-                if(!found)
+                if (!found)
                 {
                     traversalHistory.append(currentName);
                     CIMClass currentClass = declContext->lookupClass(
                             nameSpace, currentName);
-                    if(currentClass.isUninitialized())
+                    if (currentClass.isUninitialized())
                     {
                         throw PEGASUS_CIM_EXCEPTION(
                                 CIM_ERR_NOT_FOUND, currentName.getString());
@@ -262,7 +262,7 @@ void CIMPropertyRep::resolve(
                 }
             }
 
-            if(!found)
+            if (!found)
             {
                 throw TypeMismatchException();
             }
@@ -353,7 +353,7 @@ void CIMPropertyRep::toXml(Buffer& out) const
 #endif
         }
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        else if(_value.getType() == CIMTYPE_INSTANCE)
+        else if (_value.getType() == CIMTYPE_INSTANCE)
         {
             // If the property array type is CIMInstance, then
             //   encode the property in CIM-XML as a string array with the

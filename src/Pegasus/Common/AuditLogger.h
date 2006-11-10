@@ -44,9 +44,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 #ifndef PEGASUS_DISABLE_AUDIT_LOGGER
 
-/** 
+/**
     This class provides the interfaces to construct a human readable audit
-    text message and write the message to log files.    
+    text message and write the message to log files.
 */
 class PEGASUS_COMMON_LINKAGE AuditLogger
 {
@@ -57,7 +57,7 @@ public:
         TYPE_AUTHENTICATION,
         TYPE_AUTHORIZATION,
         TYPE_CONFIGURATION,
-        TYPE_CIMOPERATION 
+        TYPE_CIMOPERATION
     };
 
     enum AuditSubType
@@ -92,7 +92,7 @@ public:
     };
 
     /** Constructs and logs audit message of the current configurations
-        @param propertyNames - All the current property names while the CIM 
+        @param propertyNames - All the current property names while the CIM
                                Server is running
         @param propertyValues - All the current property values while the CIM
                                 Server is running
@@ -140,7 +140,7 @@ public:
         @param cimMethodName - The name of the CIM operation performed
         @param eventType - The AuditEvent associated with the CIM operation
         @param userName - User name for this operation
-        @param ipAddr - Client IP address for this operation 
+        @param ipAddr - Client IP address for this operation
         @param nameSpace - The namespace for the operation
         @param className - The name of the class
         @param statusCode - The CIM status code for the operation
@@ -159,9 +159,9 @@ public:
         @param cimMethodName - The name of the CIM operation performed
         @param eventType - The AuditEvent associated with the CIM operation
         @param userName - User name for this operation
-        @param ipAddr - Client IP address for this operation 
+        @param ipAddr - Client IP address for this operation
         @param nameSpace - The namespace for the operation
-        @param name - The name of the qualifier 
+        @param name - The name of the qualifier
         @param statusCode - The CIM status code for the operation
     */
     static void logUpdateQualifierOperation(
@@ -178,7 +178,7 @@ public:
         @param cimMethodName - The name of the CIM operation performed
         @param eventType - The AuditEvent associated with the CIM operation
         @param userName - The user name for this operation
-        @param ipAddr - Client IP address for this operation 
+        @param ipAddr - Client IP address for this operation
         @param nameSpace - The namespace for the operation
         @param instanceName - The name of the affected instance
         @param moduleName - The provider module name that serves the request
@@ -199,11 +199,11 @@ public:
     /**
         Constructs and logs audit message of a CIM InvokeMethod operation
         @param userName - The user name for this operation
-        @param ipAddr - Client IP address for this operation 
+        @param ipAddr - Client IP address for this operation
         @param nameSpace - The namespace for the operation
         @param objectName - The name of the object on which the method is
             invoked
-        @param methodName - The name of the method to be executed 
+        @param methodName - The name of the method to be executed
         @param moduleName - The provider module name that serves the request
         @param providerName - The provider name that serves the request
         @param statusCode - The CIM status code for the operation
@@ -218,7 +218,7 @@ public:
         const String& providerName,
         CIMStatusCode statusCode);
 
-    /** Constructs and logs audit message of a provider module status change 
+    /** Constructs and logs audit message of a provider module status change
         @param moduleName - The name of the provider module
         @param currentModuleStatus - The current status of the provider module
         @param newModuleStatus - The new status of the provider module
@@ -250,24 +250,24 @@ public:
 
     typedef void (*PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T)();
 
-    typedef void (*PEGASUS_AUDITLOG_CALLBACK_T) (AuditType, 
-        AuditSubType, AuditEvent, Uint32, MessageLoaderParms &); 
+    typedef void (*PEGASUS_AUDITLOG_CALLBACK_T) (AuditType,
+        AuditSubType, AuditEvent, Uint32, MessageLoaderParms &);
 
     /**
         Registers an audit log initialize callback
-        If a non-null initialize callback function is registered, 
+        If a non-null initialize callback function is registered,
         it will be called when the audit log is enabled.
-        @param auditLogInitializeCallback - The audit log initialize 
+        @param auditLogInitializeCallback - The audit log initialize
                                             callback function
     */
     static void setInitializeCallback(
         PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T auditLogInitializeCallback);
 
-    /** If the enabled is true, the audit log initialize callback function 
+    /** If the enabled is true, the audit log initialize callback function
         is called to communicate that the audit log is enabled.
-        @param enabled - True on config property "enableAuditLog" is 
+        @param enabled - True on config property "enableAuditLog" is
                          enabled, false otherwise
-    */  
+    */
     static void setEnabled(Boolean enabled);
 
     static Boolean isEnabled();
@@ -279,14 +279,13 @@ public:
     */
     static void writeAuditLogToFileCallback(
         PEGASUS_AUDITLOG_CALLBACK_T writeAuditMessageCallback);
-     
 
 private:
-    
+
     static Boolean _auditLogFlag;
 
-    /** 
-        Callback function to be called when the audit log is enabled 
+    /**
+        Callback function to be called when the audit log is enabled
     */
     static PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T _auditLogInitializeCallback;
 
@@ -299,16 +298,16 @@ private:
         @param AuditType - Type of audit record (Authentication etc)
         @param AuditSubType - Sub type of audit record(Local_Authentication etc)
         @param AuditEvent - Event of audit record (Start_Up etc)
-        @param logLevel - Pegasus Severity (WARNING etc)            
-        All the audit messages are passed with pegasus severity 
+        @param logLevel - Pegasus Severity (WARNING etc)
+        All the audit messages are passed with pegasus severity
         "INFORMATION", except authentication attempts failed messages or
-        authorization failed messages are passed with pegasus severity 
+        authorization failed messages are passed with pegasus severity
         "WARNING"
         @param msgParms - The message loader parameters
     */
     static void _writeAuditMessage(
         AuditType auditType,
-        AuditSubType auditSubType,  
+        AuditSubType auditSubType,
         AuditEvent auditEvent,
         Uint32 logLevel,
         MessageLoaderParms & msgParms);
@@ -323,7 +322,7 @@ private:
 
 inline Boolean AuditLogger::isEnabled()
 {
-    return (_auditLogFlag);
+    return _auditLogFlag;
 }
 
 # define PEG_AUDIT_LOG(T) \

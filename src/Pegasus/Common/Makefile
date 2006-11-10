@@ -47,7 +47,7 @@ LIBRARY = pegcommon
 ##
 ## CAUTION: the source files are divided evenly (more or less) between SOURCES1
 ## and SOURCES2. This avoids a command line buffer overflow on Windows 2000
-## (see bug #2754 for details). As a precaution, limit SOURCES1 and SOURCES2 
+## (see bug #2754 for details). As a precaution, limit SOURCES1 and SOURCES2
 ## to 75 source files each.
 ##
 
@@ -248,7 +248,7 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   else
      ifneq ($(CL_MAJOR_VERSION), 12)
     SYS_LIBS += secur32.lib
-     endif  
+     endif
   endif
 endif
 

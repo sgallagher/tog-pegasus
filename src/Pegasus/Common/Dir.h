@@ -121,7 +121,7 @@ public:
                cout << "name: " << dir.getName() << endl;
            }
         }
-        catch(CannotOpenDirectory&)
+        catch (CannotOpenDirectory&)
         {
            // Error!
         }

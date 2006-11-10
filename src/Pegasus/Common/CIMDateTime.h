@@ -225,7 +225,7 @@ public:
             CIMDateTime d2 = "00000000000000.000000:000";
             d1 = d2;
         </PRE>
-        Therefore, d1 is assigned the same "00000000000000.000000:000" value 
+        Therefore, d1 is assigned the same "00000000000000.000000:000" value
         as d2.
     */
     CIMDateTime& operator=(const CIMDateTime& x);

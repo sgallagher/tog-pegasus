@@ -63,7 +63,7 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
     _arraySize(arraySize)
 {
     // ensure name is not null
-    if(name.isNull())
+    if (name.isNull())
     {
         throw UninitializedObjectException();
     }
@@ -77,12 +77,12 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
     // favors restricted and disable override
     //ATTN: This should become an exception in case conflicting entities are
     // set.
-    if(!(_flavor.hasFlavor (CIMFlavor::RESTRICTED)))
+    if (!(_flavor.hasFlavor (CIMFlavor::RESTRICTED)))
         _flavor.addFlavor (CIMFlavor::TOSUBCLASS);
     else
         _flavor.removeFlavor (CIMFlavor::TOSUBCLASS);
 
-    if(!(_flavor.hasFlavor (CIMFlavor::DISABLEOVERRIDE)))
+    if (!(_flavor.hasFlavor (CIMFlavor::DISABLEOVERRIDE)))
         _flavor.addFlavor (CIMFlavor::ENABLEOVERRIDE);
     else
         _flavor.removeFlavor (CIMFlavor::ENABLEOVERRIDE);
@@ -97,7 +97,7 @@ CIMQualifierDeclRep::~CIMQualifierDeclRep()
 void CIMQualifierDeclRep::setName(const CIMName& name)
 {
     // ensure name is not null
-    if(name.isNull())
+    if (name.isNull())
     {
         throw UninitializedObjectException();
     }

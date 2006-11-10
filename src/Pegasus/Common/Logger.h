@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Dave Rosckes (rosckes@us.ibm.com)
-//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Logger_h

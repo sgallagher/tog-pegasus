@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chuck Carmack (carmack@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ResponseHandlerRep_h
@@ -44,7 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 /** This class defines the internal representation of the ResponseHandler class.
 */
-class ResponseHandlerRep  
+class ResponseHandlerRep
 {
 public:
 

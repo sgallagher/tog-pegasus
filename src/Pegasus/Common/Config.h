@@ -68,7 +68,7 @@
 # include <Pegasus/Common/Platform_LINUX_ZSERIES64_GNU.h>
 #elif defined (__OS400__)
 # if !defined (PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-#   define PEGASUS_PLATFORM_OS400_ISERIES_IBM 
+#   define PEGASUS_PLATFORM_OS400_ISERIES_IBM
 # endif
 # include <Pegasus/Common/Platform_OS400_ISERIES_IBM.h>
 #elif defined (PEGASUS_PLATFORM_DARWIN_PPC_GNU)
@@ -102,7 +102,7 @@
 // To test for GCC > 3.2.0:
 //     #if GCC_VERSION > 30200
 
-#endif 
+#endif
 
 
 #ifdef __cplusplus
@@ -129,7 +129,7 @@
 **         class PEGASUS_COMMON_LINKAGE MyClass
 **         {
 **         public:
-**         
+**
 **             // Is exported (due to PEGASUS_COMMON_LINKAGE macro).
 **             void f();
 **
@@ -191,7 +191,7 @@
 #endif
 
 #ifdef PEGASUS_HAVE_IOS_BINARY
-#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) 
+#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 #define PEGASUS_IOS_BINARY ,std::ios::binary,PEGASUS_STD(_CCSID_T(1208))
 #else
 #define PEGASUS_IOS_BINARY ,std::ios::binary

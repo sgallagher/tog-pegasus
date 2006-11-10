@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com) <<< Wed Mar 13 20:49:40 2002 mdd >>>
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ModuleController_h
@@ -63,7 +56,7 @@ public:
 
     virtual ~RegisteredModuleHandle();
 
-    const String & get_name() const;
+    const String& get_name() const;
 
 private:
 
@@ -98,12 +91,12 @@ public:
 
         ~callback_handle()
         {
-            if( _module->get_name() == String(PEGASUS_MODULENAME_TEMP) )
+            if (_module->get_name() == String(PEGASUS_MODULENAME_TEMP))
                 _module.reset();
         }
 
         AutoPtr<RegisteredModuleHandle> _module;
-        void *_parm;
+        void* _parm;
     };
 
 public:
@@ -273,8 +266,11 @@ private:
     };
 
 
+    static void _async_handleEnqueue(
+        AsyncOpNode* h,
+        MessageQueue* q,
+        void* parm);
 
-    static void _async_handleEnqueue(AsyncOpNode *h, MessageQueue *q, void *parm);
     List<RegisteredModuleHandle, Mutex> _modules;
     AsyncReply *_send_wait(Uint32, AsyncRequest *);
     AsyncReply *_send_wait(Uint32, const String &, AsyncRequest *);

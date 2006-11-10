@@ -29,21 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//              Willis White (whiwill@us.ibm.com) PEP 127 and 128
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//              Vijay Eli, vijayeli@in.ibm.com, fix for #2571
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -86,13 +71,13 @@ PEGASUS_NAMESPACE_BEGIN
 // messages can be very large. This overwriting shortcut allows us to NOT have
 // to repackage a large message later.
 
-#define OUTPUT_CONTENTLENGTH                                   		   \
-{                                                              		   \
-    char contentLengthP[11];                                   		   \
-    int n = sprintf(contentLengthP,"%.10u", contentLength);            	   \
-    out << STRLIT("content-length: ");					   \
-    out.append(contentLengthP, n);					   \
-    out << STRLIT("\r\n"); 						   \
+#define OUTPUT_CONTENTLENGTH                                               \
+{                                                                          \
+    char contentLengthP[11];                                               \
+    int n = sprintf(contentLengthP,"%.10u", contentLength);                \
+    out << STRLIT("content-length: ");                                     \
+    out.append(contentLengthP, n);                                         \
+    out << STRLIT("\r\n");                                                 \
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -295,14 +280,12 @@ Buffer& operator<<(Buffer& out, const CIMName& name)
 }
 
 
-// l10n
 Buffer& operator<<(Buffer& out, const AcceptLanguageList& al)
 {
     XmlWriter::append(out, LanguageParser::buildAcceptLanguageHeader(al));
     return out;
 }
 
-// l10n
 Buffer& operator<<(Buffer& out, const ContentLanguageList& cl)
 {
     XmlWriter::append(out, LanguageParser::buildContentLanguageHeader(cl));
@@ -345,10 +328,11 @@ static void _xmlWritter_appendChar(Buffer& out, const Char16& c)
     Uint8 *strtgt = (Uint8 *)str;
     Uint8 *endtgt = (Uint8 *)&str[5];
 
-    UTF16toUTF8(&strsrc,
-		endsrc,
-		&strtgt,
-		endtgt);
+    UTF16toUTF8(
+        &strsrc,
+        endsrc,
+        &strtgt,
+        endtgt);
 
     out.append(str, UTF_8_COUNT_TRAIL_BYTES(str[0]) + 1);
 }
@@ -420,10 +404,11 @@ void _xmlWritter_appendSurrogatePair(Buffer& out, Uint16 high, Uint16 low)
     Uint8 *strtgt = (Uint8 *)str;
     Uint8 *endtgt = (Uint8 *)&str[5];
 
-    UTF16toUTF8(&strsrc,
-		endsrc,
-		&strtgt,
-		endtgt);
+    UTF16toUTF8(
+        &strsrc,
+        endsrc,
+        &strtgt,
+        endtgt);
 
     Uint32 number1 = UTF_8_COUNT_TRAIL_BYTES(str[0]) + 1;
     out.append(str,number1);
@@ -486,9 +471,9 @@ void XmlWriter::append(Buffer& out, Real32 x)
 void XmlWriter::append(Buffer& out, Real64 x)
 {
     char buffer[128];
-    // %.16e gives '[-]m.dddddddddddddddde+/-xx', which seems compatible with the format
-    // given in the CIM/XML spec, and the precision required by the CIM 2.2 spec
-    // (8 byte IEEE floating point)
+    // %.16e gives '[-]m.dddddddddddddddde+/-xx', which seems compatible
+    // with the format given in the CIM/XML spec, and the precision required
+    // by the CIM 2.2 spec (8 byte IEEE floating point)
     sprintf(buffer, "%.16e", x);
     append(out, buffer);
 }
@@ -508,54 +493,54 @@ void XmlWriter::append(Buffer& out, const String& str)
 
     while (n >= 8 && ((p[0]|p[1]|p[2]|p[3]|p[4]|p[5]|p[6]|p[7]) & 0xFF80) == 0)
     {
-	out.append(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
-	p += 8;
-	n -= 8;
+        out.append(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+        p += 8;
+        n -= 8;
     }
 
     while (n >= 4 && ((p[0]|p[1]|p[2]|p[3]) & 0xFF80) == 0)
     {
-	out.append(p[0], p[1], p[2], p[3]);
-	p += 4;
-	n -= 4;
+        out.append(p[0], p[1], p[2], p[3]);
+        p += 4;
+        n -= 4;
     }
 
     while (n--)
     {
-	Uint16 c = *p++;
+        Uint16 c = *p++;
 
-	// Special processing for UTF8 case:
+        // Special processing for UTF8 case:
 
-	if (c < 128)
-	{
-	    out.append(c);
-	    continue;
-	}
+        if (c < 128)
+        {
+            out.append(c);
+            continue;
+        }
 
-	// Hanlde UTF8 case (if reached).
+        // Handle UTF8 case (if reached).
 
-	if(((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
-	   ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
-	{
-	    Char16 highSurrogate = p[-1];
-	    Char16 lowSurrogate = p[0];
-	    p++;
-	    n--;
+        if (((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
+            ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
+        {
+            Char16 highSurrogate = p[-1];
+            Char16 lowSurrogate = p[0];
+            p++;
+            n--;
 
-	    _xmlWritter_appendSurrogatePair(
-		out, Uint16(highSurrogate),Uint16(lowSurrogate));
-	}
-	else
-	{
-	    _xmlWritter_appendChar(out, c);
-	}
+            _xmlWritter_appendSurrogatePair(
+                out, Uint16(highSurrogate),Uint16(lowSurrogate));
+        }
+        else
+        {
+            _xmlWritter_appendChar(out, c);
+        }
     }
 }
 
 void XmlWriter::append(Buffer& out, const Indentor& x)
 {
     for (Uint32 i = 0; i < 4 * x.getLevel(); i++)
-	out.append(' ');
+        out.append(' ');
 }
 
 void XmlWriter::appendSpecial(Buffer& out, const Char16& x)
@@ -571,7 +556,7 @@ void XmlWriter::appendSpecial(Buffer& out, char x)
 void XmlWriter::appendSpecial(Buffer& out, const char* str)
 {
     while (*str)
-	_appendSpecialChar7(out, *str++);
+        _appendSpecialChar7(out, *str++);
 }
 
 void XmlWriter::appendSpecial(Buffer& out, const String& str)
@@ -594,7 +579,7 @@ void XmlWriter::appendSpecial(Buffer& out, const String& str)
     {
         if (c < 128)
         {
-	    if (_isSpecialChar7[c])
+            if (_isSpecialChar7[c])
             {
                 // Write the character reference for the special character
                 out.append(
@@ -616,7 +601,7 @@ void XmlWriter::appendSpecial(Buffer& out, const String& str)
         }
         else
         {
-	    // Handle UTF8 case
+            // Handle UTF8 case
 
             if ((((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
                  ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE))) &&
@@ -716,13 +701,14 @@ String XmlWriter::encodeURICharacters(const String& uriString)
     {
         Uint16 c = uriString[i];
 
-        if(((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
-           ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
+        if (((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
+            ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
         {
             Char16 highSurrogate = uriString[i];
             Char16 lowSurrogate = uriString[++i];
 
-            _xmlWritter_appendSurrogatePair(utf8, Uint16(highSurrogate),Uint16(lowSurrogate));
+            _xmlWritter_appendSurrogatePair(
+                utf8, Uint16(highSurrogate),Uint16(lowSurrogate));
         }
         else
         {
@@ -827,14 +813,15 @@ void XmlWriter::appendInstanceNameElement(
     for (Uint32 i = 0, n = keyBindings.size(); i < n; i++)
     {
         out << STRLIT("<KEYBINDING NAME=\"");
-	out << keyBindings[i].getName() << STRLIT("\">\n");
+        out << keyBindings[i].getName() << STRLIT("\">\n");
 
         if (keyBindings[i].getType() == CIMKeyBinding::REFERENCE)
         {
             CIMObjectPath ref = keyBindings[i].getValue();
             appendValueReferenceElement(out, ref, true);
         }
-        else {
+        else
+        {
             out << STRLIT("<KEYVALUE VALUETYPE=\"");
             out << keyBindingTypeToString(keyBindings[i].getType());
             out << STRLIT("\">");
@@ -1192,9 +1179,9 @@ void XmlWriter::appendValueElement(
 
             case CIMTYPE_STRING:
             {
-		const String* data;
-		Uint32 size;
-		value._get(data, size);
+                const String* data;
+                Uint32 size;
+                value._get(data, size);
                 _xmlWritter_appendValueArray(out, data, size);
                 break;
             }
@@ -1928,26 +1915,27 @@ void XmlWriter::appendMethodCallHeader(
     OUTPUT_CONTENTLENGTH;
     if (acceptLanguages.size() > 0)
     {
-    	out << STRLIT("Accept-Language: ") << acceptLanguages << STRLIT("\r\n");
+        out << STRLIT("Accept-Language: ") << acceptLanguages << STRLIT("\r\n");
     }
     if (contentLanguages.size() > 0)
     {
-    	out << STRLIT("Content-Language: ") << contentLanguages << STRLIT("\r\n");
+        out << STRLIT("Content-Language: ") << contentLanguages <<
+            STRLIT("\r\n");
     }
 
 #ifdef PEGASUS_DEBUG
-		// backdoor environment variable to turn OFF client requesting transfer
-		// encoding. The default is on. to turn off, set this variable to zero.
-		// This should be removed when stable. This should only be turned off in
-		// a debugging/testing environment.
+    // backdoor environment variable to turn OFF client requesting transfer
+    // encoding. The default is on. to turn off, set this variable to zero.
+    // This should be removed when stable. This should only be turned off in
+    // a debugging/testing environment.
 
-		static const char *clientTransferEncodingOff =
-			getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
+    static const char *clientTransferEncodingOff =
+        getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
 
-		if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
+    if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
 #endif
 
-			out << STRLIT("TE: chunked, trailers\r\n");
+    out << STRLIT("TE: chunked, trailers\r\n");
 
     if (httpMethod == HTTP_METHOD_M_POST)
     {
@@ -1957,15 +1945,16 @@ void XmlWriter::appendMethodCallHeader(
         out << nn << STRLIT("-CIMMethod: ")
             << encodeURICharacters(cimMethod.getString()) << STRLIT("\r\n");
         out << nn << STRLIT("-CIMObject: ") << encodeURICharacters(cimObject)
-	    << STRLIT("\r\n");
+            << STRLIT("\r\n");
     }
     else
     {
         out << STRLIT("CIMOperation: MethodCall\r\n");
-        out << STRLIT("CIMMethod: ") << encodeURICharacters(cimMethod.getString())
+        out << STRLIT("CIMMethod: ")
+            << encodeURICharacters(cimMethod.getString())
             << STRLIT("\r\n");
         out << STRLIT("CIMObject: ") << encodeURICharacters(cimObject)
-	    << STRLIT("\r\n");
+            << STRLIT("\r\n");
     }
 
     if (authenticationHeader.size())
@@ -2000,7 +1989,8 @@ void XmlWriter::appendMethodResponseHeader(
 
      if (contentLanguages.size() > 0)
      {
-         out << STRLIT("Content-Language: ") << contentLanguages << STRLIT("\r\n");
+         out << STRLIT("Content-Language: ") << contentLanguages <<
+             STRLIT("\r\n");
      }
      if (httpMethod == HTTP_METHOD_M_POST)
      {
@@ -2117,8 +2107,8 @@ void XmlWriter::appendOKResponseHeader(
     // is usually intended to have content.  But, for Kerberos this
     // may not always be the case so we need to indicate that there
     // is no content
-		Uint32 contentLength = 0;
-		OUTPUT_CONTENTLENGTH;
+    Uint32 contentLength = 0;
+    OUTPUT_CONTENTLENGTH;
     out << content << STRLIT("\r\n");
     out << STRLIT("\r\n");
 
@@ -2343,7 +2333,7 @@ void XmlWriter::_appendErrorElement(
     {
         out << STRLIT(" DESCRIPTION=\"");
         appendSpecial(out, description);
-	out.append('"');
+        out.append('"');
     }
 
     if (cimException.getErrorCount())
@@ -2378,8 +2368,8 @@ void XmlWriter::appendReturnValueElement(
 
     CIMType type = value.getType();
     // If the property type is CIMObject, then
-    //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT attribute
-    //   (there is not currently a CIM-XML "object" datatype)
+    //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT
+    //   attribute (there is not currently a CIM-XML "object" datatype)
     // else
     //   output the real type
     if (type == CIMTYPE_OBJECT)
@@ -2397,7 +2387,7 @@ void XmlWriter::appendReturnValueElement(
     else
     {
         out << STRLIT(" PARAMTYPE=\"") << cimTypeToString (type);
-	out.append('"');
+        out.append('"');
     }
 
     out << STRLIT(">\n");
@@ -2521,13 +2511,13 @@ void XmlWriter::appendObjectNameIParameter(
     //
     if (objectName.getKeyBindings ().size () == 0)
     {
-	XmlWriter::appendClassNameIParameter(
-	    out, name, objectName.getClassName());
+        XmlWriter::appendClassNameIParameter(
+            out, name, objectName.getClassName());
     }
     else
     {
-	XmlWriter::appendInstanceNameIParameter(
-	    out, name, objectName);
+        XmlWriter::appendInstanceNameIParameter(
+            out, name, objectName);
     }
 }
 
@@ -2716,15 +2706,15 @@ Buffer XmlWriter::formatSimpleMethodReqMessage(
     _appendMessageElementEnd(out);
 
     appendMethodCallHeader(
-	tmp,
-	host,
-	methodName,
-	localObjectPath.toString(),
+        tmp,
+        host,
+        methodName,
+        localObjectPath.toString(),
         authenticationHeader,
         httpMethod,
         httpAcceptLanguages,
         httpContentLanguages,
-	out.size());
+        out.size());
     tmp << out;
 
     return tmp;
@@ -2737,38 +2727,37 @@ Buffer XmlWriter::formatSimpleMethodRspMessage(
     HttpMethod httpMethod,
     const ContentLanguageList& httpContentLanguages,
     const Buffer& body,
-		Uint64 serverResponseTime,
-		Boolean isFirst,
-		Boolean isLast)
+    Uint64 serverResponseTime,
+    Boolean isFirst,
+    Boolean isLast)
 {
-	Buffer out;
+    Buffer out;
 
-	if (isFirst == true)
-	{
-		// NOTE: temporarily put zero for content length. the http code
-		// will later decide to fill in the length or remove it altogether
-		appendMethodResponseHeader(out, httpMethod, httpContentLanguages, 0,
-															 serverResponseTime);
-		_appendMessageElementBegin(out, messageId);
-		_appendSimpleRspElementBegin(out);
-		_appendMethodResponseElementBegin(out, methodName);
-	}
+    if (isFirst == true)
+    {
+        // NOTE: temporarily put zero for content length. the http code
+        // will later decide to fill in the length or remove it altogether
+        appendMethodResponseHeader(
+            out, httpMethod, httpContentLanguages, 0, serverResponseTime);
+        _appendMessageElementBegin(out, messageId);
+        _appendSimpleRspElementBegin(out);
+        _appendMethodResponseElementBegin(out, methodName);
+    }
 
-	if (body.size() != 0)
-	{
-		out << body;
-	}
+    if (body.size() != 0)
+    {
+        out << body;
+    }
 
-	if (isLast == true)
-	{
-		_appendMethodResponseElementEnd(out);
-		_appendSimpleRspElementEnd(out);
-		_appendMessageElementEnd(out);
-	}
+    if (isLast == true)
+    {
+        _appendMethodResponseElementEnd(out);
+        _appendSimpleRspElementEnd(out);
+        _appendMessageElementEnd(out);
+    }
 
-	return out;
+    return out;
 }
-
 
 
 //------------------------------------------------------------------------------
@@ -2794,11 +2783,11 @@ Buffer XmlWriter::formatSimpleMethodErrorRspMessage(
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-// l10n
-    appendMethodResponseHeader(tmp,
-    	httpMethod,
-    	cimException.getContentLanguages(),
-    	out.size());
+    appendMethodResponseHeader(
+        tmp,
+        httpMethod,
+        cimException.getContentLanguages(),
+        out.size());
     tmp << out;
 
     return tmp;
@@ -2834,15 +2823,15 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
     _appendMessageElementEnd(out);
 
     appendMethodCallHeader(
-	tmp,
-	host,
-	iMethodName,
-	nameSpace.getString(),
+        tmp,
+        host,
+        iMethodName,
+        nameSpace.getString(),
         authenticationHeader,
         httpMethod,
         httpAcceptLanguages,
         httpContentLanguages,
-	out.size());
+        out.size());
     tmp << out;
 
     return tmp;
@@ -2866,38 +2855,39 @@ Buffer XmlWriter::formatSimpleIMethodRspMessage(
 {
     Buffer out;
 
-		if (isFirst == true)
-		{
-			// NOTE: temporarily put zero for content length. the http code
-			// will later decide to fill in the length or remove it altogether
-			appendMethodResponseHeader(out, httpMethod, httpContentLanguages, 0,
-																 serverResponseTime);
-			_appendMessageElementBegin(out, messageId);
-			_appendSimpleRspElementBegin(out);
-			_appendIMethodResponseElementBegin(out, iMethodName);
+    if (isFirst == true)
+    {
+        // NOTE: temporarily put zero for content length. the http code
+        // will later decide to fill in the length or remove it altogether
+        appendMethodResponseHeader(
+            out, httpMethod, httpContentLanguages, 0, serverResponseTime);
+        _appendMessageElementBegin(out, messageId);
+        _appendSimpleRspElementBegin(out);
+        _appendIMethodResponseElementBegin(out, iMethodName);
 
-			// output the start of the return tag. Test if there is response data by:
-			// 1. there is data on the first chunk OR
-			// 2. there is no data on the first chunk but isLast is false implying
-			//    there is more non-empty data to come. If all subsequent chunks
-			//    are empty, then this generates and empty response.
-			if (body.size() != 0 || isLast == false)
-				_appendIReturnValueElementBegin(out);
-		}
+        // output the start of the return tag. Test if there is response data
+        // by:
+        // 1. there is data on the first chunk OR
+        // 2. there is no data on the first chunk but isLast is false implying
+        //    there is more non-empty data to come. If all subsequent chunks
+        //    are empty, then this generates and empty response.
+        if (body.size() != 0 || isLast == false)
+            _appendIReturnValueElementBegin(out);
+    }
 
     if (body.size() != 0)
     {
-			out << body;
+        out << body;
     }
 
-		if (isLast == true)
-		{
-			if (body.size() != 0 || isFirst == false)
-				_appendIReturnValueElementEnd(out);
-			_appendIMethodResponseElementEnd(out);
-			_appendSimpleRspElementEnd(out);
-			_appendMessageElementEnd(out);
-		}
+    if (isLast == true)
+    {
+        if (body.size() != 0 || isFirst == false)
+            _appendIReturnValueElementEnd(out);
+        _appendIMethodResponseElementEnd(out);
+        _appendSimpleRspElementEnd(out);
+        _appendMessageElementEnd(out);
+    }
 
     return out;
 }
@@ -2926,11 +2916,10 @@ Buffer XmlWriter::formatSimpleIMethodErrorRspMessage(
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-// l10n
     appendMethodResponseHeader(tmp,
-    	 httpMethod,
-    	 cimException.getContentLanguages(),
-    	 out.size());
+        httpMethod,
+        cimException.getContentLanguages(),
+        out.size());
     tmp << out;
 
     return tmp;
@@ -2977,31 +2966,33 @@ void XmlWriter::appendEMethodRequestHeader(
 
     if (acceptLanguages.size() > 0)
     {
-    	out << STRLIT("Accept-Language: ") << acceptLanguages << STRLIT("\r\n");
+        out << STRLIT("Accept-Language: ") << acceptLanguages << STRLIT("\r\n");
     }
     if (contentLanguages.size() > 0)
     {
-    	out << STRLIT("Content-Language: ") << contentLanguages << STRLIT("\r\n");
+        out << STRLIT("Content-Language: ") << contentLanguages <<
+            STRLIT("\r\n");
     }
 
 #ifdef PEGASUS_DEBUG
-		// backdoor environment variable to turn OFF client requesting transfer
-		// encoding. The default is on. to turn off, set this variable to zero.
-		// This should be removed when stable. This should only be turned off in
-		// a debugging/testing environment.
+    // backdoor environment variable to turn OFF client requesting transfer
+    // encoding. The default is on. to turn off, set this variable to zero.
+    // This should be removed when stable. This should only be turned off in
+    // a debugging/testing environment.
 
-		static const char *clientTransferEncodingOff =
-			getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
-		if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
+    static const char *clientTransferEncodingOff =
+        getenv("PEGASUS_HTTP_TRANSFER_ENCODING_REQUEST");
+    if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
 #endif
-			out << STRLIT("TE: chunked, trailers\r\n");
+    out << STRLIT("TE: chunked, trailers\r\n");
 
     if (httpMethod == HTTP_METHOD_M_POST)
     {
-	out << STRLIT("Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=");
+        out << STRLIT("Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=");
         out << nn << STRLIT("\r\n");
         out << nn << STRLIT("-CIMExport: MethodRequest\r\n");
-        out << nn << STRLIT("-CIMExportMethod: ") << cimMethod << STRLIT("\r\n");
+        out << nn << STRLIT("-CIMExportMethod: ") << cimMethod <<
+            STRLIT("\r\n");
     }
     else
     {
@@ -3039,7 +3030,8 @@ void XmlWriter::appendEMethodResponseHeader(
 
     if (contentLanguages.size() > 0)
     {
-    	out << STRLIT("Content-Language: ") << contentLanguages << STRLIT("\r\n");
+        out << STRLIT("Content-Language: ") << contentLanguages <<
+            STRLIT("\r\n");
     }
     if (httpMethod == HTTP_METHOD_M_POST)
     {
@@ -3220,7 +3212,7 @@ Buffer XmlWriter::formatSimpleEMethodReqMessage(
         authenticationHeader,
         httpAcceptLanguages,
         httpContentLanguages,
-	out.size());
+        out.size());
     tmp << out;
 
     return tmp;
@@ -3251,9 +3243,9 @@ Buffer XmlWriter::formatSimpleEMethodRspMessage(
     _appendMessageElementEnd(out);
 
     appendEMethodResponseHeader(tmp,
-    	httpMethod,
-    	httpContentLanguages,
-    	out.size());
+        httpMethod,
+        httpContentLanguages,
+        out.size());
     tmp << out;
 
     return tmp;
@@ -3282,11 +3274,11 @@ Buffer XmlWriter::formatSimpleEMethodErrorRspMessage(
     _appendSimpleExportRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-// l10n
-    appendEMethodResponseHeader(tmp,
-    	 httpMethod,
-    	 cimException.getContentLanguages(),
-	   	 out.size());
+    appendEMethodResponseHeader(
+        tmp,
+        httpMethod,
+        cimException.getContentLanguages(),
+        out.size());
     tmp << out;
 
     return tmp;
@@ -3305,14 +3297,14 @@ void _xmlWritter_printAttributes(
 {
     for (Uint32 i = 0; i < attributeCount; i++)
     {
-	os << attributes[i].name << "=";
+        os << attributes[i].name << "=";
 
-	os << '"';
-	_xmlWritter_appendSpecial(os, attributes[i].value);
-	os << '"';
+        os << '"';
+        _xmlWritter_appendSpecial(os, attributes[i].value);
+        os << '"';
 
-	if (i + 1 != attributeCount)
-	    os << ' ';
+        if (i + 1 != attributeCount)
+            os << ' ';
     }
 }
 
@@ -3322,12 +3314,15 @@ void _xmlWritter_printAttributes(
 //
 //------------------------------------------------------------------------------
 
-void _xmlWritter_indent(PEGASUS_STD(ostream)& os, Uint32 level, Uint32 indentChars)
+void _xmlWritter_indent(
+    PEGASUS_STD(ostream)& os,
+    Uint32 level,
+    Uint32 indentChars)
 {
     Uint32 n = level * indentChars;
 
     for (Uint32 i = 0; i < n; i++)
-	os << ' ';
+        os << ' ';
 }
 
 //------------------------------------------------------------------------------
@@ -3349,89 +3344,90 @@ void XmlWriter::indentedPrint(
 
     while (parser.next(entry))
     {
-	switch (entry.type)
-	{
-	    case XmlEntry::XML_DECLARATION:
-	    {
-		_xmlWritter_indent(os, stack.size(), indentChars);
+        switch (entry.type)
+        {
+            case XmlEntry::XML_DECLARATION:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
 
-		os << "<?" << entry.text << " ";
-		_xmlWritter_printAttributes(os, entry.attributes, entry.attributeCount);
-		os << "?>";
-		break;
-	    }
+                os << "<?" << entry.text << " ";
+                _xmlWritter_printAttributes(
+                    os, entry.attributes, entry.attributeCount);
+                os << "?>";
+                break;
+            }
 
-	    case XmlEntry::START_TAG:
-	    {
-		_xmlWritter_indent(os, stack.size(), indentChars);
+            case XmlEntry::START_TAG:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
 
-		os << "<" << entry.text;
+                os << "<" << entry.text;
 
-		if (entry.attributeCount)
-		    os << ' ';
+                if (entry.attributeCount)
+                    os << ' ';
 
-		_xmlWritter_printAttributes(os, entry.attributes, entry.attributeCount);
-		os << ">";
-		stack.push(entry.text);
-		break;
-	    }
+                _xmlWritter_printAttributes(
+                    os, entry.attributes, entry.attributeCount);
+                os << ">";
+                stack.push(entry.text);
+                break;
+            }
 
-	    case XmlEntry::EMPTY_TAG:
-	    {
-		_xmlWritter_indent(os, stack.size(), indentChars);
+            case XmlEntry::EMPTY_TAG:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
 
-		os << "<" << entry.text << " ";
-		_xmlWritter_printAttributes(os, entry.attributes, entry.attributeCount);
-		os << "/>";
-		break;
-	    }
+                os << "<" << entry.text << " ";
+                _xmlWritter_printAttributes(
+                    os, entry.attributes, entry.attributeCount);
+                os << "/>";
+                break;
+            }
 
-	    case XmlEntry::END_TAG:
-	    {
-		if (!stack.isEmpty() && strcmp(stack.top(), entry.text) == 0)
-		    stack.pop();
+            case XmlEntry::END_TAG:
+            {
+                if (!stack.isEmpty() && strcmp(stack.top(), entry.text) == 0)
+                    stack.pop();
 
-		_xmlWritter_indent(os, stack.size(), indentChars);
+                _xmlWritter_indent(os, stack.size(), indentChars);
 
-		os << "</" << entry.text << ">";
-		break;
-	    }
+                os << "</" << entry.text << ">";
+                break;
+            }
 
-	    case XmlEntry::COMMENT:
-	    {
+            case XmlEntry::COMMENT:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
+                os << "<!--";
+                _xmlWritter_appendSpecial(os, entry.text);
+                os << "-->";
+                break;
+            }
 
-		_xmlWritter_indent(os, stack.size(), indentChars);
-		os << "<!--";
-		_xmlWritter_appendSpecial(os, entry.text);
-		os << "-->";
-		break;
-	    }
+            case XmlEntry::CONTENT:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
+                _xmlWritter_appendSpecial(os, entry.text);
+                break;
+            }
 
-	    case XmlEntry::CONTENT:
-	    {
-		_xmlWritter_indent(os, stack.size(), indentChars);
-		_xmlWritter_appendSpecial(os, entry.text);
-		break;
-	    }
+            case XmlEntry::CDATA:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
+                os << "<![CDATA[" << entry.text << "]]>";
+                break;
+            }
 
-	    case XmlEntry::CDATA:
-	    {
-		_xmlWritter_indent(os, stack.size(), indentChars);
-		os << "<![CDATA[" << entry.text << "]]>";
-		break;
-	    }
+            case XmlEntry::DOCTYPE:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
+                os << "<!DOCTYPE...>";
+                break;
+            }
+        }
 
-	    case XmlEntry::DOCTYPE:
-	    {
-		_xmlWritter_indent(os, stack.size(), indentChars);
-		os << "<!DOCTYPE...>";
-		break;
-	    }
-	}
-
-	os << PEGASUS_STD(endl);
+        os << PEGASUS_STD(endl);
     }
-
 }
 
 //------------------------------------------------------------------------------

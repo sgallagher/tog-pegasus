@@ -553,7 +553,7 @@ void CIMMessageSerializer::_serializeOperationContext(
 
     // Note: OperationContext class does not allow iteration through Containers
 
-    if(operationContext.contains(IdentityContainer::NAME))
+    if (operationContext.contains(IdentityContainer::NAME))
     {
         const IdentityContainer container =
             operationContext.get(IdentityContainer::NAME);
@@ -563,7 +563,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCID>\n");
     }
 
-    if(operationContext.contains(SubscriptionInstanceContainer::NAME))
+    if (operationContext.contains(SubscriptionInstanceContainer::NAME))
     {
         const SubscriptionInstanceContainer container =
             operationContext.get(SubscriptionInstanceContainer::NAME);
@@ -573,7 +573,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCSI>\n");
     }
 
-    if(operationContext.contains(SubscriptionFilterConditionContainer::NAME))
+    if (operationContext.contains(SubscriptionFilterConditionContainer::NAME))
     {
         const SubscriptionFilterConditionContainer container =
             operationContext.get(SubscriptionFilterConditionContainer::NAME);
@@ -584,7 +584,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCSFC>\n");
     }
 
-    if(operationContext.contains(SubscriptionFilterQueryContainer::NAME))
+    if (operationContext.contains(SubscriptionFilterQueryContainer::NAME))
     {
         const SubscriptionFilterQueryContainer container =
             operationContext.get(SubscriptionFilterQueryContainer::NAME);
@@ -596,7 +596,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCSFQ>\n");
     }
 
-    if(operationContext.contains(SubscriptionInstanceNamesContainer::NAME))
+    if (operationContext.contains(SubscriptionInstanceNamesContainer::NAME))
     {
         const SubscriptionInstanceNamesContainer container =
             operationContext.get(SubscriptionInstanceNamesContainer::NAME);
@@ -612,7 +612,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCSIN>\n");
     }
 
-    if(operationContext.contains(TimeoutContainer::NAME))
+    if (operationContext.contains(TimeoutContainer::NAME))
     {
         const TimeoutContainer container =
             operationContext.get(TimeoutContainer::NAME);
@@ -622,7 +622,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCTO>\n");
     }
 
-    if(operationContext.contains(AcceptLanguageListContainer::NAME))
+    if (operationContext.contains(AcceptLanguageListContainer::NAME))
     {
         const AcceptLanguageListContainer container =
             operationContext.get(AcceptLanguageListContainer::NAME);
@@ -632,7 +632,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCALL>\n");
     }
 
-    if(operationContext.contains(ContentLanguageListContainer::NAME))
+    if (operationContext.contains(ContentLanguageListContainer::NAME))
     {
         const ContentLanguageListContainer container =
             operationContext.get(ContentLanguageListContainer::NAME);
@@ -642,7 +642,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCCLL>\n");
     }
 
-    if(operationContext.contains(SnmpTrapOidContainer::NAME))
+    if (operationContext.contains(SnmpTrapOidContainer::NAME))
     {
         const SnmpTrapOidContainer container =
             operationContext.get(SnmpTrapOidContainer::NAME);
@@ -652,7 +652,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCSTO>\n");
     }
 
-    if(operationContext.contains(LocaleContainer::NAME))
+    if (operationContext.contains(LocaleContainer::NAME))
     {
         const LocaleContainer container =
             operationContext.get(LocaleContainer::NAME);
@@ -662,7 +662,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCL>\n");
     }
 
-    if(operationContext.contains(ProviderIdContainer::NAME))
+    if (operationContext.contains(ProviderIdContainer::NAME))
     {
         const ProviderIdContainer container =
             operationContext.get(ProviderIdContainer::NAME);

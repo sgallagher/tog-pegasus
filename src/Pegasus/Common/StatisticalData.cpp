@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Arthur Pichlkostner
-//             (checked in: Markus Mueller sedgewick_de@yahoo.de)
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "StatisticalData.h"
@@ -42,42 +38,42 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 // The table on the right represents the mapping from the enumerated types
-// in the CIM_CIMOMStatisticalDate class ValueMap versus the internal 
-// message type defined in Message.h. This conversion is performed by 
+// in the CIM_CIMOMStatisticalDate class ValueMap versus the internal
+// message type defined in Message.h. This conversion is performed by
 // getOpType() in CIMOMStatDataProvider.cpp.
 //
 
-String StatisticalData::requestName[] = 
+String StatisticalData::requestName[] =
 {
-                                    // Enumerated     ValueMap Value 
+                                    // Enumerated     ValueMap Value
                                     // value from     from class
                                     // internal       CIM_StatisticalData
                                     // message type
                                     // -------------- -------------------
-  "GetClass",                       //     1           3  
-  "GetInstance",                    //     2           4  
-  "IndicationDelivery",             //     3           26  
-  "DeleteClass",                    //     4           5  
-  "DeleteInstance",                 //     5           6  
-  "CreateClass",                    //     6           7  
+  "GetClass",                       //     1           3
+  "GetInstance",                    //     2           4
+  "IndicationDelivery",             //     3           26
+  "DeleteClass",                    //     4           5
+  "DeleteInstance",                 //     5           6
+  "CreateClass",                    //     6           7
   "CreateInstance",                 //     7           8
   "ModifyClass",                    //     8           9
-  "ModifyInstance",                 //     9          10 
-  "EnumerateClasses",               //    10          11  
-  "EnumerateClassNames",            //    11          12  
-  "EnumerateInstances",             //    12          13  
-  "EnumerateInstanceNames",         //    13          14  
-  "ExecQuery",                      //    14          15  
-  "Associators",                    //    15          16  
-  "AssociatorNames",                //    16          17  
-  "References",                     //    17          18  
-  "ReferenceNames",                 //    18          19 
-  "GetProperty",                    //    19          20  
-  "SetProperty",                    //    20          21  
-  "GetQualifier",                   //    21          22  
-  "SetQualifier",                   //    22          23  
-  "DeleteQualifier",                //    23          24  
-  "EnumerateQualifiers",            //    24          25  
+  "ModifyInstance",                 //     9          10
+  "EnumerateClasses",               //    10          11
+  "EnumerateClassNames",            //    11          12
+  "EnumerateInstances",             //    12          13
+  "EnumerateInstanceNames",         //    13          14
+  "ExecQuery",                      //    14          15
+  "Associators",                    //    15          16
+  "AssociatorNames",                //    16          17
+  "References",                     //    17          18
+  "ReferenceNames",                 //    18          19
+  "GetProperty",                    //    19          20
+  "SetProperty",                    //    20          21
+  "GetQualifier",                   //    21          22
+  "SetQualifier",                   //    22          23
+  "DeleteQualifier",                //    23          24
+  "EnumerateQualifiers",            //    24          25
   "InvokeMethod"                    //    25          Not Present
 };
 
@@ -101,7 +97,7 @@ StatisticalData::StatisticalData()
     for (unsigned int i=0; i<StatisticalData::length; i++)
     {
         numCalls[i] = 0;
-        cimomTime[i] = 0;      
+        cimomTime[i] = 0;
         providerTime[i] = 0;
         responseSize[i] = 0;
         requestSize[i] = 0;
@@ -170,8 +166,7 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
 
 void StatisticalData::setCopyGSD(Boolean flag)
 {
-
-	copyGSD = flag;
+    copyGSD = flag;
 }
 
 PEGASUS_NAMESPACE_END

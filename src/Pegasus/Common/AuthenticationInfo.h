@@ -342,8 +342,9 @@ public:
         _rep->setRemotePrivilegedUserAccessChecked();
     }
 
-    /** Get flag that shows if the isRemotePrivilegedUserAccess check has been done
-        this function should only be used by OpenPegasus AuthenticationHandlers
+    /** Indicates whether the isRemotePrivilegedUserAccess check has been
+        performed.  This method should only be used by OpenPegasus
+        AuthenticationHandlers
     */
     Boolean getRemotePrivilegedUserAccessChecked()
     {

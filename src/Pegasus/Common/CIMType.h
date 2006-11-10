@@ -92,11 +92,11 @@ enum CIMType
 #endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 };
 
-/** 
+/**
     Gets a string representation of a CIMType.
 
-    Note: the current implementation returns a string matching the first 
-    column in the table above, but that is subject to change in later 
+    Note: the current implementation returns a string matching the first
+    column in the table above, but that is subject to change in later
     revisions.
     @param type The CIMType to convert to string form.
     @return The string form of the specified CIMType.

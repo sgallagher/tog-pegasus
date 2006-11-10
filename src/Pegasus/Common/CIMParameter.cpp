@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMParameter.h"
@@ -168,7 +162,7 @@ Uint32 CIMParameter::getQualifierCount() const
 
 Boolean CIMParameter::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMParameter::identical(const CIMConstParameter& x) const
@@ -297,7 +291,7 @@ Uint32 CIMConstParameter::getQualifierCount() const
 
 Boolean CIMConstParameter::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMConstParameter::identical(const CIMConstParameter& x) const

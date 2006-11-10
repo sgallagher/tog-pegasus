@@ -43,10 +43,10 @@
 //     This file includes network-related system-header files. Please include
 //     this file directly rather than including system headers directly. If
 //     special inclusions are necessary for any platform, please add them to
-//     this file rather than other files. The reason for this file is to limit 
-//     platform-specific conditional compilation expressions to only a few 
+//     this file rather than other files. The reason for this file is to limit
+//     platform-specific conditional compilation expressions to only a few
 //     well-known header files.
-// 
+//
 //==============================================================================
 
 //------------------------------------------------------------------------------
@@ -57,10 +57,9 @@
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 #   ifdef FD_SETSIZE
-#       error 
-	    "<Pegasus/Common/Network.h>: FD_SETSIZE is already defined. This "
-	    "file must be included prior to any header file that defines "
-	    "FD_SETSIZE, such as <windows.h>, <winsock.h>, or winsock2.h>."
+#       error "<Pegasus/Common/Network.h>: FD_SETSIZE is already defined. \
+ This file must be included prior to any header file that defines \
+ FD_SETSIZE, such as <windows.h>, <winsock.h>, or <winsock2.h>."
 #   endif
 #   define FD_SETSIZE 1024
 #   include <windows.h>
@@ -122,8 +121,8 @@
 //------------------------------------------------------------------------------
 //
 // PEGASUS_NETWORK_TCPIP_STOPPED
-// 
-// This return code indicates that the transpor layer is 
+//
+// This return code indicates that the transpor layer is
 // stopped and the socket is invalid. The socket must created again.
 //
 //------------------------------------------------------------------------------
@@ -137,7 +136,7 @@
 //------------------------------------------------------------------------------
 //
 // PEGASUS_NETWORK_TCPIP_TRYAGAIN
-//  
+//
 // This return code indicates that the transport layer is
 // temporary unavailable and the program can try again.
 //
@@ -152,8 +151,8 @@
 //------------------------------------------------------------------------------
 //
 // PEGASUS_NETWORK_TRYAGAIN
-//  
-// This return code indicates that the network function 
+//
+// This return code indicates that the network function
 // should be tried again by the program.
 //
 //------------------------------------------------------------------------------

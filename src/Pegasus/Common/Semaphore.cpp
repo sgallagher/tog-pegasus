@@ -35,7 +35,7 @@
 #include <Pegasus/Common/IPCExceptions.h>
 #include "Semaphore.h"
 
-PEGASUS_NAMESPACE_BEGIN 
+PEGASUS_NAMESPACE_BEGIN
 
 static const Uint32 PEGASUS_SEM_VALUE_MAX = 0x0000ffff;
 
@@ -416,7 +416,7 @@ void Semaphore::signal()
 // return the count of the semaphore
 int Semaphore::count() const
 {
-    return (_count);
+    return _count;
 }
 
 #endif /* PEGASUS_USE_WINDOWS_SEMAPHORE */

@@ -40,7 +40,7 @@
 #include "CIMScope.h"
 #include "XmlWriter.h"
 #include "MofWriter.h"
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 #include "StrLit.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -75,7 +75,7 @@ CIMMethodRep::CIMMethodRep(
     _classOrigin(classOrigin), _propagated(propagated)
 {
     // ensure name is not null
-    if(name.isNull())
+    if (name.isNull())
     {
         throw UninitializedObjectException();
     }
@@ -88,7 +88,7 @@ CIMMethodRep::~CIMMethodRep()
 void CIMMethodRep::setName(const CIMName& name)
 {
     // ensure name is not null
-    if(name.isNull())
+    if (name.isNull())
     {
         throw UninitializedObjectException();
     }

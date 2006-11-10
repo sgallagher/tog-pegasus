@@ -246,7 +246,7 @@ Boolean FileSystem::openNoCase(PEGASUS_STD(ifstream)& is, const String& path)
 }
 
 Boolean FileSystem::openNoCase(
-    PEGASUS_STD(fstream)& fs, 
+    PEGASUS_STD(fstream)& fs,
     const String& path,
     int mode)
 {
@@ -298,16 +298,16 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
     // for files-in-directory, delete or recall removedir
 
     for (Uint32 i = 0, n = fileList.size(); i < n; i++)
-    {   
+    {
         String newPath = path;   // extend path to subdir
         newPath.append("/");
         newPath.append(fileList[i]);
-        
+
         if (FileSystem::isDirectory(newPath))
         {
             // Recall ourselves with extended path
             if (!FileSystem::removeDirectoryHier(newPath))
-                return false; 
+                return false;
         }
 
         else
@@ -317,7 +317,7 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
         }
     }
 
-    return removeDirectory(path);       
+    return removeDirectory(path);
 }
 
 //
@@ -338,7 +338,7 @@ Boolean FileSystem::getDirectoryContents(
     paths.clear();
 
     try
-    { 
+    {
         for (Dir dir(path); dir.more(); dir.next())
         {
             String name = dir.getName();
@@ -352,7 +352,7 @@ Boolean FileSystem::getDirectoryContents(
     }
 
     // Catch the Dir exception
-    catch(CannotOpenDirectory&)
+    catch (CannotOpenDirectory&)
     {
         return false;
     }
@@ -386,7 +386,7 @@ String FileSystem::extractFileName(const String& path)
     AutoArrayPtr<char> p_path(new char[path.size() + 1]);
     String basename = System::extract_file_name(
         (const char*)path.getCString(), p_path.get());
-  
+
     return basename;
 }
 
@@ -396,7 +396,7 @@ String FileSystem::extractFilePath(const String& path)
     AutoArrayPtr<char> p_path(new char[path.size() + 1]);
     String newpath = System::extract_file_path(
         (const char*)path.getCString(), p_path.get());
-  
+
     return newpath;
 }
 
@@ -404,7 +404,7 @@ String FileSystem::extractFilePath(const String& path)
 Boolean FileSystem::changeFilePermissions(const String& path, mode_t mode)
 {
 #if defined(PEGASUS_OS_OS400)
-    // ATTN: If getCString() is modified to return UTF8, then handle the 
+    // ATTN: If getCString() is modified to return UTF8, then handle the
     //       EBCDIC coversion in SystemUnix.cpp
     CString tempPath = path.getCString();
 #else
@@ -531,7 +531,7 @@ Boolean FileSystem::changeFileOwner(
     struct passwd *result;
     char pwdBuffer[PWD_BUFF_SIZE];
 
-    if(getpwnam_r(userName.getCString(), &pwd, pwdBuffer, PWD_BUFF_SIZE,
+    if (getpwnam_r(userName.getCString(), &pwd, pwdBuffer, PWD_BUFF_SIZE,
                   &userPasswd) != 0)
     {
         userPasswd = (struct passwd*)NULL;

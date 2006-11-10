@@ -1745,13 +1745,13 @@ String IndicationFormatter::_localizeDateTime(
                 DateFormat::MEDIUM, DateFormat::MEDIUM, locale);
         }
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
         PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4, e.getMessage());
         PEG_METHOD_EXIT();
         return dateTimeValue.toString();
     }
-    catch(...)
+    catch (...)
     {
         PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4,
         "Caught General Exception During DateFormat::createDateTimeInstance");

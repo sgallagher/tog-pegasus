@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (m.brasher@inovadevelopment.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _Pegasus_Common_Linkable_h
@@ -51,10 +49,10 @@ struct Linkable
     {
     }
 
-    ~Linkable() 
+    ~Linkable()
     {
-	PEGASUS_DEBUG_ASSERT(magic);
-	memset(this, 0xDD, sizeof(Linkable)); 
+        PEGASUS_DEBUG_ASSERT(magic);
+        memset(this, 0xDD, sizeof(Linkable));
     }
 
     // ATTN: consider making private and fixing all places that have

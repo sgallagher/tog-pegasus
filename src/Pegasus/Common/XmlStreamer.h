@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com) PEP 164
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef XmlStreamer_h
@@ -43,22 +38,21 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE XmlStreamer : public ObjectStreamer {
-
+class PEGASUS_COMMON_LINKAGE XmlStreamer : public ObjectStreamer
+{
 public:
 
-   XmlStreamer() {}
+    XmlStreamer() {}
 
-   ~XmlStreamer() {}
+    ~XmlStreamer() {}
 
-   void encode(Buffer& out, const CIMClass& cls);
-   void encode(Buffer& out, const CIMInstance& inst);
-   void encode(Buffer& out, const CIMQualifierDecl& qual);
+    void encode(Buffer& out, const CIMClass& cls);
+    void encode(Buffer& out, const CIMInstance& inst);
+    void encode(Buffer& out, const CIMQualifierDecl& qual);
 
-   void decode(const Buffer& in, unsigned int pos, CIMClass& cls);
-   void decode(const Buffer& in, unsigned int pos, CIMInstance& inst);
-   void decode(const Buffer& in, unsigned int pos, CIMQualifierDecl& qual);
-
+    void decode(const Buffer& in, unsigned int pos, CIMClass& cls);
+    void decode(const Buffer& in, unsigned int pos, CIMInstance& inst);
+    void decode(const Buffer& in, unsigned int pos, CIMQualifierDecl& qual);
 };
 
 PEGASUS_NAMESPACE_END

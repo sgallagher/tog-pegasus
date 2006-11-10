@@ -217,7 +217,6 @@ static String _makeCIMExceptionDescription(
     return tmp;
 }
 
-// l10n
 //
 // Creates a description without source file name and line number.
 //
@@ -237,7 +236,6 @@ static String _makeCIMExceptionDescription(
     return tmp;
 }
 
-// l10n
 //
 // Creates a description without source file name and line number.
 //

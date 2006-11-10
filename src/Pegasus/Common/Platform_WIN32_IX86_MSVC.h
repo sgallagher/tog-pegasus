@@ -49,7 +49,7 @@
 #define PEGASUS_UINT64 unsigned __int64
 
 #define PEGASUS_SINT64 __int64
-	
+
 #define PEGASUS_SINT64_LITERAL(X) Sint64(X)
 #define PEGASUS_UINT64_LITERAL(X) Uint64(X)
 
@@ -72,7 +72,7 @@
 #define PEGASUS_DISABLE_INTERNAL_INLINES
 
 // Exclude rarely-used stuff from Windows headers
-// Note: this is also an easy way to avoid the often introduced 
+// Note: this is also an easy way to avoid the often introduced
 // winsock.h/winsock2.h mixing compiler error problems.
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -97,9 +97,10 @@
 // Suppress this warning : "'this' : used in base member initializer list"
 #pragma warning ( disable : 4355 )
 
-// Suppress this warning: 'type' : forcing value to bool 'true' or 'false' (performance warning)
+// Suppress this warning: 'type' : forcing value to bool 'true' or 'false'
+// (performance warning)
 #ifdef PEGASUS_INTERNALONLY
-#pragma warning( disable : 4800 ) 
+#pragma warning( disable : 4800 )
 #endif
 
 // VC 8 specific pragmas
@@ -108,15 +109,15 @@
 // This warning is supported beginning with VC 8.
 #pragma warning ( disable : 4996 )
 
-// Suppress this warning: behavior change: an object of POD type constructed with an
-// initializer of the form () will be default-initialized
+// Suppress this warning: behavior change: an object of POD type constructed
+// with an initializer of the form () will be default-initialized
 #pragma warning ( disable : 4345 )
 #endif
 
 //
 // Prior to Microsoft Visual Studio 7.0, there were no stream inserters for
 // __int64 and unsigned __int64. We declare them if the _MSC_VER is less than
-// 1300 (subtract 600 to get the version of Visual Studio). Look in 
+// 1300 (subtract 600 to get the version of Visual Studio). Look in
 // SystemWindows.cpp for the definitions.
 //
 #if (_MSC_VER < 1300) && defined(PEGASUS_INTERNALONLY) && defined(__cplusplus)

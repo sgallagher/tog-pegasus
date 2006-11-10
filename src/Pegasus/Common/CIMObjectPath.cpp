@@ -352,12 +352,12 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
         catch (Exception&)
         {
             // If CIMObjectPath parsing fails, just compare strings
-            return (String::equal(x.getValue(), y.getValue()));
+            return String::equal(x.getValue(), y.getValue());
         }
         break;
     case CIMKeyBinding::BOOLEAN:
         // Case-insensitive comparison is sufficient for booleans
-        return (String::equalNoCase(x.getValue(), y.getValue()));
+        return String::equalNoCase(x.getValue(), y.getValue());
         break;
     case CIMKeyBinding::NUMERIC:
         // Note: This comparison assumes XML syntax for integers
@@ -387,10 +387,10 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
         }
         // Note: Keys may not be real values, so don't try comparing as reals
         // We couldn't parse the numbers, so just compare the strings
-        return (String::equal(x.getValue(), y.getValue()));
+        return String::equal(x.getValue(), y.getValue());
         break;
     default:  // CIMKeyBinding::STRING
-        return (String::equal(x.getValue(), y.getValue()));
+        return String::equal(x.getValue(), y.getValue());
         break;
     }
 
@@ -552,7 +552,8 @@ public:
                     // If a non-digit is encountered, set "all-numeric"
                     // flag to false
                     if (isalpha(hostname[i]) || (hostname[i] == '-') ||
-                                                (hostname[i] == '_')) {
+                                                (hostname[i] == '_'))
+                    {
                         hostSegmentIsNumeric = false;
                     }
                     i++;
@@ -566,7 +567,8 @@ public:
             }
             // If the last Host Segment is all numeric, then return false.
             // RFC 1123 says "highest-level component label will be alphabetic".
-            if (hostSegmentIsNumeric) {
+            if (hostSegmentIsNumeric)
+            {
                 return false;
             }
         }

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +78,7 @@
 //
 // TODO:
 //
-//      ATTN: KS P1 4 Mar 2002. Review the following TODOs to see if there is 
+//      ATTN: KS P1 4 Mar 2002. Review the following TODOs to see if there is
 //      work. Handle <!DOCTYPE...> sections which are complicated (containing
 //        rules rather than references to files).
 //
@@ -229,7 +224,10 @@ static String _formMessage(Uint32 code, Uint32 line, const String& message)
 }
 */
 
-static MessageLoaderParms _formMessage(Uint32 code, Uint32 line, const String& message)
+static MessageLoaderParms _formMessage(
+    Uint32 code,
+    Uint32 line,
+    const String& message)
 {
     String dftMsg = _xmlMessages[Uint32(code) - 1];
     String key = _xmlKeys[Uint32(code) - 1];
@@ -291,7 +289,6 @@ XmlValidationError::XmlValidationError(
     const String& message)
     : XmlException(XmlException::VALIDATION_ERROR, lineNumber, message)
 {
-
 }
 
 
@@ -300,7 +297,6 @@ XmlValidationError::XmlValidationError(
     MessageLoaderParms& msgParms)
     : XmlException(XmlException::VALIDATION_ERROR, lineNumber, msgParms)
 {
-
 }
 
 
@@ -315,7 +311,6 @@ XmlSemanticError::XmlSemanticError(
     const String& message)
     : XmlException(XmlException::SEMANTIC_ERROR, lineNumber, message)
 {
-
 }
 
 
@@ -324,7 +319,6 @@ XmlSemanticError::XmlSemanticError(
     MessageLoaderParms& msgParms)
     : XmlException(XmlException::SEMANTIC_ERROR, lineNumber, msgParms)
 {
-
 }
 
 
@@ -334,10 +328,13 @@ XmlSemanticError::XmlSemanticError(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-XmlParser::XmlParser(char* text) : _line(1), _text(text), _current(text),
-    _restoreChar('\0'), _foundRoot(false)
+XmlParser::XmlParser(char* text)
+    : _line(1),
+      _text(text),
+      _current(text),
+      _restoreChar('\0'),
+      _foundRoot(false)
 {
-
 }
 
 inline void _skipWhitespace(Uint32& line, char*& p)
@@ -483,7 +480,7 @@ static void _normalize(Uint32& line, char*& p, char end_char, char*& start)
         }
     }
 
-    // We encountered a the end_char or a zero-terminator. 
+    // We encountered a the end_char or a zero-terminator.
 
     *q = *p;
 
@@ -608,7 +605,7 @@ XmlParser::~XmlParser()
 }
 
 // A-Za-z0-9_-:.
-static unsigned char _isInnerElementChar[] = 
+static unsigned char _isInnerElementChar[] =
 {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,

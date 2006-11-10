@@ -775,10 +775,10 @@ void BinaryStreamer::_unpackProperty(
 
     UnpackQualifiers<CIMProperty>::func(in, pos, cimProperty);
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    if(cimProperty.getType() == CIMTYPE_STRING)
+    if (cimProperty.getType() == CIMTYPE_STRING)
     {
         CIMType realType = CIMTYPE_STRING;
-        if(cimProperty.findQualifier("EmbeddedInstance") != PEG_NOT_FOUND)
+        if (cimProperty.findQualifier("EmbeddedInstance") != PEG_NOT_FOUND)
         {
             // Note that this condition should only happen for properties in
             // class definitions, and only NULL values are recognized. We
@@ -787,7 +787,7 @@ void BinaryStreamer::_unpackProperty(
             PEGASUS_ASSERT(value.isNull());
             realType = CIMTYPE_INSTANCE;
         }
-        else if(cimProperty.findQualifier("EmbeddedObject") != PEG_NOT_FOUND)
+        else if (cimProperty.findQualifier("EmbeddedObject") != PEG_NOT_FOUND)
         {
             // Note that this condition should only happen for properties in
             // class definitions, and only NULL values are recognized. We
@@ -797,12 +797,12 @@ void BinaryStreamer::_unpackProperty(
             realType = CIMTYPE_OBJECT;
         }
 
-        if(realType != CIMTYPE_STRING)
+        if (realType != CIMTYPE_STRING)
         {
             CIMProperty tmpProperty(name, CIMValue(realType, value.isArray()),
                 arraySize, referenceClassName, classOrigin, propagated);
-            for(unsigned int i = 0, n = cimProperty.getQualifierCount();
-                i < n; ++i)
+            for (unsigned int i = 0, n = cimProperty.getQualifierCount();
+                 i < n; ++i)
             {
                 tmpProperty.addQualifier(cimProperty.getQualifier(i));
             }

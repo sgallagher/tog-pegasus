@@ -335,7 +335,7 @@ public:
         <pre>
             // remove all qualifiers from a class
             Uint32 count = 0;
-            while((count = cimClass.getQualifierCount()) > 0)
+            while ((count = cimClass.getQualifierCount()) > 0)
                 cimClass.removeQualifier(count - 1);
         </pre>
         @param index The index of the qualifier to remove.

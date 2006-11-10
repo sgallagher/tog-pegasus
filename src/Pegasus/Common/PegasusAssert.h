@@ -29,21 +29,17 @@
 //
 //==============================================================================
 //
-// Author: Jim Wunderlich, (Jim_Wunderlich@prodigy.net)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 #ifndef Pegasus_Assert_h
 #define Pegasus_Assert_h
 
- 
-// NOTE: 
+
+// NOTE:
 //
-// All built and tested OK with <assert.h> 
+// All built and tested OK with <assert.h>
 // but <cassert> is more appropriate for c++ files
-// however if this should be a problem for any c fileswithin the tree 
-// it is possible to revert back to assert.h 
+// however if this should be a problem for any c fileswithin the tree
+// it is possible to revert back to assert.h
 //     J Wunderlich 11/21/2005
 //
 
@@ -56,11 +52,11 @@
 /** define PEGASUS_ASSERT assertion statement.  This statement tests the
     condition defined by the parameters and if not True executes an
 
-   It only generates code if NDEBUG is not defined. 
+   It only generates code if NDEBUG is not defined.
    See also the man page for assert().
 
-   NOTE: if NDEBUG is set then the assert() macro will generate no code, 
-         and hence do nothing at all.  
+   NOTE: if NDEBUG is set then the assert() macro will generate no code,
+         and hence do nothing at all.
 
     <pre>
     assert()
@@ -73,32 +69,33 @@
 
 
 /* define PEGASUS_DEBUG_ASSERT() assertion statement. This statement tests the
-   condition defined by the parameters and if not True executes an assert. 
+   condition defined by the parameters and if not True executes an assert.
    It only generates code if PEGASUS_DEBUG is defined and NDEBUG is not
-   defined. 
+   defined.
    See also the man page for assert().
 
-   NOTE: if NDEBUG is set then the assert() macro will generate no code, 
-         and hence do nothing at all.  
+   NOTE: if NDEBUG is set then the assert() macro will generate no code,
+         and hence do nothing at all.
 
 */
 
 #ifdef PEGASUS_DEBUG
-#define PEGASUS_DEBUG_ASSERT(COND) assert(COND)
+# define PEGASUS_DEBUG_ASSERT(COND) assert(COND)
 #else
-#define PEGASUS_DEBUG_ASSERT(COND)
+# define PEGASUS_DEBUG_ASSERT(COND)
 #endif
 
 
-#define PEGASUS_TEST_ASSERT(COND)                                 \
-do                                                                \
-{                                                                 \
-  if (!(COND))							  \
-    {								  \
-      printf("PEGASUS_TEST_ASSERT failed in file %s at line %d\n",__FILE__, __LINE__); \
-      abort();							  \
-    }								  \
-} while (0)
+#define PEGASUS_TEST_ASSERT(COND)                                         \
+    do                                                                    \
+    {                                                                     \
+        if (!(COND))                                                      \
+        {                                                                 \
+            printf("PEGASUS_TEST_ASSERT failed in file %s at line %d\n",  \
+                __FILE__, __LINE__);                                      \
+            abort();                                                      \
+        }                                                                 \
+    } while (0)
 
 
 #endif  /* Pegasus_Assert_h */

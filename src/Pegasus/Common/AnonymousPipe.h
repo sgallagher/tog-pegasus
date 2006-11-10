@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AnonymousPipe_h
@@ -48,7 +42,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** 
+/**
     The AnonymousPipe class implements an anonymous pipe.
 
     @author  Hewlett-Packard Company
@@ -68,14 +62,14 @@ public:
         Constructs an AnonymousPipe instance, given the read and/or write handle
         in char form.
 
-        NOTE: before using this form of the constructor, the pipe must already 
-        exist (a previous invocation of the AnonymousPipe () form of the 
-        constructor), and the specified handle(s) should be open for the 
-        specified operation (read or write).  The read or write handle 
-        should be obtained via a call to exportReadHandle () or 
+        NOTE: before using this form of the constructor, the pipe must already
+        exist (a previous invocation of the AnonymousPipe () form of the
+        constructor), and the specified handle(s) should be open for the
+        specified operation (read or write).  The read or write handle
+        should be obtained via a call to exportReadHandle () or
         exportWriteHandle (), respectively.
 
-        @param   readHandle       char [] representation of the read handle to 
+        @param   readHandle       char [] representation of the read handle to
                                     the pipe
         @param   writeHandle      char [] representation of the write handle to
                                     the pipe
@@ -97,19 +91,19 @@ public:
         Defines symbolic constants for return values from read and write
         methods.
     */
-    enum Status {STATUS_INTERRUPT = -2, 
-                 STATUS_ERROR     = -1, 
-                 STATUS_CLOSED    =  0, 
+    enum Status {STATUS_INTERRUPT = -2,
+                 STATUS_ERROR     = -1,
+                 STATUS_CLOSED    =  0,
                  STATUS_SUCCESS   =  1};
 
     /**
-        Writes data from a buffer to the AnonymousPipe.  
+        Writes data from a buffer to the AnonymousPipe.
 
         @param   buffer           pointer to the input data buffer
         @param   bytesToWrite     Number of bytes to write
 
-        @return  STATUS_SUCCESS   on success; 
-                 STATUS_CLOSED    on closed connection; 
+        @return  STATUS_SUCCESS   on success;
+                 STATUS_CLOSED    on closed connection;
                  STATUS_ERROR     on error;
     */
     Status writeBuffer (
@@ -117,27 +111,27 @@ public:
         Uint32 bytesToWrite);
 
     /**
-        Writes a CIM message to the AnonymousPipe.  
+        Writes a CIM message to the AnonymousPipe.
 
         The message is serialized, then written to the pipe.
 
         @param   message          pointer to the message
 
-        @return  STATUS_SUCCESS   on success; 
-                 STATUS_CLOSED    on closed connection; 
+        @return  STATUS_SUCCESS   on success;
+                 STATUS_CLOSED    on closed connection;
                  STATUS_ERROR     on error;
     */
     Status writeMessage (
         CIMMessage * message);
 
     /**
-        Reads data into a buffer from the AnonymousPipe.  
+        Reads data into a buffer from the AnonymousPipe.
 
         @param   buffer           pointer to the output data buffer
         @param   bytesToRead      Number of bytes to read
 
-        @return  STATUS_SUCCESS   on success; 
-                 STATUS_CLOSED    on closed connection; 
+        @return  STATUS_SUCCESS   on success;
+                 STATUS_CLOSED    on closed connection;
                  STATUS_ERROR     on error;
                  STATUS_INTERRUPT on interrupt
     */
@@ -146,14 +140,14 @@ public:
         Uint32 bytesToRead);
 
     /**
-        Reads a CIM message from the AnonymousPipe.  
+        Reads a CIM message from the AnonymousPipe.
 
         A message is read from the pipe, then de-serialized.
 
         @param   message          pointer to the message (output parameter)
 
-        @return  STATUS_SUCCESS   on success; 
-                 STATUS_CLOSED    on closed connection; 
+        @return  STATUS_SUCCESS   on success;
+                 STATUS_CLOSED    on closed connection;
                  STATUS_ERROR     on error;
                  STATUS_INTERRUPT on interrupt
     */
@@ -161,32 +155,32 @@ public:
     CIMMessage * & message);
 
     /**
-        Gets a char [] form of the pipe handle for reading from the 
-        AnonymousPipe instance.  
+        Gets a char [] form of the pipe handle for reading from the
+        AnonymousPipe instance.
 
-        NOTE: the caller must supply the buffer.  The buffer size must be at 
+        NOTE: the caller must supply the buffer.  The buffer size must be at
               least 32.
     */
     void exportReadHandle (
         char * buffer) const;
 
     /**
-        Gets a char [] form of the pipe handle for writing to the 
-        AnonymousPipe instance.  
+        Gets a char [] form of the pipe handle for writing to the
+        AnonymousPipe instance.
 
-        NOTE: the caller must supply the buffer.  The buffer size must be at 
+        NOTE: the caller must supply the buffer.  The buffer size must be at
               least 32.
     */
     void exportWriteHandle (
         char * buffer) const;
 
     /**
-        Closes the pipe handle for reading from the AnonymousPipe instance.  
+        Closes the pipe handle for reading from the AnonymousPipe instance.
     */
     void closeReadHandle ();
 
     /**
-        Closes the pipe handle for writing to the AnonymousPipe instance.  
+        Closes the pipe handle for writing to the AnonymousPipe instance.
     */
     void closeWriteHandle ();
 
@@ -199,7 +193,7 @@ private:
     AnonymousPipe (const AnonymousPipe & anonymousPipe);
 
     /**
-        Private, unimplemented assignment operator to avoid implicit use of 
+        Private, unimplemented assignment operator to avoid implicit use of
         the default assignment operator
     */
     AnonymousPipe & operator= (const AnonymousPipe & anonymousPipe);

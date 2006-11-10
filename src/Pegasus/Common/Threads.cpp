@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (m.brasher@inovadevelopment.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <errno.h>
@@ -64,7 +62,7 @@ void Threads::sleep(int msec)
    else
    {
        loop = microsecs / 1000000;
-       for(int i = 0; i < loop; i++)
+       for (int i = 0; i < loop; i++)
            usleep(1000000);
        if ((loop*1000000) < microsecs)
            usleep(microsecs - (loop*1000000));
@@ -73,7 +71,7 @@ void Threads::sleep(int msec)
 #elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
     if (msec == 0)
-    {         
+    {
         Sleep(0);
         return;
     }
@@ -88,8 +86,8 @@ void Threads::sleep(int msec)
     {
         Sleep(0);
         _ftime(&now);
-    } 
-    while( end.millitm > now.millitm && end.time >= now.time);
+    }
+    while (end.millitm > now.millitm && end.time >= now.time);
 
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     int seconds;
@@ -158,20 +156,20 @@ static inline int _get_stack_multiplier()
     static int _multiplier = 0;
     static MutexType _multiplier_mutex = PEGASUS_MUTEX_INITIALIZER;
 
-    // 
-    // This code uses a, 'hidden' (non-documented), VMS only, logical 
+    //
+    // This code uses a, 'hidden' (non-documented), VMS only, logical
     //  name (environment variable), PEGASUS_VMS_THREAD_STACK_MULTIPLIER,
     //  to allow in the field adjustment of the thread stack size.
     //
     // We only check for the logical name once to not have an
     //  impact on performance.
-    // 
+    //
     // Note:  This code may have problems in a multithreaded environment
     //  with the setting of doneOnce to true.
-    // 
+    //
     // Current code in Cimserver and the clients do some serial thread
     //  creations first so this is not a problem now.
-    // 
+    //
 
     if (_multiplier == 0)
     {
@@ -206,9 +204,9 @@ static inline int _get_stack_multiplier()
 #if defined(PEGASUS_HAVE_PTHREADS)
 
 int Threads::create(
-    ThreadType& thread, 
+    ThreadType& thread,
     Type type,
-    void* (*start)(void*), 
+    void* (*start)(void*),
     void* arg)
 {
     // Initialize thread attributes:
@@ -273,7 +271,7 @@ int Threads::create(
     return 0;
 }
 
-ThreadType Threads::self() 
+ThreadType Threads::self()
 {
     ThreadType tt;
     tt.thread = pthread_self();

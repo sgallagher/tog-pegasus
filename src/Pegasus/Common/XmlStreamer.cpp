@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur schuur@de-ibm.com
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "XmlWriter.h"
@@ -44,31 +39,46 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-void XmlStreamer::encode(Buffer& out, const CIMClass& cls) {
-   XmlWriter::appendClassElement(out, cls);
+void XmlStreamer::encode(Buffer& out, const CIMClass& cls)
+{
+    XmlWriter::appendClassElement(out, cls);
 }
 
-void XmlStreamer::encode(Buffer& out, const CIMInstance& inst) {
-   XmlWriter::appendInstanceElement(out, inst);
+void XmlStreamer::encode(Buffer& out, const CIMInstance& inst)
+{
+    XmlWriter::appendInstanceElement(out, inst);
 }
 
-void XmlStreamer::encode(Buffer& out, const CIMQualifierDecl& qual) {
-   XmlWriter::appendQualifierDeclElement(out, qual);
+void XmlStreamer::encode(Buffer& out, const CIMQualifierDecl& qual)
+{
+    XmlWriter::appendQualifierDeclElement(out, qual);
 }
 
-void XmlStreamer::decode(const Buffer& in, unsigned int pos, CIMClass& cls) {
+void XmlStreamer::decode(
+    const Buffer& in,
+    unsigned int pos,
+    CIMClass& cls)
+{
     XmlParser parser(((char*)in.getData())+pos);
     XmlReader::getObject(parser, cls);
 }
 
-void XmlStreamer::decode(const Buffer& in, unsigned int pos, CIMInstance& inst) {
-   XmlParser parser(((char*)in.getData())+pos);
-   XmlReader::getObject(parser, inst);
+void XmlStreamer::decode(
+    const Buffer& in,
+    unsigned int pos,
+    CIMInstance& inst)
+{
+    XmlParser parser(((char*)in.getData())+pos);
+    XmlReader::getObject(parser, inst);
 }
 
-void XmlStreamer::decode(const Buffer& in, unsigned int pos, CIMQualifierDecl& qual) {
-   XmlParser parser(((char*)in.getData())+pos);
-   XmlReader::getObject(parser, qual);
+void XmlStreamer::decode(
+    const Buffer& in,
+    unsigned int pos,
+    CIMQualifierDecl& qual)
+{
+    XmlParser parser(((char*)in.getData())+pos);
+    XmlReader::getObject(parser, qual);
 }
 
 PEGASUS_NAMESPACE_END

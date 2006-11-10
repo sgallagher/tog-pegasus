@@ -307,62 +307,63 @@ String System::getEffectiveUserName()
 {
 #if (_MSC_VER >= 1300) || defined(PEGASUS_WINDOWS_SDK_HOME)
 
-	//Bug 3076 fix
-	wchar_t fullUserName[UNLEN+1];
-	DWORD userNameSize = sizeof(fullUserName)/sizeof(fullUserName[0]);
-	wchar_t computerName[MAX_COMPUTERNAME_LENGTH+1];
-    DWORD computerNameSize = sizeof(computerName)/sizeof(computerName[0]);    
-	wchar_t userName[UNLEN+1];
+    //Bug 3076 fix
+    wchar_t fullUserName[UNLEN+1];
+    DWORD userNameSize = sizeof(fullUserName)/sizeof(fullUserName[0]);
+    wchar_t computerName[MAX_COMPUTERNAME_LENGTH+1];
+    DWORD computerNameSize = sizeof(computerName)/sizeof(computerName[0]);
+    wchar_t userName[UNLEN+1];
     wchar_t userDomain[UNLEN+1];
-	String userId;
+    String userId;
 
-	if (!GetUserNameExW(NameSamCompatible, fullUserName, &userNameSize))
-	{
-		return String();
-	}
+    if (!GetUserNameExW(NameSamCompatible, fullUserName, &userNameSize))
+    {
+        return String();
+    }
 
-	wchar_t* index = wcschr(fullUserName, '\\');
-	*index = 0;
-	wcscpy(userDomain, fullUserName);
-	wcscpy(userName, index + 1);
- 
-	//The above function will return the system name as the domain if
-	//the user is not on a real domain.  Strip this out so that the rest of
-	//our windows user functions work.  What if the system name and the domain
-	//name are the same?
+    wchar_t* index = wcschr(fullUserName, '\\');
+    *index = 0;
+    wcscpy(userDomain, fullUserName);
+    wcscpy(userName, index + 1);
+
+    //The above function will return the system name as the domain if
+    //the user is not on a real domain.  Strip this out so that the rest of
+    //our windows user functions work.  What if the system name and the domain
+    //name are the same?
     GetComputerNameW(computerName, &computerNameSize);
-		
-	if (wcscmp(computerName, userDomain) != 0) 
-	{
+
+    if (wcscmp(computerName, userDomain) != 0)
+    {
         //userId.append(userDomain);
         Uint32 n = wcslen(userDomain);
-        for(unsigned long i = 0; i < n; i++)
+        for (unsigned long i = 0; i < n; i++)
         {
             userId.append(Char16(userDomain[i]));
         }
-		userId.append("\\");
-		//userId.append(userName);
+        userId.append("\\");
+        //userId.append(userName);
         n = wcslen(userName);
-        for(unsigned long i = 0; i < n; i++)
+        for (unsigned long i = 0; i < n; i++)
         {
             userId.append(Char16(userName[i]));
         }
 
-	} else
-	{
-		//userId.append(userName);
+    }
+    else
+    {
+        //userId.append(userName);
         Uint32 n = wcslen(userName);
-        for(unsigned long i = 0; i < n; i++)
+        for (unsigned long i = 0; i < n; i++)
         {
             userId.append(Char16(userName[i]));
         }
 
-	}
+    }
 
-	return userId;
+    return userId;
 
 #else //original getEffectiveUserName function
-    
+
     int retcode = 0;
 
     // UNLEN (256) is the limit, not including null
@@ -377,11 +378,10 @@ String System::getEffectiveUserName()
     }
     String userId;
     Uint32 n = wcslen(pUserName);
-    for(unsigned long i = 0; i < n; i++)
+    for (unsigned long i = 0; i < n; i++)
     {
         userId.append(Char16(pUserName[i]));
     }
-
 
     return userId;
 #endif
@@ -407,17 +407,17 @@ Mutex processUserNameMut;
 
 Boolean System::isSystemUser(const char* userName)
 {
-    if(processUserName.size() == 0)
+    if (processUserName.size() == 0)
     {
         // Lock and recheck the processUserName length in case two threads
         // enter this block simultaneously
         AutoMutex mut(processUserNameMut);
-        if(processUserName.size() == 0)
+        if (processUserName.size() == 0)
         {
             processUserName = getEffectiveUserName();
         }
     }
-    if(processUserName == userName)
+    if (processUserName == userName)
     {
       return true;
     }
@@ -437,8 +437,8 @@ Boolean System::isSystemUser(const char* userName)
     LPUSER_INFO_1 pUserInfo = NULL;
     NET_API_STATUS nStatus = NULL;
 
-    // Make a copy of the specified username, it cannot be used directly because it's
-    // declared as const and strchr() may modify the string.
+    // Make a copy of the specified username, it cannot be used directly
+    // because it's declared as const and strchr() may modify the string.
     strncpy(tUserName, userName, sizeof(tUserName) - 1);
     tUserName[sizeof(tUserName)- 1] = '\0';
 
@@ -450,28 +450,32 @@ Boolean System::isSystemUser(const char* userName)
         strcpy(mUserName, pbs+1);
         usingDomain = true;
 
-    } else if ((NULL != (pbs = (strchr(tUserName, '@')))) ||
-               (NULL != (pbs = (strchr(tUserName, '.')))))
+    }
+    else if ((NULL != (pbs = (strchr(tUserName, '@')))) ||
+             (NULL != (pbs = (strchr(tUserName, '.')))))
     {
         *pbs = '\0';
         strcpy(mDomainName, pbs+1);
         strcpy(mUserName, tUserName);
         usingDomain = true;
 
-    } else
+    }
+    else
     {
         strcpy(mDomainName, ".");
         strcpy(mUserName, tUserName);
     }
 
     //convert domain name to unicode
-    if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
+    if (!MultiByteToWideChar(
+            CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName) + 1))
     {
         return false;
     }
 
     //convert username to unicode
-    if (!MultiByteToWideChar(CP_ACP, 0, mUserName, -1, wUserName, strlen(mUserName)+1))
+    if (!MultiByteToWideChar(
+            CP_ACP, 0, mUserName, -1, wUserName, strlen(mUserName) + 1))
     {
         return false;
     }
@@ -482,13 +486,15 @@ Boolean System::isSystemUser(const char* userName)
         DWORD rc = NetGetDCName(NULL, wDomainName, &pComputerName);
         if (rc == NERR_Success)
         {
-            wcscpy(wDomainName, (LPWSTR) pComputerName); //this is automatically prefixed with "\\"
+            // this is automatically prefixed with "\\"
+            wcscpy(wDomainName, (LPWSTR) pComputerName);
         }
         /*
         else
         {
             // failover
-            // ATTN: This is commented out until there is resolution on Bugzilla 2236. -hns 2/2005
+            // ATTN: This is commented out until there is resolution on
+            // Bugzilla 2236. -hns 2/2005
             // This needs to be more thoroughly tested when we uncomment it out.
 
             PDOMAIN_CONTROLLER_INFO DomainControllerInfo = NULL;
@@ -498,7 +504,8 @@ Boolean System::isSystemUser(const char* userName)
                              mDomainName,
                              NULL,
                              NULL,
-                             DS_DIRECTORY_SERVICE_REQUIRED,  //not sure what flags we want here
+                             //not sure what flags we want here
+                             DS_DIRECTORY_SERVICE_REQUIRED,
                              &DomainControllerInfo);
 
             if (rc == ERROR_SUCCESS && DomainControllerInfo)
@@ -506,7 +513,9 @@ Boolean System::isSystemUser(const char* userName)
                 strcpy(mDomainName, DomainControllerInfo->DomainName);
                 NetApiBufferFree(DomainControllerInfo);
 
-                if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
+                if (!MultiByteToWideChar(
+                        CP_ACP, 0, mDomainName, -1, wDomainName,
+                        strlen(mDomainName) + 1))
                 {
                     return false;
                 }
@@ -568,28 +577,32 @@ Boolean System::isPrivilegedUser(const String& userName)
         strcpy(mUserName, pbs+1);
         usingDomain = true;
 
-    } else if ((NULL != (pbs = (strchr(userStr, '@')))) ||
-               (NULL != (pbs = (strchr(userStr, '.')))))
+    }
+    else if ((NULL != (pbs = (strchr(userStr, '@')))) ||
+             (NULL != (pbs = (strchr(userStr, '.')))))
     {
         *pbs = '\0';
         strcpy(mDomainName, pbs+1);
         strcpy(mUserName, userStr);
         usingDomain = true;
 
-    } else
+    }
+    else
     {
         strcpy(mDomainName, ".");
         strcpy(mUserName, userStr);
     }
 
     //convert domain name to unicode
-    if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
+    if (!MultiByteToWideChar(
+            CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName) + 1))
     {
         return false;
     }
 
     //convert username to unicode
-    if (!MultiByteToWideChar(CP_ACP, 0, mUserName, -1, wUserName, strlen(mUserName)+1))
+    if (!MultiByteToWideChar(
+            CP_ACP, 0, mUserName, -1, wUserName, strlen(mUserName) + 1))
     {
         return false;
     }
@@ -600,13 +613,15 @@ Boolean System::isPrivilegedUser(const String& userName)
         DWORD rc = NetGetDCName(NULL, wDomainName, &pComputerName);
         if (rc == NERR_Success)
         {
-            wcscpy(wDomainName, (LPWSTR) pComputerName); //this is automatically prefixed with "\\"
+            // this is automatically prefixed with "\\"
+            wcscpy(wDomainName, (LPWSTR) pComputerName);
         }
         /*
         else
         {
             // failover
-            // ATTN: This is commented out until there is resolution on Bugzilla 2236. -hns 2/2005
+            // ATTN: This is commented out until there is resolution on
+            // Bugzilla 2236. -hns 2/2005
             // This needs to be more thoroughly tested when we uncomment it out.
 
             PDOMAIN_CONTROLLER_INFO DomainControllerInfo = NULL;
@@ -616,7 +631,8 @@ Boolean System::isPrivilegedUser(const String& userName)
                              mDomainName,
                              NULL,
                              NULL,
-                             DS_DIRECTORY_SERVICE_REQUIRED,  //not sure what flags we want here
+                             // not sure what flags we want here
+                             DS_DIRECTORY_SERVICE_REQUIRED,
                              &DomainControllerInfo);
 
             if (rc == ERROR_SUCCESS && DomainControllerInfo)
@@ -624,7 +640,9 @@ Boolean System::isPrivilegedUser(const String& userName)
                 strcpy(mDomainName, DomainControllerInfo->DomainName);
                 NetApiBufferFree(DomainControllerInfo);
 
-                if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
+                if (!MultiByteToWideChar(
+                        CP_ACP, 0, mDomainName, -1, wDomainName,
+                        strlen(mDomainName) + 1))
                 {
                     return false;
                 }
@@ -664,7 +682,7 @@ String System::getPrivilegedUserName()
     // ATTN-NB-03-20000304: Implement better way to get the privileged
     // user on the system.
 
-    return (String("Administrator"));
+    return String("Administrator");
 }
 
 Boolean System::isGroupMember(const char* userName, const char* groupName)
@@ -854,11 +872,12 @@ Boolean System::is_absolute_path(const char *path)
     strncpy(path_slash, path, _MAX_PATH);
     path_slash[_MAX_PATH-1] = '\0';
 
-    for(p = path_slash; p < path_slash + strlen(path_slash); p++)
+    for (p = path_slash; p < path_slash + strlen(path_slash); p++)
       if (*p == '/')
           *p = '\\';
 
-    return (strcasecmp(_fullpath( full, path_slash, _MAX_PATH ), path_slash) == 0) ? true : false;
+    return (strcasecmp(
+        _fullpath(full, path_slash, _MAX_PATH), path_slash) == 0);
 }
 
 // Changes file permissions on the given file.
@@ -908,7 +927,7 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
         unsigned long *bytes_returned=0;
         char *output_buf = (char *)calloc(1, 256);
         int buf_size = 256;
-    
+
         if ( 0 == (errcode = WSAIoctl(sock,
                                       SIO_ADDRESS_LIST_QUERY,
                                       NULL,
@@ -923,13 +942,13 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
             SOCKET_ADDRESS *addr;
             Uint32 ip;
             struct sockaddr_in *sin;
-        
-            addr_list = (SOCKET_ADDRESS_LIST *)output_buf;        
+
+            addr_list = (SOCKET_ADDRESS_LIST *)output_buf;
             addr = addr_list->Address;
-        
+
             sin = (struct sockaddr_in *)addr->lpSockaddr;
-        
-            for( ; interfaces < addr_list->iAddressCount; interfaces++)
+
+            for ( ; interfaces < addr_list->iAddressCount; interfaces++)
             {
                 ip = sin->sin_addr.s_addr;
                 addr++;
@@ -938,10 +957,12 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
                 {
                     free(output_buf);
                     closesocket(sock);
-                    return(true);
+                    return true;
                 }
             }
-        } else {
+        }
+        else
+        {
             free(output_buf);
             return false;
         }

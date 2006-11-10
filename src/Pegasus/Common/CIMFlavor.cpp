@@ -94,13 +94,12 @@ void CIMFlavor::removeFlavor (const CIMFlavor & flavor)
 
 Boolean CIMFlavor::hasFlavor (const CIMFlavor & flavor) const
 {
-    return ((this->cimFlavor & flavor.cimFlavor) == flavor.cimFlavor) ?
-        true : false;
+    return (this->cimFlavor & flavor.cimFlavor) == flavor.cimFlavor;
 }
 
 Boolean CIMFlavor::equal (const CIMFlavor & flavor) const
 {
-    return (this->cimFlavor == flavor.cimFlavor) ? true : false;
+    return this->cimFlavor == flavor.cimFlavor;
 }
 
 CIMFlavor CIMFlavor::operator+ (const CIMFlavor & flavor) const

@@ -41,7 +41,7 @@
 #include "HTTPAcceptor.h"
 #include "HTTPConnection.h"
 #include "Tracer.h"
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #include "EBCDIC_OS400.h"

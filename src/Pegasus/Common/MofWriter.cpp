@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -696,7 +688,7 @@ void MofWriter::appendQualifierDeclElement(
 //     TRANSLATABLE      = "translatable"
 //    </pre>
 //
-//    The keyword toinstance is not in the CIM specification. For the moment 
+//    The keyword toinstance is not in the CIM specification. For the moment
 //    we are assuming that it is the same as the toSubclass. We had a choice
 //    of using one entity for both or separating them and letting the
 //    compiler set both.

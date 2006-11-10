@@ -40,7 +40,7 @@
 #include "XmlWriter.h"
 #include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 #include "StrLit.h"
 #include "ArrayIterator.h"
 
@@ -62,7 +62,8 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
     if (qualifier.isUninitialized())
         throw UninitializedObjectException();
 
-    if (find(qualifier.getName()) != PEG_NOT_FOUND){
+    if (find(qualifier.getName()) != PEG_NOT_FOUND)
+    {
         MessageLoaderParms parms("Common.CIMQualifierList.QUALIFIER",
             "qualifier \"$0\"",
             qualifier.getName().getString());
@@ -176,13 +177,13 @@ void CIMQualifierList::resolve(
         // 3. If the qualifier is the EmbeddedInstance qualifier, then check
         // that the class specified by the qualifier exists in the namespace.
         //----------------------------------------------------------------------
-        if(q.getName().equal(CIMName("EmbeddedInstance")))
+        if (q.getName().equal(CIMName("EmbeddedInstance")))
         {
             String className;
             q.getValue().get(className);
             CIMClass classDef = declContext->lookupClass(nameSpace,
                     CIMName(className));
-            if(classDef.isUninitialized())
+            if (classDef.isUninitialized())
             {
                 String embeddedInstType("EmbeddedInstance(\"");
                 embeddedInstType = embeddedInstType + className + "\")";
@@ -306,7 +307,7 @@ void CIMQualifierList::resolve(
         // keep current value. Note we have already eliminated any possibity
         // that a nonoverridable qualifier can be in the list.
         // Note that there is no exists() function ATTN:KS 25 Mar 2002
-        if(find(iq.getName()) != PEG_NOT_FOUND)
+        if (find(iq.getName()) != PEG_NOT_FOUND)
             continue;
 
         CIMQualifier q = iq.clone();

@@ -57,7 +57,7 @@ Uint32 MessageQueue::getNextQueueId()
 void MessageQueue::putQueueId(Uint32 queueId)
 {
     if (queueId != CIMOM_Q_ID)
-	_qidFactory.putID(queueId);
+        _qidFactory.putID(queueId);
 }
 
 MessageQueue::MessageQueue(
@@ -120,12 +120,11 @@ void MessageQueue::enqueue(Message* message)
 
     PEGASUS_ASSERT(message != 0);
 
-    PEG_TRACE_STRING( TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-                      String("Queue name: ") + getQueueName() ) ;
-    Tracer::trace   ( TRC_MESSAGEQUEUESERVICE,
-                      Tracer::LEVEL3,
-                      "Message: [%s]",
-                      MessageTypeToString(message->getType()));
+    PEG_TRACE_STRING(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
+        String("Queue name: ") + getQueueName());
+    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
+        "Message: [%s]",
+        MessageTypeToString(message->getType()));
 
     _messageList.insert_back(message);
 
@@ -171,21 +170,21 @@ MessageQueue* MessageQueue::lookup(Uint32 queueId)
 MessageQueue* MessageQueue::lookup(const char *name)
 {
 
-    if(name == NULL)
+    if (name == NULL)
         throw NullPointer();
 
     AutoMutex autoMut(q_table_mut);
-   for(QueueTable::Iterator i = _queueTable.start(); i; i++)
-   {
+    for (QueueTable::Iterator i = _queueTable.start(); i; i++)
+    {
         // ATTN: Need to decide how many characters to compare in queue names
-        if(! strcmp( ((MessageQueue *)i.value())->getQueueName(), name) )
+        if (!strcmp(((MessageQueue *)i.value())->getQueueName(), name))
         {
-            return( (MessageQueue *)i.value());
+            return (MessageQueue *)i.value();
         }
     }
 
     Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-                    "MessageQueue::lookup failure - name = %s", name);
+        "MessageQueue::lookup failure - name = %s", name);
 
     return 0;
 }

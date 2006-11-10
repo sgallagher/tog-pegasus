@@ -130,7 +130,7 @@ public:
 
     Boolean exists(const CIMName& name) const
     {
-        return (((find(name)) == PEG_NOT_FOUND)? false : true);
+        return (find(name) != PEG_NOT_FOUND);
     }
 
     /** isTrue - Determines if the qualifier defined by

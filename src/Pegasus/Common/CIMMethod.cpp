@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMMethod.h"
@@ -220,7 +214,7 @@ Uint32 CIMMethod::getParameterCount() const
 
 Boolean CIMMethod::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMMethod::identical(const CIMConstMethod& x) const
@@ -359,7 +353,7 @@ Uint32 CIMConstMethod::getParameterCount() const
 
 Boolean CIMConstMethod::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMConstMethod::identical(const CIMConstMethod& x) const

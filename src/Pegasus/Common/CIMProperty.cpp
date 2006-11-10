@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMPropertyRep.h"
@@ -197,7 +191,7 @@ void CIMProperty::removeQualifier(Uint32 index)
     _checkRep();
     _rep->removeQualifier(index);
 }
-    
+
 Uint32 CIMProperty::getQualifierCount() const
 {
     _checkRep();
@@ -206,7 +200,7 @@ Uint32 CIMProperty::getQualifierCount() const
 
 Boolean CIMProperty::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMProperty::identical(const CIMConstProperty& x) const
@@ -353,7 +347,7 @@ Uint32 CIMConstProperty::getQualifierCount() const
 
 Boolean CIMConstProperty::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMConstProperty::identical(const CIMConstProperty& x) const

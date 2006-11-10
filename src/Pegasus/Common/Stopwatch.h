@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//      Chip Vincent (cvincent@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Stopwatch_h
@@ -57,37 +52,37 @@ public:
     must be called to start the timer.
     @example Stopwatch time;
     */
-    Stopwatch(void);
+    Stopwatch();
 
     /** start - Starts accumulating time and continues until stop is called.
     The object can be started and stopped multiple times to measure the
     sum of several intervals, but each start must have a corresponding start.
     */
-    void start(void);
+    void start();
 
     /** stop - Stops the accumlation of time for an interval. The object
     should only stopped if it has been started.
     */
-    void stop(void);
+    void stop();
 
     /** reset - Effectively clears the time values stored by a Stopwatch.
     */
-    void reset(void);
+    void reset();
 
     /** getElapsed - Get the elapsed time for the defined stopwatch. This
     method should only be called if it is currently stopped.
     @return Returns the elapsed time value as a double (in milliseconds).
     */
-    double getElapsed(void) const;
+    double getElapsed() const;
 
     /** Get number of elapsed microseconds
     */
-    Uint64 getElapsedUsec(void) const;
+    Uint64 getElapsedUsec() const;
 
     /** printElapsed method gets the current value of the timer and
     sends it to standard out as a string with the word seconds attached
     */
-    void printElapsed(void);
+    void printElapsed();
 
 private:
     Uint64 _start;

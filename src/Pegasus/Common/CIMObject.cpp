@@ -103,10 +103,10 @@ const CIMObjectPath& CIMObject::getPath() const
     return _rep->getPath();
 }
 
-void CIMObject::setPath (const CIMObjectPath & path)
+void CIMObject::setPath(const CIMObjectPath & path)
 {
-    _checkRep ();
-    _rep->setPath (path);
+    _checkRep();
+    _rep->setPath(path);
 }
 
 CIMObject& CIMObject::addQualifier(const CIMQualifier& qualifier)
@@ -185,13 +185,13 @@ Uint32 CIMObject::getPropertyCount() const
 
 Boolean CIMObject::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
-String CIMObject::toString () const
+String CIMObject::toString() const
 {
     Buffer out;
-    
+
     _checkRep();
     _rep->toXml(out);
     out.append('\0');
@@ -199,11 +199,11 @@ String CIMObject::toString () const
     return out.getData();
 }
 
-Boolean CIMObject::isClass () const
+Boolean CIMObject::isClass() const
 {
     try
     {
-        const CIMClass c (*this);
+        const CIMClass c(*this);
         return true;
     }
     catch (DynamicCastFailedException&)
@@ -212,11 +212,11 @@ Boolean CIMObject::isClass () const
     }
 }
 
-Boolean CIMObject::isInstance () const
+Boolean CIMObject::isInstance() const
 {
     try
     {
-        const CIMInstance i (*this);
+        const CIMInstance i(*this);
         return true;
     }
     catch (DynamicCastFailedException&)
@@ -350,13 +350,13 @@ Uint32 CIMConstObject::getPropertyCount() const
 
 Boolean CIMConstObject::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
-String CIMConstObject::toString () const
+String CIMConstObject::toString() const
 {
     Buffer out;
-    
+
     _checkRep();
     _rep->toXml(out);
     out.append('\0');

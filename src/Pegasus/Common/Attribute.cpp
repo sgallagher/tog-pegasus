@@ -73,7 +73,7 @@ PEGASUS_STD(ostream)& operator<<(
     Array<String> vals = attr.getValues();
     for (int i = 0; i < vals.size(); i++)
     {
-        if(i == 0)
+        if (i == 0)
         {
             os << " = ";
         }

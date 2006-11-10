@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//           (carolann_graves@hp.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Resolver.h>
@@ -46,99 +41,99 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-void Resolver::resolveClass (
-    CIMClass & theClass,
-    DeclContext * declContext,
-    const CIMNamespaceName & nameSpace)
+void Resolver::resolveClass(
+    CIMClass& theClass,
+    DeclContext* declContext,
+    const CIMNamespaceName& nameSpace)
 {
-    theClass._checkRep ();
-    theClass._rep->resolve (declContext, nameSpace);
+    theClass._checkRep();
+    theClass._rep->resolve(declContext, nameSpace);
 }
 
-void Resolver::resolveInstance (
-    CIMInstance & theInstance,
-    DeclContext * declContext,
-    const CIMNamespaceName & nameSpace,
+void Resolver::resolveInstance(
+    CIMInstance& theInstance,
+    DeclContext* declContext,
+    const CIMNamespaceName& nameSpace,
     Boolean propagateQualifiers)
 {
-    theInstance._checkRep ();
+    theInstance._checkRep();
     CIMConstClass cimClass;
-    theInstance._rep->resolve (declContext, nameSpace, cimClass, 
-        propagateQualifiers);
+    theInstance._rep->resolve(
+        declContext, nameSpace, cimClass, propagateQualifiers);
 }
 
-void Resolver::resolveInstance (
-    CIMInstance & theInstance,
-    DeclContext * declContext,
-    const CIMNamespaceName & nameSpace,
-    CIMConstClass & cimClassOut,
+void Resolver::resolveInstance(
+    CIMInstance& theInstance,
+    DeclContext* declContext,
+    const CIMNamespaceName& nameSpace,
+    CIMConstClass& cimClassOut,
     Boolean propagateQualifiers)
 {
-    theInstance._checkRep ();
-    theInstance._rep->resolve (declContext, nameSpace, cimClassOut, 
+    theInstance._checkRep();
+    theInstance._rep->resolve(declContext, nameSpace, cimClassOut,
         propagateQualifiers);
 }
 
-void Resolver::resolveProperty (
-    CIMProperty & theProperty,
-    DeclContext * declContext,
-    const CIMNamespaceName & nameSpace,
+void Resolver::resolveProperty(
+    CIMProperty& theProperty,
+    DeclContext* declContext,
+    const CIMNamespaceName& nameSpace,
     Boolean isInstancePart,
-    const CIMConstProperty & inheritedProperty,
+    const CIMConstProperty& inheritedProperty,
     Boolean propagateQualifiers)
 {
-    theProperty._checkRep ();
-    theProperty._rep->resolve (declContext, nameSpace, isInstancePart, 
+    theProperty._checkRep();
+    theProperty._rep->resolve(declContext, nameSpace, isInstancePart,
         inheritedProperty, propagateQualifiers);
 }
 
-void Resolver::resolveProperty (
-    CIMProperty & theProperty,
-    DeclContext * declContext,
-    const CIMNamespaceName & nameSpace,
+void Resolver::resolveProperty(
+    CIMProperty& theProperty,
+    DeclContext* declContext,
+    const CIMNamespaceName& nameSpace,
     Boolean isInstancePart,
     Boolean propagateQualifiers)
 {
-    theProperty._checkRep ();
-    theProperty._rep->resolve (declContext, nameSpace, isInstancePart, 
+    theProperty._checkRep();
+    theProperty._rep->resolve(declContext, nameSpace, isInstancePart,
         propagateQualifiers);
 }
 
-void Resolver::resolveMethod (
-    CIMMethod & theMethod,
-    DeclContext * declContext,
-    const CIMNamespaceName & nameSpace,
-    const CIMConstMethod & inheritedMethod)
+void Resolver::resolveMethod(
+    CIMMethod& theMethod,
+    DeclContext* declContext,
+    const CIMNamespaceName& nameSpace,
+    const CIMConstMethod& inheritedMethod)
 {
-    theMethod._checkRep ();
-    theMethod._rep->resolve (declContext, nameSpace, inheritedMethod);
+    theMethod._checkRep();
+    theMethod._rep->resolve(declContext, nameSpace, inheritedMethod);
 }
 
-void Resolver::resolveMethod (
-    CIMMethod & theMethod,
-    DeclContext * declContext,
-    const CIMNamespaceName & nameSpace)
+void Resolver::resolveMethod(
+    CIMMethod& theMethod,
+    DeclContext* declContext,
+    const CIMNamespaceName& nameSpace)
 {
-    theMethod._checkRep ();
-    theMethod._rep->resolve (declContext, nameSpace);
+    theMethod._checkRep();
+    theMethod._rep->resolve(declContext, nameSpace);
 }
 
-void Resolver::resolveParameter (
-    CIMParameter & theParameter,
-    DeclContext * declContext, 
-    const CIMNamespaceName & nameSpace)
+void Resolver::resolveParameter(
+    CIMParameter& theParameter,
+    DeclContext* declContext,
+    const CIMNamespaceName& nameSpace)
 {
-    theParameter._checkRep ();
-    theParameter._rep->resolve (declContext, nameSpace);
+    theParameter._checkRep();
+    theParameter._rep->resolve(declContext, nameSpace);
 }
 
-void Resolver::resolveQualifierFlavor (
-    CIMQualifier & theQualifier,
-    const CIMFlavor & inheritedFlavor, 
+void Resolver::resolveQualifierFlavor(
+    CIMQualifier& theQualifier,
+    const CIMFlavor& inheritedFlavor,
     Boolean inherited)
 {
-    theQualifier._checkRep ();
-    theQualifier._rep->resolveFlavor (inheritedFlavor, inherited);
+    theQualifier._checkRep();
+    theQualifier._rep->resolveFlavor(inheritedFlavor, inherited);
 }
 
 PEGASUS_NAMESPACE_END

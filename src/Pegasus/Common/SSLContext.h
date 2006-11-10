@@ -62,14 +62,17 @@ class SSLCallbackInfoRep;
 // Pegasus-defined SSL certificate verification callback
 typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
 
-/** This class provides information that is used during the SSL verification callback.
-    We pass a pointer to this object to the SSL_set_ex_data function.  We can then use SSL_get_ex_data
-    from within the callback and cast the void* back to this object.  In this case, we store a pointer
-    to the Pegasus-defined callback function set in the SSLContext.  We also store a pointer to a
-    certificate object which we construct during the callback.  Some of the certificate information is
-    inaccessible outside the callback, so we need to retrieve the data within the function.
-    Each SSL connection object will have the same callback function, but each connection will have its
-    own certificate.  Therefore, this class is constructed on a per-connection basis in SSLSocket.
+/** This class provides information that is used during the SSL verification
+    callback.  We pass a pointer to this object to the SSL_set_ex_data
+    function.  We can then use SSL_get_ex_data from within the callback and
+    cast the void* back to this object.  In this case, we store a pointer to
+    the Pegasus-defined callback function set in the SSLContext.  We also
+    store a pointer to a certificate object which we construct during the
+    callback.  Some of the certificate information is inaccessible outside
+    the callback, so we need to retrieve the data within the function.  Each
+    SSL connection object will have the same callback function, but each
+    connection will have its own certificate.  Therefore, this class is
+    constructed on a per-connection basis in SSLSocket.
 */
 class PEGASUS_COMMON_LINKAGE SSLCallbackInfo
 {
@@ -110,41 +113,41 @@ public:
     //
     // Certificate validation result codes.
     //
-    static const int    V_OK;
+    static const int V_OK;
 
-    static const int    V_ERR_UNABLE_TO_GET_ISSUER_CERT;
-    static const int    V_ERR_UNABLE_TO_GET_CRL;
-    static const int    V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE;
-    static const int    V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE;
-    static const int    V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY;
-    static const int    V_ERR_CERT_SIGNATURE_FAILURE;
-    static const int    V_ERR_CRL_SIGNATURE_FAILURE;
-    static const int    V_ERR_CERT_NOT_YET_VALID;
-    static const int    V_ERR_CERT_HAS_EXPIRED;
-    static const int    V_ERR_CRL_NOT_YET_VALID;
-    static const int    V_ERR_CRL_HAS_EXPIRED;
-    static const int    V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD;
-    static const int    V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD;
-    static const int    V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD;
-    static const int    V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD;
-    static const int    V_ERR_OUT_OF_MEM;
-    static const int    V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT;
-    static const int    V_ERR_SELF_SIGNED_CERT_IN_CHAIN;
-    static const int    V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY;
-    static const int    V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE;
-    static const int    V_ERR_CERT_CHAIN_TOO_LONG;
-    static const int    V_ERR_CERT_REVOKED;
-    static const int    V_ERR_INVALID_CA;
-    static const int    V_ERR_PATH_LENGTH_EXCEEDED;
-    static const int    V_ERR_INVALID_PURPOSE;
-    static const int    V_ERR_CERT_UNTRUSTED;
-    static const int    V_ERR_CERT_REJECTED;
-    static const int    V_ERR_SUBJECT_ISSUER_MISMATCH;
-    static const int    V_ERR_AKID_SKID_MISMATCH;
-    static const int    V_ERR_AKID_ISSUER_SERIAL_MISMATCH;
-    static const int    V_ERR_KEYUSAGE_NO_CERTSIGN;
+    static const int V_ERR_UNABLE_TO_GET_ISSUER_CERT;
+    static const int V_ERR_UNABLE_TO_GET_CRL;
+    static const int V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE;
+    static const int V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE;
+    static const int V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY;
+    static const int V_ERR_CERT_SIGNATURE_FAILURE;
+    static const int V_ERR_CRL_SIGNATURE_FAILURE;
+    static const int V_ERR_CERT_NOT_YET_VALID;
+    static const int V_ERR_CERT_HAS_EXPIRED;
+    static const int V_ERR_CRL_NOT_YET_VALID;
+    static const int V_ERR_CRL_HAS_EXPIRED;
+    static const int V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD;
+    static const int V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD;
+    static const int V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD;
+    static const int V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD;
+    static const int V_ERR_OUT_OF_MEM;
+    static const int V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT;
+    static const int V_ERR_SELF_SIGNED_CERT_IN_CHAIN;
+    static const int V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY;
+    static const int V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE;
+    static const int V_ERR_CERT_CHAIN_TOO_LONG;
+    static const int V_ERR_CERT_REVOKED;
+    static const int V_ERR_INVALID_CA;
+    static const int V_ERR_PATH_LENGTH_EXCEEDED;
+    static const int V_ERR_INVALID_PURPOSE;
+    static const int V_ERR_CERT_UNTRUSTED;
+    static const int V_ERR_CERT_REJECTED;
+    static const int V_ERR_SUBJECT_ISSUER_MISMATCH;
+    static const int V_ERR_AKID_SKID_MISMATCH;
+    static const int V_ERR_AKID_ISSUER_SERIAL_MISMATCH;
+    static const int V_ERR_KEYUSAGE_NO_CERTSIGN;
 
-    static const int    V_ERR_APPLICATION_VERIFICATION;
+    static const int V_ERR_APPLICATION_VERIFICATION;
 
 
     /** Constructor for a SSLCertificateInfo object.
@@ -249,8 +252,10 @@ private:
         @param issuerName  issuer name of the certificate.
         @param version version number value from the certificate.
         @param serailNumber serial number value from the certificate.
-        @param notAfter notAfter date from the validity period of the certificate.
-        @param notBefore notBefore date from the validity period of the certificate.
+        @param notAfter notAfter date from the validity period of the
+        certificate.
+        @param notBefore notBefore date from the validity period of the
+        certificate.
         @param depth  depth of the certificate chain.
         @param errorCode   error code from the default verification of the
         certificate by the OpenSSL library.
@@ -314,7 +319,8 @@ public:
 
     ~SSLContext();
 
-    /** Gets the truststore path of the SSLContext object.  This may be a CA file or a directory.
+    /** Gets the truststore path of the SSLContext object.  This may be a
+        CA file or a directory.
         @return a string containing the truststore path.
     */
     String getTrustStore() const;
@@ -356,7 +362,8 @@ public:
     String getTrustStoreUserName() const;
 #endif
 
-    /** Returns the verification callback associated with this context.  This may be NULL.
+    /** Returns the verification callback associated with this context.
+        This may be NULL.
         @return the verification callback function
     */
     SSLCertificateVerifyFunction* getSSLCertificateVerifyFunction() const;
@@ -412,14 +419,16 @@ public:
         @param keyPath  server key file path
         @param verifyCert  function pointer to a certificate verification
         call back function.
-        @param trustStoreUserName In OpenPegasus 2.5 this parameter specified the user to
-        associate the truststore with; this was basically a workaround to
-        providers that required a username. With the support provided in PEP 187,
+        @param trustStoreUserName In OpenPegasus 2.5 this parameter
+        specified the user to associate the truststore with; this was
+        basically a workaround to providers that required a username. With
+        the support provided in PEP 187,
         this parameter is ignored beginning in release 2.5.
         @param randomFile  file path of a random file that is used as a seed
         for random number generation by OpenSSL.
 
-        @exception SSLException  exception indicating failure to create a context.
+        @exception SSLException  exception indicating failure to create a
+        context.
     */
     SSLContext(
         const String& trustStore,

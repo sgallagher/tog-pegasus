@@ -117,7 +117,7 @@ public:
         Real32 qualityValue);
 
     /**
-        Removes the specified LanguageTag and quality value from the 
+        Removes the specified LanguageTag and quality value from the
         AcceptLanguageList object.
         @param index Integer index of the element to remove.
         @exception IndexOutOfBoundsException If the specified index is out of

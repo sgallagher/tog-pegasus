@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Pair_h
@@ -49,25 +45,22 @@ struct Pair
     U second;
 
     Pair() : first(), second()
-    { 
-
+    {
     }
 
     Pair(const Pair<T,U>& x) : first(x.first), second(x.second)
-    { 
-
+    {
     }
 
     Pair(const T& first_, const U& second_) : first(first_), second(second_)
     {
-
     }
 
     Pair<T,U>& operator=(const Pair<T,U>& x)
     {
-	first = x.first;
-	second = x.second;
-	return *this;
+        first = x.first;
+        second = x.second;
+        return *this;
     }
 };
 

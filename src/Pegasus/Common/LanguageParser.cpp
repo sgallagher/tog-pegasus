@@ -34,7 +34,7 @@
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 #include <cstring>
 
 #ifdef PEGASUS_HAS_ICU
@@ -69,7 +69,8 @@ AcceptLanguageList LanguageParser::parseAcceptLanguageHeader(
             Real32 qualityValue;
             LanguageParser::_parseAcceptLanguageElement(
                 languageElements[i], languageTagString, qualityValue);
-            acceptLanguages.insert(LanguageTag(languageTagString), qualityValue);
+            acceptLanguages.insert(
+                LanguageTag(languageTagString), qualityValue);
         }
     }
     catch (Exception& e)

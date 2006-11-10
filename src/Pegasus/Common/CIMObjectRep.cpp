@@ -62,7 +62,7 @@ CIMObjectRep::CIMObjectRep(const CIMObjectPath& reference)
     : _resolved(false)
 {
     // ensure the class name is not null
-    if(reference.getClassName().isNull())
+    if (reference.getClassName().isNull())
     {
         throw UninitializedObjectException();
     }
@@ -104,11 +104,11 @@ Uint32 CIMObjectRep::findProperty(const CIMName& name) const
     {
         if (name.equal(_properties[i].getName()))
         {
-            return(i);
+            return i;
         }
     }
 
-    return(PEG_NOT_FOUND);
+    return PEG_NOT_FOUND;
 }
 
 CIMProperty CIMObjectRep::getProperty(Uint32 index)
@@ -118,7 +118,7 @@ CIMProperty CIMObjectRep::getProperty(Uint32 index)
         throw IndexOutOfBoundsException();
     }
 
-    return(_properties[index]);
+    return _properties[index];
 }
 
 void CIMObjectRep::removeProperty(Uint32 index)
@@ -134,7 +134,7 @@ void CIMObjectRep::removeProperty(Uint32 index)
 
 Uint32 CIMObjectRep::getPropertyCount() const
 {
-    return(_properties.size());
+    return _properties.size();
 }
 
 
@@ -142,12 +142,12 @@ Boolean CIMObjectRep::identical(const CIMObjectRep* x) const
 {
     if (!_reference.identical(x->_reference))
     {
-        return(false);
+        return false;
     }
 
     if (!_qualifiers.identical(x->_qualifiers))
     {
-        return(false);
+        return false;
     }
 
     // Compare properties:
@@ -158,36 +158,36 @@ Boolean CIMObjectRep::identical(const CIMObjectRep* x) const
 
         if (tmp1.size() != tmp2.size())
         {
-            return(false);
+            return false;
         }
 
         for (Uint32 i = 0, n = tmp1.size(); i < n; i++)
         {
             if (!tmp1[i].identical(tmp2[i]))
             {
-                return(false);
+                return false;
             }
         }
     }
 
     if (_resolved != x->_resolved)
     {
-        return(false);
+        return false;
     }
 
-    return(true);
+    return true;
 }
 
 void CIMObjectRep::setPath(const CIMObjectPath& path)
 {
     // ensure the class name is not null
-    if(path.getClassName().isNull())
+    if (path.getClassName().isNull())
     {
         throw UninitializedObjectException();
     }
 
     // prevent changing the class name (type) in when updating the object path
-    if(!_reference.getClassName().equal(path.getClassName()))
+    if (!_reference.getClassName().equal(path.getClassName()))
     {
         throw TypeMismatchException();
     }

@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (m.brasher@inovadevelopment.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _Pegasus_Common_List_h
@@ -44,7 +42,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /** The NullLock class can be passed as the LockType template parameter to the
-    List template class. The NullLock implements no-ops for the lock(), 
+    List template class. The NullLock implements no-ops for the lock(),
     try_lock() and unlock() operations.
 */
 class NullLock
@@ -130,8 +128,8 @@ private:
 };
 
 /** The List class implements an intrusive linked list. We say it is intrusive
-    because the element class must derive from Linkable, which provides the 
-    link fields used by this implementation. An intrusive implementation has 
+    because the element class must derive from Linkable, which provides the
+    link fields used by this implementation. An intrusive implementation has
     two main benefits: it is more efficient and uses less memory. Recall that
     a non-intrusive linked list must allocate an additional "node" object that
     contains the links fields as well as a pointer to the element. This implies
@@ -140,7 +138,7 @@ private:
 
     The List template takes two arguments: the element type and the lock type.
     Again, the element type must derive from Linkable. The lock type is used
-    to synchronize access to the list operations and can be any class that 
+    to synchronize access to the list operations and can be any class that
     implements these methods: lock(), try_lock(), unlock(). Here are three
     classes that can be used as the lock type.
 
@@ -148,137 +146,137 @@ private:
         - Mutex - non-recursive mutex.
         - Mutex - recursive mutex.
 
-    Now we consider an example. So you want to create a list of Person 
+    Now we consider an example. So you want to create a list of Person
     elements. First you must derive from the Linkable class as shown below.
 
-	\code
-	class Person : public Linkable
-	{
-	    Person(const String& name);
-	    .
-	    .
-	    .
-	}
-	\endcode
+        \code
+        class Person : public Linkable
+        {
+            Person(const String& name);
+            .
+            .
+            .
+        }
+        \endcode
 
     Linkable is a non-virtual base class and contains the link fields this
     implementation will use to place Person elements onto the list. Second,
     you must instantiate the List template. Here are three possibilities.
 
-	\code
-	List<Person, NullLink>; // Do no synchronization.
-	List<Person, Mutex>; // Use Mutex class to synchronize.
-	List<Person, Mutex>; // Use Mutex class to synchronize.
-	\endcode
+        \code
+        List<Person, NullLink>; // Do no synchronization.
+        List<Person, Mutex>; // Use Mutex class to synchronize.
+        List<Person, Mutex>; // Use Mutex class to synchronize.
+        \endcode
 
     Finally, use the list. The following example adds three Person objects
     to the back of the list and removes one from the front.
 
-	\code
-	typedef List<Person, Mutex> PersonList;
-	PersonList list;
+        \code
+        typedef List<Person, Mutex> PersonList;
+        PersonList list;
 
-	list.insert_back(new Person("John"));
-	list.insert_back(new Person("Mary"));
-	list.insert_back(new Person("Jane"));
+        list.insert_back(new Person("John"));
+        list.insert_back(new Person("Mary"));
+        list.insert_back(new Person("Jane"));
 
-	Person* person = list.remove_front();
-	\endcode
+        Person* person = list.remove_front();
+        \endcode
 
-    One recurring usage pattern is exhausting the elements of a list. For 
+    One recurring usage pattern is exhausting the elements of a list. For
     example (this is thread-safe).
 
-	\code
-	Person* person;
+        \code
+        Person* person;
 
-	while ((person = list.remove_front())
-	{
-	    // Do something with person here.
-	}
-	\endcode
+        while ((person = list.remove_front())
+        {
+            // Do something with person here.
+        }
+        \endcode
 
     Another pattern is to iterate the elements of the list, which requires a
     lock for the duration of the iteration. For example:
 
-	\code
-	list.lock();
+        \code
+        list.lock();
 
-	for (Person* p = list.front(); p; p = list.next_of(p))
-	{
-	    // Use p here!
-	}
+        for (Person* p = list.front(); p; p = list.next_of(p))
+        {
+            // Use p here!
+        }
 
-	list.unlock();
-	\endcode
+        list.unlock();
+        \endcode
 
     Beware that this pattern fails for non-recursive mutexes since the mutex
     is locked once by our example and again by front(). You may have noticed
     that if an exception is thrown before unlock(), that the mutex will
     remain locked. For this reason, the List class contains an AutoLock class
-    that will automatically release the mutex. We now rework the previous 
+    that will automatically release the mutex. We now rework the previous
     example to use an AutoLock object.
 
-	\code
-	{
-	    PersonList::AutoLock autoLock(list);
+        \code
+        {
+            PersonList::AutoLock autoLock(list);
 
-	    for (Person* p = list.front(); p; p = list.next_of(p))
-	    {
-		// Use p here!
-	    }
-	}
-	\endcode
+            for (Person* p = list.front(); p; p = list.next_of(p))
+            {
+                // Use p here!
+            }
+        }
+        \endcode
 
-    The List class provides a special find function to simplify recurring 
+    The List class provides a special find function to simplify recurring
     lookups of an element by some specific criteria. For example, lets add an
     equal function to our Person class as follows:
 
-	\code
-	class Person : public Linkable
-	{
-	    Person(const String& name);
-	    const String& name();
+        \code
+        class Person : public Linkable
+        {
+            Person(const String& name);
+            const String& name();
 
-	    static bool equal(const Person* person, const char* client_data)
-	    {
-		const String& name = *((const String*)client_data);
-		return person->name() == name;
-	    }
-	}
-	\endcode
+            static bool equal(const Person* person, const char* client_data)
+            {
+                const String& name = *((const String*)client_data);
+                return person->name() == name;
+            }
+        }
+        \endcode
 
     This equal function may now be passed to the find() function to lookup
     a specific person in a thread-safe way. For example:
 
-	\code
-	const String name = "John";
-	Person* person = list.find(Person::equal, &name);
+        \code
+        const String name = "John";
+        Person* person = list.find(Person::equal, &name);
 
-	if (person)
-	{
-	    // Found John!
-	}
-	\endcode
+        if (person)
+        {
+            // Found John!
+        }
+        \endcode
 
     Similary, we can delete "John" by using the equal-form of remove().
 
-	\code
-	const String name = "John";
-	Person* person = list.remove(Person::equal, &name);
-	\endcode
+        \code
+        const String name = "John";
+        Person* person = list.remove(Person::equal, &name);
+        \endcode
 
     Finally, we can "apply" a function to every element of the list using
     the apply method. For example:
 
-	\code
-	static void _print(Person* person, const void* client_data)
-	{
-	    printf("%s\n", (const char*)client_data);
-	    person->print();
-	}
+        \code
+        static void _print(Person* person, const void* client_data)
+        {
+            printf("%s\n", (const char*)client_data);
+            person->print();
+        }
 
-	list.apply(_print, "My List");
-	\endcode
+        list.apply(_print, "My List");
+        \endcode
 */
 template<class ElemType, class LockType>
 class List
@@ -293,7 +291,7 @@ public:
 
     /** Default constructor.
     */
-    List() : _rep(_destructor) 
+    List() : _rep(_destructor)
     {
     }
 
@@ -301,143 +299,143 @@ public:
     */
     ~List()
     {
-	AutoLock al(*this);
-	_rep.clear();
+        AutoLock al(*this);
+        _rep.clear();
     }
 
     /** Remove and delete all elements in this list. size() returns zero
-	after this is called.
+        after this is called.
     */
     void clear()
     {
-	AutoLock al(*this);
-	_rep.clear();
+        AutoLock al(*this);
+        _rep.clear();
     }
 
     /** Returns the number of elements in the list.
     */
-    size_t size() const 
+    size_t size() const
     {
-	AutoLock al(*this);
-	return _rep.size(); 
+        AutoLock al(*this);
+        return _rep.size();
     }
 
     /** Returns true if the list is empty (i.e., has zero elements).
     */
-    size_t is_empty() const 
-    { 
-	AutoLock al(*this);
-	return _rep.empty(); 
+    size_t is_empty() const
+    {
+        AutoLock al(*this);
+        return _rep.empty();
     }
 
     /** Obtains a pointer to the element at the front of the list.
     */
-    ElemType* front() 
-    { 
-	AutoLock al(*this);
-	return static_cast<ElemType*>(_rep.front()); 
+    ElemType* front()
+    {
+        AutoLock al(*this);
+        return static_cast<ElemType*>(_rep.front());
     }
 
     /** Obtains a const-pointer to the element at the front of the list.
     */
     const ElemType* front() const
-    { 
-	AutoLock al(*this);
-	return static_cast<const ElemType*>(_rep.front()); 
+    {
+        AutoLock al(*this);
+        return static_cast<const ElemType*>(_rep.front());
     }
 
     /** Obtains a pointer to the element at the back of the list.
     */
-    ElemType* back() 
-    { 
-	AutoLock al(*this);
-	return static_cast<ElemType*>(_rep.back()); 
+    ElemType* back()
+    {
+        AutoLock al(*this);
+        return static_cast<ElemType*>(_rep.back());
     }
 
     /** Obtains a const-pointer to the element at the back of the list.
     */
     const ElemType* back() const
-    { 
-	AutoLock al(*this);
-	return static_cast<const ElemType*>(_rep.back()); 
+    {
+        AutoLock al(*this);
+        return static_cast<const ElemType*>(_rep.back());
     }
 
     /** Returns the element after elem (used to iterate list).
     */
-    ElemType* next_of(ElemType* elem) 
+    ElemType* next_of(ElemType* elem)
     {
-	return static_cast<ElemType*>(elem->next);
+        return static_cast<ElemType*>(elem->next);
     }
 
     /** Returns the element before elem (used to iterate list).
     */
-    ElemType* prev_of(ElemType* elem) 
+    ElemType* prev_of(ElemType* elem)
     {
-	return static_cast<ElemType*>(elem->prev);
+        return static_cast<ElemType*>(elem->prev);
     }
 
     /** Insert elem at the front of the list.
     */
     void insert_front(ElemType* elem)
     {
-	AutoLock al(*this);
-	_rep.insert_front(elem);
+        AutoLock al(*this);
+        _rep.insert_front(elem);
     }
 
     /** Insert elem at the back of the list.
     */
     void insert_back(ElemType* elem)
     {
-	AutoLock al(*this);
-	_rep.insert_back(elem);
+        AutoLock al(*this);
+        _rep.insert_back(elem);
     }
 
     /** Insert elem after pos.
     */
     void insert_after(ElemType* pos, ElemType* elem)
     {
-	AutoLock al(*this);
-	_rep.insert_after(pos, elem);
+        AutoLock al(*this);
+        _rep.insert_after(pos, elem);
     }
 
     /** Insert elem before pos.
     */
     void insert_before(ElemType* pos, ElemType* elem)
     {
-	AutoLock al(*this);
-	_rep.insert_before(pos, elem);
+        AutoLock al(*this);
+        _rep.insert_before(pos, elem);
     }
 
     /** Remove the given element.
     */
     void remove(ElemType* pos)
     {
-	AutoLock al(*this);
-	_rep.remove(pos);
+        AutoLock al(*this);
+        _rep.remove(pos);
     }
 
     /** Returns true if the list contains the given element.
     */
     bool contains(const ElemType* elem)
     {
-	AutoLock al(*this);
-	return _rep.contains(elem);
+        AutoLock al(*this);
+        return _rep.contains(elem);
     }
 
     /** Removes and returns the element at the front of the list.
     */
     ElemType* remove_front()
     {
-	AutoLock al(*this);
-	return static_cast<ElemType*>(_rep.remove_front());
+        AutoLock al(*this);
+        return static_cast<ElemType*>(_rep.remove_front());
     }
 
     /** Removes and returns the element at the back of the list.
     */
     ElemType* remove_back()
     {
-	AutoLock al(*this);
-	return static_cast<ElemType*>(_rep.remove_back());
+        AutoLock al(*this);
+        return static_cast<ElemType*>(_rep.remove_back());
     }
 
     /** Attempts to find an element in the list that satisfies the equal()
@@ -445,28 +443,28 @@ public:
     */
     ElemType* find(Equal equal, const void* client_data)
     {
-	AutoLock al(*this);
-	return static_cast<ElemType*>(
-	    _rep.find(ListRep::Equal(equal), client_data));
+        AutoLock al(*this);
+        return static_cast<ElemType*>(
+            _rep.find(ListRep::Equal(equal), client_data));
     }
 
     /** Attempts to remove the element in the list that satisfies the equal()
         predicate. Removes and returns the first element satisfying equal() or
-	null if none.
+        null if none.
     */
     ElemType* remove(Equal equal, const void* client_data)
     {
-	AutoLock al(*this);
-	return static_cast<ElemType*>(
-	    _rep.remove(ListRep::Equal(equal), client_data));
+        AutoLock al(*this);
+        return static_cast<ElemType*>(
+            _rep.remove(ListRep::Equal(equal), client_data));
     }
 
     /** Apply the given function to every element of the list.
     */
     void apply(Apply apply, const void* client_data)
     {
-	AutoLock al(*this);
-	_rep.apply(ListRep::Apply(apply), client_data);
+        AutoLock al(*this);
+        _rep.apply(ListRep::Apply(apply), client_data);
     }
 
     /** Lock the list.
@@ -486,35 +484,35 @@ public:
     LockType& getLock() const { return ((This*)this)->_lock; }
 
     /** An instance of this class is used to lock this list on construction
-	and later unlock it on destruction.
+        and later unlock it on destruction.
     */
     class AutoLock
     {
     public:
 
-	/**
-	*/
-	AutoLock(const This& list) : _lock(list.getLock())
-	{
-	    _lock.lock();
-	}
+        /**
+        */
+        AutoLock(const This& list) : _lock(list.getLock())
+        {
+            _lock.lock();
+        }
 
-	/**
-	*/
-	~AutoLock() 
-	{
-	    _lock.unlock();
-	}
+        /**
+        */
+        ~AutoLock()
+        {
+            _lock.unlock();
+        }
 
     private:
-	LockType& _lock;
+        LockType& _lock;
     };
 
 private:
 
     static void _destructor(Linkable* ptr)
     {
-	delete static_cast<ElemType*>(ptr);
+        delete static_cast<ElemType*>(ptr);
     }
 
     ListRep _rep;

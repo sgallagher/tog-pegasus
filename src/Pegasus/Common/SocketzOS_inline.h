@@ -27,11 +27,14 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+//==============================================================================
+//
 //%/////////////////////////////////////////////////////////////////////////////
+
 #ifndef SocketzOS_inline_h
 #define SocketzOS_inline_h
 
-#include <Pegasus/Common/Logger.h>         
+#include <Pegasus/Common/Logger.h>
 #include <sys/ioctl.h>
 #include <net/rtrouteh.h>
 #include <net/if.h>
@@ -42,21 +45,21 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 MP_Socket::MP_Socket(SocketHandle socket)
- : _socket(socket), _isSecure(false),
-   _userAuthenticated(false)
+    : _socket(socket), _isSecure(false),
+      _userAuthenticated(false)
 {
-  _username[0]=0; 
+    _username[0]=0;
 }
 
 MP_Socket::MP_Socket(
     SocketHandle socket,
     SSLContext * sslcontext,
     ReadWriteSem * sslContextObjectLock)
-    : _socket(socket), 
+    : _socket(socket),
       _userAuthenticated(false)
 {
     PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::MP_Socket()");
-    _username[0]=0; 
+    _username[0]=0;
     if (sslcontext != NULL)
     {
         _isSecure = true;
@@ -87,42 +90,46 @@ int MP_Socket::ATTLS_zOS_query()
    errnoIoctl = errno;
    errno2Ioctl =__errno2();
 
-   if(rcIoctl < 0)
+   if (rcIoctl < 0)
    {
       switch(errnoIoctl)
-      {   
+      {
           case(EINPROGRESS):
           case(EWOULDBLOCK):
           {
-              PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> Accept pending (EWB).");
+              PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+                  "---> Accept pending (EWB).");
               return 0; // accept pending
           }
           case(ECONNRESET):
           {
-              Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                     "Pegasus.Common.SocketzOS_inline.CONNECTION_RESET_ERROR",
-                     "ATTLS reset the connection due to handshake failure. \
-                            Connection closed.");
+              Logger::put_l(
+                  Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                  "Pegasus.Common.SocketzOS_inline.CONNECTION_RESET_ERROR",
+                  "ATTLS reset the connection due to handshake failure. "
+                      "Connection closed.");
               PEG_METHOD_EXIT();
-              return -1;              
+              return -1;
           }
           default:
           {
               char str_errno2[10];
               sprintf(str_errno2,"%08X",errno2Ioctl);
-              Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                     "Pegasus.Common.SocketzOS_inline.UNEXPECTED_ERROR",
-                     "An unexpected error occurs: $0 ( errno $1, reason code 0x$2 ). \
-                            Connection closed."
-                            ,strerror(errnoIoctl),errnoIoctl,str_errno2);
+              Logger::put_l(
+                  Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                  "Pegasus.Common.SocketzOS_inline.UNEXPECTED_ERROR",
+                  "An unexpected error occurs: $0 ( errno $1, reason code "
+                      "0x$2 ). Connection closed.",
+                  strerror(errnoIoctl),
+                  errnoIoctl,
+                  str_errno2);
               PEG_METHOD_EXIT();
               return -1;
-
           }
       } // end switch(errnoIoctl)
-   } // -1 ioctl() 
+   } // -1 ioctl()
 
-   // this should be a secured connection so 
+   // this should be a secured connection so
    // check the configuration of ATTLS policy.
    switch(ioc.TTLSi_Stat_Policy)
    {
@@ -130,28 +137,31 @@ int MP_Socket::ATTLS_zOS_query()
        case(TTLS_POL_NO_POLICY):
        case(TTLS_POL_NOT_ENABLED):
        {
-           Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                  "Pegasus.Common.SocketzOS_inline.POLICY_NOT_ENABLED",
-                  "ATTLS policy is not aktive for the CIM Server HTTPS port. \
-                         Communication not secured. Connection closed.");
+           Logger::put_l(
+               Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+               "Pegasus.Common.SocketzOS_inline.POLICY_NOT_ENABLED",
+               "ATTLS policy is not aktive for the CIM Server HTTPS port. "
+                   "Communication not secured. Connection closed.");
            PEG_METHOD_EXIT();
            return -1;
        }
        case(TTLS_POL_ENABLED):
        {
-           break;  // a policy exists so it is ensured that a secured connectio will be established
+           // a policy exists so it is ensured that a secured connection will
+           // be established
+           break;
        }
        case(TTLS_POL_APPLCNTRL):
        {
-           Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                  "Pegasus.Common.SocketzOS_inline.APPLCNTRL",
-                  "ATTLS policy not valid for CIM Server. \
-                         Set ApplicationControlled to OFF. Connection closed.");
+           Logger::put_l(
+               Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+               "Pegasus.Common.SocketzOS_inline.APPLCNTRL",
+               "ATTLS policy not valid for CIM Server. "
+                   "Set ApplicationControlled to OFF. Connection closed.");
            PEG_METHOD_EXIT();
            return -1;
-
        }
-   
+
    } // end switch(ioc.TTLSi_Stat_Policy)
 
    // check status of connection, configuration is ok for the CIM Server
@@ -168,20 +178,22 @@ int MP_Socket::ATTLS_zOS_query()
        {
            break; // the connection is secure
        }
-        
+
 
    } // end switch(ioc.TTLSi_Stat_Conn)
 
-   // 
+   //
    switch(ioc.TTLSi_Sec_Type)
    {
        case(TTLS_SEC_UNKNOWN):
        case(TTLS_SEC_CLIENT):
        {
-           Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                  "Pegasus.Common.SocketzOS_inline.WRONG_ROLE",
-                  "ATTLS policy specifies the wrong HandshakeRole for the CIM Server HTTPS port. \
-                         Communication not secured. Connection closed.");
+           Logger::put_l(
+               Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+               "Pegasus.Common.SocketzOS_inline.WRONG_ROLE",
+               "ATTLS policy specifies the wrong HandshakeRole for the "
+                   "CIM Server HTTPS port. Communication not secured. "
+                   "Connection closed.");
            PEG_METHOD_EXIT();
            return -1;
 
@@ -192,8 +204,8 @@ int MP_Socket::ATTLS_zOS_query()
        case(TTLS_SEC_SRV_CA_FULL):
        case(TTLS_SEC_SRV_CA_REQD):
        {
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
-                            "---> ATTLS Securtiy Type is valid but no SAFCHK.");
+           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+               "---> ATTLS Securtiy Type is valid but no SAFCHK.");
            PEG_METHOD_EXIT();
            return 1;
        }
@@ -202,18 +214,19 @@ int MP_Socket::ATTLS_zOS_query()
        {
            _userAuthenticated=true;
            memcpy(_username,ioc.TTLSi_UserID,ioc.TTLSi_UserID_Len);
-           _username[ioc.TTLSi_UserID_Len]=0;      // null terminated string
-           __etoa(_username);                        // the user name is in EBCDIC !
-           PEG_TRACE((TRC_SSL, Tracer::LEVEL2, 
-                    "---> ATTLS Securtiy Type is SAFCHK. Resolved user ID \'%s\'",_username));
+           _username[ioc.TTLSi_UserID_Len]=0;   // null terminated string
+           __etoa(_username);                   // the user name is in EBCDIC !
+           PEG_TRACE((TRC_SSL, Tracer::LEVEL2,
+               "---> ATTLS Securtiy Type is SAFCHK. Resolved user ID \'%s\'",
+               _username));
            PEG_METHOD_EXIT();
            return 1;
 
        }
    } // end switch(ioc.TTLSi_Sec_Type)
    // This should never be reached
-   PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
-                    "---> Never reach this! New/wrong return value of ioctl().");
+   PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+       "---> Never reach this! New/wrong return value of ioctl().");
    PEG_METHOD_EXIT();
    return -1;
 } // end ATTLS_zOS_Query

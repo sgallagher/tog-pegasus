@@ -35,7 +35,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SSLContextRep.h>
 #include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/FileSystem.h>
 
 #include "TLS.h"
@@ -77,10 +77,9 @@ SSLSocket::SSLSocket(
     if (!( _SSLConnection = SSL_new(_SSLContext->_rep->getContext() )))
     {
         PEG_METHOD_EXIT();
-        //l10n
-        //throw( SSLException("Could not get SSL Connection Area"));
-        MessageLoaderParms parms("Common.TLS.COULD_NOT_GET_SSL_CONNECTION_AREA",
-            					 "Could not get SSL Connection Area");
+        MessageLoaderParms parms(
+            "Common.TLS.COULD_NOT_GET_SSL_CONNECTION_AREA",
+            "Could not get SSL Connection Area");
         throw SSLException(parms);
     }
 
@@ -92,26 +91,34 @@ SSLSocket::SSLSocket(
         // set the verification callback data
         //
 
-        //we are only storing one set of data, so we can just use index 0, this is defined in SSLContext.h
-        //int index = SSL_get_ex_new_index(0, (void*)"pegasus", NULL, NULL, NULL);
+        // we are only storing one set of data, so we can just use index 0,
+        // this is defined in SSLContext.h
+        //int index = SSL_get_ex_new_index(
+        //    0, (void*)"pegasus", NULL, NULL, NULL);
 
         //
         // Create a new callback info for each new connection
         //
-        _SSLCallbackInfo.reset(new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction()
+        _SSLCallbackInfo.reset(new SSLCallbackInfo(
+            _SSLContext->getSSLCertificateVerifyFunction()
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-                                                   , _SSLContext->getCRLStore()));
+            , _SSLContext->getCRLStore()));
 #else
-                                                   ));
+            ));
 #endif
 
-        if (SSL_set_ex_data(_SSLConnection, SSLCallbackInfo::SSL_CALLBACK_INDEX, _SSLCallbackInfo.get()))
+        if (SSL_set_ex_data(
+                _SSLConnection,
+                SSLCallbackInfo::SSL_CALLBACK_INDEX,
+                _SSLCallbackInfo.get()))
         {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "--->SSL: Set callback info");
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+                "--->SSL: Set callback info");
         }
         else
         {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Error setting callback info");
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+                "--->SSL: Error setting callback info");
         }
 
         //
@@ -120,14 +127,13 @@ SSLSocket::SSLSocket(
         if (!(SSL_set_fd(_SSLConnection, _socket) ))
         {
             PEG_METHOD_EXIT();
-            //l10n
-            //throw( SSLException("Could not link socket to SSL Connection"));
-            MessageLoaderParms parms("Common.TLS.COULD_NOT_LINK_SOCKET",
-            					 "Could not link socket to SSL Connection");
+            MessageLoaderParms parms(
+                "Common.TLS.COULD_NOT_LINK_SOCKET",
+                "Could not link socket to SSL Connection");
             throw SSLException(parms);
         }
     }
-    catch(...)
+    catch (...)
     {
         SSL_free(_SSLConnection);
         throw;
@@ -157,9 +163,10 @@ Boolean SSLSocket::incompleteReadOccurred(Sint32 retCode)
     Tracer::trace(TRC_SSL, Tracer::LEVEL4,
         "In SSLSocket::incompleteReadOccurred : err = %d", err);
 
-    return ((err == SSL_ERROR_SYSCALL) && (_sslReadErrno == EAGAIN || _sslReadErrno == EINTR)) ||
-            err == SSL_ERROR_WANT_READ ||
-            err == SSL_ERROR_WANT_WRITE;
+    return ((err == SSL_ERROR_SYSCALL) &&
+            (_sslReadErrno == EAGAIN || _sslReadErrno == EINTR)) ||
+           (err == SSL_ERROR_WANT_READ) ||
+           (err == SSL_ERROR_WANT_WRITE);
 }
 
 Sint32 SSLSocket::read(void* ptr, Uint32 size)
@@ -168,7 +175,8 @@ Sint32 SSLSocket::read(void* ptr, Uint32 size)
     Sint32 rc;
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (r) ");
-    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, SSL_state_string_long(_SSLConnection) );
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+        SSL_state_string_long(_SSLConnection));
     rc = SSL_read(_SSLConnection, (char *)ptr, size);
 
     _sslReadErrno = errno;
@@ -190,7 +198,7 @@ Sint32 SSLSocket::timedWrite( const void* ptr,
   while (1)
   {
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (w) ");
-    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
                      SSL_state_string_long(_SSLConnection) );
     bytesWritten = SSL_write(_SSLConnection, (char *)ptr, size);
 
@@ -221,7 +229,7 @@ Sint32 SSLSocket::timedWrite( const void* ptr,
     if (bytesWritten <= 0)
     {
         // if we already waited for the socket to get ready, bail out
-        if( socketTimedOut )
+        if (socketTimedOut)
         {
             // bytesWritten contains the error indication
             PEG_METHOD_EXIT();
@@ -231,14 +239,14 @@ Sint32 SSLSocket::timedWrite( const void* ptr,
         // just interrupted by a signal, try again
 #ifdef PEGASUS_OS_TYPE_WINDOWS
         if (WSAGetLastError() == WSAEINTR) continue;
-#else        
+#else
         if (errno == EINTR) continue;
 #endif
 
         // socket not ready ...
 #ifdef PEGASUS_OS_TYPE_WINDOWS
         if (WSAGetLastError() == WSAEWOULDBLOCK)
-#else        
+#else
         if (errno == EAGAIN || errno == EWOULDBLOCK)
 #endif
         {
@@ -249,7 +257,7 @@ Sint32 SSLSocket::timedWrite( const void* ptr,
             FD_SET(_socket, &fdwrite);
             selreturn = select(FD_SETSIZE, NULL, &fdwrite, NULL, &tv);
             if (selreturn == 0) socketTimedOut = true; // ran out of time
-            continue;            
+            continue;
         }
         // bytesWritten contains the error indication
         PEG_METHOD_EXIT();
@@ -308,20 +316,21 @@ Sint32 SSLSocket::accept()
 
     if (ssl_rc < 0)
     {
-       ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
-       Tracer::trace(TRC_SSL, Tracer::LEVEL3, "---> SSL: Not accepted %d", ssl_rsn );
+        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
+        Tracer::trace(TRC_SSL, Tracer::LEVEL3,
+            "---> SSL: Not accepted %d", ssl_rsn );
 
-       if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
-           (ssl_rsn == SSL_ERROR_WANT_WRITE))
-       {
-           PEG_METHOD_EXIT();
-           return 0;
-       }
-       else
-       {
-           PEG_METHOD_EXIT();
-           return -1;
-       }
+        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
+            (ssl_rsn == SSL_ERROR_WANT_WRITE))
+        {
+            PEG_METHOD_EXIT();
+            return 0;
+        }
+        else
+        {
+            PEG_METHOD_EXIT();
+            return -1;
+        }
     }
     else if (ssl_rc == 0)
     {
@@ -343,7 +352,8 @@ Sint32 SSLSocket::accept()
     //
     if (_SSLContext->isPeerVerificationEnabled())
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to certify client");
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+            "Attempting to certify client");
 
         //
         // get client's certificate
@@ -355,7 +365,8 @@ Sint32 SSLSocket::accept()
             // get certificate verification result
             //
             int verifyResult = SSL_get_verify_result(_SSLConnection);
-            Tracer::trace(TRC_SSL, Tracer::LEVEL3, "Verification Result:  %d", verifyResult );
+            Tracer::trace(TRC_SSL, Tracer::LEVEL3,
+                "Verification Result:  %d", verifyResult );
 
             if (verifyResult == X509_V_OK)
             {
@@ -383,7 +394,8 @@ Sint32 SSLSocket::accept()
     }
     else
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Client certification disabled");
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+            "---> SSL: Client certification disabled");
     }
 
     PEG_METHOD_EXIT();
@@ -405,7 +417,8 @@ redo_connect:
     if (ssl_rc < 0)
     {
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Not connected " + ssl_rsn );
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+           "---> SSL: Not connected " + ssl_rsn);
 
        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
            (ssl_rsn == SSL_ERROR_WANT_WRITE))
@@ -420,7 +433,8 @@ redo_connect:
     }
     else if (ssl_rc == 0)
     {
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Shutdown SSL_connect()");
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+           "---> SSL: Shutdown SSL_connect()");
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
            "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
        PEG_METHOD_EXIT();
@@ -430,39 +444,48 @@ redo_connect:
 
     if (_SSLContext->isPeerVerificationEnabled())
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to verify server certificate.");
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+           "Attempting to verify server certificate.");
 
-        X509 * server_cert = SSL_get_peer_certificate(_SSLConnection);
+        X509* server_cert = SSL_get_peer_certificate(_SSLConnection);
         if (server_cert != NULL)
         {
             //
-            // Do not check the verification result using SSL_get_verify_result here to see whether or not to continue.
-            // The prepareForCallback does not reset the verification result, so it will still contain the original error.
-            // If the client chose to override the default error in the callback and return true, we got here and
-            // should proceed with the transaction.  Otherwise, the handshake was already terminated.
+            // Do not check the verification result using
+            // SSL_get_verify_result here to see whether or not to continue.
+            // The prepareForCallback does not reset the verification result,
+            // so it will still contain the original error.  If the client
+            // chose to override the default error in the callback and
+            // return true, we got here and should proceed with the
+            // transaction.  Otherwise, the handshake was already terminated.
             //
 
             if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
             {
-                 PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Server Certificate verified.");
+                 PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+                     "--->SSL: Server Certificate verified.");
             }
             else
             {
-                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Server Certificate not verified, but the callback overrode the default error.");
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+                     "--->SSL: Server Certificate not verified, but the "
+                         "callback overrode the default error.");
             }
 
             X509_free (server_cert);
         }
         else
         {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "-->SSL: Server not certified, no certificate received.");
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+                "-->SSL: Server not certified, no certificate received.");
             PEG_METHOD_EXIT();
             return -1;
         }
     }
     else
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Server certification disabled");
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+            "---> SSL: Server certification disabled");
     }
 
     PEG_METHOD_EXIT();
@@ -471,7 +494,7 @@ redo_connect:
 
 Boolean SSLSocket::isPeerVerificationEnabled()
 {
-    return (_SSLContext->isPeerVerificationEnabled());
+    return _SSLContext->isPeerVerificationEnabled();
 }
 
 Array<SSLCertificateInfo*> SSLSocket::getPeerCertificateChain()
@@ -538,7 +561,7 @@ Boolean MP_Socket::isSecure() {return _isSecure;}
 Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
 {
     if (_isSecure)
-        return(_sslsock->incompleteReadOccurred(retCode));
+        return _sslsock->incompleteReadOccurred(retCode);
     return (retCode <=  0);
 }
 
@@ -594,7 +617,7 @@ Sint32 MP_Socket::accept()
 {
     if (_isSecure)
     {
-        return (_sslsock->accept());
+        return _sslsock->accept();
     }
     return 1;
 }
@@ -610,7 +633,7 @@ Boolean MP_Socket::isPeerVerificationEnabled()
 {
     if (_isSecure)
     {
-        return (_sslsock->isPeerVerificationEnabled());
+        return _sslsock->isPeerVerificationEnabled();
     }
     return false;
 }
@@ -630,7 +653,7 @@ Boolean MP_Socket::isCertificateVerified()
 {
     if (_isSecure)
     {
-        return (_sslsock->isCertificateVerified());
+        return _sslsock->isCertificateVerified();
     }
     return false;
 }
@@ -698,35 +721,35 @@ void MP_Socket::disableBlocking()
     Socket::disableBlocking(_socket);
 }
 
-Sint32 MP_Socket::accept() 
-{ 
+Sint32 MP_Socket::accept()
+{
 #ifndef PEGASUS_OS_ZOS
-    return 1; 
+    return 1;
 #else
-PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::accept()");
-// ****************************************************************************
-// This is a z/OS speciffic section. No other platform can port this.
-// Pegsus on z/OS has no OpenSSL but cat use a transparent layer called
-// AT-TLS ( Applicatin Transparent Transport Layer Security ) to handel 
-// HTTTPS connections.
-// ****************************************************************************
+    PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::accept()");
+    // ************************************************************************
+    // This is a z/OS specific section. No other platform can port this.
+    // Pegasus on z/OS has no OpenSSL but cat use a transparent layer called
+    // AT-TLS ( Applicatin Transparent Transport Layer Security ) to handle
+    // HTTPS connections.
+    // ************************************************************************
 
-int rc;
+    int rc;
 
-if(isSecure())
-{
-   PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> HTTPS processing.");
-   rc = ATTLS_zOS_query();
-} else
-{
-   PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> Normal HTTP processing.");
-   rc = 1;
-}
-PEG_METHOD_EXIT();
-return rc;
-
+    if (isSecure())
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> HTTPS processing.");
+        rc = ATTLS_zOS_query();
+    }
+    else
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+            "---> Normal HTTP processing.");
+        rc = 1;
+    }
+    PEG_METHOD_EXIT();
+    return rc;
 #endif
-
 }
 
 Sint32 MP_Socket::connect() { return 0; }
@@ -735,10 +758,10 @@ Boolean MP_Socket::isPeerVerificationEnabled() { return false; }
 
 Array<SSLCertificateInfo*> MP_Socket::getPeerCertificateChain()
 {
-//
-//  Return empty array
-//
-return Array<SSLCertificateInfo*>();
+    //
+    //  Return empty array
+    //
+    return Array<SSLCertificateInfo*>();
 }
 
 Boolean MP_Socket::isCertificateVerified() { return false; }

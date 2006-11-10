@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -68,7 +62,7 @@ AnonymousPipe::AnonymousPipe ()
         Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             "Failed to create pipe: %s", strerror (errno));
         PEG_METHOD_EXIT ();
-        
+
         MessageLoaderParms mlp ("Common.AnonymousPipe.CREATE_PIPE_FAILED",
             "Failed to create pipe.");
         throw Exception (mlp);
@@ -86,7 +80,7 @@ AnonymousPipe::AnonymousPipe (
     const char * readHandle,
     const char * writeHandle)
 {
-    PEG_METHOD_ENTER (TRC_OS_ABSTRACTION, 
+    PEG_METHOD_ENTER (TRC_OS_ABSTRACTION,
         "AnonymousPipe::AnonymousPipe (const char *, const char *)");
 
     _readHandle = 0;

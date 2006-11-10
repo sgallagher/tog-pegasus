@@ -29,18 +29,8 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
-//
-// Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
-//              added nsk platform support
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1527
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-//#include <fstream>
-//#include <iostream>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 
@@ -61,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 //  Constructs TraceFileHandler
 ////////////////////////////////////////////////////////////////////////////////
 
-TraceFileHandler::TraceFileHandler () 
+TraceFileHandler::TraceFileHandler()
 {
     _fileName = 0;
     _fileHandle = 0;
@@ -76,9 +66,9 @@ TraceFileHandler::TraceFileHandler ()
 //  Destructs TraceFileHandler
 ////////////////////////////////////////////////////////////////////////////////
 
-TraceFileHandler::~TraceFileHandler () 
+TraceFileHandler::~TraceFileHandler()
 {
-    // Close the File 
+    // Close the File
     if (_fileHandle)
     {
         fclose(_fileHandle);
@@ -112,7 +102,7 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
 
     if (!isValidFilePath(fileName))
     {
-	return 1;
+        return 1;
     }
     _fileHandle = _openFile(fileName);
     if (!_fileHandle)
@@ -189,7 +179,7 @@ Boolean TraceFileHandler::isValidFilePath(const char* filePath)
     FileSystem::translateSlashes(fileName);
     if (FileSystem::isDirectory(fileName))
     {
-	return 0;
+        return 0;
     }
 
     // Check if the file exists and is writable
@@ -197,11 +187,11 @@ Boolean TraceFileHandler::isValidFilePath(const char* filePath)
     {
         if (!FileSystem::canWrite(fileName))
         {
-	    return 0;
+            return 0;
         }
-	else
-	{
-	    return 1;
+        else
+        {
+            return 1;
         }
     }
     else
@@ -210,22 +200,22 @@ Boolean TraceFileHandler::isValidFilePath(const char* filePath)
         Uint32 index = fileName.reverseFind('/');
 
         if (index != PEG_NOT_FOUND)
-	{
+        {
             String dirName = fileName.subString(0,index);
             if (!FileSystem::isDirectory(dirName))
             {
-	        return 0;
+                return 0;
             }
             if (!FileSystem::canWrite(dirName) )
             {
-		return 0;
+                return 0;
             }
-	    else
-	    {
-		return 1;
+            else
+            {
+                return 1;
             }
         }
-	else
+        else
         {
             String currentDir;
 
@@ -235,11 +225,11 @@ Boolean TraceFileHandler::isValidFilePath(const char* filePath)
 
             if (!FileSystem::canWrite(currentDir))
             {
-		return 0;
+                return 0;
             }
-	    else
-	    {
-		return 1;
+            else
+            {
+                return 1;
             }
         }
     }

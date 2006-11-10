@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Tony Fiorentino (fiorentino_tony@emc.com)
-//
-// Modified By: Keith Petley (keithp@veritas.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug 3123
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMServerDescription_h
@@ -75,7 +70,7 @@ public:
         @return String that contains an attribute value.
     */
     String getValue(
-        const String& attributeName, 
+        const String& attributeName,
         const String& defaultValue) const;
 
     /** Returns an attribute value Array

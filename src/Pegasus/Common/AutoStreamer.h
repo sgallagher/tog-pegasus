@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for BUG#3348
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef AutoStreamer_h
@@ -44,35 +38,35 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE AutoStreamer : public ObjectStreamer {
-
-   ObjectStreamer *_primary,*_defaultReader;
-   Uint16 _readerCount;
-   struct _reader {
-      _reader() { reader=NULL, marker=0; }
-      ObjectStreamer *reader;
-      Uint8 marker;
-   } _readers[8];
+class PEGASUS_COMMON_LINKAGE AutoStreamer : public ObjectStreamer
+{
+    ObjectStreamer *_primary,*_defaultReader;
+    Uint16 _readerCount;
+    struct _reader
+    {
+        _reader() { reader=NULL, marker=0; }
+        ObjectStreamer *reader;
+        Uint8 marker;
+    } _readers[8];
 
 public:
 
-   AutoStreamer(ObjectStreamer *primary, Uint8 marker);
+    AutoStreamer(ObjectStreamer *primary, Uint8 marker);
 
-   ~AutoStreamer();
+    ~AutoStreamer();
 
-   void addReader(ObjectStreamer *primary, Uint8 marker);
+    void addReader(ObjectStreamer *primary, Uint8 marker);
 
-   void encode(Buffer& out, const CIMClass& cls);
-   void encode(Buffer& out, const CIMInstance& inst);
-   void encode(Buffer& out, const CIMQualifierDecl& qual);
+    void encode(Buffer& out, const CIMClass& cls);
+    void encode(Buffer& out, const CIMInstance& inst);
+    void encode(Buffer& out, const CIMQualifierDecl& qual);
 
-   void decode(const Buffer& in, unsigned int pos, CIMClass& cls);
-   void decode(const Buffer& in, unsigned int pos, CIMInstance& inst);
-   void decode(const Buffer& in, unsigned int pos, CIMQualifierDecl& qual);
+    void decode(const Buffer& in, unsigned int pos, CIMClass& cls);
+    void decode(const Buffer& in, unsigned int pos, CIMInstance& inst);
+    void decode(const Buffer& in, unsigned int pos, CIMQualifierDecl& qual);
 
-   void write(PEGASUS_STD(ostream)& os, Buffer& in);
+    void write(PEGASUS_STD(ostream)& os, Buffer& in);
 };
-
 
 PEGASUS_NAMESPACE_END
 

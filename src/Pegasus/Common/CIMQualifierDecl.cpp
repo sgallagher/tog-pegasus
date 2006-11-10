@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMQualifierDecl.h"
@@ -149,7 +143,7 @@ Uint32 CIMQualifierDecl::getArraySize() const
 
 Boolean CIMQualifierDecl::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMQualifierDecl::identical(const CIMConstQualifierDecl& x) const
@@ -275,7 +269,7 @@ Uint32 CIMConstQualifierDecl::getArraySize() const
 
 Boolean CIMConstQualifierDecl::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMConstQualifierDecl::identical(const CIMConstQualifierDecl& x) const

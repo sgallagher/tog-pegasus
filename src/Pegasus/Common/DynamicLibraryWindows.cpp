@@ -38,7 +38,7 @@ PEGASUS_NAMESPACE_BEGIN
 Boolean DynamicLibrary::_load()
 {
     _handle = LoadLibrary(_fileName.getCString());
-    return(isLoaded());
+    return isLoaded();
 }
 
 void DynamicLibrary::_unload()

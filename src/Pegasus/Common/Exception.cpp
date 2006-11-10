@@ -378,7 +378,6 @@ CIMException::CIMException(
 }
 // l10n - note use this when you have an exception with a translated
 // detail message
-// l10n
 CIMException::CIMException(
     CIMStatusCode code,
     const MessageLoaderParms& msgParms)

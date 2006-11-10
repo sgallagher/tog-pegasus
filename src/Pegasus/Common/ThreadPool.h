@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Markus Mueller
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2393
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ThreadPool_h
@@ -48,7 +38,7 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Thread.h>
 
-PEGASUS_NAMESPACE_BEGIN 
+PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE ThreadPool
 {
@@ -68,10 +58,12 @@ public:
         @param deallocateWait The minimum time that a thread should be idle
             before it is removed from the pool and cleaned up.
      */
-    ThreadPool(Sint16 initialSize,
-               const char *key,
-               Sint16 minThreads,
-               Sint16 maxThreads, struct timeval &deallocateWait);
+    ThreadPool(
+        Sint16 initialSize,
+        const char* key,
+        Sint16 minThreads,
+        Sint16 maxThreads,
+        struct timeval& deallocateWait);
 
     /**
         Destructs the ThreadPool object.
@@ -86,8 +78,8 @@ public:
         @param blocking A pointer to an optional semaphore which, if
                         specified, is signaled after the thread finishes
                         executing the work function
-        @return PEGASUS_THREAD_OK if the thread is started successfully, 
-		PEGASUS_THREAD_INSUFFICIENT_RESOURCES  if the
+        @return PEGASUS_THREAD_OK if the thread is started successfully,
+                PEGASUS_THREAD_INSUFFICIENT_RESOURCES  if the
                 resources necessary to start the thread are not currently
                 available.  PEGASUS_THREAD_SETUP_FAILURE if the thread
                 could not be setup properly. PEGASUS_THREAD_UNAVAILABLE
@@ -95,10 +87,10 @@ public:
                 be allocated.
         @exception IPCException
      */
-    ThreadStatus allocate_and_awaken(void *parm,
-                                     ThreadReturnType(PEGASUS_THREAD_CDECL *
-                                                      work) (void *),
-                                     Semaphore * blocking = 0);
+    ThreadStatus allocate_and_awaken(
+        void* parm,
+        ThreadReturnType(PEGASUS_THREAD_CDECL* work) (void*),
+        Semaphore* blocking = 0);
 
     /**
         Cleans up idle threads if they have been running longer than the
@@ -109,7 +101,7 @@ public:
      */
     Uint32 cleanupIdleThreads();
 
-    void get_key(Sint8 * buf, int bufsize);
+    void get_key(Sint8* buf, int bufsize);
 
     inline void setMinThreads(Sint16 min)
     {
@@ -149,22 +141,23 @@ private:
 
     static ThreadReturnType PEGASUS_THREAD_CDECL _loop(void *);
 
-    static Boolean _timeIntervalExpired(struct timeval *start,
-                                        struct timeval *interval);
+    static Boolean _timeIntervalExpired(
+        struct timeval* start,
+        struct timeval* interval);
 
-    static void _deleteSemaphore(void *p);
+    static void _deleteSemaphore(void* p);
 
-    void _cleanupThread(Thread * thread);
-    Thread *_initializeThread();
-    void _addToIdleThreadsQueue(Thread * th);
+    void _cleanupThread(Thread* thread);
+    Thread* _initializeThread();
+    void _addToIdleThreadsQueue(Thread* th);
 
     Sint16 _maxThreads;
     Sint16 _minThreads;
     AtomicInt _currentThreads;
     struct timeval _deallocateWait;
     char _key[17];
-    List < Thread, Mutex > _idleThreads;
-    List < Thread, Mutex > _runningThreads;
+    List<Thread, Mutex> _idleThreads;
+    List<Thread, Mutex> _runningThreads;
     AtomicInt _dying;
 };
 

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -94,7 +89,7 @@ public:
         @return Buffer with the encoded data
         @exception bad_alloc Thrown if there is insufficient memory.
     */
-    static Buffer encode(const Buffer& vby);  
+    static Buffer encode(const Buffer& vby);
 
     /**
         Decodes an base64 array into an Buffer

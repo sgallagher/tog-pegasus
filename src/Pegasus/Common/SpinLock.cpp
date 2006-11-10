@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
-//
-// Modified By: David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Network.h"

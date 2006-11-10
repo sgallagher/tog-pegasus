@@ -360,7 +360,7 @@ public:
             try
             { .. Execute CIM Operation
             }
-            catch(CIMExcepton e)
+            catch (CIMExcepton e)
             {
                 if (e.getCode() == CIM_ERR_ACCESS_DENIED )
                     ....
@@ -390,7 +390,7 @@ public:
             try
             { .. Execute CIM Operation
             }
-            catch(CIMExcepton e)
+            catch (CIMExcepton e)
             {
                 if (e.getErrorCount() > 0 )
                 {

@@ -330,7 +330,7 @@ Boolean isUTF8Aux(const char *legal)
         }
     }
 
-    return (isValid_U8((const Uint8 *)legal, numBytes));
+    return isValid_U8((const Uint8 *)legal, numBytes);
 }
 
 Boolean isUTF8Str(const char *legal)
@@ -343,12 +343,15 @@ Boolean isUTF8Str(const char *legal)
     size_t count = 0;
     const size_t size = strlen(legal);
 //  printf("size = %d\n",size);
-    while(count<size)
+    while (count<size)
     {
 //      printf("count = %d\n",count);
-        if(isUTF8(&legal[count]) == true){
+        if (isUTF8(&legal[count]) == true)
+        {
             UTF8_NEXT(legal,count);
-        }else{
+        }
+        else
+        {
 //          printf("bad string\n");
             return false;
         }
@@ -359,20 +362,23 @@ Boolean isUTF8Str(const char *legal)
     printf("legal = %s\n\n", legal);
     Uint32 count = 0;
     Uint32 trailingBytes = 0;
-        Uint32 size = strlen(legal);
+    Uint32 size = strlen(legal);
     printf("size of legal is %d\n",size);
-        while(count<size-1)
-        {
+    while (count<size-1)
+    {
         printf("count = %d\n", count);
-                if(isUTF8((char*)&legal[count]) == true){
-                    UTF8_NEXT(legal,trailingBytes);
+        if (isUTF8((char*)&legal[count]) == true)
+        {
+            UTF8_NEXT(legal,trailingBytes);
             count += trailingBytes;
-        } else{
+        }
+        else
+        {
             printf("CommonUTF8:: returning false; position[%d]",count);
-             return false;
+            return false;
         }
-        }
-     printf("CommonUTF8:: returning false; position[%d]",count);
+    }
+    printf("CommonUTF8:: returning false; position[%d]",count);
     return true;*/
 }
 
@@ -382,21 +388,21 @@ String escapeStringEncoder(const String& Str)
     Uint16 escChar;
     char hexencoding[6];
 
-    for(Uint32 i = 0; i < Str.size(); ++i)
+    for (Uint32 i = 0; i < Str.size(); ++i)
     {
-    escChar = Str[i];
-    if(escChar <= 0x7F)
+        escChar = Str[i];
+        if (escChar <= 0x7F)
         {
-        escapeStr.append(escChar);
+            escapeStr.append(escChar);
         }
-    else
-    {
-        memset(hexencoding,0x00,sizeof(hexencoding));
+        else
+        {
+            memset(hexencoding,0x00,sizeof(hexencoding));
             sprintf(hexencoding, "%%%03X%X", escChar/16, escChar%16);
             escapeStr.append(hexencoding);
+        }
     }
-    }
-    return(escapeStr);
+    return escapeStr;
 }
 
 String escapeStringDecoder(const String& Str)

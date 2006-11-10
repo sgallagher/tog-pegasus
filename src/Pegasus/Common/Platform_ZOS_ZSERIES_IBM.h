@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Markus Mueller (mmueller@de.ibm.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_ZOS_ZSERIES_IBM_h

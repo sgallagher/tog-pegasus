@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1527
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #if defined(PEGASUS_OS_VMS)
@@ -98,13 +91,13 @@ void TraceFileHandler::handleMessage(
 
         // Set permissions on the trace file to 0400
 
-        if (!FileSystem::
-            changeFilePermissions(String(_fileName), (S_IRUSR | S_IWUSR)))
+        if (!FileSystem::changeFilePermissions(
+                String(_fileName), (S_IRUSR | S_IWUSR)))
         {
-            Logger::put_l(Logger::DEBUG_LOG, System::CIMSERVER, 
-			  Logger::WARNING,
-                          "Common.TraceFileHandlerVms.FAILED_TO_SET_FILE_PERMISSIONS",
-                          "Failed to set permissions on file $0", _fileName);
+            Logger::put_l(
+                Logger::DEBUG_LOG, System::CIMSERVER, Logger::WARNING,
+                "Common.TraceFileHandlerVms.FAILED_TO_SET_FILE_PERMISSIONS",
+                "Failed to set permissions on file $0", _fileName);
             return;
         }
     }
@@ -181,10 +174,10 @@ void TraceFileHandler::handleMessage(
             // Unable to open file, log a message
             if (!_wroteToLog)
             {
-                Logger::put_l(Logger::DEBUG_LOG, System::CIMSERVER, 
-			      Logger::WARNING,
-                              "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
-                              "Failed to open File $0", _fileName);
+                Logger::put_l(
+                    Logger::DEBUG_LOG, System::CIMSERVER, Logger::WARNING,
+                    "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
+                    "Failed to open File $0", _fileName);
                 _wroteToLog = true;
             }
             return;

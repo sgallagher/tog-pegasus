@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@austin.rr.com)
-//
-// Modified By:
-//     Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//     Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3297
-//     David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//     Mike Brasher (mike-brasher@austin.rr.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -1502,7 +1494,7 @@ TO-DO:
     (+) DOC++ String.h - will open new bug?
 
     (+) Added PEGASUS_DISABLE_INTERNAL_INLINES macro (to permit suppression
-	on certain platforms).
+        on certain platforms).
 
 ================================================================================
 */

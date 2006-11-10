@@ -156,7 +156,7 @@ public:
     {
         _wasRemotePrivilegedUserAccessChecked = true;
     }
-    
+
     Boolean getRemotePrivilegedUserAccessChecked()
     {
         return _wasRemotePrivilegedUserAccessChecked;

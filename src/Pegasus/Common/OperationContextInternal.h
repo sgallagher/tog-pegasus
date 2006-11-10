@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Mike Day (mdday@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_OperationContextInternal_h
@@ -56,20 +52,20 @@ class PEGASUS_COMMON_LINKAGE LocaleContainer
 public:
     static const String NAME;
 
-    LocaleContainer(const OperationContext::Container & container);
-    LocaleContainer(const String & languageId);
-    virtual ~LocaleContainer(void);
+    LocaleContainer(const OperationContext::Container& container);
+    LocaleContainer(const String& languageId);
+    virtual ~LocaleContainer();
 
     // NOTE: The compiler default implementation of the copy constructor
     // is used for this class.
 
-    LocaleContainer & operator=(const LocaleContainer & container);
+    LocaleContainer& operator=(const LocaleContainer& container);
 
-    virtual String getName(void) const;
-    virtual OperationContext::Container * clone(void) const;
-    virtual void destroy(void);
+    virtual String getName() const;
+    virtual OperationContext::Container* clone() const;
+    virtual void destroy();
 
-    String getLanguageId(void) const;
+    String getLanguageId() const;
 
 protected:
     String _languageId;
@@ -82,24 +78,27 @@ class PEGASUS_COMMON_LINKAGE ProviderIdContainer
 public:
     static const String NAME;
 
-    ProviderIdContainer(const OperationContext::Container & container);
-    ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider,
-        Boolean isRemoteNameSpace = false, const String & remoteInfo = String::EMPTY);
-    virtual ~ProviderIdContainer(void);
+    ProviderIdContainer(const OperationContext::Container& container);
+    ProviderIdContainer(
+        const CIMInstance& module,
+        const CIMInstance& provider,
+        Boolean isRemoteNameSpace = false,
+        const String& remoteInfo = String::EMPTY);
+    virtual ~ProviderIdContainer();
 
     // NOTE: The compiler default implementation of the copy constructor
     // is used for this class.
 
-    ProviderIdContainer & operator=(const ProviderIdContainer & container);
+    ProviderIdContainer& operator=(const ProviderIdContainer& container);
 
-    virtual String getName(void) const;
-    virtual OperationContext::Container * clone(void) const;
-    virtual void destroy(void);
+    virtual String getName() const;
+    virtual OperationContext::Container* clone() const;
+    virtual void destroy();
 
-    CIMInstance getModule(void) const;
-    CIMInstance getProvider(void) const;
-    Boolean isRemoteNameSpace(void) const;
-    String getRemoteInfo(void) const;
+    CIMInstance getModule() const;
+    CIMInstance getProvider() const;
+    Boolean isRemoteNameSpace() const;
+    String getRemoteInfo() const;
 
 protected:
     CIMInstance _module;
@@ -115,20 +114,22 @@ class PEGASUS_COMMON_LINKAGE CachedClassDefinitionContainer
 public:
     static const String NAME;
 
-    CachedClassDefinitionContainer(const OperationContext::Container & container);
-    CachedClassDefinitionContainer(const CIMClass & cimClass);
-    virtual ~CachedClassDefinitionContainer(void);
+    CachedClassDefinitionContainer(
+        const OperationContext::Container& container);
+    CachedClassDefinitionContainer(const CIMClass& cimClass);
+    virtual ~CachedClassDefinitionContainer();
 
     // NOTE: The compiler default implementation of the copy constructor
     // is used for this class.
 
-    CachedClassDefinitionContainer & operator=(const CachedClassDefinitionContainer & container);
+    CachedClassDefinitionContainer& operator=(
+        const CachedClassDefinitionContainer& container);
 
-    virtual String getName(void) const;
-    virtual OperationContext::Container * clone(void) const;
-    virtual void destroy(void);
+    virtual String getName() const;
+    virtual OperationContext::Container* clone() const;
+    virtual void destroy();
 
-    CIMClass getClass(void) const;
+    CIMClass getClass() const;
 
 protected:
     CIMClass _cimClass;
@@ -141,22 +142,23 @@ class PEGASUS_COMMON_LINKAGE NormalizerContextContainer
 public:
     static const String NAME;
 
-    NormalizerContextContainer(const OperationContext::Container & container);
-    NormalizerContextContainer(AutoPtr<NormalizerContext> & context);
-    NormalizerContextContainer(const NormalizerContextContainer & container);
-    virtual ~NormalizerContextContainer(void);
+    NormalizerContextContainer(const OperationContext::Container& container);
+    NormalizerContextContainer(AutoPtr<NormalizerContext>& context);
+    NormalizerContextContainer(const NormalizerContextContainer& container);
+    virtual ~NormalizerContextContainer();
 
-    NormalizerContextContainer & operator=(const NormalizerContextContainer & container);
+    NormalizerContextContainer& operator=(
+        const NormalizerContextContainer& container);
 
-    virtual String getName(void) const;
-    virtual OperationContext::Container * clone(void) const;
-    virtual void destroy(void);
+    virtual String getName() const;
+    virtual OperationContext::Container* clone() const;
+    virtual void destroy();
 
-    NormalizerContext * getContext(void) const;
+    NormalizerContext* getContext() const;
 
 protected:
     AutoPtr<NormalizerContext> normalizerContext;
-    
+
 private:
     NormalizerContextContainer();
 };

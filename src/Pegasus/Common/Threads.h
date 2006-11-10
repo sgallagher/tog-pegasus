@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (m.brasher@inovadevelopment.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Threads_h
@@ -80,7 +78,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct ThreadId
 {
-    // The character representation of a uint64 requires 22 bytes including the 
+    // The character representation of a uint64 requires 22 bytes including the
     // null terminator.
     char buffer[22];
 };
@@ -110,8 +108,8 @@ struct ThreadType
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
 struct ThreadType
 {
-    ThreadType() : handle(NULL) 
-    { 
+    ThreadType() : handle(NULL)
+    {
     }
 
     HANDLE handle;
@@ -163,9 +161,9 @@ public:
     enum Type { DETACHED, JOINABLE };
 
     static int create(
-        ThreadType& thread, 
+        ThreadType& thread,
         Type type,
-        void* (*start)(void*), 
+        void* (*start)(void*),
         void* arg);
 
     static ThreadType self();
@@ -199,8 +197,8 @@ public:
 
 #if defined(PEGASUS_HAVE_PTHREADS)
 
-inline bool Threads::equal(ThreadType x, ThreadType y) 
-{ 
+inline bool Threads::equal(ThreadType x, ThreadType y)
+{
     return pthread_equal(x.thread, y.thread);
 }
 
@@ -253,10 +251,10 @@ inline ThreadId Threads::id(const ThreadType& x)
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     const char* s = x.thread.__;
-    sprintf(tid.buffer, "%X%X%X%X%X%X%X%X", 
+    sprintf(tid.buffer, "%X%X%X%X%X%X%X%X",
         s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
 #else
-    sprintf(tid.buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", 
+    sprintf(tid.buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
         Uint64(x.thread));
 #endif
 
@@ -289,14 +287,14 @@ inline void Threads::clear(ThreadType& x)
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
 
-inline ThreadType Threads::self() 
+inline ThreadType Threads::self()
 {
     ThreadType tt;
     tt.handle = GetCurrentThread();
     return tt;
 }
 
-inline bool Threads::equal(ThreadType x, ThreadType y) 
+inline bool Threads::equal(ThreadType x, ThreadType y)
 {
     return x.handle == y.handle;
 }
@@ -330,7 +328,7 @@ inline ThreadId Threads::id(const ThreadType& x)
 {
     ThreadId tmp;
 
-    sprintf(tmp.buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", 
+    sprintf(tmp.buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
         Uint64(x.handle));
 
     return tmp;

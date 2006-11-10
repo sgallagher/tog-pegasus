@@ -65,7 +65,7 @@ PEGASUS_STRING_INLINE CString::operator const char*() const
 
 PEGASUS_STRING_INLINE String::String()
 {
-    // Note: ref() and unref() never touch the reference count of _emptyRep. 
+    // Note: ref() and unref() never touch the reference count of _emptyRep.
     // This allows use to optimize the copy constructor by not incrementing
     // _emptyRep.refs here. Performance is critical in this function. Please
     // do not add any code to this function.
@@ -75,12 +75,12 @@ PEGASUS_STRING_INLINE String::String()
 PEGASUS_STRING_INLINE String::String(const String& str)
 {
 #ifdef PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
-    // 
+    //
     // Some compilers don't do a good job of initializing global
     //   constructors in the proper sequence.  This is one such case.
     // String::EMPTY is not initialized by the time this is first
     //   called during initialization of the executable.
-    // 
+    //
     if (!str._rep)
     {
       _rep = &StringRep::_emptyRep;
@@ -88,37 +88,37 @@ PEGASUS_STRING_INLINE String::String(const String& str)
     }
 #endif
     StringRep::ref(_rep = str._rep);
-} 
+}
 
 PEGASUS_STRING_INLINE String::~String()
 {
     StringRep::unref(_rep);
 }
 
-PEGASUS_STRING_INLINE Uint32 String::size() const 
-{ 
-    return _rep->size; 
+PEGASUS_STRING_INLINE Uint32 String::size() const
+{
+    return _rep->size;
 }
 
-PEGASUS_STRING_INLINE const Char16* String::getChar16Data() const 
-{ 
-    return (Char16*)&(_rep->data[0]); 
+PEGASUS_STRING_INLINE const Char16* String::getChar16Data() const
+{
+    return (Char16*)&(_rep->data[0]);
 }
 
-PEGASUS_STRING_INLINE Char16& String::operator[](Uint32 i) 
+PEGASUS_STRING_INLINE Char16& String::operator[](Uint32 i)
 {
     _checkBounds(i, _rep->size);
 
     if (_rep->refs.get() != 1)
         _rep = StringRep::copyOnWrite(_rep);
 
-    return (Char16&)_rep->data[i]; 
+    return (Char16&)_rep->data[i];
 }
 
-PEGASUS_STRING_INLINE const Char16 String::operator[](Uint32 i) const 
+PEGASUS_STRING_INLINE const Char16 String::operator[](Uint32 i) const
 {
     _checkBounds(i, _rep->size);
-    return (Char16&)_rep->data[i]; 
+    return (Char16&)_rep->data[i];
 }
 
 PEGASUS_STRING_INLINE String& String::operator=(const String& str)

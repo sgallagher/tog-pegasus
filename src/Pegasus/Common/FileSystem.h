@@ -220,8 +220,8 @@ public:
         @return true on success.
     */
     static Boolean openNoCase(
-        PEGASUS_STD(fstream)& fs, 
-        const String& path, 
+        PEGASUS_STD(fstream)& fs,
+        const String& path,
         int mode);
 
     /** Determines whether the path refers to a directory.
@@ -316,14 +316,14 @@ public:
 
     /**
        Return OS path specific delimiter.
-       
+
        @return delimiter specific to the platform
     */
     static String getPathDelimiter();
 
     /**
        Returns the absolute pathname for the specified filename.
-       
+
        @param paths directories seperated by an OS specific delimiter to search
        @param filename filename to search for in the paths
 
@@ -333,7 +333,7 @@ public:
     static String getAbsoluteFileName(
         const String& paths,
         const String& filename);
-       
+
     /**
         Convert a library name to its corresponding file name by adding the
         appropriate prefix and suffix.
@@ -462,7 +462,7 @@ inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
     return !!os;
 }
 
-inline String FileSystem::getPathDelimiter() 
+inline String FileSystem::getPathDelimiter()
 {
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     return String(";");

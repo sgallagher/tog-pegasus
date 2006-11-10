@@ -249,7 +249,7 @@ HTTPConnection::HTTPConnection(
                 _socket->getPeerCertificateChain());
         }
 #else
-        if(_socket->isClientAuthenticated())
+        if (_socket->isClientAuthenticated())
         {
             _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
             _authInfo->setAuthenticatedUser(_socket->getAuthenticatedUser());
@@ -288,7 +288,7 @@ void HTTPConnection::handleEnqueue(Message *message)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::handleEnqueue");
 
-    if( ! message )
+    if (! message)
     {
         PEG_METHOD_EXIT();
         return;
@@ -938,7 +938,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         if (_isClient() == false)
         {
             // Check for message to close
-            if(message.getCloseConnect()== true)
+            if (message.getCloseConnect()== true)
             {
                 Tracer::trace(
                     TRC_HTTP,
@@ -1106,12 +1106,12 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                     data = (char *)_incomingBuffer.getData();
                     data[capacity-1] = 0;
                 }
-                catch(const PEGASUS_STD(bad_alloc)&)
+                catch (const PEGASUS_STD(bad_alloc)&)
                 {
                     _throwEventFailure(HTTP_STATUS_REQUEST_TOO_LARGE,
                         "Error reserving space for non-chunked message");
                 }
-                catch(...)
+                catch (...)
                 {
                     _throwEventFailure(
                         httpStatusInternal, "unexpected exception");
@@ -1137,7 +1137,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
 
             // remove whitespace after colon before value
             char *valueStart = colon + 1;
-            while(*valueStart == ' ' || *valueStart == '\t')
+            while (*valueStart == ' ' || *valueStart == '\t')
                 valueStart++;
 
             // we found some non-whitespace token
@@ -1147,7 +1147,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
 
                 // now remove whitespace from end of line back to last byte
                 // of value
-                while(*valueEnd == ' ' || *valueEnd == '\t')
+                while (*valueEnd == ' ' || *valueEnd == '\t')
                     valueEnd--;
 
                 char valueSave = *(valueEnd+1);
@@ -1231,7 +1231,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                             gotContentLanguage = true;
                         }
                     }
-                    catch(...)
+                    catch (...)
                     {
                         Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
                             "HTTPConnection: ERROR: contentLanguages had "
@@ -1258,7 +1258,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                     while (*valuesStart)
                     {
                         // strip off whitepsace from the front
-                        while(*valuesStart == ' ' || *valuesStart == '\t')
+                        while (*valuesStart == ' ' || *valuesStart == '\t')
                             valuesStart++;
 
                         if (valuesStart == valueEnd)
@@ -1274,7 +1274,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                             }
                             v--;
                             // strip off whitespace from the end
-                            while(*v == ' ' || *v == '\t')
+                            while (*v == ' ' || *v == '\t')
                                 v--;
                             v++;
                             *v = 0;
@@ -1689,7 +1689,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                                 LanguageParser::parseContentLanguageHeader(
                                     contentLanguagesString);
                         }
-                        catch(...)
+                        catch (...)
                         {
                             Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
                                 "HTTPConnection: ERROR: contentLanguages had "
@@ -1874,7 +1874,7 @@ void HTTPConnection::_handleReadEvent()
                         _socket->getPeerCertificateChain());
                 }
 #else
-                if(_socket->isClientAuthenticated())
+                if (_socket->isClientAuthenticated())
                 {
                     _authInfo->setAuthStatus(
                         AuthenticationInfoRep::AUTHENTICATED);
@@ -1941,7 +1941,7 @@ void HTTPConnection::_handleReadEvent()
             char *data = (char *)_incomingBuffer.getData();
             data[size] = 0;
         }
-        catch(...)
+        catch (...)
         {
             static const char detailP[] =
                 "Unable to append the request to the input buffer";
@@ -1975,7 +1975,7 @@ void HTTPConnection::_handleReadEvent()
             _getContentLengthAndContentOffset();
         _handleReadEventTransferEncoding();
     }
-    catch(Exception &e)
+    catch (Exception& e)
     {
         httpStatus = e.getMessage();
     }
@@ -2051,7 +2051,7 @@ void HTTPConnection::_handleReadEvent()
 
 Uint32 HTTPConnection::getRequestCount()
 {
-    return(_requestCount.get());
+    return _requestCount.get();
 }
 
 Boolean HTTPConnection::run(Uint32 milliseconds)
@@ -2070,7 +2070,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
     if (events)
     {
         events = 0;
-        if( FD_ISSET(getSocket(), &fdread))
+        if (FD_ISSET(getSocket(), &fdread))
         {
             events |= SocketMessage::READ;
             Message *msg = new SocketMessage(getSocket(), events);
@@ -2078,7 +2078,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
             {
                 handleEnqueue(msg);
             }
-            catch(...)
+            catch (...)
             {
                 Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "HTTPConnection::run handleEnqueue(msg) failure");

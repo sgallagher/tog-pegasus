@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Stack_h
@@ -61,13 +57,13 @@ public:
     Stack(const Stack<T>& x) : _rep(x._rep) { }
 
     /** This constructor was added to provide a fast way of creating a stack
-	with a single element on it. This constructor is necessary to realize
-	the return-value compiler optimization which permits objects used in
-	return/constructor expressions to be initialized only once.
+        with a single element on it. This constructor is necessary to realize
+        the return-value compiler optimization which permits objects used in
+        return/constructor expressions to be initialized only once.
 
-	Notice that this constructor is explicit to avoid implicit 
-	initialization of a stack with the type of T.
-	which 
+        Notice that this constructor is explicit to avoid implicit
+        initialization of a stack with the type of T.
+        which
     */
     PEGASUS_EXPLICIT Stack(const T& x) { _rep.append(x); }
 
@@ -87,8 +83,8 @@ public:
     void push(const T& x) { _rep.append(x); }
 
     /** Returns reference to the top element on the stack.
-	@return reference to top element on stack.
-	@exception throws StackUnderflow if stack is empty.
+        @return reference to top element on stack.
+        @exception throws StackUnderflow if stack is empty.
     */
     T& top();
 
@@ -104,7 +100,7 @@ public:
 
     /** Const version of indxing operator. */
     const T& operator[](Uint32 i) const { return _rep[i]; }
-    
+
     void reserveCapacity(Uint32 capacity) { _rep.reserveCapacity(capacity); }
 
 private:
@@ -116,7 +112,7 @@ template<class T>
 T& Stack<T>::top()
 {
     if (isEmpty())
-	throw StackUnderflow();
+        throw StackUnderflow();
 
     return _rep[_rep.size() - 1];
 }
@@ -125,7 +121,7 @@ template<class T>
 void Stack<T>::pop()
 {
     if (isEmpty())
-	throw StackUnderflow();
+        throw StackUnderflow();
 
     _rep.remove(_rep.size() - 1);
 }

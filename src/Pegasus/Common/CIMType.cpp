@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMType.h"
@@ -54,10 +47,9 @@ static const char* _typeStrings[] =
 
 static const Uint32 _NUM_TYPES = sizeof(_typeStrings) / sizeof(_typeStrings[0]);
 
-const char * cimTypeToString (
-    const CIMType type) 
+const char* cimTypeToString(const CIMType type)
 {
-    return _typeStrings [Uint32 (type)];
+    return _typeStrings[Uint32 (type)];
 }
 
 PEGASUS_NAMESPACE_END

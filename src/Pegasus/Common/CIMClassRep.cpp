@@ -41,7 +41,7 @@
 #include "XmlWriter.h"
 #include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 #include "CIMNameUnchecked.h"
 #include "StrLit.h"
 #include "CIMInstanceRep.h"
@@ -224,7 +224,7 @@ void CIMClassRep::resolve(
             throw PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_INVALID_SUPERCLASS, _superClassName);
         */
-        /*if(superclass.isTrueQualifier(CIMQualifierNames::TERMINAL)
+        /*if (superclass.isTrueQualifier(CIMQualifierNames::TERMINAL)
             throw PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_INVALID_SUPERCLASS, _superClassName);
         */
@@ -540,7 +540,7 @@ CIMInstance CIMClassRep::buildInstance(Boolean includeQualifiers,
     // Create new CIMInstance from CIMInstanceRep
     CIMInstance newInstance(newInstanceRep);
 
-    return(newInstance);
+    return newInstance;
 }
 
 void CIMClassRep::toXml(Buffer& out) const

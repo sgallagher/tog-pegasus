@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-//
-// Author: Mike Brasher (m.brasher@inovadevelopment.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Condition.h"
@@ -79,8 +76,8 @@ void Condition::wait(Mutex& lock)
 
 ConditionWaiter* _get_waiter()
 {
-    // ATTN: since Windows Thread Local Storage does not have a cleanup 
-    // routine mechanism, the ConditionWaiter object (and its event) will 
+    // ATTN: since Windows Thread Local Storage does not have a cleanup
+    // routine mechanism, the ConditionWaiter object (and its event) will
     // be leaked when the thread exists.
 
     static DWORD _waiter_tls = TlsAlloc();

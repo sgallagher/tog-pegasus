@@ -75,7 +75,7 @@ public:
         virtual String getName() const = 0;
 
         /**
-            Makes a copy of the Container object.  The caller is responsible 
+            Makes a copy of the Container object.  The caller is responsible
             for cleaning up the copy by calling destroy() method.
             @return A pointer to the new Container object.
         */
@@ -381,7 +381,7 @@ public:
         indication subscription filter.
     */
     SubscriptionFilterConditionContainer(
-        const String& filterCondition, 
+        const String& filterCondition,
         const String& queryLanguage);
 
     /**
@@ -664,7 +664,7 @@ public:
         The unique name for this container type.
     */
     static const String NAME;
-      
+
     /**
         Constructs a TimeoutContainer object from the specified Container.
         @param container The Container object to copy.
@@ -697,7 +697,7 @@ public:
         method.
     */
     virtual void destroy();
-      
+
     /**
         Gets the timeout value from the TimeoutContainer.
         @return An integer timeout value (in milliseconds).
@@ -751,7 +751,7 @@ public:
         that are acceptable in this context.
     */
     AcceptLanguageListContainer(const AcceptLanguageList& languages);
-    
+
     /**
         Destructs the AcceptLanguageListContainer.
     */
@@ -912,7 +912,7 @@ public:
         object is not an SnmpTrapOidContainer object.
     */
     SnmpTrapOidContainer(const OperationContext::Container& container);
-    
+
     /**
         Constructs a copy of the specified SnmpTrapOidContainer.
         @param container The SnmpTrapOidContainer object to copy.

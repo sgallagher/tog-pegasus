@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SpinLock_h
@@ -65,7 +62,7 @@ extern "C" void _flush_globals();
 
 PEGASUS_NAMESPACE_BEGIN
 
-// This type implements a spinlock. It is deliberately not a class since we 
+// This type implements a spinlock. It is deliberately not a class since we
 // wish to avoid automatic construction/destruction.
 struct SpinLock
 {
@@ -165,7 +162,7 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_NAMESPACE_BEGIN
 
-// This type implements a spinlock. It is deliberately not a class since we 
+// This type implements a spinlock. It is deliberately not a class since we
 // wish to avoid automatic construction/destruction.
 struct SpinLock
 {
@@ -188,12 +185,12 @@ inline void SpinLockLock(SpinLock& x)
     // Loop until lock becomes zero.
     do
     {
-	// Load and store unsigned byte (LDSTUB). Load the lock argument
-	// into value and set lock to 0xFF (atomically).
-	asm("ldstub %1, %0"
-	    : "=r" (value),
-	      "=m" (x.lock)
-	    : "m" (x.lock));
+        // Load and store unsigned byte (LDSTUB). Load the lock argument
+        // into value and set lock to 0xFF (atomically).
+        asm("ldstub %1, %0"
+            : "=r" (value),
+              "=m" (x.lock)
+            : "m" (x.lock));
     }
     while (value);
 }
@@ -221,14 +218,14 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_NAMESPACE_BEGIN
 
-// This type implements a spinlock. It is deliberately not a class since we 
+// This type implements a spinlock. It is deliberately not a class since we
 // wish to avoid automatic construction/destruction.
 struct SpinLock
 {
     union
     {
-	char mutex[sizeof(Mutex)];
-	Uint64 alignment8;
+        char mutex[sizeof(Mutex)];
+        Uint64 alignment8;
     };
 };
 
@@ -266,7 +263,7 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_NAMESPACE_BEGIN
 
-// This array defines spin locks shared across the system. These are 
+// This array defines spin locks shared across the system. These are
 // initialized by calling SpinLockCreatePool().
 extern SpinLock spinLockPool[PEGASUS_NUM_SHARED_SPIN_LOCKS];
 
@@ -278,7 +275,7 @@ extern int spinLockPoolInitialized;
 void SpinLockCreatePool();
 
 // Maps an address into the spinLockPool[] array defined above. This is used
-// to assign objects (by their addresses) to a shared lock. Collisions are 
+// to assign objects (by their addresses) to a shared lock. Collisions are
 // okay.
 inline size_t SpinLockIndex(const void* x)
 {

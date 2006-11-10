@@ -36,7 +36,7 @@
 #include <cstring>
 #include "Logger.h"
 #include "System.h"
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 #if defined(PEGASUS_USE_SYSLOGS)
 # include <syslog.h>
@@ -130,13 +130,12 @@ public:
 
         // KS: I put the second test in just in case some trys to create
         // a completly erronous directory.  At least we will get a message
-        if (!System::isDirectory(lgDir)){
-           //l10n
-           //cerr << "Logging Disabled";
-           MessageLoaderParms parms("Common.Logger.LOGGING_DISABLED",
-               "Logging Disabled");
+        if (!System::isDirectory(lgDir))
+        {
+            MessageLoaderParms parms("Common.Logger.LOGGING_DISABLED",
+                "Logging Disabled");
 
-           cerr << MessageLoader::getMessage(parms);
+            cerr << MessageLoader::getMessage(parms);
         }
 
         CString fileName = _allocLogFileName(homeDirectory, Logger::TRACE_LOG);
@@ -158,9 +157,9 @@ public:
 #else
 
 #ifdef PEGASUS_OS_ZOS
-       logIdendity = System::CIMSERVER.getCString();
+       logIdentity = System::CIMSERVER.getCString();
         // If System Log is used open it
-        System::openlog(logIdendity, LOG_PID, LOG_DAEMON);
+        System::openlog(logIdentity, LOG_PID, LOG_DAEMON);
 #endif
 
 #endif
@@ -204,7 +203,7 @@ public:
 private:
 
 #ifdef PEGASUS_OS_ZOS
-    CString logIdendity;
+    CString logIdentity;
 #endif
     ofstream _logs[int(Logger::NUM_LOGS)];
 };
@@ -212,10 +211,10 @@ private:
 void Logger::_putInternal(
     LogFileType logFileType,
     const String& systemId,
-    const Uint32 logComponent, // TODO: Support logComponent mask in future release
+    const Uint32 logComponent, // FUTURE: Support logComponent mask
     Uint32 logLevel,
     const String& formatString,
-    const String& messageId,  // l10n
+    const String& messageId,
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,
     const Formatter::Arg& arg2,
@@ -331,7 +330,7 @@ void Logger::put(
     if (wouldLog(logLevel))
     {
         Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, String::EMPTY, arg0, arg1, arg2, arg3, 
+            formatString, String::EMPTY, arg0, arg1, arg2, arg3,
             arg4, arg5, arg6, arg7, arg8, arg9);
     }
 }

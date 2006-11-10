@@ -69,12 +69,12 @@ CIMParameterRep::CIMParameterRep(
     _referenceClassName(referenceClassName)
 {
     // ensure name is not null
-    if(name.isNull())
+    if (name.isNull())
     {
         throw UninitializedObjectException();
     }
 
-    if((_arraySize != 0) && !_isArray)
+    if ((_arraySize != 0) && !_isArray)
     {
         throw TypeMismatchException();
     }
@@ -102,7 +102,7 @@ CIMParameterRep::~CIMParameterRep()
 void CIMParameterRep::setName(const CIMName& name)
 {
     // ensure name is not null
-    if(name.isNull())
+    if (name.isNull())
     {
         throw UninitializedObjectException();
     }

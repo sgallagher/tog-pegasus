@@ -53,7 +53,7 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 {
 public:
     typedef MessageQueue Base;
-  
+
     /** Constructor.
         @param monitor pointer to monitor object which this class uses to
         solicit SocketMessages on the server port (socket).
@@ -83,10 +83,10 @@ public:
 
     /** This method is called whenever a SocketMessage is enqueued
         on the input queue of the HTTPAcceptor object.
-    */ 
+    */
 
     virtual void handleEnqueue(Message *);
-    
+
     virtual void handleEnqueue();
 
     /** Bind the specified listen socket.

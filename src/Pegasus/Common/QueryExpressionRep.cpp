@@ -29,34 +29,32 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "QueryExpressionRep.h" 
+#include "QueryExpressionRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-QueryExpressionRep::QueryExpressionRep(const String & language)
-   : _queryLanguage(language), _query(String::EMPTY)
+QueryExpressionRep::QueryExpressionRep(const String& language)
+    : _queryLanguage(language), _query(String::EMPTY)
 {
 }
 
-QueryExpressionRep::QueryExpressionRep(const String & language, const String & query)
-   : _queryLanguage(language), _query(query)
+QueryExpressionRep::QueryExpressionRep(
+    const String& language,
+    const String& query)
+    : _queryLanguage(language), _query(query)
 {
 }
 
-const String & QueryExpressionRep::getQueryLanguage() const
+const String& QueryExpressionRep::getQueryLanguage() const
 {
-   return _queryLanguage;
+    return _queryLanguage;
 }
 
-const String & QueryExpressionRep::getQuery() const
+const String& QueryExpressionRep::getQuery() const
 {
-   return _query;
+    return _query;
 }
 
 PEGASUS_NAMESPACE_END

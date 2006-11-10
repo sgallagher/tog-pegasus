@@ -74,7 +74,7 @@ CIMQualifierRep::CIMQualifierRep(
     _propagated(propagated)
 {
     // ensure name is not null
-    if(name.isNull())
+    if (name.isNull())
     {
         throw UninitializedObjectException();
     }
@@ -87,7 +87,7 @@ CIMQualifierRep::~CIMQualifierRep()
 void CIMQualifierRep::setName(const CIMName& name)
 {
     // ensure name is not null
-    if(name.isNull())
+    if (name.isNull())
     {
         throw UninitializedObjectException();
     }
@@ -172,7 +172,7 @@ void CIMQualifierRep::toMof(Buffer& out) const
         {
             Boolean b;
             _value.get(b);
-            if(!b)
+            if (!b)
                 out << STRLIT(" (false)");
         }
         else

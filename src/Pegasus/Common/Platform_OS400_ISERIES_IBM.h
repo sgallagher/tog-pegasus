@@ -42,7 +42,7 @@
 #define _MSE_PROTOS
 #define _OPEN_SOURCE 3
 
-#define _MULTI_THREADED 
+#define _MULTI_THREADED
 
 #include <cstddef>
 
@@ -55,7 +55,7 @@
 #define PEGASUS_OS_TYPE_UNIX
 
 #include <ifs.cleinc>
-  
+
 #define PEGASUS_OS_OS400
 
 #define PEGASUS_ARCHITECTURE_ISERIES
@@ -64,7 +64,7 @@
 
 #define PEGASUS_UINT64 unsigned long long
 
-#define PEGASUS_SINT64 signed long long  
+#define PEGASUS_SINT64 signed long long
 
 #define PEGASUS_HAVE_NAMESPACES
 

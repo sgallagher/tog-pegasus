@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Karl Schopmyer(k.schopmeyer@opengroup.org)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
@@ -44,7 +38,7 @@
 //   The OptionManager Class
 //   The Option Class - Used to define information about an option
 //   The Option Row structure - Used to define option declarations in a
-//	program
+//      program
 //   The optionexcptions Class
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -76,8 +70,8 @@ typedef Option* OptionPtr;
     A program option may be specified in two ways:
 
     <ul>
-	<li>In a configuration file</li>
-	<li>On the command line</li>
+        <li>In a configuration file</li>
+        <li>On the command line</li>
     </ul>
 
     This class provides methods for merging options from both of these
@@ -85,19 +79,19 @@ typedef Option* OptionPtr;
     merge options from a command line into the option manager.
 
     <pre>
-	int main(int argc, char** argv)
-	{
-	    OptionManager om;
+        int main(int argc, char** argv)
+        {
+            OptionManager om;
 
-	    ...
+            ...
 
-	    // Merge options from the command line into the option manager's
-	    // option list. Remove arguments from command line.
+            // Merge options from the command line into the option manager's
+            // option list. Remove arguments from command line.
 
-	    om.mergeCommandLine(argc, argv);
+            om.mergeCommandLine(argc, argv);
 
-	    ...
-	}
+            ...
+        }
     </pre>
 
     Similarly, the OptionManager::mergeFile() method allows options to be
@@ -108,23 +102,23 @@ typedef Option* OptionPtr;
     can be resolved:
 
     <ul>
-	<li>The option's name</li>
-	<li>The default value (to be used if not specified elsewhere)</li>
-	<li>Whether the option is required</li>
-	<li>The option's type (e.g., boolean, integer or string)</li>
-	<li>The domain of the option if any (set of legal values)</li>
-	<li>The name the option as it appears on the command line</li>
+        <li>The option's name</li>
+        <li>The default value (to be used if not specified elsewhere)</li>
+        <li>Whether the option is required</li>
+        <li>The option's type (e.g., boolean, integer or string)</li>
+        <li>The domain of the option if any (set of legal values)</li>
+        <li>The name the option as it appears on the command line</li>
     </ul>
 
     Here is how to regsiter an option:
 
     <pre>
-	OptionManager om;
+        OptionManager om;
 
-	Option* option = new Option("port", "80", false,
-	    Option::NATURAL_NUMBER, Array<String>(), "p");
+        Option* option = new Option("port", "80", false,
+            Option::NATURAL_NUMBER, Array<String>(), "p");
 
-	om.registerOption(option);
+        om.registerOption(option);
     </pre>
 
     The arguments of the Option constructor are the same (and in the same
@@ -140,15 +134,15 @@ typedef Option* OptionPtr;
     lookupOption() method like this:
 
     <pre>
-	Option* option = om.lookupOption("port");
-	String port = option->getValue();
+        Option* option = om.lookupOption("port");
+        String port = option->getValue();
     </pre>
 
     Or the lookupValue() convenience function may be used to lookup values:
 
     <pre>
-	String value;
-	om.lookupValue("port", value);
+        String value;
+        om.lookupValue("port", value);
     </pre>
 
     Boolean Options can easily be tested as follows:
@@ -161,7 +155,7 @@ typedef Option* OptionPtr;
     mergeCommandLine() like this:
 
     <pre>
-	om.mergeCommandLine(argc, argv);
+        om.mergeCommandLine(argc, argv);
     </pre>
 
     This method searches the command line for options that match the registered
@@ -174,7 +168,7 @@ typedef Option* OptionPtr;
     method like this:
 
     <pre>
-	om.mergeFile(fileName);
+        om.mergeFile(fileName);
     </pre>
 
     This searches the file for options matching registered ones. Exceptions
@@ -186,12 +180,12 @@ typedef Option* OptionPtr;
     information optatined during option registration).
 
     <ul>
-	<li>The type of the option - whether integer, positive integer,
-	    or string or whatever.</li>
-	<li>The domain of the option - whether the supplied option is a legal
-	    value for that otpion</li>
-	<li>User extended validation - whether the user overriden
-	    Option::isValid() returns true when the value is passed to it</li>
+        <li>The type of the option - whether integer, positive integer,
+            or string or whatever.</li>
+        <li>The domain of the option - whether the supplied option is a legal
+            value for that otpion</li>
+        <li>User extended validation - whether the user overriden
+            Option::isValid() returns true when the value is passed to it</li>
     </ul>
 
     <h4>Typcial Usage</h4>
@@ -206,32 +200,32 @@ typedef Option* OptionPtr;
 
     The option manager allows for several types of options including:
     <UL>
-	<LI> (BOOLEAN)Simple keyword parameters (ex. -t or -h on the command
-	line). These are Boolean parameters and there are no additional parameters
-	after the keyword.
+        <LI> (BOOLEAN)Simple keyword parameters (ex. -t or -h on the command
+        line). These are Boolean parameters and there are no additional
+        parameters after the keyword.
 
-	<LI> (INTEGER) Numeric parameters - (ex -port 5988). These are
-	parameters where a numeric variable follows the parameter defintion.
+        <LI> (INTEGER) Numeric parameters - (ex -port 5988). These are
+        parameters where a numeric variable follows the parameter defintion.
 
-	<LI>(WHOLE_NUMBER) Numeric parameters  ATTN: Finish.
+        <LI>(WHOLE_NUMBER) Numeric parameters  ATTN: Finish.
 
-	<LI> (NATURAL_NUMBER Numieric parameters - (ex ). ATTN:	finish
+        <LI> (NATURAL_NUMBER Numieric parameters - (ex ). ATTN: finish
 
-	<LI>(STRING) String Parameters - (ex. -file abd.log) These are
-	parameters that are represented by strings following the option
-	keyword. No limitations are placed on the string except that it must
-	be resolvable to a single string.
+        <LI>(STRING) String Parameters - (ex. -file abd.log) These are
+        parameters that are represented by strings following the option
+        keyword. No limitations are placed on the string except that it must
+        be resolvable to a single string.
 
-	<LI> (STRING) Domain Parameters - These are parameters where there is
-	a choice of keywords from a domain of keywords.	The input parameter may be any
-	one of these keywords. Thus, the domain (red blue green) for the
-	parameter "color" (-c) could be entered as -c red. The difference
-	between String interpretation and domain interpretation is the use of the
-	domain fields in the option definition.
+        <LI> (STRING) Domain Parameters - These are parameters where there is
+        a choice of keywords from a domain of keywords.  The input parameter
+        may be any one of these keywords. Thus, the domain (red blue green)
+        for the parameter "color" (-c) could be entered as -c red. The
+        difference between String interpretation and domain interpretation
+        is the use of the domain fields in the option definition.
 
-	<LI> Mask parameters - These are parameters that define an internal
-	bit mask from a set of keywords input.
-	ATTN: Finish this definition.
+        <LI> Mask parameters - These are parameters that define an internal
+        bit mask from a set of keywords input.
+        ATTN: Finish this definition.
     </UL>
 */
 
@@ -246,101 +240,102 @@ public:
     ~OptionManager();
 
     /** Registers an option. The OptionManager is responsible for disposing
-	of the option; the caller must not delete this object.
+        of the option; the caller must not delete this object.
 
-	@param option option to be registerd.
-	@exception NullPointer exception if option argument is null.
-	@exception OMDuplicateOption if option already defined.
+        @param option option to be registerd.
+        @exception NullPointer exception if option argument is null.
+        @exception OMDuplicateOption if option already defined.
     */
     void registerOption(Option* option);
 
     /** Provides a simple way to register several options at once using
-	a declartive style table. This may also be done programmitically
-	by repeatedly calling registerOption above. See documentation for
-	OptionRow for details on how to use them.
+        a declartive style table. This may also be done programmitically
+        by repeatedly calling registerOption above. See documentation for
+        OptionRow for details on how to use them.
     */
     void registerOptions(OptionRow* options, Uint32 numOptions);
 
     /** Merge option values from the command line. Searches the command
-	line for registered options whose names are given by the
-	Option::getCommandLineOptionName() method. Validation is performed
-	on each option value obtained by calling Option::isValid(). Valid
-	option values are set by calling Option::setValue(). The argc and
-	argv arguments are modified: the option and its argument are
-	stripped from the command line. The option and its argument have the
-	following form: -option-name argument. A space must be supplied
-	between the two. Boolean option arguments are an exception. They
-	must have the form -option. If they are present, then they are
-	taken to be true.
+        line for registered options whose names are given by the
+        Option::getCommandLineOptionName() method. Validation is performed
+        on each option value obtained by calling Option::isValid(). Valid
+        option values are set by calling Option::setValue(). The argc and
+        argv arguments are modified: the option and its argument are
+        stripped from the command line. The option and its argument have the
+        following form: -option-name argument. A space must be supplied
+        between the two. Boolean option arguments are an exception. They
+        must have the form -option. If they are present, then they are
+        taken to be true.
 
-	&param argc number of argument on the command line.
-	&param argv list of command line arguments.
-        &param abortOnErr - Optional Boolean that if true causes exception if there is
-        a parameter found that is not in the table. Defaults to true
-	&exception InvalidOptionValue if validation fails.
-	&exception OMMissingCommandLineOptionArgument
+        @param argc number of argument on the command line.
+        @param argv list of command line arguments.
+        @param abortOnErr - Optional Boolean that if true causes exception
+        if there is a parameter found that is not in the table. Defaults to
+        true
+        @exception InvalidOptionValue if validation fails.
+        @exception OMMissingCommandLineOptionArgument
     */
     void mergeCommandLine(int& argc, char**& argv, Boolean abortOnErr=true);
 
     /** Merge option values from a file. Searches file for registered options
-	whose names are given by the options which have been registered.
-	Validation is performed on each option value by calling
-	Option::isValid(). Valid option values are set by calling
-	Option::setValue().
+        whose names are given by the options which have been registered.
+        Validation is performed on each option value by calling
+        Option::isValid(). Valid option values are set by calling
+        Option::setValue().
 
-	&param fileName name of file to be merged.
-	&exception NoSuchFile if file cannot be opened.
-	&exception BadConfigFileOption
+        @param fileName name of file to be merged.
+        @exception NoSuchFile if file cannot be opened.
+        @exception BadConfigFileOption
     */
     void mergeFile(const String& fileName);
 
     /** After merging, this method is called to check for required options
-	that were not merged (specified).
+        that were not merged (specified).
 
-	&exception OMMissingRequiredRequiredOption
+        @exception OMMissingRequiredRequiredOption
     */
     void checkRequiredOptions() const;
 
     /** Lookup the option with the given name.
-	@param Name provides the name of the option.
-	@return 0 if no such option.
+        @param Name provides the name of the option.
+        @return 0 if no such option.
     */
     const Option* lookupOption(const String& name) const;
 
     /** Lookup value of an option.
-	@param Name provides the name of the option (ex. "port")
-	@param String parameter contains the String that contains the
-	value for this parameter (in String format).
-	@return Boolean return. True if the option found.
+        @param Name provides the name of the option (ex. "port")
+        @param String parameter contains the String that contains the
+        value for this parameter (in String format).
+        @return Boolean return. True if the option found.
     */
     Boolean lookupValue(const String& name, String& value ) const;
 
     /** LookupIntegerValue value of an option determines if the value exists
-	and converts it to integer (Uint32).
-	@param Name provides the name of the option (ex. "port")
-	@param String parameter contains the String that contains the
-	value for this parameter (in String format).
-	@return Boolean return. True if the option found.
+        and converts it to integer (Uint32).
+        @param Name provides the name of the option (ex. "port")
+        @param String parameter contains the String that contains the
+        value for this parameter (in String format).
+        @return Boolean return. True if the option found.
     */
     Boolean lookupIntegerValue(const String& name, Uint32& value) const;
 
 
-    /**	isStringInOptionMask - Looks for a String value in an option.
-	This function is used to detect particular options listed in strings of
-	entries forming a STRING option.  Thus, for example if the option string
-	were "abc,def,ijk" in option toy isStringInOption ("toy", "def") returns
-	true.
-	@param option  name of the option in the option table
-	@param entry  Entry to compare
-	@return True if the entry String is found in the option.
+    /** isStringInOptionMask - Looks for a String value in an option.
+        This function is used to detect particular options listed in strings of
+        entries forming a STRING option.  Thus, for example if the option string
+        were "abc,def,ijk" in option toy isStringInOption ("toy", "def") returns
+        true.
+        @param option  name of the option in the option table
+        @param entry  Entry to compare
+        @return True if the entry String is found in the option.
     */
     //Uint32 isStringInOptionMask (const String& option, String& entry) const;
 
     /** optionValueEquals - Test the string value of an option.
-	@param name provides the name of the option (ex. "port")
-	@param value String value for comparison.
-	@return true if the option exists and the value of the option
-	equals the input parameter value.
+        @param name provides the name of the option (ex. "port")
+        @param value String value for comparison.
+        @return true if the option exists and the value of the option
+        equals the input parameter value.
     */
     Boolean valueEquals(const String& name, const String& value) const;
 
@@ -359,8 +354,8 @@ public:
     */
     void printOptionsHelp() const;
 
-    /** Print Complete Help Text message including header before the options help
-        and trailer after the options help
+    /** Print Complete Help Text message including header before the options
+        help and trailer after the options help
     */
     void printOptionsHelpTxt(const String& header, const String& trailer) const;
 
@@ -368,7 +363,7 @@ public:
 private:
 
     /** Lookup the option by its commandLineOptionName.
-	@return 0 if no such option.
+        @return 0 if no such option.
     */
     Option* _lookupOptionByCommandLineOptionName(const String& name);
 
@@ -390,40 +385,40 @@ public:
     /** Valid value types. */
     enum Type
     {
-	// (..., -3, -2, -1, 0, 1, 2, 3, ...)
-	INTEGER,
+        // (..., -3, -2, -1, 0, 1, 2, 3, ...)
+        INTEGER,
 
-	// (1, 2, 3, ...)
-	NATURAL_NUMBER,
+        // (1, 2, 3, ...)
+        NATURAL_NUMBER,
 
-	// (0, 1, 2, 3, ...)
-	WHOLE_NUMBER,
+        // (0, 1, 2, 3, ...)
+        WHOLE_NUMBER,
 
-	// "true" or "false"
-	BOOLEAN,
+        // "true" or "false"
+        BOOLEAN,
 
-	// Anything
-	STRING
+        // Anything
+        STRING
     };
 
     /** Constructor.
 
-	@param optionName the name of this option.
+        @param optionName the name of this option.
 
-	@param defaultValue the default value of this option.
+        @param defaultValue the default value of this option.
 
-	@param required whether the value of this option is required.
+        @param required whether the value of this option is required.
 
-	@param type type of the value. This is used to validate the value.
+        @param type type of the value. This is used to validate the value.
 
-	@param domain list of legal value for this option. If this list
-	    is empty, then no domain is enforced.
+        @param domain list of legal value for this option. If this list
+            is empty, then no domain is enforced.
 
-	@param commandLineOptionName name of the corresponding command line
-	    option (which may be different from the option name).
+        @param commandLineOptionName name of the corresponding command line
+            option (which may be different from the option name).
 
-	@param optionHelpMessage Text message that defines option. To be used
-	    in Usage messages.
+        @param optionHelpMessage Text message that defines option. To be used
+            in Usage messages.
     */
     Option(
         const String& optionName,
@@ -465,7 +460,7 @@ public:
     }
 
     /** Accessor
-	@return - Returns string representation of value
+        @return - Returns string representation of value
     */
     const String& getValue() const
     {
@@ -476,7 +471,7 @@ public:
     void setValue(const String& value)
     {
         _value = value;
-	_resolved = true;
+        _resolved = true;
     }
 
     /** Accessor */
@@ -518,7 +513,7 @@ public:
     /** Accessor */
     const String& getOptionHelpMessage() const
     {
-	return _optionHelpMessage;
+        return _optionHelpMessage;
     }
 
     /** Modifier */
@@ -528,16 +523,16 @@ public:
     }
 
     /** Accesor. Returns true if an option value was ever obtained for
-	this option.
+        this option.
     */
     Boolean isResolved() const
     {
-	return _resolved;
+        return _resolved;
     }
 
     /** Checks to see if the given value is valid or not. This method may be
-	overriden by derived classes to do special purpose validation of the
-	value. This implementation just checks the domain and type.
+        overriden by derived classes to do special purpose validation of the
+        value. This implementation just checks the domain and type.
     */
     virtual Boolean isValid(const String& value) const;
 
@@ -566,16 +561,16 @@ private:
     register one of these option lists with an OptionManager.
 
     <pre>
-	static OptionRow options[] =
-	{
-	    { "port", "80", false, Option::NATURAL_NUMBER },
-	    { "hostname", "", true, Option::STRING }
-	};
+        static OptionRow options[] =
+        {
+            { "port", "80", false, Option::NATURAL_NUMBER },
+            { "hostname", "", true, Option::STRING }
+        };
 
-	...
+        ...
 
-	OptionManager om;
-	om.registerOptions(options, sizeof(options) / sizeof(options[0]));
+        OptionManager om;
+        om.registerOptions(options, sizeof(options) / sizeof(options[0]));
     </pre>
 
     Recall that static memory areas are initialized with zeros so that the
@@ -588,13 +583,13 @@ private:
     {"red", "green", "blue"}. Here is how to express that:
 
     <pre>
-	static const char* colors[] = { "red", "green", "blue" };
-	static const Uint32 NUM_COLORS = sizeof(colors) / sizeof(colors[0]);
+        static const char* colors[] = { "red", "green", "blue" };
+        static const Uint32 NUM_COLORS = sizeof(colors) / sizeof(colors[0]);
 
-	static OptionRow options[] =
-	{
-	    { "color", "red", false, Option::STRING, colors, NUM_COLORS }
-	};
+        static OptionRow options[] =
+        {
+            { "color", "red", false, Option::STRING, colors, NUM_COLORS }
+        };
     </pre>
     When a domain is defined, any of the keywords in that domain are legal
     option keywords.  For example.  With the domain defined above,  a command
@@ -618,17 +613,18 @@ struct OptionRow
 */
 
 /** Exception class */
-class PEGASUS_COMMON_LINKAGE OMMissingCommandLineOptionArgument : public Exception
+class PEGASUS_COMMON_LINKAGE OMMissingCommandLineOptionArgument
+    : public Exception
 {
 public:
 
-	//l10n
-    //OMMissingCommandLineOptionArgument(const String& optionName)
-	//: Exception("Missing command line option argument: " + optionName) { }
-	OMMissingCommandLineOptionArgument(const String& optionName)
-	: Exception(MessageLoaderParms("Common.OptionManager.MISSING_CMD_LINE_OPTION",
-											 "Missing command line option argument: $0",
-											 optionName)) { }
+    OMMissingCommandLineOptionArgument(const String& optionName)
+        : Exception(MessageLoaderParms(
+              "Common.OptionManager.MISSING_CMD_LINE_OPTION",
+              "Missing command line option argument: $0",
+              optionName))
+    {
+    }
 };
 
 /** Exception class */
@@ -636,27 +632,27 @@ class PEGASUS_COMMON_LINKAGE OMInvalidOptionValue : public Exception
 {
 public:
 
-	//l10n
-    //OMInvalidOptionValue(const String& name, const String& value)
-	//: Exception("Invalid option value: " + name + "=\"" + value + "\"") { }
-	OMInvalidOptionValue(const String& name, const String& value)
-	: Exception(MessageLoaderParms("Common.OptionManager.INVALID_OPTION_VALUE",
-											 "Invalid option value: $0=\"$1\"",
-											 name,
-											 value)) { }
+    OMInvalidOptionValue(const String& name, const String& value)
+        : Exception(MessageLoaderParms(
+              "Common.OptionManager.INVALID_OPTION_VALUE",
+              "Invalid option value: $0=\"$1\"",
+              name,
+              value))
+    {
+    }
 };
 
 /** Exception class */
 class PEGASUS_COMMON_LINKAGE OMDuplicateOption : public Exception
 {
 public:
-//l10n
-    //OMDuplicateOption(const String& name)
-	//: Exception("Duplicate option: " + name) { }
-	OMDuplicateOption(const String& name)
-	: Exception(MessageLoaderParms("Common.OptionManager.DUPLICATE_OPTION",
-											 "Duplicate option: $0",
-											 name)) { }
+    OMDuplicateOption(const String& name)
+        : Exception(MessageLoaderParms(
+              "Common.OptionManager.DUPLICATE_OPTION",
+              "Duplicate option: $0",
+              name))
+    {
+    }
 };
 
 /** Exception class */
@@ -665,7 +661,7 @@ class PEGASUS_COMMON_LINKAGE OMConfigFileSyntaxError : public Exception
 public:
 
     OMConfigFileSyntaxError(const String& file, Uint32 line)
-	: Exception(_formatMessage(file, line)) { }
+        : Exception(_formatMessage(file, line)) { }
 
     static String _formatMessage(const String& file, Uint32 line);
 };
@@ -674,41 +670,40 @@ public:
 class PEGASUS_COMMON_LINKAGE OMUnrecognizedConfigFileOption : public Exception
 {
 public:
-//l10n
-    //OMUnrecognizedConfigFileOption(const String& name)
-	//: Exception("Unrecognized config file option: " + name) { }
-	OMUnrecognizedConfigFileOption(const String& name)
-	: Exception(MessageLoaderParms("Common.OptionManager.UNRECOGNIZED_CONFIG_FILE_OPTION",
-											 "Unrecognized config file option: $0",
-											 name)) { }
+    OMUnrecognizedConfigFileOption(const String& name)
+        : Exception(MessageLoaderParms(
+              "Common.OptionManager.UNRECOGNIZED_CONFIG_FILE_OPTION",
+              "Unrecognized config file option: $0",
+              name))
+    {
+    }
 };
 
 /** Exception class */
 class PEGASUS_COMMON_LINKAGE OMMissingRequiredOptionValue : public Exception
 {
 public:
-//l10n
-    //OMMissingRequiredOptionValue(const String& name)
-	//: Exception("Missing required option value: " + name) { }
-	OMMissingRequiredOptionValue(const String& name)
-	: Exception(MessageLoaderParms("Common.OptionManager.MISSING_REQUIRED_OPTION",
-											 "Missing required option value: $0",
-											 name)) { }
+    OMMissingRequiredOptionValue(const String& name)
+        : Exception(MessageLoaderParms(
+              "Common.OptionManager.MISSING_REQUIRED_OPTION",
+              "Missing required option value: $0",
+              name))
+    {
+    }
 };
 
 /** Exception class */
 class PEGASUS_COMMON_LINKAGE OMMBadCmdLineOption : public Exception
 {
 public:
-//l10n
-   // OMMBadCmdLineOption(const String& name)
-	//: Exception("Parameter not Valid: " + name) { }
-	OMMBadCmdLineOption(const String& name)
-	: Exception(MessageLoaderParms("Common.OptionManager.PARAMETER_NOT_VALID",
-											 "Parameter not Valid: $0",
-											 name)) { }
+    OMMBadCmdLineOption(const String& name)
+        : Exception(MessageLoaderParms(
+              "Common.OptionManager.PARAMETER_NOT_VALID",
+              "Parameter not Valid: $0",
+              name))
+    {
+    }
 };
-
 
 PEGASUS_NAMESPACE_END
 

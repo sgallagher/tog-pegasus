@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
-//         (carolann_graves@hp.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_XmlConstants_h
@@ -45,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 //
 //  This include file contains constants related to the CIM XML encoding,
-//  including XML elements, and exception message strings appropriate for 
+//  including XML elements, and exception message strings appropriate for
 //  XML validation exception conditions.
 //
 
@@ -94,12 +89,11 @@ static const char XML_ELEMENT_LOCALINSTANCEPATH [] = "LOCALINSTANCEPATH";
  *  &lt;MULTIREQ&gt; element.
  *
  */
-static const char MISSING_ELEMENT_REQ [] = 
+static const char MISSING_ELEMENT_REQ [] =
     "expected SIMPLEREQ or MULTIREQ element";
-    
-//l10n
-static const char MISSING_ELEMENT_REQ_KEY [] = 
-	"Common.XmlConstants.MISSING_ELEMENT_REQ";
+
+static const char MISSING_ELEMENT_REQ_KEY [] =
+    "Common.XmlConstants.MISSING_ELEMENT_REQ";
 
 /**
  *
@@ -107,12 +101,12 @@ static const char MISSING_ELEMENT_REQ_KEY [] =
  *  &lt;LOCALINSTANCEPATH&gt; element.
  *
  */
-static const char MISSING_ELEMENT_LOCALPATH [] = 
+static const char MISSING_ELEMENT_LOCALPATH [] =
     "expected LOCALCLASSPATH or LOCALINSTANCEPATH element";
 
-//l10n
 static const char MISSING_ELEMENT_LOCALPATH_KEY [] =
-	"Common.XmlConstants.MISSING_ELEMENT_LOCALPATH_KEY";
+    "Common.XmlConstants.MISSING_ELEMENT_LOCALPATH_KEY";
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_XmlConstants_h */

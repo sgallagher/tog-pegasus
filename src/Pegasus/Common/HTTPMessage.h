@@ -57,9 +57,9 @@ typedef Pair<String, String> HTTPHeader;
 class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 {
 public:
-  
+
     typedef Message Base;
-      
+
     HTTPMessage(
         const Buffer& message_,
         Uint32 queueId_ = 0,

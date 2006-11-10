@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ArrayInternal_h
@@ -79,7 +74,7 @@ Boolean Contains(const Array<PEGASUS_ARRAY_T>& a, const PEGASUS_ARRAY_T& x)
 }
 
 template<class PEGASUS_ARRAY_T>
-void BubbleSort(Array<PEGASUS_ARRAY_T>& x) 
+void BubbleSort(Array<PEGASUS_ARRAY_T>& x)
 {
     Uint32 n = x.size();
 
@@ -100,7 +95,7 @@ void BubbleSort(Array<PEGASUS_ARRAY_T>& x)
     }
 }
 
-inline void BubbleSort(Array<CIMName>& x) 
+inline void BubbleSort(Array<CIMName>& x)
 {
     Uint32 n = x.size();
 
@@ -121,7 +116,7 @@ inline void BubbleSort(Array<CIMName>& x)
     }
 }
 
-inline void BubbleSort(Array<CIMNamespaceName>& x) 
+inline void BubbleSort(Array<CIMNamespaceName>& x)
 {
     Uint32 n = x.size();
 
@@ -145,7 +140,7 @@ inline void BubbleSort(Array<CIMNamespaceName>& x)
 #if 0
 // Determine need for these functions
 template<class PEGASUS_ARRAY_T>
-void Unique(Array<PEGASUS_ARRAY_T>& x) 
+void Unique(Array<PEGASUS_ARRAY_T>& x)
 {
     Array<PEGASUS_ARRAY_T> result;
 

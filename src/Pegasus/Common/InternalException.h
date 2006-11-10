@@ -85,7 +85,7 @@ class PEGASUS_COMMON_LINKAGE NullPointer : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     NullPointer();
 
@@ -98,7 +98,7 @@ class PEGASUS_COMMON_LINKAGE UndeclaredQualifier : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];   
+    static const char KEY[];
 
     UndeclaredQualifier(const String& qualifierName) ;
 
@@ -110,11 +110,11 @@ class PEGASUS_COMMON_LINKAGE BadQualifierScope : public Exception
 {
 public:
 
-    static const char MSG[]; 
-    static const char KEY[];     
+    static const char MSG[];
+    static const char KEY[];
 
     BadQualifierScope(
-        const String& qualifierName, 
+        const String& qualifierName,
         const String& scopeString);
 
     virtual ~BadQualifierScope();
@@ -126,7 +126,7 @@ class PEGASUS_COMMON_LINKAGE BadQualifierOverride : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     BadQualifierOverride(const String& qualifierName);
 
@@ -138,7 +138,7 @@ class PEGASUS_COMMON_LINKAGE BadQualifierType : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     BadQualifierType(const String& qualifierName);
     virtual ~BadQualifierType();
@@ -150,7 +150,7 @@ class PEGASUS_COMMON_LINKAGE ClassAlreadyResolved : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     ClassAlreadyResolved(const String& className);
 
@@ -163,7 +163,7 @@ class PEGASUS_COMMON_LINKAGE ClassNotResolved : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     ClassNotResolved(const String& className);
     virtual ~ClassNotResolved();
@@ -175,7 +175,7 @@ class PEGASUS_COMMON_LINKAGE InstanceAlreadyResolved : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     InstanceAlreadyResolved();
     virtual ~InstanceAlreadyResolved();
@@ -187,7 +187,7 @@ class PEGASUS_COMMON_LINKAGE InstantiatedAbstractClass : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     InstantiatedAbstractClass(const String& className);
     virtual ~InstantiatedAbstractClass();
@@ -199,7 +199,7 @@ class PEGASUS_COMMON_LINKAGE NoSuchProperty : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     NoSuchProperty(const String& propertyName);
     virtual ~NoSuchProperty();
@@ -211,7 +211,7 @@ class PEGASUS_COMMON_LINKAGE NoSuchFile : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     NoSuchFile(const String& fileName);
     virtual ~NoSuchFile();
@@ -223,7 +223,7 @@ class PEGASUS_COMMON_LINKAGE FileNotReadable : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     FileNotReadable(const String& fileName);
     virtual ~FileNotReadable();
@@ -235,7 +235,7 @@ class PEGASUS_COMMON_LINKAGE CannotRemoveDirectory : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     CannotRemoveDirectory(const String& path);
     virtual ~CannotRemoveDirectory();
@@ -247,7 +247,7 @@ class PEGASUS_COMMON_LINKAGE CannotRemoveFile : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     CannotRemoveFile(const String& path);
     virtual ~CannotRemoveFile();
@@ -259,7 +259,7 @@ class PEGASUS_COMMON_LINKAGE CannotRenameFile : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     CannotRenameFile(const String& path);
     virtual ~CannotRenameFile();
@@ -271,7 +271,7 @@ class PEGASUS_COMMON_LINKAGE NoSuchDirectory : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     NoSuchDirectory(const String& directoryName);
     virtual ~NoSuchDirectory();
@@ -283,7 +283,7 @@ class PEGASUS_COMMON_LINKAGE CannotCreateDirectory : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     CannotCreateDirectory(const String& path);
     virtual ~CannotCreateDirectory();
@@ -295,7 +295,7 @@ class PEGASUS_COMMON_LINKAGE CannotOpenFile : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     CannotOpenFile(const String& path);
     virtual ~CannotOpenFile();
@@ -307,7 +307,7 @@ class PEGASUS_COMMON_LINKAGE NotImplemented : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     NotImplemented(const String& method);
     virtual ~NotImplemented();
@@ -318,7 +318,7 @@ class PEGASUS_COMMON_LINKAGE StackUnderflow : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     StackUnderflow();
     virtual ~StackUnderflow();
@@ -329,7 +329,7 @@ class PEGASUS_COMMON_LINKAGE StackOverflow : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     StackOverflow();
     virtual ~StackOverflow();
@@ -340,7 +340,7 @@ class PEGASUS_COMMON_LINKAGE BadFormat : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     BadFormat();
     virtual ~BadFormat();
@@ -351,7 +351,7 @@ class PEGASUS_COMMON_LINKAGE BadlyFormedCGIQueryString : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     BadlyFormedCGIQueryString();
     virtual ~BadlyFormedCGIQueryString();
@@ -362,7 +362,7 @@ class PEGASUS_COMMON_LINKAGE DynamicLoadFailed : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     DynamicLoadFailed(const String& libraryName);
     virtual ~DynamicLoadFailed();
@@ -373,7 +373,7 @@ class PEGASUS_COMMON_LINKAGE DynamicLookupFailed : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     DynamicLookupFailed(const String& symbolName);
     virtual ~DynamicLookupFailed();
@@ -384,7 +384,7 @@ class PEGASUS_COMMON_LINKAGE CannotOpenDirectory : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     CannotOpenDirectory(const String& path);
     virtual ~CannotOpenDirectory();
@@ -395,7 +395,7 @@ class PEGASUS_COMMON_LINKAGE ParseError : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     ParseError(const String& message);
     virtual ~ParseError();
@@ -406,20 +406,18 @@ class PEGASUS_COMMON_LINKAGE MissingNullTerminator : public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     MissingNullTerminator();
     virtual ~MissingNullTerminator();
 };
-
-//l10n start
 
 class PEGASUS_COMMON_LINKAGE MalformedLanguageHeader: public Exception
 {
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     MalformedLanguageHeader(const String& error);
     virtual ~MalformedLanguageHeader();
@@ -430,7 +428,7 @@ class PEGASUS_COMMON_LINKAGE InvalidAcceptLanguageHeader: public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     InvalidAcceptLanguageHeader(const String& error);
     virtual ~InvalidAcceptLanguageHeader();
@@ -441,20 +439,18 @@ class PEGASUS_COMMON_LINKAGE InvalidContentLanguageHeader: public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     InvalidContentLanguageHeader(const String& error);
     virtual ~InvalidContentLanguageHeader();
 };
-
-//l10n end
 
 class PEGASUS_COMMON_LINKAGE InvalidAuthHeader: public Exception
 {
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     InvalidAuthHeader();
     virtual ~InvalidAuthHeader();
@@ -465,7 +461,7 @@ class PEGASUS_COMMON_LINKAGE UnauthorizedAccess: public Exception
 public:
 
     static const char MSG[];
-    static const char KEY[];     
+    static const char KEY[];
 
     UnauthorizedAccess();
     virtual ~UnauthorizedAccess();
@@ -474,8 +470,8 @@ public:
 class PEGASUS_COMMON_LINKAGE IncompatibleTypesException : public Exception
 {
 public:
-    IncompatibleTypesException();    
-    virtual ~IncompatibleTypesException();    
+    IncompatibleTypesException();
+    virtual ~IncompatibleTypesException();
 };
 
 class PEGASUS_COMMON_LINKAGE InternalSystemError : public Exception
@@ -533,16 +529,14 @@ public:
 #define PEGASUS_CIM_EXCEPTION(CODE, EXTRA_MESSAGE) \
     TraceableCIMException(CODE, EXTRA_MESSAGE, String(__FILE__), __LINE__)
 
-// l10n    
 #define PEGASUS_CIM_EXCEPTION_LANG(LANGS, CODE, EXTRA_MESSAGE) \
     TraceableCIMException( \
-        LANGS, CODE, EXTRA_MESSAGE, String(__FILE__), __LINE__)  
-      
-//l10n
+        LANGS, CODE, EXTRA_MESSAGE, String(__FILE__), __LINE__)
+
 #define PEGASUS_CIM_EXCEPTION_L(CODE, MSG_PARMS) \
     TraceableCIMException(CODE, MSG_PARMS, String(__FILE__), __LINE__)
 
-/** Macro to prevent overflow of a signed int value when said value is 
+/** Macro to prevent overflow of a signed int value when said value is
  *  doubled. If String/Array/Buffer size is greater than 0x3FFFFFFF, then
  *  something is suspect, throw bad_alloc exception.
  */

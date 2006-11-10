@@ -46,25 +46,25 @@ PEGASUS_NAMESPACE_BEGIN
     strings that contain variable defintions.  The
     variable definitions in the strings are of the form
     $<int>
-    
+
     where <int> is a single digit integer (0 - 9).
-    
+ 
     The variable subsituted may be String, Boolean Integer, Unsigned Integer
-    or  real.
-    
+    or real.
+
     The format subsitution may be escaped by preceding the
     $ with a \
-    
+
     usage:
     Formatter::format (FormatString, variable0,.., variable9)
-    
+
     Example:
     <pre>
     int total = 4;
     int count = 2;
     String name = "Output"
     String output = Formatter::format(
-        "total $0 average $1 on $2", 
+        "total $0 average $1 on $2",
         total,
         total/count,
         name);
@@ -72,7 +72,7 @@ PEGASUS_NAMESPACE_BEGIN
     produces the string
 
       "total 4 average 2 on Output"
-    
+
     </pre>
 */
 class PEGASUS_COMMON_LINKAGE Formatter
@@ -83,7 +83,7 @@ public:
     {
     public:
 
-        enum Type { VOIDT, STRING, CSTRLIT, BOOLEAN, INTEGER, 
+        enum Type { VOIDT, STRING, CSTRLIT, BOOLEAN, INTEGER,
             UINTEGER, LINTEGER, ULINTEGER, REAL };
 
         Arg() : _type(VOIDT)

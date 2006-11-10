@@ -77,13 +77,13 @@ Boolean DynamicLibrary::_load()
 #endif
     }
 
-    return(isLoaded());
+    return isLoaded();
 }
 
 void DynamicLibrary::_unload()
 {
 #ifdef PEGASUS_OS_OS400
-    OS400_UnloadDynamicLibrary(_handle);    
+    OS400_UnloadDynamicLibrary(_handle);
 #else
     dlclose(_handle);
 #endif

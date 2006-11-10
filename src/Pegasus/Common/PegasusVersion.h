@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By: Jenny Yu (jenny_yu@hp.com)
-//              Warren Otsuka (warren.otsuka@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Version_h
@@ -56,7 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // The sequence would look like:
 //  # define PEGASUS_PRODUCT_VERSION "2.5"
-//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released 
+//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released
 //
 //  # define PEGASUS_PRODUCT_VERSION "2.5.1"
 //  # define PEGASUS_PRODUCT_STATUS  "Development"
@@ -65,7 +59,7 @@ PEGASUS_NAMESPACE_BEGIN
 //  # define PEGASUS_PRODUCT_STATUS  "Pre-Release"
 //
 //  # define PEGASUS_PRODUCT_VERSION "2.5.1"
-//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released 
+//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released
 //
 //  # define PEGASUS_PRODUCT_VERSION "2.5.2"
 //  # define PEGASUS_PRODUCT_STATUS  "Development"
@@ -74,8 +68,8 @@ PEGASUS_NAMESPACE_BEGIN
 //  # define PEGASUS_PRODUCT_STATUS  "Pre-Release"
 //
 //  # define PEGASUS_PRODUCT_VERSION "2.5.2"
-//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released 
-// 
+//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released
+//
 
 
 # define PEGASUS_PRODUCT_NAME    "CIM Server"
@@ -99,8 +93,8 @@ PEGASUS_NAMESPACE_BEGIN
 #  define PLATFORM_COMPONENT_NAME  "Pegasus Component"
 # endif
 
-# ifndef PLATFORM_COMPONENT_VERSION 
-#  define PLATFORM_COMPONENT_VERSION PEGASUS_PRODUCT_VERSION 
+# ifndef PLATFORM_COMPONENT_VERSION
+#  define PLATFORM_COMPONENT_VERSION PEGASUS_PRODUCT_VERSION
 # endif
 
 # ifndef PLATFORM_COMPONENT_STATUS
@@ -129,8 +123,8 @@ static const char *PLATFORM_EMBEDDED_IDENTIFICATION_STRING =
 
 #endif /* PEGASUS_OS_HPUX */
 
-// This macro can be examined by preprocessor directives (i.e., #if) to 
-// make compile time branch decisions based on the Pegasus version number. 
+// This macro can be examined by preprocessor directives (i.e., #if) to
+// make compile time branch decisions based on the Pegasus version number.
 // When read from left to right, the bytes have the following meaning:
 //
 //     Byte 0: major version number
@@ -152,7 +146,7 @@ static const char *PLATFORM_EMBEDDED_IDENTIFICATION_STRING =
 //      ..
 //    #endif
 //
-// CAUTION: always check whether PEGASUS_VERSION_NUMBER is defined when 
+// CAUTION: always check whether PEGASUS_VERSION_NUMBER is defined when
 // integrating with versions prior to 2.5.1.
 //
 #define PEGASUS_VERSION_NUMBER 0x02060000

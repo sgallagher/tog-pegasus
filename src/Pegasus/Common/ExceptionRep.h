@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ExceptionRep_h
@@ -52,7 +47,7 @@ class ExceptionRep
 public:
     String message;
     String cimMessage;  // Contains the message for the CIM error code
-    ContentLanguageList contentLanguages;  
+    ContentLanguageList contentLanguages;
 
     // Allow subclass objects to be destructed properly
     virtual ~ExceptionRep() {}

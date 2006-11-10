@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMQualifier.h"
@@ -160,7 +154,7 @@ void CIMQualifier::setPropagated(Boolean propagated)
 
 Boolean CIMQualifier::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMQualifier::identical(const CIMConstQualifier& x) const
@@ -277,7 +271,7 @@ const Uint32 CIMConstQualifier::getPropagated() const
 
 Boolean CIMConstQualifier::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMConstQualifier::identical(const CIMConstQualifier& x) const

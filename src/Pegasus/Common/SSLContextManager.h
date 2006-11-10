@@ -53,8 +53,9 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-/** 
-    This class provides the functionality necessary to manage SSLContext objects.
+/**
+    This class provides the functionality necessary to manage SSLContext
+    objects.
  */
 class PEGASUS_COMMON_LINKAGE SSLContextManager
 {
@@ -66,15 +67,15 @@ public:
     ~SSLContextManager();
 
     void createSSLContext(
-        const String& trustStore, 
+        const String& trustStore,
         const String& certPath,
-        const String& keyPath, 
-        const String& crlStore, 
-        Boolean callback, 
+        const String& keyPath,
+        const String& crlStore,
+        Boolean callback,
         const String& randFile);
 
     /**
-        Reload the trust store used by either the CIM Server or 
+        Reload the trust store used by either the CIM Server or
         Indication Server based on the context type.
      */
     void reloadTrustStore();
@@ -103,12 +104,12 @@ private:
 
     /**
         A lock to control access to the _sslContext object.
-        Before read accessing the _sslContext object, one must first 
-        lock this for read access.  Before write accessing the _sslContext 
+        Before read accessing the _sslContext object, one must first
+        lock this for read access.  Before write accessing the _sslContext
         object, one must first lock this for write access.
      */
     ReadWriteSem _sslContextObjectLock;
-    SSLContext* _sslContext; 
+    SSLContext* _sslContext;
 };
 
 PEGASUS_NAMESPACE_END

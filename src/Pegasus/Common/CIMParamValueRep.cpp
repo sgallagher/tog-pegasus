@@ -46,7 +46,7 @@ CIMParamValueRep::CIMParamValueRep(
     : _parameterName(parameterName), _value(value), _isTyped(isTyped)
 {
     // ensure parameterName is not null
-    if(parameterName.size() == 0)
+    if (parameterName.size() == 0)
     {
         throw UninitializedObjectException();
     }
@@ -118,7 +118,7 @@ CIMParamValueRep::CIMParamValueRep(const CIMParamValueRep& x) :
 void CIMParamValueRep::setParameterName(String& parameterName)
 {
     // ensure parameterName is not null
-    if(parameterName.size() == 0)
+    if (parameterName.size() == 0)
     {
         throw UninitializedObjectException();
     }

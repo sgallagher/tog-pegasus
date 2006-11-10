@@ -156,8 +156,10 @@ void SSLContextManager::reloadTrustStore()
           "Could not reload the trust store, SSL Context is not initialized.");
 
         MessageLoaderParms parms(
-         "Pegasus.Common.SSLContextManager.COULD_NOT_RELOAD_TRUSTSTORE_SSL_CONTEXT_NOT_INITIALIZED",
-         "Could not reload the trust store, SSL Context is not initialized.");
+            "Pegasus.Common.SSLContextManager."
+                "COULD_NOT_RELOAD_TRUSTSTORE_SSL_CONTEXT_NOT_INITIALIZED",
+            "Could not reload the trust store, SSL Context is not "
+                "initialized.");
         PEG_METHOD_EXIT();
         throw SSLException(parms);
     }
@@ -165,11 +167,13 @@ void SSLContextManager::reloadTrustStore()
     if (trustStore == String::EMPTY)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
-            "Could not reload the trust store, the trust store is not configured.");
+            "Could not reload the trust store, the trust store is not "
+                "configured.");
 
         MessageLoaderParms parms(
             "Pegasus.Common.SSLContextManager.TRUST_STORE_NOT_CONFIGURED",
-            "Could not reload the trust store, the trust store is not configured.");
+            "Could not reload the trust store, the trust store is not "
+                "configured.");
         PEG_METHOD_EXIT();
         throw SSLException(parms);
     }
@@ -196,8 +200,9 @@ void SSLContextManager::reloadCRLStore()
         "Could not reload the crl store, SSL Context is not initialized.");
 
         MessageLoaderParms parms(
-         "Pegasus.Common.SSLContextManager.COULD_NOT_RELOAD_CRL_STORE_SSL_CONTEXT_NOT_INITIALIZED",
-         "Could not reload the crl store, SSL Context is not initialized.");
+            "Pegasus.Common.SSLContextManager."
+                "COULD_NOT_RELOAD_CRL_STORE_SSL_CONTEXT_NOT_INITIALIZED",
+            "Could not reload the crl store, SSL Context is not initialized.");
 
         PEG_METHOD_EXIT();
         throw SSLException(parms);
@@ -219,7 +224,8 @@ void SSLContextManager::reloadCRLStore()
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "CRL store path is " + crlPath);
 
-    //update the CRL store for both the server and the export server since they share the same CRL store
+    // update the CRL store for both the server and the export server since
+    // they share the same CRL store
     X509_STORE* crlStore;
 
     {
@@ -262,8 +268,9 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
                 "Could not reload the trust or crl store.");
 
             MessageLoaderParms parms(
-             "Pegasus.Common.SSLContextManager.COULD_NOT_RELOAD_TRUST_OR_CRL_STORE",
-             "Could not reload the trust or crl store.");
+                "Pegasus.Common.SSLContextManager."
+                    "COULD_NOT_RELOAD_TRUST_OR_CRL_STORE",
+                "Could not reload the trust or crl store.");
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -272,8 +279,8 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
     }
     else if (FileSystem::exists(storePath))
     {
-        X509_LOOKUP* storeLookup = X509_STORE_add_lookup(newStore,
-                                                     X509_LOOKUP_file());
+        X509_LOOKUP* storeLookup = X509_STORE_add_lookup(
+            newStore, X509_LOOKUP_file());
         if (storeLookup == NULL)
         {
             X509_STORE_free(newStore);
@@ -282,8 +289,9 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
                 "Could not reload the trust or crl store.");
 
             MessageLoaderParms parms(
-             "Pegasus.Common.SSLContextManager.COULD_NOT_RELOAD_TRUST_OR_CRL_STORE",
-             "Could not reload the trust or crl store.");
+                "Pegasus.Common.SSLContextManager."
+                    "COULD_NOT_RELOAD_TRUST_OR_CRL_STORE",
+                "Could not reload the trust or crl store.");
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -293,11 +301,14 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
     else
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
-            "Could not reload the trust or crl store, configured store not found.");
+            "Could not reload the trust or crl store, configured store "
+                "not found.");
 
         MessageLoaderParms parms(
-         "Pegasus.Common.SSLContextManager.CONFIGURED_TRUST_OR_CRL_STORE_NOT_FOUND",
-         "Could not reload the trust or crl store, configured store not found.");
+            "Pegasus.Common.SSLContextManager."
+                "CONFIGURED_TRUST_OR_CRL_STORE_NOT_FOUND",
+            "Could not reload the trust or crl store, configured store "
+                "not found.");
         PEG_METHOD_EXIT();
         throw SSLException(parms);
     }
@@ -312,7 +323,11 @@ void SSLContextManager::reloadTrustStore() { }
 
 void SSLContextManager::reloadCRLStore() { }
 
-X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath) { return NULL; }
+X509_STORE* SSLContextManager::_getNewX509Store(
+    const String& storePath)
+{
+    return NULL;
+}
 
 #endif   //#ifdef PEGASUS_HAS_SSL
 

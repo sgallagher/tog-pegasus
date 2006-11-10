@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (m.brasher@inovadevelopment.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "List.h"
@@ -38,13 +36,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-ListRep::ListRep(void (*destructor)(Linkable*)) : 
-    _front(0), _back(0), _size(0)
+ListRep::ListRep(void (*destructor)(Linkable*))
+    : _front(0), _back(0), _size(0)
 {
     if (destructor)
-	_destructor = destructor;
+        _destructor = destructor;
     else
-	_destructor = 0;
+        _destructor = 0;
 }
 
 ListRep::~ListRep()
@@ -63,25 +61,25 @@ void ListRep::clear()
 
     if (_destructor)
     {
-	// Reset _front, _back, and _size in case the destructor calls
-	// a method of List.
+        // Reset _front, _back, and _size in case the destructor calls
+        // a method of List.
 
-	Linkable* front = _front;
-	Linkable* back = _back;
-	size_t size= _size;
+        Linkable* front = _front;
+        Linkable* back = _back;
+        size_t size= _size;
 
-	_front = 0;
-	_back = 0;
-	_size = 0;
+        _front = 0;
+        _back = 0;
+        _size = 0;
 
-	for (Linkable* p = front; p; )
-	{
-	    PEGASUS_DEBUG_ASSERT(p->magic);
-	    Linkable* next = p->next;
-	    p->list = 0;
-	    _destructor(p);
-	    p = next;
-	}
+        for (Linkable* p = front; p; )
+        {
+            PEGASUS_DEBUG_ASSERT(p->magic);
+            Linkable* next = p->next;
+            p->list = 0;
+            _destructor(p);
+            p = next;
+        }
     }
 }
 
@@ -97,9 +95,9 @@ void ListRep::insert_front(Linkable* elem)
     elem->prev = 0;
 
     if (_front)
-	_front->prev = elem;
+        _front->prev = elem;
     else
-	_back = elem;
+        _back = elem;
 
     _front = elem;
     _size++;
@@ -117,16 +115,16 @@ void ListRep::insert_back(Linkable* elem)
     elem->next = 0;
 
     if (_back)
-	_back->next = elem;
+        _back->next = elem;
     else
-	_front = elem;
+        _front = elem;
 
     _back = elem;
     _size++;
 }
 
 void ListRep::insert_after(
-    Linkable* pos, 
+    Linkable* pos,
     Linkable* elem)
 {
     PEGASUS_DEBUG_ASSERT(_magic);
@@ -141,18 +139,18 @@ void ListRep::insert_after(
     elem->next = pos->next;
 
     if (pos->next)
-	pos->next->prev = elem;
+        pos->next->prev = elem;
 
     pos->next = elem;
 
     if (pos == _back)
-	_back = elem;
+        _back = elem;
 
     _size++;
 }
 
 void ListRep::insert_before(
-    Linkable* pos, 
+    Linkable* pos,
     Linkable* elem)
 {
     PEGASUS_DEBUG_ASSERT(_magic);
@@ -167,12 +165,12 @@ void ListRep::insert_before(
     elem->prev = pos->prev;
 
     if (pos->prev)
-	pos->prev->next = elem;
+        pos->prev->next = elem;
 
     pos->prev = elem;
 
     if (pos == _front)
-	_front = elem;
+        _front = elem;
 
     _size++;
 }
@@ -186,19 +184,19 @@ void ListRep::remove(Linkable* pos)
     PEGASUS_DEBUG_ASSERT(_size != 0);
 
     if (_size == 0)
-	return;
+        return;
 
     if (pos->prev)
-	pos->prev->next = pos->next;
+        pos->prev->next = pos->next;
 
     if (pos->next)
-	pos->next->prev = pos->prev;
+        pos->next->prev = pos->prev;
 
     if (pos == _front)
-	_front = pos->next;
+        _front = pos->next;
 
     if (pos == _back)
-	_back = pos->prev;
+        _back = pos->prev;
 
     pos->list = 0;
 
@@ -213,8 +211,8 @@ bool ListRep::contains(const Linkable* elem)
 
     for (const Linkable* p = _front; p; p = p->next)
     {
-	if (p == elem)
-	    return true;
+        if (p == elem)
+            return true;
     }
 
     // Not found!
@@ -226,7 +224,7 @@ Linkable* ListRep::remove_front()
     PEGASUS_DEBUG_ASSERT(_magic);
 
     if (_size == 0)
-	return 0;
+        return 0;
 
     Linkable* elem = _front;
     remove(elem);
@@ -252,11 +250,11 @@ Linkable* ListRep::find(ListRep::Equal equal, const void* client_data)
 
     for (Linkable* p = _front; p; p = p->next)
     {
-	if ((*equal)(p, client_data))
-	{
-	    PEGASUS_DEBUG_ASSERT(p->magic);
-	    return p;
-	}
+        if ((*equal)(p, client_data))
+        {
+            PEGASUS_DEBUG_ASSERT(p->magic);
+            return p;
+        }
     }
 
     // Not found!
@@ -272,8 +270,8 @@ Linkable* ListRep::remove(ListRep::Equal equal, const void* client_data)
 
     if (p)
     {
-	PEGASUS_DEBUG_ASSERT(p->magic);
-	remove(p);
+        PEGASUS_DEBUG_ASSERT(p->magic);
+        remove(p);
     }
 
     return p;
@@ -285,7 +283,7 @@ void ListRep::apply(ListRep::Apply apply, const void* client_data)
     PEGASUS_DEBUG_ASSERT(apply != 0);
 
     for (Linkable* p = _front; p; p = p->next)
-	(*apply)(p, client_data);
+        (*apply)(p, client_data);
 }
 
 PEGASUS_NAMESPACE_END

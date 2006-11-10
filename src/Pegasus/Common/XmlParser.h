@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_XmlParser_h
@@ -54,36 +49,36 @@ public:
 
     enum Code
     {
-	BAD_START_TAG = 1,
-	BAD_END_TAG,
-	BAD_ATTRIBUTE_NAME,
-	EXPECTED_EQUAL_SIGN,
-	BAD_ATTRIBUTE_VALUE,
-	MINUS_MINUS_IN_COMMENT,
-	UNTERMINATED_COMMENT,
-	UNTERMINATED_CDATA,
-	UNTERMINATED_DOCTYPE,
-	TOO_MANY_ATTRIBUTES,
-	MALFORMED_REFERENCE,
-	EXPECTED_COMMENT_OR_CDATA,
-	START_END_MISMATCH,
-	UNCLOSED_TAGS,
-	MULTIPLE_ROOTS,
-	VALIDATION_ERROR,
-	SEMANTIC_ERROR
+        BAD_START_TAG = 1,
+        BAD_END_TAG,
+        BAD_ATTRIBUTE_NAME,
+        EXPECTED_EQUAL_SIGN,
+        BAD_ATTRIBUTE_VALUE,
+        MINUS_MINUS_IN_COMMENT,
+        UNTERMINATED_COMMENT,
+        UNTERMINATED_CDATA,
+        UNTERMINATED_DOCTYPE,
+        TOO_MANY_ATTRIBUTES,
+        MALFORMED_REFERENCE,
+        EXPECTED_COMMENT_OR_CDATA,
+        START_END_MISMATCH,
+        UNCLOSED_TAGS,
+        MULTIPLE_ROOTS,
+        VALIDATION_ERROR,
+        SEMANTIC_ERROR
     };
 
 
     XmlException(
-	Code code, 
-	Uint32 lineNumber,
-	const String& message = String());
-	
-	
+        Code code,
+        Uint32 lineNumber,
+        const String& message = String());
+
+
     XmlException(
-	Code code, 
-	Uint32 lineNumber,
-	MessageLoaderParms& msgParms);
+        Code code,
+        Uint32 lineNumber,
+        MessageLoaderParms& msgParms);
 
 
     XmlException::Code getCode() const { return _code; }
@@ -98,7 +93,7 @@ class PEGASUS_COMMON_LINKAGE XmlValidationError : public XmlException
 public:
 
     XmlValidationError(Uint32 lineNumber, const String& message);
-    XmlValidationError(Uint32 lineNumber, MessageLoaderParms& msgParms);     
+    XmlValidationError(Uint32 lineNumber, MessageLoaderParms& msgParms);
 };
 
 class PEGASUS_COMMON_LINKAGE XmlSemanticError : public XmlException
@@ -106,7 +101,7 @@ class PEGASUS_COMMON_LINKAGE XmlSemanticError : public XmlException
 public:
 
     XmlSemanticError(Uint32 lineNumber, const String& message);
-    XmlSemanticError(Uint32 lineNumber, MessageLoaderParms& msgParms);    
+    XmlSemanticError(Uint32 lineNumber, MessageLoaderParms& msgParms);
 };
 
 struct XmlAttribute
@@ -119,14 +114,14 @@ struct PEGASUS_COMMON_LINKAGE XmlEntry
 {
     enum CIMType
     {
-	XML_DECLARATION,
-	START_TAG, 
-	EMPTY_TAG, 
-	END_TAG, 
-	COMMENT,
-	CDATA,
-	DOCTYPE,
-	CONTENT
+        XML_DECLARATION,
+        START_TAG,
+        EMPTY_TAG,
+        END_TAG,
+        COMMENT,
+        CDATA,
+        DOCTYPE,
+        CONTENT
     };
 
     enum { MAX_ATTRIBUTES = 10 };
@@ -198,7 +193,7 @@ private:
 };
 
 PEGASUS_COMMON_LINKAGE void XmlAppendCString(
-    Buffer& out, 
+    Buffer& out,
     const char* str);
 
 PEGASUS_NAMESPACE_END

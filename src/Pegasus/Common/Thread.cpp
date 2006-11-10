@@ -80,7 +80,7 @@ void Thread::test_cancel()
 #endif
 }
 
-Boolean Thread::is_cancelled(void)
+Boolean Thread::is_cancelled()
 {
     return _cancelled;
 }
@@ -114,7 +114,7 @@ void Thread::sleep(Uint32 msec)
     Threads::sleep(msec);
 }
 
-void Thread::join(void)
+void Thread::join()
 {
     if (!_is_detached && !Threads::null(_handle.thid))
         pthread_join(_handle.thid.thread, &_exit_code);
@@ -122,7 +122,7 @@ void Thread::join(void)
     Threads::clear(_handle.thid);
 }
 
-void Thread::thread_init(void)
+void Thread::thread_init()
 {
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     pthread_setintr(PTHREAD_INTR_ENABLE);
@@ -134,7 +134,7 @@ void Thread::thread_init(void)
     _cancel_enabled = true;
 }
 
-void Thread::detach(void)
+void Thread::detach()
 {
     _is_detached = true;
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
@@ -154,9 +154,9 @@ ThreadStatus Thread::run()
     Threads::Type type = _is_detached ? Threads::DETACHED : Threads::JOINABLE;
     int rc = Threads::create(_handle.thid, type, _start_wrapper, arg);
 
-    // On Linux distributions released prior 2005, the implementation of 
+    // On Linux distributions released prior 2005, the implementation of
     // Native POSIX Thread Library returns ENOMEM instead of EAGAIN when
-    // there 
+    // there
     // are no insufficient memory.  Hence we are checking for both.  See bug
     // 386.
 
@@ -208,10 +208,18 @@ static sigset_t *block_signal_mask(sigset_t * sig)
     return sig;
 }
 
-Thread::Thread(ThreadReturnType(PEGASUS_THREAD_CDECL * start) (void *), void *parameter, Boolean detached):_is_detached(detached),
-_cancel_enabled(true),
-_cancelled(false),
-_start(start), _cleanup(), _tsd(), _thread_parm(parameter), _exit_code(0)
+Thread::Thread(
+    ThreadReturnType(PEGASUS_THREAD_CDECL* start) (void*),
+    void* parameter,
+    Boolean detached)
+    : _is_detached(detached),
+      _cancel_enabled(true),
+      _cancelled(false),
+      _start(start),
+      _cleanup(),
+      _tsd(),
+      _thread_parm(parameter),
+      _exit_code(0)
 {
     Threads::clear(_handle.thid);
 }
@@ -223,7 +231,7 @@ Thread::~Thread()
         join();
         empty_tsd();
     }
-    catch(...)
+    catch (...)
     {
         // Do not allow the destructor to throw an exception
     }
@@ -239,7 +247,7 @@ Thread::~Thread()
 
 #if defined(PEGASUS_HAVE_WINDOWS_THREADS)
 
-ThreadStatus Thread::run(void)
+ThreadStatus Thread::run()
 {
     // Note: A Win32 thread ID is not the same thing as a pthread ID.
     // Win32 threads have both a thread ID and a handle.  The handle
@@ -266,12 +274,12 @@ ThreadStatus Thread::run(void)
     return PEGASUS_THREAD_OK;
 }
 
-void Thread::cancel(void)
+void Thread::cancel()
 {
     _cancelled = true;
 }
 
-void Thread::test_cancel(void)
+void Thread::test_cancel()
 {
     if (_cancel_enabled && _cancelled)
     {
@@ -279,12 +287,12 @@ void Thread::test_cancel(void)
     }
 }
 
-Boolean Thread::is_cancelled(void)
+Boolean Thread::is_cancelled()
 {
     return _cancelled;
 }
 
-void Thread::thread_switch(void)
+void Thread::thread_switch()
 {
     Sleep(0);
 }
@@ -294,7 +302,7 @@ void Thread::sleep(Uint32 milliseconds)
     Sleep(milliseconds);
 }
 
-void Thread::join(void)
+void Thread::join()
 {
     if (!Threads::null(_handle.thid))
     {
@@ -309,7 +317,7 @@ void Thread::join(void)
             else
             {
                 // Currently this is the only way to ensure this code does
-                // not 
+                // not
                 // hang forever.
                 if (WaitForSingleObject(_handle.thid.handle, 10000) ==
                     WAIT_TIMEOUT)
@@ -328,12 +336,12 @@ void Thread::join(void)
     }
 }
 
-void Thread::thread_init(void)
+void Thread::thread_init()
 {
     _cancel_enabled = true;
 }
 
-void Thread::detach(void)
+void Thread::detach()
 {
     _is_detached = true;
 }
@@ -355,7 +363,7 @@ Thread::~Thread()
         join();
         empty_tsd();
     }
-    catch(...)
+    catch (...)
     {
     }
 }
@@ -407,16 +415,13 @@ void Thread::cleanup_pop(Boolean execute)
     {
         cu.reset(_cleanup.remove_front());
     }
-    catch(IPCException &)
+    catch (IPCException &)
     {
         PEGASUS_ASSERT(0);
     }
     if (execute == true)
         cu->execute();
 }
-
-
-//thread_data *Thread::put_tsd(const Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value)
 
 
 void Thread::exit_self(ThreadReturnType exit_code)
@@ -431,7 +436,7 @@ void Thread::exit_self(ThreadReturnType exit_code)
         {
             cleanup_pop(true);
         }
-        catch(IPCException &)
+        catch (IPCException &)
         {
             PEGASUS_ASSERT(0);
             break;
@@ -520,7 +525,7 @@ AcceptLanguageList *Thread::getLanguages()
     return acceptLangs;
 }
 
-void Thread::setLanguages(AcceptLanguageList * langs)   // l10n
+void Thread::setLanguages(AcceptLanguageList * langs)
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::setLanguages");
 
@@ -536,7 +541,7 @@ void Thread::setLanguages(AcceptLanguageList * langs)   // l10n
     PEG_METHOD_EXIT();
 }
 
-void Thread::clearLanguages()   // l10n
+void Thread::clearLanguages()
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::clearLanguages");
 

@@ -29,24 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
-//                  added nsk platform support
-//              Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
-//                  replaced instances of "| ios::binary" with
-//                  PEGASUS_OR_IOS_BINARY
-//              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <Pegasus/Common/Config.h>
 #endif
-
 
 #include <fstream>
 #include <cctype>  // for tolower()
@@ -83,14 +70,14 @@ Boolean System::copyFile(const char* fromPath, const char* toPath)
 
     while (is.get(c))
     {
-	if (!os.put(c))
-	    return false;
+        if (!os.put(c))
+            return false;
     }
 
     return is.eof();
 }
 
-static const Uint8 _toLowerTable[256] = 
+static const Uint8 _toLowerTable[256] =
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
     0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -136,14 +123,14 @@ Sint32 System::strcasecmp(const char* s1, const char* s2)
 
     for (;;)
     {
-	if ((r = _toLowerTable[p[0]] - _toLowerTable[q[0]]) || !p[0] ||
-	    (r = _toLowerTable[p[1]] - _toLowerTable[q[1]]) || !p[1] ||
-	    (r = _toLowerTable[p[2]] - _toLowerTable[q[2]]) || !p[2] ||
-	    (r = _toLowerTable[p[3]] - _toLowerTable[q[3]]) || !p[3])
-	    break;
+        if ((r = _toLowerTable[p[0]] - _toLowerTable[q[0]]) || !p[0] ||
+            (r = _toLowerTable[p[1]] - _toLowerTable[q[1]]) || !p[1] ||
+            (r = _toLowerTable[p[2]] - _toLowerTable[q[2]]) || !p[2] ||
+            (r = _toLowerTable[p[3]] - _toLowerTable[q[3]]) || !p[3])
+            break;
 
-	p += 4;
-	q += 4;
+        p += 4;
+        q += 4;
     }
 
     return r;
@@ -152,48 +139,48 @@ Sint32 System::strcasecmp(const char* s1, const char* s2)
 // Return the just the file name from the path into basename
 char *System::extract_file_name(const char *fullpath, char *basename)
 {
-  if (fullpath == NULL)
-  {
-      basename[0] = '\0';
-      return basename;
-  }
+    if (fullpath == NULL)
+    {
+        basename[0] = '\0';
+        return basename;
+    }
 
-  for (const char* p = fullpath + strlen(fullpath) - 1; p >= fullpath; p--)
-  {
-      if (*p == '\\' || *p == '/')
-      {
-          strcpy(basename, p+1);
-          return basename;
-      }
-  }
+    for (const char* p = fullpath + strlen(fullpath) - 1; p >= fullpath; p--)
+    {
+        if (*p == '\\' || *p == '/')
+        {
+            strcpy(basename, p+1);
+            return basename;
+        }
+    }
 
-  strcpy(basename, fullpath);
-  return basename;
+    strcpy(basename, fullpath);
+    return basename;
 }
 
 // Return the just the path to the file name into dirname
 char *System::extract_file_path(const char *fullpath, char *dirname)
 {
-  char *p;
-  char buff[4096];
-  if (fullpath == NULL)
+    char *p;
+    char buff[4096];
+    if (fullpath == NULL)
     {
-      dirname[0] = '\0';
-      return dirname;
+        dirname[0] = '\0';
+        return dirname;
     }
-  strncpy(buff, fullpath, sizeof(buff)-1);
-  buff[sizeof(buff)-1] =  '\0';
-  for(p = buff + strlen(buff); p >= buff; p--)
+    strncpy(buff, fullpath, sizeof(buff)-1);
+    buff[sizeof(buff)-1] =  '\0';
+    for (p = buff + strlen(buff); p >= buff; p--)
     {
-      if (*p == '\\' || *p == '/')
+        if (*p == '\\' || *p == '/')
         {
           strncpy(dirname, buff, p+1 - buff);
           dirname[p+1 - buff] = '\0';
           return dirname;
         }
     }
-  strcpy(dirname, fullpath);
-  return dirname;
+    strcpy(dirname, fullpath);
+    return dirname;
 }
 
 String System::getHostIP(const String &hostName)
@@ -245,10 +232,10 @@ String System::getHostIP(const String &hostName)
 #if defined(PEGASUS_OS_OS400)
         char * gottenIPAdress = NULL;
         gottenIPAdress = ::inet_ntoa( inaddr );
-        
+
         if (gottenIPAdress != NULL)
         {
-	    EtoA(gottenIPAdress);
+            EtoA(gottenIPAdress);
             ipAddress.assign(gottenIPAdress);
         }
 #else
@@ -263,34 +250,34 @@ String System::getHostIP(const String &hostName)
 // ------------------------------------------------------------------------
 Uint32 System::_acquireIP(const char* hostname)
 {
-	Uint32 ip = 0xFFFFFFFF;
-	if (!hostname) return 0xFFFFFFFF;
+    Uint32 ip = 0xFFFFFFFF;
+    if (!hostname) return 0xFFFFFFFF;
 
 #ifdef PEGASUS_OS_OS400
-	char ebcdicHost[PEGASUS_MAXHOSTNAMELEN];
-	if (strlen(hostname) < PEGASUS_MAXHOSTNAMELEN)
-		strcpy(ebcdicHost, hostname);
-	else
-		return 0xFFFFFFFF;
-	AtoE(ebcdicHost);
+    char ebcdicHost[PEGASUS_MAXHOSTNAMELEN];
+    if (strlen(hostname) < PEGASUS_MAXHOSTNAMELEN)
+        strcpy(ebcdicHost, hostname);
+    else
+        return 0xFFFFFFFF;
+    AtoE(ebcdicHost);
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // This code used to check if the first character of "hostname" was alphabetic
-// to indicate hostname instead of IP address. But RFC 1123, section 2.1, relaxed
-// this requirement to alphabetic character *or* digit. So bug 1462 changed the
-// flow here to call inet_addr first to check for a valid IP address in dotted
-// decimal notation. If it's not a valid IP address, then try to validate
-// it as a hostname.
-// RFC 1123 states: The host SHOULD check the string syntactically for a 
-// dotted-decimal number before looking it up in the Domain Name System. 
+// to indicate hostname instead of IP address. But RFC 1123, section 2.1,
+// relaxed this requirement to alphabetic character *or* digit. So bug 1462
+// changed the flow here to call inet_addr first to check for a valid IP
+// address in dotted decimal notation. If it's not a valid IP address, then
+// try to validate it as a hostname.
+// RFC 1123 states: The host SHOULD check the string syntactically for a
+// dotted-decimal number before looking it up in the Domain Name System.
 // Hence the call to inet_addr() first.
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_OS_OS400
-	Uint32 tmp_addr = inet_addr(ebcdicHost);
+    Uint32 tmp_addr = inet_addr(ebcdicHost);
 #else
-	Uint32 tmp_addr = inet_addr((char *) hostname);
+    Uint32 tmp_addr = inet_addr((char *) hostname);
 #endif
 
     struct hostent* hostEntry;
@@ -333,7 +320,8 @@ Uint32 System::_acquireIP(const char* hostname)
             gethostname( hostName, PEGASUS_MAXHOSTNAMELEN );
             hostName[sizeof(hostName)-1] = 0;
             hostEntry = gethostbyname(hostName);
-        } else
+        }
+        else
         {
             hostEntry = gethostbyname((char *)hostname);
         }
@@ -341,50 +329,53 @@ Uint32 System::_acquireIP(const char* hostname)
         hostEntry = gethostbyname((char *)hostname);
 #endif
         if (!hostEntry)
-		{
-			return 0xFFFFFFFF;
-		}
-		unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
+        {
+            return 0xFFFFFFFF;
+        }
+        unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
 
-		ip_part1 = hostEntry->h_addr[0];
-		ip_part2 = hostEntry->h_addr[1];
-		ip_part3 = hostEntry->h_addr[2];
-		ip_part4 = hostEntry->h_addr[3];
-		ip = ip_part1;
-		ip = (ip << 8) + ip_part2;
-		ip = (ip << 8) + ip_part3;
-		ip = (ip << 8) + ip_part4;
-	}
+        ip_part1 = hostEntry->h_addr[0];
+        ip_part2 = hostEntry->h_addr[1];
+        ip_part3 = hostEntry->h_addr[2];
+        ip_part4 = hostEntry->h_addr[3];
+        ip = ip_part1;
+        ip = (ip << 8) + ip_part2;
+        ip = (ip << 8) + ip_part3;
+        ip = (ip << 8) + ip_part4;
+    }
     else    // else hostname *is* a dotted-decimal IP address
-	{
-		// resolve hostaddr to a real host entry
-		// casting to (const char *) as (char *) will work as (void *) too, those it fits all platforms
+    {
+        // resolve hostaddr to a real host entry
+        // casting to (const char *) as (char *) will work as (void *) too,
+        // those it fits all platforms
 #ifndef PEGASUS_OS_OS400
-        hostEntry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
+        hostEntry =
+            gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
 #else
-		hostEntry = gethostbyaddr((char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
+        hostEntry =
+            gethostbyaddr((char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
 #endif
-		if (hostEntry == 0)
-		{
-			// error, couldn't resolve the ip
-			return 0xFFFFFFFF;
-		} else
-		{
+        if (hostEntry == 0)
+        {
+            // error, couldn't resolve the ip
+            return 0xFFFFFFFF;
+        }
+        else
+        {
+            unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
 
-			unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
+            ip_part1 = hostEntry->h_addr[0];
+            ip_part2 = hostEntry->h_addr[1];
+            ip_part3 = hostEntry->h_addr[2];
+            ip_part4 = hostEntry->h_addr[3];
+            ip = ip_part1;
+            ip = (ip << 8) + ip_part2;
+            ip = (ip << 8) + ip_part3;
+            ip = (ip << 8) + ip_part4;
+        }
+    }
 
-			ip_part1 = hostEntry->h_addr[0];
-			ip_part2 = hostEntry->h_addr[1];
-			ip_part3 = hostEntry->h_addr[2];
-			ip_part4 = hostEntry->h_addr[3];
-			ip = ip_part1;
-			ip = (ip << 8) + ip_part2;
-			ip = (ip << 8) + ip_part3;
-			ip = (ip << 8) + ip_part4;
-		}
-	}
-
-	return ip;
+    return ip;
 }
 
 Boolean System::sameHost (const String & hostName)
@@ -447,44 +438,47 @@ Boolean System::sameHost (const String & hostName)
     return true;
 }
 
-Boolean System::resolveHostNameAtDNS(const char* hostname, Uint32 * resolvedNameIP)
+Boolean System::resolveHostNameAtDNS(
+    const char* hostname,
+    Uint32* resolvedNameIP)
 {
     // ask the DNS for hostname resolution to IP address
     // this can mean a time delay for as long as the DNS
-    // takes to answer    
+    // takes to answer
     struct hostent* hostEntry;
 
 #if defined(PEGASUS_OS_LINUX)
-        char hostEntryBuffer[8192];
-        struct hostent hostEntryStruct;
-        int hostEntryErrno;
+    char hostEntryBuffer[8192];
+    struct hostent hostEntryStruct;
+    int hostEntryErrno;
 
-        gethostbyname_r(
-            hostname,
-            &hostEntryStruct,
-            hostEntryBuffer,
-            sizeof(hostEntryBuffer),
-            &hostEntry,
-            &hostEntryErrno);
+    gethostbyname_r(
+        hostname,
+        &hostEntryStruct,
+        hostEntryBuffer,
+        sizeof(hostEntryBuffer),
+        &hostEntry,
+        &hostEntryErrno);
 #elif defined(PEGASUS_OS_SOLARIS)
-        char hostEntryBuffer[8192];
-        struct hostent hostEntryStruct;
-        int hostEntryErrno;
+    char hostEntryBuffer[8192];
+    struct hostent hostEntryStruct;
+    int hostEntryErrno;
 
-        hostEntry = gethostbyname_r(
-            (char *)hostname,
-            &hostEntryStruct,
-            hostEntryBuffer,
-            sizeof(hostEntryBuffer),
-            &hostEntryErrno);
+    hostEntry = gethostbyname_r(
+        (char *)hostname,
+        &hostEntryStruct,
+        hostEntryBuffer,
+        sizeof(hostEntryBuffer),
+        &hostEntryErrno);
 #else
-        hostEntry = gethostbyname((char *)hostname);
+    hostEntry = gethostbyname((char *)hostname);
 #endif
     if (hostEntry == 0)
     {
         // error, couldn't resolve the hostname to an ip address
         return false;
-    } else
+    }
+    else
     {
         unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
         ip_part1 = hostEntry->h_addr[0];
@@ -501,30 +495,31 @@ Boolean System::resolveHostNameAtDNS(const char* hostname, Uint32 * resolvedName
 
 Boolean System::resolveIPAtDNS(Uint32 ip_addr, Uint32 * resolvedIP)
 {
-        struct hostent *entry;
+    struct hostent *entry;
 
 #ifndef PEGASUS_OS_OS400
-        entry = gethostbyaddr((const char *) &ip_addr, sizeof(ip_addr), AF_INET);
+    entry = gethostbyaddr((const char *) &ip_addr, sizeof(ip_addr), AF_INET);
 #else
-		entry = gethostbyaddr((char *) &ip_addr, sizeof(ip_addr), AF_INET);
+    entry = gethostbyaddr((char *) &ip_addr, sizeof(ip_addr), AF_INET);
 #endif
-		if (entry == 0)
-		{
-			// error, couldn't resolve the ip
-			return false;
-		} else
-		{
-			unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
-			ip_part1 = entry->h_addr[0];
-			ip_part2 = entry->h_addr[1];
-			ip_part3 = entry->h_addr[2];
-			ip_part4 = entry->h_addr[3];
-			*resolvedIP = ip_part1;
-			*resolvedIP = (*resolvedIP << 8) + ip_part2;
-			*resolvedIP = (*resolvedIP << 8) + ip_part3;
-			*resolvedIP = (*resolvedIP << 8) + ip_part4;
-		}
-        return true;
+    if (entry == 0)
+    {
+        // error, couldn't resolve the ip
+        return false;
+    }
+    else
+    {
+        unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
+        ip_part1 = entry->h_addr[0];
+        ip_part2 = entry->h_addr[1];
+        ip_part3 = entry->h_addr[2];
+        ip_part4 = entry->h_addr[3];
+        *resolvedIP = ip_part1;
+        *resolvedIP = (*resolvedIP << 8) + ip_part2;
+        *resolvedIP = (*resolvedIP << 8) + ip_part3;
+        *resolvedIP = (*resolvedIP << 8) + ip_part4;
+    }
+    return true;
 }
 
 
@@ -545,7 +540,7 @@ Boolean System::isLocalHost(const String &hostName)
     //       should define their platform here,
     //        as this is the superior way to work
 #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_AIX)
-    
+
     struct in_addr inaddr;
     // if inet_aton failed(return=0),
     // we do not have a valip IP address (x.x.x.x)
@@ -561,16 +556,17 @@ Boolean System::isLocalHost(const String &hostName)
     //       A better solution would be to use inet_aton() or equivalent, as
     //       inet_addr() is now considered "obsolete".
     // Note: inet_aton() not yet supported on all Pegasus platforms
-	tmp_addr = inet_addr((char *) cc_hostname);
+    tmp_addr = inet_addr((char *) cc_hostname);
     if (tmp_addr == 0xFFFFFFFF) hostNameIsIPNotation = false;
     else hostNameIsIPNotation = true;
 #endif
-    
+
     if (!hostNameIsIPNotation)  // if hostname is not an IP address
-	{
+    {
         // localhost ?
         if (String::equalNoCase(hostName,String("localhost"))) return true;
-        char* localHostName = strdup( (const char *) System::getHostName ().getCString() );
+        char* localHostName =
+            strdup((const char*) System::getHostName().getCString());
         // given hostname equals what system returns as local hostname ?
         if (String::equalNoCase(hostName,localHostName)) return true;
         Uint32 hostIP;
@@ -582,9 +578,11 @@ Boolean System::isLocalHost(const String &hostName)
         // need to check if the local hosts name is possibly
         // registered at the DNS with the IP address equal resolvedNameIP
         Uint32 localHostIP;
-        if (!System::resolveHostNameAtDNS(localHostName, &localHostIP)) return false;
+        if (!System::resolveHostNameAtDNS(localHostName, &localHostIP))
+            return false;
         if (localHostIP == hostIP) return true;
-    } else
+    }
+    else
     {   // hostname is an IP address
         // 127.0.0.1 is always the loopback
         // inet_addr returns network byte order
@@ -594,11 +592,14 @@ Boolean System::isLocalHost(const String &hostName)
         // out of luck so far, lets ask the DNS what our IP is
         // and check against what we got
         Uint32 localHostIP;
-        if (!System::resolveHostNameAtDNS((const char *) System::getHostName().getCString(), &localHostIP)) return false;
+        if (!System::resolveHostNameAtDNS(
+                (const char*) System::getHostName().getCString(), &localHostIP))
+            return false;
         if (localHostIP == tmp_addr) return true;
         // not yet, sometimes resolving the IP address we got against the DNS
         // can solve the problem
-		// casting to (const char *) as (char *) will work as (void *) too, those it fits all platforms
+        // casting to (const char *) as (char *) will work as (void *) too,
+        // those it fits all platforms
         Uint32 hostIP;
         if (!System::resolveIPAtDNS(tmp_addr, &hostIP)) return false;
         if (hostIP == localHostIP) return true;

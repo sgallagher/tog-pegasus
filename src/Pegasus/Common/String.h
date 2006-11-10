@@ -271,10 +271,10 @@ public:
             callers stack as a temporary object. The deletion is therefore
             also the responsibility of the Compiler. The Compiler may cause
             it to be deleted at anytime after the return. Typically it is
-            done at the closeof the next scope. When it is deleted the 
-            "const char *p" above will become a dangling pointer. 
+            done at the closeof the next scope. When it is deleted the
+            "const char *p" above will become a dangling pointer.
 
-	    The correct usage to achieve the "const char * p" is
+            The correct usage to achieve the "const char * p" is
             as follows:
 
               String str = "hello";

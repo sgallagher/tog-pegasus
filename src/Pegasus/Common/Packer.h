@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Michael E. Brasher
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _Pegasus_Common_Packer_h
@@ -89,23 +87,23 @@ public:
     static void unpackSize(const Buffer& out, Uint32& pos, Uint32& x);
 
     static void unpackBoolean(
-	Buffer& in, Uint32& pos, Boolean* x, Uint32 n);
+        Buffer& in, Uint32& pos, Boolean* x, Uint32 n);
     static void unpackUint8(
-	Buffer& in, Uint32& pos, Uint8* x, Uint32 n);
+        Buffer& in, Uint32& pos, Uint8* x, Uint32 n);
     static void unpackUint16(
-	Buffer& in, Uint32& pos, Uint16* x, Uint32 n);
+        Buffer& in, Uint32& pos, Uint16* x, Uint32 n);
     static void unpackUint32(
-	Buffer& in, Uint32& pos, Uint32* x, Uint32 n);
+        Buffer& in, Uint32& pos, Uint32* x, Uint32 n);
     static void unpackUint64(
-	Buffer& in, Uint32& pos, Uint64* x, Uint32 n);
+        Buffer& in, Uint32& pos, Uint64* x, Uint32 n);
     static void unpackReal32(
-	Buffer& in, Uint32& pos, Real32* x, Uint32 n);
+        Buffer& in, Uint32& pos, Real32* x, Uint32 n);
     static void unpackReal64(
-	Buffer& in, Uint32& pos, Real64* x, Uint32 n);
+        Buffer& in, Uint32& pos, Real64* x, Uint32 n);
     static void unpackChar16(
-	Buffer& in, Uint32& pos, Char16* x, Uint32 n);
+        Buffer& in, Uint32& pos, Char16* x, Uint32 n);
     static void unpackString(
-	Buffer& in, Uint32& pos, String* x, Uint32 n);
+        Buffer& in, Uint32& pos, String* x, Uint32 n);
 
     static bool isLittleEndian();
 
@@ -150,7 +148,7 @@ inline void Packer::packUint8(Buffer& out, Uint8 x)
 inline void Packer::packUint16(Buffer& out, Uint16 x)
 {
     if (isLittleEndian())
-	x = Packer::swapUint16(x);
+        x = Packer::swapUint16(x);
 
     out.append((char*)&x, sizeof(x));
 }
@@ -158,7 +156,7 @@ inline void Packer::packUint16(Buffer& out, Uint16 x)
 inline void Packer::packUint32(Buffer& out, Uint32 x)
 {
     if (isLittleEndian())
-	x = Packer::swapUint32(x);
+        x = Packer::swapUint32(x);
 
     out.append((char*)&x, sizeof(x));
 }
@@ -166,7 +164,7 @@ inline void Packer::packUint32(Buffer& out, Uint32 x)
 inline void Packer::packUint64(Buffer& out, Uint64 x)
 {
     if (isLittleEndian())
-	x = Packer::swapUint64(x);
+        x = Packer::swapUint64(x);
 
     out.append((char*)&x, sizeof(x));
 }
@@ -257,17 +255,17 @@ inline void Packer::unpackChar16(
 inline Uint16 Packer::swapUint16(Uint16 x)
 {
     return (Uint16)(
-	(((Uint16)(x) & 0x00ffU) << 8) | 
-	(((Uint16)(x) & 0xff00U) >> 8));
+        (((Uint16)(x) & 0x00ffU) << 8) |
+        (((Uint16)(x) & 0xff00U) >> 8));
 }
 
 inline Uint32 Packer::swapUint32(Uint32 x)
 {
     return (Uint32)(
-	(((Uint32)(x) & 0x000000ffUL) << 24) |
-	(((Uint32)(x) & 0x0000ff00UL) <<  8) |
-	(((Uint32)(x) & 0x00ff0000UL) >>  8) |
-	(((Uint32)(x) & 0xff000000UL) >> 24));
+        (((Uint32)(x) & 0x000000ffUL) << 24) |
+        (((Uint32)(x) & 0x0000ff00UL) <<  8) |
+        (((Uint32)(x) & 0x00ff0000UL) >>  8) |
+        (((Uint32)(x) & 0xff000000UL) >> 24));
 }
 
 inline void Packer::swap(Uint8& x, Uint8& y)
@@ -281,8 +279,8 @@ inline Uint64 Packer::swapUint64(Uint64 x)
 {
     union
     {
-	Uint64 x;
-	Uint8 bytes[8];
+        Uint64 x;
+        Uint8 bytes[8];
     }
     u;
 

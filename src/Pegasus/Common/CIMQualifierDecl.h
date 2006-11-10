@@ -107,8 +107,8 @@ public:
         @exception UninitializedObjectException If the qualifier name is null.
     */
     CIMQualifierDecl(
-        const CIMName& name, 
-        const CIMValue& value, 
+        const CIMName& name,
+        const CIMValue& value,
         const CIMScope & scope,
         const CIMFlavor & flavor = CIMFlavor (CIMFlavor::DEFAULTS),
         Uint32 arraySize = 0);
@@ -205,7 +205,7 @@ public:
         @return True if the object has not been initialized, false otherwise.
     */
     Boolean isUninitialized() const;
-    
+
     /**
         Compares the qualifier declaration with another qualifier declaration.
         @param x The CIMConstQualifierDecl to be compared.
@@ -299,8 +299,8 @@ public:
         @exception UninitializedObjectException If the qualifier name is null.
     */
     CIMConstQualifierDecl(
-        const CIMName& name, 
-        const CIMValue& value, 
+        const CIMName& name,
+        const CIMValue& value,
         const CIMScope & scope,
         const CIMFlavor & flavor = CIMFlavor (CIMFlavor::DEFAULTS),
         Uint32 arraySize = 0);

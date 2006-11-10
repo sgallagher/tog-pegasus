@@ -42,12 +42,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// the HPUX dynamic library load and unload routines do not keep a reference 
-// count. this implies that if a library were loaded multiple times, a single 
+// the HPUX dynamic library load and unload routines do not keep a reference
+// count. this implies that if a library were loaded multiple times, a single
 // unload will release the library from the process thereby potentially leaving
-// dangling references behind. this is a tenative implementation that 
+// dangling references behind. this is a tenative implementation that
 // encapsulates this behavior from users of the DynamicLibrary object. the goal
-// release the library only after an equal number of loads and unloads have 
+// release the library only after an equal number of loads and unloads have
 // occured.
 
 static Array<Pair<DynamicLibrary::DynamicLibraryHandle, int> > _references;
@@ -85,7 +85,7 @@ static Uint32 _decrement_handle(DynamicLibrary::DynamicLibraryHandle handle)
         {
             Uint32 n = --_references[i].second;
 
-            if(n == 0)
+            if (n == 0)
             {
                 _references.remove(i);
             }
@@ -133,7 +133,7 @@ Boolean DynamicLibrary::_load()
     }
 
     PEG_METHOD_EXIT();
-    return(isLoaded());
+    return isLoaded();
 }
 
 void DynamicLibrary::_unload()

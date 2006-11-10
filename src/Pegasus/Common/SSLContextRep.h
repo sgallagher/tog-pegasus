@@ -29,16 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company ( nagaraja_boranna@hp.com )
-//
-// Modified By: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4422
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_HAS_SSL
-#define OPENSSL_NO_KRB5 1 
+#define OPENSSL_NO_KRB5 1
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <openssl/rand.h>
@@ -66,7 +60,7 @@ public:
 class SSLContextRep
 {
     /*
-    SSL locking callback function. It is needed to perform locking on 
+    SSL locking callback function. It is needed to perform locking on
     shared data structures.
 
     This function needs access to variable ssl_locks.
@@ -117,7 +111,7 @@ public:
     String getKeyPath() const;
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-	String getTrustStoreUserName() const;
+    String getTrustStoreUserName() const;
 #endif
 
     String getCRLPath() const;
@@ -137,8 +131,8 @@ private:
     Boolean _verifyPrivateKey(SSL_CTX *ctx, const String& keyPath);
 
     /*
-    Initialize the SSL locking environment. 
-         
+    Initialize the SSL locking environment.
+
     This function sets the locking callback functions.
     */
     static void init_ssl();

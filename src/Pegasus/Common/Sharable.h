@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Eger (dteger@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Sharable_h
@@ -46,9 +41,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** 
-    The Sharable class implements a simple reference counting scheme. 
-    The static Inc() method increments the reference count member. 
+/**
+    The Sharable class implements a simple reference counting scheme.
+    The static Inc() method increments the reference count member.
     The static Dec() method decrements the reference count and deletes
     the object when the reference count becomes zero.
 
@@ -63,7 +58,7 @@ public:
 
     virtual ~Sharable();
 
-    friend void Inc(Sharable* sharable); 
+    friend void Inc(Sharable* sharable);
 
     friend void Dec(Sharable* sharable);
 
@@ -78,9 +73,9 @@ inline void Inc(Sharable* x)
 {
     if (x)
     {
-	// A sharable object should never be incremented from zero.
-	PEGASUS_DEBUG_ASSERT(x->_ref.get());
-	x->_ref++;
+        // A sharable object should never be incremented from zero.
+        PEGASUS_DEBUG_ASSERT(x->_ref.get());
+        x->_ref++;
     }
 }
 

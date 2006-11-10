@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ResponseHandler.h"
@@ -127,9 +123,9 @@ ResponseHandler::~ResponseHandler()
     _deleteRep(this);
 }
 
-OperationContext ResponseHandler::getContext(void) const
+OperationContext ResponseHandler::getContext() const
 {
-    return(_getRep(this)->getContext());
+    return _getRep(this)->getContext();
 }
 
 void ResponseHandler::setContext(const OperationContext & context)

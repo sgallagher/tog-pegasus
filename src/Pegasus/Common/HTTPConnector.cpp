@@ -36,7 +36,7 @@
 #include <iostream>
 #include "Constants.h"
 #include "Socket.h"
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 #include "Socket.h"
 #include "TLS.h"
 #include "HTTPConnector.h"

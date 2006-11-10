@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chuck Carmack (carmack@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ResponseHandlerRep.h"
@@ -45,13 +43,11 @@ ResponseHandlerRep::ResponseHandlerRep()
 
 ResponseHandlerRep::~ResponseHandlerRep()
 {
-
 }
 
-ResponseHandlerRep::ResponseHandlerRep(const ResponseHandlerRep& x) : 
-    _context(x._context)
+ResponseHandlerRep::ResponseHandlerRep(const ResponseHandlerRep& x)
+    : _context(x._context)
 {
-
 }
 
 OperationContext ResponseHandlerRep::getContext() const

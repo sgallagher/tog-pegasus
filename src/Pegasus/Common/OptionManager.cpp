@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Karl Schopmeyer(k.schopmeyer@opengroup.org)
-//                 June 2001 - Extend help and print to include help description
-//                 Feb 2002 - ad IsTrue
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdlib>
@@ -91,16 +82,16 @@ OptionManager::~OptionManager()
     // Delete all options in the list:
 
     for (Uint32 i = 0; i < _options.size(); i++)
-	delete _options[i];
+        delete _options[i];
 }
 
 void OptionManager::registerOption(Option* option)
 {
     if (!option)
-	throw NullPointer();
+        throw NullPointer();
 
     if (lookupOption(option->getOptionName()))
-	throw OMDuplicateOption(option->getOptionName());
+        throw OMDuplicateOption(option->getOptionName());
 
     _options.append(option);
 }
@@ -110,132 +101,135 @@ void OptionManager::registerOptions(OptionRow* optionRow, Uint32 numOptions)
 {
     for (Uint32 i = 0; i < numOptions; i++)
     {
-	// Get option name:
+        // Get option name:
 
-	if (!optionRow[i].optionName)
-	    throw NullPointer();
+        if (!optionRow[i].optionName)
+            throw NullPointer();
 
-	String optionName = optionRow[i].optionName;
+        String optionName = optionRow[i].optionName;
 
-	// Get default value:
+        // Get default value:
 
-	String defaultValue;
+        String defaultValue;
 
-	if (optionRow[i].defaultValue)
-	    defaultValue = optionRow[i].defaultValue;
+        if (optionRow[i].defaultValue)
+            defaultValue = optionRow[i].defaultValue;
 
-	// Get the required flag:
+        // Get the required flag:
 
-	Boolean required = optionRow[i].required != 0;
+        Boolean required = optionRow[i].required != 0;
 
-	// Get the type:
+        // Get the type:
 
-	Option::Type type = optionRow[i].type;
+        Option::Type type = optionRow[i].type;
 
-	// Get the domain:
+        // Get the domain:
 
-	Array<String> domain;
+        Array<String> domain;
 
-	if (optionRow[i].domain)
-	{
-	    Uint32 domainSize = optionRow[i].domainSize;
+        if (optionRow[i].domain)
+        {
+            Uint32 domainSize = optionRow[i].domainSize;
 
-	    for (Uint32 j = 0; j < domainSize; j++)
-		domain.append(optionRow[i].domain[j]);
-	}
+            for (Uint32 j = 0; j < domainSize; j++)
+                domain.append(optionRow[i].domain[j]);
+        }
 
-	// Get commandLineOptionName:
+        // Get commandLineOptionName:
 
-	String commandLineOptionName;
+        String commandLineOptionName;
 
-	if (optionRow[i].commandLineOptionName)
-	    commandLineOptionName = optionRow[i].commandLineOptionName;
+        if (optionRow[i].commandLineOptionName)
+            commandLineOptionName = optionRow[i].commandLineOptionName;
 
-	// get optionHelp Message String
+        // get optionHelp Message String
 
-	String optionHelpMessage;
+        String optionHelpMessage;
 
-	if (optionRow[i].optionHelpMessage)
-	    optionHelpMessage = optionRow[i].optionHelpMessage;
+        if (optionRow[i].optionHelpMessage)
+            optionHelpMessage = optionRow[i].optionHelpMessage;
 
-	// Add the option:
+        // Add the option:
 
-	Option* option = new Option(
-	    optionName,
-	    defaultValue,
-	    required,
-	    type,
-	    domain,
-	    commandLineOptionName,
-	    optionHelpMessage);
+        Option* option = new Option(
+            optionName,
+            defaultValue,
+            required,
+            type,
+            domain,
+            commandLineOptionName,
+            optionHelpMessage);
 
-	registerOption(option);
+        registerOption(option);
     }
 }
 
-void OptionManager::mergeCommandLine(int& argc, char**& argv, Boolean abortOnErr)
+void OptionManager::mergeCommandLine(
+    int& argc,
+    char**& argv,
+    Boolean abortOnErr)
 {
     for (int i = 0; i < argc; )
     {
-	// Check for -option:
+        // Check for -option:
 
-	const char* arg = argv[i];
+        const char* arg = argv[i];
 
-	if (*arg == '-')
-	{
-	    // Look for the option:
+        if (*arg == '-')
+        {
+            // Look for the option:
 
-	    Option* option = _lookupOptionByCommandLineOptionName(arg + 1);
+            Option* option = _lookupOptionByCommandLineOptionName(arg + 1);
 
-	    if (!option)
-	    {
-		if (abortOnErr)
+            if (!option)
+            {
+                if (abortOnErr)
                 {
                     throw OMMBadCmdLineOption(arg);
                 }
                 else
                 {
                     i++;
-    		    continue;
+                    continue;
                 }
-	    }
+            }
 
-	    // Get the option argument if any:
+            // Get the option argument if any:
 
-	    const char* optionArgument = "true";
+            const char* optionArgument = "true";
 
-	    if (option->getType() != Option::BOOLEAN)
-	    {
-		if (i + 1 == argc)
-		    throw OMMissingCommandLineOptionArgument(arg);
+            if (option->getType() != Option::BOOLEAN)
+            {
+                if (i + 1 == argc)
+                    throw OMMissingCommandLineOptionArgument(arg);
 
-		optionArgument = argv[i + 1];
-	    }
+                optionArgument = argv[i + 1];
+            }
 
-	    // Validate the value:
+            // Validate the value:
 
-	    if (!option->isValid(optionArgument))
-		throw OMInvalidOptionValue(arg, optionArgument);
+            if (!option->isValid(optionArgument))
+                throw OMInvalidOptionValue(arg, optionArgument);
 
-	    // Set the value:
+            // Set the value:
 
-	    option->setValue(optionArgument);
+            option->setValue(optionArgument);
 
-	    // Remove the option and its argument from the command line:
+            // Remove the option and its argument from the command line:
 
-	    if (option->getType() == Option::BOOLEAN)
-	    {
-		memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
-		argc--;
-	    }
-	    else
-	    {
-		memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
-		argc -= 2;
-	    }
-	}
-	else
-	    i++;
+            if (option->getType() == Option::BOOLEAN)
+            {
+                memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
+                argc--;
+            }
+            else
+            {
+                memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
+                argc -= 2;
+            }
+        }
+        else
+            i++;
     }
 }
 
@@ -249,7 +243,7 @@ void OptionManager::mergeFile(const String& fileName)
 #endif
 
     if (!is)
-	throw NoSuchFile(fileName);
+        throw NoSuchFile(fileName);
 
     // For each line of the file:
 
@@ -257,128 +251,128 @@ void OptionManager::mergeFile(const String& fileName)
 
     for (Uint32 lineNumber = 1; GetLine(is, line); lineNumber++)
     {
-	// -- Get the identifier and value:
+        // -- Get the identifier and value:
 
-	if (line[0] == '#')
-	    continue;
+        if (line[0] == '#')
+            continue;
 
-	// Skip leading whitespace:
+        // Skip leading whitespace:
 
-	const Char16* p = line.getChar16Data();
+        const Char16* p = line.getChar16Data();
 
-	while (*p && isspace(*p))
-	    p++;
+        while (*p && isspace(*p))
+            p++;
 
-	if (!*p)
-	    continue;
+        if (!*p)
+            continue;
 
-	if (*p == '#')
-	    continue;
+        if (*p == '#')
+            continue;
 
-	// Get the identifier:
+        // Get the identifier:
 
-	String ident;
+        String ident;
 
-	if (!(isalpha(*p) || *p == '_'))
-	    throw OMConfigFileSyntaxError(fileName, lineNumber);
+        if (!(isalpha(*p) || *p == '_'))
+            throw OMConfigFileSyntaxError(fileName, lineNumber);
 
-	ident.append(*p++);
+        ident.append(*p++);
 
-	while (isalnum(*p) || *p == '_')
-	    ident.append(*p++);
+        while (isalnum(*p) || *p == '_')
+            ident.append(*p++);
 
-	// Skip whitespace after identifier:
+        // Skip whitespace after identifier:
 
-	while (*p && isspace(*p))
-	    p++;
+        while (*p && isspace(*p))
+            p++;
 
-	// Expect an equal sign:
+        // Expect an equal sign:
 
-	if (*p != '=')
-	    throw OMConfigFileSyntaxError(fileName, lineNumber);
-	p++;
+        if (*p != '=')
+            throw OMConfigFileSyntaxError(fileName, lineNumber);
+        p++;
 
-	// Skip whitespace after equal sign:
+        // Skip whitespace after equal sign:
 
-	while (*p && isspace(*p))
-	    p++;
+        while (*p && isspace(*p))
+            p++;
 
-	// Expect open quote:
+        // Expect open quote:
 
-	if (*p != '"')
-	    throw OMConfigFileSyntaxError(fileName, lineNumber);
-	p++;
+        if (*p != '"')
+            throw OMConfigFileSyntaxError(fileName, lineNumber);
+        p++;
 
-	// Get the value:
+        // Get the value:
 
-	String value;
+        String value;
 
-	while (*p && *p != '"')
-	{
-	    if (*p == '\\')
-	    {
-		p++;
+        while (*p && *p != '"')
+        {
+            if (*p == '\\')
+            {
+                p++;
 
-		switch (*p)
-		{
-		    case 'n':
-			value.append('\n');
-			break;
+                switch (*p)
+                {
+                    case 'n':
+                        value.append('\n');
+                        break;
 
-		    case 'r':
-			value.append('\r');
-			break;
+                    case 'r':
+                        value.append('\r');
+                        break;
 
-		    case 't':
-			value.append('\t');
-			break;
+                    case 't':
+                        value.append('\t');
+                        break;
 
-		    case 'f':
-			value.append('\f');
-			break;
+                    case 'f':
+                        value.append('\f');
+                        break;
 
-		    case '"':
-			value.append('"');
-			break;
+                    case '"':
+                        value.append('"');
+                        break;
 
-		    case '\0':
-			throw OMConfigFileSyntaxError(fileName, lineNumber);
+                    case '\0':
+                        throw OMConfigFileSyntaxError(fileName, lineNumber);
 
-		    default:
-			value.append(*p);
-		}
-		p++;
-	    }
-	    else
-		value.append(*p++);
-	}
+                    default:
+                        value.append(*p);
+                }
+                p++;
+            }
+            else
+                value.append(*p++);
+        }
 
 
-	// Expect close quote:
+        // Expect close quote:
 
-	if (*p != '"')
-	    throw OMConfigFileSyntaxError(fileName, lineNumber);
-	p++;
+        if (*p != '"')
+            throw OMConfigFileSyntaxError(fileName, lineNumber);
+        p++;
 
-	// Skip whitespace through end of line:
+        // Skip whitespace through end of line:
 
-	while (*p && isspace(*p))
-	    p++;
+        while (*p && isspace(*p))
+            p++;
 
-	if (*p)
-	    throw OMConfigFileSyntaxError(fileName, lineNumber);
+        if (*p)
+            throw OMConfigFileSyntaxError(fileName, lineNumber);
 
-	// Now that we have the identifier and value, merge it:
+        // Now that we have the identifier and value, merge it:
 
-	Option* option = (Option*)lookupOption(ident);
+        Option* option = (Option*)lookupOption(ident);
 
-	if (!option)
-	    throw OMUnrecognizedConfigFileOption(ident);
+        if (!option)
+            throw OMUnrecognizedConfigFileOption(ident);
 
-	if (!option->isValid(value))
-	    throw OMInvalidOptionValue(ident, value);
+        if (!option->isValid(value))
+            throw OMInvalidOptionValue(ident, value);
 
-	option->setValue(value);
+        option->setValue(value);
     }
 }
 
@@ -386,10 +380,10 @@ void OptionManager::checkRequiredOptions() const
 {
     for (Uint32 i = 0; i < _options.size(); i++)
     {
-	const Option* option = _options[i];
+        const Option* option = _options[i];
 
-	if (option->getRequired() && !option->isResolved())
-	    throw OMMissingRequiredOptionValue(option->getOptionName());
+        if (option->getRequired() && !option->isResolved())
+            throw OMMissingRequiredOptionValue(option->getOptionName());
     }
 }
 
@@ -397,8 +391,8 @@ const Option* OptionManager::lookupOption(const String& name) const
 {
     for (Uint32 i = 0; i < _options.size(); i++)
     {
-	if (_options[i]->getOptionName() == name)
-	    return _options[i];
+        if (_options[i]->getOptionName() == name)
+            return _options[i];
     }
 
     return 0;
@@ -409,34 +403,37 @@ Boolean OptionManager::lookupValue(const String& name, String& value) const
     const Option* option = lookupOption(name);
 
     if (!option)
-	return false;
+        return false;
 
     value = option->getValue();
     return true;
 }
 
-Boolean OptionManager::lookupIntegerValue(const String& name, Uint32& value) const
+Boolean OptionManager::lookupIntegerValue(
+    const String& name,
+    Uint32& value) const
 {
     //ATTN: KS P1 7 May 2002 - Add test for Integer type in om table.
     String valueString;
     if (lookupValue(name, valueString))
     {
-	value = atol(valueString.getCString());
-	return true;
+        value = atol(valueString.getCString());
+        return true;
     }
     else
     {
-	return false;
+        return false;
     }
 
 }
 
-Boolean OptionManager::valueEquals(const String& name, const String& value)
-    const
+Boolean OptionManager::valueEquals(
+    const String& name,
+    const String& value) const
 {
     String optionString;
 
-    return (lookupValue(name, optionString) && optionString == value) ? true : false;
+    return (lookupValue(name, optionString) && optionString == value);
 }
 
 Boolean OptionManager::isTrue(const String& name) const
@@ -444,17 +441,19 @@ Boolean OptionManager::isTrue(const String& name) const
     //ATTN: KS 7 May 2002 P3 Add test to confirm boolean type
     return valueEquals(name, "true") ? true: false;
 }
+
 /*  ATTN: P3 MB 2001 Buried this one for the moment to think about it.
-Uint32 OptionManager::isStringInOptionMask(const String& option,
-					   const String& entry)
+Uint32 OptionManager::isStringInOptionMask(
+    const String& option,
+    const String& entry)
 {
     String optionString;
 
     if (lookupValue(name, optionString) && optionString == value)
-	if (optionString.find(entry)
-	    return 1;
+        if (optionString.find(entry)
+            return 1;
     else
-	return PEG_NOT_FOUND;
+        return PEG_NOT_FOUND;
 }
 */
 
@@ -462,8 +461,8 @@ Option* OptionManager::_lookupOptionByCommandLineOptionName(const String& name)
 {
     for (Uint32 i = 0; i < _options.size(); i++)
     {
-	if (_options[i]->getCommandLineOptionName() == name)
-	    return _options[i];
+        if (_options[i]->getCommandLineOptionName() == name)
+            return _options[i];
     }
 
     return 0;
@@ -473,10 +472,10 @@ void OptionManager::print() const
 {
     for (Uint32 i = 0; i < _options.size(); i++)
     {
-	Option* option = _options[i];
-	cout << option->getOptionName() << "=\"";
-	cout << option->getValue() << "\" ";
-	cout << option->getOptionHelpMessage() << "\n";
+        Option* option = _options[i];
+        cout << option->getOptionName() << "=\"";
+        cout << option->getValue() << "\" ";
+        cout << option->getOptionHelpMessage() << "\n";
     }
     cout << endl;
 }
@@ -485,18 +484,20 @@ void OptionManager::printOptionsHelp() const
 {
     for (Uint32 i = 0; i < _options.size(); i++)
     {
-	Option* option = _options[i];
-	cout << " -";
-	cout << option->getCommandLineOptionName() << "  ";
-	cout << option->getOptionName() << ". ";
-	cout << option->getOptionHelpMessage();
+        Option* option = _options[i];
+        cout << " -";
+        cout << option->getCommandLineOptionName() << "  ";
+        cout << option->getOptionName() << ". ";
+        cout << option->getOptionHelpMessage();
         cout << ". Default(" << option->getDefaultValue() << ")\n";
     }
     cout << endl;
 
 }
 
-void OptionManager::printOptionsHelpTxt(const String& header, const String& trailer) const
+void OptionManager::printOptionsHelpTxt(
+    const String& header,
+    const String& trailer) const
 {
     cout << "\n" << header << "\n";
     printOptionsHelp();
@@ -529,7 +530,7 @@ Option::Option(
     _resolved(false)
 {
     if (!isValid(_value))
-	throw OMInvalidOptionValue(_optionName, _value);
+        throw OMInvalidOptionValue(_optionName, _value);
 }
 
 Option::Option(const Option& x)
@@ -555,14 +556,14 @@ Option& Option::operator=(const Option& x)
 {
     if (this != &x)
     {
-	_optionName = x._optionName;
-	_defaultValue = x._defaultValue;
-	_value = x._value;
-	_required = x._required;
-	_type = x._type;
-	_domain = x._domain;
-	_commandLineOptionName = x._commandLineOptionName;
-	_optionHelpMessage = x._optionHelpMessage;
+        _optionName = x._optionName;
+        _defaultValue = x._defaultValue;
+        _value = x._value;
+        _required = x._required;
+        _type = x._type;
+        _domain = x._domain;
+        _commandLineOptionName = x._commandLineOptionName;
+        _optionHelpMessage = x._optionHelpMessage;
     }
     return *this;
 }
@@ -575,59 +576,59 @@ Boolean Option::isValid(const String& value) const
 
     if (domainSize)
     {
-	Boolean found = false;
+        Boolean found = false;
 
-	for (Uint32 i = 0; i < domainSize; i++)
-	{
-	    if (value == _domain[i])
-		found = true;
-	}
+        for (Uint32 i = 0; i < domainSize; i++)
+        {
+            if (value == _domain[i])
+                found = true;
+        }
 
-	if (!found)
-	    return false;
+        if (!found)
+            return false;
     }
 
     // Check the type:
 
     switch (_type)
     {
-	case BOOLEAN:
-	{
-	    if (value == "true" || value == "false")
-		return true;
+        case BOOLEAN:
+        {
+            if (value == "true" || value == "false")
+                return true;
             else
                 return false;
-	}
+        }
 
-	case STRING:
-	    return true;
+        case STRING:
+            return true;
 
-	case INTEGER:
-	case NATURAL_NUMBER:
-	case WHOLE_NUMBER:
-	{
-	    CString tmp = value.getCString();
-	    char* end = 0;
-	    long x = strtol(tmp, &end, 10);
+        case INTEGER:
+        case NATURAL_NUMBER:
+        case WHOLE_NUMBER:
+        {
+            CString tmp = value.getCString();
+            char* end = 0;
+            long x = strtol(tmp, &end, 10);
 
-	    if (!end || *end != '\0')
-		return false;
+            if (!end || *end != '\0')
+                return false;
 
-	    switch (_type)
-	    {
-		case INTEGER:
-		    return true;
+            switch (_type)
+            {
+                case INTEGER:
+                    return true;
 
-		case NATURAL_NUMBER:
-		    return x >= 1;
+                case NATURAL_NUMBER:
+                    return x >= 1;
 
-		case WHOLE_NUMBER:
-		    return x >= 0;
+                case WHOLE_NUMBER:
+                    return x >= 0;
 
-		default:
-		    break;
-	    }
-	}
+                default:
+                    break;
+            }
+        }
     }
 
     // Unreachable!
@@ -645,11 +646,10 @@ String OMConfigFileSyntaxError::_formatMessage(
 {
     char buffer[32];
     sprintf(buffer, "%d", line);
-	 //l10n
-	 MessageLoaderParms parms("Common.OptionManager.SYNTAX_ERR_CONFIG_FILE",
-	 								 "Syntax error in configuration file: ");
-	 String result = MessageLoader::getMessage(parms);
-    //String result = "Syntax error in configuration file: ";
+    MessageLoaderParms parms(
+        "Common.OptionManager.SYNTAX_ERR_CONFIG_FILE",
+        "Syntax error in configuration file: ");
+    String result = MessageLoader::getMessage(parms);
     result.append(file);
     result.append("(");
     result.append(buffer);

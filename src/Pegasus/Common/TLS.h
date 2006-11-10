@@ -186,10 +186,9 @@ public:
 
 #ifdef PEGASUS_OS_ZOS
     // Return the authenicated user name
-    String getAuthenticatedUser(){ return String(_username); }
-    Boolean isClientAuthenticated(){ return _userAuthenticated; }
-#endif 
-
+    String getAuthenticatedUser() { return String(_username); }
+    Boolean isClientAuthenticated() { return _userAuthenticated; }
+#endif
 
     union {
         SocketHandle _socket;
@@ -200,12 +199,12 @@ private:
     Boolean   _isSecure;
     Uint32    _socketWriteTimeout;
 #ifdef PEGASUS_OS_ZOS
-    
+
     int ATTLS_zOS_query();
     // The user name if authenticated through ATTLS.
     char _username[10];
     Boolean _userAuthenticated;
-#endif 
+#endif
 
 };
 

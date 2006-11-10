@@ -106,8 +106,8 @@ inline void StringRep::ref(const StringRep* rep)
 
 inline void StringRep::unref(const StringRep* rep)
 {
-    if (rep != &StringRep::_emptyRep && 
-	((StringRep*)rep)->refs.decAndTestIfZero())
+    if (rep != &StringRep::_emptyRep &&
+        ((StringRep*)rep)->refs.decAndTestIfZero())
         StringRep::free((StringRep*)rep);
 }
 

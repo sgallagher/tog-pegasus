@@ -163,7 +163,6 @@ String cimStatusCodeToString(
     return MessageLoader::getMessage(parms);
 }
 
-// l10n 
 ContentLanguageList cimStatusCodeToString_Thread(
     String & message,
     CIMStatusCode code)

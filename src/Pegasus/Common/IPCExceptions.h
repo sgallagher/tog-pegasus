@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_IPCExceptions_h
@@ -45,7 +43,7 @@ class PEGASUS_COMMON_LINKAGE IPCException
 {
 public:
     IPCException(ThreadType owner): _owner(owner) { }
-    inline ThreadType get_owner() { return(_owner); }
+    inline ThreadType get_owner() { return _owner; }
 private:
     ThreadType _owner;
 };

@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Amit Arora, IBM (amita@in.ibm.com) (based on PEP101 by David Dillard)
-//
-// Modified By: Amit Arora, IBM (amita@in.ibm.com) for Bug#2168
-//              Amit Arora, IBM (amita@in.ibm.com) for Bug#2480
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AutoPtr_h
@@ -78,7 +71,7 @@ public:
 
     inline AutoPtr<X> get()
     {
-        return(_ref);
+        return _ref;
     }
 
 private:
@@ -97,7 +90,7 @@ public:
 
     inline AutoArrayPtr<X> get()
     {
-        return(_ref);
+        return _ref;
     }
 
 private:
@@ -147,13 +140,13 @@ public:
     {
         if ( this != &a )
             reset(a.release());
-        return(*this);
+        return *this;
     }
 
     inline AutoPtr<X> &operator=(AutoPtrRef<X> &a) throw()
     {
         reset((a.get()).release());
-        return(*this);
+        return *this;
     }
 
     // This method can be used to get the pointer to heap object encapsulated
@@ -164,13 +157,13 @@ public:
     // object of classA.
     inline X *get() const throw()
     {
-        return(_ptr);
+        return _ptr;
     }
 
     // Returns the heap object itself (not the pointer to it)
     inline X &operator*() const throw()
     {
-        return(*_ptr);
+        return *_ptr;
     }
 
     // A very important overloading, which allows you to directly use 'this'
@@ -183,7 +176,7 @@ public:
     // overloading only.
     inline X *operator->() const throw()
     {
-        return(_ptr);
+        return _ptr;
     }
 
     // Relase the ownership of the memory object without deleting it !
@@ -192,7 +185,7 @@ public:
     {
         X *t = _ptr;
         _ptr = 0;
-        return(t);
+        return t;
     }
 
     // Delete the heap object and thus release ownership
@@ -213,12 +206,12 @@ public:
 
     template<class Y> operator AutoPtrRef<Y>() throw()
     {
-        return(AutoPtrRef<Y>(*this));
+        return AutoPtrRef<Y>(*this);
     }
 
     template<class Y> operator AutoPtr<Y>() throw()
     {
-        return(AutoPtr<Y>(release()));
+        return AutoPtr<Y>(release());
     }
 
 private:
@@ -253,36 +246,36 @@ public:
     AutoArrayPtr<X> &operator=(AutoArrayPtr<X>& a) throw()
     {
         reset(a.release());
-        return(*this);
+        return *this;
     }
 
     inline AutoArrayPtr<X> &operator=(AutoArrayPtrRef<X> &a) throw()
     {
-        if ( this != a )
+        if (this != a)
             reset((a.get()).release());
-        return(*this);
+        return *this;
     }
 
     inline X *get() const throw()
     {
-        return(_ptr);
+        return _ptr;
     }
 
     inline X &operator*() const throw()
     {
-        return(*_ptr);
+        return *_ptr;
     }
 
     inline X *operator->() const throw()
     {
-        return(_ptr);
+        return _ptr;
     }
 
     inline X* release() throw()
     {
         X *t = _ptr;
         _ptr = 0;
-        return(t);
+        return t;
     }
 
     inline void reset(X *p = 0) throw()
@@ -303,12 +296,12 @@ public:
 
     template<class Y> operator AutoArrayPtrRef<Y>() throw()
     {
-        return(AutoArrayPtrRef<Y>(*this));
+        return AutoArrayPtrRef<Y>(*this);
     }
 
     template<class Y> operator AutoArrayPtr<Y>() throw()
     {
-        return(AutoArrayPtr<Y>(release()));
+        return AutoArrayPtr<Y>(release());
     }
 
 

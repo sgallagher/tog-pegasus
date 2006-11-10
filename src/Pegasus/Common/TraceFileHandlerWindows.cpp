@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -44,9 +40,9 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
-//   Writes message to file. 
+//   Writes message to file.
 //   Implementation of this function is platform specific
-// 
+//
 //   Note: The current implementation writes the message to the defined file.
 //         Will have to be enhanced to support synchronous write operations to
 //         the same file.
@@ -54,7 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 void TraceFileHandler::handleMessage(
     const char* message,
     const char* fmt,
-    va_list argList) 
+    va_list argList)
 {
     Uint32 retCode;
 
@@ -70,31 +66,25 @@ void TraceFileHandler::handleMessage(
 
         if (retCode < 0)
         {
-	    // Unable to write message to file
-	    // Log message 
-	    //l10n
-	    //Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
-	        //"Unable to write trace message to File $0",_fileName);
-	      Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
-	      	"Common.TraceFileHandlerWindows.UNABLE_TO_WRITE_TRACE_TO_FILE",
-	        "Unable to write trace message to File $0",_fileName);
+            // Unable to write message to file
+            // Log message
+            Logger::put_l(Logger::DEBUG_LOG, System::CIMSERVER, Logger::WARNING,
+                "Common.TraceFileHandlerWindows.UNABLE_TO_WRITE_TRACE_TO_FILE",
+                "Unable to write trace message to File $0", _fileName);
         }
-	else
-	{
+        else
+        {
             fflush(_fileHandle);
         }
     }
     else
     {
-	// Invalid file handle
-	// Log message 
-	//l10n
-	//Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
-            //"Invalid file handle for file $0",_fileName);
-      Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
-      		"Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
-            "Invalid file handle for file $0",_fileName);
+        // Invalid file handle
+        // Log message
+        Logger::put_l(Logger::DEBUG_LOG, System::CIMSERVER, Logger::WARNING,
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0", _fileName);
     }
-} 
+}
 
 PEGASUS_NAMESPACE_END

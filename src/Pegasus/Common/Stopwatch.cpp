@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//      Chip Vincent (cvincent@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 #include "Stopwatch.h"
 
@@ -44,40 +39,40 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-Stopwatch::Stopwatch(void) : _start(0), _stop(0), _total(0)
+Stopwatch::Stopwatch() : _start(0), _stop(0), _total(0)
 {
 }
 
-void Stopwatch::start(void)
+void Stopwatch::start()
 {
     _start = TimeValue::getCurrentTime().toMicroseconds();
 }
 
-void Stopwatch::stop(void)
+void Stopwatch::stop()
 {
     _stop = TimeValue::getCurrentTime().toMicroseconds();
     _total += _stop - _start;
 }
 
-void Stopwatch::reset(void)
+void Stopwatch::reset()
 {
     _start = 0;
     _stop = 0;
     _total = 0;
 }
 
-double Stopwatch::getElapsed(void) const
+double Stopwatch::getElapsed() const
 {
     Sint64 tmp = (Sint64)_total;
-    return((double)tmp / (double)1000000.0);
+    return (double)tmp / (double)1000000.0;
 }
 
-Uint64 Stopwatch::getElapsedUsec(void) const
+Uint64 Stopwatch::getElapsedUsec() const
 {
     return _total;
 }
 
-void Stopwatch::printElapsed(void)
+void Stopwatch::printElapsed()
 {
     PEGASUS_STD(cout) << getElapsed() << " seconds" << PEGASUS_STD(endl);
 }

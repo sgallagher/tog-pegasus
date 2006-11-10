@@ -189,7 +189,7 @@ Uint32 CIMInstance::getPropertyCount() const
 
 Boolean CIMInstance::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMInstance::identical(const CIMConstInstance& x) const
@@ -340,7 +340,7 @@ Uint32 CIMConstInstance::getPropertyCount() const
 
 Boolean CIMConstInstance::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 Boolean CIMConstInstance::identical(const CIMConstInstance& x) const

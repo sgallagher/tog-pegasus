@@ -1020,7 +1020,7 @@ CIMMessageDeserializer::_deserializeCIMGetInstanceRequestMessage(
             propertyList,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1041,7 +1041,7 @@ CIMMessageDeserializer::_deserializeCIMDeleteInstanceRequestMessage(
             instanceName,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1062,7 +1062,7 @@ CIMMessageDeserializer::_deserializeCIMCreateInstanceRequestMessage(
             newInstance,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1093,7 +1093,7 @@ CIMMessageDeserializer::_deserializeCIMModifyInstanceRequestMessage(
             propertyList,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1137,7 +1137,7 @@ CIMMessageDeserializer::_deserializeCIMEnumerateInstancesRequestMessage(
             propertyList,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1154,7 +1154,7 @@ CIMMessageDeserializer::_deserializeCIMEnumerateInstanceNamesRequestMessage(
             CIMName(),             // className
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1182,7 +1182,7 @@ CIMMessageDeserializer::_deserializeCIMExecQueryRequestMessage(
             query,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1234,7 +1234,7 @@ CIMMessageDeserializer::_deserializeCIMAssociatorsRequestMessage(
             propertyList,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1272,7 +1272,7 @@ CIMMessageDeserializer::_deserializeCIMAssociatorNamesRequestMessage(
             resultRole,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1316,7 +1316,7 @@ CIMMessageDeserializer::_deserializeCIMReferencesRequestMessage(
             propertyList,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1346,7 +1346,7 @@ CIMMessageDeserializer::_deserializeCIMReferenceNamesRequestMessage(
             role,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1370,7 +1370,7 @@ CIMMessageDeserializer::_deserializeCIMGetPropertyRequestMessage(
             propertyName,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1396,7 +1396,7 @@ CIMMessageDeserializer::_deserializeCIMSetPropertyRequestMessage(
             newValue.getValue(),
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1432,7 +1432,7 @@ CIMMessageDeserializer::_deserializeCIMInvokeMethodRequestMessage(
             inParameters,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 
@@ -1490,7 +1490,7 @@ CIMMessageDeserializer::_deserializeCIMCreateSubscriptionRequestMessage(
             query,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1541,7 +1541,7 @@ CIMMessageDeserializer::_deserializeCIMModifySubscriptionRequestMessage(
             query,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 //
@@ -1576,7 +1576,7 @@ CIMMessageDeserializer::_deserializeCIMDeleteSubscriptionRequestMessage(
             classNames,
             QueueIdStack());
 
-    return(message);
+    return message;
 }
 
 
@@ -1615,7 +1615,7 @@ CIMMessageDeserializer::_deserializeCIMExportIndicationRequestMessage(
             authType,
             userName);
 
-    return(message);
+    return message;
 }
 
 //
@@ -1654,7 +1654,7 @@ CIMMessageDeserializer::_deserializeCIMProcessIndicationRequestMessage(
             provider,
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -1710,7 +1710,7 @@ CIMMessageDeserializer::_deserializeCIMDisableModuleRequestMessage(
             authType,
             userName);
 
-    return(message);
+    return message;
 }
 
 //
@@ -1736,7 +1736,7 @@ CIMMessageDeserializer::_deserializeCIMEnableModuleRequestMessage(
             authType,
             userName);
 
-    return(message);
+    return message;
 }
 
 //
@@ -1751,7 +1751,7 @@ CIMMessageDeserializer::_deserializeCIMStopAllProvidersRequestMessage(
             String::EMPTY,         // messageId
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -1766,7 +1766,7 @@ CIMMessageDeserializer::_deserializeCIMInitializeProviderRequestMessage(
             String::EMPTY,         // messageId
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -1818,7 +1818,7 @@ CIMMessageDeserializer::_deserializeCIMInitializeProviderAgentRequestMessage(
             subscriptionInitComplete,
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -1850,7 +1850,7 @@ CIMMessageDeserializer::_deserializeCIMNotifyConfigChangeRequestMessage(
             currentValueModified,
             QueueIdStack());        // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -1865,7 +1865,7 @@ CIMMessageDeserializer::_deserializeCIMSubscriptionInitCompleteRequestMessage(
             String::EMPTY,         // messageId
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -1898,7 +1898,7 @@ CIMMessageDeserializer::_deserializeCIMGetInstanceResponseMessage(
             QueueIdStack(),        // queueIds
             cimInstance);
 
-    return(message);
+    return message;
 }
 
 //
@@ -1914,7 +1914,7 @@ CIMMessageDeserializer::_deserializeCIMDeleteInstanceResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -1935,7 +1935,7 @@ CIMMessageDeserializer::_deserializeCIMCreateInstanceResponseMessage(
             QueueIdStack(),        // queueIds
             instanceName);
 
-    return(message);
+    return message;
 }
 
 //
@@ -1951,7 +1951,7 @@ CIMMessageDeserializer::_deserializeCIMModifyInstanceResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -1980,7 +1980,7 @@ CIMMessageDeserializer::_deserializeCIMEnumerateInstancesResponseMessage(
             QueueIdStack(),        // queueIds
             cimNamedInstances);
 
-    return(message);
+    return message;
 }
 
 //
@@ -2009,7 +2009,7 @@ CIMMessageDeserializer::_deserializeCIMEnumerateInstanceNamesResponseMessage(
             QueueIdStack(),        // queueIds
             instanceNames);
 
-    return(message);
+    return message;
 }
 
 //
@@ -2038,7 +2038,7 @@ CIMMessageDeserializer::_deserializeCIMExecQueryResponseMessage(
             QueueIdStack(),        // queueIds
             cimObjects);
 
-    return(message);
+    return message;
 }
 
 //
@@ -2067,7 +2067,7 @@ CIMMessageDeserializer::_deserializeCIMAssociatorsResponseMessage(
             QueueIdStack(),        // queueIds
             cimObjects);
 
-    return(message);
+    return message;
 }
 
 //
@@ -2096,7 +2096,7 @@ CIMMessageDeserializer::_deserializeCIMAssociatorNamesResponseMessage(
             QueueIdStack(),        // queueIds
             objectNames);
 
-    return(message);
+    return message;
 }
 
 //
@@ -2125,7 +2125,7 @@ CIMMessageDeserializer::_deserializeCIMReferencesResponseMessage(
             QueueIdStack(),        // queueIds
             cimObjects);
 
-    return(message);
+    return message;
 }
 
 //
@@ -2154,7 +2154,7 @@ CIMMessageDeserializer::_deserializeCIMReferenceNamesResponseMessage(
             QueueIdStack(),        // queueIds
             objectNames);
 
-    return(message);
+    return message;
 }
 
 //
@@ -2175,7 +2175,7 @@ CIMMessageDeserializer::_deserializeCIMGetPropertyResponseMessage(
             QueueIdStack(),        // queueIds
             value.getValue());
 
-    return(message);
+    return message;
 }
 
 //
@@ -2191,7 +2191,7 @@ CIMMessageDeserializer::_deserializeCIMSetPropertyResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -2228,7 +2228,7 @@ CIMMessageDeserializer::_deserializeCIMInvokeMethodResponseMessage(
             outParameters,
             methodName);
 
-    return(message);
+    return message;
 }
 
 
@@ -2251,7 +2251,7 @@ CIMMessageDeserializer::_deserializeCIMCreateSubscriptionResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -2267,7 +2267,7 @@ CIMMessageDeserializer::_deserializeCIMModifySubscriptionResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -2283,7 +2283,7 @@ CIMMessageDeserializer::_deserializeCIMDeleteSubscriptionResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 
@@ -2306,7 +2306,7 @@ CIMMessageDeserializer::_deserializeCIMExportIndicationResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -2322,7 +2322,7 @@ CIMMessageDeserializer::_deserializeCIMProcessIndicationResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -2353,7 +2353,7 @@ CIMMessageDeserializer::_deserializeCIMDisableModuleResponseMessage(
             QueueIdStack(),        // queueIds
             operationalStatus);
 
-    return(message);
+    return message;
 }
 
 //
@@ -2384,7 +2384,7 @@ CIMMessageDeserializer::_deserializeCIMEnableModuleResponseMessage(
             QueueIdStack(),        // queueIds
             operationalStatus);
 
-    return(message);
+    return message;
 }
 
 //
@@ -2400,7 +2400,7 @@ CIMMessageDeserializer::_deserializeCIMStopAllProvidersResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -2416,7 +2416,7 @@ CIMMessageDeserializer::_deserializeCIMInitializeProviderResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -2432,7 +2432,7 @@ CIMMessageDeserializer::_deserializeCIMInitializeProviderAgentResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -2448,7 +2448,7 @@ CIMMessageDeserializer::_deserializeCIMNotifyConfigChangeResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 //
@@ -2464,7 +2464,7 @@ CIMMessageDeserializer::_deserializeCIMSubscriptionInitCompleteResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    return(message);
+    return message;
 }
 
 PEGASUS_NAMESPACE_END

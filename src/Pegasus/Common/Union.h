@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//              Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Union_h
@@ -48,7 +42,7 @@ struct StringRep;
 
 /** This union is used to represent the values of properties, qualifiers,
     method return values, and method arguments. All of the types
-    defined in CIMType.h are represented by a Union. The 
+    defined in CIMType.h are represented by a Union. The
     Union is used as the the basis for the CIMValue implementation.
 */
 union Union
@@ -69,9 +63,9 @@ union Union
     char _dateTimeValue[sizeof(void*)];
     char _referenceValue[sizeof(void*)];
     char _objectValue[sizeof(void*)];
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT 
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     char _instanceValue[sizeof(void*)];
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT 
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
     char _booleanArray[sizeof(void*)];
     char _uint8Array[sizeof(void*)];
@@ -89,9 +83,9 @@ union Union
     char _dateTimeArray[sizeof(void*)];
     char _referenceArray[sizeof(void*)];
     char _objectArray[sizeof(void*)];
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT 
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     char _instanceArray[sizeof(void*)];
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT 
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     void* _voidPtr;
 };
 

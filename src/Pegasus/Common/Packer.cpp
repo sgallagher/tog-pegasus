@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Michael E. Brasher
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <string.h>
@@ -45,8 +43,8 @@ static bool _constains16BitChars(const String& x)
 
     while (n--)
     {
-	if (Uint16(*p++) > 0xFF)
-	    return true;
+        if (Uint16(*p++) > 0xFF)
+            return true;
     }
 
     return false;
@@ -58,18 +56,18 @@ void Packer::packString(Buffer& out, const String& x)
 
     if (_constains16BitChars(x))
     {
-	packUint8(out, 16);
-	packSize(out, n);
-	packChar16(out, x.getChar16Data(), n);
+        packUint8(out, 16);
+        packSize(out, n);
+        packChar16(out, x.getChar16Data(), n);
     }
     else
     {
-	packUint8(out, 8);
-	packSize(out, n);
-	const Char16* data = x.getChar16Data();
+        packUint8(out, 8);
+        packSize(out, n);
+        const Char16* data = x.getChar16Data();
 
-	for (Uint32 i = 0; i < n; i++)
-	    Packer::packUint8(out, (Uint8)data[i]);
+        for (Uint32 i = 0; i < n; i++)
+            Packer::packUint8(out, (Uint8)data[i]);
     }
 }
 
@@ -85,18 +83,18 @@ void Packer::packSize(Buffer& out, Uint32 x)
 
     if (x > 16383)
     {
-	// Use four bytes for size (tag == '1')
-	packUint32(out, 0x80000000 | x);
+        // Use four bytes for size (tag == '1')
+        packUint32(out, 0x80000000 | x);
     }
     else if (x > 63)
     {
-	// Use two bytes for size.
-	packUint16(out, 0x4000 | Uint16(x));
+        // Use two bytes for size.
+        packUint16(out, 0x4000 | Uint16(x));
     }
     else /* x > 1073741823 */
     {
-	// Use one byte for size.
-	packUint8(out, 0x00 | Uint8(x));
+        // Use one byte for size.
+        packUint8(out, 0x00 | Uint8(x));
     }
 }
 
@@ -117,37 +115,37 @@ void Packer::unpackSize(const Buffer& in, Uint32& pos, Uint32& x)
 
     if (!tag)
     {
-	// One-byte size:
-	x = byte;
+        // One-byte size:
+        x = byte;
     }
     else if (tag == 0x80)
     {
-	// Four-byte size:
-	Uint8 b0 = tag ^ byte;
-	Uint8 b1;
-	Uint8 b2;
-	Uint8 b3;
+        // Four-byte size:
+        Uint8 b0 = tag ^ byte;
+        Uint8 b1;
+        Uint8 b2;
+        Uint8 b3;
 
-	Packer::unpackUint8(in, pos, b1);
-	Packer::unpackUint8(in, pos, b2);
-	Packer::unpackUint8(in, pos, b3);
-	Uint32 tmp = (Uint32(b0) << 24) | 
-	    (Uint32(b1) << 16) | 
-	    (Uint32(b2) <<  8) | 
-	    (Uint32(b3));
+        Packer::unpackUint8(in, pos, b1);
+        Packer::unpackUint8(in, pos, b2);
+        Packer::unpackUint8(in, pos, b3);
+        Uint32 tmp = (Uint32(b0) << 24) |
+            (Uint32(b1) << 16) |
+            (Uint32(b2) <<  8) |
+            (Uint32(b3));
 
-	x = tmp;
+        x = tmp;
     }
     else if (tag == 0x40)
     {
-	// Two-byte size:
-	x = (tag ^ byte) << 8;
-	Packer::unpackUint8(in, pos, byte);
-	x |= byte;
+        // Two-byte size:
+        x = (tag ^ byte) << 8;
+        Packer::unpackUint8(in, pos, byte);
+        x |= byte;
     }
     else
     {
-	PEGASUS_DEBUG_ASSERT(0);
+        PEGASUS_DEBUG_ASSERT(0);
     }
 
     PEGASUS_DEBUG_ASSERT(pos <= in.size());
@@ -161,14 +159,14 @@ void _pack_array(Buffer& out, const T* x, Uint32 n)
 
     if (Packer::isLittleEndian())
     {
-	for (size_t i = 0; i < n; i++)
-	{
-	    T tmp = Packer::swap(x[i]);
-	    out.append((char*)&tmp, sizeof(tmp));
-	}
+        for (size_t i = 0; i < n; i++)
+        {
+            T tmp = Packer::swap(x[i]);
+            out.append((char*)&tmp, sizeof(tmp));
+        }
     }
     else
-	out.append((char*)x, bytes);
+        out.append((char*)x, bytes);
 }
 
 void Packer::packBoolean(Buffer& out, const Boolean* x, Uint32 n)
@@ -177,8 +175,8 @@ void Packer::packBoolean(Buffer& out, const Boolean* x, Uint32 n)
 
     for (size_t i = 0; i < n; i++)
     {
-	Uint8 tmp = Uint8(x[i]); 
-	out.append((char*)&tmp, sizeof(tmp));
+        Uint8 tmp = Uint8(x[i]);
+        out.append((char*)&tmp, sizeof(tmp));
     }
 }
 
@@ -205,7 +203,7 @@ void Packer::packUint64(Buffer& out, const Uint64* x, Uint32 n)
 void Packer::packString(Buffer& out, const String* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
-	packString(out, x[i]);
+        packString(out, x[i]);
 }
 
 void Packer::unpackUint16(
@@ -215,7 +213,7 @@ void Packer::unpackUint16(
     pos += sizeof(x);
 
     if (isLittleEndian())
-	x = Packer::swapUint16(x);
+        x = Packer::swapUint16(x);
 }
 
 void Packer::unpackUint32(
@@ -225,7 +223,7 @@ void Packer::unpackUint32(
     pos += sizeof(x);
 
     if (isLittleEndian())
-	x = Packer::swapUint32(x);
+        x = Packer::swapUint32(x);
 
     PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
@@ -237,7 +235,7 @@ void Packer::unpackUint64(
     pos += sizeof(x);
 
     if (isLittleEndian())
-	x = Packer::swapUint64(x);
+        x = Packer::swapUint64(x);
 
     PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
@@ -257,20 +255,20 @@ void Packer::unpackString(const Buffer& in, Uint32& pos, String& x)
 
     if (bits & 8)
     {
-	x.assign(&in[pos], n);
-	pos += n;
+        x.assign(&in[pos], n);
+        pos += n;
     }
     else
     {
-	x.clear();
-	x.reserveCapacity(n);
+        x.clear();
+        x.reserveCapacity(n);
 
-	for (size_t i = 0; i < n; i++)
-	{
-	    Char16 tmp;
-	    unpackChar16(in , pos, tmp);
-	    x.append(tmp);
-	}
+        for (size_t i = 0; i < n; i++)
+        {
+            Char16 tmp;
+            unpackChar16(in , pos, tmp);
+            x.append(tmp);
+        }
     }
 
     PEGASUS_DEBUG_ASSERT(pos <= in.size());
@@ -280,7 +278,7 @@ void Packer::unpackBoolean(
     Buffer& in, Uint32& pos, Boolean* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
-	unpackBoolean(in, pos, x[i]);
+        unpackBoolean(in, pos, x[i]);
 
     PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
@@ -289,7 +287,7 @@ void Packer::unpackUint8(
     Buffer& in, Uint32& pos, Uint8* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
-	unpackUint8(in, pos, x[i]);
+        unpackUint8(in, pos, x[i]);
 
     PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
@@ -298,7 +296,7 @@ void Packer::unpackUint16(
     Buffer& in, Uint32& pos, Uint16* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
-	unpackUint16(in, pos, x[i]);
+        unpackUint16(in, pos, x[i]);
 
     PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
@@ -307,7 +305,7 @@ void Packer::unpackUint32(
     Buffer& in, Uint32& pos, Uint32* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
-	unpackUint32(in, pos, x[i]);
+        unpackUint32(in, pos, x[i]);
 
     PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
@@ -316,7 +314,7 @@ void Packer::unpackUint64(
     Buffer& in, Uint32& pos, Uint64* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
-	unpackUint64(in, pos, x[i]);
+        unpackUint64(in, pos, x[i]);
 
     PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
@@ -325,7 +323,7 @@ void Packer::unpackString(
     Buffer& in, Uint32& pos, String* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
-	unpackString(in, pos, x[i]);
+        unpackString(in, pos, x[i]);
 
     PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }

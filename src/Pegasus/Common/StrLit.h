@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_StrLit_h
@@ -47,54 +45,54 @@ PEGASUS_NAMESPACE_BEGIN
 /*  The StrLit class and associated macros provide a mechanism for retaining the
     length C string literals at compile time. This is preferrable to repeated
     recalculation of the length, usually with strlen(). For example, this:
-   
-	String s("hello world");
+
+        String s("hello world");
 
     Is less efficient than this:
 
-	String s("hello world", 11);
+        String s("hello world", 11);
 
     The first form, forces the String constructor to call strlen(), an O(N)
-    operation. This is unfortunate for C string literals since the length can 
+    operation. This is unfortunate for C string literals since the length can
     be obtained at compile time with the sizeof operator. For example:
 
-	String s("hello world", sizeof("hello world") - 1);
+        String s("hello world", sizeof("hello world") - 1);
 
     But repeating the literal twice is error prone, so instead we use the
     STRLIT_ARGS() macro.
 
-	String s(STRLIT_ARGS("hello world"));
+        String s(STRLIT_ARGS("hello world"));
 
     This macro can also be used to define StrLit objects at compile time.
     For example:
 
-	const StrLit DEFAULT_HOSTNAME(STRLIT_ARGS("localhost"));
+        const StrLit DEFAULT_HOSTNAME(STRLIT_ARGS("localhost"));
 
-    You can implement functions that take StrLit objects. For example, we 
+    You can implement functions that take StrLit objects. For example, we
     define this function:
 
-	operator<<(const Buffer&, const StrLit&);
+        operator<<(const Buffer&, const StrLit&);
 
     This function can be used in two ways. You can pass predefined StrLit
     object to it like this:
 
-	Buffer out;
-	out << DEFAULT_HOSTNAME;
+        Buffer out;
+        out << DEFAULT_HOSTNAME;
 
     Or you can use the STRLIT() macro to construct on on the fly:
 
-	Buffer out;
-	out << STRLIT("localhost");
+        Buffer out;
+        out << STRLIT("localhost");
 
     Note that the latter form would be faster than this, since somebody
     is going to have to call strlen() eventually.
 
-	Buffer out;
-	out << "localhost";
+        Buffer out;
+        out << "localhost";
 
-    At first glance, this may seem like a small optimization, but this 
-    technique alone was used to decrease the Pegasus CIM server latency 
-    by ten percent (with only moderate application to the XML marshalling 
+    At first glance, this may seem like a small optimization, but this
+    technique alone was used to decrease the Pegasus CIM server latency
+    by ten percent (with only moderate application to the XML marshalling
     routines).
 */
 struct StrLit

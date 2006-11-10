@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
-//           (carolann_graves@hp.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Resolver_h
@@ -52,203 +47,201 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    The Resolver class provides methods to resolve CIM objects, including 
-    CIMClass, CIMInstance, CIMProperty, CIMMethod, CIMParameter, and 
-    CIMQualifier flavor.  These methods were moved here from the 
-    CIM[objectType] classes.  These methods in turn call the resolve () methods
+    The Resolver class provides methods to resolve CIM objects, including
+    CIMClass, CIMInstance, CIMProperty, CIMMethod, CIMParameter, and
+    CIMQualifier flavor.  These methods were moved here from the
+    CIM[objectType] classes.  These methods in turn call the resolve() methods
     of the CIM[objectType]Rep classes, which actually do the work.
 
-    Note that this class contains only internal functions and should not be 
+    Note that this class contains only internal functions and should not be
     made available to external users.
-
-    @author  Hewlett-Packard Company
  */
 
 class PEGASUS_COMMON_LINKAGE Resolver
 {
 public:
 
-    /** 
-        Resolves the class.  Inherits any properties, methods and qualifiers.  
-        Makes sure the superClass exists and is consistent with this class.  
+    /**
+        Resolves the class.  Inherits any properties, methods and qualifiers.
+        Makes sure the superClass exists and is consistent with this class.
         Sets the propagated and class origin flags for each class feature.
 
         @param theClass            CIMClass object to be resolved
         @param declContext         Defines the context in which the class is
                                    to be resolved.  This provides the basis for
-                                   other functions to get information from the 
+                                   other functions to get information from the
                                    context to use to resolve the class.
         @param nameSpace           Namespace in which the class is to be placed
     */
-    static void resolveClass (
-        CIMClass & theClass,
-        DeclContext * declContext,
-        const CIMNamespaceName & nameSpace);
+    static void resolveClass(
+        CIMClass& theClass,
+        DeclContext* declContext,
+        const CIMNamespaceName& nameSpace);
 
-    /** 
+    /**
         Resolves the instance.  Makes sure the class exists and is not
-        abstract.  Validates and propagates qualifiers, if requested.  
-        Validates and resolves properties.  Sets the propagated and class 
+        abstract.  Validates and propagates qualifiers, if requested.
+        Validates and resolves properties.  Sets the propagated and class
         origin flags.
 
         @param theInstance         CIMInstance object to be resolved
         @param declContext         Defines the context in which the instance is
                                    to be resolved.  This provides the basis for
-                                   other functions to get information from the 
+                                   other functions to get information from the
                                    context to use to resolve the instance.
-        @param nameSpace           Namespace in which the instance is to be 
+        @param nameSpace           Namespace in which the instance is to be
                                    placed
         @param propagateQualifiers Boolean indicating whether qualifiers are to
-                                   be propagated 
+                                   be propagated
     */
-    static void resolveInstance (
-        CIMInstance & theInstance,
-        DeclContext * declContext,
-        const CIMNamespaceName & nameSpace,
+    static void resolveInstance(
+        CIMInstance& theInstance,
+        DeclContext* declContext,
+        const CIMNamespaceName& nameSpace,
         Boolean propagateQualifiers);
 
-    /** 
+    /**
         Resolves the instance.  Makes sure the class exists and is not
-        abstract.  Validates and propagates qualifiers, if requested.  
-        Validates and resolves properties.  Sets the propagated and class 
+        abstract.  Validates and propagates qualifiers, if requested.
+        Validates and resolves properties.  Sets the propagated and class
         origin flags.
 
         @param theInstance         CIMInstance object to be resolved
         @param declContext         Defines the context in which the instance is
                                    to be resolved.  This provides the basis for
-                                   other functions to get information from the 
+                                   other functions to get information from the
                                    context to use to resolve the instance.
-        @param nameSpace           Namespace in which the instance is to be 
+        @param nameSpace           Namespace in which the instance is to be
                                    placed
-        @param cimClassOut         CIMClass output parameter containing the 
+        @param cimClassOut         CIMClass output parameter containing the
                                    class to which the instance belongs
         @param propagateQualifiers Boolean indicating whether qualifiers are to
-                                   be propagated 
+                                   be propagated
     */
-    static void resolveInstance (
-        CIMInstance & theInstance,
-        DeclContext * declContext,
-        const CIMNamespaceName & nameSpace,
-        CIMConstClass & cimClassOut,
+    static void resolveInstance(
+        CIMInstance& theInstance,
+        DeclContext* declContext,
+        const CIMNamespaceName& nameSpace,
+        CIMConstClass& cimClassOut,
         Boolean propagateQualifiers);
 
-    /** 
-        Resolves the property.  Resolution is the process of integrating the 
-        property into the the context of a repository or other store.  
+    /**
+        Resolves the property.  Resolution is the process of integrating the
+        property into the the context of a repository or other store.
         Validates the qualifiers of the property.
 
         @param theProperty         CIMProperty object to be resolved
         @param declContext         Defines the context in which the property is
                                    to be resolved.  This provides the basis for
-                                   other functions to get information from the 
+                                   other functions to get information from the
                                    context to use to resolve the property.
-        @param nameSpace           Namespace in which the property is to be 
+        @param nameSpace           Namespace in which the property is to be
                                    placed
         @param isInstancePart      Indicates instance or class resolution
         @param inheritedProperty   CIMConstProperty containing the property from
                                    the class or superclass
         @param propagateQualifiers Boolean indicating whether qualifiers are to
     */
-    static void resolveProperty (
-        CIMProperty & theProperty,
-	DeclContext * declContext,
-	const CIMNamespaceName & nameSpace,
-	Boolean isInstancePart,
-	const CIMConstProperty & inheritedProperty,
-	Boolean propagateQualifiers);
+    static void resolveProperty(
+        CIMProperty& theProperty,
+        DeclContext* declContext,
+        const CIMNamespaceName& nameSpace,
+        Boolean isInstancePart,
+        const CIMConstProperty& inheritedProperty,
+        Boolean propagateQualifiers);
 
     //  ATTN: P3 03/02/02 KS Needs more documentation.
-    /** 
-        Resolves the property.  Resolution is the process of integrating the 
-        property into the the context of a repository or other store.  
+    /**
+        Resolves the property.  Resolution is the process of integrating the
+        property into the the context of a repository or other store.
         Validates the qualifiers of the property.
 
         @param theProperty         CIMProperty object to be resolved
         @param declContext         Defines the context in which the property is
                                    to be resolved.  This provides the basis for
-                                   other functions to get information from the 
+                                   other functions to get information from the
                                    context to use to resolve the property.
-        @param nameSpace           Namespace in which the property is to be 
+        @param nameSpace           Namespace in which the property is to be
                                    placed
         @param isInstancePart      Indicates instance or class resolution
         @param propagateQualifiers Boolean indicating whether qualifiers are to
-                                   be propagated 
+                                   be propagated
     */
-    static void resolveProperty (
-        CIMProperty & theProperty,
-	DeclContext * declContext,
-	const CIMNamespaceName & nameSpace,
-	Boolean isInstancePart,
-	Boolean propagateQualifiers);
+    static void resolveProperty(
+        CIMProperty& theProperty,
+        DeclContext* declContext,
+        const CIMNamespaceName& nameSpace,
+        Boolean isInstancePart,
+        Boolean propagateQualifiers);
 
-    /** 
+    /**
         Resolves the CIMMethod.  Validates the qualifiers and parameters of the
         method.
 
         @param theMethod           CIMMethod object to be resolved
         @param declContext         Defines the context in which the method is
                                    to be resolved.  This provides the basis for
-                                   other functions to get information from the 
+                                   other functions to get information from the
                                    context to use to resolve the method.
-        @param nameSpace           Namespace in which the method is to be 
+        @param nameSpace           Namespace in which the method is to be
                                    placed
         @param inheritedMethod     CIMConstMethod containing the method from
                                    the class or superclass
     */
-    static void resolveMethod (
-        CIMMethod & theMethod,
-        DeclContext * declContext,
-        const CIMNamespaceName & nameSpace,
-        const CIMConstMethod & inheritedMethod);
+    static void resolveMethod(
+        CIMMethod& theMethod,
+        DeclContext* declContext,
+        const CIMNamespaceName& nameSpace,
+        const CIMConstMethod& inheritedMethod);
 
-    /** 
+    /**
         Resolves the CIMMethod.  Validates the qualifiers and parameters of the
         method.
 
         @param theMethod           CIMMethod object to be resolved
         @param declContext         Defines the context in which the method is
                                    to be resolved.  This provides the basis for
-                                   other functions to get information from the 
+                                   other functions to get information from the
                                    context to use to resolve the method.
-        @param nameSpace           Namespace in which the method is to be 
+        @param nameSpace           Namespace in which the method is to be
                                    placed
     */
-    static void resolveMethod (
-        CIMMethod & theMethod,
-        DeclContext * declContext,
-        const CIMNamespaceName & nameSpace);
+    static void resolveMethod(
+        CIMMethod& theMethod,
+        DeclContext* declContext,
+        const CIMNamespaceName& nameSpace);
 
-    /** 
+    /**
         Resolves the parameter.  Validates the qualifiers of the parameter.
 
         @param theParameter        CIMParameter object to be resolved
         @param declContext         Defines the context in which the parameter is
                                    to be resolved.  This provides the basis for
-                                   other functions to get information from the 
+                                   other functions to get information from the
                                    context to use to resolve the parameter.
-        @param nameSpace           Namespace in which the parameter is to be 
+        @param nameSpace           Namespace in which the parameter is to be
                                    placed
     */
-    static void resolveParameter (
-        CIMParameter & theParameter,
-        DeclContext * declContext, 
-        const CIMNamespaceName & nameSpace);
+    static void resolveParameter(
+        CIMParameter& theParameter,
+        DeclContext* declContext,
+        const CIMNamespaceName& nameSpace);
 
-    /** 
-        Resolves the qualifier flavor.  This function is used only in object 
+    /**
+        Resolves the qualifier flavor.  This function is used only in object
         creation to resolve the combination of a qualifer flavor input and
-        the corresponding inherited flavor from declaration or superclass and 
-        set the current qualifier to that definition.  The function changes 
+        the corresponding inherited flavor from declaration or superclass and
+        set the current qualifier to that definition.  The function changes
         the current flavor based on the characteristics of the inheritance.
 
         @param inheritedFlavor   The flavor inherited from higher level
-        @param inherited         True if inherited from definition 
+        @param inherited         True if inherited from definition
                                  False if this is definition that inherits from
                                  the declaration
     */
-    static void resolveQualifierFlavor (
-        CIMQualifier & theQualifier,
-        const CIMFlavor & inheritedFlavor, 
+    static void resolveQualifierFlavor(
+        CIMQualifier& theQualifier,
+        const CIMFlavor& inheritedFlavor,
         Boolean inherited);
 };
 

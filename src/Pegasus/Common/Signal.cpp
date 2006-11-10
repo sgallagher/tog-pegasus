@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Markus Mueller (markus_mueller@de.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
-//              David Dillard, VERITAS Software Corp (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
@@ -73,7 +67,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 SignalHandler::SignalHandler()
 {
-    for(unsigned i=0;i <= PEGASUS_NSIG;i++)
+    for (unsigned i = 0; i <= PEGASUS_NSIG; i++)
     {
        register_handler &rh = reg_handler[i];
        rh.signum = i;
@@ -96,11 +90,11 @@ void SignalHandler::verifySignum(unsigned signum)
     }
 }
 
-SignalHandler::register_handler& 
+SignalHandler::register_handler&
 SignalHandler::getHandler(unsigned signum)
 {
     verifySignum(signum);
-    return(reg_handler[signum]);
+    return reg_handler[signum];
 }
 
 void SignalHandler::registerHandler(unsigned signum, signal_handler _sighandler)
@@ -165,7 +159,8 @@ void SignalHandler::ignore(unsigned signum)
 
     verifySignum(signum);
 
-#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && \
+    !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
     sigignore(signum);
 #else
     struct sigaction sig_acts;

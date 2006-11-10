@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Markus Mueller
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2393
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Thread_h
@@ -61,7 +51,7 @@
 # include <signal.h>
 #endif
 
-PEGASUS_NAMESPACE_BEGIN 
+PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE cleanup_handler : public Linkable
 {
@@ -81,8 +71,8 @@ private:
         _routine(_arg);
     }
 
-    cleanup_handler(); 
-    
+    cleanup_handler();
+
     void (*_routine)(void*);
     void *_arg;
 
@@ -117,8 +107,8 @@ public:
         _data =::operator  new(_size);
     }
 
-    thread_data(const char *key, size_t size, void *data) : 
-        _delete_func(default_delete), _size(size)
+    thread_data(const char *key, size_t size, void *data)
+        : _delete_func(default_delete), _size(size)
     {
         PEGASUS_ASSERT(key != NULL);
         PEGASUS_ASSERT(data != NULL);
@@ -153,7 +143,7 @@ public:
      *
      * @exception NullPointer
     */
-    void put_data(void (*del) (void *), size_t size, void *data)
+    void put_data(void (*del) (void *), size_t size, void* data)
     {
         if (_data != NULL)
             if (_delete_func != NULL)
@@ -170,63 +160,60 @@ public:
         return _size;
     }
 
-      /**
-       * This function is used to retrieve data from the
-       * TSD, the thread specific data.
-       *
-       * Be aware that there is NOTHING in place to stop
-       * other users of the thread to change the data you
-       * get from this function.
-       *
-       * You, the developer has to make sure that there are
-       * no situations in which this can arise (ie, have a
-       * lock for the function which manipulates the TSD.
-       */
-    void get_data(void **data, size_t * size)
+    /**
+        This function is used to retrieve data from the
+        TSD, the thread specific data.
+
+        Be aware that there is NOTHING in place to stop
+        other users of the thread to change the data you
+        get from this function.
+
+        You, the developer has to make sure that there are
+        no situations in which this can arise (ie, have a
+        lock for the function which manipulates the TSD.
+     */
+    void get_data(void** data, size_t* size)
     {
         if (data == NULL || size == NULL)
             throw NullPointer();
 
         *data = _data;
         *size = _size;
-        return;
-
     }
 
     // @exception NullPointer
-    void copy_data(void **buf, size_t * size)
+    void copy_data(void** buf, size_t* size)
     {
         if ((buf == NULL) || (size == NULL))
             throw NullPointer();
         *buf =::operator  new(_size);
         *size = _size;
         memcpy(*buf, _data, _size);
-        return;
     }
 
-    inline Boolean operator==(const void *key) const
+    inline Boolean operator==(const void* key) const
     {
         if (!strcmp(_key.get(), reinterpret_cast < const char *>(key)))
-              return (true);
-          return (false);
+            return true;
+        return false;
     }
 
-    inline Boolean operator==(const thread_data & b) const
+    inline Boolean operator==(const thread_data& b) const
     {
-        return (operator==(b._key.get()));
+        return operator==(b._key.get());
     }
 
-    static bool equal(const thread_data * node, const void *key)
+    static bool equal(const thread_data* node, const void* key)
     {
         return ((thread_data *) node)->operator==(key);
     }
 
   private:
-    void (*_delete_func) (void *data);
+    void (*_delete_func) (void* data);
     thread_data();
-    void *_data;
+    void* _data;
     size_t _size;
-    AutoArrayPtr < char >_key;
+    AutoArrayPtr<char> _key;
 
     friend class Thread;
 };
@@ -238,7 +225,7 @@ enum ThreadStatus
     PEGASUS_THREAD_INSUFFICIENT_RESOURCES,      /* Can't allocate a thread.
                                                    Not enough memory. Try
                                                    again later */
-    PEGASUS_THREAD_SETUP_FAILURE,       /* Could not allocate into the thread 
+    PEGASUS_THREAD_SETUP_FAILURE,       /* Could not allocate into the thread
                                            specific data storage. */
     PEGASUS_THREAD_UNAVAILABLE  /* Service is being destroyed and no new
                                    threads can be provided. */
@@ -246,20 +233,22 @@ enum ThreadStatus
 
 ///////////////////////////////////////////////////////////////////////////
 
-class PEGASUS_COMMON_LINKAGE Thread:public Linkable
+class PEGASUS_COMMON_LINKAGE Thread : public Linkable
 {
-  public:
+public:
 
-    Thread(ThreadReturnType(PEGASUS_THREAD_CDECL * start) (void *),
-           void *parameter, Boolean detached);
+    Thread(
+        ThreadReturnType(PEGASUS_THREAD_CDECL* start) (void*),
+        void* parameter,
+        Boolean detached);
 
      ~Thread();
 
       /** Start the thread.
-          @return PEGASUS_THREAD_OK if the thread is started successfully, 
-          PEGASUS_THREAD_INSUFFICIENT_RESOURCES if the resources necessary 
-          to start the thread are not currently available.  
-	  PEGASUS_THREAD_SETUP_FAILURE if the thread could not
+          @return PEGASUS_THREAD_OK if the thread is started successfully,
+          PEGASUS_THREAD_INSUFFICIENT_RESOURCES if the resources necessary
+          to start the thread are not currently available.
+          PEGASUS_THREAD_SETUP_FAILURE if the thread could not
           be create properly - check the 'errno' value for specific operating
           system return code.
        */
@@ -312,16 +301,16 @@ class PEGASUS_COMMON_LINKAGE Thread:public Linkable
     // stack of functions to be called when thread terminates
     // will be called last in first out (LIFO)
     // @exception IPCException
-    void cleanup_push(void (*routine) (void *), void *parm);
+    void cleanup_push(void (*routine) (void *), void* parm);
 
     // @exception IPCException
     void cleanup_pop(Boolean execute = true);
 
     // create and initialize a tsd
     // @exception IPCException
-    inline void create_tsd(const char *key, int size, void *buffer)
+    inline void create_tsd(const char* key, int size, void* buffer)
     {
-        AutoPtr < thread_data > tsd(new thread_data(key, size, buffer));
+        AutoPtr<thread_data> tsd(new thread_data(key, size, buffer));
         _tsd.insert_front(tsd.get());
         tsd.release();
     }
@@ -329,14 +318,14 @@ class PEGASUS_COMMON_LINKAGE Thread:public Linkable
     // get the buffer associated with the key
     // NOTE: this call leaves the tsd LOCKED !!!!
     // @exception IPCException
-    inline void *reference_tsd(const char *key)
+    inline void *reference_tsd(const char* key)
     {
         _tsd.lock();
         thread_data *tsd = _tsd.find(thread_data::equal, key);
         if (tsd != NULL)
-            return ((void *) (tsd->_data));
+            return (void *) (tsd->_data);
         else
-            return (NULL);
+            return NULL;
     }
 
     // @exception IPCException
@@ -345,9 +334,9 @@ class PEGASUS_COMMON_LINKAGE Thread:public Linkable
         _tsd.try_lock();
         thread_data *tsd = _tsd.find(thread_data::equal, key);
         if (tsd != NULL)
-            return ((void *) (tsd->_data));
+            return (void *) (tsd->_data);
         else
-            return (NULL);
+            return NULL;
     }
 
 
@@ -375,28 +364,24 @@ class PEGASUS_COMMON_LINKAGE Thread:public Linkable
     // create or re-initialize tsd associated with the key
     // if the tsd already exists, delete the existing buffer
     // @exception IPCException
-    void put_tsd(const char *key, void (*delete_func) (void *), Uint32 size,
-                 void *value)
+    void put_tsd(
+        const char* key,
+        void (*delete_func) (void *),
+        Uint32 size,
+        void* value)
     {
         PEGASUS_ASSERT(key != NULL);
-        AutoPtr < thread_data > tsd;
-        tsd.reset(_tsd.remove(thread_data::equal, key));        // may throw
-                                                                // an IPC
-                                                                // exception
+        AutoPtr<thread_data> tsd;
+        // This may throw an IPCException
+        tsd.reset(_tsd.remove(thread_data::equal, key));
         tsd.reset();
-        AutoPtr < thread_data > ntsd(new thread_data(key));
+        AutoPtr<thread_data> ntsd(new thread_data(key));
         ntsd->put_data(delete_func, size, value);
-        try
-        {
-            _tsd.insert_front(ntsd.get());
-        }
-        catch(IPCException & e)
-        {
-            e = e;
-            throw;
-        }
+        // This may throw an IPCException
+        _tsd.insert_front(ntsd.get());
         ntsd.release();
     }
+
     inline ThreadReturnType get_exit()
     {
         return _exit_code;
@@ -413,54 +398,55 @@ class PEGASUS_COMMON_LINKAGE Thread:public Linkable
 
     void detach();
 
-    // 
+    //
     // Gets the Thread object associated with the caller's thread.
     // Note: this may return NULL if no Thread object is associated
     // with the caller's thread.
-    // 
-    static Thread *getCurrent();        // l10n
+    //
+    static Thread *getCurrent();
 
-    // 
+    //
     // Sets the Thread object associated with the caller's thread.
     // Note: the Thread object must be placed on the heap.
-    // 
-    static void setCurrent(Thread * thrd);      // l10n
+    //
+    static void setCurrent(Thread* thrd);
 
-    // 
+    //
     // Gets the AcceptLanguageList object associated with the caller's
     // Thread.
     // Note: this may return NULL if no Thread object, or no
     // AcceptLanguageList object, is associated with the caller's thread.
-    // 
-    static AcceptLanguageList *getLanguages();  // l10n
+    //
+    static AcceptLanguageList* getLanguages();
 
-    // 
+    //
     // Sets the AcceptLanguageList object associated with the caller's
     // Thread.
     // Note: a Thread object must have been previously associated with
     // the caller's thread.
     // Note: the AcceptLanguageList object must be placed on the heap.
-    // 
-    static void setLanguages(AcceptLanguageList * langs);       // l10n
+    //
+    static void setLanguages(AcceptLanguageList* langs);
 
-    // 
+    //
     // Removes the AcceptLanguageList object associated with the caller's
     // Thread.
-    // 
-    static void clearLanguages();       // l10n
+    //
+    static void clearLanguages();
 
-  private:
+private:
     Thread();
 
-    static Sint8 initializeKey();       // l10n
+    static Sint8 initializeKey();
 
     // @exception IPCException
     inline void create_tsd(const char *key)
     {
-        AutoPtr < thread_data > tsd(new thread_data(key));
+        AutoPtr<thread_data> tsd(new thread_data(key));
         _tsd.insert_front(tsd.get());
         tsd.release();
     }
+
     ThreadHandle _handle;
     Boolean _is_detached;
     Boolean _cancel_enabled;
@@ -469,16 +455,16 @@ class PEGASUS_COMMON_LINKAGE Thread:public Linkable
     // always pass this * as the void * parameter to the thread
     // store the user parameter in _thread_parm
 
-    ThreadReturnType(PEGASUS_THREAD_CDECL * _start) (void *);
-    List < cleanup_handler, Mutex > _cleanup;
-    List < thread_data, Mutex > _tsd;
+    ThreadReturnType(PEGASUS_THREAD_CDECL* _start) (void *);
+    List<cleanup_handler, Mutex> _cleanup;
+    List<thread_data, Mutex> _tsd;
 
-    void *_thread_parm;
+    void* _thread_parm;
     ThreadReturnType _exit_code;
     static Boolean _signals_blocked;
-    static TSDKeyType _platform_thread_key;     // l10n
-    static Boolean _key_initialized;    // l10n
-    static Boolean _key_error;  // l10n
+    static TSDKeyType _platform_thread_key;
+    static Boolean _key_initialized;
+    static Boolean _key_error;
 };
 
 PEGASUS_NAMESPACE_END

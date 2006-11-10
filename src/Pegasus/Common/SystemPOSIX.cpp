@@ -398,15 +398,13 @@ String System::getFullyQualifiedHostName ()
     hint.ai_family = AF_UNSPEC; // any family
     hint.ai_socktype = 0;       // any socket type
     hint.ai_protocol = 0;       // any protocol
-    int success = getaddrinfo(hostName,
-                NULL,
-                &hint,
-                &resolv);
+    int success = getaddrinfo(hostName, NULL, &hint, &resolv);
     if (success==0)
     {
         // assign fully qualified hostname
         fqName.assign(resolv->ai_canonname);
-    } else
+    }
+    else
     {
         if ((he = gethostbyname(hostName)))
         {
@@ -415,7 +413,7 @@ String System::getFullyQualifiedHostName ()
         // assign hostName
         // if gethostbyname was successful assign that result
         // else assign unqualified hostname
-    fqName.assign(hostName);
+        fqName.assign(hostName);
     }
     freeaddrinfo(resolv);
     delete resolv;
@@ -513,36 +511,37 @@ Uint32 System::lookupPort(
 */
 char *getpassword(const char *prompt)
 {
-  const size_t MAX_PASS_LEN = 1024;
-  static char buf[MAX_PASS_LEN];
-  struct termios old, new_val;
-  char *ptr;
-  int c;
+    const size_t MAX_PASS_LEN = 1024;
+    static char buf[MAX_PASS_LEN];
+    struct termios old, new_val;
+    char *ptr;
+    int c;
 
-  buf[0] = 0;
+    buf[0] = 0;
 
-  /* Turn echoing off and fail if we can't. */
-  if (tcgetattr (fileno (stdin), &old) != 0)
+    /* Turn echoing off and fail if we can't. */
+    if (tcgetattr (fileno (stdin), &old) != 0)
+        return buf;
+    new_val = old;
+    new_val.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
+    if (tcsetattr (fileno (stdin), TCSAFLUSH, &new_val) != 0)
+        return buf;
+
+    /* Read the password. */
+    fputs (prompt, stdin);
+    ptr = buf;
+    while ( (c = getc(stdin)) != EOF && c != '\n')
+    {
+        if (ptr < &buf[MAX_PASS_LEN])
+            *ptr++ = c;
+    }
+    *ptr = 0;
+    putc('\n', stdin);
+
+    /* Restore terminal. */
+    (void) tcsetattr (fileno (stdin), TCSAFLUSH, &old);
+    fclose(stdin);
     return buf;
-  new_val = old;
-  new_val.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
-  if (tcsetattr (fileno (stdin), TCSAFLUSH, &new_val) != 0)
-    return buf;
-
-  /* Read the password. */
-  fputs (prompt, stdin);
-  ptr = buf;
-  while ( (c = getc(stdin)) != EOF && c != '\n') {
-    if (ptr < &buf[MAX_PASS_LEN])
-      *ptr++ = c;
-  }
-  *ptr = 0;
-  putc('\n', stdin);
-
-  /* Restore terminal. */
-  (void) tcsetattr (fileno (stdin), TCSAFLUSH, &old);
-  fclose(stdin);
-  return buf;
 }
 
 #endif /* PEGASUS_OS_LSB */
@@ -740,7 +739,7 @@ String System::getEffectiveUserName()
     struct passwd       local_pwd;
     char                buf[PWD_BUFF_SIZE];
 
-    if(getpwuid_r(geteuid(), &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
+    if (getpwuid_r(geteuid(), &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
     {
         String errorMsg = String("getpwuid_r failure : ") +
                             String(strerror(errno));
@@ -780,7 +779,7 @@ String System::getEffectiveUserName()
         userName.assign(pwd->pw_name);
     }
 
-    return(userName);
+    return userName;
 }
 
 String System::encryptPassword(const char* password, const char* salt)
@@ -805,12 +804,12 @@ String System::encryptPassword(const char* password, const char* salt)
 
 #elif !defined(PEGASUS_OS_OS400)
 
-    return ( String(crypt( password,salt)) );
+    return String(crypt( password,salt));
 
 #else
 
     // Not supported on OS400, and we don't need it.
-    return ( String(password) );
+    return String(password);
 
 #endif
 }
@@ -903,7 +902,7 @@ Boolean System::isPrivilegedUser(const String& userName)
         return false;
 
     // ATTN-VMS: should this be a bitwise and?
-    return ((PRV$M_SETPRV && prvPrv) == 1) ? true : false;
+    return ((PRV$M_SETPRV && prvPrv) == 1);
 
 #else /* default */
 
@@ -1010,13 +1009,14 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
             String errorMsg = String("getgrgid_r failure : ") +
                                  String(strerror(errno));
             PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                                  errorMsg);
+            Logger::put(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+                errorMsg);
             throw InternalSystemError();
         }
 
         // Compare the user's group name to groupName.
-        if ( strcmp (grp.gr_name, groupName) == 0 )
+        if (strcmp(grp.gr_name, groupName) == 0)
         {
              // User is a member of the group.
              return true;
@@ -1338,7 +1338,7 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
     }
 
     // if message greater then 4096 bytes results are undefined !
-    if(zosMessageStringLength > 4095)
+    if (zosMessageStringLength > 4095)
     {
         // the temp buffer is already used !
         if (tmpMessageString)
@@ -1347,7 +1347,9 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
             // to the same storage but the tmpMessageString is not const !
             tmpMessageString[4095] = 0;
 
-        } else {
+        }
+        else
+        {
             // allocate an appropriate buffer, init with 0
             tmpMessageString = (char*)calloc(4096,1);
             memcpy(tmpMessageString,zosMessageString,4095);
@@ -1359,7 +1361,7 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
     CString identCString = ident.getCString();
     // Issue important messages to the z/OS console
     // and audit messages are not important
-    if (!(severity & Logger::TRACE) && 
+    if (!(severity & Logger::TRACE) &&
         !(strcmp("cimserver audit",identCString) == 0))
     {
         struct __cons_msg   cons;
@@ -1426,26 +1428,27 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
     #define PEGASUS_MAX_NETWORK_INTERFACES 32
     struct ifconf conf;
 
-    conf.ifc_buf = (char *)calloc( PEGASUS_MAX_NETWORK_INTERFACES, sizeof(struct ifreq ) );
-    conf.ifc_len = PEGASUS_MAX_NETWORK_INTERFACES * sizeof( struct ifreq ) ;
-        
-    if( -1 < ioctl(AF_INET, SIOCGIFCONF, &conf ) )
+    conf.ifc_buf =
+        (char *)calloc(PEGASUS_MAX_NETWORK_INTERFACES, sizeof(struct ifreq));
+    conf.ifc_len = PEGASUS_MAX_NETWORK_INTERFACES * sizeof(struct ifreq);
+
+    if (-1 < ioctl(AF_INET, SIOCGIFCONF, &conf))
     {
-      struct ifreq *r = conf.ifc_req;
-      sockaddr_in *addr ;
-      addr = (sockaddr_in *)&r->ifr_addr;
-      while(  addr->sin_addr.s_addr != 0 )
-      {
-          Uint32 ip = addr->sin_addr.s_addr;
-          if (ip == inIP)
-          {
-              free(conf.ifc_buf);
-              return true;
-          }
-          // next interface
-          r++;
-          addr = (sockaddr_in *) &r->ifr_addr;
-      }
+        struct ifreq* r = conf.ifc_req;
+        sockaddr_in* addr ;
+        addr = (sockaddr_in *)&r->ifr_addr;
+        while (addr->sin_addr.s_addr != 0)
+        {
+            Uint32 ip = addr->sin_addr.s_addr;
+            if (ip == inIP)
+            {
+                free(conf.ifc_buf);
+                return true;
+            }
+            // next interface
+            r++;
+            addr = (sockaddr_in *) &r->ifr_addr;
+        }
     }
     free(conf.ifc_buf);
     return false;

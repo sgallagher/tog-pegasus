@@ -86,13 +86,13 @@ public:
     static void getCurrentTime(Uint32& seconds, Uint32& milliseconds);
 
     /** Similar to getCurrentTime() above but get microseconds (rather than
-	milliseconds).
+        milliseconds).
     */
     static void getCurrentTimeUsec(Uint32& seconds, Uint32& microseconds);
 
     /** getCurrentASCIITime Gets time/date in a fixed format. The format is
         YY MM DD-HH:MM:SS
-	@return Returns String with the ASCII time date.
+        @return Returns String with the ASCII time date.
     */
     static String getCurrentASCIITime();
 
@@ -135,7 +135,7 @@ public:
 
     /**
         Attempts to validate that the input hostName represents the same host as
-        the host represented by the value returned by the 
+        the host represented by the value returned by the
         getFullyQualifiedHostName() method.
 
         @param  hostName  the host name to validate
@@ -147,100 +147,100 @@ public:
     static Boolean sameHost (const String & hostName);
 
     /**
-     *  Attempts to find the given IP address(32bit) on any of the local defined
-     *  network interfaces
+        Attempts to find the given IP address(32bit) on any of the local defined
+        network interfaces
      */
     static Boolean isIpOnNetworkInterface(Uint32 inIP);
-    
-    /**
-     *  Attempts to resolve a given hostname
-     *  this function possibly can take some as it can request information
-     *  from the DNS
-     * 
-     *  Return: return value == true if successful, false if not successful
-     *          the IP address that was determined resides in resolvedNameIP
-     */
-    static Boolean resolveHostNameAtDNS(const char* hostname, Uint32 * resolvedNameIP);
 
     /**
-     *  Attempts to resolve a given IP address
-     *  this function possibly can take some as it can request information
-     *  from the DNS
-     *  Return: return value == true if successful, false if not successful
-     *          the IP address that was determined resides in resolvedNameIP
+        Attempts to resolve a given hostname
+        this function possibly can take some as it can request information
+        from the DNS
+
+        @param resolvedNameIP On successful hostname resolution, this output
+        parameter contains the IP address that was determined.
+        @return true if successful, false if not successful.
+     */
+    static Boolean resolveHostNameAtDNS(
+        const char* hostname,
+        Uint32* resolvedNameIP);
+
+    /**
+        Attempts to resolve a given IP address
+        this function possibly can take some as it can request information
+        from the DNS
+        @param resolvedIP On successful hostname resolution, this output
+        parameter contains the IP address that was determined.
+        @return true if successful, false if not successful.
      */
     static Boolean resolveIPAtDNS(Uint32 ip_addr, Uint32 * resolvedIP);
 
-    /** 
-     * Bundling function used to determine if a given hostname or IP address
-     * belongs to the local host
-     * this function has the potential to take some time as it will possibly
-     * use the DNS
+    /**
+        Bundling function used to determine if a given hostname or IP address
+        belongs to the local host
+        this function has the potential to take some time as it will possibly
+        use the DNS
      */
-    static Boolean isLocalHost(const String &hostName);
+    static Boolean isLocalHost(const String& hostName);
 
     static String getEffectiveUserName();
 
     /**
-    This function is used to input a password with echo disabled.
-    The function reads up to a newline and returns a password of at most
-    8 characters.
+        This function is used to input a password with echo disabled.
+        The function reads up to a newline and returns a password of at most
+        8 characters.
 
-    @param  prompt      String containing the message prompt to be displayed
-    @return             password obtained from the user
+        @param prompt String containing the message prompt to be displayed
+        @return password obtained from the user
     */
     static String getPassword(const char* prompt);
 
     /**
-    This function is used to encrypt the user's password.
-    The encryption is compatible with Apache's  password file (generated using
-    the htpasswd command )
+        This function is used to encrypt the user's password.
+        The encryption is compatible with Apache's password file (generated
+        using the htpasswd command)
 
-    @param password     Password to be encrypted.
-    @param salt         Two character string chosen from the set [a-zA-Z0-9./].
+        @param password Password to be encrypted.
+        @param salt Two character string chosen from the set [a-zA-Z0-9./].
 
-    @return             Encrypted password.
+        @return Encrypted password.
     */
     static String encryptPassword(const char* password, const char* salt);
 
     /**
-    This function is used to verify whether specified user is a user
-    on the local system.
+        This function is used to verify whether specified user is a user
+        on the local system.
 
-    @param userName     User name to be verified.
+        @param userName User name to be verified.
 
-    @return             true if the username is valid, else false
+        @return true if the username is valid, else false
     */
     static Boolean isSystemUser(const char* userName);
 
     /**
-    Checks whether the given user is a privileged user.
+        Checks whether the given user is a privileged user.
 
-    @param userName     User name to be checked.
-    @return             true if the user is a privileged user, else false
+        @param userName User name to be checked.
+        @return true if the user is a privileged user, else false
     */
     static Boolean isPrivilegedUser(const String& userName);
 
     /**
-    This function returns the privileged user name on the system.
-
-    @return             the privileged user name
+        This function returns the privileged user name on the system.
+        @return the privileged user name
     */
     static String getPrivilegedUserName();
 
     /**
-    This function is used to verify whether the specified user is a member
-    of the specified user group.
+        This function is used to verify whether the specified user is a member
+        of the specified user group.
 
-    @param userName     User name to be verified.
+        @param userName User name to be verified.
+        @param groupName User group name.
 
-    @param groupName    User group name.
-
-    @return             true if the user is a member of the user group,
-                        false otherwise.
-
-    @throw              InternalSystemError - If there is an error
-                        accessing the specified user or group information.
+        @return true if the user is a member of the user group, false otherwise.
+        @throw InternalSystemError - If there is an error accessing the
+        specified user or group information.
     */
     static Boolean isGroupMember(const char* userName, const char* groupName);
 
@@ -273,9 +273,8 @@ public:
 #endif
 
     /**
-    This function is used to get the process ID of the calling process.
-
-    @return             Process ID
+        This function is used to get the process ID of the calling process.
+        @return Process ID
     */
     static Uint32 getPID();
 
@@ -348,8 +347,8 @@ public:
         const char* message);
 
     static void openlog(
-        const char *ident, 
-        int logopt, 
+        const char *ident,
+        int logopt,
         int facility);
 
     static void closelog();

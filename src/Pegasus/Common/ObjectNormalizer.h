@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ObjectNormalizer_h
@@ -66,28 +62,30 @@ public:
 class PEGASUS_COMMON_LINKAGE ObjectNormalizer
 {
 public:
-    ObjectNormalizer(void);
+    ObjectNormalizer();
     ObjectNormalizer(
-        const CIMClass & cimClass,
+        const CIMClass& cimClass,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMNamespaceName& nameSpace,
-        AutoPtr<NormalizerContext> & context);
+        AutoPtr<NormalizerContext>& context);
 
-    CIMObjectPath processClassObjectPath(const CIMObjectPath & cimObjectPath) const;
-    CIMObjectPath processInstanceObjectPath(const CIMObjectPath & cimObjectPath) const;
+    CIMObjectPath processClassObjectPath(
+        const CIMObjectPath& cimObjectPath) const;
+    CIMObjectPath processInstanceObjectPath(
+        const CIMObjectPath& cimObjectPath) const;
 
-    //CIMClass processClass(const CIMClass & cimClass) const;
-    CIMInstance processInstance(const CIMInstance & cimInstance) const;
-    //CIMIndication processIndication(const CIMIndication & cimIndication);
+    //CIMClass processClass(const CIMClass& cimClass) const;
+    CIMInstance processInstance(const CIMInstance& cimInstance) const;
+    //CIMIndication processIndication(const CIMIndication& cimIndication);
 
     static CIMProperty _processProperty(
-        CIMConstProperty & referenceProperty,
-        CIMConstProperty & cimProperty,
+        CIMConstProperty& referenceProperty,
+        CIMConstProperty& cimProperty,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         NormalizerContext * context,
-        const CIMNamespaceName & nameSpace);
+        const CIMNamespaceName& nameSpace);
 
 private:
     CIMClass _cimClass;

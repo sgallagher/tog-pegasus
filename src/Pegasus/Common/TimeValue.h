@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_TimeValue_h
@@ -54,53 +50,53 @@ public:
     {
     }
 
-    TimeValue(Uint32 seconds, Uint32 microseconds) 
-	: _seconds(seconds), _microseconds(microseconds)
+    TimeValue(Uint32 seconds, Uint32 microseconds)
+        : _seconds(seconds), _microseconds(microseconds)
     {
     }
 
-    Uint32 getSeconds() const 
+    Uint32 getSeconds() const
     {
-	return _seconds;
+        return _seconds;
     }
 
     void setSeconds(Uint32 seconds)
     {
-	_seconds = seconds;
+        _seconds = seconds;
     }
 
-    Uint32 getMicroseconds() const 
+    Uint32 getMicroseconds() const
     {
-	return _microseconds;
+        return _microseconds;
     }
 
-    Uint64 toMicroseconds() const 
+    Uint64 toMicroseconds() const
     {
-	return (Uint64(_seconds) * Uint64(1000000)) + Uint64(_microseconds);
+        return (Uint64(_seconds) * Uint64(1000000)) + Uint64(_microseconds);
     }
 
     void setMicroseconds(Uint32 microseconds)
     {
-	_microseconds = microseconds;
+        _microseconds = microseconds;
     }
 
     void fromMilliseconds(Uint32 milliseconds)
     {
-	_seconds = milliseconds / 1000;
-	_microseconds = (milliseconds % 1000) * 1000;
+        _seconds = milliseconds / 1000;
+        _microseconds = (milliseconds % 1000) * 1000;
     }
 
-    Uint32 toMilliseconds() const 
+    Uint32 toMilliseconds() const
     {
-	return _seconds * 1000 + _microseconds / 1000; 
+        return _seconds * 1000 + _microseconds / 1000;
     }
 
     static TimeValue getCurrentTime()
     {
-	Uint32 seconds;
-	Uint32 microseconds;
-	System::getCurrentTimeUsec(seconds, microseconds);
-	return TimeValue(seconds, microseconds);
+        Uint32 seconds;
+        Uint32 microseconds;
+        System::getCurrentTimeUsec(seconds, microseconds);
+        return TimeValue(seconds, microseconds);
     }
 
 private:

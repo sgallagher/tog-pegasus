@@ -239,7 +239,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
         }
     } // loop
 
-    return(0);
+    return 0;
 }
 
 
@@ -598,7 +598,7 @@ void cimom::update_module(UpdateCimService* msg)
     message_module *temp = _modules.front();
     while (temp != 0)
     {
-        if(temp->_q_id == msg->queue )
+        if (temp->_q_id == msg->queue )
         {
             temp->_capabilities = msg->capabilities;
             temp->_mask = msg->mask;

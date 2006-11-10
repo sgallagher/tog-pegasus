@@ -33,7 +33,7 @@
 
 #include "DeclContext.h"
 #include "CIMName.h"
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

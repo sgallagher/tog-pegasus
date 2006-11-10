@@ -50,7 +50,7 @@
 #define Array_capacity (Array_rep)->capacity
 #define Array_refs (Array_rep)->refs
 
-// The OS400 platform uses this aligment directive to ensure that 
+// The OS400 platform uses this aligment directive to ensure that
 // ArrayRepBase is aligned an a 16 byte boundary.
 #ifdef PEGASUS_OS_OS400
 # define PEGASUS_ALIGN16 __align(16)
@@ -60,7 +60,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_ALIGN16 
+PEGASUS_ALIGN16
 struct PEGASUS_COMMON_LINKAGE ArrayRepBase
 {
     // We put this first to avoid gaps in this structure. Some compilers may

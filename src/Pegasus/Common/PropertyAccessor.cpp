@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com),
-//         
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "PropertyAccessor.h"
@@ -47,8 +44,8 @@ PEGASUS_NAMESPACE_BEGIN
 */
 template<class T>
 bool _Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     T& x)
 {
     bool isNull;
@@ -56,9 +53,9 @@ bool _Get(
     const CIMValue& value = inst.getProperty(pos).getValue();
 
     if ((isNull = value.isNull()))
-	x = T();
+        x = T();
     else
-	value.get(x);
+        value.get(x);
     return !isNull;
 }
 
@@ -71,8 +68,8 @@ bool _Get(
 */
 template<class T>
 void _Set(
-    CIMInstance& inst, 
-    const String& name, 
+    CIMInstance& inst,
+    const String& name,
     const T& x,
     bool null)
 {
@@ -87,25 +84,25 @@ void _Set(
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Boolean& value)
 {
     return _Get(inst, name, value);
 }
 
 void Set(
-    CIMInstance& inst, 
-    const String& name, 
-    const Boolean& value, 
+    CIMInstance& inst,
+    const String& name,
+    const Boolean& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Boolean>& value)
 {
     return _Get(inst, name, value);;
@@ -113,15 +110,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Boolean>& value, 
+    const String& name,
+    const Array<Boolean>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Uint8& value)
 {
     return _Get(inst, name, value);;
@@ -129,16 +126,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Uint8& value, 
+    const String& name,
+    const Uint8& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Uint8>& value)
 {
     return _Get(inst, name, value);
@@ -146,15 +143,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Uint8>& value, 
+    const String& name,
+    const Array<Uint8>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Sint8& value)
 {
     return _Get(inst, name, value);;
@@ -162,16 +159,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Sint8& value, 
+    const String& name,
+    const Sint8& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Sint8>& value)
 {
     return _Get(inst, name, value);;
@@ -179,15 +176,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Sint8>& value, 
+    const String& name,
+    const Array<Sint8>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Uint16& value)
 {
     return _Get(inst, name, value);;
@@ -195,16 +192,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Uint16& value, 
+    const String& name,
+    const Uint16& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Uint16>& value)
 {
     return _Get(inst, name, value);;
@@ -212,15 +209,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Uint16>& value, 
+    const String& name,
+    const Array<Uint16>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
+
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Sint16& value)
 {
     return _Get(inst, name, value);;
@@ -228,16 +226,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Sint16& value, 
+    const String& name,
+    const Sint16& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Sint16>& value)
 {
     return _Get(inst, name, value);;
@@ -245,15 +243,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Sint16>& value, 
+    const String& name,
+    const Array<Sint16>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Uint32& value)
 {
     return _Get(inst, name, value);;
@@ -261,16 +259,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Uint32& value, 
+    const String& name,
+    const Uint32& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Uint32>& value)
 {
     return _Get(inst, name, value);;
@@ -278,15 +276,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Uint32>& value, 
+    const String& name,
+    const Array<Uint32>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Sint32& value)
 {
     return _Get(inst, name, value);;
@@ -294,16 +292,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Sint32& value, 
+    const String& name,
+    const Sint32& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Sint32>& value)
 {
     return _Get(inst, name, value);;
@@ -311,15 +309,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Sint32>& value, 
+    const String& name,
+    const Array<Sint32>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Uint64& value)
 {
     return _Get(inst, name, value);;
@@ -327,16 +325,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Uint64& value, 
+    const String& name,
+    const Uint64& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Uint64>& value)
 {
     return _Get(inst, name, value);;
@@ -344,15 +342,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Uint64>& value, 
+    const String& name,
+    const Array<Uint64>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Sint64& value)
 {
     return _Get(inst, name, value);;
@@ -360,16 +358,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Sint64& value, 
+    const String& name,
+    const Sint64& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Sint64>& value)
 {
     return _Get(inst, name, value);;
@@ -377,15 +375,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Sint64>& value, 
+    const String& name,
+    const Array<Sint64>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Real32& value)
 {
     return _Get(inst, name, value);;
@@ -393,16 +391,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Real32& value, 
+    const String& name,
+    const Real32& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Real32>& value)
 {
     return _Get(inst, name, value);;
@@ -410,15 +408,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Real32>& value, 
+    const String& name,
+    const Array<Real32>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Real64& value)
 {
     return _Get(inst, name, value);;
@@ -426,16 +424,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Real64& value, 
+    const String& name,
+    const Real64& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Real64>& value)
 {
     return _Get(inst, name, value);;
@@ -443,15 +441,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Real64>& value, 
+    const String& name,
+    const Array<Real64>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Char16& value)
 {
     return _Get(inst, name, value);;
@@ -459,16 +457,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Char16& value, 
+    const String& name,
+    const Char16& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<Char16>& value)
 {
     return _Get(inst, name, value);;
@@ -476,15 +474,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<Char16>& value, 
+    const String& name,
+    const Array<Char16>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     String& value)
 {
     return _Get(inst, name, value);;
@@ -492,16 +490,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const String& value, 
+    const String& name,
+    const String& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<String>& value)
 {
     return _Get(inst, name, value);
@@ -509,15 +507,15 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<String>& value, 
+    const String& name,
+    const Array<String>& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     CIMDateTime& value)
 {
     return _Get(inst, name, value);
@@ -525,16 +523,16 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const CIMDateTime& value, 
+    const String& name,
+    const CIMDateTime& value,
     bool null)
 {
     _Set(inst, name, value, null);
 }
 
 bool Get(
-    const CIMInstance& inst, 
-    const String& name, 
+    const CIMInstance& inst,
+    const String& name,
     Array<CIMDateTime>& value)
 {
     return _Get(inst, name, value);
@@ -542,8 +540,8 @@ bool Get(
 
 void Set(
     CIMInstance& inst,
-    const String& name, 
-    const Array<CIMDateTime>& value, 
+    const String& name,
+    const Array<CIMDateTime>& value,
     bool null)
 {
     _Set(inst, name, value, null);

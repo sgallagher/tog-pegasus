@@ -332,7 +332,7 @@ void CIMInstanceRep::filter(
     // Filter any qualifiers from this instance.
     if (!includeQualifiers && _qualifiers.getCount() > 0)
     {
-        while( _qualifiers.getCount() )
+        while (_qualifiers.getCount())
         {
             _qualifiers.removeQualifier(0);
         }
@@ -354,7 +354,7 @@ void CIMInstanceRep::filter(
             // remove qualifiers if required.
             if (!includeQualifiers && _properties[i].getQualifierCount() > 0)
             {
-                while( _properties[i].getQualifierCount() > 0 )
+                while (_properties[i].getQualifierCount() > 0)
                 {
                     _properties[i].removeQualifier(0);
                 }

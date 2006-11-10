@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "OperationContextInternal.h"
@@ -45,11 +41,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 const String LocaleContainer::NAME = "LocaleContainer";
 
-LocaleContainer::LocaleContainer(const OperationContext::Container & container)
+LocaleContainer::LocaleContainer(const OperationContext::Container& container)
 {
-    const LocaleContainer * p = dynamic_cast<const LocaleContainer *>(&container);
+    const LocaleContainer* p = dynamic_cast<const LocaleContainer*>(&container);
 
-    if(p == 0)
+    if (p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -57,45 +53,45 @@ LocaleContainer::LocaleContainer(const OperationContext::Container & container)
     *this = *p;
 }
 
-LocaleContainer::LocaleContainer(const String & languageId)
+LocaleContainer::LocaleContainer(const String& languageId)
 {
     _languageId = languageId;
 }
 
-LocaleContainer::~LocaleContainer(void)
+LocaleContainer::~LocaleContainer()
 {
 }
 
-LocaleContainer & LocaleContainer::operator=(const LocaleContainer &container)
+LocaleContainer& LocaleContainer::operator=(const LocaleContainer&container)
 {
-    if(this == &container)
+    if (this == &container)
     {
-        return(*this);
+        return *this;
     }
 
     _languageId = container._languageId;
 
-    return(*this);
+    return *this;
 }
 
-String LocaleContainer::getName(void) const
+String LocaleContainer::getName() const
 {
-    return(NAME);
+    return NAME;
 }
 
-OperationContext::Container * LocaleContainer::clone(void) const
+OperationContext::Container* LocaleContainer::clone() const
 {
-    return(new LocaleContainer(*this));
+    return new LocaleContainer(*this);
 }
 
-void LocaleContainer::destroy(void)
+void LocaleContainer::destroy()
 {
     delete this;
 }
 
-String LocaleContainer::getLanguageId(void) const
+String LocaleContainer::getLanguageId() const
 {
-    return(_languageId);
+    return _languageId;
 }
 
 //
@@ -104,11 +100,13 @@ String LocaleContainer::getLanguageId(void) const
 
 const String ProviderIdContainer::NAME = "ProviderIdContainer";
 
-ProviderIdContainer::ProviderIdContainer(const OperationContext::Container & container)
+ProviderIdContainer::ProviderIdContainer(
+    const OperationContext::Container& container)
 {
-    const ProviderIdContainer * p = dynamic_cast<const ProviderIdContainer *>(&container);
+    const ProviderIdContainer* p =
+        dynamic_cast<const ProviderIdContainer*>(&container);
 
-    if(p == 0)
+    if (p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -117,10 +115,10 @@ ProviderIdContainer::ProviderIdContainer(const OperationContext::Container & con
 }
 
 ProviderIdContainer::ProviderIdContainer(
-    const CIMInstance & module,
-    const CIMInstance & provider,
+    const CIMInstance& module,
+    const CIMInstance& provider,
     Boolean isRemoteNameSpace,
-    const String & remoteInfo)
+    const String& remoteInfo)
     : _module(module),
     _provider(provider),
     _isRemoteNameSpace(isRemoteNameSpace),
@@ -128,15 +126,16 @@ ProviderIdContainer::ProviderIdContainer(
 {
 }
 
-ProviderIdContainer::~ProviderIdContainer(void)
+ProviderIdContainer::~ProviderIdContainer()
 {
 }
 
-ProviderIdContainer & ProviderIdContainer::operator=(const ProviderIdContainer & container)
+ProviderIdContainer& ProviderIdContainer::operator=(
+    const ProviderIdContainer& container)
 {
-    if(this == &container)
+    if (this == &container)
     {
-        return(*this);
+        return *this;
     }
 
     _module = container._module;
@@ -144,55 +143,58 @@ ProviderIdContainer & ProviderIdContainer::operator=(const ProviderIdContainer &
     _isRemoteNameSpace = container._isRemoteNameSpace;
     _remoteInfo = container._remoteInfo;
 
-    return(*this);
+    return *this;
 }
 
-String ProviderIdContainer::getName(void) const
+String ProviderIdContainer::getName() const
 {
-    return(NAME);
+    return NAME;
 }
 
-OperationContext::Container * ProviderIdContainer::clone(void) const
+OperationContext::Container* ProviderIdContainer::clone() const
 {
-    return(new ProviderIdContainer(*this));
+    return new ProviderIdContainer(*this);
 }
 
-void ProviderIdContainer::destroy(void)
+void ProviderIdContainer::destroy()
 {
     delete this;
 }
 
-CIMInstance ProviderIdContainer::getModule(void) const
+CIMInstance ProviderIdContainer::getModule() const
 {
-    return(_module);
+    return _module;
 }
 
-CIMInstance ProviderIdContainer::getProvider(void) const
+CIMInstance ProviderIdContainer::getProvider() const
 {
-    return(_provider);
+    return _provider;
 }
 
-Boolean ProviderIdContainer::isRemoteNameSpace(void) const
+Boolean ProviderIdContainer::isRemoteNameSpace() const
 {
-    return(_isRemoteNameSpace);
+    return _isRemoteNameSpace;
 }
 
-String ProviderIdContainer::getRemoteInfo(void) const
+String ProviderIdContainer::getRemoteInfo() const
 {
-    return(_remoteInfo);
+    return _remoteInfo;
 }
 
 //
 // CachedClassDefinitionContainer
 //
 
-const String CachedClassDefinitionContainer::NAME = "CachedClassDefinitionContainer";
+const String CachedClassDefinitionContainer::NAME =
+    "CachedClassDefinitionContainer";
 
-CachedClassDefinitionContainer::CachedClassDefinitionContainer(const OperationContext::Container & container)
+CachedClassDefinitionContainer::CachedClassDefinitionContainer(
+    const OperationContext::Container& container)
 {
-    const CachedClassDefinitionContainer * p = dynamic_cast<const CachedClassDefinitionContainer *>(&container);
+    const CachedClassDefinitionContainer* p =
+        dynamic_cast<const CachedClassDefinitionContainer*>(&container);
 
-    if(p == 0)
+    if (p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -201,45 +203,47 @@ CachedClassDefinitionContainer::CachedClassDefinitionContainer(const OperationCo
 }
 
 
-CachedClassDefinitionContainer::CachedClassDefinitionContainer(const CIMClass & cimClass)
+CachedClassDefinitionContainer::CachedClassDefinitionContainer(
+    const CIMClass& cimClass)
     : _cimClass(cimClass)
 {
 }
 
-CachedClassDefinitionContainer::~CachedClassDefinitionContainer(void)
+CachedClassDefinitionContainer::~CachedClassDefinitionContainer()
 {
 }
 
-CachedClassDefinitionContainer & CachedClassDefinitionContainer::operator=(const CachedClassDefinitionContainer & container)
+CachedClassDefinitionContainer& CachedClassDefinitionContainer::operator=(
+    const CachedClassDefinitionContainer& container)
 {
-    if(this == &container)
+    if (this == &container)
     {
-        return(*this);
+        return *this;
     }
 
     _cimClass = container._cimClass;
 
-    return(*this);
+    return *this;
 }
 
-String CachedClassDefinitionContainer::getName(void) const
+String CachedClassDefinitionContainer::getName() const
 {
-    return(NAME);
+    return NAME;
 }
 
-OperationContext::Container * CachedClassDefinitionContainer::clone(void) const
+OperationContext::Container* CachedClassDefinitionContainer::clone() const
 {
-    return(new CachedClassDefinitionContainer(*this));
+    return new CachedClassDefinitionContainer(*this);
 }
 
-void CachedClassDefinitionContainer::destroy(void)
+void CachedClassDefinitionContainer::destroy()
 {
     delete this;
 }
 
-CIMClass CachedClassDefinitionContainer::getClass(void) const
+CIMClass CachedClassDefinitionContainer::getClass() const
 {
-    return(_cimClass);
+    return _cimClass;
 }
 
 //
@@ -249,12 +253,12 @@ CIMClass CachedClassDefinitionContainer::getClass(void) const
 const String NormalizerContextContainer::NAME = "NormalizerContextContainer";
 
 NormalizerContextContainer::NormalizerContextContainer(
-    const OperationContext::Container & container)
+    const OperationContext::Container& container)
 {
-    const NormalizerContextContainer * p =
-        dynamic_cast<const NormalizerContextContainer *>(&container);
+    const NormalizerContextContainer* p =
+        dynamic_cast<const NormalizerContextContainer*>(&container);
 
-    if(p == 0)
+    if (p == 0)
     {
         throw DynamicCastFailedException();
     }
@@ -264,19 +268,19 @@ NormalizerContextContainer::NormalizerContextContainer(
 
 
 NormalizerContextContainer::NormalizerContextContainer(
-    AutoPtr<NormalizerContext> & context) : normalizerContext(context.get())
+    AutoPtr<NormalizerContext>& context) : normalizerContext(context.get())
 {
   context.release();
 }
 
 NormalizerContextContainer::NormalizerContextContainer(
-    const NormalizerContextContainer & container)
+    const NormalizerContextContainer& container)
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
     defined (PEGASUS_PLATFORM_DARWIN_PPC_GNU)
     : OperationContext::Container()
 #endif
 {
-    if(this != &container)
+    if (this != &container)
     {
         normalizerContext.reset(container.normalizerContext->clone().release());
     }
@@ -286,27 +290,27 @@ NormalizerContextContainer::~NormalizerContextContainer()
 {
 }
 
-NormalizerContextContainer & NormalizerContextContainer::operator=(
-  const NormalizerContextContainer & container)
+NormalizerContextContainer& NormalizerContextContainer::operator=(
+    const NormalizerContextContainer& container)
 {
-    if(this == &container)
+    if (this == &container)
     {
-        return(*this);
+        return *this;
     }
 
     normalizerContext.reset(container.normalizerContext->clone().release());
 
-    return(*this);
+    return *this;
 }
 
 String NormalizerContextContainer::getName() const
 {
-    return(NAME);
+    return NAME;
 }
 
-OperationContext::Container * NormalizerContextContainer::clone() const
+OperationContext::Container* NormalizerContextContainer::clone() const
 {
-    return(new NormalizerContextContainer(*this));
+    return new NormalizerContextContainer(*this);
 }
 
 void NormalizerContextContainer::destroy()
@@ -314,7 +318,7 @@ void NormalizerContextContainer::destroy()
     delete this;
 }
 
-NormalizerContext * NormalizerContextContainer::getContext() const
+NormalizerContext* NormalizerContextContainer::getContext() const
 {
     return normalizerContext.get();
 }

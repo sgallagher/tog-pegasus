@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sean Keenan (sean.keenan@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_VMS_ALPHA_DECCXX_h
@@ -89,9 +85,9 @@
 #define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
 
 // PEGASUS_DISABLE_INTERNAL_INLINES
-// Debug builds fail with undefined symbols. Perhaps this is 
-// because debug (nooptimize) builds have the compiler inline 
-// feature turned off. 
+// Debug builds fail with undefined symbols. Perhaps this is
+// because debug (nooptimize) builds have the compiler inline
+// feature turned off.
 #define PEGASUS_DISABLE_INTERNAL_INLINES
 
 #define PEGASUS_HAVE_PTHREADS

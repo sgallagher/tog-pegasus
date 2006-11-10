@@ -113,7 +113,7 @@ public:
 
     Boolean run(Uint32 milliseconds);
 
-    MessageQueue & get_owner(void)
+    MessageQueue& get_owner()
     {
         return *_ownerMessageQueue;
     }

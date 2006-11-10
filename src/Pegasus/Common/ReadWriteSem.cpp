@@ -54,8 +54,9 @@ ReadWriteSem::ReadWriteSem():_readers(0), _writers(0)
 
 ReadWriteSem::~ReadWriteSem()
 {
-    int r=0;
-    while (r=pthread_rwlock_destroy(&_rwlock.rwlock) == EBUSY || (r == -1 && errno == EBUSY))
+    int r = 0;
+    while (r=pthread_rwlock_destroy(&_rwlock.rwlock) == EBUSY ||
+           (r == -1 && errno == EBUSY))
     {
         Threads::yield();
     }
@@ -207,12 +208,12 @@ void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
 
 int ReadWriteSem::read_count() const
 {
-    return (_readers.get());
+    return _readers.get();
 }
 
 int ReadWriteSem::write_count() const
 {
-    return (_writers.get());
+    return _writers.get();
 }
 
 #endif /* PEGASUS_USE_POSIX_RWLOCK */
@@ -258,11 +259,11 @@ ReadWriteSem::~ReadWriteSem()
     {
         _rwlock._internal_lock.lock();
     }
-    catch(Deadlock &)
+    catch (Deadlock &)
     {
         // no problem - we own the lock, which is what we want
     }
-    catch(IPCException &)
+    catch (IPCException &)
     {
         PEGASUS_ASSERT(0);
     }
@@ -314,7 +315,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
             else
                 _rwlock._internal_lock.timed_lock(milliseconds);
         }
-        catch(const IPCException & e)
+        catch (const IPCException & e)
         {
             caught = e;
             goto throw_from_here;
@@ -371,7 +372,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
                 {
                     _rwlock._wlock.try_lock();
                 }
-                catch(IPCException & e)
+                catch (IPCException & e)
                 {
                     _rwlock._internal_lock.unlock();
                     caught = e;
@@ -384,7 +385,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
                 {
                     _rwlock._wlock.lock();
                 }
-                catch(const IPCException & e)
+                catch (const IPCException & e)
                 {
                     _rwlock._internal_lock.unlock();
                     caught = e;
@@ -397,7 +398,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
                 {
                     _rwlock._wlock.timed_lock(milliseconds);
                 }
-                catch(const IPCException & e)
+                catch (const IPCException & e)
                 {
                     _rwlock._internal_lock.unlock();
                     caught = e;
@@ -468,7 +469,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
                 {
                     _rwlock._rlock.try_wait();
                 }
-                catch(const IPCException &)
+                catch (const IPCException &)
                 {
                     // the wait failed, there must be too many readers
                     // already.
@@ -484,7 +485,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
                 {
                     _rwlock._rlock.wait();
                 }
-                catch(const IPCException & e)
+                catch (const IPCException & e)
                 {
                     _rwlock._internal_lock.unlock();
                     caught = e;
@@ -497,7 +498,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
                 {
                     _rwlock._rlock.time_wait(milliseconds);
                 }
-                catch(const IPCException & e)
+                catch (const IPCException & e)
                 {
                     _rwlock._internal_lock.unlock();
                     caught = e;
@@ -513,7 +514,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
             _rwlock._internal_lock.unlock();
         }
       throw_from_here:
-	// ATTN:
+        // ATTN:
         Threads::cleanup_pop(0);
     }
 
@@ -557,12 +558,12 @@ void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
 
 int ReadWriteSem::read_count() const
 {
-    return (_readers.get());
+    return _readers.get();
 }
 
 int ReadWriteSem::write_count() const
 {
-    return (_writers.get());
+    return _writers.get();
 }
 
 #endif /* !PEGASUS_USE_SEMAPHORE_RWLOCK */

@@ -121,8 +121,8 @@ public:
     ~CIMClass();
 
     /**
-        Indicates whether this class is an association class.  An 
-        association is a relationship between two (or more) classes or 
+        Indicates whether this class is an association class.  An
+        association is a relationship between two (or more) classes or
         instances.  The Association qualifier is used to make this
         determination.
         @return True if this class is an association class, false otherwise.
@@ -147,7 +147,7 @@ public:
             initialized.
     */
     const CIMName& getClassName() const;
-        
+
     /**
         Gets the object path for the class.
         @return A CIMObjectPath containing the object path.
@@ -412,9 +412,9 @@ public:
         in the class definition.  The method arguments determine whether
         qualifiers are included, the class origin attributes are included,
         and which properties are included in the new instance.  This method
-        is designed specifically for providers to allow them to easily build 
+        is designed specifically for providers to allow them to easily build
         instance objects using the parameters provided with the CIM instance
-        operations such as getInstance and enumerateInstances.  
+        operations such as getInstance and enumerateInstances.
 
         <p><b>Example:</b>
         <pre>
@@ -423,7 +423,7 @@ public:
             CIMInstance myInstance =
                 myClass.buildInstance(true, true, CIMPropertyList());
         </pre>
-    
+
         @param includeQualifiers A Boolean indicating whether qualifiers in
         the class definition (and its properties) are to be added to the
         instance.  If false, no qualifiers are added to the instance or its
@@ -444,8 +444,8 @@ public:
         properties are added to the instance.  If the propertyList is empty,
         no properties are added.  Note that this function does NOT generate
         an error if a property name is supplied that is NOT in the class;
-        it simply does not add that property to the instance.  
-    
+        it simply does not add that property to the instance.
+
         @return CIMInstance of this class appropriately initialized.
 
         @exception UninitializedObjectException If the object is not
@@ -569,8 +569,8 @@ public:
     ~CIMConstClass();
 
     /**
-        Indicates whether this class is an association class.  An 
-        association is a relationship between two (or more) classes or 
+        Indicates whether this class is an association class.  An
+        association is a relationship between two (or more) classes or
         instances.  The Association qualifier is used to make this
         determination.
         @return True if this class is an association class, false otherwise.

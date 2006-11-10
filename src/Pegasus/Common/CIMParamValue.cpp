@@ -117,7 +117,7 @@ void CIMParamValue::setIsTyped(Boolean isTyped)
 
 Boolean CIMParamValue::isUninitialized() const
 {
-    return (_rep == 0)? true : false;
+    return _rep == 0;
 }
 
 CIMParamValue CIMParamValue::clone() const

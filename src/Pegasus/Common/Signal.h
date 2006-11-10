@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Markus Mueller (markus_mueller@de.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-// 	      : Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Signal_h

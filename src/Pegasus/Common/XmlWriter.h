@@ -29,20 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//         Willis White (whiwill@us.ibm.com) PEP 127 and 128
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
-//         David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//              Vijay Eli, vijayeli@in.ibm.com, fix for #2571
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_XmlWriter_h
@@ -371,7 +357,8 @@ public:
         const AcceptLanguageList& httpAcceptLanguages,
         const ContentLanguageList& httpContentLanguages);
 
-    //PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in respons header
+    // PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in
+    // response header
     static Buffer formatSimpleMethodRspMessage(
         const CIMName& methodName,
         const String& messageId,
@@ -399,7 +386,8 @@ public:
         const ContentLanguageList& httpContentLanguages,
         const Buffer& body);
 
-    //PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in respons header
+    // PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in
+    // response header
     static Buffer formatSimpleIMethodRspMessage(
         const CIMName& iMethodName,
         const String& messageId,

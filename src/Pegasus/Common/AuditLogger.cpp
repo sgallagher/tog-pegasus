@@ -481,7 +481,7 @@ String AuditLogger::_getModuleStatusValue(
         }
     }
 
-    return (moduleStatusValue);
+    return moduleStatusValue;
 }
 
 PEGASUS_NAMESPACE_END

@@ -39,6 +39,10 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/AuditLogger.h>
 
+#ifdef PEGASUS_OS_DARWIN
+# include <crt_externs.h>
+#endif
+
 #ifndef PEGASUS_OS_TYPE_WINDOWS
 # include <unistd.h>
 #endif
@@ -135,8 +139,12 @@ void AuditLogger::logCurrentRegProvider(
 
 void AuditLogger::logCurrentEnvironmentVar()
 {
+#ifdef PEGASUS_OS_DARWIN
+    char** envp = *_NSGetEnviron();
+#else
+    char** envp = environ;
+#endif
 
-    char ** envp = environ;
     Uint32 i = 0;
 
     while (envp[i])

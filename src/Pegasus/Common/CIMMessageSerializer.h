@@ -107,7 +107,7 @@ private:
     PEGASUS_HIDDEN_LINKAGE
     static void _serializeUserCertificate(
         Buffer& out,
-        const Array<SSLCertificateInfo*>& userCert);
+        const SSLCertificateInfo& userCert);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _serializeContentLanguageList(

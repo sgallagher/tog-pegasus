@@ -681,13 +681,18 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCPI>\n");
     }
 
-    if(operationContext.contains(SSLCertificateChainContainer::NAME))
+   if(operationContext.contains(SSLCertificateChainContainer::NAME))
     {
         const SSLCertificateChainContainer container =
             operationContext.get(SSLCertificateChainContainer::NAME);
 
         XmlWriter::append(out, "<PGOCSCCC>\n");
-        _serializeUserCertificate(out,container.getUserCert());
+        Array<SSLCertificateInfo> userCert = container.getUserCert();
+        for (Uint32 i=0; i < userCert.size(); i++)
+        {
+            _serializeUserCertificate(out,userCert[i]);
+        }
+
         XmlWriter::append(out, "</PGOCSCCC>\n");
     }
 
@@ -699,17 +704,14 @@ void CIMMessageSerializer::_serializeOperationContext(
 //
 void CIMMessageSerializer::_serializeUserCertificate(
     Buffer& out,
-    const Array<SSLCertificateInfo*>& userCert)
+    const SSLCertificateInfo& userCert)
 {
     // Use a PGUSERCERT element to encapsulate the UserCertificate
     // encoding
     XmlWriter::append(out, "<PGUSERCERT>\n");
 
-    for (Uint32 i =0; i < userCert.size(); i++)
-    {
-        XmlWriter::append(out, "<PGUSERCERT>\n");
-        XmlWriter::appendValueElement(out, userCert[i]->toString());
-    }
+    XmlWriter::appendValueElement(out, userCert.toString());
+
     XmlWriter::append(out, "</PGUSERCERT>\n");
 }
 

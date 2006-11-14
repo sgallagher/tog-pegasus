@@ -35,7 +35,7 @@ PROGRAM = mu
 
 OBJ_DIR = .
 INCLUDES = -I$(PEGASUS_ROOT)/src $(EXTRA_INCLUDES)
-EXE_OUTPUT = $(EXE_OUT)$(PROGRAM)$(EXE)
+EXE_OUTPUT = $(EXE_OUT) $(PROGRAM)$(EXE)
 
 ifeq ($(OS_TYPE),windows)
     PLATFORM_SOURCES = FilesWindows.cpp

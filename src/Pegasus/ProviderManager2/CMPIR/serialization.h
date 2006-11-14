@@ -112,6 +112,23 @@ struct BinarySerializerFT {
 
 	ssize_t (* serialize_CMPIDateTime) ( int, CMPIDateTime * );
 	CMPIDateTime * (* deserialize_CMPIDateTime) ( int, CONST CMPIBroker * );
+
+#ifdef CMPI_VER_200
+	ssize_t (* serialize_CMPIError) ( int, CMPIError * );
+	CMPIError * (* deserialize_CMPIError) ( int, CONST CMPIBroker * );
+
+	ssize_t (* serialize_CMPIErrorSeverity) ( int, CMPIErrorSeverity );
+	CMPIErrorSeverity (* deserialize_CMPIErrorSeverity) ( int, CONST CMPIBroker * );
+
+	ssize_t (* serialize_CMPIErrorProbableCause) ( int, CMPIErrorProbableCause );
+	CMPIErrorProbableCause (* deserialize_CMPIErrorProbableCause) ( int, CONST CMPIBroker * );
+
+	ssize_t (* serialize_CMPIrc) ( int, CMPIrc );
+	CMPIrc (* deserialize_CMPIrc) ( int, CONST CMPIBroker * );
+
+	ssize_t (* serialize_CMPIMsgFileHandle) ( int, CMPIMsgFileHandle );
+	CMPIMsgFileHandle (* deserialize_CMPIMsgFileHandle) ( int, CONST CMPIBroker * );
+#endif
 };
 
 #endif

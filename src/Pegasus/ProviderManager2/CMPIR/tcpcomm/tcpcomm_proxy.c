@@ -509,6 +509,7 @@ static void TCPCOMM_classPathIsA (int socket, CONST CMPIBroker * broker,
     CMPIObjectPath *cop;
     char *type;
     CMPIBoolean result;
+
     cop = (__sft)->deserialize_CMPIObjectPath(socket, broker);
     type= (__sft)->deserialize_string(socket, broker);
     result = broker->eft->classPathIsA(broker, cop, type, &rc);
@@ -516,6 +517,165 @@ static void TCPCOMM_classPathIsA (int socket, CONST CMPIBroker * broker,
     (__sft)->serialize_UINT8(socket, (unsigned char)result);
 };
 
+
+#ifdef CMPI_VER_200
+
+static void TCPCOMM_newCMPIError (int socket, CONST CMPIBroker * broker,
+		    CONST CMPIContext * context)
+{
+    char *owner,*msgID,*msg;
+    CMPIErrorSeverity sev;
+    CMPIErrorProbableCause pc;
+    CMPIrc cimStatusCode;
+    CMPIError *resError;
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+    owner = (__sft)->deserialize_string(socket, broker);
+    msgID = (__sft)->deserialize_string(socket, broker);
+    msg = (__sft)->deserialize_string(socket, broker);
+    sev = (__sft)->deserialize_CMPIErrorSeverity(socket, broker);
+    pc = (__sft)->deserialize_CMPIErrorProbableCause(socket, broker);
+    cimStatusCode = (__sft)->deserialize_CMPIrc(socket, broker);
+    resError = broker->eft->newCMPIError(
+        broker, owner, msgID, msg, sev, pc, cimStatusCode, &rc);
+    (__sft)->serialize_CMPIStatus(socket, &rc);
+    (__sft)->serialize_CMPIError(socket, resError);
+}
+
+static void TCPCOMM_openMessageFile (int socket, CONST CMPIBroker * broker,
+		    CONST CMPIContext * context)
+{
+    char *msgFile;
+    CMPIMsgFileHandle msgFileHandle;
+    CMPIStatus rc = { CMPI_RC_OK,NULL };
+
+    msgFile = (__sft)->deserialize_string(socket, broker);
+    rc = broker->eft->openMessageFile(broker, msgFile, &msgFileHandle);
+    (__sft)->serialize_CMPIStatus(socket, &rc);
+	(__sft)->serialize_CMPIMsgFileHandle(socket, msgFileHandle);
+}
+
+static void TCPCOMM_closeMessageFile (int socket, CONST CMPIBroker * broker,
+		    CONST CMPIContext * context)
+{
+    CMPIMsgFileHandle msgFileHandle;
+    CMPIStatus rc = { CMPI_RC_OK,NULL };
+
+    msgFileHandle = (__sft)->deserialize_CMPIMsgFileHandle(socket, broker);
+    rc = broker->eft->closeMessageFile(broker, msgFileHandle);
+    (__sft)->serialize_CMPIStatus(socket, &rc);
+}
+
+static void TCPCOMM_getMessage2 (int socket, CONST CMPIBroker * broker,
+		    CONST CMPIContext * context)
+{
+    union {
+      CMPIUint32  uint;
+      CMPIBoolean blean;
+      CMPIString  *str;
+      CMPIReal64  r64;
+      CMPIUint64  u64;
+    } value[10];
+    CMPIType type[10];
+
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIString *result;
+    char *msgId,*defMsg;
+    CMPIMsgFileHandle msgFileHandle;
+    CMPIUint32 count,i;
+    msgId = (__sft)->deserialize_string(socket, broker);
+    msgFileHandle = (__sft)->deserialize_CMPIMsgFileHandle(socket, broker);
+    defMsg = (__sft)->deserialize_string(socket, broker);
+    count = (__sft)->deserialize_UINT32(socket);
+
+    for (i=0; i<count; i++) {
+       type[i]=(__sft)->deserialize_CMPIType(socket);
+       switch (type[i]) {
+       case CMPI_uint32:
+       case CMPI_sint32:
+          value[i].uint=(__sft)->deserialize_UINT32(socket);
+	  break;
+       case CMPI_boolean:
+          value[i].blean=(CMPIBoolean)(__sft)->deserialize_UINT32(socket);
+ 	  break;
+       case CMPI_uint64:
+       case CMPI_sint64:
+          value[i].u64=(CMPIBoolean)(__sft)->deserialize_UINT64(socket);
+ 	  break;
+       case CMPI_real64: {
+             char * real_str;
+             real_str = (__sft)->deserialize_string ( socket, broker );
+             sscanf ( real_str, "%le", (double *) &value[i].r64 );
+          }
+	  break;
+       case CMPI_string:
+          value[i].str = (__sft)->deserialize_CMPIString ( socket, broker );
+	  break;
+       }
+    }
+
+
+    switch (count) {
+    case 0:
+        result = broker->eft->getMessage2(broker, msgId, msgFileHandle, defMsg, &rc, count);
+	break;
+    case 1:
+        result = broker->eft->getMessage2(broker, msgId, msgFileHandle, defMsg, &rc, count,
+	   type[0],value[0].uint);
+	break;
+    case 2:
+        result = broker->eft->getMessage2(broker, msgId, msgFileHandle, defMsg, &rc, count,
+	   type[0],value[0].uint, type[1],value[1].uint);
+	break;
+    case 3:
+        result = broker->eft->getMessage2(broker, msgId, msgFileHandle, defMsg, &rc, count,
+	   type[0],value[0].uint, type[1],value[1].uint, type[2],value[2].uint);
+	break;
+    case 4:
+        result = broker->eft->getMessage2(broker, msgId, msgFileHandle, defMsg, &rc, count,
+	   type[0],value[0].uint, type[1],value[1].uint, type[2],value[2].uint,
+	   type[3],value[3].uint);
+    case 5:
+        result = broker->eft->getMessage2(broker, msgId, msgFileHandle, defMsg, &rc, count,
+	   type[0],value[0].uint, type[1],value[1].uint, type[2],value[2].uint,
+	   type[3],value[3].uint, type[4],value[4].uint);
+	break;
+    case 6:
+        result = broker->eft->getMessage2(broker, msgId, msgFileHandle, defMsg, &rc, count,
+	   type[0],value[0].uint, type[1],value[1].uint, type[2],value[2].uint,
+	   type[3],value[3].uint, type[4],value[4].uint, type[5],value[5].uint);
+	break;
+    case 7:
+        result = broker->eft->getMessage2(broker, msgId, msgFileHandle, defMsg, &rc, count,
+	   type[0],value[0].uint, type[1],value[1].uint, type[2],value[2].uint,
+	   type[3],value[3].uint, type[4],value[4].uint, type[5],value[5].uint,
+	   type[6],value[6].uint);
+	break;
+     case 8:
+        result = broker->eft->getMessage2(broker, msgId, msgFileHandle, defMsg, &rc, count,
+	   type[0],value[0].uint, type[1],value[1].uint, type[2],value[2].uint,
+	   type[3],value[3].uint, type[4],value[4].uint, type[5],value[5].uint,
+	   type[6],value[6].uint, type[7],value[7].uint);
+	break;
+     case 9:
+        result = broker->eft->getMessage2(broker, msgId, msgFileHandle, defMsg, &rc, count,
+	   type[0],value[0].uint, type[1],value[1].uint, type[2],value[2].uint,
+	   type[3],value[3].uint, type[4],value[4].uint, type[5],value[5].uint,
+	   type[6],value[6].uint, type[7],value[7].uint, type[8],value[8].uint);
+	break;
+     default:
+        result = broker->eft->getMessage2(broker, msgId, msgFileHandle, defMsg, &rc, count,
+	   type[0],value[0].uint, type[1],value[1].uint, type[2],value[2].uint,
+	   type[3],value[3].uint, type[4],value[4].uint, type[5],value[5].uint,
+	   type[6],value[6].uint, type[7],value[7].uint, type[8],value[8].uint,
+	   type[9],value[9].uint);
+   }
+
+    (__sft)->serialize_CMPIStatus(socket, &rc);
+    (__sft)->serialize_CMPIString(socket, result);
+}
+
+#endif
 
 //! Up-call function identifiers.
 /*!
@@ -548,6 +708,13 @@ static struct socket_mb_function __mb_functions[] = {
     { "TCPCOMM_getMessage",             TCPCOMM_getMessage },
     { "TCPCOMM_logMessage",             TCPCOMM_logMessage },
     { "TCPCOMM_trace",                  TCPCOMM_trace }
+#ifdef CMPI_VER_200
+    ,
+    { "TCPCOMM_newCMPIError",           TCPCOMM_newCMPIError },
+    { "TCPCOMM_openMessageFile",        TCPCOMM_openMessageFile },
+    { "TCPCOMM_closeMessageFile",       TCPCOMM_closeMessageFile },
+    { "TCPCOMM_getMessage2",            TCPCOMM_getMessage2 }
+#endif /* CMPI_VER_200 */
 };
 /****************************************************************************/
 

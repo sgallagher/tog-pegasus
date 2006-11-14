@@ -128,6 +128,23 @@ static CMPISelectExp * __deserialize_CMPISelectExp ( int, CONST CMPIBroker *, CM
 static ssize_t __serialize_CMPIDateTime ( int, CMPIDateTime * );
 static CMPIDateTime * __deserialize_CMPIDateTime ( int, CONST CMPIBroker * );
 
+#ifdef CMPI_VER_200
+static ssize_t __serialize_CMPIError ( int, CMPIError * );
+static CMPIError * __deserialize_CMPIError ( int, CONST CMPIBroker * );
+
+static ssize_t __serialize_CMPIErrorSeverity ( int, CMPIErrorSeverity );
+static CMPIErrorSeverity __deserialize_CMPIErrorSeverity ( int, CONST CMPIBroker * );
+
+static ssize_t __serialize_CMPIErrorProbableCause ( int, CMPIErrorProbableCause );
+static CMPIErrorProbableCause __deserialize_CMPIErrorProbableCause ( int, CONST CMPIBroker * );
+
+static ssize_t __serialize_CMPIrc ( int, CMPIrc );
+static CMPIrc __deserialize_CMPIrc ( int, CONST CMPIBroker * );
+
+static ssize_t __serialize_CMPIMsgFileHandle ( int, CMPIMsgFileHandle );
+static CMPIMsgFileHandle __deserialize_CMPIMsgFileHandle ( int, CONST CMPIBroker * );
+#endif
+
 /****************************************************************************/
 
 const struct BinarySerializerFT binarySerializerFT = {
@@ -163,6 +180,18 @@ const struct BinarySerializerFT binarySerializerFT = {
 	__deserialize_CMPISelectExp,
 	__serialize_CMPIDateTime,
 	__deserialize_CMPIDateTime,
+#ifdef CMPI_VER_200
+	__serialize_CMPIError,
+	__deserialize_CMPIError,
+	__serialize_CMPIErrorSeverity,
+	__deserialize_CMPIErrorSeverity,
+	__serialize_CMPIErrorProbableCause,
+	__deserialize_CMPIErrorProbableCause,
+	__serialize_CMPIrc,
+	__deserialize_CMPIrc,
+	__serialize_CMPIMsgFileHandle,
+	__deserialize_CMPIMsgFileHandle,
+#endif
 };
 
 /****************************************************************************/
@@ -1123,6 +1152,83 @@ static CMPIDateTime * __deserialize_CMPIDateTime ( int fd,
 	return CMNewDateTimeFromBinary ( broker, msecs, i, NULL );
 }
 
+#ifdef CMPI_VER_200
+
+static ssize_t __serialize_CMPIError ( int fd, CMPIError * err )
+{
+	CMPIUint64 msecs;
+	CMPIBoolean i;
+	ssize_t out, tmp;
+
+	TRACE_VERBOSE(("entered function."));
+
+	if ( __serialized_NULL ( fd, err ) ) return 0;
+
+	TRACE_NORMAL(("serializing non-NULL CMPIError."));
+
+	TRACE_VERBOSE(("leaving function."));
+	return ( 0 );
+}
+
+
+static CMPIError * __deserialize_CMPIError ( int fd,
+						   CONST CMPIBroker * broker )
+{
+	CMPIError* nerr;
+
+	TRACE_VERBOSE(("entered function."));
+
+	if ( __deserialized_NULL ( fd ) ) return NULL;
+
+	TRACE_NORMAL(("deserializing non-NULL CMPIError."));
+
+	return nerr;
+}
+
+static ssize_t __serialize_CMPIErrorSeverity ( int fd, CMPIErrorSeverity sev )
+{
+return 0;
+}
+
+static CMPIErrorSeverity __deserialize_CMPIErrorSeverity ( int fd, CONST CMPIBroker * broker )
+{
+CMPIErrorSeverity sev;
+return sev;
+}
+
+static ssize_t __serialize_CMPIErrorProbableCause ( int fd, CMPIErrorProbableCause pc )
+{
+return 0;
+}
+
+static CMPIErrorProbableCause __deserialize_CMPIErrorProbableCause ( int fd, CONST CMPIBroker * broker )
+{
+CMPIErrorProbableCause pc;
+return pc;
+}
+
+static ssize_t __serialize_CMPIrc ( int fd, CMPIrc cimStatusCode )
+{
+return 0;
+}
+
+static CMPIrc __deserialize_CMPIrc ( int fd, CONST CMPIBroker * broker )
+{
+CMPIrc cimStatusCode;
+return cimStatusCode;
+}
+
+static ssize_t __serialize_CMPIMsgFileHandle ( int fd, CMPIMsgFileHandle msgFileHandle )
+{
+    return (__serialize_UINT32 ( fd, (CMPIUint32)msgFileHandle ));
+}
+
+static CMPIMsgFileHandle __deserialize_CMPIMsgFileHandle ( int fd, CONST CMPIBroker * broker )
+{
+    return ((CMPIMsgFileHandle)__deserialize_UINT32 ( fd ));
+}
+
+#endif /* CMPI_VER_200 */
 
 /****************************************************************************/
 

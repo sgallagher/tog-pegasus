@@ -143,6 +143,20 @@ struct _NativeCMPIBrokerFT {
                                       const char * language,
                                       CMPIArray ** projection,
                                       CMPIStatus * rc );
+#ifdef CMPI_VER_200
+
+   CMPIError* (*newCMPIError)
+       (const CMPIBroker*, const char*, const char*, const char*,
+       const CMPIErrorSeverity, const CMPIErrorProbableCause,
+       const CMPIrc, CMPIStatus*);
+   CMPIStatus (*openMessageFile)
+       (const CMPIBroker *, const char*, CMPIMsgFileHandle*);
+   CMPIStatus (*closeMessageFile)
+       (const CMPIBroker *, const CMPIMsgFileHandle);
+   CMPIString* (*getMessage2)
+       (const CMPIBroker *, const char *, const CMPIMsgFileHandle, const char *,
+       CMPIStatus*, CMPICount, ...);
+#endif /* CMPI_VER_200 */
 };
 #else
 #define CONST

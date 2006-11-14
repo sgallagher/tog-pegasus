@@ -236,13 +236,13 @@ static CMPIString*  __beft_getMessage (CONST CMPIBroker* broker,
         const char *msgId, const char *defMsg, CMPIStatus* rc, unsigned int count, ...)
 
 {
-        CMPIStatus nrc;
+    CMPIStatus nrc;
 	CMPIString *msg;
-        va_list argptr;
-        va_start(argptr,count);
+    va_list argptr;
+    va_start(argptr,count);
 
-        msg=((NativeCMPIBrokerFT*)(broker->bft))->getMessage(broker,msgId, defMsg,
-	         &nrc, count,argptr);
+    msg=((NativeCMPIBrokerFT*)(broker->bft))->getMessage(broker,msgId, defMsg,
+	    &nrc, count,argptr);
 	if (rc) *rc=nrc;
 	return msg;
 }
@@ -255,9 +255,7 @@ static CMPIStatus __beft_logMessage(const CMPIBroker*broker,
 				    const char *text,
 				    const CMPIString *string)
 {
-
-        return ((NativeCMPIBrokerFT*)(broker->bft))->logMessage(broker,severity, id, text, string);
-
+    return ((NativeCMPIBrokerFT*)(broker->bft))->logMessage(broker,severity, id, text, string);
 }
 
 
@@ -268,8 +266,8 @@ static CMPIStatus __beft_traceMessage(const CMPIBroker* broker,
 				      const CMPIString *string)
 {
 	return ((NativeCMPIBrokerFT*)(broker->bft))->trace(broker,level, component, text, string);
-
 }
+
 #else
 
 static CMPIArray *__beft_getKeyNames(CMPIBroker * broker,
@@ -278,6 +276,59 @@ static CMPIArray *__beft_getKeyNames(CMPIBroker * broker,
 {
      return ((NativeCMPIBrokerFT*)(broker->bft))->getKeyNames(broker,context,cop,rc);
 }
+
+#endif
+
+#if defined CMPI_VER_200
+
+static CMPIError* __beft_newCMPIError (
+    const CMPIBroker* broker, 
+    const char* owner, const char* msgID, const char* msg,
+    const CMPIErrorSeverity sev, const CMPIErrorProbableCause pc,
+    const CMPIrc cimStatusCode, CMPIStatus* rc)
+{
+    CMPIStatus nrc;
+	CMPIError *nerr;
+
+    nerr=((NativeCMPIBrokerFT*)(broker->bft))->newCMPIError(
+        broker, owner, msgID, msg, sev, pc, cimStatusCode, &nrc);
+	if (rc) *rc=nrc;
+	return nerr;
+}
+
+
+static CMPIStatus __beft_openMessageFile(
+    const CMPIBroker *broker,
+    const char* msgFile, CMPIMsgFileHandle* msgFileHandle)
+{
+    return ((NativeCMPIBrokerFT*)(broker->bft))->openMessageFile(
+        broker, msgFile, msgFileHandle);
+}
+
+static CMPIStatus __beft_closeMessageFile(
+    const CMPIBroker *broker,
+    const CMPIMsgFileHandle msgFileHandle) 
+{
+    return ((NativeCMPIBrokerFT*)(broker->bft))->closeMessageFile(
+        broker, msgFileHandle);
+}
+
+static CMPIString* __beft_getMessage2(
+    const CMPIBroker *broker, const char *msgId, 
+    const CMPIMsgFileHandle msgFileHandle, const char *defMsg,
+    CMPIStatus* rc, CMPICount count, ...) 
+{
+    CMPIStatus nrc;
+	CMPIString *msg;
+    va_list argptr;
+    va_start(argptr,count);
+
+    msg=((NativeCMPIBrokerFT*)(broker->bft))->getMessage2(broker, msgId,
+        msgFileHandle, defMsg, &nrc, count, argptr);
+	if (rc) *rc=nrc;
+	return msg;
+}
+
 #endif
 
 /****************************************************************************/
@@ -304,6 +355,12 @@ CMPIBrokerEncFT native_brokerEncFT = {
 	__beft_traceMessage,
 #else
 	__beft_getKeyNames,
+#endif
+#ifdef CMPI_VER_200
+    __beft_newCMPIError,
+    __beft_openMessageFile,
+    __beft_closeMessageFile,
+    __beft_getMessage2,
 #endif
 };
 

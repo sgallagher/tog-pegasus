@@ -1480,6 +1480,209 @@ CMPIString* TCPCOMM_getMessage(CONST CMPIBroker* broker,
     return result;
 }
 
+#ifdef CMPI_VER_200
+
+CMPIError* TCPCOMM_newCMPIError(
+    const CMPIBroker* broker, 
+    const char* owner, const char* msgID, const char* msg,
+    const CMPIErrorSeverity sev, const CMPIErrorProbableCause pc,
+    const CMPIrc cimStatusCode, CMPIStatus* rc)
+{
+    CMPIError *resError=NULL;
+	CMPIContext *context;
+	int socket;
+
+	tool_mm_get_broker((void**)&context);
+	socket = __broker_connect(broker, context, __FUNCTION__);
+	TRACE_NORMAL(("Executing remote MB call."));
+	if (socket < 0) {
+		if ((rc)) {
+			(rc)->rc = CMPI_RC_ERR_FAILED;
+			(rc)->msg = CMNewString((broker), "cannot connect to CIMOM", NULL);
+		}
+		TRACE_CRITICAL(("up-call connect to broker failed."));
+        return (resError);
+	};
+	(__sft)->serialize_string(socket,owner);
+	(__sft)->serialize_string(socket, msgID);
+	(__sft)->serialize_string(socket, msg);
+	(__sft)->serialize_CMPIErrorSeverity(socket, sev);
+	(__sft)->serialize_CMPIErrorProbableCause(socket, pc);
+	(__sft)->serialize_CMPIrc(socket, cimStatusCode);
+
+    if (rc) CMSetStatus(rc,CMPI_RC_OK);
+
+    {
+	    CMPIStatus __rc = (__sft)->deserialize_CMPIStatus(socket, broker);
+	    if ((rc))
+	        *(rc) = __rc;
+    };
+
+    resError = (__sft)->deserialize_CMPIError(socket, broker);
+    close(socket);
+    return resError;
+}
+
+CMPIStatus TCPCOMM_openMessageFile(
+    const CMPIBroker *broker,
+    const char* msgFile, CMPIMsgFileHandle* msgFileHandle)
+{
+	CMPIStatus __rc, *rc = &__rc;
+	CMPIContext *context;
+	int socket;
+
+	tool_mm_get_broker((void**)&context);
+	socket = __broker_connect(broker, context, __FUNCTION__);
+	TRACE_NORMAL(("Executing remote MB call."));
+	if (socket < 0) {
+		if ((rc)) {
+			(rc)->rc = CMPI_RC_ERR_FAILED;
+			(rc)->msg = CMNewString((broker), "cannot connect to CIMOM", NULL);
+		}
+		TRACE_CRITICAL(("up-call connect to broker failed."));
+		return (__rc);
+	};
+	(__sft)->serialize_string(socket, msgFile);
+
+	{
+	  CMPIStatus __rc = (__sft)->deserialize_CMPIStatus(socket, broker);
+	  if ((rc))
+		*(rc) = __rc;
+	}
+    *msgFileHandle = (__sft)->deserialize_CMPIMsgFileHandle(socket, broker);
+	close(socket);
+	return __rc;
+}
+
+CMPIStatus TCPCOMM_closeMessageFile(
+    const CMPIBroker *broker,
+    const CMPIMsgFileHandle msgFileHandle) 
+{
+	CMPIStatus __rc, *rc = &__rc;
+	CMPIContext *context;
+	int socket;
+
+	tool_mm_get_broker((void**)&context);
+	socket = __broker_connect(broker, context, __FUNCTION__);
+	TRACE_NORMAL(("Executing remote MB call."));
+	if (socket < 0) {
+		if ((rc)) {
+			(rc)->rc = CMPI_RC_ERR_FAILED;
+			(rc)->msg = CMNewString((broker), "cannot connect to CIMOM", NULL);
+		}
+		TRACE_CRITICAL(("up-call connect to broker failed."));
+		return (__rc);
+	};
+	(__sft)->serialize_CMPIMsgFileHandle(socket, msgFileHandle);
+
+	{
+	  CMPIStatus __rc = (__sft)->deserialize_CMPIStatus(socket, broker);
+	  if ((rc))
+		*(rc) = __rc;
+	}
+	close(socket);
+	return __rc;
+}
+
+CMPIString* TCPCOMM_getMessage2(
+    const CMPIBroker *broker, const char *msgId, 
+    const CMPIMsgFileHandle msgFileHandle, const char *defMsg,
+    CMPIStatus* rc, CMPICount count, ...) 
+{
+    CMPIString *result=NULL;
+    CMPIContext *context;
+    int socket;
+    unsigned int i;
+    CMPIType type;
+
+    tool_mm_get_broker((void**)&context);
+    socket = __broker_connect(broker, context, __FUNCTION__);
+
+    TRACE_NORMAL(("Executing remote MB call."));
+    if (socket < 0) {
+	if ((rc)) {
+	    (rc)->rc = CMPI_RC_ERR_FAILED;
+	    (rc)->msg = CMNewString((broker), "cannot connect to CIMOM", NULL);
+	}
+	TRACE_CRITICAL(("up-call connect to broker failed."));
+	return (result);
+    };
+
+    (__sft)->serialize_string(socket,msgId);
+	(__sft)->serialize_CMPIMsgFileHandle(socket, msgFileHandle);
+    (__sft)->serialize_string(socket,defMsg);
+    (__sft)->serialize_UINT32(socket,count);
+
+    va_list argptr;
+    va_start(argptr,count);
+    for (i=0; i<count; i++) {
+       type=va_arg(argptr,int);
+       (__sft)->serialize_CMPIType(socket,type);
+
+       switch (type) {
+       case CMPI_sint8:
+       case CMPI_sint16:
+       case CMPI_sint32: {
+             long int s=va_arg(argptr,unsigned long int);
+             (__sft)->serialize_CMPIValue(socket,CMPI_sint32,(CMPIValue*)&s);
+	  }
+       case CMPI_uint8:
+       case CMPI_uint16:
+       case CMPI_uint32: {
+             unsigned long int u=va_arg(argptr,unsigned long int);
+             (__sft)->serialize_CMPIValue(socket,CMPI_uint32,(CMPIValue*)&u);
+	  }
+	  break;
+       case CMPI_boolean: {
+             CMPIBoolean b=(CMPIBoolean)va_arg(argptr,int);
+             (__sft)->serialize_CMPIValue(socket,CMPI_boolean,(CMPIValue*)&b);
+	  }
+	  break;
+       case CMPI_real32:
+       case CMPI_real64: {
+             double d=va_arg(argptr,double);
+             (__sft)->serialize_CMPIValue(socket,CMPI_real64,(CMPIValue*)&d);
+	  }
+	  break;
+       case CMPI_sint64: {
+              lloonngg l=va_arg(argptr,lloonngg);
+             (__sft)->serialize_CMPIValue(socket,CMPI_sint64,(CMPIValue*)&l);
+	  }
+	  break;
+       case CMPI_uint64: {
+              unsigned lloonngg l=va_arg(argptr,unsigned lloonngg);
+             (__sft)->serialize_CMPIValue(socket,CMPI_uint64,(CMPIValue*)&l);
+	  }
+	  break;
+       case CMPI_chars: {
+              char *s=va_arg(argptr,char*);
+              (__sft)->serialize_string(socket,s);
+	  }
+	  break;
+       case CMPI_string: {
+              CMPIString *s=va_arg(argptr,CMPIString*);
+              (__sft)->serialize_string(socket,(char*)s->hdl);
+          }
+	  break;
+       default: ;
+       }
+    }
+    va_end(argptr);
+
+    if (rc) CMSetStatus(rc,CMPI_RC_OK);
+    {
+	CMPIStatus __rc = (__sft)->deserialize_CMPIStatus(socket, broker);
+	if ((rc))
+	    *(rc) = __rc;
+    };
+
+    result = (__sft)->deserialize_CMPIString(socket, broker);
+    close(socket);
+    return result;
+}
+
+#endif /* CMPI_VER_200 */
+
 CMPIBoolean TCPCOMM_selExp_evaluate (CONST CMPISelectExp* se,
                               CONST CMPIInstance *inst,
                               CMPIStatus *rc)
@@ -1724,17 +1927,24 @@ static NativeCMPIBrokerFT(tcpcomm_brokerFT) = {
 	TCPCOMM_trace,
 #endif
 	TCPCOMM_classPathIsA,
-        // These are added for Remote CMPI support for Indications
-        // We are not implemented the below functionalities on remote
-        // side instead we make UP calls to MB. -V 5245
-        TCPCOMM_selExp_evaluate,
-        TCPCOMM_selExp_getDOC,
-        TCPCOMM_selExp_getCOD,
-        TCPCOMM_selExp_evaluateUsingAccessor,
-        TCPCOMM_selExp_clone,
-        TCPCOMM_selExp_getString,
-        TCPCOMM_selExp_release,
-        TCPCOMM_selExp_newSelExp
+    // These are added for Remote CMPI support for Indications
+    // We are not implemented the below functionalities on remote
+    // side instead we make UP calls to MB. -V 5245
+    TCPCOMM_selExp_evaluate,
+    TCPCOMM_selExp_getDOC,
+    TCPCOMM_selExp_getCOD,
+    TCPCOMM_selExp_evaluateUsingAccessor,
+    TCPCOMM_selExp_clone,
+    TCPCOMM_selExp_getString,
+    TCPCOMM_selExp_release,
+    TCPCOMM_selExp_newSelExp
+#ifdef CMPI_VER_200
+    ,
+    TCPCOMM_newCMPIError,
+    TCPCOMM_openMessageFile,
+    TCPCOMM_closeMessageFile,
+    TCPCOMM_getMessage2
+#endif
 };
 
 

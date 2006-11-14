@@ -39,6 +39,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Array.h>
 
 #ifdef PEGASUS_HAS_SSL
 typedef struct x509_store_st X509_STORE;
@@ -447,7 +448,7 @@ private:
     friend class SSLContextManager;
 };
 
-#define PEGASUS_ARRAY_T SSLCertificateInfoRep
+#define PEGASUS_ARRAY_T SSLCertificateInfo
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 

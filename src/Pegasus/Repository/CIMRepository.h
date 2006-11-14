@@ -109,19 +109,19 @@ public:
     virtual void createClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& newClass,
-	const ContentLanguageList& contentLangs = ContentLanguageList());
+        const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// createInstance
     virtual CIMObjectPath createInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& newInstance,
-	const ContentLanguageList& contentLangs = ContentLanguageList());
+        const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// modifyClass
     virtual void modifyClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass,
-	const ContentLanguageList& contentLangs = ContentLanguageList());
+        const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// modifyInstance
     virtual void modifyInstance(
@@ -129,7 +129,7 @@ public:
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
         const CIMPropertyList& propertyList = CIMPropertyList(),
-	const ContentLanguageList& contentLangs = ContentLanguageList());
+        const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// enumerateClasses
     virtual Array<CIMClass> enumerateClasses(
@@ -146,7 +146,6 @@ public:
         const CIMName& className = CIMName(),
         Boolean deepInheritance = false);
 
-    
     /**
         Enumerates the instances of the specified class and its subclasses.
         This method mimics the client behavior for the EnumerateInstances
@@ -164,7 +163,7 @@ public:
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-	const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     /**
         Enumerates the instances of just the specified class.
@@ -270,7 +269,7 @@ public:
         const CIMObjectPath& instanceName,
         const CIMName& propertyName,
         const CIMValue& newValue = CIMValue(),
-	const ContentLanguageList& contentLangs = ContentLanguageList());
+        const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// getQualifier
     virtual CIMQualifierDecl getQualifier(
@@ -281,7 +280,7 @@ public:
     virtual void setQualifier(
         const CIMNamespaceName& nameSpace,
         const CIMQualifierDecl& qualifierDecl,
-	const ContentLanguageList& contentLangs = ContentLanguageList());
+        const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// deleteQualifier
     virtual void deleteQualifier(
@@ -290,7 +289,7 @@ public:
 
     /// enumerateQualifiers
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
-	const CIMNamespaceName& nameSpace);
+        const CIMNamespaceName& nameSpace);
 
     /** CIMMethod createNameSpace - Creates a new namespace in the repository
         @param String with the name of the namespace
@@ -300,10 +299,10 @@ public:
     */
 
     virtual void createNameSpace(const CIMNamespaceName& nameSpace,
-        const NameSpaceAttributes &attributes=NameSpaceAttributes());
+        const NameSpaceAttributes& attributes = NameSpaceAttributes());
 
     virtual void modifyNameSpace(const CIMNamespaceName& nameSpace,
-        const NameSpaceAttributes &attributes=NameSpaceAttributes());
+        const NameSpaceAttributes& attributes = NameSpaceAttributes());
 
     /** CIMMethod enumerateNameSpaces - Get all of the namespaces in the
         repository. \Ref{NAMESPACE}
@@ -320,8 +319,9 @@ public:
     */
     virtual void deleteNameSpace(const CIMNamespaceName& nameSpace);
 
-    virtual Boolean getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
-        NameSpaceAttributes & attributes);
+    virtual Boolean getNameSpaceAttributes(
+        const CIMNamespaceName& nameSpace,
+        NameSpaceAttributes& attributes);
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -330,7 +330,7 @@ public:
         This is useful, for example, when a compiler wants to check syntax
         without actually adding to the repository.
     */
-    void setDeclContext(RepositoryDeclContext *context);
+    void setDeclContext(RepositoryDeclContext* context);
 
     /** Indicates whether instance operations that do not have a provider
         registered should be served by this repository.
@@ -371,17 +371,16 @@ public:
         Array<CIMName>& subClassNames) const
     {
         ReadLock lock(const_cast<ReadWriteSem&>(_lock));
-        _nameSpaceManager.getSuperClassNames(nameSpaceName,
-                                             className,
-                                             subClassNames);
+        _nameSpaceManager.getSuperClassNames(
+            nameSpaceName, className, subClassNames);
     }
 
     virtual Boolean isRemoteNameSpace(
         const CIMNamespaceName& nameSpaceName,
-	String & remoteInfo);
+        String& remoteInfo);
 
 #ifdef PEGASUS_DEBUG
-    void DisplayCacheStatistics(void);
+    void DisplayCacheStatistics();
 #endif
 
 protected:
@@ -471,7 +470,7 @@ private:
 
         @param   nameSpace      the namespace of the instance
         @param   instanceName   the name of the instance
-     
+
         @return  true           if the instance is found
                  false          if the instance cannot be found
      */
@@ -519,7 +518,7 @@ private:
         Uint32& index,
         Uint32& size);
 
-    /** loads an instance object from disk to memory.  The caller passes 
+    /** loads an instance object from disk to memory.  The caller passes
         the byte position and the size of the instance record to be loaded.
         Returns true on success.
 
@@ -541,7 +540,7 @@ private:
     /** loads all the instance objects from disk to memeory.  Returns true
         on success.
 
-        @param   nameSpace      the namespace of the instances to be loaded 
+        @param   nameSpace      the namespace of the instances to be loaded
         @param   className      the class of the instances to be loaded
         @param   namedInstances an array of CIMInstance objects to which
                                 the loaded instances are appended

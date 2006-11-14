@@ -29,21 +29,17 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMAssociationProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMAssociationProvider::CIMAssociationProvider(void)
+CIMAssociationProvider::CIMAssociationProvider()
 {
 }
 
-CIMAssociationProvider::~CIMAssociationProvider(void)	
+CIMAssociationProvider::~CIMAssociationProvider()
 {
 }
 

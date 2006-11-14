@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_InheritanceTree_h
@@ -46,7 +41,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Repository/Linkage.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -55,53 +50,53 @@ class NameSpace;
 
 /** The InheritanceTree class tracks inheritance relationships of CIM classes.
 
-    This class is a memory resident version of the repository's persistent 
-    inheritance information (represented using file names). The InheritanceTree 
+    This class is a memory resident version of the repository's persistent
+    inheritance information (represented using file names). The InheritanceTree
     provides O(1) access (via hashing) to any class in the inheritance tree.
 
     The inheritance tree provides methods for interrogating certain kinds of
     information about a class, including:
 
-	<ul>
-	<li>the superclass</li>
-	<li>the subclasses</li>
-	<li>the descendent classes</li>
-	</ul>
+        <ul>
+        <li>the superclass</li>
+        <li>the subclasses</li>
+        <li>the descendent classes</li>
+        </ul>
 
     The insert() method is used to build up an InheritanceTree. The insert()
     method is called for each class-subclass relationship. For example, consider
     the following list of class-subclass pairs:
 
-	<pre>
-	{ "D", "B" }
-	{ "E", "B" }
-	{ "B", "A" }
-	{ "C", "A" }
-	{ "F", "C" }
-	</pre>
+        <pre>
+        { "D", "B" }
+        { "E", "B" }
+        { "B", "A" }
+        { "C", "A" }
+        { "F", "C" }
+        </pre>
 
     These pairs specify the following inheritance tree:
 
-	<pre>
+        <pre>
               A
             /   \
            B     C
          /   \     \
         D     E     F
-	</pre>
+        </pre>
 
     The pairs above may be used to build a class tree as follows:
 
-	<pre>
-	InheritanceTree it;
-	it.insert("D", "B");
-	it.insert("E", "B");
-	it.insert("B", "A");
-	it.insert("C", "A");
-	it.insert("F", "C");
-	it.insert("A", "");
-	it.check();
-	</pre>
+        <pre>
+        InheritanceTree it;
+        it.insert("D", "B");
+        it.insert("E", "B");
+        it.insert("B", "A");
+        it.insert("C", "A");
+        it.insert("F", "C");
+        it.insert("A", "");
+        it.check();
+        </pre>
 
     The check() method determines whether insert() was called for every class
     used as a superclass. In the following example, check() would fail (and
@@ -109,15 +104,15 @@ class NameSpace;
     argument) in two insert() calls but was never passed as the class itself
     (first argument) in any insert() call:
 
-	<pre>
-	InheritanceTree it;
-	it.insert("D", "B");
-	it.insert("E", "B");
-	it.insert("C", "A");
-	it.insert("F", "C");
-	it.insert("A", "");
-	it.check();
-	</pre>
+        <pre>
+        InheritanceTree it;
+        it.insert("D", "B");
+        it.insert("E", "B");
+        it.insert("C", "A");
+        it.insert("F", "C");
+        it.insert("A", "");
+        it.check();
+        </pre>
 
     In this case, check() throws an InvalidInheritanceTree exception.
 
@@ -127,36 +122,36 @@ class NameSpace;
     the file names in a certain directory as used by the CIMRepository. The
     CIMRepository contains a disk file per class and the name has this form:
 
-	<pre>
-	<ClassName>.<SuperClassName>
-	</pre>
+        <pre>
+        <ClassName>.<SuperClassName>
+        </pre>
 
-    For example, a class called "ThisClass" with super class "ThatClass" 
+    For example, a class called "ThisClass" with super class "ThatClass"
     has this name:
 
-	<pre>
-	ThisClass.ThisClass
-	</pre>
+        <pre>
+        ThisClass.ThisClass
+        </pre>
 
-    The file or course contains the XML encoding of the ThisClass class (which 
+    The file or course contains the XML encoding of the ThisClass class (which
     is irrelevant for the InheritanceTree). A root class (with no superclass
     has the following form):
 
-	<pre>
-	<ClassName>.#
-	</pre>
+        <pre>
+        <ClassName>.#
+        </pre>
 
     Suppose that ThatClass is a root class; then its file name is:
 
-	<pre>
-	ThatClass.#
-	</pre>
+        <pre>
+        ThatClass.#
+        </pre>
 
     It must be obvious by now that the insertFromPath() method just scans
     the file names in a directory and calls insert() for each one (splitting
     the class name from superclass name and translating '#' to an empty string).
 
-    The insertFromPath() method does NOT call check(), so it still must be 
+    The insertFromPath() method does NOT call check(), so it still must be
     called to verify the InheritanceTree.
 */
 class PEGASUS_REPOSITORY_LINKAGE InheritanceTree
@@ -170,48 +165,51 @@ public:
     ~InheritanceTree();
 
     /** Inserts a class-subclass relationship into the inheritance three.
-	Note that a class CAN be inserted before its superclass, in which case
-	a provisional entry is made for the superclass and flagged as such; 
-	when the superclass is later inserted, the provisional flag is cleared.
-	@param className - name of class being inserted.
-	@param superClassName - name of super class of class.
+        Note that a class CAN be inserted before its superclass, in which case
+        a provisional entry is made for the superclass and flagged as such;
+        when the superclass is later inserted, the provisional flag is cleared.
+        @param className - name of class being inserted.
+        @param superClassName - name of super class of class.
     */
     void insert(const String& className, const String& superClassName);
-    void insert(const String& className, const String& superClassName,
-       InheritanceTree &parentTree, NameSpace *parent);
+    void insert(
+       const String& className,
+       const String& superClassName,
+       InheritanceTree& parentTree,
+       NameSpace* parent);
 
     /** Scan directory for file names of the form <ClassName>.<SuperClass> and
-	call insert on insert for each one. Note that root classes (classes with
-	no superclass) will use "#" for a SuperClass name.
-	@param path - directory that contains files describing inheritance 
-	    infoformation.
-	@exception throws CannotOpenDirectory is invalid path specifies an
-	    invalid directory.
+        call insert on insert for each one. Note that root classes (classes with
+        no superclass) will use "#" for a SuperClass name.
+        @param path - directory that contains files describing inheritance
+            infoformation.
+        @exception throws CannotOpenDirectory is invalid path specifies an
+            invalid directory.
     */
     void insertFromPath(const String& path,
-        InheritanceTree* parentTree=NULL,
-        NameSpace *ns=NULL);
+        InheritanceTree* parentTree = NULL,
+        NameSpace* ns = NULL);
 
     /** Checks that every superClassName passed to insert() was also passed
-	as a className argument to insert(). In other words, it checks that
-	there are no provisional entries as described in the insert() method.
-	@exception InvalidInheritanceTree
+        as a className argument to insert(). In other words, it checks that
+        there are no provisional entries as described in the insert() method.
+        @exception InvalidInheritanceTree
     */
     void check() const;
 
     /** Get subclass names of the given class.
-	@param className - class whose subclass names will be gotten. If
-	    className is empty, all classnames are returned.
-	@param deepInheritance - if true all descendent classes of class
-	    are returned. If className is empty, only root classes are returned.
-	@param subClassNames - output argument to hold subclass names.
-	@return true on success. False if no such class.
+        @param className - class whose subclass names will be gotten. If
+            className is empty, all classnames are returned.
+        @param deepInheritance - if true all descendent classes of class
+            are returned. If className is empty, only root classes are returned.
+        @param subClassNames - output argument to hold subclass names.
+        @return true on success. False if no such class.
     */
     Boolean getSubClassNames(
-	const CIMName& className,
-	Boolean deepInheritance,
-	Array<CIMName>& subClassNames,
-        NameSpace *ns=NULL) const;
+        const CIMName& className,
+        Boolean deepInheritance,
+        Array<CIMName>& subClassNames,
+        NameSpace* ns = NULL) const;
 
 #if 0
     /** Returns true if class1 is a subclass of class2.
@@ -222,33 +220,33 @@ public:
     /** Get the names of all superclasses of this class (direct and indirect).
     */
     Boolean getSuperClassNames(
-	const CIMName& className,
-	Array<CIMName>& subClassNames) const;
+        const CIMName& className,
+        Array<CIMName>& subClassNames) const;
 
     /** Get the superclass of the given class.
-	@param className name of class.
-	@param superClassName name of superclass upon return.
-	@return true if class was found; false otherwise.
+        @param className name of class.
+        @param superClassName name of superclass upon return.
+        @return true if class was found; false otherwise.
     */
     Boolean getSuperClass(
-	const CIMName& className,
-	CIMName& superClassName) const;
+        const CIMName& className,
+        CIMName& superClassName) const;
 
     /** Returns true if the given class has sub-classes. */
     Boolean hasSubClasses(
-	const CIMName& className,
-	Boolean& hasSubClasses) const;
+        const CIMName& className,
+        Boolean& hasSubClasses) const;
 
     /** Returns true if this inhertance tree contains the given class. */
     Boolean containsClass(const CIMName& className) const;
 
-    /** Removes the given class from the class graph. 
-	@exception CIMException(CIM_ERR_CLASS_HAS_CHILDREN)
-	@exception CIMException(CIM_ERR_INVALID_CLASS)
+    /** Removes the given class from the class graph.
+        @exception CIMException(CIM_ERR_CLASS_HAS_CHILDREN)
+        @exception CIMException(CIM_ERR_INVALID_CLASS)
     */
     void remove(const CIMName& className,
-        InheritanceTree &parentTree,
-        NameSpace *ns=NULL);
+        InheritanceTree& parentTree,
+        NameSpace* ns = NULL);
 
     /** Prints the class */
     void print(PEGASUS_STD(ostream)& os) const;
@@ -260,7 +258,7 @@ private:
     InheritanceTree& operator=(const InheritanceTree&) { return *this; }
 
     InheritanceTreeRep* _rep;
-    
+
     friend struct InheritanceTreeNode;
 };
 
@@ -272,13 +270,12 @@ private:
 class PEGASUS_REPOSITORY_LINKAGE InvalidInheritanceTree : public Exception
 {
 public:
-	//l10n start
-    //InvalidInheritanceTree(const String& className) 
-	//: Exception("Invalid inheritance tree: unknown class: " + className) { }
-	InvalidInheritanceTree(const String& className) 
-	: Exception(MessageLoaderParms("Repository.InheritanceTree.INVALID_INHERITANCE_TREE",
-								   "Invalid inheritance tree: unknown class: $0", className)) { }
-	//l10n end
+    InvalidInheritanceTree(const String& className)
+    : Exception(MessageLoaderParms(
+          "Repository.InheritanceTree.INVALID_INHERITANCE_TREE",
+          "Invalid inheritance tree: unknown class: $0", className))
+    {
+    }
 };
 
 PEGASUS_NAMESPACE_END

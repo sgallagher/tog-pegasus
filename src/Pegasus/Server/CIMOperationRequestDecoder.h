@@ -50,226 +50,225 @@ class XmlParser;
  */
 class CIMOperationRequestDecoder : public MessageQueueService
 {
-   public:
-      typedef MessageQueueService Base;
-    
-      CIMOperationRequestDecoder(
-	 MessageQueueService* outputQueue,
-	 Uint32 returnQueueId);
+public:
+    typedef MessageQueueService Base;
 
-      ~CIMOperationRequestDecoder();
+    CIMOperationRequestDecoder(
+        MessageQueueService* outputQueue,
+        Uint32 returnQueueId);
 
-      void sendResponse(
-         Uint32 queueId, 
-         Buffer& message,
-         Boolean closeConnect = false);
+   ~CIMOperationRequestDecoder();
 
-      void sendIMethodError(
-         Uint32 queueId, 
-         HttpMethod httpMethod,
-         const String& messageId,
-         const String& methodName,
-         const CIMException& cimException,
-         Boolean closeConnect = false);
+   void sendResponse(
+        Uint32 queueId,
+        Buffer& message,
+        Boolean closeConnect = false);
 
-      void sendMethodError(
-         Uint32 queueId, 
-         HttpMethod httpMethod,
-         const String& messageId,
-         const String& methodName,
-         const CIMException& cimException,
-         Boolean closeConnect = false);
+    void sendIMethodError(
+        Uint32 queueId,
+        HttpMethod httpMethod,
+        const String& messageId,
+        const String& methodName,
+        const CIMException& cimException,
+        Boolean closeConnect = false);
 
-      void sendHttpError(
-         Uint32 queueId, 
-         const String& status,
-         const String& cimError = String::EMPTY,
-         const String& messageBody = String::EMPTY,
-         Boolean closeConnect = false);
+    void sendMethodError(
+        Uint32 queueId,
+        HttpMethod httpMethod,
+        const String& messageId,
+        const String& methodName,
+        const CIMException& cimException,
+        Boolean closeConnect = false);
 
-      virtual void handleEnqueue(Message *);
+    void sendHttpError(
+        Uint32 queueId,
+        const String& status,
+        const String& cimError = String::EMPTY,
+        const String& messageBody = String::EMPTY,
+        Boolean closeConnect = false);
 
-      virtual void handleEnqueue();
+    virtual void handleEnqueue(Message *);
 
-      void handleHTTPMessage(HTTPMessage* httpMessage);
+    virtual void handleEnqueue();
 
-// l10n
-      void handleMethodCall(
-         Uint32 queueId,
-         HttpMethod httpMethod,
-         char* content,
-         Uint32 contentLength,
-         const String& cimProtocolVersionInHeader,
-         const String& cimMethodInHeader,
-         const String& cimObjectInHeader,
-         const String& authType,
-         const String& userName,
-         const String& ipAddress,
-         const AcceptLanguageList& httpAcceptLanguages,
-         const ContentLanguageList& httpContentLanguages,
-         Boolean closeConnect);
+    void handleHTTPMessage(HTTPMessage* httpMessage);
 
-      CIMCreateClassRequestMessage* decodeCreateClassRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    void handleMethodCall(
+        Uint32 queueId,
+        HttpMethod httpMethod,
+        char* content,
+        Uint32 contentLength,
+        const String& cimProtocolVersionInHeader,
+        const String& cimMethodInHeader,
+        const String& cimObjectInHeader,
+        const String& authType,
+        const String& userName,
+        const String& ipAddress,
+        const AcceptLanguageList& httpAcceptLanguages,
+        const ContentLanguageList& httpContentLanguages,
+        Boolean closeConnect);
 
-      CIMGetClassRequestMessage* decodeGetClassRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMCreateClassRequestMessage* decodeCreateClassRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMModifyClassRequestMessage* decodeModifyClassRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMGetClassRequestMessage* decodeGetClassRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMEnumerateClassNamesRequestMessage* decodeEnumerateClassNamesRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMModifyClassRequestMessage* decodeModifyClassRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMEnumerateClassesRequestMessage* decodeEnumerateClassesRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMEnumerateClassNamesRequestMessage* decodeEnumerateClassNamesRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMDeleteClassRequestMessage* decodeDeleteClassRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMEnumerateClassesRequestMessage* decodeEnumerateClassesRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMCreateInstanceRequestMessage* decodeCreateInstanceRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMDeleteClassRequestMessage* decodeDeleteClassRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMGetInstanceRequestMessage* decodeGetInstanceRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMCreateInstanceRequestMessage* decodeCreateInstanceRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMModifyInstanceRequestMessage* decodeModifyInstanceRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMGetInstanceRequestMessage* decodeGetInstanceRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMEnumerateInstanceNamesRequestMessage* decodeEnumerateInstanceNamesRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMModifyInstanceRequestMessage* decodeModifyInstanceRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMEnumerateInstancesRequestMessage* decodeEnumerateInstancesRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMEnumerateInstanceNamesRequestMessage*
+        decodeEnumerateInstanceNamesRequest(
+            Uint32 queueId,
+            XmlParser& parser,
+            const String& messageId,
+            const CIMNamespaceName& nameSpace);
 
-      CIMDeleteInstanceRequestMessage* decodeDeleteInstanceRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMEnumerateInstancesRequestMessage* decodeEnumerateInstancesRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMSetQualifierRequestMessage* decodeSetQualifierRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMDeleteInstanceRequestMessage* decodeDeleteInstanceRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMGetQualifierRequestMessage* decodeGetQualifierRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMSetQualifierRequestMessage* decodeSetQualifierRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMEnumerateQualifiersRequestMessage* decodeEnumerateQualifiersRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMGetQualifierRequestMessage* decodeGetQualifierRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMDeleteQualifierRequestMessage* decodeDeleteQualifierRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMEnumerateQualifiersRequestMessage* decodeEnumerateQualifiersRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMReferenceNamesRequestMessage* decodeReferenceNamesRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMDeleteQualifierRequestMessage* decodeDeleteQualifierRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMReferencesRequestMessage* decodeReferencesRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMReferenceNamesRequestMessage* decodeReferenceNamesRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMAssociatorNamesRequestMessage* decodeAssociatorNamesRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMReferencesRequestMessage* decodeReferencesRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMAssociatorsRequestMessage* decodeAssociatorsRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMAssociatorNamesRequestMessage* decodeAssociatorNamesRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMGetPropertyRequestMessage* decodeGetPropertyRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMAssociatorsRequestMessage* decodeAssociatorsRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMSetPropertyRequestMessage* decodeSetPropertyRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMGetPropertyRequestMessage* decodeGetPropertyRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMExecQueryRequestMessage* decodeExecQueryRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMNamespaceName& nameSpace);
+    CIMSetPropertyRequestMessage* decodeSetPropertyRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-      CIMInvokeMethodRequestMessage* decodeInvokeMethodRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const CIMObjectPath& reference,
-	 const String& cimMethodName);
-        
-      /** Sets the flag to indicate whether or not the CIMServer is 
-	  shutting down.
-      */
-      void setServerTerminating(Boolean flag);
+    CIMExecQueryRequestMessage* decodeExecQueryRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMNamespaceName& nameSpace);
 
-   private:
+    CIMInvokeMethodRequestMessage* decodeInvokeMethodRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const CIMObjectPath& reference,
+        const String& cimMethodName);
 
-	//  Do not make _outputQueue an AutoPtr.
-      MessageQueueService* _outputQueue; 
+    /** Sets the flag to indicate whether or not the CIMServer is
+        shutting down.
+    */
+    void setServerTerminating(Boolean flag);
 
-      // Queue where responses should be enqueued.
-      Uint32 _returnQueueId;
+private:
 
-      // Flag to indicate whether or not the CIMServer is shutting down.
-      Boolean _serverTerminating;
+    // Do not make _outputQueue an AutoPtr.
+    MessageQueueService* _outputQueue;
 
+    // Queue where responses should be enqueued.
+    Uint32 _returnQueueId;
+
+    // Flag to indicate whether or not the CIMServer is shutting down.
+    Boolean _serverTerminating;
 };
 
 PEGASUS_NAMESPACE_END

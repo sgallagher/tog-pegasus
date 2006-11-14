@@ -29,17 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
-//              Willis White (whiwill@us.ibm.com) PEP 128
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMClient.h"
@@ -61,13 +50,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMClient::CIMClient()
 {
-    _rep = new CIMClientRep();   
-}   
-    
-CIMClient::~CIMClient()   
-{   
-    delete _rep;   
-} 
+    _rep = new CIMClientRep();
+}
+
+CIMClient::~CIMClient()
+{
+    delete _rep;
+}
 
 Uint32 CIMClient::getTimeout() const
 {
@@ -83,8 +72,7 @@ void CIMClient::connect(
     const String& host,
     const Uint32 portNumber,
     const String& userName,
-    const String& password
-)
+    const String& password)
 {
     _rep->connect(host, portNumber, userName, password);
 }
@@ -94,8 +82,7 @@ void CIMClient::connect(
     const Uint32 portNumber,
     const SSLContext& sslContext,
     const String& userName,
-    const String& password
-)
+    const String& password)
 {
     _rep->connect(host, portNumber, sslContext, userName, password);
 }
@@ -110,7 +97,6 @@ void CIMClient::disconnect()
     _rep->disconnect();
 }
 
-// l10n start
 void CIMClient::setRequestAcceptLanguages(const AcceptLanguageList& langs)
 {
     _rep->setRequestAcceptLanguages(langs);
@@ -140,7 +126,6 @@ void CIMClient::setRequestDefaultLanguages()
 {
     _rep->setRequestDefaultLanguages();
 }
-// l10n end
 
 CIMClass CIMClient::getClass(
     const CIMNamespaceName& nameSpace,
@@ -148,8 +133,7 @@ CIMClass CIMClient::getClass(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     return _rep->getClass(
         nameSpace,
@@ -166,8 +150,7 @@ CIMInstance CIMClient::getInstance(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     return _rep->getInstance(
         nameSpace,
@@ -180,8 +163,7 @@ CIMInstance CIMClient::getInstance(
 
 void CIMClient::deleteClass(
     const CIMNamespaceName& nameSpace,
-    const CIMName& className
-)
+    const CIMName& className)
 {
     _rep->deleteClass(
         nameSpace,
@@ -190,8 +172,7 @@ void CIMClient::deleteClass(
 
 void CIMClient::deleteInstance(
     const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName
-)
+    const CIMObjectPath& instanceName)
 {
     _rep->deleteInstance(
         nameSpace,
@@ -200,8 +181,7 @@ void CIMClient::deleteInstance(
 
 void CIMClient::createClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& newClass
-)
+    const CIMClass& newClass)
 {
     _rep->createClass(
         nameSpace,
@@ -210,8 +190,7 @@ void CIMClient::createClass(
 
 CIMObjectPath CIMClient::createInstance(
     const CIMNamespaceName& nameSpace,
-    const CIMInstance& newInstance
-)
+    const CIMInstance& newInstance)
 {
     return _rep->createInstance(
         nameSpace,
@@ -220,8 +199,7 @@ CIMObjectPath CIMClient::createInstance(
 
 void CIMClient::modifyClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& modifiedClass
-)
+    const CIMClass& modifiedClass)
 {
     _rep->modifyClass(
         nameSpace,
@@ -232,8 +210,7 @@ void CIMClient::modifyInstance(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     _rep->modifyInstance(
         nameSpace,
@@ -248,8 +225,7 @@ Array<CIMClass> CIMClient::enumerateClasses(
     Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
-    Boolean includeClassOrigin
-)
+    Boolean includeClassOrigin)
 {
     return _rep->enumerateClasses(
         nameSpace,
@@ -263,8 +239,7 @@ Array<CIMClass> CIMClient::enumerateClasses(
 Array<CIMName> CIMClient::enumerateClassNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    Boolean deepInheritance
-)
+    Boolean deepInheritance)
 {
     return _rep->enumerateClassNames(
         nameSpace,
@@ -279,8 +254,7 @@ Array<CIMInstance> CIMClient::enumerateInstances(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     return _rep->enumerateInstances(
         nameSpace,
@@ -294,8 +268,7 @@ Array<CIMInstance> CIMClient::enumerateInstances(
 
 Array<CIMObjectPath> CIMClient::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
-    const CIMName& className
-)
+    const CIMName& className)
 {
     return _rep->enumerateInstanceNames(
         nameSpace,
@@ -305,8 +278,7 @@ Array<CIMObjectPath> CIMClient::enumerateInstanceNames(
 Array<CIMObject> CIMClient::execQuery(
     const CIMNamespaceName& nameSpace,
     const String& queryLanguage,
-    const String& query
-)
+    const String& query)
 {
     return _rep->execQuery(
         nameSpace,
@@ -323,8 +295,7 @@ Array<CIMObject> CIMClient::associators(
     const String& resultRole,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     return _rep->associators(
         nameSpace,
@@ -344,8 +315,7 @@ Array<CIMObjectPath> CIMClient::associatorNames(
     const CIMName& assocClass,
     const CIMName& resultClass,
     const String& role,
-    const String& resultRole
-)
+    const String& resultRole)
 {
     return _rep->associatorNames(
         nameSpace,
@@ -363,8 +333,7 @@ Array<CIMObject> CIMClient::references(
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     return _rep->references(
         nameSpace,
@@ -380,8 +349,7 @@ Array<CIMObjectPath> CIMClient::referenceNames(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& resultClass,
-    const String& role
-)
+    const String& role)
 {
     return _rep->referenceNames(
         nameSpace,
@@ -393,8 +361,7 @@ Array<CIMObjectPath> CIMClient::referenceNames(
 CIMValue CIMClient::getProperty(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    const CIMName& propertyName
-)
+    const CIMName& propertyName)
 {
     return _rep->getProperty(
         nameSpace,
@@ -406,8 +373,7 @@ void CIMClient::setProperty(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     const CIMName& propertyName,
-    const CIMValue& newValue
-)
+    const CIMValue& newValue)
 {
     _rep->setProperty(
         nameSpace,
@@ -418,8 +384,7 @@ void CIMClient::setProperty(
 
 CIMQualifierDecl CIMClient::getQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMName& qualifierName
-)
+    const CIMName& qualifierName)
 {
     return _rep->getQualifier(
         nameSpace,
@@ -428,8 +393,7 @@ CIMQualifierDecl CIMClient::getQualifier(
 
 void CIMClient::setQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMQualifierDecl& qualifierDeclaration
-)
+    const CIMQualifierDecl& qualifierDeclaration)
 {
     _rep->setQualifier(
         nameSpace,
@@ -438,8 +402,7 @@ void CIMClient::setQualifier(
 
 void CIMClient::deleteQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMName& qualifierName
-)
+    const CIMName& qualifierName)
 {
     _rep->deleteQualifier(
         nameSpace,
@@ -447,8 +410,7 @@ void CIMClient::deleteQualifier(
 }
 
 Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
-    const CIMNamespaceName& nameSpace
-)
+    const CIMNamespaceName& nameSpace)
 {
     return _rep->enumerateQualifiers(
         nameSpace);
@@ -459,8 +421,7 @@ CIMValue CIMClient::invokeMethod(
     const CIMObjectPath& instanceName,
     const CIMName& methodName,
     const Array<CIMParamValue>& inParameters,
-    Array<CIMParamValue>& outParameters
-)
+    Array<CIMParamValue>& outParameters)
 {
     return _rep->invokeMethod(
         nameSpace,
@@ -470,17 +431,15 @@ CIMValue CIMClient::invokeMethod(
         outParameters);
 }
 
-
-void CIMClient::registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler)
+void CIMClient::registerClientOpPerformanceDataHandler(
+    ClientOpPerformanceDataHandler& handler)
 {
-  _rep->registerClientOpPerformanceDataHandler(handler);
+    _rep->registerClientOpPerformanceDataHandler(handler);
 }
 
-   
 void CIMClient::deregisterClientOpPerformanceDataHandler()
 {
-  _rep->deregisterClientOpPerformanceDataHandler();
+    _rep->deregisterClientOpPerformanceDataHandler();
 }
-
 
 PEGASUS_NAMESPACE_END

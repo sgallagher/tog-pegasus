@@ -29,21 +29,17 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMMethodProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMMethodProvider::CIMMethodProvider(void)
+CIMMethodProvider::CIMMethodProvider()
 {
 }
 
-CIMMethodProvider::~CIMMethodProvider(void)	
+CIMMethodProvider::~CIMMethodProvider()
 {
 }
 

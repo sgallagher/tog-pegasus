@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By: 
-//        Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
-//        Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -52,7 +46,6 @@
 #include <Pegasus/Server/ShutdownService.h>
 #include <Pegasus/Server/Linkage.h>
 
-
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -60,9 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
     method in the PG_ShutdownService class.  It provides response to the
     shutdown request from clients to shutdown cimom gracefully.
 */
-
-class PEGASUS_SERVER_LINKAGE ShutdownProvider 
-    : public CIMMethodProvider
+class PEGASUS_SERVER_LINKAGE ShutdownProvider : public CIMMethodProvider
 {
 public:
 
@@ -86,10 +77,10 @@ public:
         PEG_METHOD_EXIT();
     }
 
-    void terminate(void)
+    void terminate()
     {
         PEG_METHOD_ENTER(TRC_SHUTDOWN,"ShutdownProvider::terminate");
-	delete this;
+        delete this;
         PEG_METHOD_EXIT();
     }
 
@@ -97,14 +88,14 @@ public:
         Invoke Method.  Used to shutdown cimom.
     */
     void invokeMethod(
-        const OperationContext & context,
-        const CIMObjectPath & objectReference,
-        const CIMName & methodName,
-        const Array<CIMParamValue> & inParameters,
-        MethodResultResponseHandler & handler);
+        const OperationContext& context,
+        const CIMObjectPath& objectReference,
+        const CIMName& methodName,
+        const Array<CIMParamValue>& inParameters,
+        MethodResultResponseHandler& handler);
 
     /**
-     Standard initialization function for the provider.
+        Standard initialization function for the provider.
     */
     void initialize(CIMOMHandle& cimomHandle)
     {
@@ -117,7 +108,7 @@ private:
     //
     // Shutdown Service Instance variable
     //
-    ShutdownService*      _shutdownService;
+    ShutdownService* _shutdownService;
 };
 
 PEGASUS_NAMESPACE_END

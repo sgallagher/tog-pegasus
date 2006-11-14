@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP-101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -136,7 +130,7 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
        //
        // Parse the authentication challenge header
        //
-       if(!_parseAuthHeader(authHeader, authType, authRealm))
+       if (!_parseAuthHeader(authHeader, authType, authRealm))
        {
            throw InvalidAuthHeader();
        }
@@ -221,12 +215,12 @@ String ClientAuthenticator::buildRequestAuthHeader()
 
                 Uint32 userPassLength = userPass.size();
 
-                userPassArray.reserveCapacity( userPassLength );
+                userPassArray.reserveCapacity(userPassLength);
                 userPassArray.clear();
 
-                for( Uint32 i = 0; i < userPassLength; i++ )
+                for (Uint32 i = 0; i < userPassLength; i++)
                 {
-                    userPassArray.append( (char)userPass[i] );
+                    userPassArray.append((char)userPass[i]);
                 }
 
                 //
@@ -234,7 +228,7 @@ String ClientAuthenticator::buildRequestAuthHeader()
                 //
                 Buffer encodedArray;
 
-                encodedArray = Base64::encode( userPassArray );
+                encodedArray = Base64::encode(userPassArray);
 
                 challengeResponse.append(
                     String( encodedArray.getData(), encodedArray.size() ) );
@@ -248,7 +242,6 @@ String ClientAuthenticator::buildRequestAuthHeader()
         //    if (_challengeReceived)
         //    {
         //        challengeResponse = DIGEST_AUTH_HEADER;
-        //
         //    }
             break;
 
@@ -425,7 +418,7 @@ String ClientAuthenticator::_buildLocalAuthResponse()
         {
             fileContent = _getFileContent(_realm);
         }
-        catch(NoSuchFile&)
+        catch (NoSuchFile&)
         {
             //ATTN-NB-04-20000305: Log error message to log file
         }

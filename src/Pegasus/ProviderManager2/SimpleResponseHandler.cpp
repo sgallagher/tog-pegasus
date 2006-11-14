@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "SimpleResponseHandler.h"
@@ -48,15 +43,15 @@ PEGASUS_NAMESPACE_BEGIN
 // SimpleResponseHandler
 //
 
-SimpleResponseHandler::SimpleResponseHandler(void)
+SimpleResponseHandler::SimpleResponseHandler()
 {
 }
 
-SimpleResponseHandler::~SimpleResponseHandler(void)
+SimpleResponseHandler::~SimpleResponseHandler()
 {
 }
 
-void SimpleResponseHandler::processing(void)
+void SimpleResponseHandler::processing()
 {
     Logger::put(
         Logger::STANDARD_LOG,
@@ -67,7 +62,7 @@ void SimpleResponseHandler::processing(void)
     // do nothing
 }
 
-void SimpleResponseHandler::complete(void)
+void SimpleResponseHandler::complete()
 {
     Logger::put(
         Logger::STANDARD_LOG,
@@ -79,17 +74,17 @@ void SimpleResponseHandler::complete(void)
 }
 
 // return the number of objects in this handler
-Uint32 SimpleResponseHandler::size(void) const
+Uint32 SimpleResponseHandler::size() const
 {
-    return(0);
+    return 0;
 }
 
 // clear any objects in this handler
-void SimpleResponseHandler::clear(void)
+void SimpleResponseHandler::clear()
 {
 }
 
-ContentLanguageList SimpleResponseHandler::getLanguages(void)
+ContentLanguageList SimpleResponseHandler::getLanguages()
 {
     Logger::put(
         Logger::STANDARD_LOG,
@@ -103,7 +98,7 @@ ContentLanguageList SimpleResponseHandler::getLanguages(void)
     // OperationContext in the base ResponseHandler.
     OperationContext context = getContext();
 
-    if(context.contains(ContentLanguageListContainer::NAME))
+    if (context.contains(ContentLanguageListContainer::NAME))
     {
         ContentLanguageListContainer cntr =
             context.get(ContentLanguageListContainer::NAME);
@@ -115,15 +110,15 @@ ContentLanguageList SimpleResponseHandler::getLanguages(void)
 
 void SimpleResponseHandler::send(Boolean isComplete)
 {
-	// If this was NOT instantiated as a derived OperationResponseHandle class,
-	// then this will be null but is NOT an error. In this case, there is no
-	// response attached, hence no data,so there is nothing to send. else we have
-	// a valid "cross-cast" to the operation side
+    // If this was NOT instantiated as a derived OperationResponseHandle class,
+    // then this will be null but is NOT an error. In this case, there is no
+    // response attached, hence no data,so there is nothing to send. else we
+    // have a valid "cross-cast" to the operation side
 
-	OperationResponseHandler *operation =
-		dynamic_cast<OperationResponseHandler*>(this);
+    OperationResponseHandler* operation =
+        dynamic_cast<OperationResponseHandler*>(this);
 
-	if (operation)
+    if (operation)
     {
         operation->send(isComplete);
     }
@@ -133,31 +128,31 @@ void SimpleResponseHandler::send(Boolean isComplete)
 // SimpleInstanceResponseHandler
 //
 
-SimpleInstanceResponseHandler::SimpleInstanceResponseHandler(void)
+SimpleInstanceResponseHandler::SimpleInstanceResponseHandler()
 {
 }
 
-void SimpleInstanceResponseHandler::processing(void)
+void SimpleInstanceResponseHandler::processing()
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleInstanceResponseHandler::complete(void)
+void SimpleInstanceResponseHandler::complete()
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleInstanceResponseHandler::size(void) const
+Uint32 SimpleInstanceResponseHandler::size() const
 {
-    return(_objects.size());
+    return _objects.size();
 }
 
-void SimpleInstanceResponseHandler::clear(void)
+void SimpleInstanceResponseHandler::clear()
 {
     _objects.clear();
 }
 
-void SimpleInstanceResponseHandler::deliver(const CIMInstance & instance)
+void SimpleInstanceResponseHandler::deliver(const CIMInstance& instance)
 {
     PEG_LOGGER_TRACE((
         Logger::STANDARD_LOG,
@@ -170,49 +165,49 @@ void SimpleInstanceResponseHandler::deliver(const CIMInstance & instance)
     send(false);
 }
 
-void SimpleInstanceResponseHandler::deliver(const Array<CIMInstance> & instances)
+void SimpleInstanceResponseHandler::deliver(const Array<CIMInstance>& instances)
 {
     // call deliver for each object in the array
-    for(Uint32 i = 0, n = instances.size(); i < n; i++)
+    for (Uint32 i = 0, n = instances.size(); i < n; i++)
     {
         deliver(instances[i]);
     }
 }
 
-const Array<CIMInstance> SimpleInstanceResponseHandler::getObjects(void) const
+const Array<CIMInstance> SimpleInstanceResponseHandler::getObjects() const
 {
-    return(_objects);
+    return _objects;
 }
 
 //
 // SimpleObjectPathResponseHandler
 //
 
-SimpleObjectPathResponseHandler::SimpleObjectPathResponseHandler(void)
+SimpleObjectPathResponseHandler::SimpleObjectPathResponseHandler()
 {
 }
 
-void SimpleObjectPathResponseHandler::processing(void)
+void SimpleObjectPathResponseHandler::processing()
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleObjectPathResponseHandler::complete(void)
+void SimpleObjectPathResponseHandler::complete()
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleObjectPathResponseHandler::size(void) const
+Uint32 SimpleObjectPathResponseHandler::size() const
 {
-    return(_objects.size());
+    return _objects.size();
 }
 
-void SimpleObjectPathResponseHandler::clear(void)
+void SimpleObjectPathResponseHandler::clear()
 {
     _objects.clear();
 }
 
-void SimpleObjectPathResponseHandler::deliver(const CIMObjectPath & objectPath)
+void SimpleObjectPathResponseHandler::deliver(const CIMObjectPath& objectPath)
 {
     Logger::put(
         Logger::STANDARD_LOG,
@@ -225,51 +220,53 @@ void SimpleObjectPathResponseHandler::deliver(const CIMObjectPath & objectPath)
     send(false);
 }
 
-void SimpleObjectPathResponseHandler::deliver(const Array<CIMObjectPath> & objectPaths)
+void SimpleObjectPathResponseHandler::deliver(
+    const Array<CIMObjectPath>& objectPaths)
 {
     // call deliver for each object in the array
-    for(Uint32 i = 0, n = objectPaths.size(); i < n; i++)
+    for (Uint32 i = 0, n = objectPaths.size(); i < n; i++)
     {
         deliver(objectPaths[i]);
     }
 }
 
-const Array<CIMObjectPath> SimpleObjectPathResponseHandler::getObjects(void) const
+const Array<CIMObjectPath> SimpleObjectPathResponseHandler::getObjects() const
 {
-    return(_objects);
+    return _objects;
 }
 
 //
 // SimpleMethodResultResponseHandler
 //
 
-SimpleMethodResultResponseHandler::SimpleMethodResultResponseHandler(void)
+SimpleMethodResultResponseHandler::SimpleMethodResultResponseHandler()
 {
 }
 
-void SimpleMethodResultResponseHandler::processing(void)
+void SimpleMethodResultResponseHandler::processing()
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleMethodResultResponseHandler::complete(void)
+void SimpleMethodResultResponseHandler::complete()
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleMethodResultResponseHandler::size(void) const
+Uint32 SimpleMethodResultResponseHandler::size() const
 {
-    return(_objects.size());
+    return _objects.size();
 }
 
-void SimpleMethodResultResponseHandler::clear(void)
+void SimpleMethodResultResponseHandler::clear()
 {
     _objects.clear();
 
     _returnValue.clear();
 }
 
-void SimpleMethodResultResponseHandler::deliverParamValue(const CIMParamValue & outParamValue)
+void SimpleMethodResultResponseHandler::deliverParamValue(
+    const CIMParamValue& outParamValue)
 {
     _objects.append(outParamValue);
 
@@ -277,16 +274,17 @@ void SimpleMethodResultResponseHandler::deliverParamValue(const CIMParamValue & 
     //send(false);
 }
 
-void SimpleMethodResultResponseHandler::deliverParamValue(const Array<CIMParamValue> & outParamValues)
+void SimpleMethodResultResponseHandler::deliverParamValue(
+    const Array<CIMParamValue>& outParamValues)
 {
     // call deliver for each object in the array
-    for(Uint32 i = 0, n = outParamValues.size(); i < n; i++)
+    for (Uint32 i = 0, n = outParamValues.size(); i < n; i++)
     {
         deliverParamValue(outParamValues[i]);
     }
 }
 
-void SimpleMethodResultResponseHandler::deliver(const CIMValue & returnValue)
+void SimpleMethodResultResponseHandler::deliver(const CIMValue& returnValue)
 {
     Logger::put(
         Logger::STANDARD_LOG,
@@ -299,45 +297,46 @@ void SimpleMethodResultResponseHandler::deliver(const CIMValue & returnValue)
     send(false);
 }
 
-const Array<CIMParamValue> SimpleMethodResultResponseHandler::getParamValues(void) const
+const Array<CIMParamValue>
+    SimpleMethodResultResponseHandler::getParamValues() const
 {
-    return(_objects);
+    return _objects;
 }
 
-const CIMValue SimpleMethodResultResponseHandler::getReturnValue(void) const
+const CIMValue SimpleMethodResultResponseHandler::getReturnValue() const
 {
-    return(_returnValue);
+    return _returnValue;
 }
 
 //
 // SimpleIndicationResponseHandler
 //
 
-SimpleIndicationResponseHandler::SimpleIndicationResponseHandler(void)
+SimpleIndicationResponseHandler::SimpleIndicationResponseHandler()
 {
 }
 
-void SimpleIndicationResponseHandler::processing(void)
+void SimpleIndicationResponseHandler::processing()
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleIndicationResponseHandler::complete(void)
+void SimpleIndicationResponseHandler::complete()
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleIndicationResponseHandler::size(void) const
+Uint32 SimpleIndicationResponseHandler::size() const
 {
-    return(_objects.size());
+    return _objects.size();
 }
 
-void SimpleIndicationResponseHandler::clear(void)
+void SimpleIndicationResponseHandler::clear()
 {
     _objects.clear();
 }
 
-void SimpleIndicationResponseHandler::deliver(const CIMIndication & indication)
+void SimpleIndicationResponseHandler::deliver(const CIMIndication& indication)
 {
     Logger::put(
         Logger::STANDARD_LOG,
@@ -350,18 +349,19 @@ void SimpleIndicationResponseHandler::deliver(const CIMIndication & indication)
     send(false);
 }
 
-void SimpleIndicationResponseHandler::deliver(const Array<CIMIndication> & indications)
+void SimpleIndicationResponseHandler::deliver(
+    const Array<CIMIndication>& indications)
 {
     // call deliver for each object in the array
-    for(Uint32 i = 0, n = indications.size(); i < n; i++)
+    for (Uint32 i = 0, n = indications.size(); i < n; i++)
     {
         deliver(indications[i]);
     }
 }
 
 void SimpleIndicationResponseHandler::deliver(
-    const OperationContext & context,
-    const CIMIndication & indication)
+    const OperationContext& context,
+    const CIMIndication& indication)
 {
     Logger::put(
         Logger::STANDARD_LOG,
@@ -373,19 +373,19 @@ void SimpleIndicationResponseHandler::deliver(
 }
 
 void SimpleIndicationResponseHandler::deliver(
-    const OperationContext & context,
-    const Array<CIMIndication> & indications)
+    const OperationContext& context,
+    const Array<CIMIndication>& indications)
 {
     // call deliver for each object in the array
-    for(Uint32 i = 0, n = indications.size(); i < n; i++)
+    for (Uint32 i = 0, n = indications.size(); i < n; i++)
     {
         deliver(indications[i]);
     }
 }
 
-const Array<CIMIndication> SimpleIndicationResponseHandler::getObjects(void) const
+const Array<CIMIndication> SimpleIndicationResponseHandler::getObjects() const
 {
-    return(_objects);
+    return _objects;
 }
 
 
@@ -393,31 +393,31 @@ const Array<CIMIndication> SimpleIndicationResponseHandler::getObjects(void) con
 // SimpleObjectResponseHandler
 //
 
-SimpleObjectResponseHandler::SimpleObjectResponseHandler(void)
+SimpleObjectResponseHandler::SimpleObjectResponseHandler()
 {
 }
 
-void SimpleObjectResponseHandler::processing(void)
+void SimpleObjectResponseHandler::processing()
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleObjectResponseHandler::complete(void)
+void SimpleObjectResponseHandler::complete()
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleObjectResponseHandler::size(void) const
+Uint32 SimpleObjectResponseHandler::size() const
 {
-    return(_objects.size());
+    return _objects.size();
 }
 
-void SimpleObjectResponseHandler::clear(void)
+void SimpleObjectResponseHandler::clear()
 {
     _objects.clear();
 }
 
-void SimpleObjectResponseHandler::deliver(const CIMObject & object)
+void SimpleObjectResponseHandler::deliver(const CIMObject& object)
 {
     Logger::put(
         Logger::STANDARD_LOG,
@@ -430,49 +430,49 @@ void SimpleObjectResponseHandler::deliver(const CIMObject & object)
     send(false);
 }
 
-void SimpleObjectResponseHandler::deliver(const Array<CIMObject> & objects)
+void SimpleObjectResponseHandler::deliver(const Array<CIMObject>& objects)
 {
     // call deliver for each object in the array
-    for(Uint32 i = 0, n = objects.size(); i < n; i++)
+    for (Uint32 i = 0, n = objects.size(); i < n; i++)
     {
         deliver(objects[i]);
     }
 }
 
-const Array<CIMObject> SimpleObjectResponseHandler::getObjects(void) const
+const Array<CIMObject> SimpleObjectResponseHandler::getObjects() const
 {
-    return(_objects);
+    return _objects;
 }
 
 //
 // SimpleInstance2ObjectResponseHandler
 //
 
-SimpleInstance2ObjectResponseHandler::SimpleInstance2ObjectResponseHandler(void)
+SimpleInstance2ObjectResponseHandler::SimpleInstance2ObjectResponseHandler()
 {
 }
 
-void SimpleInstance2ObjectResponseHandler::processing(void)
+void SimpleInstance2ObjectResponseHandler::processing()
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleInstance2ObjectResponseHandler::complete(void)
+void SimpleInstance2ObjectResponseHandler::complete()
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleInstance2ObjectResponseHandler::size(void) const
+Uint32 SimpleInstance2ObjectResponseHandler::size() const
 {
-    return(_objects.size());
+    return _objects.size();
 }
 
-void SimpleInstance2ObjectResponseHandler::clear(void)
+void SimpleInstance2ObjectResponseHandler::clear()
 {
     _objects.clear();
 }
 
-void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance & object)
+void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance& object)
 {
     Logger::put(
         Logger::STANDARD_LOG,
@@ -486,49 +486,50 @@ void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance & object)
     //send(false);
 }
 
-void SimpleInstance2ObjectResponseHandler::deliver(const Array<CIMInstance> & objects)
+void SimpleInstance2ObjectResponseHandler::deliver(
+    const Array<CIMInstance>& objects)
 {
     // call deliver for each object in the array
-    for(Uint32 i = 0, n = objects.size(); i < n; i++)
+    for (Uint32 i = 0, n = objects.size(); i < n; i++)
     {
         deliver(objects[i]);
     }
 }
 
-const Array<CIMObject> SimpleInstance2ObjectResponseHandler::getObjects(void) const
+const Array<CIMObject> SimpleInstance2ObjectResponseHandler::getObjects() const
 {
-    return(_objects);
+    return _objects;
 }
 
 //
 // SimpleValueResponseHandler
 //
 
-SimpleValueResponseHandler::SimpleValueResponseHandler(void)
+SimpleValueResponseHandler::SimpleValueResponseHandler()
 {
 }
 
-void SimpleValueResponseHandler::processing(void)
+void SimpleValueResponseHandler::processing()
 {
     SimpleResponseHandler::processing();
 }
 
-void SimpleValueResponseHandler::complete(void)
+void SimpleValueResponseHandler::complete()
 {
     SimpleResponseHandler::complete();
 }
 
-Uint32 SimpleValueResponseHandler::size(void) const
+Uint32 SimpleValueResponseHandler::size() const
 {
-    return(_objects.size());
+    return _objects.size();
 }
 
-void SimpleValueResponseHandler::clear(void)
+void SimpleValueResponseHandler::clear()
 {
     _objects.clear();
 }
 
-void SimpleValueResponseHandler::deliver(const CIMValue & value)
+void SimpleValueResponseHandler::deliver(const CIMValue& value)
 {
     Logger::put(
         Logger::STANDARD_LOG,
@@ -541,18 +542,18 @@ void SimpleValueResponseHandler::deliver(const CIMValue & value)
     send(false);
 }
 
-void SimpleValueResponseHandler::deliver(const Array<CIMValue> & values)
+void SimpleValueResponseHandler::deliver(const Array<CIMValue>& values)
 {
     // call deliver for each object in the array
-    for(Uint32 i = 0, n = values.size(); i < n; i++)
+    for (Uint32 i = 0, n = values.size(); i < n; i++)
     {
         deliver(values[i]);
     }
 }
 
-const Array<CIMValue> SimpleValueResponseHandler::getObjects(void) const
+const Array<CIMValue> SimpleValueResponseHandler::getObjects() const
 {
-    return(_objects);
+    return _objects;
 }
 
 PEGASUS_NAMESPACE_END

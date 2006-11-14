@@ -36,15 +36,15 @@
 
     {"socketWriteTimeout", "20", IS_STATIC, 0, 0, IS_VISIBLE},
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include "DefaultPropertyTableLinux.h"
+# include "DefaultPropertyTableLinux.h"
 #elif PEGASUS_PLATFORM_HPUX_ACC
-#include "DefaultPropertyTableHpux.h"
+# include "DefaultPropertyTableHpux.h"
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-#include "DefaultPropertyTableOS400.h"
+# include "DefaultPropertyTableOS400.h"
 #elif defined (PEGASUS_OS_VMS)
-#include "DefaultPropertyTableVms.h"
+# include "DefaultPropertyTableVms.h"
 #elif defined(PEGASUS_OS_ZOS)
-#include "DefaultPropertyTablezOS.h"
+# include "DefaultPropertyTablezOS.h"
 #else
     {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -55,16 +55,15 @@
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # else
     {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
 # endif
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+# ifndef PEGASUS_DISABLE_AUDIT_LOGGER
     {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-#endif
+# endif
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #endif
 

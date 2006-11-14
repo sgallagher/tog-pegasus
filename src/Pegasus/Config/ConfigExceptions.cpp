@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -41,16 +37,16 @@
 PEGASUS_NAMESPACE_BEGIN
 
 String ConfigFileSyntaxError::_formatMessage(
-    const String& file, Uint32 line)
+    const String& file,
+    Uint32 line)
 {
     char buffer[32];
     sprintf(buffer, "%d", line);
 
-//l10n
-    //String result = "Syntax error in configuration file: ";
-    MessageLoaderParms parms("Config.ConfigExceptions.CONFIG_FILE_SYNTAX_ERR","Syntax error in configuration file: ");
+    MessageLoaderParms parms(
+        "Config.ConfigExceptions.CONFIG_FILE_SYNTAX_ERR",
+        "Syntax error in configuration file: ");
     String result = MessageLoader::getMessage(parms);
-//l10n end
     result.append(file);
     result.append("(");
     result.append(buffer);

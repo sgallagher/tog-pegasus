@@ -52,10 +52,10 @@ typedef void (*PEGASUS_RESPONSE_CHUNK_CALLBACK_T)(
 class PEGASUS_PPM_LINKAGE ProviderManager
 {
 public:
-    ProviderManager(void);
-    virtual ~ProviderManager(void);
+    ProviderManager();
+    virtual ~ProviderManager();
 
-    virtual Message * processMessage(Message * message) = 0;
+    virtual Message* processMessage(Message* message) = 0;
 
     virtual Boolean hasActiveProviders() = 0;
     virtual void unloadIdleProviders() = 0;
@@ -81,8 +81,7 @@ public:
         Sets the SubscriptionInitComplete flag indicating whether the Indication
         Service has completed its initialization.
      */
-    virtual void setSubscriptionInitComplete
-        (Boolean subscriptionInitComplete);
+    virtual void setSubscriptionInitComplete(Boolean subscriptionInitComplete);
 
 protected:
     PEGASUS_INDICATION_CALLBACK_T _indicationCallback;
@@ -91,7 +90,7 @@ protected:
     /**
         Indicates whether the Indication Service has completed initialization.
 
-        For more information, please see the description of the 
+        For more information, please see the description of the
         ProviderManagerRouter::_subscriptionInitComplete member variable.
      */
     Boolean _subscriptionInitComplete;

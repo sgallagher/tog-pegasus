@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By:  Amit K Arora, IBM (amita@in.ibm.com)
-//               Vijay Eli, IBM (vijayeli@in.ibm.com), bug#3608.
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -63,7 +58,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConfigTable 
+// ConfigTable
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef HashTable<String, String, EqualFunc<String>, HashFunc<String> > Table;
@@ -83,7 +78,7 @@ static const char* ConfigHeader [] = {
     "##                  CIM Server configuration file                     ##",
     "##                                                                    ##",
     "########################################################################",
-    " ",    
+    " ",
     "########################################################################",
     "#                                                                      #",
     "# This is the configuration file for the CIMOM. The configuration      #",
@@ -100,39 +95,37 @@ static const char* ConfigHeader [] = {
 static const int HEADER_SIZE = sizeof(ConfigHeader) / sizeof(ConfigHeader[0]);
 
 
-/** 
-    Constructor. 
+/**
+    Constructor.
 */
 ConfigFile::ConfigFile (const String& fileName)
 {
     _configFile = fileName;
 
     _configBackupFile = fileName + ".bak";
-
 }
 
-/** 
-    Destructor. 
+/**
+    Destructor.
 */
 ConfigFile::~ConfigFile ()
 {
-
 }
 
 
-/** 
+/**
     Get the name of the configuration file.
 */
 String ConfigFile::getFileName () const
 {
-    return ( _configFile );
+    return _configFile;
 }
 
 
-/** 
+/**
     Load the properties from the config file.
 */
-void ConfigFile::load (ConfigTable* confTable)
+void ConfigFile::load(ConfigTable* confTable)
 {
     String line;
 
@@ -252,7 +245,8 @@ void ConfigFile::load (ConfigTable* confTable)
             // FUTURE: Log this message in a log file.
             //
             PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
-                "Duplicate property '" + name + "', value '" + value + "' is ignored.");
+                "Duplicate property '" + name + "', value '" + value +
+                    "' is ignored.");
         }
     }
 
@@ -260,10 +254,10 @@ void ConfigFile::load (ConfigTable* confTable)
 }
 
 
-/** 
+/**
     Save the properties to the config file.
 */
-void ConfigFile::save (ConfigTable* confTable)
+void ConfigFile::save(ConfigTable* confTable)
 {
     //
     // Delete the backup configuration file
@@ -299,7 +293,7 @@ void ConfigFile::save (ConfigTable* confTable)
     // Set permissions on the config file to 0644
     //
     if ( !FileSystem::changeFilePermissions(_configFile,
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) )    // set 0644 
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) )    // set 0644
     {
         throw CannotOpenFile(_configFile);
     }
@@ -327,7 +321,7 @@ void ConfigFile::save (ConfigTable* confTable)
 }
 
 
-/** 
+/**
     Replace the properties in the config file with the properties from
     the given file.
 */
@@ -379,7 +373,7 @@ void ConfigFile::replace (const String& fileName)
     // Set permissions on the config file to 0644
     //
     if ( !FileSystem::changeFilePermissions(_configFile,
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) )    // set 0644 
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) )    // set 0644
     {
         throw CannotOpenFile(_configFile);
     }
@@ -393,13 +387,11 @@ void ConfigFile::replace (const String& fileName)
         ofs << line << endl;
     }
 
-    // 
+    //
     // Close the file handles
     //
     ifs.close();
     ofs.close();
 }
 
-
 PEGASUS_NAMESPACE_END
-

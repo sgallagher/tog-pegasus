@@ -29,11 +29,8 @@
 //
 //==============================================================================
 //
-// Author: Tony Fiorentino (fiorentino_tony@emc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
+
 #ifndef Pegasus_CIMServerDiscovery_h
 #define Pegasus_CIMServerDiscovery_h
 
@@ -51,37 +48,41 @@ PEGASUS_NAMESPACE_BEGIN
 //*****************************************************************************
 
 /** Purpose: allow some flexibility in the nature of the SLP
-srv requests, particularly to permit unicast da requests,
-passing of scopes and spi parameters etc.
+    srv requests, particularly to permit unicast da requests,
+    passing of scopes and spi parameters etc.
 */
 
-struct PEGASUS_CLIENT_LINKAGE SLPClientOptions{
-	char* target_address;
-	char* local_interface;
-	unsigned short target_port;
-	char* spi;
-	char* scopes;
-	char* service_type;
-	char* predicate;
-	bool use_directory_agent;
-	/**
-	 * Constructs an empty object. User must strdup the
-	 * string values during initialistation,
-	 * which are then freed automatically during
-	 * destruction
-	 * */
-	SLPClientOptions();
-	/**
-	 * Destroys object and contained string values
-	 * */
-	~SLPClientOptions();
-	/**
-	 * For debugging
-	 * */
-	void print() const;
+struct PEGASUS_CLIENT_LINKAGE SLPClientOptions
+{
+    char* target_address;
+    char* local_interface;
+    unsigned short target_port;
+    char* spi;
+    char* scopes;
+    char* service_type;
+    char* predicate;
+    bool use_directory_agent;
+    /**
+        Constructs an empty object. User must strdup the
+        string values during initialistation,
+        which are then freed automatically during
+        destruction.
+    */
+    SLPClientOptions();
+
+    /**
+        Destroys object and contained string values
+    */
+    ~SLPClientOptions();
+
+    /**
+        For debugging
+    */
+    void print() const;
+
 private:
-	SLPClientOptions(const SLPClientOptions& options);
-	SLPClientOptions& operator=(const SLPClientOptions& options);
+    SLPClientOptions(const SLPClientOptions& options);
+    SLPClientOptions& operator=(const SLPClientOptions& options);
 };
 
 
@@ -97,7 +98,9 @@ public:
   CIMServerDiscoveryRep();
   ~CIMServerDiscoveryRep();
 
-  Array<CIMServerDescription> lookup(const Array<Attribute> & criteria,const SLPClientOptions* options = NULL);
+  Array<CIMServerDescription> lookup(
+      const Array<Attribute>& criteria,
+      const SLPClientOptions* options = NULL);
 
 };
 
@@ -126,7 +129,9 @@ public:
       @param   criteria   Criteria for specifing which CIM Servers to lookup.
       @return  the return value is array of connection descriptions.
   */
-  Array<CIMServerDescription> lookup(const Array<Attribute> & criteria,const SLPClientOptions* options = NULL);
+  Array<CIMServerDescription> lookup(
+      const Array<Attribute>& criteria,
+      const SLPClientOptions* options = NULL);
 
 private:
 

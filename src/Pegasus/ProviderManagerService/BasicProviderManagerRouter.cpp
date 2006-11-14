@@ -69,8 +69,10 @@ public:
     : _manager(0)
     {
 #if defined (PEGASUS_OS_VMS)
-        _physicalName = ConfigManager::getInstance()->getCurrentValue("providerDir") +
-            String("/") + FileSystem::buildLibraryFileName(physicalName) + String(".exe");
+        _physicalName =
+            ConfigManager::getInstance()->getCurrentValue("providerDir") +
+                String("/") + FileSystem::buildLibraryFileName(physicalName) +
+                String(".exe");
 #elif defined (PEGASUS_OS_OS400)
         _physicalName = physicalName;
 #else
@@ -126,11 +128,11 @@ public:
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
         Boolean subscriptionInitComplete,
-	ProviderManager* manager)
-	: 
-	_interfaceName(interfaceName),
-	_manager(manager),
-	_module(0)
+        ProviderManager* manager)
+        :
+        _interfaceName(interfaceName),
+        _manager(manager),
+        _module(0)
     {
         _manager->setIndicationCallback(indicationCallback);
         _manager->setResponseChunkCallback(responseChunkCallback);
@@ -141,8 +143,8 @@ public:
     {
         delete _manager;
 
-	if (_module.get())
-	    _module->unload();
+        if (_module.get())
+            _module->unload();
     }
 
     ProviderManager* getProviderManager()
@@ -175,7 +177,7 @@ PEGASUS_INDICATION_CALLBACK_T
 PEGASUS_RESPONSE_CHUNK_CALLBACK_T
     BasicProviderManagerRouter::_responseChunkCallback = 0;
 
-ProviderManager* 
+ProviderManager*
     (*BasicProviderManagerRouter::_createDefaultProviderManagerCallback)() = 0;
 
 BasicProviderManagerRouter::BasicProviderManagerRouter(
@@ -189,8 +191,8 @@ BasicProviderManagerRouter::BasicProviderManagerRouter(
     _indicationCallback = indicationCallback;
     _responseChunkCallback = responseChunkCallback;
     _subscriptionInitComplete = false;
-    _createDefaultProviderManagerCallback = 
-	createDefaultProviderManagerCallback;
+    _createDefaultProviderManagerCallback =
+        createDefaultProviderManagerCallback;
 
     PEG_METHOD_EXIT();
 }
@@ -240,7 +242,8 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         // Provider information is in CIMIndicationRequestMessage
         CIMIndicationRequestMessage* indReq =
             dynamic_cast<CIMIndicationRequestMessage*>(request);
-        ProviderIdContainer pidc = indReq->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc =
+            indReq->operationContext.get(ProviderIdContainer::NAME);
         providerModule = pidc.getModule();
     }
     else if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
@@ -296,7 +299,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
 
         response = request->buildResponse();
     }
-    else if(request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE)
+    else if (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE)
     {
         // Do not need to forward this request to in-process provider
         // managers
@@ -389,21 +392,21 @@ ProviderManager* BasicProviderManagerRouter::_getProviderManager(
         // another temporary solution for converting a generic file name into
         // a file name useable by each platform.
 
-	// The DefaultProviderManager is now statically linked rather than
-	// dynamically loaded. This code is no longer used but remains for
-	// reference purposes.
+        // The DefaultProviderManager is now statically linked rather than
+        // dynamically loaded. This code is no longer used but remains for
+        // reference purposes.
 
 #if defined(PEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER)
-	if (interfaceType == "C++Default" && 
-	    _createDefaultProviderManagerCallback)
+        if (interfaceType == "C++Default" &&
+            _createDefaultProviderManagerCallback)
         {
-	    pm = (*_createDefaultProviderManagerCallback)();
+            pm = (*_createDefaultProviderManagerCallback)();
             ProviderManagerContainer* pmc = new ProviderManagerContainer(
                 "C++Default",
                 _indicationCallback,
                 _responseChunkCallback,
                 _subscriptionInitComplete,
-		pm);
+                pm);
             _providerManagerTable.append(pmc);
             return pmc->getProviderManager();
         }
@@ -481,7 +484,7 @@ Boolean BasicProviderManagerRouter::hasActiveProviders()
         "BasicProviderManagerRouter::hasActiveProviders");
 
     ReadLock tableLock(_providerManagerTableLock);
-    for(Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
+    for (Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
     {
         ProviderManagerContainer* pmc = _providerManagerTable[i];
         if (pmc->getProviderManager()->hasActiveProviders())
@@ -507,7 +510,7 @@ void BasicProviderManagerRouter::unloadIdleProviders()
     Array<ProviderManagerContainer*> pmcs;
     {
         ReadLock tableLock(_providerManagerTableLock);
-        for(Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
+        for (Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
         {
             pmcs.append(_providerManagerTable[i]);
         }

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrain Schuur (schuur@de.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef WQLPegasusDispatcher_Dispatcher_h
@@ -45,28 +41,32 @@
 #include <Pegasus/WQL/WQLInstancePropertySource.h>
 #include <Pegasus/WQL/WQLQueryExpressionRep.h>
 
-
 PEGASUS_NAMESPACE_BEGIN
 
-class WQLOperationRequestDispatcher : public CIMOperationRequestDispatcher {
-   friend class Nobody;
-   private:
-      WQLOperationRequestDispatcher(CIMRepository* repository,
-         ProviderRegistrationManager* providerRegistrationManager)
-         : CIMOperationRequestDispatcher(repository,providerRegistrationManager) {}
+class WQLOperationRequestDispatcher : public CIMOperationRequestDispatcher
+{
+    friend class Nobody;
+private:
+    WQLOperationRequestDispatcher(
+        CIMRepository* repository,
+        ProviderRegistrationManager* providerRegistrationManager)
+        : CIMOperationRequestDispatcher(
+              repository,providerRegistrationManager)
+    {
+    }
 
-      virtual ~WQLOperationRequestDispatcher() {}
+    virtual ~WQLOperationRequestDispatcher() {}
 
-   public:
-      void handleQueryRequest(
-    	 CIMExecQueryRequestMessage* request);
+public:
+    void handleQueryRequest(
+        CIMExecQueryRequestMessage* request);
 
-      void handleQueryResponseAggregation(
-         OperationAggregate* poA);
+    void handleQueryResponseAggregation(
+        OperationAggregate* poA);
 
-      void applyQueryToEnumeration(
-           CIMResponseMessage* msg,
-           QueryExpressionRep* query);
+    void applyQueryToEnumeration(
+        CIMResponseMessage* msg,
+        QueryExpressionRep* query);
 };
 
 PEGASUS_NAMESPACE_END

@@ -44,7 +44,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/ReadWriteSem.h>
 
@@ -66,8 +66,8 @@
 # include <sstream>
 #endif
 
-#if  defined(PEGASUS_OS_OS400)
-#include "OS400ConvertChar.h"
+#if defined(PEGASUS_OS_OS400)
+# include "OS400ConvertChar.h"
 #endif
 
 
@@ -114,7 +114,7 @@ static int compressMode = 0; // PEP214
 static ObjectCache<CIMClass> _classCache(PEGASUS_CLASS_CACHE_SIZE);
 #endif /* PEGASUS_USE_CLASS_CACHE */
 
-static ObjectCache<CIMQualifierDecl> 
+static ObjectCache<CIMQualifierDecl>
     _qualifierCache(PEGASUS_QUALIFIER_CACHE_SIZE);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -178,7 +178,9 @@ void _LoadFileToMemory(Buffer& data, const String& path)
     @param propertyList the property list
     @return true if the property is in the list otherwise false.
 */
-Boolean _containsProperty(CIMProperty& property, const CIMPropertyList& propertyList)
+Boolean _containsProperty(
+    CIMProperty& property,
+    const CIMPropertyList& propertyList)
 {
     //  For each property in the propertly list
     for (Uint32 p=0; p<propertyList.size(); p++)
@@ -200,24 +202,25 @@ Boolean _containsProperty(CIMProperty& property, const CIMPropertyList& property
    from the methods, and from the parameters attached to the methods.
    @param cimClass reference to the class from which qualifiers are to
    be removed.
-   NOTE: This would be logical to be moved to CIMClass since it may be more general
-   than this usage.
+   NOTE: This would be logical to be moved to CIMClass since it may be
+   more general than this usage.
 */
-void _removeAllQualifiers(CIMClass & cimClass)
+void _removeAllQualifiers(CIMClass& cimClass)
 {
     // remove qualifiers of the class
     Uint32 count = 0;
-    while((count = cimClass.getQualifierCount()) > 0)
+    while ((count = cimClass.getQualifierCount()) > 0)
         cimClass.removeQualifier(count - 1);
 
     // remove qualifiers from the properties
     for (Uint32 i = 0; i < cimClass.getPropertyCount(); i++)
     {
         CIMProperty p = cimClass.getProperty(i);
-        count=0;
-        while((count = p.getQualifierCount()) > 0)
+        count = 0;
+        while ((count = p.getQualifierCount()) > 0)
             p.removeQualifier(count - 1);
     }
+
     // remove qualifiers from the methods
     for (Uint32 i = 0; i < cimClass.getMethodCount(); i++)
     {
@@ -229,8 +232,8 @@ void _removeAllQualifiers(CIMClass & cimClass)
             while ((count = p.getQualifierCount()) > 0)
                 p.removeQualifier(count - 1);
         }
-        count=0;
-        while((count = m.getQualifierCount()) > 0)
+        count = 0;
+        while ((count = m.getQualifierCount()) > 0)
             m.removeQualifier(count - 1);
     }
 }
@@ -246,10 +249,10 @@ void _removeAllQualifiers(CIMClass & cimClass)
    This function removes the qualifiers from the class,
    from each of the properties, from the methods and
    the parameters if the qualifiers are marked propagated.
-   NOTE: This could be logical to be moved to CIMClass since it may be more general
-   than the usage here.
+   NOTE: This could be logical to be moved to CIMClass since it may be
+   more general than the usage here.
 */
-void _removePropagatedQualifiers(CIMClass & cimClass)
+void _removePropagatedQualifiers(CIMClass& cimClass)
 {
     Uint32 count = cimClass.getQualifierCount();
     // Remove nonlocal qualifiers from Class
@@ -277,6 +280,7 @@ void _removePropagatedQualifiers(CIMClass & cimClass)
             }
         }
     }
+
     // remove non LocalOnly qualifiers from the methods and parameters
     for (Uint32 i = 0; i < cimClass.getMethodCount(); i++)
     {
@@ -316,8 +320,10 @@ void _removePropagatedQualifiers(CIMClass & cimClass)
     NOTE: This could be logical to move to CIMInstance since the
     usage is more general than just in the repository
 */
-void _removeProperties(CIMInstance& cimInstance,
-    const CIMPropertyList& propertyList, Boolean localOnly)
+void _removeProperties(
+    CIMInstance& cimInstance,
+    const CIMPropertyList& propertyList,
+    Boolean localOnly)
 {
     Boolean propertyListNull = propertyList.isNull();
     if ((!propertyListNull) || localOnly)
@@ -330,18 +336,19 @@ void _removeProperties(CIMInstance& cimInstance,
         {
             CIMProperty p = cimInstance.getProperty(i);
 
-            // if localOnly==true, ignore properties defined in super class
+            // if localOnly == true, ignore properties defined in super class
             if (localOnly && (p.getPropagated()))
             {
                 cimInstance.removeProperty(i);
                 continue;
             }
 
-            // propertyList NULL means deliver properties.  PropertyList empty, none.
+            // propertyList NULL means deliver properties.  PropertyList
+            // empty, none.
             // Test for removal if propertyList not NULL. The empty list option
             // is covered by fact that property is not in the list.
             if (!propertyListNull)
-                if(!_containsProperty(p, propertyList))
+                if (!_containsProperty(p, propertyList))
                     cimInstance.removeProperty(i);
         }
     }
@@ -356,20 +363,21 @@ void _removeProperties(CIMInstance& cimInstance,
 */
 void _removeAllQualifiers(CIMInstance& cimInstance)
 {
-        // remove qualifiers from the instance
-        Uint32 count = 0;
-        while((count = cimInstance.getQualifierCount()) > 0)
-            cimInstance.removeQualifier(count - 1);
+    // remove qualifiers from the instance
+    Uint32 count = 0;
+    while ((count = cimInstance.getQualifierCount()) > 0)
+        cimInstance.removeQualifier(count - 1);
 
-        // remove qualifiers from the properties
-        for (Uint32 i = 0; i < cimInstance.getPropertyCount(); i++)
-        {
-            CIMProperty p = cimInstance.getProperty(i);
-            count=0;
-            while((count = p.getQualifierCount()) > 0)
-                p.removeQualifier(count - 1);
-        }
+    // remove qualifiers from the properties
+    for (Uint32 i = 0; i < cimInstance.getPropertyCount(); i++)
+    {
+        CIMProperty p = cimInstance.getProperty(i);
+        count = 0;
+        while ((count = p.getQualifierCount()) > 0)
+            p.removeQualifier(count - 1);
+    }
 }
+
 /* removes all ClassOrigin attributes from a single CIMInstance. Removes
     the classOrigin attribute from each property in the Instance.
    @param Instance from which the ClassOrigin Properties will be removed.
@@ -378,11 +386,11 @@ void _removeAllQualifiers(CIMInstance& cimInstance)
 */
 void _removeClassOrigins(CIMInstance& cimInstance)
 {
-        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");
+    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");
 
-        Uint32 propertyCount = cimInstance.getPropertyCount();
-        for (Uint32 i = 0; i < propertyCount ; i++)
-            cimInstance.getProperty(i).setClassOrigin(CIMName());
+    Uint32 propertyCount = cimInstance.getPropertyCount();
+    for (Uint32 i = 0; i < propertyCount ; i++)
+        cimInstance.getProperty(i).setClassOrigin(CIMName());
 }
 
 /* Filters the properties, qualifiers, and classorigin out of a single instance.
@@ -397,11 +405,12 @@ void _removeClassOrigins(CIMInstance& cimInstance)
     @param includeClassOrigin Boolean defining if ClassOrigin attribute to
     be removed from properties.
 */
-void _filterInstance(CIMInstance& cimInstance,
-                const CIMPropertyList& propertyList,
-                Boolean localOnly,
-                Boolean includeQualifiers,
-                Boolean includeClassOrigin)
+void _filterInstance(
+    CIMInstance& cimInstance,
+    const CIMPropertyList& propertyList,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
 {
 #ifndef PEGASUS_DISABLE_REPOSITORY_INSTANCE_FILTER
     // Remove properties based on propertyList and localOnly flag
@@ -411,7 +420,7 @@ void _filterInstance(CIMInstance& cimInstance,
     // If includequalifiers false, remove all qualifiers from
     // properties.
 
-    if(!includeQualifiers)
+    if (!includeQualifiers)
     {
         _removeAllQualifiers(cimInstance);
     }
@@ -438,7 +447,7 @@ template<class Object>
 void _LoadObject(
     const String& path,
     Object& object,
-    ObjectStreamer *streamer)
+    ObjectStreamer* streamer)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_LoadObject");
 
@@ -482,8 +491,10 @@ void _LoadObject(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void _SaveObject(const String& path, Buffer& objectXml,
-    ObjectStreamer *streamer)
+void _SaveObject(
+    const String& path,
+    Buffer& objectXml,
+    ObjectStreamer* streamer)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
 
@@ -756,8 +767,10 @@ void CIMRepository::_rollbackIncompleteTransactions()
 CIMRepository::CIMRepository(
     const String& repositoryRoot,
     Uint32 mode)
-   : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot),
-     _lock(), _resolveInstance(true)
+    : _repositoryRoot(repositoryRoot),
+      _nameSpaceManager(repositoryRoot),
+      _lock(),
+      _resolveInstance(true)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
 
@@ -774,7 +787,7 @@ CIMRepository::CIMRepository(
     // FUTURE?? -  compressMode = mode & CIMRepository::MODE_COMPRESSED;
     compressMode=1;
 
-    char *s = getenv("PEGASUS_ENABLE_COMPRESSED_REPOSITORY");
+    char* s = getenv("PEGASUS_ENABLE_COMPRESSED_REPOSITORY");
     if (s && (strcmp(s, "build_non_compressed") == 0))
     {
         compressMode =0;
@@ -791,16 +804,19 @@ CIMRepository::CIMRepository(
     cout << "CIMRepository: compressMode= " << compressMode << endl;
 #endif /* TEST_OUTPUT */
 
-    if (binaryMode>0) { // PEP 164
-      // BUILD BINARY
-       streamer=new AutoStreamer(new BinaryStreamer(),BINREP_MARKER);
-       ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
+    if (binaryMode>0)
+    {
+        // BUILD BINARY
+        streamer = new AutoStreamer(new BinaryStreamer(), BINREP_MARKER);
+        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(), 0);
     }
-    else { // streamer=new XmlStreamer();
-      // BUILD XML
-       streamer=new AutoStreamer(new XmlStreamer(),0xff);
-       ((AutoStreamer*)streamer)->addReader(new BinaryStreamer(),BINREP_MARKER);
-       ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
+    else
+    {
+        // BUILD XML
+        streamer = new AutoStreamer(new XmlStreamer(),0xff);
+        ((AutoStreamer*)streamer)->addReader(
+            new BinaryStreamer(), BINREP_MARKER);
+        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(), 0);
     }
 
     _context = new RepositoryDeclContext(this);
@@ -872,7 +888,8 @@ CIMClass CIMRepository::_getClass(
                      ", includeQualifiers= " + _toString(includeQualifiers) +
                      ", includeClassOrigin= " + _toString(includeClassOrigin));
     String classFilePath;
-    classFilePath = _nameSpaceManager.getClassFilePath(nameSpace, className, NameSpaceRead);
+    classFilePath = _nameSpaceManager.getClassFilePath(
+        nameSpace, className, NameSpaceRead);
 
     CIMClass cimClass;
 
@@ -925,11 +942,12 @@ CIMClass CIMRepository::_getClass(
                 continue;
             }
 
-            // propertyList NULL means all properties.  PropertyList empty, none.
+            // propertyList NULL means all properties.  PropertyList
+            // empty, none.
             // Test for removal if propertyList not NULL. The empty list option
             // is covered by fact that property is not in the list.
             if (!propertyListNull)
-                if(!_containsProperty(p, propertyList))
+                if (!_containsProperty(p, propertyList))
                     cimClass.removeProperty(i);
         }
     }
@@ -951,7 +969,7 @@ CIMClass CIMRepository::_getClass(
     }
     // If includequalifiers false, remove all qualifiers from
     // properties, methods and parameters.
-    if(!includeQualifiers)
+    if (!includeQualifiers)
     {
         _removeAllQualifiers(cimClass);
     }
@@ -964,11 +982,13 @@ CIMClass CIMRepository::_getClass(
         }
 
     }
+
     // if ClassOrigin Flag false, remove classOrigin info from class object
     // by setting the property to Null.
     if (!includeClassOrigin)
     {
-        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+            "Remove Class Origins");
 
         Uint32 propertyCount = cimClass.getPropertyCount();
         for (Uint32 i = 0; i < propertyCount ; i++)
@@ -1036,12 +1056,13 @@ CIMInstance CIMRepository::getInstance(
 
     ReadLock lock(_lock);
 
-    CIMInstance cimInstance = _getInstance(nameSpace,
-                                           instanceName,
-                                           localOnly,
-                                           includeQualifiers,
-                                           includeClassOrigin,
-                                           propertyList);
+    CIMInstance cimInstance = _getInstance(
+        nameSpace,
+        instanceName,
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList);
 
     PEG_METHOD_EXIT();
     return cimInstance;
@@ -1176,7 +1197,8 @@ void CIMRepository::deleteClass(
 
     if (isAssociation)
     {
-        Array<String> assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceDelete);
+        Array<String> assocFileName =
+            _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceDelete);
 
         if (FileSystem::exists(assocFileName[0]))
             AssocClassTable::deleteAssociation(assocFileName[0], className);
@@ -1189,7 +1211,8 @@ void _CompactInstanceRepository(
     const String& indexFilePath,
     const String& dataFilePath)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_CompactInstanceRepository");
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "CIMRepository::_CompactInstanceRepository");
 
     //
     // Compact the data file first:
@@ -1204,23 +1227,17 @@ void _CompactInstanceRepository(
             indexFilePath, freeFlags, indices, sizes, instanceNames, true))
     {
         PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED",
                 "compact failed"));
-        //l10n end
     }
 
     if (!InstanceDataFile::compact(dataFilePath, freeFlags, indices, sizes))
     {
         PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED",
                 "compact failed"));
-        //l10n end
     }
 
     //
@@ -1230,12 +1247,9 @@ void _CompactInstanceRepository(
     if (!InstanceIndexFile::compact(indexFilePath))
     {
         PEG_METHOD_EXIT();
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "compact failed");
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED",
                 "compact failed"));
-        //l10n end
     }
 
     PEG_METHOD_EXIT();
@@ -1254,8 +1268,8 @@ void CIMRepository::deleteInstance(
         (!instanceName.getNameSpace().equal(nameSpace)))
     {
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND,
-                                    instanceName.toString());
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_NOT_FOUND, instanceName.toString());
     }
 
     WriteLock lock(_lock);
@@ -1302,17 +1316,12 @@ void CIMRepository::deleteInstance(
 
     if (!InstanceIndexFile::deleteEntry(indexFilePath, instanceName, freeCount))
     {
-        //l10n
-        //errMessage.append("Failed to delete instance: ");
-        //errMessage.append(instanceName.toString());
         PEG_METHOD_EXIT();
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 "Repository.CIMRepository.FAILED_TO_DELETE_INSTANCE",
                 "Failed to delete instance: $0",
                 instanceName.toString()));
-        //l10n end
     }
 
     transaction.complete();
@@ -1346,7 +1355,8 @@ void CIMRepository::_createAssocClassEntries(
     // Open input file:
 
 
-    Array<String> assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceWrite);
+    Array<String> assocFileName =
+        _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceWrite);
     ofstream os;
 
     if (!OpenAppend(os, assocFileName[0]))
@@ -1529,11 +1539,14 @@ void CIMRepository::_createAssocInstEntries(
 
 
                     // Fix for bugzilla 667:
-                    // Strip off the hostname if it is the same as the local host
+                    // Strip off the hostname if it is the same as the
+                    // local host
                     if ((fromRef.getHost() != String::EMPTY) &&
                         (System::isLocalHost(fromRef.getHost())))
                     {
-                       PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "_createAssocInstEntries() - Stripping of local hostName from fromRef");
+                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                            "_createAssocInstEntries() - Stripping off local "
+                                "hostName from fromRef");
                        fromRef.setHost(String::EMPTY);
                     }
 
@@ -1542,16 +1555,21 @@ void CIMRepository::_createAssocInstEntries(
                     if ((fromRef.getHost() == String::EMPTY) &&
                         (fromRef.getNameSpace() == nameSpace))
                     {
-                       PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "_createAssocInstEntries() - Stripping of local nameSpace from fromRef");
-                       fromRef.setNameSpace(CIMNamespaceName());
+                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                            "_createAssocInstEntries() - Stripping off "
+                                "local nameSpace from fromRef");
+                        fromRef.setNameSpace(CIMNamespaceName());
                     }
 
-                    // Strip off the hostname if it is the same as the local host
+                    // Strip off the hostname if it is the same as the
+                    // local host
                     if ((toRef.getHost() != String::EMPTY) &&
                         (System::isLocalHost(toRef.getHost())))
                     {
-                       PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "_createAssocInstEntries() - Stripping of local hostName from toRef");
-                       toRef.setHost(String::EMPTY);
+                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                            "_createAssocInstEntries() - Stripping off "
+                                "local hostName from toRef");
+                        toRef.setHost(String::EMPTY);
                     }
 
                     // Strip off the namespace when it is the same as the
@@ -1559,7 +1577,9 @@ void CIMRepository::_createAssocInstEntries(
                     if ((toRef.getHost() == String::EMPTY) &&
                         (toRef.getNameSpace() == nameSpace))
                     {
-                       PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "_createAssocInstEntries() - Stripping of local nameSpace from toRef");
+                       PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                           "_createAssocInstEntries() - Stripping off "
+                               "local nameSpace from toRef");
                        toRef.setNameSpace(CIMNamespaceName());
                     }
 
@@ -1630,15 +1650,11 @@ CIMObjectPath CIMRepository::_createInstance(
 
     if (!cimClass.hasKeys())
     {
-        //l10n
-        //errMessage = "class has no keys: " +
-            //cimClass.getClassName().getString();
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms("Repository.CIMRepository.CLASS_HAS_NO_KEYS",
                 "class has no keys: $0",
                 cimClass.getClassName().getString()));
-        //l10n end
     }
 
     //
@@ -1780,15 +1796,11 @@ void CIMRepository::_modifyClass(
     if (!FileSystem::removeFileNoCase(classFilePath))
     {
         PEG_METHOD_EXIT();
-        //l10n
         String str = "CIMRepository::modifyClass()";
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            //"failed to remove file in CIMRepository::modifyClass()");
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 "Repository.CIMRepository.FAILED_TO_REMOVE_FILE",
                 "failed to remove file in $0", str));
-        //l10n end
     }
 
     //
@@ -1800,20 +1812,23 @@ void CIMRepository::_modifyClass(
     //XmlWriter::appendClassElement(classXml, cimClass);
     _SaveObject(classFilePath, classXml,streamer);
 
-    if (cimClass.isAssociation()) {
-      // Remove from Association
-      Array<String> assocFileName =
-         _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceDelete);
-      if (FileSystem::exists(assocFileName[0])) {
-        AssocClassTable::deleteAssociation(assocFileName[0], cimClass.getClassName());
-        // Create the association again.
-        _createAssocClassEntries(nameSpace, cimClass);
-      }
-      else
-      {
-          PEG_METHOD_EXIT();
-          throw CannotOpenFile(assocFileName[0]);
-      }
+    if (cimClass.isAssociation())
+    {
+        // Remove from Association
+        Array<String> assocFileName =
+            _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceDelete);
+        if (FileSystem::exists(assocFileName[0]))
+        {
+            AssocClassTable::deleteAssociation(
+                assocFileName[0], cimClass.getClassName());
+            // Create the association again.
+            _createAssocClassEntries(nameSpace, cimClass);
+        }
+        else
+        {
+            PEG_METHOD_EXIT();
+            throw CannotOpenFile(assocFileName[0]);
+        }
     }
 
 
@@ -2626,21 +2641,23 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
         _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
         classList.append(className);
 
-        Array<String> assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceRead);
+        Array<String> assocFileName =
+            _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceRead);
 
-        for (int i=0,m=assocFileName.size(); i<m; i++) {
-        AssocClassTable::getAssociatorNames(
-               assocFileName[i],
-            classList,
-            assocClassList,
-            resultClassList,
-            role,
-            resultRole,
-            associatorNames);
+        for (int i=0,m=assocFileName.size(); i<m; i++)
+        {
+            AssocClassTable::getAssociatorNames(
+                assocFileName[i],
+                classList,
+                assocClassList,
+                resultClassList,
+                role,
+                resultRole,
+                associatorNames);
+        }
     }
-    }
-
-    else {
+    else
+    {
         String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
 
         AssocInstTable::getAssociatorNames(
@@ -2776,70 +2793,79 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
     // The resultClass parameter implies subclasses, so retrieve them
     Array<CIMName> resultClassList;
 
-  try {
-    if (!resultClass.isNull())
+    try
     {
-        _nameSpaceManager.getSubClassNames(
-            nameSpace, resultClass, true, resultClassList);
-        resultClassList.append(resultClass);
-    }
-
-    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
-    //  distinguish instanceNames from classNames in every case
-    //  The instanceName of a singleton instance of a keyless class also
-    //  has no key bindings
-    //
-    if (objectName.getKeyBindings ().size () == 0)
-    {
-        CIMName className = objectName.getClassName();
-
-        Array<CIMName> classList;
-        _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
-        classList.append(className);
-
-        Array<String> assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceRead);
-
-        Boolean refs=false;
-        for (int i=0,m=assocFileName.size(); !refs && i<m; i++)
-           if (AssocClassTable::getReferenceNames(
-                  assocFileName[i],
-            classList,
-            resultClassList,
-            role,
-                  tmpReferenceNames)) refs|=true;
-
-        if (refs==false) {
-            // Ignore error! It's okay not to have references.
-        }
-    }
-
-    else {
-        String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
-
-        if (!AssocInstTable::getReferenceNames(
-            assocFileName,
-            objectName,
-            resultClassList,
-            role,
-            tmpReferenceNames))
-
+        if (!resultClass.isNull())
         {
-            // Ignore error! It's okay not to have references.
+            _nameSpaceManager.getSubClassNames(
+                nameSpace, resultClass, true, resultClassList);
+            resultClassList.append(resultClass);
+        }
+
+        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+        //  distinguish instanceNames from classNames in every case
+        //  The instanceName of a singleton instance of a keyless class also
+        //  has no key bindings
+        //
+        if (objectName.getKeyBindings ().size () == 0)
+        {
+            CIMName className = objectName.getClassName();
+
+            Array<CIMName> classList;
+            _nameSpaceManager.getSuperClassNames(
+                nameSpace, className, classList);
+            classList.append(className);
+
+            Array<String> assocFileName =
+                _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceRead);
+
+            Boolean refs=false;
+            for (int i = 0, m=assocFileName.size(); !refs && i < m; i++)
+            {
+                if (AssocClassTable::getReferenceNames(
+                        assocFileName[i],
+                        classList,
+                        resultClassList,
+                        role,
+                        tmpReferenceNames))
+                {
+                    refs |= true;
+                }
+            }
+
+            if (refs == false)
+            {
+                // Ignore error! It's okay not to have references.
+            }
+        }
+        else
+        {
+            String assocFileName =
+                _nameSpaceManager.getAssocInstPath(nameSpace);
+
+            if (!AssocInstTable::getReferenceNames(
+                assocFileName,
+                objectName,
+                resultClassList,
+                role,
+                tmpReferenceNames))
+            {
+                // Ignore error! It's okay not to have references.
+            }
         }
     }
-  }
-  catch (const CIMException& exception)
-  {
-    if (exception.getCode() == CIM_ERR_INVALID_CLASS)
+    catch (const CIMException& exception)
     {
-        throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_INVALID_PARAMETER, exception.getMessage());
+        if (exception.getCode() == CIM_ERR_INVALID_CLASS)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, exception.getMessage());
+        }
+        else
+        {
+            throw;
+        }
     }
-    else
-    {
-        throw;
-    }
-  }
 
     Array<CIMObjectPath> result;
 
@@ -2977,7 +3003,7 @@ CIMQualifierDecl CIMRepository::_getQualifier(
         {
             // Not in cache so load from disk:
 
-	    _LoadObject(qualifierFilePath, qualifierDecl, streamer);
+            _LoadObject(qualifierFilePath, qualifierDecl, streamer);
 
             // Put in cache:
 
@@ -3083,15 +3109,11 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     if (!FileSystem::getDirectoryContents(qualifiersRoot, qualifierNames))
     {
         PEG_METHOD_EXIT();
-        //l10n
         String str ="enumerateQualifiers()";
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            //"enumerateQualifiers(): internal error");
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms("Repository.CIMRepository.INTERNAL_ERROR",
                 "$0: internal error",
                 str));
-        //l10n end
     }
 
     Array<CIMQualifierDecl> qualifiers;
@@ -3114,7 +3136,7 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
 }
 
 void CIMRepository::createNameSpace(const CIMNamespaceName& nameSpace,
-        const NameSpaceAttributes &attributes)
+        const NameSpaceAttributes& attributes)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createNameSpace");
 
@@ -3126,7 +3148,7 @@ void CIMRepository::createNameSpace(const CIMNamespaceName& nameSpace,
 }
 
 void CIMRepository::modifyNameSpace(const CIMNamespaceName& nameSpace,
-        const NameSpaceAttributes &attributes)
+        const NameSpaceAttributes& attributes)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyNameSpace");
 
@@ -3162,7 +3184,7 @@ void CIMRepository::deleteNameSpace(const CIMNamespaceName& nameSpace)
 }
 
 Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
-        NameSpaceAttributes &attributes)
+        NameSpaceAttributes& attributes)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteNameSpace");
 
@@ -3173,7 +3195,7 @@ Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
 }
 
 Boolean CIMRepository::isRemoteNameSpace(const CIMNamespaceName& nameSpaceName,
-        String & remoteInfo)
+        String& remoteInfo)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::isRemoteNamespace");
     ReadLock lock(const_cast<ReadWriteSem&>(_lock));
@@ -3193,7 +3215,8 @@ String CIMRepository::_getInstanceIndexFilePath(
     const CIMNamespaceName& nameSpace,
     const CIMName& className) const
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getInstanceIndexFilePath");
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "CIMRepository::_getInstanceIndexFilePath");
 
     String tmp = _nameSpaceManager.getInstanceDataFileBase(
         nameSpace, className);
@@ -3258,7 +3281,7 @@ Boolean CIMRepository::_loadInstance(
     return true;
 }
 
-void CIMRepository::setDeclContext(RepositoryDeclContext *context)
+void CIMRepository::setDeclContext(RepositoryDeclContext* context)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setDeclContext");
 
@@ -3270,7 +3293,7 @@ void CIMRepository::setDeclContext(RepositoryDeclContext *context)
 }
 
 #ifdef PEGASUS_DEBUG
-    void CIMRepository::DisplayCacheStatistics(void)
+    void CIMRepository::DisplayCacheStatistics()
     {
 #ifdef PEGASUS_USE_CLASS_CACHE
         cout << "Repository Class Cache Statistics:" << endl;

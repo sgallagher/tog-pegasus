@@ -29,26 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
-//
-// Modified By: Dan Gorey (djgorey@us.ibm.com)
-//              Amit Arora (amita@in.ibm.com) for Bug#1170
-//              Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
-//              Seema Gupta (gseema@in.ibm.com) for PEP135
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
-//              Amit Arora (amita@in.ibm.com) for Bug#2040
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Willis White, IBM <whiwill@us.ibm.com)
-//              Josephine Eskaline Joyce, IBM <jojustin@in.ibm.com) for Bug#2108
-//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMClientRep.h"
 
-// l10n
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/LanguageParser.h>
@@ -79,7 +63,6 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     _monitor.reset(new Monitor());
     _httpConnector.reset(new HTTPConnector(_monitor.get()));
 
-// l10n
     requestAcceptLanguages.clear();
     requestContentLanguages.clear();
 }
@@ -147,18 +130,18 @@ void CIMClientRep::_connect()
     //
     // Create response decoder:
     //
-    AutoPtr<CIMOperationResponseDecoder> responseDecoder(new
-        CIMOperationResponseDecoder(this, _requestEncoder.get(), &_authenticator
-        , showInput));
+    AutoPtr<CIMOperationResponseDecoder> responseDecoder(
+        new CIMOperationResponseDecoder(
+            this, _requestEncoder.get(), &_authenticator, showInput));
 
     //
     // Attempt to establish a connection:
     //
     AutoPtr<HTTPConnection> httpConnection(_httpConnector->connect(
-                                              _connectHost,
-                                              _connectPortNumber,
-                                              _connectSSLContext.get(),
-                                              responseDecoder.get()));
+        _connectHost,
+        _connectPortNumber,
+        _connectSSLContext.get(),
+        responseDecoder.get()));
 
     //
     // Create request encoder:
@@ -171,15 +154,16 @@ void CIMClientRep::_connect()
         connectHost.append(portStr);
     }
 
-    AutoPtr<CIMOperationRequestEncoder> requestEncoder(new CIMOperationRequestEncoder(
+    AutoPtr<CIMOperationRequestEncoder> requestEncoder(
+        new CIMOperationRequestEncoder(
             httpConnection.get(), connectHost, &_authenticator, showOutput));
 
     _responseDecoder.reset(responseDecoder.release());
     _httpConnection = httpConnection.release();
     _requestEncoder.reset(requestEncoder.release());
     _responseDecoder->setEncoderQueue(_requestEncoder.get());
-      
-    //pass endcoder and decoder a pointer to CIMClientRep::perfDataStore
+
+    //pass encoder and decoder a pointer to CIMClientRep::perfDataStore
     _requestEncoder->setDataStorePointer(&perfDataStore);
     _responseDecoder->setDataStorePointer(&perfDataStore);
 
@@ -206,7 +190,6 @@ void CIMClientRep::_disconnect()
             _httpConnection = 0;
         }
 
-
         //
         // destroy request encoder
         //
@@ -227,8 +210,7 @@ void CIMClientRep::connect(
     const String& host,
     const Uint32 portNumber,
     const String& userName,
-    const String& password
-)
+    const String& password)
 {
     //
     // If already connected, bail out!
@@ -273,8 +255,7 @@ void CIMClientRep::connect(
     const Uint32 portNumber,
     const SSLContext& sslContext,
     const String& userName,
-    const String& password
-)
+    const String& password)
 {
     //
     // If already connected, bail out!
@@ -352,7 +333,7 @@ void CIMClientRep::connectLocal()
 
         _connect();
     }
-    catch(const CannotConnectException &)
+    catch (const CannotConnectException &)
     {
         //
         // Look up the WBEM HTTPS port number for the local system
@@ -417,8 +398,6 @@ Boolean CIMClientRep::isConnected() const throw()
     return _connected;
 }
 
-
-// l10n start
 AcceptLanguageList CIMClientRep::getRequestAcceptLanguages() const
 {
     return requestAcceptLanguages;
@@ -449,16 +428,13 @@ void CIMClientRep::setRequestDefaultLanguages()
     requestAcceptLanguages = LanguageParser::getDefaultAcceptLanguages();
 }
 
-// l10n end
-
 CIMClass CIMClientRep::getClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     AutoPtr<CIMRequestMessage> request(new CIMGetClassRequestMessage(
         String::EMPTY,
@@ -477,7 +453,7 @@ CIMClass CIMClientRep::getClass(
 
     AutoPtr<CIMGetClassResponseMessage> destroyer(response);
 
-    return(response->cimClass);
+    return response->cimClass;
 }
 
 CIMInstance CIMClientRep::getInstance(
@@ -486,8 +462,7 @@ CIMInstance CIMClientRep::getInstance(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     AutoPtr<CIMRequestMessage> request(new CIMGetInstanceRequestMessage(
         String::EMPTY,
@@ -506,13 +481,12 @@ CIMInstance CIMClientRep::getInstance(
 
     AutoPtr<CIMGetInstanceResponseMessage> destroyer(response);
 
-    return(response->cimInstance);
+    return response->cimInstance;
 }
 
 void CIMClientRep::deleteClass(
     const CIMNamespaceName& nameSpace,
-    const CIMName& className
-)
+    const CIMName& className)
 {
     AutoPtr<CIMRequestMessage> request(new CIMDeleteClassRequestMessage(
         String::EMPTY,
@@ -530,8 +504,7 @@ void CIMClientRep::deleteClass(
 
 void CIMClientRep::deleteInstance(
     const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName
-)
+    const CIMObjectPath& instanceName)
 {
     AutoPtr<CIMRequestMessage> request(new CIMDeleteInstanceRequestMessage(
         String::EMPTY,
@@ -539,7 +512,8 @@ void CIMClientRep::deleteInstance(
         instanceName,
         QueueIdStack()));
 
-    Message* message = _doRequest(request, CIM_DELETE_INSTANCE_RESPONSE_MESSAGE);
+    Message* message =
+        _doRequest(request, CIM_DELETE_INSTANCE_RESPONSE_MESSAGE);
 
     CIMDeleteInstanceResponseMessage* response =
         (CIMDeleteInstanceResponseMessage*)message;
@@ -549,8 +523,7 @@ void CIMClientRep::deleteInstance(
 
 void CIMClientRep::createClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& newClass
-)
+    const CIMClass& newClass)
 {
     AutoPtr<CIMRequestMessage> request(new CIMCreateClassRequestMessage(
         String::EMPTY,
@@ -568,8 +541,7 @@ void CIMClientRep::createClass(
 
 CIMObjectPath CIMClientRep::createInstance(
     const CIMNamespaceName& nameSpace,
-    const CIMInstance& newInstance
-)
+    const CIMInstance& newInstance)
 {
     AutoPtr<CIMRequestMessage> request(new CIMCreateInstanceRequestMessage(
         String::EMPTY,
@@ -577,20 +549,20 @@ CIMObjectPath CIMClientRep::createInstance(
         newInstance,
         QueueIdStack()));
 
-    Message* message = _doRequest(request, CIM_CREATE_INSTANCE_RESPONSE_MESSAGE);
+    Message* message =
+        _doRequest(request, CIM_CREATE_INSTANCE_RESPONSE_MESSAGE);
 
     CIMCreateInstanceResponseMessage* response =
         (CIMCreateInstanceResponseMessage*)message;
 
     AutoPtr<CIMCreateInstanceResponseMessage> destroyer(response);
 
-    return(response->instanceName);
+    return response->instanceName;
 }
 
 void CIMClientRep::modifyClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& modifiedClass
-)
+    const CIMClass& modifiedClass)
 {
     AutoPtr<CIMRequestMessage> request(new CIMModifyClassRequestMessage(
         String::EMPTY,
@@ -610,8 +582,7 @@ void CIMClientRep::modifyInstance(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     AutoPtr<CIMRequestMessage> request(new CIMModifyInstanceRequestMessage(
         String::EMPTY,
@@ -621,7 +592,8 @@ void CIMClientRep::modifyInstance(
         propertyList,
         QueueIdStack()));
 
-    Message* message = _doRequest(request, CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE);
+    Message* message =
+        _doRequest(request, CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE);
 
     CIMModifyInstanceResponseMessage* response =
         (CIMModifyInstanceResponseMessage*)message;
@@ -635,8 +607,7 @@ Array<CIMClass> CIMClientRep::enumerateClasses(
     Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
-    Boolean includeClassOrigin
-)
+    Boolean includeClassOrigin)
 {
     AutoPtr<CIMRequestMessage> request(new CIMEnumerateClassesRequestMessage(
         String::EMPTY,
@@ -648,21 +619,21 @@ Array<CIMClass> CIMClientRep::enumerateClasses(
         includeClassOrigin,
         QueueIdStack()));
 
-    Message* message = _doRequest(request, CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE);
+    Message* message =
+        _doRequest(request, CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE);
 
     CIMEnumerateClassesResponseMessage* response =
         (CIMEnumerateClassesResponseMessage*)message;
 
     AutoPtr<CIMEnumerateClassesResponseMessage> destroyer(response);
 
-    return(response->cimClasses);
+    return response->cimClasses;
 }
 
 Array<CIMName> CIMClientRep::enumerateClassNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    Boolean deepInheritance
-)
+    Boolean deepInheritance)
 {
     AutoPtr<CIMRequestMessage> request(new CIMEnumerateClassNamesRequestMessage(
         String::EMPTY,
@@ -671,7 +642,8 @@ Array<CIMName> CIMClientRep::enumerateClassNames(
         deepInheritance,
         QueueIdStack()));
 
-    Message* message = _doRequest(request, CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE);
+    Message* message =
+        _doRequest(request, CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE);
 
     CIMEnumerateClassNamesResponseMessage* response =
         (CIMEnumerateClassNamesResponseMessage*)message;
@@ -685,7 +657,7 @@ Array<CIMName> CIMClientRep::enumerateClassNames(
     {
         classNameArray.append(response->classNames[i]);
     }
-    return(classNameArray);
+    return classNameArray;
 }
 
 Array<CIMInstance> CIMClientRep::enumerateInstances(
@@ -695,8 +667,7 @@ Array<CIMInstance> CIMClientRep::enumerateInstances(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     AutoPtr<CIMRequestMessage> request(new CIMEnumerateInstancesRequestMessage(
         String::EMPTY,
@@ -709,42 +680,43 @@ Array<CIMInstance> CIMClientRep::enumerateInstances(
         propertyList,
         QueueIdStack()));
 
-    Message* message = _doRequest(request, CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE);
+    Message* message =
+        _doRequest(request, CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE);
 
     CIMEnumerateInstancesResponseMessage* response =
         (CIMEnumerateInstancesResponseMessage*)message;
 
     AutoPtr<CIMEnumerateInstancesResponseMessage> destroyer(response);
 
-    return(response->cimNamedInstances);
+    return response->cimNamedInstances;
 }
 
 Array<CIMObjectPath> CIMClientRep::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
-    const CIMName& className
-)
+    const CIMName& className)
 {
-    AutoPtr<CIMRequestMessage> request(new CIMEnumerateInstanceNamesRequestMessage(
-        String::EMPTY,
-        nameSpace,
-        className,
-        QueueIdStack()));
+    AutoPtr<CIMRequestMessage> request(
+        new CIMEnumerateInstanceNamesRequestMessage(
+            String::EMPTY,
+            nameSpace,
+            className,
+            QueueIdStack()));
 
-    Message* message = _doRequest(request, CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE);
+    Message* message =
+        _doRequest(request, CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE);
 
     CIMEnumerateInstanceNamesResponseMessage* response =
         (CIMEnumerateInstanceNamesResponseMessage*)message;
 
     AutoPtr<CIMEnumerateInstanceNamesResponseMessage> destroyer(response);
 
-    return(response->instanceNames);
+    return response->instanceNames;
 }
 
 Array<CIMObject> CIMClientRep::execQuery(
     const CIMNamespaceName& nameSpace,
     const String& queryLanguage,
-    const String& query
-)
+    const String& query)
 {
     AutoPtr<CIMRequestMessage> request(new CIMExecQueryRequestMessage(
         String::EMPTY,
@@ -760,7 +732,7 @@ Array<CIMObject> CIMClientRep::execQuery(
 
     AutoPtr<CIMExecQueryResponseMessage> destroyer(response);
 
-    return(response->cimObjects);
+    return response->cimObjects;
 }
 
 Array<CIMObject> CIMClientRep::associators(
@@ -772,8 +744,7 @@ Array<CIMObject> CIMClientRep::associators(
     const String& resultRole,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     AutoPtr<CIMRequestMessage> request(new CIMAssociatorsRequestMessage(
         String::EMPTY,
@@ -795,7 +766,7 @@ Array<CIMObject> CIMClientRep::associators(
 
     AutoPtr<CIMAssociatorsResponseMessage> destroyer(response);
 
-    return(response->cimObjects);
+    return response->cimObjects;
 }
 
 Array<CIMObjectPath> CIMClientRep::associatorNames(
@@ -804,8 +775,7 @@ Array<CIMObjectPath> CIMClientRep::associatorNames(
     const CIMName& assocClass,
     const CIMName& resultClass,
     const String& role,
-    const String& resultRole
-)
+    const String& resultRole)
 {
     AutoPtr<CIMRequestMessage> request(new CIMAssociatorNamesRequestMessage(
         String::EMPTY,
@@ -817,14 +787,15 @@ Array<CIMObjectPath> CIMClientRep::associatorNames(
         resultRole,
         QueueIdStack()));
 
-    Message* message = _doRequest(request, CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE);
+    Message* message =
+        _doRequest(request, CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE);
 
     CIMAssociatorNamesResponseMessage* response =
         (CIMAssociatorNamesResponseMessage*)message;
 
     AutoPtr<CIMAssociatorNamesResponseMessage> destroyer(response);
 
-    return(response->objectNames);
+    return response->objectNames;
 }
 
 Array<CIMObject> CIMClientRep::references(
@@ -834,8 +805,7 @@ Array<CIMObject> CIMClientRep::references(
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList
-)
+    const CIMPropertyList& propertyList)
 {
     AutoPtr<CIMRequestMessage> request(new CIMReferencesRequestMessage(
         String::EMPTY,
@@ -855,15 +825,14 @@ Array<CIMObject> CIMClientRep::references(
 
     AutoPtr<CIMReferencesResponseMessage> destroyer(response);
 
-    return(response->cimObjects);
+    return response->cimObjects;
 }
 
 Array<CIMObjectPath> CIMClientRep::referenceNames(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& resultClass,
-    const String& role
-)
+    const String& role)
 {
     AutoPtr<CIMRequestMessage> request(new CIMReferenceNamesRequestMessage(
         String::EMPTY,
@@ -873,21 +842,21 @@ Array<CIMObjectPath> CIMClientRep::referenceNames(
         role,
         QueueIdStack()));
 
-    Message* message = _doRequest(request, CIM_REFERENCE_NAMES_RESPONSE_MESSAGE);
+    Message* message =
+        _doRequest(request, CIM_REFERENCE_NAMES_RESPONSE_MESSAGE);
 
     CIMReferenceNamesResponseMessage* response =
         (CIMReferenceNamesResponseMessage*)message;
 
     AutoPtr<CIMReferenceNamesResponseMessage> destroyer(response);
 
-    return(response->objectNames);
+    return response->objectNames;
 }
 
 CIMValue CIMClientRep::getProperty(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    const CIMName& propertyName
-)
+    const CIMName& propertyName)
 {
     AutoPtr<CIMRequestMessage> request(new CIMGetPropertyRequestMessage(
         String::EMPTY,
@@ -903,15 +872,14 @@ CIMValue CIMClientRep::getProperty(
 
     AutoPtr<CIMGetPropertyResponseMessage> destroyer(response);
 
-    return(response->value);
+    return response->value;
 }
 
 void CIMClientRep::setProperty(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     const CIMName& propertyName,
-    const CIMValue& newValue
-)
+    const CIMValue& newValue)
 {
     AutoPtr<CIMRequestMessage> request(new CIMSetPropertyRequestMessage(
         String::EMPTY,
@@ -931,8 +899,7 @@ void CIMClientRep::setProperty(
 
 CIMQualifierDecl CIMClientRep::getQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMName& qualifierName
-)
+    const CIMName& qualifierName)
 {
     AutoPtr<CIMRequestMessage> request(new CIMGetQualifierRequestMessage(
         String::EMPTY,
@@ -947,13 +914,12 @@ CIMQualifierDecl CIMClientRep::getQualifier(
 
     AutoPtr<CIMGetQualifierResponseMessage> destroyer(response);
 
-    return(response->cimQualifierDecl);
+    return response->cimQualifierDecl;
 }
 
 void CIMClientRep::setQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMQualifierDecl& qualifierDeclaration
-)
+    const CIMQualifierDecl& qualifierDeclaration)
 {
     AutoPtr<CIMRequestMessage> request(new CIMSetQualifierRequestMessage(
         String::EMPTY,
@@ -971,8 +937,7 @@ void CIMClientRep::setQualifier(
 
 void CIMClientRep::deleteQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMName& qualifierName
-)
+    const CIMName& qualifierName)
 {
     AutoPtr<CIMRequestMessage> request(new CIMDeleteQualifierRequestMessage(
         String::EMPTY,
@@ -980,7 +945,8 @@ void CIMClientRep::deleteQualifier(
         qualifierName,
         QueueIdStack()));
 
-    Message* message = _doRequest(request, CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE);
+    Message* message =
+        _doRequest(request, CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE);
 
     CIMDeleteQualifierResponseMessage* response =
         (CIMDeleteQualifierResponseMessage*)message;
@@ -989,22 +955,22 @@ void CIMClientRep::deleteQualifier(
 }
 
 Array<CIMQualifierDecl> CIMClientRep::enumerateQualifiers(
-    const CIMNamespaceName& nameSpace
-)
+    const CIMNamespaceName& nameSpace)
 {
     AutoPtr<CIMRequestMessage> request(new CIMEnumerateQualifiersRequestMessage(
         String::EMPTY,
         nameSpace,
         QueueIdStack()));
 
-    Message* message = _doRequest(request, CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE);
+    Message* message =
+        _doRequest(request, CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE);
 
     CIMEnumerateQualifiersResponseMessage* response =
         (CIMEnumerateQualifiersResponseMessage*)message;
 
     AutoPtr<CIMEnumerateQualifiersResponseMessage> destroyer(response);
 
-    return(response->qualifierDeclarations);
+    return response->qualifierDeclarations;
 }
 
 CIMValue CIMClientRep::invokeMethod(
@@ -1012,8 +978,7 @@ CIMValue CIMClientRep::invokeMethod(
     const CIMObjectPath& instanceName,
     const CIMName& methodName,
     const Array<CIMParamValue>& inParameters,
-    Array<CIMParamValue>& outParameters
-)
+    Array<CIMParamValue>& outParameters)
 {
     // ATTN-RK-P2-20020301: Does it make sense to have a nameSpace parameter
     // when the namespace should already be included in the instanceName?
@@ -1040,13 +1005,12 @@ CIMValue CIMClientRep::invokeMethod(
 
     outParameters = response->outParameters;
 
-    return(response->retValue);
+    return response->retValue;
 }
 
 Message* CIMClientRep::_doRequest(
     AutoPtr<CIMRequestMessage>& request,
-    const Uint32 expectedResponseMessageType
-)
+    const Uint32 expectedResponseMessageType)
 {
     if (!_connected)
     {
@@ -1068,18 +1032,19 @@ Message* CIMClientRep::_doRequest(
     //Bug 478/418 - Change this to do post call, not mpost
     request->setHttpMethod (HTTP_METHOD__POST);
 
-// l10n
     // Set the Accept-Languages and Content-Languages into
     // the request message
 
-    request->operationContext.set(AcceptLanguageListContainer(requestAcceptLanguages));
-    request->operationContext.set(ContentLanguageListContainer(requestContentLanguages));
+    request->operationContext.set(
+        AcceptLanguageListContainer(requestAcceptLanguages));
+    request->operationContext.set(
+        ContentLanguageListContainer(requestContentLanguages));
 
 
-        //gathering statistical information about client operation
-     perfDataStore.reset();
-     perfDataStore.setOperationType(request->getType());
-     perfDataStore.setMessageID(request->messageId);
+    //gathering statistical information about client operation
+    perfDataStore.reset();
+    perfDataStore.setOperationType(request->getType());
+    perfDataStore.setMessageID(request->messageId);
 
     // Sending a new request, so clear out the response Content-Languages
     responseContentLanguages.clear();
@@ -1113,7 +1078,8 @@ Message* CIMClientRep::_doRequest(
             // Reconnect to reset the connection
             // if Server response contained a Connection: Close Header
             //
-            if (response->getCloseConnect() == true){
+            if (response->getCloseConnect() == true)
+            {
                 _reconnect();
                 response->setCloseConnect(false);
             }
@@ -1134,7 +1100,8 @@ Message* CIMClientRep::_doRequest(
 
                 // Make the ContentLanguage of the exception available through
                 // the CIMClient API (its also available in the exception).
-                responseContentLanguages = clientException->getContentLanguages();
+                responseContentLanguages =
+                    clientException->getContentLanguages();
 
                 //
                 // Determine and throw the specific class of client exception
@@ -1185,13 +1152,6 @@ Message* CIMClientRep::_doRequest(
 
                 if (cimResponse->messageId != messageId)
                 {
-                    // l10n
-
-                    // CIMClientResponseException responseException(
-                    //   String("Mismatched response message ID:  Got \"") +
-                    //    cimResponse->messageId + "\", expected \"" +
-                    //    messageId + "\".");
-
                     MessageLoaderParms mlParms(
                         "Client.CIMClient.MISMATCHED_RESPONSE",
                         "Mismatched response message ID:  Got \"$0\", "
@@ -1205,12 +1165,12 @@ Message* CIMClientRep::_doRequest(
                     throw responseException;
                 }
 
-                // l10n
-                // Get the Content-Languages from the response's operationContext
-                // and make available through the CIMClient API
-                responseContentLanguages =
-                  ((ContentLanguageListContainer)cimResponse->operationContext.get
-                   (ContentLanguageListContainer::NAME)).getLanguages();
+                // Get the Content-Languages from the response's
+                // operationContext and make available through the
+                // CIMClient API
+                responseContentLanguages = ((ContentLanguageListContainer)
+                    cimResponse->operationContext.get(
+                        ContentLanguageListContainer::NAME)).getLanguages();
 
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
@@ -1221,21 +1181,27 @@ Message* CIMClientRep::_doRequest(
                     throw cimException;
                 }
 
-                /* if excicution gets here everytihng is working correctly and a proper response
-                was generated and recived */
+                // if execution gets here everytihng is working correctly
+                // and a proper response was generated and received.
 
-                //check that client side statistics are valid before handing them to the
-                // client application via a call back
-                Boolean re_check = perfDataStore.checkMessageIDandType(cimResponse->messageId,
-                                                                        cimResponse->getType());
-     
-                if (re_check && !perfDataStore.getStatError() && perfDataStore.isClassRegistered())
+                // Check that client side statistics are valid before
+                // handing them to the client application via a call back
+                Boolean re_check = perfDataStore.checkMessageIDandType(
+                    cimResponse->messageId,
+                    cimResponse->getType());
+
+                if (re_check &&
+                    !perfDataStore.getStatError() &&
+                    perfDataStore.isClassRegistered())
                 {
-                   //if callback method throws an exception it will be seen by the client
-                   //no try/catch block is used here intentionaly - becasue exceptions
-                   //come from the client application so client app. should handle them
-                   ClientOpPerformanceData item = perfDataStore.createPerfDataStruct();
-                   perfDataStore.handler_prt->handleClientOpPerformanceData(item);
+                   // If callback method throws an exception it will be seen
+                   // by the client no try/catch block is used here
+                   // intentionaly - because exceptions come from the client
+                   // application so client app. should handle them
+                   ClientOpPerformanceData item =
+                       perfDataStore.createPerfDataStruct();
+                   perfDataStore.handler_prt->handleClientOpPerformanceData(
+                       item);
 
                 }//end of if statmet that call the callback method
                 return response;
@@ -1250,12 +1216,9 @@ Message* CIMClientRep::_doRequest(
             }
             else
             {
-                // l10n
-
-                // CIMClientResponseException responseException(
-                //   "Mismatched response message type.");
                 MessageLoaderParms mlParms(
-                    "Client.CIMOperationResponseDecoder.MISMATCHED_RESPONSE_TYPE",
+                    "Client.CIMOperationResponseDecoder."
+                        "MISMATCHED_RESPONSE_TYPE",
                     "Mismatched response message type.");
                 String mlString(MessageLoader::getMessage(mlParms));
 
@@ -1299,19 +1262,17 @@ String CIMClientRep::_getLocalHostName()
     return hostname;
 }
 
-
-void CIMClientRep::registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler)
+void CIMClientRep::registerClientOpPerformanceDataHandler(
+    ClientOpPerformanceDataHandler& handler)
 {
-   perfDataStore.handler_prt = &handler;
-   perfDataStore.setClassRegistered(true);
+    perfDataStore.handler_prt = &handler;
+    perfDataStore.setClassRegistered(true);
 }
-
 
 void CIMClientRep::deregisterClientOpPerformanceDataHandler()
 {
     perfDataStore.handler_prt = NULL;
     perfDataStore.setClassRegistered(false);
 }
-
 
 PEGASUS_NAMESPACE_END

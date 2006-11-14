@@ -509,7 +509,7 @@ void ProviderAgentContainer::_startAgentProcess()
             PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "Caught exception before calling execl().");
           }
-          catch (...) 
+          catch (...)
           {
           }
          _exit(1);
@@ -547,7 +547,7 @@ void ProviderAgentContainer::_startAgentProcess()
 # ifndef PEGASUS_DISABLE_PROV_USERCTXT
     // Get and save the effective user name and the uid/gid for the user
     // context of the agent process
- 
+
     String effectiveUserName = System::getEffectiveUserName();
     PEGASUS_UID_T newUid = (PEGASUS_UID_T) -1;
     PEGASUS_GID_T newGid = (PEGASUS_GID_T) -1;
@@ -823,7 +823,7 @@ void ProviderAgentContainer::_initialize()
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                     "Not enough threads to process responses from the "
                         "provider agent.");
- 
+
                 Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Could not allocate thread to process responses from the "
                         "provider agent.");
@@ -1090,7 +1090,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
             // Get the provider module from the ProviderIdContainer to see if
             // we can optimize out the transmission of this instance to the
             // Provider Agent.  (See the _providerModuleCache description.)
-            if(request->operationContext.contains(ProviderIdContainer::NAME))
+            if (request->operationContext.contains(ProviderIdContainer::NAME))
             {
                 ProviderIdContainer pidc = request->operationContext.get(
                     ProviderIdContainer::NAME);
@@ -1214,7 +1214,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
 
         // A response value of _REQUEST_NOT_PROCESSED indicates that the
         // provider agent process was terminating when the request was sent.
-        // The request was not processed by the provider agent, so it can be 
+        // The request was not processed by the provider agent, so it can be
         // retried safely.
         if (response == _REQUEST_NOT_PROCESSED)
         {
@@ -1403,7 +1403,7 @@ ProviderAgentContainer::_responseProcessor(void* arg)
 
     pa->_processResponses();
 
-    return(ThreadReturnType(0));
+    return ThreadReturnType(0);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1436,7 +1436,7 @@ OOPProviderManagerRouter::~OOPProviderManagerRouter()
         // Clean up the ProviderAgentContainers
         AutoMutex lock(_providerAgentTableMutex);
         ProviderAgentTable::Iterator i = _providerAgentTable.start();
-        for(; i != 0; i++)
+        for (; i != 0; i++)
         {
             delete i.value();
         }
@@ -1512,13 +1512,13 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
         // Just let the selecting thread notice when the agent connections
         // are closed.
     }
-    else if (request->getType () == 
+    else if (request->getType () ==
         CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE)
     {
         _subscriptionInitComplete = true;
 
         //
-        //  Forward the CIMSubscriptionInitCompleteRequestMessage to 
+        //  Forward the CIMSubscriptionInitCompleteRequestMessage to
         //  all providers
         //
         response.reset (_forwardRequestToAllAgents (request));
@@ -1731,7 +1731,7 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
 
     if (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
     {
-        if(request->operationContext.contains(IdentityContainer::NAME))
+        if (request->operationContext.contains(IdentityContainer::NAME))
         {
             // User Name is in the OperationContext
             IdentityContainer ic = (IdentityContainer)
@@ -1866,7 +1866,7 @@ Boolean OOPProviderManagerRouter::hasActiveProviders()
     // Iterate through the _providerAgentTable looking for initialized agents
     AutoMutex lock(_providerAgentTableMutex);
     ProviderAgentTable::Iterator i = _providerAgentTable.start();
-    for(; i != 0; i++)
+    for (; i != 0; i++)
     {
         if (i.value()->isInitialized())
         {
@@ -1888,7 +1888,7 @@ void OOPProviderManagerRouter::unloadIdleProviders()
     // Iterate through the _providerAgentTable unloading idle providers
     AutoMutex lock(_providerAgentTableMutex);
     ProviderAgentTable::Iterator i = _providerAgentTable.start();
-    for(; i != 0; i++)
+    for (; i != 0; i++)
     {
         i.value()->unloadIdleProviders();
     }

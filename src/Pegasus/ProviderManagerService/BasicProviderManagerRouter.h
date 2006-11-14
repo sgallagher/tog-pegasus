@@ -55,7 +55,7 @@ public:
     BasicProviderManagerRouter(
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
-	ProviderManager* (*createDefaultProviderManagerCallback)());
+        ProviderManager* (*createDefaultProviderManagerCallback)());
 
     virtual ~BasicProviderManagerRouter();
 

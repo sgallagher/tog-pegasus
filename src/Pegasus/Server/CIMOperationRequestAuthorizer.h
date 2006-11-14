@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMOperationRequestAuthorizer_h
@@ -48,63 +40,62 @@
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Server/Linkage.h>
 
-
 PEGASUS_NAMESPACE_BEGIN
 
-
-class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueueService
+class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer :
+    public MessageQueueService
 {
-   public:
-  
-      typedef MessageQueueService Base;
+public:
 
-      CIMOperationRequestAuthorizer(
-	 MessageQueueService* outputQueue);
-      
-      ~CIMOperationRequestAuthorizer();
-      
-      void sendResponse(
-	 Uint32 queueId,
-	 Buffer& message);
+    typedef MessageQueueService Base;
 
-      void sendIMethodError(
-	 Uint32 queueId,
-         HttpMethod httpMethod,
-	 const String& messageId,
-	 const CIMName& methodName,
-	 const CIMException& cimException);
+    CIMOperationRequestAuthorizer(
+        MessageQueueService* outputQueue);
 
-      void sendMethodError(
-         Uint32 queueId,
-         HttpMethod httpMethod,
-         const String& messageId,
-         const CIMName& methodName,
-         const CIMException& cimException);
+    ~CIMOperationRequestAuthorizer();
 
-      virtual void handleEnqueue(Message *);
+    void sendResponse(
+        Uint32 queueId,
+        Buffer& message);
 
-      virtual void handleEnqueue();
+    void sendIMethodError(
+        Uint32 queueId,
+        HttpMethod httpMethod,
+        const String& messageId,
+        const CIMName& methodName,
+        const CIMException& cimException);
 
-      /** Sets the flag to indicate whether or not the CIMServer is
-	  shutting down.
-      */
-      void setServerTerminating(Boolean flag);
+    void sendMethodError(
+        Uint32 queueId,
+        HttpMethod httpMethod,
+        const String& messageId,
+        const CIMName& methodName,
+        const CIMException& cimException);
 
-   private:
+    virtual void handleEnqueue(Message*);
 
-      // Constant defining the user group name separator
-      static const char  _GROUPNAME_SEPARATOR;
+    virtual void handleEnqueue();
 
-      // Get a list of authorized user groups
-      Array<String> _getAuthorizedUserGroups();
+    /** Sets the flag to indicate whether or not the CIMServer is
+        shutting down.
+    */
+    void setServerTerminating(Boolean flag);
 
-      Array<String> _authorizedUserGroups;
-      // Do not make this an AutoPtr as the MQS has to be deleted
-      // by somebody else, not this class.
-      MessageQueueService *_outputQueue; 
+private:
 
-      // Flag to indicate whether or not the CIMServer is shutting down.
-      Boolean _serverTerminating;
+    // Constant defining the user group name separator
+    static const char _GROUPNAME_SEPARATOR;
+
+    // Get a list of authorized user groups
+    Array<String> _getAuthorizedUserGroups();
+
+    Array<String> _authorizedUserGroups;
+    // Do not make this an AutoPtr as the MQS has to be deleted
+    // by somebody else, not this class.
+    MessageQueueService* _outputQueue;
+
+    // Flag to indicate whether or not the CIMServer is shutting down.
+    Boolean _serverTerminating;
 };
 
 PEGASUS_NAMESPACE_END

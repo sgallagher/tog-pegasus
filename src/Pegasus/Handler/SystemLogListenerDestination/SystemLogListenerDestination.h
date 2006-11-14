@@ -56,20 +56,20 @@ public:
     }
 
     void handleIndication(
-	const OperationContext& context,
-	const String nameSpace,
-	CIMInstance& indication, 
-	CIMInstance& handler, 
-	CIMInstance& subscription, 
-	ContentLanguageList& contentLanguages);
+        const OperationContext& context,
+        const String nameSpace,
+        CIMInstance& indication, 
+        CIMInstance& handler, 
+        CIMInstance& subscription, 
+        ContentLanguageList& contentLanguages);
 
 private:
 
     /**
         Writes the formatted indication to a system log file.
-	If PEGASUS_USE_SYSLOGS is defined, writes to the syslog file,
-	otherwise, writes to the PegasusStandard.log file.
-	The platform maintainer can also write to a preferred system log file.
+        If PEGASUS_USE_SYSLOGS is defined, writes to the syslog file,
+        otherwise, writes to the PegasusStandard.log file.
+        The platform maintainer can also write to a preferred system log file.
 
         @param  identifier     the name of the program 
         @param  severity       pegasus logger severity 
@@ -77,9 +77,9 @@ private:
     */
 
     void _writeToSystemLog(
-	const String & identifier,
-	Uint32 severity,
-	const String & formattedText);
+        const String& identifier,
+        Uint32 severity,
+        const String& formattedText);
 };
 
 PEGASUS_NAMESPACE_END

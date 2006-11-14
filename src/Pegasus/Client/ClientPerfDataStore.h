@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Willis White (whiwill@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3674
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef ClientPerfDataStore_h
@@ -46,78 +40,72 @@
 #include <Pegasus/Client/Linkage.h>
 #include <Pegasus/Client/ClientOpPerformanceDataHandler.h>
 
-
-
 PEGASUS_NAMESPACE_BEGIN
-
-
 
 class ClientOpPerformanceDataHandler;
 struct ClientOpPerformanceData;
 
-/* The ClientPerfDataStore class is internal to pegasus. It has no API's that client apps can
-access. It's purpose is to collect and calculate the data that is returned to the client app
-in the ClientOpPerformanceData object.
+/** The ClientPerfDataStore class is internal to pegasus. It has no API's
+    that client apps can access. It's purpose is to collect and calculate
+    the data that is returned to the client app in the
+    ClientOpPerformanceData object.
 */
-
 class PEGASUS_CLIENT_LINKAGE ClientPerfDataStore
-
 {
 public:
 
     ClientPerfDataStore();
 
-    /**Resets all the data members to 0
+    /** Resets all the data members to 0
     */
     void reset();
 
-    /**Creates a ClientOpPerformanceData from the current values of of the private data members
+    /** Creates a ClientOpPerformanceData from the current values of of the
+        private data members
     */
     ClientOpPerformanceData createPerfDataStruct();
 
-    /**checks the currentMessageID and _operationType data members against
-    @param messageID and @param type if the values are equal
-    true is returned.
-    @param messageID
-    @param type CIM message type of current message
-    @return true if @param messageID equals currentMessageID data member
+    /** Checks the currentMessageID and _operationType data members against
+        @param messageID and @param type if the values are equal
+        true is returned.
+        @param messageID
+        @param type CIM message type of current message
+        @return true if @param messageID equals currentMessageID data member
     */
     Boolean checkMessageIDandType(const String& messageID, Uint32 type);
 
-    /**sets the server time data member
+    /** Sets the server time data member
     */
     void setServerTime(Uint32 time);
 
-    /**sets the responsSize data member
+    /** Sets the responsSize data member
     */
     void setResponseSize(Uint64 size);
 
-    /**sets the _requestSize data member
+    /** Sets the _requestSize data member
     */
     void setRequestSize(Uint64 size);
 
-    /**sets startNetworkTime data member
+    /** Sets startNetworkTime data member
     */
-    void setStartNetworkTime(void);
+    void setStartNetworkTime();
 
-    /**sets endNetworkTime data member
+    /** Sets endNetworkTime data member
     */
     void setEndNetworkTime(TimeValue time);
 
-
-    /** sets validServerTime data member
+    /** Sets validServerTime data member
     */
     void setServerTimeKnown(Boolean bol);
 
-    /**sets _operationType data member by translating message type given by
-    @param type, into a CIMOperationType. That value is ues to set the _operationType
-    data member and is returned.
-    @param type integer repesenting the message type
+    /** Sets _operationType data member by translating message type given by
+        @param type, into a CIMOperationType. That value is used to set the
+        _operationType data member and is returned.
+        @param type integer repesenting the message type
     */
     void setOperationType(Uint32 type);
 
     //void setErrorCondition(Boolean bol);
-
 
     String toString() const;
 
@@ -129,10 +117,9 @@ public:
 
     static ClientPerfDataStore *current_Store;
 
-    ClientOpPerformanceDataHandler * handler_prt;
+    ClientOpPerformanceDataHandler* handler_prt;
 
     Boolean isClassRegistered() const;
-
 
 protected:
     CIMOperationType _operationType;

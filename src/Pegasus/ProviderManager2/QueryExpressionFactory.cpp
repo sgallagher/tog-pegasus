@@ -29,14 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com)
-//
-// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com), bug#3605.
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h> 
+#include <Pegasus/Common/String.h>
 
 #include "QueryExpressionFactory.h"
 
@@ -46,11 +42,12 @@
 PEGASUS_NAMESPACE_BEGIN
 
 QueryExpressionRep* QueryExpressionFactory::routeBuildQueryExpressionRep(
-           const String& queryLanguage,
-	   const String& query) {
-   if (queryLanguage=="WQL")
-      return new WQLQueryExpressionRep(queryLanguage,query);
-   return NULL;
+    const String& queryLanguage,
+    const String& query)
+{
+    if (queryLanguage == "WQL")
+        return new WQLQueryExpressionRep(queryLanguage,query);
+    return NULL;
 }
 
 PEGASUS_NAMESPACE_END

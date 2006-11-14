@@ -102,7 +102,7 @@ Boolean CIMOMHandleRep::unload_ok()
         unloadable = false;
     }
 
-    return (unloadable);
+    return unloadable;
 }
 
 PEGASUS_NAMESPACE_END

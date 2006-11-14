@@ -71,7 +71,7 @@ DefaultPropertyOwner::DefaultPropertyOwner()
 
 
 /**
-Initialize the config properties.
+    Initialize the config properties.
 */
 void DefaultPropertyOwner::initialize()
 {
@@ -84,13 +84,14 @@ void DefaultPropertyOwner::initialize()
         (_configProperties.get())[i].dynamic = properties[i].dynamic;
         (_configProperties.get())[i].domain = properties[i].domain;
         (_configProperties.get())[i].domainSize = properties[i].domainSize;
-        (_configProperties.get())[i].externallyVisible = properties[i].externallyVisible;
+        (_configProperties.get())[i].externallyVisible =
+            properties[i].externallyVisible;
     }
 }
 
 
 /**
-Get information about the specified property.
+    Get information about the specified property.
 */
 void DefaultPropertyOwner::getPropertyInfo(
     const String& name,
@@ -100,13 +101,13 @@ void DefaultPropertyOwner::getPropertyInfo(
 
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
+        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
         {
-            propertyInfo.append((_configProperties.get())[i].propertyName);
-            propertyInfo.append((_configProperties.get())[i].defaultValue);
-            propertyInfo.append((_configProperties.get())[i].currentValue);
-            propertyInfo.append((_configProperties.get())[i].plannedValue);
-            if ((_configProperties.get())[i].dynamic)
+            propertyInfo.append(_configProperties.get()[i].propertyName);
+            propertyInfo.append(_configProperties.get()[i].defaultValue);
+            propertyInfo.append(_configProperties.get()[i].currentValue);
+            propertyInfo.append(_configProperties.get()[i].plannedValue);
+            if (_configProperties.get()[i].dynamic)
             {
                 propertyInfo.append(STRING_TRUE);
             }
@@ -114,7 +115,7 @@ void DefaultPropertyOwner::getPropertyInfo(
             {
                 propertyInfo.append(STRING_FALSE);
             }
-            if ((_configProperties.get())[i].externallyVisible)
+            if (_configProperties.get()[i].externallyVisible)
             {
                 propertyInfo.append(STRING_TRUE);
             }
@@ -133,15 +134,15 @@ void DefaultPropertyOwner::getPropertyInfo(
 }
 
 /**
-Get default value of the specified property
+    Get default value of the specified property
 */
 String DefaultPropertyOwner::getDefaultValue(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
+        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
         {
-            return ((_configProperties.get())[i].defaultValue);
+            return _configProperties.get()[i].defaultValue;
         }
     }
 
@@ -152,15 +153,15 @@ String DefaultPropertyOwner::getDefaultValue(const String& name) const
 }
 
 /**
-Get current value of the specified property
+    Get current value of the specified property
 */
 String DefaultPropertyOwner::getCurrentValue(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
+        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
         {
-            return ((_configProperties.get())[i].currentValue);
+            return _configProperties.get()[i].currentValue;
         }
     }
 
@@ -171,15 +172,15 @@ String DefaultPropertyOwner::getCurrentValue(const String& name) const
 }
 
 /**
-Get planned value of the specified property
+    Get planned value of the specified property
 */
 String DefaultPropertyOwner::getPlannedValue(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
+        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
         {
-            return ((_configProperties.get())[i].plannedValue);
+            return _configProperties.get()[i].plannedValue;
         }
     }
 
@@ -190,7 +191,7 @@ String DefaultPropertyOwner::getPlannedValue(const String& name) const
 }
 
 /**
-Init current value of the specified property to the specified value
+    Init current value of the specified property to the specified value
 */
 void DefaultPropertyOwner::initCurrentValue(
     const String& name,
@@ -198,9 +199,9 @@ void DefaultPropertyOwner::initCurrentValue(
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
+        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
         {
-            (_configProperties.get())[i].currentValue = value;
+            _configProperties.get()[i].currentValue = value;
             return;
         }
     }
@@ -211,9 +212,8 @@ void DefaultPropertyOwner::initCurrentValue(
     throw UnrecognizedConfigProperty(name);
 }
 
-
 /**
-Init planned value of the specified property to the specified value
+    Init planned value of the specified property to the specified value
 */
 void DefaultPropertyOwner::initPlannedValue(
     const String& name,
@@ -221,9 +221,9 @@ void DefaultPropertyOwner::initPlannedValue(
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
+        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
         {
-            (_configProperties.get())[i].plannedValue = value;
+            _configProperties.get()[i].plannedValue = value;
             return;
         }
     }
@@ -235,7 +235,7 @@ void DefaultPropertyOwner::initPlannedValue(
 }
 
 /**
-Update current value of the specified property to the specified value
+    Update current value of the specified property to the specified value
 */
 void DefaultPropertyOwner::updateCurrentValue(
     const String& name,
@@ -270,7 +270,7 @@ void DefaultPropertyOwner::updateCurrentValue(
 
 
 /**
-Update planned value of the specified property to the specified value
+    Update planned value of the specified property to the specified value
 */
 void DefaultPropertyOwner::updatePlannedValue(
     const String& name,
@@ -288,8 +288,9 @@ void DefaultPropertyOwner::updatePlannedValue(
 /**
 Checks to see if the given value is valid or not.
 */
-Boolean DefaultPropertyOwner::isValid(const String& name, const String& value)
-const
+Boolean DefaultPropertyOwner::isValid(
+    const String& name,
+    const String& value) const
 {
     //
     // By default, no validation is done. It can optionally be added here
@@ -298,7 +299,7 @@ const
     if (String::equalNoCase(name, "socketWriteTimeout"))
     {
         Uint32 timeoutValue;
-        char dummyChar;        
+        char dummyChar;
         int numConversions =
             sscanf(value.getCString(), "%u%c", &timeoutValue, &dummyChar);
         return ((timeoutValue != 0) && (numConversions == 1));
@@ -309,24 +310,24 @@ const
         if (!(String::equalNoCase(value, "true")) &&
             !(String::equalNoCase(value, "false")))
         {
-            return (false);
+            return false;
         }
     }
 #endif
 
-    return(true);
+    return true;
 }
 
 /**
-Checks to see if the specified property is dynamic or not.
+    Checks to see if the specified property is dynamic or not.
 */
 Boolean DefaultPropertyOwner::isDynamic(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase((_configProperties.get())[i].propertyName, name))
+        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
         {
-            return ((_configProperties.get())[i].dynamic == IS_DYNAMIC);
+            return (_configProperties.get()[i].dynamic == IS_DYNAMIC);
         }
     }
 
@@ -335,6 +336,5 @@ Boolean DefaultPropertyOwner::isDynamic(const String& name) const
     //
     throw UnrecognizedConfigProperty(name);
 }
-
 
 PEGASUS_NAMESPACE_END

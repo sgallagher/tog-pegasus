@@ -29,21 +29,17 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMInstanceProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMInstanceProvider::CIMInstanceProvider(void)
+CIMInstanceProvider::CIMInstanceProvider()
 {
 }
 
-CIMInstanceProvider::~CIMInstanceProvider(void)	
+CIMInstanceProvider::~CIMInstanceProvider()
 {
 }
 

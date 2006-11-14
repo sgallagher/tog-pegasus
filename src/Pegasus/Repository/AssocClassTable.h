@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Robert Kieninger, IBM (kieningr@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AssocClassTable_h
@@ -93,7 +83,7 @@ public:
         const String& path,
         const CIMName& assocClassName);
 
-    /** Finds all associators of the given class. See 
+    /** Finds all associators of the given class. See
         CIMOperations::associators() for a full description.
     */
     static Boolean getAssociatorNames(
@@ -106,7 +96,7 @@ public:
         Array<String>& associatorNames);
 
     /** Get all references (association class names) in which the
-        given class involved. See CIMOperations::referenceNames() for a 
+        given class involved. See CIMOperations::referenceNames() for a
         full description.
     */
     static Boolean getReferenceNames(
@@ -122,7 +112,7 @@ public:
 private:
 
     static Boolean _InitializeCache(
-        AssocClassCache *cache,
+        AssocClassCache* cache,
         const String& path);
 
     AssocClassTable() { /* private */ }

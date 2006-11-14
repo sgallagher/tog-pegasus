@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_RepositoryQueryContext_h
@@ -54,37 +47,41 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_REPOSITORY_LINKAGE RepositoryQueryContext: public QueryContext
 {
-   public:
+public:
 
-   RepositoryQueryContext(const CIMNamespaceName& inNS, CIMRepository* inCIMRep);
+    RepositoryQueryContext(
+        const CIMNamespaceName& inNS,
+        CIMRepository* inCIMRep);
 
-	RepositoryQueryContext(const RepositoryQueryContext& ctx);
-	
-	RepositoryQueryContext& operator=(const RepositoryQueryContext& rhs);
-	
-	~RepositoryQueryContext();
+    RepositoryQueryContext(const RepositoryQueryContext& ctx);
 
-	QueryContext* clone();
+    RepositoryQueryContext& operator=(const RepositoryQueryContext& rhs);
 
-        CIMClass getClass (const CIMName& inClassName)const;
+    ~RepositoryQueryContext();
 
-	Array<CIMName> enumerateClassNames(const CIMName& inClassName)const;
+    QueryContext* clone();
 
-        // Returns true if the derived class is a subclass of the base class.
-        // Note: this will return false if the classes are the same.
-        // Note: the default namespace of the query is used.
-        Boolean isSubClass(const CIMName& baseClass,
-                           const CIMName& derivedClass)const;
+    CIMClass getClass(const CIMName& inClassName) const;
 
-        // Returns the relationship between the anchor class and the related
-        // class in the class schema of the query's default name space.
-        ClassRelation getClassRelation(const CIMName& anchorClass,
-                                       const CIMName& relatedClass)const;
-        
-   private: 
-	RepositoryQueryContext();
+    Array<CIMName> enumerateClassNames(const CIMName& inClassName) const;
 
-        CIMRepository* _CIMRep;
+    // Returns true if the derived class is a subclass of the base class.
+    // Note: this will return false if the classes are the same.
+    // Note: the default namespace of the query is used.
+    Boolean isSubClass(
+        const CIMName& baseClass,
+        const CIMName& derivedClass) const;
+
+    // Returns the relationship between the anchor class and the related
+    // class in the class schema of the query's default name space.
+    ClassRelation getClassRelation(
+        const CIMName& anchorClass,
+        const CIMName& relatedClass) const;
+
+private:
+    RepositoryQueryContext();
+
+    CIMRepository* _CIMRep;
 };
 
 PEGASUS_NAMESPACE_END

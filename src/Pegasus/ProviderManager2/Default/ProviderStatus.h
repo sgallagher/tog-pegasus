@@ -154,13 +154,13 @@ public:
 
         @param  instance  the Provider CIMInstance for the provider
      */
-    void setProviderInstance(const CIMInstance & instance);
+    void setProviderInstance(const CIMInstance& instance);
 
     /**
         Gets the provider instance for the provider.
 
         Note: the provider instance is set only for an indication provider, and
-        only if a Create Subscription request has been processed for the 
+        only if a Create Subscription request has been processed for the
         provider.
 
         @return  the Provider CIMInstance for the provider
@@ -181,8 +181,8 @@ private:
     Boolean _isInitialized;
     Mutex _statusMutex;    // Must be a recursive mutex
 
-    ProviderModule *_module;
-    CIMOMHandle *_cimomHandle;
+    ProviderModule* _module;
+    CIMOMHandle* _cimomHandle;
 
     AtomicInt _currentOperations;
     Boolean _indicationsEnabled;
@@ -198,9 +198,9 @@ private:
 
     /**
         A mutex to control access to the _currentSubscriptions member variable.
-        Before any access (test, increment, decrement or reset) of the 
-        _currentSubscriptions member variable, the _currentSubscriptionsMutex is
-        first locked.
+        Before any access (test, increment, decrement or reset) of the
+        _currentSubscriptions member variable, the _currentSubscriptionsMutex
+        is first locked.
      */
     Mutex _currentSubscriptionsMutex;
 
@@ -208,14 +208,14 @@ private:
         The Provider CIMInstance for the provider.
         The Provider CIMInstance is set only for indication providers, and only
         if a Create Subscription request has been processed for the provider.
-        The Provider CIMInstance is needed in order to construct the 
+        The Provider CIMInstance is needed in order to construct the
         EnableIndicationsResponseHandler to send to the indication provider
         when the provider's enableIndications() method is called.
-        The Provider CIMInstance is needed in the 
+        The Provider CIMInstance is needed in the
         EnableIndicationsResponseHandler in order to construct the Process
         Indication request when an indication is delivered by the provider.
         The Provider CIMInstance is needed in the Process Indication request
-        to enable the Indication Service to determine if the provider that 
+        to enable the Indication Service to determine if the provider that
         generated the indication accepted a matching subscription.
      */
     CIMInstance _providerInstance;

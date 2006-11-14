@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMServerState_h
@@ -46,7 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 ///////////////////////////////////////////////////////////////////////////////
 //
 // This class contains the current state information about the CIMServer, as
-// well as methods to get and set the CIMServer state information. 
+// well as methods to get and set the CIMServer state information.
 //
 ///////////////////////////////////////////////////////////////////////////////
 

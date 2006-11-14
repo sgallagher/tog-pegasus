@@ -43,15 +43,17 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-This class defines the set of methods implemented by an indication consumer provider.
-A provider that derives from this class must implement all methods. The minimal method
-implementation simply throw the NotSupported exception.
+    This class defines the set of methods implemented by an indication
+    consumer provider.  A provider that derives from this class must
+    implement all methods. The minimal method implementation simply throw
+    the NotSupported exception.
 */
-class PEGASUS_PROVIDER_LINKAGE CIMIndicationConsumerProvider : public virtual CIMProvider, public virtual CIMIndicationConsumer
+class PEGASUS_PROVIDER_LINKAGE CIMIndicationConsumerProvider :
+    public virtual CIMProvider, public virtual CIMIndicationConsumer
 {
 public:
-    CIMIndicationConsumerProvider(void);
-    virtual ~CIMIndicationConsumerProvider(void);
+    CIMIndicationConsumerProvider();
+    virtual ~CIMIndicationConsumerProvider();
 };
 
 PEGASUS_NAMESPACE_END

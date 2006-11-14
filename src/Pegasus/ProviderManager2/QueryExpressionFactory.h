@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com)
-//
-// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com), bug#3605.
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_QueryExpressionRouter_h
@@ -47,11 +43,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_PPM_LINKAGE QueryExpressionFactory {
-  public:
-   static QueryExpressionRep* routeBuildQueryExpressionRep(
-           const String& queryLanguage,
-	   const String& query);
+class PEGASUS_PPM_LINKAGE QueryExpressionFactory
+{
+public:
+    static QueryExpressionRep* routeBuildQueryExpressionRep(
+        const String& queryLanguage,
+        const String& query);
 };
 
 PEGASUS_NAMESPACE_END

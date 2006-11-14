@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Robert Kieninger (kieningr@de.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -52,25 +48,25 @@ PEGASUS_NAMESPACE_BEGIN
 Array<AssocClassCache*> AssocClassCache::_assocClassCacheList;
 
 
-/** Retrieves a singleton instance of the class cache for the
-  * given namespace.
+/**
+    Retrieves a singleton instance of the class cache for the given namespace.
 */
 AssocClassCache* AssocClassCache::getAssocClassCache(const String& nameSpace)
 {
-   for (Uint16 idx=0; idx<_assocClassCacheList.size(); idx++)
-   {
-      if (nameSpace == _assocClassCacheList[idx]->_nameSpace)
-      {
-         return _assocClassCacheList[idx];
-      }
-   }
+    for (Uint16 idx=0; idx<_assocClassCacheList.size(); idx++)
+    {
+        if (nameSpace == _assocClassCacheList[idx]->_nameSpace)
+        {
+            return _assocClassCacheList[idx];
+        }
+    }
 
-   // If we got here, no cache exists for the the given namespace so far,
-   // so we will create a new one.
-   AssocClassCache * newCache = new AssocClassCache(nameSpace);
-   _assocClassCacheList.append(newCache);
+    // If we got here, no cache exists for the the given namespace so far,
+    // so we will create a new one.
+    AssocClassCache* newCache = new AssocClassCache(nameSpace);
+    _assocClassCacheList.append(newCache);
 
-   return newCache;
+    return newCache;
 }
 
 void AssocClassCache::cleanupAssocClassCaches()
@@ -80,83 +76,87 @@ void AssocClassCache::cleanupAssocClassCaches()
         delete(_assocClassCacheList[idx-1]);
         _assocClassCacheList.remove(idx-1);
     }
-
 }
 
 /** Retrieve the list of entries for a from class through direct
- * access via the from class name.
+    access via the from class name.
 */
-Boolean AssocClassCache::getAssocClassEntry(const String& fromClassName,
-                                            Array< Array<String> >& entryList)
+Boolean AssocClassCache::getAssocClassEntry(
+    const String& fromClassName,
+    Array< Array<String> >& entryList)
 {
-   return _assocClassCache->lookup(fromClassName,entryList);
+    return _assocClassCache->lookup(fromClassName,entryList);
 }
 
 /** Add a new record to the association cache.
- * If an entry for the given from class name already exists,
- * the new entry is appended to the old entry. Otherwise a new entry
- * is added to the cache.
+    If an entry for the given from class name already exists,
+    the new entry is appended to the old entry. Otherwise a new entry
+    is added to the cache.
 */
-Boolean AssocClassCache::addRecord(const String& fromClassName,
-                                   Array<String> assocClassRecord)
+Boolean AssocClassCache::addRecord(
+    const String& fromClassName,
+    Array<String> assocClassRecord)
 {
-   Array< Array<String> > oldAssocClassEntryList;
+    Array< Array<String> > oldAssocClassEntryList;
 
-   if (_assocClassCache->lookup(fromClassName, oldAssocClassEntryList))
-   {
-      _assocClassCache->remove(fromClassName);
-   }
+    if (_assocClassCache->lookup(fromClassName, oldAssocClassEntryList))
+    {
+        _assocClassCache->remove(fromClassName);
+    }
 
-   oldAssocClassEntryList.append(assocClassRecord);
+    oldAssocClassEntryList.append(assocClassRecord);
 
-   return _assocClassCache->insert(fromClassName,oldAssocClassEntryList);
+    return _assocClassCache->insert(fromClassName,oldAssocClassEntryList);
 }
 
 /** Remove an entry from the association cache specified by the given
- *  from class name.
+     from class name.
 */
 Boolean AssocClassCache::removeEntry(const String& fromClassName)
 {
-   return _assocClassCache->remove(fromClassName);
+    return _assocClassCache->remove(fromClassName);
 }
 
-/** Remove an association record from the association cache specified by the given
- *  from class name and association name.
+/** Remove an association record from the association cache specified by the
+    given from class name and association name.
 */
-Boolean AssocClassCache::removeRecord(const String& fromClassName,
-                                      const String& assocClassName)
+Boolean AssocClassCache::removeRecord(
+    const String& fromClassName,
+    const String& assocClassName)
 {
-   Array< Array<String> > oldAssocClassEntryList;
+    Array< Array<String> > oldAssocClassEntryList;
 
-   if (_assocClassCache->lookup(fromClassName, oldAssocClassEntryList))
-   {
-      for (Uint16 idx=0; idx < oldAssocClassEntryList.size(); idx++ )
-      {
-         // The first entry in each record is the association class
-         // name. Find the record for the association class and remove
-         // it from the cache entry.
-         if (String::equalNoCase(oldAssocClassEntryList[idx][ASSOC_CLASS_NAME_INDEX],
-                                 assocClassName))
-         {
-            _assocClassCache->remove(fromClassName);
-            if (oldAssocClassEntryList.size() > 1)
+    if (_assocClassCache->lookup(fromClassName, oldAssocClassEntryList))
+    {
+        for (Uint16 idx=0; idx < oldAssocClassEntryList.size(); idx++ )
+        {
+            // The first entry in each record is the association class
+            // name. Find the record for the association class and remove
+            // it from the cache entry.
+            if (String::equalNoCase(
+                    oldAssocClassEntryList[idx][ASSOC_CLASS_NAME_INDEX],
+                    assocClassName))
             {
-               oldAssocClassEntryList.remove(idx);
-               _assocClassCache->insert(fromClassName,oldAssocClassEntryList);
+                _assocClassCache->remove(fromClassName);
+                if (oldAssocClassEntryList.size() > 1)
+                {
+                    oldAssocClassEntryList.remove(idx);
+                    _assocClassCache->insert(
+                        fromClassName, oldAssocClassEntryList);
+                }
+                return true;
             }
-            return true;
-         }
-      }
-   }
+        }
+    }
 
-   return false;
+    return false;
 }
 
 /** Check if the cache is loaded with objects already.
 */
 Boolean AssocClassCache::isActive()
 {
-   return _isInitialized;
+    return _isInitialized;
 }
 
 void AssocClassCache::setActive(Boolean flag)
@@ -173,8 +173,8 @@ AssocClassCache::~AssocClassCache()
 AssocClassCache::AssocClassCache(const String& nameSpace)
 {
     _isInitialized = false;
-   _nameSpace = nameSpace;
-   _assocClassCache = new AssocClassCacheHashTableType(1000);
+    _nameSpace = nameSpace;
+    _assocClassCache = new AssocClassCacheHashTableType(1000);
 }
 
 PEGASUS_NAMESPACE_END

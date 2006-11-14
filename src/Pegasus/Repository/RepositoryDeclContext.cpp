@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "RepositoryDeclContext.h"
@@ -42,15 +38,13 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-RepositoryDeclContext::RepositoryDeclContext(CIMRepository* repository) 
+RepositoryDeclContext::RepositoryDeclContext(CIMRepository* repository)
     : _repository(repository)
 {
-
 }
 
 RepositoryDeclContext::~RepositoryDeclContext()
 {
-
 }
 
 CIMQualifierDecl RepositoryDeclContext::lookupQualifierDecl(
@@ -62,11 +56,11 @@ CIMQualifierDecl RepositoryDeclContext::lookupQualifierDecl(
 
     try
     {
-	return _repository->_getQualifier(nameSpace, qualifierName);
+        return _repository->_getQualifier(nameSpace, qualifierName);
     }
     catch (Exception&)
     {
-	return CIMQualifierDecl();
+        return CIMQualifierDecl();
     }
 }
 

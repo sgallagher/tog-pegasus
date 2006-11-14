@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AssocInstTable_h
@@ -57,65 +51,65 @@ class PEGASUS_REPOSITORY_LINKAGE AssocInstTable
 public:
 
     /** Appends a row into the association table. There is no checking
-	for duplicate entries (the caller ensures this). The case of
-	the arguments doesn't matter. They are ignored during comparison.
+        for duplicate entries (the caller ensures this). The case of
+        the arguments doesn't matter. They are ignored during comparison.
     */
     static void append(
-	PEGASUS_STD(ofstream)& os,
-	const String& assocInstanceName,
-	const CIMName& assocClassName,
-	const String& fromInstanceName,
-	const CIMName& fromClassName,
-	const CIMName& fromPropertyName,
-	const String& toInstanceName,
-	const CIMName& toClassName,
-	const CIMName& toPropertyName);
+        PEGASUS_STD(ofstream)& os,
+        const String& assocInstanceName,
+        const CIMName& assocClassName,
+        const String& fromInstanceName,
+        const CIMName& fromClassName,
+        const CIMName& fromPropertyName,
+        const String& toInstanceName,
+        const CIMName& toClassName,
+        const CIMName& toPropertyName);
 
     /** Appends a row into the association table. There is no checking
-	for duplicate entries (the caller ensures this). The case of the
-	arguments doesn't matter. Case is ignored during comparison.
+        for duplicate entries (the caller ensures this). The case of the
+        arguments doesn't matter. Case is ignored during comparison.
     */
     static void append(
-	const String& path,
-	const String& assocInstanceName,
-	const CIMName& assocClassName,
-	const String& fromInstanceName,
-	const CIMName& fromClassName,
-	const CIMName& fromPropertyName,
-	const String& toInstanceName,
-	const CIMName& toClassName,
-	const CIMName& toPropertyName);
+        const String& path,
+        const String& assocInstanceName,
+        const CIMName& assocClassName,
+        const String& fromInstanceName,
+        const CIMName& fromClassName,
+        const CIMName& fromPropertyName,
+        const String& toInstanceName,
+        const CIMName& toClassName,
+        const CIMName& toPropertyName);
 
     /** Deletes the given association from the table by removing every entry
-	with an assocInstanceName equal to the assocInstanceName parameter.
-	@returns true if such an association was found.
+        with an assocInstanceName equal to the assocInstanceName parameter.
+        @returns true if such an association was found.
     */
     static Boolean deleteAssociation(
-	const String& path,
-	const CIMObjectPath& assocInstanceName);
+        const String& path,
+        const CIMObjectPath& assocInstanceName);
 
-    /** Finds all associators of the given object. See 
-	CIMOperations::associators() for a full description.
+    /** Finds all associators of the given object. See
+        CIMOperations::associators() for a full description.
     */
     static Boolean getAssociatorNames(
-	const String& path,
-	const CIMObjectPath& objectName,
+        const String& path,
+        const CIMObjectPath& objectName,
         const Array<CIMName>& assocClassList,
         const Array<CIMName>& resultClassList,
         const String& role,
         const String& resultRole,
-	Array<String>& associatorNames);
+        Array<String>& associatorNames);
 
     /** Obtain all references (association instance names) in which the
-	given object is involved. See CIMOperations::associators() for a 
-	full description.
+        given object is involved. See CIMOperations::associators() for a
+        full description.
     */
     static Boolean getReferenceNames(
-	const String& path,
-	const CIMObjectPath& objectName,
- 	const Array<CIMName>& resultClassList,
- 	const String& role,
-	Array<String>& referenceNames);
+        const String& path,
+        const CIMObjectPath& objectName,
+        const Array<CIMName>& resultClassList,
+        const String& role,
+        Array<String>& referenceNames);
 
 private:
 

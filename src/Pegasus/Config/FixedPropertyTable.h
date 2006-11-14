@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
-//
-// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_FixedPropertyTable_h

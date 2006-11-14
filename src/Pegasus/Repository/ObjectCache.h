@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher, Inova Europe (mbrasher@bmc.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef PegasusRepository_ObjectCache_h
@@ -61,7 +59,7 @@ public:
     bool evict(const String& path);
 
 #ifdef PEGASUS_DEBUG
-    void DisplayCacheStatistics(void)
+    void DisplayCacheStatistics()
     {
         PEGASUS_STD(cout) << "  Size (current/max): " << _numEntries <<
             "/" << _maxEntries << PEGASUS_STD(endl);
@@ -80,7 +78,7 @@ private:
 
     static Uint32 _hash(const String& s)
     {
-	return ObjectCacheHash(s);
+        return ObjectCacheHash(s);
     }
 
     static bool _equal(const String& s1, const String& s2)
@@ -90,15 +88,15 @@ private:
 
     struct Entry
     {
-	Uint32 code;
-	String path;
-	OBJECT object;
-	Entry* hashNext;
-	Entry* queueNext;
-	Entry* queuePrev;
+        Uint32 code;
+        String path;
+        OBJECT object;
+        Entry* hashNext;
+        Entry* queueNext;
+        Entry* queuePrev;
 
-	Entry(Uint32 code_, const String& path_, OBJECT& object_) :
-	    code(code_), path(path_), object(object_.clone()) { }
+        Entry(Uint32 code_, const String& path_, OBJECT& object_) :
+            code(code_), path(path_), object(object_.clone()) { }
     };
 
     enum { NUM_CHAINS = 128 };
@@ -120,8 +118,8 @@ private:
 };
 
 template<class OBJECT>
-ObjectCache<OBJECT>::ObjectCache(size_t maxEntries) : 
-    _front(0), _back(0), _numEntries(0), _maxEntries(maxEntries)
+ObjectCache<OBJECT>::ObjectCache(size_t maxEntries)
+    : _front(0), _back(0), _numEntries(0), _maxEntries(maxEntries)
 #ifdef PEGASUS_DEBUG
     , _cacheReadHit(0), _cacheReadMiss(0), _cacheRemoveLRU(0)
 #endif
@@ -133,7 +131,7 @@ template<class OBJECT>
 void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
 {
     if (_maxEntries == 0)
-	return;
+        return;
 
     _mutex.lock();
 
@@ -145,12 +143,12 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
     for (Entry* p = _chains[index]; p; p = p->hashNext)
     {
         if (code == p->code && _equal(p->path, path))
-	{
-	    // Update the repository.
-	    p->object = object.clone();
-	    _mutex.unlock();
-	    return;
-	}
+        {
+            // Update the repository.
+            p->object = object.clone();
+            _mutex.unlock();
+            return;
+        }
     }
 
     //// Add to hash table:
@@ -165,15 +163,15 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
 
     if (_back)
     {
-	_back->queueNext = entry;
-	entry->queuePrev = _back;
-	_back = entry;
+        _back->queueNext = entry;
+        entry->queuePrev = _back;
+        _back = entry;
     }
     else
     {
-	_front = entry;
-	_back = entry;
-	entry->queuePrev = 0;
+        _front = entry;
+        _back = entry;
+        entry->queuePrev = 0;
     }
 
     _numEntries++;
@@ -182,37 +180,37 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
 
     if (_numEntries > _maxEntries)
     {
-	Entry* entry = _front;
+        Entry* entry = _front;
 
-	//// Remove from hash table first.
+        //// Remove from hash table first.
 
-	Uint32 index = entry->code % NUM_CHAINS;
-	Entry* hashPrev = 0;
+        Uint32 index = entry->code % NUM_CHAINS;
+        Entry* hashPrev = 0;
 
-	for (Entry* p = _chains[index]; p; p = p->hashNext)
-	{
-	    if (p->code == entry->code && _equal(p->path, entry->path))
-	    {
-		if (hashPrev)
-		    hashPrev->hashNext = p->hashNext;
-		else
-		    _chains[index] = p->hashNext;
+        for (Entry* p = _chains[index]; p; p = p->hashNext)
+        {
+            if (p->code == entry->code && _equal(p->path, entry->path))
+            {
+                if (hashPrev)
+                    hashPrev->hashNext = p->hashNext;
+                else
+                    _chains[index] = p->hashNext;
 
-		break;
-	    }
+                break;
+            }
 
-	    hashPrev = p;
-	}
+            hashPrev = p;
+        }
 
-	//// Now remove from queue:
+        //// Now remove from queue:
 
-	_front = entry->queueNext;
+        _front = entry->queueNext;
 
-	if (_front)
-	    _front->queuePrev = 0;
+        if (_front)
+            _front->queuePrev = 0;
 
-	delete entry;
-	_numEntries--;
+        delete entry;
+        _numEntries--;
 #ifdef PEGASUS_DEBUG
     _cacheRemoveLRU++;
 #endif
@@ -226,7 +224,7 @@ template<class OBJECT>
 bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object)
 {
     if (_maxEntries == 0)
-	return false;
+        return false;
 
     _mutex.lock();
 
@@ -238,14 +236,14 @@ bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object)
     for (Entry* p = _chains[index]; p; p = p->hashNext)
     {
         if (code == p->code && _equal(p->path, path))
-	{
-	    object = p->object.clone();
+        {
+            object = p->object.clone();
 #ifdef PEGASUS_DEBUG
         _cacheReadHit++;
 #endif
-	    _mutex.unlock();
-	    return true;
-	}
+            _mutex.unlock();
+            return true;
+        }
     }
 
     /// Not found!
@@ -261,7 +259,7 @@ template<class OBJECT>
 bool ObjectCache<OBJECT>::evict(const String& path)
 {
     if (_maxEntries == 0)
-	return false;
+        return false;
 
     _mutex.lock();
 
@@ -274,36 +272,36 @@ bool ObjectCache<OBJECT>::evict(const String& path)
     for (Entry* p = _chains[index]; p; p = p->hashNext)
     {
         if (code == p->code && _equal(p->path, path))
-	{
-	    // Remove from hash chain:
+        {
+            // Remove from hash chain:
 
             if (hashPrev)
                 hashPrev->hashNext = p->hashNext;
             else
                 _chains[index] = p->hashNext;
 
-	    // Remove from queue:
+            // Remove from queue:
 
-	    if (p->queuePrev)
-		p->queuePrev->queueNext = p->queueNext;
-	    else
-		_front = p->queueNext;
+            if (p->queuePrev)
+                p->queuePrev->queueNext = p->queueNext;
+            else
+                _front = p->queueNext;
 
-	    if (p->queueNext)
-		p->queueNext->queuePrev = p->queuePrev;
-	    else
-		_back = p->queuePrev;
+            if (p->queueNext)
+                p->queueNext->queuePrev = p->queuePrev;
+            else
+                _back = p->queuePrev;
 
-	    // Delete the entry and update the number of entries.
+            // Delete the entry and update the number of entries.
 
-	    delete p;
-	    _numEntries--;
+            delete p;
+            _numEntries--;
 
-	    _mutex.unlock();
-	    return true;
-	}
+            _mutex.unlock();
+            return true;
+        }
 
-	hashPrev = p;
+        hashPrev = p;
     }
 
     //// Not found!

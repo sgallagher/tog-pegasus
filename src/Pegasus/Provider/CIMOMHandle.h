@@ -56,212 +56,212 @@ class CIMOMHandleRep;
 
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 {
-   public:
+public:
 
-      /** */
-      CIMOMHandle(void);
+    /** */
+    CIMOMHandle();
 
-      CIMOMHandle(const CIMOMHandle &);
+    CIMOMHandle(const CIMOMHandle&);
 
-      /** */
-      ~CIMOMHandle(void);
+    /** */
+    ~CIMOMHandle();
 
-      CIMOMHandle & operator =(const CIMOMHandle & handle);
+    CIMOMHandle& operator=(const CIMOMHandle& handle);
       
-      CIMClass getClass(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className,
-	 Boolean localOnly,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin,
-	 const CIMPropertyList& propertyList);
+    CIMClass getClass(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Boolean localOnly,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
 
-      Array<CIMClass> enumerateClasses(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className,
-	 Boolean deepInheritance,
-	 Boolean localOnly,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin);
+    Array<CIMClass> enumerateClasses(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Boolean deepInheritance,
+        Boolean localOnly,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin);
 
-      Array<CIMName> enumerateClassNames(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className,
-	 Boolean deepInheritance);
+    Array<CIMName> enumerateClassNames(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Boolean deepInheritance);
 
-      void createClass(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMClass& newClass);
+    void createClass(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMClass& newClass);
 
-      void modifyClass(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMClass& modifiedClass);
+    void modifyClass(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMClass& modifiedClass);
 
-      void deleteClass(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className);
+    void deleteClass(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className);
 
-      CIMInstance getInstance(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& instanceName,
-	 Boolean localOnly,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin,
-	 const CIMPropertyList& propertyList);
+    CIMInstance getInstance(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& instanceName,
+        Boolean localOnly,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
 
-      Array<CIMInstance> enumerateInstances(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className,
-	 Boolean deepInheritance,
-	 Boolean localOnly,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin,
-	 const CIMPropertyList& propertyList);
+    Array<CIMInstance> enumerateInstances(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Boolean deepInheritance,
+        Boolean localOnly,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
 
-      Array<CIMObjectPath> enumerateInstanceNames(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className);
+    Array<CIMObjectPath> enumerateInstanceNames(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className);
 
-      CIMObjectPath createInstance(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMInstance& newInstance);
+    CIMObjectPath createInstance(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMInstance& newInstance);
 
-      void modifyInstance(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMInstance& modifiedInstance,
-	 Boolean includeQualifiers,
-	 const CIMPropertyList& propertyList);
+    void modifyInstance(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMInstance& modifiedInstance,
+        Boolean includeQualifiers,
+        const CIMPropertyList& propertyList);
 
-      void deleteInstance(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& instanceName);
+    void deleteInstance(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& instanceName);
 
-      Array<CIMObject> execQuery(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const String& queryLanguage,
-	 const String& query);
+    Array<CIMObject> execQuery(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const String& queryLanguage,
+        const String& query);
 
-      Array<CIMObject> associators(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& objectName,
-	 const CIMName& assocClass,
-	 const CIMName& resultClass,
-	 const String& role,
-	 const String& resultRole,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin,
-	 const CIMPropertyList& propertyList);
+    Array<CIMObject> associators(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& assocClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
 
-      Array<CIMObjectPath> associatorNames(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& objectName,
-	 const CIMName& assocClass,
-	 const CIMName& resultClass,
-	 const String& role,
-	 const String& resultRole);
+    Array<CIMObjectPath> associatorNames(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& assocClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole);
 
-      Array<CIMObject> references(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& objectName,
-	 const CIMName& resultClass,
-	 const String& role,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin,
-	 const CIMPropertyList& propertyList);
+    Array<CIMObject> references(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
 
-      Array<CIMObjectPath> referenceNames(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& objectName,
-	 const CIMName& resultClass,
-	 const String& role);
+    Array<CIMObjectPath> referenceNames(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role);
 
-      // property operations
-      CIMValue getProperty(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& instanceName,
-	 const CIMName& propertyName);
+    // property operations
+    CIMValue getProperty(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& instanceName,
+        const CIMName& propertyName);
 
-      void setProperty(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& instanceName,
-	 const CIMName& propertyName,
-	 const CIMValue& newValue);
+    void setProperty(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& instanceName,
+        const CIMName& propertyName,
+        const CIMValue& newValue);
 
-      CIMValue invokeMethod(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& instanceName,
-	 const CIMName& methodName,
-	 const Array<CIMParamValue>& inParameters,
-	 Array<CIMParamValue>& outParameters);
+    CIMValue invokeMethod(
+        const OperationContext& context,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& instanceName,
+        const CIMName& methodName,
+        const Array<CIMParamValue>& inParameters,
+        Array<CIMParamValue>& outParameters);
 
-      /**
-          Provides a hint to the CIM Server that the provider calling this
-          method prefers not to be unloaded.  This hint applies in
-          situations where a provider unload is not necessary, such as
-          when the CIM Server unloads idle providers for efficiency reasons.
-          A provider may rescind this hint by using the allowProviderUnload
-          method.  Note that disallowProviderUnload is cumulative, such that
-          each call to disallowProviderUnload must be matched with a call to
-          allowProviderUnload.
-       */
-      void disallowProviderUnload();
+    /**
+        Provides a hint to the CIM Server that the provider calling this
+        method prefers not to be unloaded.  This hint applies in
+        situations where a provider unload is not necessary, such as
+        when the CIM Server unloads idle providers for efficiency reasons.
+        A provider may rescind this hint by using the allowProviderUnload
+        method.  Note that disallowProviderUnload is cumulative, such that
+        each call to disallowProviderUnload must be matched with a call to
+        allowProviderUnload.
+     */
+    void disallowProviderUnload();
 
-      /**
-          Provides a hint to the CIM Server that the provider calling this
-          method no longer prefers not to be unloaded.  This hint applies in
-          situations where a provider unload is not necessary, such as
-          when the CIM Server unloads idle providers for efficiency reasons.
-          This method is used to rescind a hint that was given using the
-          disallowProviderUnload method.  Note that each allowProviderUnload
-          call should be preceded by a disallowProviderUnload call.
-       */
-      void allowProviderUnload();
+    /**
+        Provides a hint to the CIM Server that the provider calling this
+        method no longer prefers not to be unloaded.  This hint applies in
+        situations where a provider unload is not necessary, such as
+        when the CIM Server unloads idle providers for efficiency reasons.
+        This method is used to rescind a hint that was given using the
+        disallowProviderUnload method.  Note that each allowProviderUnload
+        call should be preceded by a disallowProviderUnload call.
+     */
+    void allowProviderUnload();
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-      /**
-	 Returns the context of the response to the last request.
-	 Currently, the context only contains the ContentLanguageListContainer
-	 from the response.
-	 Note: this method should be called directly after the call to the
-	 CIM request method (getClass, etc), and can only be called once
-	 per request.
-       */
-      OperationContext getResponseContext(void);
+    /**
+       Returns the context of the response to the last request.
+       Currently, the context only contains the ContentLanguageListContainer
+       from the response.
+       Note: this method should be called directly after the call to the
+       CIM request method (getClass, etc), and can only be called once
+       per request.
+     */
+    OperationContext getResponseContext();
 #endif
 
-   private:      
-      CIMOMHandleRep* _rep;
+private:      
+    CIMOMHandleRep* _rep;
 
-      friend class ProviderStatus;
-      friend class CMPIProvider;
+    friend class ProviderStatus;
+    friend class CMPIProvider;
 #ifdef PEGASUS_OS_OS400
-      friend class CIMProviderOS400UserState;
-      CIMOMHandle(Uint32 os400UserStateKey);
+    friend class CIMProviderOS400UserState;
+    CIMOMHandle(Uint32 os400UserStateKey);
 
-      friend class CIMProviderOS400SystemState;
-      void setOS400ProfileHandle(const char * profileHandle);
+    friend class CIMProviderOS400SystemState;
+    void setOS400ProfileHandle(const char * profileHandle);
 #endif
-      Boolean unload_ok(void);
+    Boolean unload_ok();
 };
 
 PEGASUS_NAMESPACE_END

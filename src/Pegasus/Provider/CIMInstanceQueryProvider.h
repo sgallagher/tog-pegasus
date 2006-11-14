@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMInstanceQueryProvider_h
@@ -43,60 +39,64 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class extends then CIMInstanceProvider class enabling query support.
+/**
+    This class extends then CIMInstanceProvider class enabling query support.
 
-<p>In addition to
-functions inherited from the
-{@link CIMInstanceProvider CIMInstanceProvider} interface,
-the functions in the Instance Query Provider interface are:</p>
+    <p>In addition to
+    functions inherited from the
+    {@link CIMInstanceProvider CIMInstanceProvider} interface,
+    the functions in the Instance Query Provider interface are:</p>
 
-<p><ul>
-<li>{@link execQuery execQuery}</li>
-</ul></p>
+    <p><ul>
+    <li>{@link execQuery execQuery}</li>
+    </ul></p>
 
-<p>The Instance Query Provider receives operation requests from
-clients through calls to these functions by the CIM Server. Its
-purpose is to convert these to calls to system services,
-operations on system resources, or whatever platform-specific
-behavior is required to perform the operation modeled by
-the request. The specific requirements for each of the interface
-functions are discussed in their respective sections.</p>
+    <p>The Instance Query Provider receives operation requests from
+    clients through calls to these functions by the CIM Server. Its
+    purpose is to convert these to calls to system services,
+    operations on system resources, or whatever platform-specific
+    behavior is required to perform the operation modeled by
+    the request. The specific requirements for each of the interface
+    functions are discussed in their respective sections.</p>
 */
 
-class PEGASUS_PROVIDER_LINKAGE CIMInstanceQueryProvider : public CIMInstanceProvider
+class PEGASUS_PROVIDER_LINKAGE CIMInstanceQueryProvider :
+    public CIMInstanceProvider
 {
 public:
     /**
-    Constructor.
-    The constructor should not do anything.
+        Constructor.
+        The constructor should not do anything.
     */
-    CIMInstanceQueryProvider(void);
+    CIMInstanceQueryProvider();
 
     /**
-    Destructor.
-    The destructor should not do anything.
+        Destructor.
+        The destructor should not do anything.
     */
-    virtual ~CIMInstanceQueryProvider(void);
+    virtual ~CIMInstanceQueryProvider();
 
     /**
-    \Label{execQuery}
-    Return all instances of the specified class filtered by the query.
+        \Label{execQuery}
+        Return all instances of the specified class filtered by the query.
 
-    @param context contains security and locale information relevant for the lifetime of this operation.
-    @param objectPath contains namespace and classname for which the query is to be performed.
-    @param query enables access to query details like query statement and language.
-    @param handler asynchronusly processes the results of this operation.
+        @param context contains security and locale information relevant
+        for the lifetime of this operation.
+        @param objectPath contains namespace and classname for which the
+        query is to be performed.
+        @param query enables access to query details like query statement
+        and language.
+        @param handler asynchronusly processes the results of this operation.
 
-    @exception CIMNotSupportedException
-    @exception CIMAccessDeniedException
-    @exception CIMOperationFailedException
+        @exception CIMNotSupportedException
+        @exception CIMAccessDeniedException
+        @exception CIMOperationFailedException
     */
-
     virtual void execQuery(
-       const OperationContext & context,
-       const CIMObjectPath & objectPath,
-       const QueryExpression & query,
-       InstanceResponseHandler & handler) = 0;
+       const OperationContext& context,
+       const CIMObjectPath& objectPath,
+       const QueryExpression& query,
+       InstanceResponseHandler& handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END

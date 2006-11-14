@@ -29,17 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
-//
-// Modified By: Dan Gorey (djgorey@us.ibm.com)
-//              Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
-//              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#2040
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Willis White, IBM (whiwill@us.ibm.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ClientRep_h
@@ -104,18 +93,16 @@ public:
     virtual void setTimeout(Uint32 timeoutMilliseconds)
     {
         _timeoutMilliseconds = timeoutMilliseconds;
-        if ((_connected) && (_httpConnection != 0)) 
+        if ((_connected) && (_httpConnection != 0))
             _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
     }
 
-    // l10n start
     AcceptLanguageList getRequestAcceptLanguages() const;
     ContentLanguageList getRequestContentLanguages() const;
     ContentLanguageList getResponseContentLanguages() const;
     void setRequestAcceptLanguages(const AcceptLanguageList& langs);
     void setRequestContentLanguages(const ContentLanguageList& langs);
     void setRequestDefaultLanguages();
-    // l10n end
 
     void connect(
         const String& host,
@@ -335,7 +322,6 @@ private:
     AutoPtr<SSLContext> _connectSSLContext;
     ClientPerfDataStore perfDataStore;
 
-    // l10n
     AcceptLanguageList requestAcceptLanguages;
     ContentLanguageList requestContentLanguages;
     ContentLanguageList responseContentLanguages;

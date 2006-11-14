@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusVersion.h>
@@ -40,14 +36,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMProvider::CIMProvider(void)
+CIMProvider::CIMProvider()
 {
-
 }
 
-CIMProvider::~CIMProvider(void)
+CIMProvider::~CIMProvider()
 {
-
 }
 
 PEGASUS_NAMESPACE_END

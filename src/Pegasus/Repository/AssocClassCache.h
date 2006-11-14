@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Robert Kieninger (kieningr@de.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AssocClassCache_h
@@ -54,32 +50,35 @@ class PEGASUS_REPOSITORY_LINKAGE AssocClassCache
 public:
 
     /** Retrieves a singleton instance of the class cache for the
-     * given namespace.
+        given namespace.
     */
     static AssocClassCache* getAssocClassCache(const String& nameSpace);
     static void cleanupAssocClassCaches();
 
     /** Retrieve an entry for an association class through direct
-     * access via the from class name.
+        access via the from class name.
     */
-    Boolean getAssocClassEntry(const String& fromClassName,
-                               Array< Array<String> >& entryList);
+    Boolean getAssocClassEntry(
+        const String& fromClassName,
+        Array< Array<String> >& entryList);
 
     /** Add a new entry to the association cache.
     */
-    Boolean addRecord(const String& fromClassName,
-                      Array<String> assocClassEntry);
+    Boolean addRecord(
+        const String& fromClassName,
+        Array<String> assocClassEntry);
 
     /** Remove an entry from the association cache specified by the given
-     * association class name.
+        association class name.
     */
     Boolean removeEntry(const String& fromClassName);
 
-   /** Remove an association record from the association cache specified by the given
-    *  from class name and association name.
+   /** Remove an association record from the association cache specified by
+       the given from class name and association name.
     */
-    Boolean removeRecord(const String& fromClassName,
-                         const String& assocClassName);
+    Boolean removeRecord(
+        const String& fromClassName,
+        const String& assocClassName);
 
     /** Check if the cache is loaded with objects already.
     */
@@ -92,7 +91,7 @@ private:
     Boolean _isInitialized;
 
     typedef HashTable<String, Array< Array<String> >,
-       EqualNoCaseFunc, HashLowerCaseFunc > AssocClassCacheHashTableType;
+        EqualNoCaseFunc, HashLowerCaseFunc > AssocClassCacheHashTableType;
 
     AssocClassCacheHashTableType *_assocClassCache;
 

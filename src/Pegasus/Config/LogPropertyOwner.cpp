@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By: Yi Zhou (yi_zhou@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
-//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -94,7 +86,7 @@ LogPropertyOwner::LogPropertyOwner()
 
 
 /**
-Initialize the config properties.
+    Initialize the config properties.
 */
 void LogPropertyOwner::initialize()
 {
@@ -115,7 +107,7 @@ void LogPropertyOwner::initialize()
             _logdir->domainSize = properties[i].domainSize;
             _logdir->externallyVisible = properties[i].externallyVisible;
         }
-		else
+        else
 #endif
         if (String::equalNoCase(properties[i].propertyName, "logLevel"))
         {
@@ -128,7 +120,7 @@ void LogPropertyOwner::initialize()
             _logLevel->domainSize = properties[i].domainSize;
             _logLevel->externallyVisible = properties[i].externallyVisible;
 
-	    Logger::setlogLevelMask(_logLevel->currentValue);
+            Logger::setlogLevelMask(_logLevel->currentValue);
         }
     }
 }
@@ -141,9 +133,9 @@ struct ConfigProperty* LogPropertyOwner::_lookupConfigProperty(
     {
         return _logdir.get();
     }
-    else 
+    else
 #endif
-	if (String::equalNoCase(_logLevel->propertyName, name))
+    if (String::equalNoCase(_logLevel->propertyName, name))
     {
         return _logLevel.get();
     }
@@ -154,7 +146,7 @@ struct ConfigProperty* LogPropertyOwner::_lookupConfigProperty(
 }
 
 /**
-Get information about the specified property.
+    Get information about the specified property.
 */
 void LogPropertyOwner::getPropertyInfo(
     const String& name,
@@ -187,7 +179,7 @@ void LogPropertyOwner::getPropertyInfo(
 }
 
 /**
-Get default value of the specified property.
+    Get default value of the specified property.
 */
 String LogPropertyOwner::getDefaultValue(const String& name) const
 {
@@ -197,7 +189,7 @@ String LogPropertyOwner::getDefaultValue(const String& name) const
 }
 
 /**
-Get current value of the specified property.
+    Get current value of the specified property.
 */
 String LogPropertyOwner::getCurrentValue(const String& name) const
 {
@@ -207,7 +199,7 @@ String LogPropertyOwner::getCurrentValue(const String& name) const
 }
 
 /**
-Get planned value of the specified property.
+    Get planned value of the specified property.
 */
 String LogPropertyOwner::getPlannedValue(const String& name) const
 {
@@ -218,27 +210,27 @@ String LogPropertyOwner::getPlannedValue(const String& name) const
 
 
 /**
-Init current value of the specified property to the specified value.
+    Init current value of the specified property to the specified value.
 */
 void LogPropertyOwner::initCurrentValue(
     const String& name,
     const String& value)
 {
-    if(String::equalNoCase(_logLevel->propertyName,name))
+    if (String::equalNoCase(_logLevel->propertyName,name))
     {
-	_logLevel->currentValue = value;
-	Logger::setlogLevelMask(_logLevel->currentValue);
+        _logLevel->currentValue = value;
+        Logger::setlogLevelMask(_logLevel->currentValue);
     }
     else
     {
-	struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-	configProperty->currentValue = value;
+        struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+        configProperty->currentValue = value;
     }
 }
 
 
 /**
-Init planned value of the specified property to the specified value.
+    Init planned value of the specified property to the specified value.
 */
 void LogPropertyOwner::initPlannedValue(
     const String& name,
@@ -249,7 +241,7 @@ void LogPropertyOwner::initPlannedValue(
 }
 
 /**
-Update current value of the specified property to the specified value.
+    Update current value of the specified property to the specified value.
 */
 void LogPropertyOwner::updateCurrentValue(
     const String& name,
@@ -273,7 +265,7 @@ void LogPropertyOwner::updateCurrentValue(
 
 
 /**
-Update planned value of the specified property to the specified value.
+    Update planned value of the specified property to the specified value.
 */
 void LogPropertyOwner::updatePlannedValue(
     const String& name,
@@ -288,10 +280,11 @@ void LogPropertyOwner::updatePlannedValue(
 }
 
 /**
-Checks to see if the given value is valid or not.
+    Checks to see if the given value is valid or not.
 */
-Boolean LogPropertyOwner::isValid(const String& name, const String& value)
-const
+Boolean LogPropertyOwner::isValid(
+    const String& name,
+    const String& value) const
 {
     if (String::equalNoCase(_logLevel->propertyName, name))
     {
@@ -304,11 +297,11 @@ const
         }
     }
 
-    return(true);
+    return true;
 }
 
 /**
-Checks to see if the specified property is dynamic or not.
+    Checks to see if the specified property is dynamic or not.
 */
 Boolean LogPropertyOwner::isDynamic(const String& name) const
 {
@@ -316,6 +309,5 @@ Boolean LogPropertyOwner::isDynamic(const String& name) const
 
     return (configProperty->dynamic == IS_DYNAMIC);
 }
-
 
 PEGASUS_NAMESPACE_END

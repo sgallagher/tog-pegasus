@@ -64,14 +64,14 @@ ProviderManagerModule& ProviderManagerModule::operator=(
 {
     if (this == &module)
     {
-        return(*this);
+        return *this;
     }
 
     DynamicLibrary::operator=(module);
 
     _createProviderManager = module._createProviderManager;
 
-    return(*this);
+    return *this;
 }
 
 Boolean ProviderManagerModule::load()
@@ -84,13 +84,13 @@ Boolean ProviderManagerModule::load()
 
         if (_createProviderManager != 0)
         {
-            return(true);
+            return true;
         }
 
         DynamicLibrary::unload();
     }
 
-    return(false);
+    return false;
 }
 
 void ProviderManagerModule::unload()
@@ -103,10 +103,10 @@ ProviderManager* ProviderManagerModule::getProviderManager(
 {
     if (!isLoaded())
     {
-        return(0);
+        return 0;
     }
 
-    return(_createProviderManager(s));
+    return _createProviderManager(s);
 }
 
 PEGASUS_NAMESPACE_END

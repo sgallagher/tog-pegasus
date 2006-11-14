@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -54,7 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define FROM_CLASS_NAME_INDEX 3
 #define FROM_PROPERTY_NAME_INDEX 4
 #define TO_OBJECT_NAME_INDEX 5
-#define TO_CLASS_NAME_INDEX 6 
+#define TO_CLASS_NAME_INDEX 6
 #define TO_PROPERTY_NAME_INDEX 7
 #define NUM_FIELDS 8
 
@@ -63,7 +57,9 @@ static inline Boolean _MatchNoCase(const String& x, const String& pattern)
     return pattern.size() == 0 || String::equalNoCase(x, pattern);
 }
 
-static inline Boolean _ContainsClass(const Array<CIMName>& classNames, const String& match )
+static inline Boolean _ContainsClass(
+    const Array<CIMName>& classNames,
+    const String& match)
 {
     Uint32 n = classNames.size();
 
@@ -82,33 +78,33 @@ static String _Escape(const String& str)
 
     for (Uint32 i = 0, n = str.size(); i < n; i++)
     {
-	Char16 c = str[i];
+        Char16 c = str[i];
 
-	switch (c)
-	{
-	    case '\n':
-		result.append("\\n");
-		break;
+        switch (c)
+        {
+            case '\n':
+                result.append("\\n");
+                break;
 
-	    case '\r':
-		result.append("\\r");
-		break;
+            case '\r':
+                result.append("\\r");
+                break;
 
-	    case '\t':
-		result.append("\\t");
-		break;
+            case '\t':
+                result.append("\\t");
+                break;
 
-	    case '\f':
-		result.append("\\f");
-		break;
+            case '\f':
+                result.append("\\f");
+                break;
 
-	    case '\\':
-		result.append("\\\\");
-		break;
+            case '\\':
+                result.append("\\\\");
+                break;
 
-	    default:
-		result.append(c);
-	}
+            default:
+                result.append(c);
+        }
     }
 
     return result;
@@ -120,41 +116,41 @@ static String _Unescape(const String& str)
 
     for (Uint32 i = 0, n = str.size(); i < n; i++)
     {
-	Char16 c = str[i];
+        Char16 c = str[i];
 
-	if (c == '\\')
-	{
-	    if (i + 1 == n)
-		break;
+        if (c == '\\')
+        {
+            if (i + 1 == n)
+                break;
 
-	    c = str[i + 1];
+            c = str[i + 1];
 
-	    switch (c)
-	    {
-		case 'n':
-		    result.append("\n");
-		    break;
+            switch (c)
+            {
+                case 'n':
+                    result.append("\n");
+                    break;
 
-		case 'r':
-		    result.append("\r");
-		    break;
+                case 'r':
+                    result.append("\r");
+                    break;
 
-		case 't':
-		    result.append("\t");
-		    break;
+                case 't':
+                    result.append("\t");
+                    break;
 
-		case 'f':
-		    result.append("\f");
-		    break;
+                case 'f':
+                    result.append("\f");
+                    break;
 
-		default:
-		    result.append(c);
-	    }
+                default:
+                    result.append(c);
+            }
 
-	    i++;
-	}
-	else
-	    result.append(c);
+            i++;
+        }
+        else
+            result.append(c);
     }
 
     return result;
@@ -167,16 +163,16 @@ static Boolean _GetRecord(ifstream& is, Array<String>& fields)
 
     for (Uint32 i = 0; i < NUM_FIELDS; i++)
     {
-	if (!GetLine(is, line))
-	    return false;
+        if (!GetLine(is, line))
+            return false;
 
-	fields.append(_Unescape(line));
+        fields.append(_Unescape(line));
     }
 
     // Skip the blank line:
 
     if (!GetLine(is, line))
-	return false;
+        return false;
 
     return true;
 }
@@ -187,7 +183,7 @@ static void _PutRecord(ofstream& os, Array<String>& fields)
     {
         // Calling getCString to ensure utf-8 goes to the file
         // Calling write to ensure no data conversion by the stream
-        CString  buffer = _Escape(fields[i]).getCString(); 
+        CString  buffer = _Escape(fields[i]).getCString();
         os.write((const char *)buffer,
             static_cast<streamsize>(strlen((const char *)buffer)));
         os <<  endl;
@@ -232,11 +228,11 @@ void AssocInstTable::append(
     const CIMName& toPropertyName)
 {
     // Open input file:
-    
+
     ofstream os;
 
     if (!OpenAppend(os, path))
-	throw CannotOpenFile(path);
+        throw CannotOpenFile(path);
 
     // Insert the entry:
 
@@ -263,7 +259,7 @@ Boolean AssocInstTable::deleteAssociation(
     ifstream is;
 
     if (!Open(is, path))
-	return false;
+        return false;
 
     // Open output file:
 
@@ -271,7 +267,7 @@ Boolean AssocInstTable::deleteAssociation(
     ofstream os;
 
     if (!Open(os, tmpPath))
-	throw CannotOpenFile(tmpPath);
+        throw CannotOpenFile(tmpPath);
 
     // Copy over all lines except ones with the given association instance name:
 
@@ -280,11 +276,11 @@ Boolean AssocInstTable::deleteAssociation(
 
     while (_GetRecord(is, fields))
     {
-	if (assocInstanceName != fields[ASSOC_INSTANCE_NAME_INDEX])
-	{
-	    _PutRecord(os, fields);
-	    found = true;
-	}
+        if (assocInstanceName != fields[ASSOC_INSTANCE_NAME_INDEX])
+        {
+            _PutRecord(os, fields);
+            found = true;
+        }
     }
 
     // Close both files:
@@ -295,12 +291,12 @@ Boolean AssocInstTable::deleteAssociation(
     // Remove orginal file:
 
     if (!FileSystem::removeFile(path))
-	throw CannotRemoveFile(path);
+        throw CannotRemoveFile(path);
 
     // Rename back to original name:
 
     if (!FileSystem::renameFile(tmpPath, path))
-	throw CannotRenameFile(path);
+        throw CannotRenameFile(path);
 
     return found;
 }
@@ -318,7 +314,7 @@ Boolean AssocInstTable::getAssociatorNames(
     ifstream is;
 
     if (!Open(is, path))
-	return false;
+        return false;
 
     Array<String> fields;
     Boolean found = false;
@@ -327,10 +323,10 @@ Boolean AssocInstTable::getAssociatorNames(
     while (_GetRecord(is, fields))
     {
         // Process associations from the right end object and with right roles
-	if (instanceName == fields[FROM_OBJECT_NAME_INDEX] &&
-	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role) &&
-	    _MatchNoCase(fields[TO_PROPERTY_NAME_INDEX], resultRole))
-	{
+        if (instanceName == fields[FROM_OBJECT_NAME_INDEX] &&
+            _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role) &&
+            _MatchNoCase(fields[TO_PROPERTY_NAME_INDEX], resultRole))
+        {
             // Skip classes that do not appear in the association class list
             if ((assocClassList.size() != 0) &&
                 (!_ContainsClass(assocClassList,
@@ -350,10 +346,10 @@ Boolean AssocInstTable::getAssociatorNames(
             // This class qualifies; add it to the list (skipping duplicates)
             if (!Contains(associatorNames, fields[TO_OBJECT_NAME_INDEX]))
             {
-	        associatorNames.append(fields[TO_OBJECT_NAME_INDEX]);
+                associatorNames.append(fields[TO_OBJECT_NAME_INDEX]);
             }
-	    found = true;
-	}
+            found = true;
+        }
     }
 
     return found;
@@ -370,8 +366,8 @@ Boolean AssocInstTable::getReferenceNames(
     ifstream is;
 
     if (!Open(is, path))
-	return false;
-    
+        return false;
+
     Array<String> fields;
     Boolean found = false;
 
@@ -379,9 +375,9 @@ Boolean AssocInstTable::getReferenceNames(
     while (_GetRecord(is, fields))
     {
         // Process associations from the right end class and with right role
-	if (instanceName == fields[FROM_OBJECT_NAME_INDEX] &&
-	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
-	{
+        if (instanceName == fields[FROM_OBJECT_NAME_INDEX] &&
+            _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
+        {
             // Skip classes that do not appear in the result class list
             if ((resultClassList.size() != 0) &&
                 (!_ContainsClass(resultClassList,
@@ -391,12 +387,12 @@ Boolean AssocInstTable::getReferenceNames(
             }
 
             // This instance qualifies; add it to the list (skipping duplicates)
-	    if (!Contains(referenceNames, fields[ASSOC_INSTANCE_NAME_INDEX]))
+            if (!Contains(referenceNames, fields[ASSOC_INSTANCE_NAME_INDEX]))
             {
-		referenceNames.append(fields[ASSOC_INSTANCE_NAME_INDEX]);
+                referenceNames.append(fields[ASSOC_INSTANCE_NAME_INDEX]);
             }
-	    found = true;
-	}
+            found = true;
+        }
     }
 
     return found;

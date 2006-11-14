@@ -29,15 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectCache.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-const Uint8 _toLowerTable[256] = 
+const Uint8 _toLowerTable[256] =
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
     0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -81,16 +79,16 @@ Uint32 ObjectCacheHash(const String& str)
 
     while (n >= 4)
     {
-	h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[0] & 0x007F];
-	h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[1] & 0x007F];
-	h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[2] & 0x007F];
-	h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[3] & 0x007F];
-	n -= 4;
-	p += 4;
+        h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[0] & 0x007F];
+        h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[1] & 0x007F];
+        h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[2] & 0x007F];
+        h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[p[3] & 0x007F];
+        n -= 4;
+        p += 4;
     }
 
     while (*p)
-	h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[*p++ & 0x007F];
+        h = ((h << 9) | (h >> 23)) ^ (Uint32)_toLowerTable[*p++ & 0x007F];
 
     return h;
 }

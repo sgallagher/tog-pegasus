@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
@@ -52,7 +47,7 @@ PEGASUS_NAMESPACE_BEGIN
 CIMClientMalformedHTTPException::CIMClientMalformedHTTPException(
     const String& message)
     : Exception(message)
-{ 
+{
 }
 
 
@@ -72,7 +67,7 @@ public:
 };
 
 static String _makeHTTPErrorMessage(
-    Uint32 httpStatusCode, 
+    Uint32 httpStatusCode,
     const String& reasonPhrase,
     const String& cimError,
     const String& cimErrorDetail)
@@ -109,11 +104,11 @@ static String _makeHTTPErrorMessage(
 }
 
 CIMClientHTTPErrorException::CIMClientHTTPErrorException(
-    Uint32 httpStatusCode, 
+    Uint32 httpStatusCode,
     const String& cimError,
     const String& cimErrorDetail)
 {
-    CIMClientHTTPErrorExceptionRep * tmp = 
+    CIMClientHTTPErrorExceptionRep* tmp =
         new CIMClientHTTPErrorExceptionRep ();
     tmp->message = _makeHTTPErrorMessage (httpStatusCode, String::EMPTY,
                                           cimError, cimErrorDetail);
@@ -125,12 +120,12 @@ CIMClientHTTPErrorException::CIMClientHTTPErrorException(
 }
 
 CIMClientHTTPErrorException::CIMClientHTTPErrorException(
-    Uint32 httpStatusCode, 
+    Uint32 httpStatusCode,
     const String& reasonPhrase,
     const String& cimError,
     const String& cimErrorDetail)
 {
-    CIMClientHTTPErrorExceptionRep * tmp = 
+    CIMClientHTTPErrorExceptionRep* tmp =
         new CIMClientHTTPErrorExceptionRep ();
     tmp->message = _makeHTTPErrorMessage (httpStatusCode, reasonPhrase,
                                           cimError, cimErrorDetail);
@@ -191,7 +186,7 @@ String CIMClientHTTPErrorException::getCIMErrorDetail() const
 
 CIMClientXmlException::CIMClientXmlException(const String& message)
     : Exception(message)
-{ 
+{
 }
 
 
@@ -203,7 +198,7 @@ CIMClientXmlException::CIMClientXmlException(const String& message)
 
 CIMClientResponseException::CIMClientResponseException(const String& message)
     : Exception(message)
-{ 
+{
 }
 
 PEGASUS_NAMESPACE_END

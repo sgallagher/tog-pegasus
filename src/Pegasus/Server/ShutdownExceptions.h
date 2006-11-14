@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -43,60 +39,52 @@
 #ifndef Pegasus_ShutdownExceptions_h
 #define Pegasus_ShutdownExceptions_h
 
+#include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Server/Linkage.h>
 
-// l10n
-#include <Pegasus/Common/MessageLoader.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
-/**           
-InvalidOperationTimeoutException class 
+/**
+    InvalidOperationTimeoutException class
 */
 class PEGASUS_SERVER_LINKAGE InvalidOperationTimeoutException: public Exception
 {
 public:
-
-  // l10n
-
     InvalidOperationTimeoutException()
-        : Exception(MessageLoaderParms("Server.ShutdownExceptions.INVALID_TIMEOUT", "Invalid operation timeout value.")) { }
-
-    // InvalidOperationTimeoutException()
-    //    : Exception("Invalid operation timeout value.") { }
+        : Exception(MessageLoaderParms(
+              "Server.ShutdownExceptions.INVALID_TIMEOUT",
+              "Invalid operation timeout value."))
+    {
+    }
 };
 
-/**           
-UnableToResumeServerException class 
+/**
+    UnableToResumeServerException class
 */
 class PEGASUS_SERVER_LINKAGE UnableToResumeServerException: public Exception
 {
 public:
-
-  // l10n
-
     UnableToResumeServerException()
-        : Exception(MessageLoaderParms("Server.ShutdownExceptions.UNABLE_TO_RESUME", "Unable to resume CIM server.")) { }
-
-    // UnableToResumeServerException()
-    // : Exception("Unable to resume CIM server.") { }
+        : Exception(MessageLoaderParms(
+              "Server.ShutdownExceptions.UNABLE_TO_RESUME",
+              "Unable to resume CIM server."))
+    {
+    }
 };
 
-/**           
-ServerResumedException class 
+/**
+    ServerResumedException class
 */
 class PEGASUS_SERVER_LINKAGE ServerResumedException: public Exception
 {
 public:
-
-  // l10n
-
     ServerResumedException()
-        : Exception(MessageLoaderParms("Server.ShutdownExceptions.TIMEOUT_EXPIRED", "Timeout has expired.  Server has resumed operation.")) { }
-
-    // ServerResumedException()
-    //    : Exception("Timeout has expired.  Server has resumed operation.") { }
+        : Exception(MessageLoaderParms(
+              "Server.ShutdownExceptions.TIMEOUT_EXPIRED",
+              "Timeout has expired.  Server has resumed operation."))
+    {
+    }
 };
 
 PEGASUS_NAMESPACE_END

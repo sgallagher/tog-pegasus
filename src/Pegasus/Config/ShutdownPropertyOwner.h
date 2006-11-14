@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By: Amit K Arora (amita@in.ibm.com) for PEP101
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 

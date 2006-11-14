@@ -29,21 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By:  Sushma Fernandes, Hewlett-Packard Company
-//                   (sushma_fernandes@hp.com)
-//               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
-//               Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
-//               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
-//               Carol Ann Krug Graves, Hewlett-Packard Company
-//                   (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // This file has implementation for the timeout property owner class.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,7 +75,7 @@ ShutdownPropertyOwner::ShutdownPropertyOwner()
 
 
 /**
-Initialize the config properties.
+    Initialize the config properties.
 */
 void ShutdownPropertyOwner::initialize()
 {
@@ -103,7 +93,8 @@ void ShutdownPropertyOwner::initialize()
             _shutdownTimeout->dynamic = properties[i].dynamic;
             _shutdownTimeout->domain = properties[i].domain;
             _shutdownTimeout->domainSize = properties[i].domainSize;
-            _shutdownTimeout->externallyVisible = properties[i].externallyVisible;
+            _shutdownTimeout->externallyVisible =
+                properties[i].externallyVisible;
         }
     }
 }
@@ -121,11 +112,11 @@ struct ConfigProperty* ShutdownPropertyOwner::_lookupConfigProperty(
     }
 }
 
-/** 
-Get information about the specified property.
+/**
+    Get information about the specified property.
 */
 void ShutdownPropertyOwner::getPropertyInfo(
-    const String& name, 
+    const String& name,
     Array<String>& propertyInfo) const
 {
     propertyInfo.clear();
@@ -153,8 +144,8 @@ void ShutdownPropertyOwner::getPropertyInfo(
     }
 }
 
-/** 
-Get default value of the specified property.
+/**
+    Get default value of the specified property.
 */
 String ShutdownPropertyOwner::getDefaultValue(const String& name) const
 {
@@ -162,8 +153,8 @@ String ShutdownPropertyOwner::getDefaultValue(const String& name) const
     return configProperty->defaultValue;
 }
 
-/** 
-Get current value of the specified property.
+/**
+    Get current value of the specified property.
 */
 String ShutdownPropertyOwner::getCurrentValue(const String& name) const
 {
@@ -171,8 +162,8 @@ String ShutdownPropertyOwner::getCurrentValue(const String& name) const
     return configProperty->currentValue;
 }
 
-/** 
-Get planned value of the specified property.
+/**
+    Get planned value of the specified property.
 */
 String ShutdownPropertyOwner::getPlannedValue(const String& name) const
 {
@@ -180,11 +171,11 @@ String ShutdownPropertyOwner::getPlannedValue(const String& name) const
     return configProperty->plannedValue;
 }
 
-/** 
-Init current value of the specified property to the specified value.
+/**
+    Init current value of the specified property to the specified value.
 */
 void ShutdownPropertyOwner::initCurrentValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
@@ -192,30 +183,30 @@ void ShutdownPropertyOwner::initCurrentValue(
 }
 
 
-/** 
-Init planned value of the specified property to the specified value.
+/**
+    Init planned value of the specified property to the specified value.
 */
 void ShutdownPropertyOwner::initPlannedValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     configProperty->plannedValue = value;
 }
 
-/** 
-Update current value of the specified property to the specified value.
+/**
+    Update current value of the specified property to the specified value.
 */
 void ShutdownPropertyOwner::updateCurrentValue(
-    const String& name, 
-    const String& value) 
+    const String& name,
+    const String& value)
 {
     //
     // make sure the property is dynamic before updating the value.
     //
     if (!isDynamic(name))
     {
-        throw NonDynamicConfigProperty(name); 
+        throw NonDynamicConfigProperty(name);
     }
 
     //
@@ -227,11 +218,11 @@ void ShutdownPropertyOwner::updateCurrentValue(
 }
 
 
-/** 
-Update planned value of the specified property to the specified value.
+/**
+    Update planned value of the specified property to the specified value.
 */
 void ShutdownPropertyOwner::updatePlannedValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     //
@@ -242,10 +233,12 @@ void ShutdownPropertyOwner::updatePlannedValue(
     initPlannedValue(name, value);
 }
 
-/** 
-Checks to see if the given value is valid or not.
+/**
+    Checks to see if the given value is valid or not.
 */
-Boolean ShutdownPropertyOwner::isValid(const String& name, const String& value) const
+Boolean ShutdownPropertyOwner::isValid(
+    const String& name,
+    const String& value) const
 {
     //
     // convert timeout string to integer
@@ -271,14 +264,13 @@ Boolean ShutdownPropertyOwner::isValid(const String& name, const String& value) 
     }
 }
 
-/** 
-Checks to see if the specified property is dynamic or not.
+/**
+    Checks to see if the specified property is dynamic or not.
 */
 Boolean ShutdownPropertyOwner::isDynamic(const String& name) const
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-    return (configProperty->dynamic==IS_DYNAMIC);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    return (configProperty->dynamic == IS_DYNAMIC);
 }
-
 
 PEGASUS_NAMESPACE_END

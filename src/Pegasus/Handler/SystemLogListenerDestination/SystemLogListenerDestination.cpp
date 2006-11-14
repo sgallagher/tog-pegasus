@@ -56,12 +56,12 @@ void SystemLogListenerDestination::initialize(CIMRepository* repository)
 void SystemLogListenerDestination::handleIndication(
     const OperationContext& context,
     const String nameSpace,
-    CIMInstance& indication, 
-    CIMInstance& handler, 
-    CIMInstance& subscription, 
-    ContentLanguageList & contentLanguages)
+    CIMInstance& indication,
+    CIMInstance& handler,
+    CIMInstance& subscription,
+    ContentLanguageList& contentLanguages)
 {
-    PEG_METHOD_ENTER (TRC_IND_HANDLER, 
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "SystemLogListenerDestination::handleIndication");
 
     String ident_name = "CIM Indication";
@@ -69,24 +69,24 @@ void SystemLogListenerDestination::handleIndication(
 
     try
     {
-	// gets formatted indication message
-	indicationText = IndicationFormatter::getFormattedIndText(
-	    subscription, indication, contentLanguages);
+        // gets formatted indication message
+        indicationText = IndicationFormatter::getFormattedIndText(
+            subscription, indication, contentLanguages);
 
         // default severity
         Uint32 severity = Logger::INFORMATION;
 
         // If an indication contains severity information, gets the value
-        // and maps it to Pegasus logger severity. Otherwise, default value 
+        // and maps it to Pegasus logger severity. Otherwise, default value
         // is used.
 
-        Uint32 severityPos = indication.findProperty(CIMName 
-	    ("PerceivedSeverity")); 
+        Uint32 severityPos =
+            indication.findProperty(CIMName("PerceivedSeverity"));
 
         if (severityPos != PEG_NOT_FOUND)
         {
             Uint16 perceivedSeverity;
-            CIMValue perceivedSeverityValue = 
+            CIMValue perceivedSeverityValue =
                 indication.getProperty(severityPos).getValue();
 
             if (!perceivedSeverityValue.isNull())
@@ -125,42 +125,41 @@ void SystemLogListenerDestination::handleIndication(
 
                     default:
                     {
-			Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
-			    "PerceivedSeverity = %d is not a valid value." 
-			    " Using default severity.", perceivedSeverity);
+                        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+                            "PerceivedSeverity = %d is not a valid value."
+                            " Using default severity.", perceivedSeverity);
                         break;
                     }
                 }
             }
         }
 
-	// writes the formatted indication to a system log file
-	_writeToSystemLog(ident_name, severity, indicationText);
-
+        // writes the formatted indication to a system log file
+        _writeToSystemLog(ident_name, severity, indicationText);
     }
-    catch (CIMException & c)
+    catch (CIMException& c)
     {
         PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
         PEG_METHOD_EXIT();
 
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, c.getMessage());
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, c.getMessage());
     }
-    catch (Exception& e)
+    catch (Exception&e)
     {
         PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
         PEG_METHOD_EXIT();
 
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, e.getMessage());
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
     {
         PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Failed to deliver indication to system log file.");
         PEG_METHOD_EXIT();
-   
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-            MessageLoaderParms("Handler.SystemLogListenerDestination."
-	    "SystemLogListenerDestination.FAILED_TO_DELIVER_INDICATION_TO_SYSTEM_LOG",
+
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+            "Handler.SystemLogListenerDestination.SystemLogListenerDestination."
+                "FAILED_TO_DELIVER_INDICATION_TO_SYSTEM_LOG",
             "Failed to deliver indication to system log file."));
     }
 
@@ -168,12 +167,12 @@ void SystemLogListenerDestination::handleIndication(
 }
 
 void SystemLogListenerDestination::_writeToSystemLog(
-    const String & identifier,
+    const String& identifier,
     Uint32 severity,
-    const String & formattedText)
+    const String& formattedText)
 {
-    PEG_METHOD_ENTER (TRC_IND_HANDLER,
-	"SystemLogListenerDestination::_writeToSystemLog");
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "SystemLogListenerDestination::_writeToSystemLog");
 
 #if defined(PEGASUS_USE_SYSLOGS)
 
@@ -181,10 +180,10 @@ void SystemLogListenerDestination::_writeToSystemLog(
 
 #else
 
-    // PEGASUS_USE_SYSLOGS is not defined, writes the formatted 
+    // PEGASUS_USE_SYSLOGS is not defined, writes the formatted
     // indications into PegasusStandard.log file
-    Logger::put (Logger::STANDARD_LOG , identifier, severity, 
-		 (const char *)formattedText.getCString());
+    Logger::put(Logger::STANDARD_LOG , identifier, severity,
+        (const char*)formattedText.getCString());
 
 #endif
 

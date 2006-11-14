@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 

@@ -29,21 +29,17 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com) 
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMInstanceQueryProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMInstanceQueryProvider::CIMInstanceQueryProvider(void)
+CIMInstanceQueryProvider::CIMInstanceQueryProvider()
 {
 }
 
-CIMInstanceQueryProvider::~CIMInstanceQueryProvider(void)
+CIMInstanceQueryProvider::~CIMInstanceQueryProvider()
 {
 }
 

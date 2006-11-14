@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Robert Kieninger, IBM (kieningr@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -67,7 +58,9 @@ static inline Boolean _MatchNoCase(const String& x, const String& pattern)
     return pattern.size() == 0 || String::equalNoCase(x, pattern);
 }
 
-static inline Boolean _ContainsClass(const Array<CIMName>& classNames, const String& match )
+static inline Boolean _ContainsClass(
+    const Array<CIMName>& classNames,
+    const String& match)
 {
     Uint32 n = classNames.size();
 
@@ -87,33 +80,33 @@ static String _Escape(const String& str)
 
     for (Uint32 i = 0, n = str.size(); i < n; i++)
     {
-	Char16 c = str[i];
+        Char16 c = str[i];
 
-	switch (c)
-	{
-	    case '\n':
-		result.append("\\n");
-		break;
+        switch (c)
+        {
+            case '\n':
+                result.append("\\n");
+                break;
 
-	    case '\r':
-		result.append("\\r");
-		break;
+            case '\r':
+                result.append("\\r");
+                break;
 
-	    case '\t':
-		result.append("\\t");
-		break;
+            case '\t':
+                result.append("\\t");
+                break;
 
-	    case '\f':
-		result.append("\\f");
-		break;
+            case '\f':
+                result.append("\\f");
+                break;
 
-	    case '\\':
-		result.append("\\\\");
-		break;
+            case '\\':
+                result.append("\\\\");
+                break;
 
-	    default:
-		result.append(c);
-	}
+            default:
+                result.append(c);
+        }
     }
 
     return result;
@@ -125,41 +118,41 @@ static String _Unescape(const String& str)
 
     for (Uint32 i = 0, n = str.size(); i < n; i++)
     {
-	Char16 c = str[i];
+        Char16 c = str[i];
 
-	if (c == '\\')
-	{
-	    if (i + 1 == n)
-		break;
+        if (c == '\\')
+        {
+            if (i + 1 == n)
+                break;
 
-	    c = str[i + 1];
+            c = str[i + 1];
 
-	    switch (c)
-	    {
-		case 'n':
-		    result.append("\n");
-		    break;
+            switch (c)
+            {
+                case 'n':
+                    result.append("\n");
+                    break;
 
-		case 'r':
-		    result.append("\r");
-		    break;
+                case 'r':
+                    result.append("\r");
+                    break;
 
-		case 't':
-		    result.append("\t");
-		    break;
+                case 't':
+                    result.append("\t");
+                    break;
 
-		case 'f':
-		    result.append("\f");
-		    break;
+                case 'f':
+                    result.append("\f");
+                    break;
 
-		default:
-		    result.append(c);
-	    }
+                default:
+                    result.append(c);
+            }
 
-	    i++;
-	}
-	else
-	    result.append(c);
+            i++;
+        }
+        else
+            result.append(c);
     }
 
     return result;
@@ -172,8 +165,8 @@ static Boolean _GetRecord(ifstream& is, Array<String>& fields)
 
     for (Uint32 i = 0; i < NUM_FIELDS; i++)
     {
-	if (!GetLine(is, line))
-	    return false;
+        if (!GetLine(is, line))
+            return false;
 
         fields.append(line);
         //Association names are not supposed to contain escapes
@@ -183,7 +176,7 @@ static Boolean _GetRecord(ifstream& is, Array<String>& fields)
     // Skip the blank line:
 
     if (!GetLine(is, line))
-	return false;
+        return false;
 
     return true;
 }
@@ -223,7 +216,7 @@ void AssocClassTable::append(
     _PutRecord(os, fields);
 
     // Update cache
-    AssocClassCache *cache = AssocClassCache::getAssocClassCache(path);
+    AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
     if (cache != 0)
     {
         if (cache->isActive())
@@ -248,7 +241,7 @@ void AssocClassTable::append(
     ofstream os;
 
     if (!OpenAppend(os, path))
-	throw CannotOpenFile(path);
+        throw CannotOpenFile(path);
 
     // Insert the entry:
 
@@ -264,7 +257,7 @@ void AssocClassTable::append(
     _PutRecord(os, fields);
 
     // Update cache
-    AssocClassCache *cache = AssocClassCache::getAssocClassCache(path);
+    AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
     if (cache != 0)
     {
         if (cache->isActive())
@@ -285,7 +278,7 @@ Boolean AssocClassTable::deleteAssociation(
     ifstream is;
 
     if (!Open(is, path))
-	return false;
+        return false;
 
     // Open output file:
 
@@ -293,7 +286,7 @@ Boolean AssocClassTable::deleteAssociation(
     ofstream os;
 
     if (!Open(os, tmpPath))
-	throw CannotOpenFile(tmpPath);
+        throw CannotOpenFile(tmpPath);
 
     // Copy over all lines except ones with the given association instance name:
 
@@ -303,11 +296,11 @@ Boolean AssocClassTable::deleteAssociation(
 
     while (_GetRecord(is, fields))
     {
-	if (assocClassName.getString() != fields[ASSOC_CLASS_NAME_INDEX])
-	{
-	    _PutRecord(os, fields);
-	    found = true;
-	}
+        if (assocClassName.getString() != fields[ASSOC_CLASS_NAME_INDEX])
+        {
+            _PutRecord(os, fields);
+            found = true;
+        }
         else
         {
             fieldsToDelete = fields;
@@ -322,18 +315,18 @@ Boolean AssocClassTable::deleteAssociation(
     // Remove orginal file:
 
     if (!FileSystem::removeFile(path))
-	throw CannotRemoveFile(path);
+        throw CannotRemoveFile(path);
 
     // Rename back to original name:
 
     if (!FileSystem::renameFile(tmpPath, path))
-	throw CannotRenameFile(path);
+        throw CannotRenameFile(path);
 
 
     // Update cache
     if (found)
     {
-        AssocClassCache *cache = AssocClassCache::getAssocClassCache(path);
+        AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
         if (cache != 0)
         {
             if (cache->isActive())
@@ -402,8 +395,9 @@ Boolean AssocClassTable::getAssociatorNames(
     return found;
 }
 
-Boolean AssocClassTable::_InitializeCache( AssocClassCache *cache,
-                                           const String& path)
+Boolean AssocClassTable::_InitializeCache(
+    AssocClassCache* cache,
+    const String& path)
 {
     WriteLock lock(_classCacheLock);
 
@@ -448,7 +442,7 @@ Boolean AssocClassTable::getReferenceNames(
 {
 
     // First see if we can get the information from the association class cache.
-    AssocClassCache *cache = AssocClassCache::getAssocClassCache(path);
+    AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
     if (cache == 0)
         return false;
 
@@ -476,23 +470,26 @@ Boolean AssocClassTable::getReferenceNames(
             for (Uint16 rx=0; rx <records.size(); rx++)
             {
                 if (_MatchNoCase(records[rx][FROM_PROPERTY_NAME_INDEX], role))
-        {
-            // Skip classes that do not appear in the result class list
-            if ((resultClassList.size() != 0) &&
-                (!_ContainsClass(resultClassList,
-                                         records[rx][ASSOC_CLASS_NAME_INDEX])))
-            {
-                continue;
-            }
+                {
+                    // Skip classes that do not appear in the result class list
+                    if ((resultClassList.size() != 0) &&
+                        (!_ContainsClass(resultClassList,
+                             records[rx][ASSOC_CLASS_NAME_INDEX])))
+                    {
+                        continue;
+                    }
 
-            // This class qualifies; add it to the list (skipping duplicates)
-                    if (!Contains(referenceNames, records[rx][ASSOC_CLASS_NAME_INDEX]))
-            {
-                        referenceNames.append(records[rx][ASSOC_CLASS_NAME_INDEX]);
+                    // This class qualifies; add it to the list (skipping
+                    // duplicates)
+                    if (!Contains(referenceNames,
+                            records[rx][ASSOC_CLASS_NAME_INDEX]))
+                    {
+                        referenceNames.append(
+                            records[rx][ASSOC_CLASS_NAME_INDEX]);
+                    }
+                    found = true;
+                }
             }
-            found = true;
-        }
-    }
         }
     }
 

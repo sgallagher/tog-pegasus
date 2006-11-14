@@ -42,7 +42,7 @@
 #ifdef PEGASUS_ZOS_SECURITY
 // This include file will not be provided in the OpenGroup CVS for now.
 // Do NOT try to include it in your compile
-#include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
+# include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -52,12 +52,14 @@ PEGASUS_NAMESPACE_BEGIN
 // For all other platforms this should be an empty class
 // Targets: avoid ifdefs and keep code readable(clean)
 #ifndef PEGASUS_ZOS_THREADLEVEL_SECURITY
+
 // not z/OS == empty class
 class AutoPThreadSecurity
 {
-public:    
+public:
     AutoPThreadSecurity(const OperationContext& context) {};
 };
+
 #else
 
 class AutoPThreadSecurity

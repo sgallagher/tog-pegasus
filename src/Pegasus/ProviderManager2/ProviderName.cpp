@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderName.h"
@@ -41,15 +37,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderName::ProviderName(void) : _capabilities(0)
+ProviderName::ProviderName() : _capabilities(0)
 {
 }
 
 ProviderName::ProviderName(
-    const CIMNamespaceName & nameSpace,
-    const CIMName & className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     const Uint32 capabilities,
-    const CIMName & method)
+    const CIMName& method)
     : _capabilities(capabilities)
 {
     _nameSpace = nameSpace;
@@ -58,9 +54,9 @@ ProviderName::ProviderName(
 }
 
 ProviderName::ProviderName(
-    const CIMObjectPath & path,
+    const CIMObjectPath& path,
     const Uint32 capabilities,
-    const CIMName & method)
+    const CIMName& method)
     : _capabilities(capabilities)
 {
     _nameSpace = path.getNameSpace();
@@ -69,69 +65,71 @@ ProviderName::ProviderName(
 }
 
 ProviderName::ProviderName(
-    const String & logicalName,
-    const String & physicalName,
-    const String & interfaceName,
+    const String& logicalName,
+    const String& physicalName,
+    const String& interfaceName,
     const Uint32 capabilities,
-    const CIMName & method)
+    const CIMName& method)
     : _capabilities(capabilities)
 {
     _logicalName = logicalName;
     _physicalName = physicalName;
-    _interfaceName = interfaceName;    
+    _interfaceName = interfaceName;
     _method = method;
 }
 
-ProviderName::~ProviderName(void)
+ProviderName::~ProviderName()
 {
 }
 
-String ProviderName::getPhysicalName(void) const
+String ProviderName::getPhysicalName() const
 {
-    return(_physicalName);
+    return _physicalName;
 }
 
-void ProviderName::setPhysicalName(const String & physicalName)
+void ProviderName::setPhysicalName(const String& physicalName)
 {
     _physicalName = physicalName;
 }
 
-String ProviderName::getLogicalName(void) const
+String ProviderName::getLogicalName() const
 {
-    return(_logicalName);
+    return _logicalName;
 }
 
-String ProviderName::getInterfaceName(void) const
+String ProviderName::getInterfaceName() const
 {
-    return(_interfaceName);
+    return _interfaceName;
 }
 
-String ProviderName::getLocation(void) const
+String ProviderName::getLocation() const
 {
-    return(_location);
+    return _location;
 }
 
-void ProviderName::setLocation(const String &location)
+void ProviderName::setLocation(const String& location)
 {
-    _location=location;
+    _location = location;
 }
 
-Uint32 ProviderName::getCapabilitiesMask(void) const
+Uint32 ProviderName::getCapabilitiesMask() const
 {
-    return(_capabilities);
+    return _capabilities;
 }
 
-CIMName ProviderName::getMethodName(void) const
+CIMName ProviderName::getMethodName() const
 {
-    return(_method);
+    return _method;
 }
 
-CIMName ProviderName::getClassName() const {
+CIMName ProviderName::getClassName() const
+{
    return _className;
 }
 
-CIMNamespaceName ProviderName::getNameSpace() const {
+CIMNamespaceName ProviderName::getNameSpace() const
+{
    return _nameSpace;
-}   
+}
 
 PEGASUS_NAMESPACE_END

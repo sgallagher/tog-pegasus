@@ -43,7 +43,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMOMHandle::CIMOMHandle(void)
+CIMOMHandle::CIMOMHandle()
 {
     // The existence of a BinaryMessageHandler determines which Rep to use
     MessageQueue* bmh = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);
@@ -79,7 +79,7 @@ CIMOMHandle::CIMOMHandle(const CIMOMHandle & handle)
     Inc(this->_rep = handle._rep);
 }
 
-CIMOMHandle::~CIMOMHandle(void)
+CIMOMHandle::~CIMOMHandle()
 {
     Dec(_rep);
 }
@@ -416,13 +416,13 @@ void CIMOMHandle::allowProviderUnload()
     _rep->allowProviderUnload();
 }
 
-Boolean CIMOMHandle::unload_ok(void)
+Boolean CIMOMHandle::unload_ok()
 {
     return _rep->unload_ok();
 }
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-OperationContext CIMOMHandle::getResponseContext(void)
+OperationContext CIMOMHandle::getResponseContext()
 {
     return _rep->getResponseContext();
 }

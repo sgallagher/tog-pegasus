@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company
-//                  (sushma_fernandes@hp.com)
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMOperationResponseEncoder_h
@@ -56,101 +44,100 @@ PEGASUS_NAMESPACE_BEGIN
  */
 class CIMOperationResponseEncoder : public MessageQueueService
 {
-   private:
-       static const String OUT_OF_MEMORY_MESSAGE;
+private:
+     static const String OUT_OF_MEMORY_MESSAGE;
 
-   public:
-  
-      typedef MessageQueueService Base;
-  
+public:
 
-      CIMOperationResponseEncoder();
+    typedef MessageQueueService Base;
 
-      ~CIMOperationResponseEncoder();
+    CIMOperationResponseEncoder();
 
-			void sendResponse(CIMResponseMessage* response,
-												const String &name,
-												Boolean isImplicit,
-												Buffer *bodygiven = 0);
+    ~CIMOperationResponseEncoder();
 
-      virtual void enqueue(Message *);
+    void sendResponse(
+        CIMResponseMessage* response,
+        const String& name,
+        Boolean isImplicit,
+        Buffer* bodygiven = 0);
 
-      virtual void handleEnqueue(Message *);
-      
-      virtual void handleEnqueue();
+    virtual void enqueue(Message*);
 
+    virtual void handleEnqueue(Message*);
 
-      void encodeCreateClassResponse(
-	 CIMCreateClassResponseMessage* response);
+    virtual void handleEnqueue();
 
-      void encodeGetClassResponse(
-	 CIMGetClassResponseMessage* response);
+    void encodeCreateClassResponse(
+        CIMCreateClassResponseMessage* response);
 
-      void encodeModifyClassResponse(
-	 CIMModifyClassResponseMessage* response);
+    void encodeGetClassResponse(
+        CIMGetClassResponseMessage* response);
 
-      void encodeEnumerateClassNamesResponse(
-	 CIMEnumerateClassNamesResponseMessage* response);
+    void encodeModifyClassResponse(
+        CIMModifyClassResponseMessage* response);
 
-      void encodeEnumerateClassesResponse(
-	 CIMEnumerateClassesResponseMessage* response);
+    void encodeEnumerateClassNamesResponse(
+        CIMEnumerateClassNamesResponseMessage* response);
 
-      void encodeDeleteClassResponse(
-	 CIMDeleteClassResponseMessage* response);
+    void encodeEnumerateClassesResponse(
+        CIMEnumerateClassesResponseMessage* response);
 
-      void encodeCreateInstanceResponse(
-	 CIMCreateInstanceResponseMessage* response);
+    void encodeDeleteClassResponse(
+        CIMDeleteClassResponseMessage* response);
 
-      void encodeGetInstanceResponse(
-	 CIMGetInstanceResponseMessage* response);
+    void encodeCreateInstanceResponse(
+        CIMCreateInstanceResponseMessage* response);
 
-      void encodeModifyInstanceResponse(
-	 CIMModifyInstanceResponseMessage* response);
+    void encodeGetInstanceResponse(
+        CIMGetInstanceResponseMessage* response);
 
-      void encodeEnumerateInstanceNamesResponse(
-	 CIMEnumerateInstanceNamesResponseMessage* response);
+    void encodeModifyInstanceResponse(
+        CIMModifyInstanceResponseMessage* response);
 
-      void encodeEnumerateInstancesResponse(
-	 CIMEnumerateInstancesResponseMessage* response);
+    void encodeEnumerateInstanceNamesResponse(
+        CIMEnumerateInstanceNamesResponseMessage* response);
 
-      void encodeDeleteInstanceResponse(
-	 CIMDeleteInstanceResponseMessage* response);
+    void encodeEnumerateInstancesResponse(
+        CIMEnumerateInstancesResponseMessage* response);
 
-      void encodeGetPropertyResponse(
-	 CIMGetPropertyResponseMessage* response);
+    void encodeDeleteInstanceResponse(
+        CIMDeleteInstanceResponseMessage* response);
 
-      void encodeSetPropertyResponse(
-	 CIMSetPropertyResponseMessage* response);
+    void encodeGetPropertyResponse(
+        CIMGetPropertyResponseMessage* response);
 
-      void encodeSetQualifierResponse(
-	 CIMSetQualifierResponseMessage* response);
+    void encodeSetPropertyResponse(
+        CIMSetPropertyResponseMessage* response);
 
-      void encodeGetQualifierResponse(
-	 CIMGetQualifierResponseMessage* response);
+    void encodeSetQualifierResponse(
+        CIMSetQualifierResponseMessage* response);
 
-      void encodeEnumerateQualifiersResponse(
-	 CIMEnumerateQualifiersResponseMessage* response);
+    void encodeGetQualifierResponse(
+        CIMGetQualifierResponseMessage* response);
 
-      void encodeDeleteQualifierResponse(
-	 CIMDeleteQualifierResponseMessage* response);
+    void encodeEnumerateQualifiersResponse(
+        CIMEnumerateQualifiersResponseMessage* response);
 
-      void encodeReferenceNamesResponse(
-	 CIMReferenceNamesResponseMessage* response);
+    void encodeDeleteQualifierResponse(
+        CIMDeleteQualifierResponseMessage* response);
 
-      void encodeReferencesResponse(
-	 CIMReferencesResponseMessage* response);
+    void encodeReferenceNamesResponse(
+        CIMReferenceNamesResponseMessage* response);
 
-      void encodeAssociatorNamesResponse(
-	 CIMAssociatorNamesResponseMessage* response);
+    void encodeReferencesResponse(
+        CIMReferencesResponseMessage* response);
 
-      void encodeAssociatorsResponse(
-	 CIMAssociatorsResponseMessage* response);
+    void encodeAssociatorNamesResponse(
+        CIMAssociatorNamesResponseMessage* response);
 
-      void encodeExecQueryResponse(
-	 CIMExecQueryResponseMessage* response);
+    void encodeAssociatorsResponse(
+        CIMAssociatorsResponseMessage* response);
 
-      void encodeInvokeMethodResponse(
-	 CIMInvokeMethodResponseMessage* response);
+    void encodeExecQueryResponse(
+        CIMExecQueryResponseMessage* response);
+
+    void encodeInvokeMethodResponse(
+        CIMInvokeMethodResponseMessage* response);
 };
 
 PEGASUS_NAMESPACE_END

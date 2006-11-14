@@ -29,11 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
+
 #ifndef Pegasus_BinaryMessageHandler_h
 #define Pegasus_BinaryMessageHandler_h
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/AsyncQueue.h>
@@ -48,235 +48,232 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class provides an in-process binary client interface, 
-    both for requests and responses. 
+/** This class provides an in-process binary client interface,
+    both for requests and responses.
 */
-
 class PEGASUS_SERVER_LINKAGE BinaryMessageHandler : public MessageQueueService
 {
-   public: 
-      typedef MessageQueueService Base;
+public:
+    typedef MessageQueueService Base;
 
-      BinaryMessageHandler(MessageQueueService *outputQueue);
-      ~BinaryMessageHandler();
-      
-      virtual Boolean messageOK(const Message * message);
-      virtual void handleEnqueue(void);
-      virtual void handleEnqueue(Message * message);
-      virtual void _handle_async_request(AsyncRequest * request);
-   protected:
-      static ThreadReturnType PEGASUS_THREAD_CDECL handle_binary_message(void *);
+    BinaryMessageHandler(MessageQueueService* outputQueue);
+    ~BinaryMessageHandler();
 
-      // **** Request Messages **** //
-      
-      void handleCreateClassRequest(
-	 AsyncOpNode *, 
-	 CIMCreateClassRequestMessage *) throw();
-      
-      void handleGetClassRequest(
-	 AsyncOpNode *,
-	 CIMGetClassRequestMessage *) throw();
-      
-      void handleModifyClassRequest(
-	 AsyncOpNode *, 
-	 CIMModifyClassRequestMessage *) throw();
-      
-      void handleEnumerateClassNamesRequest(
-	 AsyncOpNode *,
-	 CIMEnumerateClassNamesRequestMessage *) throw();
+    virtual Boolean messageOK(const Message* message);
+    virtual void handleEnqueue();
+    virtual void handleEnqueue(Message* message);
+    virtual void _handle_async_request(AsyncRequest* request);
 
-      void handleEnumerateClassesRequest(
-	 AsyncOpNode *,
-	 CIMEnumerateClassesRequestMessage *) throw();
+protected:
+    static ThreadReturnType PEGASUS_THREAD_CDECL handle_binary_message(void*);
 
-      void handleDeleteClassRequest(
-	 AsyncOpNode *,
-	 CIMDeleteClassRequestMessage *) throw();
+    // **** Request Messages **** //
 
-      void handleCreateInstanceRequest(
-	 AsyncOpNode *,
-	 CIMCreateInstanceRequestMessage *) throw();
+    void handleCreateClassRequest(
+        AsyncOpNode*,
+        CIMCreateClassRequestMessage*) throw();
 
-      void handleGetInstanceRequest(
-	 AsyncOpNode *,
-	 CIMGetInstanceRequestMessage *) throw();
+    void handleGetClassRequest(
+        AsyncOpNode*,
+        CIMGetClassRequestMessage*) throw();
 
-      void handleModifyInstanceRequest(
-	 AsyncOpNode *,
-	 CIMModifyInstanceRequestMessage *) throw();
+    void handleModifyClassRequest(
+        AsyncOpNode*,
+        CIMModifyClassRequestMessage*) throw();
 
-      void handleEnumerateInstanceNamesRequest(
-	 AsyncOpNode *,
-	 CIMEnumerateInstanceNamesRequestMessage *) throw();
+    void handleEnumerateClassNamesRequest(
+        AsyncOpNode*,
+        CIMEnumerateClassNamesRequestMessage*) throw();
 
-      void handleEnumerateInstancesRequest(
-	 AsyncOpNode *,
-	 CIMEnumerateInstancesRequestMessage *) throw();
+    void handleEnumerateClassesRequest(
+        AsyncOpNode*,
+        CIMEnumerateClassesRequestMessage*) throw();
 
-      void handleDeleteInstanceRequest(
-	 AsyncOpNode *,
-	 CIMDeleteInstanceRequestMessage *) throw();
-      
-      void handleSetQualifierRequest(
-	 AsyncOpNode *,
-	 CIMSetQualifierRequestMessage *) throw();
-      
-      void handleGetQualifierRequest(
-	 AsyncOpNode *,
-	 CIMGetQualifierRequestMessage *) throw();
-      
-      void handleEnumerateQualifiersRequest(
-	 AsyncOpNode *,
-	 CIMEnumerateQualifiersRequestMessage *) throw();
-      
-      void handleDeleteQualifiersRequest(
-	 AsyncOpNode *,
-	 CIMDeleteQualifierRequestMessage *) throw(); 
-      
-      void handleReferenceNamesRequest(
-	 AsyncOpNode *,
-	 CIMReferenceNamesRequestMessage *) throw(); 
+    void handleDeleteClassRequest(
+        AsyncOpNode*,
+        CIMDeleteClassRequestMessage*) throw();
 
-      void handleReferencesRequest(
-	 AsyncOpNode *,
-	 CIMReferencesRequestMessage *) throw(); 
+    void handleCreateInstanceRequest(
+        AsyncOpNode*,
+        CIMCreateInstanceRequestMessage*) throw();
 
-      void handleAssociatorNamesRequest(
-	 AsyncOpNode *,
-	 CIMAssociatorNamesRequestMessage *) throw(); 
+    void handleGetInstanceRequest(
+        AsyncOpNode*,
+        CIMGetInstanceRequestMessage*) throw();
 
-      void handleAssociatorsRequest(
-	 AsyncOpNode *,
-	 CIMAssociatorsRequestMessage *) throw();  
+    void handleModifyInstanceRequest(
+        AsyncOpNode*,
+        CIMModifyInstanceRequestMessage*) throw();
 
-      void handleGetPropertyRequest(
-	 AsyncOpNode *,
-	 CIMGetPropertyRequestMessage *) throw(); 
+    void handleEnumerateInstanceNamesRequest(
+        AsyncOpNode*,
+        CIMEnumerateInstanceNamesRequestMessage*) throw();
 
-      void handleSetPropertyRequest(
-	 AsyncOpNode *,
-	 CIMSetPropertyRequestMessage *) throw();  
+    void handleEnumerateInstancesRequest(
+        AsyncOpNode*,
+        CIMEnumerateInstancesRequestMessage*) throw();
 
-      void handleExecQueryRequest(
-	 AsyncOpNode *,
-	 CIMExecQueryRequestMessage *) throw();  
+    void handleDeleteInstanceRequest(
+        AsyncOpNode*,
+        CIMDeleteInstanceRequestMessage*) throw();
 
-      void handleInvokeMethodRequest(
-	 AsyncOpNode *,
-	 CIMInvokeMethodRequestMessage *) throw(); 
-      
-      // **** Response Messages **** //
-      
-      void handleCreateClassResponse(
-	 AsyncOpNode *,
-	 CIMCreateClassResponseMessage *) throw(); 
+    void handleSetQualifierRequest(
+        AsyncOpNode*,
+        CIMSetQualifierRequestMessage*) throw();
 
-      void handleGetClassResponse(
-	 AsyncOpNode *,
-	 CIMGetClassResponseMessage *) throw(); 
+    void handleGetQualifierRequest(
+        AsyncOpNode*,
+        CIMGetQualifierRequestMessage*) throw();
 
-      void handleModifyClassResponse(
-	 AsyncOpNode *,
-	 CIMModifyClassResponseMessage *) throw(); 
-      
-      void handleEnumerateClassNamesResponse(
-	 AsyncOpNode *,
-	 CIMEnumerateClassNamesResponseMessage *) throw(); 
+    void handleEnumerateQualifiersRequest(
+        AsyncOpNode*,
+        CIMEnumerateQualifiersRequestMessage*) throw();
 
-      void handleEnumerateClassesResponse(
-	 AsyncOpNode *,
-	 CIMEnumerateClassesResponseMessage *) throw(); 
+    void handleDeleteQualifiersRequest(
+        AsyncOpNode*,
+        CIMDeleteQualifierRequestMessage*) throw();
 
-      void handleDeleteClassResponse(
-	 AsyncOpNode *,
-	 CIMDeleteClassResponseMessage *) throw(); 
+    void handleReferenceNamesRequest(
+        AsyncOpNode*,
+        CIMReferenceNamesRequestMessage*) throw();
 
-      void handleCreateInstanceResponse(
-	 AsyncOpNode *,
-	 CIMCreateInstanceResponseMessage *) throw(); 
+    void handleReferencesRequest(
+        AsyncOpNode*,
+        CIMReferencesRequestMessage*) throw();
 
-      void handleGetInstanceResponse(
-	 AsyncOpNode *,
-	 CIMGetInstanceResponseMessage *) throw(); 
+    void handleAssociatorNamesRequest(
+        AsyncOpNode*,
+        CIMAssociatorNamesRequestMessage*) throw();
 
-      void handleModifyInstanceResponse(
-	 AsyncOpNode *,
-	 CIMModifyInstanceResponseMessage *) throw(); 
+    void handleAssociatorsRequest(
+        AsyncOpNode*,
+        CIMAssociatorsRequestMessage*) throw();
 
-      void handleEnumerateInstanceNamesResponse(
-	 AsyncOpNode *,
-	 CIMEnumerateInstanceNamesResponseMessage *) throw(); 
+    void handleGetPropertyRequest(
+        AsyncOpNode*,
+        CIMGetPropertyRequestMessage*) throw();
 
-      void handleEnumerateInstancesResponse(
-	 AsyncOpNode *,
-	 CIMEnumerateInstancesResponseMessage *) throw(); 
+    void handleSetPropertyRequest(
+        AsyncOpNode*,
+        CIMSetPropertyRequestMessage*) throw();
 
-      void handleDeleteInstanceResponse(
-	 AsyncOpNode *,
-	 CIMDeleteInstanceResponseMessage *) throw(); 
+    void handleExecQueryRequest(
+        AsyncOpNode*,
+        CIMExecQueryRequestMessage*) throw();
 
-      void handleGetPropertyResponse(
-	 AsyncOpNode *,
-	 CIMGetPropertyResponseMessage *) throw(); 
+    void handleInvokeMethodRequest(
+        AsyncOpNode*,
+        CIMInvokeMethodRequestMessage*) throw();
 
-      void handleSetPropertyResponse(
-	 AsyncOpNode *,
-	 CIMSetPropertyResponseMessage *) throw(); 
-      
-      void handleSetQualifierResponse(
-	 AsyncOpNode *,
-	 CIMSetQualifierResponseMessage *) throw(); 
+    // **** Response Messages **** //
 
-      void handleGetQualifierResponse(
-	 AsyncOpNode *,
-	 CIMGetQualifierResponseMessage *) throw(); 
-      
-      void handleEnumerateQualifiersResponse(
-	 AsyncOpNode *,
-	 CIMEnumerateQualifiersResponseMessage *) throw(); 
+    void handleCreateClassResponse(
+        AsyncOpNode*,
+        CIMCreateClassResponseMessage*) throw();
 
-      void handleDeleteQualifierResponse(
-	 AsyncOpNode *,
-	 CIMDeleteQualifierResponseMessage *) throw(); 
+    void handleGetClassResponse(
+        AsyncOpNode*,
+        CIMGetClassResponseMessage*) throw();
 
-      void handleReferenceNamesResponse(
-	 AsyncOpNode *,
-	 CIMReferenceNamesResponseMessage *) throw(); 
+    void handleModifyClassResponse(
+        AsyncOpNode*,
+        CIMModifyClassResponseMessage*) throw();
 
-      void handleReferencesResponse(
-	 AsyncOpNode *,
-	 CIMReferencesResponseMessage *) throw(); 
+    void handleEnumerateClassNamesResponse(
+        AsyncOpNode*,
+        CIMEnumerateClassNamesResponseMessage*) throw();
 
-      void handleAssociatorNamesResponse(
-	 AsyncOpNode *,
-	 CIMAssociatorNamesResponseMessage *) throw();  
+    void handleEnumerateClassesResponse(
+        AsyncOpNode*,
+        CIMEnumerateClassesResponseMessage*) throw();
 
-      void handleAssociatorsResponse(
-	 AsyncOpNode *,
-	 CIMAssociatorsResponseMessage *) throw();
+    void handleDeleteClassResponse(
+        AsyncOpNode*,
+        CIMDeleteClassResponseMessage*) throw();
 
-      void handleExecQueryResponse(
-	 AsyncOpNode *,
-	 CIMExecQueryResponseMessage *) throw();
-      
-      void handleInvokeMethodResponse(
-	 AsyncOpNode *,
-	 CIMInvokeMethodResponseMessage *) throw();
-      
-   private:
-      BinaryMessageHandler(void);
-      BinaryMessageHandler & operator = (const BinaryMessageHandler & ) const;
-      void _handleRequest(AsyncOpNode *, Message *) throw();
-      void _handleResponse(AsyncOpNode *, Message *) throw();
-      
+    void handleCreateInstanceResponse(
+        AsyncOpNode*,
+        CIMCreateInstanceResponseMessage*) throw();
 
-      MessageQueueService* _outputQueue;
+    void handleGetInstanceResponse(
+        AsyncOpNode*,
+        CIMGetInstanceResponseMessage*) throw();
 
-      // Flag to indicate whether or not the CIMServer is shutting down.
-      AsyncQueue<AsyncOpNode> _msg_q;
-      
+    void handleModifyInstanceResponse(
+        AsyncOpNode*,
+        CIMModifyInstanceResponseMessage*) throw();
+
+    void handleEnumerateInstanceNamesResponse(
+        AsyncOpNode*,
+        CIMEnumerateInstanceNamesResponseMessage*) throw();
+
+    void handleEnumerateInstancesResponse(
+        AsyncOpNode*,
+        CIMEnumerateInstancesResponseMessage*) throw();
+
+    void handleDeleteInstanceResponse(
+        AsyncOpNode*,
+        CIMDeleteInstanceResponseMessage*) throw();
+
+    void handleGetPropertyResponse(
+        AsyncOpNode*,
+        CIMGetPropertyResponseMessage*) throw();
+
+    void handleSetPropertyResponse(
+        AsyncOpNode*,
+        CIMSetPropertyResponseMessage*) throw();
+
+    void handleSetQualifierResponse(
+        AsyncOpNode*,
+        CIMSetQualifierResponseMessage*) throw();
+
+    void handleGetQualifierResponse(
+        AsyncOpNode*,
+        CIMGetQualifierResponseMessage*) throw();
+
+    void handleEnumerateQualifiersResponse(
+        AsyncOpNode*,
+        CIMEnumerateQualifiersResponseMessage*) throw();
+
+    void handleDeleteQualifierResponse(
+        AsyncOpNode*,
+        CIMDeleteQualifierResponseMessage*) throw();
+
+    void handleReferenceNamesResponse(
+        AsyncOpNode*,
+        CIMReferenceNamesResponseMessage*) throw();
+
+    void handleReferencesResponse(
+        AsyncOpNode*,
+        CIMReferencesResponseMessage*) throw();
+
+    void handleAssociatorNamesResponse(
+        AsyncOpNode*,
+        CIMAssociatorNamesResponseMessage*) throw();
+
+    void handleAssociatorsResponse(
+        AsyncOpNode*,
+        CIMAssociatorsResponseMessage*) throw();
+
+    void handleExecQueryResponse(
+        AsyncOpNode*,
+        CIMExecQueryResponseMessage*) throw();
+
+    void handleInvokeMethodResponse(
+        AsyncOpNode*,
+        CIMInvokeMethodResponseMessage*) throw();
+
+private:
+    BinaryMessageHandler();
+    BinaryMessageHandler& operator=(const BinaryMessageHandler&) const;
+    void _handleRequest(AsyncOpNode*, Message*) throw();
+    void _handleResponse(AsyncOpNode*, Message*) throw();
+
+    MessageQueueService* _outputQueue;
+
+    // Flag to indicate whether or not the CIMServer is shutting down.
+    AsyncQueue<AsyncOpNode> _msg_q;
 };
-
 
 PEGASUS_NAMESPACE_END
 

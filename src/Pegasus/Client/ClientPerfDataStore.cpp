@@ -29,109 +29,112 @@
 //
 //==============================================================================
 //
-// Author: Willis White (whiwill@us.ibm.com)
-//
-// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3674
-//              Muni S Reddy, IBM(mreddy@in.ibm.com) for Bug# 4227
-//
-//%/////////////////////////////////////////////////////////////b////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
 
 #include "ClientPerfDataStore.h"
 #include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
-
-ClientPerfDataStore::ClientPerfDataStore(){
+ClientPerfDataStore::ClientPerfDataStore()
+{
    _classRegistered = false;
-} 
-
+}
 
 void ClientPerfDataStore::reset()
 {
     _operationType = CIMOPTYPE_INVOKE_METHOD;
     _serverTimeKnown = false;
     _errorCondition = false;
-    _serverTime = 0;                
-    _networkStartTime = TimeValue(); 
-    _networkEndTime = TimeValue(); 
-    _requestSize = 0; 
+    _serverTime = 0;
+    _networkStartTime = TimeValue();
+    _networkEndTime = TimeValue();
+    _requestSize = 0;
     _responseSize = 0;
     _messID = "";
 
 }
-     
 
 ClientOpPerformanceData ClientPerfDataStore::createPerfDataStruct()
 {
     ClientOpPerformanceData _ClientOpPerfData_obj;
-    _ClientOpPerfData_obj.roundTripTime = _networkEndTime.toMicroseconds()-_networkStartTime.toMicroseconds();
+    _ClientOpPerfData_obj.roundTripTime =
+        _networkEndTime.toMicroseconds() - _networkStartTime.toMicroseconds();
     _ClientOpPerfData_obj.operationType = _operationType;
     _ClientOpPerfData_obj.requestSize = _requestSize;
     _ClientOpPerfData_obj.responseSize = _responseSize;
     _ClientOpPerfData_obj.serverTimeKnown = _serverTimeKnown;
-    if (_serverTimeKnown) {
+    if (_serverTimeKnown)
+    {
         _ClientOpPerfData_obj.serverTime = _serverTime;
     }
     return _ClientOpPerfData_obj;
-}  
+}
 
-
-        
 void ClientPerfDataStore::setServerTime(Uint32 time)
-{   _serverTime = time;
+{
+    _serverTime = time;
     _serverTimeKnown = true;
 }
 
-        
 void ClientPerfDataStore::setResponseSize(Uint64 size)
-{ _responseSize = size; }
-       
+{
+    _responseSize = size;
+}
 
 void ClientPerfDataStore::setRequestSize(Uint64 size)
-{  _requestSize = size; }
+{
+    _requestSize = size;
+}
 
-        
-void ClientPerfDataStore::setStartNetworkTime(void)
-{ _networkStartTime = TimeValue::getCurrentTime();  }
-
+void ClientPerfDataStore::setStartNetworkTime()
+{
+    _networkStartTime = TimeValue::getCurrentTime();
+}
 
 void ClientPerfDataStore::setEndNetworkTime(TimeValue time)
-{ _networkEndTime = time; }
+{
+    _networkEndTime = time;
+}
 
-        
 void ClientPerfDataStore::setServerTimeKnown(Boolean bol)
-{   _serverTimeKnown = bol; }
-
+{
+    _serverTimeKnown = bol;
+}
 
 void ClientPerfDataStore::setMessageID(String messageID)
-{ _messID = messageID; }
-       
+{
+    _messID = messageID;
+}
 
 void ClientPerfDataStore::setOperationType(Uint32 type)
-{   
-  _operationType = Message::convertMessageTypetoCIMOpType(type);                             
+{
+    _operationType = Message::convertMessageTypetoCIMOpType(type);
 }
 
 
-Boolean ClientPerfDataStore::checkMessageIDandType(const String& messageID, Uint32 type)
-{ if(_messID != messageID)
-  {
-    _errorCondition = true;
-    return false; 
-  }
-  
-  if (_operationType != Message::convertMessageTypetoCIMOpType(type)) 
-  {
-    _errorCondition = true;
-    return false; 
-  }
+Boolean ClientPerfDataStore::checkMessageIDandType(
+    const String& messageID,
+    Uint32 type)
+{
+    if (_messID != messageID)
+    {
+        _errorCondition = true;
+        return false;
+    }
 
-  return true;
+    if (_operationType != Message::convertMessageTypetoCIMOpType(type))
+    {
+        _errorCondition = true;
+        return false;
+    }
+
+    return true;
 }
- 
+
 String ClientPerfDataStore::toString() const
 {
     Buffer out;
@@ -139,35 +142,42 @@ String ClientPerfDataStore::toString() const
     XMLWriter::append(out, _serverTime);
      << "\r\n";  */
     out << " operation type  = " << (Uint32)_operationType << "\r\n";
-    out << " network start time is = " << _networkStartTime.toMilliseconds() << "\r\n";
+    out << " network start time is = " << _networkStartTime.toMilliseconds()
+        << "\r\n";
     out << " network end time = " << _networkEndTime.toMilliseconds() << "\r\n";
     out << " numberofRequestBytes = " << (Uint32)_requestSize << "\r\n";
     out << " number foRespoonse Bytes = " << (Uint32)_responseSize << "\r\n";
     out << "the message ID is " << _messID << "\r\n";
-    if (_errorCondition) {
+
+    if (_errorCondition)
+    {
         out << "the error condition is true " << "\r\n";
     }
-    else{
+    else
+    {
         out << "the error condition is false" << "\r\n";
     }
-    if (_classRegistered) {
+
+    if (_classRegistered)
+    {
         out << "there is a class registered" << "\r\n";
     }
-    else{
+    else
+    {
         out << "no class is registered" << "\r\n";
     }
-    if (_serverTimeKnown) {
+
+    if (_serverTimeKnown)
+    {
         out << "_serverTimeKnown is true" << "\r\n";
     }
-    else{
+    else
+    {
         out << "_serverTimeKnown is false" << "\r\n";
     }
 
-    //return a Pegasus String constructed form the array "out"
     return (String(out.getData(), out.size()));
 }
-    
- 
 
 Boolean ClientPerfDataStore::getStatError() const
 {
@@ -185,6 +195,3 @@ Boolean ClientPerfDataStore::isClassRegistered() const
 }
 
 PEGASUS_NAMESPACE_END
-
-
-

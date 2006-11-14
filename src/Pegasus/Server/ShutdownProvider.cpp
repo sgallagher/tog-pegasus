@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By: 
-//      Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
-//      Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -45,13 +39,10 @@
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Server/ShutdownService.h>
 #include "ShutdownProvider.h"
-
-// l10n
-#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_USING_STD;
 
@@ -63,26 +54,25 @@ static const CIMName METHOD_NAME_SHUTDOWN = CIMName ("shutdown");
 // Invoke method used to shutdown cimom.
 //
 void ShutdownProvider::invokeMethod(
-    const OperationContext & context,
-    const CIMObjectPath & objectReference,
-    const CIMName & methodName,
-    const Array<CIMParamValue> & inParameters,
-    MethodResultResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectReference,
+    const CIMName& methodName,
+    const Array<CIMParamValue>& inParameters,
+    MethodResultResponseHandler& handler)
 {
     PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownProvider::invokeMethod()");
-
-    
 
     // Check to see if the method name is correct
     if (!methodName.equal(METHOD_NAME_SHUTDOWN))
     {
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE, String::EMPTY);
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_METHOD_NOT_AVAILABLE, String::EMPTY);
     }
 
     // Get user name
     String userName;
-    if(context.contains(IdentityContainer::NAME))
+    if (context.contains(IdentityContainer::NAME))
     {
         IdentityContainer container = context.get(IdentityContainer::NAME);
         userName = container.getUserName();
@@ -92,12 +82,12 @@ void ShutdownProvider::invokeMethod(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
     }
+
 #ifndef PEGASUS_ZOS_SECURITY
     // Only privileged user can execute this operation
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
         PEG_METHOD_EXIT();
-        // l10n
         MessageLoaderParms parms(
             "ControlProviders.UserAuthProvider.MUST_BE_PRIVILEGED_USER",
             "Must be a privileged user to execute this CIM operation.");
@@ -109,16 +99,13 @@ void ShutdownProvider::invokeMethod(
     handler.processing();
 
     // Check if the input parameters are passed.
-    if ( inParameters.size() < 2 )
+    if (inParameters.size() < 2)
     {
         PEG_METHOD_EXIT();
-
-	// l10n
-
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, MessageLoaderParms("Server.ShutdownProvider.INPUT_NOT_VALID","Input parameters are not valid."));
-
-        // throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
-	//		     "Input parameters are not valid.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+            MessageLoaderParms(
+                "Server.ShutdownProvider.INPUT_NOT_VALID",
+                "Input parameters are not valid."));
     }
 
     Boolean force = false;
@@ -147,23 +134,17 @@ void ShutdownProvider::invokeMethod(
             else
             {
                 PEG_METHOD_EXIT();
-
-		// l10n
-		
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, MessageLoaderParms("Server.ShutdownProvider.INPUT_NOT_VALID","Input parameters are not valid."));
-		
-		// throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
-		//		     "Input parameters are not valid.");
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                    MessageLoaderParms(
+                        "Server.ShutdownProvider.INPUT_NOT_VALID",
+                        "Input parameters are not valid."));
             }
         }
     }
 
     try
     {
-
-
         _shutdownService->shutdown(force, timeoutValue, true);
-	
     }
     catch (CIMException& e)
     {
@@ -179,8 +160,6 @@ void ShutdownProvider::invokeMethod(
     handler.deliver(CIMValue(0));
     handler.complete();
     PEG_METHOD_EXIT();
-    return;
 }
 
 PEGASUS_NAMESPACE_END
-

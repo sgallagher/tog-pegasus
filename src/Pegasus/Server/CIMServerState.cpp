@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By:
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Server/CIMServerState.h>
@@ -61,7 +57,7 @@ CIMServerState::~CIMServerState()
 };
 
 /**
-    Set the state of the CIM Server.  
+    Set the state of the CIM Server.
 */
 void CIMServerState::setState(Uint32 code)
 {

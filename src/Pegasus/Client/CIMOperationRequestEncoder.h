@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard (Nitin_Upasani@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veriats.com)
-//              Willis White, IBM (whiwill@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMOperationRequestEncoder_h
@@ -60,9 +52,9 @@ class PEGASUS_CLIENT_LINKAGE CIMOperationRequestEncoder : public MessageQueue
 public:
 
     /** Constuctor.
-	@param outputQueue queue to receive encoded HTTP messages.
+        @param outputQueue queue to receive encoded HTTP messages.
         @param hostName Name of the target host for the encoded requests.
-                        I.e., the value of the HTTP Host header.
+            I.e., the value of the HTTP Host header.
     */
     CIMOperationRequestEncoder(
         MessageQueue* outputQueue,
@@ -77,87 +69,87 @@ public:
     virtual void handleEnqueue();
 
     /**
-     * This methods gives the Encoder access to the ClientPerfDataStore that
-     * is in CIMClientRep. A pointer to the CIMClientRep::ClientPerfDataStore 
-     * is passed in
+        Gives the Encoder access to the ClientPerfDataStore that
+        is in CIMClientRep. A pointer to the CIMClientRep::ClientPerfDataStore
+        is passed in.
      */
     void setDataStorePointer(ClientPerfDataStore* perfDataStore_ptr);
 
 private:
 
     void _encodeCreateClassRequest(
-	CIMCreateClassRequestMessage* message);
+        CIMCreateClassRequestMessage* message);
 
     void _encodeGetClassRequest(
-	CIMGetClassRequestMessage* message);
+        CIMGetClassRequestMessage* message);
 
     void _encodeModifyClassRequest(
-	CIMModifyClassRequestMessage* message);
+        CIMModifyClassRequestMessage* message);
 
     void _encodeEnumerateClassNamesRequest(
-	CIMEnumerateClassNamesRequestMessage* message);
+        CIMEnumerateClassNamesRequestMessage* message);
 
     void _encodeEnumerateClassesRequest(
-	CIMEnumerateClassesRequestMessage* message);
+        CIMEnumerateClassesRequestMessage* message);
 
     void _encodeDeleteClassRequest(
-	CIMDeleteClassRequestMessage* message);
+        CIMDeleteClassRequestMessage* message);
 
     void _encodeCreateInstanceRequest(
-	CIMCreateInstanceRequestMessage* message);
+        CIMCreateInstanceRequestMessage* message);
 
     void _encodeGetInstanceRequest(
-	CIMGetInstanceRequestMessage* message);
+        CIMGetInstanceRequestMessage* message);
 
     void _encodeModifyInstanceRequest(
-	CIMModifyInstanceRequestMessage* message);
+        CIMModifyInstanceRequestMessage* message);
 
     void _encodeEnumerateInstanceNamesRequest(
-	CIMEnumerateInstanceNamesRequestMessage* message);
+        CIMEnumerateInstanceNamesRequestMessage* message);
 
     void _encodeEnumerateInstancesRequest(
-	CIMEnumerateInstancesRequestMessage* message);
+        CIMEnumerateInstancesRequestMessage* message);
 
     void _encodeDeleteInstanceRequest(
-	CIMDeleteInstanceRequestMessage* message);
+        CIMDeleteInstanceRequestMessage* message);
 
     void _encodeGetPropertyRequest(
-	CIMGetPropertyRequestMessage* message);
+        CIMGetPropertyRequestMessage* message);
 
     void _encodeSetPropertyRequest(
-	CIMSetPropertyRequestMessage* message);
+        CIMSetPropertyRequestMessage* message);
 
     void _encodeSetQualifierRequest(
-	CIMSetQualifierRequestMessage* message);
+        CIMSetQualifierRequestMessage* message);
 
     void _encodeGetQualifierRequest(
-	CIMGetQualifierRequestMessage* message);
+        CIMGetQualifierRequestMessage* message);
 
     void _encodeEnumerateQualifiersRequest(
-	CIMEnumerateQualifiersRequestMessage* message);
+        CIMEnumerateQualifiersRequestMessage* message);
 
     void _encodeDeleteQualifierRequest(
-	CIMDeleteQualifierRequestMessage* message);
+        CIMDeleteQualifierRequestMessage* message);
 
     void _encodeReferenceNamesRequest(
-	CIMReferenceNamesRequestMessage* message);
+        CIMReferenceNamesRequestMessage* message);
 
     void _encodeReferencesRequest(
-	CIMReferencesRequestMessage* message);
+        CIMReferencesRequestMessage* message);
 
     void _encodeAssociatorNamesRequest(
-	CIMAssociatorNamesRequestMessage* message);
+        CIMAssociatorNamesRequestMessage* message);
 
     void _encodeAssociatorsRequest(
-	CIMAssociatorsRequestMessage* message);
+        CIMAssociatorsRequestMessage* message);
 
     void _encodeExecQueryRequest(
-	CIMExecQueryRequestMessage* message);
+        CIMExecQueryRequestMessage* message);
 
     void _encodeInvokeMethodRequest(
-	CIMInvokeMethodRequestMessage* message);
+        CIMInvokeMethodRequestMessage* message);
 
-    void _sendRequest(Buffer& buffer); 
+    void _sendRequest(Buffer& buffer);
 
     MessageQueue* _outputQueue;
     CString _hostName;

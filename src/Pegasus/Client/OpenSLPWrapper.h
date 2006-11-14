@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Tony Fiorentino (fiorentino_tony@emc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef OpenSLPWrapper_h
@@ -41,18 +37,17 @@
 #include "slp.h"
 #include "WBEMSLPTemplate.h"
 
-static SLPBoolean
-wbemSrvUrlCallback(SLPHandle hslp, 
-                   const char* srvurl, 
-                   unsigned short lifetime, 
-                   SLPError errcode, 
-                   void* cookie);
+static SLPBoolean wbemSrvUrlCallback(
+    SLPHandle hslp,
+    const char* srvurl,
+    unsigned short lifetime,
+    SLPError errcode,
+    void* cookie);
 
-static SLPBoolean
-wbemAttrCallback( SLPHandle hslp, 
-                  const char* attrlist, 
-                  SLPError errcode, 
-                  void* cookie);
+static SLPBoolean wbemAttrCallback(
+    SLPHandle hslp,
+    const char* attrlist,
+    SLPError errcode,
+    void* cookie);
 
 #endif /* OpenSLPWrapper_h */
-

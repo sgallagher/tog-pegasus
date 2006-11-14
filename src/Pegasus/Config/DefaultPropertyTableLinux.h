@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DefaultPropertyTableLinux_h
@@ -54,9 +50,9 @@
     {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableNamespaceAuthorization", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableSubscriptionsForNonprivilegedUsers", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableSubscriptionsForNonprivilegedUsers",
+         "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -82,7 +78,8 @@
     {"enableAuthentication", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableNamespaceAuthorization", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableSubscriptionsForNonprivilegedUsers", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableSubscriptionsForNonprivilegedUsers",
+         "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -96,6 +93,5 @@
 # endif
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #endif
-
 
 #endif /* Pegasus_DefaultPropertyTableLinux_h */

@@ -29,21 +29,17 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMIndicationProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMIndicationProvider::CIMIndicationProvider(void)
+CIMIndicationProvider::CIMIndicationProvider()
 {
 }
 
-CIMIndicationProvider::~CIMIndicationProvider(void)	
+CIMIndicationProvider::~CIMIndicationProvider()
 {
 }
 

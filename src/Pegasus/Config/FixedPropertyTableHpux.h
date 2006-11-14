@@ -43,7 +43,6 @@
     {"slp",                 "false"},
     {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "true"},
-    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"enableIndicationService", "true"},
     {"sslClientVerificationMode", "disabled"},
     {"httpAuthType",        "Basic"},
@@ -68,7 +67,8 @@
     {"messageDir",         "/opt/wbem/share/locale/ICU_Messages"},
 #endif
 
-#if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)
+#if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && \
+    !defined(PEGASUS_USE_RELEASE_DIRS)
     {"bogus", "MyBogusValue"}      // Remove this line if others are added
 #endif
 

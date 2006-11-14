@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//      Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//      Dave Rosckes (rosckes@us.ibm.com)
-//      Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SimpleResponseHandler_h
@@ -54,9 +47,9 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_PPM_LINKAGE ValueResponseHandler : virtual public ResponseHandler
 {
 public:
-    virtual void deliver(const CIMValue & value) = 0;
+    virtual void deliver(const CIMValue& value) = 0;
 
-    virtual void deliver(const Array<CIMValue> & values) = 0;
+    virtual void deliver(const Array<CIMValue>& values) = 0;
 };
 
 
@@ -66,97 +59,100 @@ public:
 class PEGASUS_PPM_LINKAGE SimpleResponseHandler : virtual public ResponseHandler
 {
 public:
-    SimpleResponseHandler(void);
-    virtual ~SimpleResponseHandler(void);
+    SimpleResponseHandler();
+    virtual ~SimpleResponseHandler();
 
-    virtual void processing(void);
+    virtual void processing();
 
-    virtual void complete(void);
+    virtual void complete();
 
     // return the number of objects in this handler
-    virtual Uint32 size(void) const;
+    virtual Uint32 size() const;
 
     // clear any objects in this handler
-    virtual void clear(void);
+    virtual void clear();
 
-    ContentLanguageList getLanguages(void);
+    ContentLanguageList getLanguages();
 
 protected:
     virtual void send(Boolean isComplete);
 
 };
 
-class PEGASUS_PPM_LINKAGE SimpleInstanceResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleInstanceResponseHandler :
+    public SimpleResponseHandler, public InstanceResponseHandler
 {
 public:
-    SimpleInstanceResponseHandler(void);
+    SimpleInstanceResponseHandler();
 
-    virtual void processing(void);
+    virtual void processing();
 
-    virtual void complete(void);
+    virtual void complete();
 
-    virtual Uint32 size(void) const;
+    virtual Uint32 size() const;
 
-    virtual void clear(void);
+    virtual void clear();
 
-    virtual void deliver(const CIMInstance & instance);
+    virtual void deliver(const CIMInstance& instance);
 
-    virtual void deliver(const Array<CIMInstance> & instances);
+    virtual void deliver(const Array<CIMInstance>& instances);
 
-    const Array<CIMInstance> getObjects(void) const;
+    const Array<CIMInstance> getObjects() const;
 
 private:
     Array<CIMInstance> _objects;
 
 };
 
-class PEGASUS_PPM_LINKAGE SimpleObjectPathResponseHandler : public SimpleResponseHandler, public ObjectPathResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleObjectPathResponseHandler :
+    public SimpleResponseHandler, public ObjectPathResponseHandler
 {
 public:
-    SimpleObjectPathResponseHandler(void);
+    SimpleObjectPathResponseHandler();
 
-    virtual void processing(void);
+    virtual void processing();
 
-    virtual void complete(void);
+    virtual void complete();
 
-    virtual Uint32 size(void) const;
+    virtual Uint32 size() const;
 
-    virtual void clear(void);
+    virtual void clear();
 
-    virtual void deliver(const CIMObjectPath & objectPath);
+    virtual void deliver(const CIMObjectPath& objectPath);
 
-    virtual void deliver(const Array<CIMObjectPath> & objectPaths);
+    virtual void deliver(const Array<CIMObjectPath>& objectPaths);
 
-    const Array<CIMObjectPath> getObjects(void) const;
+    const Array<CIMObjectPath> getObjects() const;
 
 private:
     Array<CIMObjectPath> _objects;
 
 };
 
-class PEGASUS_PPM_LINKAGE SimpleMethodResultResponseHandler : public SimpleResponseHandler, public MethodResultResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleMethodResultResponseHandler :
+    public SimpleResponseHandler, public MethodResultResponseHandler
 {
 public:
-    SimpleMethodResultResponseHandler(void);
+    SimpleMethodResultResponseHandler();
 
-    virtual void processing(void);
+    virtual void processing();
 
-    virtual void complete(void);
+    virtual void complete();
 
     // NOTE: this is the total size (count) of ALL parameters!
-    virtual Uint32 size(void) const;
+    virtual Uint32 size() const;
 
-    virtual void clear(void);
+    virtual void clear();
 
-    virtual void deliverParamValue(const CIMParamValue & outParamValue);
+    virtual void deliverParamValue(const CIMParamValue& outParamValue);
 
-    virtual void deliverParamValue(const Array<CIMParamValue> & outParamValues);
+    virtual void deliverParamValue(const Array<CIMParamValue>& outParamValues);
 
-    virtual void deliver(const CIMValue & returnValue);
+    virtual void deliver(const CIMValue& returnValue);
 
-    const Array<CIMParamValue> getParamValues(void) const;
+    const Array<CIMParamValue> getParamValues() const;
 
-    const CIMValue getReturnValue(void) const;
+    const CIMValue getReturnValue() const;
 
 private:
     Array<CIMParamValue> _objects;
@@ -165,32 +161,33 @@ private:
 
 };
 
-class PEGASUS_PPM_LINKAGE SimpleIndicationResponseHandler : public SimpleResponseHandler, public IndicationResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleIndicationResponseHandler :
+    public SimpleResponseHandler, public IndicationResponseHandler
 {
 public:
-    SimpleIndicationResponseHandler(void);
+    SimpleIndicationResponseHandler();
 
-    virtual void processing(void);
+    virtual void processing();
 
-    virtual void complete(void);
+    virtual void complete();
 
-    virtual Uint32 size(void) const;
+    virtual Uint32 size() const;
 
-    virtual void clear(void);
+    virtual void clear();
 
-    virtual void deliver(const CIMIndication & indication);
+    virtual void deliver(const CIMIndication& indication);
 
-    virtual void deliver(const Array<CIMIndication> & indications);
-
-    virtual void deliver(
-        const OperationContext & context,
-        const CIMIndication & indication);
+    virtual void deliver(const Array<CIMIndication>& indications);
 
     virtual void deliver(
-        const OperationContext & context,
-        const Array<CIMIndication> & indications);
+        const OperationContext& context,
+        const CIMIndication& indication);
 
-    const Array<CIMIndication> getObjects(void) const;
+    virtual void deliver(
+        const OperationContext& context,
+        const Array<CIMIndication>& indications);
+
+    const Array<CIMIndication> getObjects() const;
 
     // ATTN: why is this variable public?
     CIMInstance _provider;
@@ -200,72 +197,75 @@ private:
 
 };
 
-class PEGASUS_PPM_LINKAGE SimpleObjectResponseHandler : public SimpleResponseHandler, public ObjectResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleObjectResponseHandler :
+    public SimpleResponseHandler, public ObjectResponseHandler
 {
 public:
-    SimpleObjectResponseHandler(void);
+    SimpleObjectResponseHandler();
 
-    virtual void processing(void);
+    virtual void processing();
 
-    virtual void complete(void);
+    virtual void complete();
 
-    virtual Uint32 size(void) const;
+    virtual Uint32 size() const;
 
-    virtual void clear(void);
+    virtual void clear();
 
-    virtual void deliver(const CIMObject & object);
+    virtual void deliver(const CIMObject& object);
 
-    virtual void deliver(const Array<CIMObject> & objects);
+    virtual void deliver(const Array<CIMObject>& objects);
 
-    const Array<CIMObject> getObjects(void) const;
+    const Array<CIMObject> getObjects() const;
 
 private:
     Array<CIMObject> _objects;
 
 };
 
-class PEGASUS_PPM_LINKAGE SimpleInstance2ObjectResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleInstance2ObjectResponseHandler :
+    public SimpleResponseHandler, public InstanceResponseHandler
 {
 public:
-    SimpleInstance2ObjectResponseHandler(void);
+    SimpleInstance2ObjectResponseHandler();
 
-    virtual void processing(void);
+    virtual void processing();
 
-    virtual void complete(void);
+    virtual void complete();
 
-    virtual Uint32 size(void) const;
+    virtual Uint32 size() const;
 
-    virtual void clear(void);
+    virtual void clear();
 
-    virtual void deliver(const CIMInstance & object);
+    virtual void deliver(const CIMInstance& object);
 
-    virtual void deliver(const Array<CIMInstance> & objects);
+    virtual void deliver(const Array<CIMInstance>& objects);
 
-    const Array<CIMObject> getObjects(void) const;
+    const Array<CIMObject> getObjects() const;
 
 private:
     Array<CIMObject> _objects;
 
 };
 
-class PEGASUS_PPM_LINKAGE SimpleValueResponseHandler : public SimpleResponseHandler, public ValueResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleValueResponseHandler :
+    public SimpleResponseHandler, public ValueResponseHandler
 {
 public:
-    SimpleValueResponseHandler(void);
+    SimpleValueResponseHandler();
 
-    virtual void processing(void);
+    virtual void processing();
 
-    virtual void complete(void);
+    virtual void complete();
 
-    virtual Uint32 size(void) const;
+    virtual Uint32 size() const;
 
-    virtual void clear(void);
+    virtual void clear();
 
-    virtual void deliver(const CIMValue & value);
+    virtual void deliver(const CIMValue& value);
 
-    virtual void deliver(const Array<CIMValue> & values);
+    virtual void deliver(const Array<CIMValue>& values);
 
-    const Array<CIMValue> getObjects(void) const;
+    const Array<CIMValue> getObjects() const;
 
 private:
     Array<CIMValue> _objects;

@@ -29,28 +29,24 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOMHandleQueryContext.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMOMHandleQueryContext::CIMOMHandleQueryContext(const CIMNamespaceName& inNS, CIMOMHandle& handle)
-  :QueryContext(inNS),
-   _CH(handle)
+CIMOMHandleQueryContext::CIMOMHandleQueryContext(
+    const CIMNamespaceName& inNS,
+    CIMOMHandle& handle)
+    : QueryContext(inNS),
+      _CH(handle)
 {
 }
 
-CIMOMHandleQueryContext::CIMOMHandleQueryContext(const CIMOMHandleQueryContext& handle)
-  :QueryContext(handle),
-   _CH(handle._CH)
+CIMOMHandleQueryContext::CIMOMHandleQueryContext(
+    const CIMOMHandleQueryContext& handle)
+    : QueryContext(handle),
+      _CH(handle._CH)
 {
 }
 
@@ -58,94 +54,99 @@ CIMOMHandleQueryContext::~CIMOMHandleQueryContext()
 {
 }
 
-CIMOMHandleQueryContext& CIMOMHandleQueryContext::operator=(const CIMOMHandleQueryContext& rhs)
+CIMOMHandleQueryContext& CIMOMHandleQueryContext::operator=(
+    const CIMOMHandleQueryContext& rhs)
 {
-  if (this == &rhs)
+    if (this == &rhs)
+        return *this;
+
+    QueryContext::operator=(rhs);
+
+    _CH = rhs._CH;
+
     return *this;
-
-  QueryContext::operator=(rhs);
-
-  _CH = rhs._CH;
-
-  return *this;
 }
 
-CIMClass CIMOMHandleQueryContext::getClass(const CIMName& inClassName)const
+CIMClass CIMOMHandleQueryContext::getClass(const CIMName& inClassName) const
 {
-  /* Hardcoded defaults */
-  Boolean localOnly = false;
-  Boolean includeQualifiers = true;
-  Boolean includeClassOrigin = false;
-  CIMOMHandle tmp = _CH;
+    /* Hardcoded defaults */
+    Boolean localOnly = false;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = false;
+    CIMOMHandle tmp = _CH;
 
-  // ATTN - constructing OperationContext from scratch may be a problem
-  // once security is added to that object
-  CIMClass _class = tmp.getClass(OperationContext(),
-				 getNamespace(),
-				 inClassName,
-				 localOnly,
-				 includeQualifiers,
-				 includeClassOrigin,
-				 CIMPropertyList());
-  return _class;
+    // ATTN - constructing OperationContext from scratch may be a problem
+    // once security is added to that object
+    CIMClass _class = tmp.getClass(
+        OperationContext(),
+        getNamespace(),
+        inClassName,
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin,
+        CIMPropertyList());
+    return _class;
 }
 
-Array<CIMName> CIMOMHandleQueryContext::enumerateClassNames(const CIMName& inClassName)const
+Array<CIMName> CIMOMHandleQueryContext::enumerateClassNames(
+    const CIMName& inClassName) const
 {
-  CIMOMHandle tmp = _CH;
-  // ATTN - constructing OperationContext from scratch may be a problem
-  // once security is added to that object
-  return tmp.enumerateClassNames(OperationContext(),
-				  getNamespace(),
-				  inClassName,
-				  true);          // deepInheritance
+    CIMOMHandle tmp = _CH;
+    // ATTN - constructing OperationContext from scratch may be a problem
+    // once security is added to that object
+    return tmp.enumerateClassNames(
+        OperationContext(),
+        getNamespace(),
+        inClassName,
+        true);          // deepInheritance
 }
 
-Boolean CIMOMHandleQueryContext::isSubClass(const CIMName& baseClass,
-                                            const CIMName& derivedClass)const
+Boolean CIMOMHandleQueryContext::isSubClass(
+    const CIMName& baseClass,
+    const CIMName& derivedClass) const
 {
-  if (baseClass == derivedClass)
-  {
-    return false;
-  }
-
-  Array<CIMName> subClasses = enumerateClassNames(baseClass);
-  for (Uint32 i = 0; i < subClasses.size(); i++)
-  {
-    if (subClasses[i] == derivedClass)
+    if (baseClass == derivedClass)
     {
-      return true;
-    }   
-  }
-  
-  return false;  
+        return false;
+    }
+
+    Array<CIMName> subClasses = enumerateClassNames(baseClass);
+    for (Uint32 i = 0; i < subClasses.size(); i++)
+    {
+        if (subClasses[i] == derivedClass)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
-QueryContext::ClassRelation CIMOMHandleQueryContext::getClassRelation(const CIMName& anchorClass,
-                                                                      const CIMName& relatedClass)const
+QueryContext::ClassRelation CIMOMHandleQueryContext::getClassRelation(
+    const CIMName& anchorClass,
+    const CIMName& relatedClass) const
 {
-  if (anchorClass == relatedClass)
-  {
-    return SAMECLASS;
-  }
+    if (anchorClass == relatedClass)
+    {
+        return SAMECLASS;
+    }
 
-  if (isSubClass(anchorClass, relatedClass))
-  {
-    return SUBCLASS;
-  }
+    if (isSubClass(anchorClass, relatedClass))
+    {
+        return SUBCLASS;
+    }
 
-  if (isSubClass(relatedClass, anchorClass))
-  {
-    return SUPERCLASS;
-  }
+    if (isSubClass(relatedClass, anchorClass))
+    {
+        return SUPERCLASS;
+    }
 
-  return NOTRELATED;  
+    return NOTRELATED;
 }
 
 QueryContext* CIMOMHandleQueryContext::clone()
 {
-  return new CIMOMHandleQueryContext(*this);
+    return new CIMOMHandleQueryContext(*this);
 }
 
 PEGASUS_NAMESPACE_END
-

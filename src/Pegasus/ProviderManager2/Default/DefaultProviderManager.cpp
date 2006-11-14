@@ -250,13 +250,13 @@ CIMResponseMessage* DefaultProviderManager::_handleDisableModuleRequest(
             }
         }
     }
-    catch (CIMException & e)
+    catch (CIMException& e)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                          "Exception: " + e.getMessage());
         cimException = e;
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Exception: " + e.getMessage());
@@ -370,7 +370,7 @@ DefaultProviderManager::_handleSubscriptionInitCompleteRequest(
 }
 
 ProviderName DefaultProviderManager::_resolveProviderName(
-    const ProviderIdContainer & providerId)
+    const ProviderIdContainer& providerId)
 {
     String providerName;
     String fileName;
@@ -518,7 +518,7 @@ ProviderMessageHandler* DefaultProviderManager::_initProvider(
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
         "Initializing Provider " + provider->getName());
 
-    CIMOMHandle *cimomHandle = new CIMOMHandle();
+    CIMOMHandle* cimomHandle = new CIMOMHandle();
     provider->status.setCIMOMHandle(cimomHandle);
     provider->status.setModule(module);
     provider->setProvider(base);

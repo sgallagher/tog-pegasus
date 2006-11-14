@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: David Rosckes (rosckes@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
@@ -47,9 +43,9 @@
     // lead to an infintite loop of QYCMCIMOM jobs being submitted.
 //  {"daemon",                                   "false"},
 //    {"enableIndicationService",                  "false"},
-    // The following properties are not supported by OS400        
-    {"providerDir",                              "lib"},		
-    {"logdir",                                   "./logs"},		
+    // The following properties are not supported by OS400
+    {"providerDir",                              "lib"},
+    {"logdir",                                   "./logs"},
     {"passwordFilePath",                         "cimserver.passwd"},
 //    {"sslCertificateFilePath",                   "server.pem"},
 //    {"sslKeyFilePath",                           "file.pem"},

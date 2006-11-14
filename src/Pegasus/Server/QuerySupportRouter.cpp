@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -45,32 +41,33 @@
 PEGASUS_NAMESPACE_BEGIN
 
 Boolean QuerySupportRouter::routeHandleExecQueryRequest(
-           CIMOperationRequestDispatcher* opThis,
-	   CIMExecQueryRequestMessage* msg) {
-   if (msg->queryLanguage=="WQL")
-      ((WQLOperationRequestDispatcher*)opThis)->
-         handleQueryRequest(msg);
+    CIMOperationRequestDispatcher* opThis,
+    CIMExecQueryRequestMessage* msg)
+{
+    if (msg->queryLanguage=="WQL")
+        ((WQLOperationRequestDispatcher*)opThis)->handleQueryRequest(msg);
+    else return false;
 
-   else return false;
-
-   return true;
+    return true;
 }
 
 void QuerySupportRouter::routeHandleExecQueryResponseAggregation(
-           CIMOperationRequestDispatcher* opThis,
-	   OperationAggregate* poA) {
-   if (poA->_queryLanguage=="WQL")
-      ((WQLOperationRequestDispatcher*)opThis)->
-         handleQueryResponseAggregation(poA);
+    CIMOperationRequestDispatcher* opThis,
+    OperationAggregate* poA)
+{
+    if (poA->_queryLanguage=="WQL")
+        ((WQLOperationRequestDispatcher*)opThis)->
+            handleQueryResponseAggregation(poA);
 }
 
 void QuerySupportRouter::routeApplyQueryToEnumeration(
-           CIMOperationRequestDispatcher* opThis,
-           CIMResponseMessage* msg,
-           QueryExpressionRep* query) {
-   if (query->getQueryLanguage()=="WQL")
-      ((WQLOperationRequestDispatcher*)opThis)->
-         applyQueryToEnumeration(msg,query);
+    CIMOperationRequestDispatcher* opThis,
+    CIMResponseMessage* msg,
+    QueryExpressionRep* query)
+{
+    if (query->getQueryLanguage()=="WQL")
+        ((WQLOperationRequestDispatcher*)opThis)->
+            applyQueryToEnumeration(msg,query);
 }
 
 PEGASUS_NAMESPACE_END

@@ -84,7 +84,7 @@ PEGASUS_NAMESPACE_BEGIN
 template<class T>
 inline T* getProviderInterface(CIMProvider* provider)
 {
-    T * p = dynamic_cast<T *>(provider);
+    T* p = dynamic_cast<T*>(provider);
 
     if (p == 0)
     {
@@ -406,8 +406,9 @@ CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstancesRequest(
     return response.release();
 }
 
-CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstanceNamesRequest(
-    CIMRequestMessage* message)
+CIMResponseMessage*
+    ProviderMessageHandler::_handleEnumerateInstanceNamesRequest(
+        CIMRequestMessage* message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderMessageHandler::_handleEnumerateInstanceNamesRequest");

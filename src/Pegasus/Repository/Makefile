@@ -51,16 +51,16 @@ endif
 ##    This PEP added the capability to utilize compression algorithms
 ##    on the repository. The compressed repository is approximatley 70%
 ##    smaller than a regular xml text based repository. This allows
-##    significant disk space savings and also results in shorter file 
+##    significant disk space savings and also results in shorter file
 ##    load times.
-##   
-##    The compression logic is installed as a conditionally compiled option. 
+##
+##    The compression logic is installed as a conditionally compiled option.
 ##    To enable the compressed repository functionality:
 ##	1. Install zlib
 ##	2. define PEGASUS_ENABLE_COMPRESSED_REPOSITORY=on in the environment
 ##      3. build Pegasus.
-##  
-##   Please refer to readme.compression in the main pegasus directory 
+##
+##   Please refer to readme.compression in the main pegasus directory
 ##   for more information about repository compression.
 ##
 
@@ -77,8 +77,8 @@ ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 endif
 
 ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
-## 
-## The following .PHONY rule gets around the problem in Windows for 
+##
+## The following .PHONY rule gets around the problem in Windows for
 ## the "Program Files" directory name. The depends program strips the
 ## quotes when the depends file is built and upon subsequent compile
 ## it fails with no rule to make these fragments.

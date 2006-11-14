@@ -318,7 +318,8 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
 
     fstream rollbackFs;
 
-    if (!_openFile(rollbackFs, path + ".rollback", ios::in PEGASUS_OR_IOS_BINARY))
+    if (!_openFile(
+            rollbackFs, path + ".rollback", ios::in PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
         return false;

@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Alex Dunfey (dunfey_alexander@emc.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMOMHandleContext_h
@@ -51,22 +49,23 @@ class PEGASUS_PPM_LINKAGE CIMOMHandleContext : public NormalizerContext
 {
 public:
     CIMOMHandleContext() {}
-    CIMOMHandleContext(CIMOMHandle & hndl) : handle(hndl) {}
+    CIMOMHandleContext(CIMOMHandle& hndl) : handle(hndl) {}
     virtual ~CIMOMHandleContext() {}
 
     virtual CIMClass getClass(
-	      const CIMNamespaceName& nameSpace,
-	      const CIMName& name);
+        const CIMNamespaceName& nameSpace,
+        const CIMName& name);
 
     virtual Array<CIMName> enumerateClassNames(
-        const CIMNamespaceName& nameSpace, const CIMName& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         bool deepInheritance);
 
     virtual AutoPtr<NormalizerContext> clone();
 
 private:
-    CIMOMHandleContext(const CIMOMHandleContext &);
-    CIMOMHandleContext & operator=(const CIMOMHandleContext &);
+    CIMOMHandleContext(const CIMOMHandleContext&);
+    CIMOMHandleContext& operator=(const CIMOMHandleContext&);
     CIMOMHandle handle;
     OperationContext emptyContext;
 };

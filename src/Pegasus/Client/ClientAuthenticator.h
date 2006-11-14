@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ClientAuthenticator_h
@@ -47,7 +43,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-/** This class owns client authentication 
+/** This class owns client authentication
 */
 class PEGASUS_CLIENT_LINKAGE ClientAuthenticator
 {
@@ -126,7 +122,7 @@ private:
         const char** line,
         char marker);
 
-    AutoPtr<Message> _requestMessage;    
+    AutoPtr<Message> _requestMessage;
 
     Boolean  _challengeReceived;
 

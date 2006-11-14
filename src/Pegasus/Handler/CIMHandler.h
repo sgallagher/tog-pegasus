@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef PegasusHandler_Handler_h
@@ -60,17 +56,16 @@ public:
     // will look into Handler Table to load the appropriate handler. If 
     // handler is already loaded then IndicationDispatcher will call this
     // method implemented in handler.
-// l10n 
-     virtual void handleIndication(
-	const OperationContext& context,
-	const String nameSpace,
+    virtual void handleIndication(
+        const OperationContext& context,
+        const String nameSpace,
         CIMInstance& indicationInstance,
         CIMInstance& indicationHandlerInstance,
-	CIMInstance& indicationSubscriptionInstance,
-	ContentLanguageList& contentLanguages) = 0;
+        CIMInstance& indicationSubscriptionInstance,
+        ContentLanguageList& contentLanguages) = 0;
     
-    // These are the method to initialize and terminate handler. Actual need and
-    // implementation way these methods are yet to be finalized.
+    // These are the method to initialize and terminate handler. Actual need
+    // and implementation way these methods are yet to be finalized.
 
     virtual void initialize(CIMRepository* repository) = 0;
     virtual void terminate() = 0;

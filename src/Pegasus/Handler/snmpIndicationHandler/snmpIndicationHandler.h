@@ -54,12 +54,12 @@ public:
     void terminate();
 
     void handleIndication(
-	const OperationContext& context,
-	const String nameSpace,
-	CIMInstance& indication, 
-	CIMInstance& handler, 
-	CIMInstance& subscription,
-	ContentLanguageList& contentLanguages);
+        const OperationContext& context,
+        const String nameSpace,
+        CIMInstance& indication, 
+        CIMInstance& handler, 
+        CIMInstance& subscription,
+        ContentLanguageList& contentLanguages);
 
 private:
 

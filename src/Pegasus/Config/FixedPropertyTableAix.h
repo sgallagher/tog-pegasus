@@ -29,14 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
-// Modified By: Sushma Fernandes,  Hewlett-Packard Company
-//                 sushma_fernandes@hp.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+
     {"logLevel",            "INFORMATION"},
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
@@ -54,17 +50,19 @@
 #endif
 
 #ifdef PEGASUS_USE_RELEASE_DIRS
-//    {"traceFilePath",       "/opt/freeware/cimom/pegasus/logs/cimserver.trc"},
-//    {"logdir",              "/opt/freeware/cimom/pegasus/logs"},
+//    {"traceFilePath",    "/opt/freeware/cimom/pegasus/logs/cimserver.trc"},
+//    {"logdir",           "/opt/freeware/cimom/pegasus/logs"},
 //    {"sslCertificateFilePath", "/opt/freeware/cimom/pegasus/etc/cert.pem"},
-//    {"sslKeyFilePath",      "/opt/freeware/cimom/pegasus/etc/file.pem"},
-//    {"sslTrustFilePath",      "/opt/freeware/cimom/pegasus/etc/client.pem"},
-//    {"passwordFilePath",    "/opt/freeware/cimom/pegasus/etc/cimserver.passwd"},
+//    {"sslKeyFilePath",   "/opt/freeware/cimom/pegasus/etc/file.pem"},
+//    {"sslTrustFilePath", "/opt/freeware/cimom/pegasus/etc/client.pem"},
+//    {"passwordFilePath", "/opt/freeware/cimom/pegasus/etc/cimserver.passwd"},
     {"messageDir",          "/opt/freeware/cimom/pegasus/msg"},
     {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
     {"providerDir",         "/usr/lib:/usr/pegasus/provider/lib"},
 #endif
 
-#if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)
+#if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && \
+    !defined(PEGASUS_USE_RELEASE_DIRS)
     {"bogus", "MyBogusValue"}      // Remove this line if others are added
+
 #endif

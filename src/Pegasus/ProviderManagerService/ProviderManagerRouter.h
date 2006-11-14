@@ -85,11 +85,11 @@ protected:
         Subscription requests have been processed.  Once Indication Service
         initialization is complete, the Indication Service sends the Provider
         Manager Service a Subscription Initialization Complete request message.
-        At that time, the enableIndications method must be called on each 
-        provider with current subscriptions.  Subsequently, the 
-        enableIndications method must be called only after the first 
-        subscription is created for a provider, and the disableIndications 
-        method must be called when the last subscription is deleted for a 
+        At that time, the enableIndications method must be called on each
+        provider with current subscriptions.  Subsequently, the
+        enableIndications method must be called only after the first
+        subscription is created for a provider, and the disableIndications
+        method must be called when the last subscription is deleted for a
         provider.
      */
     Boolean _subscriptionInitComplete;

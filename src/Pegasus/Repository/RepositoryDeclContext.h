@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef PegasusRepository_Repository_Decl_Context_h
@@ -49,8 +45,8 @@ class CIMRepository;  // forward declaration for repository member
 //
 // RepositoryDeclContext
 //
-//	This context is used by the resolve() methods to lookup dependent
-//	objects during resolution.
+//      This context is used by the resolve() methods to lookup dependent
+//      objects during resolution.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -63,12 +59,12 @@ public:
     virtual ~RepositoryDeclContext();
 
     virtual CIMQualifierDecl lookupQualifierDecl(
-	const CIMNamespaceName& nameSpace, 
-	const CIMName& qualifierName) const;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& qualifierName) const;
 
     virtual CIMClass lookupClass(
-	const CIMNamespaceName& nameSpace, 
-	const CIMName& className) const;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className) const;
 
 protected:
 

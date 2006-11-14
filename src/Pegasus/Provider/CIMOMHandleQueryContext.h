@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMOMHandleQueryContext_h
@@ -45,48 +38,50 @@
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Provider/Linkage.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Query/QueryCommon/QueryContext.h> 
+#include <Pegasus/Query/QueryCommon/QueryContext.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES         
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN
 
 
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandleQueryContext: public QueryContext
 {
-  public:
+public:
 
-   CIMOMHandleQueryContext(const CIMNamespaceName& inNS, CIMOMHandle& handle);
+    CIMOMHandleQueryContext(const CIMNamespaceName& inNS, CIMOMHandle& handle);
 
-	CIMOMHandleQueryContext(const CIMOMHandleQueryContext& handle);
+    CIMOMHandleQueryContext(const CIMOMHandleQueryContext& handle);
 
-	~ CIMOMHandleQueryContext();
+    ~CIMOMHandleQueryContext();
 
-	QueryContext* clone();
+    QueryContext* clone();
 
-	CIMOMHandleQueryContext& operator=(const CIMOMHandleQueryContext& rhs);
+    CIMOMHandleQueryContext& operator=(const CIMOMHandleQueryContext& rhs);
 
-        CIMClass getClass (const CIMName& inClassName)const;
+    CIMClass getClass (const CIMName& inClassName) const;
 
-	Array<CIMName> enumerateClassNames(const CIMName& inClassName)const;
+    Array<CIMName> enumerateClassNames(const CIMName& inClassName) const;
 
-        // Returns true if the derived class is a subclass of the base class.
-        // Note: this will return false if the classes are the same.
-        // Note: the default namespace of the query is used.
-        Boolean isSubClass(const CIMName& baseClass,
-                           const CIMName& derivedClass)const;
+    // Returns true if the derived class is a subclass of the base class.
+    // Note: this will return false if the classes are the same.
+    // Note: the default namespace of the query is used.
+    Boolean isSubClass(
+        const CIMName& baseClass,
+        const CIMName& derivedClass)const;
 
-        // Returns the relationship between the anchor class and the related
-        // class in the class schema of the query's default name space.
-        ClassRelation getClassRelation(const CIMName& anchorClass,
-                                       const CIMName& relatedClass)const;
-       
-  private:  
-	CIMOMHandleQueryContext();
+    // Returns the relationship between the anchor class and the related
+    // class in the class schema of the query's default name space.
+    ClassRelation getClassRelation(
+        const CIMName& anchorClass,
+        const CIMName& relatedClass) const;
 
-        // members
-        CIMOMHandle _CH;
+private:
+    CIMOMHandleQueryContext();
+
+    // members
+    CIMOMHandle _CH;
 };
 
 PEGASUS_NAMESPACE_END

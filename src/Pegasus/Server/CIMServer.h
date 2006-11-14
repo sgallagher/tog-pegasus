@@ -78,7 +78,7 @@ public:
         The CIM Server objects establishes a repository object,
         a dispatcher object, and creates a channnel factory and
         acceptor for the Server.
-        @param monitor	  monitor object for the server.
+        @param monitor monitor object for the server.
         @exception - ATTN
     */
     CIMServer(Monitor* monitor);
@@ -99,8 +99,8 @@ public:
         Boolean useSSL);
 
     /** Bind the acceptors to the specified listen sockets.
-	@exception - This function may receive exceptions from
-	Channel specific subfunctions.
+        @exception - This function may receive exceptions from
+        Channel specific subfunctions.
     */
     void bind();
 
@@ -151,7 +151,7 @@ public:
         This function gets the current environment variables, the current
         configuration properties, and the currently registered provider
         modules whent the CIM Server starts with the configuration
-        property "enableAuditLog" set to true.    
+        property "enableAuditLog" set to true.
     */
     static void auditLogInitializeCallback();
 
@@ -183,10 +183,10 @@ private:
     IndicationService* _indicationService;
     ProviderManagerService* _providerManager;
     ProviderRegistrationManager* _providerRegistrationManager;
-    BinaryMessageHandler *_binaryMessageHandler;
+    BinaryMessageHandler* _binaryMessageHandler;
     SSLContextManager* _sslContextMgr;
-    
-    void _init(void);
+
+    void _init();
     SSLContext* _getSSLContext();
 };
 

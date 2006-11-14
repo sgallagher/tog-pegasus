@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_QuerySupportRouter_h
@@ -45,38 +41,38 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/*
-   This class is the basis for encapsulating Query support such that
-   CIMOperationRequestDispatcher.cpp is not to be changed for adding
-   new/additional types of query support.
+/**
+    This class is the basis for encapsulating Query support such that
+    CIMOperationRequestDispatcher.cpp is not to be changed for adding
+    new/additional types of query support.
 
-   New types of query support (like CQL) need to subclass
-   CIMOperationRequestDispatcher as can be seen in WQLCIMOperatioRequestDispatcher.
+    New types of query support (like CQL) need to subclass
+    CIMOperationRequestDispatcher as can be seen in
+    WQLCIMOperatioRequestDispatcher.
 
-   Also, QuerySupportRouter.cpp must be extended to recognize the
-   CQL query language identifier and route the requests to the
-   appropriate query language processor. The new query language processor
-   has to be added to the pegserver library.
+    Also, QuerySupportRouter.cpp must be extended to recognize the
+    CQL query language identifier and route the requests to the
+    appropriate query language processor. The new query language processor
+    has to be added to the pegserver library.
 
-   In addition, ProviderManager2/QueryExpressionFactory.h has to be
-   extended similarly.
-
+    In addition, ProviderManager2/QueryExpressionFactory.h has to be
+    extended similarly.
 */
+class QuerySupportRouter
+{
+public:
+    static Boolean routeHandleExecQueryRequest(
+        CIMOperationRequestDispatcher* opThis,
+        CIMExecQueryRequestMessage* msg);
 
-class QuerySupportRouter {
-  public:
-   static Boolean routeHandleExecQueryRequest(
-           CIMOperationRequestDispatcher* opThis,
-	   CIMExecQueryRequestMessage* msg);
+    static void routeHandleExecQueryResponseAggregation(
+        CIMOperationRequestDispatcher* opThis,
+        OperationAggregate* poA);
 
-   static void routeHandleExecQueryResponseAggregation(
-           CIMOperationRequestDispatcher* opThis,
-	   OperationAggregate* poA);
-
-   static void routeApplyQueryToEnumeration(
-           CIMOperationRequestDispatcher* opThis,
-           CIMResponseMessage* msg,
-           QueryExpressionRep* query);
+    static void routeApplyQueryToEnumeration(
+        CIMOperationRequestDispatcher* opThis,
+        CIMResponseMessage* msg,
+        QueryExpressionRep* query);
 };
 
 PEGASUS_NAMESPACE_END

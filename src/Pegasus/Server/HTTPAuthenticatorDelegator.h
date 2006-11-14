@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By:
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Heather Sterling, IBM (hsterl@us.ibm.com) for PEP#187
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veriats.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_HTTPAuthenticatorDelegator_h
@@ -61,70 +52,67 @@ PEGASUS_NAMESPACE_BEGIN
    performs authentication based on the authentication specified in the
    configuration. It sends the challenge for unauthorized requests and
    validates the response.
-
 */
-
-class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueService
+class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator :
+    public MessageQueueService
 {
-   public:
+public:
 
-      typedef MessageQueueService Base;
-  
+    typedef MessageQueueService Base;
 
-      /** Constructor. */
-      HTTPAuthenticatorDelegator(
-	 Uint32 operationMessageQueueId,
-	 Uint32 exportMessageQueueId,
-	 CIMRepository* repository);
+    /** Constructor. */
+    HTTPAuthenticatorDelegator(
+        Uint32 operationMessageQueueId,
+        Uint32 exportMessageQueueId,
+        CIMRepository* repository);
 
-      /** Destructor. */
-      ~HTTPAuthenticatorDelegator();
+    /** Destructor. */
+    ~HTTPAuthenticatorDelegator();
 
-      /**
-          This method is overridden here to force the message to be handled
-          by the same thread that enqueues it.  See Bugzilla 641 for details.
-       */
-      virtual void enqueue(Message* message);
+    /**
+        This method is overridden here to force the message to be handled
+        by the same thread that enqueues it.  See Bugzilla 641 for details.
+     */
+    virtual void enqueue(Message* message);
 
-      virtual void handleEnqueue(Message *);
-      virtual void handleEnqueue();
+    virtual void handleEnqueue(Message*);
+    virtual void handleEnqueue();
 
-      void handleHTTPMessage(HTTPMessage* httpMessage, Boolean & deleteMessage);
-
-   private:
-
-      void _sendResponse( 
-         Uint32 queueId, 
-         Buffer& message,
-         Boolean closeConnect); 
-
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-      void _sendSuccess( 
-         Uint32 queueId, 
-         const String& authResponse,
-         Boolean closeConnect); 
-#endif 
-
-      void _sendChallenge(
-         Uint32 queueId,
-         const String& authResponse,
-         Boolean closeConnect); 
-
-      void _sendHttpError(
-         Uint32 queueId,
-         const String& status,
-         const String& cimError = String::EMPTY,
-         const String& pegasusError = String::EMPTY,
-         Boolean closeConnect = false); 
-
-      Uint32 _operationMessageQueueId;
-
-      Uint32 _exportMessageQueueId;
-
-      AutoPtr<AuthenticationManager> _authenticationManager; //PEP101
+    void handleHTTPMessage(HTTPMessage* httpMessage, Boolean& deleteMessage);
 
 private:
 
+    void _sendResponse(
+        Uint32 queueId,
+        Buffer& message,
+        Boolean closeConnect);
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    void _sendSuccess(
+        Uint32 queueId,
+        const String& authResponse,
+        Boolean closeConnect);
+#endif
+
+    void _sendChallenge(
+        Uint32 queueId,
+        const String& authResponse,
+        Boolean closeConnect);
+
+    void _sendHttpError(
+        Uint32 queueId,
+        const String& status,
+        const String& cimError = String::EMPTY,
+        const String& pegasusError = String::EMPTY,
+        Boolean closeConnect = false);
+
+    Uint32 _operationMessageQueueId;
+
+    Uint32 _exportMessageQueueId;
+
+    AutoPtr<AuthenticationManager> _authenticationManager;
+
+private:
       CIMRepository* _repository;
 };
 

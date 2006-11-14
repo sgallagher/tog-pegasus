@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By: Yi Zhou (yi_zhou@hp.com)
-//            : Sushma Fernandes (sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Vijay Eli, IBM, (vijayeli@in.ibm.com), bug#3609.
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -64,7 +56,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConfigTable 
+// ConfigTable
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef HashTable<String, String, EqualFunc<String>, HashFunc<String> > Table;
@@ -75,11 +67,11 @@ struct ConfigTable
 };
 
 
-/** 
+/**
     Constructor.
 */
-ConfigFileHandler::ConfigFileHandler (
-    const String& currentFile, 
+ConfigFileHandler::ConfigFileHandler(
+    const String& currentFile,
     const String& plannedFile,
     const Boolean offLine)
     : _offLine(offLine)
@@ -97,7 +89,7 @@ ConfigFileHandler::ConfigFileHandler (
     //
     // Initialize instance variables.
     //
-    
+
     _currentFileExist = true;
     _plannedFileExist = true;
 
@@ -137,7 +129,7 @@ ConfigFileHandler::ConfigFileHandler (
         // can be copied over.
         //
 #if defined(PEGASUS_OS_OS400)
-	ofstream ofs(cFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
+        ofstream ofs(cFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
         ofstream ofs(cFile.getCString());
 #endif
@@ -145,7 +137,8 @@ ConfigFileHandler::ConfigFileHandler (
         {
             // unable to create file
             PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL4,
-                "Failed to create config file: " + cFile + ", " + strerror(errno));
+                "Failed to create config file: " + cFile + ", " +
+                    strerror(errno));
             throw NoSuchFile(cFile);
         }
         ofs.close();
@@ -161,12 +154,11 @@ ConfigFileHandler::ConfigFileHandler (
 
 }
 
-/** 
-    Destructor. 
+/**
+    Destructor.
 */
-ConfigFileHandler::~ConfigFileHandler ()
+ConfigFileHandler::~ConfigFileHandler()
 {
-    
     //
     // delete tables
     //
@@ -174,12 +166,12 @@ ConfigFileHandler::~ConfigFileHandler ()
     delete _plannedConfig;
 }
 
-/** 
-    Overwrites config properties in the current config file with the 
-    the config properties from the planned config file. 
+/**
+    Overwrites config properties in the current config file with the
+    the config properties from the planned config file.
 
     The content of the current config file will be copied in to a
-    backup (.bak) file before copying planned file contents over the 
+    backup (.bak) file before copying planned file contents over the
     current file.
 */
 void ConfigFileHandler::copyPlannedFileOverCurrentFile()
@@ -199,10 +191,10 @@ void ConfigFileHandler::copyPlannedFileOverCurrentFile()
 }
 
 
-/** 
+/**
     Load the config properties from the config files.
 */
-void ConfigFileHandler::loadAllConfigProperties ()
+void ConfigFileHandler::loadAllConfigProperties()
 {
     loadCurrentConfigProperties();
 
@@ -210,10 +202,10 @@ void ConfigFileHandler::loadAllConfigProperties ()
 }
 
 
-/** 
+/**
     Load the config properties from the current config file.
 */
-void ConfigFileHandler::loadCurrentConfigProperties ()
+void ConfigFileHandler::loadCurrentConfigProperties()
 {
     if (_currentFileExist)
     {
@@ -222,10 +214,10 @@ void ConfigFileHandler::loadCurrentConfigProperties ()
 }
 
 
-/** 
+/**
     Load the config properties from the planned config file.
 */
-void ConfigFileHandler::loadPlannedConfigProperties ()
+void ConfigFileHandler::loadPlannedConfigProperties()
 {
     if (_plannedFileExist)
     {
@@ -234,12 +226,12 @@ void ConfigFileHandler::loadPlannedConfigProperties ()
 }
 
 
-/** 
-    Update the specified property name and value in the current 
-    config file.  
+/**
+    Update the specified property name and value in the current
+    config file.
 */
-Boolean ConfigFileHandler::updateCurrentValue (
-    const CIMName& name, 
+Boolean ConfigFileHandler::updateCurrentValue(
+    const CIMName& name,
     const String& value,
     Boolean unset)
 {
@@ -273,7 +265,7 @@ Boolean ConfigFileHandler::updateCurrentValue (
         // FUTURE: Log this message in a log file.
         //
         PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
-            "Backup configuration file creation failed: " + 
+            "Backup configuration file creation failed: " +
             e.getMessage() + ", " + strerror(errno));
 
         return false;
@@ -281,7 +273,7 @@ Boolean ConfigFileHandler::updateCurrentValue (
     catch (CannotOpenFile& cof)
     {
         PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
-            "Setting permissions on current configuration file failed: " + 
+            "Setting permissions on current configuration file failed: " +
             cof.getMessage() + ", " + strerror(errno));
 
         return false;
@@ -297,12 +289,12 @@ Boolean ConfigFileHandler::updateCurrentValue (
 }
 
 
-/** 
-    Update the specified property name and value in the planned 
-    config file.  
+/**
+    Update the specified property name and value in the planned
+    config file.
 */
-Boolean ConfigFileHandler::updatePlannedValue (
-    const CIMName& name, 
+Boolean ConfigFileHandler::updatePlannedValue(
+    const CIMName& name,
     const String& value,
     Boolean unset)
 {
@@ -339,14 +331,15 @@ Boolean ConfigFileHandler::updatePlannedValue (
             String pFile = _plannedConfFile->getFileName();
 
 #if defined(PEGASUS_OS_OS400)
-	    ofstream ofs(pFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
+            ofstream ofs(pFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
             ofstream ofs(pFile.getCString());
 #endif
             if (!ofs)
             {
                 PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL4,
-                    "Failed to create config file: " + pFile + ", " + strerror(errno));
+                    "Failed to create config file: " + pFile + ", " +
+                        strerror(errno));
                 throw NoSuchFile(pFile);
             }
             ofs.close();
@@ -365,16 +358,16 @@ Boolean ConfigFileHandler::updatePlannedValue (
         // FUTURE: Log this message in a log file.
         //
         PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
-            "Backup configuration file creation failed: " + 
-            e.getMessage() + ", " + strerror(errno));
+            "Backup configuration file creation failed: " +
+                e.getMessage() + ", " + strerror(errno));
 
         return false;
     }
     catch (CannotOpenFile& cof)
     {
         PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
-            "Setting permissions on planned configuration file failed: " + 
-            cof.getMessage() + ", " + strerror(errno));
+            "Setting permissions on planned configuration file failed: " +
+                cof.getMessage() + ", " + strerror(errno));
 
         return false;
     }
@@ -389,11 +382,12 @@ Boolean ConfigFileHandler::updatePlannedValue (
 }
 
 
-/** 
-    Get the current property value for the specified property name. 
+/**
+    Get the current property value for the specified property name.
 */
-Boolean ConfigFileHandler::getCurrentValue (const CIMName& name, String& value)
-const
+Boolean ConfigFileHandler::getCurrentValue(
+    const CIMName& name,
+    String& value) const
 {
     if (_currentFileExist)
     {
@@ -404,11 +398,12 @@ const
 }
 
 
-/** 
-    Get the planned property value for the specified property name. 
+/**
+    Get the planned property value for the specified property name.
 */
-Boolean ConfigFileHandler::getPlannedValue (const CIMName& name, String& value)
-const
+Boolean ConfigFileHandler::getPlannedValue(
+    const CIMName& name,
+    String& value) const
 {
     if (_plannedFileExist)
     {
@@ -419,10 +414,11 @@ const
 }
 
 
-/** 
+/**
     Get all current property names.
 */
-void ConfigFileHandler::getAllCurrentPropertyNames (Array<CIMName>& propertyNames)
+void ConfigFileHandler::getAllCurrentPropertyNames(
+    Array<CIMName>& propertyNames)
 {
     propertyNames.clear();
 
@@ -436,11 +432,11 @@ void ConfigFileHandler::getAllCurrentPropertyNames (Array<CIMName>& propertyName
 }
 
 
-/** 
+/**
     Get all current property names and values.
 */
-void ConfigFileHandler::getAllCurrentProperties (
-    Array<CIMName>& propertyNames, 
+void ConfigFileHandler::getAllCurrentProperties(
+    Array<CIMName>& propertyNames,
     Array<String>& propertyValues)
 {
     propertyNames.clear();
@@ -457,10 +453,10 @@ void ConfigFileHandler::getAllCurrentProperties (
 }
 
 
-/** 
+/**
     Get all planned property names and values.
 */
-void ConfigFileHandler::getAllPlannedPropertyNames (
+void ConfigFileHandler::getAllPlannedPropertyNames(
     Array<CIMName>& propertyNames)
 {
     propertyNames.clear();
@@ -475,11 +471,11 @@ void ConfigFileHandler::getAllPlannedPropertyNames (
 }
 
 
-/** 
+/**
     Get all planned config property names and values.
 */
-void ConfigFileHandler::getAllPlannedProperties (
-    Array<CIMName>& propertyNames, 
+void ConfigFileHandler::getAllPlannedProperties(
+    Array<CIMName>& propertyNames,
     Array<String>& propertyValues)
 {
     propertyNames.clear();
@@ -496,4 +492,3 @@ void ConfigFileHandler::getAllPlannedProperties (
 }
 
 PEGASUS_NAMESPACE_END
-

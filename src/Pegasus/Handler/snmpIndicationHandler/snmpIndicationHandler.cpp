@@ -42,14 +42,13 @@
 #include "snmpIndicationHandler.h"
 
 #ifdef HPUX_EMANATE
-#include "snmpDeliverTrap_emanate.h"
+# include "snmpDeliverTrap_emanate.h"
 #elif defined (PEGASUS_USE_NET_SNMP)
-#include "snmpDeliverTrap_netsnmp.h"
+# include "snmpDeliverTrap_netsnmp.h"
 #else
-#include "snmpDeliverTrap_stub.h"
+# include "snmpDeliverTrap_stub.h"
 #endif
 
-// l10n
 #include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_USING_STD;
@@ -86,7 +85,7 @@ void snmpIndicationHandler::initialize(CIMRepository* repository)
 
 void snmpIndicationHandler::terminate()
 {
-    PEG_METHOD_ENTER (TRC_IND_HANDLER,
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "snmpIndicationHandler::terminate");
 
     _snmpTrapSender->terminate();
@@ -96,7 +95,7 @@ void snmpIndicationHandler::terminate()
 
 snmpIndicationHandler::~snmpIndicationHandler()
 {
-    PEG_METHOD_ENTER (TRC_IND_HANDLER,
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "snmpIndicationHandler::~snmpIndicationHandler");
 
     delete _snmpTrapSender;
@@ -109,7 +108,7 @@ void snmpIndicationHandler::handleIndication(
     const OperationContext& context,
     const String nameSpace,
     CIMInstance& indication,
-    CIMInstance& handler, 
+    CIMInstance& handler,
     CIMInstance& subscription,
     ContentLanguageList & contentLanguages)
 {
@@ -121,28 +120,28 @@ void snmpIndicationHandler::handleIndication(
     CIMQualifier trapQualifier;
 
     Uint32 qualifierPos;
-    
+
     String propValue;
 
     String mapstr1;
     String mapstr2;
 
-    PEG_METHOD_ENTER (TRC_IND_HANDLER, 
-	"snmpIndicationHandler::handleIndication");
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "snmpIndicationHandler::handleIndication");
 
     try
     {
-    	CIMClass indicationClass = _repository->getClass(
-	    nameSpace, indication.getClassName(), false, true, 
-	    false, CIMPropertyList());
+        CIMClass indicationClass = _repository->getClass(
+            nameSpace, indication.getClassName(), false, true,
+            false, CIMPropertyList());
 
-    	Uint32 propertyCount = indication.getPropertyCount();
+        Uint32 propertyCount = indication.getPropertyCount();
 
-    	for (Uint32 i=0; i < propertyCount; i++)
-    	{
-	    prop = indication.getProperty(i);
+        for (Uint32 i=0; i < propertyCount; i++)
+        {
+            prop = indication.getProperty(i);
 
-	    if (!prop.isUninitialized())
+            if (!prop.isUninitialized())
             {
                 CIMName propName = prop.getName();
                 Uint32 propPos = indicationClass.findProperty(propName);
@@ -150,38 +149,42 @@ void snmpIndicationHandler::handleIndication(
                 {
                     CIMProperty trapProp = indicationClass.getProperty(propPos);
 
-                    qualifierPos = trapProp.findQualifier(CIMName ("MappingStrings"));
+                    qualifierPos =
+                        trapProp.findQualifier(CIMName("MappingStrings"));
                     if (qualifierPos != PEG_NOT_FOUND)
                     {
-		        trapQualifier = trapProp.getQualifier(qualifierPos);
-		
-		        mapstr1.clear();
-		        mapstr1 = trapQualifier.getValue().toString();
+                        trapQualifier = trapProp.getQualifier(qualifierPos);
 
-		        if ((mapstr1.find("OID.IETF") != PEG_NOT_FOUND) &&
-		            (mapstr1.find("DataType.IETF") != PEG_NOT_FOUND))
-		        {
-		            if (mapstr1.subString(0, 8) == "OID.IETF")
-		            {
-			        mapstr1 = mapstr1.subString(mapstr1.find("SNMP.")+5);
+                        mapstr1.clear();
+                        mapstr1 = trapQualifier.getValue().toString();
+
+                        if ((mapstr1.find("OID.IETF") != PEG_NOT_FOUND) &&
+                            (mapstr1.find("DataType.IETF") != PEG_NOT_FOUND))
+                        {
+                            if (mapstr1.subString(0, 8) == "OID.IETF")
+                            {
+                                mapstr1 = mapstr1.subString(
+                                    mapstr1.find("SNMP.") + 5);
                                 if (mapstr1.find("|") != PEG_NOT_FOUND)
                                 {
-			            mapstr2.clear();
-			            mapstr2 = mapstr1.subString(0, 
-				        mapstr1.find("DataType.IETF")-1);
-			            propOIDs.append(mapstr2);
-                            
-			            propValue.clear();
+                                    mapstr2.clear();
+                                    mapstr2 = mapstr1.subString(0,
+                                        mapstr1.find("DataType.IETF")-1);
+                                    propOIDs.append(mapstr2);
+
+                                           propValue.clear();
                                     propValue = prop.getValue().toString();
-			            propVALUEs.append(propValue);
-                            
-			            mapstr2 = mapstr1.subString(mapstr1.find("|")+2);
-                                    mapstr2 = mapstr2.subString(0, mapstr2.size()-1);
-			            propTYPEs.append(mapstr2);
+                                    propVALUEs.append(propValue);
+
+                                    mapstr2 = mapstr1.subString(
+                                        mapstr1.find("|") + 2);
+                                    mapstr2 = mapstr2.subString(
+                                        0, mapstr2.size() - 1);
+                                    propTYPEs.append(mapstr2);
                                 }
-		            }
-		        }
-	            }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -190,157 +193,159 @@ void snmpIndicationHandler::handleIndication(
         // trap destination and SNMP type are defined in handlerInstance
         // and passing this instance as it is to deliverTrap() call
 
-        Uint32 targetHostPos = handler.findProperty(CIMName ("TargetHost"));
-        Uint32 targetHostFormatPos = handler.findProperty(CIMName ("TargetHostFormat"));
-        Uint32 otherTargetHostFormatPos = handler.findProperty(CIMName (
-				      "OtherTargetHostFormat"));
-        Uint32 portNumberPos = handler.findProperty(CIMName ("PortNumber"));
-        Uint32 snmpVersionPos = handler.findProperty(CIMName ("SNMPVersion"));
-        Uint32 securityNamePos =  handler.findProperty(CIMName ("SNMPSecurityName"));
-        Uint32 engineIDPos =  handler.findProperty(CIMName ("SNMPEngineID"));
+        Uint32 targetHostPos = handler.findProperty(CIMName("TargetHost"));
+        Uint32 targetHostFormatPos =
+            handler.findProperty(CIMName("TargetHostFormat"));
+        Uint32 otherTargetHostFormatPos =
+            handler.findProperty(CIMName("OtherTargetHostFormat"));
+        Uint32 portNumberPos = handler.findProperty(CIMName("PortNumber"));
+        Uint32 snmpVersionPos = handler.findProperty(CIMName("SNMPVersion"));
+        Uint32 securityNamePos =
+            handler.findProperty(CIMName("SNMPSecurityName"));
+        Uint32 engineIDPos = handler.findProperty(CIMName("SNMPEngineID"));
 
         if ((targetHostPos != PEG_NOT_FOUND) &&
-            (targetHostFormatPos != PEG_NOT_FOUND) && 
+            (targetHostFormatPos != PEG_NOT_FOUND) &&
             (snmpVersionPos != PEG_NOT_FOUND))
         {
-    	    // properties from the handler instance
+            // properties from the handler instance
             String targetHost;
-	    String otherTargetHostFormat = String();
-	    String securityName = String();
-	    String engineID = String();
-	    Uint16 targetHostFormat = 0;
-	    Uint16 snmpVersion = 0;
-	    Uint32 portNumber;
+            String otherTargetHostFormat = String();
+            String securityName = String();
+            String engineID = String();
+            Uint16 targetHostFormat = 0;
+            Uint16 snmpVersion = 0;
+            Uint32 portNumber;
 
-	    String trapOid;
-	    //
+            String trapOid;
+            //
             //  Get snmpTrapOid from context
             //
-	    if (context.contains(SnmpTrapOidContainer::NAME))
-	    {
-                SnmpTrapOidContainer trapContainer = context.get
-                    (SnmpTrapOidContainer::NAME);
+            if (context.contains(SnmpTrapOidContainer::NAME))
+            {
+                SnmpTrapOidContainer trapContainer =
+                    context.get(SnmpTrapOidContainer::NAME);
 
                 trapOid = trapContainer.getSnmpTrapOid();
-	    }
-	    else
+            }
+            else
             {
-	        // get trapOid from indication Class
+                // get trapOid from indication Class
 
-	        Uint32 pos = indicationClass.findQualifier(CIMName ("MappingStrings"));
-	        if (pos != PEG_NOT_FOUND)
-	        {
-	            trapOid = indicationClass.getQualifier(pos).getValue().toString();
+                Uint32 pos =
+                    indicationClass.findQualifier(CIMName("MappingStrings"));
+                if (pos != PEG_NOT_FOUND)
+                {
+                    trapOid =
+                        indicationClass.getQualifier(pos).getValue().toString();
 
-		    trapOid = trapOid.subString(11, PEG_NOT_FOUND);
+                    trapOid = trapOid.subString(11, PEG_NOT_FOUND);
 
                     if ((String::compare(trapOid, "SNMP.", 5)) == 0)
                     {
                         trapOid = trapOid.subString(5, (trapOid.size()-6));
                     }
-	            else
-	            {
-			PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
-			    		 "Invalid MappingStrings Value " + trapOid);
-			PEG_METHOD_EXIT();
-		        // l10n
-	                // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Invalid MappingStrings Value");
-		        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-						   MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_MS_VALUE",
-								       "Invalid MappingStrings Value")); 
-	            }
-	        }
-	        else
-	        {
-		    PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
-		    		 "Qualifier MappingStrings can not be found.");
-		    PEG_METHOD_EXIT();
-	    	    //L10N_ TODO DONE
-	            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Qualifier MappingStrings can not be found");
-		    MessageLoaderParms parms("Handler.snmpIndicationHandler.snmpIndicationHandler.QUALIFIER_MAPPINGS_NOT_FOUND",
-								 "Qualifier MappingStrings can not be found");
-		    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
-	        }
-	    }
+                    else
+                    {
+                        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+                            "Invalid MappingStrings Value " + trapOid);
+                        PEG_METHOD_EXIT();
+                        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                            MessageLoaderParms(
+                                "Handler.snmpIndicationHandler."
+                                    "snmpIndicationHandler.INVALID_MS_VALUE",
+                                "Invalid MappingStrings Value"));
+                    }
+                }
+                else
+                {
+                    PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+                        "Qualifier MappingStrings can not be found.");
+                    PEG_METHOD_EXIT();
+                    MessageLoaderParms parms(
+                        "Handler.snmpIndicationHandler.snmpIndicationHandler."
+                            "QUALIFIER_MAPPINGS_NOT_FOUND",
+                        "Qualifier MappingStrings can not be found");
+                    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+                }
+            }
 
-	    handler.getProperty(targetHostPos).getValue().get(targetHost);
-	    handler.getProperty(targetHostFormatPos).getValue().get(targetHostFormat);
-	    if (otherTargetHostFormatPos != PEG_NOT_FOUND)
-	    { 
-	        handler.getProperty(otherTargetHostFormatPos).getValue().get
-		    (otherTargetHostFormat);
-	    }
-	    if (portNumberPos != PEG_NOT_FOUND)
-	    {
-	        handler.getProperty(portNumberPos).getValue().get(portNumber);
-	    }
-	    else
-	    {
-	        // default port
-	        portNumber = SNMP_TRAP_DEFAULT_PORT;
-	    }
+            handler.getProperty(targetHostPos).getValue().get(targetHost);
+            handler.getProperty(targetHostFormatPos).getValue().get(
+                targetHostFormat);
+            if (otherTargetHostFormatPos != PEG_NOT_FOUND)
+            {
+                handler.getProperty(otherTargetHostFormatPos).getValue().get(
+                    otherTargetHostFormat);
+            }
+            if (portNumberPos != PEG_NOT_FOUND)
+            {
+                handler.getProperty(portNumberPos).getValue().get(portNumber);
+            }
+            else
+            {
+                // default port
+                portNumber = SNMP_TRAP_DEFAULT_PORT;
+            }
 
-	    handler.getProperty(snmpVersionPos).getValue().get(snmpVersion);
-	    if (securityNamePos != PEG_NOT_FOUND)
-	    {
-	        handler.getProperty(securityNamePos).getValue().get(securityName);
-	    }
-	    if (engineIDPos != PEG_NOT_FOUND)
-	    {
-	        handler.getProperty(engineIDPos).getValue().get(engineID);
-	    }
+            handler.getProperty(snmpVersionPos).getValue().get(snmpVersion);
+            if (securityNamePos != PEG_NOT_FOUND)
+            {
+                handler.getProperty(securityNamePos).getValue().get(
+                    securityName);
+            }
+            if (engineIDPos != PEG_NOT_FOUND)
+            {
+                handler.getProperty(engineIDPos).getValue().get(engineID);
+            }
 
-	    _snmpTrapSender->deliverTrap(
+            _snmpTrapSender->deliverTrap(
                 trapOid,
                 securityName,
                 targetHost,
                 targetHostFormat,
-	        otherTargetHostFormat,
-	        portNumber,
-	        snmpVersion,
-	        engineID,
-                propOIDs,  
-                propTYPEs, 
+                otherTargetHostFormat,
+                portNumber,
+                snmpVersion,
+                engineID,
+                propOIDs,
+                propTYPEs,
                 propVALUEs);
         }
         else
         {
-	    PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
-		"Invalid IndicationHandlerSNMPMapper instance.");
-	    PEG_METHOD_EXIT();
-          // l10n
-
-          // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-          // "Invalid IndicationHandlerSNMPMapper instance");
-
-          throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED, 
-				     MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_SNMP_INSTANCE", 
-							"Invalid IndicationHandlerSNMPMapper instance"));
+            PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+                "Invalid IndicationHandlerSNMPMapper instance.");
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+                "Handler.snmpIndicationHandler.snmpIndicationHandler."
+                    "INVALID_SNMP_INSTANCE",
+                "Invalid IndicationHandlerSNMPMapper instance"));
         }
-    } 
-    catch (CIMException & c)
+    }
+    catch (CIMException& c)
     {
-	PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage()); 
-	PEG_METHOD_EXIT();
-
-	throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, c.getMessage());
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, c.getMessage());
     }
     catch (Exception& e)
     {
-	PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
-	PEG_METHOD_EXIT();
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
+        PEG_METHOD_EXIT();
 
-	throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, e.getMessage());
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
     {
-	PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
-		"Failed to deliver trap.");
-	PEG_METHOD_EXIT();
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+            "Failed to deliver trap.");
+        PEG_METHOD_EXIT();
 
-	throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-		MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.FAILED_TO_DELIVER_TRAP", 
-				   "Failed to deliver trap."));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+            "Handler.snmpIndicationHandler.snmpIndicationHandler."
+                "FAILED_TO_DELIVER_TRAP",
+            "Failed to deliver trap."));
     }
 
     PEG_METHOD_EXIT();

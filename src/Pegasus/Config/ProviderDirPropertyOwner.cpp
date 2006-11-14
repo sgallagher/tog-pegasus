@@ -33,7 +33,7 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // This file has implementation for the providerDir property owner class.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ ProviderDirPropertyOwner::~ProviderDirPropertyOwner()
 }
 
 /**
-Checks if the given directory is existing and writable
+    Checks if the given directory is existing and writable
 */
 Boolean isProviderDirValid(const String& dirName)
 {
@@ -99,7 +99,8 @@ Boolean isProviderDirValid(const String& dirName)
         {
             pos = temp.size();
             token = 0;
-        } else
+        }
+        else
         {
             token = 1;
         }
@@ -129,14 +130,14 @@ Boolean isProviderDirValid(const String& dirName)
                           path);
         }
 #endif
-        temp.remove(0,pos+token);   
+        temp.remove(0,pos+token);
     }
-    while ( temp.size() > 0 );    
+    while ( temp.size() > 0 );
     return true;
 }
- 
+
 /**
-Initialize the config properties.
+    Initialize the config properties.
 */
 void ProviderDirPropertyOwner::initialize()
 {
@@ -173,11 +174,11 @@ struct ConfigProperty* ProviderDirPropertyOwner::_lookupConfigProperty(
     }
 }
 
-/** 
-Get information about the specified property.
+/**
+    Get information about the specified property.
 */
 void ProviderDirPropertyOwner::getPropertyInfo(
-    const String& name, 
+    const String& name,
     Array<String>& propertyInfo) const
 {
     propertyInfo.clear();
@@ -207,7 +208,7 @@ void ProviderDirPropertyOwner::getPropertyInfo(
 
 
 /**
-Get default value of the specified property.
+    Get default value of the specified property.
 */
 String ProviderDirPropertyOwner::getDefaultValue(const String& name) const
 {
@@ -216,8 +217,8 @@ String ProviderDirPropertyOwner::getDefaultValue(const String& name) const
     return configProperty->defaultValue;
 }
 
-/** 
-Get current value of the specified property.
+/**
+    Get current value of the specified property.
 */
 String ProviderDirPropertyOwner::getCurrentValue(const String& name) const
 {
@@ -226,8 +227,8 @@ String ProviderDirPropertyOwner::getCurrentValue(const String& name) const
     return configProperty->currentValue;
 }
 
-/** 
-Get planned value of the specified property.
+/**
+    Get planned value of the specified property.
 */
 String ProviderDirPropertyOwner::getPlannedValue(const String& name) const
 {
@@ -236,11 +237,11 @@ String ProviderDirPropertyOwner::getPlannedValue(const String& name) const
     return configProperty->plannedValue;
 }
 
-/** 
-Init current value of the specified property to the specified value.
+/**
+    Init current value of the specified property to the specified value.
 */
 void ProviderDirPropertyOwner::initCurrentValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
@@ -248,30 +249,30 @@ void ProviderDirPropertyOwner::initCurrentValue(
 }
 
 
-/** 
-Init planned value of the specified property to the specified value.
+/**
+    Init planned value of the specified property to the specified value.
 */
 void ProviderDirPropertyOwner::initPlannedValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     configProperty->plannedValue = value;
 }
 
-/** 
-Update current value of the specified property to the specified value.
+/**
+    Update current value of the specified property to the specified value.
 */
 void ProviderDirPropertyOwner::updateCurrentValue(
-    const String& name, 
-    const String& value) 
+    const String& name,
+    const String& value)
 {
     //
     // make sure the property is dynamic before updating the value.
     //
     if (!isDynamic(name))
     {
-        throw NonDynamicConfigProperty(name); 
+        throw NonDynamicConfigProperty(name);
     }
 
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
@@ -279,40 +280,41 @@ void ProviderDirPropertyOwner::updateCurrentValue(
 }
 
 
-/** 
-Update planned value of the specified property to the specified value.
+/**
+    Update planned value of the specified property to the specified value.
 */
 void ProviderDirPropertyOwner::updatePlannedValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     configProperty->plannedValue = value;
 }
 
-/** 
-Checks to see if the given value is valid or not.
+/**
+    Checks to see if the given value is valid or not.
 */
-Boolean ProviderDirPropertyOwner::isValid(const String& name, 
-                                const String& value) const
+Boolean ProviderDirPropertyOwner::isValid(
+    const String& name,
+    const String& value) const
 {
 
     if (!isProviderDirValid( value ))
     {
         throw InvalidPropertyValue(name, value);
     }
- 
+
     return true;
 }
 
-/** 
-Checks to see if the specified property is dynamic or not.
+/**
+    Checks to see if the specified property is dynamic or not.
 */
 Boolean ProviderDirPropertyOwner::isDynamic(const String& name) const
 {
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
-    return (configProperty->dynamic==IS_DYNAMIC);
+    return (configProperty->dynamic == IS_DYNAMIC);
 }
 
 

@@ -55,8 +55,9 @@ public:
 
     HandlerTable();
 
-    CIMHandler* getHandler(const String& handlerId,
-			   CIMRepository* repository);
+    CIMHandler* getHandler(
+        const String& handlerId,
+        CIMRepository* repository);
 
     ~HandlerTable();
 
@@ -73,9 +74,9 @@ private:
         // NOTE: The compiler default implementations of the copy constructor
         // and assignment operator are used for this class.
 
-	String handlerId;
+        String handlerId;
         DynamicLibrary handlerLibrary;
-	CIMHandler* handler;
+        CIMHandler* handler;
 
     private:
         HandlerEntry();

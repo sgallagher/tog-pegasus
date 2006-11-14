@@ -34,11 +34,11 @@
 #ifndef Pegasus_DefaultPropertyTableVms_h
 #define Pegasus_DefaultPropertyTableVms_h
 
-# ifdef PEGASUS_DEFAULT_ENABLE_OOP
+#ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-# else
+#else
     {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-# endif
+#endif
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -55,10 +55,9 @@
     {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-# ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
     {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-# endif
-    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
+#endif
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE}

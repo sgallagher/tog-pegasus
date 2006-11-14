@@ -29,21 +29,17 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com) 
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMIndicationConsumerProvider::CIMIndicationConsumerProvider(void)
+CIMIndicationConsumerProvider::CIMIndicationConsumerProvider()
 {
 }
 
-CIMIndicationConsumerProvider::~CIMIndicationConsumerProvider(void)	
+CIMIndicationConsumerProvider::~CIMIndicationConsumerProvider()
 {
 }
 

@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Warren Otsuka (warren.otsuka@hp.com)
-//              Amit K Arora (amita@in.ibm.com) for PEP101
-//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3609.
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 

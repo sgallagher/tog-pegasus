@@ -29,117 +29,117 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "RepositoryQueryContext.h"
 
 PEGASUS_NAMESPACE_BEGIN
-      
-RepositoryQueryContext::RepositoryQueryContext(const CIMNamespaceName& inNS, CIMRepository* inCIMRep)
-  :QueryContext(inNS),
-   _CIMRep(inCIMRep)
+
+RepositoryQueryContext::RepositoryQueryContext(
+    const CIMNamespaceName& inNS,
+    CIMRepository* inCIMRep)
+    : QueryContext(inNS),
+      _CIMRep(inCIMRep)
 {
 }
 
-RepositoryQueryContext::RepositoryQueryContext(const RepositoryQueryContext& ctx)
-  :QueryContext(ctx),
-   _CIMRep(ctx._CIMRep)
+RepositoryQueryContext::RepositoryQueryContext(
+    const RepositoryQueryContext& ctx)
+    : QueryContext(ctx),
+      _CIMRep(ctx._CIMRep)
 {
- 
-}  
+}
 
 RepositoryQueryContext::~RepositoryQueryContext()
 {
 }
 
-RepositoryQueryContext& RepositoryQueryContext::operator=(const RepositoryQueryContext& rhs)
+RepositoryQueryContext& RepositoryQueryContext::operator=(
+    const RepositoryQueryContext& rhs)
 {
-  if (this == &rhs)
+    if (this == &rhs)
+        return *this;
+
+    QueryContext::operator=(rhs);
+
+    _CIMRep = rhs._CIMRep;
+
     return *this;
-
-  QueryContext::operator=(rhs);
-  
-  _CIMRep = rhs._CIMRep;
-
-  return *this;
 }
 
-CIMClass RepositoryQueryContext::getClass(const CIMName& inClassName)const
+CIMClass RepositoryQueryContext::getClass(const CIMName& inClassName) const
 {
-  /* Hardcoded defaults */
-  Boolean localOnly = false;
-  Boolean includeQualifiers = true;
-  Boolean includeClassOrigin = false;
-  CIMPropertyList _emptyCIMPropertyList;
-          
-  CIMClass _class = _CIMRep->getClass(
-				      getNamespace(),
-				      inClassName,
-				      localOnly,
-				      includeQualifiers,
-				      includeClassOrigin,
-				      _emptyCIMPropertyList);
-  return _class;
-}
-  
-Array<CIMName> RepositoryQueryContext::enumerateClassNames(const CIMName& inClassName)const
-{
-  return _CIMRep->enumerateClassNames(getNamespace(),
-				      inClassName,
-				      true);          // deepInheritance
+    /* Hardcoded defaults */
+    Boolean localOnly = false;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = false;
+    CIMPropertyList _emptyCIMPropertyList;
+
+    CIMClass _class = _CIMRep->getClass(
+        getNamespace(),
+        inClassName,
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin,
+        _emptyCIMPropertyList);
+    return _class;
 }
 
-Boolean RepositoryQueryContext::isSubClass(const CIMName& baseClass,
-                                           const CIMName& derivedClass)const
+Array<CIMName> RepositoryQueryContext::enumerateClassNames(
+    const CIMName& inClassName) const
 {
-  if (baseClass == derivedClass)
-  {
-    return false;
-  }
+    return _CIMRep->enumerateClassNames(
+        getNamespace(),
+        inClassName,
+        true);          // deepInheritance
+}
 
-  Array<CIMName> subClasses = enumerateClassNames(baseClass);
-  for (Uint32 i = 0; i < subClasses.size(); i++)
-  {
-    if (subClasses[i] == derivedClass)
+Boolean RepositoryQueryContext::isSubClass(
+    const CIMName& baseClass,
+    const CIMName& derivedClass) const
+{
+    if (baseClass == derivedClass)
     {
-      return true;
-    }   
-  }
-  
-  return false;  
+        return false;
+    }
+
+    Array<CIMName> subClasses = enumerateClassNames(baseClass);
+    for (Uint32 i = 0; i < subClasses.size(); i++)
+    {
+        if (subClasses[i] == derivedClass)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
-QueryContext::ClassRelation RepositoryQueryContext::getClassRelation(const CIMName& anchorClass,
-                                                                     const CIMName& relatedClass)const
+QueryContext::ClassRelation RepositoryQueryContext::getClassRelation(
+    const CIMName& anchorClass,
+    const CIMName& relatedClass) const
 {
-  if (anchorClass == relatedClass)
-  {
-    return SAMECLASS;
-  }
+    if (anchorClass == relatedClass)
+    {
+        return SAMECLASS;
+    }
 
-  if (isSubClass(anchorClass, relatedClass))
-  {
-    return SUBCLASS;
-  }
+    if (isSubClass(anchorClass, relatedClass))
+    {
+        return SUBCLASS;
+    }
 
-  if (isSubClass(relatedClass, anchorClass))
-  {
-    return SUPERCLASS;
-  }
+    if (isSubClass(relatedClass, anchorClass))
+    {
+        return SUPERCLASS;
+    }
 
-  return NOTRELATED;  
+    return NOTRELATED;
 }
 
 QueryContext* RepositoryQueryContext::clone()
 {
-  return new RepositoryQueryContext(*this);
+    return new RepositoryQueryContext(*this);
 }
 
 PEGASUS_NAMESPACE_END

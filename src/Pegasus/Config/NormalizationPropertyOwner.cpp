@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
-//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "NormalizationPropertyOwner.h"
@@ -53,45 +47,64 @@ static struct ConfigPropertyRow properties[] =
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 
-NormalizationPropertyOwner::NormalizationPropertyOwner(void)
+NormalizationPropertyOwner::NormalizationPropertyOwner()
 {
     _providerObjectNormalizationEnabled.reset(new ConfigProperty());
     _providerObjectNormalizationModuleExclusions.reset(new ConfigProperty());
 }
 
-void NormalizationPropertyOwner::initialize(void)
+void NormalizationPropertyOwner::initialize()
 {
-    for(Uint8 i = 0; i < NUM_PROPERTIES; i++)
+    for (Uint8 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if(String::equalNoCase(properties[i].propertyName, "enableNormalization"))
+        if (String::equalNoCase(
+                properties[i].propertyName, "enableNormalization"))
         {
-            _providerObjectNormalizationEnabled->propertyName = properties[i].propertyName;
-            _providerObjectNormalizationEnabled->defaultValue = properties[i].defaultValue;
-            _providerObjectNormalizationEnabled->currentValue = properties[i].defaultValue;
-            _providerObjectNormalizationEnabled->plannedValue = properties[i].defaultValue;
-            _providerObjectNormalizationEnabled->dynamic = properties[i].dynamic;
-            _providerObjectNormalizationEnabled->domain = properties[i].domain;
-            _providerObjectNormalizationEnabled->domainSize = properties[i].domainSize;
-            _providerObjectNormalizationEnabled->externallyVisible = properties[i].externallyVisible;
+            _providerObjectNormalizationEnabled->propertyName =
+                properties[i].propertyName;
+            _providerObjectNormalizationEnabled->defaultValue =
+                properties[i].defaultValue;
+            _providerObjectNormalizationEnabled->currentValue =
+                properties[i].defaultValue;
+            _providerObjectNormalizationEnabled->plannedValue =
+                properties[i].defaultValue;
+            _providerObjectNormalizationEnabled->dynamic =
+                properties[i].dynamic;
+            _providerObjectNormalizationEnabled->domain =
+                properties[i].domain;
+            _providerObjectNormalizationEnabled->domainSize =
+                properties[i].domainSize;
+            _providerObjectNormalizationEnabled->externallyVisible =
+                properties[i].externallyVisible;
         }
-        else if(String::equalNoCase(properties[i].propertyName, "excludeModulesFromNormalization"))
+        else if (String::equalNoCase(properties[i].propertyName,
+                     "excludeModulesFromNormalization"))
         {
-            _providerObjectNormalizationModuleExclusions->propertyName = properties[i].propertyName;
-            _providerObjectNormalizationModuleExclusions->defaultValue = properties[i].defaultValue;
-            _providerObjectNormalizationModuleExclusions->currentValue = properties[i].defaultValue;
-            _providerObjectNormalizationModuleExclusions->plannedValue = properties[i].defaultValue;
-            _providerObjectNormalizationModuleExclusions->dynamic = properties[i].dynamic;
-            _providerObjectNormalizationModuleExclusions->domain = properties[i].domain;
-            _providerObjectNormalizationModuleExclusions->domainSize = properties[i].domainSize;
-            _providerObjectNormalizationModuleExclusions->externallyVisible = properties[i].externallyVisible;
+            _providerObjectNormalizationModuleExclusions->propertyName =
+                properties[i].propertyName;
+            _providerObjectNormalizationModuleExclusions->defaultValue =
+                properties[i].defaultValue;
+            _providerObjectNormalizationModuleExclusions->currentValue =
+                properties[i].defaultValue;
+            _providerObjectNormalizationModuleExclusions->plannedValue =
+                properties[i].defaultValue;
+            _providerObjectNormalizationModuleExclusions->dynamic =
+                properties[i].dynamic;
+            _providerObjectNormalizationModuleExclusions->domain =
+                properties[i].domain;
+            _providerObjectNormalizationModuleExclusions->domainSize =
+                properties[i].domainSize;
+            _providerObjectNormalizationModuleExclusions->externallyVisible =
+                properties[i].externallyVisible;
         }
     }
 }
 
-void NormalizationPropertyOwner::getPropertyInfo(const String & name,
-                         Array<String> & propertyInfo) const
+void NormalizationPropertyOwner::getPropertyInfo(
+    const String& name,
+    Array<String>& propertyInfo) const
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
     propertyInfo.clear();
 
@@ -100,7 +113,7 @@ void NormalizationPropertyOwner::getPropertyInfo(const String & name,
     propertyInfo.append(configProperty->currentValue);
     propertyInfo.append(configProperty->plannedValue);
 
-    if(configProperty->dynamic == IS_DYNAMIC)
+    if (configProperty->dynamic == IS_DYNAMIC)
     {
         propertyInfo.append(STRING_TRUE);
     }
@@ -109,7 +122,7 @@ void NormalizationPropertyOwner::getPropertyInfo(const String & name,
         propertyInfo.append(STRING_FALSE);
     }
 
-    if(configProperty->externallyVisible == IS_VISIBLE)
+    if (configProperty->externallyVisible == IS_VISIBLE)
     {
         propertyInfo.append(STRING_TRUE);
     }
@@ -119,45 +132,51 @@ void NormalizationPropertyOwner::getPropertyInfo(const String & name,
     }
 }
 
-String NormalizationPropertyOwner::getDefaultValue(const String & name) const
+String NormalizationPropertyOwner::getDefaultValue(const String& name) const
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
-    return(configProperty->defaultValue);
+    return configProperty->defaultValue;
 }
 
-String NormalizationPropertyOwner::getCurrentValue(const String & name)const
+String NormalizationPropertyOwner::getCurrentValue(const String& name) const
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
-    return(configProperty->currentValue);
+    return configProperty->currentValue;
 }
 
-String NormalizationPropertyOwner::getPlannedValue(const String & name) const
+String NormalizationPropertyOwner::getPlannedValue(const String& name) const
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
-    return(configProperty->plannedValue);
+    return configProperty->plannedValue;
 }
 
-void NormalizationPropertyOwner::initCurrentValue(const String & name, const String & value)
+void NormalizationPropertyOwner::initCurrentValue(
+    const String& name,
+    const String& value)
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
     configProperty->currentValue = value;
 }
 
-void NormalizationPropertyOwner::initPlannedValue(const String & name, const String & value)
+void NormalizationPropertyOwner::initPlannedValue(
+    const String& name,
+    const String& value)
 {
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     configProperty->plannedValue = value;
 }
 
-void NormalizationPropertyOwner::updateCurrentValue(const String & name, const String & value)
+void NormalizationPropertyOwner::updateCurrentValue(
+    const String& name,
+    const String& value)
 {
     // make sure the property is dynamic before updating the value.
-    if(!isDynamic(name))
+    if (!isDynamic(name))
     {
         throw NonDynamicConfigProperty(name);
     }
@@ -167,59 +186,65 @@ void NormalizationPropertyOwner::updateCurrentValue(const String & name, const S
     configProperty->currentValue = value;
 }
 
-void NormalizationPropertyOwner::updatePlannedValue(const String & name, const String & value)
+void NormalizationPropertyOwner::updatePlannedValue(
+    const String& name,
+    const String& value)
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
     configProperty->plannedValue = value;
 }
 
-Boolean NormalizationPropertyOwner::isValid(const String & name,
-                                 const String & value) const
+Boolean NormalizationPropertyOwner::isValid(
+    const String& name,
+    const String& value) const
 {
-    if(String::equalNoCase(name, "enableNormalization"))
+    if (String::equalNoCase(name, "enableNormalization"))
     {
         // valid values are "true" and "false"
-        if(String::equal(value, "true") || String::equal(value, "false"))
+        if (String::equal(value, "true") || String::equal(value, "false"))
         {
-            return(true);
+            return true;
         }
     }
-    else if(String::equalNoCase(name, "excludeModulesFromNormalization"))
+    else if (String::equalNoCase(name, "excludeModulesFromNormalization"))
     {
         // valid values must be in the form "n.n.n"
 
         // TODO: validate value
 
-        return(true);
+        return true;
     }
 
-    return(false);
+    return false;
 }
 
-Boolean NormalizationPropertyOwner::isDynamic(const String & name) const
+Boolean NormalizationPropertyOwner::isDynamic(const String& name) const
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
     return(configProperty->dynamic == IS_DYNAMIC);
 }
 
-struct ConfigProperty * NormalizationPropertyOwner::_lookupConfigProperty(const String & name) const
+struct ConfigProperty* NormalizationPropertyOwner::_lookupConfigProperty(
+    const String& name) const
 {
-    if(String::equalNoCase(name, _providerObjectNormalizationEnabled->propertyName))
+    if (String::equalNoCase(
+            name, _providerObjectNormalizationEnabled->propertyName))
     {
-        return(_providerObjectNormalizationEnabled.get());
+        return _providerObjectNormalizationEnabled.get();
     }
-    else if(String::equalNoCase(name, _providerObjectNormalizationModuleExclusions->propertyName))
+    else if (String::equalNoCase(
+        name, _providerObjectNormalizationModuleExclusions->propertyName))
     {
-        return(_providerObjectNormalizationModuleExclusions.get());
+        return _providerObjectNormalizationModuleExclusions.get();
     }
     else
     {
         throw UnrecognizedConfigProperty(name);
     }
 
-    PEGASUS_UNREACHABLE( return(0); )
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 PEGASUS_NAMESPACE_END

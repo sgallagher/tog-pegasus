@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -147,7 +143,7 @@ public:
         // set it in the CIMClient object.
         //
         _origTimeout = client->getTimeout();
-        if(context.contains(TimeoutContainer::NAME))
+        if (context.contains(TimeoutContainer::NAME))
         {
             TimeoutContainer t_cntr = (TimeoutContainer)
                 context.get(TimeoutContainer::NAME);
@@ -159,7 +155,7 @@ public:
         // OperationContext, set it in the CIMClient object.
         //
         _origAcceptLanguages = client->getRequestAcceptLanguages();
-        if(context.contains(AcceptLanguageListContainer::NAME))
+        if (context.contains(AcceptLanguageListContainer::NAME))
         {
             AcceptLanguageListContainer al_cntr = (AcceptLanguageListContainer)
                 context.get(AcceptLanguageListContainer::NAME);
@@ -181,7 +177,7 @@ public:
         // OperationContext, set it in the CIMClient object.
         //
         _origContentLanguages = client->getRequestContentLanguages();
-        if(context.contains(ContentLanguageListContainer::NAME))
+        if (context.contains(ContentLanguageListContainer::NAME))
         {
             ContentLanguageListContainer cl_cntr =
                 (ContentLanguageListContainer)context.get(

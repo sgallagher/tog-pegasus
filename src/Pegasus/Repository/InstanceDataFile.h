@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By: Michael E. Brasher (mbrasher@bmc.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_InstanceDataFile_h
@@ -66,16 +60,16 @@ PEGASUS_NAMESPACE_BEGIN
         Zebra (index file).
         Zebra.instances (instance-file).
     </pre>
-  
-    When an instance is created, it is appended to the end of the instance 
+
+    When an instance is created, it is appended to the end of the instance
     file. When one is deleted, it is marked as free in the index file. When
     an instance is modified, the old one is marked as deleted and the new
-    modified instance is appended to the end of the data file. Note that 
+    modified instance is appended to the end of the data file. Note that
     deletion and modification may leave unused gaps in the data file. These
     gaps are reclaimed during compaction (performed when the data file has
     N gaps where N is some arbitrarily chosen number for now). Performing
     compaction during each modify and delete would be extremely inefficient.
-    By postponing it until N such operations have been performed, we 
+    By postponing it until N such operations have been performed, we
     improve performance considerably.
 
     Note the three operations which may be performed on an instance and there
@@ -98,49 +92,49 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_REPOSITORY_LINKAGE InstanceDataFile
 {
 public:
-    
+
     /** loads an instance from the data file into memory.
 
         @param path the file path of the instance file
         @param index the byte positon of the instance record
-        @param size the size of the instance record 
-        @param data the buffer to hold the instance data 
+        @param size the size of the instance record
+        @param data the buffer to hold the instance data
         @return true on success.
     */
     static Boolean loadInstance(
-	const String& path, 
-	Uint32 index,
-	Uint32 size,  
+        const String& path,
+        Uint32 index,
+        Uint32 size,
         Buffer& data);
-    
-    /** loads all the instances from the data file into memory. 
+
+    /** loads all the instances from the data file into memory.
 
         @param path the file path of the instance file
-        @param data the buffer to hold the data 
+        @param data the buffer to hold the data
         @return true on success.
     */
     static Boolean loadAllInstances(
-	const String& path, 
+        const String& path,
         Buffer& data);
-    
+
     /** Appends a new instance to the end of the file.
-     
-        @param out the buffer containing the CIM/XML encoding of the 
+
+        @param out the buffer containing the CIM/XML encoding of the
         @param path the file path of the instance file
         @param index the byte positon of the instance record
         @return true on success
     */
     static Boolean appendInstance(
-	const String& path, 
+        const String& path,
         const Buffer& data,
-	Uint32& index);
+        Uint32& index);
 
     /** Begin a transaction to modify this file. The effect of subsequent
-	modifications can be rolled back by calling rollbackTransaction().
+        modifications can be rolled back by calling rollbackTransaction().
     */
     static Boolean beginTransaction(const String& path);
 
-    /** Roll back any changes to the file since the last time 
+    /** Roll back any changes to the file since the last time
         beginTransaction() was called.
     */
     static Boolean rollbackTransaction(const String& path);
@@ -150,12 +144,12 @@ public:
     static Boolean commitTransaction(const String& path);
 
     /** Reorganizes the data file to reclaim free space. This is done by
-	copying over all non-free instances to a temporary file and then
-	deleting the original file and renaming the temporary file to the
-	same name as the original.
+        copying over all non-free instances to a temporary file and then
+        deleting the original file and renaming the temporary file to the
+        same name as the original.
     */
     static Boolean compact(
-	const String& path,
+        const String& path,
         const Array<Uint32>& freeFlags,
         const Array<Uint32>& indices,
         const Array<Uint32>& sizes);
@@ -163,9 +157,9 @@ public:
 private:
 
     static Boolean _openFile(
-	PEGASUS_STD(fstream)& fs,
-	const String& path,
-	int mode);
+        PEGASUS_STD(fstream)& fs,
+        const String& path,
+        int mode);
 };
 
 PEGASUS_NAMESPACE_END

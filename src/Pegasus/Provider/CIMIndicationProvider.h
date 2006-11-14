@@ -51,17 +51,18 @@ PEGASUS_NAMESPACE_BEGIN
     methods.  A minimal method implementation simply throws a
     CIMNotSupportedException.
 */
-class PEGASUS_PROVIDER_LINKAGE CIMIndicationProvider : public virtual CIMProvider
+class PEGASUS_PROVIDER_LINKAGE CIMIndicationProvider :
+    public virtual CIMProvider
 {
 public:
     /** Constructs a CIMIndicationProvider instance with
         null values (default constructor).
     */
-    CIMIndicationProvider(void);
+    CIMIndicationProvider();
 
     /** Destructs the CIMIndicationProvider.
     */
-    virtual ~CIMIndicationProvider(void);
+    virtual ~CIMIndicationProvider();
 
     /** Instructs the provider to begin generating indications.  One or
         more createSubscription calls may precede the call to this method.
@@ -110,13 +111,13 @@ public:
         An exception thrown by this method is considered a provider error
         and does not affect CIM Server behavior.
     */
-    virtual void disableIndications(void) = 0;
+    virtual void disableIndications() = 0;
 
     /** Tells the provider to monitor for indications matching the specified
         subscription.  The provider may reject the subscription by throwing a
-        CIMNotSupportedException.  An indication provider must reject the 
-        subscription as not supported if the provider cannot carry out the 
-        specified RepeatNotificationPolicy with the specified 
+        CIMNotSupportedException.  An indication provider must reject the
+        subscription as not supported if the provider cannot carry out the
+        specified RepeatNotificationPolicy with the specified
         RepeatNotificationInterval, RepeatNotificationGap and
         RepeatNotificationCount.
 

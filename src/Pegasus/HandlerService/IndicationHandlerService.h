@@ -29,20 +29,12 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef Pegasus_IndicationHandlerService_h
 #define Pegasus_IndicationHandlerService_h
 
-#include <Pegasus/Common/Config.h>
 #include <sys/types.h>
 #include <iostream>
 #include <stdio.h>
@@ -55,51 +47,50 @@
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
-#include "HandlerTable.h"
-
+#include <Pegasus/HandlerService/HandlerTable.h>
 #include <Pegasus/HandlerService/Linkage.h>
 
 #ifdef PEGASUS_OS_OS400
 # define LIBRARY_NAME_CIMXML_INDICATION_HNDLR "QSYS/QYCMCIMI00" 
 # define LIBRARY_NAME_SNMP_INDICATION_HNDLR   "QSYS/QYCMSIHA00"
 #endif
+
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService 
-   : public MessageQueueService
+class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService :
+    public MessageQueueService
 {
-   public:
+public:
     
-      typedef MessageQueueService Base;
+    typedef MessageQueueService Base;
     
-      IndicationHandlerService(CIMRepository* repository);
+    IndicationHandlerService(CIMRepository* repository);
 
-      ~IndicationHandlerService(void) { } ;
+    ~IndicationHandlerService() { } ;
       
-      virtual void _handle_async_request(AsyncRequest *req);
+    virtual void _handle_async_request(AsyncRequest* req);
 
-      virtual void handleEnqueue(Message *);
+    virtual void handleEnqueue(Message*);
 
-      virtual void handleEnqueue(void);
+    virtual void handleEnqueue();
 
-      AtomicInt dienow;
+    AtomicInt dienow;
 
-   private:
-      IndicationHandlerService();  //  unimplemented
+private:
+    IndicationHandlerService();  //  unimplemented
 
-      CIMRepository* _repository;
+    CIMRepository* _repository;
 
-      CIMHandleIndicationResponseMessage* _handleIndication(
-          CIMHandleIndicationRequestMessage* request);
+    CIMHandleIndicationResponseMessage* _handleIndication(
+        CIMHandleIndicationRequestMessage* request);
 
-      HandlerTable _handlerTable;
+    HandlerTable _handlerTable;
 
-      CIMHandler* _lookupHandlerForClass(const CIMName& className);
+    CIMHandler* _lookupHandlerForClass(const CIMName& className);
 
-      Boolean _loadHandler(
-          CIMHandleIndicationRequestMessage* request,
-          CIMException & cimException);
-
+    Boolean _loadHandler(
+        CIMHandleIndicationRequestMessage* request,
+        CIMException& cimException);
 };
 
 PEGASUS_NAMESPACE_END

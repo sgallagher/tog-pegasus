@@ -66,7 +66,7 @@ CIMProvider* ProviderModule::load(const String& providerName)
     }
 
     // find library entry point
-    CIMProvider * (*createProvider)(const String &) =
+    CIMProvider * (*createProvider)(const String&) =
         (CIMProvider* (*)(const String&))
             _library.getSymbol("PegasusCreateProvider");
 
@@ -101,7 +101,7 @@ CIMProvider* ProviderModule::load(const String& providerName)
             providerName));
     }
 
-    return(provider);
+    return provider;
 }
 
 void ProviderModule::unloadModule()

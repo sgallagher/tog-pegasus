@@ -63,7 +63,7 @@ inline Boolean _isSupportedRequestType(const Message * message)
 
     // for now, assume all requests are valid
 
-    return(true);
+    return true;
 }
 
 inline Boolean _isSupportedResponseType(const Message * message)
@@ -72,7 +72,7 @@ inline Boolean _isSupportedResponseType(const Message * message)
 
     // for now, assume all responses are invalid
 
-    return(false);
+    return false;
 }
 
 ProviderManagerService* ProviderManagerService::providerManagerService=NULL;
@@ -110,7 +110,7 @@ ProviderManagerService::ProviderManagerService(
     else
     {
         _basicProviderManagerRouter = new BasicProviderManagerRouter(
-            indicationCallback, responseChunkCallback, 
+            indicationCallback, responseChunkCallback,
             createDefaultProviderManagerCallback);
     }
 #else
@@ -146,12 +146,12 @@ Boolean ProviderManagerService::messageOK(const Message * message)
 {
     PEGASUS_ASSERT(message != 0);
 
-    if(_isSupportedRequestType(message))
+    if (_isSupportedRequestType(message))
     {
-        return(MessageQueueService::messageOK(message));
+        return MessageQueueService::messageOK(message);
     }
 
-    return(false);
+    return false;
 }
 
 void ProviderManagerService::handleEnqueue(void)
@@ -167,9 +167,10 @@ void ProviderManagerService::handleEnqueue(Message * message)
 
     AsyncLegacyOperationStart * asyncRequest;
 
-    if(message->_async != NULL)
+    if (message->_async != NULL)
     {
-        asyncRequest = static_cast<AsyncLegacyOperationStart *>(message->_async);
+        asyncRequest =
+            static_cast<AsyncLegacyOperationStart *>(message->_async);
     }
     else
     {
@@ -190,21 +191,24 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 
     PEGASUS_ASSERT((request != 0) && (request->op != 0));
 
-    if(request->getType() == async_messages::ASYNC_LEGACY_OP_START)
+    if (request->getType() == async_messages::ASYNC_LEGACY_OP_START)
     {
         request->op->processing();
 
         _incomingQueue.insert_back(request->op);
         ThreadStatus rtn = PEGASUS_THREAD_OK;
-        while (( rtn =_thread_pool->allocate_and_awaken(
-                     (void *)this, ProviderManagerService::handleCimOperation)) != PEGASUS_THREAD_OK)
+        while ((rtn = _thread_pool->allocate_and_awaken(
+                          (void *)this,
+                          ProviderManagerService::handleCimOperation)) !=
+                   PEGASUS_THREAD_OK)
         {
-            if (rtn==PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+            if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
                 Threads::yield();
             else
             {
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                    "Not enough threads to service provider manager." );
+                Logger::put(
+                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "Not enough threads to service provider manager.");
 
                 Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Could not allocate thread for %s.",
@@ -248,7 +252,7 @@ ProviderManagerService::handleCimOperation(void* arg)
                     "op node in queue");
 
             PEG_METHOD_EXIT();
-            return(ThreadReturnType(1));
+            return ThreadReturnType(1);
         }
 
         AsyncOpNode* op = service->_incomingQueue.remove_front();
@@ -263,13 +267,13 @@ ProviderManagerService::handleCimOperation(void* arg)
         {
             // reply with NAK
             PEG_METHOD_EXIT();
-            return(ThreadReturnType(0));
+            return ThreadReturnType(0);
         }
 
         Message* legacy =
             static_cast<AsyncLegacyOperationStart *>(request)->get_action();
 
-        if(_isSupportedRequestType(legacy))
+        if (_isSupportedRequestType(legacy))
         {
             AutoPtr<Message> xmessage(legacy);
 
@@ -306,7 +310,7 @@ ProviderManagerService::handleCimOperation(void* arg)
 
     PEG_METHOD_EXIT();
 
-    return(ThreadReturnType(0));
+    return ThreadReturnType(0);
 }
 
 void ProviderManagerService::handleCimRequest(
@@ -388,7 +392,7 @@ void ProviderManagerService::handleCimRequest(
         Array<Uint16> operationalStatus;
         providerModule.getProperty(pos).getValue().get(operationalStatus);
 
-        for(Uint32 i = 0; i < operationalStatus.size(); i++)
+        for (Uint32 i = 0; i < operationalStatus.size(); i++)
         {
             if ((operationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPED) ||
                 (operationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPING))
@@ -617,13 +621,13 @@ void ProviderManagerService::responseChunkCallback(
 
         op->_async_callback(op, service, op->_callback_ptr);
     }
-    catch(Exception &e)
+    catch (Exception &e)
     {
         PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Exception in ProviderManagerService::responseChunkCallback: " +
                 e.getMessage() + ".  Chunk not delivered.");
     }
-    catch(...)
+    catch (...)
     {
         PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Exception in ProviderManagerService::responseChunkCallback.  "
@@ -685,7 +689,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
                 // based on CIM operation versus provider profile
                 // Input: request and Provider ID Container
                 //Return: failure: a response message for the client
-                //        success: NULL 
+                //        success: NULL
                 response = checkSAFProviderProfile(request, pidc);
                 if (response != NULL)
                 {
@@ -716,7 +720,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             {
                 Tracer::trace ( TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                 "Processing Remote NameSpace request ");
-                response = _basicProviderManagerRouter->processMessage (request);
+                response = _basicProviderManagerRouter->processMessage(request);
                 return response;
             }
         }
@@ -838,7 +842,7 @@ ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
         myself->_unloadIdleProvidersBusy--;
     }
 
-    return(ThreadReturnType(0));
+    return ThreadReturnType(0);
 }
 
 // Updates the providerModule instance and the ProviderRegistrationManager
@@ -890,13 +894,15 @@ void ProviderManagerService::_updateProviderModuleStatus(
 void ProviderManagerService::indicationCallback(
     CIMProcessIndicationRequestMessage* request)
 {
-    if(request->operationContext.contains(AcceptLanguageListContainer::NAME))
+    if (request->operationContext.contains(AcceptLanguageListContainer::NAME))
     {
-        AcceptLanguageListContainer cntr = request->operationContext.get(AcceptLanguageListContainer::NAME);
+        AcceptLanguageListContainer cntr =
+            request->operationContext.get(AcceptLanguageListContainer::NAME);
     }
     else
     {
-        request->operationContext.insert(AcceptLanguageListContainer(AcceptLanguageList()));
+        request->operationContext.insert(
+            AcceptLanguageListContainer(AcceptLanguageList()));
     }
 
     if (_indicationServiceQueueId == PEG_NOT_FOUND)
@@ -940,23 +946,28 @@ static Mutex   indicationThresholdReportedLock;
 static Boolean indicationThresholdReported = false;
 
 #define INDICATIONS_Q_STALL_THRESHOLD PEGASUS_INDICATIONS_Q_THRESHOLD
-#define INDICATIONS_Q_RESUME_THRESHOLD (int)(PEGASUS_INDICATIONS_Q_THRESHOLD*.90)
+#define INDICATIONS_Q_RESUME_THRESHOLD \
+    (int)(PEGASUS_INDICATIONS_Q_THRESHOLD*.90)
 #define INDICATIONS_Q_STALL_DURATION 250 // milli-seconds
 
-    MessageQueue * indicationsQueue = MessageQueue::lookup(_indicationServiceQueueId);
+    MessageQueue* indicationsQueue =
+        MessageQueue::lookup(_indicationServiceQueueId);
 
-    if (((MessageQueueService *)indicationsQueue)->getIncomingCount() > INDICATIONS_Q_STALL_THRESHOLD)
+    if (((MessageQueueService *)indicationsQueue)->getIncomingCount() >
+            INDICATIONS_Q_STALL_THRESHOLD)
     {
-        AutoMutex indicationThresholdReportedAutoMutex(indicationThresholdReportedLock);
+        AutoMutex indicationThresholdReportedAutoMutex(
+            indicationThresholdReportedLock);
         if (!indicationThresholdReported)
         {
             indicationThresholdReported = true;
             indicationThresholdReportedAutoMutex.unlock();
 
             // make log entry to record que max exceeded
-
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                "Indication generation stalled: maximum queue count ($0) exceeded.",
+            Logger::put(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                "Indication generation stalled: maximum queue count ($0) "
+                    "exceeded.",
                 INDICATIONS_Q_STALL_THRESHOLD);
         }
         else
@@ -964,21 +975,24 @@ static Boolean indicationThresholdReported = false;
             indicationThresholdReportedAutoMutex.unlock();
         }
 
-        while (((MessageQueueService *)indicationsQueue)->getIncomingCount() > INDICATIONS_Q_RESUME_THRESHOLD)
+        while (((MessageQueueService *)indicationsQueue)->getIncomingCount() >
+                   INDICATIONS_Q_RESUME_THRESHOLD)
         {
             Threads::sleep(INDICATIONS_Q_STALL_DURATION);
         }
 
-        AutoMutex indicationThresholdReportedAutoMutex1(indicationThresholdReportedLock);
-        //        indicationThresholdReportedLock.lock();
-        if(indicationThresholdReported)
+        AutoMutex indicationThresholdReportedAutoMutex1(
+            indicationThresholdReportedLock);
+
+        if (indicationThresholdReported)
         {
             indicationThresholdReported = false;
             indicationThresholdReportedAutoMutex1.unlock();
 
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                  "Indication generation resumed: current queue count = $0",
-                  ((MessageQueueService *)indicationsQueue)->getIncomingCount() );
+            Logger::put(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                "Indication generation resumed: current queue count = $0",
+                ((MessageQueueService *)indicationsQueue)->getIncomingCount());
 
         }
         else
@@ -1003,7 +1017,7 @@ void ProviderManagerService::providerModuleFailureCallback
         Logger::put_l (
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.OOPProviderManagerRouter."
-                "OOP_PROVIDER_MODULE_USER_CTXT_FAILURE_DETECTED", 
+                "OOP_PROVIDER_MODULE_USER_CTXT_FAILURE_DETECTED",
             "A failure was detected in provider module $0 with"
                 " user context $1.",
             moduleName, userName);
@@ -1013,11 +1027,11 @@ void ProviderManagerService::providerModuleFailureCallback
         Logger::put_l (
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.OOPProviderManagerRouter."
-                "OOP_PROVIDER_MODULE_FAILURE_DETECTED", 
+                "OOP_PROVIDER_MODULE_FAILURE_DETECTED",
             "A failure was detected in provider module $0.",
             moduleName);
     }
-                
+
     //
     //  Create Notify Provider Fail request message
     //
@@ -1034,7 +1048,7 @@ void ProviderManagerService::providerModuleFailureCallback
     if (_indicationServiceQueueId == PEG_NOT_FOUND)
     {
         Array <Uint32> serviceIds;
- 
+
         providerManagerService->find_services
             (PEGASUS_QUEUENAME_INDICATIONSERVICE, 0, 0, &serviceIds);
         PEGASUS_ASSERT (serviceIds.size () != 0);
@@ -1088,7 +1102,7 @@ void ProviderManagerService::providerModuleFailureCallback
                 kbArray.append(keyBinding);
                 CIMObjectPath modulePath("", PEGASUS_NAMESPACENAME_INTEROP,
                     PEGASUS_CLASSNAME_PROVIDERMODULE, kbArray);
-                providerModule = 
+                providerModule =
                     providerManagerService->_providerRegistrationManager->
                         getInstance(
                             modulePath, false, false, CIMPropertyList());
@@ -1113,7 +1127,7 @@ void ProviderManagerService::providerModuleFailureCallback
             Logger::put_l (
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                 "ProviderManager.OOPProviderManagerRouter."
-                    "OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED", 
+                    "OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED",
                 "The generation of indications by providers in module $0 "
                 "may be affected.  To ensure these providers are serving "
                 "active subscriptions, disable and then re-enable this "

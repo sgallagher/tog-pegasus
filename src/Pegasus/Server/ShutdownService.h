@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By:
-//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ShutdownService_h
@@ -95,19 +90,20 @@ class PEGASUS_SERVER_LINKAGE ShutdownService
 public:
 
     /**
-    Terminate the ShutdownService
+        Terminate the ShutdownService
     */
-    static void destroy( void );
+    static void destroy();
+
     /**
-    Construct the singleton instance of the ShutdownService and return a
-    pointer to that instance.
+        Construct the singleton instance of the ShutdownService and return a
+        pointer to that instance.
     */
     static ShutdownService* getInstance(CIMServer* cimserver);
 
     /**
-    Shutdown CIMOM.
-    @param requestPending Boolean indicating whether the shutdown was
-           initiated through a synchronous CIM request (true) or not (false).
+        Shutdown CIMOM.
+        @param requestPending Boolean indicating whether the shutdown was
+            initiated through a synchronous CIM request (true) or not (false).
     */
     void shutdown(Boolean force, Uint32 timeout, Boolean requestPending);
 
@@ -116,13 +112,13 @@ public:
 
 protected:
 
-    static ModuleController *               _controller;
+    static ModuleController* _controller;
 
 private:
 
-    static ShutdownService*         _instance;
-    static CIMServer*               _cimserver;
-    static Uint32                   _shutdownTimeout;
+    static ShutdownService* _instance;
+    static CIMServer* _cimserver;
+    static Uint32 _shutdownTimeout;
 
     //
     // This is meant to be a singleton, so the constructor and the
@@ -140,15 +136,13 @@ private:
     void _resumeCIMServer();
 
 
-    void _sendShutdownRequestToService(const char * serviceName);
+    void _sendShutdownRequestToService(const char* serviceName);
 
     void _shutdownProviders();
 
     void _initTimeoutValues(Uint32 timeoutParmValue);
-
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_ShutdownService_h */
-

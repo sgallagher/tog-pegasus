@@ -29,27 +29,16 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Sushma Fernandes,
-//                 Hewlett-Packard Company (sushma_fernandes@hp.com)
-//              Yi Zhou Hewlett-Packard Company (yi_zhou@hp.com)
-//              Sean Keenan (sean.keenan@hp.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP # 101
-//              Vageesh Umesh, IBM (vagumesh@in.ibm.com) for BUG#2543
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <cstdlib>
-//#include <dlfcn.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
 #include "HandlerTable.h"
 
 PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 HandlerTable::HandlerTable()
@@ -60,36 +49,36 @@ CIMHandler* HandlerTable::getHandler(
     const String& handlerId,
     CIMRepository* repository)
 {
-    CIMHandler * handler;
+    CIMHandler* handler;
     {
         ReadLock lock(_handlerTableLock);
         handler = _lookupHandler(handlerId);
-	if (handler)
+        if (handler)
         {
-            return (handler);
+            return handler;
         }
     }
 
     {
         WriteLock lock(_handlerTableLock);
-	handler = _lookupHandler(handlerId);
+        handler = _lookupHandler(handlerId);
         // Note: Lock handler table until handler initialize is done.
-	// This is ok for handler since the initialization is simple.
-	if (!handler)
+        // This is ok for handler since the initialization is simple.
+        if (!handler)
         {
             handler = _loadHandler(handlerId);
             handler->initialize(repository);
         }
 
-        return (handler);
+        return handler;
     }
 }
 
 CIMHandler* HandlerTable::_lookupHandler(const String& handlerId)
 {
     for (Uint32 i = 0, n = _handlers.size(); i < n; i++)
-	if (String::equal(_handlers[i].handlerId, handlerId))
-	    return _handlers[i].handler;
+        if (String::equal(_handlers[i].handlerId, handlerId))
+            return _handlers[i].handler;
 
     return 0;
 }
@@ -99,13 +88,14 @@ typedef CIMHandler* (*CreateHandlerFunc)(const String&);
 CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 {
 #if defined (PEGASUS_OS_VMS)
-    String provDir = ConfigManager::getInstance()->getCurrentValue("providerDir");
+    String provDir =
+        ConfigManager::getInstance()->getCurrentValue("providerDir");
     String fileName = ConfigManager::getHomedPath(provDir) + "/" + 
-                       FileSystem::buildLibraryFileName(handlerId) + ".exe";
+        FileSystem::buildLibraryFileName(handlerId) + ".exe";
 #elif defined(PEGASUS_OS_OS400)
     Uint32 lastSlash = handlerId.reverseFind('/');
     if (lastSlash == PEG_NOT_FOUND)
-      throw DynamicLoadFailed(handlerId);
+        throw DynamicLoadFailed(handlerId);
     String fileName = handlerId.subString(0, lastSlash);
     String os400HandlerId = handlerId.subString(lastSlash + 1);
 #else
@@ -131,7 +121,7 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 
     if (!func)
     {
-	throw DynamicLookupFailed("PegasusCreateHandler");
+        throw DynamicLookupFailed("PegasusCreateHandler");
     }
 
     // Create the handler:
@@ -152,7 +142,7 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 
 HandlerTable::~HandlerTable()
 {
-    for( Uint32 i = 0; i < _handlers.size(); i++ )
+    for (Uint32 i = 0; i < _handlers.size(); i++)
     {
         //
         //  Call handler's terminate() method
@@ -166,8 +156,8 @@ HandlerTable::~HandlerTable()
             PEGASUS_ASSERT(0);
             PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL3,
                 "Unknown error caught from " +
-                _handlers[i].handlerId +
-                " terminate() method");
+                    _handlers[i].handlerId +
+                    " terminate() method");
         }
 
         delete _handlers[i].handler;

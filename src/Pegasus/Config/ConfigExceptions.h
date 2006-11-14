@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -46,77 +42,76 @@
 
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Config/Linkage.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 
-/** 
-MissingCommandLineOptionArgument Exception class 
+/**
+    MissingCommandLineOptionArgument Exception class
 */
 class PEGASUS_CONFIG_LINKAGE MissingCommandLineOptionArgument : public Exception
 {
 public:
-//l10n
-    //MissingCommandLineOptionArgument(const String& optionName)
-        //: Exception("Missing command line option argument: " + optionName) { }
     MissingCommandLineOptionArgument(const String& optionName)
-        : Exception(MessageLoaderParms("Config.ConfigExceptions.MISSING_CMDLINE_OPTION",
-        				"Missing command line option argument: $0",
-        				optionName)) { }
+        : Exception(MessageLoaderParms(
+              "Config.ConfigExceptions.MISSING_CMDLINE_OPTION",
+              "Missing command line option argument: $0",
+              optionName))
+    {
+    }
 };
 
-/** 
-UnrecognizedCommandLineOption Exception class 
+/**
+    UnrecognizedCommandLineOption Exception class
 */
 class PEGASUS_CONFIG_LINKAGE UnrecognizedCommandLineOption : public Exception
 {
 public:
-    //UnrecognizedCommandLineOption(const String& optionName)
-    //l10n
-    //UnrecognizedCommandLineOption()
-        //: Exception("Unrecognized command line option. ") { }
     UnrecognizedCommandLineOption()
-        : Exception(MessageLoaderParms("Config.ConfigExceptions.UNRECOGNIZED_CMDLINE_OPTION",
-        				"Unrecognized command line option. ")) { }
+        : Exception(MessageLoaderParms(
+              "Config.ConfigExceptions.UNRECOGNIZED_CMDLINE_OPTION",
+              "Unrecognized command line option. "))
+    {
+    }
 };
 
 
-/** 
-InvalidPropertyValue Exception class 
+/**
+    InvalidPropertyValue Exception class
 */
 class PEGASUS_CONFIG_LINKAGE InvalidPropertyValue : public Exception
 {
 public:
-//l10n
-    //InvalidPropertyValue(const String& name, const String& value)
-        //: Exception("Invalid property value: " + name + "=" + value ) { }
     InvalidPropertyValue(const String& name, const String& value)
-        : Exception(MessageLoaderParms("Config.ConfigExceptions.INVALID_PROPERTY_VALUE",
-        						"Invalid property value: $0=$1",
-        						name,
-        						value )) { }
+        : Exception(MessageLoaderParms(
+              "Config.ConfigExceptions.INVALID_PROPERTY_VALUE",
+              "Invalid property value: $0=$1",
+              name,
+              value))
+    {
+    }
 };
 
 
-/** 
-DuplicateOption Exception class 
+/**
+    DuplicateOption Exception class
 */
 class PEGASUS_CONFIG_LINKAGE DuplicateOption : public Exception
 {
 public:
-//l10n
-    //DuplicateOption(const String& name)
-        //: Exception("Duplicate option: " + name) { }
     DuplicateOption(const String& name)
-        : Exception(MessageLoaderParms("Config.ConfigExceptions.DUPLICATE_OPTION",
-        						       "Duplicate option: $0",
-        						       name)) { }
+        : Exception(MessageLoaderParms(
+              "Config.ConfigExceptions.DUPLICATE_OPTION",
+              "Duplicate option: $0",
+              name))
+    {
+    }
 };
 
 
-/** 
-ConfigFileSyntaxError Exception class 
+/**
+    ConfigFileSyntaxError Exception class
 */
 class PEGASUS_CONFIG_LINKAGE ConfigFileSyntaxError : public Exception
 {
@@ -128,66 +123,66 @@ public:
 };
 
 
-/** 
-UnrecognizedConfigFileOption Exception class 
+/**
+    UnrecognizedConfigFileOption Exception class
 */
 class PEGASUS_CONFIG_LINKAGE UnrecognizedConfigFileOption : public Exception
 {
 public:
-//l10n
-    //UnrecognizedConfigFileOption(const String& name)
-        //: Exception("Unrecognized config file option: " + name) { }
     UnrecognizedConfigFileOption(const String& name)
-        : Exception(MessageLoaderParms("Config.ConfigExceptions.UNRECOGNIZED_CONFIG_FILE_OPTION",
-        							   "Unrecognized config file option: $0",
-        							   name)) { }
+        : Exception(MessageLoaderParms(
+              "Config.ConfigExceptions.UNRECOGNIZED_CONFIG_FILE_OPTION",
+              "Unrecognized config file option: $0",
+              name))
+    {
+    }
 };
 
 
-/** 
-MissingRequiredOptionValue Exception class 
+/**
+    MissingRequiredOptionValue Exception class
 */
 class PEGASUS_CONFIG_LINKAGE MissingRequiredOptionValue : public Exception
 {
 public:
-//l10n
-    //MissingRequiredOptionValue(const String& name)
-        //: Exception("Missing required option value: " + name) { }
     MissingRequiredOptionValue(const String& name)
-        : Exception(MessageLoaderParms("Config.ConfigExceptions.MISSING_REQUIRED_OPTION",
-        							   "Missing required option value: $0",
-        							   name)) { }
+        : Exception(MessageLoaderParms(
+              "Config.ConfigExceptions.MISSING_REQUIRED_OPTION",
+              "Missing required option value: $0",
+              name))
+    {
+    }
 };
 
 
-/** 
-UnrecognizedConfigProperty Exception class 
+/**
+    UnrecognizedConfigProperty Exception class
 */
 class PEGASUS_CONFIG_LINKAGE UnrecognizedConfigProperty : public Exception
 {
 public:
-//l10n
-    //UnrecognizedConfigProperty(const String& name)
-        //: Exception("Unrecognized config property: " + name) { }
     UnrecognizedConfigProperty(const String& name)
-        : Exception(MessageLoaderParms("Config.ConfigExceptions.UNRECOGNIZED_CONFIG_PROPERTY",
-        							   "Unrecognized config property: $0",
-        							   name)) { }
+        : Exception(MessageLoaderParms(
+              "Config.ConfigExceptions.UNRECOGNIZED_CONFIG_PROPERTY",
+              "Unrecognized config property: $0",
+              name))
+    {
+    }
 };
 
-/** 
-NonDynamicConfigProperty Exception class 
+/**
+    NonDynamicConfigProperty Exception class
 */
 class PEGASUS_CONFIG_LINKAGE NonDynamicConfigProperty : public Exception
 {
 public:
-//l10n
-    //NonDynamicConfigProperty(const String& name)
-        //: Exception("NonDynamic config property: " + name) { }
     NonDynamicConfigProperty(const String& name)
-        : Exception(MessageLoaderParms("Config.ConfigExceptions.NONDYNAMIC_CONFIG_PROPERTY",
-        							   "NonDynamic config property: $0",
-        							   name)) { }
+        : Exception(MessageLoaderParms(
+              "Config.ConfigExceptions.NONDYNAMIC_CONFIG_PROPERTY",
+              "NonDynamic config property: $0",
+              name))
+    {
+    }
 };
 
 PEGASUS_NAMESPACE_END

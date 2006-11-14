@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DefaultPropertyTableHpux_h
@@ -50,7 +44,6 @@
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},

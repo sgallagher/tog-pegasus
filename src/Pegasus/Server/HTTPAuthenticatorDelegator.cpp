@@ -42,10 +42,10 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/LanguageParser.h>
- 
+
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-#include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
-#endif 
+# include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
+#endif
 
 PEGASUS_USING_STD;
 
@@ -69,12 +69,11 @@ static const String _CONFIG_PARAM_ENABLEAUTHENTICATION = "enableAuthentication";
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 operationMessageQueueId,
     Uint32 exportMessageQueueId,
-	CIMRepository* repository)
-   : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR,
-          MessageQueue::getNextQueueId()),
-    _operationMessageQueueId(operationMessageQueueId),
-    _exportMessageQueueId(exportMessageQueueId),
-	_repository(repository)
+    CIMRepository* repository)
+    : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR, MessageQueue::getNextQueueId()),
+      _operationMessageQueueId(operationMessageQueueId),
+      _exportMessageQueueId(exportMessageQueueId),
+      _repository(repository)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator");
@@ -110,8 +109,8 @@ void HTTPAuthenticatorDelegator::_sendResponse(
     if (queue)
     {
         HTTPMessage* httpMessage = new HTTPMessage(message);
-	httpMessage->dest = queue->getQueueId();
-    
+        httpMessage->dest = queue->getQueueId();
+
         httpMessage->setCloseConnect(closeConnect);
 
         queue->enqueue(httpMessage);
@@ -204,7 +203,7 @@ void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
     // This should be set to false by handleHTTPMessage when the message is
     // passed as is to another queue.
     Boolean deleteMessage = true;
-   
+
     if (message->getType() == HTTP_MESSAGE)
     {
         handleHTTPMessage((HTTPMessage*)message, deleteMessage);
@@ -227,7 +226,7 @@ void HTTPAuthenticatorDelegator::handleEnqueue()
         "HTTPAuthenticatorDelegator::handleEnqueue");
 
     Message* message = dequeue();
-    if(message)
+    if (message)
        handleEnqueue(message);
 
     PEG_METHOD_EXIT();
@@ -235,8 +234,8 @@ void HTTPAuthenticatorDelegator::handleEnqueue()
 
 void HTTPAuthenticatorDelegator::handleHTTPMessage(
     HTTPMessage* httpMessage,
-    Boolean & deleteMessage)
-{  
+    Boolean& deleteMessage)
+{
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::handleHTTPMessage");
 
@@ -266,20 +265,20 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     Boolean closeConnect = false;
 
     httpMessage->parse(startLine, headers, contentLength);
-    
+
     //
     // Check for Connection: Close
     //
-    if(HTTPMessage::lookupHeader(
-	headers, _HTTP_HEADER_CONNECTION, connectClose, false))
+    if (HTTPMessage::lookupHeader(
+        headers, _HTTP_HEADER_CONNECTION, connectClose, false))
     {
-       if (String::equalNoCase(connectClose, "Close"))
-       {
+        if (String::equalNoCase(connectClose, "Close"))
+        {
             PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3,
-                    "Header in HTTP Message Contains a Connection: Close");
+                "Header in HTTP Message Contains a Connection: Close");
             closeConnect = true;
             httpMessage->setCloseConnect(closeConnect);
-       }
+        }
     }
 
     //
@@ -289,37 +288,44 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     Boolean enableAuthentication = false;
     Boolean authenticated = false;
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION   
-    CIMKerberosSecurityAssociation *sa = NULL; 
-	// The presence of a Security Association indicates that Kerberos is being used
-	// Reset flag for subsequent calls to indicate that no Authorization
-        // record was sent. If one was sent the flag will be appropriately reset later.
-	// The sa is maintained while the connection is active.
-        sa = httpMessage->authInfo->getSecurityAssociation();   
-        if (sa)   
-        {   
-            sa->setClientSentAuthorization(false);   
-        }   
-#endif   	
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    CIMKerberosSecurityAssociation* sa = NULL;
+    // The presence of a Security Association indicates that Kerberos is
+    // being used.
+    // Reset flag for subsequent calls to indicate that no Authorization
+    // record was sent. If one was sent the flag will be appropriately reset
+    // later.
+    // The sa is maintained while the connection is active.
+    sa = httpMessage->authInfo->getSecurityAssociation();
+    if (sa)
+    {
+        sa->setClientSentAuthorization(false);
+    }
+#endif
 
-
-    if (ConfigManager::parseBooleanValue(
-        configManager->getCurrentValue(_CONFIG_PARAM_ENABLEAUTHENTICATION)))
+    if (ConfigManager::parseBooleanValue(configManager->getCurrentValue(
+            _CONFIG_PARAM_ENABLEAUTHENTICATION)))
     {
         enableAuthentication = true;
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION 
-        // If we are using Kerberos (sa pointer is set), the client has already authenticated, and the client is NOT attempting to re-authenticate (dermined by an Authorization record being sent), then we want to set the local authenticate flag to true so that the authentication logic is skipped.
-        String authstr = String::EMPTY;  
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+        // If we are using Kerberos (sa pointer is set), the client has
+        // already authenticated, and the client is NOT attempting to
+        // re-authenticate (dermined by an Authorization record being sent),
+        // then we want to set the local authenticate flag to true so that
+        // the authentication logic is skipped.
+        String authstr;
         if (sa && sa->getClientAuthenticated() &&
-            !HTTPMessage::lookupHeader(headers, "Authorization", authstr, false)) 
-        { 
-          authenticated = true; 
-        } 
+            !HTTPMessage::lookupHeader(
+                 headers, "Authorization", authstr, false))
+        {
+            authenticated = true;
+        }
+
         if (!sa)
-        { 
-          authenticated = httpMessage->authInfo->isAuthenticated();
-        } 
-#else 
+        {
+            authenticated = httpMessage->authInfo->isAuthenticated();
+        }
+#else
         // Client may have already authenticated via SSL.
         // In this case, no further attempts to authenticate the client are made
         authenticated = httpMessage->authInfo->isAuthenticated();
@@ -329,25 +335,32 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // certificate chain, if necessary).
 
         String certUserName;
-        if (authenticated && 
+        if (authenticated &&
             (String::equal(httpMessage->authInfo->getAuthType(),
                 AuthenticationInfoRep::AUTH_TYPE_SSL)))
         {
-            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, "Client was authenticated via trusted SSL certificate.");
+            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3,
+                "Client was authenticated via trusted SSL certificate.");
 
             String trustStore = configManager->getCurrentValue("sslTrustStore");
 
-            if (FileSystem::isDirectory(ConfigManager::getHomedPath(trustStore))) 
+            if (FileSystem::isDirectory(
+                    ConfigManager::getHomedPath(trustStore)))
             {
-                PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "Truststore is a directory, lookup username");
-               
-                //Get the client certificate chain to determine the correct username mapping.  
-                //Starting with the peer certificate, work your way up the chain
-                //towards the root certificate until a match is found in the repository.  
-                Array<SSLCertificateInfo*> clientCertificateChain = httpMessage->authInfo->getClientCertificateChain();
+                PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
+                    "Truststore is a directory, lookup username");
+
+                // Get the client certificate chain to determine the correct
+                // username mapping.  Starting with the peer certificate,
+                // work your way up the chain towards the root certificate
+                // until a match is found in the repository.
+                Array<SSLCertificateInfo*> clientCertificateChain =
+                    httpMessage->authInfo->getClientCertificateChain();
                 SSLCertificateInfo* clientCertificate = NULL;
 
-                Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Client certificate chain length: %d.", clientCertificateChain.size());
+                Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                    "Client certificate chain length: %d.",
+                    clientCertificateChain.size());
 
                 Uint32 loopCount = clientCertificateChain.size() - 1;
                 for (Uint32 i = 0; i <= loopCount ; i++)
@@ -355,8 +368,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     clientCertificate = clientCertificateChain[i];
                     if (clientCertificate == NULL)
                     {
-                        MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE", 
-                                                    "The certificate used for authentication is not valid.");
+                        MessageLoaderParms msgParms(
+                            "Pegasus.Server.HTTPAuthenticatorDelegator."
+                                "BAD_CERTIFICATE",
+                            "The certificate used for authentication is not "
+                                "valid.");
                         String msg(MessageLoader::getMessage(msgParms));
                         _sendHttpError(
                             queueId,
@@ -367,51 +383,62 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                         PEG_METHOD_EXIT();
                         return;
                     }
-                    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "Certificate toString " + clientCertificate->toString());
+                    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
+                        "Certificate toString " +
+                            clientCertificate->toString());
 
                     //get certificate properties
                     String issuerName = clientCertificate->getIssuerName();
                     char serialNumber[256];
-                    sprintf(serialNumber, "%lu", clientCertificate->getSerialNumber());
-    
+                    sprintf(serialNumber, "%lu",
+                        clientCertificate->getSerialNumber());
+
                     //
                     // The truststore type key property is deprecated. To retain
                     // backward compatibility, add the truststore type property
                     // to the key bindings and set it to cimserver truststore.
                     //
-        
+
                     //construct the corresponding PG_SSLCertificate instance
                     Array<CIMKeyBinding> keyBindings;
-                    keyBindings.append(CIMKeyBinding("IssuerName", issuerName, CIMKeyBinding::STRING));
-                    keyBindings.append(CIMKeyBinding("SerialNumber", serialNumber, CIMKeyBinding::STRING));
-                    keyBindings.append(CIMKeyBinding("TruststoreType", 
-                       PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER));
-        
-                    CIMObjectPath cimObjectPath("localhost",
-                                                PEGASUS_NAMESPACENAME_CERTIFICATE,
-                                                PEGASUS_CLASSNAME_CERTIFICATE,
-                                                keyBindings);
+                    keyBindings.append(CIMKeyBinding(
+                        "IssuerName", issuerName, CIMKeyBinding::STRING));
+                    keyBindings.append(CIMKeyBinding(
+                        "SerialNumber", serialNumber, CIMKeyBinding::STRING));
+                    keyBindings.append(CIMKeyBinding("TruststoreType",
+                        PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER));
 
-                    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "Client Certificate COP: " + cimObjectPath.toString());
-               
+                    CIMObjectPath cimObjectPath(
+                        "localhost",
+                        PEGASUS_NAMESPACENAME_CERTIFICATE,
+                        PEGASUS_CLASSNAME_CERTIFICATE,
+                        keyBindings);
+
+                    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
+                        "Client Certificate COP: " + cimObjectPath.toString());
+
                     CIMInstance cimInstance;
                     CIMValue value;
                     Uint32 pos;
                     String userName = String::EMPTY;
-        
+
                     //attempt to get the username registered to the certificate
-                    try 
+                    try
                     {
-                        cimInstance = _repository->getInstance(PEGASUS_NAMESPACENAME_CERTIFICATE, cimObjectPath);
+                        cimInstance = _repository->getInstance(
+                            PEGASUS_NAMESPACENAME_CERTIFICATE, cimObjectPath);
 
                         pos = cimInstance.findProperty("RegisteredUserName");
-                            
-                        if (pos != PEG_NOT_FOUND && !(value = cimInstance.getProperty(pos).getValue()).isNull())
+
+                        if (pos != PEG_NOT_FOUND &&
+                            !(value = cimInstance.getProperty(pos).
+                                  getValue()).isNull())
                         {
                             value.get(userName);
 
                             //
-                            // If a user name is specified, our search is complete
+                            // If a user name is specified, our search is
+                            // complete
                             //
                             if (userName.size())
                             {
@@ -426,55 +453,79 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                 "The certificate at level %u has no "
                                     "associated username, moving up the chain",
                                 i);
-                        } 
+                        }
                         else
                         {
-                            Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
-                            "HTTPAuthenticatorDelegator - Bailing, no username is registered to this certificate.");
+                            Logger::put(
+                                Logger::ERROR_LOG,
+                                System::CIMSERVER,
+                                Logger::TRACE,
+                                "HTTPAuthenticatorDelegator - Bailing, no "
+                                    "username is registered to this "
+                                    "certificate.");
                         }
-                    } catch (CIMException& e)
+                    }
+                    catch (CIMException& e)
                     {
-                        //this certificate did not have a registration associated with it; continue up the chain
+                        // this certificate did not have a registration
+                        // associated with it; continue up the chain
                         if (e.getCode() == CIM_ERR_NOT_FOUND)
                         {
-                            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "No registration for this certificate, try next certificate in chain");
+                            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
+                                "No registration for this certificate, try "
+                                    "next certificate in chain");
                             continue;
-
-                        } else
+                        }
+                        else
                         {
-                            Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
-                                        "HTTPAuthenticatorDelegator - Bailing, Bailing, the certificate used for authentication is not valid.");
-                            MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE",
-                                                        "The certificate used for authentication is not valid.");
+                            Logger::put(
+                                Logger::ERROR_LOG,
+                                System::CIMSERVER,
+                                Logger::TRACE,
+                                "HTTPAuthenticatorDelegator - Bailing, "
+                                    "the certificate used for authentication "
+                                    "is not valid.");
+                            MessageLoaderParms msgParms(
+                                "Pegasus.Server.HTTPAuthenticatorDelegator."
+                                    "BAD_CERTIFICATE",
+                                "The certificate used for authentication is "
+                                    "not valid.");
                             String msg(MessageLoader::getMessage(msgParms));
                             PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, msg);
-                                               _sendHttpError(
-                                                    queueId,
-                                                    HTTP_STATUS_UNAUTHORIZED,
-                                                    String::EMPTY,
-                                                    msg,
-                                                    closeConnect);
+                            _sendHttpError(
+                                queueId,
+                                HTTP_STATUS_UNAUTHORIZED,
+                                String::EMPTY,
+                                msg,
+                                closeConnect);
                             PEG_METHOD_EXIT();
                             return;
                         }
-    
-                    } catch (...)
+                    }
+                    catch (...)
                     {
-                        //this scenario can occur if a certificate cached on the server was deleted
-                        //openssl would not pick up the deletion but we would pick it up here when we went to look it up
-                        //in the repository
-                        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
-                                    "HTTPAuthenticatorDelegator - Bailing, the certificate used for authentication is not valid.");
-                        MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE",
-                                                    "The certificate used for authentication is not valid.");
+                        // this scenario can occur if a certificate cached
+                        // on the server was deleted openssl would not pick
+                        // up the deletion but we would pick it up here when
+                        // we went to look it up in the repository
+                        Logger::put(
+                            Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+                            "HTTPAuthenticatorDelegator - Bailing, the "
+                                "certificate used for authentication is not "
+                                "valid.");
+                        MessageLoaderParms msgParms(
+                            "Pegasus.Server.HTTPAuthenticatorDelegator."
+                                "BAD_CERTIFICATE",
+                            "The certificate used for authentication is not "
+                                "valid.");
                         String msg(MessageLoader::getMessage(msgParms));
                         PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, msg);
-                                           _sendHttpError(
-                                                queueId,
-                                                HTTP_STATUS_UNAUTHORIZED,
-                                                String::EMPTY,
-                                                msg,
-                                                closeConnect);
+                        _sendHttpError(
+                            queueId,
+                            HTTP_STATUS_UNAUTHORIZED,
+                            String::EMPTY,
+                            msg,
+                            closeConnect);
                         PEG_METHOD_EXIT();
                         return;
                     }
@@ -482,8 +533,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             } //end sslTrustStore directory
             else
             {
-                //trustStore is a single CA file, lookup username
-                //user was already verified as a valid system user during server startup
+                // trustStore is a single CA file, lookup username
+                // user was already verified as a valid system user during
+                // server startup
                 certUserName =
                     configManager->getCurrentValue("sslTrustStoreUserName");
             }
@@ -527,59 +579,60 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
     PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "Exited authentication loop");
 
+    AcceptLanguageList acceptLanguages;
+    ContentLanguageList contentLanguages;
+    try
+    {
+        // Get and validate the Accept-Language header, if set
+        String acceptLanguageHeader;
+        if (HTTPMessage::lookupHeader(
+                headers,
+                _HTTP_HEADER_ACCEPT_LANGUAGE,
+                acceptLanguageHeader,
+                false))
+        {
+            acceptLanguages = LanguageParser::parseAcceptLanguageHeader(
+                acceptLanguageHeader);
+            httpMessage->acceptLanguagesDecoded = true;
+        }
 
-// l10n start
-   AcceptLanguageList acceptLanguages;
-   ContentLanguageList contentLanguages;
-   try
-   {
-                // Get and validate the Accept-Language header, if set
-                String acceptLanguageHeader;
-                if (HTTPMessage::lookupHeader(
-                      headers,
-		      _HTTP_HEADER_ACCEPT_LANGUAGE,
-                      acceptLanguageHeader,
-                  false) == true)
-            {
-                acceptLanguages = LanguageParser::parseAcceptLanguageHeader(
-                    acceptLanguageHeader);
-		httpMessage->acceptLanguagesDecoded = true;
-            }
-                                                                                                                                                             
-                // Get and validate the Content-Language header, if set
-                String contentLanguageHeader;
-                if (HTTPMessage::lookupHeader(
-                      headers,
-                      _HTTP_HEADER_CONTENT_LANGUAGE,
-                      contentLanguageHeader,
-                  false) == true)
-            {
-                contentLanguages = LanguageParser::parseContentLanguageHeader(
-                    contentLanguageHeader);
-		httpMessage->contentLanguagesDecoded = true;
-            }
-   }
-   catch (Exception &e)
-   {
-	Thread::clearLanguages(); // clear any existing languages to force messages to come from the root bundle
-	MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.REQUEST_NOT_VALID","request-not-valid");
-	String msg(MessageLoader::getMessage(msgParms));
+        // Get and validate the Content-Language header, if set
+        String contentLanguageHeader;
+        if (HTTPMessage::lookupHeader(
+                headers,
+                _HTTP_HEADER_CONTENT_LANGUAGE,
+                contentLanguageHeader,
+                false))
+        {
+            contentLanguages = LanguageParser::parseContentLanguageHeader(
+                contentLanguageHeader);
+            httpMessage->contentLanguagesDecoded = true;
+        }
+    }
+    catch (Exception& e)
+    {
+        // clear any existing languages to force messages to come from the
+        // root bundle
+        Thread::clearLanguages();
+        MessageLoaderParms msgParms(
+            "Pegasus.Server.HTTPAuthenticatorDelegator.REQUEST_NOT_VALID",
+            "request-not-valid");
+        String msg(MessageLoader::getMessage(msgParms));
 
         _sendHttpError(
-            queueId, 
+            queueId,
             HTTP_STATUS_BADREQUEST,
             msg,
             e.getMessage(),
             closeConnect);
         PEG_METHOD_EXIT();
         return;
-   }
-   Thread::setLanguages(new AcceptLanguageList(acceptLanguages));
-   httpMessage->acceptLanguages = acceptLanguages;
-   httpMessage->contentLanguages = contentLanguages;
-// l10n end   
+    }
 
- 
+    Thread::setLanguages(new AcceptLanguageList(acceptLanguages));
+    httpMessage->acceptLanguages = acceptLanguages;
+    httpMessage->contentLanguages = contentLanguages;
+
     //
     // Parse the request line:
     //
@@ -628,182 +681,195 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // Process M-POST and POST messages:
         //
 
-	PEG_LOGGER_TRACE((
-	    Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-	    "HTTPAuthenticatorDelegator - M-POST/POST processing start"));
+        PEG_LOGGER_TRACE((
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "HTTPAuthenticatorDelegator - M-POST/POST processing start"));
 
-	httpMessage->message.append('\0');
+        httpMessage->message.append('\0');
 
-    if (!authenticated && enableAuthentication) 
-    {
-        //
-        // Search for Authorization header:
-        //
-        String authorization = String::EMPTY;
-
-        if ( HTTPMessage::lookupHeader(headers, 
-	    _HTTP_HEADER_PEGASUSAUTHORIZATION, authorization, false) &&
-             enableAuthentication
-           )
+        if (!authenticated && enableAuthentication)
         {
-            try 
+            //
+            // Search for Authorization header:
+            //
+            String authorization;
+
+            if (HTTPMessage::lookupHeader(headers,
+                    _HTTP_HEADER_PEGASUSAUTHORIZATION, authorization, false) &&
+                enableAuthentication)
             {
-                //
-                // Do pegasus/local authentication
-                //
-                authenticated = 
-                    _authenticationManager->performPegasusAuthentication(
-                        authorization,
-                        httpMessage->authInfo);
-
-                if (!authenticated)
+                try
                 {
-                    String authChallenge = String::EMPTY;
-                    String authResp = String::EMPTY;
+                    //
+                    // Do pegasus/local authentication
+                    //
+                    authenticated =
+                        _authenticationManager->performPegasusAuthentication(
+                            authorization,
+                            httpMessage->authInfo);
 
-                    authResp = _authenticationManager->getPegasusAuthResponseHeader(
-                        authorization,
-                        httpMessage->authInfo);
-
-                    if (!String::equal(authResp, String::EMPTY))
+                    if (!authenticated)
                     {
-                        _sendChallenge(queueId, authResp,closeConnect);
-                    }
-                    else
-                    {
-			MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
-		        String msg(MessageLoader::getMessage(msgParms));
-                        _sendHttpError(
-                            queueId,
-                            HTTP_STATUS_BADREQUEST,
-                            String::EMPTY,
-                            msg,
-                            closeConnect);
-                    }
+                        String authChallenge;
+                        String authResp;
 
+                        authResp = _authenticationManager->
+                            getPegasusAuthResponseHeader(
+                                authorization,
+                                httpMessage->authInfo);
+
+                        if (!String::equal(authResp, String::EMPTY))
+                        {
+                            _sendChallenge(queueId, authResp,closeConnect);
+                        }
+                        else
+                        {
+                            MessageLoaderParms msgParms(
+                                "Pegasus.Server.HTTPAuthenticatorDelegator."
+                                    "AUTHORIZATION_HEADER_ERROR",
+                                "Authorization header error");
+                            String msg(MessageLoader::getMessage(msgParms));
+                            _sendHttpError(
+                                queueId,
+                                HTTP_STATUS_BADREQUEST,
+                                String::EMPTY,
+                                msg,
+                                closeConnect);
+                        }
+
+                        PEG_METHOD_EXIT();
+                        return;
+                    }
+                }
+                catch (const CannotOpenFile&)
+                {
+                    _sendHttpError(
+                        queueId,
+                        HTTP_STATUS_INTERNALSERVERERROR,
+                        String::EMPTY,
+                        String::EMPTY,
+                        closeConnect);
                     PEG_METHOD_EXIT();
                     return;
                 }
             }
-            catch (const CannotOpenFile &)
+
+            if (HTTPMessage::lookupHeader(
+                    headers, _HTTP_HEADER_AUTHORIZATION, authorization, false)
+                && enableAuthentication)
             {
-                _sendHttpError(
-                    queueId,
-                    HTTP_STATUS_INTERNALSERVERERROR,
-                    String::EMPTY,
-                    String::EMPTY,
-                    closeConnect);
-                PEG_METHOD_EXIT();
-                return;
-                
-            }
-        }
-
-
-
-        if ( HTTPMessage::lookupHeader(
-             headers, _HTTP_HEADER_AUTHORIZATION, authorization, false) &&
-             enableAuthentication
-           )
-        {
-            //
-            // Do http authentication if not authenticated already
-            //
-            if (!authenticated)
-            {
-                authenticated =
-                    _authenticationManager->performHttpAuthentication(
-                        authorization,
-                        httpMessage->authInfo);
-
+                //
+                // Do http authentication if not authenticated already
+                //
                 if (!authenticated)
                 {
-                    //ATTN: the number of challenges get sent for a 
-                    //      request on a connection can be pre-set.
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-                    // Kerberos authentication needs access to the AuthenticationInfo
-                    // object for this session in order to set up the reference to the
-                    // CIMKerberosSecurityAssociation object for this session.
+                    authenticated =
+                        _authenticationManager->performHttpAuthentication(
+                            authorization,
+                            httpMessage->authInfo);
 
-                    String authResp =   
-                        _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
+                    if (!authenticated)
+                    {
+                        //ATTN: the number of challenges get sent for a
+                        //      request on a connection can be pre-set.
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+                        // Kerberos authentication needs access to the
+                        // AuthenticationInfo object for this session in
+                        // order to set up the reference to the
+                        // CIMKerberosSecurityAssociation object for this
+                        // session.
+
+                        String authResp =
+                            _authenticationManager->getHttpAuthResponseHeader(
+                                httpMessage->authInfo);
 #else
-                    String authResp =
-                        _authenticationManager->getHttpAuthResponseHeader();
+                        String authResp =
+                            _authenticationManager->getHttpAuthResponseHeader();
 #endif
-                    if (!String::equal(authResp, String::EMPTY))
-                    {
-                        _sendChallenge(queueId, authResp,closeConnect);
-                    }
-                    else
-                    {
-			MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
-                        String msg(MessageLoader::getMessage(msgParms));
-                        _sendHttpError(
-                            queueId,
-                            HTTP_STATUS_BADREQUEST,
-                            String::EMPTY,
-                            msg,
-                            closeConnect);
-                    }
+                        if (!String::equal(authResp, String::EMPTY))
+                        {
+                            _sendChallenge(queueId, authResp,closeConnect);
+                        }
+                        else
+                        {
+                            MessageLoaderParms msgParms(
+                                "Pegasus.Server.HTTPAuthenticatorDelegator."
+                                    "AUTHORIZATION_HEADER_ERROR",
+                                "Authorization header error");
+                            String msg(MessageLoader::getMessage(msgParms));
+                            _sendHttpError(
+                                queueId,
+                                HTTP_STATUS_BADREQUEST,
+                                String::EMPTY,
+                                msg,
+                                closeConnect);
+                        }
 
-                    PEG_METHOD_EXIT();
-                    return;
-                }
-	    }  // first not authenticated check
-	}  // "Authorization" header check
- } //end if(!authenticated && enableAuthentication)
+                        PEG_METHOD_EXIT();
+                        return;
+                    }
+                }  // first not authenticated check
+            }  // "Authorization" header check
+        } //end if (!authenticated && enableAuthentication)
+
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-	// The pointer to the sa is created in the authenticator so we need to also
-	// assign it here.
-	sa = httpMessage->authInfo->getSecurityAssociation();
-	if (sa)
-	{
-	    Uint32 sendAction = 0;  // 0 - continue, 1 = send success, 2 = send response
-	    // The following is processing to unwrap (decrypt) the request from the
-	    // client when using kerberos authentication.
-	    sa->unwrapRequestMessage(httpMessage->message, contentLength,
-				     authenticated, sendAction);
-	    if (sendAction)  // send success or send response
-	    {
-		if (httpMessage->message.size() == 0)
-		{
-			MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
-                        String msg(MessageLoader::getMessage(msgParms));
-                        _sendHttpError(
-                            queueId,
-                            HTTP_STATUS_BADREQUEST,
-                            String::EMPTY,
-                            msg,
-                            closeConnect);
-		}
-		else
-		{
-		    if (sendAction == 1)  // Send success
-		    {
+        // The pointer to the sa is created in the authenticator so we need
+        // to also assign it here.
+        sa = httpMessage->authInfo->getSecurityAssociation();
+        if (sa)
+        {
+            // 0 - continue, 1 = send success, 2 = send response
+            Uint32 sendAction = 0;
+
+            // The following is processing to unwrap (decrypt) the request
+            // from the client when using kerberos authentication.
+            sa->unwrapRequestMessage(
+                httpMessage->message, contentLength, authenticated, sendAction);
+
+            if (sendAction)  // send success or send response
+            {
+                if (httpMessage->message.size() == 0)
+                {
+                    MessageLoaderParms msgParms(
+                        "Pegasus.Server.HTTPAuthenticatorDelegator."
+                            "AUTHORIZATION_HEADER_ERROR",
+                        "Authorization header error");
+                    String msg(MessageLoader::getMessage(msgParms));
+                    _sendHttpError(
+                        queueId,
+                        HTTP_STATUS_BADREQUEST,
+                        String::EMPTY,
+                        msg,
+                        closeConnect);
+                }
+                else
+                {
+                    if (sendAction == 1)  // Send success
+                    {
                         _sendSuccess(
                             queueId,
                             String(
-                                httpMessage->message.getData(),httpMessage->message.size()), 
+                                httpMessage->message.getData(),
+                                httpMessage->message.size()),
                             closeConnect);
-		    }
+                    }
 
-		    if (sendAction == 2)  // Send response
-		    {
-			_sendResponse(queueId, httpMessage->message,closeConnect);
-		    }
-		}
+                    if (sendAction == 2)  // Send response
+                    {
+                        _sendResponse(
+                            queueId,
+                            httpMessage->message,
+                            closeConnect);
+                    }
+                }
 
-		PEG_METHOD_EXIT();
-		return;
-	    }
-	}
+                PEG_METHOD_EXIT();
+                return;
+            }
+        }
 #endif
 
-   
-
-
-        if ( authenticated || !enableAuthentication )
+        if (authenticated || !enableAuthentication)
         {
             // Final bastion to ensure the remote privileged user access
             // check is done as it should be
@@ -814,26 +880,28 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 // enableRemotePrivilegedUserAccess check
                 // time to do it ourselves
                 String userName = httpMessage->authInfo->getAuthenticatedUser();
-                if (! AuthenticationManager::isRemotePrivilegedUserAccessAllowed(userName))
+                if (!AuthenticationManager::isRemotePrivilegedUserAccessAllowed(
+                        userName))
                 {
-                    // Send client a message that we can't proceed to talk to him
+                    // Send client a message that we can't proceed to talk
+                    // to him
                     // HTTP 401 ?
                     MessageLoaderParms msgParms(
-                   "Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED", 
-                   "Remote privileged user access is not enabled.");
+                        "Server.CIMOperationRequestAuthorizer."
+                            "REMOTE_NOT_ENABLED",
+                        "Remote privileged user access is not enabled.");
                     String msg(MessageLoader::getMessage(msgParms));
                     _sendHttpError(
-                                  queueId,
-                                  HTTP_STATUS_UNAUTHORIZED,
-                                  String::EMPTY,
-                                  msg,
-                                  closeConnect);
+                        queueId,
+                        HTTP_STATUS_UNAUTHORIZED,
+                        String::EMPTY,
+                        msg,
+                        closeConnect);
                     PEG_METHOD_EXIT();
                     return;
                 }
                 httpMessage->authInfo->setRemotePrivilegedUserAccessChecked();
             }
-
 
             //
             // Search for "CIMOperation" header:
@@ -843,51 +911,54 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             if (HTTPMessage::lookupHeader(
                 headers, _HTTP_HEADER_CIMOPERATION, cimOperation, true))
             {
-		PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-			    "HTTPAuthenticatorDelegator - CIMOperation: $0 ",cimOperation));
+                PEG_LOGGER_TRACE(
+                    (Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                     "HTTPAuthenticatorDelegator - CIMOperation: $0 ",
+                     cimOperation));
 
                 MessageQueue* queue =
                     MessageQueue::lookup(_operationMessageQueueId);
 
                 if (queue)
                 {
-		   httpMessage->dest = queue->getQueueId();
-		   
-		   try
-		     {
-                       queue->enqueue(httpMessage);
-		     }
-		   catch(const bad_alloc &)
-		     {
-		       delete httpMessage;
-                       _sendHttpError(
-                           queueId,
-                           HTTP_STATUS_REQUEST_TOO_LARGE,
-                           String::EMPTY,
-                           String::EMPTY,
-                           closeConnect);
-		       PEG_METHOD_EXIT();
-		       deleteMessage = false;
-		       return;
-		     }
-                 deleteMessage = false;
+                    httpMessage->dest = queue->getQueueId();
+
+                    try
+                    {
+                        queue->enqueue(httpMessage);
+                    }
+                    catch (const bad_alloc&)
+                    {
+                        delete httpMessage;
+                        _sendHttpError(
+                            queueId,
+                            HTTP_STATUS_REQUEST_TOO_LARGE,
+                            String::EMPTY,
+                            String::EMPTY,
+                            closeConnect);
+                        PEG_METHOD_EXIT();
+                        deleteMessage = false;
+                        return;
+                    }
+                    deleteMessage = false;
                 }
             }
             else if (HTTPMessage::lookupHeader(
                 headers, _HTTP_HEADER_CIMEXPORT, cimOperation, true))
             {
-		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-			    "HTTPAuthenticatorDelegator - CIMExport: $0 ",cimOperation);
+                Logger::put(
+                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "HTTPAuthenticatorDelegator - CIMExport: $0 ",cimOperation);
 
                 MessageQueue* queue =
                     MessageQueue::lookup(_exportMessageQueueId);
 
                 if (queue)
                 {
-		   httpMessage->dest = queue->getQueueId();
+                    httpMessage->dest = queue->getQueueId();
 
-		   queue->enqueue(httpMessage);
-		   deleteMessage = false;
+                    queue->enqueue(httpMessage);
+                    deleteMessage = false;
                 }
             }
             else
@@ -929,8 +1000,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         else
         {  // client not authenticated; send challenge
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-            String authResp =    
-                _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
+            String authResp =
+                _authenticationManager->getHttpAuthResponseHeader(
+                    httpMessage->authInfo);
 #else
             String authResp =
                 _authenticationManager->getHttpAuthResponseHeader();
@@ -942,7 +1014,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
             else
             {
-		MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
+                MessageLoaderParms msgParms(
+                    "Pegasus.Server.HTTPAuthenticatorDelegator."
+                        "AUTHORIZATION_HEADER_ERROR",
+                    "Authorization header error");
                 String msg(MessageLoader::getMessage(msgParms));
                 _sendHttpError(
                     queueId,

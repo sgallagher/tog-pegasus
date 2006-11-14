@@ -41,30 +41,28 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-This class defines the set of methods implemented by an indication consumer provider.
-A provider that derives from this class must implement all methods. The minimal method
-implementation simply throw the NotSupported exception.
+    This class defines the set of methods implemented by an indication
+    consumer provider.  A provider that derives from this class must
+    implement all methods. The minimal method implementation simply throw
+    the NotSupported exception.
 */
 class CIMIndicationConsumer
 {
 public:
     ///  constructor
-    CIMIndicationConsumer(void) { };
+    CIMIndicationConsumer() { };
     ///
-    virtual ~CIMIndicationConsumer(void) { };
+    virtual ~CIMIndicationConsumer() { };
 
     /**
-    @param context contains security and locale information relevant for the lifetime
-    of this operation.
-    
-    @param url
-    
-    @param indicationInstance
+        @param context contains security and locale information relevant for
+        the lifetime of this operation.
+        @param url
+        @param indicationInstance
     */
-
     virtual void consumeIndication(
-	    const OperationContext & context,
-	    const String & url,
+	    const OperationContext& context,
+	    const String& url,
 	    const CIMInstance& indicationInstance) = 0;
 };
 

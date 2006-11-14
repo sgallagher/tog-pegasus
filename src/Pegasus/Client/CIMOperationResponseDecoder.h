@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Willis White, IBM (whiwill@us.ibm.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMOperationResponseDecoder_h
@@ -76,7 +68,7 @@ public:
 };
 
 
-/** This class receives HTTP messages and decodes them into CIM Operation 
+/** This class receives HTTP messages and decodes them into CIM Operation
     Responses messages which it places on its output queue.
 */
 class PEGASUS_CLIENT_LINKAGE CIMOperationResponseDecoder : public MessageQueue
@@ -84,9 +76,9 @@ class PEGASUS_CLIENT_LINKAGE CIMOperationResponseDecoder : public MessageQueue
 public:
 
     /** Constuctor.
-	@param outputQueue queue to receive decoded HTTP messages.
+        @param outputQueue queue to receive decoded HTTP messages.
     */
-   CIMOperationResponseDecoder(
+    CIMOperationResponseDecoder(
         MessageQueue* outputQueue,
         MessageQueue* encoderQueue,
         ClientAuthenticator* authenticator,
@@ -102,15 +94,15 @@ public:
     virtual void handleEnqueue();
 
     /**
-     * This methods gives the Decoder access to the ClientPerfDataStore that
-     * is in CIMClientRep. A pointer to  the CIMClientRep::ClientPerfDataStore
-     * is passed in*/
+        This methods gives the Decoder access to the ClientPerfDataStore that
+        is in CIMClientRep. A pointer to  the CIMClientRep::ClientPerfDataStore
+        is passed in
+    */
     void setDataStorePointer(ClientPerfDataStore* perfDataStore_ptr);
 
 private:
 
-    void _handleHTTPMessage(
-	HTTPMessage* message);
+    void _handleHTTPMessage(HTTPMessage* message);
 
     void _handleMethodResponse(
         char* content,
@@ -162,10 +154,11 @@ private:
         const String& messageId,
         Boolean isEmptyImethodresponseTag);
 
-    CIMEnumerateInstanceNamesResponseMessage* _decodeEnumerateInstanceNamesResponse(
-        XmlParser& parser,
-        const String& messageId,
-        Boolean isEmptyImethodresponseTag);
+    CIMEnumerateInstanceNamesResponseMessage*
+        _decodeEnumerateInstanceNamesResponse(
+            XmlParser& parser,
+            const String& messageId,
+            Boolean isEmptyImethodresponseTag);
 
     CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
         XmlParser& parser,

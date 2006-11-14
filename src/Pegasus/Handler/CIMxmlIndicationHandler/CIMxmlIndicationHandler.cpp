@@ -27,6 +27,8 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+//==============================================================================
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/ExportClient/CIMExportClient.h>
@@ -45,7 +47,7 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 
-static Boolean verifyListenerCertificate(SSLCertificateInfo &certInfo)
+static Boolean verifyListenerCertificate(SSLCertificateInfo& certInfo)
 {
     // ATTN: Add code to handle listener certificate verification.
     //
@@ -59,14 +61,14 @@ public:
 
     CIMxmlIndicationHandler()
     {
-        PEG_METHOD_ENTER (TRC_IND_HANDLER, 
+        PEG_METHOD_ENTER(TRC_IND_HANDLER,
             "CIMxmlIndicationHandler::CIMxmlIndicationHandler");
         PEG_METHOD_EXIT();
     }
 
     virtual ~CIMxmlIndicationHandler()
     {
-        PEG_METHOD_ENTER (TRC_IND_HANDLER, 
+        PEG_METHOD_ENTER(TRC_IND_HANDLER,
             "CIMxmlIndicationHandler::~CIMxmlIndicationHandler");
         PEG_METHOD_EXIT();
     }
@@ -81,16 +83,15 @@ public:
 
     }
 
-// l10n
     void handleIndication(
     const OperationContext& context,
     const String nameSpace,
-    CIMInstance& indicationInstance, 
-    CIMInstance& indicationHandlerInstance, 
+    CIMInstance& indicationInstance,
+    CIMInstance& indicationHandlerInstance,
     CIMInstance& indicationSubscriptionInstance,
     ContentLanguageList& contentLanguages)
     {
-        PEG_METHOD_ENTER (TRC_IND_HANDLER, 
+        PEG_METHOD_ENTER(TRC_IND_HANDLER,
             "CIMxmlIndicationHandler::handleIndication()");
 
         //get destination for the indication
@@ -102,7 +103,7 @@ public:
 
             PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg);
 
-            PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "CIMxmlIndicationHandler::handleIndication failed to deliver "
                 "indication: Destination property missing");
 
@@ -123,19 +124,18 @@ public:
                 "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR",
                 "CIMxmlIndicationHandler Error: ");
 
-            String msg = String(MessageLoader::getMessage(param) +
-                e.getMessage());
+            String msg = MessageLoader::getMessage(param) + e.getMessage();
 
             PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg);
 
-            PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "CIMxmlIndicationHandler::handleIndication failed to deliver "
                 "indication: Destination property type mismatch");
 
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);
         }
-    
+
         try
         {
             static String PROPERTY_NAME__SSLCERT_FILEPATH =
@@ -165,13 +165,14 @@ public:
             String randFile = String::EMPTY;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
-            randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
+            randFile =
+                ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
             Monitor monitor;
-            HTTPConnector httpConnector( &monitor);
+            HTTPConnector httpConnector(&monitor);
 
-            CIMExportClient exportclient( &monitor, &httpConnector);
+            CIMExportClient exportclient(&monitor, &httpConnector);
             Uint32 colon = dest.find (":");
             Uint32 portNumber = 0;
             Boolean useHttps = false;
@@ -180,13 +181,13 @@ public:
 
             //
             // If the URL has https (https://hostname:port/... or
-            // https://hostname/...) then use SSL for Indication delivery. 
+            // https://hostname/...) then use SSL for Indication delivery.
             // If it has http (http://hostname:port/...
             // or http://hostname/...) then do not use SSL.
             //
-            if (colon != PEG_NOT_FOUND) 
+            if (colon != PEG_NOT_FOUND)
             {
-                String httpStr = dest.subString(0, colon); 
+                String httpStr = dest.subString(0, colon);
                 if (String::equalNoCase(httpStr, "https"))
                 {
                     useHttps = true;
@@ -200,7 +201,7 @@ public:
                     String msg = _getMalformedExceptionMsg();
 
                     PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg+dest);
-                    PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "CIMxmlIndicationHandler::handleIndication failed to "
                         "deliver indication: "
                         "missing http or https "
@@ -208,7 +209,7 @@ public:
 
                     PEG_METHOD_EXIT();
                     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                        msg + dest); 
+                        msg + dest);
                 }
             }
             else
@@ -217,17 +218,17 @@ public:
 
                 PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
 
-                PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "CIMxmlIndicationHandler::handleIndication failed to "
                     "deliver indication: "
                     "missing colon "
                     "in Destination " + dest);
 
                 PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest); 
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest);
             }
 
-            String doubleSlash = dest.subString(colon + 1, 2); 
+            String doubleSlash = dest.subString(colon + 1, 2);
 
             if (String::equalNoCase(doubleSlash, "//"))
             {
@@ -239,14 +240,14 @@ public:
 
                 PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
 
-                PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "CIMxmlIndicationHandler::handleIndication failed to "
                     "deliver indication: "
                     "missing double slash "
                     "in Destination " + dest);
 
                 PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest); 
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest);
             }
 
             bool parseError = false;
@@ -275,16 +276,16 @@ public:
                 if (useHttps)
                 {
                      portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
-                        WBEM_DEFAULT_HTTPS_PORT); 
+                        WBEM_DEFAULT_HTTPS_PORT);
                 }
                 else
                 {
                     portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
                         WBEM_DEFAULT_HTTP_PORT);
                 }
-            }    
+            }
 
-	    char hostName[PEGASUS_MAXHOSTNAMELEN];
+            char hostName[PEGASUS_MAXHOSTNAMELEN];
             if (!parseError)
             {
                 char dummy;
@@ -293,48 +294,51 @@ public:
                 parseError = (noOfConversions != 1);
             }
 
-	    if (parseError)
-	    {
+            if (parseError)
+            {
                 String msg = _getMalformedExceptionMsg();
 
                 PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
 
-                PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "CIMxmlIndicationHandler::handleIndication failed to "
                     "deliver indication: "
                     "invalid host name or port number "
                     "in Destination " + dest);
 
                 PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest); 
-	    }
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest);
+            }
 
 #ifndef PEGASUS_OS_ZOS
 
             if (useHttps)
             {
 #ifdef PEGASUS_HAS_SSL
-                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, "Build SSL Context...");
+                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+                    "Build SSL Context...");
 
-                SSLContext sslcontext(trustPath, 
+                SSLContext sslcontext(trustPath,
                     certPath, keyPath, verifyListenerCertificate, randFile);
                 exportclient.connect (hostName, portNumber, sslcontext);
 #else
-//l10n 485
                 MessageLoaderParms param(
-                    "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", 
+                    "Handler.CIMxmlIndicationHandler."
+                        "CIMxmlIndicationHandler.ERROR",
                     "CIMxmlIndicationHandler Error: ");
                 MessageLoaderParms param1(
-                    "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.CANNOT_DO_HTTPS_CONNECTION", 
+                    "Handler.CIMxmlIndicationHandler."
+                        "CIMxmlIndicationHandler.CANNOT_DO_HTTPS_CONNECTION",
                     "Cannot do https connection.");
 
                 PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL3,
-                          MessageLoader::getMessage(param) + MessageLoader::getMessage(param1));
+                     MessageLoader::getMessage(param) +
+                         MessageLoader::getMessage(param1));
 
-                String msg = String(MessageLoader::getMessage(param) + 
-                    MessageLoader::getMessage(param1));
+                String msg = MessageLoader::getMessage(param) +
+                    MessageLoader::getMessage(param1);
 
-                PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "CIMxmlIndicationHandler::handleIndication failed to "
                     "deliver indication: "
                     "https not supported "
@@ -349,40 +353,39 @@ public:
                 exportclient.connect (hostName, portNumber);
             }
 #else
-            // On zOS the ATTLS facility is using the port number(s) definded of the outbound policy 
-            // to decide if the indication is delivered through a SSL secured socket. This is totally 
+            // On zOS the ATTLS facility is using the port number(s) defined
+            // of the outbound policy to decide if the indication is
+            // delivered through a SSL secured socket. This is totally
             // transparent to the CIM Server.
             exportclient.connect (hostName, portNumber);
 
-#endif 
-// l10n 
-	    // check destStr, if no path is specified, use "/" for the URI
+#endif
+            // check destStr, if no path is specified, use "/" for the URI
             Uint32 slash = destStr.find ("/");
             if (slash != PEG_NOT_FOUND)
-	    {
+            {
                 exportclient.exportIndication(
                     destStr.subString(slash), indicationInstance,
                     contentLanguages);
             }
-	    else
-	    {
+            else
+            {
                 exportclient.exportIndication(
                     "/", indicationInstance, contentLanguages);
-	    }
+            }
             exportclient.disconnect();
         }
         catch(Exception& e)
         {
-            //ATTN: Catch specific exceptions and log the error message 
+            //ATTN: Catch specific exceptions and log the error message
             // as Indication delivery failed.
-//l10n 485
             MessageLoaderParms param(
-                "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", 
+                "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR",
                 "CIMxmlIndicationHandler Error: ");
 
-            String msg = String(MessageLoader::getMessage(param) + e.getMessage());
+            String msg = MessageLoader::getMessage(param) + e.getMessage();
 
-            PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "CIMxmlIndicationHandler::handleIndication failed to deliver "
                 "indication due to Exception: " + e.getMessage ());
 
@@ -397,15 +400,16 @@ private:
     String _getMalformedExceptionMsg()
     {
         MessageLoaderParms param(
-            "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", 
+            "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR",
             "CIMxmlIndicationHandler Error: ");
 
         MessageLoaderParms param1(
-            "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.MALFORMED_HANDLER_INSTANCE", 
+            "Handler.CIMxmlIndicationHandler."
+                "CIMxmlIndicationHandler.MALFORMED_HANDLER_INSTANCE",
             "Malformed handler instance.");
 
-        return ( String(MessageLoader::getMessage(param) + 
-            MessageLoader::getMessage(param1)) );
+        return MessageLoader::getMessage(param) +
+            MessageLoader::getMessage(param1);
     }
 
 };

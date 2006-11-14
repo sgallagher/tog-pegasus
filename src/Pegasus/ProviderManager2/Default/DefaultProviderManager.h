@@ -76,7 +76,7 @@ private:
     CIMResponseMessage* _handleSubscriptionInitCompleteRequest(
         CIMRequestMessage* message);
 
-    ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
+    ProviderName _resolveProviderName(const ProviderIdContainer& providerId);
 
     ProviderOperationCounter _getProvider(
         const String& moduleFileName,

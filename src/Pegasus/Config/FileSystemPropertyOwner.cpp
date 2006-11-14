@@ -29,17 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes (sushma_fernandes@hp.com)
-//
-// Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
-//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // This file has implementation for the file system property owner class.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,21 +79,21 @@ FileSystemPropertyOwner::FileSystemPropertyOwner()
 
 
 /**
-Checks if the given directory is existing and writable
+    Checks if the given directory is existing and writable
 */
 Boolean isDirValid(const String& dirName)
 {
     String directoryName(ConfigManager::getHomedPath(dirName));
-    if (FileSystem::isDirectory(directoryName) && 
+    if (FileSystem::isDirectory(directoryName) &&
         FileSystem::canWrite(directoryName))
     {
         return true;
     }
     return false;
 }
- 
+
 /**
-Initialize the config properties.
+    Initialize the config properties.
 */
 void FileSystemPropertyOwner::initialize()
 {
@@ -150,11 +144,11 @@ struct ConfigProperty* FileSystemPropertyOwner::_lookupConfigProperty(
     }
 }
 
-/** 
-Get information about the specified property.
+/**
+    Get information about the specified property.
 */
 void FileSystemPropertyOwner::getPropertyInfo(
-    const String& name, 
+    const String& name,
     Array<String>& propertyInfo) const
 {
     propertyInfo.clear();
@@ -184,17 +178,17 @@ void FileSystemPropertyOwner::getPropertyInfo(
 
 
 /**
-Get default value of the specified property.
+    Get default value of the specified property.
 */
 String FileSystemPropertyOwner::getDefaultValue(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);    
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
     return configProperty->defaultValue;
 }
 
-/** 
-Get current value of the specified property.
+/**
+    Get current value of the specified property.
 */
 String FileSystemPropertyOwner::getCurrentValue(const String& name) const
 {
@@ -203,8 +197,8 @@ String FileSystemPropertyOwner::getCurrentValue(const String& name) const
     return configProperty->currentValue;
 }
 
-/** 
-Get planned value of the specified property.
+/**
+    Get planned value of the specified property.
 */
 String FileSystemPropertyOwner::getPlannedValue(const String& name) const
 {
@@ -213,11 +207,11 @@ String FileSystemPropertyOwner::getPlannedValue(const String& name) const
     return configProperty->plannedValue;
 }
 
-/** 
-Init current value of the specified property to the specified value.
+/**
+    Init current value of the specified property to the specified value.
 */
 void FileSystemPropertyOwner::initCurrentValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
@@ -225,30 +219,30 @@ void FileSystemPropertyOwner::initCurrentValue(
 }
 
 
-/** 
-Init planned value of the specified property to the specified value.
+/**
+    Init planned value of the specified property to the specified value.
 */
 void FileSystemPropertyOwner::initPlannedValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     configProperty->plannedValue = value;
 }
 
-/** 
-Update current value of the specified property to the specified value.
+/**
+    Update current value of the specified property to the specified value.
 */
 void FileSystemPropertyOwner::updateCurrentValue(
-    const String& name, 
-    const String& value) 
+    const String& name,
+    const String& value)
 {
     //
     // make sure the property is dynamic before updating the value.
     //
     if (!isDynamic(name))
     {
-        throw NonDynamicConfigProperty(name); 
+        throw NonDynamicConfigProperty(name);
     }
 
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
@@ -256,39 +250,40 @@ void FileSystemPropertyOwner::updateCurrentValue(
 }
 
 
-/** 
-Update planned value of the specified property to the specified value.
+/**
+    Update planned value of the specified property to the specified value.
 */
 void FileSystemPropertyOwner::updatePlannedValue(
-    const String& name, 
+    const String& name,
     const String& value)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     configProperty->plannedValue = value;
 }
 
-/** 
-Checks to see if the given value is valid or not.
+/**
+    Checks to see if the given value is valid or not.
 */
-Boolean FileSystemPropertyOwner::isValid(const String& name, 
-                                 const String& value) const
+Boolean FileSystemPropertyOwner::isValid(
+    const String& name,
+    const String& value) const
 {
-    if (!isDirValid( value ))
+    if (!isDirValid(value))
     {
         throw InvalidPropertyValue(name, value);
     }
- 
+
     return true;
 }
 
-/** 
-Checks to see if the specified property is dynamic or not.
+/**
+    Checks to see if the specified property is dynamic or not.
 */
 Boolean FileSystemPropertyOwner::isDynamic(const String& name) const
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
-    return (configProperty->dynamic==IS_DYNAMIC);
+    return (configProperty->dynamic == IS_DYNAMIC);
 }
 
 

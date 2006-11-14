@@ -47,7 +47,8 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_PMS_LINKAGE ProviderManagerModule : public DynamicLibrary
 {
 public:
-    typedef ProviderManager * (*CREATE_PROVIDER_MANAGER_FUNCTION)(const String &);
+    typedef ProviderManager * (*CREATE_PROVIDER_MANAGER_FUNCTION)(
+        const String &);
 
 public:
     ProviderManagerModule();

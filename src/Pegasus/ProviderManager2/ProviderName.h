@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ProviderName_h
@@ -50,36 +46,36 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_PPM_LINKAGE ProviderName
 {
 public:
-    ProviderName(void);
+    ProviderName();
     
     ProviderName(
-        const String & logicalName,
-        const String & physicalName,
-        const String & interfaceName,
+        const String& logicalName,
+        const String& physicalName,
+        const String& interfaceName,
         const Uint32 capabilities,
-        const CIMName & method=CIMName());
+        const CIMName& method = CIMName());
 
     ProviderName(
-        const CIMNamespaceName & nameSpace,
-        const CIMName & className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         const Uint32 capabilities,
-        const CIMName & method=CIMName());
+        const CIMName& method = CIMName());
         
      ProviderName(
-        const CIMObjectPath & path,
+        const CIMObjectPath& path,
         const Uint32 capabilities,
-        const CIMName & method=CIMName());
+        const CIMName& method = CIMName());
         
-   ~ProviderName(void);
+   ~ProviderName();
 
     String getLogicalName() const;
     String getPhysicalName() const;
-    void   setPhysicalName(const String & physicalName);
-    String getInterfaceName(void) const;
-    String getLocation(void) const;
-    void   setLocation(const String &);
-    Uint32 getCapabilitiesMask(void) const;
-    CIMName getMethodName(void) const;
+    void setPhysicalName(const String& physicalName);
+    String getInterfaceName() const;
+    String getLocation() const;
+    void setLocation(const String&);
+    Uint32 getCapabilitiesMask() const;
+    CIMName getMethodName() const;
     CIMNamespaceName getNameSpace() const;
     CIMName getClassName() const;
 
@@ -93,7 +89,6 @@ private:
     Uint32 _capabilities;
     
     CIMName _method;
-
 };
 
 PEGASUS_NAMESPACE_END

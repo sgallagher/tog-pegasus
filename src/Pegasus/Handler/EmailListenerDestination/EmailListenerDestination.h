@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 PEGASUS_NAMESPACE_BEGIN
@@ -53,49 +49,53 @@ PEGASUS_USING_STD;
 # define MAX_SENDMAIL_CMD_LEN 100
 # define TEMP_NAME_LEN L_tmpnam
 
-char
-  mailFileVms[TEMP_NAME_LEN];
+char mailFileVms[TEMP_NAME_LEN];
 
-long
-  file_len = 0,
-  subject_line_len = 0,
-  to_user_len = 0;
+long file_len = 0;
+long subject_line_len = 0;
+long to_user_len = 0;
 
-int
-  send_context = 0,
-  status = SS$_NORMAL;
+int send_context = 0;
+int status = SS$_NORMAL;
 
 typedef struct itmlst
 {
-  short buffer_length;
-  short item_code;
-  long buffer_address;
-  long return_length_address;
-}
-ITMLST;
+    short buffer_length;
+    short item_code;
+    long buffer_address;
+    long return_length_address;
+} ITMLST;
 
-ITMLST
-  nulllist[] = 
-    { {0, 0, 0, 0} 
-    },
-  address_itmlst[] = 
-    { {0, MAIL$_SEND_USERNAME, 0, 0},
-      {0, MAIL$_SEND_USERNAME_TYPE, MAIL$_TO, 0},
-      {0, 0, 0, 0}
-    },
-  address_cc_itmlst[] =
-    { {0, MAIL$_SEND_USERNAME, 0, 0},
-      {0, MAIL$_SEND_USERNAME_TYPE, MAIL$_CC, 0},
-      {0, 0, 0, 0}
-    },
-  bodypart_itmlst[] =
-    { {0, MAIL$_SEND_FILENAME, 0, 0},
-      {0, 0, 0, 0}
-    },
-  attribute_itmlst[] =
-    { {0, MAIL$_SEND_SUBJECT, 0, 0},
-      {0, 0, 0, 0}
-    };
+ITMLST nulllist[] =
+{
+    {0, 0, 0, 0} 
+};
+
+ITMLST address_itmlst[] =
+{
+    {0, MAIL$_SEND_USERNAME, 0, 0},
+    {0, MAIL$_SEND_USERNAME_TYPE, MAIL$_TO, 0},
+    {0, 0, 0, 0}
+};
+
+ITMLST address_cc_itmlst[] =
+{
+    {0, MAIL$_SEND_USERNAME, 0, 0},
+    {0, MAIL$_SEND_USERNAME_TYPE, MAIL$_CC, 0},
+    {0, 0, 0, 0}
+};
+
+ITMLST bodypart_itmlst[] =
+{
+    {0, MAIL$_SEND_FILENAME, 0, 0},
+    {0, 0, 0, 0}
+};
+
+ITMLST attribute_itmlst[] =
+{
+    {0, MAIL$_SEND_SUBJECT, 0, 0},
+    {0, 0, 0, 0}
+};
 
 #endif
 
@@ -118,19 +118,19 @@ public:
     }
 
     void handleIndication(
-	const OperationContext& context,
-	const String nameSpace,
-	CIMInstance& indication, 
-	CIMInstance& handler, 
-	CIMInstance& subscription, 
-	ContentLanguageList& contentLanguages);
+        const OperationContext& context,
+        const String nameSpace,
+        CIMInstance& indication, 
+        CIMInstance& handler, 
+        CIMInstance& subscription, 
+        ContentLanguageList& contentLanguages);
 
 private:
 
     /**
         Sends the formatted indication to the specified recipients. 
-	Utility "sendmail" is the default tool to be used. The platform 
-	maintainer can also choose different tools.
+        Utility "sendmail" is the default tool to be used. The platform 
+        maintainer can also choose different tools.
 
         @param  mailTo         the addresses of the To: field 
         @param  mailCc         the addresses of the Cc: field 
@@ -139,14 +139,14 @@ private:
     */
 
     void _sendViaEmail(
-	const Array<String> & mailTo,
-	const Array<String> & mailCc,
-	const String & mailSubject,
-	const String & formattedText);
+        const Array<String>& mailTo,
+        const Array<String>& mailCc,
+        const String& mailSubject,
+        const String& formattedText);
 
     /**
         Build the header of the mail message which includes To:, Cc:,
-	From:, and Subject: fields
+        From:, and Subject: fields
 
         @param  mailTo         the addresses of the To: field 
         @param  mailCc         the addresses of the Cc: field 
@@ -155,10 +155,10 @@ private:
     */
 
     void _buildMailHeader(
-	const Array<String> & mailTo,
-	const Array<String> & mailCc,
-	const String & mailSubject,
-	FILE * filePtr);
+        const Array<String>& mailTo,
+        const Array<String>& mailCc,
+        const String& mailSubject,
+        FILE* filePtr);
 
     /**
         Build the mail address string from address array 
@@ -168,7 +168,7 @@ private:
         @return the string of the mail addresses 
     */
     String _buildMailAddrStr(
-	const Array<String> & mailAddr);
+        const Array<String>& mailAddr);
 
 #ifdef PEGASUS_OS_VMS
     /**
@@ -179,7 +179,7 @@ private:
         @return the string of the mail addresses 
     */
     String _buildMailAddrCcStr(
-	const Array<String> & mailAddr);
+        const Array<String>& mailAddr);
 
 #endif
     /**
@@ -189,26 +189,25 @@ private:
         @param  filePtr        the pointer to the temporary file 
     */
     void _writeStrToFile(
-	const String & mailHdrStr,
-	FILE * filePtr);
+        const String& mailHdrStr,
+        FILE* filePtr);
 
     /**
         Sends the indication via e-mail by opening a pipe to sendmail() 
 
         @param  mailFile       The temporary file name 
     */
-    void _sendMsg(char * mailFile);
+    void _sendMsg(char* mailFile);
 
     /**
-	Opens a temporary file to hold the indication mail message
+        Opens a temporary file to hold the indication mail message
 
         @param  filePtr     the address of the pointer to the open file 
         @param  mailFile    the temporary file name 
     */
     void _openFile(
-	FILE **filePtr,
-	char * mailFile);
-
+        FILE** filePtr,
+        char* mailFile);
 };
 
 PEGASUS_NAMESPACE_END

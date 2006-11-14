@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderManager.h"
@@ -44,18 +37,19 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderManager::ProviderManager(void)
+ProviderManager::ProviderManager()
 {
 }
 
-ProviderManager::~ProviderManager(void)
+ProviderManager::~ProviderManager()
 {
 }
 
 String ProviderManager::_resolvePhysicalName(String physicalName)
 {
 #if defined(PEGASUS_OS_VMS)
-    String fileName = FileSystem::buildLibraryFileName(physicalName) + String(".exe");
+    String fileName =
+        FileSystem::buildLibraryFileName(physicalName) + String(".exe");
 #else
     String fileName = FileSystem::buildLibraryFileName(physicalName);
 #endif

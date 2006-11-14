@@ -38,7 +38,7 @@
 #endif
     {"httpAuthType",                             "Basic"},
     {"passwordFilePath",              "cimserver.passwd"},
-    {"sslCertificateFilePath",              "server.pem"}, 
+    {"sslCertificateFilePath",              "server.pem"},
     {"sslKeyFilePath",                        "file.pem"},
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore",                                   "crl"},

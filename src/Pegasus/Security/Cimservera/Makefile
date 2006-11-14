@@ -38,7 +38,8 @@ LOCAL_DEFINES = -DPEGASUS_SECURITY_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
     pegcommon \
-    pegauthentication
+    pegauthentication \
+    pegconfig
 
 PRE_DEPEND_INCLUDES = -I./depends
 

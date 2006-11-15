@@ -47,7 +47,8 @@ static const String INVALID_LIBRARY_NAME = "BADDynLib";
 
 const char* verbose = 0;
 
-String getLibraryFileName(const String& libraryName) { 
+String getLibraryFileName(const String& libraryName) 
+{ 
 #if defined(PEGASUS_OS_VMS)
     String prefixDir;
 # if defined(PEGASUS_USE_RELEASE_DIRS)
@@ -61,7 +62,22 @@ String getLibraryFileName(const String& libraryName) {
 # endif
     return prefixDir +
            FileSystem::buildLibraryFileName(libraryName) + ".exe"; 
-# else
+
+#elif defined(PEGASUS_OS_DARWIN)
+
+    String libName = FileSystem::buildLibraryFileName(libraryName);
+    const char* pegasusHome = getenv("PEGASUS_HOME");
+
+    if (pegasusHome)
+    {
+	// Build full library path:
+	return String(pegasusHome) + String("/lib/") + libName;
+    }
+
+    // Use LD_LIBRARY_PATH to locate library (if not set, test will fail).
+    return libName;
+
+#else
     return FileSystem::buildLibraryFileName(libraryName);
 #endif
 }

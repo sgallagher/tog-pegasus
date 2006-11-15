@@ -59,7 +59,6 @@
                          -l hpc4711
 */
 
-#include <Pegasus/Common/Config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "../Common/getopts.h"
@@ -75,12 +74,6 @@
 #include <unistd.h>  
 #define RCMPI_MKDIR(dir) mkdir(dir,0775)
 #endif
-
-void err_dump(char *msg)
-{
-    printf("%s\n",msg);
-    exit(0);
-}
 
 int main(int argc, char* argv[])
 {
@@ -100,7 +93,8 @@ int main(int argc, char* argv[])
 
     if (0 == (pegasushome = getenv("PEGASUS_HOME")))
     {
-        err_dump("PEGASUS_HOME environment varialble not set.");
+        printf("PEGASUS_HOME environment varialble not set.");
+        return -1;
     }
 
     if (2 > argc)
@@ -108,7 +102,7 @@ int main(int argc, char* argv[])
         printf(
                "Usage: CreateExtNs -n <namespace-name> [ -p <parent-namespace>"
                " -l <remote-location> ]\n");
-        exit(1);
+        return 0;
     }
 
     while ((tmp = getopts("l:n:p:r:",&n,&optsarg,argc,argv)))
@@ -128,12 +122,13 @@ int main(int argc, char* argv[])
                 repositoryname = optsarg;
                 break;
             default: // '\0'
-                err_dump(optsarg);
+                printf("%s\n",optsarg);
         }
     }
 
-    pathseparator="/";
-	/* check for repository */
+    pathseparator = "/";
+    
+    /* check for repository */
     strcpy(rdir,pegasushome);
     strcat(rdir,pathseparator);
     strcat(rdir,repositoryname);
@@ -141,14 +136,15 @@ int main(int argc, char* argv[])
 
     if (0 != access(rdir,0))
     {
-        perror("Repository ");
-        exit(1);
+        perror(rdir);
+        return -1;
     }
 
     /* check for namespace */
     if (0 == newnamespace)
     {
-        err_dump("Required parameter <namespace name> is missing.");
+        printf("Required parameter <namespace name> is missing.\n");
+        return -1;
     }
 
     /* check for namespace existence */
@@ -161,8 +157,8 @@ int main(int argc, char* argv[])
     }
     if (0 == access(rdir,0))
     {
-	printf("%s :",rdir);
-        err_dump("Namespace alreay exists");
+	printf("%s : Namespace already exisists\n",rdir);
+        return 0; 
     }
 
     rdir[rlen] = '\0'; // get back repository directory with pathseparator
@@ -178,8 +174,8 @@ int main(int argc, char* argv[])
         }
         if (0 != access(rdir,0))
         {
-            printf("%s :",rdir);
-            err_dump("Parent namespace does not exist ");
+            printf("%s :Parent namespace does not exist",rdir);
+            return -1;
         }
         rdir[rlen] = '\0';
     }
@@ -195,7 +191,7 @@ int main(int argc, char* argv[])
     {
 	 printf("Create Namespace\n");
          perror(rdir);
-         exit(1);
+         return -1;
     }
 
     strcat(rdir,pathseparator);
@@ -207,7 +203,7 @@ int main(int argc, char* argv[])
     {
 	printf("Create classes\n");
         perror(rdir);
-        exit(1);
+        return -1;
     }
     rdir[rlen] = '\0';
 
@@ -217,7 +213,7 @@ int main(int argc, char* argv[])
     {
 	printf("Create qualifiers\n");
         perror(rdir);
-        exit(1);
+        return -1;
     }
     rdir[rlen] ='\0';
 
@@ -227,7 +223,7 @@ int main(int argc, char* argv[])
     {
 	printf("Create instances\n");
         perror(rdir);
-        exit(1);
+        return -1;
     }
     rdir[rlen] ='\0';
 
@@ -245,7 +241,7 @@ int main(int argc, char* argv[])
         {
 	    printf("Create SRS parent Namespace\n");
             perror(rdir);
-            exit(1);
+            return -1;
         }
         rdir[rlen] ='\0';
     }
@@ -259,10 +255,12 @@ int main(int argc, char* argv[])
         {
 	    printf("Create remote location\n");
             perror(rdir);
-            exit(1);
+            return -1;
         }
     }
 
     return 0;
 }
+
+
 

@@ -1981,8 +1981,8 @@ int main(int argc, char** argv)
     CIMInstance inst2(name2);
     inst2.setPath(path2);
     CIMInstance inst3(name3);
-    inst3.addProperty(CIMProperty("Name", "BoringInstance"));
-    inst3.addProperty(CIMProperty("Identifier", "111"));
+    inst3.addProperty(CIMProperty("Name", String("BoringInstance")));
+    inst3.addProperty(CIMProperty("Identifier", String("111")));
     inst3.setPath(path3);
     CIMInstance inst4(name4);
     inst4.addProperty(CIMProperty("P1", CIMValue(Uint16(65))));
@@ -1997,8 +1997,8 @@ int main(int argc, char** argv)
     CIMClass class2("TST_EmptyClass");
     class2.setPath(path2);
     CIMClass class3("ClassName3");
-    class3.addProperty(CIMProperty("Name", "BoringInstance"));
-    class3.addProperty(CIMProperty("Identifier", "111"));
+    class3.addProperty(CIMProperty("Name", String("BoringInstance")));
+    class3.addProperty(CIMProperty("Identifier", String("111")));
     class3.setPath(path3);
     CIMClass class4("TST_ClassDef");
     class4.addProperty(CIMProperty("P1", CIMValue(Uint16(65))));

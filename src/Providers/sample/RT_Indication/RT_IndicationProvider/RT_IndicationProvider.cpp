@@ -200,7 +200,7 @@ void _generateIndication (
 
             indicationInstance.addProperty
                 (CIMProperty ("TestOidDataType", 
-                 CIMValue ("1.3.6.1.4.1.892.2.3.5006.5002")));
+                 String("1.3.6.1.4.1.892.2.3.5006.5002")));
 
         }
         else

@@ -337,7 +337,6 @@ Boolean CertificateProvider::_verifyAuthorization(const String& userName)
  */
 CertificateProvider::CertificateProvider(CIMRepository* repository,
                                          SSLContextManager* sslContextMgr) :
-_cimom(0), 
 _repository(repository),
 _sslContextMgr(sslContextMgr)
 {

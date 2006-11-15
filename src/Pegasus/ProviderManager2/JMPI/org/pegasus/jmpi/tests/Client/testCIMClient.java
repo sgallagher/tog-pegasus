@@ -1230,35 +1230,49 @@ public class testCIMClient
             System.err.println ("Exec query");
          }
 
-         enm = cimClient.execQuery (cop, stringQuery, stringQueryLanguage);
-
-         if (DEBUG)
+         try
          {
-            System.err.println ("enm           = " + enm);
+            enm = cimClient.execQuery (cop, stringQuery, stringQueryLanguage);
+
+            if (DEBUG)
+            {
+               System.err.println ("enm           = " + enm);
+            }
+
+            if (  enm == null
+               || !enm.hasMoreElements ()
+               )
+            {
+               System.out.println ("FAIL (25): testCIMClient: execQuery");
+
+               return false;
+            }
+
+            ci = (CIMInstance)enm.nextElement ();
+
+            if (DEBUG)
+            {
+               System.err.println ("ci            = " + ci);
+            }
+
+            // There should be only one class
+            if (enm.hasMoreElements ())
+            {
+               System.out.println ("FAIL (26): testCIMClient: execQuery");
+
+               return false;
+            }
          }
-
-         if (  enm == null
-            || !enm.hasMoreElements ()
-            )
+         catch (CIMException e)
          {
-            System.out.println ("FAIL (25): testCIMClient: execQuery");
-
-            return false;
-         }
-
-         ci = (CIMInstance)enm.nextElement ();
-
-         if (DEBUG)
-         {
-            System.err.println ("ci            = " + ci);
-         }
-
-         // There should be only one class
-         if (enm.hasMoreElements ())
-         {
-            System.out.println ("FAIL (26): testCIMClient: execQuery");
-
-            return false;
+            if (e.getID () != CIMException.CIM_ERR_NOT_SUPPORTED)
+            {
+               throw e;
+            }
+            else
+            {
+               System.out.println ("IGNORE: testCIMClient: execQuery CIM_ERR_NOT_SUPPORTED");
+            }
          }
 
          //8<--------8<--------8<--------8<--------8<--------8<--------8<--------

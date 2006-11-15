@@ -37,6 +37,9 @@
     {"enableAuthentication",                     "false"},
 #endif
     {"httpAuthType",                             "Basic"},
+#if !defined(PEGASUS_USE_SYSLOGS)
+    {"logdir",                                        ""},
+#endif
     {"passwordFilePath",              "cimserver.passwd"},
     {"sslCertificateFilePath",              "server.pem"},
     {"sslKeyFilePath",                        "file.pem"},

@@ -1297,13 +1297,14 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
     }
 
 #elif defined(PEGASUS_OS_ZOS) && defined(PEGASUS_USE_SYSLOGS)
+#define ZOS_MSGID_LENGTH 11
 
-    const char   * zosMessageString = message;
-    unsigned int   zosMessageStringLength = strlen(message);
-    char         * tmpMessageString = NULL;
-    Uint32         syslogLevel = LOG_DEBUG;
-    const char   * zos_msgid;
+    char*           zosMessageString;
+    Uint32          messageLength = strlen(message);
+    Uint32          syslogLevel = LOG_DEBUG;
+    const char*     zos_msgid;
 
+    // determine syslog level and create zos_msgid string
     if ((severity & Logger::SEVERE) || (severity & Logger::FATAL) )
     {
         syslogLevel = LOG_ERR;
@@ -1325,64 +1326,48 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
         zos_msgid = "CFZ00001I: ";
     }
 
+    // we cut at 4000 characters
+    // leaving room for 11 additional message characters
+    // 
+    if (messageLength > 4000)
+        messageLength = 4000;
+
+    // reserve memory for the message string, also prepend
+    // z/OS message id CFZ* if necessary
     if (strncmp(message, "CFZ", 3) != 0)
     {
-        // Message is not z/OS message that already has the right prefix.
-        // Prepend the generic z/OS message ids to Pegasus message
-        zosMessageStringLength += strlen(zos_msgid);
-        tmpMessageString = (char*)calloc(zosMessageStringLength,1);
-        strcpy(tmpMessageString, zos_msgid);
-        strcat(tmpMessageString, message);
-
-        zosMessageString = tmpMessageString;
-    }
-
-    // if message greater then 4096 bytes results are undefined !
-    if (zosMessageStringLength > 4095)
+        // reserve message + 11 char message prepend + 1 byte for \0 char
+        zosMessageString = (char*) malloc(messageLength+ZOS_MSGID_LENGTH+1);
+        memcpy(zosMessageString, zos_msgid, ZOS_MSGID_LENGTH);
+        memcpy(zosMessageString+ZOS_MSGID_LENGTH, message, messageLength);
+        messageLength+=ZOS_MSGID_LENGTH;
+    } else
     {
-        // the temp buffer is already used !
-        if (tmpMessageString)
-        {
-            // the zosMessageSting and the tmpMessageString are pointing
-            // to the same storage but the tmpMessageString is not const !
-            tmpMessageString[4095] = 0;
-
-        }
-        else
-        {
-            // allocate an appropriate buffer, init with 0
-            tmpMessageString = (char*)calloc(4096,1);
-            memcpy(tmpMessageString,zosMessageString,4095);
-            zosMessageString = tmpMessageString;
-        }
-
+        zosMessageString = (char*) malloc(messageLength+1);
+        memcpy(zosMessageString, message, messageLength);
     }
+    // terminate with a null character
+    zosMessageString[messageLength]='\0';
 
+    // write first to syslog, __console changes the content of
+    // message string
+    ::syslog(syslogLevel, "%s", zosMessageString);
+    
     CString identCString = ident.getCString();
     // Issue important messages to the z/OS console
-    // and audit messages are not important
+    // audit messages will go to a different syslog like place
     if (!(severity & Logger::TRACE) &&
         !(strcmp("cimserver audit",identCString) == 0))
     {
         struct __cons_msg   cons;
         int                 concmd=0;
-        int                 rc;
-
-
+        
         memset(&cons,0,sizeof(cons));
-
-        cons.__format.__f1.__msg_length = zosMessageStringLength;
-        cons.__format.__f1.__msg = (char*)zosMessageString;
-
-        rc = __console(&cons, NULL, &concmd );
+        cons.__format.__f1.__msg_length = messageLength;
+        cons.__format.__f1.__msg = zosMessageString;
+        __console(&cons, NULL, &concmd);
     }
-
-    ::syslog(syslogLevel, "%s", zosMessageString);
-
-
-    if (tmpMessageString)
-        free(tmpMessageString);
-
+    free(zosMessageString);
 
 #else /* default */
 

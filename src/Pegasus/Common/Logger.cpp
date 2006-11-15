@@ -157,7 +157,7 @@ public:
 #else
 
 #ifdef PEGASUS_OS_ZOS
-       logIdentity = System::CIMSERVER.getCString();
+       logIdentity = strdup(System::CIMSERVER.getCString());
         // If System Log is used open it
         System::openlog(logIdentity, LOG_PID, LOG_DAEMON);
 #endif
@@ -183,7 +183,7 @@ public:
 
 #ifdef PEGASUS_OS_ZOS
         System::closelog();
-
+        free(logIdentity);
 #endif
 
 #endif
@@ -203,7 +203,7 @@ public:
 private:
 
 #ifdef PEGASUS_OS_ZOS
-    CString logIdentity;
+    char* logIdentity;
 #endif
     ofstream _logs[int(Logger::NUM_LOGS)];
 };

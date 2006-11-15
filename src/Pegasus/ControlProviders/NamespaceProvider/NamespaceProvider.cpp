@@ -746,19 +746,4 @@ void NamespaceProvider::enumerateInstanceNames(
         PEG_METHOD_EXIT();
 }
 
-void NamespaceProvider::initialize(CIMOMHandle& cimomHandle)
-{
-    // derefence repository pointer and save for later.
-    //ATTN: Cannot get repository here.
-    // _repository = cimomHandle.getRepository();
-}
-
-void NamespaceProvider::terminate(void)
-{
-    // delete self. this is necessary because the entry point for this object allocated it, and
-    // the module is responsible for its memory management.
-    delete this;
-}
-
 PEGASUS_NAMESPACE_END
-

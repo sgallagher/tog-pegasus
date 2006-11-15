@@ -77,12 +77,10 @@ public:
         PEG_METHOD_EXIT();
     }
 
-    void terminate()
-    {
-        PEG_METHOD_ENTER(TRC_SHUTDOWN,"ShutdownProvider::terminate");
-        delete this;
-        PEG_METHOD_EXIT();
-    }
+    // Note:  The initialize() and terminate() methods are not called for
+    // Control Providers.
+    void initialize(CIMOMHandle& cimomHandle) { }
+    void terminate() { }
 
     /**
         Invoke Method.  Used to shutdown cimom.
@@ -93,15 +91,6 @@ public:
         const CIMName& methodName,
         const Array<CIMParamValue>& inParameters,
         MethodResultResponseHandler& handler);
-
-    /**
-        Standard initialization function for the provider.
-    */
-    void initialize(CIMOMHandle& cimomHandle)
-    {
-        // This method should never be called, since this is an internal
-        // control provider
-    }
 
 private:
 

@@ -61,22 +61,6 @@ CIMQueryCapabilitiesProvider::~CIMQueryCapabilitiesProvider()
   PEG_METHOD_EXIT();
 }
 
-void CIMQueryCapabilitiesProvider::initialize(CIMOMHandle& cimom)
-{
-  PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CIMQueryCapabilitiesProvider::initialize");
-   _cimom = cimom;
-  PEG_METHOD_EXIT();
-
-}
-
-void CIMQueryCapabilitiesProvider::terminate(void)
-{
-  PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CIMQueryCapabilitiesProvider::terminate");
-   delete this;
-  PEG_METHOD_EXIT();
-}
-
-
 void CIMQueryCapabilitiesProvider::getInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,

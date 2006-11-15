@@ -57,9 +57,11 @@ public:
 	CIMOMStatDataProvider();
 	virtual ~CIMOMStatDataProvider();
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    // Note:  The initialize() and terminate() methods are not called for
+    // Control Providers.
+    virtual void initialize(CIMOMHandle& cimom) { }
+    virtual void terminate() { }
 
 	// CIMStatisticalDataProvider interface
 	virtual void getInstance(
@@ -107,10 +109,7 @@ public:
 
    protected:
       CIMObjectPath _references[StatisticalData::NUMBER_OF_TYPES];
-	 //CIMDateTime toDateTime(Sint64 date);
 	  void checkObjectManager();
-      CIMOMHandle _cimom;
-
 };
 
 PEGASUS_NAMESPACE_END

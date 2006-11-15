@@ -89,8 +89,10 @@ public:
     virtual ~CertificateProvider(void);
 
     // CIMProvider interface
-    virtual void initialize(CIMOMHandle & cimom);
-    virtual void terminate(void);
+    // Note:  The initialize() and terminate() methods are not called for
+    // Control Providers.
+    virtual void initialize(CIMOMHandle & cimom) { }
+    virtual void terminate() { }
 
     // CIMInstanceProvider interface
     virtual void getInstance(
@@ -143,7 +145,6 @@ public:
 
 private:
 
-    CIMOMHandle * _cimom;
     CIMRepository* _repository;
     SSLContextManager* _sslContextMgr;
 

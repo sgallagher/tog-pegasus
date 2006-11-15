@@ -60,23 +60,6 @@ CIMOMStatDataProvider::~CIMOMStatDataProvider()
 {
 }
 
-void CIMOMStatDataProvider::initialize(CIMOMHandle & cimom)
-{
-   _cimom = cimom;
-   for (Uint32 i=0; i<StatisticalData::length; i++){
-      char buffer[32];
-      sprintf(buffer, "%d", i);
-      _references[i] = CIMObjectPath(
-        "CIM_CIMOMStatisticalData.InstanceID=\"CIM_CIMOMStatisticalData"+String(buffer)+"\"");
-   }
-
-}
-
-void CIMOMStatDataProvider::terminate(void)
-{
-   delete this;
-}
-
 void CIMOMStatDataProvider::getInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,

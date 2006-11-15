@@ -56,6 +56,7 @@ public:
     virtual ~ProviderMessageHandler();
 
     String getName() const;
+    CIMProvider* getProvider();
     void setProvider(CIMProvider* provider);
     void initialize(CIMOMHandle& cimom);
     void terminate();

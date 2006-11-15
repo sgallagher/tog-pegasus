@@ -63,9 +63,11 @@ public:
 	CIMQueryCapabilitiesProvider();
 	virtual ~CIMQueryCapabilitiesProvider();
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    // Note:  The initialize() and terminate() methods are not called for
+    // Control Providers.
+    virtual void initialize(CIMOMHandle& cimom) { }
+    virtual void terminate() { }
 
 	// CIMQueryCapabilitiesProvider interface
 	virtual void getInstance(

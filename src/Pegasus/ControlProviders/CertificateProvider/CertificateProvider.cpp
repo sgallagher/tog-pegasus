@@ -368,31 +368,6 @@ CertificateProvider::~CertificateProvider(void)
     PEG_METHOD_EXIT();
 }
 
-/** Called when a provider is loaded
- */ 
-void CertificateProvider::initialize(CIMOMHandle & cimom)
-{
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::initialize");
-
-    // save the cimom handle in case it is needed to service and operation.
-    _cimom = &cimom;
-
-    PEG_METHOD_EXIT();
-}
-
-/** Called before a provider is unloaded
- */ 
-void CertificateProvider::terminate(void)
-{
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::terminate");
-
-    // delete self. this is necessary because the entry point for this object allocated it, and
-    // the module is responsible for its memory management.
-    delete this;
-
-    PEG_METHOD_EXIT();
-}
-
 /** Delivers a single instance to the CIMOM
  */ 
 void CertificateProvider::getInstance(

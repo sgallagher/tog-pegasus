@@ -123,6 +123,11 @@ String ProviderMessageHandler::getName() const
     return _name;
 }
 
+CIMProvider* ProviderMessageHandler::getProvider()
+{
+    return _provider;
+}
+
 void ProviderMessageHandler::setProvider(CIMProvider* provider)
 {
     _provider = provider;

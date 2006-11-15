@@ -102,6 +102,11 @@ public:
         PEG_METHOD_EXIT();
     }
 
+    // Note:  The initialize() and terminate() methods are not called for
+    // Control Providers.
+    void initialize(CIMOMHandle& handle) { }
+    void terminate() { }
+
     virtual void createInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
@@ -181,21 +186,6 @@ public:
         const CIMName & resultClass,
         const String & role,
         ObjectPathResponseHandler & handler);
-
-    /**
-    Standard initialization function for the provider.
-    */
-    void initialize(CIMOMHandle& handle)
-    {
-      cimomHandle = handle;
-    }
-
-    void terminate(void)
-    {
-        // delete self. this is necessary because the entry point for this object allocated it, and
-        // the module is responsible for its memory management.
-        //delete this;
-    }
 
 private:
 

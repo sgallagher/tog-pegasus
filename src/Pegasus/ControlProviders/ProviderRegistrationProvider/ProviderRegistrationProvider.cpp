@@ -80,19 +80,6 @@ ProviderRegistrationProvider::~ProviderRegistrationProvider(void)
 {
 }
 
-void ProviderRegistrationProvider::initialize(CIMOMHandle & cimom)
-{
-    // This method should not be called because this is a control provider
-    // and is not dynamically loaded through the provider manager
-}
-
-void ProviderRegistrationProvider::terminate(void)
-{
-  // delete self. this is necessary because the entry point for this object allocated it, and
-  // the module is responsible for its memory management.
-  delete this;
-}
-
 // get registered provider
 void ProviderRegistrationProvider::getInstance(
     const OperationContext & context,

@@ -590,7 +590,7 @@ CIMServer::~CIMServer ()
     for (Uint32 i = 0, n = _controlProviders.size(); i < n; i++)
     {
         ProviderMessageHandler* p = _controlProviders[i];
-        p->terminate();
+        delete p->getProvider();
         delete p;
     }
 

@@ -91,6 +91,11 @@ public:
     PEGASUS_HIDDEN_LINKAGE
     virtual ~NamespaceProvider();
 
+    // Note:  The initialize() and terminate() methods are not called for
+    // Control Providers.
+    virtual void initialize(CIMOMHandle& cimomHandle) { }
+    virtual void terminate() { }
+
     /**
     Creates a new instance. This function is used to create new namespaces.
 
@@ -199,15 +204,6 @@ public:
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
         ObjectPathResponseHandler & handler);
-
-    /**
-    Standard initialization function for the provider.
-    */
-    PEGASUS_HIDDEN_LINKAGE
-    virtual void initialize(CIMOMHandle& cimomHandle);
-
-    PEGASUS_HIDDEN_LINKAGE
-    virtual void terminate(void);
 
 private:
 

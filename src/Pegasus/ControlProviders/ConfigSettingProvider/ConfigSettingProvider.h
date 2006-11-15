@@ -87,8 +87,12 @@ public:
 
     virtual ~ConfigSettingProvider()
     {
-
     }
+
+    // Note:  The initialize() and terminate() methods are not called for
+    // Control Providers.
+    void initialize(CIMOMHandle& cimomHandle) { }
+    void terminate() { }
 
     /**
     Creates a new instance.
@@ -197,25 +201,6 @@ public:
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
         ObjectPathResponseHandler & handler);
-
-    /**
-    Standard initialization function for the provider.
-    */
-    void initialize(CIMOMHandle& cimomHandle)
-    {
-        //
-        // get an instance of Config Manager and initialize
-        // the instance variable.
-        //
-        _configManager = ConfigManager::getInstance();
-    }
-
-    void terminate(void)
-    {
-	// delete self. this is necessary because the entry point for this object allocated it, and
-    	// the module is responsible for its memory management.
-	delete this;
-    }
 
 private:
 

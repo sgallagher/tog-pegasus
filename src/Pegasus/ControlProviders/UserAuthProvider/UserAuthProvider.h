@@ -112,6 +112,11 @@ public:
 	PEG_METHOD_EXIT();
     }
 
+    // Note:  The initialize() and terminate() methods are not called for
+    // Control Providers.
+    void initialize(CIMOMHandle& cimomHandle) { }
+    void terminate() { }
+
     /**
     Returns the instance based on instanceName.
     */
@@ -205,35 +210,6 @@ public:
         const CIMName & methodName,
         const Array<CIMParamValue> & inParams,
         MethodResultResponseHandler & handler);
-
-    /**
-    Standard initialization function for the provider.  This method should
-    never be called since this is an internal control provider.
-    */
-    void initialize(CIMOMHandle& cimomHandle)
-    {
-	PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::initialize");
-
-        //
-        // get an instance of User Manager and initialize
-        // the instance variable.
-        //
-        _userManager = UserManager::getInstance();
-
-        // Can't get the respository handle here.
-
-	PEG_METHOD_EXIT();
-    }
-
-    void terminate(void)
-    {
-	PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::terminate");
-	// delete self. this is necessary because the entry point for this object allocated it, and
-    	// the module is responsible for its memory management.
-
-	delete this;
-	PEG_METHOD_EXIT();
-    }
 
 private:
     /**

@@ -90,8 +90,10 @@ public:
 ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & handle);
 
     // CIMProvider interface
-    virtual void initialize(CIMOMHandle& cimom);
-    virtual void terminate(void);
+    // Note:  The initialize() and terminate() methods are not called for
+    // Control Providers.
+    virtual void initialize(CIMOMHandle& cimom) { }
+    virtual void terminate() { }
 
     // CIMInstanceProvider interface
     virtual void getInstance(

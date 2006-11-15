@@ -31,7 +31,8 @@
 DEPEND_MAK = $(OBJ_VMSDIRA)]depend.mak
 
 depend: $(OBJ_DIR)/target $(ERROR)
-	@$(MUDEPEND) "-O$(OBJ_DIR)" "-I$(PEGASUS_ROOT)/src" *.cpp > $(DEPEND_MAK)
+	@$(MUDEPEND) "-O$(OBJ_DIR)" "-I$(PEGASUS_ROOT)/src" $(SOURCES) > $(DEPEND_MAK)
+#	@$(MUDEPEND) "-O$(OBJ_DIR)" "-I$(PEGASUS_ROOT)/src" *.cpp > $(DEPEND_MAK)
 
 clean-depend:
 	$(RM) $(DEPEND_MAK);*

@@ -65,4 +65,6 @@
 
 #define PEGASUS_HAVE_PTHREADS
 
+#define PEGASUS_HAVE_NANOSLEEP
+
 #endif /* Pegasus_Platform_DARWIN_PPC_GNU_h */

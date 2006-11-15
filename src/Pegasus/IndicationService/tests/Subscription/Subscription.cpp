@@ -2177,12 +2177,13 @@ void _errorQueries (CIMClient & client, String& qlang)
 
     //
     //  Filter: Invalid query - Property referenced in the SELECT clause
-    //          not found in the indication class in the FROM clause
+    //          not found in the indication class in the FROM clause, but 
+    //          is a property in one of it's subclassess.
     //
     try
     {
         CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
-        String query = "SELECT PerceivedSeverity FROM CIM_ProcessIndication";
+        String query = "SELECT GenericTrap FROM CIM_ProcessIndication";
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", qlang);

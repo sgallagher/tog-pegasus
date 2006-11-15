@@ -1412,7 +1412,7 @@ MessageLoader::_useProcessLocale = false;
             "Started $0 version $1.",
 		      _cimServerProcess->getProductName(), _cimServerProcess->getCompleteVersion());
 
-#if defined(PEGASUS_OS_TYPE_UNIX)    
+#if defined(PEGASUS_OS_TYPE_UNIX) && !defined(PEGASUS_OS_ZOS)
         if (daemonOption && !debugOutputOption)
         { 
             // Direct standard input, output, and error to /dev/null,

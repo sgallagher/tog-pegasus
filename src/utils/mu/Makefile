@@ -35,15 +35,18 @@ PROGRAM = mu
 
 OBJ_DIR = .
 INCLUDES = -I$(PEGASUS_ROOT)/src $(EXTRA_INCLUDES)
-EXE_OUTPUT = $(EXE_OUT) $(PROGRAM)$(EXE)
 
 ifeq ($(OS_TYPE),windows)
     PLATFORM_SOURCES = FilesWindows.cpp
+    # Windows linker does not allow space before pgm name
+    EXE_OUTPUT = $(EXE_OUT)$(PROGRAM)$(EXE)
     DEFINES += -DOS_WINDOWS
     RM = del
     BACKWARD_SLASH = 1
 else
     PLATFORM_SOURCES = FilesUnix.cpp
+    # some platforms (Mac) require space before pgm name
+    EXE_OUTPUT = $(EXE_OUT) $(PROGRAM)$(EXE)
     OBJ_OUT = -o 
     RM = rm -f
 endif

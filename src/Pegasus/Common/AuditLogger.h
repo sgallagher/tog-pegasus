@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +42,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
 
 /**
     This class provides the interfaces to construct a human readable audit
@@ -63,7 +65,6 @@ public:
         SUBTYPE_LOCAL_AUTHENTICATION,
         SUBTYPE_BASIC_AUTHENTICATION,
         SUBTYPE_CERTIFICATE_BASED_AUTHENTICATION,
-        SUBTYPE_CERTIFICATE_BASED_USER_VALIDATION,
         SUBTYPE_USER_GROUP_AUTHORIZATION,
         SUBTYPE_NAMESPACE_AUTHORIZATION,
         SUBTYPE_PRIVILEGED_USER_CHECK,
@@ -227,17 +228,6 @@ public:
         const Array<Uint16> currentModuleStatus,
         const Array<Uint16> newModuleStatus);
 
-    /** Constructs and logs audit message of a provider module group change
-        @param moduleName - The name of the provider module
-        @param oldModuleGroupName - The old group name of the provider module
-        @param newModuleGroupName - The new group name of the provider module
-    */
-    static void logSetProvModuleGroupName(
-        const String & moduleName,
-        const String & oldModuleGroupName,
-        const String & newModuleGroupName);
-
-
     /** Constructs and logs audit message of local authentication
         @param userName - The user name for this operation
         @param successful - True on successful basic authentication,
@@ -258,46 +248,10 @@ public:
         const String& ipAddr,
         Boolean successful);
 
-    /** Constructs and logs audit message of certificate based authentication
-        @param issuerName - The issuer name of this certificate
-        @param sertialNumber - The serial number of this certificate
-        @param ipAddr - Client IP address for this operation
-        @param successful - True on successful basic authentication,
-                            false otherwise
-    */
-    static void logCertificateBasedAuthentication(
-        const String& issuerName,
-        const String& subjectName,
-        const String& serialNumber,
-        const String& ipAddr,
-        Boolean successful);
-
-    /** Constructs and logs audit message of certificate based user validation
-        @param userName - The username associated with this certificate
-        @param issuerName - The issuer name of this certificate
-        @param sertialNumber - The serial number of this certificate
-        @param userName - The user name associated with the certificate
-        @param ipAddr - Client IP address for this operation
-        @param successful - True on successful user validation,
-                            false otherwise
-    */
-    static void logCertificateBasedUserValidation(
-        const String& userName,
-        const String& issuerName,
-        const String& subjectName,
-        const String& serialNumber,
-        const String& ipAddr,
-        Boolean successful);
-
     typedef void (*PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T)();
 
-#ifdef PEGASUS_OS_ZOS
-    typedef void (*PEGASUS_AUDITLOG_CALLBACK_T)
-        (int subtype, char* record );
-#else
     typedef void (*PEGASUS_AUDITLOG_CALLBACK_T) (AuditType,
         AuditSubType, AuditEvent, Uint32, MessageLoaderParms &);
-#endif
 
     /**
         Registers an audit log initialize callback
@@ -319,11 +273,11 @@ public:
     static Boolean isEnabled();
 
     /**
-        Registers audit messages callback
+        Registers writing audit messages to a file callback
         @param writeAuditMessageCallback - The callback function to write
                                            audit message
     */
-    static void setAuditLogWriterCallback(
+    static void writeAuditLogToFileCallback(
         PEGASUS_AUDITLOG_CALLBACK_T writeAuditMessageCallback);
 
 private:
@@ -338,29 +292,7 @@ private:
     /**
         The function to write audit messages
     */
-    static PEGASUS_AUDITLOG_CALLBACK_T _writeAuditMessage;
-
-#ifdef PEGASUS_OS_ZOS
-
-    static inline void _writeAuthenticationRecord(
-        unsigned short authMode,
-        String userID,
-        Boolean isAuthenticated,
-        String clientIP );
-
-    static inline void _writeCIMOperationRecord(
-        unsigned short cimOpType,
-        String userID,
-        unsigned short cimStatusCode,
-        String clientIP,
-        String operName,
-        String objPath,
-        String nameSpace,
-        String provName,
-        String provModName
-        );
-
-#else
+    static PEGASUS_AUDITLOG_CALLBACK_T _writeAuditMessageToFile;
 
     /** Default function to write a auditMessage to a file
         @param AuditType - Type of audit record (Authentication etc)
@@ -373,7 +305,7 @@ private:
         "WARNING"
         @param msgParms - The message loader parameters
     */
-    static void _writeAuditMessageToLog(
+    static void _writeAuditMessage(
         AuditType auditType,
         AuditSubType auditSubType,
         AuditEvent auditEvent,
@@ -385,8 +317,6 @@ private:
         @param moduleStatus - The module status
     */
     static String _getModuleStatusValue(const Array<Uint16>  moduleStatus);
-
-#endif
 
 };
 

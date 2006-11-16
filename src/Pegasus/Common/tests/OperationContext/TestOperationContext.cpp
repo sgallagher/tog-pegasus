@@ -855,7 +855,7 @@ void Test11()
 
     OperationContext context;
     Array<SSLCertificateInfo> userCert;
-    for (Uint32 i =0; i<1; i++)
+    for (Uint32 i =0; i<3; i++)
     {
         const String subjectName = String("TestCertificate"+i);
         const String issuerName = String("TestIssuer"+i);
@@ -876,7 +876,27 @@ void Test11()
 
         if(userCert.size() != (container.getUserCert()).size())
         {
-            cout << "----- SSLCertificateChainContainer failed" << endl;
+            cout << " SSLCertificateChainContainer failed"
+                 << endl;
+            throw 0;
+        }
+    }
+
+    context.clear();
+
+    {
+        context.insert(SSLCertificateChainContainer(userCert));
+
+        //
+        //  This tests the SSLCertificateChainContainer copy constructor.
+        //
+        SSLCertificateChainContainer container = context.get(
+            SSLCertificateChainContainer::NAME);
+
+        if(userCert.size() != (container.getUserCert()).size())
+        {
+            cout << " SSLCertificateChainContainer copy constructor failed"
+                 << endl;
             throw 0;
         }
     }

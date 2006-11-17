@@ -47,10 +47,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_STD;
-
-//#define CDEBUG(X) PEGASUS_STD(cout) << "CIMOpReqDsptchr " << X << \
-    PEGASUS_STD(endl)
+//PEGASUS_USING_STD;
+//#define CDEBUG(X) cout << "CIMOpReqDsptchr " << X << endl
 #define CDEBUG(X)
 
 // Test tool to limit enumerations to a single level.  This is not

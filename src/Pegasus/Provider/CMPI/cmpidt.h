@@ -652,7 +652,7 @@ typedef enum _CMPIErrorType {
 	/** Unavailable resource */
     UnavailableResourceError = 9,
 	/** Unsupported operation */
-    UnsupportedOperationError = 10,
+    UnsupportedOperationError = 10
 } CMPIErrorType;
 
 /** Possible values an Error object can use to indicate severity */
@@ -666,7 +666,7 @@ typedef enum _CMPIErrorSeverity {
 	/** High severity */
     ErrorSevHigh = 4,
 	/** Fatal error */
-    ErrorSevFatal = 5,
+    ErrorSevFatal = 5
 } CMPIErrorSeverity;
 
 /** Possible values an Error object can use to indicate the probable cause */
@@ -932,7 +932,7 @@ typedef enum _CMPIErrorProbableCause {
 	/** Procedural_Error */
 	Procedural_Error = 129,
 	/** Unexpected_Information */
-	Unexpected_Information = 130,
+	Unexpected_Information = 130
 } CMPIErrorProbableCause;
 
 /** Possible values an Error object can have for the error src format */
@@ -942,7 +942,7 @@ typedef enum _CMPIErrorSrcFormat {
 	/** Other source */
     CMPIErrSrcOther = 1,
 	/* Object handle */
-    CIMObjectHandle = 2,
+    CIMObjectHandle = 2
 } CMPIErrorSrcFormat;
 
 #endif /* CMPI_VER_200 */

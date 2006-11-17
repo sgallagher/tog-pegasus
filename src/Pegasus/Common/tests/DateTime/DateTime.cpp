@@ -50,7 +50,8 @@ PEGASUS_USING_STD;
 
 void put(const char *msg, const CIMDateTime & x)
 {
-    cout << msg << "[" << x.toString() << ":" << x.toMicroSeconds() << "]";
+    cout << msg << "[" << x.toString() << ":" <<
+        CIMValue(x.toMicroSeconds()).toString() << "]";
     cout << endl;
 }
 

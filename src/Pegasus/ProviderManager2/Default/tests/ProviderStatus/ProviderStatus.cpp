@@ -181,6 +181,7 @@ int main(int argc, char** argv)
         testInitialization();
         testIndications();
         testOperations();
+        testCIMOMHandle();
     }
     catch (Exception& e)
     {

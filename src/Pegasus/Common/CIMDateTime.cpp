@@ -112,7 +112,7 @@ static const Uint64 HUNDRED_MILLION_DAYS =
 // Adding this to the POSIX 1970 microseconds epoch produces a 1 BCE epoch
 // as used by this class.
 static const Uint64 POSIX_1970_EPOCH_OFFSET  =
-    PEGASUS_UINT64_LITERAL(62167201200000000);
+    PEGASUS_UINT64_LITERAL(62167219200000000);
 
 //==============================================================================
 //
@@ -1556,12 +1556,13 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 # elif defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_VMS)
         tzMinutesEast = (int) tmval->tm_gmtoff/60;
 # else
+        tzMinutesEast = -tz.tz_minuteswest;
         if (tz.tz_dsttime > 0)
-            tzMinutesEast = -tz.tz_minuteswest;
-        else
+        {
             // ATTN: It is unclear how to determine the DST offset.
             // Assume 1 hour.
-            tzMinutesEast = -tz.tz_minuteswest + 60;
+            tzMinutesEast += 60;
+        }
 # endif
     }
 
@@ -1569,7 +1570,9 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 
     CIMDateTimeRep* rep = new CIMDateTimeRep;
     rep->usec =
-        POSIX_1970_EPOCH_OFFSET + Uint64(sec) * Uint64(1000000) + Uint64(usec);
+        POSIX_1970_EPOCH_OFFSET +
+        Uint64(sec + tzMinutesEast * 60) * Uint64(1000000) +
+        Uint64(usec);
     rep->sign = tzMinutesEast < 0 ? '-' : '+';
     rep->utcOffset = tzMinutesEast < 0 ? -tzMinutesEast : tzMinutesEast;
     rep->numWildcards = 0;

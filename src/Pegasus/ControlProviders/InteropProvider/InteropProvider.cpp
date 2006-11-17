@@ -695,7 +695,7 @@ void InteropProvider::initProvider()
             OM_PROPERTY_NAME)).getValue().get(objectManagerName);
 
         //
-        // Determine whether or not the CIMOM should be gathering statistical data
+        // Determine whether the CIMOM should be gathering statistical data
         // based on the GatherStatisticalData property in the object manager.
         //
         Uint32 gatherDataIndex = objectManager.findProperty(
@@ -723,13 +723,15 @@ void InteropProvider::initProvider()
         // Cache this class definition for use later.
         profileCapabilitiesClass = repository->getClass(
             PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false, true, false);
+            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
+            false, true, false);
+
         providerClassifications.append(Uint16(5)); // "Instrumentation"
 
         //
         // Initialize the namespaces so that all namespaces with the
         // CIM_ElementConformsToProfile class also have the
-        // PG_ElementConformsToProfile class. This is needed in order to implement
+        // PG_ElementConformsToProfile class. Needed in order to implement
         // the cross-namespace ElementConformsToProfile association in both
         // directions.
         //

@@ -203,7 +203,8 @@ void testInstanceClass(CIMClient & client, const CIMName & className)
                             {
                                 CIMObjectPath currentRef;
                                 currentProp.getValue().get(currentRef);
-                                currentRef.setHost(currentAssociatorName.getHost());
+                                currentRef.setHost(
+                                    currentAssociatorName.getHost());
                                 if(currentRef == currentAssociatorName)
                                 {
                                     found = true;

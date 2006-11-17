@@ -91,14 +91,15 @@ typedef Array<CIMName> CIMNameArray;
 typedef Array<CIMNamespaceName> CIMNamespaceArray;
 
 class PEGASUS_INTEROPPROVIDER_LINKAGE InteropProvider :
-	public CIMInstanceProvider, public CIMAssociationProvider
+        public CIMInstanceProvider, public CIMAssociationProvider
 {
 public:
 
     InteropProvider(CIMRepository* repository);
     virtual ~InteropProvider()
     {
-        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,"InteropProvider::~InteropProvider");
+        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+            "InteropProvider::~InteropProvider");
         PEG_METHOD_EXIT();
     }
 

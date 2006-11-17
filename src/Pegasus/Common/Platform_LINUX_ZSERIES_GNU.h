@@ -69,6 +69,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/param.h> // For MAXHOSTNAMELEN
+#include <limits.h>    // _POSIX_HOST_NAME_MAX 
 
 #if defined(PEGASUS_OS_LSB) && !defined(MAXHOSTNAMELEN)
 #define PEGASUS_MAXHOSTNAMELEN 64

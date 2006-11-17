@@ -172,7 +172,7 @@ void EmailListenerDestination::_sendViaEmail(
     if (access(SENDMAIL_CMD, X_OK) < 0)
     {
         Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
-            "Cannot execute %s: %s." SENDMAIL_CMD, strerror(errno));
+            "Cannot execute %s: %s.", SENDMAIL_CMD, strerror(errno));
 
         MessageLoaderParms parms(
             "Handler.EmailListenerDestination.EmailListenerDestination."

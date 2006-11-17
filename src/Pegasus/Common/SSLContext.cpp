@@ -1359,6 +1359,7 @@ String SSLContext::getCRLPath() const
         "Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION",
         "SSL CRL verification is not enabled.");
     throw Exception(parms);
+    PEGASUS_UNREACHABLE(return String::EMPTY;)
 #endif
 }
 
@@ -1371,6 +1372,7 @@ X509_STORE* SSLContext::getCRLStore() const
         "Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION",
         "SSL CRL verification is not enabled.");
     throw Exception(parms);
+    PEGASUS_UNREACHABLE(return 0;)
 #endif
 }
 

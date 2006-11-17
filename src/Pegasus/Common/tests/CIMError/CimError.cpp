@@ -42,7 +42,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static const char * verbose;
-char * PegasusOwningEntityName = "OpenPegasus";
+const char* PegasusOwningEntityName = "OpenPegasus";
 
 /* this test just creates and prints an instance using the default constructor.
 */

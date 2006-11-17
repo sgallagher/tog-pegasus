@@ -1420,8 +1420,8 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
     if (-1 < ioctl(AF_INET, SIOCGIFCONF, &conf))
     {
         struct ifreq* r = conf.ifc_req;
-        sockaddr_in* addr ;
-        addr = (sockaddr_in *)&r->ifr_addr;
+        sockaddr_in* addr;
+        addr = reinterpret_cast<struct sockaddr_in*>(&r->ifr_addr);
         while (addr->sin_addr.s_addr != 0)
         {
             Uint32 ip = addr->sin_addr.s_addr;
@@ -1432,7 +1432,7 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
             }
             // next interface
             r++;
-            addr = (sockaddr_in *) &r->ifr_addr;
+            addr = reinterpret_cast<struct sockaddr_in*>(&r->ifr_addr);
         }
     }
     free(conf.ifc_buf);

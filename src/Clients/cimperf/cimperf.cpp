@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -60,11 +60,52 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/Message.h>
+#define NUMBER_OF_MESSAGES 26
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 const String DEFAULT_NAMESPACE = "root/cimv2";
+
+// The table on the right represents the mapping from the enumerated types
+// in the CIM_CIMOMStatisticalDate class ValueMap versus the internal
+// message type defined in Message.h.
+//
+
+const char* _OPERATION_NAME[] =
+{
+                                    // Enumerated     ValueMap Value
+                                    // value from     from class
+                                    // internal       CIM_StatisticalData
+                                    // message type
+                                    // -------------- -------------------
+  "GetClass",                       //     1           3
+  "GetInstance",                    //     2           4
+  "IndicationDelivery",             //     3           26
+  "DeleteClass",                    //     4           5
+  "DeleteInstance",                 //     5           6
+  "CreateClass",                    //     6           7
+  "CreateInstance",                 //     7           8
+  "ModifyClass",                    //     8           9
+  "ModifyInstance",                 //     9          10
+  "EnumerateClasses",               //    10          11
+  "EnumerateClassNames",            //    11          12
+  "EnumerateInstances",             //    12          13
+  "EnumerateInstanceNames",         //    13          14
+  "ExecQuery",                      //    14          15
+  "Associators",                    //    15          16
+  "AssociatorNames",                //    16          17
+  "References",                     //    17          18
+  "ReferenceNames",                 //    18          19
+  "GetProperty",                    //    19          20
+  "SetProperty",                    //    20          21
+  "GetQualifier",                   //    21          22
+  "SetQualifier",                   //    22          23
+  "DeleteQualifier",                //    23          24
+  "EnumerateQualifiers",            //    24          25
+  "InvokeMethod"                    //    25          Not Present
+};
 
 //------------------------------------------------------------------------------
 //
@@ -221,6 +262,125 @@ void GetOptions(
     om.checkRequiredOptions();
 }
 
+
+/* method that maps from operation type to operation name. */
+
+const char* opTypeToOpName(Uint16 type)
+{
+    const char* opName = NULL;
+    switch (type)
+    {
+        case 0:
+            opName = _OPERATION_NAME[DUMMY_MESSAGE];
+            break;
+
+        case 3:
+            opName =  _OPERATION_NAME[CIM_GET_CLASS_REQUEST_MESSAGE];
+            break;
+
+        case 4:
+            opName =  _OPERATION_NAME[ CIM_GET_INSTANCE_REQUEST_MESSAGE];
+            break;
+
+        case 5:
+            opName = _OPERATION_NAME[CIM_DELETE_CLASS_REQUEST_MESSAGE];
+            break;
+
+        case 6:
+            opName = _OPERATION_NAME[CIM_DELETE_INSTANCE_REQUEST_MESSAGE];
+            break;
+
+        case 7:
+            opName = _OPERATION_NAME[CIM_CREATE_CLASS_REQUEST_MESSAGE];
+            break;
+
+        case 8:
+            opName = _OPERATION_NAME[CIM_CREATE_INSTANCE_REQUEST_MESSAGE];
+            break;
+
+        case 9:
+            opName = _OPERATION_NAME[CIM_MODIFY_CLASS_REQUEST_MESSAGE];
+            break;
+
+        case 10:
+            opName = _OPERATION_NAME[CIM_MODIFY_INSTANCE_REQUEST_MESSAGE];
+            break;
+
+        case 11:
+            opName = _OPERATION_NAME[CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE];
+            break;
+
+        case 12:
+            opName = _OPERATION_NAME[CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE];
+            break;
+
+        case 13:
+            opName = _OPERATION_NAME[CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE];
+            break;
+
+        case 14:
+            opName = _OPERATION_NAME[CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE];
+            break;
+
+        case 15:
+            opName = _OPERATION_NAME[CIM_EXEC_QUERY_REQUEST_MESSAGE];
+            break;
+
+        case 16:
+            opName = _OPERATION_NAME[CIM_ASSOCIATORS_REQUEST_MESSAGE];
+            break;
+
+        case 17:
+            opName = _OPERATION_NAME[CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE];
+            break;
+
+        case 18:
+            opName = _OPERATION_NAME[CIM_REFERENCES_REQUEST_MESSAGE];
+            break;
+
+        case 19:
+            opName = _OPERATION_NAME[CIM_REFERENCE_NAMES_REQUEST_MESSAGE];
+            break;
+
+        case 20:
+            opName = _OPERATION_NAME[CIM_GET_PROPERTY_REQUEST_MESSAGE];
+            break;
+
+        case 21:
+            opName = _OPERATION_NAME[CIM_SET_PROPERTY_REQUEST_MESSAGE];
+            break;
+
+        case 22:
+            opName = _OPERATION_NAME[CIM_GET_QUALIFIER_REQUEST_MESSAGE];
+            break;
+
+        case 23:
+            opName = _OPERATION_NAME[CIM_SET_QUALIFIER_REQUEST_MESSAGE];
+            break;
+
+        case 24:
+            opName = _OPERATION_NAME[CIM_DELETE_QUALIFIER_REQUEST_MESSAGE];
+            break;
+
+        case 25:
+            opName = _OPERATION_NAME[CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE];
+            break;
+
+        case  26:
+            opName = _OPERATION_NAME[CIM_EXPORT_INDICATION_REQUEST_MESSAGE];
+            break;
+
+        case 1:
+            opName = _OPERATION_NAME[CIM_INVOKE_METHOD_REQUEST_MESSAGE];
+            break;
+
+        default:
+            //Invalid type
+            opName = "Dummy Response";
+    }
+    return opName;
+}
+
 int main(int argc, char** argv)
 {
 
@@ -283,7 +443,7 @@ int main(int argc, char** argv)
     om.lookupValue("pass word", passW);
 
     /*
-    The next section of code connects to the server and enumerates all the 
+    The next section of code connects to the server and enumerates all the
     instances of the CIM_CIMOMStatisticalData class. The instances are held in
     an Array named "instances". The output of cimperf is a table of averages.
     */
@@ -326,19 +486,19 @@ int main(int argc, char** argv)
         printf("%-25s%10s %10s %10s %10s %10s\n",
     "Operation", "Number of", "Server", "Provider", "Request", "Response");
 
-	printf("%-25s%10s %10s %10s %10s %10s\n",
+    printf("%-25s%10s %10s %10s %10s %10s\n",
     "Type", "Requests", "Time", "Time", "Size", "Size");
 
-	printf("%-25s%10s %10s %10s %10s %10s\n",
+    printf("%-25s%10s %10s %10s %10s %10s\n",
     " ", " ", "(usec)", "(usec)", "(bytes)", "(bytes)");
 
         printf("%-25s\n", "-------------------------------------------------------------------------------");
 
-        // This section of code loops through all the instances of 
+        // This section of code loops through all the instances of
         // CIM_CIMOMStatisticalData (one for each intrinsic request type) and
-        // gathers the NumberofOperations, CIMOMElapsedTime, 
+        // gathers the NumberofOperations, CIMOMElapsedTime,
         // ProviderElapsedTime, ResponseSize and RequestSize for each instance.
-        // Averages are abtained by dividing times and sizes by 
+        // Averages are abtained by dividing times and sizes by
         // NumberofOperatons.
 
         for (Uint32 inst = 0; inst < instances.size(); inst++)
@@ -349,16 +509,18 @@ int main(int argc, char** argv)
             // Note that for the moment it is simply an integer.
             Uint32 pos;
             CIMProperty p;
-            String statName;
+            //Operation Type is decoded as const char* ,hence type has changed from string to const char*
+            const char* statName = NULL;
             CIMValue v;
-
-            if ((pos = instance.findProperty("ElementName")) != PEG_NOT_FOUND)
+            Uint16 type;
+            if ((pos = instance.findProperty("OperationType")) != PEG_NOT_FOUND)
             {
                 p = (instance.getProperty(pos));
                 v = p.getValue();
-                if (v.getType() == CIMTYPE_STRING)
+                if (v.getType() == CIMTYPE_UINT16)
                 {
-                    v.get(statName);
+                    v.get(type);
+                    statName = opTypeToOpName(type);
                 }
             }
             else
@@ -513,7 +675,7 @@ int main(int argc, char** argv)
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
-                (const char*)statName.getCString(),
+                statName,
                 numberOfRequests, averageCimomTime,
                 averageProviderTime, averageRequestSize,
                 averageResponseSize);

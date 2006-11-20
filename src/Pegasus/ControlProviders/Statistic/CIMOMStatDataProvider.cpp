@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -108,7 +108,7 @@ void CIMOMStatDataProvider::enumerateInstances(
 	{
 	   // deliver instance
 		handler.deliver(getInstance(i, classReference));
-		
+
 	}
 
 //	printf("have all the instances\n");
@@ -192,8 +192,6 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type, CIMObjectPath cimRef
       CIMValue((Uint64)sd->requestSize[type])));
    requestedInstance.addProperty(CIMProperty("ResponseSize",
       CIMValue((Uint64)sd->responseSize[type])));
-   requestedInstance.addProperty(CIMProperty("ElementName",
-      CIMValue(StatisticalData::requestName[type])));
    requestedInstance.addProperty( CIMProperty("Description",
       CIMValue(String("CIMOM performance statistics for CIM request "))));
    requestedInstance.addProperty(CIMProperty("Caption",
@@ -270,7 +268,7 @@ String dhmsm = dhms.append(String(buf_milsec));
 
 void CIMOMStatDataProvider::checkObjectManager()
 {
-	
+
 	StatisticalData* sData = StatisticalData::current();
 
 	if (!sData->copyGSD)
@@ -279,7 +277,7 @@ void CIMOMStatDataProvider::checkObjectManager()
 		for (Uint16 i=0; i<StatisticalData::length; i++)
 		{
 		  sData->numCalls[i] = 0;
-		  sData->cimomTime[i] = 0;      
+		  sData->cimomTime[i] = 0;
 		  sData->providerTime[i] = 0;
 		  sData->responseSize[i] = 0;
 		  sData->requestSize[i] = 0;
@@ -292,19 +290,19 @@ void CIMOMStatDataProvider::checkObjectManager()
 }
 
 
-// The range of operation types is defined in Message.h  as 1-113. 
-// For operation types with values grater than 39, forty is subtracted 
+// The range of operation types is defined in Message.h  as 1-113.
+// For operation types with values grater than 39, forty is subtracted
 // (in StatisticalData.h and Message.cpp
 //
-// This conversion makes make the OperationType attribute of the 
+// This conversion makes make the OperationType attribute of the
 // CIM_CIMOMStatisticalData instances agree with DMTF spec.
-// The CIM_StatisticalData class specifys type 0 as "unknown" 
+// The CIM_StatisticalData class specifys type 0 as "unknown"
 // and 1 as "other"
 //
-// The internal message types are subject to change so the symblic 
-// enumerated values are used within a select statement rather than 
-// a one dimensional array that is simply indexed to determine the 
-// output type. 
+// The internal message types are subject to change so the symblic
+// enumerated values are used within a select statement rather than
+// a one dimensional array that is simply indexed to determine the
+// output type.
 
 Uint16 CIMOMStatDataProvider::getOpType(Uint16 type)
 {

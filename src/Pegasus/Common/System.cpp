@@ -348,12 +348,39 @@ Uint32 System::_acquireIP(const char* hostname)
         // resolve hostaddr to a real host entry
         // casting to (const char *) as (char *) will work as (void *) too,
         // those it fits all platforms
-#ifndef PEGASUS_OS_OS400
-        hostEntry =
-            gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
-#else
+#if defined(PEGASUS_OS_LINUX)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+        int hostEntryErrno;
+
+        gethostbyaddr_r(
+            (const char*) &tmp_addr,
+            sizeof(tmp_addr),
+            AF_INET,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &hostEntry,
+            &hostEntryErrno);
+#elif defined(PEGASUS_OS_SOLARIS)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+        int hostEntryErrno;
+
+        hostEntry = gethostbyaddr_r(
+            (const char *) &tmp_addr,
+            sizeof(tmp_addr),
+            AF_INET,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &hostEntryErrno);
+#elif defined(PEGASUS_OS_OS400)
         hostEntry =
             gethostbyaddr((char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
+#else
+        hostEntry =
+            gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
 #endif
         if (hostEntry == 0)
         {
@@ -611,3 +638,4 @@ Boolean System::isLocalHost(const String &hostName)
 const String System::CIMLISTENER = "cimlistener"; // Listener systme ID
 
 PEGASUS_NAMESPACE_END
+

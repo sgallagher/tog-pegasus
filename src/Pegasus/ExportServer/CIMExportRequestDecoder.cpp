@@ -566,7 +566,9 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
       XmlReader::getCimStartTag(parser, cimVersion, dtdVersion);
 
-      if (strcmp(cimVersion, "2.0") != 0)
+      // Reject cimVersion not in 2.x
+
+      if ((cimVersion[0] != '2') || (cimVersion[1] != '.'))
       {
          sendHttpError(
              queueId,
@@ -940,3 +942,4 @@ void CIMExportRequestDecoder::setServerTerminating(Boolean flag)
 }
 
 PEGASUS_NAMESPACE_END
+

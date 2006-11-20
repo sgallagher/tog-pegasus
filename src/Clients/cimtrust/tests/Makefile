@@ -37,7 +37,13 @@ include $(ROOT)/mak/test.mak
 include $(ROOT)/mak/commands.mak
 
 RESULTFILE =  $(TMP_DIR)/result
+
+ifeq ($(OS_TYPE),windows)
+MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.windows
+else
 MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+endif
+
 OPENSSL_CNF = openssl.cnf
 
 ifeq ($(OPENSSL_SET_SERIAL_SUPPORTED),true)
